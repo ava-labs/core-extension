@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { Asset, Blockchain } from '@avalabs/core-bridge-sdk';
 
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 
 import { BridgeService } from '../BridgeService';
 

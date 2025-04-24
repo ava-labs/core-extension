@@ -1,5 +1,5 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../../tokens/TokenManagerService';

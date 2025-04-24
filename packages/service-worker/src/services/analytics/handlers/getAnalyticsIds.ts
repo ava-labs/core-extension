@@ -1,8 +1,8 @@
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { AnalyticsService } from '../AnalyticsService';
-import { AnalyticsState } from '../models';
+import { AnalyticsState } from '@core/types/src/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_GET_IDS,

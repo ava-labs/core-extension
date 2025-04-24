@@ -1,5 +1,5 @@
 import { BridgeConfig } from '@avalabs/core-bridge-sdk';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';

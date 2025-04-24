@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { AccountType } from '../models';
 import { GetAccountsHandler } from './getAccounts';
 import { buildRpcCall } from '@src/tests/test-utils';

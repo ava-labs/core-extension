@@ -24,7 +24,7 @@ import {
   UNIFIED_BRIDGE_TRACKED_FLAGS,
   UnifiedBridgeEvent,
   UnifiedBridgeState,
-} from './models';
+} from '@core/types/src/models';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import {
   FeatureFlagEvents,

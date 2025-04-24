@@ -7,7 +7,7 @@ import {
   DeviceResponseData,
   KeystoneEvent,
   KeystoneTransport,
-} from './models';
+} from '@core/types/src/models';
 import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 
 @singleton()

@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { AvalancheGetProviderState } from './avalanche_getProviderState';
 import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';

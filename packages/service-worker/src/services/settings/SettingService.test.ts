@@ -15,7 +15,7 @@ import {
   ThemeVariant,
   TokensVisibility,
   CollectiblesVisibility,
-} from './models';
+} from '@core/types/src/models';
 import { changeLanguage } from 'i18next';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
 

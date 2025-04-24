@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import { Subject, Subscription } from 'rxjs';
 import { singleton } from 'tsyringe';
 import { LedgerTransport } from './LedgerTransport';
-import { DeviceRequestData, DeviceResponseData, LedgerEvent } from './models';
+import { DeviceRequestData, DeviceResponseData, LedgerEvent } from '@core/types/src/models';
 import LRU from 'lru-cache';
 
 const ledgerTransportLRUCache = new LRU<string, LedgerTransport>({

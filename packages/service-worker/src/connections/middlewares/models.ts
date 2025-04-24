@@ -1,10 +1,8 @@
-import { DomainMetadata } from '@core/types';
-import { NetworkWithCaipId } from '../../services/network/models';
+import { DEFERRED_RESPONSE, DomainMetadata } from '@core/types';
+import { NetworkWithCaipId } from '@core/types/src/models';
 
 export type Next = () => Promise<void> | void;
 export type ErrorCallback = (error: Error) => void;
-
-export const DEFERRED_RESPONSE: unique symbol = Symbol();
 
 export type Context<RequestType, ResponseType> = {
   request: RequestType;

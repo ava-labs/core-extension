@@ -23,7 +23,7 @@ import {
   BridgeEvents,
   BridgeState,
   DefaultBridgeState,
-} from './models';
+} from '@core/types/src/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { singleton } from 'tsyringe';
 import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';

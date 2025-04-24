@@ -1,6 +1,6 @@
 import { SecretType } from '../../secrets/models';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { OnboardingService } from '../OnboardingService';
 import { StorageService } from '../../storage/StorageService';
 import { LockService } from '../../lock/LockService';

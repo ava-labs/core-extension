@@ -1,5 +1,5 @@
 import { requestLog, responseLog } from '@core/utils';
-import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
+import { JsonRpcRequest, JsonRpcResponse } from '@core/types/src/models';
 import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,

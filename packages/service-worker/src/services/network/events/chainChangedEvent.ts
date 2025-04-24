@@ -1,4 +1,4 @@
-import { Web3Event } from '../../../connections/dAppConnection/models';
+import { Web3Event } from '@core/types/src/models';
 import {
   ExtensionConnectionEvent,
   DAppEventEmitter,

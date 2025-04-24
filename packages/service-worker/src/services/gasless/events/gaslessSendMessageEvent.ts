@@ -4,7 +4,7 @@ import {
 } from '../../../connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { GaslessEvents } from '../model';
+import { GaslessEvents } from '@core/types/src/model';
 import { GasStationService } from '../GasStationService';
 
 @singleton()

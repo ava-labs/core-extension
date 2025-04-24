@@ -1,7 +1,7 @@
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { Account } from '../accounts/models';
-import { Balances, BalanceServiceEvents, BALANCES_CACHE_KEY } from './models';
+import { Balances, BalanceServiceEvents, BALANCES_CACHE_KEY } from '@core/types/src/models';
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
 import { EventEmitter } from 'events';
@@ -10,14 +10,14 @@ import { isEqual, omit, pick } from 'lodash';
 
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { CachedBalancesInfo } from './models';
+import { CachedBalancesInfo } from '@core/types/src/models';
 import {
   PriceChangesData,
   TOKENS_PRICE_DATA,
   TokensPriceChangeData,
   TokensPriceShortData,
   priceChangeRefreshRate,
-} from '../tokens/models';
+} from '@core/types/src/models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
 import { isFulfilled } from '@core/utils';

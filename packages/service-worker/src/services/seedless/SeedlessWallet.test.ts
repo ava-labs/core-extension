@@ -30,7 +30,7 @@ import {
 } from './fixtures/rawKeys';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessWallet } from './SeedlessWallet';
-import { MessageType } from '../messages/models';
+import { MessageType } from '@core/types/src/models';
 import {
   SignTypedDataVersion,
   TypedDataUtils,

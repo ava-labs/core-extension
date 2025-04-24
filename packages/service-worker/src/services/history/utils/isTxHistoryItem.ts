@@ -1,5 +1,5 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { TxHistoryItem } from '../models';
+import { TxHistoryItem } from '@core/types/src/models';
 
 export function isNonXPHistoryItem(
   tx: TxHistoryItem,

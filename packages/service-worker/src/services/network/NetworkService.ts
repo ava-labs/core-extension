@@ -13,7 +13,7 @@ import {
   Network,
   ChainListWithCaipIds,
   NetworkWithCaipId,
-} from './models';
+} from '@core/types/src/models';
 import {
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,

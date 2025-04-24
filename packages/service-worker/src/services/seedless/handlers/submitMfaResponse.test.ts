@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SubmitMfaResponseHandler } from './submitMfaResponse';
 import { buildRpcCall } from '@src/tests/test-utils';

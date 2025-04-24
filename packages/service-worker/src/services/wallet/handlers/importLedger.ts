@@ -5,7 +5,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 
 import { assertPresent } from '@core/utils';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
 import {

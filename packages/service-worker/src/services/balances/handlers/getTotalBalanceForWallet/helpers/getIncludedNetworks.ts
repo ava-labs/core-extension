@@ -3,7 +3,7 @@ import { uniq } from 'lodash';
 import {
   ChainListWithCaipIds,
   NetworkWithCaipId,
-} from '../../../../../services/network/models';
+} from '@core/types/src/models';
 import { getDefaultChainIds } from '@core/utils';
 import { isNotNullish } from '@core/utils';
 

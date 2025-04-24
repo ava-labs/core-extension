@@ -14,7 +14,7 @@ import {
   MessageParams,
   MessageType,
   SignMessageData,
-} from '../messages/models';
+} from '@core/types/src/models';
 import {
   Avalanche,
   BitcoinLedgerWallet,
@@ -54,18 +54,18 @@ import { BitcoinKeystoneWallet } from '../keystone/BitcoinKeystoneWallet';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { FireblocksBTCSigner } from '../fireblocks/FireblocksBTCSigner';
-import { Action } from '../actions/models';
+import { Action } from '@core/types/src/models';
 import { UnsignedTx } from '@avalabs/avalanchejs';
 import { toUtf8 } from 'ethereumjs-util';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
 import { SecretType } from '../secrets/models';
-import { FIREBLOCKS_REQUEST_EXPIRY } from '../fireblocks/models';
+import { FIREBLOCKS_REQUEST_EXPIRY } from '@core/types/src/models';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@core/utils';
-import { Network } from '../network/models';
+import { Network } from '@core/types/src/models';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
 import { Account } from '../accounts/models';

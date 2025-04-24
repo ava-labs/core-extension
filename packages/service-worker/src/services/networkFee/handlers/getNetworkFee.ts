@@ -1,10 +1,10 @@
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { NetworkFee } from '../models';
 import { NetworkFeeService } from '../NetworkFeeService';
-import { NetworkWithCaipId } from '../../network/models';
+import { NetworkWithCaipId } from '@core/types/src/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_FEE_GET,

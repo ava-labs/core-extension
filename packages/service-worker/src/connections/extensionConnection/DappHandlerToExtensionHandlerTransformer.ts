@@ -5,7 +5,7 @@ import { resolve } from '@core/utils';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '../dAppConnection/models';
+} from '@core/types/src/models';
 import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
 import { ExtensionRequestHandler } from '../models';
 

@@ -1,16 +1,16 @@
 import { injectable } from 'tsyringe';
 
 import { WalletService } from '../../wallet/WalletService';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { Action } from '../../actions/models';
+import { Action } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import {
   MessageParams,
   MessageType,
   SignMessageData,
-} from '../../messages/models';
+} from '@core/types/src/models';
 import { utils } from '@avalabs/avalanchejs';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 

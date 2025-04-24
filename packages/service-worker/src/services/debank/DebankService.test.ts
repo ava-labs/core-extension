@@ -1,5 +1,5 @@
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DefiItemType } from '../defi/models';
+import { DefiItemType } from '@core/types/src/models';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { DebankService } from './DebankService';

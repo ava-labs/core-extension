@@ -10,7 +10,7 @@ import {
   ANALYTICS_SESSION_KEY,
   ANALYTICS_STORAGE_KEY,
   ANALYTICS_UNENCRYPTED_STORAGE_KEY,
-} from './models';
+} from '@core/types/src/models';
 
 @singleton()
 export class AnalyticsService implements OnStorageReady, OnLock {

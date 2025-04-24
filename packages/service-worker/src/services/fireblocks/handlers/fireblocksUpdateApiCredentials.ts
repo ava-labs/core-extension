@@ -1,7 +1,7 @@
 import { importPKCS8 } from 'jose';
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { FireblocksService } from '../FireblocksService';
 import { AccountsService } from '../../accounts/AccountsService';
@@ -13,7 +13,7 @@ import {
   FireblocksSecretsProvider,
   MAINNET_LOOKUP_ASSETS,
   TESTNET_LOOKUP_ASSETS,
-} from '../models';
+} from '@core/types/src/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 

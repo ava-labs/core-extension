@@ -6,7 +6,7 @@ import {
 } from '@avalabs/vm-module-types';
 import { SendErrorMessage } from '@core/types';
 
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
 import { ActionsService } from '../ActionsService';

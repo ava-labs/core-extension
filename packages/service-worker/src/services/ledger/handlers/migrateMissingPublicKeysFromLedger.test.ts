@@ -4,7 +4,7 @@ import {
   getPubKeyFromTransport,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   AddressPublicKeyJson,

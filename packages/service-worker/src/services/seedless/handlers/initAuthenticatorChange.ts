@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 import { TotpChallenge } from '@cubist-labs/cubesigner-sdk';
 
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 

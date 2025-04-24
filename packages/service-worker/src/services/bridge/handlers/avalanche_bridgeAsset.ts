@@ -17,10 +17,10 @@ import {
 import Big from 'big.js';
 import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
+import { Action } from '@core/types/src/models';
 import { BridgeService } from '../BridgeService';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { ChainId } from '@avalabs/core-chains-sdk';
@@ -29,18 +29,14 @@ import { findTokenForAsset } from 'packages/ui/pages/Bridge/utils/findTokenForAs
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
-import { BridgeActionDisplayData } from '../models';
+import { BridgeActionDisplayData } from '@core/types/src/models';
 import { WalletService } from '../../wallet/WalletService';
 import { ContractTransaction } from 'ethers';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../../featureFlags/models';
 import { isWalletConnectAccount } from '../../accounts/utils/typeGuards';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
-import {
-  buildBtcTx,
-  getBtcInputUtxos,
-  validateBtcSend,
-} from '@core/utils';
+import { buildBtcTx, getBtcInputUtxos, validateBtcSend } from '@core/utils';
 import { resolve } from '@core/utils';
 import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { getProviderForNetwork } from '@core/utils';

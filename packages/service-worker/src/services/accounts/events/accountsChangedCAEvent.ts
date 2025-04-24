@@ -7,7 +7,7 @@ import {
   DAppEventEmitter,
   ExtensionConnectionEvent,
 } from '../../../connections/models';
-import { Web3Event } from '../../../connections/dAppConnection/models';
+import { Web3Event } from '@core/types/src/models';
 import getAllAddressesForAccount from '@core/utils';
 
 import { AccountsEvents } from '../models';
@@ -17,7 +17,7 @@ import {
   DappPermissions,
   PermissionEvents,
   Permissions,
-} from '../../permissions/models';
+} from '@core/types/src/models';
 
 /**
  * Emits `accountChangedCA` events for each dApp

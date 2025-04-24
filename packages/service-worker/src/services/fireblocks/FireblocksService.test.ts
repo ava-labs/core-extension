@@ -5,7 +5,7 @@ import { SecretType } from '../secrets/models';
 import { SecretsService } from '../secrets/SecretsService';
 import { FireblocksSecretsService } from './FireblocksSecretsService';
 import { FireblocksService } from './FireblocksService';
-import { FireblocksErrorCode } from './models';
+import { FireblocksErrorCode } from '@core/types/src/models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';

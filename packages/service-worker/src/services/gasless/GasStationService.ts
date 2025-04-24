@@ -5,9 +5,9 @@ import {
   GaslessMessage,
   GaslessState,
   GaslessStateValues,
-} from './model';
+} from '@core/types/src/model';
 import { AppCheckService } from '../appcheck/AppCheckService';
-import { ExtensionRequest } from '../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { Signal } from 'micro-signals';
 import { JsonRpcProvider, Transaction } from 'ethers';

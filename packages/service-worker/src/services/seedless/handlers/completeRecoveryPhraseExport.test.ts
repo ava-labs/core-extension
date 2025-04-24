@@ -3,7 +3,7 @@ import {
   userExportKeygen,
 } from '@cubist-labs/cubesigner-sdk';
 
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 
 import { CompleteRecoveryPhraseExportHandler } from './completeRecoveryPhraseExport';
 import { SecretsService } from '../../secrets/SecretsService';

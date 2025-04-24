@@ -2,8 +2,8 @@ import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import Blockaid from '@blockaid/client';
 import { FeatureGates } from '../featureFlags/models';
-import { JsonRpcRequestPayload } from '../../connections/dAppConnection/models';
-import { MessageType } from '../messages/models';
+import { JsonRpcRequestPayload } from '@core/types/src/models';
+import { MessageType } from '@core/types/src/models';
 
 @singleton()
 export class BlockaidService {

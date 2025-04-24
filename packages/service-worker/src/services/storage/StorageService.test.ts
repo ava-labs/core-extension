@@ -7,7 +7,7 @@ import {
   encryptWithKey,
   encryptWithPassword,
 } from './utils/crypto';
-import { KeyDerivationVersion, WALLET_STORAGE_ENCRYPTION_KEY } from './models';
+import { KeyDerivationVersion, WALLET_STORAGE_ENCRYPTION_KEY } from '@core/types/src/models';
 import * as schemaMigrations from './schemaMigrations/schemaMigrations';
 
 jest.mock('@src/background/runtime/CallbackManager');

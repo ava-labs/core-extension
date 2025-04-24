@@ -10,7 +10,7 @@ import { LockService } from '../../lock/LockService';
 import { NetworkService } from '../../network/NetworkService';
 import { injectable } from 'tsyringe';
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';

@@ -19,7 +19,7 @@ import {
   ImportedAccount,
 } from '@src/background/services/accounts/models';
 
-import type { Balances } from '../../models';
+import type { Balances } from '@core/types/src/models';
 import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 
 import { getAccountsWithActivity } from './helpers';

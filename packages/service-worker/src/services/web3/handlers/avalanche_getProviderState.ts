@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';

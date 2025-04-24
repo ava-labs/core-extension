@@ -1,7 +1,7 @@
 import { noop } from '@avalabs/core-utils-sdk';
 import browser from 'webextension-polyfill';
 
-import { AnalyticsEvents } from '../analytics/models';
+import { AnalyticsEvents } from '@core/types/src/models';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 

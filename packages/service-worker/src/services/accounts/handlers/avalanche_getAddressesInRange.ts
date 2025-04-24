@@ -1,11 +1,11 @@
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';
 import { canSkipApproval } from '@core/utils';
-import { Action } from '../../actions/models';
+import { Action } from '@core/types/src/models';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import {

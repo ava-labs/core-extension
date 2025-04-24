@@ -11,7 +11,7 @@ import {
   PERMISSION_STORAGE_KEY,
   PermissionsState,
   DappPermissions,
-} from './models';
+} from '@core/types';
 import { Account } from '../accounts/models';
 import getAllAddressesForAccount from '@core/utils';
 import { SYNCED_DOMAINS } from 'packages/common/src/constants';

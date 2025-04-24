@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { BalancePollingService } from '../BalancePollingService';
 import { StartBalancesPollingHandler } from './startBalancesPolling';

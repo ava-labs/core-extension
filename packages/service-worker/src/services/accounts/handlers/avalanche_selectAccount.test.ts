@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { AvalancheSelectAccountHandler } from './avalanche_selectAccount';
 import { container } from 'tsyringe';
 import { openExtensionNewWindow } from 'packages/utils/src/extensionUtils';

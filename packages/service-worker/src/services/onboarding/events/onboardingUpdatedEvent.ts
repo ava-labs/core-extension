@@ -1,4 +1,4 @@
-import { OnboardingEvents } from '../models';
+import { OnboardingEvents } from '@core/types/src/models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,

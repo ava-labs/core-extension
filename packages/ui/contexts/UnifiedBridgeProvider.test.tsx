@@ -23,9 +23,9 @@ import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
 import { CommonError } from 'packages/utils/src/errors';
-import { UnifiedBridgeError } from 'packages/service-worker/src/services/unifiedBridge/models';
+import { UnifiedBridgeError } from '@core/types/src/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 

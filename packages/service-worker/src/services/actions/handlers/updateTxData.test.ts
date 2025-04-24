@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { UpdateActionTxDataHandler } from './updateTxData';
 import { matchingPayload } from '@src/tests/test-utils';
 import { SendErrorMessage } from 'packages/utils/src/send/models';

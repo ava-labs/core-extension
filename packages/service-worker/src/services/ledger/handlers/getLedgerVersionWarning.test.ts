@@ -1,5 +1,5 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
-import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '../models';
+import { ExtensionRequest } from '@core/types/src/models';
+import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '@core/types/src/models';
 import { GetLedgerVersionWarningHandler } from './getLedgerVersionWarning';
 import { buildRpcCall } from '@src/tests/test-utils';
 

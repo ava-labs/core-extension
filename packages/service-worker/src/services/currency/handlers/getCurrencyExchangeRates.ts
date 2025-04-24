@@ -1,9 +1,9 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
-import { CurrencyExchangeRates } from '../models';
+import { CurrencyExchangeRates } from '@core/types/src/models';
 import { CurrencyService } from '../CurrencyService';
 
 type HandlerType = ExtensionRequestHandler<

@@ -11,8 +11,8 @@ import {
   DappPermissions,
   PermissionEvents,
   Permissions,
-} from '../../permissions/models';
-import { Web3Event } from '../../../connections/dAppConnection/models';
+} from '@core/types/src/models';
+import { Web3Event } from '@core/types/src/models';
 import { injectable } from 'tsyringe';
 import { AccountsChangedEventData } from '@core/inpage';
 

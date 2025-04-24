@@ -8,11 +8,11 @@ import {
 } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
 import { AccountType, PrimaryAccount } from '../../accounts/models';
-import { BtcTransactionResponse } from '../models';
-import { Action, ActionStatus } from '../../actions/models';
+import { BtcTransactionResponse } from '@core/types/src/models';
+import { Action, ActionStatus } from '@core/types/src/models';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
 import { BN } from 'bn.js';
 import {

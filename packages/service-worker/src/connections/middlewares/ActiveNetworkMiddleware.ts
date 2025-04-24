@@ -1,6 +1,6 @@
 import { NetworkService } from '../../services/network/NetworkService';
 
-import { JsonRpcRequest, JsonRpcResponse } from '../dAppConnection/models';
+import { JsonRpcRequest, JsonRpcResponse } from '@core/types/src/models';
 
 import { Middleware } from './models';
 import {

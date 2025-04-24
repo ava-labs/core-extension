@@ -3,7 +3,7 @@ import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/model
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import { Action, ActionStatus } from '../../actions/models';
+import { Action, ActionStatus } from '@core/types/src/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';

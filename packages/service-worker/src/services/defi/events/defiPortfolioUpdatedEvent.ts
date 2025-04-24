@@ -6,7 +6,7 @@ import {
   ExtensionEventEmitter,
 } from '../../../connections/models';
 
-import { DefiServiceEvents } from '../models';
+import { DefiServiceEvents } from '@core/types/src/models';
 import { DefiService } from '../DefiService';
 
 @singleton()

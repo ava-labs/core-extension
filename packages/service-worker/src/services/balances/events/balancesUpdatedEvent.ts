@@ -4,7 +4,7 @@ import {
 } from '../../../connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { BalanceServiceEvents, Balances } from '../models';
+import { BalanceServiceEvents, Balances } from '@core/types/src/models';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 

@@ -1,7 +1,7 @@
 import { injectable } from 'tsyringe';
 
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 
 import { MfaChoiceResponse } from '@core/types/src/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';

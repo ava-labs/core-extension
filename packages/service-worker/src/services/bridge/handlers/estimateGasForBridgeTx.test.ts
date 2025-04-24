@@ -1,7 +1,7 @@
 import Big from 'big.js';
 import { Blockchain } from '@avalabs/core-bridge-sdk';
 
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { serializeToJSON } from '@avalabs/core-ext-messaging/src/serialization/serialize';
 
 import { EstimateGasForBridgeTxHandler } from './estimateGasForBridgeTx';

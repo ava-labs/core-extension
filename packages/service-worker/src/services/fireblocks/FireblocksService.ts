@@ -20,8 +20,8 @@ import type {
   AddressResponse,
   FireblocksSecretsProvider,
   PaginatedAddressesResponse,
-} from './models';
-import { FireblocksErrorCode, KnownAddressDictionary } from './models';
+} from '@core/types/src/models';
+import { FireblocksErrorCode, KnownAddressDictionary } from '@core/types/src/models';
 
 // Create registry for FireblocksSecretsProviders to be injected.
 // FireblocksSecretsProvider is an interface that can have multiple implementation,

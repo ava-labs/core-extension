@@ -1,5 +1,5 @@
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
-import { CurrencyExchangeRatesState } from '../models';
+import { ExtensionRequest } from '@core/types/src/models';
+import { CurrencyExchangeRatesState } from '@core/types/src/models';
 import { CurrencyService } from '../CurrencyService';
 import { GetCurrencyExchangeRatesHandler } from './getCurrencyExchangeRates';
 import { buildRpcCall } from '@src/tests/test-utils';

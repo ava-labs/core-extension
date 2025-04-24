@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { AccountsService } from '../../accounts/AccountsService';
 import { NetworkService } from '../../network/NetworkService';
 import { SecretsService } from '../../secrets/SecretsService';
@@ -11,7 +11,7 @@ import {
   FireblocksBtcAccessErrorCode,
   MAINNET_LOOKUP_ASSETS,
   TESTNET_LOOKUP_ASSETS,
-} from '../models';
+} from '@core/types/src/models';
 import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 

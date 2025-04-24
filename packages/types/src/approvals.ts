@@ -1,4 +1,4 @@
-import { Action, MultiTxAction } from '../actions/models';
+import { Action, MultiTxAction } from './actions';
 
 export type ApprovalRequest = {
   action: Action | MultiTxAction;

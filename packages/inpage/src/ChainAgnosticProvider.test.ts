@@ -2,7 +2,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import AutoPairingPostMessageConnection from '@avalabs/core-ext-messaging/src/AutoPairingPostMessageConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import onDomReady from './utils/onDomReady';
-import { DAppProviderRequest } from '../../service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
 

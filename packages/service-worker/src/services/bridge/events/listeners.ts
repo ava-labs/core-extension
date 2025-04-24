@@ -1,6 +1,6 @@
 import { BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { BridgeEvents, BridgeState, TransferEvent } from '../models';
+import { BridgeEvents, BridgeState, TransferEvent } from '@core/types/src/models';
 
 export function isBridgeStateUpdateEventListener(
   evt: ExtensionConnectionEvent<BridgeState>,

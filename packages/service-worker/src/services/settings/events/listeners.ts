@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { SettingsEvents, SettingsState } from '../models';
+import { SettingsEvents, SettingsState } from '@core/types/src/models';
 
 export function settingsUpdatedEventListener(
   evt: ExtensionConnectionEvent<SettingsState>,

@@ -7,7 +7,7 @@ import {
 } from '../../../connections/models';
 
 import { ApprovalService } from '../ApprovalService';
-import { ApprovalEvent } from '../models';
+import { ApprovalEvent } from '@core/types/src/models';
 
 @singleton()
 export class ApprovalEvents implements ExtensionEventEmitter {

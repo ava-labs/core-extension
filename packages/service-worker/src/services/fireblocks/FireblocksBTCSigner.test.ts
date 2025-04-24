@@ -6,7 +6,7 @@ import {
   FireblocksErrorCode,
   KnownAddressDictionary,
   TRANSACTION_POLLING_INTERVAL_MS,
-} from './models';
+} from '@core/types/src/models';
 import { CommonError } from 'packages/utils/src/errors';
 import { ethErrors } from 'eth-rpc-errors';
 

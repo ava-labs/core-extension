@@ -8,12 +8,12 @@ export type CBOR = {
   type: string;
 };
 
-export type DeviceRequestData = CBOR & {
+export type KeystoneDeviceRequestData = CBOR & {
   requestId: string;
   tabId?: number;
 };
 
-export type DeviceResponseData = CBOR & {
+export type KeystoneDeviceResponseData = CBOR & {
   requestId: string;
 };
 

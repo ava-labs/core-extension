@@ -6,7 +6,7 @@ import { SettingsService } from '../settings/SettingsService';
 import { Account, AccountType } from '../accounts/models';
 
 import { BalanceAggregatorService } from './BalanceAggregatorService';
-import { BALANCES_CACHE_KEY, BalanceServiceEvents } from './models';
+import { BALANCES_CACHE_KEY, BalanceServiceEvents } from '@core/types/src/models';
 import { LockService } from '../lock/LockService';
 import {
   NetworkTokenWithBalance,

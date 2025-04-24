@@ -1,7 +1,7 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkFeeService } from './NetworkFeeService';
 import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
-import { NetworkWithCaipId } from '../network/models';
+import { NetworkWithCaipId } from '@core/types/src/models';
 import { serializeToJSON } from '@avalabs/core-ext-messaging/src/serialization/serialize';
 
 jest.mock('@src/utils/network/getProviderForNetwork');

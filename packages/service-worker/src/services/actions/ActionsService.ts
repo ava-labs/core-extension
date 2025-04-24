@@ -12,14 +12,14 @@ import {
   ActionUpdate,
   MultiTxAction,
   isBatchApprovalAction,
-} from './models';
+} from '@core/types/src/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { DAppRequestHandler } from '../../connections/dAppConnection/DAppRequestHandler';
 import { OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { LockService } from '../lock/LockService';
 import { filterStaleActions } from './utils';
 import { ACTION_HANDLED_BY_MODULE } from '../../models';
-import { DAppProviderRequest } from '../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { getUpdatedSigningData } from '@core/utils';
 import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 import { ApprovalController } from '../../vmModules/ApprovalController';

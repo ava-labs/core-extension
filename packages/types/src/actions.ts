@@ -8,8 +8,8 @@ import {
 import {
   DAppProviderRequest,
   JsonRpcRequestPayload,
-} from '../../connections/dAppConnection/models';
-import { ACTION_HANDLED_BY_MODULE } from '../../models';
+} from './dapp-connection';
+import { ACTION_HANDLED_BY_MODULE } from './util-types';
 
 export enum ActionStatus {
   // user has been shown the UI and we are waiting on approval

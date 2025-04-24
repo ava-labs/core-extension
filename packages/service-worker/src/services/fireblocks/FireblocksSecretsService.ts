@@ -8,7 +8,7 @@ import {
   FireblocksBtcAccessError,
   FireblocksBtcAccessErrorCode,
   FireblocksSecretsProvider,
-} from './models';
+} from '@core/types/src/models';
 import { AccountsService } from '../accounts/AccountsService';
 
 @singleton()

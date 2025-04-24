@@ -31,7 +31,7 @@ import {
   JsonRpcFailure,
   JsonRpcRequest,
   JsonRpcSuccess,
-} from './models';
+} from '@core/types/src/models';
 import { Monitoring } from '@core/common';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';

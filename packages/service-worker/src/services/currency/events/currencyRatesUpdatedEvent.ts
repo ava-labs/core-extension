@@ -7,7 +7,7 @@ import {
 } from '../../../connections/models';
 
 import { CurrencyService } from '../CurrencyService';
-import { CurrencyServiceEvents } from '../models';
+import { CurrencyServiceEvents } from '@core/types/src/models';
 
 @singleton()
 export class CurrencyRatesUpdatedEvents implements ExtensionEventEmitter {

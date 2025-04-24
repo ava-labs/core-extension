@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from '../../connections/dAppConnection/models';
+import { DAppProviderRequest } from './dapp-connection';
 
 export enum MessageType {
   SIGN_TYPED_DATA_V1 = DAppProviderRequest.ETH_SIGN_TYPED_DATA_V1,

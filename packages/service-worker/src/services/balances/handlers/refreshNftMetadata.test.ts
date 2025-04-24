@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { GlacierService } from '../../glacier/GlacierService';
 import { RefreshNftMetadataHandler } from './refreshNftMetadata';
 import { buildRpcCall } from '@src/tests/test-utils';

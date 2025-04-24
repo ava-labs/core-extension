@@ -10,9 +10,9 @@ import sentryCaptureException, {
 } from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
 import browser from 'webextension-polyfill';
 import { encryptAnalyticsData } from './utils/encryptAnalyticsData';
-import { AnalyticsConsent } from '../settings/models';
+import { AnalyticsConsent } from '@core/types/src/models';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { BlockchainId } from './models';
+import { BlockchainId } from '@core/types/src/models';
 
 jest.mock('@avalabs/core-utils-sdk');
 jest.mock('@src/monitoring/sentryCaptureException');

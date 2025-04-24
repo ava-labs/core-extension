@@ -12,8 +12,8 @@ import {
   TokensVisibility,
   CollectiblesVisibility,
   AnalyticsConsent,
-} from './models';
-import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from './models';
+} from '@core/types/src/models';
+import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from '@core/types/src/models';
 import { changeLanguage } from 'i18next';
 import { EnsureDefined } from '../../models';
 

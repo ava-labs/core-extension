@@ -5,7 +5,7 @@ import {
   AnalyticsConsent,
   Languages,
   ThemeVariant,
-} from 'packages/service-worker/src/services/settings/models';
+} from '@core/types/src/models';
 
 import settings_v2 from './settings_v2';
 

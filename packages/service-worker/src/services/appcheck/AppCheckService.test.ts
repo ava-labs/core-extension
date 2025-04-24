@@ -6,7 +6,7 @@ import {
   setTokenAutoRefreshEnabled,
 } from 'firebase/app-check';
 import { FirebaseService } from '../firebase/FirebaseService';
-import { FcmMessageEvents, FirebaseEvents } from '../firebase/models';
+import { FcmMessageEvents, FirebaseEvents } from '@core/types/src/models';
 import {
   AppCheckService,
   WAIT_FOR_CHALLENGE_ATTEMPT_COUNT,

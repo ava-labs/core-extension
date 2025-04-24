@@ -9,7 +9,7 @@ import {
 import { MessagePayload } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
 import { FirebaseService } from '../firebase/FirebaseService';
-import { FcmMessageEvents, FirebaseEvents } from '../firebase/models';
+import { FcmMessageEvents, FirebaseEvents } from '@core/types/src/models';
 import { AppCheckRegistrationChallenge, ChallengeRequest } from './models';
 import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';

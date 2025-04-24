@@ -1,5 +1,5 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
-import { LedgerEvent } from 'packages/service-worker/src/services/ledger/models';
+import { ExtensionRequest } from '@core/types/src/models';
+import { LedgerEvent } from '@core/types/src/models';
 import {
   fireEvent,
   render,
@@ -30,7 +30,7 @@ import {
   getPubKeyFromTransport,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { LockEvents } from 'packages/service-worker/src/services/lock/models';
+import { LockEvents } from '@core/types/src/models';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import Eth from '@ledgerhq/hw-app-eth';
 

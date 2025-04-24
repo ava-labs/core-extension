@@ -10,7 +10,7 @@ import {
   FEATURE_FLAGS_OVERRIDES_KEY,
   FeatureGates,
 } from './models';
-import { AnalyticsEvents } from '../analytics/models';
+import { AnalyticsEvents } from '@core/types/src/models';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { formatAndLog } from '../../../../utils/src/logging';

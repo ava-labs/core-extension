@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { AppCheckService } from '../../appcheck/AppCheckService';
 import { SetGaslessHexValues } from './setHexValues';
 import { GasStationService } from '../GasStationService';

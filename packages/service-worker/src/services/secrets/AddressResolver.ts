@@ -8,7 +8,7 @@ import { PickKeys } from '../../models';
 import { CommonError, SecretsError } from '@core/utils';
 import { assertPresent } from '@core/utils';
 
-import { NetworkWithCaipId } from '../network/models';
+import { NetworkWithCaipId } from '@core/types/src/models';
 import { NetworkService } from '../network/NetworkService';
 import { emptyAddresses, emptyDerivationPaths } from './utils';
 import { SecretsService } from './SecretsService';

@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { AnalyticsState, AnalyticsEvents } from '../models';
+import { AnalyticsState, AnalyticsEvents } from '@core/types/src/models';
 
 export function analyticsStateUpdatedEventListener(
   evt: ExtensionConnectionEvent<AnalyticsState>,

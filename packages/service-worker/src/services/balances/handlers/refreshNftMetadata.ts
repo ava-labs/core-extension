@@ -2,7 +2,7 @@
 
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
 import { GlacierService } from '../../glacier/GlacierService';

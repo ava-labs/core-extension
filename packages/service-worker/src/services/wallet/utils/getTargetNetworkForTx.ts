@@ -2,7 +2,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkService } from '../../network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
 import { EthSendTransactionParams } from '../handlers/eth_sendTransaction/models';
-import { Network } from '../../network/models';
+import { Network } from '@core/types/src/models';
 
 const assertSameEnvironment = (networkA: Network, activeNetwork?: Network) => {
   if (Boolean(networkA.isTestnet) !== Boolean(activeNetwork?.isTestnet)) {

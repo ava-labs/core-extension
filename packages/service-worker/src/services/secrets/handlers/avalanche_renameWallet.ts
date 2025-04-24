@@ -5,12 +5,12 @@ import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequ
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '../../../connections/dAppConnection/models';
+} from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { canSkipApproval } from '@core/utils';
 
-import { Action, ActionType } from '../../actions/models';
+import { Action, ActionType } from '@core/types/src/models';
 import { SecretsService } from '../SecretsService';
 
 type Params = [walletId: string, newName: string];

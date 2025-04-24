@@ -19,6 +19,8 @@ export type FirstParameter<T extends (...args: any) => any> = T extends (
 
 export const ACTION_HANDLED_BY_MODULE = '__handled.via.vm.modules__';
 
+export const DEFERRED_RESPONSE: unique symbol = Symbol();
+
 export type ExcludeUndefined<T extends Record<PropertyKey, unknown>> = {
   [K in keyof T as T[K] extends undefined ? never : K]: T[K];
 };

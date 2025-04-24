@@ -7,7 +7,7 @@ import {
 import nacl from 'tweetnacl';
 import { scrypt } from '@noble/hashes/scrypt';
 import { sha256 } from '@noble/hashes/sha256';
-import { KeyDerivationVersion } from '../models';
+import { KeyDerivationVersion } from '@core/types/src/models';
 import argon2Browser from 'argon2-browser';
 
 jest.mock('@noble/hashes/scrypt', () => ({

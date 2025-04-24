@@ -10,7 +10,7 @@ import {
   ActionStatus,
   ACTIONS_STORAGE_KEY,
   ActionType,
-} from './models';
+} from '@core/types/src/models';
 import { filterStaleActions } from './utils';
 import { ApprovalController } from 'packages/service-worker/src/vmModules/ApprovalController';
 import { ACTION_HANDLED_BY_MODULE } from 'packages/service-worker/src/models';

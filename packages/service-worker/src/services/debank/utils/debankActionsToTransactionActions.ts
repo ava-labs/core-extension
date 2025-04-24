@@ -2,7 +2,7 @@ import {
   TransactionAction,
   TransactionType,
 } from '../../wallet/handlers/eth_sendTransaction/models';
-import { TxAction } from '../models';
+import { TxAction } from '@core/types/src/models';
 import { mapNftToTransactionNft } from './mapNftToTransactionNft';
 import { mapTokenItemToTransactionToken } from './mapTokenItemToTransactionToken';
 import { TokenType } from '@avalabs/vm-module-types';

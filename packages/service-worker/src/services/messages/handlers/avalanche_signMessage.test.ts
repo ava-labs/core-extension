@@ -1,6 +1,6 @@
 import { AvalancheSignMessageHandler } from 'packages/service-worker/src/services/messages/handlers/avalanche_signMessage';
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
-import { Action } from 'packages/service-worker/src/services/actions/models';
+import { DAppProviderRequest } from '@core/types/src/models';
+import { Action } from '@core/types/src/models';
 import { utils } from '@avalabs/avalanchejs';
 import { openApprovalWindow } from 'packages/service-worker/src/runtime/openApprovalWindow';
 import { buildRpcCall } from '@src/tests/test-utils';

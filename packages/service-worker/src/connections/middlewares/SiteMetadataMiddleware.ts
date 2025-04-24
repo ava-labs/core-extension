@@ -5,7 +5,7 @@ import {
   JsonRpcRequest,
   JsonRpcRequestPayload,
   JsonRpcResponse,
-} from '../dAppConnection/models';
+} from '@core/types/src/models';
 import { Middleware } from './models';
 
 type DomainMetadataRequest = JsonRpcRequestPayload<

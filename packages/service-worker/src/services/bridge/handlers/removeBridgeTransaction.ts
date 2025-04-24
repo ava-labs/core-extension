@@ -1,5 +1,5 @@
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
 import { UnifiedBridgeService } from '../../unifiedBridge/UnifiedBridgeService';

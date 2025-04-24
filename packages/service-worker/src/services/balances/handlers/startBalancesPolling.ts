@@ -1,9 +1,9 @@
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
 import { BalancePollingService } from '../BalancePollingService';
-import { Balances } from '../models';
+import { Balances } from '@core/types/src/models';
 import { Account } from '../../accounts/models';
 import { caipToChainId } from '@core/utils';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';

@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { BalancePollingService } from '../BalancePollingService';
 import { StopBalancesPollingHandler } from './stopBalancesPolling';
 import { buildRpcCall } from '@src/tests/test-utils';

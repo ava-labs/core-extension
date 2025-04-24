@@ -1,5 +1,5 @@
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 import { Account, AccountType } from '../models';

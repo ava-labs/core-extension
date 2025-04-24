@@ -3,7 +3,7 @@ import {
   UnifiedBridgeEvent,
   UnifiedBridgeStateUpdateEvent,
   UnifiedBridgeTransferStepChangeEvent,
-} from '../models';
+} from '@core/types/src/models';
 
 export const isUnifiedBridgeStateUpdate = (
   ev: ExtensionConnectionEvent,

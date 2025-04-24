@@ -1,4 +1,4 @@
-import { BridgeEvents } from '../models';
+import { BridgeEvents } from '@core/types/src/models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,

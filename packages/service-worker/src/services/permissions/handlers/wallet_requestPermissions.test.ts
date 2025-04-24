@@ -1,9 +1,9 @@
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AccountType } from '../../accounts/models';
-import { Action, ActionStatus } from '../../actions/models';
+import { Action, ActionStatus } from '@core/types/src/models';
 import { PermissionsService } from '../PermissionsService';
 import { WalletRequestPermissionsHandler } from './wallet_requestPermissions';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';

@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { AppCheckService } from '../appcheck/AppCheckService';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
@@ -6,7 +6,7 @@ import { GasStationService } from './GasStationService';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { Transaction, TransactionLike } from 'ethers';
 import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
-import { GaslessEvents } from './model';
+import { GaslessEvents } from '@core/types/src/model';
 
 jest.mock('@avalabs/core-gasless-sdk', () => {
   const functions = {

@@ -5,12 +5,12 @@ import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequ
 import {
   DAppProviderRequest,
   type JsonRpcRequestParams,
-} from '../../../connections/dAppConnection/models';
+} from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { canSkipApproval } from '@core/utils';
 
-import { type Action, buildActionForRequest } from '../../actions/models';
+import { type Action, buildActionForRequest } from '@core/types/src/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../AccountsService';
 import type { ImportedAccount, PrimaryAccount } from '../models';

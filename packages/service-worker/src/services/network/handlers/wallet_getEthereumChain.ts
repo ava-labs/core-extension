@@ -1,8 +1,8 @@
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { AddEthereumChainParameter } from '../models';
+import { AddEthereumChainParameter } from '@core/types/src/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { Network } from '@avalabs/core-chains-sdk';
 

@@ -3,7 +3,7 @@ import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
 
 import { BtcTransactionRequest } from '@core/types/src/models';
-import { KeystoneTransport } from './models';
+import { KeystoneTransport } from '@core/types/src/models';
 
 export class BitcoinKeystoneWallet {
   constructor(

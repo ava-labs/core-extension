@@ -20,7 +20,7 @@ import {
   FireblocksErrorCode,
   TRANSACTION_POLLING_INTERVAL_MS,
   TX_SUBMISSION_FAILURE_STATUSES,
-} from './models';
+} from '@core/types/src/models';
 import { FireblocksService } from './FireblocksService';
 import { ethErrors } from 'eth-rpc-errors';
 

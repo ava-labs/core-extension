@@ -1,10 +1,10 @@
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { isContactValid } from '@core/utils';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
+import { Action } from '@core/types/src/models';
 import { ContactsService } from '../ContactsService';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 

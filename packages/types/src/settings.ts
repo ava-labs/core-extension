@@ -1,5 +1,5 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { EnsureDefined } from '../../models';
+import { EnsureDefined } from './util-types';
 
 export enum ThemeVariant {
   LIGHT = 'LIGHT',

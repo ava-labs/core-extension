@@ -4,12 +4,12 @@ import { Runtime } from 'webextension-polyfill';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
 import { ArrayElement } from '../models';
-import { ExtensionRequest } from './extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestPayload,
-} from './dAppConnection/models';
+} from '@core/types/src/models';
 import { ErrorData } from '@core/types';
 import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';

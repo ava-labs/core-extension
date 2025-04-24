@@ -1,2 +1,2 @@
 export * from './DebankService';
-export * from './models';
+export * from '@core/types/src/models';

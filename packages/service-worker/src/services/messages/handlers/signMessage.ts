@@ -1,13 +1,13 @@
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action } from '../../actions/models';
+import { Action } from '@core/types/src/models';
 import { NetworkService } from '../../network/NetworkService';
 import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
 import { WalletService } from '../../wallet/WalletService';
-import { MessageType } from '../models';
+import { MessageType } from '@core/types/src/models';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { TypedDataEncoder } from 'ethers';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';

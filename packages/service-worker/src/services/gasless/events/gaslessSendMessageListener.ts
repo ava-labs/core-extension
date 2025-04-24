@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { GaslessEvents, GaslessMessage } from '../model';
+import { GaslessEvents, GaslessMessage } from '@core/types/src/model';
 
 export function gaslessSendOffscreenMessageEventListener(
   evt: ExtensionConnectionEvent<GaslessMessage>,

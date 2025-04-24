@@ -6,7 +6,7 @@ import {
 } from '../../../connections/models';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
-import { NetworkEvents } from '../models';
+import { NetworkEvents } from '@core/types/src/models';
 import { NetworkService } from '../NetworkService';
 
 @injectable()

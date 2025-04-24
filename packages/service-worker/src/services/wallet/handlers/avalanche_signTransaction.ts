@@ -3,9 +3,9 @@ import { WalletService } from '../WalletService';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '../../../connections/dAppConnection/models';
+} from '@core/types/src/models';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { Action, buildActionForRequest } from '../../actions/models';
+import { Action, buildActionForRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import {
   utils,

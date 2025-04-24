@@ -8,7 +8,7 @@ import {
   JsonRpcRequest,
   JsonRpcRequestParams,
   JsonRpcResponse,
-} from '../dAppConnection/models';
+} from '@core/types/src/models';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 
 export function DAppRequestHandlerMiddleware(

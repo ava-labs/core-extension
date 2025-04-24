@@ -11,7 +11,7 @@ import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcResponse,
-} from '../dAppConnection/models';
+} from '@core/types/src/models';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);

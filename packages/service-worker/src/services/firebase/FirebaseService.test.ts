@@ -13,7 +13,7 @@ import {
   FeatureGates,
 } from '../featureFlags/models';
 import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
-import { FcmMessageEvents, FirebaseEvents } from './models';
+import { FcmMessageEvents, FirebaseEvents } from '@core/types/src/models';
 import { isSupportedBrowser } from 'packages/utils/src/isSupportedBrowser';
 
 jest.mock('firebase/app');

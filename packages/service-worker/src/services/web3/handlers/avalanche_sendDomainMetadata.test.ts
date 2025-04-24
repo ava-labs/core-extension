@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { AvalancheSendDomainMetadataHandler } from './avalanche_sendDomainMetadata';
 import { buildRpcCall } from '@src/tests/test-utils';
 

@@ -1,4 +1,4 @@
-import { AnalyticsEvents } from '../models';
+import { AnalyticsEvents } from '@core/types/src/models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,

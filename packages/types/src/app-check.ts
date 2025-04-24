@@ -1,4 +1,4 @@
-import { FcmMessageEvents } from '../firebase/models';
+import { FcmMessageEvents } from './firebase';
 import * as Sentry from '@sentry/browser';
 
 export type ChallengeRequest = {

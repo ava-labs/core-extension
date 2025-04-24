@@ -1,8 +1,10 @@
 import { Maybe } from '@avalabs/core-utils-sdk';
 import { RpcResponse } from '@avalabs/vm-module-types';
-import { DomainMetadata } from '@core/types';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+
+import { Action } from './actions';
+import { DomainMetadata } from './domain-metadata';
 
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
@@ -111,3 +113,34 @@ export declare type JsonRpcResponse<T = unknown> =
   | JsonRpcSuccess<T>
   | JsonRpcFailure
   | RpcResponse;
+
+	export interface DAppRequestHandler {
+		/**
+		 * Optional: Only used when the action needs user approval
+		 * IS ONLY called when `actionsService.addAction` and a `DEFERRED_RESPONSE` is used by the handler.
+		 * Called by the ActionsService after the user confirms the request on the approval popup.
+		 */
+		onActionApproved?: (
+			pendingAction: Action,
+			result: any,
+			onSuccess: (result: unknown) => Promise<void>,
+			onError: (error: Error) => Promise<void>,
+			tabId?: number,
+		) => Promise<void>;
+	}
+	
+	export abstract class DAppRequestHandler<
+		RequestParams = unknown,
+		ResponseParams = any,
+	> {
+		abstract methods: DAppProviderRequest[];
+	
+		abstract handleAuthenticated: (
+			rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>,
+		) => Promise<JsonRpcResponse<ResponseParams>>;
+	
+		abstract handleUnauthenticated: (
+			rpcCall: JsonRpcRequestParams<DAppProviderRequest, RequestParams>,
+		) => Promise<JsonRpcResponse<ResponseParams>>;
+	}
+	

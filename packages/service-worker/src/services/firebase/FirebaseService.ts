@@ -7,7 +7,7 @@ import {
   onBackgroundMessage,
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
-import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
+import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from '@core/types/src/models';
 import { Monitoring } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';

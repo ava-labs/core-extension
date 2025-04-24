@@ -4,13 +4,13 @@ import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequ
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '../../../connections/dAppConnection/models';
+} from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
-import { Action, buildActionForRequest } from '../../actions/models';
+import { Action, buildActionForRequest } from '@core/types/src/models';
 import { NetworkService } from '../NetworkService';
-import { CustomNetworkPayload } from '../models';
+import { CustomNetworkPayload } from '@core/types/src/models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { runtime } from 'webextension-polyfill';
 import { caipToChainId } from '@core/utils';

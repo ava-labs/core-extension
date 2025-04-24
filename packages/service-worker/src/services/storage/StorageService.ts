@@ -16,7 +16,7 @@ import {
   KeyDerivationVersion,
   WALLET_STORAGE_ENCRYPTION_KEY,
   WalletStorageEncryptionKeyData,
-} from './models';
+} from '@core/types/src/models';
 import {
   getDataWithSchemaVersion,
   migrateToLatest,

@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 
 import { resolve } from '@core/utils';
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '../../../connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 
 import { RecoveryMethod } from '@core/types/src/models';
 import { SecretsService } from '../../secrets/SecretsService';

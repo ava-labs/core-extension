@@ -21,7 +21,7 @@ import {
   ActionStatus,
   ActionType,
   MultiTxAction,
-} from '../services/actions/models';
+} from '@core/types/src/models';
 import { SecretsService } from '../services/secrets/SecretsService';
 
 jest.mock('tsyringe', () => {

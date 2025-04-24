@@ -1,4 +1,4 @@
-import { ContactsEvents } from '../models';
+import { ContactsEvents } from '@core/types/src/models';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,

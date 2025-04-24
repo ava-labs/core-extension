@@ -25,11 +25,11 @@ import {
 } from '@metamask/eth-sig-util';
 
 import { NetworkService } from '../network/NetworkService';
-import { MessageParams, MessageType } from '../messages/models';
+import { MessageParams, MessageType } from '@core/types/src/models';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
-import { Network } from '../network/models';
+import { Network } from '@core/types/src/models';
 import { CoreApiError } from '@core/types/src/models';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';

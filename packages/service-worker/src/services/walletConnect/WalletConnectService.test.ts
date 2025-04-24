@@ -7,7 +7,7 @@ import {
   WALLET_CONNECT_APP_METADATA,
   WalletConnectErrorCode,
   WalletConnectEvent,
-} from './models';
+} from '@core/types/src/models';
 import { mockedSession } from './__fixtures__/session';
 import { SessionTypes } from '@walletconnect/types';
 

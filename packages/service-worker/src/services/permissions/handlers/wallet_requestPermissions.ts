@@ -1,9 +1,9 @@
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '../../../connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
-import { Action } from '../../actions/models';
+import { Action } from '@core/types/src/models';
 import { PermissionsService } from '../PermissionsService';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
 import { ethErrors } from 'eth-rpc-errors';

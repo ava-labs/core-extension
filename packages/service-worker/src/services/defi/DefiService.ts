@@ -4,7 +4,7 @@ import { keccakFromString } from 'ethereumjs-util';
 
 import { StorageService } from '../storage/StorageService';
 import { DebankService } from '../debank';
-import { DefiPortfolio, DefiProtocol, DefiServiceEvents } from './models';
+import { DefiPortfolio, DefiProtocol, DefiServiceEvents } from '@core/types/src/models';
 
 @singleton()
 export class DefiService {

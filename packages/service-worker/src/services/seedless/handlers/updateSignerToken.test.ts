@@ -1,4 +1,4 @@
-import { ExtensionRequest } from 'packages/service-worker/src/connections/extensionConnection/models';
+import { ExtensionRequest } from '@core/types/src/models';
 import { UpdateSignerTokenHandler } from './updateSignerToken';
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';

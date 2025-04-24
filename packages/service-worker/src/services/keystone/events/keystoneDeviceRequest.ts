@@ -5,7 +5,7 @@ import {
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { KeystoneService } from '../KeystoneService';
-import { KeystoneEvent } from '../models';
+import { KeystoneEvent } from '@core/types/src/models';
 
 @singleton()
 export class KeystoneRequestEvents implements ExtensionEventEmitter {

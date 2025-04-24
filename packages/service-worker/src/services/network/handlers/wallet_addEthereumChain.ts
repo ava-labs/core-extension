@@ -3,16 +3,16 @@ import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequ
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '../../../connections/dAppConnection/models';
+} from '@core/types/src/models';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action, buildActionForRequest } from '../../actions/models';
+import { Action, buildActionForRequest } from '@core/types/src/models';
 import {
   AddEthereumChainDisplayData,
   AddEthereumChainParameter,
   NetworkWithCaipId,
-} from '../models';
+} from '@core/types/src/models';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { decorateWithCaipId } from '@core/utils';

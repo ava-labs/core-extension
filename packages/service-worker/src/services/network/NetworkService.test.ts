@@ -12,7 +12,7 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
-} from './models';
+} from '@core/types/src/models';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { runtime } from 'webextension-polyfill';

@@ -6,7 +6,7 @@ import {
   WalletGetEthereumChainHandler,
   networkToGetEthChainResponse,
 } from './wallet_getEthereumChain';
-import { DAppProviderRequest } from 'packages/service-worker/src/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types/src/models';
 import { ethErrors } from 'eth-rpc-errors';
 import { buildRpcCall } from '@src/tests/test-utils';
 

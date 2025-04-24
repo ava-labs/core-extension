@@ -24,10 +24,10 @@ import {
   ActionType,
   MultiTxAction,
   isBatchApprovalAction,
-} from '../services/actions/models';
+} from '@core/types/src/models';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { NetworkService } from '../services/network/NetworkService';
-import { NetworkWithCaipId } from '../services/network/models';
+import { NetworkWithCaipId } from '@core/types/src/models';
 
 import {
   ApprovalParamsWithContext,

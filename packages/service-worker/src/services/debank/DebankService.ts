@@ -13,7 +13,7 @@ import {
   DefiRewardItem,
   DefiItemGroup,
   DefiPerpetualItem,
-} from '../defi/models';
+} from '@core/types/src/models';
 
 import {
   DebankChain,
@@ -23,7 +23,7 @@ import {
   DebankPortfolioTokenItem,
   DebankTxPreExecutionResult,
   ExplainTxResponse,
-} from './models';
+} from '@core/types/src/models';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { Network } from '@avalabs/core-chains-sdk';
