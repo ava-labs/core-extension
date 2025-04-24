@@ -1,3 +1,4 @@
+import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 export enum SendErrorMessage {
   AMOUNT_REQUIRED = 'AMOUNT_REQUIRED',
   AMOUNT_TOO_LOW = 'AMOUNT_TOO_LOW',
@@ -15,3 +16,10 @@ export enum SendErrorMessage {
   UNSUPPORTED_BY_LEDGER = 'UNSUPPORTED_BY_LEDGER',
   SEND_NOT_AVAILABLE = 'SEND_NOT_AVAILABLE',
 }
+
+export type BtcSendOptions = {
+  address: string;
+  amount: number;
+  token: TokenWithBalanceBTC;
+  feeRate: number;
+};

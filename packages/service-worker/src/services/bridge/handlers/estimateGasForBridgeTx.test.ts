@@ -1,11 +1,11 @@
 import Big from 'big.js';
 import { Blockchain } from '@avalabs/core-bridge-sdk';
 
-import { ExtensionRequest } from '@core/types/src/models';
-import { serializeToJSON } from '@avalabs/core-ext-messaging/src/serialization/serialize';
+import { ExtensionRequest } from '@core/types';
+import { serializeToJSON } from '@core/messaging';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 import { EstimateGasForBridgeTxHandler } from './estimateGasForBridgeTx';
-import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/services/bridge/handlers/estimateGasForBridgeTx', () => {
   const bridgeService = {

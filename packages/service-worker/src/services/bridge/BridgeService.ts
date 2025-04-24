@@ -23,13 +23,13 @@ import {
   BridgeEvents,
   BridgeState,
   DefaultBridgeState,
-} from '@core/types/src/models';
+	FeatureGates,
+} from '@core/types';
 import { AccountsService } from '../accounts/AccountsService';
 import { singleton } from 'tsyringe';
 import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import Big from 'big.js';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
-import { FeatureGates } from '../featureFlags/models';
 import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 @singleton()

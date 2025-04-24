@@ -7,7 +7,7 @@ import { BITCOIN_NETWORK, ChainId } from '@avalabs/core-chains-sdk';
 import Big from 'big.js';
 
 import { AccountsService } from '../accounts/AccountsService';
-import { AccountType } from '../accounts/models';
+import { AccountType } from '@core/types';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { NetworkService } from '../network/NetworkService';

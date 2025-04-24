@@ -1,5 +1,7 @@
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types/src/models';
+import {
+  ExtensionRequestHandler,
+  ExtensionRequest,
+} from '@core/types';
 import { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
 import { resolve } from '@avalabs/core-utils-sdk';

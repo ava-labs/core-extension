@@ -1,5 +1,4 @@
-import { Network } from '@core/service-worker';
-import { Account } from '@core/service-worker';
+import { Account, Network, NetworkFee } from '@core/types';
 import {
   AvmCapableAccount,
   PvmCapableAccount,
@@ -9,13 +8,11 @@ import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
   TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
   TokenWithBalanceERC20,
   TokenWithBalancePVM,
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { NetworkFee } from '@core/service-worker';
 
 export type SendPageProps<Provider, Token, Tokens> = {
   network: Network;
@@ -95,13 +92,6 @@ export type SplSendOptions = BaseSendOptions & {
 export type NftSendOptions = BaseSendOptions & {
   token: NftTokenWithBalance;
   amount: never;
-};
-
-export type BtcSendOptions = {
-  address: string;
-  amount: number;
-  token: TokenWithBalanceBTC;
-  feeRate: number;
 };
 
 export type SendOptions = NativeSendOptions | Erc20SendOptions | NftSendOptions;

@@ -1,7 +1,9 @@
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types/src/models';
+import {
+  ExtensionRequestHandler,
+  ExtensionRequest,
+  PartialBridgeTransaction,
+} from '@core/types';
 import { BridgeService } from '../BridgeService';
-import { PartialBridgeTransaction } from '@core/types/src/models';
 import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 

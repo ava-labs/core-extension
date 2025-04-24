@@ -1,8 +1,8 @@
-import { BridgeEvents } from '@core/types/src/models';
 import {
+  BridgeEvents,
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { BridgeService } from '../BridgeService';
 import { singleton } from 'tsyringe';

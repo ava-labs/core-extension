@@ -6,10 +6,10 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { inputBytes } from 'coinselect/utils';
 
-import { BtcSendOptions } from 'packages/ui/pages/Send/models';
+import { BtcSendOptions } from '@core/types';
 
 import { isBtcAddressInNetwork } from '../isBtcAddressInNetwork';
-import { SendErrorMessage } from './models';
+import { SendErrorMessage } from '@core/types';
 import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 
 export const getBtcInputUtxos = async (

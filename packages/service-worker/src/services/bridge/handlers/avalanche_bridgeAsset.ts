@@ -16,30 +16,36 @@ import {
 } from '@avalabs/core-bridge-sdk';
 import Big from 'big.js';
 import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types/src/models';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { injectable } from 'tsyringe';
-import { Action } from '@core/types/src/models';
+import {
+  Action,
+  BridgeActionDisplayData,
+  DAppRequestHandler,
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  FeatureGates,
+} from '@core/types';
 import { BridgeService } from '../BridgeService';
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { blockchainToNetwork } from 'packages/ui/pages/Bridge/utils/blockchainConversion';
-import { findTokenForAsset } from 'packages/ui/pages/Bridge/utils/findTokenForAsset';
+import {
+  blockchainToNetwork,
+  findTokenForAsset,
+  isWalletConnectAccount,
+  getProviderForNetwork,
+  buildBtcTx,
+  getBtcInputUtxos,
+  validateBtcSend,
+  resolve,
+} from '@core/utils';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
-import { BridgeActionDisplayData } from '@core/types/src/models';
 import { WalletService } from '../../wallet/WalletService';
 import { ContractTransaction } from 'ethers';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
-import { FeatureGates } from '../../featureFlags/models';
-import { isWalletConnectAccount } from '@core/utils/src/accounts/typeGuards';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
-import { buildBtcTx, getBtcInputUtxos, validateBtcSend } from '@core/utils';
-import { resolve } from '@core/utils';
 import { TokenType, TokenWithBalanceBTC } from '@avalabs/vm-module-types';
-import { getProviderForNetwork } from '@core/utils';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
 type BridgeActionParams = [

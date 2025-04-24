@@ -1,8 +1,7 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { FeatureGates } from '../featureFlags/models';
+import { FeatureGates, MessageType } from '@core/types';
 import { BlockaidService } from './BlockaidService';
-import { MessageType } from '@core/types/src/models';
 
 jest.mock('../featureFlags/FeatureFlagService');
 

@@ -8,11 +8,16 @@ import {
 } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { bnToBig, stringToBN } from '@avalabs/core-utils-sdk';
-import { DAppProviderRequest } from '@core/types/src/models';
-import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
-import { AccountType, PrimaryAccount } from '../../accounts/models';
-import { BtcTransactionResponse } from '@core/types/src/models';
-import { Action, ActionStatus } from '@core/types/src/models';
+import {
+  Action,
+  ActionStatus,
+  FeatureGates,
+  BtcTransactionResponse,
+  AccountType,
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  PrimaryAccount,
+} from '@core/types';
 import { AvalancheBridgeAsset } from './avalanche_bridgeAsset';
 import { BN } from 'bn.js';
 import {
@@ -22,11 +27,9 @@ import {
   nativeAsset,
 } from '../fixtures/mockBridgeConfig';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
-import { openApprovalWindow } from 'packages/service-worker/src/runtime/openApprovalWindow';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { FeatureGates } from '../../featureFlags/models';
-import { getBtcInputUtxos } from 'packages/utils/src/send/btcSendUtils';
-import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { getBtcInputUtxos, getProviderForNetwork } from '@core/utils';
 import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/background/runtime/openApprovalWindow');
