@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';

@@ -4,7 +4,7 @@ import Transport, {
   TransportStatusError,
 } from '@ledgerhq/hw-transport';
 import { filter, firstValueFrom, map, Subject } from 'rxjs';
-import { DeviceResponseData } from '@core/types/src/models';
+import { DeviceResponseData } from '@core/types';
 
 export class LedgerTransport extends Transport {
   constructor(

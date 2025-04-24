@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { UpdateDefaultNetworkHandler } from './updateDefaultNetwork';
 import { buildRpcCall } from '@src/tests/test-utils';
 

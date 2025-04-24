@@ -1,13 +1,13 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
 import {
+  ExtensionRequest,
   GaslessEvents,
   GaslessMessage,
   GaslessState,
   GaslessStateValues,
-} from '@core/types/src/model';
+} from '@core/types';
 import { AppCheckService } from '../appcheck/AppCheckService';
-import { ExtensionRequest } from '@core/types/src/models';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { Signal } from 'micro-signals';
 import { JsonRpcProvider, Transaction } from 'ethers';

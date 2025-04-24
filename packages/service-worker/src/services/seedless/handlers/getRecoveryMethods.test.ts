@@ -1,11 +1,11 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
-import { MfaRequestType } from '@core/types/src/models';
+import { MfaRequestType } from '@core/types';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 

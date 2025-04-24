@@ -1,6 +1,6 @@
 import { WalletSwitchEthereumChainHandler } from './wallet_switchEthereumChain';
 import { buildRpcCall } from './../../../../tests/test-utils';
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppProviderRequest } from '@core/types';
 import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';

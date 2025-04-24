@@ -3,7 +3,7 @@ import { windows } from 'webextension-polyfill';
 import { openPopup } from 'packages/utils/src/extensionUtils';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
+} from '@core/common';
 
 import { FIDOApiEndpoint, KeyType } from './types';
 import { launchFidoFlow } from './launchFidoFlow';

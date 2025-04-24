@@ -2,12 +2,12 @@ import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
 import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action, ActionStatus } from '@core/types/src/models';
+import { Action, ActionStatus } from '@core/types';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { decorateWithCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { decorateWithCaipId } from '@core/utils';
 import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 
 jest.mock('@src/utils/canSkipApproval');

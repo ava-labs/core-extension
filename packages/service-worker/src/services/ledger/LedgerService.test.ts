@@ -1,10 +1,10 @@
 import EventEmitter from 'events';
 import LRU from 'lru-cache';
 import { Subject } from 'rxjs';
-import { DeviceResponseData } from '@core/types/src/models';
+import { DeviceResponseData } from '@core/types';
 import { LedgerService } from './LedgerService';
 import { LedgerTransport } from './LedgerTransport';
-import { LedgerEvent } from '@core/types/src/models';
+import { LedgerEvent } from '@core/types';
 
 jest.mock('events');
 jest.mock('rxjs');

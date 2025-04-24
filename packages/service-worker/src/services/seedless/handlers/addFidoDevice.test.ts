@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { KeyType } from 'packages/utils/src/seedless/fido/types';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';

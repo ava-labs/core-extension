@@ -3,7 +3,7 @@ import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import { resolve } from '@core/utils';
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 import { SecretsService } from '../../secrets/SecretsService';

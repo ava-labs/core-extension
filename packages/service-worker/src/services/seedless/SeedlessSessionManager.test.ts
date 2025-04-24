@@ -1,9 +1,9 @@
 import { CubeSigner, SignerSession } from '@cubist-labs/cubesigner-sdk';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
-import { SeedlessEvents } from '@core/types/src/models';
+import { SeedlessEvents } from '@core/types';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
+} from '@core/common';
 
 jest.mock('./SeedlessTokenStorage');
 jest.mock('@src/monitoring/sentryCaptureException');

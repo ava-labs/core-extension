@@ -17,7 +17,7 @@ import { singleton } from 'tsyringe';
 import { assertPresent } from '@core/utils';
 import { isDevelopment } from '@core/utils';
 
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { NetworkWithCaipId } from '@core/types';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
 import {

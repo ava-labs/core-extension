@@ -11,7 +11,7 @@ import {
 import { FetchRequest, Network } from 'ethers';
 import { addGlacierAPIKeyIfNeeded } from './addGlacierAPIKeyIfNeeded';
 import { getProviderForNetwork } from './getProviderForNetwork';
-import { decorateWithCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { decorateWithCaipId } from '@core/utils';
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();

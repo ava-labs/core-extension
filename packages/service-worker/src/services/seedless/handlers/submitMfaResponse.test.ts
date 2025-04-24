@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SubmitMfaResponseHandler } from './submitMfaResponse';
 import { buildRpcCall } from '@src/tests/test-utils';

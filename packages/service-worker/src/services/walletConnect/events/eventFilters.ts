@@ -4,7 +4,7 @@ import {
   WalletConnectEventType,
   WalletConnectSessionPermissionsMismatch,
   WalletConnectUriGeneratedEvent,
-} from '@core/types/src/models';
+} from '@core/types';
 
 export function isUriGeneratedEvent(
   evt: ExtensionConnectionEvent,

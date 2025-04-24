@@ -1,4 +1,4 @@
-import { MessageType } from '@core/types/src/models';
+import { MessageType } from '@core/types';
 import { paramsToMessageParams } from './messageParamsParser';
 
 describe('src/background/services/messages/utils/messageParamsParser.ts', () => {

@@ -1,5 +1,5 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
+import { LEDGER_VERSION_WARNING_WAS_CLOSED } from '@core/types';
 import { LedgerVersionWarningClosedHandler } from './setLedgerVersionWarningClosed';
 import { buildRpcCall } from '@src/tests/test-utils';
 

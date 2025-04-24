@@ -1,4 +1,4 @@
-import { MessageType } from '@core/types/src/models';
+import { MessageType } from '@core/types';
 import ensureMessageFormatIsValid from './ensureMessageFormatIsValid';
 
 const getPayload = (without?: string, withHexChainId?: boolean) => {

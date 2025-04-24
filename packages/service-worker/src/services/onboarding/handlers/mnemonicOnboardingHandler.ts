@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { StorageService } from '../../storage/StorageService';
 import { SettingsService } from '../../settings/SettingsService';

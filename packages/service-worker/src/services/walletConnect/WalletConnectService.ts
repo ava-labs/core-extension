@@ -28,7 +28,7 @@ import {
   WalletConnectTransport,
   isNoMatchingKeyError,
   isProposalExpiredError,
-} from '@core/types/src/models';
+} from '@core/types';
 import { buildSessionProposal } from './utils';
 import { WalletConnectAddresses } from '../accounts/models';
 import { isUserRejectionError } from '@core/utils';

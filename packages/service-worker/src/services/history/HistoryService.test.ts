@@ -1,6 +1,6 @@
 import { Network, NetworkToken } from '@avalabs/core-chains-sdk';
 import { HistoryService } from './HistoryService';
-import { TxHistoryItem } from '@core/types/src/models';
+import { TxHistoryItem } from '@core/types';
 import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { ETHEREUM_ADDRESS } from 'packages/utils/src/bridgeTransactionUtils';

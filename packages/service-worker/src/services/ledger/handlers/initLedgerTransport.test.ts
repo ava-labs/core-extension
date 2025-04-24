@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { InitLedgerTransportHandler } from './initLedgerTransport';
 import { buildRpcCall } from '@src/tests/test-utils';
 

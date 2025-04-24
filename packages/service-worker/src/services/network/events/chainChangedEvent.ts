@@ -1,4 +1,4 @@
-import { Web3Event } from '@core/types/src/models';
+import { Web3Event } from '@core/types';
 import {
   ExtensionConnectionEvent,
   DAppEventEmitter,
@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { caipToChainId } from '@core/utils';
 import { NetworkService } from '../NetworkService';
-import { getSyncDomain } from '@core/utils/src/getSyncDomain';
+import { getSyncDomain } from '@core/utils';
 
 /**
  * Emits `chainChanged` events for each dApp according to EIP-1193

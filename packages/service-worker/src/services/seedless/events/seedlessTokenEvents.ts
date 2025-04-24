@@ -6,7 +6,7 @@ import {
   ExtensionEventEmitter,
 } from '../../../connections/models';
 
-import { SeedlessEvents } from '@core/types/src/models';
+import { SeedlessEvents } from '@core/types';
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 
 @singleton()

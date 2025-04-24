@@ -1,9 +1,9 @@
 import { BalanceAggregatorService } from '../../balances/BalanceAggregatorService';
 import { NetworkService } from '../../network/NetworkService';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { Balances } from '@core/types/src/models';
+import { Balances } from '@core/types';
 import { PrimaryAccount } from '../../accounts/models';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { NetworkWithCaipId } from '@core/types';
 import { isString } from 'lodash';
 import { container } from 'tsyringe';
 import { HistoryService } from '../../history/HistoryService';

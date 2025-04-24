@@ -1,5 +1,5 @@
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppProviderRequest } from '@core/types';
 import { injectable } from 'tsyringe';
 
 @injectable()

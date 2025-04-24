@@ -1,9 +1,9 @@
 import { WalletConnectSigner } from './WalletConnectSigner';
 import { TransactionRequest } from 'ethers';
-import { WalletConnectSessionInfo, WalletConnectTransport } from '@core/types/src/models';
-import { PubKeyType } from '@core/types/src/models';
+import { WalletConnectSessionInfo, WalletConnectTransport } from '@core/types';
+import { PubKeyType } from '@core/types';
 import { AVM, EVM, PVM } from '@avalabs/avalanchejs';
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppProviderRequest } from '@core/types';
 import { BNLike } from 'ethereumjs-util';
 import { makeBNLike } from 'packages/utils/src/makeBNLike';
 

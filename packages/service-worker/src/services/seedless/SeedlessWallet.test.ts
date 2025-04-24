@@ -30,7 +30,7 @@ import {
 } from './fixtures/rawKeys';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessWallet } from './SeedlessWallet';
-import { MessageType } from '@core/types/src/models';
+import { MessageType } from '@core/types';
 import {
   SignTypedDataVersion,
   TypedDataUtils,
@@ -39,7 +39,7 @@ import {
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
-import { MfaRequestType } from '@core/types/src/models';
+import { MfaRequestType } from '@core/types';
 import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 import { AddressPublicKey } from '../secrets/AddressPublicKey';
 

@@ -1,7 +1,7 @@
 import { BaseWallet, HDNodeWallet, SigningKey, Wallet } from 'ethers';
 
 import { WalletService } from './WalletService';
-import { MessageType } from '@core/types/src/models';
+import { MessageType } from '@core/types';
 import { NetworkService } from '../network/NetworkService';
 import { LedgerService } from '../ledger/LedgerService';
 import {
@@ -12,7 +12,7 @@ import {
 import {
   AddPrimaryWalletSecrets,
   AvalancheTransactionRequest,
-} from '@core/types/src/models';
+} from '@core/types';
 import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 import {
   BitcoinLedgerWallet,
@@ -38,7 +38,7 @@ import { WalletPolicy } from 'ledger-bitcoin';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
-import { Action, ActionStatus } from '@core/types/src/models';
+import { Action, ActionStatus } from '@core/types';
 import { UnsignedTx } from '@avalabs/avalanchejs';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
@@ -50,8 +50,8 @@ import {
 } from '../secrets/models';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
-import { Network } from '@core/types/src/models';
-import { decorateWithCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { Network } from '@core/types';
+import { decorateWithCaipId } from '@core/utils';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';

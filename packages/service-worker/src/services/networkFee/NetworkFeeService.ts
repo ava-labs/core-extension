@@ -3,7 +3,7 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { getProviderForNetwork } from '@core/utils';
 import { singleton } from 'tsyringe';
 import { NetworkFee } from './models';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { NetworkWithCaipId } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 
 @singleton()

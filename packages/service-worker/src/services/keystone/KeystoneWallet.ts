@@ -15,7 +15,7 @@ import { BufferLike, rlp } from 'ethereumjs-util';
 
 import { makeBNLike } from '@core/utils';
 
-import { CBOR, KeystoneTransport } from '@core/types/src/models';
+import { CBOR, KeystoneTransport } from '@core/types';
 import { convertTxData } from './utils';
 
 export class KeystoneWallet {

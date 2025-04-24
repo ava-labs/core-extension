@@ -89,4 +89,4 @@ export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './servi
 // export { GetSettingsHandler } from './services/settings/handlers/getSettings';
 // export { UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';
 // export { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
-export { DAppProviderRequest, JsonRpcFailure, JsonRpcRequest, JsonRpcRequestParams, JsonRpcRequestPayload, JsonRpcResponse,  JsonRpcSuccess, Web3Event } from '@core/types/src/models';
+export { DAppProviderRequest, JsonRpcFailure, JsonRpcRequest, JsonRpcRequestParams, JsonRpcRequestPayload, JsonRpcResponse,  JsonRpcSuccess, Web3Event } from '@core/types';

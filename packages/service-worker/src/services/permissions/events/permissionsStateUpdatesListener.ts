@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { PermissionEvents, Permissions } from '@core/types/src/models';
+import { PermissionEvents, Permissions } from '@core/types';
 
 export function permissionsUpdatedEventListener(
   evt: ExtensionConnectionEvent<Permissions>,

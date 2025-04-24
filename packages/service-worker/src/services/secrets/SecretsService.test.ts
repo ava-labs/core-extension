@@ -11,7 +11,7 @@ import {
   PrimaryAccount,
 } from '../accounts/models';
 import { StorageService } from '../storage/StorageService';
-import { WALLET_STORAGE_KEY, WalletEvents } from '@core/types/src/models';
+import { WALLET_STORAGE_KEY, WalletEvents } from '@core/types';
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,

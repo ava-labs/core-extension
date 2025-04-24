@@ -11,7 +11,7 @@ import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
 import { Action, buildActionForRequest } from '@core/types';
 import { PermissionsService } from '../../permissions/PermissionsService';
-import { isPrimaryAccount } from '@core/utils/src/accounts/typeGuards';
+import { isPrimaryAccount } from '@core/utils';
 import { canSkipApproval } from '@core/utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 

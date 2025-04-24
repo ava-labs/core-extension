@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { MessageType } from '@core/types/src/models';
+import { MessageType } from '@core/types';
 
 type TypedMessage = {
   types: {

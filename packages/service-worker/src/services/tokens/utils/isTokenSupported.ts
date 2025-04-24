@@ -1,5 +1,5 @@
 import { Network } from '@avalabs/core-chains-sdk';
-import { SettingsState } from '@core/types/src/models';
+import { SettingsState } from '@core/types';
 
 export async function isTokenSupported(
   tokenAddress: string,

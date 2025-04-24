@@ -2,7 +2,7 @@ import {
   DerivationPath,
   getBech32AddressFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { networks } from 'bitcoinjs-lib';
 import { Account, AccountType } from '../../accounts/models';
 import { AccountWithSecrets, SecretType } from '../../secrets/models';

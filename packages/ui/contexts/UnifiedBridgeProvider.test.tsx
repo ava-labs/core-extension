@@ -21,11 +21,11 @@ import {
 } from './UnifiedBridgeProvider';
 import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
+import { chainIdToCaip } from '@core/utils';
 import { CommonError } from 'packages/utils/src/errors';
-import { UnifiedBridgeError } from '@core/types/src/models';
+import { UnifiedBridgeError } from '@core/types';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 

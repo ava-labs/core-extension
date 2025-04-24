@@ -1,4 +1,4 @@
-import AutoPairingPostMessageConnection from '@avalabs/core-ext-messaging/src/AutoPairingPostMessageConnection';
+import AutoPairingPostMessageConnection from '@core/messaging';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { initializeProvider } from './initializeInpageProvider';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';

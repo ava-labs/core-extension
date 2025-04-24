@@ -1,7 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
-import { DappPermissions } from '@core/types/src/models';
+import { DappPermissions } from '@core/types';
 import { PermissionsService } from '../PermissionsService';
 
 type HandlerType = ExtensionRequestHandler<

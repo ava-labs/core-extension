@@ -1,6 +1,6 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { OnboardingState } from '@core/types/src/models';
-import { OnboardingEvents } from '@core/types/src/models';
+import { OnboardingState } from '@core/types';
+import { OnboardingEvents } from '@core/types';
 
 export function onboardingUpdatedEventListener(
   evt: ExtensionConnectionEvent<OnboardingState>,

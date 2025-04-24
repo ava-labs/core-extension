@@ -4,7 +4,7 @@ import {
   MfaRequestData,
   RecoveryMethod,
   SeedlessEvents,
-} from '@core/types/src/models';
+} from '@core/types';
 
 export function isSeedlessTokenEvent(
   evt: ExtensionConnectionEvent,

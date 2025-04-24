@@ -23,7 +23,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@core/utils';
 import { DerivedAddresses, SecretType } from '@core/types';
-import { isPrimaryAccount } from '@core/utils/src/accounts/typeGuards';
+import { isPrimaryAccount } from '@core/utils';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import { getAllAddressesForAccount } from '@core/utils';
 import { SecretsService } from '../secrets/SecretsService';

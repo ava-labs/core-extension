@@ -4,7 +4,7 @@ import {
 } from '../../../connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { NetworkEvents } from '@core/types/src/models';
+import { NetworkEvents } from '@core/types';
 import { NetworkService } from '../NetworkService';
 
 @singleton()

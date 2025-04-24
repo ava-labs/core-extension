@@ -6,7 +6,7 @@ import {
   ThemeVariant,
   TokensVisibility,
   CollectiblesVisibility,
-} from '@core/types/src/models';
+} from '@core/types';
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 
 const VERSION = 2;

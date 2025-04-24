@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { AccountType } from '../../accounts/models';
 import { GetBtcWalletPolicyDetails } from './getBtcWalletPolicyDetails';
 import { buildRpcCall } from '@src/tests/test-utils';

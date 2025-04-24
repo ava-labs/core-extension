@@ -1,7 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
-import { ThemeVariant } from '@core/types/src/models';
+import { ThemeVariant } from '@core/types';
 import { SettingsService } from '../SettingsService';
 
 type HandlerType = ExtensionRequestHandler<

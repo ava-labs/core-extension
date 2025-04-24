@@ -1,7 +1,7 @@
 import { Signal } from 'micro-signals';
 import { runtime } from 'webextension-polyfill';
 
-import { Web3Event } from '@core/types/src/models';
+import { Web3Event } from '@core/types';
 
 import { NetworkService } from '../NetworkService';
 

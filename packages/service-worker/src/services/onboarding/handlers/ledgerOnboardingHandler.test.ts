@@ -4,7 +4,7 @@ import {
   getXpubFromMnemonic,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { LockService } from '../../lock/LockService';

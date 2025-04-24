@@ -2,7 +2,7 @@ import {
   DerivationPath,
   getBech32AddressFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { networks } from 'bitcoinjs-lib';
 import { injectable } from 'tsyringe';

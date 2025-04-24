@@ -1,6 +1,6 @@
 import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from 'packages/service-worker/src/services/accounts/models';
-import { Balances } from '@core/types/src/models';
+import { Balances } from '@core/types';
 import { hasAccountBalances } from './hasAccountBalances';
 import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 

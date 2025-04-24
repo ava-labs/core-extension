@@ -9,7 +9,7 @@ import {
   SessionAuthData,
   SESSION_AUTH_DATA_KEY,
   AlarmsEvents,
-} from '@core/types/src/models';
+} from '@core/types';
 import { OnAllExtensionClosed } from '../../runtime/lifecycleCallbacks';
 
 @singleton()

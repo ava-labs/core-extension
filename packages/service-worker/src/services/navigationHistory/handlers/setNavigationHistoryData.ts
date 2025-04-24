@@ -1,7 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 import { injectable } from 'tsyringe';
-import { NavigationHistoryDataState } from '@core/types/src/models';
+import { NavigationHistoryDataState } from '@core/types';
 import { NavigationHistoryService } from '../NavigationHistoryService';
 
 type HandlerType = ExtensionRequestHandler<

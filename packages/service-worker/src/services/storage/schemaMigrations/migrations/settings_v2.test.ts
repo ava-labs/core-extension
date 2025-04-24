@@ -5,7 +5,7 @@ import {
   AnalyticsConsent,
   Languages,
   ThemeVariant,
-} from '@core/types/src/models';
+} from '@core/types';
 
 import settings_v2 from './settings_v2';
 

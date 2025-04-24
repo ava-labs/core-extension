@@ -1,4 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { LedgerResponseHandler } from './ledgerResponse';
 import { buildRpcCall } from '@src/tests/test-utils';
 

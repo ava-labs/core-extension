@@ -7,7 +7,7 @@ import {
 } from '../../../connections/models';
 
 import { WalletConnectService } from '../WalletConnectService';
-import { WalletConnectEvent } from '@core/types/src/models';
+import { WalletConnectEvent } from '@core/types';
 
 @singleton()
 export class WalletConnectEvents implements ExtensionEventEmitter {

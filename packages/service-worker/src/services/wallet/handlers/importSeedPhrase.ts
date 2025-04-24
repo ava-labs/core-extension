@@ -6,7 +6,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
 import {

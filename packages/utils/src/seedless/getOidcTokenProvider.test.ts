@@ -1,4 +1,4 @@
-import { SeedlessAuthProvider } from '@core/types/src/models';
+import { SeedlessAuthProvider } from '@core/types';
 import { authenticateWithApple } from './authenticateWithApple';
 import { authenticateWithGoogle } from './authenticateWithGoogle';
 import { getOidcTokenProvider } from './getOidcTokenProvider';

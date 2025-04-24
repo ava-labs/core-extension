@@ -7,7 +7,7 @@ import {
   OnboardingState,
   OnboardingEvents,
   ONBOARDING_STORAGE_KEY,
-} from '@core/types/src/models';
+} from '@core/types';
 
 /**
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -3,7 +3,7 @@ import {
   userExportKeygen,
 } from '@cubist-labs/cubesigner-sdk';
 
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 
 import { CompleteRecoveryPhraseExportHandler } from './completeRecoveryPhraseExport';
 import { SecretsService } from '../../secrets/SecretsService';
@@ -13,7 +13,7 @@ import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SeedlessWallet } from '../SeedlessWallet';
 import sentryCaptureException, {
   SentryExceptionTypes,
-} from '@avalabs/core-ext-common/src/monitoring/sentryCaptureException';
+} from '@core/common';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 

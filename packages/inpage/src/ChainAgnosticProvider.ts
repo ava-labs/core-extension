@@ -7,7 +7,7 @@ import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcRequestPayload,
-} from '@core/types/src/models';
+} from '@core/types';
 import { PartialBy } from '../../service-worker/src/models';
 
 import {

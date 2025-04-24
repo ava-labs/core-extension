@@ -7,7 +7,7 @@ import {
 } from '../../../connections/models';
 
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
-import { UnifiedBridgeEvent } from '@core/types/src/models';
+import { UnifiedBridgeEvent } from '@core/types';
 
 @singleton()
 export class UnifiedBridgeEvents implements ExtensionEventEmitter {

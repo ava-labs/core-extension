@@ -1,6 +1,6 @@
 import Big from 'big.js';
 import BN from 'bn.js';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { DeserializableValue } from './deserialize';
 import { SerializableValue, serializeToJSON } from './serialize';
 

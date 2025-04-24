@@ -1,13 +1,13 @@
 import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from 'packages/service-worker/src/services/accounts/models';
-import { Balances } from '@core/types/src/models';
+import { Balances } from '@core/types';
 import { calculateTotalBalance } from './calculateTotalBalance';
 import {
   NetworkTokenWithBalance,
   NetworkVMType,
   TokenType,
 } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { NetworkWithCaipId } from '@core/types';
 
 describe('utils/calculateTotalBalance', () => {
   const account1: Account = {

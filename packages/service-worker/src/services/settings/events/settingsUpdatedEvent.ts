@@ -1,4 +1,4 @@
-import { SettingsEvents } from '@core/types/src/models';
+import { SettingsEvents } from '@core/types';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,

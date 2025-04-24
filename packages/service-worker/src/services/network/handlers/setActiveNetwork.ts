@@ -2,7 +2,7 @@ import { injectable } from 'tsyringe';
 import { runtime } from 'webextension-polyfill';
 
 import { resolve } from '@core/utils';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
 import { NetworkService } from '../NetworkService';

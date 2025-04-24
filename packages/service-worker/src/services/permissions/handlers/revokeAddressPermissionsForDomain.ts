@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { ExtensionRequestHandler } from '../../../connections/models';
 
 import { PermissionsService } from '../PermissionsService';

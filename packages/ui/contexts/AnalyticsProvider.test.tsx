@@ -1,5 +1,5 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { AnalyticsEvents } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
+import { AnalyticsEvents } from '@core/types';
 import { fireEvent, render, screen } from '@src/tests/test-utils';
 import { Subject } from 'rxjs';
 import {
@@ -8,7 +8,7 @@ import {
 } from './AnalyticsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useSettingsContext } from './SettingsProvider';
-import { AnalyticsConsent } from '@core/types/src/models';
+import { AnalyticsConsent } from '@core/types';
 
 const renderWithAnalytics = (ui, { ...renderOptions }) => {
   return render(

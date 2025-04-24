@@ -3,9 +3,9 @@ import { WalletService } from '../WalletService';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '@core/types/src/models';
+} from '@core/types';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { Action, buildActionForRequest } from '@core/types/src/models';
+import { Action, buildActionForRequest } from '@core/types';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import {
   UnsignedTx,
@@ -27,7 +27,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { measureDuration } from '@core/utils';
 import { HEADERS } from '../../glacier/glacierConfig';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { NetworkWithCaipId } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
 type TxParams = {

@@ -5,7 +5,7 @@ import {
   PermissionEvents,
   PERMISSION_STORAGE_KEY,
   PermissionsState,
-} from '@core/types/src/models';
+} from '@core/types';
 import { PermissionsService } from './PermissionsService';
 import { omit } from 'lodash';
 import { Account } from '../accounts/models';

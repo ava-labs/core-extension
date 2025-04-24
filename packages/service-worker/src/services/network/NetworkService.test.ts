@@ -12,11 +12,11 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
-} from '@core/types/src/models';
+} from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../featureFlags/models';
 import { runtime } from 'webextension-polyfill';
-import { decorateWithCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { decorateWithCaipId } from '@core/utils';
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();

@@ -8,7 +8,7 @@ import { FeatureFlagService } from '../../../services/featureFlags/FeatureFlagSe
 import {
   caipToChainId,
   decorateWithCaipId,
-} from '@avalabs/core-ext-utils/src/caipConversion';
+} from '@core/utils';
 
 jest.mock('../../../services/network/NetworkService');
 

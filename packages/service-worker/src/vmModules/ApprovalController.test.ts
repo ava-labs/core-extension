@@ -3,7 +3,7 @@ import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
 import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
-import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
+import { chainIdToCaip } from '@core/utils';
 import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
 
 import { WalletService } from '../services/wallet/WalletService';
@@ -21,7 +21,7 @@ import {
   ActionStatus,
   ActionType,
   MultiTxAction,
-} from '@core/types/src/models';
+} from '@core/types';
 import { SecretsService } from '../services/secrets/SecretsService';
 
 jest.mock('tsyringe', () => {

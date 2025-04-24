@@ -5,7 +5,7 @@ import {
 } from './blockchainConversion';
 import { Blockchain, BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { t } from 'i18next';
-import { decorateWithCaipId } from '@avalabs/core-ext-utils/src/caipConversion';
+import { decorateWithCaipId } from '@core/utils';
 
 jest.mock('i18next', () => ({
   t: jest.fn(),

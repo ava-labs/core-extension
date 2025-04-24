@@ -5,7 +5,7 @@ import {
   NavigationHistoryState,
   NavigationHistoryStorage,
   NavigationHistoryDataState,
-} from '@core/types/src/models';
+} from '@core/types';
 
 @injectable()
 export class NavigationHistoryService {

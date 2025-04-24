@@ -4,7 +4,7 @@ import {
   CORE_MOBILE_WALLET_ID,
   FIREBLOCKS_APP_NAME,
   WalletConnectSessionInfo,
-} from '@core/types/src/models';
+} from '@core/types';
 
 export const isCoreMobile = (session: WalletConnectSessionInfo) =>
   session.walletApp.walletId === CORE_MOBILE_WALLET_ID;

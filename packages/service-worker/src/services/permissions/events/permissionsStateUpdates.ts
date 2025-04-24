@@ -4,7 +4,7 @@ import {
 } from '../../../connections/models';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { PermissionEvents } from '@core/types/src/models';
+import { PermissionEvents } from '@core/types';
 import { PermissionsService } from '../PermissionsService';
 
 @singleton()

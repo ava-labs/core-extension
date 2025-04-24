@@ -1,5 +1,5 @@
 import { ExtensionConnectionEvent } from '../../../connections/models';
-import { LockEvents } from '@core/types/src/models';
+import { LockEvents } from '@core/types';
 
 export function lockStateChangedEventListener(
   evt: ExtensionConnectionEvent<boolean>,

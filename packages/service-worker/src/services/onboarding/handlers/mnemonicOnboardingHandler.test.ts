@@ -9,7 +9,7 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { MnemonicOnboardingHandler } from './mnemonicOnboardingHandler';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { OnboardingService } from '../OnboardingService';
 import { StorageService } from '../../storage/StorageService';
 import { LockService } from '../../lock/LockService';

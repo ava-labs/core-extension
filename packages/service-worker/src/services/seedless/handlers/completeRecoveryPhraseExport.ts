@@ -5,7 +5,7 @@ import {
 } from '@cubist-labs/cubesigner-sdk';
 
 import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 
 import { SecretsService } from '../../secrets/SecretsService';
 import { SecretType } from '../../secrets/models';

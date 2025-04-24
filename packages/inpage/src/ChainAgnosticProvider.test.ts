@@ -1,10 +1,10 @@
 import { ethErrors } from 'eth-rpc-errors';
-import AutoPairingPostMessageConnection from '@avalabs/core-ext-messaging/src/AutoPairingPostMessageConnection';
+import AutoPairingPostMessageConnection from '@core/messaging';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import onDomReady from './utils/onDomReady';
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppProviderRequest } from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { chainIdToCaip } from '@avalabs/core-ext-utils/src/caipConversion';
+import { chainIdToCaip } from '@core/utils';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {

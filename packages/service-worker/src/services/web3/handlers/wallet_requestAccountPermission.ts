@@ -1,13 +1,13 @@
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '@core/types/src/models';
+} from '@core/types';
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action, ActionType } from '@core/types/src/models';
+import { Action, ActionType } from '@core/types';
 import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';

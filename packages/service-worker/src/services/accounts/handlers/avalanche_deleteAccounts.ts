@@ -16,7 +16,7 @@ import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../AccountsService';
-import { isPrimaryAccount } from '@core/utils/src/accounts/typeGuards';
+import { isPrimaryAccount } from '@core/utils';
 
 type PrimaryWalletAccounts = {
   [walletId: string]: PrimaryAccount[];

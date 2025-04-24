@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { Balances, TotalPriceChange } from '@core/types/src/models';
+import { Balances, TotalPriceChange } from '@core/types';
 
 const VERSION = 2;
 
