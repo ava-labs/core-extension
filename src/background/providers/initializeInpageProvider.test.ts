@@ -43,7 +43,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     expect(EVMProvider).toHaveBeenCalledWith(
       expect.objectContaining({ maxListeners: 10 }),
     );
-    // expect(SolanaWalletProvider).toHaveBeenCalled(); TODO: uncomment with Solana support public rollout
+    // expect(SolanaWalletProvider).toHaveBeenCalled();
     expect(provider.isAvalanche).toBe(true);
   });
 

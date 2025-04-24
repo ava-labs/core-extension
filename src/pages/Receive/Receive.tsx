@@ -9,6 +9,7 @@ import {
   BtcQRCodeLogo,
   EthereumQRCodeLogo,
   AvalancheQRCodeLogo,
+  SolanaQRCodeLogo,
 } from '@src/components/icons/QRCodeLogos';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isEthereumChainId } from '@src/background/services/network/utils/isEthereumNetwork';
@@ -57,6 +58,8 @@ export const Receive = () => {
       return <BtcQRCodeLogo />;
     } else if (network?.chainId && isEthereumChainId(network.chainId)) {
       return <EthereumQRCodeLogo />;
+    } else if (isSolanaActive) {
+      return <SolanaQRCodeLogo />;
     } else {
       return <AvalancheQRCodeLogo />;
     }

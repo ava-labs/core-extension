@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { ManageTokensList } from './ManageTokensList';
-import { Scrollbars } from '@src/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
 import { PageTitle } from '@src/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
@@ -14,8 +14,11 @@ import {
   PlusIcon,
   SearchBar,
   Stack,
+  Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
+import { FlexScrollbars } from '@src/components/common/FlexScrollbars';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 export enum Sort {
   TOKEN_AMOUNT = 'Token Amount',
@@ -26,6 +29,7 @@ export enum Sort {
 export const ManageTokens = () => {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const { network } = useNetworkContext();
   const { t } = useTranslation();
   const [showSortMenu, setShowSortMenu] = useState<boolean>(false);
 
@@ -90,23 +94,36 @@ export const ManageTokens = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Button
-            variant="text"
-            data-testid="add-custom-token-button"
-            onClick={() => history.push('/manage-tokens/add')}
-            sx={{ alignSelf: 'flex-start', padding: 0 }}
+          <Tooltip
+            title={
+              network?.vmName === NetworkVMType.EVM
+                ? ''
+                : t('Unsupported on the active network')
+            }
           >
-            <Stack direction="row" alignItems="center" sx={{ height: '24px' }}>
+            <Button
+              variant="text"
+              data-testid="add-custom-token-button"
+              onClick={() => history.push('/manage-tokens/add')}
+              sx={{ alignSelf: 'flex-start', padding: 0 }}
+              disabled={network?.vmName !== NetworkVMType.EVM}
+            >
               <Stack
-                justifyContent="center"
+                direction="row"
                 alignItems="center"
-                sx={{ width: '24px', height: '24px' }}
+                sx={{ height: '24px' }}
               >
-                <PlusIcon size={20} />
+                <Stack
+                  justifyContent="center"
+                  alignItems="center"
+                  sx={{ width: '24px', height: '24px' }}
+                >
+                  <PlusIcon size={20} />
+                </Stack>
+                <Typography sx={{ mx: 1 }}>{t('Add Custom Token')}</Typography>
               </Stack>
-              <Typography sx={{ mx: 1 }}>{t('Add Custom Token')}</Typography>
-            </Stack>
-          </Button>
+            </Button>
+          </Tooltip>
 
           <Stack
             sx={{
@@ -152,9 +169,7 @@ export const ManageTokens = () => {
                     height: 120,
                   }}
                 >
-                  <Scrollbars
-                    style={{ flexGrow: 1, maxHeight: 'unset', height: '100%' }}
-                  >
+                  <FlexScrollbars>
                     {Object.keys(sortItems).map((sortItem) => (
                       <FilterItem
                         key={sortItem}
@@ -162,16 +177,16 @@ export const ManageTokens = () => {
                         onClick={handleSortChange}
                       />
                     ))}
-                  </Scrollbars>
+                  </FlexScrollbars>
                 </MenuList>
               </Stack>
             )}
           </Stack>
         </Stack>
 
-        <Scrollbars style={{ marginBottom: '16px' }}>
+        <FlexScrollbars style={{ marginBottom: '8px' }}>
           <ManageTokensList searchQuery={searchQuery} sort={selectedSort} />
-        </Scrollbars>
+        </FlexScrollbars>
       </Stack>
     </Stack>
   );

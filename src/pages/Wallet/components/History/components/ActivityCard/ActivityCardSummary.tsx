@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';
+import { useMemo } from 'react';
+import getAllAddressesForAccount from '@src/utils/getAllAddressesForAccount';
 
 export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
   const {
@@ -13,6 +15,10 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
   const { sourceBlockchain, targetBlockchain } =
     useBlockchainNames(historyItem);
   const { t } = useTranslation();
+  const userAddresses = useMemo(
+    () => (activeAccount ? getAllAddressesForAccount(activeAccount) : []),
+    [activeAccount],
+  );
 
   if (
     historyItem.txType === TransactionType.BRIDGE ||
@@ -29,11 +35,12 @@ export function ActivityCardSummary({ historyItem }: ActivityCardProp) {
     );
   } else if (historyItem.txType === TransactionType.SWAP) {
     const sourceToken = historyItem.tokens.find(
-      (token) => token.from?.address === activeAccount?.addressC,
+      (token) =>
+        token.from?.address && userAddresses.includes(token.from.address),
     );
 
     const targetToken = historyItem.tokens.find(
-      (token) => token.to?.address === activeAccount?.addressC,
+      (token) => token.to?.address && userAddresses.includes(token.to.address),
     );
 
     return (

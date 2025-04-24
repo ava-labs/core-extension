@@ -3,6 +3,7 @@ import type { Contact } from '@avalabs/types';
 import {
   isValidAddress,
   isValidBtcAddress,
+  isValidSvmAddress,
   isValidXPAddress,
 } from '@src/utils/isAddressValid';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,7 @@ export const ContactForm = ({
   const [addressError, setAddressError] = useState<string>();
   const [addressBtcError, setAddressBtcError] = useState<string>();
   const [addressXpError, setAddressXpError] = useState<string>();
+  const [addressSvmError, setAddressSvmError] = useState<string>();
   const { contacts } = useContactsContext();
 
   const FormErrors = {
@@ -35,6 +37,7 @@ export const ContactForm = ({
     ),
     ADDRESS_BTC_ERROR: t('Not a valid Bitcoin address'),
     ADDRESS_XP_ERROR: t('Not a valid X/P-Chain address'),
+    ADDRESS_SVM_ERROR: t('Not a valid Solana address'),
     ADDRESS_XP_PREFIX_ERROR: t('Please remove address prefix. (P- or X-)'),
     ADDRESS_REQUIRED_ERROR: t('At least one address required'),
     ADDRESS_EXISTS: t('This address already exists in the address book'),
@@ -45,6 +48,7 @@ export const ContactForm = ({
       const nameExists = !!updatedContact.name;
       const addressExists = !!updatedContact.address;
       const btcExists = !!updatedContact.addressBTC;
+      const svmExists = !!updatedContact.addressSVM;
       const xpExists = !!updatedContact.addressXP;
       let valid = true;
       // no name -> error
@@ -53,10 +57,17 @@ export const ContactForm = ({
         valid = false;
       }
       // no address, btc address, pvm address -> error
-      if (!addressExists && !btcExists && !xpExists && showErrors) {
+      if (
+        !addressExists &&
+        !btcExists &&
+        !xpExists &&
+        !svmExists &&
+        showErrors
+      ) {
         setAddressError(FormErrors.ADDRESS_REQUIRED_ERROR);
         setAddressBtcError(FormErrors.ADDRESS_REQUIRED_ERROR);
         setAddressXpError(FormErrors.ADDRESS_REQUIRED_ERROR);
+        setAddressSvmError(FormErrors.ADDRESS_REQUIRED_ERROR);
         return false;
       }
       // no valid address -> error
@@ -70,6 +81,14 @@ export const ContactForm = ({
         !isValidBtcAddress(updatedContact.addressBTC)
       ) {
         setAddressBtcError(FormErrors.ADDRESS_BTC_ERROR);
+        valid = false;
+      }
+      // invalid Solana address -> error
+      if (
+        updatedContact.addressSVM &&
+        !isValidSvmAddress(updatedContact.addressSVM)
+      ) {
+        setAddressSvmError(FormErrors.ADDRESS_SVM_ERROR);
         valid = false;
       }
       // Invalid PVM address -> error
@@ -87,7 +106,10 @@ export const ContactForm = ({
         }
       }
 
-      if (!nameExists || (!btcExists && !addressExists && !xpExists)) {
+      if (
+        !nameExists ||
+        (!btcExists && !addressExists && !xpExists && !svmExists)
+      ) {
         valid = false;
       }
 
@@ -114,6 +136,18 @@ export const ContactForm = ({
         valid = false;
       }
 
+      if (
+        updatedContact.addressSVM &&
+        contacts.find(
+          ({ id, addressSVM }) =>
+            id !== updatedContact.id &&
+            addressSVM === updatedContact.addressSVM,
+        )
+      ) {
+        setAddressSvmError(FormErrors.ADDRESS_EXISTS);
+        valid = false;
+      }
+
       return valid;
     },
     [
@@ -126,6 +160,7 @@ export const ContactForm = ({
       FormErrors.ADDRESS_XP_PREFIX_ERROR,
       FormErrors.ADDRESS_XP_ERROR,
       FormErrors.ADDRESS_EXISTS,
+      FormErrors.ADDRESS_SVM_ERROR,
     ],
   );
 
@@ -141,6 +176,7 @@ export const ContactForm = ({
     setAddressError('');
     setAddressBtcError('');
     setAddressXpError('');
+    setAddressSvmError('');
   };
 
   const sanitizeXPAddress = (address: string) => {
@@ -231,6 +267,23 @@ export const ContactForm = ({
         error={!!addressBtcError}
         helperText={addressBtcError}
         placeholder={t(`Enter Bitcoin address`)}
+        fullWidth
+        multiline
+        rows={2}
+      />
+
+      <TextField
+        data-testid="svm-address-textarea"
+        size="small"
+        onChange={(e) => {
+          e.stopPropagation();
+          handleUpdate('addressSVM', e.target.value);
+        }}
+        value={contact.addressSVM}
+        label={t('Solana Address')}
+        error={!!addressSvmError}
+        helperText={addressSvmError}
+        placeholder={t(`Enter Solana address`)}
         fullWidth
         multiline
         rows={2}

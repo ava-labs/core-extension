@@ -1,12 +1,15 @@
 import type { Contact } from '@avalabs/types';
 import { isAddress } from 'ethers';
 import { isBech32Address } from '@avalabs/core-bridge-sdk';
-import { isValidXPAddress } from './isAddressValid';
+import { isValidSvmAddress, isValidXPAddress } from './isAddressValid';
 
 export const isContactValid = (contact: Contact) => {
   if (
     !contact.name ||
-    (!contact.address && !contact.addressBTC && !contact.addressXP)
+    (!contact.address &&
+      !contact.addressBTC &&
+      !contact.addressXP &&
+      !contact.addressSVM)
   ) {
     return { valid: false, reason: 'contact name or address is missing' };
   }
@@ -14,7 +17,8 @@ export const isContactValid = (contact: Contact) => {
   const isAddressValid =
     (!contact.address || isAddress(contact.address)) &&
     (!contact.addressBTC || isBech32Address(contact.addressBTC)) &&
-    (!contact.addressXP || isValidXPAddress(contact.addressXP));
+    (!contact.addressXP || isValidXPAddress(contact.addressXP)) &&
+    (!contact.addressSVM || isValidSvmAddress(contact.addressSVM));
 
   if (isAddressValid) {
     return { valid: true, reason: '' };

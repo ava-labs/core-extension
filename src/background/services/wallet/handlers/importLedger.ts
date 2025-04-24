@@ -211,7 +211,7 @@ export class ImportLedgerHandler implements HandlerType {
     const accountsToBeCreated = numberOfAccountsToCreate || 3;
     const accountsToCreate = Math.min(
       3,
-      pubKeys
+      pubKeys?.length
         ? Math.min(pubKeys.length, accountsToBeCreated)
         : accountsToBeCreated,
     );
