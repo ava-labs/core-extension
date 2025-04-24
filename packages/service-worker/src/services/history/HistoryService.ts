@@ -1,9 +1,8 @@
 import { singleton } from 'tsyringe';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { NetworkWithCaipId } from '@core/types';
+import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
-import { TxHistoryItem } from '@core/types';
 import { Transaction } from '@avalabs/vm-module-types';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 import { resolve } from '@core/utils';

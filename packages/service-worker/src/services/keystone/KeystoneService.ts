@@ -3,8 +3,8 @@ import { filter, firstValueFrom, map, Subject, Subscription } from 'rxjs';
 import EventEmitter from 'events';
 import {
   CBOR,
-  DeviceRequestData,
-  DeviceResponseData,
+  KeystoneDeviceRequestData,
+  KeystoneDeviceResponseData,
   KeystoneEvent,
   KeystoneTransport,
 } from '@core/types';
@@ -14,8 +14,8 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 export class KeystoneService implements KeystoneTransport, OnUnlock {
   private eventEmitter = new EventEmitter();
 
-  private keystoneDeviceRequest$ = new Subject<DeviceRequestData>();
-  private keystoneDeviceResponse$ = new Subject<DeviceResponseData>();
+  private keystoneDeviceRequest$ = new Subject<KeystoneDeviceRequestData>();
+  private keystoneDeviceResponse$ = new Subject<KeystoneDeviceResponseData>();
   private keystoneRequestSubscription?: Subscription;
 
   onUnlock() {
@@ -30,7 +30,7 @@ export class KeystoneService implements KeystoneTransport, OnUnlock {
     this.keystoneRequestSubscription?.unsubscribe();
   }
 
-  public submitSignatureResponse(response: DeviceResponseData) {
+  public submitSignatureResponse(response: KeystoneDeviceResponseData) {
     this.keystoneDeviceResponse$.next(response);
   }
 
@@ -48,7 +48,7 @@ export class KeystoneService implements KeystoneTransport, OnUnlock {
     return firstValueFrom(
       this.keystoneDeviceResponse$.pipe(
         filter((response) => response.requestId === requestId),
-        map((response: DeviceResponseData) => {
+        map((response: KeystoneDeviceResponseData) => {
           return Buffer.from(response.cbor, 'hex');
         }),
       ),

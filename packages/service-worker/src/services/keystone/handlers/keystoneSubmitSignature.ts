@@ -1,13 +1,11 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler, KeystoneDeviceResponseData } from '@core/types';
 import { injectable } from 'tsyringe';
 import { KeystoneService } from '../KeystoneService';
-import { DeviceResponseData } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.KEYSTONE_SUBMIT_SIGNATURE,
   boolean,
-  [response: DeviceResponseData]
+  [response: KeystoneDeviceResponseData]
 >;
 
 @injectable()

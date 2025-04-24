@@ -1,11 +1,11 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+	KeystoneEvent
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { KeystoneService } from '../KeystoneService';
-import { KeystoneEvent } from '@core/types';
 
 @singleton()
 export class KeystoneRequestEvents implements ExtensionEventEmitter {

@@ -1,7 +1,5 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler, TxHistoryItem } from '@core/types';
 import { injectable } from 'tsyringe';
-import { TxHistoryItem } from '@core/types';
 import { HistoryService } from '../HistoryService';
 import { NetworkService } from '../../network/NetworkService';
 
