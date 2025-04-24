@@ -1,8 +1,8 @@
 import { injectable, injectAll, injectAllWithTransform } from 'tsyringe';
 import { runtime, Runtime } from 'webextension-polyfill';
-import { DEFERRED_RESPONSE, Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
 import {
+	DEFERRED_RESPONSE,
   ConnectionController,
   DAppEventEmitter,
   ExtensionConnectionEvent,
@@ -10,17 +10,17 @@ import {
   ExtensionConnectionMessageResponse,
   ExtensionEventEmitter,
   ExtensionRequestHandler,
-} from '../models';
+} from '@core/types';
 import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
 import {
   connectionLog,
   disconnectLog,
   eventLog,
   responseLog,
+	isDevelopment,
 } from '@core/utils';
 
 import { resolve } from '@avalabs/core-utils-sdk';
-import { isDevelopment } from '@core/utils';
 import './registry';
 import '../dAppConnection/registry';
 import {
@@ -33,6 +33,7 @@ import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensi
 import { NetworkService } from '../../services/network/NetworkService';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
+import { Pipeline } from '../middlewares/models';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {

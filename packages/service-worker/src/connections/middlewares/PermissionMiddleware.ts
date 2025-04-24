@@ -5,13 +5,11 @@ import {
   CORE_DOMAINS,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
-} from '../models';
-import { Middleware } from './models';
-import {
   DAppProviderRequest,
   JsonRpcRequest,
   JsonRpcResponse,
-} from '@core/types/src/models';
+} from '@core/types';
+import { Middleware } from './models';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);

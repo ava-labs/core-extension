@@ -180,7 +180,7 @@ import {
   JsonRpcRequest,
   JsonRpcRequestPayload,
 } from './dapp-connection';
-import { ErrorData } from '@core/types';
+import { ErrorData } from './error';
 import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 

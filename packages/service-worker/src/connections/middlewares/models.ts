@@ -1,5 +1,4 @@
-import { DEFERRED_RESPONSE, DomainMetadata } from '@core/types';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { DEFERRED_RESPONSE, DomainMetadata, NetworkWithCaipId } from '@core/types';
 
 export type Next = () => Promise<void> | void;
 export type ErrorCallback = (error: Error) => void;

@@ -6,16 +6,15 @@ import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
+	Account,
   PermissionEvents,
   Permissions,
   PERMISSION_STORAGE_KEY,
   PermissionsState,
   DappPermissions,
 } from '@core/types';
-import { Account } from '../accounts/models';
-import getAllAddressesForAccount from '@core/utils';
-import { SYNCED_DOMAINS } from 'packages/common/src/constants';
-import { getAddressByVMType } from '@core/utils';
+import { getAddressByVMType, getAllAddressesForAccount } from '@core/utils';
+import { SYNCED_DOMAINS } from '@core/common';
 
 @singleton()
 export class PermissionsService implements OnLock {

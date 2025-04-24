@@ -1,4 +1,3 @@
-import { DEFERRED_RESPONSE } from '../middlewares/models';
 import { resolve } from '@avalabs/core-utils-sdk';
 import {
   connectionLog,
@@ -16,22 +15,24 @@ import {
   SideToLog,
 } from '../middlewares/RequestLoggerMiddleware';
 import { SiteMetadataMiddleware } from '../middlewares/SiteMetadataMiddleware';
-import { ConnectionController, DAppEventEmitter } from '../models';
 import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
 import { PermissionsService } from '../../services/permissions/PermissionsService';
 import { AccountsService } from '../../services/accounts/AccountsService';
 
 import './registry';
 import { NetworkService } from '../../services/network/NetworkService';
-import { DAppRequestHandler } from './DAppRequestHandler';
 import { LockService } from '../../services/lock/LockService';
 import { PortConnection } from '@core/messaging';
 import {
   DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
   JsonRpcFailure,
   JsonRpcRequest,
   JsonRpcSuccess,
-} from '@core/types/src/models';
+  ConnectionController,
+  DAppEventEmitter,
+} from '@core/types';
 import { Monitoring } from '@core/common';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';

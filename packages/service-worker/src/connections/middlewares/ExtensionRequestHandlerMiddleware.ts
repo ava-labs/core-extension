@@ -4,7 +4,7 @@ import {
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
   ExtensionRequestHandler,
-} from '../models';
+} from '@core/types';
 import * as Sentry from '@sentry/browser';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { Module, Network } from '@avalabs/vm-module-types';

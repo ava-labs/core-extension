@@ -1,12 +1,14 @@
 import { NetworkService } from '../../services/network/NetworkService';
 
-import { JsonRpcRequest, JsonRpcResponse } from '@core/types/src/models';
-
-import { Middleware } from './models';
 import {
+  JsonRpcRequest,
+  JsonRpcResponse,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
-} from '../models';
+} from '@core/types';
+
+import { Middleware } from './models';
+
 import { RpcMethod } from '@avalabs/vm-module-types';
 import getTargetNetworkForTx from '../../services/wallet/utils/getTargetNetworkForTx';
 

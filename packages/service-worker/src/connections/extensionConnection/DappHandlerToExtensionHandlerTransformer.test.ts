@@ -1,9 +1,8 @@
 import browser from 'webextension-polyfill';
 
-import { DAppRequestHandler } from '../dAppConnection/DAppRequestHandler';
+import { DAppRequestHandler, DEFERRED_RESPONSE } from '@core/types';
 
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
-import { DEFERRED_RESPONSE } from '../middlewares/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('src/background/connections/extensionConnection/DappHandlerToExtensionHandlerTransformer', () => {

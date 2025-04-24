@@ -1,9 +1,10 @@
 import { requestLog, responseLog } from '@core/utils';
-import { JsonRpcRequest, JsonRpcResponse } from '@core/types/src/models';
 import {
+  JsonRpcRequest,
+  JsonRpcResponse,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
-} from '../models';
+} from '@core/types';
 import { Middleware } from './models';
 
 /**

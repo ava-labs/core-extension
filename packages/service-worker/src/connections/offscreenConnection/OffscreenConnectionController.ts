@@ -1,26 +1,27 @@
 import { injectable, injectAll } from 'tsyringe';
 import { runtime, Runtime } from 'webextension-polyfill';
-import { DEFERRED_RESPONSE, Pipeline } from '../middlewares/models';
+import { Pipeline } from '../middlewares/models';
 import { ExtensionRequestHandlerMiddleware } from '../middlewares/ExtensionRequestHandlerMiddleware';
 import {
   ConnectionController,
+	DEFERRED_RESPONSE,
   ExtensionConnectionEvent,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
   ExtensionRequestHandler,
   OffscreenEventEmitter,
-} from '../models';
+} from '@core/types';
 import { RequestProcessorPipeline } from '../RequestProcessorPipeline';
 import {
   connectionLog,
   disconnectLog,
   eventLog,
   responseLog,
+	isDevelopment,
 } from '@core/utils';
 import './registry';
 
 import { resolve } from '@avalabs/core-utils-sdk';
-import { isDevelopment } from '@core/utils';
 import '../extensionConnection/registry';
 import '../dAppConnection/registry';
 import {

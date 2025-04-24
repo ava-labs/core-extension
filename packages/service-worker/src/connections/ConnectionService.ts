@@ -4,9 +4,9 @@ import {
   EXTENSION_SCRIPT,
   OFFSCREEN_SCRIPT,
 } from '@core/common';
+import { ConnectionController } from '@core/types';
 import { container, singleton } from 'tsyringe';
 import { DAppConnectionController } from './dAppConnection/DAppConnectionController';
-import { ConnectionController } from './models';
 import { ExtensionConnectionController } from './extensionConnection/ExtensionConnectionController';
 import { CallbackManager } from '../runtime/CallbackManager';
 import { OffscreenConnectionController } from './offscreenConnection/OffscreenConnectionController';
