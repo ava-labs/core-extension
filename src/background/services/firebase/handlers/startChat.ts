@@ -2,16 +2,12 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { FirebaseService } from '../FirebaseService';
+import { ConfigParams } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBASE_START_CHAT,
   boolean,
-  {
-    tools: any;
-    toolConfig: any;
-    systemInstruction: any;
-    history: any[];
-  }
+  ConfigParams
 >;
 
 @injectable()
@@ -21,12 +17,11 @@ export class FirebaseStartChatHandler implements HandlerType {
   constructor(private firebaseService: FirebaseService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { tools, toolConfig, systemInstruction, history } = request.params;
+    const { tools, toolConfig, systemInstruction } = request.params;
     const chat = await this.firebaseService.startChat({
       tools,
       toolConfig,
       systemInstruction,
-      history,
     });
 
     return {

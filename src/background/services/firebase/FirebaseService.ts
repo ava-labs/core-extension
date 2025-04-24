@@ -7,7 +7,13 @@ import {
   onBackgroundMessage,
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
-import { FcmMessageEvents, FirebaseEvents, FcmMessageListener } from './models';
+import {
+  FcmMessageEvents,
+  FirebaseEvents,
+  FcmMessageListener,
+  ChatConfig,
+  ConfigParams,
+} from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
@@ -18,8 +24,7 @@ import {
   getVertexAI,
   getGenerativeModel,
   GenerativeModel,
-  ChatSession,
-  EnhancedGenerateContentResponse,
+  Content,
 } from 'firebase/vertexai';
 
 @singleton()
@@ -30,7 +35,7 @@ export class FirebaseService {
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
   #model?: GenerativeModel;
-  #chat?: ChatSession;
+  #config?: ChatConfig;
 
   constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
@@ -107,26 +112,48 @@ export class FirebaseService {
     this.#fcmMessageEventEmitter.on(event, listener);
   }
 
-  #getModel({ tools, toolConfig, systemInstruction }) {
+  #getModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
     if (!this.#app) {
       throw new Error('Firebase app has not initialized');
     }
     const vertexAI = getVertexAI(this.#app);
+    const generationConfig = {
+      topP: 0.95,
+      topK: 40,
+      maxOutputTokens: 8192,
+    };
+    this.#config = {
+      generationConfig,
+      tools,
+      toolConfig,
+      systemInstruction,
+    };
+
     return getGenerativeModel(vertexAI, {
       model: 'gemini-2.0-flash',
-      generationConfig: {
-        temperature: 0.5,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 8192,
-      },
+      generationConfig,
       tools,
       toolConfig,
       systemInstruction,
     });
   }
 
-  async startChat({ tools, toolConfig, systemInstruction, history }) {
+  async generateContent(message: string, parts?: Content[]) {
+    const contents = parts
+      ? ([{ role: 'user', parts: [{ text: message }] }, ...parts] as Content[])
+      : ([{ role: 'user', parts: [{ text: message }] }] as Content[]);
+    const result = await this.#model?.generateContent({
+      ...this.#config,
+      contents,
+    });
+    if (!result) {
+      throw new Error('no result');
+    }
+    const response = result.response;
+    return response;
+  }
+
+  async startChat({ tools, toolConfig, systemInstruction }: ConfigParams) {
     if (!this.#model) {
       this.#model = this.#getModel({
         tools,
@@ -134,30 +161,7 @@ export class FirebaseService {
         systemInstruction,
       });
     }
-    this.#chat = this.#model.startChat({
-      history,
-      generationConfig: {
-        maxOutputTokens: 100,
-      },
-    });
     return true;
-  }
-
-  async sendModelMessage(message: string) {
-    if (!this.#chat) {
-      // this.#chat = this.startChat();
-      throw new Error('No chat');
-    }
-    console.log('message: ', message);
-
-    const result = await this.#chat.sendMessage(message);
-
-    const response = result.response;
-    console.log('sendModelMessage response: ', response);
-    const text = response.text();
-    console.log('text: ', text);
-    return response;
-    // return text;
   }
 
   async #handleMessage(payload: MessagePayload) {

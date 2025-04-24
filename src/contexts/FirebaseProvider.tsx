@@ -2,22 +2,9 @@ import { createContext, useCallback, useContext } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { FirebaseStartChatHandler } from '@src/background/services/firebase/handlers/startChat';
-import { EnhancedGenerateContentResponse } from '@firebase/vertexai';
+import { Content, FunctionCall } from '@firebase/vertexai';
 import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
-
-// {
-//     modelVersion:,
-//     generationConfig:,
-//     tools,
-//     toolConfig,
-//     systemInstruction,
-// }: {
-//     modelVersion: string;
-//     generationConfig: any;
-//     tools: any;
-//     toolConfig: any;
-//     systemInstruction: any;
-// }
+import { ConfigParams } from '@src/background/services/firebase/models';
 
 const FirebaseContext = createContext<{
   startChat: ({
@@ -26,8 +13,9 @@ const FirebaseContext = createContext<{
     systemInstruction,
   }: any) => Promise<boolean>;
   sendMessage: (
-    message: string | { functionResponse: { name: string; response: any } }[],
-  ) => Promise<EnhancedGenerateContentResponse>;
+    message: string,
+    parts?: Content[],
+  ) => Promise<{ text: string; functionCalls?: FunctionCall[] }>;
 }>({
   getModel: () => false,
 } as any);
@@ -36,14 +24,13 @@ export function FirebaseContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
 
   const startChat = useCallback(
-    ({ tools, toolConfig, systemInstruction, history }) => {
+    ({ tools, toolConfig, systemInstruction }: ConfigParams) => {
       return request<FirebaseStartChatHandler>({
         method: ExtensionRequest.FIREBASE_START_CHAT,
         params: {
           tools,
           toolConfig,
           systemInstruction,
-          history,
         },
       });
     },
@@ -51,10 +38,10 @@ export function FirebaseContextProvider({ children }: { children: any }) {
   );
 
   const sendMessage = useCallback(
-    (message) => {
+    (message, parts) => {
       return request<FirebaseSendMessageHandler>({
         method: ExtensionRequest.FIREBASE_SEND_MESSAGE,
-        params: message,
+        params: [message, parts],
       });
     },
     [request],

@@ -10,7 +10,7 @@ import {
   Backdrop,
 } from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FunctionCallingMode, GoogleGenerativeAI } from '@google/generative-ai';
+import { FunctionCallingMode } from '@google/generative-ai';
 import { functionDeclarations, systemPromptTemplate } from './models';
 import { useTranslation } from 'react-i18next';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -39,8 +39,6 @@ import {
 } from './PromptElements';
 import { useFirebaseContext } from '@src/contexts/FirebaseProvider';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 export function Prompt() {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -67,8 +65,6 @@ export function Prompt() {
       content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
     },
   ]);
-
-  // const isTyping = prompts[prompts.length - 1]?.type === 'user';
 
   const tokens = useTokensWithBalances();
   useEffect(() => {
@@ -297,52 +293,6 @@ export function Prompt() {
       );
   }, [tokens, network, contacts, accounts, networks]);
 
-  // const model = useMemo(() => {
-  //   return genAI.getGenerativeModel({
-  //     model: 'gemini-2.0-flash',
-  //     generationConfig: {
-  //       temperature: 0.5,
-  //       topP: 0.95,
-  //       topK: 40,
-  //       maxOutputTokens: 8192,
-  //     },
-  //     tools: [
-  //       {
-  //         functionDeclarations,
-  //       },
-  //     ],
-  //     toolConfig: {
-  //       functionCallingConfig: {
-  //         mode: FunctionCallingMode.AUTO,
-  //       },
-  //     },
-  //     systemInstruction: systemPrompt,
-  //   });
-  // }, [systemPrompt]);
-
-  // const model = useMemo(async () => {
-  //   await getModel({
-  //     modelVersion: 'gemini-2.0-flash',
-  //     generationConfig: {
-  //       temperature: 0.5,
-  //       topP: 0.95,
-  //       topK: 40,
-  //       maxOutputTokens: 8192,
-  //     },
-  //     tools: [
-  //       {
-  //         functionDeclarations,
-  //       },
-  //     ],
-  //     toolConfig: {
-  //       functionCallingConfig: {
-  //         mode: FunctionCallingMode.AUTO,
-  //       },
-  //     },
-  //     systemInstruction: systemPrompt,
-  //   });
-  // }, [systemPrompt]);
-
   useEffect(() => {
     startChat({
       tools: [
@@ -375,15 +325,9 @@ export function Prompt() {
       });
       setInput('');
       const response = await sendMessage(message);
-      console.log('result: ', response);
-
-      // const chat = model.startChat();
-
-      // Send the message to the model.
-      // const result = await chat.sendMessage(message);
 
       // For simplicity, this uses the first function call found.
-      const call = response?.functionCalls()?.[0];
+      const call = response?.functionCalls?.[0];
       if (call) {
         // Call the executable function named in the function call
         // with the arguments specified in the function call and
@@ -393,17 +337,25 @@ export function Prompt() {
 
           // Send the API response back to the model so it can generate
           // a text response that can be displayed to the user.
-          const result2 = await sendMessage([
+          const functionResult = await sendMessage(message, [
+            { role: 'model', parts: [{ functionCall: { ...call } }] },
             {
-              functionResponse: {
-                name: 'send',
-                response: apiResponse,
-              },
+              role: 'function',
+              parts: [
+                {
+                  functionResponse: {
+                    name: 'send',
+                    response: {
+                      content: apiResponse.content,
+                    },
+                  },
+                },
+              ],
             },
           ]);
           // Log the text response.
           setPrompts((prev) => {
-            return [...prev, { role: 'model', content: result2.text() }];
+            return [...prev, { role: 'model', content: functionResult.text }];
           });
         } catch (e: any) {
           const errorMessage =
@@ -413,25 +365,31 @@ export function Prompt() {
 
           // Send the API response back to the model so it can generate
           // a text response that can be displayed to the user.
-          const errorResult = await sendMessage([
+          const errorResult = await sendMessage(message, [
+            { role: 'model', parts: [{ functionCall: { ...call } }] },
             {
-              functionResponse: {
-                name: 'send',
-                response: {
-                  content: `Send failed. ${errorMessage}`,
+              role: 'function',
+              parts: [
+                {
+                  functionResponse: {
+                    name: 'send',
+                    response: {
+                      content: `Send failed. ${errorMessage}`,
+                    },
+                  },
                 },
-              },
+              ],
             },
           ]);
 
           // Log the text response.
           setPrompts((prev) => {
-            return [...prev, { role: 'model', content: errorResult.text() }];
+            return [...prev, { role: 'model', content: errorResult.text }];
           });
         }
       } else {
         setPrompts((prev) => {
-          return [...prev, { role: 'model', content: response.text() }];
+          return [...prev, { role: 'model', content: response.text }];
         });
       }
       setIsTyping(false);

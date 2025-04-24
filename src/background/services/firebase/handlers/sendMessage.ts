@@ -2,12 +2,12 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { FirebaseService } from '../FirebaseService';
-import { EnhancedGenerateContentResponse } from 'firebase/vertexai';
+import { Content, FunctionCall } from 'firebase/vertexai';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBASE_SEND_MESSAGE,
-  EnhancedGenerateContentResponse,
-  string
+  { text: string; functionCalls?: FunctionCall[] },
+  [string, Content[] | undefined]
 >;
 
 @injectable()
@@ -17,7 +17,7 @@ export class FirebaseSendMessageHandler implements HandlerType {
   constructor(private firebaseService: FirebaseService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const message = request.params;
+    const [message, parts] = request.params;
     if (!message) {
       return {
         ...request,
@@ -25,12 +25,17 @@ export class FirebaseSendMessageHandler implements HandlerType {
       };
     }
     try {
-      const response = await this.firebaseService.sendModelMessage(message);
-      console.log('FirebaseSendMessageHandler response: ', response);
+      const response = await this.firebaseService.generateContent(
+        message,
+        parts,
+      );
 
       return {
         ...request,
-        result: response,
+        result: {
+          text: response.text(),
+          functionCalls: response.functionCalls(),
+        },
       };
     } catch (e: any) {
       return {

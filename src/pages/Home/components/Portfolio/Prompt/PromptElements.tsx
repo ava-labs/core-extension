@@ -84,6 +84,7 @@ export const UserInput = ({ input, setInput, prompt, disabled }) => {
       }}
       focused
       color="primary"
+      autoComplete="off"
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
