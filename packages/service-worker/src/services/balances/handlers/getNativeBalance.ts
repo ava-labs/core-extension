@@ -1,9 +1,11 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+	AccountType,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { NetworkService } from '../../network/NetworkService';
-import { BalancesService } from '../BalancesService';
-import { AccountType } from '../../accounts/models';
+import { NetworkService } from '@/services/network/NetworkService';
+import { BalancesService } from '@/services/balances/BalancesService';
 import {
   NetworkTokenWithBalance,
   NetworkVMType,

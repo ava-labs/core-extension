@@ -1,7 +1,9 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { GlacierService } from '../../glacier/GlacierService';
+import {
+  ExtensionRequest,
+} from '@core/types';
+import { GlacierService } from '@/services/glacier/GlacierService';
 import { RefreshNftMetadataHandler } from './refreshNftMetadata';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/balances/handlers/refreshNftMetadata.ts', () => {
   beforeEach(() => {

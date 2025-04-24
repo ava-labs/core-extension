@@ -4,11 +4,6 @@ export type GetTotalBalanceForWalletParams = {
   walletId: string;
 };
 
-export type TotalBalanceForWallet = {
-  totalBalanceInCurrency?: number;
-  hasBalanceOnUnderivedAccounts: boolean;
-};
-
 export type AddressActivityFetcher = (
   addresses: string[],
 ) => Promise<ChainAddressChainIdMapListResponse>;

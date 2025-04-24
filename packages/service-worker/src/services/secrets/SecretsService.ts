@@ -5,27 +5,25 @@ import EventEmitter from 'events';
 import {
   Account,
   AccountType,
-  ImportData,
-  ImportType,
-} from '../accounts/models';
-import { StorageService } from '../storage/StorageService';
-import {
-  BtcWalletPolicyDetails,
-  WalletSecretInStorage,
-  WALLET_STORAGE_KEY,
-  AddPrimaryWalletSecrets,
-  WalletDetails,
-  WalletEvents,
-} from '@core/types/src/models';
-import {
+
   AddressPublicKeyJson,
   Curve,
   EVM_BASE_DERIVATION_PATH,
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
   SecretType,
-} from './models';
-import { isPrimaryAccount } from '../accounts/utils/typeGuards';
+  ImportData,
+  ImportType,
+  BtcWalletPolicyDetails,
+  WalletSecretInStorage,
+  WALLET_STORAGE_KEY,
+  AddPrimaryWalletSecrets,
+  WalletDetails,
+  WalletEvents,
+	LedgerError,
+} from '@core/types';
+import { StorageService } from '../storage/StorageService';
+import { assertPresent, mapVMAddresses, isPrimaryAccount } from '@core/utils';
 import {
   getPubKeyFromTransport,
   DerivationPath,
@@ -39,9 +37,6 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { hasPublicKeyFor } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '@core/utils';
-import { assertPresent } from '@core/utils';
-import { LedgerError } from '@core/utils';
 
 /**
  * Use this service to fetch, save or delete account secrets.

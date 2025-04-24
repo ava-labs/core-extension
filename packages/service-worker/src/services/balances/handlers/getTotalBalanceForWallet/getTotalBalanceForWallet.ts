@@ -7,19 +7,22 @@ import {
   isNotNullish,
 } from '@core/utils';
 
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../../connections/models';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  Account,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  TotalBalanceForWallet,
+} from '@core/types';
 
-import { SecretsService } from '../../../secrets/SecretsService';
-import { AccountsService } from '../../../accounts/AccountsService';
-import { GlacierService } from '../../../glacier/GlacierService';
-import { NetworkService } from '../../../network/NetworkService';
-import { BalanceAggregatorService } from '../../BalanceAggregatorService';
-import { Account } from '../../../accounts/models';
+import { SecretsService } from '@/services/secrets/SecretsService';
+import { AccountsService } from '@/services/accounts/AccountsService';
+import { GlacierService } from '@/services/glacier/GlacierService';
+import { NetworkService } from '@/services/network/NetworkService';
+import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
 
 import {
   GetTotalBalanceForWalletParams,
-  TotalBalanceForWallet,
   isImportedAccountsRequest,
 } from './models';
 import {
@@ -27,8 +30,7 @@ import {
   getAccountsWithActivity,
   getIncludedNetworks,
 } from './helpers';
-import { getExtendedPublicKey } from '../../../secrets/utils';
-import { AVALANCHE_BASE_DERIVATION_PATH } from '../../../secrets/models';
+import { getExtendedPublicKey } from '@/services/secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,

@@ -1,12 +1,12 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { BalancePollingService } from '../BalancePollingService';
-import { StartBalancesPollingHandler } from './startBalancesPolling';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { caipToChainId } from '@avalabs/core-ext-utils/src/caipConversion';
 import { TokenType } from '@avalabs/vm-module-types';
+import { caipToChainId } from '@core/utils';
+import { ExtensionRequest } from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
+import { BalancePollingService } from '@/services/balances/BalancePollingService';
+import { StartBalancesPollingHandler } from './startBalancesPolling';
 
-jest.mock('@src/utils/caipConversion');
+jest.mock('@src/utils');
 
 describe('background/services/balances/handlers/startBalancesPolling.ts', () => {
   beforeEach(() => {

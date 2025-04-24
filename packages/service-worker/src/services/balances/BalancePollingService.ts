@@ -1,7 +1,7 @@
 import { uniq } from 'lodash';
 import { OnAllExtensionClosed, OnLock } from '../../runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
-import { Account } from '../accounts/models';
+import { Account } from '@core/types';
 import { BalanceAggregatorService } from './BalanceAggregatorService';
 import { TokenType } from '@avalabs/vm-module-types';
 

@@ -1,4 +1,5 @@
 import {
+	NftTokenWithBalance,
   TokenWithBalance,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
@@ -46,6 +47,13 @@ export interface Balances<TokenTypes = TokenWithBalance> {
     };
   };
 }
+export interface BalancesInfo {
+  balances: {
+    tokens: Balances;
+    nfts: Balances<NftTokenWithBalance>;
+  };
+  isBalancesCached: boolean;
+}
 
 export interface CachedBalancesInfo {
   totalBalance?: TotalBalance;
@@ -90,4 +98,9 @@ export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {
   }
 
   return token.unconfirmedBalanceInCurrency;
+};
+
+export type TotalBalanceForWallet = {
+  totalBalanceInCurrency?: number;
+  hasBalanceOnUnderivedAccounts: boolean;
 };

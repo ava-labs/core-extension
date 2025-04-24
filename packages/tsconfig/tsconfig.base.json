@@ -2,10 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "Default",
   "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@src/*": ["src/*"]
-    },
     "target": "ESNext",
     "module": "commonjs",
     "moduleResolution": "node",

@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  BalancesInfo,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { BalancesInfo } from '../events/balancesUpdatedEvent';
+import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET,

@@ -1,8 +1,6 @@
-import { Account } from '../../../../../services/accounts/models';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { Account, Balances, NetworkWithCaipId } from '@core/types';
 import { calculateTotalBalance } from '@core/utils';
 
-import { Balances } from '@core/types/src/models';
 
 export function calculateTotalBalanceForAccounts(
   balances: Balances,

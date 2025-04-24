@@ -19,7 +19,7 @@ type Params = [
   internalLimit: number,
 ];
 import { AccountsService } from '../AccountsService';
-import { getAddressesInRange } from '../utils/getAddressesInRange';
+import { getAddressesInRange } from '@core/utils/src/accounts/getAddressesInRange';
 import { getExtendedPublicKey } from '../../secrets/utils';
 import { AVALANCHE_BASE_DERIVATION_PATH } from '@core/types';
 

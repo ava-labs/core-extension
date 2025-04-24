@@ -1,7 +1,7 @@
 import { pick } from 'lodash';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
-import { ChainListWithCaipIds } from '@core/types/src/models';
+import { ChainListWithCaipIds } from '@core/types';
 
 import { getIncludedNetworks } from './getIncludedNetworks';
 

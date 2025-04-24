@@ -1,20 +1,13 @@
 import {
+  BalanceServiceEvents,
+  BalancesInfo,
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { BalanceServiceEvents, Balances } from '@core/types/src/models';
 import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
-export interface BalancesInfo {
-  balances: {
-    tokens: Balances;
-    nfts: Balances<NftTokenWithBalance>;
-  };
-  isBalancesCached: boolean;
-}
 @singleton()
 export class BalancesUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();

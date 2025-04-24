@@ -1,6 +1,8 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { BalanceServiceEvents } from '@core/types/src/models';
-import { BalancesInfo } from './balancesUpdatedEvent';
+import {
+  BalanceServiceEvents,
+  BalancesInfo,
+  ExtensionConnectionEvent,
+} from '@core/types';
 
 export function balancesUpdatedEventListener(
   evt: ExtensionConnectionEvent<BalancesInfo>,

@@ -34,7 +34,7 @@ import { WalletService } from '../../wallet/WalletService';
 import { ContractTransaction } from 'ethers';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { FeatureGates } from '../../featureFlags/models';
-import { isWalletConnectAccount } from '../../accounts/utils/typeGuards';
+import { isWalletConnectAccount } from '@core/utils/src/accounts/typeGuards';
 import { NetworkFeeService } from '../../networkFee/NetworkFeeService';
 import { buildBtcTx, getBtcInputUtxos, validateBtcSend } from '@core/utils';
 import { resolve } from '@core/utils';

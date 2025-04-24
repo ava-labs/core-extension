@@ -12,10 +12,10 @@ import {
   TokensVisibility,
   CollectiblesVisibility,
   AnalyticsConsent,
-} from '@core/types/src/models';
-import { SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant } from '@core/types/src/models';
+	SettingsState, SETTINGS_STORAGE_KEY, ThemeVariant,
+	EnsureDefined,
+} from '@core/types';
 import { changeLanguage } from 'i18next';
-import { EnsureDefined } from '../../models';
 
 const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',

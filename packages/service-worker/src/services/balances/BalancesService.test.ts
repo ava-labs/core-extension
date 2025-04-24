@@ -1,8 +1,8 @@
 import { BalancesService } from './BalancesService';
-import { AccountType } from '../accounts/models';
+import { AccountType } from '@core/types';
 import { PrimaryNetworkAssetType } from '@avalabs/glacier-sdk';
 import { GetBalancesResponse, TokenType } from '@avalabs/vm-module-types';
-import { ModuleManager } from 'packages/service-worker/src/vmModules/ModuleManager';
+import { ModuleManager } from '@/vmModules/ModuleManager';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import * as Sentry from '@sentry/browser';
 import { SettingsService } from '../settings/SettingsService';

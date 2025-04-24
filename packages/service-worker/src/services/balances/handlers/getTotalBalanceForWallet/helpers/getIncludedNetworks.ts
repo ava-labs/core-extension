@@ -3,9 +3,8 @@ import { uniq } from 'lodash';
 import {
   ChainListWithCaipIds,
   NetworkWithCaipId,
-} from '@core/types/src/models';
-import { getDefaultChainIds } from '@core/utils';
-import { isNotNullish } from '@core/utils';
+} from '@core/types';
+import { getDefaultChainIds, isNotNullish } from '@core/utils';
 
 export function getIncludedNetworks(
   isMainnet: boolean,

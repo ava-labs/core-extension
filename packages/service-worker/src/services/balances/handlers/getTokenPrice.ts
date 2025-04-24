@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { SettingsService } from '../../settings/SettingsService';
-import { TokenPricesService } from '../TokenPricesService';
+import { SettingsService } from '@/services/settings/SettingsService';
+import { TokenPricesService } from '@/services/balances/TokenPricesService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.TOKEN_PRICE_GET,

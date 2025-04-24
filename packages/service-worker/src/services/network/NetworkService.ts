@@ -10,16 +10,20 @@ import {
   NETWORK_OVERRIDES_STORAGE_KEY,
   CustomNetworkPayload,
   ChainList,
-  Network,
   ChainListWithCaipIds,
   NetworkWithCaipId,
-} from '@core/types/src/models';
+  SigningResult,
+  FeatureFlagEvents,
+  FeatureFlags,
+  FeatureGates,
+} from '@core/types';
 import {
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
+  Network,
   NetworkVMType,
   getChainsAndTokens,
 } from '@avalabs/core-chains-sdk';
@@ -31,14 +35,6 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import { SigningResult } from '@core/types/src/models';
-import { getExponentialBackoffDelay } from '@core/utils';
-import { getProviderForNetwork } from '@core/utils';
-import {
-  FeatureFlagEvents,
-  FeatureFlags,
-  FeatureGates,
-} from '../featureFlags/models';
 import { isPchainNetwork } from './utils/isAvalanchePchainNetwork';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from './utils/isAvalancheXchainNetwork';
@@ -47,8 +43,11 @@ import {
   caipToChainId,
   chainIdToCaip,
   decorateWithCaipId,
+  getSyncDomain,
+  getExponentialBackoffDelay,
+  getProviderForNetwork,
+  isSyncDomain,
 } from '@core/utils';
-import { getSyncDomain, isSyncDomain } from '@core/utils/src/getSyncDomain';
 import { isSolanaNetwork } from './utils/isSolanaNetwork';
 
 @singleton()
@@ -602,7 +601,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this._customNetworks = {
       ...this._customNetworks,
-      [chainId]: omit(customNetwork, 'customRpcHeaders'), // should be saved in overrides
+      [chainId]: omit(customNetwork, 'customRpcHeaders') as NetworkWithCaipId, // should be saved in overrides
     };
 
     this._allNetworks.dispatch({

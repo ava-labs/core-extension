@@ -1,12 +1,9 @@
-// /v1/chains/{chainId}/nfts/collections/{address}/tokens/{tokenId}:reindex
-
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
-
-import { GlacierService } from '../../glacier/GlacierService';
 import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
+
+import { GlacierService } from '@/services/glacier/GlacierService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NFT_REFRESH_METADATA,

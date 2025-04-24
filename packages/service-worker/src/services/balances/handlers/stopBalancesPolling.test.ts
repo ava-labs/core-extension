@@ -1,7 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { BalancePollingService } from '../BalancePollingService';
+import { ExtensionRequest } from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { BalancePollingService } from '@/services/balances/BalancePollingService';
 import { StopBalancesPollingHandler } from './stopBalancesPolling';
-import { buildRpcCall } from '@src/tests/test-utils';
 
 describe('background/services/balances/handlers/stopBalancesPolling.ts', () => {
   beforeEach(() => {

@@ -1,11 +1,13 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  Account,
+  Balances,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { BalanceAggregatorService } from '../BalanceAggregatorService';
-import { BalancePollingService } from '../BalancePollingService';
-import { Balances } from '@core/types/src/models';
-import { Account } from '../../accounts/models';
 import { caipToChainId } from '@core/utils';
+import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
+import { BalancePollingService } from '@/services/balances/BalancePollingService';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<

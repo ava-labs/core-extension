@@ -6,30 +6,28 @@ import {
   type TokenWithBalance,
 } from '@avalabs/vm-module-types';
 
-import { buildRpcCall } from '@src/tests/test-utils';
-import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import type { SecretsService } from '@src/background/services/secrets/SecretsService';
-import type { NetworkService } from '@src/background/services/network/NetworkService';
-import type { GlacierService } from '@src/background/services/glacier/GlacierService';
-import type { AccountsService } from '@src/background/services/accounts/AccountsService';
 import {
   type Accounts,
   AccountType,
+	ExtensionRequest,
   PrimaryAccount,
   ImportedAccount,
-} from '@src/background/services/accounts/models';
+  Balances,
+  AVALANCHE_BASE_DERIVATION_PATH,
+  SecretType,
+} from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import type { SecretsService } from '@/services/secrets/SecretsService';
+import type { NetworkService } from '@/services/network/NetworkService';
+import type { GlacierService } from '@/services/glacier/GlacierService';
+import type { AccountsService } from '@/services/accounts/AccountsService';
+import { buildExtendedPublicKey } from '@/services/secrets/utils';
 
-import type { Balances } from '@core/types/src/models';
 import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 
 import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from './models';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
-import { buildExtendedPublicKey } from '@src/background/services/secrets/utils';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  SecretType,
-} from '@src/background/services/secrets/models';
 
 jest.mock('./helpers/getAccountsWithActivity');
 

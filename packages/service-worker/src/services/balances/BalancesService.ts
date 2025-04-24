@@ -1,7 +1,5 @@
 import { singleton } from 'tsyringe';
-import { Account } from '../accounts/models';
-import { TokensPriceShortData } from '@core/types/src/models';
-import { NetworkWithCaipId } from '@core/types/src/models';
+import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { SettingsService } from '../settings/SettingsService';
 import { getPriceChangeValues } from './utils/getPriceChangeValues';
