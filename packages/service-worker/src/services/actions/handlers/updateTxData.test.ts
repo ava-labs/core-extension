@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { UpdateActionTxDataHandler } from './updateTxData';
+import {
+	ExtensionRequest,
+	HandlerParameters,
+	SendErrorMessage,
+} from '@core/types';
 import { matchingPayload } from '@src/tests/test-utils';
-import { SendErrorMessage } from 'packages/utils/src/send/models';
-import { HandlerParameters } from 'packages/service-worker/src/connections/models';
+import { UpdateActionTxDataHandler } from './updateTxData';
 
 describe('src/background/services/actions/handlers/updateTxData', () => {
   const actionsService = {

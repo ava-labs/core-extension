@@ -1,4 +1,5 @@
 export * from './address';
+export * from './actions/getUpdatedActionData';
 export * from './calculateTotalBalance';
 export * from './shouldUseWalletConnectApproval';
 export * from './object';

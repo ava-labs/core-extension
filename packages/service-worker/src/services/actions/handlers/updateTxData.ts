@@ -1,13 +1,14 @@
-import { injectable } from 'tsyringe';
 import {
-  EvmTxUpdateFn,
   BtcTxUpdateFn,
   EvmTxBatchUpdateFn,
+  EvmTxUpdateFn,
 } from '@avalabs/vm-module-types';
-import { SendErrorMessage } from '@core/types';
-
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  SendErrorMessage,
+} from '@core/types';
+import { injectable } from 'tsyringe';
 
 import { ActionsService } from '../ActionsService';
 

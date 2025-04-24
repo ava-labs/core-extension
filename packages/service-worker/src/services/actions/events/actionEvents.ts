@@ -1,12 +1,14 @@
 import { ActionsService } from '../ActionsService';
 import {
+  ActionCompletedEventType,
+  Actions,
+  ActionsEvent,
   ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
-} from '../../../connections/models';
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
-import { ActionCompletedEventType, Actions, ActionsEvent } from '@core/types/src/models';
 import { serializeError } from 'eth-rpc-errors';
 import browser from 'webextension-polyfill';
 

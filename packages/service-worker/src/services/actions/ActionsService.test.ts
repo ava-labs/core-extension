@@ -1,19 +1,19 @@
-import { DAppRequestHandler } from 'packages/service-worker/src/connections/dAppConnection/DAppRequestHandler';
+import {
+  Action,
+  ACTION_HANDLED_BY_MODULE,
+  ActionCompletedEventType,
+  ACTIONS_STORAGE_KEY,
+  ActionsEvent,
+  ActionStatus,
+  ActionType,
+  DAppRequestHandler,
+} from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
+import { ApprovalController } from 'packages/service-worker/src/vmModules/ApprovalController';
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { ActionsService } from './ActionsService';
-import {
-  Action,
-  ActionCompletedEventType,
-  ActionsEvent,
-  ActionStatus,
-  ACTIONS_STORAGE_KEY,
-  ActionType,
-} from '@core/types/src/models';
 import { filterStaleActions } from './utils';
-import { ApprovalController } from 'packages/service-worker/src/vmModules/ApprovalController';
-import { ACTION_HANDLED_BY_MODULE } from 'packages/service-worker/src/models';
 
 jest.mock('../storage/StorageService');
 jest.mock('../lock/LockService');

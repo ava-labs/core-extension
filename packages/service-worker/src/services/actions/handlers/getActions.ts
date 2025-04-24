@@ -1,8 +1,11 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  Action,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  MultiTxAction,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { ActionsService } from '../ActionsService';
-import { Action, MultiTxAction } from '@core/types/src/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_GET,

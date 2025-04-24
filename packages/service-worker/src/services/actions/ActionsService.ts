@@ -1,28 +1,28 @@
-import { omit } from 'lodash';
-import { EventEmitter } from 'events';
-import { injectAll, singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
+import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
 import {
   Action,
+  ACTION_HANDLED_BY_MODULE,
   ActionCompletedEventType,
   Actions,
+  ACTIONS_STORAGE_KEY,
   ActionsEvent,
   ActionStatus,
-  ACTIONS_STORAGE_KEY,
   ActionUpdate,
-  MultiTxAction,
+  DAppProviderRequest,
+  DAppRequestHandler,
   isBatchApprovalAction,
-} from '@core/types/src/models';
-import { ethErrors } from 'eth-rpc-errors';
-import { DAppRequestHandler } from '../../connections/dAppConnection/DAppRequestHandler';
-import { OnStorageReady } from '../../runtime/lifecycleCallbacks';
-import { LockService } from '../lock/LockService';
-import { filterStaleActions } from './utils';
-import { ACTION_HANDLED_BY_MODULE } from '../../models';
-import { DAppProviderRequest } from '@core/types/src/models';
+  MultiTxAction,
+} from '@core/types';
 import { getUpdatedSigningData } from '@core/utils';
-import { BtcTxUpdateFn, EvmTxUpdateFn } from '@avalabs/vm-module-types';
+import { ethErrors } from 'eth-rpc-errors';
+import { EventEmitter } from 'events';
+import { omit } from 'lodash';
+import { injectAll, singleton } from 'tsyringe';
+import { OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { ApprovalController } from '../../vmModules/ApprovalController';
+import { LockService } from '../lock/LockService';
+import { StorageService } from '../storage/StorageService';
+import { filterStaleActions } from './utils';
 
 @singleton()
 export class ActionsService implements OnStorageReady {

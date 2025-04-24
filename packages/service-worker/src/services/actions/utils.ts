@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import { Actions } from '@core/types/src/models';
+import { Actions } from '@core/types';
 
 /**
  * Filters out actions from the actions list without an open window
