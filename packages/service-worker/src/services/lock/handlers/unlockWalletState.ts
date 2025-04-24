@@ -1,5 +1,4 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler	 } from '@core/types';
 import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';

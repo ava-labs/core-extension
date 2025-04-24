@@ -1,19 +1,21 @@
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import {
+  Action,
+  DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
+  MessageType,
+} from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
-import { injectable } from 'tsyringe';
-import { Action } from '@core/types';
-import { NetworkService } from '../../network/NetworkService';
-import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
-import { WalletService } from '../../wallet/WalletService';
-import { MessageType } from '@core/types';
-import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { TypedDataEncoder } from 'ethers';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { injectable } from 'tsyringe';
 import { BlockaidService } from '../../blockaid/BlockaidService';
 import { getValidationResultType } from '../../blockaid/utils';
+import { NetworkService } from '../../network/NetworkService';
 import { SecretsService } from '../../secrets/SecretsService';
+import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
+import { WalletService } from '../../wallet/WalletService';
+import { paramsToMessageParams } from '../utils/messageParamsParser';
 
 @injectable()
 export class PersonalSignHandler extends DAppRequestHandler {

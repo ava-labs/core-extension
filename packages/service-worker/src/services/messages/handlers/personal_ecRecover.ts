@@ -1,5 +1,4 @@
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types';
+import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
 import { injectable } from 'tsyringe';
 import { personalSigRecovery } from '../utils/personalSigRecovery';
 

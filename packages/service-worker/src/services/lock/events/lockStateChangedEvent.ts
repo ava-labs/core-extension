@@ -1,8 +1,8 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
-import { LockEvents } from '@core/types';
+	LockEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { OnLock, OnUnlock } from '../../../runtime/lifecycleCallbacks';

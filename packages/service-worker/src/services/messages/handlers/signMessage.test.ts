@@ -1,16 +1,19 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import {
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  MessageParams,
+  MessageType,
+  SecretType,
+} from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { ethErrors } from 'eth-rpc-errors';
-import { MessageParams, MessageType } from '@core/types';
+import { TypedDataEncoder } from 'ethers';
+import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
 import { paramsToMessageParams } from '../utils/messageParamsParser';
 import { PersonalSignHandler } from './signMessage';
-import ensureMessageFormatIsValid from '../../wallet/utils/ensureMessageFormatIsValid';
-import { TypedDataEncoder } from 'ethers';
-import { SecretType } from '../../secrets/models';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { buildRpcCall } from '@src/tests/test-utils';
 
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@/runtime/openApprovalWindow');
 jest.mock('../../wallet/utils/ensureMessageFormatIsValid');
 jest.mock('../utils/messageParamsParser');
 jest.mock('ethers');

@@ -1,5 +1,4 @@
-import { JsonRpcRequestPayload } from '@core/types';
-import { MessageParams, MessageType } from '@core/types';
+import { JsonRpcRequestPayload, MessageParams, MessageType } from '@core/types';
 
 export function paramsToMessageParams(
   data: JsonRpcRequestPayload<MessageType, any[]>,

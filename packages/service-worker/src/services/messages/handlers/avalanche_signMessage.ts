@@ -1,18 +1,18 @@
 import { injectable } from 'tsyringe';
 
-import { WalletService } from '../../wallet/WalletService';
-import { DAppProviderRequest } from '@core/types';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { Action } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
-import { ethErrors } from 'eth-rpc-errors';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import { utils } from '@avalabs/avalanchejs';
 import {
+  Action,
+  DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
   MessageParams,
   MessageType,
   SignMessageData,
 } from '@core/types';
-import { utils } from '@avalabs/avalanchejs';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { ethErrors } from 'eth-rpc-errors';
+import { WalletService } from '../../wallet/WalletService';
 
 @injectable()
 export class AvalancheSignMessageHandler extends DAppRequestHandler {
