@@ -1,13 +1,12 @@
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { DAppProviderRequest, DEFERRED_RESPONSE } from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { NetworkService } from '../NetworkService';
 import { WalletAddNetworkHandler } from './wallet_addNetwork';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
 
 jest.mock('../NetworkService');
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@/runtime/openApprovalWindow');
 describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
   const mockActiveNetwork: Network = {
     chainName: 'Avalanche (C-Chain)',

@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@core/types';
 import { UpdateDefaultNetworkHandler } from './updateDefaultNetwork';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/network/handlers/updateDefaultNetwork.ts', () => {
   const isValidRPCUrlMock = jest.fn();

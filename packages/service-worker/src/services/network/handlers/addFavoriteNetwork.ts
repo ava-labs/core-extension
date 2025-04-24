@@ -1,8 +1,7 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
+import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { resolve } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,

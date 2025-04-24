@@ -1,10 +1,12 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  CustomNetworkPayload,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
+import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { CustomNetworkPayload } from '@core/types';
 import { runtime } from 'webextension-polyfill';
-import { resolve } from '@avalabs/core-utils-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SAVE_CUSTOM,

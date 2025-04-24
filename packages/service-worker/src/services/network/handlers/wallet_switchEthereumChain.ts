@@ -1,16 +1,17 @@
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import {
+  Action,
+  buildActionForRequest,
   DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
   JsonRpcRequestParams,
+  NetworkWithCaipId,
 } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
+import { canSkipApproval } from '@core/utils';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { Action, buildActionForRequest } from '@core/types';
 import { NetworkService } from '../NetworkService';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-import { NetworkWithCaipId } from '@core/types';
-import { canSkipApproval } from '@core/utils';
 
 type Params = [{ chainId: string | number }];
 

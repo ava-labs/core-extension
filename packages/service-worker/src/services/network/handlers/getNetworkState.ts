@@ -1,9 +1,12 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ChainListWithCaipIds,
+  NetworkWithCaipId,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { ChainListWithCaipIds, NetworkWithCaipId } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORKS_GET_STATE,

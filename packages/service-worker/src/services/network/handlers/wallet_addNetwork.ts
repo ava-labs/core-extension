@@ -1,20 +1,20 @@
 import { injectable } from 'tsyringe';
 
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import {
+  Action,
   DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
   JsonRpcRequestParams,
+  buildActionForRequest,
 } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-
-import { Action, buildActionForRequest } from '@core/types';
-import { NetworkService } from '../NetworkService';
-import { CustomNetworkPayload } from '@core/types';
-import { resolve } from '@avalabs/core-utils-sdk';
-import { runtime } from 'webextension-polyfill';
-import { caipToChainId } from '@core/utils';
 import { NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { resolve } from '@avalabs/core-utils-sdk';
+import { CustomNetworkPayload } from '@core/types';
+import { caipToChainId } from '@core/utils';
+import { runtime } from 'webextension-polyfill';
+import { NetworkService } from '../NetworkService';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
 interface AddNetworkPayload {
   caipId: string;

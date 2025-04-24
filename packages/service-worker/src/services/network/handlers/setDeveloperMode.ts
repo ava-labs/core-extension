@@ -1,13 +1,11 @@
+import { ChainId } from '@avalabs/core-chains-sdk';
 import { injectable } from 'tsyringe';
 import { runtime } from 'webextension-polyfill';
-import { ChainId } from '@avalabs/core-chains-sdk';
 
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { resolve } from '@core/utils';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
+import { chainIdToCaip, resolve } from '@core/utils';
 
 import { NetworkService } from '../NetworkService';
-import { chainIdToCaip } from '@core/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,

@@ -1,5 +1,8 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { NetworkEvents, NetworkWithCaipId } from '@core/types';
+import {
+  ExtensionConnectionEvent,
+  NetworkEvents,
+  NetworkWithCaipId,
+} from '@core/types';
 
 export function networksUpdatedEventListener(
   evt: ExtensionConnectionEvent<{

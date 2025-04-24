@@ -12,9 +12,9 @@ import {
   NETWORK_LIST_STORAGE_KEY,
   NETWORK_OVERRIDES_STORAGE_KEY,
   NETWORK_STORAGE_KEY,
+	FeatureGates,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { FeatureGates } from '@core/common/src/models';
 import { runtime } from 'webextension-polyfill';
 import { decorateWithCaipId } from '@core/utils';
 
@@ -44,7 +44,7 @@ jest.mock('ethers', () => ({
   FetchRequest: jest.fn(),
 }));
 
-jest.mock('@src/utils/network/addGlacierAPIKeyIfNeeded', () => ({
+jest.mock('@core/utils', () => ({
   addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
 

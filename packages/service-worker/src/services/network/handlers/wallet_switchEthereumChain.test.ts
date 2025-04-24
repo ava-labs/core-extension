@@ -1,14 +1,13 @@
 import { WalletSwitchEthereumChainHandler } from './wallet_switchEthereumChain';
-import { buildRpcCall } from './../../../../tests/test-utils';
-import { DAppProviderRequest } from '@core/types';
-import { DEFERRED_RESPONSE } from './../../../connections/middlewares/models';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { DAppProviderRequest, DEFERRED_RESPONSE } from '@core/types';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { canSkipApproval } from '@core/utils';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
-jest.mock('@src/background/runtime/openApprovalWindow');
-jest.mock('@src/utils/canSkipApproval');
+jest.mock('@/runtime/openApprovalWindow');
+jest.mock('@core/utils');
 
 const mockActiveNetwork: Network = {
   chainName: 'Avalanche (C-Chain)',

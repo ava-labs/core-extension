@@ -1,9 +1,11 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  NetworkOverrides,
+} from '@core/types';
 import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { NetworkOverrides } from '@core/types';
 import { isValidHttpHeader } from '../utils/isValidHttpHeader';
 
 type HandlerType = ExtensionRequestHandler<

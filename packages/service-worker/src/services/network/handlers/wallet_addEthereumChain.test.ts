@@ -1,18 +1,21 @@
-import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import {
+  Action,
+  ActionStatus,
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  Network,
+} from '@core/types';
+import { canSkipApproval, decorateWithCaipId } from '@core/utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { ethErrors } from 'eth-rpc-errors';
-import { Action, ActionStatus } from '@core/types';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { decorateWithCaipId } from '@core/utils';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
 
-jest.mock('@src/utils/canSkipApproval');
+jest.mock('@core/utils');
 jest.mock('../NetworkService');
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@/runtime/openApprovalWindow');
 
 const mockActiveNetwork: Network = {
   chainName: 'Avalanche (C-Chain)',

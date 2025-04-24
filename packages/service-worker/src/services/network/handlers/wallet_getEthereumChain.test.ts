@@ -8,7 +8,7 @@ import {
 } from './wallet_getEthereumChain';
 import { DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/network/handlers/wallet_getEthereumChain.ts', () => {
   const networkServiceInactive = {

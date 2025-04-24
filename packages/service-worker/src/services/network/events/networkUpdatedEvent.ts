@@ -1,10 +1,10 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  NetworkEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { NetworkEvents } from '@core/types';
 import { NetworkService } from '../NetworkService';
 
 @singleton()

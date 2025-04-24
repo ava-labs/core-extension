@@ -1,22 +1,20 @@
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { ChainList, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import {
-  DAppProviderRequest,
-  JsonRpcRequestParams,
-} from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
-import { ethErrors } from 'eth-rpc-errors';
-import { injectable } from 'tsyringe';
-import { Action, buildActionForRequest } from '@core/types';
-import {
+  Action,
   AddEthereumChainDisplayData,
   AddEthereumChainParameter,
+  buildActionForRequest,
+  DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
+  JsonRpcRequestParams,
   NetworkWithCaipId,
 } from '@core/types';
+import { canSkipApproval, decorateWithCaipId } from '@core/utils';
+import { ethErrors } from 'eth-rpc-errors';
+import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-import { decorateWithCaipId } from '@core/utils';
-import { canSkipApproval } from '@core/utils';
 
 type Params = [AddEthereumChainParameter];
 

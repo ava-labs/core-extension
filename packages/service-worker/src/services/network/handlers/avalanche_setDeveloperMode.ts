@@ -1,13 +1,15 @@
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
-import { injectable } from 'tsyringe';
-import { Action } from '@core/types';
-import { NetworkService } from '../NetworkService';
-import { ethErrors } from 'eth-rpc-errors';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { ChainId } from '@avalabs/core-chains-sdk';
+import {
+  Action,
+  DAppProviderRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
+} from '@core/types';
 import { chainIdToCaip } from '@core/utils';
+import { ethErrors } from 'eth-rpc-errors';
+import { injectable } from 'tsyringe';
+import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { NetworkService } from '../NetworkService';
 
 @injectable()
 export class AvalancheSetDeveloperModeHandler extends DAppRequestHandler {
