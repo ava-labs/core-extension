@@ -67,13 +67,14 @@ export function Notifications({
       setIsLoading(true);
 
       handler()
+        .then(() => {
+          capture('NotificationSettingsUpdated', {
+            type: notificationType,
+            enabled: isChecked,
+          });
+        })
         .catch(() => toast.error(t('Failed to update notification settings')))
         .finally(() => setIsLoading(false));
-
-      capture('NotificationSettingsUpdated', {
-        type: notificationType,
-        enabled: isChecked,
-      });
     },
     [capture, subscribe, t, unsubscribe],
   );
