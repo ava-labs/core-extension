@@ -1,15 +1,15 @@
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
-} from '@core/types/src/models';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
+  DAppRequestHandler,
+  Account,
+} from '@core/types';
+import { DEFERRED_RESPONSE } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
-import { Account } from '../models';
-import { Action, buildActionForRequest } from '@core/types/src/models';
+import { Action, buildActionForRequest } from '@core/types';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { isPrimaryAccount } from '../utils/typeGuards';
 import { canSkipApproval } from '@core/utils';

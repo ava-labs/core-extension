@@ -1,8 +1,8 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
-import { AccountsEvents } from '../models';
+	AccountsEvents
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { AccountsService } from '../AccountsService';
 import { singleton } from 'tsyringe';

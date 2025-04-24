@@ -1,8 +1,6 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { Accounts, ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
-import { Accounts } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_GET_ACCOUNTS,

@@ -2,17 +2,15 @@ import {
   ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
-} from '../../../connections/models';
-import { AccountsEvents } from '../models';
-import { EventEmitter } from 'events';
-import { AccountsService } from '../AccountsService';
-import { PermissionsService } from '../../permissions/PermissionsService';
-import {
   DappPermissions,
   PermissionEvents,
   Permissions,
-} from '@core/types/src/models';
-import { Web3Event } from '@core/types/src/models';
+	Web3Event,
+	AccountsEvents
+} from '@core/types';
+import { EventEmitter } from 'events';
+import { AccountsService } from '../AccountsService';
+import { PermissionsService } from '../../permissions/PermissionsService';
 import { injectable } from 'tsyringe';
 import { AccountsChangedEventData } from '@core/inpage';
 

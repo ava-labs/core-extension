@@ -1,20 +1,20 @@
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { canSkipApproval } from '@core/utils';
+import { DEFERRED_RESPONSE } from '@core/types';
+import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
-} from '../../secrets/models';
+} from '@core/types';
 
 jest.mock('@avalabs/core-wallets-sdk');
-jest.mock('@src/utils/canSkipApproval');
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@core/utils');
+jest.mock('../../../runtime/openApprovalWindow');
 
 describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts', () => {
   const getPrimaryAccountSecretsMock = jest.fn();

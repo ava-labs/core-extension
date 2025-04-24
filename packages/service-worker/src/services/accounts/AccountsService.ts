@@ -14,22 +14,23 @@ import {
   PrimaryAccount,
   WalletId,
   AccountWithOptionalAddresses,
-} from './models';
+	SecretsError,
+	AccountError,
+} from '@core/types';
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { NetworkService } from '../network/NetworkService';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { PermissionsService } from '../permissions/PermissionsService';
 import { isProductionBuild } from '@core/utils';
-import { DerivedAddresses, SecretType } from '../secrets/models';
+import { DerivedAddresses, SecretType } from '@core/types';
 import { isPrimaryAccount } from './utils/typeGuards';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
-import getAllAddressesForAccount from '@core/utils';
+import { getAllAddressesForAccount } from '@core/utils';
 import { SecretsService } from '../secrets/SecretsService';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { assertPresent, assertPropDefined } from '@core/utils';
-import { AccountError, SecretsError } from '@core/utils';
 import { mapAddressesToVMs, mapVMAddresses } from '@core/utils';
 
 type AddAccountParams = {

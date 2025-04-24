@@ -1,5 +1,4 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { AccountType } from '../models';
+import { ExtensionRequest, AccountType } from '@core/types';
 import { GetAccountsHandler } from './getAccounts';
 import { buildRpcCall } from '@src/tests/test-utils';
 

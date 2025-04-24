@@ -1,13 +1,13 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { GetPrivateKeyHandler } from './getPrivateKey';
 import {
+  ExtensionRequest,
   AccountType,
   GetPrivateKeyErrorTypes,
   PrimaryAccount,
   PrivateKeyChain,
-} from '../models';
+  SecretType,
+} from '@core/types';
+import { GetPrivateKeyHandler } from './getPrivateKey';
 import { LockService } from '../../lock/LockService';
-import { SecretType } from '../../secrets/models';
 import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { AccountsService } from '../AccountsService';

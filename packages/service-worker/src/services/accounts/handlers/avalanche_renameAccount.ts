@@ -1,18 +1,17 @@
 import { injectable } from 'tsyringe';
 import { ethErrors } from 'eth-rpc-errors';
 
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import {
   DAppProviderRequest,
+  DAppRequestHandler,
   JsonRpcRequestParams,
-} from '@core/types/src/models';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
+} from '@core/types';
+import { DEFERRED_RESPONSE, Account } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { canSkipApproval } from '@core/utils';
 
 import { AccountsService } from '../AccountsService';
-import { Action, buildActionForRequest } from '@core/types/src/models';
-import { Account } from '../models';
+import { Action, buildActionForRequest } from '@core/types';
 
 type Params = [accountId: string, newName: string];
 

@@ -1,16 +1,14 @@
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppProviderRequest } from '@core/types';
 import { AvalancheSelectAccountHandler } from './avalanche_selectAccount';
 import { container } from 'tsyringe';
-import { openExtensionNewWindow } from 'packages/utils/src/extensionUtils';
 import { ActionsService } from '../../actions/ActionsService';
-import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
-import { AccountType } from '../models';
+import { DEFERRED_RESPONSE, AccountType } from '@core/types';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
+import { canSkipApproval, openExtensionNewWindow } from '@core/utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
-jest.mock('@src/utils/canSkipApproval');
-jest.mock('@src/utils/extensionUtils', () => ({
+jest.mock('@core/utils');
+jest.mock('../../../utils/extensionUtils', () => ({
   openExtensionNewWindow: jest.fn(),
 }));
 
@@ -32,7 +30,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   beforeEach(() => {
     jest.resetAllMocks();
 
-    (openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
+    	(openExtensionNewWindow as jest.Mock).mockReturnValue({ id: 123 });
     (crypto.randomUUID as jest.Mock).mockReturnValue('uuid');
     jest.mocked(canSkipApproval).mockResolvedValue(false);
   });

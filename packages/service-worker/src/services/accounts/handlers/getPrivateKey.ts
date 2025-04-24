@@ -1,16 +1,16 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { injectable } from 'tsyringe';
-import { SecretsService } from '../../secrets/SecretsService';
-import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
 import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
   AccountType,
   GetPrivateKeyErrorTypes,
   PrivateKeyChain,
-} from '../models';
+  SecretType,
+} from '@core/types';
+import { injectable } from 'tsyringe';
+import { SecretsService } from '../../secrets/SecretsService';
+import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
 import { utils } from '@avalabs/avalanchejs';
 import { LockService } from '../../lock/LockService';
-import { SecretType } from '../../secrets/models';
 import { AccountsService } from '../AccountsService';
 import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';

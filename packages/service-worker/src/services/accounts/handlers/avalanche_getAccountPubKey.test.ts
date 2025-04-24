@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAccountPubKeyHandler } from './avalanche_getAccountPubKey';
 import { buildRpcCall } from '@src/tests/test-utils';

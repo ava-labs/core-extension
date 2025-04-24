@@ -1,8 +1,6 @@
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { DAppProviderRequest } from '@core/types/src/models';
+import { DAppRequestHandler, DAppProviderRequest, Account, AccountType } from '@core/types';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
-import { Account, AccountType } from '../models';
 import { SecretsService } from '../../secrets/SecretsService';
 
 @injectable()

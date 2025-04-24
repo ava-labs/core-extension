@@ -1,16 +1,14 @@
 import { ethErrors } from 'eth-rpc-errors';
 
 import { buildRpcCall } from '@src/tests/test-utils';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import { DAppProviderRequest, DEFERRED_RESPONSE, Account } from '@core/types';
+import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
 import { AvalancheRenameAccountHandler } from './avalanche_renameAccount';
-import { Account } from '../models';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
+import { canSkipApproval } from '@core/utils';
 
-jest.mock('@src/utils/canSkipApproval');
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@core/utils');
+jest.mock('../../../runtime/openApprovalWindow');
 
 describe('src/background/services/accounts/handlers/avalanche_renameAccount', () => {
   const setAccountName = jest.fn();

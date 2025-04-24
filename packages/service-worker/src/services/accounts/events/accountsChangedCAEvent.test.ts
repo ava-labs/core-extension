@@ -1,4 +1,4 @@
-import { Web3Event } from '@core/types/src/models';
+import { Web3Event } from '@core/types';
 
 import { AccountsChangedCAEvents } from './accountsChangedCAEvent';
 import { NetworkVMType } from '@avalabs/vm-module-types';

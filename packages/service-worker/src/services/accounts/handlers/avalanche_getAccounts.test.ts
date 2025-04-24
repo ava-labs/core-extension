@@ -1,7 +1,5 @@
-import { DAppProviderRequest } from '@core/types/src/models';
-import { AccountType } from '../models';
+import { AccountType, SecretType, DAppProviderRequest } from '@core/types';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
-import { SecretType } from '../../secrets/models';
 import { buildRpcCall } from '@src/tests/test-utils';
 import { SecretsService } from '../../secrets/SecretsService';
 

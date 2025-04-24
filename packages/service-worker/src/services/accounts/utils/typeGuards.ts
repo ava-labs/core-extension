@@ -5,7 +5,7 @@ import {
   ImportedAccount,
   PrimaryAccount,
   WalletConnectAccount,
-} from '../models';
+} from '@core/types';
 
 export const isFireblocksAccount = (
   account?: Account,

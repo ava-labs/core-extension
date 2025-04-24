@@ -1,21 +1,21 @@
 import { ethErrors } from 'eth-rpc-errors';
 
 import { buildRpcCall } from '@src/tests/test-utils';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-
 import {
   AccountType,
   type ImportedAccount,
   type PrimaryAccount,
-} from '../models';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
-import { AvalancheDeleteAccountsHandler } from './avalanche_deleteAccounts';
-import type { WalletDetails } from '@core/types/src/models';
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  WalletDetails,
+} from '@core/types';
+import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
-jest.mock('@src/utils/canSkipApproval');
-jest.mock('@src/background/runtime/openApprovalWindow');
+import { canSkipApproval } from '@core/utils';
+import { AvalancheDeleteAccountsHandler } from './avalanche_deleteAccounts';
+
+jest.mock('@core/utils');
+jest.mock('../../../runtime/openApprovalWindow');
 
 describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', () => {
   const deleteAccounts = jest.fn();

@@ -3,7 +3,7 @@ import type {
   BitcoinOutputUTXO,
   DerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import type { FireblocksApiData, ImportType } from '@core/service-worker/src/services/accounts/models';
+import type { FireblocksApiData, ImportType } from '@core/types';
 import type { UnsignedTx } from '@avalabs/avalanchejs';
 import type { TransactionRequest } from 'ethers';
 import {

@@ -3,21 +3,19 @@ import { EventEmitter } from 'events';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 import {
+	AccountsEvents,
   ConnectionInfo,
   DAppEventEmitter,
   ExtensionConnectionEvent,
-} from '../../../connections/models';
-import { Web3Event } from '@core/types/src/models';
-import getAllAddressesForAccount from '@core/utils';
-
-import { AccountsEvents } from '../models';
-import { AccountsService } from '../AccountsService';
-import { PermissionsService } from '../../permissions/PermissionsService';
-import {
+	Web3Event,
   DappPermissions,
   PermissionEvents,
   Permissions,
-} from '@core/types/src/models';
+} from '@core/types';
+import { getAllAddressesForAccount } from '@core/utils';
+
+import { AccountsService } from '../AccountsService';
+import { PermissionsService } from '../../permissions/PermissionsService';
 
 /**
  * Emits `accountChangedCA` events for each dApp
