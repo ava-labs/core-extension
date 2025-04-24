@@ -1,4 +1,4 @@
-import { ChallengeTypes } from '../models';
+import { ChallengeTypes } from '@core/types';
 import solveChallenge from './solveChallenge';
 import solveBasicChallenge from './challenges/basic';
 import solveReverseChallenge from './challenges/reverse';

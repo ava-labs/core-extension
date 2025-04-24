@@ -1,5 +1,5 @@
 import { createHash } from 'crypto';
-import { Algorithm } from '../models';
+import { Algorithm } from '@core/types';
 
 const getHashByAlgorithm = (algorithm: Algorithm, data: string) => {
   switch (algorithm) {

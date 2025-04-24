@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { Algorithm } from '../../models';
+import { Algorithm } from '@core/types';
 import getHashByAlgorithm from '../getHashByAlgorithm';
 
 type BasicChallengeDetails = {

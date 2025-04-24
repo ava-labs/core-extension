@@ -1,4 +1,4 @@
-import { Algorithm } from '../../models';
+import { Algorithm } from '@core/types';
 import getHashByAlgorithm from '../getHashByAlgorithm';
 import solveBasicChallenge from './basic';
 

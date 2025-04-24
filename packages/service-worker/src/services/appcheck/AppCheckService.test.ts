@@ -6,14 +6,13 @@ import {
   setTokenAutoRefreshEnabled,
 } from 'firebase/app-check';
 import { FirebaseService } from '../firebase/FirebaseService';
-import { FcmMessageEvents, FirebaseEvents } from '@core/types/src/models';
 import {
   AppCheckService,
   WAIT_FOR_CHALLENGE_ATTEMPT_COUNT,
   WAIT_FOR_CHALLENGE_DELAY_MS,
 } from './AppCheckService';
 import registerForChallenge from './utils/registerForChallenge';
-import { ChallengeTypes } from './models';
+import { ChallengeTypes, FcmMessageEvents, FirebaseEvents } from '@core/types';
 import { MessagePayload } from 'firebase/messaging/sw';
 import solveChallenge from './utils/solveChallenge';
 import verifyChallenge from './utils/verifyChallenge';
