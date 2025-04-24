@@ -1,7 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { AppCheckService } from '../../appcheck/AppCheckService';
 import { GasStationService } from '../GasStationService';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { FundTxHandler } from './fundTx';
 
 describe('src/background/services/gasless/handlers/fundTx', () => {

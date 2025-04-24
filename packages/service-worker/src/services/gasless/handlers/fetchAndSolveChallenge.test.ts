@@ -1,7 +1,7 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { GasStationService } from '../GasStationService';
 import { FetchAndSolveChallengeHandler } from './fetchAndSolveChallenge';
-import { buildRpcCall } from '@src/tests/test-utils';
 import { AppCheckService } from '../../appcheck/AppCheckService';
 
 describe('src/background/services/gasless/handlers/fetchAndSolveChallenge', () => {

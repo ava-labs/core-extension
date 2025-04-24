@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types/src/models';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  DEFERRED_RESPONSE,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_SET_HEX_VALUES,

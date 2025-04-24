@@ -1,5 +1,8 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
-import { GaslessState, GaslessEvents } from '@core/types/src/model';
+import {
+	ExtensionConnectionEvent,
+	GaslessEvents,
+	GaslessState,
+} from '@core/types';
 
 export function gaslessChallangeUpdateEventListener(
   evt: ExtensionConnectionEvent<GaslessState>,

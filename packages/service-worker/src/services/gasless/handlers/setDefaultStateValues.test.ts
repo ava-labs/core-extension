@@ -1,8 +1,8 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { AppCheckService } from '../../appcheck/AppCheckService';
 import { SetDefaultStateValuesHandler } from './setDefaultStateValues';
 import { GasStationService } from '../GasStationService';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/gasless/handlers/setDefaultValues', () => {
   let handler: SetDefaultStateValuesHandler;

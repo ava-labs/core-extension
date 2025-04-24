@@ -1,10 +1,10 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+	GaslessEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { GaslessEvents } from '@core/types/src/model';
 import { GasStationService } from '../GasStationService';
 
 @singleton()

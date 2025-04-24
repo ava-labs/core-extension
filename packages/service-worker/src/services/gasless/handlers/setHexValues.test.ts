@@ -1,8 +1,8 @@
-import { ExtensionRequest } from '@core/types/src/models';
+import { ExtensionRequest } from '@core/types';
 import { AppCheckService } from '../../appcheck/AppCheckService';
 import { SetGaslessHexValues } from './setHexValues';
 import { GasStationService } from '../GasStationService';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/gasless/handlers/setHexValues', () => {
   let handler: SetGaslessHexValues;
