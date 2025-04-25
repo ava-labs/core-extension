@@ -1,25 +1,21 @@
-import Big from 'big.js';
 import { utils } from '@avalabs/avalanchejs';
-import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { bigToBigInt } from '@avalabs/core-utils-sdk';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
+import Big from 'big.js';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { resolve } from '@core/utils';
-import { FeatureGates } from '@core/service-worker';
-import { useWalletContext } from '@/contexts/WalletProvider';
-import { SendErrorMessage } from '@core/types';
-import { isValidPvmAddress } from '@core/utils';
-import { stripAddressPrefix } from '@core/utils';
-import { DAppProviderRequest } from '@core/service-worker';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import type { AvalancheSendTransactionHandler } from '@core/service-worker';
+import { DAppProviderRequest, FeatureGates, SendErrorMessage } from '@core/types';
+import { isValidPvmAddress, resolve, stripAddressPrefix } from '@core/utils';
 
-import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
-import { PVMSendOptions } from '../../models';
-import { SendAdapterPVM } from './models';
-import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
+import { PVMSendOptions } from '../../models';
+import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
+import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
+import { SendAdapterPVM } from './models';
 
 const PCHAIN_ALIAS = 'P' as const;
 

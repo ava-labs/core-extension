@@ -1,13 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useOnboardingContext } from '@/contexts/OnboardingProvider';
-import {
-  ONBOARDING_EVENT_NAMES,
-  OnboardingPhase,
-  OnboardingURLs,
-} from '@core/service-worker';
-import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { Trans, useTranslation } from 'react-i18next';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import {
   Button,
   Stack,
@@ -15,12 +7,20 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { PageNav } from '../components/PageNav';
+import { WalletType } from '@avalabs/types';
+import {
+  ONBOARDING_EVENT_NAMES,
+  OnboardingPhase,
+  OnboardingURLs,
+} from '@core/types';
+import { isPhraseCorrect } from '@core/utils';
+import { useCallback, useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
+import { PageNav } from '../components/PageNav';
 import { WordsLengthSelector } from '../components/WordsLengthSelector';
 import splitSeedPhrase from '../utils/splitSeedPhrase';
-import { isPhraseCorrect } from '@core/utils';
-import { WalletType } from '@avalabs/types';
 
 export const ImportWallet = () => {
   const { capture } = useAnalyticsContext();

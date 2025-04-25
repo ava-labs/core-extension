@@ -2,7 +2,7 @@ import { Stack, Typography } from '@avalabs/core-k2-components';
 import { positionValues } from 'react-custom-scrollbars-2';
 import { useTranslation } from 'react-i18next';
 
-import { MessageParams } from '@core/service-worker';
+import { MessageParams } from '@core/types';
 import { ForwardedRef, forwardRef } from 'react';
 import { ScrollableMessageCard } from './ScrollableMessageCard';
 

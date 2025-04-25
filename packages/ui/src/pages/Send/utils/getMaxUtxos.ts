@@ -2,10 +2,8 @@ import { utils } from '@avalabs/avalanchejs';
 import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
 import { Network } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { LEDGER_TX_SIZE_LIMIT_BYTES } from '@core/service-worker';
-import { isPchainNetwork } from '@core/service-worker';
-import { assert } from '@core/utils';
-import { CommonError } from '@core/utils';
+import { CommonError, LEDGER_TX_SIZE_LIMIT_BYTES } from '@core/types';
+import { assert, isPchainNetwork } from '@core/utils';
 const MAX_LEDGER_OUTPUTS = 64;
 enum CHAIN_ALIAS {
   P = 'P',

@@ -1,52 +1,49 @@
+import { isNativeAsset } from '@avalabs/bridge-unified';
 import {
-  AlertCircleIcon,
-  Button,
-  Card,
-  Divider,
-  Grow,
-  Scrollbars,
-  Slide,
-  Stack,
-  SwapIcon,
-  Tooltip,
-  Typography,
-  useTheme,
+	AlertCircleIcon,
+	Button,
+	Card,
+	Divider,
+	Grow,
+	Scrollbars,
+	Slide,
+	Stack,
+	SwapIcon,
+	Tooltip,
+	Typography,
+	useTheme,
 } from '@avalabs/core-k2-components';
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { useTranslation } from 'react-i18next';
 import { TokenUnit, bigIntToString } from '@avalabs/core-utils-sdk';
 import {
-  NftTokenWithBalance,
-  TokenWithBalance,
+	NftTokenWithBalance,
+	TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { isNativeAsset } from '@avalabs/bridge-unified';
+import {
+	Dispatch,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { TokenSelect } from '@/components/common/TokenSelect';
-import { useSettingsContext } from '@/contexts/SettingsProvider';
-import { NetworkWithCaipId } from '@core/types';
-import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
-import { NavigationHistoryDataState } from '@core/types';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
+import { BridgeOptions, NavigationHistoryDataState, NetworkWithCaipId } from '@core/types';
 
 import { useBridge } from '../hooks/useBridge';
 import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
 
-import { NetworkSelector } from './NetworkSelector';
-import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
-import { BridgeTypeFootnote } from './BridgeTypeFootnote';
-import { BridgeOptions } from '../models';
-import { isBitcoinNetwork } from '@core/utils';
 import { CustomFees } from '@/components/common/CustomFees';
 import { NetworkFee } from '@core/types';
+import { findMatchingBridgeAsset, isBitcoinNetwork } from '@core/utils';
+import { BridgeTypeFootnote } from './BridgeTypeFootnote';
+import { NetworkSelector } from './NetworkSelector';
 
 export type BridgeFormProps = ReturnType<typeof useBridge> & {
   isPending: boolean;

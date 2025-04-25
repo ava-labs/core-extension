@@ -1,36 +1,36 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import {
-  Typography,
-  Button,
-  LoadingDots,
-  Stack,
-  Box,
-  useTheme,
-  GlobeIcon,
-} from '@avalabs/core-k2-components';
-import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { Account } from '@core/service-worker';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
 import { TokenIcon } from '@/components/common/TokenIcon';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { usePermissionContext } from '@/contexts/PermissionsProvider';
 import { useApproveAction } from '@/hooks/useApproveAction';
-import { SiteAvatar } from '@/components/common/SiteAvatar';
-import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@/hooks/useGetRequestId';
-import { useTranslation } from 'react-i18next';
-import {
-  ContextContainer,
-  useIsSpecificContextContainer,
-} from '@/hooks/useIsSpecificContextContainer';
-import { AccountsDropdown } from './components/AccountsDropdown';
-import { AlertDialog } from './components/AlertDialog';
-import { AlertBox } from './components/AlertBox';
-import { WarningBox } from './components/WarningBox';
-import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
 import { BlockaidData, useDAppScan } from '@/hooks/useDAppScan';
-import { mapAddressesToVMs } from '@core/utils';
-import { DAppProviderRequest } from '@core/service-worker';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import { useIsSpecificContextContainer } from '@/hooks/useIsSpecificContextContainer';
+import {
+  Box,
+  Button,
+  GlobeIcon,
+  LoadingDots,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/core-k2-components';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import {
+  Account,
+  ActionStatus,
+  ContextContainer,
+  DAppProviderRequest,
+  FeatureGates,
+} from '@core/types';
+import { mapAddressesToVMs } from '@core/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AccountsDropdown } from './components/AccountsDropdown';
+import { AlertBox } from './components/AlertBox';
+import { AlertDialog } from './components/AlertDialog';
+import { WarningBox } from './components/WarningBox';
 
 export function PermissionsPage() {
   const { t } = useTranslation();

@@ -1,26 +1,26 @@
+import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	Stack,
+	Typography,
+} from '@avalabs/core-k2-components';
 import { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  Typography,
-} from '@avalabs/core-k2-components';
 
-import {
-  ExportState,
-  useSeedlessMnemonicExport,
-} from '@/hooks/useSeedlessMnemonicExport';
-import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
 import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
+import { ExportError } from '@/components/common/seedless/components/ExportError';
 import { ExportPending } from '@/components/common/seedless/components/ExportPending';
 import { PhraseReadyToExport } from '@/components/common/seedless/components/PhraseReadyToExport';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { SeedlessExportAnalytics } from '@core/service-worker';
-import { ExportError } from '@/components/common/seedless/components/ExportError';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import {
+	ExportState,
+	useSeedlessMnemonicExport,
+} from '@/hooks/useSeedlessMnemonicExport';
+import { SeedlessExportAnalytics } from '@core/types';
 
 export const SeedlessExportPopup = () => {
   const { t } = useTranslation();

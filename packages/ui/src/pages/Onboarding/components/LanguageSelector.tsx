@@ -20,7 +20,7 @@ export function LanguageSelector() {
   const { capture } = useAnalyticsContext();
   const { availableLanguages, changeLanguage, currentLanguage } = useLanguage();
 
-  const buttonRef = useRef<HTMLButtonElement>();
+  const buttonRef = useRef<HTMLButtonElement| null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (

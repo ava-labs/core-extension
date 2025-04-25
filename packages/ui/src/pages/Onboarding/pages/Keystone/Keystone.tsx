@@ -1,36 +1,35 @@
-import { useState, useCallback, useEffect } from 'react';
-import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { useTranslation } from 'react-i18next';
-import {
-  Stack,
-  Typography,
-  useTheme,
-  ExternalLinkIcon,
-  Button,
-  styled,
-} from '@avalabs/core-k2-components';
-import { PageNav } from '../../components/PageNav';
 import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import {
-  KeystoneQRCodeScanner,
-  KEYSTONE_CONNECT_SUPPORT_URL,
-} from './KeystoneQRCodeScanner';
-import { AddressType } from '../Ledger/LedgerConnect';
-import { getAddressFromXPub } from '@avalabs/core-wallets-sdk';
-import { useGetAvaxBalance } from '@/hooks/useGetAvaxBalance';
-import { DerivedAddresses } from '../../components/DerivedAddresses';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
-import { FeatureGates } from '@core/service-worker';
-import {
-  ONBOARDING_EVENT_NAMES,
-  OnboardingPhase,
-  OnboardingURLs,
-} from '@core/service-worker';
-import { useHistory } from 'react-router-dom';
+import { useGetAvaxBalance } from '@/hooks/useGetAvaxBalance';
 import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
+import {
+	Button,
+	ExternalLinkIcon,
+	Stack,
+	styled,
+	Typography,
+	useTheme,
+} from '@avalabs/core-k2-components';
+import { getAddressFromXPub } from '@avalabs/core-wallets-sdk';
 import { WalletType } from '@avalabs/types';
+import {
+	FeatureGates, ONBOARDING_EVENT_NAMES,
+	OnboardingPhase,
+	OnboardingURLs
+} from '@core/types';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { DerivedAddresses } from '../../components/DerivedAddresses';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
+import { PageNav } from '../../components/PageNav';
+import { AddressType } from '../Ledger/LedgerConnect';
+import {
+	KEYSTONE_CONNECT_SUPPORT_URL,
+	KeystoneQRCodeScanner,
+} from './KeystoneQRCodeScanner';
 
 const KeystoneStepImage = styled(Stack)`
   position: relative;

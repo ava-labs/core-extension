@@ -1,38 +1,38 @@
+import { AppBackground } from '@/components/common/AppBackground';
+import { LoadingOverlay } from '@/components/common/LoadingOverlay';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import {
-  styled,
-  Stack,
-  CircularProgress,
-  HomeIcon,
-  Box,
+	Box,
+	CircularProgress,
+	HomeIcon,
+	Stack,
+	styled,
 } from '@avalabs/core-k2-components';
-import { LanguageSelector } from './components/LanguageSelector';
 import {
-  Redirect,
-  Route,
-  Switch,
-  useHistory,
-  useLocation,
-} from 'react-router-dom';
+	OnboardingPhase,
+	OnboardingURLs,
+} from '@core/types';
 import { Suspense, useEffect, useState } from 'react';
-import { CreateWallet } from './pages/CreateWallet/CreateWallet';
 import {
-  OnboardingPhase,
-  OnboardingURLs,
-} from '@core/service-worker';
+	Redirect,
+	Route,
+	Switch,
+	useHistory,
+	useLocation,
+} from 'react-router-dom';
+import { LanguageSelector } from './components/LanguageSelector';
+import { AnalyticsConsent } from './pages/AnalyticsConsent';
+import { CreatePassword } from './pages/CreatePassword';
+import { CreateWallet } from './pages/CreateWallet/CreateWallet';
+import { ImportWallet } from './pages/ImportWallet';
 import { Keystone } from './pages/Keystone/Keystone';
 import { LedgerConnect } from './pages/Ledger/LedgerConnect';
-import { ImportWallet } from './pages/ImportWallet';
-import { CreatePassword } from './pages/CreatePassword';
-import { AnalyticsConsent } from './pages/AnalyticsConsent';
-import { useOnboardingContext } from '@/contexts/OnboardingProvider';
-import { LoadingOverlay } from '@/components/common/LoadingOverlay';
-import { AppBackground } from '@/components/common/AppBackground';
 import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { Welcome } from './pages/Welcome/Welcome';
 import { RecoveryMethods } from './pages/Seedless/RecoveryMethods';
 import { RecoveryMethodsLogin } from './pages/Seedless/RecoveryMethodsLogin';
 import { VerifyGoBackModal } from './pages/Seedless/modals/VerifyGoBackModal';
+import { Welcome } from './pages/Welcome/Welcome';
 
 const ContentPart = styled(Stack)`
   flex-grow: 1;

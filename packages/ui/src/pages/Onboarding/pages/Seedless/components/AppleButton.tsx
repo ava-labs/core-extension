@@ -1,15 +1,15 @@
-import { AppleIcon, Button } from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
+import { useSeedlessActions } from '@/pages/Onboarding/hooks/useSeedlessActions';
+import { AppleIcon, Button } from '@avalabs/core-k2-components';
+import {
+	ONBOARDING_EVENT_NAMES,
+	OnboardingPhase,
+	SeedlessAuthProvider,
+} from '@core/types';
+import { authenticateWithApple } from '@core/utils';
 import { useTranslation } from 'react-i18next';
 import { SeedlesButton } from './GoogleButton';
-import {
-  ONBOARDING_EVENT_NAMES,
-  OnboardingPhase,
-} from '@core/service-worker';
-import { authenticateWithApple } from '@core/utils';
-import { SeedlessAuthProvider } from '@core/service-worker';
-import { useSeedlessActions } from '@/pages/Onboarding/hooks/useSeedlessActions';
 
 export function AppleButton({ setIsLoading }: SeedlesButton) {
   const { t } = useTranslation();

@@ -1,30 +1,29 @@
-import {
-  KeyIcon,
-  Stack,
-  Typography,
-  UsbIcon,
-  QRCodeIcon,
-} from '@avalabs/core-k2-components';
-import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
-import { Trans, useTranslation } from 'react-i18next';
-import { MethodCard } from './components/MethodCard';
-import { PageNav } from '../../components/PageNav';
-import { useHistory } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { FeatureGates } from '@core/service-worker';
-import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import {
-  AuthenticatorModal,
-  AuthenticatorSteps,
-} from './modals/AuthenticatorModal';
-import { OnboardingURLs } from '@core/service-worker';
-import { useOnboardingContext } from '@/contexts/OnboardingProvider';
-import { FIDOModal } from './modals/FIDOModal';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { InlineBold } from '@/components/common/InlineBold';
-import { RecoveryMethodTypes } from './models';
-import { useSeedlessActions } from '../../hooks/useSeedlessActions';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
+import {
+	KeyIcon,
+	QRCodeIcon,
+	Stack,
+	Typography,
+	UsbIcon,
+} from '@avalabs/core-k2-components';
 import { WalletType } from '@avalabs/types';
+import { FeatureGates, OnboardingURLs } from '@core/types';
+import { useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
+import { PageNav } from '../../components/PageNav';
+import { useSeedlessActions } from '../../hooks/useSeedlessActions';
+import { MethodCard } from './components/MethodCard';
+import {
+	AuthenticatorModal,
+	AuthenticatorSteps,
+} from './modals/AuthenticatorModal';
+import { FIDOModal } from './modals/FIDOModal';
+import { RecoveryMethodTypes } from './models';
 
 export function RecoveryMethods() {
   const history = useHistory();

@@ -1,29 +1,27 @@
-import {
-  Avalanche,
-  BitcoinProvider,
-  JsonRpcBatchInternal,
-  SolanaProvider,
-} from '@avalabs/core-wallets-sdk';
 import { Network } from '@avalabs/core-chains-sdk';
+import {
+	Avalanche,
+	BitcoinProvider,
+	JsonRpcBatchInternal,
+	SolanaProvider,
+} from '@avalabs/core-wallets-sdk';
 
 import {
-  BaseSendOptions,
-  NativeSendOptions,
-  PVMSendOptions,
-  SendOptions,
-  SolanaSendOptions,
+	BaseSendOptions,
+	NativeSendOptions,
+	PVMSendOptions,
+	SendOptions,
+	SolanaSendOptions,
 } from '../../models';
 
-import { Account } from '@core/service-worker';
-import { EnsureDefined } from '@core/service-worker';
-import { SendErrorMessage } from '@core/types';
 import {
-  NetworkTokenWithBalance,
-  TokenWithBalanceAVM,
-  TokenWithBalanceBTC,
-  TokenWithBalancePVM,
+	NetworkTokenWithBalance,
+	TokenWithBalanceAVM,
+	TokenWithBalanceBTC,
+	TokenWithBalancePVM,
+	TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { TokenWithBalanceSVM } from '@avalabs/vm-module-types';
+import { Account, EnsureDefined, SendErrorMessage } from '@core/types';
 
 type CommonAdapterOptions<Provider, Token> = {
   from: string;

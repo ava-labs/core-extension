@@ -4,6 +4,7 @@ import {
   BridgeTransaction,
   WrapStatus,
 } from '@avalabs/core-bridge-sdk';
+import { BridgeType, GasSettings } from '@avalabs/bridge-unified';
 import { Network } from '@avalabs/core-chains-sdk';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 
@@ -75,4 +76,9 @@ export type BridgeActionDisplayData = {
   token: TokenWithBalance;
   gasLimit: bigint;
   gasSettings?: CustomGasSettings;
+};
+
+export type BridgeOptions = {
+  bridgeType?: BridgeType;
+  gasSettings?: GasSettings;
 };

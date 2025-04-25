@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { MessageParams } from '@core/service-worker';
+import { MessageParams } from '@core/types';
 import { forwardRef, ForwardedRef } from 'react';
 
 // ref(ForwardedRef) is used to track if the whole content has been viewed by the parent component

@@ -1,13 +1,15 @@
-import type { Contact } from '@avalabs/types';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useContactsContext } from '@/contexts/ContactsProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
+import type { Contact } from '@avalabs/types';
+import {
+  isBitcoin,
+  isPchainNetwork,
+  isSolanaNetwork,
+  isXchainNetwork,
+} from '@core/utils';
 import { useCallback } from 'react';
-import { isBitcoin } from '@core/utils';
-import { isPchainNetwork } from '@core/service-worker';
-import { isXchainNetwork } from '@core/service-worker';
 import { correctAddressByPrefix } from '../utils/correctAddressByPrefix';
-import { isSolanaNetwork } from '@core/service-worker';
 
 const UNSAVED_CONTACT_BASE = {
   id: '',

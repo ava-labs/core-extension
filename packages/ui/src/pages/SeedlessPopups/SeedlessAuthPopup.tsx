@@ -1,21 +1,20 @@
-import { useTranslation } from 'react-i18next';
 import { Button, Stack } from '@avalabs/core-k2-components';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { AuthStep, useSeedlessAuth } from '@/hooks/useSeedlessAuth';
-import { ExtensionRequest } from '@core/service-worker';
-import { UpdateSignerTokenHandler } from '@core/service-worker';
-import { useWalletContext } from '@/contexts/WalletProvider';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { AuthStep, useSeedlessAuth } from '@/hooks/useSeedlessAuth';
+import { UpdateSignerTokenHandler } from '@core/service-worker';
+import { ExtensionRequest, AuthErrorCode } from '@core/types';
 import { getOidcTokenProvider } from '@core/utils';
 
-import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
 import { AuthenticationError } from '@/components/common/seedless/components/AuthenticationError';
-import { WaitingForAuthentication } from '@/components/common/seedless/components/WaitingForAuthentication';
 import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
-import { AuthErrorCode } from '@core/service-worker';
 import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';
+import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
+import { WaitingForAuthentication } from '@/components/common/seedless/components/WaitingForAuthentication';
 
 const FATAL_ERRORS = [
   AuthErrorCode.NoMfaDetails,

@@ -1,21 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { handleTxOutcome } from '@core/utils';
+import { handleTxOutcome, stringToBigint } from '@core/utils';
 
-import { SendPagePropsWithWalletSVM, SolanaSendOptions } from '../models';
-import { SendForm } from './SendForm';
-import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
-import { useQueryParams } from '@/hooks/useQueryParams';
 import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
+import { useQueryParams } from '@/hooks/useQueryParams';
+import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
+import { SolanaProvider } from '@avalabs/core-wallets-sdk';
 import {
   TokenType,
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
 import { useSvmSend } from '../hooks/useSend/useSVMSend';
-import { SolanaProvider } from '@avalabs/core-wallets-sdk';
+import { SendPagePropsWithWalletSVM, SolanaSendOptions } from '../models';
+import { SendForm } from './SendForm';
 
 type SolanaToken = TokenWithBalanceSVM | TokenWithBalanceSPL;
 

@@ -1,7 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Contact } from '@avalabs/types';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { useTranslation } from 'react-i18next';
 import {
   Box,
   Stack,
@@ -10,25 +7,30 @@ import {
   Tabs,
   Typography,
 } from '@avalabs/core-k2-components';
+import type { Contact } from '@avalabs/types';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useContactsContext } from '@/contexts/ContactsProvider';
-import { useWalletContext } from '@/contexts/WalletProvider';
-import { AddressDropdownList } from './AddressDropdownList';
-import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import {
+  ETHEREUM_ADDRESS,
+  isBitcoinNetwork,
+  isNonXPHistoryItem,
+  isPchainNetwork,
+  isSolanaNetwork,
+  isXchainNetwork,
+  stripAddressPrefix,
+} from '@core/utils';
+import { indexOf } from 'lodash';
+import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
+import { AddressDropdownList } from './AddressDropdownList';
 import {
   AddressDropdownListMyAccounts,
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
-import { isPchainNetwork } from '@core/service-worker';
-import { isNonXPHistoryItem } from '@core/service-worker';
-import { stripAddressPrefix } from '@core/utils';
-import { indexOf } from 'lodash';
-import { isBitcoinNetwork } from '@core/service-worker';
-import { isXchainNetwork } from '@core/service-worker';
-import { ETHEREUM_ADDRESS } from '@core/utils';
-import { isSolanaNetwork } from '@core/service-worker';
 
 interface ContactSelectProps {
   selectedContact?: Contact;

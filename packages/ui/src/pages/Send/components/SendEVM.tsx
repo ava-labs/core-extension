@@ -2,21 +2,20 @@ import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useQueryParams } from '@/hooks/useQueryParams';
-import { isValidAddress } from '@core/utils';
-import { handleTxOutcome } from '@core/utils';
 import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
+import { handleTxOutcome, isValidAddress } from '@core/utils';
 import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
 
+import {
+	NetworkTokenWithBalance,
+	NftTokenWithBalance,
+	TokenType,
+	TokenWithBalanceEVM,
+} from '@avalabs/vm-module-types';
+import { stringToBigint } from '@core/utils';
 import { useEVMSend } from '../hooks/useSend';
 import { SendOptions, SendPageProps } from '../models';
 import { SendForm } from './SendForm';
-import {
-  NetworkTokenWithBalance,
-  NftTokenWithBalance,
-  TokenType,
-  TokenWithBalanceEVM,
-} from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,

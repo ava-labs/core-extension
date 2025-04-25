@@ -1,24 +1,24 @@
-import { PropsWithChildren, useMemo, useRef, useState } from 'react';
 import {
-  Typography,
-  Button,
-  Stack,
-  Scrollbars,
-  Tooltip,
-  styled,
+	Button,
+	Scrollbars,
+	Stack,
+	Tooltip,
+	Typography,
+	styled,
 } from '@avalabs/core-k2-components';
 import { Contact } from '@avalabs/types';
+import { PropsWithChildren, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { TokenSelect } from '@/components/common/TokenSelect';
-import { SendErrorMessage } from '@core/types';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
+import { SendErrorMessage } from '@core/types';
 
-import { ContactInput } from './ContactInput';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { getSendErrorMessage } from '../utils/sendErrorMessages';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
+import { ContactInput } from './ContactInput';
 
 type SendFormProps = {
   address?: string;

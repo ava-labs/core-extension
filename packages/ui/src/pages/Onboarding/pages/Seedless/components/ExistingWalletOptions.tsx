@@ -10,8 +10,7 @@ import { forwardRef, ForwardedRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
-import { OnboardingURLs } from '@core/service-worker';
+import { FeatureGates, OnboardingURLs } from '@core/types';
 import { Overlay } from '@/components/common/Overlay';
 import { ExistingWalletButton } from './ExistingWalletButton';
 

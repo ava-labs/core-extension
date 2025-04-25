@@ -1,26 +1,24 @@
+import {
+	AlertCircleIcon,
+	Button,
+	CheckCircleIcon,
+	CircularProgress,
+	Stack,
+	TextField,
+	Typography,
+} from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertCircleIcon,
-  Button,
-  CheckCircleIcon,
-  CircularProgress,
-  Stack,
-  TextField,
-  Typography,
-} from '@avalabs/core-k2-components';
 
-import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
 import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
-import { useWalletContext } from '@/contexts/WalletProvider';
-import { SecretType } from '@core/service-worker';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { AddFidoDeviceHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { KeyType } from '@core/utils';
-import { useQueryParams } from '@/hooks/useQueryParams';
 import { AuthenticatorDetails } from '@/components/settings/pages/RecoveryMethods/AuthenticatorDetails';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useQueryParams } from '@/hooks/useQueryParams';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import { AddFidoDeviceHandler } from '@core/service-worker';
+import { ExtensionRequest, KeyType, SecretType } from '@core/types';
 
 enum State {
   Loading = 'loading',

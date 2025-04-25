@@ -23,7 +23,7 @@ export function WordsLengthSelector({
   const theme = useTheme();
   const { t } = useTranslation();
 
-  const buttonRef = useRef<HTMLButtonElement>();
+  const buttonRef = useRef<HTMLButtonElement| null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (

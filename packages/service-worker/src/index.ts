@@ -1,7 +1,8 @@
+export type { AvalancheSendTransactionHandler } from './services/wallet/handlers/avalanche_sendTransaction';
+
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 
 export { HandlerType as BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
-
 export { networkUpdatedEventListener } from './services/network/events/networkUpdatedEventListener';
 export {
   isSessionPermissionsMismatchEvent,

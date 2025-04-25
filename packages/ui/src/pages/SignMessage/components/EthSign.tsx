@@ -6,7 +6,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { positionValues } from 'react-custom-scrollbars-2';
-import { MessageParams } from '@core/service-worker';
+import { MessageParams } from '@core/types';
 import { forwardRef, ForwardedRef } from 'react';
 
 // ref(ForwardedRef) is used to track if the whole content has been viewed by the parent component

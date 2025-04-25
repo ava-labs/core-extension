@@ -1,30 +1,30 @@
-import { useEffect, useState } from 'react';
-import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
+import {
+	LedgerConnector,
+	LedgerConnectorData,
+} from '@/components/ledger/LedgerConnector';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
-import { Trans, useTranslation } from 'react-i18next';
-import { LedgerWrongVersionOverlay } from '../../../Ledger/LedgerWrongVersionOverlay';
 import {
-  Button,
-  ExternalLinkIcon,
-  InfoCircleIcon,
-  Stack,
-  Tooltip,
-  Typography,
-  useTheme,
+	Button,
+	ExternalLinkIcon,
+	InfoCircleIcon,
+	Stack,
+	Tooltip,
+	Typography,
+	useTheme,
 } from '@avalabs/core-k2-components';
-import { PageNav } from '../../components/PageNav';
-import {
-  ONBOARDING_EVENT_NAMES,
-  OnboardingPhase,
-  OnboardingURLs,
-} from '@core/service-worker';
-import { useHistory } from 'react-router-dom';
-import {
-  LedgerConnector,
-  LedgerConnectorData,
-} from '@/components/ledger/LedgerConnector';
 import { WalletType } from '@avalabs/types';
+import {
+	ONBOARDING_EVENT_NAMES,
+	OnboardingPhase,
+	OnboardingURLs,
+} from '@core/types';
+import { useEffect, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { LedgerWrongVersionOverlay } from '../../../Ledger/LedgerWrongVersionOverlay';
+import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
+import { PageNav } from '../../components/PageNav';
 
 export interface AddressType {
   address: string;

@@ -1,23 +1,17 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PageTitle } from '@/components/common/PageTitle';
-import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { useTranslation } from 'react-i18next';
-import { Stack, toast } from '@avalabs/core-k2-components';
 import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@/hooks/useIsFunctionAvailable';
-import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
-import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
-import {
-  SupportedProvider,
-  getProviderForNetwork,
-} from '@core/utils';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import { Stack, toast } from '@avalabs/core-k2-components';
 import {
   Avalanche,
   BitcoinProvider,
@@ -25,20 +19,6 @@ import {
   SolanaProvider,
   isSolanaProvider,
 } from '@avalabs/core-wallets-sdk';
-import { SendEVM } from './components/SendEVM';
-import { toastCardWithLink } from '@core/utils';
-import { getExplorerAddressByNetwork } from '@core/utils';
-import { useHistory } from 'react-router-dom';
-import { Network } from '@core/service-worker';
-import { SendBTC } from './components/SendBTC';
-import { LoadingSendForm } from './components/LoadingSendForm';
-import { SendPVM } from './components/SendPVM';
-import { SendAVM } from './components/SendAVM';
-import {
-  isAvmCapableAccount,
-  isPvmCapableAccount,
-  isSvmCapableAccount,
-} from './hooks/useSend/models';
 import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
@@ -50,8 +30,28 @@ import {
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
+import { Network } from '@core/types';
+import {
+  SupportedProvider,
+  getAddressForChain,
+  getExplorerAddressByNetwork,
+  getProviderForNetwork,
+  toastCardWithLink,
+} from '@core/utils';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { LoadingSendForm } from './components/LoadingSendForm';
+import { SendAVM } from './components/SendAVM';
+import { SendBTC } from './components/SendBTC';
+import { SendEVM } from './components/SendEVM';
+import { SendPVM } from './components/SendPVM';
 import { SendSVM } from './components/SendSVM';
-import { getAddressForChain } from '@core/utils';
+import {
+  isAvmCapableAccount,
+  isPvmCapableAccount,
+  isSvmCapableAccount,
+} from './hooks/useSend/models';
 
 export function SendPage() {
   const { t } = useTranslation();

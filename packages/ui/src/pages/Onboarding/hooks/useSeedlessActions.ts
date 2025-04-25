@@ -1,19 +1,23 @@
-import { SignerSession, TotpChallenge } from '@cubist-labs/cubesigner-sdk';
-import {
-  SeedlessRegistartionResult,
-  approveSeedlessRegistration,
-} from '../utils/approveSeedlessRegistration';
-import { toast } from '@avalabs/core-k2-components';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
-import { useHistory } from 'react-router-dom';
-import { OnboardingURLs } from '@core/service-worker';
+import { toast } from '@avalabs/core-k2-components';
 import {
-  requestOidcAuth,
+  FIDOApiEndpoint,
+  FeatureGates,
+  KeyType,
+  OnboardingURLs,
+  SeedlessAuthProvider,
+} from '@core/types';
+import {
   getOidcClient,
   getOrgId,
   getSignerSession,
+  getSignerToken,
+  launchFidoFlow,
+  requestOidcAuth,
 } from '@core/utils';
-import { useTranslation } from 'react-i18next';
+import { SignerSession, TotpChallenge } from '@cubist-labs/cubesigner-sdk';
 import {
   Dispatch,
   SetStateAction,
@@ -21,14 +25,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { SeedlessAuthProvider } from '@core/service-worker';
-import { getSignerToken } from '@core/utils';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
-import { launchFidoFlow } from '@core/utils';
-import { FIDOApiEndpoint, KeyType } from '@core/utils';
-import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
+import {
+  SeedlessRegistartionResult,
+  approveSeedlessRegistration,
+} from '../utils/approveSeedlessRegistration';
 
 type OidcTokenGetter = () => Promise<string>;
 type GetAuthButtonCallbackOptions = {

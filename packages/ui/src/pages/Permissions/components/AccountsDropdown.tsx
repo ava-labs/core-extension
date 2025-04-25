@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  CheckIcon,
-  Skeleton,
-  Stack,
-  Typography,
-  useTheme,
-} from '@avalabs/core-k2-components';
-import { DropdownItem, Dropdown } from '@/components/common/Dropdown';
+import { Dropdown, DropdownItem } from '@/components/common/Dropdown';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
-import { truncateAddress } from '@core/utils';
+import {
+	CheckIcon,
+	Skeleton,
+	Stack,
+	Typography,
+	useTheme,
+} from '@avalabs/core-k2-components';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType } from '@core/utils';
-import { Account } from '@core/service-worker';
+import { Account } from '@core/types';
+import { getAddressByVMType, truncateAddress } from '@core/utils';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const renderValue = (account: Account, vmType: NetworkVMType) => (
   <Typography

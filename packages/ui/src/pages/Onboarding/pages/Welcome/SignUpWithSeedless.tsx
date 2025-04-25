@@ -1,9 +1,8 @@
 import { Button, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
+import { FeatureGates, OnboardingURLs } from '@core/types';
 import { useHistory } from 'react-router-dom';
-import { OnboardingURLs } from '@core/service-worker';
 import { GoogleButton } from '../Seedless/components/GoogleButton';
 import { AppleButton } from '../Seedless/components/AppleButton';
 import { LoadingOverlay } from '@/components/common/LoadingOverlay';

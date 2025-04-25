@@ -1,32 +1,32 @@
-import { useEffect, useMemo, useState } from 'react';
+import { PasswordStrength } from '@/components/common/PasswordStrength';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import {
-  OnboardingPhase,
-  OnboardingURLs,
-} from '@core/service-worker';
-import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { Trans, useTranslation } from 'react-i18next';
-import {
-  CheckIcon,
-  Checkbox,
-  Divider,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-  XIcon,
-  useTheme,
+	CheckIcon,
+	Checkbox,
+	Divider,
+	InputAdornment,
+	Stack,
+	TextField,
+	Typography,
+	XIcon,
+	useTheme,
 } from '@avalabs/core-k2-components';
-import { PageNav } from '../components/PageNav';
-import { PasswordStrength } from '@/components/common/PasswordStrength';
+import {
+	OnboardingPhase,
+	OnboardingURLs,
+} from '@core/types';
+import { useEffect, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
+import { PageNav } from '../components/PageNav';
 import { TypographyLink } from '../components/TypographyLink';
 
-import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 import { WalletType } from '@avalabs/types';
-import Joi from 'joi';
 import { isNewsletterConfigured } from '@core/utils';
+import Joi from 'joi';
+import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 
 enum EmailValidationResult {
   Undetermined,

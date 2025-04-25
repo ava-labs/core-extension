@@ -2,7 +2,7 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { getMaxUtxoSet } from './getMaxUtxos';
 import { AVALANCHE_P_DEV_NETWORK } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { CommonError } from '@core/utils';
+import { CommonError } from '@core/types';
 
 jest.mock('@avalabs/core-wallets-sdk');
 
