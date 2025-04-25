@@ -1,14 +1,14 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest } from '@core/types';
 import { AvalancheRenameWalletHandler } from './avalanche_renameWallet';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { ethErrors } from 'eth-rpc-errors';
 import { SecretsService } from '../SecretsService';
-import { canSkipApproval } from 'packages/utils/src/canSkipApproval';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { canSkipApproval } from '@core/utils';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
-jest.mock('@src/utils/canSkipApproval');
+jest.mock('@core/utils');
 
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@/runtime/openApprovalWindow');
 
 describe('src/background/services/accounts/handlers/avalanche_renameWallet', () => {
   const secretsService = new SecretsService({} as any);

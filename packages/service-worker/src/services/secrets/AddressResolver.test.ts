@@ -1,14 +1,13 @@
 import { NetworkVMType, Module } from '@avalabs/vm-module-types';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
-import type { ModuleManager } from 'packages/service-worker/src/vmModules/ModuleManager';
+import type { ModuleManager } from '@/vmModules/ModuleManager';
 
 import type { NetworkService } from '../network/NetworkService';
 import type { SecretsService } from './SecretsService';
 import { AddressResolver } from './AddressResolver';
-import { expectToThrowErrorCode, matchingPayload } from '@src/tests/test-utils';
-import { SecretsError } from 'packages/utils/src/errors';
-import { SecretType } from './models';
+import { expectToThrowErrorCode, matchingPayload } from '@shared/tests/test-utils';
+import { SecretsError, SecretType } from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
 
 describe('src/background/services/secrets/AddressResolver', () => {

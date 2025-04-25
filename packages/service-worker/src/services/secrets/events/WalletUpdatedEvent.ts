@@ -1,8 +1,8 @@
-import { WalletEvents } from '@core/types';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  WalletEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { SecretsService } from '../SecretsService';

@@ -3,11 +3,10 @@ import { hex } from '@scure/base';
 import { fromBase58, fromSeed } from 'bip32';
 import slip10 from 'micro-key-producer/slip10.js';
 
-import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { SecretsError } from 'packages/utils/src/errors';
+import { expectToThrowErrorCode } from '@shared/tests/test-utils';
+import { Curve, EVM_BASE_DERIVATION_PATH, SecretType, SecretsError } from '@core/types';
 
 import { AddressPublicKey } from './AddressPublicKey';
-import { Curve, EVM_BASE_DERIVATION_PATH, SecretType } from './models';
 import { buildExtendedPublicKey } from './utils';
 import { ed25519 } from '@noble/curves/ed25519';
 

@@ -3,20 +3,20 @@ import {
   DerivationPath,
   getPubKeyFromTransport,
 } from '@avalabs/core-wallets-sdk';
-import { CallbackManager } from 'packages/service-worker/src/runtime/CallbackManager';
+import { CallbackManager } from '@/runtime/CallbackManager';
 import {
   Account,
   AccountType,
   ImportType,
   PrimaryAccount,
-} from '../accounts/models';
-import { StorageService } from '../storage/StorageService';
-import { WALLET_STORAGE_KEY, WalletEvents } from '@core/types';
-import {
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,
+  WALLET_STORAGE_KEY,
+  WalletEvents,
+  LedgerError,
   SecretType,
-} from './models';
+} from '@core/types';
+import { StorageService } from '../storage/StorageService';
 import { SecretsService } from './SecretsService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { LedgerService } from '../ledger/LedgerService';
@@ -24,10 +24,9 @@ import { LedgerTransport } from '../ledger/LedgerTransport';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import * as utils from './utils';
-import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { LedgerError } from 'packages/utils/src/errors';
+import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from 'packages/utils/src/address';
+import { mapVMAddresses } from '@core/utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('../storage/StorageService');

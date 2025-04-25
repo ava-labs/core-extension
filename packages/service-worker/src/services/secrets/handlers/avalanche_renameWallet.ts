@@ -1,16 +1,17 @@
 import { injectable } from 'tsyringe';
 import { ethErrors } from 'eth-rpc-errors';
 
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 import {
+  Action,
+  ActionType,
+  DAppRequestHandler,
   DAppProviderRequest,
   JsonRpcRequestParams,
+  DEFERRED_RESPONSE,
 } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { canSkipApproval } from '@core/utils';
 
-import { Action, ActionType } from '@core/types';
 import { SecretsService } from '../SecretsService';
 
 type Params = [walletId: string, newName: string];

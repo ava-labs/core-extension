@@ -9,8 +9,8 @@ import {
   ImportedAccountSecrets,
   PrimaryWalletSecrets,
   SecretType,
-} from './models';
-import { SecretsError } from '@core/utils';
+  SecretsError,
+} from '@core/types';
 
 export const emptyAddresses = (): Record<NetworkVMType, string> => ({
   [NetworkVMType.AVM]: '',

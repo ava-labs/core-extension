@@ -4,15 +4,17 @@ import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Module, NetworkVMType } from '@avalabs/vm-module-types';
 
 import type { ModuleManager } from '../../vmModules/ModuleManager';
-import { PickKeys } from '../../models';
-import { CommonError, SecretsError } from '@core/utils';
-import { assertPresent } from '@core/utils';
+import {
+  PickKeys,
+  DerivationPathsMap,
+  SecretType,
+  NetworkWithCaipId,
+} from '@core/types';
+import { assertPresent, CommonError, SecretsError } from '@core/utils';
 
-import { NetworkWithCaipId } from '@core/types';
 import { NetworkService } from '../network/NetworkService';
 import { emptyAddresses, emptyDerivationPaths } from './utils';
 import { SecretsService } from './SecretsService';
-import { DerivationPathsMap, SecretType } from './models';
 
 @singleton()
 export class AddressResolver {
