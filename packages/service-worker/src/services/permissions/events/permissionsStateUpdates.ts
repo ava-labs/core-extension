@@ -1,10 +1,10 @@
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  PermissionEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
-import { PermissionEvents } from '@core/types';
 import { PermissionsService } from '../PermissionsService';
 
 @singleton()

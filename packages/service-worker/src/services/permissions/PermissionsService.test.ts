@@ -5,12 +5,12 @@ import {
   PermissionEvents,
   PERMISSION_STORAGE_KEY,
   PermissionsState,
+  Account,
 } from '@core/types';
+import { mapAddressesToVMs } from '@core/utils';
+import { SYNCED_DOMAINS } from '@core/common';
 import { PermissionsService } from './PermissionsService';
 import { omit } from 'lodash';
-import { Account } from '../accounts/models';
-import { mapAddressesToVMs } from 'packages/utils/src/address';
-import { SYNCED_DOMAINS } from 'packages/common/src/constants';
 
 jest.mock('../storage/StorageService');
 

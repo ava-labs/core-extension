@@ -1,7 +1,9 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  Permissions,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { Permissions } from '@core/types';
 import { PermissionsService } from '../PermissionsService';
 
 type HandlerType = ExtensionRequestHandler<

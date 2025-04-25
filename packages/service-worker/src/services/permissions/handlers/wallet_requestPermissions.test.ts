@@ -1,17 +1,20 @@
-import { DAppProviderRequest } from '@core/types';
-import { DEFERRED_RESPONSE } from 'packages/service-worker/src/connections/middlewares/models';
+import {
+	AccountType,
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  Action,
+  ActionStatus,
+} from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
-import { AccountType } from '../../accounts/models';
-import { Action, ActionStatus } from '@core/types';
 import { PermissionsService } from '../PermissionsService';
 import { WalletRequestPermissionsHandler } from './wallet_requestPermissions';
 import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { openApprovalWindow } from 'packages/service-worker/src/runtime/openApprovalWindow';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@/runtime/openApprovalWindow');
 jest.mock('../utils/getPermissionsConvertedToMetaMaskStructure');
 
 describe('background/services/permissions/handlers/wallet_requestPermissions.ts', () => {

@@ -1,7 +1,9 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 
 import { PermissionsService } from '../PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
