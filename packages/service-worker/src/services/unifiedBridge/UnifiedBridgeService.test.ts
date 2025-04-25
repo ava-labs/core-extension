@@ -6,13 +6,13 @@ import {
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 import { UnifiedBridgeService } from './UnifiedBridgeService';
-import { FeatureGates } from '@core/common/src/models';
+import { FeatureGates } from '@core/types';
 import { wait } from '@avalabs/core-utils-sdk';
 
 jest.mock('@avalabs/bridge-unified');
 jest.mock('@avalabs/core-utils-sdk');
-jest.mock('@src/utils/network/getProviderForNetwork');
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/utils');
+jest.mock('@core/common');
 
 describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   let core: ReturnType<typeof createUnifiedBridgeService>;

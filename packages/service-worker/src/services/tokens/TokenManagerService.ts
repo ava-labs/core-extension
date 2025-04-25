@@ -11,7 +11,7 @@ import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import xss from 'xss';
 import { getProviderForNetwork } from '@core/utils';
-import { EnsureDefined } from '../../models';
+import { EnsureDefined } from '@core/types';
 
 @singleton()
 export class TokenManagerService {

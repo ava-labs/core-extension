@@ -13,7 +13,6 @@ import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import EventEmitter from 'events';
 
-import { getExponentialBackoffDelay } from '@core/utils';
 import { OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
@@ -24,15 +23,13 @@ import {
   UNIFIED_BRIDGE_TRACKED_FLAGS,
   UnifiedBridgeEvent,
   UnifiedBridgeState,
+	FeatureFlagEvents,
+	FeatureFlags,
+	FeatureGates,
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import {
-  FeatureFlagEvents,
-  FeatureFlags,
-  FeatureGates,
-} from '@core/common/src/models';
 import { Monitoring } from '@core/common';
-import { getEnabledBridgeTypes } from '@core/utils';
+import { getExponentialBackoffDelay, getEnabledBridgeTypes } from '@core/utils';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {

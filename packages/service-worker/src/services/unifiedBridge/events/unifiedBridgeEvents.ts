@@ -4,10 +4,10 @@ import { EventEmitter } from 'events';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  UnifiedBridgeEvent,
+} from '@core/types';
 
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
-import { UnifiedBridgeEvent } from '@core/types';
 
 @singleton()
 export class UnifiedBridgeEvents implements ExtensionEventEmitter {

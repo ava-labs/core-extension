@@ -1,8 +1,7 @@
 import { injectable } from 'tsyringe';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
 
