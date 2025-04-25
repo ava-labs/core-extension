@@ -23,7 +23,7 @@ import { LockService } from '../../lock/LockService';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_ONBOARDING_SUBMIT,
   true,
   [

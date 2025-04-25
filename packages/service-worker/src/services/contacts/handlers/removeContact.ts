@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
 import type { Contact } from '@avalabs/types';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.CONTACTS_REMOVE,
   true,
   [Contact]

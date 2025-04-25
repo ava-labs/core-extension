@@ -7,7 +7,7 @@ import {
 } from '@core/types';
 import { CurrencyService } from '../CurrencyService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.CURRENCIES_GET_EXCHANGE_RATES,
   CurrencyExchangeRates
 >;

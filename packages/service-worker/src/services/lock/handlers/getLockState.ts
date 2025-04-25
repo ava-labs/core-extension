@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler	 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LOCK_GET_STATE,
   boolean
 >;

@@ -24,7 +24,7 @@ import { finalizeOnboarding } from '../finalizeOnboarding';
 import { OnboardingService } from '../OnboardingService';
 import { startOnboarding } from '../startOnboarding';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
   true,
   [

@@ -18,7 +18,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { Monitoring } from '@core/common';
 import { AccountsService } from '../../accounts/AccountsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_COMPLETE_RECOVERY_PHRASE_EXPORT,
   string
 >;

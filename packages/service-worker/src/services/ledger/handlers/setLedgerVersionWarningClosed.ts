@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { StorageService } from '../../storage/StorageService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED,
   boolean
 >;

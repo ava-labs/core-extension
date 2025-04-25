@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_SET_HEX_VALUES,
   typeof DEFERRED_RESPONSE,
   {

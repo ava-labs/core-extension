@@ -4,7 +4,7 @@ import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { TokenManagerService } from '../TokenManagerService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GET_NETWORK_TOKENS,
   { tokens: { [address: string]: NetworkContractToken } },
   [number, string[]]

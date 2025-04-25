@@ -3,7 +3,7 @@ import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LOCK_CHANGE_PASSWORD,
   true,
   [newPassword: string, oldPassword: string]

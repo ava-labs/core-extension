@@ -7,7 +7,7 @@ import * as H from 'history';
 import { injectable } from 'tsyringe';
 import { NavigationHistoryService } from '../NavigationHistoryService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NAVIGATION_HISTORY_SET,
   NavigationHistoryState,
   [newNavigationHistory: H.History<unknown>]

@@ -5,7 +5,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_INIT_AUTHENTICATOR_CHANGE,
   Pick<TotpChallenge, 'totpId' | 'totpUrl'>
 >;

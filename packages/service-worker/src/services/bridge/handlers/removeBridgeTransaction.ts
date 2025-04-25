@@ -6,7 +6,7 @@ import { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
 import { UnifiedBridgeService } from '../../unifiedBridge/UnifiedBridgeService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSACTION_REMOVE,
   true,
   [txHash: string]

@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_REMOVE_TRANSPORT,
   true,
   [ledgerTransportUUID: string]

@@ -3,7 +3,7 @@ import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNLOCK_WALLET,
   true,
   [password: string]

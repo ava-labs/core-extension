@@ -18,7 +18,7 @@ import { LedgerService } from '../LedgerService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { getExtendedPublicKey, hasPublicKeyFor } from '../../secrets/utils';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
   boolean
 >;

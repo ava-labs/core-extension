@@ -5,7 +5,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNIFIED_BRIDGE_TRACK_TRANSFER,
   void,
   [transfer: BridgeTransfer]

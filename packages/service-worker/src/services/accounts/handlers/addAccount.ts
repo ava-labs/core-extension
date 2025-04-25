@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 import { isPrimaryAccount } from '@core/utils';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_ADD,
   string,
   { name?: string; importData?: ImportData; walletId?: string }

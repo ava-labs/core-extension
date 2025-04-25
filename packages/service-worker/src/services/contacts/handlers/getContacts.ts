@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.CONTACTS_GET,
   ContactsState
 >;

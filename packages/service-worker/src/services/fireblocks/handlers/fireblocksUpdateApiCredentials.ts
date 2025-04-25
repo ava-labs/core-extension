@@ -17,7 +17,7 @@ import {
 } from '@core/types';
 import { FireblocksService } from '../FireblocksService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
   boolean,
   [accountId: string, apiKey: string, secretKey: string]

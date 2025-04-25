@@ -8,7 +8,7 @@ import {
 
 import { DefiService } from '../DefiService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.DEFI_GET_PORTFOLIO,
   DefiPortfolio,
   [address: string]

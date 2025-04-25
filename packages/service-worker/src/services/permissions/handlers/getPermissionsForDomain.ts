@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { PermissionsService } from '../PermissionsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.PERMISSIONS_GET_PERMISSIONS,
   DappPermissions | undefined,
   [domain: string]

@@ -5,7 +5,7 @@ import {
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FETCH_AND_SOLVE_CHALLENGE,
   undefined
 >;

@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { OnboardingService } from '../OnboardingService';
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ONBOARDING_GET_STATE,
   OnboardingState
 >;

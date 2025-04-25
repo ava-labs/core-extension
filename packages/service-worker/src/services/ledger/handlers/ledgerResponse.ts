@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_RESPONSE,
   true,
   [response: LedgerDeviceResponseData]

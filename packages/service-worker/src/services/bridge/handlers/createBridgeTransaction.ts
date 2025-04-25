@@ -7,7 +7,7 @@ import { BridgeService } from '../BridgeService';
 import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_TRANSACTION_CREATE,
   true,
   PartialBridgeTransaction

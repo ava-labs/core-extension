@@ -24,7 +24,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER,
   ImportWalletResult,
   [ImportLedgerWalletParams]

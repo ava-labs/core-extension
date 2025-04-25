@@ -6,7 +6,7 @@ import { ExtensionRequestHandler, ExtensionRequest } from '@core/types';
 
 import { BridgeService } from '../BridgeService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_ESTIMATE_GAS,
   bigint | undefined,
   [currentBlockchain: Blockchain, amountStr: Big, asset: Asset]

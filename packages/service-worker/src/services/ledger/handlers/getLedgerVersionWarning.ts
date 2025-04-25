@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler, LEDGER_VERSION_WARNING_WAS_C
 import { injectable } from 'tsyringe';
 import { StorageService } from '../../storage/StorageService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SHOW_LEDGER_VERSION_WARNING,
   boolean
 >;

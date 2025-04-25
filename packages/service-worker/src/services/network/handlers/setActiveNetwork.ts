@@ -6,7 +6,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { NetworkService } from '../NetworkService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_ACTIVE,
   void,
   [scope: string]

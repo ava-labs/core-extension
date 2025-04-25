@@ -8,7 +8,7 @@ import {
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
   true,
   [response: MfaResponseData]

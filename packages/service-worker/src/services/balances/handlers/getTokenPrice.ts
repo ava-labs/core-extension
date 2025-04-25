@@ -6,7 +6,7 @@ import { injectable } from 'tsyringe';
 import { SettingsService } from '@/services/settings/SettingsService';
 import { TokenPricesService } from '@/services/balances/TokenPricesService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.TOKEN_PRICE_GET,
   number | undefined,
   [tokenId: string]

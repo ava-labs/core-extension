@@ -13,7 +13,7 @@ import {
 } from '@avalabs/vm-module-types';
 import { mapVMAddresses } from '@core/utils';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCE_NATIVE_GET,
   { balance: NetworkTokenWithBalance },
   [address: string, caip2Id: string]

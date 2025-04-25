@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
 import { TransactionRequest } from 'ethers';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FUND_TX,
   undefined,
   [

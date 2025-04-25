@@ -12,7 +12,7 @@ import { injectable } from 'tsyringe';
 
 import { ActionsService } from '../ActionsService';
 
-type HandlerType = ExtensionRequestHandler<
+export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE_TX_DATA,
   null,
   | [
