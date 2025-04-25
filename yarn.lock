@@ -12179,6 +12179,7 @@ __metadata:
     tsyringe: "npm:4.8.0"
     tweetnacl: "npm:1.0.3"
     typescript: "npm:5.8.2"
+    typewriter-effect: "npm:2.21.0"
     web3: "npm:1.8.2"
     webextension-polyfill: "npm:0.10.0"
     webpack: "npm:5.76.0"
@@ -30635,6 +30636,19 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/7889472e5f13d6c6df993f8cc26ac5bd9d27ed5e5e865afc150ceffb5c02d944e27e5e92dfd730232a9180549c6b7d3f622deacd1d96c0457cba72e17ed6901f
+  languageName: node
+  linkType: hard
+
+"typewriter-effect@npm:2.21.0":
+  version: 2.21.0
+  resolution: "typewriter-effect@npm:2.21.0"
+  dependencies:
+    prop-types: "npm:^15.8.1"
+    raf: "npm:^3.4.1"
+  peerDependencies:
+    react: ^17.x || ^18.x
+    react-dom: ^17.x || ^18.x
+  checksum: 10c0/e3200599f1de2b06933960ab291f4949194a629b44b73e5d88b591119f90cb32a74f2edc9ebaea823c418babc2b62c41e223ac600a29ceaee223d1fe4cfe4342
   languageName: node
   linkType: hard
 

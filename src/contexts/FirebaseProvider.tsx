@@ -13,6 +13,11 @@ import { Content, FunctionCall } from '@firebase/vertexai';
 import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
 import { ConfigParams } from '@src/background/services/firebase/models';
 
+interface ChatDialog {
+  role: 'model' | 'user';
+  content: string;
+}
+
 const FirebaseContext = createContext<{
   startChat: ({
     tools,
@@ -41,12 +46,7 @@ const FirebaseContext = createContext<{
 
 export function FirebaseContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
-  const [prompts, setPrompts] = useState<
-    {
-      role: 'model' | 'user';
-      content: string;
-    }[]
-  >([
+  const [prompts, setPrompts] = useState<ChatDialog[]>([
     {
       role: 'model',
       content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,

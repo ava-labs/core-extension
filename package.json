@@ -114,6 +114,7 @@
     "semver": "7.6.0",
     "tsyringe": "4.8.0",
     "tweetnacl": "1.0.3",
+    "typewriter-effect": "2.21.0",
     "web3": "1.8.2",
     "xss": "1.0.13",
     "zxcvbn": "4.4.2"

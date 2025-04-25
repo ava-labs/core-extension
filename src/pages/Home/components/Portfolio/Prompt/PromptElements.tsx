@@ -9,20 +9,31 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import Typewriter from 'typewriter-effect';
 
 const Avatar = styled(Stack)(() => ({
   position: 'relative',
   marginLeft: '-24px',
+  height: '85px',
+  '.text': {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  },
 }));
 
-export const AIDialog = ({ message }) => {
+export const AIDialog = ({ message, scrollToBottom }) => {
   const theme = useTheme();
+  const [isTextTyped, setIsTextTyped] = useState(false);
 
   return (
     <Stack sx={{ flexDirection: 'row' }}>
       <Avatar>
-        <img src="images/ai-avatar.png" />
+        <img src="images/ai-avatar.svg" />
+        <img src="images/ai-avatar-text.svg" className="text" />
       </Avatar>
       <Box
         sx={{
@@ -40,7 +51,23 @@ export const AIDialog = ({ message }) => {
           height: '100%',
         }}
       >
-        <Typography>{message.content}</Typography>
+        {!isTextTyped && (
+          <Typography>
+            <Typewriter
+              onInit={(typewriter) => {
+                typewriter
+                  .changeDelay(3)
+                  .typeString(message.content)
+                  .callFunction(() => {
+                    setIsTextTyped(true);
+                    scrollToBottom();
+                  })
+                  .start();
+              }}
+            />
+          </Typography>
+        )}
+        {isTextTyped && <Typography>{message.content}</Typography>}
       </Box>
     </Stack>
   );
@@ -69,7 +96,24 @@ export const UserDialog = ({ message }) => {
   );
 };
 
-export const UserInput = ({ input, setInput, prompt, disabled }) => {
+interface UserInputProps {
+  input: string;
+  setInput: Dispatch<SetStateAction<string>>;
+  setPrompt: (message: string) => Promise<void>;
+  disabled: boolean;
+  userMessages?: string[];
+}
+
+export const UserInput = ({
+  input,
+  setInput,
+  setPrompt,
+  disabled,
+  userMessages,
+}: UserInputProps) => {
+  const [userMessageHistoryIndex, setUserMessageHistoryIndex] =
+    useState<number>();
+
   const { t } = useTranslation();
   return (
     <TextField
@@ -93,7 +137,7 @@ export const UserInput = ({ input, setInput, prompt, disabled }) => {
                 cursor: 'pointer',
               }}
               onClick={() => {
-                prompt(input);
+                setPrompt(input);
               }}
             />
           </InputAdornment>
@@ -103,9 +147,40 @@ export const UserInput = ({ input, setInput, prompt, disabled }) => {
         setInput(e.target.value);
       }}
       onKeyPress={(e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && input) {
           e.preventDefault();
-          prompt(input);
+          setPrompt(input);
+          setUserMessageHistoryIndex(userMessages?.length || 1);
+        }
+      }}
+      onKeyUp={(e) => {
+        if (e.key === 'ArrowUp' && userMessages) {
+          const index =
+            userMessageHistoryIndex || userMessageHistoryIndex === 0
+              ? userMessageHistoryIndex - 1
+              : userMessages.length - 1;
+          const message = userMessages[index];
+
+          if (message) {
+            setInput(message);
+          }
+          if (index > 0) {
+            setUserMessageHistoryIndex(index);
+          }
+        }
+        if (e.key === 'ArrowDown' && userMessages) {
+          const index =
+            userMessageHistoryIndex || userMessageHistoryIndex === 0
+              ? userMessageHistoryIndex + 1
+              : userMessages.length - 1;
+          const message = userMessages[index];
+
+          if (message) {
+            setInput(message);
+          }
+          if (index < userMessages.length - 1) {
+            setUserMessageHistoryIndex(index);
+          }
         }
       }}
     />

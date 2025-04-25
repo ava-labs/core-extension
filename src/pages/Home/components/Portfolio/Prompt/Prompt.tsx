@@ -38,6 +38,8 @@ import {
   UserDialog,
 } from './PromptElements';
 import { useFirebaseContext } from '@src/contexts/FirebaseProvider';
+import { toastCardWithLink } from '@src/utils/toastCardWithLink';
+import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 
 export function Prompt() {
   const theme = useTheme();
@@ -55,11 +57,23 @@ export function Prompt() {
   const [isModelReady, setIsModelReady] = useState(false);
 
   const tokens = useTokensWithBalances();
-  useEffect(() => {
+
+  const userMessages = useMemo(
+    () =>
+      prompts
+        .filter((content) => content.role === 'user')
+        .map((contents) => contents.content),
+    [prompts],
+  );
+
+  const scrollToBottom = useCallback(() => {
     if (prompts) {
       scrollbarRef?.current?.scrollToBottom();
     }
   }, [prompts]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [scrollToBottom]);
 
   const functions = useMemo(
     () => ({
@@ -105,7 +119,11 @@ export function Prompt() {
             },
           ],
         });
-
+        toastCardWithLink({
+          title: t('Send Successful'),
+          url: getExplorerAddressByNetwork(network, hash),
+          label: t('View in Explorer'),
+        });
         return {
           recepient,
           token,
@@ -215,11 +233,11 @@ export function Prompt() {
           srcAmount: rate.optimalRate.srcAmount,
           priceRoute: rate.optimalRate,
           destAmount: rate.destAmount,
-          slippage: 0.1,
+          slippage: 0.15,
         });
 
         return {
-          content: `Swap successful. Successfully swapped ${amount}${srcToken.symbol} to ${rate.destAmount}${toToken.symbol}.`,
+          content: `Swap initiated ${amount}${srcToken.symbol} to ${rate.destAmount}${toToken.symbol}.`,
         };
       },
     }),
@@ -231,6 +249,7 @@ export function Prompt() {
       request,
       selectAccount,
       swap,
+      t,
       tokens,
     ],
   );
@@ -432,7 +451,13 @@ export function Prompt() {
               <Stack sx={{ p: 2, flexGrow: 1 }}>
                 {prompts.map((message, i) => {
                   if (message.role === 'model') {
-                    return <AIDialog message={message} key={i} />;
+                    return (
+                      <AIDialog
+                        message={message}
+                        key={i}
+                        scrollToBottom={scrollToBottom}
+                      />
+                    );
                   }
                   return <UserDialog message={message} key={i} />;
                 })}
@@ -443,8 +468,9 @@ export function Prompt() {
               <UserInput
                 input={input}
                 setInput={setInput}
-                prompt={prompt}
+                setPrompt={prompt}
                 disabled={!isModelReady}
+                userMessages={userMessages}
               />
             </Stack>
           </Stack>
