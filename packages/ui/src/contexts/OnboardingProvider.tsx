@@ -1,49 +1,47 @@
-import { ExtensionRequest } from '@core/service-worker';
-import { onboardingUpdatedEventListener } from '@core/service-worker';
-import { GetIsOnboardedHandler } from '@core/service-worker';
-import {
-  OnboardingPhase,
-  OnboardingState,
-} from '@core/service-worker';
-import {
-  PubKeyType,
-  SeedlessAuthProvider,
-} from '@core/service-worker';
-import {
-  useIsSpecificContextContainer,
-  ContextContainer,
-} from '@/hooks/useIsSpecificContextContainer';
-import {
-  createContext,
-  useContext,
-  Suspense,
-  useEffect,
-  lazy,
-  useState,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-} from 'react';
-import { concat, filter, from, map } from 'rxjs';
-import browser from 'webextension-polyfill';
-import { useConnectionContext } from './ConnectionProvider';
+import { useIsSpecificContextContainer } from '@/hooks/useIsSpecificContextContainer';
 import { LoadingContent } from '@/popup/LoadingContent';
 import { toast } from '@avalabs/core-k2-components';
-import { useTranslation } from 'react-i18next';
-import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
-import { useAnalyticsContext } from './AnalyticsProvider';
-import { MnemonicOnboardingHandler } from '@core/service-worker';
-import { SeedlessOnboardingHandler } from '@core/service-worker';
-import { KeystoneOnboardingHandler } from '@core/service-worker';
-import { LedgerOnboardingHandler } from '@core/service-worker';
 import { WalletType } from '@avalabs/types';
-import { signUpForNewsletter } from '@core/utils';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@core/common/src/monitoring/sentryCaptureException';
+import {
+  GetIsOnboardedHandler,
+  KeystoneOnboardingHandler,
+  LedgerOnboardingHandler,
+  MnemonicOnboardingHandler,
+  onboardingUpdatedEventListener,
+  SeedlessOnboardingHandler,
+} from '@core/service-worker';
+import {
+  ContextContainer,
+  ExtensionRequest,
+  OnboardingPhase,
+  OnboardingState,
+  PubKeyType,
+  SeedlessAuthProvider,
+} from '@core/types';
+import { signUpForNewsletter } from '@core/utils';
+import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import {
+  createContext,
+  Dispatch,
+  lazy,
+  SetStateAction,
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { concat, filter, from, map } from 'rxjs';
+import browser from 'webextension-polyfill';
+import { useAnalyticsContext } from './AnalyticsProvider';
+import { useConnectionContext } from './ConnectionProvider';
 
 const Onboarding = lazy(() =>
-  import('../../packages/ui/pages/Onboarding/Onboarding').then((m) => ({
+  import('@/pages/Onboarding/Onboarding').then((m) => ({
     default: m.Onboarding,
   })),
 );

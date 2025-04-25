@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from '@core/service-worker';
+import { DAppProviderRequest } from '@core/types';
 import { ActionStatus } from '@core/types';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';

@@ -1,37 +1,42 @@
-import { EventEmitter } from 'events';
-import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   Account,
+  AccountError,
   Accounts,
-  AccountsEvents,
   ACCOUNTS_STORAGE_KEY,
+  AccountsEvents,
   AccountType,
+  AccountWithOptionalAddresses,
+  DerivedAddresses,
+  IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
   ImportData,
   ImportedAccount,
   ImportType,
-  IMPORT_TYPE_TO_ACCOUNT_TYPE_MAP,
   PrimaryAccount,
+  SecretsError,
+  SecretType,
   WalletId,
-  AccountWithOptionalAddresses,
-	SecretsError,
-	AccountError,
 } from '@core/types';
+import {
+  assertPresent,
+  assertPropDefined,
+  getAllAddressesForAccount,
+  isPrimaryAccount,
+  isProductionBuild,
+  mapAddressesToVMs,
+  mapVMAddresses,
+} from '@core/utils';
+import { EventEmitter } from 'events';
+import { singleton } from 'tsyringe';
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
-import { NetworkService } from '../network/NetworkService';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { PermissionsService } from '../permissions/PermissionsService';
-import { isProductionBuild } from '@core/utils';
-import { DerivedAddresses, SecretType } from '@core/types';
-import { isPrimaryAccount } from '@core/utils';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
-import { getAllAddressesForAccount } from '@core/utils';
-import { SecretsService } from '../secrets/SecretsService';
 import { LedgerService } from '../ledger/LedgerService';
-import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { NetworkService } from '../network/NetworkService';
+import { PermissionsService } from '../permissions/PermissionsService';
 import { AddressResolver } from '../secrets/AddressResolver';
-import { assertPresent, assertPropDefined } from '@core/utils';
-import { mapAddressesToVMs, mapVMAddresses } from '@core/utils';
+import { SecretsService } from '../secrets/SecretsService';
+import { StorageService } from '../storage/StorageService';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
 
 type AddAccountParams = {
   walletId: string;

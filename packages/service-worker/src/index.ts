@@ -1,7 +1,20 @@
+export { gaslessSendOffscreenMessageEventListener } from './services/gasless/events/gaslessSendMessageListener';
+
+export { gaslessChallangeUpdateEventListener } from './services/gasless/events/gaslessChallangeUpdateListener';
+
+export type { CloseLedgerTransportHandler } from './services/ledger/handlers/closeOpenTransporters';
+export type { GetLedgerVersionWarningHandler } from './services/ledger/handlers/getLedgerVersionWarning';
+export type { InitLedgerTransportHandler } from './services/ledger/handlers/initLedgerTransport';
+export type { LedgerResponseHandler } from './services/ledger/handlers/ledgerResponse';
+export type { RemoveLedgerTransportHandler } from './services/ledger/handlers/removeLedgerTransport';
+export type { LedgerVersionWarningClosedHandler } from './services/ledger/handlers/setLedgerVersionWarningClosed';
+export { ledgerDiscoverTransportsEventListener } from './services/ledger/events/ledgerDiscoverTransportsEventListener';
+
+export { onboardingUpdatedEventListener } from './services/onboarding/events/listeners';
 export type { AvalancheSendTransactionHandler } from './services/wallet/handlers/avalanche_sendTransaction';
 
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
-export { HandlerType as BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
+export type { HandlerType as BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
 export { networkUpdatedEventListener } from './services/network/events/networkUpdatedEventListener';
 export {
   isSessionPermissionsMismatchEvent,
@@ -135,13 +148,3 @@ export type { HandlerType as GetTokenDataHandler } from './services/settings/han
 export { analyticsStateUpdatedEventListener } from './services/analytics/events/listeners';
 export { featureFlagsUpdatedEventListener } from './services/featureFlags/events/featureFlagsUpdatedEventListener';
 export { settingsUpdatedEventListener } from './services/settings/events/listeners';
-export {
-  DAppProviderRequest,
-  JsonRpcFailure,
-  JsonRpcRequest,
-  JsonRpcRequestParams,
-  JsonRpcRequestPayload,
-  JsonRpcResponse,
-  JsonRpcSuccess,
-  Web3Event,
-} from '@core/types';

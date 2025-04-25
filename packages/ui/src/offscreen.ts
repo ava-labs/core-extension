@@ -1,8 +1,7 @@
-import browser, { Runtime } from 'webextension-polyfill';
-import { OFFSCREEN_SCRIPT } from '../packages/common/src/script-names';
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
-import { ExtensionRequest } from '@core/types';
-import { GaslessEvents } from '@core/types';
+import { OFFSCREEN_SCRIPT } from '@core/common/src/script-names';
+import { ExtensionRequest, GaslessEvents } from '@core/types';
+import browser, { Runtime } from 'webextension-polyfill';
 
 const connection: Runtime.Port = browser.runtime.connect({
   name: OFFSCREEN_SCRIPT,

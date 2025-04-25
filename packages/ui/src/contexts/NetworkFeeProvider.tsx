@@ -8,24 +8,24 @@ import {
   useState,
 } from 'react';
 
-import { NetworkFee } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { GetNetworkFeeHandler } from '@core/service-worker';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { GetNetworkFeeHandler } from '@core/service-worker';
+import { ExtensionRequest, NetworkFee } from '@core/types';
 import { chainIdToCaip } from '@core/utils';
 
-import { useNetworkContext } from './NetworkProvider';
-import { FundTxHandler } from '@core/service-worker';
-import { GetGaslessEligibilityHandler } from '@core/service-worker';
-import { FetchAndSolveChallengeHandler } from '@core/service-worker';
-import { filter, map } from 'rxjs';
-import { gaslessChallangeUpdateEventListener } from '@core/service-worker';
-import { AddressLike } from 'ethers';
-import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
-import { SetDefaultStateValuesHandler } from '@core/service-worker';
-import { GaslessPhase } from '@core/service-worker';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
+import {
+  FetchAndSolveChallengeHandler,
+  FundTxHandler,
+  gaslessChallangeUpdateEventListener,
+  GetGaslessEligibilityHandler,
+  SetDefaultStateValuesHandler,
+} from '@core/service-worker';
+import { FeatureGates, GaslessPhase } from '@core/types';
+import { AddressLike } from 'ethers';
+import { filter, map } from 'rxjs';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { useNetworkContext } from './NetworkProvider';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;

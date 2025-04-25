@@ -1,4 +1,4 @@
-import { launchWebAuthFlow } from '../../../ui/pages/Onboarding/utils/launchWebAuthFlow';
+import { launchWebAuthFlow } from './launchWebAuthFlow';
 
 export async function authenticateWithGoogle(): Promise<string> {
   const manifest = chrome.runtime.getManifest();

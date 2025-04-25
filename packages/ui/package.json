@@ -1,6 +1,10 @@
 {
   "name": "@core/ui",
   "packageManager": "yarn@4.7.0",
+  "scripts": {
+    "dev": "rsbuild build -w --config rsbuild.ui.dev.ts",
+    "build": "rsbuild build --config rsbuild.ui.prod.ts"
+  },
   "dependencies": {
     "@avalabs/avalanche-module": "1.6.2",
     "@avalabs/avalanchejs": "4.2.0-alpha.1",
@@ -114,6 +118,11 @@
     "@google/semantic-release-replace-plugin": "1.1.0",
     "@lavamoat/allow-scripts": "2.0.0",
     "@lavamoat/preinstall-always-fail": "1.0.0",
+    "@rsbuild/core": "1.3.3",
+    "@rsbuild/plugin-node-polyfill": "1.3.0",
+    "@rsbuild/plugin-react": "1.1.1",
+    "@rsdoctor/rspack-plugin": "1.0.2",
+    "@rspack/core": "1.3.2",
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
     "@semantic-release/github": "8.0.2",

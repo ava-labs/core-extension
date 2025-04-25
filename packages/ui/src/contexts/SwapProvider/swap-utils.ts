@@ -7,19 +7,17 @@ import { t } from 'i18next';
 import type { BuildTxInputBase } from '@paraswap/sdk/dist/methods/swap/transaction';
 
 import {
-  CommonError,
   isUserRejectionError,
   isWrappedError,
   WrappedError,
 } from '@core/utils';
 import { resolve } from '@core/utils';
-import { RequestHandlerType } from '@core/service-worker';
+import { CommonError,SwapErrorCode, RequestHandlerType } from '@core/types';
 import { SwapError } from '@/pages/Swap/hooks/useSwap';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,
   ParaswapPricesResponse,
-  SwapErrorCode,
   SwapParams,
   hasParaswapError,
 } from './models';

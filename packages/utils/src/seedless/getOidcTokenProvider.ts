@@ -1,4 +1,4 @@
-import { SeedlessAuthProvider } from '@core/service-worker';
+import { SeedlessAuthProvider } from '@core/types';
 import { authenticateWithGoogle } from './authenticateWithGoogle';
 import { authenticateWithApple } from './authenticateWithApple';
 

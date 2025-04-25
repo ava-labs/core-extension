@@ -13,7 +13,7 @@ import { SettingsContextProvider } from '@/contexts/SettingsProvider';
 import { LoadingContent } from './LoadingContent';
 import { FeatureFlagsContextProvider } from '@/contexts/FeatureFlagsProvider';
 import { I18nextProvider } from 'react-i18next';
-import i18n from '@shared/localization/init';
+import i18n from '@/localization/init';
 import { darkTheme, ThemeProvider } from '@avalabs/core-k2-components';
 
 const App = lazy(() => {

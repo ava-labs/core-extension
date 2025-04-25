@@ -1,3 +1,13 @@
+import { getLedgerTransport } from '@/contexts/utils/getLedgerTransport';
+import AppAvalanche from '@avalabs/hw-app-avalanche';
+import { ExtensionRequest } from '@core/types';
+import { resolve } from '@core/utils';
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+import {
+  AppClient as Btc,
+  DefaultWalletPolicy,
+  WalletPolicy,
+} from 'ledger-bitcoin';
 import {
   createContext,
   useCallback,
@@ -6,34 +16,19 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useConnectionContext } from './ConnectionProvider';
-import { ExtensionRequest } from '@core/service-worker';
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import { resolve } from '@core/utils';
 import {
   delay,
   filter,
   fromEventPattern,
+  map,
   of,
   retryWhen,
   switchMap,
   tap,
-  map,
 } from 'rxjs';
-import { getLedgerTransport } from '@/contexts/utils/getLedgerTransport';
-import AppAvalanche from '@avalabs/hw-app-avalanche';
-import {
-  AppClient as Btc,
-  DefaultWalletPolicy,
-  WalletPolicy,
-} from 'ledger-bitcoin';
+import { useConnectionContext } from './ConnectionProvider';
 
-import Transport from '@ledgerhq/hw-transport';
-import { ledgerDiscoverTransportsEventListener } from '@core/service-worker';
-import { LedgerEvent } from '@core/service-worker';
-import { LedgerResponseHandler } from '@core/service-worker';
-import { InitLedgerTransportHandler } from '@core/service-worker';
-import { RemoveLedgerTransportHandler } from '@core/service-worker';
+import { VM } from '@avalabs/avalanchejs';
 import {
   DerivationPath,
   getLedgerAppInfo,
@@ -41,12 +36,19 @@ import {
   getPubKeyFromTransport,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { CloseLedgerTransportHandler } from '@core/service-worker';
-import { GetLedgerVersionWarningHandler } from '@core/service-worker';
-import { LedgerVersionWarningClosedHandler } from '@core/service-worker';
-import { lockStateChangedEventListener } from '@core/service-worker';
-import { VM } from '@avalabs/avalanchejs';
+import {
+  CloseLedgerTransportHandler,
+  GetLedgerVersionWarningHandler,
+  InitLedgerTransportHandler,
+  ledgerDiscoverTransportsEventListener,
+  LedgerResponseHandler,
+  LedgerVersionWarningClosedHandler,
+  lockStateChangedEventListener,
+  RemoveLedgerTransportHandler,
+} from '@core/service-worker';
+import { LedgerEvent } from '@core/types';
 import Eth from '@ledgerhq/hw-app-eth';
+import Transport from '@ledgerhq/hw-transport';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
