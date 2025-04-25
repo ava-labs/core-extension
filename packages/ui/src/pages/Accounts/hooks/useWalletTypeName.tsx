@@ -1,6 +1,4 @@
-import { Account, AccountType } from '@core/service-worker';
-import { SecretType } from '@core/service-worker';
-import { WalletDetails } from '@core/service-worker';
+import { Account, AccountType, SecretType, WalletDetails } from '@core/types';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 

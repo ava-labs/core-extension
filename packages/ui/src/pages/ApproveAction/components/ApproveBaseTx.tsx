@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { TokenUnit, bigIntToString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { AvalancheChainStrings } from '@core/service-worker';
+import { AvalancheChainStrings } from '@core/types';
 import { PVM } from '@avalabs/avalanchejs';
 
 export function BaseTxView({

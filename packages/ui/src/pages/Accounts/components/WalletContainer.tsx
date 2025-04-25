@@ -8,9 +8,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { SecretType } from '@core/service-worker';
-import { WalletDetails } from '@core/service-worker';
-import { PrimaryAccount } from '@core/service-worker';
+import { SecretType, WalletDetails, PrimaryAccount } from '@core/types';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';

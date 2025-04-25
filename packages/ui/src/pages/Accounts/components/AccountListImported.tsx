@@ -1,12 +1,11 @@
-import { t } from 'i18next';
-import { useState } from 'react';
 import { Collapse, Stack } from '@avalabs/core-k2-components';
+import { useState } from 'react';
 
-import { Account } from '@core/service-worker';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { isImportedAccount } from '@core/service-worker';
-import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/service-worker';
+import { Account, IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
+import { isImportedAccount } from '@core/utils';
 
+import { useTranslation } from 'react-i18next';
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';
 import { SelectionMode } from '../providers/AccountManagerProvider';
 import { AccountItem } from './AccountItem';
@@ -20,6 +19,7 @@ export const AccountListImported = ({ accounts }: AccountListProps) => {
   const {
     accounts: { active },
   } = useAccountsContext();
+	const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
   const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
     useWalletTotalBalance(IMPORTED_ACCOUNTS_WALLET_ID);

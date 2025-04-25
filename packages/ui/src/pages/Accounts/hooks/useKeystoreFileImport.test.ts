@@ -5,7 +5,7 @@ import {
   KEYSTORE_V2,
   KEYSTORE_V6,
   KEYSTORE_V6_PKEY,
-} from '@core/utils';
+} from './keystore-fixtures';
 
 import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';

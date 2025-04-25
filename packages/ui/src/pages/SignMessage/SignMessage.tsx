@@ -31,7 +31,7 @@ import { SignDataV4 } from './components/SignDataV4';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@core/service-worker';
-import { useLedgerDisconnectedDialog } from '@/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
 import { LedgerAppType } from '@/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';

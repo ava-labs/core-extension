@@ -1,4 +1,4 @@
-import { ActionStatus } from '@core/service-worker';
+import { ActionStatus } from '@core/types';
 import { SiteAvatar } from '@/components/common/SiteAvatar';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';

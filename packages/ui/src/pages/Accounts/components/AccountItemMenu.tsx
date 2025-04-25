@@ -1,20 +1,19 @@
-import { RefObject, useCallback, useState } from 'react';
 import {
-  ClickAwayListener,
-  Grow,
-  IconButton,
-  ListItemText,
-  MenuItem,
-  MenuList,
-  MoreVerticalIcon,
-  Popper,
-  Tooltip,
+	ClickAwayListener,
+	Grow,
+	IconButton,
+	ListItemText,
+	MenuItem,
+	MenuList,
+	MoreVerticalIcon,
+	Popper,
+	Tooltip,
 } from '@avalabs/core-k2-components';
-import { useHistory } from 'react-router-dom';
+import { RefObject, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
-import { Account } from '@core/service-worker';
-import { SecretType } from '@core/service-worker';
+import { Account, SecretType } from '@core/types';
 
 import { usePrivateKeyExport } from '../hooks/usePrivateKeyExport';
 import { useAccountManager } from '../providers/AccountManagerProvider';
@@ -26,7 +25,7 @@ type AccountItemMenuProps = {
   promptRename(): void;
   handleRemove(): void;
   walletType?: SecretType;
-  menuAnchor: RefObject<HTMLElement>;
+  menuAnchor: RefObject<HTMLElement | null>;
 };
 
 export const AccountItemMenu = ({

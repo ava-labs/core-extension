@@ -1,45 +1,43 @@
-import { ActionStatus } from '@core/service-worker';
+import {
+	ApprovalSection,
+	ApprovalSectionBody,
+	ApprovalSectionHeader,
+} from '@/components/common/approval/ApprovalSection';
+import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
+import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
-import { useCallback, useEffect, useState } from 'react';
-import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { useTranslation } from 'react-i18next';
-import { AlertType, DisplayData, RpcMethod } from '@avalabs/vm-module-types';
-import {
-  Alert,
-  AlertContent,
-  AlertTitle,
-  Box,
-  Button,
-  Scrollbars,
-  Skeleton,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@avalabs/core-k2-components';
-import { useLedgerDisconnectedDialog } from '@/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
 import {
-  ApprovalSection,
-  ApprovalSectionBody,
-  ApprovalSectionHeader,
-} from '@/components/common/approval/ApprovalSection';
-import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
-import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
-import { useFeeCustomizer } from './hooks/useFeeCustomizer';
-import { DeviceApproval } from './components/DeviceApproval';
-import { NetworkWithCaipId } from '@core/service-worker';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
+	Alert,
+	AlertContent,
+	AlertTitle,
+	Box,
+	Button,
+	Scrollbars,
+	Skeleton,
+	Stack,
+	Tooltip,
+	Typography,
+} from '@avalabs/core-k2-components';
+import { AlertType, DisplayData, RpcMethod } from '@avalabs/vm-module-types';
+import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { AlertBox } from '../Permissions/components/AlertBox';
 import { WarningBox } from '../Permissions/components/WarningBox';
-import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
-import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
+import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { GaslessPhase } from '@core/service-worker';
+import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
+import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
+import { DeviceApproval } from './components/DeviceApproval';
+import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };
@@ -215,7 +213,7 @@ export function GenericApprovalScreen() {
           }}
         >
           <Typography variant="h4">
-            {context?.customApprovalScreenTitle || displayData.title}
+            {(context?.customApprovalScreenTitle) as string || displayData.title}
           </Typography>
         </Box>
 
@@ -381,7 +379,7 @@ export function GenericApprovalScreen() {
           >
             {gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS
               ? t('Approving')
-              : context?.customApprovalButtonText || t('Approve')}
+              : (context?.customApprovalButtonText) as string || t('Approve')}
           </Button>
         </Tooltip>
       </Stack>

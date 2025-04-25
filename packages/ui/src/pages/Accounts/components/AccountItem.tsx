@@ -1,46 +1,44 @@
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
-  Checkbox,
-  Collapse,
-  CopyIcon,
-  Grow,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
-  useTheme,
+	Checkbox,
+	Collapse,
+	CopyIcon,
+	Grow,
+	IconButton,
+	Stack,
+	Tooltip,
+	Typography,
+	useTheme,
 } from '@avalabs/core-k2-components';
 import {
-  ForwardedRef,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+	ForwardedRef,
+	forwardRef,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
-import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { Account, AccountType } from '@core/service-worker';
-import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { SecretType } from '@core/service-worker';
-import { getAddressForChain } from '@core/utils';
-import { truncateAddress } from '@core/utils';
+import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
 import { useScopedToast } from '@/hooks/useScopedToast';
+import { Account, AccountType, SecretType } from '@core/types';
+import { getAddressForChain, truncateAddress } from '@core/utils';
 
+import { AccountBalance } from '../AccountBalance';
+import { useAccountRemoval } from '../hooks/useAccountRemoval';
 import { useAccountRename } from '../hooks/useAccountRename';
 import {
-  SelectionMode,
-  useAccountManager,
+	SelectionMode,
+	useAccountManager,
 } from '../providers/AccountManagerProvider';
-import { AccountBalance } from '../AccountBalance';
 import { AccountItemMenu } from './AccountItemMenu';
 import AccountNameNew from './AccountName';
-import { useAccountRemoval } from '../hooks/useAccountRemoval';
 
 type AccountItemProps = {
   account: Account;

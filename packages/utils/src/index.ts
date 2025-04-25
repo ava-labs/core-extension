@@ -26,6 +26,7 @@ export * from './getEnabledBridgeTypes';
 export * from './getExplorerAddress';
 export * from './getNftMetadata';
 export * from './constants';
+export * from './keystore/keystore';
 export * from './getAddressForChain';
 export * from './bridgeTransactionUtils';
 export * from './seedless/getCubeSigner';

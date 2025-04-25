@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { AccountType } from '@core/service-worker';
+import { AccountType } from '@core/types';
 import { useAccountManager } from './providers/AccountManagerProvider';
 
 interface AccountBalanceProps {
@@ -62,7 +62,7 @@ export function AccountBalance({
   const { isManageMode } = useAccountManager();
   const { currency, currencyFormatter } = useSettingsContext();
   const [skeletonWidth, setSkeletonWidth] = useState(30);
-  const balanceTextRef = useRef<HTMLSpanElement>();
+  const balanceTextRef = useRef<HTMLSpanElement>(null);
   const { capture } = useAnalyticsContext();
 
   const hasBalance = balanceTotalUSD !== null;

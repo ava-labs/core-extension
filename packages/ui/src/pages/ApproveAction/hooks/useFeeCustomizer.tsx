@@ -7,27 +7,27 @@ import {
 } from '@avalabs/vm-module-types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { NetworkWithCaipId } from '@core/service-worker';
-import { NetworkFee } from '@core/service-worker';
+import {
+  Action,
+  ExtensionRequest,
+  MultiTxAction,
+  SendErrorMessage,
+  isBatchApprovalAction,
+  NetworkFee,
+  NetworkWithCaipId,
+} from '@core/types';
 
-import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import {
   CustomFees,
   CustomGasFeesProps,
   GasFeeModifier,
 } from '@/components/common/CustomFees';
-import { SendErrorMessage } from '@core/types';
-import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { UpdateActionTxDataHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
-import {
-  Action,
-  MultiTxAction,
-  isBatchApprovalAction,
-} from '@core/service-worker';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { UpdateActionTxDataHandler } from '@core/service-worker';
 
 const getInitialFeeRate = (
   data?: SigningData | MultiTxFeeData,

@@ -26,7 +26,7 @@ import { useHistory } from 'react-router-dom';
 import browser from 'webextension-polyfill';
 
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
+import { FeatureGates } from '@core/types';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { isProductionBuild } from '@core/utils';
 import { ChainId } from '@avalabs/core-chains-sdk';
@@ -68,7 +68,7 @@ export const AccountsActionButton = ({
 }: AccountsActionButtonProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const history = useHistory();
-  const toggleButtonRef = useRef();
+  const toggleButtonRef = useRef<HTMLElement | null>(null);
   const { t } = useTranslation();
   const { featureFlags } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();

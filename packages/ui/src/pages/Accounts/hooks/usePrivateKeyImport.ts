@@ -1,10 +1,8 @@
 import { useCallback, useState } from 'react';
 import { utils } from '@avalabs/avalanchejs';
 
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
-import { ImportType } from '@core/service-worker';
+import { Monitoring } from '@core/common';
+import { ImportType } from '@core/types';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 
 export const usePrivateKeyImport = () => {
@@ -24,9 +22,9 @@ export const usePrivateKeyImport = () => {
 
         return accountId;
       } catch (err) {
-        sentryCaptureException(
+        Monitoring.sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT,
+          Monitoring.SentryExceptionTypes.WALLET_IMPORT,
         );
         throw err;
       } finally {

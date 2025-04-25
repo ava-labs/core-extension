@@ -15,7 +15,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 type KeystoreFileUploadProps = {
-  inputRef: RefObject<HTMLInputElement>;
+  inputRef: RefObject<HTMLInputElement | null>;
   onDrop: DragEventHandler<HTMLDivElement>;
   onFileSelected: ChangeEventHandler<HTMLInputElement>;
 };

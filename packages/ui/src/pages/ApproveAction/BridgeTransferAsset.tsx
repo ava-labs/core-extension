@@ -1,27 +1,28 @@
-import { Action, ActionStatus } from '@core/service-worker';
-import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Stack, Typography, Divider } from '@avalabs/core-k2-components';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
 } from '@/components/common/approval/ApprovalSection';
 import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
+import { CustomFees, GasFeeModifier } from '@/components/common/CustomFees';
 import { NetworkLogo } from '@/components/common/NetworkLogo';
 import { TokenAmount } from '@/components/common/TokenAmount';
-import Big from 'big.js';
-import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
-import { CustomFees, GasFeeModifier } from '@/components/common/CustomFees';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import { Divider, Stack, Typography } from '@avalabs/core-k2-components';
 import {
+  Action,
+  ActionStatus,
   BridgeActionDisplayData,
   CustomGasSettings,
-} from '@core/service-worker';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { useGetRequestId } from '@/hooks/useGetRequestId';
-import { useApproveAction } from '@/hooks/useApproveAction';
+} from '@core/types';
+import Big from 'big.js';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function BridgeTransferAsset({
   action,

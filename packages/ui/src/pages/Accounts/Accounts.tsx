@@ -1,43 +1,44 @@
-import { useState, useMemo } from 'react';
 import {
-  Button,
-  ChevronLeftIcon,
-  Divider,
-  IconButton,
-  LoadingDotsIcon,
-  Scrollbars,
-  Stack,
-  TrashIcon,
-  Typography,
-  useTheme,
+	Button,
+	ChevronLeftIcon,
+	Divider,
+	IconButton,
+	LoadingDotsIcon,
+	Scrollbars,
+	Stack,
+	TrashIcon,
+	Typography,
+	useTheme,
 } from '@avalabs/core-k2-components';
-import { t } from 'i18next';
+import { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { useLedgerContext } from '@/contexts/LedgerProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
 import { LedgerApprovalDialog } from '@/pages/SignTransaction/components/LedgerApprovalDialog';
 
-import { AccountType } from '@core/service-worker';
-import { useScopedToast } from '@/hooks/useScopedToast';
 import { NetworkSwitcher } from '@/components/common/header/NetworkSwitcher';
 import { Overlay } from '@/components/common/Overlay';
-import { isPrimaryAccount } from '@core/service-worker';
-import { useWalletContext } from '@/contexts/WalletProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useScopedToast } from '@/hooks/useScopedToast';
+import { AccountType } from '@core/types';
+import { isPrimaryAccount } from '@core/utils';
 
-import { useAccountManager } from './providers/AccountManagerProvider';
-import { useAccountRemoval } from './hooks/useAccountRemoval';
-import { AccountListPrimary } from './components/AccountListPrimary';
 import { AccountListImported } from './components/AccountListImported';
+import { AccountListPrimary } from './components/AccountListPrimary';
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { OverflowingTypography } from './components/OverflowingTypography';
+import { useAccountRemoval } from './hooks/useAccountRemoval';
 import { useWalletTotalBalance } from './hooks/useWalletTotalBalance';
+import { useAccountManager } from './providers/AccountManagerProvider';
 import { useWalletTotalBalanceContext } from './providers/WalletTotalBalanceProvider';
 
 export function Accounts() {
+	const { t } = useTranslation();
   const {
     selectAccount,
     addAccount,

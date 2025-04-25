@@ -1,6 +1,7 @@
 import * as bip39 from 'bip39';
 import { toBytes } from '@noble/hashes/utils';
 import { utils } from '@avalabs/avalanchejs';
+import { KeystoreError } from '@core/types';
 
 import {
   AccessWalletMultipleInput,
@@ -16,8 +17,8 @@ import {
   KeyFileV4,
   KeyFileV5,
   KeyFileV6,
-  KeystoreError,
-} from './models';
+} from '@core/types/src/models';
+
 import { getHash, decrypt, calculatePasswordHash } from './cryptoHelpers';
 
 export const KEYSTORE_VERSION = '6.0';

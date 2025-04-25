@@ -7,7 +7,7 @@ import {
   Chip,
 } from '@avalabs/core-k2-components';
 
-import { Account, AccountType } from '@core/service-worker';
+import { Account, AccountType } from '@core/types';
 
 interface AccountItemChipProps {
   account: Account;

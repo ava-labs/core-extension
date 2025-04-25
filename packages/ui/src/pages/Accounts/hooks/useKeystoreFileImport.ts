@@ -1,23 +1,23 @@
+import { utils } from '@avalabs/avalanchejs';
 import Joi from 'joi';
 import { useCallback } from 'react';
-import { utils } from '@avalabs/avalanchejs';
 
-import {
-  extractKeysFromDecryptedFile,
-  readKeyFile,
-} from '@core/utils';
-import { SeedphraseImportError } from '@core/service-worker';
-import { isWrappedError } from '@core/utils';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   AllKeyFileTypes,
   KeystoreFileContentInfo,
+  SeedphraseImportError,
+} from '@core/types';
+import {
+  extractKeysFromDecryptedFile,
+  isWrappedError,
+  readKeyFile,
 } from '@core/utils';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
-import { useImportSeedphrase } from './useImportSeedphrase';
-import { usePrivateKeyImport } from './usePrivateKeyImport';
-import { useJsonFileReader } from './useJsonFileReader';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useImportSeedphrase } from './useImportSeedphrase';
+import { useJsonFileReader } from './useJsonFileReader';
+import { usePrivateKeyImport } from './usePrivateKeyImport';
 
 export const useKeystoreFileImport = () => {
   const { capture } = useAnalyticsContext();

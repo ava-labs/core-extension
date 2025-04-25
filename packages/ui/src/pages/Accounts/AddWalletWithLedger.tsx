@@ -14,10 +14,9 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
-import { PubKeyType } from '@core/service-worker';
+import { PubKeyType, SecretType } from '@core/types';
 import { NameYourWallet } from './components/NameYourWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { SecretType } from '@core/service-worker';
 import { useImportLedger } from './hooks/useImportLedger';
 import {
   LedgerConnector,

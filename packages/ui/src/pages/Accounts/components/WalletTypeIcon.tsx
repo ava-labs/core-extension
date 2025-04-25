@@ -8,11 +8,7 @@ import {
   SxProps,
 } from '@avalabs/core-k2-components';
 
-import { SecretType } from '@core/service-worker';
-import {
-  SeedlessAuthProvider,
-  WalletDetails,
-} from '@core/service-worker';
+import { SecretType, SeedlessAuthProvider, WalletDetails } from '@core/types';
 
 type WalletTypeIconProps = IconBaseProps & {
   walletDetails: WalletDetails;

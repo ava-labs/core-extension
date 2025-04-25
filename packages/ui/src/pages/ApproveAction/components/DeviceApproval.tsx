@@ -1,14 +1,13 @@
 import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
-import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 
-import { Action, ActionStatus } from '@core/service-worker';
-import { NetworkWithCaipId } from '@core/service-worker';
 import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
 import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import { Action, ActionStatus, NetworkWithCaipId } from '@core/types';
 
-import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { KeystoneApprovalOverlay } from '@/pages/SignTransaction/components/KeystoneApprovalOverlay';
+import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
 
 const getTxInfoForLedger = (
   signingData: SigningData,

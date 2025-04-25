@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useScopedToast } from '@/hooks/useScopedToast';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { Account } from '@core/service-worker';
+import { Account } from '@core/types';
 
 import { useEntityRename } from './useEntityRename';
 

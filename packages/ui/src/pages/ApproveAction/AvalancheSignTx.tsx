@@ -6,7 +6,7 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { ActionStatus } from '@core/service-worker';
+import { ActionStatus } from '@core/types';
 
 import { ImportTxView } from './components/ApproveImportTx';
 import { ExportTxView } from './components/ApproveExportTx';
@@ -15,7 +15,7 @@ import { AddDelegator } from './components/ApproveAddDelegator';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useNativeTokenPrice } from '@/hooks/useTokenPrice';
 import { BaseTxView } from './components/ApproveBaseTx';
-import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useLedgerDisconnectedDialog } from '../../hooks/useLedgerDisconnectedDialog';
 import { LedgerAppType } from '@/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';

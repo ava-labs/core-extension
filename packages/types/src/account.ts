@@ -155,3 +155,5 @@ export type AccountWithOptionalAddresses = PartialBy<
   Account,
   Extract<keyof Account, `address${string}`>
 >;
+
+export const IMPORTED_ACCOUNTS_WALLET_ID = '__IMPORTED__';

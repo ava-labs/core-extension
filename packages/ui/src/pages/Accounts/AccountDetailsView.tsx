@@ -24,10 +24,9 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { AccountType } from '@core/service-worker';
-import { FeatureGates } from '@core/service-worker';
+import { AccountType, FeatureGates } from '@core/types';
+import { isPrimaryAccount } from '@core/utils';
 import { useScopedToast } from '@/hooks/useScopedToast';
-import { isPrimaryAccount } from '@core/service-worker';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { stripAddressPrefix } from '@core/utils';

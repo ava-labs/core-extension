@@ -18,7 +18,7 @@ import { PageTitle } from '@/components/common/PageTitle';
 import {
   KeystoreError,
   KeystoreFileContentInfo,
-} from '@core/utils';
+} from '@core/types';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -51,7 +51,7 @@ export function AddWalletWithKeystoreFile() {
   const [file, setFile] = useState<File | null>(null);
   const [filePassword, setFilePassword] = useState('');
   const [fileInfo, setFileInfo] = useState(EMPTY_FILE_INFO);
-  const [error, setError] = useState<unknown>();
+  const [error, setError] = useState<KeystoreError | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     getKeyCounts,
@@ -123,7 +123,7 @@ export function AddWalletWithKeystoreFile() {
       toast.success(t('Successfully imported the keystore file.'));
 
       history.replace('/accounts');
-    } catch (err) {
+    } catch (err: any) {
       capture('KeystoreFileImportFailure');
       setError(err);
       setStep(Step.Error);
@@ -148,7 +148,7 @@ export function AddWalletWithKeystoreFile() {
       const info = await getKeyCounts(file, filePassword);
       setFileInfo(info);
       setStep(Step.ConfirmData);
-    } catch (err) {
+    } catch (err: any) {
       // For wrong password we only highlight the text field.
       if (err !== KeystoreError.InvalidPassword) {
         setStep(Step.Error);

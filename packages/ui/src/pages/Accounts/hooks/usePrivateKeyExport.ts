@@ -2,8 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { Account, AccountType } from '@core/service-worker';
-import { SecretType } from '@core/service-worker';
+import { Account, AccountType, SecretType } from '@core/types';
 
 export const usePrivateKeyExport = (
   account?: Account,

@@ -1,5 +1,5 @@
 import { DAppProviderRequest } from '@core/service-worker';
-import { ActionStatus } from '@core/service-worker';
+import { ActionStatus } from '@core/types';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
@@ -7,7 +7,7 @@ import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBo
 import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useLedgerDisconnectedDialog } from '../../hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
 import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';

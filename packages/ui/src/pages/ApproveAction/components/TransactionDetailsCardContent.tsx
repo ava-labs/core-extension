@@ -1,28 +1,26 @@
-import { useTranslation } from 'react-i18next';
 import { Box, Button, Stack, Typography } from '@avalabs/core-k2-components';
 import {
-  AlertType,
-  SigningData_EthSendTx,
-  SigningRequest,
+	AlertType,
+	SigningData_EthSendTx,
+	SigningRequest,
 } from '@avalabs/vm-module-types';
+import { useTranslation } from 'react-i18next';
 
+import { FlexScrollbars } from '@/components/common/FlexScrollbars';
+import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
+import {
+	ApprovalSection,
+	ApprovalSectionBody,
+	ApprovalSectionHeader,
+} from '@/components/common/approval/ApprovalSection';
+import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
 import { AlertBox } from '@/pages/Permissions/components/AlertBox';
 import { WarningBox } from '@/pages/Permissions/components/WarningBox';
 import { NetworkDetails } from '@/pages/SignTransaction/components/ApprovalTxDetails';
 import { SpendLimitInfo } from '@/pages/SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { TxBalanceChange } from '@/pages/SignTransaction/components/TxBalanceChange';
-import { NetworkWithCaipId } from '@core/service-worker';
-import { FlexScrollbars } from '@/components/common/FlexScrollbars';
-import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
-import {
-  ApprovalSection,
-  ApprovalSectionBody,
-  ApprovalSectionHeader,
-} from '@/components/common/approval/ApprovalSection';
-import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
+import { EnsureDefined, MultiTxAction, NetworkWithCaipId } from '@core/types';
 import { useFeeCustomizer } from '../hooks/useFeeCustomizer';
-import { MultiTxAction } from '@core/service-worker';
-import { EnsureDefined } from '@core/service-worker';
 
 export const TransactionDetailsCardContent = ({
   tx,

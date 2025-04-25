@@ -8,9 +8,8 @@ import {
 
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
-import { Account } from '@core/service-worker';
-import { isPrimaryAccount } from '@core/service-worker';
+import { FeatureGates, Account } from '@core/types';
+import { isPrimaryAccount } from '@core/utils';
 
 interface AccountManagerContextProps {
   children?: React.ReactNode;

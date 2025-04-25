@@ -1,5 +1,5 @@
 import { useGetRequestId } from '@/hooks/useGetRequestId';
-import { ActionStatus } from '@core/service-worker';
+import { ActionStatus } from '@core/types';
 import { TokenIcon } from '@/components/common/TokenIcon';
 import { Network } from '@avalabs/core-chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';

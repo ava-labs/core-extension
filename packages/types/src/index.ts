@@ -21,6 +21,7 @@ export * from './gasless';
 export * from './history';
 export * from './index';
 export * from './keystone';
+export * from './keystore';
 export * from './ledger';
 export * from './lock';
 export * from './messages';

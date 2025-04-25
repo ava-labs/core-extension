@@ -3,8 +3,8 @@ import { useCallback, useState } from 'react';
 import {
   ImportLedgerWalletParams,
   ImportWalletResult,
-} from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
+	ExtensionRequest,
+} from '@core/types';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { ImportLedgerHandler } from '@core/service-worker';
 

@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { LedgerAppType } from '@/contexts/LedgerProvider';
-import { useLedgerDisconnectedDialog } from '@/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
 
 export function AddAccountError() {
   const history = useHistory();

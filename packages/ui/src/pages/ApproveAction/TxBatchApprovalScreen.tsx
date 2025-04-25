@@ -1,40 +1,39 @@
-import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useState } from 'react';
 import {
-  Box,
-  Button,
-  ChevronLeftIcon,
-  HelpCircleIcon,
-  IconButton,
-  MobileStepper,
-  Stack,
-  Tooltip,
-  Typography,
+	Box,
+	Button,
+	ChevronLeftIcon,
+	HelpCircleIcon,
+	IconButton,
+	MobileStepper,
+	Stack,
+	Tooltip,
+	Typography,
 } from '@avalabs/core-k2-components';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import {
+	ApprovalSection,
+	ApprovalSectionBody,
+	ApprovalSectionHeader,
+} from '@/components/common/approval/ApprovalSection';
+import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
 import { Overlay } from '@/components/common/Overlay';
-import { ActionStatus } from '@core/service-worker';
-import { NetworkWithCaipId } from '@core/service-worker';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
-import {
-  ApprovalSection,
-  ApprovalSectionBody,
-  ApprovalSectionHeader,
-} from '@/components/common/approval/ApprovalSection';
-import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
+import { ActionStatus, EnsureDefined, MultiTxAction, NetworkWithCaipId } from '@core/types';
 import { useWindowGetsClosedOrHidden } from '@core/utils';
 
-import { LoadingOverlay } from '../../components/common/LoadingOverlay';
-import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
-import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
-import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { useFeeCustomizer } from './hooks/useFeeCustomizer';
-import { TransactionDetailsCardContent } from './components/TransactionDetailsCardContent';
-import { DetailedCardWrapper } from './components/DetailedCardWrapper';
 import { FlexScrollbars } from '@/components/common/FlexScrollbars';
 import { hasDefined } from '@core/utils';
+import { LoadingOverlay } from '../../components/common/LoadingOverlay';
+import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
+import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
+import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
+import { DetailedCardWrapper } from './components/DetailedCardWrapper';
+import { TransactionDetailsCardContent } from './components/TransactionDetailsCardContent';
+import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 
 export function TxBatchApprovalScreen() {
   const { t } = useTranslation();
@@ -286,7 +285,7 @@ export function TxBatchApprovalScreen() {
                     tx={currentTx}
                     handleRejection={handleRejection}
                     network={network}
-                    action={action}
+                    action={action as EnsureDefined<MultiTxAction, 'actionId'>}
                     index={txIndex}
                     setIndex={setIndex}
                     isFirst={txIndex === 0}
@@ -346,7 +345,7 @@ export function TxBatchApprovalScreen() {
                     fullWidth
                     onClick={signTx}
                   >
-                    {context?.customApprovalButtonText || t('Approve All')}
+                    {(context?.customApprovalButtonText) as string || t('Approve All')}
                   </Button>
                   <Button
                     color="secondary"
