@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Avatar, Stack, Typography } from '@avalabs/core-k2-components';
 
-import { DefiVestingItem } from '@core/service-worker';
+import { DefiVestingItem } from '@core/types';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 

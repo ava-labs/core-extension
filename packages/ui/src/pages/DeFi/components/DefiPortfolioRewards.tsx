@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/core-k2-components';
 
-import { DefiRewardItem } from '@core/service-worker';
+import { DefiRewardItem } from '@core/types';
 
 import { DefiTokenAvatarGroup } from './DefiTokenAvatarGroup';
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';

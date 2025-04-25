@@ -23,7 +23,7 @@ import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
 import { DefiErrorState } from './components/DefiErrorState';
 import { DefiPortfolioItemGroup } from './components/DefiPortfolioItemGroup';
 import { DefiProtocolDetailsHeader } from './components/DefiProtocolDetailsHeader';
-import { FeatureGates } from '@core/service-worker';
+import { FeatureGates } from '@core/types';
 import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 
 export function DefiProtocolDetails() {

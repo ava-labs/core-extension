@@ -1,6 +1,7 @@
 export * from './address';
 export * from './actions/getUpdatedActionData';
 export * from './accounts';
+export * from './bridge';
 export * from './network/getProviderForNetwork';
 export * from './network/addGlacierAPIKeyIfNeeded';
 export * from './network/buildGlacierAuthHeaders';
@@ -90,5 +91,4 @@ export * from './noop';
 export * from './number';
 export * from './truncateAddress';
 export * from './filterFalsyValues';
-export * from './blockchainConversion'
 export * from './account'

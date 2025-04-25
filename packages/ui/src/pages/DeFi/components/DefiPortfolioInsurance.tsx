@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 
-import { DefiInsuranceBuyerItem } from '@core/service-worker';
+import { DefiInsuranceBuyerItem } from '@core/types';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 

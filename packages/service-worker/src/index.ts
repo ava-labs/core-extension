@@ -1,3 +1,6 @@
+export { HandlerType as BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
+
+export { networkUpdatedEventListener } from './services/network/events/networkUpdatedEventListener';
 export {
   isSessionPermissionsMismatchEvent,
   isWalletConnectEvent,

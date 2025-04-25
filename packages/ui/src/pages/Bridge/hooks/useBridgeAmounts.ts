@@ -1,10 +1,8 @@
-import { useMemo } from 'react';
-import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
+import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
+import { useMemo } from 'react';
 
-import { bigintToBig } from '@core/utils';
-
-import { isUnifiedBridgeTransfer } from '../utils/isUnifiedBridgeTransfer';
+import { bigintToBig, isUnifiedBridgeTransfer } from '@core/utils';
 
 export const useBridgeAmounts = (
   bridgeTx?: BridgeTransaction | BridgeTransfer,

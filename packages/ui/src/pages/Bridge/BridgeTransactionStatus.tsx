@@ -35,9 +35,11 @@ import { NetworkLogo } from '@/components/common/NetworkLogo';
 import { ConfirmationTracker } from '@/components/common/ConfirmationTracker';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 
-import { blockchainToNetwork } from './utils/blockchainConversion';
-import { getNativeTokenSymbol } from './utils/getNativeTokenSymbol';
-import { isUnifiedBridgeTransfer } from './utils/isUnifiedBridgeTransfer';
+import {
+  blockchainToNetwork,
+  getNativeTokenSymbol,
+  isUnifiedBridgeTransfer,
+} from '@core/utils';
 
 import { useBridgeAmounts } from './hooks/useBridgeAmounts';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';

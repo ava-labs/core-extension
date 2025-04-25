@@ -1,6 +1,6 @@
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
-import { isUnifiedBridgeTransfer } from 'packages/ui/pages/Bridge/utils/isUnifiedBridgeTransfer';
+import { isUnifiedBridgeTransfer } from './isUnifiedBridgeTransfer';
 
 export const getBridgedAssetSymbol = (
   tx: BridgeTransfer | BridgeTransaction,

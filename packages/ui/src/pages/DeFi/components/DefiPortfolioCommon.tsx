@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/core-k2-components';
 
 import { sumByProperty } from '@core/utils';
-import { DefiCommonItem } from '@core/service-worker';
+import { DefiCommonItem } from '@core/types';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 import { DefiTokenAvatarGroup } from './DefiTokenAvatarGroup';

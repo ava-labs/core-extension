@@ -7,7 +7,7 @@ import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { DefiProtocolListItem } from './components/DefiProtocolListItem';
 import { DefiZeroState } from './components/DefiZeroState';
 import { DefiErrorState } from './components/DefiErrorState';
-import { FeatureGates } from '@core/service-worker';
+import { FeatureGates } from '@core/types';
 import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 
 export function DeFi() {

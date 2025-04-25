@@ -31,9 +31,9 @@ import { isNativeAsset } from '@avalabs/bridge-unified';
 
 import { TokenSelect } from '@/components/common/TokenSelect';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
-import { NetworkWithCaipId } from '@core/service-worker';
+import { NetworkWithCaipId } from '@core/types';
 import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
-import { NavigationHistoryDataState } from '@core/service-worker';
+import { NavigationHistoryDataState } from '@core/types';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 
@@ -44,9 +44,9 @@ import { NetworkSelector } from './NetworkSelector';
 import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
 import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 import { BridgeOptions } from '../models';
-import { isBitcoinNetwork } from '@core/service-worker';
+import { isBitcoinNetwork } from '@core/utils';
 import { CustomFees } from '@/components/common/CustomFees';
-import { NetworkFee } from '@core/service-worker';
+import { NetworkFee } from '@core/types';
 
 export type BridgeFormProps = ReturnType<typeof useBridge> & {
   isPending: boolean;

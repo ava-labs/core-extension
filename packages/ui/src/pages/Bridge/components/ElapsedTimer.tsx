@@ -39,7 +39,7 @@ export function ElapsedTimer({
   endTime,
   hasError,
 }: {
-  offloadDelayTooltip?: React.ReactChild;
+  offloadDelayTooltip?: React.ReactNode;
   startTime: number;
   endTime?: number;
   hasError?: boolean;

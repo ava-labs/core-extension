@@ -1,4 +1,8 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { ContainedDropdown } from '@/components/common/ContainedDropdown';
+import { useContactsContext } from '@/contexts/ContactsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { isBech32Address } from '@avalabs/core-bridge-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   IconButton,
   InputAdornment,
@@ -7,26 +11,22 @@ import {
   Tooltip,
   UserSearchIcon,
 } from '@avalabs/core-k2-components';
-import { isAddress as isSolanaAddress } from '@solana/kit';
 import type { Contact } from '@avalabs/types';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { isBech32Address } from '@avalabs/core-bridge-sdk';
-import { isAddress } from 'ethers';
-import { useTranslation } from 'react-i18next';
-import { ContactSelect } from './ContactSelect';
-import { truncateAddress } from '@core/utils';
-import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
-import { ContainedDropdown } from '@/components/common/ContainedDropdown';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { useContactsContext } from '@/contexts/ContactsProvider';
-import { isBitcoin } from '@core/utils';
-import { isPchainNetwork } from '@core/service-worker';
-import { isXchainNetwork } from '@core/service-worker';
 import {
+  isBitcoin,
+  isPchainNetwork,
+  isSolanaNetwork,
   isValidAvmAddress,
   isValidPvmAddress,
+  isXchainNetwork,
+  truncateAddress,
 } from '@core/utils';
-import { isSolanaNetwork } from '@core/service-worker';
+import { isAddress as isSolanaAddress } from '@solana/kit';
+import { isAddress } from 'ethers';
+import { RefObject, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
+import { ContactSelect } from './ContactSelect';
 
 const truncateName = (name: string) => {
   if (name.length < 28) return name;
@@ -38,7 +38,7 @@ type ContactInputProps = {
   onChange(contact?: Contact, selectedTab?: string): void;
   isContactsOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  containerRef?: RefObject<HTMLDivElement>;
+  containerRef?: RefObject<HTMLDivElement | null>;
 };
 
 export const ContactInput = ({

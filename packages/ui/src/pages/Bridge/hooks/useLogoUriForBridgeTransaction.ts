@@ -1,14 +1,16 @@
+import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { Blockchain, BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { BridgeTransfer } from '@avalabs/bridge-unified';
 
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 
-import { findTokenForAsset } from '../utils/findTokenForAsset';
-import { networkToBlockchain } from '../utils/blockchainConversion';
-import { caipToChainId } from '@core/utils';
-import { getBridgedAssetSymbol } from '@core/utils';
+import {
+  caipToChainId,
+  findTokenForAsset,
+  getBridgedAssetSymbol,
+  networkToBlockchain,
+} from '@core/utils';
 
 export function useLogoUriForBridgeTransaction(
   bridgeTransaction: BridgeTransaction | BridgeTransfer | undefined,

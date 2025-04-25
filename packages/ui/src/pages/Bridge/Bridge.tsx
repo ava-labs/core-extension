@@ -1,6 +1,3 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   Stack,
@@ -8,32 +5,35 @@ import {
   Typography,
   toast,
 } from '@avalabs/core-k2-components';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
-import { PageTitle } from '@/components/common/PageTitle';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
-import { usePageHistory } from '@/hooks/usePageHistory';
+import { HallidayBanner } from '@/components/common/HallidayBanner';
+import { PageTitle } from '@/components/common/PageTitle';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { TokenType } from '@avalabs/vm-module-types';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import {
   FunctionNames,
   useIsFunctionAvailable,
 } from '@/hooks/useIsFunctionAvailable';
-import { useErrorMessage } from '@/hooks/useErrorMessage';
-import { isBitcoinNetwork } from '@core/service-worker';
 import { useLiveBalance } from '@/hooks/useLiveBalance';
-import { NetworkWithCaipId } from '@core/service-worker';
-import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
-import { HallidayBanner } from '@/components/common/HallidayBanner';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { TokenType } from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '@core/types';
+import { isBitcoinNetwork } from '@core/utils';
 
-import { useBridge } from './hooks/useBridge';
+import { isAddressBlockedError } from '@core/utils';
 import { BridgeForm } from './components/BridgeForm';
-import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
-import { useBridgeTxHandling } from './hooks/useBridgeTxHandling';
 import { BridgeFormSkeleton } from './components/BridgeFormSkeleton';
 import { BridgeSanctions } from './components/BridgeSanctions';
-import { isAddressBlockedError } from './utils/isAddressBlockedError';
+import { BridgeUnknownNetwork } from './components/BridgeUnknownNetwork';
+import { useBridge } from './hooks/useBridge';
+import { useBridgeTxHandling } from './hooks/useBridgeTxHandling';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 

@@ -25,8 +25,7 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { TokenType } from '@avalabs/vm-module-types';
-import { parseRawAttributesString } from '@core/utils';
-import { isAvalancheNetwork } from '@core/service-worker';
+import { parseRawAttributesString, isAvalancheNetwork } from '@core/utils';
 
 type AttributeTypographyProps = Exclude<TypographyProps, 'variant' | 'sx'>;
 
