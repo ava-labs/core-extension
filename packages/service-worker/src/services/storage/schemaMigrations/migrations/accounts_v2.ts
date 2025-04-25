@@ -5,7 +5,7 @@ import {
   FireblocksAccount,
   ImportedAccount,
   WalletConnectAccount,
-} from '../../../accounts/models';
+} from '@core/types';
 
 const VERSION = 2;
 

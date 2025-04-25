@@ -1,4 +1,4 @@
-import { SecretType } from '../../../../../secrets/models';
+import { SecretType } from '@core/types';
 
 export type WalletKeys = {
   mnemonic?: string;

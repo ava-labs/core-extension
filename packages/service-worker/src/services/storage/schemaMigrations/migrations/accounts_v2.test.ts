@@ -1,4 +1,4 @@
-import { AccountType } from 'packages/service-worker/src/services/accounts/models';
+import { AccountType } from '@core/types';
 import Joi from 'joi';
 import accounts_v2 from './accounts_v2';
 

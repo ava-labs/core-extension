@@ -1,5 +1,4 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import { ExtensionRequest,ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import browser from 'webextension-polyfill';
 import { AnalyticsService } from '../../analytics/AnalyticsService';

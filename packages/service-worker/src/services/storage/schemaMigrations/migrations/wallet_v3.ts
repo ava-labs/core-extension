@@ -1,6 +1,6 @@
 import Joi from 'joi';
-import { ImportType } from '../../../accounts/models';
-import getDerivationPath from '../../../wallet/utils/getDerivationPath';
+import { ImportType } from '@core/types';
+import getDerivationPath from '@/services/wallet/utils/getDerivationPath';
 
 const VERSION = 3;
 

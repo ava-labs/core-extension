@@ -1,5 +1,5 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
-import { CommonError } from './errorCodes';
+import { CommonError } from '@core/types';
 import { isWrappedError, wrapError } from './errorHelpers';
 
 describe('src/utils/errors/errorHelpers', () => {

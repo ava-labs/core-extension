@@ -1,12 +1,11 @@
-import { AddressPublicKey } from 'packages/service-worker/src/services/secrets/AddressPublicKey';
-import { CommonError } from 'packages/utils/src/errors';
+import { Accounts, CommonError } from '@core/types';
 
 import walletV5Migration from './wallet_v5';
 import * as Legacy from './legacyModels';
-import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { Accounts } from 'packages/service-worker/src/services/accounts/models';
+import { expectToThrowErrorCode } from '@shared/tests/test-utils';
+import { AddressPublicKey } from '@/services/secrets/AddressPublicKey';
 
-jest.mock('@src/background/services/secrets/AddressPublicKey');
+jest.mock('@/services/secrets/AddressPublicKey');
 
 describe('src/background/services/storage/schemaMigrations/migrations/wallet_v5', () => {
   const mockMnemonicSecrets: Legacy.MnemonicSecrets = {

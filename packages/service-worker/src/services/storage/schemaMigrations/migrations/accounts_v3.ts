@@ -4,7 +4,7 @@ import {
   FireblocksAccount,
   ImportedAccount,
   WalletConnectAccount,
-} from '../../../accounts/models';
+} from '@core/types';
 import { WALLET_ID } from '../models';
 
 const VERSION = 3;

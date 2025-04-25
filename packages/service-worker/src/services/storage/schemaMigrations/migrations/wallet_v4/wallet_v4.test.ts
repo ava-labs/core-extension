@@ -1,8 +1,7 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import Joi from 'joi';
 import wallet_v4 from './wallet_v4';
-import { ImportType } from 'packages/service-worker/src/services/accounts/models';
-import { SecretType } from 'packages/service-worker/src/services/secrets/models';
+import { ImportType, SecretType } from '@core/types';
 
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('@src/background/services/wallet/utils/getDerivationPath');

@@ -1,17 +1,18 @@
-import { ACCOUNTS_STORAGE_KEY, Accounts } from '../../../../accounts/models';
+import {
+  AddressPublicKeyJson,
+  ExtendedPublicKey,
+  ACCOUNTS_STORAGE_KEY,
+  Accounts,
+  CommonError,
+} from '@core/types';
 
 import { MigrationWithDeps } from '../../models';
 
 import { legacySecretsSchema } from './legacySchema';
 import * as Legacy from './legacyModels';
 import * as New from './newModels';
-import {
-  AddressPublicKeyJson,
-  ExtendedPublicKey,
-} from '../../../../secrets/models';
 import { assertPresent } from '@core/utils';
-import { CommonError } from '@core/utils';
-import { AddressPublicKey } from '../../../../secrets/AddressPublicKey';
+import { AddressPublicKey } from '@/services/secrets/AddressPublicKey';
 import { rpcErrors } from '@metamask/rpc-errors';
 
 const VERSION = 5;

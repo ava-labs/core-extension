@@ -1,12 +1,12 @@
-import { AddressPublicKey } from 'packages/service-worker/src/services/secrets/AddressPublicKey';
-import { CommonError } from 'packages/utils/src/errors';
+import { AddressPublicKey } from '@/services/secrets/AddressPublicKey';
+import { CommonError } from '@core/types';
 
-import { expectToThrowErrorCode } from '@src/tests/test-utils';
+import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 
 import walletV6Migration from './wallet_v6';
 import { Schema } from './wallet_v6_schema';
 
-jest.mock('@src/background/services/secrets/AddressPublicKey');
+jest.mock('@/services/secrets/AddressPublicKey');
 
 describe('src/background/services/storage/schemaMigrations/migrations/wallet_v6', () => {
   const mockMnemonicSecrets: Schema['wallets'][number] = {

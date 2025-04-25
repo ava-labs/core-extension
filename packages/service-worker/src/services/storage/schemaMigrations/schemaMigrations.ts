@@ -1,7 +1,7 @@
 import { assertPresent } from '@core/utils';
 import { SchemaMap } from './models';
 import { SCHEMA_MAP } from './schemaMap';
-import { CommonError } from '@core/utils';
+import { CommonError } from '@core/types';
 
 export const getDataWithSchemaVersion = <T>(key: string, data: T) => {
   if (Array.isArray(data) || !SCHEMA_MAP[key] || data?.['version']) {

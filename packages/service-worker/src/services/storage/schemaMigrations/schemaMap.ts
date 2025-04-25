@@ -1,7 +1,13 @@
-import { ACCOUNTS_STORAGE_KEY } from '../../accounts/models';
-import { WALLET_STORAGE_ENCRYPTION_KEY } from '@core/types';
-import { WALLET_STORAGE_KEY } from '@core/types';
-import { NETWORK_STORAGE_KEY } from '@core/types';
+import {
+  ACCOUNTS_STORAGE_KEY,
+  WALLET_STORAGE_ENCRYPTION_KEY,
+  WALLET_STORAGE_KEY,
+  NETWORK_STORAGE_KEY,
+  SETTINGS_STORAGE_KEY,
+  BALANCES_CACHE_KEY,
+  UNIFIED_BRIDGE_STATE_STORAGE_KEY,
+  PERMISSION_STORAGE_KEY,
+} from '@core/types';
 import accounts_v2 from './migrations/accounts_v2';
 import wallet_v2 from './migrations/wallet_v2';
 import wallet_v3 from './migrations/wallet_v3';
@@ -9,17 +15,13 @@ import network_v2 from './migrations/network_v2';
 import wallet_storage_encryption_key_v2 from './migrations/wallet_storage_encryption_key_v2';
 import accounts_v3 from './migrations/accounts_v3';
 import wallet_v4 from './migrations/wallet_v4';
-import { SETTINGS_STORAGE_KEY } from '@core/types';
 import settings_v2 from './migrations/settings_v2';
-import { BALANCES_CACHE_KEY } from '@core/types';
 import balances_v2 from './migrations/balances_v2';
 import network_v3 from './migrations/network_v3';
 import network_v4 from './migrations/network_v4';
-import { UNIFIED_BRIDGE_STATE_STORAGE_KEY } from '@core/types';
 import unified_bridge_v2 from './migrations/unified_bridge_v2';
 import balances_v3 from './migrations/balances_v3';
 import wallet_v5 from './migrations/wallet_v5/wallet_v5';
-import { PERMISSION_STORAGE_KEY } from '@core/types';
 import permissions_v2 from './migrations/permissions_v2';
 import wallet_v6 from './migrations/wallet_v6/wallet_v6';
 

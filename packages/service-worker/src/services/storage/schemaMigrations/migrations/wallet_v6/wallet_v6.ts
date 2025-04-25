@@ -1,8 +1,8 @@
 import Joi from 'joi';
 import { rpcErrors } from '@metamask/rpc-errors';
 
-import { CommonError } from '@core/utils';
-import { AddressPublicKey } from '../../../../secrets/AddressPublicKey';
+import { CommonError } from '@core/types';
+import { AddressPublicKey } from '@/services/secrets/AddressPublicKey';
 
 import { Schema } from './wallet_v6_schema';
 

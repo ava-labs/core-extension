@@ -1,10 +1,10 @@
 import wallet_v3 from './wallet_v3';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import Joi from 'joi';
-import getDerivationPath from 'packages/service-worker/src/services/wallet/utils/getDerivationPath';
+import getDerivationPath from '@/services/wallet/utils/getDerivationPath';
 
 jest.mock('@avalabs/core-wallets-sdk');
-jest.mock('@src/background/services/wallet/utils/getDerivationPath');
+jest.mock('@/services/wallet/utils/getDerivationPath');
 
 describe('background/services/storage/schemaMigrations/migrations/wallet_v3', () => {
   const validInputMnemonic = {

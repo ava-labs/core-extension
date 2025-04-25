@@ -1,8 +1,8 @@
-import { SettingsEvents } from '@core/types';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  SettingsEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { SettingsService } from '../SettingsService';
 import { singleton } from 'tsyringe';
