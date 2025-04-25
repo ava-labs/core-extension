@@ -1,7 +1,6 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 

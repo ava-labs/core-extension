@@ -1,16 +1,18 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  MfaResponseData,
+} from '@core/types';
 
-import { MfaResponseData } from '@core/types';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
   true,
   [response: MfaResponseData]
->;
+>;	
 
 @injectable()
 export class SubmitMfaResponseHandler implements HandlerType {

@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@core/types';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SubmitMfaResponseHandler } from './submitMfaResponse';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/submitMfaResponse', () => {
   const mfaService = jest.mocked<SeedlessMfaService>({

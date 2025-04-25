@@ -4,9 +4,9 @@ import { singleton } from 'tsyringe';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  SeedlessEvents,
+} from '@core/types';
 
-import { SeedlessEvents } from '@core/types';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 @singleton()

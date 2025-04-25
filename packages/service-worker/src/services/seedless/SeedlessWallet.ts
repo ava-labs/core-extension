@@ -25,20 +25,16 @@ import {
 } from '@metamask/eth-sig-util';
 
 import { NetworkService } from '../network/NetworkService';
-import { MessageParams, MessageType } from '@core/types';
+import { AddressPublicKeyJson, MessageParams, MessageType } from '@core/types';
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { Transaction } from 'bitcoinjs-lib';
 import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
-import { Network } from '@core/types';
-import { CoreApiError } from '@core/types';
+import { CoreApiError, CommonError, Network } from '@core/types';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { isTokenExpiredError } from './utils';
 import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
-import { getProviderForNetwork } from '@core/utils';
-import { AddressPublicKeyJson } from '../secrets/models';
-import { assertPresent } from '@core/utils';
-import { CommonError } from '@core/utils';
+import { assertPresent, getProviderForNetwork } from '@core/utils';
 
 type ConstructorOpts = {
   networkService?: NetworkService;

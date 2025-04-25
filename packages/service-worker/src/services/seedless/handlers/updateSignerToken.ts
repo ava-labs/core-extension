@@ -2,12 +2,14 @@ import { injectable } from 'tsyringe';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import { resolve } from '@core/utils';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  SecretType,
+} from '@core/types';
 
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
 import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<

@@ -30,7 +30,7 @@ import {
 } from './fixtures/rawKeys';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessWallet } from './SeedlessWallet';
-import { MessageType } from '@core/types';
+import { MessageType, MfaRequestType } from '@core/types';
 import {
   SignTypedDataVersion,
   TypedDataUtils,
@@ -39,8 +39,7 @@ import {
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
-import { MfaRequestType } from '@core/types';
-import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
+import { getProviderForNetwork } from '@core/utils';
 import { AddressPublicKey } from '../secrets/AddressPublicKey';
 
 jest.mock('@cubist-labs/cubesigner-sdk');

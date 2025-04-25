@@ -1,10 +1,12 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  SecretType,
+} from '@core/types';
 
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
 import { SeedlessWallet } from '../SeedlessWallet';
 import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { NetworkService } from '../../network/NetworkService';

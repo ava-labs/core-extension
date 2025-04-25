@@ -1,12 +1,14 @@
 import { injectable } from 'tsyringe';
 
 import { resolve } from '@core/utils';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  RecoveryMethod,
+  SecretType,
+} from '@core/types';
 
-import { RecoveryMethod } from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AccountsService } from '../../accounts/AccountsService';
 

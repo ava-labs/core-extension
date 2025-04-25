@@ -1,9 +1,8 @@
-import { ExtensionRequest } from '@core/types';
-import { KeyType } from 'packages/utils/src/seedless/fido/types';
+import { ExtensionRequest,KeyType } from '@core/types';
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AddFidoDeviceHandler } from './addFidoDevice';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/addFidoDevice', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({

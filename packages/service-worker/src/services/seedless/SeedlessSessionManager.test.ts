@@ -1,12 +1,10 @@
 import { CubeSigner, SignerSession } from '@cubist-labs/cubesigner-sdk';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessEvents } from '@core/types';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common';
+import { Monitoring } from '@core/common';
 
 jest.mock('./SeedlessTokenStorage');
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/common');
 
 describe('src/background/services/seedless/SeedlessSessionManager', () => {
   describe('.refreshSession()', () => {
@@ -145,9 +143,9 @@ describe('src/background/services/seedless/SeedlessSessionManager', () => {
 
         await manager.refreshSession();
 
-        expect(sentryCaptureException).toHaveBeenCalledWith(
+        expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
           error,
-          SentryExceptionTypes.SEEDLESS,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
         );
       });
     });

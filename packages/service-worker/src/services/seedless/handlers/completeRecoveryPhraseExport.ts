@@ -4,18 +4,18 @@ import {
   userExportKeygen,
 } from '@cubist-labs/cubesigner-sdk';
 
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  SecretType,
+} from '@core/types';
 
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
 import { SeedlessWallet } from '../SeedlessWallet';
 import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { NetworkService } from '../../network/NetworkService';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
+import { Monitoring } from '@core/common';
 import { AccountsService } from '../../accounts/AccountsService';
 
 type HandlerType = ExtensionRequestHandler<
@@ -58,7 +58,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     try {
       keyPair = await userExportKeygen();
     } catch (err) {
-      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+      Monitoring.sentryCaptureException(err as Error, Monitoring.SentryExceptionTypes.SEEDLESS);
 
       return {
         ...request,
@@ -76,7 +76,10 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
         request.tabId,
       );
     } catch (err) {
-      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+      Monitoring.sentryCaptureException(
+        err as Error,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
 
       return {
         ...request,
@@ -93,9 +96,9 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
       const hasMnemonic = 'mnemonic' in exportDecrypted;
 
       if (!hasMnemonic || typeof exportDecrypted.mnemonic !== 'string') {
-        sentryCaptureException(
+        Monitoring.sentryCaptureException(
           new Error('Export decrypted, but has no mnemonic'),
-          SentryExceptionTypes.SEEDLESS,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
         );
 
         return {
@@ -110,7 +113,10 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
         result: exportDecrypted.mnemonic,
       };
     } catch (err) {
-      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+      Monitoring.sentryCaptureException(
+        err as Error,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
 
       return {
         ...request,

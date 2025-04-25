@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@core/types';
 import { HasSignerTokenExpiredHandler } from './hasSignerTokenExpired';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/hasSignerTokenExpired', () => {
   it('returns true when token is stale', async () => {

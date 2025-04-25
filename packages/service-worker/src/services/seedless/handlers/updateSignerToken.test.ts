@@ -1,10 +1,8 @@
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest, SecretType, Account } from '@core/types';
 import { UpdateSignerTokenHandler } from './updateSignerToken';
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
-import { Account } from '../../accounts/models';
 
 describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   let secretsService;

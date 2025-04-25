@@ -3,23 +3,20 @@ import {
   userExportKeygen,
 } from '@cubist-labs/cubesigner-sdk';
 
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest,SecretType } from '@core/types';
 
 import { CompleteRecoveryPhraseExportHandler } from './completeRecoveryPhraseExport';
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { SeedlessWallet } from '../SeedlessWallet';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { Monitoring } from '@core/common';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 
 jest.mock('../SeedlessWallet');
 jest.mock('@cubist-labs/cubesigner-sdk');
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/common');
 
 describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport', () => {
   const secretsService = jest.mocked<SecretsService>({
@@ -82,9 +79,9 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     const result = await handle();
 
-    expect(sentryCaptureException).toHaveBeenCalledWith(
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
       err,
-      SentryExceptionTypes.SEEDLESS,
+      Monitoring.SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual('Failed to generate the encryption key pair');
   });
@@ -99,9 +96,9 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     const result = await handle();
 
-    expect(sentryCaptureException).toHaveBeenCalledWith(
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
       err,
-      SentryExceptionTypes.SEEDLESS,
+      Monitoring.SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual(
       'Failed to complete the recovery phrase export',
@@ -121,9 +118,9 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     const result = await handle();
 
-    expect(sentryCaptureException).toHaveBeenCalledWith(
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
       err,
-      SentryExceptionTypes.SEEDLESS,
+      Monitoring.SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual('Failed to decrypt the recovery phrase');
   });
@@ -139,9 +136,9 @@ describe('src/background/services/seedless/handlers/completeRecoveryPhraseExport
 
     const result = await handle();
 
-    expect(sentryCaptureException).toHaveBeenCalledWith(
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
       new Error('Export decrypted, but has no mnemonic'),
-      SentryExceptionTypes.SEEDLESS,
+      Monitoring.SentryExceptionTypes.SEEDLESS,
     );
     expect(result.error).toEqual(
       'Unexpected error occured while decrypting the recovery phrase',

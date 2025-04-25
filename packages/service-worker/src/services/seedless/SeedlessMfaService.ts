@@ -8,9 +8,9 @@ import {
 import { filter, firstValueFrom, map, Subject, Subscription } from 'rxjs';
 
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
-import { DecodedFIDOResult, KeyType } from '@core/utils';
 
 import {
+  PartialBy,
   AuthErrorCode,
   GetRecoveryMethodsOptions,
   MfaChoiceRequest,
@@ -27,11 +27,12 @@ import {
   SeedlessEvents,
   TOTP_ISSUER,
   TotpResetChallenge,
+  DecodedFIDOResult,
+  KeyType,
 } from '@core/types';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SecretsService } from '../secrets/SecretsService';
 import { isFailedMfaError, mapMfasToRecoveryMethods } from './utils';
-import { PartialBy } from '../../models';
 
 @singleton()
 export class SeedlessMfaService implements OnUnlock, OnLock {

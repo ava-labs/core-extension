@@ -1,12 +1,10 @@
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest, SecretType, MfaRequestType } from '@core/types';
 
 import { SecretsService } from '../../secrets/SecretsService';
-import { SecretType } from '../../secrets/models';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { GetRecoveryMethodsHandler } from './getRecoveryMethods';
-import { MfaRequestType } from '@core/types';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { AccountsService } from '../../accounts/AccountsService';
 
 describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {

@@ -1,5 +1,5 @@
-import { ExtensionConnectionEvent } from '../../../connections/models';
 import {
+	ExtensionConnectionEvent,
   MfaChoiceRequest,
   MfaRequestData,
   RecoveryMethod,

@@ -3,7 +3,7 @@ import {
   SignerSessionStorage,
 } from '@cubist-labs/cubesigner-sdk';
 
-import { SecretType } from '../secrets/models';
+import { SecretType } from '@core/types';
 import { SecretsService } from '../secrets/SecretsService';
 
 export class SeedlessTokenStorage implements SignerSessionStorage {

@@ -4,9 +4,8 @@ import { singleton } from 'tsyringe';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
-
-import { SeedlessEvents } from '@core/types';
+	SeedlessEvents
+} from '@core/types';
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 
 @singleton()

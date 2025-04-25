@@ -1,9 +1,11 @@
 import { injectable } from 'tsyringe';
 
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  MfaChoiceResponse,
+} from '@core/types';
 
-import { MfaChoiceResponse } from '@core/types';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 type HandlerType = ExtensionRequestHandler<

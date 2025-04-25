@@ -3,7 +3,7 @@ import { ExtensionRequest } from '@core/types';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
 import { InitAuthenticatorChangeHandler } from './initAuthenticatorChange';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/seedless/handlers/initAuthenticatorChange', () => {
   const seedlessMfaService = jest.mocked<SeedlessMfaService>({
