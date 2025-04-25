@@ -1,4 +1,4 @@
-import { Transaction } from '@core/service-worker';
+import { Transaction } from '@core/types';
 
 export function getToAddressesFromTransaction(transaction: Transaction): {
   to?: string;

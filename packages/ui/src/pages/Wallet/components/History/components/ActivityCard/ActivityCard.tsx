@@ -1,22 +1,22 @@
-import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
-import {
-  Card,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  Divider,
-  ExternalLinkIcon,
-  Stack,
-  Tooltip,
-  Typography,
-  useTheme,
-} from '@avalabs/core-k2-components';
-import { TokenUnit, weiToAvax } from '@avalabs/core-utils-sdk';
-import { isNftTokenType } from '@core/service-worker';
-import { TxHistoryItem } from '@core/service-worker';
-import { isSolanaNetwork } from '@core/service-worker';
-import { isBitcoinNetwork } from '@core/service-worker';
+import { TruncateFeeAmount } from '@/components/common/TruncateFeeAmount';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
+import {
+	Card,
+	ChevronDownIcon,
+	ChevronUpIcon,
+	Divider,
+	ExternalLinkIcon,
+	Stack,
+	Tooltip,
+	Typography,
+	useTheme,
+} from '@avalabs/core-k2-components';
+import { TokenUnit, weiToAvax } from '@avalabs/core-utils-sdk';
+import { TransactionType } from '@avalabs/vm-module-types';
+import { TxHistoryItem } from '@core/types';
+import { isBitcoinNetwork, isNftTokenType, isSolanaNetwork } from '@core/utils';
 import Big from 'big.js';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,8 +24,6 @@ import { ActivityCardAmount } from './ActivityCardAmount';
 import { ActivityCardDetails } from './ActivityCardDetails';
 import { ActivityCardIcon } from './ActivityCardIcon';
 import { ActivityCardSummary } from './ActivityCardSummary';
-import { TransactionType } from '@avalabs/vm-module-types';
-import { TruncateFeeAmount } from '@/components/common/TruncateFeeAmount';
 
 export interface ActivityCardProp {
   historyItem: TxHistoryItem;

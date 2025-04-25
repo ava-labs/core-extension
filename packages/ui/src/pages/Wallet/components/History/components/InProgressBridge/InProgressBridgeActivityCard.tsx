@@ -1,31 +1,31 @@
-import { BridgeTransaction, useBridgeSDK } from '@avalabs/core-bridge-sdk';
-import {
-  Button,
-  Card,
-  Divider,
-  ExternalLinkIcon,
-  Stack,
-  toast,
-  ToastCard,
-  Typography,
-  useTheme,
-} from '@avalabs/core-k2-components';
 import { useBridgeContext } from '@/contexts/BridgeProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
+import { BridgeTransfer } from '@avalabs/bridge-unified';
+import { BridgeTransaction, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import {
-  blockchainToNetwork,
-  networkToBlockchain,
-} from '@/pages/Bridge/utils/blockchainConversion';
-import { getExplorerAddressByNetwork } from '@core/utils';
+	Button,
+	Card,
+	Divider,
+	ExternalLinkIcon,
+	Stack,
+	toast,
+	ToastCard,
+	Typography,
+	useTheme,
+} from '@avalabs/core-k2-components';
+import {
+	bigintToBig,
+	blockchainToNetwork,
+	getExplorerAddressByNetwork,
+	isUnifiedBridgeTransfer,
+	networkToBlockchain,
+} from '@core/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { InProgressBridgeIcon } from './InProgressBridgeIcon';
-import { BridgeTransfer } from '@avalabs/bridge-unified';
-import { isUnifiedBridgeTransfer } from '@/pages/Bridge/utils/isUnifiedBridgeTransfer';
-import { bigintToBig } from '@core/utils';
-import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
 
 export interface InProgressBridgeActivityCardProp {
   tx: BridgeTransaction | BridgeTransfer;

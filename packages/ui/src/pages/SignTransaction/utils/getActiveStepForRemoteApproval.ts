@@ -1,4 +1,4 @@
-import { WalletConnectSessionInfo } from '@core/service-worker';
+import { WalletConnectSessionInfo } from '@core/types';
 
 export enum ApprovalStep {
   APPROVAL,

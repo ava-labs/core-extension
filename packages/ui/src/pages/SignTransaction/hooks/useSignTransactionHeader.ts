@@ -1,7 +1,7 @@
 import {
   Transaction,
   TransactionType,
-} from '@core/service-worker';
+} from '@core/types';
 import { useTranslation } from 'react-i18next';
 
 export const useSignTransactionHeader = (

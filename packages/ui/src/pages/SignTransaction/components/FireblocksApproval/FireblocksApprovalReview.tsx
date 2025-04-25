@@ -1,3 +1,5 @@
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { FireblocksAvatar } from '@/pages/Fireblocks/components/FireblocksAvatar';
 import {
   AlertTriangleIcon,
   CheckCircleIcon,
@@ -6,17 +8,16 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { Trans } from 'react-i18next';
-import { WalletConnectSessionInfo } from '@core/service-worker';
-import { Account } from '@core/service-worker';
+import { Account, WalletConnectSessionInfo } from '@core/types';
+import {
+  isBitcoinNetwork,
+  isFireblocksAccount,
+  isFireblocksApiSupported,
+} from '@core/utils';
 import { useMemo } from 'react';
+import { Trans } from 'react-i18next';
 import { ApprovalStep } from '../../utils/getActiveStepForRemoteApproval';
 import { RemoteApprovalConfirmation } from '../RemoteApproval/RemoteApprovalConfirmation';
-import { FireblocksAvatar } from '@/pages/Fireblocks/components/FireblocksAvatar';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { isBitcoinNetwork } from '@core/service-worker';
-import isFireblocksApiSupported from '@core/service-worker';
-import { isFireblocksAccount } from '@core/service-worker';
 
 interface FireblocksApprovalReviewProps {
   isValidSession: boolean;

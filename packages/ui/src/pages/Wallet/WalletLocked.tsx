@@ -1,19 +1,19 @@
-import { ExtensionRequest } from '@core/service-worker';
+import { BrandName } from '@/components/icons/BrandName';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useAppDimensions } from '@/hooks/useAppDimensions';
-import { useEffect, useRef, useState } from 'react';
-import { ResetExtensionStateHandler } from '@core/service-worker';
-import { Trans, useTranslation } from 'react-i18next';
 import {
-  Button,
-  CircularProgress,
-  Dialog,
-  Divider,
-  Stack,
-  TextField,
-  Typography,
+	Button,
+	CircularProgress,
+	Dialog,
+	Divider,
+	Stack,
+	TextField,
+	Typography,
 } from '@avalabs/core-k2-components';
-import { BrandName } from '@/components/icons/BrandName';
+import type { ResetExtensionStateHandler } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
+import { useEffect, useRef, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
 export function WalletLocked({
   unlockWallet,

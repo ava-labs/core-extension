@@ -1,15 +1,15 @@
-import { ApproveSendDetails } from './ApproveSendDetails';
-import { ApproveTokenDetails } from './ApproveTokenDetails';
-import { ApproveNftDetails } from './ApproveNftDetails';
-import { ApproveNftCollectionDetails } from './ApproveNftCollectionDetails';
-import { ApproveContractCallDetails } from './ApproveContractCallDetails';
+import { serializeToJSON } from '@core/messaging/src/serialization/serialize';
 import {
+  Action,
   Transaction,
   TransactionAction,
   TransactionType,
-} from '@core/service-worker';
-import { Action } from '@core/service-worker';
-import { serializeToJSON } from '@core/messaging/src/serialization/serialize';
+} from '@core/types';
+import { ApproveContractCallDetails } from './ApproveContractCallDetails';
+import { ApproveNftCollectionDetails } from './ApproveNftCollectionDetails';
+import { ApproveNftDetails } from './ApproveNftDetails';
+import { ApproveSendDetails } from './ApproveSendDetails';
+import { ApproveTokenDetails } from './ApproveTokenDetails';
 
 const CALL_WITH_NO_DETAILS = JSON.stringify({ type: 'call' });
 

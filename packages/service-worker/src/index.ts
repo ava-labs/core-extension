@@ -1,7 +1,6 @@
 export type { AvalancheSendTransactionHandler } from './services/wallet/handlers/avalanche_sendTransaction';
 
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
-
 export { HandlerType as BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
 export { networkUpdatedEventListener } from './services/network/events/networkUpdatedEventListener';
 export {
@@ -35,7 +34,7 @@ export type { BridgeRemoveTransactionHandler } from './services/bridge/handlers/
 export type { BridgeSetIsDevEnvHandler } from './services/bridge/handlers/setIsDevEnv';
 export type { BridgeGetStateHandler } from './services/bridge/handlers/getBridgeState';
 export type { AvalancheRenameAccountHandler } from './services/accounts/handlers/avalanche_renameAccount';
-export type { AvalancheDeleteAccountsHandler } from './services/accounts/handlers/avalanche_deleteAccounts';
+export type { AvalancheDeleteAccountsHandler, DeleteAccountsDisplayData } from './services/accounts/handlers/avalanche_deleteAccounts';
 export type { AvalancheRenameWalletHandler } from './services/secrets/handlers/avalanche_renameWallet';
 export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './services/seedless/handlers/getRecoveryPhraseExportState';
 export type { HandlerType as ChooseMfaMethodHandler } from './services/seedless/handlers/chooseMfaMethod';

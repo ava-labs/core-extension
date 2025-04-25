@@ -5,10 +5,9 @@ import {
   Stack,
 } from '@avalabs/core-k2-components';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
-import { Account } from '@core/service-worker';
-import { WalletConnectSessionInfo } from '@core/service-worker';
-import { t } from 'i18next';
+import { Account, WalletConnectSessionInfo } from '@core/types';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface AdditionalConfirmationForRemoteApprovalProps {
   logo: JSX.Element;
@@ -35,6 +34,7 @@ export function RemoteApprovalConfirmation({
   account,
   session,
 }: AdditionalConfirmationForRemoteApprovalProps) {
+	const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [enableSubmitButton, setEnableSubmitButton] = useState(true);
 

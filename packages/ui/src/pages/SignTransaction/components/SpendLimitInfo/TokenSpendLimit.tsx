@@ -1,23 +1,23 @@
-import { Box, Button, Dialog, Stack } from '@avalabs/core-k2-components';
-import { useTranslation } from 'react-i18next';
 import {
-  ApprovalSection,
-  ApprovalSectionHeader,
+	ApprovalSection,
+	ApprovalSectionHeader,
 } from '@/components/common/approval/ApprovalSection';
-import { useCallback, useState } from 'react';
-import { CustomSpendLimit } from './CustomSpendLimit';
-import { TransactionTokenCard } from '../TransactionTokenCard';
-import { MaxUint256 } from 'ethers';
-import {
-  DisplayData,
-  ERC20Token,
-  TokenApproval,
-} from '@avalabs/vm-module-types';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useApproveAction } from '@/hooks/useApproveAction';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@core/service-worker';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { Box, Button, Dialog, Stack } from '@avalabs/core-k2-components';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
+import {
+	DisplayData,
+	ERC20Token,
+	TokenApproval,
+} from '@avalabs/vm-module-types';
 import { UpdateActionTxDataHandler } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
+import { MaxUint256 } from 'ethers';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { TransactionTokenCard } from '../TransactionTokenCard';
+import { CustomSpendLimit } from './CustomSpendLimit';
 
 export enum Limit {
   DEFAULT = 'DEFAULT',

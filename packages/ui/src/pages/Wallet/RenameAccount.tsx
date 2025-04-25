@@ -6,9 +6,8 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { Account } from '@core/service-worker';
+import { Account, ActionStatus, DomainMetadata } from '@core/types';
 import { useApproveAction } from '@/hooks/useApproveAction';
-import { ActionStatus } from '@core/service-worker';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
 import {
   ApprovalSection,
@@ -20,7 +19,6 @@ import {
   AccountDetails,
   WebsiteDetails,
 } from '../SignTransaction/components/ApprovalTxDetails';
-import { DomainMetadata } from '@core/service-worker';
 
 export function RenameAccount() {
   const { t } = useTranslation();

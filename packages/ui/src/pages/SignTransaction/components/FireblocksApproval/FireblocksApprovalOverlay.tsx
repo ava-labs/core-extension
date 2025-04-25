@@ -5,7 +5,7 @@ import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { WalletConnectApprovalConnect } from '../WalletConnectApproval/WalletConnectApprovalConnect';
-import shouldUseWalletConnectApproval from '@core/utils';
+import { shouldUseWalletConnectApproval } from '@core/utils';
 import {
   ApprovalStep,
   getActiveStep,

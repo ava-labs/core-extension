@@ -7,7 +7,7 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { useApproveAction } from '@/hooks/useApproveAction';
-import { ActionStatus } from '@core/service-worker';
+import { ActionStatus, DomainMetadata } from '@core/types';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
 import {
   ApprovalSection,
@@ -16,7 +16,6 @@ import {
 } from '@/components/common/approval/ApprovalSection';
 import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { DomainMetadata } from '@core/service-worker';
 
 export function RenameWallet() {
   const { t } = useTranslation();

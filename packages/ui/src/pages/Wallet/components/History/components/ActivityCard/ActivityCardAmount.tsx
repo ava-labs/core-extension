@@ -1,6 +1,6 @@
 import { Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
-import { isNftTokenType } from '@core/service-worker';
-import { TxHistoryItem } from '@core/service-worker';
+import { isNftTokenType } from '@core/utils';
+import { TxHistoryItem } from '@core/types';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';

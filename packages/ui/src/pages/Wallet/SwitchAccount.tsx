@@ -13,9 +13,8 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { Account } from '@core/service-worker';
+import { Account, ActionStatus } from '@core/types';
 import { useApproveAction } from '@/hooks/useApproveAction';
-import { ActionStatus } from '@core/service-worker';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { truncateAddress } from '@core/utils';
 

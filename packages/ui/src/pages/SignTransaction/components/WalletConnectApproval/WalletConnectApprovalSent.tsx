@@ -22,7 +22,7 @@ export function WalletConnectApprovalSent({
 }: WalletConnectApprovalSentProps) {
   const { t } = useTranslation();
   const [disableButton, setDisableButton] = useState(true);
-  const resendButtonTimer = useRef<ReturnType<typeof setTimeout>>();
+  const resendButtonTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const requiresMultipleSignatures = requiredSignatures > 1;
 
   const enableButtonAfterDelay = useCallback(() => {

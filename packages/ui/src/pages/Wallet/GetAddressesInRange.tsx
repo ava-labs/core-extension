@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   CircularProgress,
@@ -11,20 +9,24 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { GetAddressesInRangeDisplayData } from '@core/service-worker';
-import { useApproveAction } from '@/hooks/useApproveAction';
-import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@/hooks/useGetRequestId';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
 } from '@/components/common/approval/ApprovalSection';
-import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { DomainMetadata } from '@core/service-worker';
 import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import {
+  ActionStatus,
+  DomainMetadata,
+  GetAddressesInRangeDisplayData,
+} from '@core/types';
 import { truncateAddress } from '@core/utils';
+import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
 
 export function GetAddressesInRange() {
   const { t } = useTranslation();

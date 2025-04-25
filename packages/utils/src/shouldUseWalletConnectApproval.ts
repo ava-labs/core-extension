@@ -1,7 +1,7 @@
 import { type Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { type Account, AccountType } from '@core/types';
 
-function shouldUseWalletConnectApproval(network: Network, account: Account) {
+export function shouldUseWalletConnectApproval(network: Network, account: Account) {
   // We are not supporting CoreEth as a network
   if (network.vmName === NetworkVMType.CoreEth) {
     return false;
@@ -16,5 +16,3 @@ function shouldUseWalletConnectApproval(network: Network, account: Account) {
 
   return false;
 }
-
-export default shouldUseWalletConnectApproval;

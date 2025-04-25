@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { WalletExtensionType } from '@core/service-worker';
+import { WalletExtensionType } from '@core/types';
 import { EIP6963ProviderInfo } from '@avalabs/vm-module-types';
 import { useRef, useState } from 'react';
 
@@ -90,7 +90,7 @@ export function WalletExtensionButton({
   onClick,
 }: WalletExtensionButtonProps) {
   const { t } = useTranslation();
-  const toggleButtonRef = useRef();
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <StyledButtonGroup color="secondary" variant="contained" fullWidth>

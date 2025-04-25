@@ -19,7 +19,7 @@ import {
   MIN_SLIPPAGE,
 } from '../utils';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
+import { FeatureGates } from '@core/types';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;

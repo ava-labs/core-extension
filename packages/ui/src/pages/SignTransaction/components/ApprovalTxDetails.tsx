@@ -1,21 +1,19 @@
-import {
-  Typography,
-  Button,
-  LinkIcon,
-  AlertTriangleIcon,
-  ExternalLinkIcon,
-  Link,
-  Tooltip,
-} from '@avalabs/core-k2-components';
-import { Network } from '@avalabs/core-chains-sdk';
-import { useTranslation } from 'react-i18next';
-import { truncateAddress } from '@core/utils';
-import { getExplorerAddressByNetwork } from '@core/utils';
-import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { openNewTab } from '@core/utils';
-import { DomainMetadata } from '@core/service-worker';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { Network } from '@avalabs/core-chains-sdk';
+import {
+	AlertTriangleIcon,
+	Button,
+	ExternalLinkIcon,
+	Link,
+	LinkIcon,
+	Tooltip,
+	Typography,
+} from '@avalabs/core-k2-components';
+import { DomainMetadata } from '@core/types';
+import { getExplorerAddressByNetwork, openNewTab, truncateAddress } from '@core/utils';
+import { useTranslation } from 'react-i18next';
 
 type ContractDetailsProps = {
   contractAddress: string;

@@ -1,48 +1,46 @@
-import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import { useSwapContext } from '@/contexts/SwapProvider/SwapProvider';
-import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
-import { useEffect, useMemo, useState } from 'react';
-import { resolve } from '@core/utils';
-import { TransactionDetails } from './components/TransactionDetails';
-import { PageTitle } from '@/components/common/PageTitle';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
-import { ParaswapNotice } from './components/ParaswapNotice';
-import {
-  FunctionNames,
-  useIsFunctionAvailable,
-} from '@/hooks/useIsFunctionAvailable';
 import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
-import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
-import { useTranslation } from 'react-i18next';
-import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
-import { SwapError } from './components/SwapError';
-import { calculateRate, isSlippageValid } from './utils';
-import {
-  Stack,
-  toast,
-  Scrollbars,
-  Typography,
-  SwapIcon,
-  useTheme,
-  Button,
-  styled,
-  IconButton,
-  ToastCard,
-} from '@avalabs/core-k2-components';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
+import { PageTitle } from '@/components/common/PageTitle';
 import { TokenSelect } from '@/components/common/TokenSelect';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { isBitcoinNetwork } from '@core/service-worker';
-import { isUserRejectionError } from '@core/utils';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { DISALLOWED_SWAP_ASSETS } from '@/contexts/SwapProvider/models';
-import { useLiveBalance } from '@/hooks/useLiveBalance';
+import { useSwapContext } from '@/contexts/SwapProvider/SwapProvider';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
+import {
+	FunctionNames,
+	useIsFunctionAvailable,
+} from '@/hooks/useIsFunctionAvailable';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import {
+	Button,
+	IconButton,
+	Scrollbars,
+	Stack,
+	styled,
+	SwapIcon,
+	toast,
+	ToastCard,
+	Typography,
+	useTheme,
+} from '@avalabs/core-k2-components';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import sentryCaptureException, {
+	SentryExceptionTypes,
+} from '@core/common/src/monitoring/sentryCaptureException';
+import { isBitcoinNetwork, isSolanaNetwork, isUserRejectionError, resolve } from '@core/utils';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { ParaswapNotice } from './components/ParaswapNotice';
+import { SwapError } from './components/SwapError';
+import { TransactionDetails } from './components/TransactionDetails';
+import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwappableToken } from './models';
+import { calculateRate, isSlippageValid } from './utils';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -152,11 +150,11 @@ export function Swap() {
   const activeAddress = useMemo(
     () =>
       network
-        ? isBitcoinNetwork(network)
-          ? activeAccount?.addressBTC
+        ? isSolanaNetwork(network)
+          ? activeAccount?.addressSVM
           : activeAccount?.addressC
         : undefined,
-    [activeAccount?.addressBTC, activeAccount?.addressC, network],
+    [activeAccount?.addressSVM, activeAccount?.addressC, network],
   );
 
   const fromAmount = useMemo(() => {

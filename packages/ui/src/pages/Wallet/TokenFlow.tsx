@@ -1,15 +1,20 @@
+import { MaliciousTokenWarningBox } from '@/components/common/MaliciousTokenWarning';
+import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
 import { PageTitle } from '@/components/common/PageTitle';
+import { PAndL } from '@/components/common/ProfitAndLoss';
 import { TokenIcon } from '@/components/common/TokenIcon';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
+import {
+  FunctionNames,
+  useIsFunctionAvailable,
+} from '@/hooks/useIsFunctionAvailable';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
 import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
 import { useTokenFromParams } from '@/hooks/useTokenFromParams';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
-import { useEffect, useMemo, useState } from 'react';
-import { useHistory } from 'react-router';
-import { Activity } from '../Activity/Activity';
-import { useTranslation } from 'react-i18next';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
   ArrowUpRightIcon,
   BridgeIcon,
@@ -21,25 +26,22 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import {
-  FunctionNames,
-  useIsFunctionAvailable,
-} from '@/hooks/useIsFunctionAvailable';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { isBitcoinNetwork } from '@core/service-worker';
-import { openNewTab } from '@core/utils';
-import { getCoreWebUrl } from '@core/utils';
-import { isPchainNetwork } from '@core/service-worker';
-import { PAndL } from '@/components/common/ProfitAndLoss';
-import { hasUnconfirmedBalance } from '@core/utils';
-import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
-import { isXchainNetwork } from '@core/service-worker';
-import { getUnconfirmedBalanceInCurrency } from '@core/service-worker';
-import { isTokenMalicious } from '@core/utils';
-import { MaliciousTokenWarningBox } from '@/components/common/MaliciousTokenWarning';
-import { useLiveBalance } from '@/hooks/useLiveBalance';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
+import { getUnconfirmedBalanceInCurrency } from '@core/types';
+import {
+  getCoreWebUrl,
+  hasUnconfirmedBalance,
+  isBitcoinNetwork,
+  isPchainNetwork,
+  isTokenMalicious,
+  isXchainNetwork,
+  openNewTab,
+} from '@core/utils';
+import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router';
+import { Activity } from '../Activity/Activity';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 

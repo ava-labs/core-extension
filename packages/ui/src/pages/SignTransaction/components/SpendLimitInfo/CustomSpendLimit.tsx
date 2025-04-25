@@ -14,7 +14,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { BNInput } from '@/components/common/BNInput';
 import { PageTitle } from '@/components/common/PageTitle';
-import { DomainMetadata } from '@core/service-worker';
+import { DomainMetadata } from '@core/types';
 import { Limit, SpendLimit } from './TokenSpendLimit';
 import { ERC20Token } from '@avalabs/vm-module-types';
 

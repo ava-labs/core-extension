@@ -1,15 +1,7 @@
-import { useWalletContext } from '@/contexts/WalletProvider';
-import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
-import { NoTransactions } from './components/NoTransactions';
-import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { TxHistoryItem } from '@core/service-worker';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { useTranslation } from 'react-i18next';
-import { getExplorerAddressByNetwork } from '@core/utils';
-import { ActivityCard } from './components/History/components/ActivityCard/ActivityCard';
-import { InProgressBridgeActivityCard } from './components/History/components/InProgressBridge/InProgressBridgeActivityCard';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import {
   Button,
   CheckIcon,
@@ -20,25 +12,33 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { isNftTokenType } from '@core/service-worker';
+import { TxHistoryItem } from '@core/types';
+import { getExplorerAddressByNetwork, isNftTokenType } from '@core/utils';
+import { endOfToday, endOfYesterday, format, isSameDay } from 'date-fns';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePendingBridgeTransactions } from '../Bridge/hooks/usePendingBridgeTransactions';
+import { ActivityCard } from './components/History/components/ActivityCard/ActivityCard';
+import { InProgressBridgeActivityCard } from './components/History/components/InProgressBridge/InProgressBridgeActivityCard';
+import { NoTransactions } from './components/NoTransactions';
+
+import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 import {
-  isPchainTxHistoryItem,
+  getAddressForChain,
+  getBridgedAssetSymbol,
   isNonXPHistoryItem,
-} from '@core/service-worker';
+  isPchainNetwork,
+  isPchainTxHistoryItem,
+  isXchainNetwork,
+} from '@core/utils';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
-import { isPchainNetwork } from '@core/service-worker';
+import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
 import {
   PchainFilterTxTypeMap,
   PchainFilterType,
   XchainFilterTxTypeMap,
   XchainFilterType,
 } from './models';
-import { isXchainNetwork } from '@core/service-worker';
-import { getAddressForChain } from '@core/utils';
-import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
-import { getBridgedAssetSymbol } from '@core/utils';
-import { Transaction, TransactionType } from '@avalabs/vm-module-types';
 
 type WalletRecentTxsProps = {
   isEmbedded?: boolean;
