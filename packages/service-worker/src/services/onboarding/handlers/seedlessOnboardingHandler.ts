@@ -2,12 +2,14 @@ import {
   MemorySessionStorage,
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  SecretType,
+  ExtensionRequestHandler,
+  SeedlessAuthProvider,
+} from '@core/types';
 import { injectable } from 'tsyringe';
-import { SecretType } from '../../secrets/models';
 import { SeedlessWallet } from '../../seedless/SeedlessWallet';
-import { SeedlessAuthProvider } from '@core/types';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';

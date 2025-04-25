@@ -1,10 +1,9 @@
-import { EVM_BASE_DERIVATION_PATH, SecretType } from '../../secrets/models';
+import { ExtensionRequest, EVM_BASE_DERIVATION_PATH, SecretType } from '@core/types';
 import {
   Avalanche,
   DerivationPath,
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types';
 import { OnboardingService } from '../OnboardingService';
 import { StorageService } from '../../storage/StorageService';
 import { LockService } from '../../lock/LockService';
@@ -14,7 +13,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 

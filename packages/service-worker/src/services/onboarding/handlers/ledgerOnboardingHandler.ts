@@ -6,23 +6,23 @@ import {
   AVALANCHE_BASE_DERIVATION_PATH,
   AddressPublicKeyJson,
   EVM_BASE_DERIVATION_PATH,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  PubKeyType,
   SecretType,
-} from '../../secrets/models';
-import { SettingsService } from '../../settings/SettingsService';
-import { StorageService } from '../../storage/StorageService';
-import { AnalyticsService } from '../../analytics/AnalyticsService';
+} from '@core/types';
+import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
-import { WalletService } from '../../wallet/WalletService';
-import { OnboardingService } from '../OnboardingService';
+import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { LockService } from '../../lock/LockService';
 import { NetworkService } from '../../network/NetworkService';
-import { injectable } from 'tsyringe';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
-import { PubKeyType } from '@core/types';
-import { finalizeOnboarding } from '../finalizeOnboarding';
-import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { SettingsService } from '../../settings/SettingsService';
+import { StorageService } from '../../storage/StorageService';
+import { WalletService } from '../../wallet/WalletService';
+import { finalizeOnboarding } from '../finalizeOnboarding';
+import { OnboardingService } from '../OnboardingService';
+import { startOnboarding } from '../startOnboarding';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,

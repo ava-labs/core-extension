@@ -1,8 +1,8 @@
-import { OnboardingEvents } from '@core/types';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+  OnboardingEvents,
+} from '@core/types';
 import { EventEmitter } from 'events';
 import { OnboardingService } from '../OnboardingService';
 import { singleton } from 'tsyringe';

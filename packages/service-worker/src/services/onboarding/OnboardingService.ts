@@ -1,4 +1,3 @@
-import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
@@ -7,6 +6,7 @@ import {
   OnboardingState,
   OnboardingEvents,
   ONBOARDING_STORAGE_KEY,
+	ContextContainer,
 } from '@core/types';
 
 /**

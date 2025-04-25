@@ -1,5 +1,10 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { EVM_BASE_DERIVATION_PATH, SecretType } from '../../secrets/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '@core/types';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -9,8 +14,6 @@ import { OnboardingService } from '../OnboardingService';
 import { LockService } from '../../lock/LockService';
 import { NetworkService } from '../../network/NetworkService';
 import { injectable } from 'tsyringe';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { ExtensionRequest } from '@core/types';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';

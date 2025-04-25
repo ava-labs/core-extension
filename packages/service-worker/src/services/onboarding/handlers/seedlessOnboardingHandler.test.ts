@@ -1,6 +1,9 @@
-import { SecretType } from '../../secrets/models';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  SecretType,
+  SeedlessAuthProvider,
+} from '@core/types';
 import { OnboardingService } from '../OnboardingService';
 import { StorageService } from '../../storage/StorageService';
 import { LockService } from '../../lock/LockService';
@@ -10,13 +13,12 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessOnboardingHandler } from './seedlessOnboardingHandler';
-import { SeedlessAuthProvider } from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
 import {
   MemorySessionStorage,
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
 
 jest.mock('../utils/addXPChainsToFavoriteIfNeeded');

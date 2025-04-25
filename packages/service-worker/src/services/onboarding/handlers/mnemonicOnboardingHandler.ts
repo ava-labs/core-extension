@@ -1,12 +1,12 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
-import { StorageService } from '../../storage/StorageService';
-import { SettingsService } from '../../settings/SettingsService';
 import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,
   SecretType,
-} from '../../secrets/models';
+} from '@core/types';
+import { StorageService } from '../../storage/StorageService';
+import { SettingsService } from '../../settings/SettingsService';
 import { WalletService } from '../../wallet/WalletService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import {

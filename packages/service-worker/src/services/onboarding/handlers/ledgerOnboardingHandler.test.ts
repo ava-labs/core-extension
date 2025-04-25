@@ -4,7 +4,12 @@ import {
   getXpubFromMnemonic,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+} from '@core/types';
 import { AccountsService } from '../../accounts/AccountsService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { LockService } from '../../lock/LockService';
@@ -14,12 +19,7 @@ import { StorageService } from '../../storage/StorageService';
 import { WalletService } from '../../wallet/WalletService';
 import { OnboardingService } from '../OnboardingService';
 import { LedgerOnboardingHandler } from './ledgerOnboardingHandler';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../../secrets/models';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 

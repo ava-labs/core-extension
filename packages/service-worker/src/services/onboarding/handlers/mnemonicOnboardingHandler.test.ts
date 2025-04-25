@@ -2,7 +2,7 @@ import {
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,
   SecretType,
-} from '../../secrets/models';
+} from '@core/types';
 import {
   Avalanche,
   DerivationPath,
@@ -18,7 +18,7 @@ import { WalletService } from '../../wallet/WalletService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { addXPChainToFavoriteIfNeeded } from '../utils/addXPChainsToFavoriteIfNeeded';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
