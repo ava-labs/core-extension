@@ -1,28 +1,27 @@
+import { NetworkLogo } from '@/components/common/NetworkLogo';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useBridgeContext } from '@/contexts/BridgeProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
+import {
+	AlertTriangleIcon,
+	Badge,
+	Skeleton,
+	Stack,
+	Tooltip,
+	Typography,
+	styled,
+} from '@avalabs/core-k2-components';
+import { filterBridgeStateToNetwork } from '@core/service-worker';
+import { NetworkWithCaipId } from '@core/types';
+import { caipToChainId, getAddressForChain } from '@core/utils';
+import { useTranslation } from 'react-i18next';
 import { NetworkCard } from './common/NetworkCard';
 import { getNetworkBalance, tokensWithBalances } from './NetworksWidget';
-import { useSettingsContext } from '@/contexts/SettingsProvider';
-import { NetworkLogo } from '@/components/common/NetworkLogo';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { SeeAllNetworksButton } from './SeeAllNetworksButton';
-import {
-  AlertTriangleIcon,
-  Tooltip,
-  Stack,
-  Typography,
-  styled,
-  Skeleton,
-  Badge,
-} from '@avalabs/core-k2-components';
-import { useTranslation } from 'react-i18next';
-import { useBridgeContext } from '@/contexts/BridgeProvider';
-import { filterBridgeStateToNetwork } from '@core/service-worker';
-import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
-import { caipToChainId } from '@core/utils';
-import { getAddressForChain } from '@core/utils';
-import { NetworkWithCaipId } from '@core/service-worker';
 
 const LogoContainer = styled('div')`
   margin-top: 4px;

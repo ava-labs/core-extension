@@ -1,12 +1,13 @@
 import Dialog from '@/components/common/Dialog';
 import { useEffect, useState } from 'react';
-import { t } from 'i18next';
 import DangerIcon from '@/components/icons/DangerIcon';
 import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import useIsIncorrectDevice from './hooks/useIsIncorrectDevice';
 import { useLedgerContext } from '@/contexts/LedgerProvider';
+import { useTranslation } from 'react-i18next';
 
 const LedgerIncorrectDevice = () => {
+	const { t } = useTranslation();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { closeCurrentApp } = useLedgerContext();
   const isIncorrectDevice = useIsIncorrectDevice();

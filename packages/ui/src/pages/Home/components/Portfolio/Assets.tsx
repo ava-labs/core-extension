@@ -24,7 +24,7 @@ import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useMemo, useState } from 'react';
 import { WalletRecentTxs } from '@/pages/Wallet/WalletRecentTxs';
-import { isBitcoinNetwork } from '@core/service-worker';
+import { isBitcoinNetwork } from '@core/utils';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useTokenPriceMissing } from '@/hooks/useTokenPriceIsMissing';
 import { PAndL } from '@/components/common/ProfitAndLoss';

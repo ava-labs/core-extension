@@ -10,7 +10,7 @@ import {
   CustomRpcHeaders,
   Network,
   PLACEHOLDER_RPC_HEADERS,
-} from '@core/service-worker';
+} from '@core/types';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { NetworkRpcHeaders } from './NetworkRpcHeaders';

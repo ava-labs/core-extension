@@ -10,7 +10,7 @@ import useRegisterBtcWalletPolicy from './hooks/useRegisterBtcWalletPolicy';
 import { useLedgerContext } from '@/contexts/LedgerProvider';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { StoreBtcWalletPolicyDetails } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
 
 enum TextType {

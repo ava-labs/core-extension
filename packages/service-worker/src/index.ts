@@ -1,3 +1,5 @@
+export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
+
 export { HandlerType as BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
 
 export { networkUpdatedEventListener } from './services/network/events/networkUpdatedEventListener';
@@ -6,7 +8,6 @@ export {
   isWalletConnectEvent,
   isUriGeneratedEvent,
 } from './services/walletConnect/events/eventFilters';
-
 export {
   isSeedlessMfaChoiceRequest,
   isSeedlessMfaEvent,

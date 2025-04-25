@@ -12,7 +12,7 @@ import { PageTitle } from '@/components/common/PageTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router-dom';
 import { FireblocksAvatar } from './components/FireblocksAvatar';
-import { ExtensionRequest } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useCallback, useState } from 'react';
 import { TextFieldLabel } from '@/components/common/TextFieldLabel';

@@ -19,7 +19,7 @@ import { TextFieldLabel } from '@/components/common/TextFieldLabel';
 import {
   CustomRpcHeaders,
   Network,
-} from '@core/service-worker';
+} from '@core/types';
 import { NetworkRpcHeadersManager } from './NetworkRpcHeadersManager';
 
 export interface NetworkFormActions {

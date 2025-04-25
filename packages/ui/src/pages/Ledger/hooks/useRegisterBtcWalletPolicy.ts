@@ -1,16 +1,16 @@
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/service-worker';
-import {
-  AccountType,
-  PrimaryAccount,
-} from '@core/service-worker';
-import { GetBtcWalletPolicyDetails } from '@core/service-worker';
-import { WalletDetails } from '@core/service-worker';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { LedgerAppType, useLedgerContext } from '@/contexts/LedgerProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { GetBtcWalletPolicyDetails } from '@core/service-worker';
+import {
+  AccountType,
+  ExtensionRequest,
+  PrimaryAccount,
+  WalletDetails,
+} from '@core/types';
 import { useEffect, useState } from 'react';
 
 const useRegisterBtcWalletPolicy = () => {

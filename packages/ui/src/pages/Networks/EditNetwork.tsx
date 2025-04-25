@@ -16,7 +16,7 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import {
   CustomRpcHeaders,
   Network,
-} from '@core/service-worker';
+} from '@core/types';
 
 import {
   NetworkForm,

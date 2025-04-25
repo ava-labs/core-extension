@@ -12,7 +12,7 @@ import {
   getEvmAddressFromPubKey,
   getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
-import { Account } from '@core/service-worker';
+import { Account } from '@core/types';
 import { PageTitle } from '@/components/common/PageTitle';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
@@ -20,7 +20,6 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
 import { networks } from 'bitcoinjs-lib';
-import { t } from 'i18next';
 import { KeyboardEvent, useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
@@ -29,6 +28,7 @@ import { usePrivateKeyImport } from '../Accounts/hooks/usePrivateKeyImport';
 import { useScopedToast } from '@/hooks/useScopedToast';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { DuplicatedAccountDialog } from './components/DuplicatedAccountDialog';
+import { useTranslation } from 'react-i18next';
 
 type DerivedAddresses = {
   addressC: string;
@@ -36,6 +36,7 @@ type DerivedAddresses = {
 };
 
 export function ImportPrivateKey() {
+	const { t } = useTranslation();
   const { currency, currencyFormatter } = useSettingsContext();
   const { updateBalanceOnNetworks } = useBalancesContext();
   const { network } = useNetworkContext();

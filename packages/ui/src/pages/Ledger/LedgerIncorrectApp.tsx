@@ -2,10 +2,10 @@ import { Typography, useTheme, Button } from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 import { LedgerAppType, useLedgerContext } from '@/contexts/LedgerProvider';
 import {
-  ContextContainer,
   useIsSpecificContextContainer,
 } from '@/hooks/useIsSpecificContextContainer';
 import { openExtensionNewWindow } from '@core/utils';
+import { ContextContainer } from '@core/types';
 
 interface LedgerIncorrectAppProps {
   requiredAppType: LedgerAppType;

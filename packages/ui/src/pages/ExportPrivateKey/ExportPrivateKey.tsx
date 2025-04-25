@@ -1,21 +1,18 @@
-import { useCallback, useEffect, useState } from 'react';
-import { EnterPassword } from './EnterPassword';
-import { ShowPrivateKey } from './ShowPrivateKey';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { Stack, useTheme } from '@avalabs/core-k2-components';
 import { GetPrivateKeyHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { useLocation } from 'react-router-dom';
-import { useAccountsContext } from '@/contexts/AccountsProvider';
 import {
-  AccountType,
-  GetPrivateKeyErrorTypes,
-  PrivateKeyChain,
-} from '@core/service-worker';
-import { useWalletContext } from '@/contexts/WalletProvider';
+	AccountType, ExtensionRequest, GetPrivateKeyErrorTypes,
+	PrivateKeyChain, SecretType
+} from '@core/types';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { SecretType } from '@core/service-worker';
+import { useLocation } from 'react-router-dom';
+import { EnterPassword } from './EnterPassword';
+import { ShowPrivateKey } from './ShowPrivateKey';
 
 export function ExportPrivateKey() {
   const theme = useTheme();

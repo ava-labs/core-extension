@@ -11,6 +11,7 @@ export * from './network/isAvalancheXchainNetwork';
 export * from './network/isEthereumNetwork';
 export * from './network/isBitcoinNetwork';
 export * from './network/isSolanaNetwork';
+export * from './network/isValidHttpHeader';
 export * from './getSyncDomain';
 export * from './errors';
 export * from './send/btcSendUtils';
@@ -92,3 +93,4 @@ export * from './number';
 export * from './truncateAddress';
 export * from './filterFalsyValues';
 export * from './account'
+export * from './balance'

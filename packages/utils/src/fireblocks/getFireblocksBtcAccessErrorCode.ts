@@ -1,6 +1,6 @@
 import { BTC_ACCESS_ERROR_PREFIX } from '@core/types';
 
-export default function getFireblocksBtcAccessErrorCode(message: string) {
+export function getFireblocksBtcAccessErrorCode(message: string) {
   const [, code] = message.split(BTC_ACCESS_ERROR_PREFIX);
 
   if (typeof code === 'undefined' || code === '') {

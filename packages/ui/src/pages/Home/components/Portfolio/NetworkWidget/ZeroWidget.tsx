@@ -2,15 +2,14 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { useTranslation } from 'react-i18next';
 import {
-  Button,
-  BuyIcon,
-  QRCodeIcon,
-  Stack,
+	Button,
+	BuyIcon,
+	QRCodeIcon,
+	Stack,
 } from '@avalabs/core-k2-components';
-import { openNewTab } from '@core/utils';
-import { getCoreWebUrl } from '@core/utils';
+import { getCoreWebUrl, openNewTab } from '@core/utils';
+import { useTranslation } from 'react-i18next';
 
 export function ZeroWidget() {
   const { t } = useTranslation();

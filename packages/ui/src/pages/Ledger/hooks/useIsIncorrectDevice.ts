@@ -4,7 +4,7 @@ import { LedgerAppType, useLedgerContext } from '@/contexts/LedgerProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import { useEffect, useState } from 'react';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 
 const useIsIncorrectDevice = () => {

@@ -1,9 +1,8 @@
-import { ActionStatus } from '@core/service-worker';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { SiteAvatar } from '@/components/common/SiteAvatar';
 import { TokenIcon } from '@/components/common/TokenIcon';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   Card,
@@ -12,8 +11,8 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
-import { AddCustomTokenData } from '@core/service-worker';
+import { ActionStatus, AddCustomTokenData } from '@core/types';
+import { useTranslation } from 'react-i18next';
 
 export function AddTokenApproval() {
   const { t } = useTranslation();

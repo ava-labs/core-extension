@@ -19,7 +19,7 @@ import { BalanceColumn } from '@/components/common/BalanceColumn';
 import { PAndL } from '@/components/common/ProfitAndLoss';
 import { hasUnconfirmedBalance } from '@core/utils';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import { getUnconfirmedBalanceInCurrency } from '@core/service-worker';
+import { getUnconfirmedBalanceInCurrency } from '@core/types';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];

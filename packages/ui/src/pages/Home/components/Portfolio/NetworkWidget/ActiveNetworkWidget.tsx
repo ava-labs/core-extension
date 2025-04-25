@@ -1,40 +1,42 @@
-import { Assetlist } from './Assetlist';
-import { NetworkCard } from './common/NetworkCard';
-import { useHistory } from 'react-router-dom';
-import { ZeroWidget } from './ZeroWidget';
+import { NetworkLogoK2 } from '@/components/common/NetworkLogoK2';
+import { PAndL } from '@/components/common/ProfitAndLoss';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
-import { Trans, useTranslation } from 'react-i18next';
-import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { usePendingBridgeTransactions } from '@/pages/Bridge/hooks/usePendingBridgeTransactions';
 import {
+  AlertTriangleIcon,
+  Badge,
   BridgeIcon,
   Button,
+  CheckIcon,
   Chip,
   Divider,
   Skeleton,
   Stack,
   Tooltip,
   Typography,
-  AlertTriangleIcon,
-  Badge,
-  CheckIcon,
 } from '@avalabs/core-k2-components';
-import { TokenIcon } from '@/components/common/TokenIcon';
-import { NetworkLogoK2 } from '@/components/common/NetworkLogoK2';
-import { isBitcoin } from '@core/utils';
-import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { usePendingBridgeTransactions } from '@/pages/Bridge/hooks/usePendingBridgeTransactions';
-import { isBitcoinNetwork } from '@core/service-worker';
-import { isPchainNetwork } from '@core/service-worker';
-import { PchainActiveNetworkWidgetContent } from './PchainActiveNetworkWidgetContent';
-import { PAndL } from '@/components/common/ProfitAndLoss';
-import { isXchainNetwork } from '@core/service-worker';
-import { XchainActiveNetworkWidgetContent } from './XchainActiveNetworkWidgetContent';
-import { isTokenWithBalancePVM } from '@core/service-worker';
-import { isTokenWithBalanceAVM } from '@core/service-worker';
-import { normalizeBalance } from '@core/utils';
-import Big from 'big.js';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
+import {
+  isBitcoin,
+  isBitcoinNetwork,
+  isPchainNetwork,
+  isTokenWithBalanceAVM,
+  isTokenWithBalancePVM,
+  isXchainNetwork,
+  normalizeBalance,
+} from '@core/utils';
+import Big from 'big.js';
+import { Trans, useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { Assetlist } from './Assetlist';
+import { NetworkCard } from './common/NetworkCard';
+import { PchainActiveNetworkWidgetContent } from './PchainActiveNetworkWidgetContent';
+import { XchainActiveNetworkWidgetContent } from './XchainActiveNetworkWidgetContent';
+import { ZeroWidget } from './ZeroWidget';
 
 interface ActiveNetworkWidgetProps {
   assetList: TokenWithBalance[];

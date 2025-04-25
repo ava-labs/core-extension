@@ -1,6 +1,6 @@
 import { Stack } from '@avalabs/core-k2-components';
 
-import { getUnconfirmedBalanceInCurrency } from '@core/service-worker';
+import { getUnconfirmedBalanceInCurrency } from '@core/types';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
