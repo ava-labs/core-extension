@@ -27,13 +27,12 @@ import {
 } from '@core/types';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { NetworkService } from '../services/network/NetworkService';
-import { NetworkWithCaipId } from '@core/types';
+import { NetworkWithCaipId, ACTION_HANDLED_BY_MODULE } from '@core/types';
 
 import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';
-import { ACTION_HANDLED_BY_MODULE } from '../models';
 import { SecretsService } from '../services/secrets/SecretsService';
 
 type CachedRequest = {

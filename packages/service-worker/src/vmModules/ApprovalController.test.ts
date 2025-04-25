@@ -3,24 +3,23 @@ import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
 import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
-import { chainIdToCaip } from '@core/utils';
-import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
+import { chainIdToCaip, getProviderForNetwork } from '@core/utils';
 
 import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';
-import { openApprovalWindow } from '../runtime/openApprovalWindow';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
 import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';
 import { ApprovalController } from './ApprovalController';
-import { ACTION_HANDLED_BY_MODULE } from '../models';
 import {
   Action,
   ActionStatus,
   ActionType,
   MultiTxAction,
+  ACTION_HANDLED_BY_MODULE,
 } from '@core/types';
 import { SecretsService } from '../services/secrets/SecretsService';
 
@@ -32,8 +31,8 @@ jest.mock('tsyringe', () => {
     },
   };
 });
-jest.mock('../runtime/openApprovalWindow');
-jest.mock('@src/utils/network/getProviderForNetwork');
+jest.mock('@/runtime/openApprovalWindow');
+jest.mock('@core/utils');
 
 const btcNetwork = {
   chainId: ChainId.BITCOIN_TESTNET,
