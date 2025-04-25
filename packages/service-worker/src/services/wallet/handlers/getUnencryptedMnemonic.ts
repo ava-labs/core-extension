@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  SecretType,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { LockService } from '../../lock/LockService';
-import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 

@@ -5,22 +5,23 @@ import {
 } from '@avalabs/core-wallets-sdk';
 
 import { assertPresent } from '@core/utils';
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
-
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   AddressPublicKeyJson,
   EVM_BASE_DERIVATION_PATH,
   ExtendedPublicKey,
   SecretType,
-} from '../../secrets/models';
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  SecretsError,
+  ImportLedgerWalletParams,
+  ImportWalletResult,
+} from '@core/types';
+
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-import { ImportLedgerWalletParams, ImportWalletResult } from './models';
-import { SecretsError } from '@core/utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<

@@ -6,23 +6,21 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
-
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,
   SecretType,
-} from '../../secrets/models';
+  ImportSeedphraseWalletParams,
+  ImportWalletResult,
+  SeedphraseImportError,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
+
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-import {
-  ImportSeedphraseWalletParams,
-  ImportWalletResult,
-  SeedphraseImportError,
-} from './models';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<

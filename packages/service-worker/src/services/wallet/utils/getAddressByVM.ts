@@ -1,5 +1,5 @@
 import { AVM, EVM, PVM, VM } from '@avalabs/avalanchejs';
-import { Account } from '../../accounts/models';
+import { Account } from '@core/types';
 
 const getAddressByVM = (vm: VM, account?: Account) => {
   if (!account) {

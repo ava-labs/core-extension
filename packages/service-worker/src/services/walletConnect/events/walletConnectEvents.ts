@@ -4,10 +4,10 @@ import { singleton } from 'tsyringe';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
-} from '../../../connections/models';
+	WalletConnectEvent,
+} from '@core/types';
 
 import { WalletConnectService } from '../WalletConnectService';
-import { WalletConnectEvent } from '@core/types';
 
 @singleton()
 export class WalletConnectEvents implements ExtensionEventEmitter {

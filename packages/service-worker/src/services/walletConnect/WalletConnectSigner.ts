@@ -2,11 +2,13 @@ import { TransactionRequest } from 'ethers';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { AVM, PVM } from '@avalabs/avalanchejs';
 
-import { DAppProviderRequest } from '@core/types';
+import {
+  DAppProviderRequest,
+  MessageType,
+  SigningResult,
+  WalletConnectTransport,
+} from '@core/types';
 
-import { WalletConnectTransport } from '@core/types';
-import { MessageType } from '@core/types';
-import { SigningResult } from '@core/types';
 import { makeBNLike } from '@core/utils';
 
 export class WalletConnectSigner {

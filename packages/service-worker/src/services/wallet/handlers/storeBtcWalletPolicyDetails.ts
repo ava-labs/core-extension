@@ -2,13 +2,15 @@ import {
   DerivationPath,
   getBech32AddressFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  AccountType,
+  SecretType,
+} from '@core/types';
 import { networks } from 'bitcoinjs-lib';
 import { injectable } from 'tsyringe';
-import { AccountType } from '../../accounts/models';
 import { NetworkService } from '../../network/NetworkService';
-import { SecretType } from '../../secrets/models';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 

@@ -1,18 +1,18 @@
-import { ExtensionRequest } from '@core/types';
+import {
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  ExtensionRequest,
+  SecretType,
+} from '@core/types';
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { ImportLedgerHandler } from './importLedger';
 import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../../secrets/models';
-import {
   DerivationPath,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 import { AddressPublicKey } from '../../secrets/AddressPublicKey';
 

@@ -1,4 +1,4 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheSendTransactionHandler } from './avalanche_sendTransaction';
 import {
@@ -9,23 +9,22 @@ import {
   EVM,
   PVM,
 } from '@avalabs/avalanchejs';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { Action } from '@core/types';
+import { Action, DAppProviderRequest, DEFERRED_RESPONSE } from '@core/types';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { measureDuration } from 'packages/utils/src/measureDuration';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { measureDuration } from '@core/utils';
 import { HEADERS } from '../../glacier/glacierConfig';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 jest.mock('../../analytics/utils/encryptAnalyticsData');
-jest.mock('@src/background/runtime/openApprovalWindow');
-jest.mock('@src/utils/measureDuration', () => {
+jest.mock('@/runtime/openApprovalWindow');
+jest.mock('@core/utils', () => {
   const measureDurationMock = {
     start: jest.fn(),
     end: jest.fn(),

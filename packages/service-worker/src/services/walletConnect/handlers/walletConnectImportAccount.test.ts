@@ -2,7 +2,7 @@ import { ExtensionRequest } from '@core/types';
 import { WalletConnectImportAccount } from './walletConnectImportAccount';
 
 import { isCoreMobile } from '../utils';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 jest.mock('../utils', () => {
   return {
@@ -11,7 +11,7 @@ jest.mock('../utils', () => {
   };
 });
 
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/common');
 
 describe('background/services/walletConnect/handlers/walletConnectImportAccount.ts', () => {
   const getAccountsMock = jest.fn();

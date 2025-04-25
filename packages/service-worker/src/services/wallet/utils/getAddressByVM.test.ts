@@ -1,5 +1,5 @@
 import { AVM, EVM, PVM } from '@avalabs/avalanchejs';
-import { Account } from '../../accounts/models';
+import { Account } from '@core/types';
 import getAddressByVM from './getAddressByVM';
 
 describe('src/background/services/wallet/utils/getAddressByVM', () => {

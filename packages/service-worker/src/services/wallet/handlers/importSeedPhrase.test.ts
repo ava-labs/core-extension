@@ -1,18 +1,18 @@
-import { ExtensionRequest } from '@core/types';
+import {
+  ExtensionRequest,
+  SecretType,
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SeedphraseImportError,
+} from '@core/types';
 
 import { WalletService } from '../WalletService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
 import { ImportSeedPhraseHandler } from './importSeedPhrase';
-import { SeedphraseImportError } from './models';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../../secrets/models';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
 describe('src/background/services/wallet/handlers/importSeedPhrase', () => {

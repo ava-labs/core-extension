@@ -1,6 +1,6 @@
 import { DAppProviderRequest } from '@core/types';
 import { AvalancheSendDomainMetadataHandler } from './avalanche_sendDomainMetadata';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/web3/handlers/avalanche_sendDomainMetadata.ts', () => {
   it('returns the params as result', async () => {

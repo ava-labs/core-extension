@@ -1,7 +1,6 @@
-import { ExtensionRequest } from '@core/types';
-import { AccountType } from '../../accounts/models';
+import { ExtensionRequest, AccountType } from '@core/types';
 import { GetBtcWalletPolicyDetails } from './getBtcWalletPolicyDetails';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts', () => {
   const request = {

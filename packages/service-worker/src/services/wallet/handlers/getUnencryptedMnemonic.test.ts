@@ -1,10 +1,9 @@
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { LockService } from '../../lock/LockService';
-import { SecretType } from '../../secrets/models';
+import { Account, SecretType 	} from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
 import { GetUnencryptedMnemonicHandler } from './getUnencryptedMnemonic';
 import { AccountsService } from '../../accounts/AccountsService';
-import { Account } from '../../accounts/models';
 
 describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', () => {
   const lockService: jest.Mocked<LockService> = {

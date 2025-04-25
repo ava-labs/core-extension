@@ -1,8 +1,10 @@
-import { ExtensionRequest } from '@core/types';
-import { ExtensionRequestHandler } from '../../../connections/models';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  WalletConnectSessionInfo,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { WalletConnectService } from '../WalletConnectService';
-import { WalletConnectSessionInfo } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION,

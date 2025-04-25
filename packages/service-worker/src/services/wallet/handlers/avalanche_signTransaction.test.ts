@@ -7,20 +7,18 @@ import {
 } from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
+import { DAppProviderRequest, DEFERRED_RESPONSE, Action } from '@core/types';
 import { AvalancheSignTransactionHandler } from './avalanche_signTransaction';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
-import { Action } from '@core/types';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { HEADERS } from '../../glacier/glacierConfig';
 import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 
 jest.mock('@avalabs/avalanchejs');
 jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@/runtime/openApprovalWindow');
 
 describe('src/background/services/wallet/handlers/avalanche_signTransaction', () => {
   const env = process.env;

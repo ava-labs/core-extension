@@ -1,12 +1,13 @@
 import { injectable } from 'tsyringe';
 import { WalletService } from '../WalletService';
+import { DAppProviderRequest, JsonRpcRequestParams } from '@core/types';
 import {
-  DAppProviderRequest,
-  JsonRpcRequestParams,
+  Action,
+  buildActionForRequest,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
+  NetworkWithCaipId,
 } from '@core/types';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { Action, buildActionForRequest } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import {
   UnsignedTx,
   EVMUnsignedTx,
@@ -27,8 +28,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { measureDuration } from '@core/utils';
 import { HEADERS } from '../../glacier/glacierConfig';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
 type TxParams = {
   transactionHex: string;

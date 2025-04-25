@@ -12,6 +12,12 @@ import {
 import {
   AddPrimaryWalletSecrets,
   AvalancheTransactionRequest,
+  AVALANCHE_BASE_DERIVATION_PATH,
+  EVM_BASE_DERIVATION_PATH,
+  SecretType,
+  Account,
+  AccountType,
+  SecretsError,
 } from '@core/types';
 import { AVALANCHE_XP_TEST_NETWORK } from '@avalabs/core-chains-sdk';
 import {
@@ -42,12 +48,6 @@ import { Action, ActionStatus } from '@core/types';
 import { UnsignedTx } from '@avalabs/avalanchejs';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
-import { Account, AccountType } from '../accounts/models';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '../secrets/models';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '@core/types';
@@ -57,8 +57,7 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
 import { TransactionPayload, VMABI } from 'hypersdk-client';
 import { buildExtendedPublicKey } from '../secrets/utils';
-import { expectToThrowErrorCode } from '@src/tests/test-utils';
-import { SecretsError } from 'packages/utils/src/errors';
+import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from '../secrets/AddressResolver';
 
 jest.mock('../network/NetworkService');

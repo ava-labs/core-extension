@@ -9,11 +9,15 @@ import {
   WalletDetails,
   SUPPORTED_PRIMARY_SECRET_TYPES,
   isSolanaSigningRequest,
-} from '@core/types';
-import {
   MessageParams,
   MessageType,
   SignMessageData,
+  SecretType,
+  Account,
+  CommonError,
+  Network,
+  LedgerError,
+  SecretsError,
 } from '@core/types';
 import {
   Avalanche,
@@ -59,16 +63,14 @@ import { UnsignedTx } from '@avalabs/avalanchejs';
 import { toUtf8 } from 'ethereumjs-util';
 import { FireblocksService } from '../fireblocks/FireblocksService';
 import { SecretsService } from '../secrets/SecretsService';
-import { SecretType } from '../secrets/models';
 import { FIREBLOCKS_REQUEST_EXPIRY } from '@core/types';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { getProviderForNetwork } from '@core/utils';
-import { Network } from '@core/types';
+import {} from '@core/types';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
-import { Account } from '../accounts/models';
 import { HVMWallet } from './HVMWallet';
 import { ed25519 } from '@noble/curves/ed25519';
 import { strip0x } from '@avalabs/core-utils-sdk';
@@ -77,9 +79,7 @@ import {
   getPublicKeyFor,
   isPrimaryWalletSecrets,
 } from '../secrets/utils';
-import { assertPresent } from '@core/utils';
-import { CommonError, LedgerError, SecretsError } from '@core/utils';
-import { omitUndefined } from '@core/utils';
+import { assertPresent, omitUndefined } from '@core/utils';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
 import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';

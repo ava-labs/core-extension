@@ -2,7 +2,7 @@ import { DAppProviderRequest } from '@core/types';
 import { AvalancheGetProviderState } from './avalanche_getProviderState';
 import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/web3/handlers/avalanche_getProviderState.ts', () => {
   const mockRequest = {

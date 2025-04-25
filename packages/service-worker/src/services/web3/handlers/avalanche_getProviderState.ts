@@ -1,8 +1,7 @@
-import { DAppProviderRequest } from '@core/types';
+import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
 import { NetworkService } from '../../network/NetworkService';
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
 
 @injectable()
 export class AvalancheGetProviderState extends DAppRequestHandler {

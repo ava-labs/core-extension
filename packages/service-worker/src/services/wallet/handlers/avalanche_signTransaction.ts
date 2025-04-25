@@ -3,10 +3,11 @@ import { WalletService } from '../WalletService';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,
+  DAppRequestHandler,
+  DEFERRED_RESPONSE,
+  Action,
+  buildActionForRequest,
 } from '@core/types';
-import { DAppRequestHandler } from '../../../connections/dAppConnection/DAppRequestHandler';
-import { Action, buildActionForRequest } from '@core/types';
-import { DEFERRED_RESPONSE } from '../../../connections/middlewares/models';
 import {
   utils,
   UnsignedTx,
@@ -20,7 +21,7 @@ import getAddressByVM from '../utils/getAddressByVM';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { Network } from '@avalabs/glacier-sdk';
 import getProvidedUtxos from '../utils/getProvidedUtxos';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { HEADERS } from '../../glacier/glacierConfig';
 
 type TxParams = {

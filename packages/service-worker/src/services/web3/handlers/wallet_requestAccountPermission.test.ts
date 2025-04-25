@@ -1,16 +1,19 @@
-import { DAppProviderRequest } from '@src/background/connections/dAppConnection/models';
-import { DEFERRED_RESPONSE } from '@src/background/connections/middlewares/models';
+import {
+  AccountType,
+  DAppProviderRequest,
+  DEFERRED_RESPONSE,
+  Action,
+  ActionStatus,
+} from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AccountsService } from '../../accounts/AccountsService';
-import { AccountType } from '../../accounts/models';
-import { Action, ActionStatus } from '@core/types';
 import { PermissionsService } from '../../permissions/PermissionsService';
-import { buildRpcCall } from '@src/tests/test-utils';
-import { openApprovalWindow } from '@src/background/runtime/openApprovalWindow';
+import { buildRpcCall } from '@shared/tests/test-utils';
+import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { RequestAccountPermissionHandler } from './wallet_requestAccountPermission';
 
-jest.mock('@src/background/runtime/openApprovalWindow');
+jest.mock('@core/runtime/openApprovalWindow');
 
 describe('background/services/web3/handlers/wallet_requestAccountPermission', () => {
   const addressC = '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
