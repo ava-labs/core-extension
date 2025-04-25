@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Collapse, Stack } from '@avalabs/core-k2-components';
 
 import { Account } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { isImportedAccount } from '@core/service-worker';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/service-worker';
 

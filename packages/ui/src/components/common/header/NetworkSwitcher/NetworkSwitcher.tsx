@@ -1,4 +1,4 @@
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useRef, useState } from 'react';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { useHistory } from 'react-router-dom';
@@ -19,7 +19,7 @@ import {
   ClickAwayListener,
   Box,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 const defaultNetworks = [
   ChainId.AVALANCHE_MAINNET_ID,

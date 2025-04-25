@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { Account, AccountType } from '@core/service-worker';
 import { SecretType } from '@core/service-worker';
 

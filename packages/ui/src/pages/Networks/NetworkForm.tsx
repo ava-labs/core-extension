@@ -14,8 +14,8 @@ import {
   styled,
 } from '@avalabs/core-k2-components';
 
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TextFieldLabel } from 'packages/ui/src/components/common/TextFieldLabel';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { TextFieldLabel } from '@/components/common/TextFieldLabel';
 import {
   CustomRpcHeaders,
   Network,

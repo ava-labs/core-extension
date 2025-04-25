@@ -1,5 +1,5 @@
 import { Button, Stack, Typography } from '@avalabs/core-k2-components';
-import Dialog from 'packages/ui/src/components/common/Dialog';
+import Dialog from '@/components/common/Dialog';
 import { useTranslation } from 'react-i18next';
 
 export enum NetworkDetailsDialogOptions {

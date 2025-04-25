@@ -9,7 +9,7 @@ import {
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { AccountImportStatus } from '@src/contexts/WalletConnectContextProvider/models';
+import { AccountImportStatus } from '@/contexts/WalletConnectContextProvider/models';
 
 import { getColorForStatus } from './utils/getColorForStatus';
 

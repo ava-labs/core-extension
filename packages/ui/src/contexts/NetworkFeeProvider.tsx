@@ -11,7 +11,7 @@ import {
 import { NetworkFee } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
 import { GetNetworkFeeHandler } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { chainIdToCaip } from '@core/utils';
 
 import { useNetworkContext } from './NetworkProvider';

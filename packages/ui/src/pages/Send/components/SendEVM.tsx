@@ -1,10 +1,10 @@
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useQueryParams } from '@src/hooks/useQueryParams';
+import { useQueryParams } from '@/hooks/useQueryParams';
 import { isValidAddress } from '@core/utils';
 import { handleTxOutcome } from '@core/utils';
-import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
+import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
 import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
 
 import { useEVMSend } from '../hooks/useSend';

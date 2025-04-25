@@ -3,7 +3,7 @@ import { PageTitle, PageTitleVariant } from './PageTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import { getTranslatedFunctionName } from './FunctionIsOffline';
 import { Stack, Typography } from '@avalabs/core-k2-components';
-import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 interface FunctionIsOfflineProps {
   functionName: FunctionNames;
   network: string;

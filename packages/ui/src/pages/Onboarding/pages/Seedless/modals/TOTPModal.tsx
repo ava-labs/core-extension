@@ -7,12 +7,12 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
-import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';
+import { Overlay } from '@/components/common/Overlay';
+import { AuthStep, useSeedlessAuth } from '@/hooks/useSeedlessAuth';
+import { useTotpErrorMessage } from '@/hooks/useTotpErrorMessage';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 
 interface TOTPModalProps {
   onFinish: () => void;

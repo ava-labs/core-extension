@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { useCurrenciesContext } from '@src/contexts/CurrenciesProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { getCurrencyFormatter } from '@src/contexts/utils/getCurrencyFormatter';
+import { useCurrenciesContext } from '@/contexts/CurrenciesProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { getCurrencyFormatter } from '@/contexts/utils/getCurrencyFormatter';
 
 type CurrencyConverter = (value: number) => string;
 

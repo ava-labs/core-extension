@@ -10,13 +10,13 @@ import {
   CopyIcon,
   toast,
 } from '@avalabs/core-k2-components';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { IconWrapper } from './EnterPassword';
 import { useCallback } from 'react';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useGoBack } from '@src/hooks/useGoBack';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useGoBack } from '@/hooks/useGoBack';
 
 interface ShowPrivateKeyProps {
   privateKey: string;

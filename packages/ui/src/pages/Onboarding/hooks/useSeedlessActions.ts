@@ -4,7 +4,7 @@ import {
   approveSeedlessRegistration,
 } from '../utils/approveSeedlessRegistration';
 import { toast } from '@avalabs/core-k2-components';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@core/service-worker';
 import {
@@ -21,13 +21,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { SeedlessAuthProvider } from '@core/service-worker';
 import { getSignerToken } from '@core/utils';
 import { RecoveryMethodTypes } from '../pages/Seedless/models';
 import { launchFidoFlow } from '@core/utils';
 import { FIDOApiEndpoint, KeyType } from '@core/utils';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
 
 type OidcTokenGetter = () => Promise<string>;

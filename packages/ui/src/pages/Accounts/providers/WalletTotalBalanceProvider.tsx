@@ -8,13 +8,13 @@ import {
 } from 'react';
 import { isString } from 'lodash';
 
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import {
   IMPORTED_ACCOUNTS_WALLET_ID,
   TotalBalanceForWallet,
 } from '@core/service-worker';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { GetTotalBalanceForWalletHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
 

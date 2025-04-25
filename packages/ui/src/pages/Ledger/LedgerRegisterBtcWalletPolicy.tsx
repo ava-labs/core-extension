@@ -1,4 +1,4 @@
-import Dialog from 'packages/ui/src/components/common/Dialog';
+import Dialog from '@/components/common/Dialog';
 import {
   CircularProgress,
   Divider,
@@ -7,8 +7,8 @@ import {
 } from '@avalabs/core-k2-components';
 import { useEffect, useState } from 'react';
 import useRegisterBtcWalletPolicy from './hooks/useRegisterBtcWalletPolicy';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { StoreBtcWalletPolicyDetails } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
 import { Trans, useTranslation } from 'react-i18next';

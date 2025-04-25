@@ -1,9 +1,9 @@
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { ActionStatus } from '@core/service-worker';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import { useCallback, useEffect, useState } from 'react';
 import { useApproveAction } from '../../hooks/useApproveAction';
-import { Scrollbars } from 'packages/ui/src/components/common/scrollbars/Scrollbars';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -21,9 +21,9 @@ import {
   TextField,
   Typography,
 } from '@avalabs/core-k2-components';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
 import { buildGlacierAuthHeaders } from '@core/service-worker';
-import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { AddEthereumChainDisplayData } from '@core/service-worker';
 
 export function AddCustomNetworkPopup() {

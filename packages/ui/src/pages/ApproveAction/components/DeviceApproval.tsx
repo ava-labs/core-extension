@@ -4,11 +4,11 @@ import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 import { Action, ActionStatus } from '@core/service-worker';
 import { NetworkWithCaipId } from '@core/service-worker';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 
-import { LedgerApprovalOverlay } from 'packages/ui/pages/SignTransaction/components/LedgerApprovalOverlay';
-import { KeystoneApprovalOverlay } from 'packages/ui/pages/SignTransaction/components/KeystoneApprovalOverlay';
+import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
+import { KeystoneApprovalOverlay } from '@/pages/SignTransaction/components/KeystoneApprovalOverlay';
 
 const getTxInfoForLedger = (
   signingData: SigningData,

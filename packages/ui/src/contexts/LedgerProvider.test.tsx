@@ -6,7 +6,7 @@ import {
   waitFor,
   screen,
   cleanup,
-} from '@src/tests/test-utils';
+} from '@shared/tests/test-utils';
 import React, { useState } from 'react';
 import { Subject } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';

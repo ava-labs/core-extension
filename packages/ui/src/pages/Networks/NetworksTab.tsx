@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Stack } from '@avalabs/core-k2-components';
 
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { EmptyContent } from 'packages/ui/src/components/common/EmptyContent';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { EmptyContent } from '@/components/common/EmptyContent';
 
 import { NetworkTabProps } from './Networks';
 import { NetworkList } from './common/NetworkList';

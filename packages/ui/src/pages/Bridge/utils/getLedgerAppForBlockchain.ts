@@ -1,5 +1,5 @@
 import { Blockchain } from '@avalabs/core-bridge-sdk';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { LedgerAppType } from '@/contexts/LedgerProvider';
 
 export function getLedgerAppForBlockchain(
   blockchain: Blockchain,

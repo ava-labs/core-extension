@@ -7,7 +7,7 @@ import {
   DialogContent,
   toast,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 

@@ -8,26 +8,26 @@ import {
   useTheme,
   GlobeIcon,
 } from '@avalabs/core-k2-components';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { Account } from '@core/service-worker';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
-import { usePermissionContext } from '@src/contexts/PermissionsProvider';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { usePermissionContext } from '@/contexts/PermissionsProvider';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
 import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { useTranslation } from 'react-i18next';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
-} from '@src/hooks/useIsSpecificContextContainer';
+} from '@/hooks/useIsSpecificContextContainer';
 import { AccountsDropdown } from './components/AccountsDropdown';
 import { AlertDialog } from './components/AlertDialog';
 import { AlertBox } from './components/AlertBox';
 import { WarningBox } from './components/WarningBox';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
-import { BlockaidData, useDAppScan } from '@src/hooks/useDAppScan';
+import { BlockaidData, useDAppScan } from '@/hooks/useDAppScan';
 import { mapAddressesToVMs } from '@core/utils';
 import { DAppProviderRequest } from '@core/service-worker';
 import { NetworkVMType } from '@avalabs/vm-module-types';

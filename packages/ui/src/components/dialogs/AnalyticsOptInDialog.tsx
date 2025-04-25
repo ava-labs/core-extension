@@ -9,10 +9,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { TypographyLink } from 'packages/ui/pages/Onboarding/components/TypographyLink';
+import { TypographyLink } from '@/pages/Onboarding/components/TypographyLink';
 import { AnalyticsConsent } from '@core/service-worker';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useAnalyticsConsentCallbacks } from '@/hooks/useAnalyticsConsentCallbacks';
 
 export const AnalyticsOptInDialog = () => {
   const { t } = useTranslation();

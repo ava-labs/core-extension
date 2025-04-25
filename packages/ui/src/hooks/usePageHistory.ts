@@ -1,5 +1,5 @@
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useCallback, useEffect, useState } from 'react';
 import * as H from 'history';
 import {

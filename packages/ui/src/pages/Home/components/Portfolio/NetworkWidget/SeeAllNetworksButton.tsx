@@ -3,7 +3,7 @@ import { NetworkCard } from './common/NetworkCard';
 import { useTranslation } from 'react-i18next';
 import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 
-import { NetworkTab } from 'packages/ui/pages/Networks';
+import { NetworkTab } from '@/pages/Networks';
 
 interface SeeAllNetworksButtonProps {
   isFullWidth: boolean;

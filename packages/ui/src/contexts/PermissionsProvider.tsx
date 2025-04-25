@@ -1,18 +1,22 @@
 import {
+  ExtensionRequest,
+  Permissions,
+} from '@core/types';
+import {
+  GetAllPermissionsHandler,
+  permissionsUpdatedEventListener,
+  RevokeAddressPermissionsForDomainHandler,
+} from '@core/service-worker';
+import { toLower } from 'lodash';
+import {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useState,
 } from 'react';
-import { useConnectionContext } from './ConnectionProvider';
-import { ExtensionRequest } from '@core/service-worker';
-import { Permissions } from '@core/service-worker';
-import { permissionsUpdatedEventListener } from '@core/service-worker';
 import { filter, map } from 'rxjs';
-import { GetAllPermissionsHandler } from '@core/service-worker';
-import { RevokeAddressPermissionsForDomainHandler } from '@core/service-worker';
-import { toLower } from 'lodash';
+import { useConnectionContext } from './ConnectionProvider';
 
 const PermissionContext = createContext<{
   permissions: Permissions;

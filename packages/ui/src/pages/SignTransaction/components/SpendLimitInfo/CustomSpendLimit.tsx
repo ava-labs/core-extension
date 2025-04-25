@@ -12,8 +12,8 @@ import {
 } from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { BNInput } from 'packages/ui/src/components/common/BNInput';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { BNInput } from '@/components/common/BNInput';
+import { PageTitle } from '@/components/common/PageTitle';
 import { DomainMetadata } from '@core/service-worker';
 import { Limit, SpendLimit } from './TokenSpendLimit';
 import { ERC20Token } from '@avalabs/vm-module-types';

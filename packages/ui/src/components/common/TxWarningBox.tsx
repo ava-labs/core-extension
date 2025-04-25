@@ -1,6 +1,6 @@
 import { Box } from '@avalabs/core-k2-components';
-import { AlertBox } from 'packages/ui/pages/Permissions/components/AlertBox';
-import { WarningBox } from 'packages/ui/pages/Permissions/components/WarningBox';
+import { AlertBox } from '@/pages/Permissions/components/AlertBox';
+import { WarningBox } from '@/pages/Permissions/components/WarningBox';
 import { useTranslation } from 'react-i18next';
 
 interface TxWarningBoxProps {

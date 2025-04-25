@@ -12,13 +12,13 @@ import {
   Tooltip,
   InfoCircleIcon,
 } from '@avalabs/core-k2-components';
-import { PARASWAP_PARTNER_FEE_BPS } from '@src/contexts/SwapProvider/constants';
+import { PARASWAP_PARTNER_FEE_BPS } from '@/contexts/SwapProvider/constants';
 import {
   formatBasisPointsToPercentage,
   isSlippageValid,
   MIN_SLIPPAGE,
 } from '../utils';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
 
 interface TransactionDetailsProps {

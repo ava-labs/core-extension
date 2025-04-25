@@ -1,11 +1,11 @@
 import { getEvmAddressFromPubKey } from '@avalabs/core-wallets-sdk';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { LedgerAppType, useLedgerContext } from '@/contexts/LedgerProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { useEffect, useState } from 'react';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 
 const useIsIncorrectDevice = () => {
   const [isIncorrectDevice, setIsIncorrectDevice] = useState<boolean>(false);

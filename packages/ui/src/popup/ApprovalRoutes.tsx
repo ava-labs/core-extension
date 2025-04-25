@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Route, Switch, SwitchProps } from 'react-router-dom';
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
-import { SignTxErrorBoundary } from 'packages/ui/pages/SignTransaction/components/SignTxErrorBoundary';
+import { SignTxErrorBoundary } from '@/pages/SignTransaction/components/SignTxErrorBoundary';
 
 const SignMessage = lazy(() => {
   return import('../pages/SignMessage/SignMessage').then((m) => ({

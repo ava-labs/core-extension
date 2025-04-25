@@ -18,7 +18,7 @@ import {
 import { OidcTokenGetter } from '@core/utils';
 import { launchFidoFlow } from '@core/utils';
 import { FIDOApiEndpoint } from '@core/utils';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   AuthErrorCode,
   MfaRequestType,

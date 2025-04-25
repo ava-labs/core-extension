@@ -1,4 +1,4 @@
-import { AccountImportStatus } from '@src/contexts/WalletConnectContextProvider/models';
+import { AccountImportStatus } from '@/contexts/WalletConnectContextProvider/models';
 
 export const getColorForStatus = (status: AccountImportStatus) => {
   switch (status) {

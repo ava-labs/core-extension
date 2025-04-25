@@ -1,4 +1,13 @@
-import { ExtensionRequest } from '@core/service-worker';
+import type { Contact } from '@avalabs/types';
+import { ContactsState, ExtensionRequest } from '@core/types';
+
+import {
+  CreateContactHandler,
+  contactsUpdatedEventListener,
+  GetContactsHandler,
+  RemoveContactHandler,
+  UpdateContactHandler,
+} from '@core/service-worker';
 import {
   createContext,
   useCallback,
@@ -8,13 +17,6 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
-import { ContactsState } from '@core/service-worker';
-import type { Contact } from '@avalabs/types';
-import { contactsUpdatedEventListener } from '@core/service-worker';
-import { GetContactsHandler } from '@core/service-worker';
-import { CreateContactHandler } from '@core/service-worker';
-import { UpdateContactHandler } from '@core/service-worker';
-import { RemoveContactHandler } from '@core/service-worker';
 
 type ContactsFromProvider = ContactsState & {
   createContact(contact: Contact): Promise<any>;

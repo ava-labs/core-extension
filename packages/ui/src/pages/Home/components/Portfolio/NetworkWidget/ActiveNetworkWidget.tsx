@@ -2,10 +2,10 @@ import { Assetlist } from './Assetlist';
 import { NetworkCard } from './common/NetworkCard';
 import { useHistory } from 'react-router-dom';
 import { ZeroWidget } from './ZeroWidget';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { Trans, useTranslation } from 'react-i18next';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import {
   BridgeIcon,
   Button,
@@ -19,15 +19,15 @@ import {
   Badge,
   CheckIcon,
 } from '@avalabs/core-k2-components';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
-import { NetworkLogoK2 } from 'packages/ui/src/components/common/NetworkLogoK2';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { NetworkLogoK2 } from '@/components/common/NetworkLogoK2';
 import { isBitcoin } from '@core/utils';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { usePendingBridgeTransactions } from 'packages/ui/pages/Bridge/hooks/usePendingBridgeTransactions';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { usePendingBridgeTransactions } from '@/pages/Bridge/hooks/usePendingBridgeTransactions';
 import { isBitcoinNetwork } from '@core/service-worker';
 import { isPchainNetwork } from '@core/service-worker';
 import { PchainActiveNetworkWidgetContent } from './PchainActiveNetworkWidgetContent';
-import { PAndL } from 'packages/ui/src/components/common/ProfitAndLoss';
+import { PAndL } from '@/components/common/ProfitAndLoss';
 import { isXchainNetwork } from '@core/service-worker';
 import { XchainActiveNetworkWidgetContent } from './XchainActiveNetworkWidgetContent';
 import { isTokenWithBalancePVM } from '@core/service-worker';

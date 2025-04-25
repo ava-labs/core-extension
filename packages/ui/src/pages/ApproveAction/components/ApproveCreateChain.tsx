@@ -6,8 +6,8 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import { TxDetailsRow } from 'packages/ui/src/components/common/approval/TxDetailsRow';
+} from '@/components/common/approval/ApprovalSection';
+import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 
 import { AvaxAmount } from './AvaxAmount';
 import { TruncatedIdentifier } from './TruncatedIdentifier';

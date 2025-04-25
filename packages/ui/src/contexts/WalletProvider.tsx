@@ -1,32 +1,37 @@
+import { WalletLocked } from '@/pages/Wallet/WalletLocked';
 import {
-  createContext,
-  useContext,
-  useEffect,
-  useCallback,
-  useState,
-  useMemo,
+	AccountType,
+	DAppProviderRequest,
+	ExtensionRequest,
+	SecretType,
+	TxHistoryItem,
+	WalletDetails
+} from '@core/types';
+
+import {
+	AvalancheRenameWalletHandler,
+	GetHistoryHandler,
+	GetLockStateHandler,
+	GetUnencryptedMnemonicHandler,
+	GetWalletDetailsHandler,
+	LockChangePasswordHandler,
+	lockStateChangedEventListener,
+	UnlockWalletHandler,
+	walletStateChangedEventListener,
+} from '@core/service-worker';
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
 } from 'react';
 import { useRouteMatch } from 'react-router-dom';
-import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
-import { WalletDetails } from '@core/service-worker';
-import { WalletLocked } from 'packages/ui/pages/Wallet/WalletLocked';
-import { ExtensionRequest } from '@core/service-worker';
-import { useLedgerContext } from './LedgerProvider';
-import { TxHistoryItem } from '@core/service-worker';
-import { UnlockWalletHandler } from '@core/service-worker';
-import { LockChangePasswordHandler } from '@core/service-worker';
-import { GetUnencryptedMnemonicHandler } from '@core/service-worker';
-import { GetWalletDetailsHandler } from '@core/service-worker';
-import { GetHistoryHandler } from '@core/service-worker';
-import { GetLockStateHandler } from '@core/service-worker';
-import { walletStateChangedEventListener } from '@core/service-worker';
-import { lockStateChangedEventListener } from '@core/service-worker';
 import { useAccountsContext } from './AccountsProvider';
-import { AccountType } from '@core/service-worker';
-import { SecretType } from '@core/service-worker';
-import { AvalancheRenameWalletHandler } from '@core/service-worker';
-import { DAppProviderRequest } from '@core/service-worker';
+import { useConnectionContext } from './ConnectionProvider';
+import { useLedgerContext } from './LedgerProvider';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;

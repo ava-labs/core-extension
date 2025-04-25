@@ -1,5 +1,5 @@
 import type { Contact } from '@avalabs/types';
-import { SimpleAddress } from 'packages/ui/src/components/common/SimpleAddress';
+import { SimpleAddress } from '@/components/common/SimpleAddress';
 import {
   Stack,
   Typography,

@@ -18,9 +18,9 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { NetworkLogo } from 'packages/ui/src/components/common/NetworkLogo';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { NetworkLogo } from '@/components/common/NetworkLogo';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { ipfsResolverWithFallback } from '@core/utils';
 
 import { NetworkListItem } from './NetworkListItem';

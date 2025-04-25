@@ -1,4 +1,4 @@
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 
 import { ChainId } from '@avalabs/core-chains-sdk';

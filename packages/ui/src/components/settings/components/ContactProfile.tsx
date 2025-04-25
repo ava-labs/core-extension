@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { Contact } from '@avalabs/types';
 import { SettingsHeader } from '../SettingsHeader';
-import { useContactIdFromParams } from '@src/hooks/useContactIdFromParams';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { ContactForm } from 'packages/ui/src/components/settings/components/ContactForm';
+import { useContactIdFromParams } from '@/hooks/useContactIdFromParams';
+import { useContactsContext } from '@/contexts/ContactsProvider';
+import { ContactForm } from '@/components/settings/components/ContactForm';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Avatar,
@@ -17,7 +17,7 @@ import {
   Scrollbars,
   CopyIcon,
 } from '@avalabs/core-k2-components';
-import Dialog from 'packages/ui/src/components/common/Dialog';
+import Dialog from '@/components/common/Dialog';
 import { truncateAddress } from '@core/utils';
 
 interface ContactProfileProps {

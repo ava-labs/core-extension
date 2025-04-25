@@ -1,4 +1,4 @@
-import { StyledNumberList } from 'packages/ui/src/components/common/StyledNumberList';
+import { StyledNumberList } from '@/components/common/StyledNumberList';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Divider,

@@ -1,4 +1,4 @@
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
 import {
   AlertCircleIcon,

@@ -1,5 +1,5 @@
 import { Typography } from '@avalabs/core-k2-components';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { truncateAddress } from '@core/utils';
 import { useTranslation } from 'react-i18next';
 import { useBlockchainNames } from '../../useBlockchainNames';

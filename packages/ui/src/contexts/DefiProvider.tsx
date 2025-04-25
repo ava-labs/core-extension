@@ -7,10 +7,11 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 
-import { DefiPortfolio } from '@core/service-worker';
-import { GetDefiPortfolioHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { defiPortfolioUpdatedEventListener } from '@core/service-worker';
+import { DefiPortfolio, ExtensionRequest } from '@core/types';
+import {
+  defiPortfolioUpdatedEventListener,
+  GetDefiPortfolioHandler,
+} from '@core/service-worker';
 
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';

@@ -7,7 +7,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { WarningBox } from 'packages/ui/pages/Permissions/components/WarningBox';
+import { WarningBox } from '@/pages/Permissions/components/WarningBox';
 
 export const MaliciousTokenWarningBox = (props: BoxProps) => {
   const { t } = useTranslation();

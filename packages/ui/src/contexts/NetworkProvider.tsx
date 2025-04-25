@@ -1,3 +1,34 @@
+import { ChainId } from '@avalabs/core-chains-sdk';
+import {
+  Avalanche,
+  BitcoinProvider,
+  JsonRpcBatchInternal,
+} from '@avalabs/core-wallets-sdk';
+import {
+	CustomNetworkPayload,
+  ExtensionRequest,
+  Network,
+  NetworkOverrides,
+  NetworkWithCaipId,
+} from '@core/types';
+
+import {
+	AddFavoriteNetworkHandler,
+  GetNetworksStateHandler,
+  RemoveCustomNetworkHandler,
+  RemoveFavoriteNetworkHandler,
+  SaveCustomNetworkHandler,
+  SetActiveNetworkHandler,
+  SetDevelopermodeNetworkHandler,
+  UpdateDefaultNetworkHandler,
+  isNetworkUpdatedEvent,
+  networksUpdatedEventListener,
+} from '@core/service-worker';
+import {
+  getNetworkCaipId,
+  getProviderForNetwork,
+  updateIfDifferent,
+} from '@core/utils';
 import {
   Dispatch,
   SetStateAction,
@@ -8,35 +39,9 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useConnectionContext } from './ConnectionProvider';
 import { filter, map } from 'rxjs';
-import { ExtensionRequest } from '@core/service-worker';
-import { ChainId } from '@avalabs/core-chains-sdk';
-import { networksUpdatedEventListener } from '@core/service-worker';
 import { useAnalyticsContext } from './AnalyticsProvider';
-import { SetDevelopermodeNetworkHandler } from '@core/service-worker';
-import { GetNetworksStateHandler } from '@core/service-worker';
-import { RemoveCustomNetworkHandler } from '@core/service-worker';
-import { RemoveFavoriteNetworkHandler } from '@core/service-worker';
-import { SaveCustomNetworkHandler } from '@core/service-worker';
-import { AddFavoriteNetworkHandler } from '@core/service-worker';
-import { UpdateDefaultNetworkHandler } from '@core/service-worker';
-import {
-  Avalanche,
-  BitcoinProvider,
-  JsonRpcBatchInternal,
-} from '@avalabs/core-wallets-sdk';
-import {
-  CustomNetworkPayload,
-  Network,
-  NetworkOverrides,
-  NetworkWithCaipId,
-} from '@core/service-worker';
-import { getProviderForNetwork } from '@core/utils';
-import { isNetworkUpdatedEvent } from '@core/service-worker';
-import { SetActiveNetworkHandler } from '@core/service-worker';
-import { updateIfDifferent } from '@core/utils';
-import { getNetworkCaipId } from '@core/utils';
+import { useConnectionContext } from './ConnectionProvider';
 import { networkChanged } from './NetworkProvider/networkChanges';
 
 const NetworkContext = createContext<{

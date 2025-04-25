@@ -1,11 +1,11 @@
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { NetworkCard } from './common/NetworkCard';
 import { getNetworkBalance, tokensWithBalances } from './NetworksWidget';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { NetworkLogo } from 'packages/ui/src/components/common/NetworkLogo';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { NetworkLogo } from '@/components/common/NetworkLogo';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { SeeAllNetworksButton } from './SeeAllNetworksButton';
 import {
   AlertTriangleIcon,
@@ -17,9 +17,9 @@ import {
   Badge,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { useBridgeContext } from '@/contexts/BridgeProvider';
 import { filterBridgeStateToNetwork } from '@core/service-worker';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
 import { caipToChainId } from '@core/utils';
 import { getAddressForChain } from '@core/utils';
 import { NetworkWithCaipId } from '@core/service-worker';

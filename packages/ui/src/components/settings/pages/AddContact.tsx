@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
+import { useContactsContext } from '@/contexts/ContactsProvider';
 import type { Contact } from '@avalabs/types';
 import { ContactForm } from '../components/ContactForm';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import {
   styled,
   toast,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 const FlexScrollbars = styled(Scrollbars)`
   flex-grow: 1;

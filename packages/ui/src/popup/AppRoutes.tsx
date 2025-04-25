@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { CircularProgress } from '@avalabs/core-k2-components';
 
-import { LoadingSendForm } from 'packages/ui/pages/Send/components/LoadingSendForm';
+import { LoadingSendForm } from '@/pages/Send/components/LoadingSendForm';
 
 const AddToken = lazy(() => {
   return import('../pages/ManageTokens/AddToken').then((m) => ({

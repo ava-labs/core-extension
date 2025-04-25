@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
-import { BrandName } from 'packages/ui/src/components/icons/BrandName';
+import { BrandName } from '@/components/icons/BrandName';
 
 interface OnboardingStepHeaderProps {
   testId?: string;

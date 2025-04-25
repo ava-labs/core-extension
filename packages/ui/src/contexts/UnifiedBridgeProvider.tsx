@@ -1,60 +1,63 @@
 import {
-  createContext,
-  useCallback,
-  useState,
-  useEffect,
-  useContext,
-  useMemo,
-} from 'react';
-import {
-  BridgeAsset,
-  BridgeType,
-  Chain,
-  Environment,
-  ErrorCode as UnifiedBridgeErrorCode,
-  TokenType,
-  createUnifiedBridgeService,
-  BridgeTransfer,
-  getEnabledBridgeServices,
-  BridgeServicesMap,
   AnalyzeTxParams,
   AnalyzeTxResult,
-  EvmSigner,
-  BtcSigner,
   BitcoinFunctions,
+  BridgeAsset,
   BridgeInitializer,
+  BridgeServicesMap,
+  BridgeTransfer,
+  BridgeType,
+  BtcSigner,
+  Chain,
+  Environment,
+  EvmSigner,
   GasSettings,
+  TokenType,
+  ErrorCode as UnifiedBridgeErrorCode,
+  createUnifiedBridgeService,
+  getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { filter, map } from 'rxjs';
 
-import { ExtensionRequest } from '@core/service-worker';
 import {
+  ExtensionRequest,
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UnifiedBridgeError,
   UnifiedBridgeState,
-} from '@core/service-worker';
-import { UnifiedBridgeGetState } from '@core/service-worker';
-import { isUnifiedBridgeStateUpdate } from '@core/service-worker';
+	Account,
+	CommonError,
+	Network,
+} from '@core/types';
 
-import { useNetworkContext } from './NetworkProvider';
-import { useConnectionContext } from './ConnectionProvider';
-import { CommonError } from '@core/utils';
-import { useTranslation } from 'react-i18next';
-import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { useAccountsContext } from './AccountsProvider';
-import { UnifiedBridgeTrackTransfer } from '@core/service-worker';
-import { lowerCaseKeys } from '@core/utils';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { isBitcoinCaipId } from '@core/utils';
-import { Account } from '@core/service-worker';
-import { getEnabledBridgeTypes } from '@core/utils';
 import {
-  SupportedProvider,
+	UnifiedBridgeGetState,
+	isUnifiedBridgeStateUpdate,
+  BridgeGetStateHandler,
+  UnifiedBridgeTrackTransfer,
+  isBridgeStateUpdateEventListener,
+} from '@core/service-worker';
+import {
+	assert,
+	SupportedProvider,
+  getEnabledBridgeTypes,
   getProviderForNetwork,
+  isBitcoinCaipId,
+  lowerCaseKeys,
 } from '@core/utils';
-import { assert } from '@core/utils';
-import { BridgeGetStateHandler } from '@core/service-worker';
-import { isBridgeStateUpdateEventListener } from '@core/service-worker';
+import { useTranslation } from 'react-i18next';
+import { useAccountsContext } from './AccountsProvider';
+import { useConnectionContext } from './ConnectionProvider';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { useNetworkContext } from './NetworkProvider';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -127,7 +130,7 @@ const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
 export function UnifiedBridgeProvider({
   children,
 }: {
-  children: React.ReactChild;
+  children: React.ReactNode;
 }) {
   const { t } = useTranslation();
   const {

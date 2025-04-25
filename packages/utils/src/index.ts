@@ -21,6 +21,8 @@ export * from './getNftMetadata';
 export * from './constants';
 export * from './getAddressForChain';
 export * from './bridgeTransactionUtils';
+export * from './nfts/getSmallImageForNFT';
+export * from './nfts/metadataParser';
 export * from './canSkipApproval';
 export * from './onPageActivated';
 export * from './caipConversion';

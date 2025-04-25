@@ -1,6 +1,6 @@
 import { Tooltip, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { TxDetailsRow } from 'packages/ui/src/components/common/approval/TxDetailsRow';
+import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
 
 export function ApproveNftDetails({

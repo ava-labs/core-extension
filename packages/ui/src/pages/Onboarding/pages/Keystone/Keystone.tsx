@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import {
   Stack,
@@ -11,17 +11,17 @@ import {
   styled,
 } from '@avalabs/core-k2-components';
 import { PageNav } from '../../components/PageNav';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import {
   KeystoneQRCodeScanner,
   KEYSTONE_CONNECT_SUPPORT_URL,
 } from './KeystoneQRCodeScanner';
 import { AddressType } from '../Ledger/LedgerConnect';
 import { getAddressFromXPub } from '@avalabs/core-wallets-sdk';
-import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
+import { useGetAvaxBalance } from '@/hooks/useGetAvaxBalance';
 import { DerivedAddresses } from '../../components/DerivedAddresses';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { FeatureGates } from '@core/service-worker';
 import {
   ONBOARDING_EVENT_NAMES,
@@ -29,7 +29,7 @@ import {
   OnboardingURLs,
 } from '@core/service-worker';
 import { useHistory } from 'react-router-dom';
-import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 import { WalletType } from '@avalabs/types';
 
 const KeystoneStepImage = styled(Stack)`

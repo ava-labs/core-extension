@@ -4,11 +4,11 @@ import {
   Typography,
   Divider,
 } from '@avalabs/core-k2-components';
-import { CollectibleListEmpty } from 'packages/ui/pages/Collectibles/components/CollectibleListEmpty';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { CollectibleMedia } from 'packages/ui/pages/Collectibles/components/CollectibleMedia';
+import { CollectibleListEmpty } from '@/pages/Collectibles/components/CollectibleListEmpty';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { useNfts } from '@src/hooks/useNfts';
+import { useNfts } from '@/hooks/useNfts';
 
 type ManageTokensListProps = {
   searchQuery: string;

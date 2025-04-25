@@ -9,9 +9,9 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { openExtensionNewWindow } from '@core/utils';
-import { useSeedlessAuthPromptState } from '@src/hooks/useSeedlessAuthPromptState';
+import { useSeedlessAuthPromptState } from '@/hooks/useSeedlessAuthPromptState';
 import { SecretType } from '@core/service-worker';
 
 export const SeedlessAuthPrompt = () => {

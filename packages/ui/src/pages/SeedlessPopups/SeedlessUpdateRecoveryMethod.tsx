@@ -10,17 +10,17 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { SecretType } from '@core/service-worker';
-import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { AddFidoDeviceHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
 import { KeyType } from '@core/utils';
-import { useQueryParams } from '@src/hooks/useQueryParams';
-import { AuthenticatorDetails } from 'packages/ui/src/components/settings/pages/RecoveryMethods/AuthenticatorDetails';
+import { useQueryParams } from '@/hooks/useQueryParams';
+import { AuthenticatorDetails } from '@/components/settings/pages/RecoveryMethods/AuthenticatorDetails';
 
 enum State {
   Loading = 'loading',

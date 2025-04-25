@@ -7,8 +7,8 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 type NameYourWalletProps = {
   isImporting: boolean;

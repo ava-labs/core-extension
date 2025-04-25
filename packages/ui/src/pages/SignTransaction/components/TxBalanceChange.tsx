@@ -9,7 +9,7 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
+} from '@/components/common/approval/ApprovalSection';
 import {
   TransactionTokenCard,
   TransactionTokenCardVariant,

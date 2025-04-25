@@ -12,12 +12,12 @@ import {
   AllKeyFileTypes,
   KeystoreFileContentInfo,
 } from '@core/utils';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useJsonFileReader } from './useJsonFileReader';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 
 export const useKeystoreFileImport = () => {
   const { capture } = useAnalyticsContext();

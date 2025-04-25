@@ -8,18 +8,18 @@ import {
   Scrollbars,
   Link,
 } from '@avalabs/core-k2-components';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { Trans, useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router-dom';
 import { FireblocksAvatar } from './components/FireblocksAvatar';
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useCallback, useState } from 'react';
-import { TextFieldLabel } from 'packages/ui/src/components/common/TextFieldLabel';
-import { LoadingOverlay } from 'packages/ui/src/components/common/LoadingOverlay';
+import { TextFieldLabel } from '@/components/common/TextFieldLabel';
+import { LoadingOverlay } from '@/components/common/LoadingOverlay';
 import { FireblocksUpdateApiCredentialsHandler } from '@core/service-worker';
 import { useFireblocksErrorMessage } from './hooks/useFireblocksErrorMessage';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 export default function ConnectBitcoinWallet() {
   const history = useHistory();

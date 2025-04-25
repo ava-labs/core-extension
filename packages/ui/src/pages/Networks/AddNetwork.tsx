@@ -14,10 +14,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 import { NetworkForm, NetworkFormAction } from './NetworkForm';
 import { NetworkTab } from './Networks';

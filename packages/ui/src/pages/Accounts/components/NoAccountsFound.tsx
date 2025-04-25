@@ -6,7 +6,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { useGoBack } from '@src/hooks/useGoBack';
+import { useGoBack } from '@/hooks/useGoBack';
 
 export enum Origin {
   Search,

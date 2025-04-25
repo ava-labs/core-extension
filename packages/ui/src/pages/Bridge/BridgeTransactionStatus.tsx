@@ -1,18 +1,18 @@
 import { Blockchain, usePrice, useBridgeSDK } from '@avalabs/core-bridge-sdk';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useHistory, useParams } from 'react-router-dom';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { useEffect, useMemo, useState } from 'react';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useBridgeContext } from '@/contexts/BridgeProvider';
 import { VsCurrencyType } from '@avalabs/core-coingecko-sdk';
 import { ElapsedTimer } from './components/ElapsedTimer';
-import { useIsMainnet } from '@src/hooks/useIsMainnet';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useIsMainnet } from '@/hooks/useIsMainnet';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { getExplorerAddress } from '@core/utils';
 import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
 import { useTranslation } from 'react-i18next';
-import { useCoinGeckoId } from '@src/hooks/useCoinGeckoId';
+import { useCoinGeckoId } from '@/hooks/useCoinGeckoId';
 import {
   Button,
   Stack,
@@ -30,10 +30,10 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import Dialog from 'packages/ui/src/components/common/Dialog';
-import { NetworkLogo } from 'packages/ui/src/components/common/NetworkLogo';
-import { ConfirmationTracker } from 'packages/ui/src/components/common/ConfirmationTracker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import Dialog from '@/components/common/Dialog';
+import { NetworkLogo } from '@/components/common/NetworkLogo';
+import { ConfirmationTracker } from '@/components/common/ConfirmationTracker';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 import { blockchainToNetwork } from './utils/blockchainConversion';
 import { getNativeTokenSymbol } from './utils/getNativeTokenSymbol';
@@ -47,7 +47,7 @@ import { useBridgeTransferStatus } from './hooks/useBridgeTransferStatus';
 import { BridgeCard } from './components/BridgeCard';
 import { OffloadTimerTooltip } from './components/OffloadTimerTooltip';
 import { usePendingBridgeTransactions } from './hooks/usePendingBridgeTransactions';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 const BridgeTransactionStatus = () => {

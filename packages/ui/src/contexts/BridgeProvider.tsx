@@ -1,43 +1,45 @@
 import {
-  Asset,
-  BitcoinConfigAsset,
-  Blockchain,
-  BridgeSDKProvider,
-  Environment,
-  estimateGas as sdkEstimateGas,
-  setBridgeEnvironment,
-  transferAssetEVM,
-  useBridgeSDK,
-  WrapStatus,
+	Asset,
+	BitcoinConfigAsset,
+	Blockchain,
+	BridgeSDKProvider,
+	Environment,
+	estimateGas as sdkEstimateGas,
+	setBridgeEnvironment,
+	transferAssetEVM,
+	useBridgeSDK,
+	WrapStatus,
 } from '@avalabs/core-bridge-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { ExtensionRequest } from '@core/service-worker';
-import { isBridgeStateUpdateEventListener } from '@core/service-worker';
-import { BridgeCreateTransactionHandler } from '@core/service-worker';
-import { BridgeGetStateHandler } from '@core/service-worker';
-import { BridgeRemoveTransactionHandler } from '@core/service-worker';
-import { BridgeSetIsDevEnvHandler } from '@core/service-worker';
+import { RpcMethod } from '@avalabs/vm-module-types';
 import {
-  BridgeState,
-  DefaultBridgeState,
-  PartialBridgeTransaction,
+	BridgeState,
+	DefaultBridgeState,
+	ExtensionRequest,
+	PartialBridgeTransaction,
+} from '@core/types';
+import {
+	BridgeCreateTransactionHandler,
+	BridgeGetStateHandler,
+	BridgeRemoveTransactionHandler,
+	BridgeSetIsDevEnvHandler,
+	filterBridgeStateToNetwork,
+	isBridgeStateUpdateEventListener,
 } from '@core/service-worker';
-import { filterBridgeStateToNetwork } from '@core/service-worker';
 import Big from 'big.js';
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { filter, map } from 'rxjs';
+import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { useAccountsContext } from './AccountsProvider';
-import { toBeHex, type ContractTransaction } from 'ethers';
-import { useTranslation } from 'react-i18next';
-import { RpcMethod } from '@avalabs/vm-module-types';
+import { type ContractTransaction, toBeHex } from 'ethers';
 
 export interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;

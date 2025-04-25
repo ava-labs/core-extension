@@ -6,7 +6,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { isNftTokenType } from '@core/service-worker';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import { useTranslation } from 'react-i18next';
 import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';

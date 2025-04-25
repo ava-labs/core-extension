@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/core-k2-components';
 
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
 
 import { NetworkSelector } from './NetworkSelector';
 

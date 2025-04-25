@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { GetTokensListHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
 import { merge } from 'lodash';

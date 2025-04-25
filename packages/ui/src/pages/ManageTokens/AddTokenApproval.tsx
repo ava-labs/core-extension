@@ -1,8 +1,8 @@
 import { ActionStatus } from '@core/service-worker';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -12,7 +12,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { Scrollbars } from 'packages/ui/src/components/common/scrollbars/Scrollbars';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { AddCustomTokenData } from '@core/service-worker';
 
 export function AddTokenApproval() {

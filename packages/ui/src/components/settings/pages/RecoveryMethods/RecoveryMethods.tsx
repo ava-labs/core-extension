@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Stack, Button, PlusIcon, Skeleton } from '@avalabs/core-k2-components';
 import browser from 'webextension-polyfill';
 
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 import {
   RecoveryMethodFido,
   RecoveryMethodType,
 } from '@core/service-worker';
 import { KeyType } from '@core/utils';
-import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
+import { ContextContainer } from '@/hooks/useIsSpecificContextContainer';
 
 import { SettingsHeader } from '../../SettingsHeader';
 import { SettingsPageProps } from '../../models';

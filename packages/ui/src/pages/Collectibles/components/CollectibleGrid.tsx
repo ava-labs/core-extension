@@ -1,9 +1,9 @@
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { CollectibleMedia } from './CollectibleMedia';
 import { CollectibleWrapper } from './CollectibleWrapper';
 import { Button } from '@avalabs/core-k2-components';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { useNfts } from '@src/hooks/useNfts';
+import { useNfts } from '@/hooks/useNfts';
 
 export function CollectibleGrid({
   onClick,

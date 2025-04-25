@@ -9,9 +9,9 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 
 enum State {
   Loading = 'loading',

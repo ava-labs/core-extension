@@ -15,7 +15,7 @@ import { Legal } from './pages/Legal';
 import { Advanced } from './pages/Advanced';
 import { Language } from './pages/Language';
 import { Feedback } from './pages/Feedback';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import {
   Badge,
   Drawer,
@@ -28,9 +28,9 @@ import { ExportRecoveryPhrase } from './pages/ExportRecoveryPhrase';
 import {
   ExportState,
   useSeedlessMnemonicExport,
-} from '@src/hooks/useSeedlessMnemonicExport';
+} from '@/hooks/useSeedlessMnemonicExport';
 import { RecoveryMethods } from './pages/RecoveryMethods/RecoveryMethods';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 
 const AnimatedContainer = styled(Stack)`
   height: 100%;

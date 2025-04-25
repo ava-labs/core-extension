@@ -26,13 +26,13 @@ import {
 
 import { AccountType } from '@core/service-worker';
 import { FeatureGates } from '@core/service-worker';
-import { useScopedToast } from '@src/hooks/useScopedToast';
+import { useScopedToast } from '@/hooks/useScopedToast';
 import { isPrimaryAccount } from '@core/service-worker';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { stripAddressPrefix } from '@core/utils';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 
 import { useAccountManager } from './providers/AccountManagerProvider';
 import { OverflowingTypography } from './components/OverflowingTypography';

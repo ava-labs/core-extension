@@ -1,21 +1,21 @@
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useSwapContext } from '@/contexts/SwapProvider/SwapProvider';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { useEffect, useMemo, useState } from 'react';
 import { resolve } from '@core/utils';
 import { TransactionDetails } from './components/TransactionDetails';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { ParaswapNotice } from './components/ParaswapNotice';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { FunctionIsUnavailable } from 'packages/ui/src/components/common/FunctionIsUnavailable';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+} from '@/hooks/useIsFunctionAvailable';
+import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import { useTranslation } from 'react-i18next';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwapError } from './components/SwapError';
@@ -35,13 +35,13 @@ import {
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@core/common/src/monitoring/sentryCaptureException';
-import { TokenSelect } from 'packages/ui/src/components/common/TokenSelect';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { TokenSelect } from '@/components/common/TokenSelect';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { isBitcoinNetwork } from '@core/service-worker';
 import { isUserRejectionError } from '@core/utils';
-import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { DISALLOWED_SWAP_ASSETS } from '@/contexts/SwapProvider/models';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { SwappableToken } from './models';
 
 const ReviewOrderButtonContainer = styled('div')<{

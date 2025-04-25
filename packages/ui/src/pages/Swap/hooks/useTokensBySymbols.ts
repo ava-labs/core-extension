@@ -3,10 +3,10 @@ import {
   TokenType,
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
-import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { DISALLOWED_SWAP_ASSETS } from '@/contexts/SwapProvider/models';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 
 type RequestedTokens = {
   // Provide `true` for native tokens and the address for ERC-*

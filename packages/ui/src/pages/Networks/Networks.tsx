@@ -12,9 +12,9 @@ import {
   styled,
 } from '@avalabs/core-k2-components';
 
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { usePersistedTabs } from '@/hooks/usePersistedTabs';
 
 import { CustomsTab } from './CustomsTab';
 import { FavoritesTab } from './FavoritesTab';

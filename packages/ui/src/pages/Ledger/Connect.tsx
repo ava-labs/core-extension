@@ -8,9 +8,9 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { StyledNumberList } from 'packages/ui/src/components/common/StyledNumberList';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { ConnectionIndicatorK2 } from 'packages/ui/src/components/common/ConnectionIndicatorK2';
+import { StyledNumberList } from '@/components/common/StyledNumberList';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
+import { ConnectionIndicatorK2 } from '@/components/common/ConnectionIndicatorK2';
 
 import { useAppTypeFromParams } from './hooks/useAppTypeFromParams';
 

@@ -3,8 +3,8 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import { TxDetailsRow } from 'packages/ui/src/components/common/approval/TxDetailsRow';
+} from '@/components/common/approval/ApprovalSection';
+import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 import { TruncatedIdentifier } from './TruncatedIdentifier';
 import { AvaxAmount } from './AvaxAmount';
 import { Avalanche } from '@avalabs/core-wallets-sdk';

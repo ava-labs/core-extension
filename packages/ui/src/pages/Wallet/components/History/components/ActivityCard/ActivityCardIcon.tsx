@@ -12,7 +12,7 @@ import {
 import { TransactionType } from '@avalabs/vm-module-types';
 import { isNftTokenType } from '@core/service-worker';
 import { TxHistoryItem } from '@core/service-worker';
-import { CollectibleMedia } from 'packages/ui/pages/Collectibles/components/CollectibleMedia';
+import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

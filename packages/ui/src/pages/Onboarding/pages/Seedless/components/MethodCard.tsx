@@ -7,7 +7,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { ReactElement } from 'react';
-import { InlineBold } from 'packages/ui/src/components/common/InlineBold';
+import { InlineBold } from '@/components/common/InlineBold';
 
 interface MethodCardProps {
   icon: ReactElement;

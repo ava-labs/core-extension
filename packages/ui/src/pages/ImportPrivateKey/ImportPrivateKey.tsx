@@ -13,12 +13,12 @@ import {
   getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
 import { Account } from '@core/service-worker';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
 import { networks } from 'bitcoinjs-lib';
 import { t } from 'i18next';
 import { KeyboardEvent, useCallback, useEffect, useState } from 'react';
@@ -26,8 +26,8 @@ import { useHistory } from 'react-router-dom';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
 import { utils } from '@avalabs/avalanchejs';
 import { usePrivateKeyImport } from '../Accounts/hooks/usePrivateKeyImport';
-import { useScopedToast } from '@src/hooks/useScopedToast';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useScopedToast } from '@/hooks/useScopedToast';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { DuplicatedAccountDialog } from './components/DuplicatedAccountDialog';
 
 type DerivedAddresses = {

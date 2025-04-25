@@ -1,6 +1,6 @@
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { DeFi } from 'packages/ui/pages/DeFi/DeFi';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { DeFi } from '@/pages/DeFi/DeFi';
 import { Collectibles } from '../../../Collectibles/Collectibles';
 import { NetworksWidget } from './NetworkWidget/NetworksWidget';
 import { WalletBalances } from './WalletBalances';
@@ -16,11 +16,11 @@ import {
   styled,
 } from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useIsFunctionAvailable } from '@src/hooks/useIsFunctionAvailable';
+import { useIsFunctionAvailable } from '@/hooks/useIsFunctionAvailable';
 import { Redirect } from 'react-router-dom';
-import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { FAB } from 'packages/ui/src/components/common/fab/FAB';
+import { usePersistedTabs } from '@/hooks/usePersistedTabs';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { FAB } from '@/components/common/fab/FAB';
 import { FeatureGates } from '@core/service-worker';
 
 export enum PortfolioTabs {

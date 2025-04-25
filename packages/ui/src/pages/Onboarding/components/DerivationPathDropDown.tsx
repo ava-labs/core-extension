@@ -6,7 +6,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { Dropdown, DropdownItem } from 'packages/ui/src/components/common/Dropdown';
+import { Dropdown, DropdownItem } from '@/components/common/Dropdown';
 
 interface DerivationPathDropdownProps {
   onPathSelected: (path: DerivationPath) => void;

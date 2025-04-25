@@ -4,17 +4,17 @@ import { ShowPrivateKey } from './ShowPrivateKey';
 import { Stack, useTheme } from '@avalabs/core-k2-components';
 import { GetPrivateKeyHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useLocation } from 'react-router-dom';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import {
   AccountType,
   GetPrivateKeyErrorTypes,
   PrivateKeyChain,
 } from '@core/service-worker';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { useTranslation } from 'react-i18next';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { SecretType } from '@core/service-worker';
 
 export function ExportPrivateKey() {

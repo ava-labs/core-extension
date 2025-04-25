@@ -1,20 +1,20 @@
 import { useMemo } from 'react';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
 import { TokenListItem } from './TokenListItem';
 import { WalletIsEmpty } from './WalletIsEmpty';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
+} from '@/hooks/useIsFunctionAvailable';
 import { useTranslation } from 'react-i18next';
 import { AutoSizer } from 'react-virtualized';
-import VirtualizedList from 'packages/ui/src/components/common/VirtualizedList';
+import VirtualizedList from '@/components/common/VirtualizedList';
 import { Button, Stack, styled } from '@avalabs/core-k2-components';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import { normalizeBalance } from '@core/utils';
 import Big from 'big.js';
 import { TokenType } from '@avalabs/vm-module-types';

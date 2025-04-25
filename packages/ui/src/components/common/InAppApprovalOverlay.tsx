@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Fade, Stack, useTheme } from '@avalabs/core-k2-components';
 
-import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
-import { ApprovalRoutes } from '@src/popup/ApprovalRoutes';
+import { useApprovalsContext } from '@/contexts/ApprovalsProvider';
+import { ApprovalRoutes } from '@/popup/ApprovalRoutes';
 
 import { Overlay } from './Overlay';
 import { TestnetBanner } from './TestnetBanner';

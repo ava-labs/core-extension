@@ -10,10 +10,10 @@ import {
 import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
 
-import { TokenSelect } from 'packages/ui/src/components/common/TokenSelect';
+import { TokenSelect } from '@/components/common/TokenSelect';
 import { SendErrorMessage } from '@core/types';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
 
 import { ContactInput } from './ContactInput';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';

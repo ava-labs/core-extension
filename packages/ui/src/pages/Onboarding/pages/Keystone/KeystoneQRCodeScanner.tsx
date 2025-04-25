@@ -14,11 +14,11 @@ import {
   useTheme,
   XIcon,
 } from '@avalabs/core-k2-components';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { Overlay } from '@/components/common/Overlay';
 import { useTranslation } from 'react-i18next';
 import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
-import { useKeystoneScannerContents } from '@src/hooks/useKeystoneScannerContents';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useKeystoneScannerContents } from '@/hooks/useKeystoneScannerContents';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 export const KEYSTONE_CONNECT_SUPPORT_URL =
   'https://support.keyst.one/getting-started/new-how-to-sync-keystone-with-compatible-software-wallets';

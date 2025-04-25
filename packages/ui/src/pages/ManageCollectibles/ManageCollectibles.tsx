@@ -1,8 +1,8 @@
 import { SearchBar, Stack } from '@avalabs/core-k2-components';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { Scrollbars } from 'packages/ui/src/components/common/scrollbars/Scrollbars';
+import { PageTitle } from '@/components/common/PageTitle';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { ManageCollectiblesList } from './ManageCollectiblesList';
 
 export const ManageCollectibles = () => {

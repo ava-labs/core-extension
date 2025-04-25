@@ -4,10 +4,10 @@ import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
 } from '@core/service-worker';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
-import { useSeedlessActions } from 'packages/ui/pages/Onboarding/hooks/useSeedlessActions';
+import { useSeedlessActions } from '@/pages/Onboarding/hooks/useSeedlessActions';
 import { SeedlessAuthProvider } from '@core/service-worker';
 import { authenticateWithGoogle } from '@core/utils';
 

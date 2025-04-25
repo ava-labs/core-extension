@@ -12,10 +12,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { ContactAddress } from './ContactAddress';
 import { isPchainNetwork } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { isXchainNetwork } from '@core/service-worker';
 
-import SolanaLogo from '@src/images/logos/solana.png';
+import SolanaLogo from '@/images/logos/solana.png';
 
 type AddressDropdownListItemProps = {
   contact: Contact;

@@ -1,4 +1,4 @@
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useCallback } from 'react';
 
 export function useSendAnalyticsData() {

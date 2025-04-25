@@ -3,16 +3,16 @@ import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
-} from '@src/contexts/LedgerProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+} from '@/contexts/LedgerProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LedgerWrongVersionContent } from 'packages/ui/pages/Ledger/LedgerWrongVersion';
+import { LedgerWrongVersionContent } from '@/pages/Ledger/LedgerWrongVersion';
 import { isLedgerVersionCompatible } from '@core/utils';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { useDialog } from '@src/contexts/DialogContextProvider';
-import { LedgerDisconnected } from 'packages/ui/pages/Ledger/LedgerDisconnected';
-import { LedgerIncorrectApp } from 'packages/ui/pages/Ledger/LedgerIncorrectApp';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import { useDialog } from '@/contexts/DialogContextProvider';
+import { LedgerDisconnected } from '@/pages/Ledger/LedgerDisconnected';
+import { LedgerIncorrectApp } from '@/pages/Ledger/LedgerIncorrectApp';
 import { isEthereumNetwork } from '@core/service-worker';
 
 export function useLedgerDisconnectedDialog(

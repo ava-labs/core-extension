@@ -1,7 +1,7 @@
-import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useApproveAction } from '@/hooks/useApproveAction';
 import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { ContactInfo } from 'packages/ui/src/components/settings/components/ContactInfo';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import { ContactInfo } from '@/components/settings/components/ContactInfo';
 import { Contact } from '@avalabs/types';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -12,7 +12,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
 
 export function UpdateContacts({
   method,

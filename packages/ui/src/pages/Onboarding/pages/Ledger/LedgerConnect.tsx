@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import { LedgerWrongVersionOverlay } from '../../../Ledger/LedgerWrongVersionOverlay';
 import {
@@ -23,7 +23,7 @@ import { useHistory } from 'react-router-dom';
 import {
   LedgerConnector,
   LedgerConnectorData,
-} from 'packages/ui/src/components/ledger/LedgerConnector';
+} from '@/components/ledger/LedgerConnector';
 import { WalletType } from '@avalabs/types';
 
 export interface AddressType {

@@ -1,9 +1,9 @@
 import { CollectibleMedia } from './CollectibleMedia';
 import { Stack } from '@avalabs/core-k2-components';
-import { TokenCard } from 'packages/ui/src/components/common/TokenCard';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { TokenCard } from '@/components/common/TokenCard';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
-import { useNfts } from '@src/hooks/useNfts';
+import { useNfts } from '@/hooks/useNfts';
 
 export function CollectibleList({
   onClick,

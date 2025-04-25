@@ -1,10 +1,10 @@
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { SettingsPageProps, SettingsPages } from '../models';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { BrandName } from 'packages/ui/src/components/icons/BrandName';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { BrandName } from '@/components/icons/BrandName';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@src/hooks/useLanguages';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useLanguage } from '@/hooks/useLanguages';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { getCoreWebUrl } from '@core/utils';
 import {
   Button,
@@ -31,8 +31,8 @@ import {
   Box,
 } from '@avalabs/core-k2-components';
 import browser from 'webextension-polyfill';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 
 export function MainPage({
   navigateTo,

@@ -10,19 +10,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NetworkWithCaipId } from '@core/service-worker';
 import { NetworkFee } from '@core/service-worker';
 
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import {
   CustomFees,
   CustomGasFeesProps,
   GasFeeModifier,
-} from 'packages/ui/src/components/common/CustomFees';
+} from '@/components/common/CustomFees';
 import { SendErrorMessage } from '@core/types';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { UpdateActionTxDataHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import {
   Action,
   MultiTxAction,

@@ -15,16 +15,16 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { openNewTab } from '@core/utils';
-import { useDefiContext } from '@src/contexts/DefiProvider';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
+import { useDefiContext } from '@/contexts/DefiProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
 
 import { DefiErrorState } from './components/DefiErrorState';
 import { DefiPortfolioItemGroup } from './components/DefiPortfolioItemGroup';
 import { DefiProtocolDetailsHeader } from './components/DefiProtocolDetailsHeader';
 import { FeatureGates } from '@core/service-worker';
-import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 
 export function DefiProtocolDetails() {
   const { protocolId } = useParams<{ protocolId: string }>();

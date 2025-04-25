@@ -6,24 +6,25 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { concat, filter, from, map } from 'rxjs';
-import { ExtensionRequest } from '@core/service-worker';
-import { accountsUpdatedEventListener } from '@core/service-worker';
 import {
   Accounts,
   ImportData,
   Account,
+  ExtensionRequest,
+  DAppProviderRequest,
+} from '@core/types';
+import {
+  AddAccountHandler,
+  GetAccountsHandler,
+  SelectAccountHandler,
+  accountsUpdatedEventListener,
+  AvalancheRenameAccountHandler,
+  AvalancheDeleteAccountsHandler,
 } from '@core/service-worker';
-import { GetAccountsHandler } from '@core/service-worker';
-import { SelectAccountHandler } from '@core/service-worker';
-import { AvalancheRenameAccountHandler } from '@core/service-worker';
-import { AddAccountHandler } from '@core/service-worker';
-import getAllAddressesForAccount from '@core/utils';
-import { DAppProviderRequest } from '@core/service-worker';
-import { AvalancheDeleteAccountsHandler } from '@core/service-worker';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType } from '@core/utils';
+import { getAddressByVMType, getAllAddressesForAccount } from '@core/utils';
 
 const AccountsContext = createContext<{
   accounts: Accounts;

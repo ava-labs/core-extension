@@ -1,10 +1,10 @@
 import { Stack, Tooltip, Typography } from '@avalabs/core-k2-components';
 import { isNftTokenType } from '@core/service-worker';
 import { TxHistoryItem } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { ActivityCardProp } from './ActivityCard';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { TruncateFeeAmount } from 'packages/ui/src/components/common/TruncateFeeAmount';
+import { TruncateFeeAmount } from '@/components/common/TruncateFeeAmount';
 
 export function ActivityCardAmount({ historyItem }: ActivityCardProp) {
   const {

@@ -1,6 +1,6 @@
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { useBridgeContext } from '@/contexts/BridgeProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
 import { caipToChainId } from '@core/utils';
 import { useMemo } from 'react';
 

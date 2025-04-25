@@ -7,10 +7,10 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { DropdownItem, Dropdown } from 'packages/ui/src/components/common/Dropdown';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
+import { DropdownItem, Dropdown } from '@/components/common/Dropdown';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
 import { truncateAddress } from '@core/utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { getAddressByVMType } from '@core/utils';

@@ -1,4 +1,4 @@
-import { LedgerNano } from 'packages/ui/src/components/common/LedgerNano';
+import { LedgerNano } from '@/components/common/LedgerNano';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,

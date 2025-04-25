@@ -6,20 +6,20 @@ import {
   SigningRequest,
 } from '@avalabs/vm-module-types';
 
-import { AlertBox } from 'packages/ui/pages/Permissions/components/AlertBox';
-import { WarningBox } from 'packages/ui/pages/Permissions/components/WarningBox';
-import { NetworkDetails } from 'packages/ui/pages/SignTransaction/components/ApprovalTxDetails';
-import { SpendLimitInfo } from 'packages/ui/pages/SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
-import { TxBalanceChange } from 'packages/ui/pages/SignTransaction/components/TxBalanceChange';
+import { AlertBox } from '@/pages/Permissions/components/AlertBox';
+import { WarningBox } from '@/pages/Permissions/components/WarningBox';
+import { NetworkDetails } from '@/pages/SignTransaction/components/ApprovalTxDetails';
+import { SpendLimitInfo } from '@/pages/SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
+import { TxBalanceChange } from '@/pages/SignTransaction/components/TxBalanceChange';
 import { NetworkWithCaipId } from '@core/service-worker';
-import { FlexScrollbars } from 'packages/ui/src/components/common/FlexScrollbars';
-import { MaliciousTxAlert } from 'packages/ui/src/components/common/MaliciousTxAlert';
+import { FlexScrollbars } from '@/components/common/FlexScrollbars';
+import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import { TransactionDetailItem } from 'packages/ui/src/components/common/approval/TransactionDetailItem';
+} from '@/components/common/approval/ApprovalSection';
+import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
 import { useFeeCustomizer } from '../hooks/useFeeCustomizer';
 import { MultiTxAction } from '@core/service-worker';
 import { EnsureDefined } from '@core/service-worker';

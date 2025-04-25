@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Button, Scrollbars, Stack } from '@avalabs/core-k2-components';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { ActionStatus } from '@core/service-worker';
 
@@ -12,31 +12,31 @@ import { ImportTxView } from './components/ApproveImportTx';
 import { ExportTxView } from './components/ApproveExportTx';
 import { AddValidator } from './components/ApproveAddValidator';
 import { AddDelegator } from './components/ApproveAddDelegator';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useNativeTokenPrice } from '@/hooks/useTokenPrice';
 import { BaseTxView } from './components/ApproveBaseTx';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { LedgerAppType } from '@/contexts/LedgerProvider';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 import { ApproveCreateSubnet } from './components/ApproveCreateSubnet';
 import { ApproveCreateChain } from './components/ApproveCreateChain';
 import { AddSubnetValidatorView } from './components/ApproveAddSubnetValidator';
 import { AvalancheTxHeader } from './components/AvalancheTxHeader';
 import { ExcessiveBurnWarningDialog } from './components/ExcessiveBurnWarningDialog';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+import useIsUsingWalletConnectAccount from '@/hooks/useIsUsingWalletConnectAccount';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
-import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
-import { AddPermissionlessValidator } from 'packages/ui/pages/ApproveAction/components/ApproveAddPermissionlessValidator';
-import { AddPermissionlessDelegator } from 'packages/ui/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
-import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { useApprovalHelpers } from '@/hooks/useApprovalHelpers';
+import { AddPermissionlessValidator } from '@/pages/ApproveAction/components/ApproveAddPermissionlessValidator';
+import { AddPermissionlessDelegator } from '@/pages/ApproveAction/components/ApproveAddPermissionlessDelegator';
+import useIsUsingFireblocksAccount from '@/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 import { RemoveSubnetValidatorView } from './components/ApproveRemoveSubnetValidator';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
+} from '@/hooks/useIsFunctionAvailable';
 import { ApproveConvertSubnetToL1 } from './components/ApproveConvertSubnetToL1';
 import { ApproveRegisterL1Validator } from './components/ApproveRegisterL1Validator';
 import { ApproveIncreaseL1ValidatorBalance } from './components/ApproveIncreaseL1ValidatorBalance';

@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useAppDimensions } from '@src/hooks/useAppDimensions';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { useAppDimensions } from '@/hooks/useAppDimensions';
 import { useEffect, useRef, useState } from 'react';
 import { ResetExtensionStateHandler } from '@core/service-worker';
 import { Trans, useTranslation } from 'react-i18next';
@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from '@avalabs/core-k2-components';
-import { BrandName } from 'packages/ui/src/components/icons/BrandName';
+import { BrandName } from '@/components/icons/BrandName';
 
 export function WalletLocked({
   unlockWallet,

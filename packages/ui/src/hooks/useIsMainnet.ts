@@ -1,4 +1,4 @@
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 export const useIsMainnet = () => {
   const { network } = useNetworkContext();

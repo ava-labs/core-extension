@@ -2,7 +2,7 @@ import {
   LanguageLinks,
   Languages,
 } from '@core/service-worker';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useTranslation } from 'react-i18next';
 
 export function useLanguage() {

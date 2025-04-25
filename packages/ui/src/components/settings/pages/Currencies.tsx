@@ -10,11 +10,11 @@ import {
 } from '@avalabs/core-k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { CURRENCIES } from '@core/service-worker';
 import { TFunction, useTranslation } from 'react-i18next';
 import { StyledListButton } from '../components/StyledListItemButton';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 // TODO: bring back the commented currencies when the glacier supports them
 export const getCurrencyNames = (t: TFunction<'translation'>) => {

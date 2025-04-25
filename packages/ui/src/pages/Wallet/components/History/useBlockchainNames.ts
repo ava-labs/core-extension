@@ -3,7 +3,7 @@ import { BridgeTransfer } from '@avalabs/bridge-unified';
 
 import { TxHistoryItem } from '@core/service-worker';
 import { isPendingBridgeTransaction } from '@core/utils';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 export function useBlockchainNames(
   item: TxHistoryItem | BridgeTransaction | BridgeTransfer,

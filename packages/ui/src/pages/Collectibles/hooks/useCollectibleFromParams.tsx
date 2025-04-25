@@ -1,4 +1,4 @@
-import { useNfts } from '@src/hooks/useNfts';
+import { useNfts } from '@/hooks/useNfts';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import xss from 'xss';

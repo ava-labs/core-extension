@@ -1,14 +1,14 @@
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 
-import { useDefiContext } from '@src/contexts/DefiProvider';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
+import { useDefiContext } from '@/contexts/DefiProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 
 import { DefiProtocolListItem } from './components/DefiProtocolListItem';
 import { DefiZeroState } from './components/DefiZeroState';
 import { DefiErrorState } from './components/DefiErrorState';
 import { FeatureGates } from '@core/service-worker';
-import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 
 export function DeFi() {
   const { portfolio, hasError, isLoading } = useDefiContext();

@@ -6,7 +6,7 @@ import {
   isValidXPAddress,
 } from '@core/utils';
 import { useTranslation } from 'react-i18next';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
+import { useContactsContext } from '@/contexts/ContactsProvider';
 import { Stack, TextField } from '@avalabs/core-k2-components';
 interface ContactFormProps {
   contact: Contact;

@@ -22,10 +22,10 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { NetworkLogo } from 'packages/ui/src/components/common/NetworkLogo';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { NetworkLogo } from '@/components/common/NetworkLogo';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 import {
   NetworkForm,
@@ -36,7 +36,7 @@ import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,
 } from './NetworkDetailsDialogs';
-import { useGoBack } from '@src/hooks/useGoBack';
+import { useGoBack } from '@/hooks/useGoBack';
 
 export const NetworkDetails = () => {
   const { t } = useTranslation();

@@ -1,16 +1,16 @@
 import { DAppProviderRequest } from '@core/service-worker';
 import { ActionStatus } from '@core/service-worker';
-import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useApproveAction } from '@/hooks/useApproveAction';
 import Scrollbars from 'react-custom-scrollbars-2';
 import { useGetRequestId } from '../../hooks/useGetRequestId';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { useTranslation } from 'react-i18next';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
 import { KeystoneApprovalOverlay } from '../SignTransaction/components/KeystoneApprovalOverlay';
 import {
   CircularProgress,
@@ -23,17 +23,17 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
+} from '@/components/common/approval/ApprovalSection';
+import useIsUsingWalletConnectAccount from '@/hooks/useIsUsingWalletConnectAccount';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
-import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
-import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import { useApprovalHelpers } from '@/hooks/useApprovalHelpers';
+import useIsUsingFireblocksAccount from '@/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
+} from '@/hooks/useIsFunctionAvailable';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 
 export function ApproveAction() {
   const { t } = useTranslation();

@@ -1,7 +1,7 @@
 import { ActionStatus } from '@core/service-worker';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { useCallback } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import {

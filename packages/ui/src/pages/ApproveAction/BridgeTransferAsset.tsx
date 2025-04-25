@@ -6,22 +6,22 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import { TxDetailsRow } from 'packages/ui/src/components/common/approval/TxDetailsRow';
-import { NetworkLogo } from 'packages/ui/src/components/common/NetworkLogo';
-import { TokenAmount } from 'packages/ui/src/components/common/TokenAmount';
+} from '@/components/common/approval/ApprovalSection';
+import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
+import { NetworkLogo } from '@/components/common/NetworkLogo';
+import { TokenAmount } from '@/components/common/TokenAmount';
 import Big from 'big.js';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { CustomFees, GasFeeModifier } from 'packages/ui/src/components/common/CustomFees';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
+import { CustomFees, GasFeeModifier } from '@/components/common/CustomFees';
 import {
   BridgeActionDisplayData,
   CustomGasSettings,
 } from '@core/service-worker';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import { useApproveAction } from '@/hooks/useApproveAction';
 
 export function BridgeTransferAsset({
   action,

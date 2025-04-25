@@ -17,11 +17,11 @@ import {
 
 import { ActionStatus } from '@core/service-worker';
 import { MessageType } from '@core/service-worker';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 
 import { EthSign } from './components/EthSign';
 import { PersonalSign } from './components/PersonalSign';
@@ -31,24 +31,24 @@ import { SignDataV4 } from './components/SignDataV4';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { useIsIntersecting } from './hooks/useIsIntersecting';
 import { DAppProviderRequest } from '@core/service-worker';
-import { useLedgerDisconnectedDialog } from 'packages/ui/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
-import { LedgerApprovalOverlay } from 'packages/ui/pages/SignTransaction/components/LedgerApprovalOverlay';
+import { useLedgerDisconnectedDialog } from '@/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { LedgerAppType } from '@/contexts/LedgerProvider';
+import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
-import { useApprovalHelpers } from '@src/hooks/useApprovalHelpers';
-import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
+import useIsUsingWalletConnectAccount from '@/hooks/useIsUsingWalletConnectAccount';
+import { useApprovalHelpers } from '@/hooks/useApprovalHelpers';
+import useIsUsingFireblocksAccount from '@/hooks/useIsUsingFireblocksAccount';
 import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+} from '@/hooks/useIsFunctionAvailable';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { AccountType } from '@core/service-worker';
 import { truncateAddress } from '@core/utils';
-import { MaliciousTxAlert } from 'packages/ui/src/components/common/MaliciousTxAlert';
-import { TxWarningBox } from 'packages/ui/src/components/common/TxWarningBox';
+import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
+import { TxWarningBox } from '@/components/common/TxWarningBox';
 
 export function SignMessage() {
   const { t } = useTranslation();

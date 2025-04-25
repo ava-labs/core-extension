@@ -1,7 +1,7 @@
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 import { act } from 'react-dom/test-utils';
 
-import { matchingPayload, render } from '@src/tests/test-utils';
+import { matchingPayload, render } from '@shared/tests/test-utils';
 
 import { useAccountsContext } from '../AccountsProvider';
 import { useAnalyticsContext } from '../AnalyticsProvider';
@@ -16,18 +16,17 @@ import Big from 'big.js';
 import {
   GetRateParams,
   SwapContextAPI,
-  SwapErrorCode,
   SwapParams,
 } from './models';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
-import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
-import { SecretType } from 'packages/service-worker/src/services/secrets/models';
+import { FeatureGates } from '@core/types';
+import { SecretType } from '@core/types';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import * as swapUtils from './swap-utils';
-import { CommonError } from 'packages/utils/src/errors';
-import { getProviderForNetwork } from 'packages/utils/src/network/getProviderForNetwork';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { CommonError, SwapErrorCode } from '@core/types';
+import { getProviderForNetwork } from '@core/utils';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { constructPartialSDK, OptimalRate } from '@paraswap/sdk';
 import { NATIVE_TOKEN_ADDRESS } from './constants';
 
@@ -97,8 +96,8 @@ jest.mock('../ConnectionProvider', () => ({
   useConnectionContext: jest.fn(),
 }));
 
-jest.mock('@src/utils/network/getProviderForNetwork');
-jest.mock('@src/hooks/useTokensWithBalances');
+jest.mock('@core/utils');
+jest.mock('@/hooks/useTokensWithBalances');
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({

@@ -14,7 +14,7 @@ import {
 } from '@core/utils';
 import { resolve } from '@core/utils';
 import { RequestHandlerType } from '@core/service-worker';
-import { SwapError } from 'packages/ui/pages/Swap/hooks/useSwap';
+import { SwapError } from '@/pages/Swap/hooks/useSwap';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,

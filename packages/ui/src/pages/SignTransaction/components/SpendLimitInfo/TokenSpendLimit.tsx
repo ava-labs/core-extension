@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ApprovalSection,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
+} from '@/components/common/approval/ApprovalSection';
 import { useCallback, useState } from 'react';
 import { CustomSpendLimit } from './CustomSpendLimit';
 import { TransactionTokenCard } from '../TransactionTokenCard';
@@ -14,8 +14,8 @@ import {
   TokenApproval,
 } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@core/service-worker';
 import { UpdateActionTxDataHandler } from '@core/service-worker';
 

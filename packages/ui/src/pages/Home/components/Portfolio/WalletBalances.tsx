@@ -6,13 +6,13 @@ import {
   Skeleton,
 } from '@avalabs/core-k2-components';
 import { TokenType } from '@avalabs/vm-module-types';
-import { PAndL } from 'packages/ui/src/components/common/ProfitAndLoss';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
-import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
+import { PAndL } from '@/components/common/ProfitAndLoss';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
+import { useTokenPriceMissing } from '@/hooks/useTokenPriceIsMissing';
 import { useTranslation } from 'react-i18next';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];

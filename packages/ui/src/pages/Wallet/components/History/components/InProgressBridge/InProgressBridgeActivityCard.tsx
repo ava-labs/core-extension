@@ -10,12 +10,12 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useBridgeContext } from '@/contexts/BridgeProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import {
   blockchainToNetwork,
   networkToBlockchain,
-} from 'packages/ui/pages/Bridge/utils/blockchainConversion';
+} from '@/pages/Bridge/utils/blockchainConversion';
 import { getExplorerAddressByNetwork } from '@core/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,9 +23,9 @@ import { useHistory } from 'react-router-dom';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { InProgressBridgeIcon } from './InProgressBridgeIcon';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
-import { isUnifiedBridgeTransfer } from 'packages/ui/pages/Bridge/utils/isUnifiedBridgeTransfer';
+import { isUnifiedBridgeTransfer } from '@/pages/Bridge/utils/isUnifiedBridgeTransfer';
 import { bigintToBig } from '@core/utils';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
 
 export interface InProgressBridgeActivityCardProp {
   tx: BridgeTransaction | BridgeTransfer;

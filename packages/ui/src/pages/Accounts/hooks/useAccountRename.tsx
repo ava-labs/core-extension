@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useScopedToast } from '@src/hooks/useScopedToast';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useScopedToast } from '@/hooks/useScopedToast';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { Account } from '@core/service-worker';
 
 import { useEntityRename } from './useEntityRename';

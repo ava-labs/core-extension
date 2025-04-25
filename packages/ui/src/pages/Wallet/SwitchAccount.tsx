@@ -14,9 +14,9 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { Account } from '@core/service-worker';
-import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useApproveAction } from '@/hooks/useApproveAction';
 import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { truncateAddress } from '@core/utils';
 
 export function SwitchAccount() {

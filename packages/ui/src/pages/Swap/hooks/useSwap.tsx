@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, debounceTime } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 
-import { paraswapErrorToSwapError } from '@src/contexts/SwapProvider/swap-utils';
-import { useSwapContext } from '@src/contexts/SwapProvider/SwapProvider';
+import { paraswapErrorToSwapError } from '@/contexts/SwapProvider/swap-utils';
+import { useSwapContext } from '@/contexts/SwapProvider/SwapProvider';
 
 import { DestinationInput, isAPIError } from '../utils';
 import { OptimalRate, SwapSide } from '@paraswap/sdk';

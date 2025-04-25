@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import {
   AccountImportState,
   AccountImportStatus,
-} from '@src/contexts/WalletConnectContextProvider/models';
+} from '@/contexts/WalletConnectContextProvider/models';
 
 import { getColorForStatus } from './utils/getColorForStatus';
 

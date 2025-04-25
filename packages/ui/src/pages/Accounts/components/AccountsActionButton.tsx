@@ -25,12 +25,12 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import browser from 'webextension-polyfill';
 
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { isProductionBuild } from '@core/utils';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 type AccountsActionButtonProps = {
   isLoading: boolean;

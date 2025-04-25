@@ -19,16 +19,16 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
-import { TOTPChallenge } from 'packages/ui/src/components/common/seedless/components/TOTPChallenge';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { Overlay } from '@/components/common/Overlay';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 import {
   AuthErrorCode,
   TotpResetChallenge,
 } from '@core/service-worker';
-import { ContextContainer } from '@src/hooks/useIsSpecificContextContainer';
+import { ContextContainer } from '@/hooks/useIsSpecificContextContainer';
 
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 

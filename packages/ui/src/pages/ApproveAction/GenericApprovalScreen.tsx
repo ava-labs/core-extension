@@ -1,6 +1,6 @@
 import { ActionStatus } from '@core/service-worker';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
@@ -17,28 +17,28 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useLedgerDisconnectedDialog } from 'packages/ui/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import { useLedgerDisconnectedDialog } from '@/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
+} from '@/components/common/approval/ApprovalSection';
 import { getSendErrorMessage } from '../Send/utils/sendErrorMessages';
-import { TransactionDetailItem } from 'packages/ui/src/components/common/approval/TransactionDetailItem';
+import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
 import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { DeviceApproval } from './components/DeviceApproval';
 import { NetworkWithCaipId } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
 import { AlertBox } from '../Permissions/components/AlertBox';
 import { WarningBox } from '../Permissions/components/WarningBox';
-import { MaliciousTxAlert } from 'packages/ui/src/components/common/MaliciousTxAlert';
+import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { GaslessPhase } from '@core/service-worker';
 
 type WithContextAlert = {

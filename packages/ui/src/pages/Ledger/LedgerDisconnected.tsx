@@ -8,7 +8,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 import { tabs } from 'webextension-polyfill';
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
+import { LedgerAppType } from '@/contexts/LedgerProvider';
 
 export const LedgerDisconnected = ({
   requiredAppType,

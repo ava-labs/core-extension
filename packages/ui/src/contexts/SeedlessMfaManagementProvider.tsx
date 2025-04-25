@@ -8,27 +8,29 @@ import {
 } from 'react';
 import { filter } from 'rxjs';
 
-import { SecretType } from '@core/service-worker';
-import { FeatureGates } from '@core/service-worker';
 import {
+	AddFidoDeviceHandler,
+  CompleteAuthenticatorChangeHandler,
+  GetRecoveryMethodsHandler,
+  InitAuthenticatorChangeHandler,
+  RemoveFidoDeviceHandler,
+  isSeedlessMfaMethodsUpdatedEvent,
+} from '@core/service-worker';
+import {
+  ExtensionRequest,
+  FeatureGates,
   MfaRequestType,
   RecoveryMethod,
+  SecretType,
   TotpResetChallenge,
-} from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { GetRecoveryMethodsHandler } from '@core/service-worker';
-import { InitAuthenticatorChangeHandler } from '@core/service-worker';
-import { CompleteAuthenticatorChangeHandler } from '@core/service-worker';
-import { isSeedlessMfaMethodsUpdatedEvent } from '@core/service-worker';
+	KeyType,
+} from '@core/types';
 import { incrementalPromiseResolve } from '@core/utils';
-import { KeyType } from '@core/utils';
-import { AddFidoDeviceHandler } from '@core/service-worker';
-import { RemoveFidoDeviceHandler } from '@core/service-worker';
 
-import { useConnectionContext } from './ConnectionProvider';
-import { useWalletContext } from './WalletProvider';
-import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { RemoveTotpHandler } from '@core/service-worker';
+import { useConnectionContext } from './ConnectionProvider';
+import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { useWalletContext } from './WalletProvider';
 
 interface SeedlessMfaManagementContextProps {
   children?: React.ReactNode;

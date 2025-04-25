@@ -17,10 +17,10 @@ import {
 } from '@avalabs/core-k2-components';
 import { useCallback, useState } from 'react';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { Overlay } from '@/components/common/Overlay';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 import {
   RecoveryMethodFido,
   SeedlessError,

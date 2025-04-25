@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import type { Contact } from '@avalabs/types';
 
 import { AddressDropdownListItem } from './AddressDropdownListItem';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { SettingsPages } from 'packages/ui/src/components/settings/models';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { SettingsPages } from '@/components/settings/models';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { isBitcoin } from '@core/utils';
 import { isPchainNetwork } from '@core/service-worker';
 import { isXchainNetwork } from '@core/service-worker';

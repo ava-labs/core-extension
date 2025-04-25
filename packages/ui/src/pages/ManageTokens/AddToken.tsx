@@ -1,11 +1,11 @@
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { AddCustomTokenHandler } from '@core/service-worker';
 import { GetTokenDataHandler } from '@core/service-worker';
 import { useTranslation } from 'react-i18next';
@@ -16,12 +16,12 @@ import {
   Typography,
   toast,
 } from '@avalabs/core-k2-components';
-import { TokenCardWithBalance } from 'packages/ui/src/components/common/TokenCardWithBalance';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenCardWithBalance } from '@/components/common/TokenCardWithBalance';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import { TokenType, TokenWithBalanceERC20 } from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@core/utils';
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { MaliciousTokenWarningBox } from 'packages/ui/src/components/common/MaliciousTokenWarning';
+import { MaliciousTokenWarningBox } from '@/components/common/MaliciousTokenWarning';
 
 export function AddToken() {
   const { t } = useTranslation();

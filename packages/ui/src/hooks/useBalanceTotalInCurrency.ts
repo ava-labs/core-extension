@@ -1,5 +1,5 @@
 import { Account } from '@core/service-worker';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useMemo } from 'react';
 
 export function useBalanceTotalInCurrency(account?: Account) {

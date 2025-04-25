@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { filter } from 'rxjs';
 
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
   isSessionPermissionsMismatchEvent,
   isUriGeneratedEvent,

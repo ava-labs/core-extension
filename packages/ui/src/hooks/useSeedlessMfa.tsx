@@ -15,7 +15,7 @@ import {
   RecoveryMethod as RecoveryMethodT,
   SeedlessEvents,
 } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { launchFidoFlow } from '@core/utils';
 
 import { FIDOApiEndpoint } from '@core/utils';
@@ -24,11 +24,11 @@ import {
   DialogContent,
   DialogTitle,
 } from '@avalabs/core-k2-components';
-import { TOTPChallenge } from 'packages/ui/src/components/common/seedless/components/TOTPChallenge';
-import { FIDOChallenge } from 'packages/ui/src/components/common/seedless/components/FIDOChallenge';
+import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
+import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
 import { useTranslation } from 'react-i18next';
 import { ChooseMfaMethodHandler } from '@core/service-worker';
-import { MfaChoicePrompt } from 'packages/ui/src/components/common/seedless/components/MfaChoicePrompt';
+import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';
 
 export const useSeedlessMfa = () => {
   const { t } = useTranslation();

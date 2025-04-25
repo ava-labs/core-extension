@@ -1,5 +1,5 @@
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { LoadingContent } from '@src/popup/LoadingContent';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { LoadingContent } from '@/popup/LoadingContent';
 import { PropsWithChildren } from 'react';
 
 export function WalletLoading({ children }: PropsWithChildren<any>) {

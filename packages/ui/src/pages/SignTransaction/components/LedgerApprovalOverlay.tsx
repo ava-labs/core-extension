@@ -1,7 +1,7 @@
 import { Stack } from '@avalabs/core-k2-components';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { Overlay } from '@/components/common/Overlay';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 
 import { LedgerApprovalDialog } from './LedgerApprovalDialog';
 

@@ -1,7 +1,7 @@
 import type { Contact } from '@avalabs/types';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useContactsContext } from '@/contexts/ContactsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useCallback } from 'react';
 import { isBitcoin } from '@core/utils';
 import { isPchainNetwork } from '@core/service-worker';

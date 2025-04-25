@@ -1,10 +1,10 @@
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { InlineTokenEllipsis } from 'packages/ui/src/components/common/InlineTokenEllipsis';
+import { InlineTokenEllipsis } from '@/components/common/InlineTokenEllipsis';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
   Button,
@@ -14,9 +14,9 @@ import {
   keyframes,
   styled,
 } from '@avalabs/core-k2-components';
-import { TokenEllipsis } from 'packages/ui/src/components/common/TokenEllipsis';
-import { BalanceColumn } from 'packages/ui/src/components/common/BalanceColumn';
-import { PAndL } from 'packages/ui/src/components/common/ProfitAndLoss';
+import { TokenEllipsis } from '@/components/common/TokenEllipsis';
+import { BalanceColumn } from '@/components/common/BalanceColumn';
+import { PAndL } from '@/components/common/ProfitAndLoss';
 import { hasUnconfirmedBalance } from '@core/utils';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { getUnconfirmedBalanceInCurrency } from '@core/service-worker';

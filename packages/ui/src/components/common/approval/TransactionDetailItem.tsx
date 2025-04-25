@@ -16,15 +16,15 @@ import {
 } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
-import { AccountDetails } from 'packages/ui/pages/SignTransaction/components/ApprovalTxDetails';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { AccountDetails } from '@/pages/SignTransaction/components/ApprovalTxDetails';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 
 import { TxDetailsRow } from './TxDetailsRow';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { runtime } from 'webextension-polyfill';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
+import { useContactsContext } from '@/contexts/ContactsProvider';
 import { truncateAddress } from '@core/utils';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 
 export const TransactionDetailItem = ({ item }: { item: DetailItem }) => {
   if (typeof item === 'string') {

@@ -6,7 +6,7 @@ import {
   XIcon,
   AlertCircleIcon,
 } from '@avalabs/core-k2-components';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { Overlay } from '@/components/common/Overlay';
 import { useTranslation } from 'react-i18next';
 
 interface VerifyGoBackModalProps {

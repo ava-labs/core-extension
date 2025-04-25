@@ -1,3 +1,28 @@
+export { isApprovalRequest } from './services/approvals/events/approvalEventFilters';
+
+export { isActionsUpdate } from './services/actions/events/actionEventFilters';
+
+export type { BridgeCreateTransactionHandler } from './services/bridge/handlers/createBridgeTransaction';
+export type { BridgeRemoveTransactionHandler } from './services/bridge/handlers/removeBridgeTransaction';
+export type { BridgeSetIsDevEnvHandler } from './services/bridge/handlers/setIsDevEnv';
+export { filterBridgeStateToNetwork } from './services/bridge/utils';
+export { contactsUpdatedEventListener } from './services/contacts/events/listeners';
+export { currencyRatesUpdatedEventListener } from './services/currency/events/listeners';
+export { defiPortfolioUpdatedEventListener } from './services/defi/events/listeners';
+export { permissionsUpdatedEventListener } from './services/permissions/events/permissionsStateUpdatesListener';
+export { isSeedlessMfaMethodsUpdatedEvent } from './services/seedless/events/eventFilters';
+export { isNetworkUpdatedEvent } from './services/network/events/isNetworkUpdatedEvent';
+export { networksUpdatedEventListener } from './services/network/events/networksUpdatedEventListener';
+export { isBridgeStateUpdateEventListener } from './services/bridge/events/listeners';
+export { isUnifiedBridgeStateUpdate } from './services/unifiedBridge/events/eventFilters';
+export { lockStateChangedEventListener } from './services/lock/events/lockStateChangedEventListener';
+export { walletStateChangedEventListener } from './services/secrets/events/WalletUpdatedEventListener';
+export { accountsUpdatedEventListener } from './services/accounts/events/accountsUpdatedEventListener';
+export { balancesUpdatedEventListener } from './services/balances/events/balancesUpdatedEventListener';
+export type { BridgeGetStateHandler } from './services/bridge/handlers/getBridgeState';
+export type { AvalancheRenameAccountHandler } from './services/accounts/handlers/avalanche_renameAccount';
+export type { AvalancheDeleteAccountsHandler } from './services/accounts/handlers/avalanche_deleteAccounts';
+export type { AvalancheRenameWalletHandler } from './services/secrets/handlers/avalanche_renameWallet';
 export type { HandlerType as GetRecoveryPhraseExportStateHandler } from './services/seedless/handlers/getRecoveryPhraseExportState';
 export type { HandlerType as ChooseMfaMethodHandler } from './services/seedless/handlers/chooseMfaMethod';
 export type { HandlerType as RemoveFidoDeviceHandler } from './services/seedless/handlers/removeFidoDevice';

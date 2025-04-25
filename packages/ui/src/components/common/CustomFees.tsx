@@ -1,7 +1,7 @@
 import { calculateGasAndFees } from '@core/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useNativeTokenPrice } from '@/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { TokenType } from '@avalabs/vm-module-types';
@@ -25,14 +25,14 @@ import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
+} from '@/components/common/approval/ApprovalSection';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
 import { CustomGasSettings } from './CustomGasSettings';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import GaslessFee from './GaslessFee';
 import { GaslessPhase } from '@core/service-worker';
 import { FeatureGates } from '@core/service-worker';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { TruncateFeeAmount } from './TruncateFeeAmount';
 
 export interface CustomGasFeesProps {

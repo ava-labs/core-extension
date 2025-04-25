@@ -8,14 +8,14 @@ import {
   isBatchApprovalAction,
 } from '@core/service-worker';
 import { ActionStatus } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useWindowGetsClosedOrHidden } from '@core/utils';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ContextContainer,
   useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
-import { useApprovalsContext } from '@src/contexts/ApprovalsProvider';
+import { useApprovalsContext } from '@/contexts/ApprovalsProvider';
 import { getUpdatedSigningData } from '@core/utils';
 
 type ActionType<IsBatchApproval> = IsBatchApproval extends true

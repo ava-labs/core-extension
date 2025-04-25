@@ -8,7 +8,7 @@ import { useBtcSend } from '../hooks/useSend';
 import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
 import { SendPageProps } from '../models';
 import { SendForm } from './SendForm';
-import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
+import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
 import { TokenWithBalanceBTC } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@core/utils';
 

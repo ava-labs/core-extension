@@ -1,7 +1,7 @@
 import { resolve } from '@avalabs/core-utils-sdk';
 import Blockaid from '@blockaid/client';
 import { FeatureGates } from '@core/service-worker';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { useCallback } from 'react';
 
 export interface BlockaidData {

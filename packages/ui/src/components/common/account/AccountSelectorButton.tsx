@@ -6,8 +6,8 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useCallback, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 

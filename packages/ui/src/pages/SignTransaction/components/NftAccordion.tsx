@@ -5,7 +5,7 @@ import {
   Typography,
   AccordionDetails,
 } from '@avalabs/core-k2-components';
-import { CollectibleMedia } from 'packages/ui/pages/Collectibles/components/CollectibleMedia';
+import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
 import {
   TransactionTokenCard,
   TransactionTokenCardVariant,

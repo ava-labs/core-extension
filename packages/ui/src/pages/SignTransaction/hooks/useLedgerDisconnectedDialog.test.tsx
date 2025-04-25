@@ -1,48 +1,48 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { useDialog } from '@src/contexts/DialogContextProvider';
+import { useDialog } from '@/contexts/DialogContextProvider';
 import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
-} from '@src/contexts/LedgerProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { LedgerDisconnected } from 'packages/ui/pages/Ledger/LedgerDisconnected';
-import { LedgerIncorrectApp } from 'packages/ui/pages/Ledger/LedgerIncorrectApp';
-import { LedgerWrongVersionContent } from 'packages/ui/pages/Ledger/LedgerWrongVersion';
-import { isLedgerVersionCompatible } from 'packages/utils/src/isLedgerVersionCompatible';
+} from '@/contexts/LedgerProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import { LedgerDisconnected } from '@/pages/Ledger/LedgerDisconnected';
+import { LedgerIncorrectApp } from '@/pages/Ledger/LedgerIncorrectApp';
+import { LedgerWrongVersionContent } from '@/pages/Ledger/LedgerWrongVersion';
+import { isLedgerVersionCompatible } from '@core/utils';
 import { renderHook } from '@testing-library/react-hooks';
 import { useTranslation } from 'react-i18next';
 import { useLedgerDisconnectedDialog } from './useLedgerDisconnectedDialog';
-import { SecretType } from 'packages/service-worker/src/services/secrets/models';
+import { SecretType } from '@core/types';
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(),
 }));
 
-jest.mock('@src/contexts/WalletProvider', () => ({
+jest.mock('@/contexts/WalletProvider', () => ({
   useWalletContext: jest.fn(),
 }));
 
-jest.mock('@src/contexts/LedgerProvider', () => {
-  const original = jest.requireActual('@src/contexts/LedgerProvider');
+jest.mock('@/contexts/LedgerProvider', () => {
+  const original = jest.requireActual('@/contexts/LedgerProvider');
   return {
     useLedgerContext: jest.fn(),
     LedgerAppType: original.LedgerAppType,
   };
 });
 
-jest.mock('@src/contexts/DialogContextProvider', () => ({
+jest.mock('@/contexts/DialogContextProvider', () => ({
   useDialog: jest.fn(),
 }));
 
-jest.mock('@src/contexts/NetworkProvider', () => ({
+jest.mock('@/contexts/NetworkProvider', () => ({
   useNetworkContext: jest.fn(),
 }));
 
-jest.mock('@src/hooks/useIsUsingLedgerWallet');
-jest.mock('@src/utils/isLedgerVersionCompatible');
+jest.mock('@/hooks/useIsUsingLedgerWallet');
+jest.mock('@core/utils');
 
 describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () => {
   const onCancelMock = jest.fn();

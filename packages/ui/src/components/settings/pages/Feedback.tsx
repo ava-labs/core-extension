@@ -8,7 +8,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import browser from 'webextension-polyfill';
 import { useEffect, useState } from 'react';
 

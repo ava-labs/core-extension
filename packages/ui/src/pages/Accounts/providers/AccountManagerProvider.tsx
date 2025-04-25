@@ -6,8 +6,8 @@ import {
   useState,
 } from 'react';
 
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
 import { Account } from '@core/service-worker';
 import { isPrimaryAccount } from '@core/service-worker';

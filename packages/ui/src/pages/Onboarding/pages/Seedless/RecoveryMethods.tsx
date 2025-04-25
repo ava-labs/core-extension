@@ -12,16 +12,16 @@ import { PageNav } from '../../components/PageNav';
 import { useHistory } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { FeatureGates } from '@core/service-worker';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import {
   AuthenticatorModal,
   AuthenticatorSteps,
 } from './modals/AuthenticatorModal';
 import { OnboardingURLs } from '@core/service-worker';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { FIDOModal } from './modals/FIDOModal';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { InlineBold } from 'packages/ui/src/components/common/InlineBold';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { InlineBold } from '@/components/common/InlineBold';
 import { RecoveryMethodTypes } from './models';
 import { useSeedlessActions } from '../../hooks/useSeedlessActions';
 import { WalletType } from '@avalabs/types';

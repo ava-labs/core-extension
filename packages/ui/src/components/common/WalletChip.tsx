@@ -7,7 +7,7 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { WalletDetails } from '@core/service-worker';
-import { WalletTypeIcon } from 'packages/ui/pages/Accounts/components/WalletTypeIcon';
+import { WalletTypeIcon } from '@/pages/Accounts/components/WalletTypeIcon';
 
 type WalletChipProps = ChipProps & {
   walletDetails: WalletDetails;

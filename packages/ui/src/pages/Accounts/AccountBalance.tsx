@@ -11,8 +11,8 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { AccountType } from '@core/service-worker';
 import { useAccountManager } from './providers/AccountManagerProvider';
 

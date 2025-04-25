@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { Stack, toast } from '@avalabs/core-k2-components';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { FunctionIsUnavailable } from 'packages/ui/src/components/common/FunctionIsUnavailable';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+} from '@/hooks/useIsFunctionAvailable';
+import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import {
   SupportedProvider,
   getProviderForNetwork,

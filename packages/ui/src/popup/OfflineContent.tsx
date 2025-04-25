@@ -1,7 +1,7 @@
 import { Stack, Typography, styled } from '@avalabs/core-k2-components';
 
-import { BrandName } from 'packages/ui/src/components/icons/BrandName';
-import { useAppDimensions } from '@src/hooks/useAppDimensions';
+import { BrandName } from '@/components/icons/BrandName';
+import { useAppDimensions } from '@/hooks/useAppDimensions';
 
 export const AnimatedLogo = styled('div')`
   @keyframes fade {

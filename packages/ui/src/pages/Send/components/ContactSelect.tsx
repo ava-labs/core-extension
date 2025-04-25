@@ -11,12 +11,12 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useContactsContext } from '@/contexts/ContactsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { AddressDropdownList } from './AddressDropdownList';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import {
   AddressDropdownListMyAccounts,
   MyAccountContacts,

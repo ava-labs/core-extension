@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { useDAppScan } from './useDAppScan';
 import { useFeatureFlagContext } from '../contexts/FeatureFlagsProvider';
-import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
+import { FeatureGates } from '@core/types';
 
 jest.mock('@blockaid/client', () => {
   return jest.fn().mockReturnValue({

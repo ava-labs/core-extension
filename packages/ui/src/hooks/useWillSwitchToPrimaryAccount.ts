@@ -1,5 +1,5 @@
 import { AccountType } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { isProductionBuild } from '@core/utils';
 
 export default function useWillSwitchToPrimaryAccount(

@@ -11,11 +11,11 @@ import {
   styled,
 } from '@avalabs/core-k2-components';
 
-import { useQueryParams } from '@src/hooks/useQueryParams';
+import { useQueryParams } from '@/hooks/useQueryParams';
 import { isValidAddress } from '@core/utils';
 import { handleTxOutcome } from '@core/utils';
 import { SendErrorMessage } from '@core/types';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 import { useEVMSend } from '../Send/hooks/useSend/useEVMSend';
 import { ContactInput } from '../Send/components/ContactInput';
@@ -30,7 +30,7 @@ import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import { GaslessPhase } from '@core/service-worker';
 
 type Props = SendPageProps<

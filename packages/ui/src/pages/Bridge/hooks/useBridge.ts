@@ -10,10 +10,10 @@ import {
 } from '@avalabs/vm-module-types';
 
 import { NetworkWithCaipId } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useUnifiedBridgeContext } from '@src/contexts/UnifiedBridgeProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { isNFT } from '@core/service-worker';
 
 import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';

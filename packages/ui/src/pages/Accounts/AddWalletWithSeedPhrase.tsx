@@ -21,9 +21,9 @@ import {
 } from '@avalabs/core-wallets-sdk';
 
 import { Account } from '@core/service-worker';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { truncateAddress } from '@core/utils';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 
 import { useConvertedCurrencyFormatter } from '../DeFi/hooks/useConvertedCurrencyFormatter';
 
@@ -32,12 +32,12 @@ import sentryCaptureException, {
 } from '@core/common/src/monitoring/sentryCaptureException';
 import { NameYourWallet } from './components/NameYourWallet';
 import { useImportSeedphrase } from './hooks/useImportSeedphrase';
-import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { isPhraseCorrect } from '@core/utils';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
+import { Overlay } from '@/components/common/Overlay';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
 

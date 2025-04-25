@@ -7,16 +7,16 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { ContainedDropdown } from 'packages/ui/src/components/common/ContainedDropdown';
-import EthLogo from '@src/images/tokens/eth.png';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { ContainedDropdown } from '@/components/common/ContainedDropdown';
+import EthLogo from '@/images/tokens/eth.png';
 import {
   hasUnconfirmedBTCBalance,
   isAvaxWithUnavailableBalance,
 } from '@core/service-worker';
 import { bigToLocaleString, TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
-import { BalanceColumn } from 'packages/ui/src/components/common/BalanceColumn';
+import { BalanceColumn } from '@/components/common/BalanceColumn';
 import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from './VirtualizedList';
 import {
@@ -29,11 +29,11 @@ import {
   Card,
   SearchBar,
 } from '@avalabs/core-k2-components';
-import { BNInput } from 'packages/ui/src/components/common/BNInput';
+import { BNInput } from '@/components/common/BNInput';
 import { TokenSelector } from './TokenSelector';
 import { TokenEllipsis } from './TokenEllipsis';
 import { DropdownItem } from './Dropdown';
-import { useDisplaytokenlist } from '@src/hooks/useDisplayTokenList';
+import { useDisplaytokenlist } from '@/hooks/useDisplayTokenList';
 import { TokenIcon } from './TokenIcon';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { bigintToBig } from '@core/utils';

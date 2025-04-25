@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Stack } from '@avalabs/core-k2-components';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { Overlay } from '@/components/common/Overlay';
+import { PageTitle } from '@/components/common/PageTitle';
 
 import { RecoveryMethodsList } from './RecoveryMethodsList';
 

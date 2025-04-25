@@ -10,7 +10,7 @@ import {
   TextField,
   XCircleFilledIcon,
 } from '@avalabs/core-k2-components';
-import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 export const RenameDialog = ({
   isOpen,

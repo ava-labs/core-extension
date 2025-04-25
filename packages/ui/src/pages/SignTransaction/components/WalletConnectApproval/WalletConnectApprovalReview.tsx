@@ -8,7 +8,7 @@ import {
 import { Trans } from 'react-i18next';
 import { WalletConnectCircledIcon } from '../../../ImportWithWalletConnect/components/WalletConnectCircledIcon';
 import { WalletConnectSessionInfo } from '@core/service-worker';
-import { ImageWithFallback } from 'packages/ui/src/components/common/ImageWithFallback';
+import { ImageWithFallback } from '@/components/common/ImageWithFallback';
 import { Account } from '@core/service-worker';
 import { RemoteApprovalConfirmation } from '../RemoteApproval/RemoteApprovalConfirmation';
 

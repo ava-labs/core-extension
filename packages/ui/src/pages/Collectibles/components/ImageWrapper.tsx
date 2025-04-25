@@ -4,7 +4,7 @@ import {
   IconButton,
   Stack,
 } from '@avalabs/core-k2-components';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { Overlay } from '@/components/common/Overlay';
 import { PropsWithChildren } from 'react';
 interface ImageWrapperProps {
   isOverlay: boolean;

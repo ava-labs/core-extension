@@ -10,14 +10,14 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { useWalletConnectContext } from '@src/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
+import { useWalletConnectContext } from '@/contexts/WalletConnectContextProvider/WalletConnectContextProvider';
 import { WalletConnectQRCode } from './WalletConnectQRCode';
 import { WalletConnectStatusMessage } from './WalletConnectStatusMessage';
 import { WalletConnectURIField } from './WalletConnectURIField';
 import {
   AccountImportStatus,
   OnConnectCallback,
-} from '@src/contexts/WalletConnectContextProvider/models';
+} from '@/contexts/WalletConnectContextProvider/models';
 
 enum WalletConnectTabs {
   QR,

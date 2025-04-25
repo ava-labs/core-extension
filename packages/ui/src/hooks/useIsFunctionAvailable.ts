@@ -6,10 +6,10 @@ import {
 } from '@core/service-worker';
 import { FeatureGates } from '@core/service-worker';
 import isFireblocksApiSupported from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import {
   isPchainNetwork,
   isPchainNetworkId,

@@ -1,4 +1,4 @@
-import { render, screen } from '@src/tests/test-utils';
+import { render, screen } from '@shared/tests/test-utils';
 import { EmptyContent } from './EmptyContent';
 
 describe('components/common/EmptyContent', () => {

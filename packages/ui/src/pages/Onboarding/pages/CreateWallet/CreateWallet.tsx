@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createNewMnemonic } from '@core/service-worker';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { ConfirmPhrase } from './ConfirmPhrase';
 import { CopyPhrase } from './CopyPhrase';
 import {
@@ -9,7 +9,7 @@ import {
   OnboardingURLs,
 } from '@core/service-worker';
 import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { WalletType } from '@avalabs/types';
 
 export function CreateWallet() {

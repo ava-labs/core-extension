@@ -8,16 +8,16 @@ import {
   Tooltip,
   InfoCircleIcon,
 } from '@avalabs/core-k2-components';
-import { useBridgeContext } from '@src/contexts/BridgeProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useBridgeContext } from '@/contexts/BridgeProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { isProductionBuild } from '@core/utils';
 import { useHistory } from 'react-router-dom';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { AccountType } from '@core/service-worker';
 
 export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {

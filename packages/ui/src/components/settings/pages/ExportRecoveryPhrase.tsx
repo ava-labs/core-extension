@@ -21,16 +21,16 @@ import { useCallback, useState } from 'react';
 import {
   ExportState,
   useSeedlessMnemonicExport,
-} from '@src/hooks/useSeedlessMnemonicExport';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+} from '@/hooks/useSeedlessMnemonicExport';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { SeedlessExportAnalytics } from '@core/service-worker';
 
 import { SettingsHeader } from '../SettingsHeader';
 import { SettingsPageProps } from '../models';
 
 import { openExtensionNewWindow } from '@core/utils';
-import { ExportPending } from 'packages/ui/src/components/common/seedless/components/ExportPending';
-import { ExportError } from 'packages/ui/src/components/common/seedless/components/ExportError';
+import { ExportPending } from '@/components/common/seedless/components/ExportPending';
+import { ExportError } from '@/components/common/seedless/components/ExportError';
 
 const ListItemBadge = styled(Chip)`
   font-size: 16px;

@@ -1,16 +1,16 @@
 import { Button, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@core/service-worker';
 import { GoogleButton } from '../Seedless/components/GoogleButton';
 import { AppleButton } from '../Seedless/components/AppleButton';
-import { LoadingOverlay } from 'packages/ui/src/components/common/LoadingOverlay';
+import { LoadingOverlay } from '@/components/common/LoadingOverlay';
 import { useRef, useState, useEffect } from 'react';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { ExistingWalletOptions } from '../Seedless/components/ExistingWalletOptions';
-import { BrandName } from 'packages/ui/src/components/icons/BrandName';
+import { BrandName } from '@/components/icons/BrandName';
 
 export function SignUpWithSeedless() {
   const { t } = useTranslation();

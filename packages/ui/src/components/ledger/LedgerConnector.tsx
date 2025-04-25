@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   Avalanche,
   DerivationPath,
   getAddressFromXPub,
   getEvmAddressFromPubKey,
 } from '@avalabs/core-wallets-sdk';
-import { useGetAvaxBalance } from '@src/hooks/useGetAvaxBalance';
+import { useGetAvaxBalance } from '@/hooks/useGetAvaxBalance';
 import { PubKeyType } from '@core/service-worker';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -17,10 +17,10 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { DerivationPathDropdown } from 'packages/ui/pages/Onboarding/components/DerivationPathDropDown';
-import { DerivedAddresses } from 'packages/ui/pages/Onboarding/components/DerivedAddresses';
+import { DerivationPathDropdown } from '@/pages/Onboarding/components/DerivationPathDropDown';
+import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
 import { SecretType } from '@core/service-worker';
-import { useImportLedger } from 'packages/ui/pages/Accounts/hooks/useImportLedger';
+import { useImportLedger } from '@/pages/Accounts/hooks/useImportLedger';
 
 export interface AddressType {
   address: string;

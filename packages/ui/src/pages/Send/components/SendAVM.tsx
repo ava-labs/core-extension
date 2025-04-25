@@ -5,10 +5,10 @@ import { handleTxOutcome } from '@core/utils';
 
 import { SendPagePropsWithWalletAVM } from '../models';
 import { SendForm } from './SendForm';
-import { useSetSendDataInParams } from '@src/hooks/useSetSendDataInParams';
-import { useQueryParams } from '@src/hooks/useQueryParams';
-import { NotSupportedByWallet } from 'packages/ui/src/components/common/NotSupportedByWallet';
-import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
+import { useQueryParams } from '@/hooks/useQueryParams';
+import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
+import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 import { useAvmSend } from '../hooks/useSend';
 import { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@core/utils';

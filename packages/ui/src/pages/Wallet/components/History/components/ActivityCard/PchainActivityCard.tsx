@@ -8,11 +8,11 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { PrimaryNetworkMethodIcon } from './PrimaryNetworkMethodIcon';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { PChainTransactionType } from '@avalabs/glacier-sdk';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { truncateAddress } from '@avalabs/core-utils-sdk';
 import { Transaction } from '@avalabs/vm-module-types';
 

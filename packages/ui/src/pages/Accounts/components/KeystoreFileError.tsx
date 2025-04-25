@@ -5,7 +5,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useTranslation } from 'react-i18next';
 
 type KeystoreFileErrorProps = {

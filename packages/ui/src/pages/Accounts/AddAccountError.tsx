@@ -2,8 +2,8 @@ import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { LedgerAppType } from '@src/contexts/LedgerProvider';
-import { useLedgerDisconnectedDialog } from 'packages/ui/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { LedgerAppType } from '@/contexts/LedgerProvider';
+import { useLedgerDisconnectedDialog } from '@/pages/SignTransaction/hooks/useLedgerDisconnectedDialog';
 
 export function AddAccountError() {
   const history = useHistory();

@@ -1,6 +1,6 @@
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { ActionStatus } from '@core/service-worker';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import { Network } from '@avalabs/core-chains-sdk';
 import { useApproveAction } from '../../hooks/useApproveAction';
 import { Trans, useTranslation } from 'react-i18next';
@@ -11,8 +11,8 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { SiteAvatar } from 'packages/ui/src/components/common/SiteAvatar';
-import useWillSwitchToPrimaryAccount from '@src/hooks/useWillSwitchToPrimaryAccount';
+import { SiteAvatar } from '@/components/common/SiteAvatar';
+import useWillSwitchToPrimaryAccount from '@/hooks/useWillSwitchToPrimaryAccount';
 
 export function SetDeveloperMode() {
   const { t } = useTranslation();

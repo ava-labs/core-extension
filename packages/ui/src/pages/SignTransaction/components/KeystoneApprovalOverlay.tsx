@@ -16,14 +16,14 @@ import {
 } from '@keystonehq/animated-qr';
 import { RegistryTypes } from '@keystonehq/bc-ur-registry-eth';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
-import useCameraPermissions from '@src/hooks/useCameraPermissions';
-import { useKeystoneContext } from '@src/contexts/KeystoneProvider';
-import { CameraAccessDeniedDialog } from 'packages/ui/src/components/common/CameraAccessDeniedDialog';
-import { CameraAccessPromptDialog } from 'packages/ui/src/components/common/CameraAccessPromptDialog';
-import { InvalidQRCodeDialog } from 'packages/ui/src/components/common/InvalidQRCodeDialog';
+import { Overlay } from '@/components/common/Overlay';
+import { PageTitle } from '@/components/common/PageTitle';
+import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
+import useCameraPermissions from '@/hooks/useCameraPermissions';
+import { useKeystoneContext } from '@/contexts/KeystoneProvider';
+import { CameraAccessDeniedDialog } from '@/components/common/CameraAccessDeniedDialog';
+import { CameraAccessPromptDialog } from '@/components/common/CameraAccessPromptDialog';
+import { InvalidQRCodeDialog } from '@/components/common/InvalidQRCodeDialog';
 
 interface KeystoneApprovalOverlayProps {
   onReject?: () => void;

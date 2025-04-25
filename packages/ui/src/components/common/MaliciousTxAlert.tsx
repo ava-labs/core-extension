@@ -1,4 +1,4 @@
-import { AlertDialog } from 'packages/ui/pages/Permissions/components/AlertDialog';
+import { AlertDialog } from '@/pages/Permissions/components/AlertDialog';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

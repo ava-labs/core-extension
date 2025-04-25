@@ -5,7 +5,7 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@core/common/src/monitoring/sentryCaptureException';
 import { ImportType } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 
 export const usePrivateKeyImport = () => {
   const [isImporting, setIsImporting] = useState(false);

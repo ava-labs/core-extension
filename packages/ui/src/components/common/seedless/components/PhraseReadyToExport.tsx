@@ -18,7 +18,7 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { SeedlessExportAnalytics } from '@core/service-worker';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 type Props = {
   isDecrypting: boolean;

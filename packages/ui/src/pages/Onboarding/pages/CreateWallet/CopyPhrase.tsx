@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Checkbox,

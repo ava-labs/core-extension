@@ -24,8 +24,8 @@ import {
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+} from '@/hooks/useIsFunctionAvailable';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { getCoreWebUrl } from '@core/utils';
 import { Flipper } from '../Flipper';
 

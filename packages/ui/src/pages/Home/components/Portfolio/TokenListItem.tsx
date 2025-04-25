@@ -1,5 +1,5 @@
-import { TokenCardWithBalance } from 'packages/ui/src/components/common/TokenCardWithBalance';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { TokenCardWithBalance } from '@/components/common/TokenCardWithBalance';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 
 interface TokenListItemProps {
   name: string;

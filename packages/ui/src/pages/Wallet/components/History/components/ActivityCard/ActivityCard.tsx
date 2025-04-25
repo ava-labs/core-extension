@@ -15,8 +15,8 @@ import { isNftTokenType } from '@core/service-worker';
 import { TxHistoryItem } from '@core/service-worker';
 import { isSolanaNetwork } from '@core/service-worker';
 import { isBitcoinNetwork } from '@core/service-worker';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import Big from 'big.js';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +25,7 @@ import { ActivityCardDetails } from './ActivityCardDetails';
 import { ActivityCardIcon } from './ActivityCardIcon';
 import { ActivityCardSummary } from './ActivityCardSummary';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { TruncateFeeAmount } from 'packages/ui/src/components/common/TruncateFeeAmount';
+import { TruncateFeeAmount } from '@/components/common/TruncateFeeAmount';
 
 export interface ActivityCardProp {
   historyItem: TxHistoryItem;

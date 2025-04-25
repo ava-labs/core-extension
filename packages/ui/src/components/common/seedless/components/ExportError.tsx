@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { ExportErrorCode } from '@src/hooks/useSeedlessMnemonicExport';
+import { ExportErrorCode } from '@/hooks/useSeedlessMnemonicExport';
 import { useTranslation } from 'react-i18next';
 
 type Props = {

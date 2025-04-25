@@ -1,7 +1,7 @@
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
+} from '@/hooks/useIsFunctionAvailable';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {

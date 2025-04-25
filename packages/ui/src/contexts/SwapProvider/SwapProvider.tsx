@@ -14,12 +14,17 @@ import browser from 'webextension-polyfill';
 import { useNetworkContext } from '../NetworkProvider';
 import { useAccountsContext } from '../AccountsProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
+import {
+  FeatureGates,
+  SwapErrorCode,
+  NetworkWithCaipId,
+  CommonError,
+  SecretType,
+} from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { incrementalPromiseResolve } from '@core/utils';
 import Big from 'big.js';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { BN } from 'bn.js';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
@@ -32,10 +37,9 @@ import {
   BuildTxParams,
   GetSwapPropsParams,
   ValidTransactionResponse,
-  SwapErrorCode,
 } from './models';
 import Joi from 'joi';
-import { isAPIError } from 'packages/ui/pages/Swap/utils';
+import { isAPIError } from '@/pages/Swap/utils';
 import {
   buildApprovalTx,
   checkForErrorsInBuildTxResult,
@@ -46,21 +50,20 @@ import {
   swapError,
   validateParams,
 } from './swap-utils';
-import { assert, assertPresent } from '@core/utils';
 import {
-  CommonError,
+  assert,
+  assertPresent,
   isUserRejectionError,
   wrapError,
   WrappedError,
+  incrementalPromiseResolve,
+  getProviderForNetwork,
+  getExplorerAddressByNetwork,
+  toastCardWithLink,
 } from '@core/utils';
 import { useWalletContext } from '../WalletProvider';
-import { SecretType } from '@core/service-worker';
 import { toast } from '@avalabs/core-k2-components';
-import { SwapPendingToast } from 'packages/ui/pages/Swap/components/SwapPendingToast';
-import { getProviderForNetwork } from '@core/utils';
-import { toastCardWithLink } from '@core/utils';
-import { getExplorerAddressByNetwork } from '@core/utils';
-import { NetworkWithCaipId } from '@core/service-worker';
+import { SwapPendingToast } from '@/pages/Swap/components/SwapPendingToast';
 import {
   constructPartialSDK,
   constructFetchFetcher,

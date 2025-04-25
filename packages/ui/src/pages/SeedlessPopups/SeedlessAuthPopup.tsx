@@ -3,19 +3,19 @@ import { Button, Stack } from '@avalabs/core-k2-components';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { AuthStep, useSeedlessAuth } from '@src/hooks/useSeedlessAuth';
+import { AuthStep, useSeedlessAuth } from '@/hooks/useSeedlessAuth';
 import { ExtensionRequest } from '@core/service-worker';
 import { UpdateSignerTokenHandler } from '@core/service-worker';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { getOidcTokenProvider } from '@core/utils';
 
-import { TOTPChallenge } from 'packages/ui/src/components/common/seedless/components/TOTPChallenge';
-import { AuthenticationError } from 'packages/ui/src/components/common/seedless/components/AuthenticationError';
-import { WaitingForAuthentication } from 'packages/ui/src/components/common/seedless/components/WaitingForAuthentication';
-import { FIDOChallenge } from 'packages/ui/src/components/common/seedless/components/FIDOChallenge';
+import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
+import { AuthenticationError } from '@/components/common/seedless/components/AuthenticationError';
+import { WaitingForAuthentication } from '@/components/common/seedless/components/WaitingForAuthentication';
+import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
 import { AuthErrorCode } from '@core/service-worker';
-import { MfaChoicePrompt } from 'packages/ui/src/components/common/seedless/components/MfaChoicePrompt';
+import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';
 
 const FATAL_ERRORS = [
   AuthErrorCode.NoMfaDetails,

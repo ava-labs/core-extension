@@ -1,6 +1,6 @@
 import { formatUnits, parseUnits } from 'ethers';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useNativeTokenPrice } from '@src/hooks/useTokenPrice';
+import { useNativeTokenPrice } from '@/hooks/useTokenPrice';
 import { calculateGasAndFees } from '@core/utils';
 import { useEffect, useState } from 'react';
 import { PageTitle } from './PageTitle';
@@ -16,7 +16,7 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { TextFieldLabel } from './TextFieldLabel';
 import { TruncateFeeAmount } from './TruncateFeeAmount';
 

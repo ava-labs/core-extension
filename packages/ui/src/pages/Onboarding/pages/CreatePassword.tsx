@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import {
   OnboardingPhase,
   OnboardingURLs,
 } from '@core/service-worker';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   CheckIcon,
@@ -19,7 +19,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { PageNav } from '../components/PageNav';
-import { PasswordStrength } from 'packages/ui/src/components/common/PasswordStrength';
+import { PasswordStrength } from '@/components/common/PasswordStrength';
 import { useHistory } from 'react-router-dom';
 import { TypographyLink } from '../components/TypographyLink';
 

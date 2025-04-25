@@ -1,11 +1,11 @@
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { Scrollbars } from 'packages/ui/src/components/common/scrollbars/Scrollbars';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { NoTransactions } from './components/NoTransactions';
 import { isSameDay, endOfYesterday, endOfToday, format } from 'date-fns';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { TxHistoryItem } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useTranslation } from 'react-i18next';
 import { getExplorerAddressByNetwork } from '@core/utils';
 import { ActivityCard } from './components/History/components/ActivityCard/ActivityCard';

@@ -9,7 +9,7 @@ import {
 import {
   ApprovalSection,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
+} from '@/components/common/approval/ApprovalSection';
 import { TransactionTokenCard } from '../TransactionTokenCard';
 
 export function NftSpendLimit({

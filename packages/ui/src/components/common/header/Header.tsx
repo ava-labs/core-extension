@@ -8,19 +8,19 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { SettingsMenu } from 'packages/ui/src/components/settings/SettingsMenu';
-import { useCurrentDomain } from 'packages/ui/pages/Permissions/useCurrentDomain';
-import { usePermissionContext } from '@src/contexts/PermissionsProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { SimpleAddress } from 'packages/ui/src/components/common/SimpleAddress';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { SettingsPages } from 'packages/ui/src/components/settings/models';
+import { SettingsMenu } from '@/components/settings/SettingsMenu';
+import { useCurrentDomain } from '@/pages/Permissions/useCurrentDomain';
+import { usePermissionContext } from '@/contexts/PermissionsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { SimpleAddress } from '@/components/common/SimpleAddress';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { SettingsPages } from '@/components/settings/models';
 
 import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { AccountSelectorButton } from '../account/AccountSelectorButton';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { AccountType } from '@core/service-worker';
 import { WalletChip } from '../WalletChip';
 import { getAddressForChain } from '@core/utils';

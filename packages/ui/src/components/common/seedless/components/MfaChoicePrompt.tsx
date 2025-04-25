@@ -11,7 +11,7 @@ import {
   MfaChoiceRequest,
   RecoveryMethod as RecoveryMethodT,
 } from '@core/service-worker';
-import { RecoveryMethod } from 'packages/ui/src/components/common/seedless/components/RecoveryMethod';
+import { RecoveryMethod } from '@/components/common/seedless/components/RecoveryMethod';
 import { PartialBy } from '@core/service-worker';
 
 type Props = {

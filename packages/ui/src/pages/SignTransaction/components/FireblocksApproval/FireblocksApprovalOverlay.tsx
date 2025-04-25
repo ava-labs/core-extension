@@ -1,7 +1,7 @@
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useEffect, useMemo, useState } from 'react';
-import { useRequiredSession } from 'packages/ui/src/components/common/walletConnect/useRequiredSession';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useRequiredSession } from '@/components/common/walletConnect/useRequiredSession';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { CircularProgress, Stack } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 import { WalletConnectApprovalConnect } from '../WalletConnectApproval/WalletConnectApprovalConnect';

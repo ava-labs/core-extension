@@ -10,13 +10,13 @@ import {
   CircularProgress,
 } from '@avalabs/core-k2-components';
 import { Trans, useTranslation } from 'react-i18next';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { TypographyLink } from 'packages/ui/pages/Onboarding/components/TypographyLink';
+import { Overlay } from '@/components/common/Overlay';
+import { TypographyLink } from '@/pages/Onboarding/components/TypographyLink';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import QRCode from 'qrcode.react';
-import { useSeedlessActions } from 'packages/ui/pages/Onboarding/hooks/useSeedlessActions';
-import { InlineBold } from 'packages/ui/src/components/common/InlineBold';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useSeedlessActions } from '@/pages/Onboarding/hooks/useSeedlessActions';
+import { InlineBold } from '@/components/common/InlineBold';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 export enum AuthenticatorSteps {
   SCAN = 'scan',

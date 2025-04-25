@@ -1,6 +1,5 @@
 import { deserializeFromJSON } from '@core/messaging/src/serialization/deserialize';
-import { isDevelopment } from '@core/utils';
-import { requestLog, responseLog } from '@core/utils';
+import { isDevelopment, requestLog, responseLog } from '@core/utils';
 import { firstValueFrom, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill';
 import {
@@ -9,13 +8,11 @@ import {
   isConnectionResponse,
   isConnectionEvent,
   ExtensionConnectionEvent,
-} from '../../../packages/service-worker/src/connections/models';
-import { serializeToJSON } from '@core/messaging/src/serialization/serialize';
-import {
+  PartialBy,
   JsonRpcRequest,
   JsonRpcRequestPayload,
-} from '@core/service-worker';
-import { PartialBy } from '@core/service-worker';
+} from '@core/types';
+import { serializeToJSON } from '@core/messaging';
 
 const responseMap = new Map<
   string,

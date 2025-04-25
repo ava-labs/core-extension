@@ -1,19 +1,19 @@
 import { useEffect, useMemo } from 'react';
 
-import { QRCodeWithLogo } from 'packages/ui/src/components/common/QRCodeWithLogo';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { QRCodeWithLogo } from '@/components/common/QRCodeWithLogo';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import {
   BtcQRCodeLogo,
   EthereumQRCodeLogo,
   AvalancheQRCodeLogo,
-} from 'packages/ui/src/components/icons/QRCodeLogos';
+} from '@/components/icons/QRCodeLogos';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isEthereumChainId } from '@core/service-worker';
 import { useTranslation } from 'react-i18next';
-import { PrimaryAddressK2 } from 'packages/ui/src/components/common/AddressK2';
+import { PrimaryAddressK2 } from '@/components/common/AddressK2';
 import {
   CircularProgress,
   Stack,
@@ -23,8 +23,8 @@ import { isPchainNetwork } from '@core/service-worker';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { FunctionIsUnavailable } from 'packages/ui/src/components/common/FunctionIsUnavailable';
+} from '@/hooks/useIsFunctionAvailable';
+import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
 import { getAddressForChain } from '@core/utils';
 import { isXchainNetwork } from '@core/service-worker';
 

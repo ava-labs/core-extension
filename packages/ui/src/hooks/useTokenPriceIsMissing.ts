@@ -1,8 +1,8 @@
 import { isBitcoinChainId } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useCallback, useMemo } from 'react';
 
 type UseTokenPriceMissingProps = {

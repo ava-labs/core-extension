@@ -14,7 +14,7 @@ import {
 } from '@avalabs/core-k2-components';
 import QRCode from 'qrcode.react';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 
 enum Screen {
   Scan = 'scan',

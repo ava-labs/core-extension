@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
   OnboardingURLs,
 } from '@core/service-worker';
 import { OnboardingStepHeader } from '../components/OnboardingStepHeader';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,

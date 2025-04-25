@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { SecretType } from '@core/service-worker';
 import { WalletDetails } from '@core/service-worker';
 import { PrimaryAccount } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';
 import { SelectionMode } from '../providers/AccountManagerProvider';

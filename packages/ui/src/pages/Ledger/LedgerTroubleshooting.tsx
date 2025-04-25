@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
+import { Overlay } from '@/components/common/Overlay';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
 import { useState } from 'react';
 
 export const LedgerTroubleshooting = () => {

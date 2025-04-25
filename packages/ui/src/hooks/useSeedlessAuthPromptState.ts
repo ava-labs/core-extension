@@ -1,7 +1,7 @@
 import { Subscription, filter } from 'rxjs';
 import { useEffect, useState } from 'react';
 
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@core/service-worker';
 import { isSeedlessTokenEvent } from '@core/service-worker';
 import { SeedlessEvents } from '@core/service-worker';

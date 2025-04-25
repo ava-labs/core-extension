@@ -2,11 +2,11 @@ import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
-import { useScopedToast } from '@src/hooks/useScopedToast';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useScopedToast } from '@/hooks/useScopedToast';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 
 import { ConfirmAccountRemovalDialog } from '../components/ConfirmAccountRemovalDialog';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useAccountManager } from '../providers/AccountManagerProvider';
 
 export const useAccountRemoval = (accountIds: string[]) => {

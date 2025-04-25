@@ -14,7 +14,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import {
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
-} from '@src/contexts/LedgerProvider';
+} from '@/contexts/LedgerProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import { ConnectionIndicatorK2 } from '../../common/ConnectionIndicatorK2';
 

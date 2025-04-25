@@ -1,6 +1,6 @@
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useCallback, useState } from 'react';
 
 type ConsentChangeOrigin = 'settings' | 're-opt-in-dialog';

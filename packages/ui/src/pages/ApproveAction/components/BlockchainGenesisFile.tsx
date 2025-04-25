@@ -9,13 +9,13 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
+import { Overlay } from '@/components/common/Overlay';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
+} from '@/components/common/approval/ApprovalSection';
 
 export const BlockchainGenesisFile = ({ onClose, data }) => {
   const { t } = useTranslation();

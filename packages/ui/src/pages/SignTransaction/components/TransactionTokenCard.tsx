@@ -14,9 +14,9 @@ import {
   type NetworkToken,
   type TokenDiffItem,
 } from '@avalabs/vm-module-types';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
-import { CollectibleMedia } from 'packages/ui/pages/Collectibles/components/CollectibleMedia';
-import { useConvertedCurrencyFormatter } from 'packages/ui/pages/DeFi/hooks/useConvertedCurrencyFormatter';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
+import { useConvertedCurrencyFormatter } from '@/pages/DeFi/hooks/useConvertedCurrencyFormatter';
 import { useEffect, useRef, useState } from 'react';
 
 export enum TransactionTokenCardVariant {

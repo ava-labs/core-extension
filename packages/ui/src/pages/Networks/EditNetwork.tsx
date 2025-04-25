@@ -10,9 +10,9 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import {
   CustomRpcHeaders,
   Network,
@@ -27,7 +27,7 @@ import {
   NetworkDetailsDialogOptions,
   NetworkDetailsDialogs,
 } from './NetworkDetailsDialogs';
-import { useGoBack } from '@src/hooks/useGoBack';
+import { useGoBack } from '@/hooks/useGoBack';
 
 export const EditNetwork = () => {
   const { t } = useTranslation();

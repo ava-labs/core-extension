@@ -9,7 +9,7 @@ import {
   toast,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -27,14 +27,14 @@ import {
   LedgerTroubleSteps,
   LedgerTroubleStepsFontVariant,
 } from '../../components/ledger/LedgerTroublesSteps';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@core/common/src/monitoring/sentryCaptureException';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { AppBackground } from 'packages/ui/src/components/common/AppBackground';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
+import { Overlay } from '@/components/common/Overlay';
+import { AppBackground } from '@/components/common/AppBackground';
 import browser from 'webextension-polyfill';
 
 enum Step {

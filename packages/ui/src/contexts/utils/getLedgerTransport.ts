@@ -1,9 +1,7 @@
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import { resolve } from '../../../packages/utils/src/promiseResolver';
+import { resolve } from '@core/utils';
 import Transport from '@ledgerhq/hw-transport';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
+import { Monitoring } from '@core/common';
 
 export async function getLedgerTransport(): Promise<Transport | null> {
   const [usbTransport, error] = await resolve(TransportWebUSB.openConnected());
@@ -13,7 +11,7 @@ export async function getLedgerTransport(): Promise<Transport | null> {
   }
 
   if (error) {
-    sentryCaptureException(error as Error, SentryExceptionTypes.LEDGER);
+    Monitoring.sentryCaptureException(error as Error, Monitoring.SentryExceptionTypes.LEDGER);
     console.error('Unable to open ledger transport', error);
   }
 

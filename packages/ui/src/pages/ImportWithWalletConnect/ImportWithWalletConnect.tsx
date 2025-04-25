@@ -3,12 +3,12 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Stack, useTheme } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { WalletConnectCircledIcon } from './components/WalletConnectCircledIcon';
 import WalletConnectConnector from './components/WalletConnectConnector';
 
-import { OnConnectCallback } from '@src/contexts/WalletConnectContextProvider/models';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { OnConnectCallback } from '@/contexts/WalletConnectContextProvider/models';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 type ImportWithWalletConnectProps = {
   onConnect?: OnConnectCallback;

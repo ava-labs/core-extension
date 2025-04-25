@@ -1,4 +1,4 @@
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useCallback, useState } from 'react';
 
 import { OnConnectCallback } from '../../../../src/contexts/WalletConnectContextProvider/models';

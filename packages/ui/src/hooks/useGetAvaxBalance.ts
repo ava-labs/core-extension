@@ -1,6 +1,6 @@
 import { GetNativeBalanceHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 
 export function useGetAvaxBalance() {
   const { request } = useConnectionContext();

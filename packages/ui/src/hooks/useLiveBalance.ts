@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { TokenType } from '@avalabs/vm-module-types';
 
 export const useLiveBalance = (tokenTypes: TokenType[]) => {

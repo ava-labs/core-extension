@@ -12,8 +12,8 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useLanguage } from '@src/hooks/useLanguages';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useLanguage } from '@/hooks/useLanguages';
 
 export function LanguageSelector() {
   const theme = useTheme();

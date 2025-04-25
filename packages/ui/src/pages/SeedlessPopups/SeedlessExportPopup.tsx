@@ -13,14 +13,14 @@ import {
 import {
   ExportState,
   useSeedlessMnemonicExport,
-} from '@src/hooks/useSeedlessMnemonicExport';
-import { useSeedlessMfa } from '@src/hooks/useSeedlessMfa';
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
-import { ExportPending } from 'packages/ui/src/components/common/seedless/components/ExportPending';
-import { PhraseReadyToExport } from 'packages/ui/src/components/common/seedless/components/PhraseReadyToExport';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+} from '@/hooks/useSeedlessMnemonicExport';
+import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
+import { ExportPending } from '@/components/common/seedless/components/ExportPending';
+import { PhraseReadyToExport } from '@/components/common/seedless/components/PhraseReadyToExport';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { SeedlessExportAnalytics } from '@core/service-worker';
-import { ExportError } from 'packages/ui/src/components/common/seedless/components/ExportError';
+import { ExportError } from '@/components/common/seedless/components/ExportError';
 
 export const SeedlessExportPopup = () => {
   const { t } = useTranslation();

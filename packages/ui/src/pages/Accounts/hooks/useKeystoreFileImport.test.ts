@@ -5,12 +5,12 @@ import {
   KEYSTORE_V2,
   KEYSTORE_V6,
   KEYSTORE_V6_PKEY,
-} from 'packages/utils/src/keystore/fixtures';
+} from '@core/utils';
 
 import { useImportSeedphrase } from './useImportSeedphrase';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useKeystoreFileImport } from './useKeystoreFileImport';
-import { SeedphraseImportError } from 'packages/service-worker/src/services/wallet/handlers/models';
+import { SeedphraseImportError } from '@core/types';
 import { utils } from '@avalabs/avalanchejs';
 import { useAccountsContext } from '@src/contexts/AccountsProvider';
 

@@ -12,7 +12,7 @@ import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
 
 
 import { SendErrorMessage } from '@core/types';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';
 import { SOLANA_FIXED_BASE_FEE, SolanaSendOptions } from '../../models';

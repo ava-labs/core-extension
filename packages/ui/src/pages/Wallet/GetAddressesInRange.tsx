@@ -13,17 +13,17 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { GetAddressesInRangeDisplayData } from '@core/service-worker';
-import { useApproveAction } from '@src/hooks/useApproveAction';
+import { useApproveAction } from '@/hooks/useApproveAction';
 import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
+} from '@/components/common/approval/ApprovalSection';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { DomainMetadata } from '@core/service-worker';
-import { TxDetailsRow } from 'packages/ui/src/components/common/approval/TxDetailsRow';
+import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 import { truncateAddress } from '@core/utils';
 
 export function GetAddressesInRange() {

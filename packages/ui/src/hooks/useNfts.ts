@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { getAddressForChain } from '@core/utils';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 

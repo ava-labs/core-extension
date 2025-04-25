@@ -29,13 +29,13 @@ import {
 } from '@avalabs/vm-module-types';
 import { isNativeAsset } from '@avalabs/bridge-unified';
 
-import { TokenSelect } from 'packages/ui/src/components/common/TokenSelect';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { TokenSelect } from '@/components/common/TokenSelect';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { NetworkWithCaipId } from '@core/service-worker';
-import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
 import { NavigationHistoryDataState } from '@core/service-worker';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 
 import { useBridge } from '../hooks/useBridge';
 import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
@@ -45,7 +45,7 @@ import { findMatchingBridgeAsset } from '../utils/findMatchingBridgeAsset';
 import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 import { BridgeOptions } from '../models';
 import { isBitcoinNetwork } from '@core/service-worker';
-import { CustomFees } from 'packages/ui/src/components/common/CustomFees';
+import { CustomFees } from '@/components/common/CustomFees';
 import { NetworkFee } from '@core/service-worker';
 
 export type BridgeFormProps = ReturnType<typeof useBridge> & {

@@ -3,11 +3,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import { USDC_ADDRESSES } from '@core/utils';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
 import { useSwap } from './useSwap';
-import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
+import { DISALLOWED_SWAP_ASSETS } from '@/contexts/SwapProvider/models';
 import { stringToBigint } from '@core/utils';
 
 import { Amount, DestinationInput, getTokenAddress } from '../utils';

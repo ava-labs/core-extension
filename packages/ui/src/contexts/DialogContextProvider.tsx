@@ -1,4 +1,4 @@
-import Dialog, { DialogProps } from 'packages/ui/src/components/common/Dialog';
+import Dialog, { DialogProps } from '@/components/common/Dialog';
 import {
   createContext,
   ReactNode,

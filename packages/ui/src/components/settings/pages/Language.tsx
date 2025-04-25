@@ -1,8 +1,8 @@
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@src/hooks/useLanguages';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useLanguage } from '@/hooks/useLanguages';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   Stack,
   Scrollbars,

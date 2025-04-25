@@ -1,9 +1,9 @@
 import { LedgerWrongVersion } from './LedgerWrongVersion';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import {
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
-} from '@src/contexts/LedgerProvider';
+} from '@/contexts/LedgerProvider';
 import { isLedgerVersionCompatible } from '@core/utils';
 import { Backdrop, Stack } from '@avalabs/core-k2-components';
 

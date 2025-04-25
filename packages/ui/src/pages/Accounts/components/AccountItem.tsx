@@ -21,16 +21,16 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { Account, AccountType } from '@core/service-worker';
-import { useBalanceTotalInCurrency } from '@src/hooks/useBalanceTotalInCurrency';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { SecretType } from '@core/service-worker';
 import { getAddressForChain } from '@core/utils';
 import { truncateAddress } from '@core/utils';
-import { useScopedToast } from '@src/hooks/useScopedToast';
+import { useScopedToast } from '@/hooks/useScopedToast';
 
 import { useAccountRename } from '../hooks/useAccountRename';
 import {

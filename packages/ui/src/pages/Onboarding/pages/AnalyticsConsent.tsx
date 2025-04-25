@@ -1,9 +1,9 @@
-import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
+import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import {
   OnboardingURLs,
   OnboardingPhase,
 } from '@core/service-worker';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   AirdropIcon,

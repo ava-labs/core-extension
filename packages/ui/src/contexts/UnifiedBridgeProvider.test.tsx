@@ -1,4 +1,4 @@
-import { matchingPayload, render, waitFor } from '@src/tests/test-utils';
+import { matchingPayload, render, waitFor } from '@shared/tests/test-utils';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 import {
   BridgeSignatureReason,
@@ -19,10 +19,10 @@ import {
   UnifiedBridgeProvider,
   useUnifiedBridgeContext,
 } from './UnifiedBridgeProvider';
-import { FeatureGates } from 'packages/service-worker/src/services/featureFlags/models';
+import { FeatureGates } from '@core/types';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@core/utils';
-import { CommonError } from 'packages/utils/src/errors';
+import { CommonError } from '@core/utils';
 import { UnifiedBridgeError } from '@core/types';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { ExtensionRequest } from '@core/types';

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import {
   PasswordStrength,
   getPasswordErrorMessage,
-} from 'packages/ui/src/components/common/PasswordStrength';
+} from '@/components/common/PasswordStrength';
 import { useTranslation } from 'react-i18next';
 import {
   Stack,
@@ -14,7 +14,7 @@ import {
   Button,
   AlertTriangleIcon,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 export function ChangePassword({
   goBack,

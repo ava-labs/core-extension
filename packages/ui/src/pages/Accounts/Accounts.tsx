@@ -14,19 +14,19 @@ import {
 import { t } from 'i18next';
 import { useHistory } from 'react-router-dom';
 
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { LedgerApprovalDialog } from 'packages/ui/pages/SignTransaction/components/LedgerApprovalDialog';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { LedgerApprovalDialog } from '@/pages/SignTransaction/components/LedgerApprovalDialog';
 
 import { AccountType } from '@core/service-worker';
-import { useScopedToast } from '@src/hooks/useScopedToast';
-import { NetworkSwitcher } from 'packages/ui/src/components/common/header/NetworkSwitcher';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { useScopedToast } from '@/hooks/useScopedToast';
+import { NetworkSwitcher } from '@/components/common/header/NetworkSwitcher';
+import { Overlay } from '@/components/common/Overlay';
 import { isPrimaryAccount } from '@core/service-worker';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 
 import { useAccountManager } from './providers/AccountManagerProvider';
 import { useAccountRemoval } from './hooks/useAccountRemoval';

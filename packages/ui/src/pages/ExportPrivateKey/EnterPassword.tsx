@@ -11,13 +11,13 @@ import {
   PrivateKeyChain,
 } from '@core/service-worker';
 import { SecretType } from '@core/service-worker';
-import { Dropdown, DropdownItem } from 'packages/ui/src/components/common/Dropdown';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { Dropdown, DropdownItem } from '@/components/common/Dropdown';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { useGoBack } from '@src/hooks/useGoBack';
+import { useGoBack } from '@/hooks/useGoBack';
 
 export const IconWrapper = styled(Stack)`
   background: ${({ theme }) => theme.palette.grey[850]};

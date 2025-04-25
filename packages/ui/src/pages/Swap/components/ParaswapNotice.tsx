@@ -5,7 +5,7 @@ import {
   Typography,
   Tooltip,
 } from '@avalabs/core-k2-components';
-import { ParaswapIcon } from 'packages/ui/src/components/icons/ParaswapIcon';
+import { ParaswapIcon } from '@/components/icons/ParaswapIcon';
 
 export function ParaswapNotice() {
   const { t } = useTranslation();

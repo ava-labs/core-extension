@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { filter } from 'rxjs';
 
-import { isApprovalRequest } from '@core/service-worker';
-import { ApprovalRequest } from '@core/service-worker';
-import { isActionsUpdate } from '@core/service-worker';
+import {
+  ApprovalRequest,
+} from '@core/types';
+import {
+  isActionsUpdate,
+  isApprovalRequest,
+} from '@core/service-worker';
 
 import { useConnectionContext } from './ConnectionProvider';
 

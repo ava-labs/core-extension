@@ -4,7 +4,7 @@ import {
   PrimaryAccount,
   WalletId,
 } from '@core/service-worker';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 
 import { WalletContainer } from './WalletContainer';
 

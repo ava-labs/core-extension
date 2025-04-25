@@ -11,11 +11,11 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 import { truncateAddress } from '@core/utils';
 import { getExplorerAddressByNetwork } from '@core/utils';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { openNewTab } from '@core/utils';
 import { DomainMetadata } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { TxDetailsRow } from 'packages/ui/src/components/common/approval/TxDetailsRow';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 
 type ContractDetailsProps = {
   contractAddress: string;

@@ -1,10 +1,10 @@
-import Dialog from 'packages/ui/src/components/common/Dialog';
+import Dialog from '@/components/common/Dialog';
 import { useEffect, useState } from 'react';
 import { t } from 'i18next';
-import DangerIcon from 'packages/ui/src/components/icons/DangerIcon';
+import DangerIcon from '@/components/icons/DangerIcon';
 import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import useIsIncorrectDevice from './hooks/useIsIncorrectDevice';
-import { useLedgerContext } from '@src/contexts/LedgerProvider';
+import { useLedgerContext } from '@/contexts/LedgerProvider';
 
 const LedgerIncorrectDevice = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

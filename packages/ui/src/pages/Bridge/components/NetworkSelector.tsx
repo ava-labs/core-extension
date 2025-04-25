@@ -11,7 +11,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { NetworkWithCaipId } from '@core/service-worker';
 interface NetworkSelectorProps {
   testId?: string;

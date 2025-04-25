@@ -1,11 +1,15 @@
-import { ExtensionRequest } from '@core/service-worker';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
+import { Balances, ExtensionRequest, TotalPriceChange } from '@core/types';
 import {
-  Balances,
-  TotalPriceChange,
+  GetBalancesHandler,
+  UpdateBalancesForNetworkHandler,
+	balancesUpdatedEventListener,
+	RefreshNftMetadataHandler,
+	StartBalancesPollingHandler,
+	StopBalancesPollingHandler,
 } from '@core/service-worker';
-import { GetBalancesHandler } from '@core/service-worker';
-import { UpdateBalancesForNetworkHandler } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { merge } from 'lodash';
 import {
   createContext,
   useCallback,
@@ -16,25 +20,23 @@ import {
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
-import { merge } from 'lodash';
-import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
 
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import {
+  Account,
+  NetworkWithCaipId,
+  TokensPriceShortData,
+} from '@core/types';
+import {
+  calculateTotalBalance,
+  getAddressForChain,
+  getDefaultChainIds,
+  getSmallImageForNFT,
+  ipfsResolverWithFallback,
+  isNotNullish,
+} from '@core/utils';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
-import { balancesUpdatedEventListener } from '@core/service-worker';
-import { Account } from '@core/service-worker';
-import { StartBalancesPollingHandler } from '@core/service-worker';
-import { StopBalancesPollingHandler } from '@core/service-worker';
-import { RefreshNftMetadataHandler } from '@core/service-worker';
-import { ipfsResolverWithFallback } from '@core/utils';
-import { getSmallImageForNFT } from '@core/service-worker';
-import { TokensPriceShortData } from '@core/service-worker';
-import { calculateTotalBalance } from '@core/utils';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/service-worker';
-import { getAddressForChain } from '@core/utils';
-import { getDefaultChainIds } from '@core/utils';
-import { isNotNullish } from '@core/utils';
 
 export const IPFS_URL = 'https://ipfs.io';
 

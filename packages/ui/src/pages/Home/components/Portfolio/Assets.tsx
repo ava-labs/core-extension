@@ -1,7 +1,7 @@
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useTranslation } from 'react-i18next';
 import { TokenList } from './TokenList';
-import { usePendingBridgeTransactions } from 'packages/ui/pages/Bridge/hooks/usePendingBridgeTransactions';
+import { usePendingBridgeTransactions } from '@/pages/Bridge/hooks/usePendingBridgeTransactions';
 import {
   AlertTriangleIcon,
   Badge,
@@ -15,20 +15,20 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { Redirect, useHistory } from 'react-router-dom';
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import {
   getNetworkBalance,
   getNetworkTokensPriceChanges,
 } from './NetworkWidget/NetworksWidget';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useMemo, useState } from 'react';
-import { WalletRecentTxs } from 'packages/ui/pages/Wallet/WalletRecentTxs';
+import { WalletRecentTxs } from '@/pages/Wallet/WalletRecentTxs';
 import { isBitcoinNetwork } from '@core/service-worker';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useTokenPriceMissing } from '@src/hooks/useTokenPriceIsMissing';
-import { PAndL } from 'packages/ui/src/components/common/ProfitAndLoss';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useTokenPriceMissing } from '@/hooks/useTokenPriceIsMissing';
+import { PAndL } from '@/components/common/ProfitAndLoss';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
 import { TokenType } from '@avalabs/vm-module-types';
 
 enum AssetsTabs {

@@ -20,7 +20,7 @@ import {
   tap,
   map,
 } from 'rxjs';
-import { getLedgerTransport } from '@src/contexts/utils/getLedgerTransport';
+import { getLedgerTransport } from '@/contexts/utils/getLedgerTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import {
   AppClient as Btc,

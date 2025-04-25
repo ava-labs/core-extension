@@ -6,11 +6,11 @@ import {
 } from '@core/service-worker';
 import { GetBtcWalletPolicyDetails } from '@core/service-worker';
 import { WalletDetails } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
-import { LedgerAppType, useLedgerContext } from '@src/contexts/LedgerProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { LedgerAppType, useLedgerContext } from '@/contexts/LedgerProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 import { useEffect, useState } from 'react';
 
 const useRegisterBtcWalletPolicy = () => {

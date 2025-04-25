@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { useTranslation } from 'react-i18next';
 import {
   AlertTriangleIcon,

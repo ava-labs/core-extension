@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TokenType } from '@avalabs/vm-module-types';
 
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 
 export const useHasEnoughForGas = (
   sendAmount?: bigint,

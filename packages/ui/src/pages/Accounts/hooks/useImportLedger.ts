@@ -5,7 +5,7 @@ import {
   ImportWalletResult,
 } from '@core/service-worker';
 import { ExtensionRequest } from '@core/service-worker';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { ImportLedgerHandler } from '@core/service-worker';
 
 type ImportWalletFn = (

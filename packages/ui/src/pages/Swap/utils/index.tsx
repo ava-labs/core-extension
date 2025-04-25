@@ -1,4 +1,4 @@
-import { TokenIcon as TokenImage } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon as TokenImage } from '@/components/common/TokenIcon';
 import { calculateGasAndFees } from '@core/utils';
 import { TokenType, TokenWithBalanceEVM } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@core/utils';

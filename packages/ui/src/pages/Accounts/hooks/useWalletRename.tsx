@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useScopedToast } from '@src/hooks/useScopedToast';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useScopedToast } from '@/hooks/useScopedToast';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { WalletDetails } from '@core/service-worker';
 
 import { useEntityRename } from './useEntityRename';

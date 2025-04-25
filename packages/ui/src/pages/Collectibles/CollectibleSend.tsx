@@ -5,22 +5,22 @@ import { useTranslation } from 'react-i18next';
 import { Stack, toast } from '@avalabs/core-k2-components';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
+} from '@/hooks/useIsFunctionAvailable';
 import { Network } from '@core/service-worker';
-import { FunctionIsUnavailable } from 'packages/ui/src/components/common/FunctionIsUnavailable';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { getProviderForNetwork } from '@core/utils';
 import { toastCardWithLink } from '@core/utils';
 import { getExplorerAddressByNetwork } from '@core/utils';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 
 import { LoadingSendForm } from '../Send/components/LoadingSendForm';
 import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';

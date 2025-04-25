@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { ImageWithFallback } from 'packages/ui/src/components/common/ImageWithFallback';
+import { ImageWithFallback } from '@/components/common/ImageWithFallback';
 import {
   ChevronLeftIcon,
   IconButton,
@@ -8,7 +8,7 @@ import {
   styled,
   keyframes,
 } from '@avalabs/core-k2-components';
-import { useGoBack } from '@src/hooks/useGoBack';
+import { useGoBack } from '@/hooks/useGoBack';
 
 const ShowThumbnailImageAnimation = keyframes`
   0% {

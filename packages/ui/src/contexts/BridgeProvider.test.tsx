@@ -1,5 +1,5 @@
 import { createRef, forwardRef, useImperativeHandle } from 'react';
-import { render } from '@src/tests/test-utils';
+import { render } from '@shared/tests/test-utils';
 import Big from 'big.js';
 import {
   AssetType,

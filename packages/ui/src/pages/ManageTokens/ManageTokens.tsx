@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ManageTokensList } from './ManageTokensList';
-import { Scrollbars } from 'packages/ui/src/components/common/scrollbars/Scrollbars';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { useHistory } from 'react-router-dom';
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { useTranslation } from 'react-i18next';
 import {
   Button,

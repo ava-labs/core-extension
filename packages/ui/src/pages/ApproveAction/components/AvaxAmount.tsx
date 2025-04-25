@@ -1,6 +1,6 @@
 import { Stack, Typography } from '@avalabs/core-k2-components';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 
 type AvaxAmountProps = {
   amount: bigint;

@@ -12,18 +12,18 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
+import { Overlay } from '@/components/common/Overlay';
 import { ActionStatus } from '@core/service-worker';
 import { NetworkWithCaipId } from '@core/service-worker';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useApproveAction } from '@src/hooks/useApproveAction';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useApproveAction } from '@/hooks/useApproveAction';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
 import {
   ApprovalSection,
   ApprovalSectionBody,
   ApprovalSectionHeader,
-} from 'packages/ui/src/components/common/approval/ApprovalSection';
-import { TransactionDetailItem } from 'packages/ui/src/components/common/approval/TransactionDetailItem';
+} from '@/components/common/approval/ApprovalSection';
+import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
 import { useWindowGetsClosedOrHidden } from '@core/utils';
 
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
@@ -33,7 +33,7 @@ import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails'
 import { useFeeCustomizer } from './hooks/useFeeCustomizer';
 import { TransactionDetailsCardContent } from './components/TransactionDetailsCardContent';
 import { DetailedCardWrapper } from './components/DetailedCardWrapper';
-import { FlexScrollbars } from 'packages/ui/src/components/common/FlexScrollbars';
+import { FlexScrollbars } from '@/components/common/FlexScrollbars';
 import { hasDefined } from '@core/utils';
 
 export function TxBatchApprovalScreen() {

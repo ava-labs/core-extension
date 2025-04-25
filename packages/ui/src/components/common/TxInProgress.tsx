@@ -1,13 +1,13 @@
-import { LoadingOverlay } from 'packages/ui/src/components/common/LoadingOverlay';
-import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
-import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
-import { KeystoneApprovalOverlay } from 'packages/ui/pages/SignTransaction/components/KeystoneApprovalOverlay';
-import { LedgerApprovalDialog } from 'packages/ui/pages/SignTransaction/components/LedgerApprovalDialog';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { WalletConnectApprovalOverlay } from 'packages/ui/pages/SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
-import useIsUsingWalletConnectAccount from '@src/hooks/useIsUsingWalletConnectAccount';
-import useIsUsingFireblocksAccount from '@src/hooks/useIsUsingFireblocksAccount';
-import { FireblocksApprovalOverlay } from 'packages/ui/pages/SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
+import { LoadingOverlay } from '@/components/common/LoadingOverlay';
+import useIsUsingKeystoneWallet from '@/hooks/useIsUsingKeystoneWallet';
+import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
+import { KeystoneApprovalOverlay } from '@/pages/SignTransaction/components/KeystoneApprovalOverlay';
+import { LedgerApprovalDialog } from '@/pages/SignTransaction/components/LedgerApprovalDialog';
+import { Overlay } from '@/components/common/Overlay';
+import { WalletConnectApprovalOverlay } from '@/pages/SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';
+import useIsUsingWalletConnectAccount from '@/hooks/useIsUsingWalletConnectAccount';
+import useIsUsingFireblocksAccount from '@/hooks/useIsUsingFireblocksAccount';
+import { FireblocksApprovalOverlay } from '@/pages/SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 
 interface TxInProgressProps {
   address?: string;

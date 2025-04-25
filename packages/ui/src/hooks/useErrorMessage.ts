@@ -12,7 +12,7 @@ import {
 import { UnifiedBridgeError } from '@core/service-worker';
 import { KeystoreError } from '@core/utils';
 import { SeedphraseImportError } from '@core/service-worker';
-import { SwapErrorCode } from '@src/contexts/SwapProvider/models';
+import { SwapErrorCode } from '@/contexts/SwapProvider/models';
 
 type ErrorTranslation = {
   title: string;

@@ -18,7 +18,7 @@ import { WalletDetails } from '@core/service-worker';
 import { useAccountManager } from '../providers/AccountManagerProvider';
 import { OverflowingTypography } from './OverflowingTypography';
 import { useWalletRename } from '../hooks/useWalletRename';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 
 const commonTransitionProps = {
   timeout: 200,

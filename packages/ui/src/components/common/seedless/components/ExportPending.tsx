@@ -11,7 +11,7 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { ArcProgress } from 'packages/ui/src/components/common/ArcProgress';
+import { ArcProgress } from '@/components/common/ArcProgress';
 
 type Props = {
   progress: number;

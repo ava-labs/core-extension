@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from 'react';
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useContactsContext } from '@src/contexts/ContactsProvider';
+import { useContactsContext } from '@/contexts/ContactsProvider';
 import { ContactListItem } from '../components/ContactListItem';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,7 +14,7 @@ import {
   List,
   SearchBar,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 export function ContactList({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();

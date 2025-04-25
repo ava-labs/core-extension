@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
-import { FunctionNames } from '@src/hooks/useIsFunctionAvailable';
+import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 
 interface FunctionIsOfflineProps {
   functionName: FunctionNames;

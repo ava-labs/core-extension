@@ -1,18 +1,19 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
-  useCallback,
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
 
-import { CurrencyExchangeRates } from '@core/service-worker';
-import { currencyRatesUpdatedEventListener } from '@core/service-worker';
+import { CurrencyExchangeRates, ExtensionRequest } from '@core/types';
+import {
+  currencyRatesUpdatedEventListener,
+  GetCurrencyExchangeRatesHandler,
+} from '@core/service-worker';
 
 import { useConnectionContext } from './ConnectionProvider';
-import { GetCurrencyExchangeRatesHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
 
 type CurrencyConversionOptions = {
   from: string;

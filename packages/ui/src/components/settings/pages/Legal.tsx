@@ -8,7 +8,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 export function Legal({ goBack, navigateTo, width }) {
   const { t } = useTranslation();

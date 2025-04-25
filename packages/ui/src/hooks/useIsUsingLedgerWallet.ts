@@ -1,6 +1,6 @@
 import { AccountType } from '@core/service-worker';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 
 const useIsUsingLedgerWallet = () => {
   const { isLedgerWallet } = useWalletContext();

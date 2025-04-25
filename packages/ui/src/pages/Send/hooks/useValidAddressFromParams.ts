@@ -1,4 +1,4 @@
-import { useQueryParams } from '@src/hooks/useQueryParams';
+import { useQueryParams } from '@/hooks/useQueryParams';
 
 export const useValidAddressFromParams = (
   validateAddress: (address: string) => boolean,

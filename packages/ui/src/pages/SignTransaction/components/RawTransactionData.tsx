@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Scrollbars, Stack, Typography } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import { getHexStringToBytes } from '@core/utils';
 
 export const RawTransactionData = ({ onClose, data }) => {

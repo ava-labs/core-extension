@@ -1,9 +1,9 @@
 import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useWalletContext } from '@src/contexts/WalletProvider';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { ExtensionRequest } from '@core/service-worker';
 import { ResetExtensionStateHandler } from '@core/service-worker';
 import { Trans, useTranslation } from 'react-i18next';
@@ -23,14 +23,14 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { useState } from 'react';
-import Dialog from 'packages/ui/src/components/common/Dialog';
+import Dialog from '@/components/common/Dialog';
 import { SeedlessExportAnalytics } from '@core/service-worker';
 import { AnalyticsConsent } from '@core/service-worker';
-import { useAnalyticsConsentCallbacks } from '@src/hooks/useAnalyticsConsentCallbacks';
+import { useAnalyticsConsentCallbacks } from '@/hooks/useAnalyticsConsentCallbacks';
 import { SecretType } from '@core/service-worker';
-import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/service-worker';
-import { useSeedlessMfaManager } from '@src/contexts/SeedlessMfaManagementProvider';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 
 export function SecurityAndPrivacy({
   goBack,

@@ -8,11 +8,11 @@ import {
   useTheme,
   AlertCircleIcon,
 } from '@avalabs/core-k2-components';
-import { Overlay } from 'packages/ui/src/components/common/Overlay';
-import { useSeedlessActions } from 'packages/ui/pages/Onboarding/hooks/useSeedlessActions';
+import { Overlay } from '@/components/common/Overlay';
+import { useSeedlessActions } from '@/pages/Onboarding/hooks/useSeedlessActions';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { FIDOSteps, RecoveryMethodTypes } from '../models';
 
 interface SeedlessModalProps {

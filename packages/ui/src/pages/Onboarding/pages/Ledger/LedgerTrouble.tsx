@@ -10,7 +10,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useHistory } from 'react-router-dom';
 import { OnboardingURLs } from '@core/service-worker';
-import { useLanguage } from '@src/hooks/useLanguages';
+import { useLanguage } from '@/hooks/useLanguages';
 import { TypographyLink } from '../../components/TypographyLink';
 import { LedgerTroubleSteps } from '../../../../components/ledger/LedgerTroublesSteps';
 

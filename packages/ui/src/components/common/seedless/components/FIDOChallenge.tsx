@@ -6,7 +6,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { useFidoErrorMessage } from '@src/hooks/useFidoErrorMessage';
+import { useFidoErrorMessage } from '@/hooks/useFidoErrorMessage';
 import { Trans, useTranslation } from 'react-i18next';
 import { AuthErrorCode } from '@core/service-worker';
 

@@ -14,22 +14,22 @@ import { CollectibleGrid } from './components/CollectibleGrid';
 import { CollectibleList } from './components/CollectibleList';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useSettingsContext } from '@src/contexts/SettingsProvider';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
+} from '@/hooks/useIsFunctionAvailable';
 import { useHistory } from 'react-router-dom';
 import { CollectibleSkeleton } from './components/CollectibleSkeleton';
-import { InfiniteScroll } from 'packages/ui/src/components/common/infiniteScroll/InfiniteScroll';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { InfiniteScroll } from '@/components/common/infiniteScroll/InfiniteScroll';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { ListType } from '../Home/components/Portfolio/Portfolio';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { useNfts } from '@src/hooks/useNfts';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { useNfts } from '@/hooks/useNfts';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
 
 interface CollectiblesProps {
   listType: ListType;

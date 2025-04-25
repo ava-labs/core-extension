@@ -5,8 +5,8 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { AuthErrorCode } from '@core/service-worker';
-import { PageTitle, PageTitleVariant } from 'packages/ui/src/components/common/PageTitle';
-import { useTotpErrorMessage } from '@src/hooks/useTotpErrorMessage';
+import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
+import { useTotpErrorMessage } from '@/hooks/useTotpErrorMessage';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

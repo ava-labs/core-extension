@@ -14,14 +14,14 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
+import { PageTitle } from '@/components/common/PageTitle';
 import {
   KeystoreError,
   KeystoreFileContentInfo,
 } from '@core/utils';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useKeyboardShortcuts } from '@src/hooks/useKeyboardShortcuts';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 import { KeystoreFileError } from './components/KeystoreFileError';
 import { KeystoreFileUpload } from './components/KeystoreFileUpload';

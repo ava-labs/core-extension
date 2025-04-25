@@ -11,8 +11,8 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { Scrollbars } from 'packages/ui/src/components/common/scrollbars/Scrollbars';
+import { PageTitle } from '@/components/common/PageTitle';
+import { Scrollbars } from '@/components/common/scrollbars/Scrollbars';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { CollectibleMedia } from './components/CollectibleMedia';
@@ -20,10 +20,10 @@ import { useCollectibleFromParams } from './hooks/useCollectibleFromParams';
 import { useSetCollectibleParams } from './hooks/useSetCollectibleParams';
 import { useTranslation } from 'react-i18next';
 import { PortfolioTabs } from '../Home/components/Portfolio/Portfolio';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { TokenType } from '@avalabs/vm-module-types';
 import { parseRawAttributesString } from '@core/utils';
 import { isAvalancheNetwork } from '@core/service-worker';

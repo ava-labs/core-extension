@@ -9,23 +9,23 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { PageTitle } from 'packages/ui/src/components/common/PageTitle';
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
-import { FunctionIsOffline } from 'packages/ui/src/components/common/FunctionIsOffline';
-import { usePageHistory } from '@src/hooks/usePageHistory';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import { PageTitle } from '@/components/common/PageTitle';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
+import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
+import { usePageHistory } from '@/hooks/usePageHistory';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   FunctionNames,
   useIsFunctionAvailable,
-} from '@src/hooks/useIsFunctionAvailable';
-import { useErrorMessage } from '@src/hooks/useErrorMessage';
+} from '@/hooks/useIsFunctionAvailable';
+import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { isBitcoinNetwork } from '@core/service-worker';
-import { useLiveBalance } from '@src/hooks/useLiveBalance';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
 import { NetworkWithCaipId } from '@core/service-worker';
-import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { HallidayBanner } from 'packages/ui/src/components/common/HallidayBanner';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
+import { HallidayBanner } from '@/components/common/HallidayBanner';
 
 import { useBridge } from './hooks/useBridge';
 import { BridgeForm } from './components/BridgeForm';

@@ -8,7 +8,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { SendErrorMessage } from '@core/types';
-import { useConnectionContext } from '@src/contexts/ConnectionProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
   getBtcInputUtxos,
   validateBtcSend,

@@ -9,10 +9,10 @@ import {
 import { Network } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
 
-import { TokenIcon } from 'packages/ui/src/components/common/TokenIcon';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import { ActionStatus } from '@core/service-worker';
-import { useGetRequestId } from '@src/hooks/useGetRequestId';
-import useWillSwitchToPrimaryAccount from '@src/hooks/useWillSwitchToPrimaryAccount';
+import { useGetRequestId } from '@/hooks/useGetRequestId';
+import useWillSwitchToPrimaryAccount from '@/hooks/useWillSwitchToPrimaryAccount';
 
 import { useApproveAction } from '../../hooks/useApproveAction';
 
