@@ -1,7 +1,6 @@
-import { AccountType } from '@core/service-worker';
-import { SecretType } from '@core/service-worker';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
+import { AccountType, SecretType } from '@core/types';
 
 const useIsUsingKeystoneWallet = () => {
   const { walletDetails } = useWalletContext();

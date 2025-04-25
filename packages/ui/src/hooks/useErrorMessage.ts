@@ -1,18 +1,18 @@
+import { errorCodes } from 'eth-rpc-errors';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { errorCodes } from 'eth-rpc-errors';
 
-import { FireblocksErrorCode } from '@core/service-worker';
 import {
   CommonError,
+  FireblocksErrorCode,
+  KeystoreError,
   RpcErrorCode,
   SecretsError,
-  isWrappedError,
-} from '@core/utils';
-import { UnifiedBridgeError } from '@core/service-worker';
-import { KeystoreError } from '@core/utils';
-import { SeedphraseImportError } from '@core/service-worker';
-import { SwapErrorCode } from '@/contexts/SwapProvider/models';
+  SeedphraseImportError,
+  SwapErrorCode,
+  UnifiedBridgeError,
+} from '@core/types';
+import { isWrappedError } from '@core/utils';
 
 type ErrorTranslation = {
   title: string;

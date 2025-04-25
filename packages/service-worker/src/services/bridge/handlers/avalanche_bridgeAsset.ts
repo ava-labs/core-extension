@@ -39,7 +39,7 @@ import {
   resolve,
 } from '@core/utils';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-import { isBitcoinNetwork } from '../../network/utils/isBitcoinNetwork';
+import { isBitcoinNetwork } from '@core/utils/src/network/isBitcoinNetwork';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { WalletService } from '../../wallet/WalletService';
 import { ContractTransaction } from 'ethers';

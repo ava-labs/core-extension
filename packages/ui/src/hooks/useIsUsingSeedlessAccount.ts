@@ -1,5 +1,4 @@
-import { AccountType } from '@core/service-worker';
-import { SecretType } from '@core/service-worker';
+import { AccountType, SecretType } from '@core/types';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
 

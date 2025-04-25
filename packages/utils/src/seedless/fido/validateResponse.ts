@@ -3,10 +3,8 @@ import {
   EncodedFIDOAuthenticationResult,
   EncodedFIDORegistrationResult,
   FIDOApiEndpoint,
-} from './types';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
+} from '@core/types';
+import { Monitoring } from '@core/common';
 
 const REGISTRATION_RESPONSE_SCHEMA = Joi.object<
   EncodedFIDORegistrationResult,
@@ -50,9 +48,9 @@ export const isValidResponse = (
 
   if (error) {
     const messages = error.details.map(({ message }) => message);
-    sentryCaptureException(
+    Monitoring.sentryCaptureException(
       new Error(`Invalid Identity API response: ${messages.join(' | ')}`),
-      SentryExceptionTypes.SEEDLESS,
+      Monitoring.SentryExceptionTypes.SEEDLESS,
     );
 
     return false;

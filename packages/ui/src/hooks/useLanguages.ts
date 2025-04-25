@@ -1,7 +1,7 @@
 import {
   LanguageLinks,
   Languages,
-} from '@core/service-worker';
+} from '@core/types';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useTranslation } from 'react-i18next';
 

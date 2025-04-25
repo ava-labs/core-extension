@@ -1,4 +1,4 @@
-import { AuthErrorCode } from '@core/service-worker';
+import { AuthErrorCode } from '@core/types';
 import { useTranslation } from 'react-i18next';
 
 export const useTotpErrorMessage = (code?: AuthErrorCode): string => {

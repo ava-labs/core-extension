@@ -2,7 +2,7 @@ import { cloneDeep, get, update } from 'lodash';
 
 import { base64UrlToBuffer } from '@core/utils';
 
-import { DecodedFIDOResult, EncodedFIDOResult } from './types';
+import { DecodedFIDOResult, EncodedFIDOResult } from '@core/types';
 
 // Result properties that are known to contain Base64Url-encoded
 // values. We need these values to be converted back to Buffers

@@ -81,8 +81,8 @@ import {
 } from '../secrets/utils';
 import { assertPresent, omitUndefined } from '@core/utils';
 import { AddressResolver } from '../secrets/AddressResolver';
-import { isXchainNetwork } from '../network/utils/isAvalancheXchainNetwork';
-import { isPchainNetwork } from '../network/utils/isAvalanchePchainNetwork';
+import { isXchainNetwork } from '@core/utils/src/network/isAvalancheXchainNetwork';
+import { isPchainNetwork } from '@core/utils/src/network/isAvalanchePchainNetwork';
 
 @singleton()
 export class WalletService implements OnUnlock {

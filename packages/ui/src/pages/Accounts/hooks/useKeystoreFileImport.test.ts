@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 
-import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   KEYSTORE_V2,
   KEYSTORE_V6,
@@ -12,12 +12,12 @@ import { usePrivateKeyImport } from './usePrivateKeyImport';
 import { useKeystoreFileImport } from './useKeystoreFileImport';
 import { SeedphraseImportError } from '@core/types';
 import { utils } from '@avalabs/avalanchejs';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
 
-jest.mock('@src/contexts/AnalyticsProvider');
+jest.mock('@/contexts/AnalyticsProvider');
 jest.mock('./useImportSeedphrase');
 jest.mock('./usePrivateKeyImport');
-jest.mock('@src/contexts/AccountsProvider');
+jest.mock('@/contexts/AccountsProvider');
 
 const getFile = (data) => {
   const encoder = new TextEncoder();

@@ -1,9 +1,9 @@
 import { Account, AccountType } from '@core/types';
-import { useBalancesContext } from '@src/contexts/BalancesProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import { useBalanceTotalInCurrency } from './useBalanceTotalInCurrency';
 
-jest.mock('@src/contexts/BalancesProvider', () => ({
+jest.mock('@/contexts/BalancesProvider', () => ({
   useBalancesContext: jest.fn(),
 }));
 

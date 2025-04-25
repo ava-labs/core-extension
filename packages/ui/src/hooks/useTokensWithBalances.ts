@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSettingsContext } from '@/contexts/SettingsProvider';
-import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { GetTokensListHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
-import { merge } from 'lodash';
-import { getAddressForChain } from '@core/utils';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/service-worker';
+import { GetTokensListHandler } from '@core/service-worker';
+import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
+import { getAddressForChain } from '@core/utils';
+import { merge } from 'lodash';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type UseTokensWithBalanceOptions = {
   // Requests the tokens WITH and WITHOUT balances

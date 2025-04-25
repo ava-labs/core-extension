@@ -1,13 +1,13 @@
 import { windows } from 'webextension-polyfill';
 
-import { openPopup } from '../../../../../src/utils/extensionUtils';
+import { openPopup } from '@core/utils';
 
 import {
   DecodedFIDOResult,
   FIDOApiEndpoint,
   FIDOApiRequest,
   KeyType,
-} from './types';
+} from '@core/types';
 import { convertRequest } from './convertRequest';
 import { convertResult } from './convertResult';
 import { isValidResponse } from './validateResponse';

@@ -1,4 +1,4 @@
-import { isBitcoinChainId } from '@core/service-worker';
+import { isBitcoinChainId } from '@core/utils';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';

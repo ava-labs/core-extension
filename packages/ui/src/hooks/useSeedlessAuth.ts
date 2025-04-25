@@ -1,30 +1,30 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 import {
   MfaRequestInfo,
   SignerSession,
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
+import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@core/common/src/monitoring/sentryCaptureException';
 
-import { getSignerToken } from '@core/utils';
-import {
-  getOidcClient,
-  getSignerSession,
-  requestOidcAuth,
-} from '@core/utils';
-import { OidcTokenGetter } from '@core/utils';
-import { launchFidoFlow } from '@core/utils';
-import { FIDOApiEndpoint } from '@core/utils';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
   AuthErrorCode,
+  FIDOApiEndpoint,
   MfaRequestType,
   RecoveryMethod,
-} from '@core/service-worker';
-import { mapMfasToRecoveryMethods } from '@core/service-worker';
+} from '@core/types';
+import {
+  getOidcClient,
+  getSignerSession,
+  getSignerToken,
+  launchFidoFlow,
+  mapMfasToRecoveryMethods,
+  OidcTokenGetter,
+  requestOidcAuth,
+} from '@core/utils';
 
 export enum AuthStep {
   NotInitialized,

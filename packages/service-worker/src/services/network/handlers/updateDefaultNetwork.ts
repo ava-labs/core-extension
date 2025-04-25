@@ -6,7 +6,7 @@ import {
 import { resolve } from '@core/utils';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { isValidHttpHeader } from '../utils/isValidHttpHeader';
+import { isValidHttpHeader } from '@core/utils/src/network/isValidHttpHeader';
 
 export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_UPDATE_DEFAULT,

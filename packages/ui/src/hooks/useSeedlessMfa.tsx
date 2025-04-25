@@ -1,34 +1,34 @@
-import { filter } from 'rxjs';
 import { useCallback, useEffect, useState } from 'react';
+import { filter } from 'rxjs';
 
-import { ExtensionRequest } from '@core/service-worker';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
   isSeedlessMfaChoiceRequest,
   isSeedlessMfaEvent,
+  SubmitMfaResponseHandler,
 } from '@core/service-worker';
-import { SubmitMfaResponseHandler } from '@core/service-worker';
 import {
   AuthErrorCode,
+  ExtensionRequest,
   MfaChoiceRequest,
   MfaRequestData,
   MfaRequestType,
   RecoveryMethod as RecoveryMethodT,
   SeedlessEvents,
-} from '@core/service-worker';
-import { useConnectionContext } from '@/contexts/ConnectionProvider';
+} from '@core/types';
 import { launchFidoFlow } from '@core/utils';
 
-import { FIDOApiEndpoint } from '@core/utils';
+import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
+import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';
+import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
 } from '@avalabs/core-k2-components';
-import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
-import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
-import { useTranslation } from 'react-i18next';
 import { ChooseMfaMethodHandler } from '@core/service-worker';
-import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';
+import { FIDOApiEndpoint } from '@core/types';
+import { useTranslation } from 'react-i18next';
 
 export const useSeedlessMfa = () => {
   const { t } = useTranslation();

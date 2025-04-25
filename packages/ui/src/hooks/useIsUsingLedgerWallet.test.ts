@@ -1,13 +1,13 @@
 import { AccountType } from '@core/types';
-import { useAccountsContext } from '@src/contexts/AccountsProvider';
-import { useWalletContext } from '@src/contexts/WalletProvider';
+import { useAccountsContext } from '@/contexts/AccountsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
 import { renderHook } from '@testing-library/react-hooks';
 import useIsUsingLedgerWallet from './useIsUsingLedgerWallet';
 
-jest.mock('@src/contexts/WalletProvider', () => ({
+jest.mock('@/contexts/WalletProvider', () => ({
   useWalletContext: jest.fn(),
 }));
-jest.mock('@src/contexts/AccountsProvider', () => ({
+jest.mock('@/contexts/AccountsProvider', () => ({
   useAccountsContext: jest.fn(),
 }));
 

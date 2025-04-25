@@ -1,22 +1,23 @@
-import { ExtensionRequest } from '@core/service-worker';
-import { GetActionHandler } from '@core/service-worker';
-import { UpdateActionHandler } from '@core/service-worker';
+import { useApprovalsContext } from '@/contexts/ApprovalsProvider';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
   Action,
+  ActionStatus,
   ActionUpdate,
+  ExtensionRequest,
   MultiTxAction,
   isBatchApprovalAction,
-} from '@core/service-worker';
-import { ActionStatus } from '@core/service-worker';
-import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { useWindowGetsClosedOrHidden } from '@core/utils';
-import { useCallback, useEffect, useState } from 'react';
+	ContextContainer,
+} from '@core/types';
 import {
-  ContextContainer,
-  useIsSpecificContextContainer,
+  GetActionHandler,
+  UpdateActionHandler,
+} from '@core/service-worker';
+import {
+	useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
-import { useApprovalsContext } from '@/contexts/ApprovalsProvider';
-import { getUpdatedSigningData } from '@core/utils';
+import { useCallback, useEffect, useState } from 'react';
+import { getUpdatedSigningData, useWindowGetsClosedOrHidden } from '@core/utils';
 
 type ActionType<IsBatchApproval> = IsBatchApproval extends true
   ? MultiTxAction

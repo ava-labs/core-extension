@@ -1,5 +1,5 @@
+import { ContextContainer } from '@core/types';
 import {
-  ContextContainer,
   useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
 

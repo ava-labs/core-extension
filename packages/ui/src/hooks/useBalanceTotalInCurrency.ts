@@ -1,4 +1,4 @@
-import { Account } from '@core/service-worker';
+import { Account } from '@core/types';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useMemo } from 'react';
 

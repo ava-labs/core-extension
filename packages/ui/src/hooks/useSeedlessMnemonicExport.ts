@@ -1,16 +1,17 @@
 import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
-import { useCallback, useEffect, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { useCallback, useEffect, useState } from 'react';
 
-import { isProductionBuild } from '@core/utils';
-import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@core/service-worker';
-import { InitRecoveryPhraseExportHandler } from '@core/service-worker';
-import { CompleteRecoveryPhraseExportHandler } from '@core/service-worker';
-import { GetRecoveryPhraseExportStateHandler } from '@core/service-worker';
-import { CancelRecoveryPhraseExportHandler } from '@core/service-worker';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { SeedlessExportAnalytics } from '@core/service-worker';
+import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import {
+  CancelRecoveryPhraseExportHandler,
+  CompleteRecoveryPhraseExportHandler,
+  GetRecoveryPhraseExportStateHandler,
+  InitRecoveryPhraseExportHandler,
+} from '@core/service-worker';
+import { ExtensionRequest, SeedlessExportAnalytics } from '@core/types';
+import { isProductionBuild } from '@core/utils';
 
 export enum ExportState {
   Loading,

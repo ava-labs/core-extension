@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { AuthErrorCode } from '@core/service-worker';
+import { AuthErrorCode } from '@core/types';
 
 export const useFidoErrorMessage = (code?: AuthErrorCode): string => {
   const { t } = useTranslation();

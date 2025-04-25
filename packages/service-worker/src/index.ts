@@ -1,7 +1,12 @@
+export {
+  isSeedlessMfaChoiceRequest,
+  isSeedlessMfaEvent,
+	isSeedlessMfaMethodsUpdatedEvent,
+	isSeedlessTokenEvent,
+} from './services/seedless/events/eventFilters';
+
 export { isApprovalRequest } from './services/approvals/events/approvalEventFilters';
-
 export { isActionsUpdate } from './services/actions/events/actionEventFilters';
-
 export type { BridgeCreateTransactionHandler } from './services/bridge/handlers/createBridgeTransaction';
 export type { BridgeRemoveTransactionHandler } from './services/bridge/handlers/removeBridgeTransaction';
 export type { BridgeSetIsDevEnvHandler } from './services/bridge/handlers/setIsDevEnv';
@@ -10,7 +15,6 @@ export { contactsUpdatedEventListener } from './services/contacts/events/listene
 export { currencyRatesUpdatedEventListener } from './services/currency/events/listeners';
 export { defiPortfolioUpdatedEventListener } from './services/defi/events/listeners';
 export { permissionsUpdatedEventListener } from './services/permissions/events/permissionsStateUpdatesListener';
-export { isSeedlessMfaMethodsUpdatedEvent } from './services/seedless/events/eventFilters';
 export { isNetworkUpdatedEvent } from './services/network/events/isNetworkUpdatedEvent';
 export { networksUpdatedEventListener } from './services/network/events/networksUpdatedEventListener';
 export { isBridgeStateUpdateEventListener } from './services/bridge/events/listeners';

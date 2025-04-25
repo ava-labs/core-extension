@@ -1,9 +1,9 @@
-import { base64UrlToBuffer } from 'packages/utils/src/encoding';
+import { base64UrlToBuffer } from '@core/utils';
 import { convertResult } from './convertResult';
 import {
   EncodedFIDOAuthenticationResult,
   EncodedFIDORegistrationResult,
-} from './types';
+} from '@core/types';
 
 describe('src/utils/seedless/fido/convertResult', () => {
   const encodedAuthenticationResult: EncodedFIDOAuthenticationResult = {

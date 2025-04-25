@@ -1,4 +1,4 @@
-import { AccountType } from '@core/service-worker';
+import { AccountType } from '@core/types';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
 

@@ -1,5 +1,5 @@
 import { Network } from '@avalabs/core-chains-sdk';
-import { ExtensionRequest } from '@core/service-worker';
+import { ExtensionRequest } from '@core/types';
 import { GetTokenPriceHandler } from '@core/service-worker';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { useEffect, useState } from 'react';

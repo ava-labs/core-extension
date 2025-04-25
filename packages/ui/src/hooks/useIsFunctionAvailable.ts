@@ -1,25 +1,20 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
-import { Account } from '@core/service-worker';
-import {
-  isFireblocksAccount,
-  isWalletConnectAccount,
-} from '@core/service-worker';
-import { FeatureGates } from '@core/service-worker';
-import isFireblocksApiSupported from '@core/service-worker';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { useNetworkContext } from '@/contexts/NetworkProvider';
-import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { useNetworkContext } from '@/contexts/NetworkProvider';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { Account, FeatureGates } from '@core/types';
 import {
+  isAvalancheNetwork,
+  isEthereumNetwork,
+  isFireblocksAccount,
+  isFireblocksApiSupported,
   isPchainNetwork,
   isPchainNetworkId,
-} from '@core/service-worker';
-import {
+  isWalletConnectAccount,
   isXchainNetwork,
   isXchainNetworkId,
-} from '@core/service-worker';
-import { isEthereumNetwork } from '@core/service-worker';
-import { isAvalancheNetwork } from '@core/service-worker';
+} from '@core/utils';
+import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
 
 export enum FunctionNames {
   BRIDGE = 'Bridge',

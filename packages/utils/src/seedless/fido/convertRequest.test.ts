@@ -1,6 +1,6 @@
-import { bufferToBase64Url } from 'packages/utils/src/encoding';
+import { bufferToBase64Url } from '@core/utils';
+import { FIDOApiEndpoint } from '@core/types';
 import { convertRequest } from './convertRequest';
-import { FIDOApiEndpoint } from './types';
 
 describe('src/utils/seedless/fido/convertRequest', () => {
   describe('for /register endpoint', () => {

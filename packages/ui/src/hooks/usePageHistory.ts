@@ -1,15 +1,17 @@
-import { ExtensionRequest } from '@core/service-worker';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { useCallback, useEffect, useState } from 'react';
-import * as H from 'history';
 import {
+  GetNavigationHistoryDataHandler,
+  GetNavigationHistoryHandler,
+  SetNavigationHistoryDataHandler,
+  SetNavigationHistoryHandler,
+} from '@core/service-worker';
+import {
+  ExtensionRequest,
   NavigationHistoryDataState,
   NavigationHistoryState,
-} from '@core/service-worker';
-import { SetNavigationHistoryDataHandler } from '@core/service-worker';
-import { GetNavigationHistoryHandler } from '@core/service-worker';
-import { SetNavigationHistoryHandler } from '@core/service-worker';
-import { GetNavigationHistoryDataHandler } from '@core/service-worker';
+} from '@core/types';
+import * as H from 'history';
+import { useCallback, useEffect, useState } from 'react';
 
 export function usePageHistory() {
   const { request } = useConnectionContext();

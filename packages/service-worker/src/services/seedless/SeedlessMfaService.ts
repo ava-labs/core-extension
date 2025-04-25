@@ -32,7 +32,7 @@ import {
 } from '@core/types';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SecretsService } from '../secrets/SecretsService';
-import { isFailedMfaError, mapMfasToRecoveryMethods } from './utils';
+import { isFailedMfaError, mapMfasToRecoveryMethods } from '@core/utils/src/seedless/fido/utils';
 
 @singleton()
 export class SeedlessMfaService implements OnUnlock, OnLock {

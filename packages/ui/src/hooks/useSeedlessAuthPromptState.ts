@@ -1,11 +1,12 @@
-import { Subscription, filter } from 'rxjs';
 import { useEffect, useState } from 'react';
+import { Subscription, filter } from 'rxjs';
 
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@core/service-worker';
-import { isSeedlessTokenEvent } from '@core/service-worker';
-import { SeedlessEvents } from '@core/service-worker';
-import { HasSignerTokenExpiredHandler } from '@core/service-worker';
+import {
+  HasSignerTokenExpiredHandler,
+  isSeedlessTokenEvent,
+} from '@core/service-worker';
+import { ExtensionRequest, SeedlessEvents } from '@core/types';
 import { useLocation } from 'react-router-dom';
 
 export const useSeedlessAuthPromptState = () => {

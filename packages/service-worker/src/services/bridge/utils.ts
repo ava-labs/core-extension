@@ -1,8 +1,8 @@
 import { Network } from '@avalabs/core-chains-sdk';
 import { BridgeState } from '@core/types';
-import { isAvalancheNetwork } from '../network/utils/isAvalancheNetwork';
-import { isEthereumNetwork } from '../network/utils/isEthereumNetwork';
-import { isBitcoinNetwork } from '../network/utils/isBitcoinNetwork';
+import { isAvalancheNetwork } from '@core/utils/src/network/isAvalancheNetwork';
+import { isEthereumNetwork } from '@core/utils/src/network/isEthereumNetwork';
+import { isBitcoinNetwork } from '@core/utils/src/network/isBitcoinNetwork';
 
 enum BridgeNetwork {
   AVALANCHE = 'avalanche',
