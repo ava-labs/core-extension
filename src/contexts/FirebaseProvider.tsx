@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext } from 'react';
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
 import { FirebaseStartChatHandler } from '@src/background/services/firebase/handlers/startChat';
@@ -16,12 +23,35 @@ const FirebaseContext = createContext<{
     message: string,
     parts?: Content[],
   ) => Promise<{ text: string; functionCalls?: FunctionCall[] }>;
+  prompts: {
+    role: 'model' | 'user';
+    content: string;
+  }[];
+  setPrompts: Dispatch<
+    SetStateAction<
+      {
+        role: 'model' | 'user';
+        content: string;
+      }[]
+    >
+  >;
 }>({
   getModel: () => false,
 } as any);
 
 export function FirebaseContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
+  const [prompts, setPrompts] = useState<
+    {
+      role: 'model' | 'user';
+      content: string;
+    }[]
+  >([
+    {
+      role: 'model',
+      content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
+    },
+  ]);
 
   const startChat = useCallback(
     ({ tools, toolConfig, systemInstruction }: ConfigParams) => {
@@ -52,6 +82,8 @@ export function FirebaseContextProvider({ children }: { children: any }) {
       value={{
         startChat,
         sendMessage,
+        prompts,
+        setPrompts,
       }}
     >
       {children}

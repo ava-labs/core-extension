@@ -51,20 +51,8 @@ export function Prompt() {
   const { swap, getRate } = useSwapContext();
   const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
-  const { startChat, sendMessage } = useFirebaseContext();
+  const { startChat, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const [isModelReady, setIsModelReady] = useState(false);
-
-  const [prompts, setPrompts] = useState<
-    {
-      role: 'model' | 'user';
-      content: string;
-    }[]
-  >([
-    {
-      role: 'model',
-      content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
-    },
-  ]);
 
   const tokens = useTokensWithBalances();
   useEffect(() => {
@@ -307,12 +295,10 @@ export function Prompt() {
       },
       systemInstruction: systemPrompt,
     })
-      .then((res) => {
-        console.log('res: ', res);
+      .then(() => {
         setIsModelReady(true);
       })
       .catch(() => {
-        console.error('catch');
         setIsModelReady(false);
       });
   }, [prompts, startChat, systemPrompt]);
@@ -394,7 +380,7 @@ export function Prompt() {
       }
       setIsTyping(false);
     },
-    [functions, sendMessage],
+    [functions, sendMessage, setPrompts],
   );
 
   return (
