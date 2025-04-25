@@ -1,25 +1,25 @@
+import { Button, PlusIcon, Skeleton, Stack } from '@avalabs/core-k2-components';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, PlusIcon, Skeleton } from '@avalabs/core-k2-components';
 import browser from 'webextension-polyfill';
 
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 import {
-  RecoveryMethodFido,
-  RecoveryMethodType,
-} from '@core/service-worker';
-import { KeyType } from '@core/utils';
-import { ContextContainer } from '@/hooks/useIsSpecificContextContainer';
+	ContextContainer,
+	KeyType,
+	RecoveryMethodFido,
+	RecoveryMethodType,
+} from '@core/types';
 
 import { SettingsHeader } from '../../SettingsHeader';
 import { SettingsPageProps } from '../../models';
 
 import { RecoveryMethod } from '../../../common/seedless/components/RecoveryMethod';
-import { RecoveryMethodsList } from './RecoveryMethodsList';
 import { AddNewRecoveryMethod } from './AddNewRecoveryMethod';
 import { AuthenticatorDetails } from './AuthenticatorDetails';
 import { FIDODetails } from './FIDODetails';
+import { RecoveryMethodsList } from './RecoveryMethodsList';
 
 enum RecoveryMethodScreen {
   List = 'list',

@@ -105,7 +105,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const fabRef = useRef<HTMLButtonElement>(null);
-  const fadeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [isExpanded, setIsExpanded] = useState(true);
 
   const FABMenuItems = [

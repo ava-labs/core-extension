@@ -9,11 +9,11 @@ import {
 } from '@avalabs/core-k2-components';
 import React from 'react';
 
-type ApprovalSectionHeaderProps = {
+type ApprovalSectionHeaderProps = React.PropsWithChildren<{
   label: string;
   tooltip?: string;
   tooltipIcon?: React.ReactElement;
-};
+}>;
 
 export const ApprovalSectionHeader: React.FC<ApprovalSectionHeaderProps> = ({
   label,

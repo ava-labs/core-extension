@@ -17,7 +17,7 @@ import {
   toast,
 } from '@avalabs/core-k2-components';
 
-import { SeedlessExportAnalytics } from '@core/service-worker';
+import { SeedlessExportAnalytics } from '@core/types';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 
 type Props = {

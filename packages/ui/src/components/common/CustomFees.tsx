@@ -1,38 +1,38 @@
-import { calculateGasAndFees } from '@core/utils';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+	ApprovalSection,
+	ApprovalSectionBody,
+	ApprovalSectionHeader,
+} from '@/components/common/approval/ApprovalSection';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useLiveBalance } from '@/hooks/useLiveBalance';
 import { useNativeTokenPrice } from '@/hooks/useTokenPrice';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { useTranslation } from 'react-i18next';
-import { TokenType } from '@avalabs/vm-module-types';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
 import {
-  FeeRate,
-  NetworkFee,
-} from '@core/service-worker';
-import {
-  Button,
-  ChevronDownIcon,
-  Collapse,
-  Dialog,
-  DialogProps,
-  IconButton,
-  Stack,
-  Tooltip,
-  Typography,
+	Button,
+	ChevronDownIcon,
+	Collapse,
+	Dialog,
+	DialogProps,
+	IconButton,
+	Stack,
+	Tooltip,
+	Typography,
 } from '@avalabs/core-k2-components';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { TokenType } from '@avalabs/vm-module-types';
 import {
-  ApprovalSection,
-  ApprovalSectionBody,
-  ApprovalSectionHeader,
-} from '@/components/common/approval/ApprovalSection';
-import { useLiveBalance } from '@/hooks/useLiveBalance';
+	FeatureGates,
+	FeeRate,
+	GaslessPhase,
+	NetworkFee,
+} from '@core/types';
+import { calculateGasAndFees } from '@core/utils';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CustomGasSettings } from './CustomGasSettings';
-import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 import GaslessFee from './GaslessFee';
-import { GaslessPhase } from '@core/service-worker';
-import { FeatureGates } from '@core/service-worker';
-import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { TruncateFeeAmount } from './TruncateFeeAmount';
 
 export interface CustomGasFeesProps {

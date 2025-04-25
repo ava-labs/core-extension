@@ -3,16 +3,16 @@ import { filter } from 'rxjs';
 
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
+  EstablishRequiredSession,
   isSessionPermissionsMismatchEvent,
   isUriGeneratedEvent,
   isWalletConnectEvent,
 } from '@core/service-worker';
-import { EstablishRequiredSession } from '@core/service-worker';
-import { ExtensionRequest } from '@core/service-worker';
 import {
+  ExtensionRequest,
   WalletConnectEventType,
   WalletConnectSessionInfo,
-} from '@core/service-worker';
+} from '@core/types';
 
 export const useRequiredSession = () => {
   const { tabId, events, request } = useConnectionContext();

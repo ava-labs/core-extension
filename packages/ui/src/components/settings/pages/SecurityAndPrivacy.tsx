@@ -1,12 +1,11 @@
-import { SettingsPageProps, SettingsPages } from '../models';
-import { SettingsHeader } from '../SettingsHeader';
-import { useWalletContext } from '@/contexts/WalletProvider';
-import { useSettingsContext } from '@/contexts/SettingsProvider';
+import Dialog from '@/components/common/Dialog';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import { ExtensionRequest } from '@core/service-worker';
-import { ResetExtensionStateHandler } from '@core/service-worker';
-import { Trans, useTranslation } from 'react-i18next';
+import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
+import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
+import { useSettingsContext } from '@/contexts/SettingsProvider';
+import { useWalletContext } from '@/contexts/WalletProvider';
+import { useAnalyticsConsentCallbacks } from '@/hooks/useAnalyticsConsentCallbacks';
 import {
   Badge,
   Button,
@@ -22,15 +21,18 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
+import { ResetExtensionStateHandler } from '@core/service-worker';
+import {
+  AnalyticsConsent,
+  ExtensionRequest,
+  FeatureGates,
+  SecretType,
+  SeedlessExportAnalytics,
+} from '@core/types';
 import { useState } from 'react';
-import Dialog from '@/components/common/Dialog';
-import { SeedlessExportAnalytics } from '@core/service-worker';
-import { AnalyticsConsent } from '@core/service-worker';
-import { useAnalyticsConsentCallbacks } from '@/hooks/useAnalyticsConsentCallbacks';
-import { SecretType } from '@core/service-worker';
-import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
-import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
+import { Trans, useTranslation } from 'react-i18next';
+import { SettingsPageProps, SettingsPages } from '../models';
+import { SettingsHeader } from '../SettingsHeader';
 
 export function SecurityAndPrivacy({
   goBack,

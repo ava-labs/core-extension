@@ -4,7 +4,7 @@ import {
   TextField,
   Typography,
 } from '@avalabs/core-k2-components';
-import { AuthErrorCode } from '@core/service-worker';
+import { AuthErrorCode } from '@core/types';
 import { PageTitle, PageTitleVariant } from '@/components/common/PageTitle';
 import { useTotpErrorMessage } from '@/hooks/useTotpErrorMessage';
 import { useState } from 'react';

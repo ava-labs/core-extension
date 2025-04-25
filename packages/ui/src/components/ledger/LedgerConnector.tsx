@@ -8,7 +8,7 @@ import {
   getEvmAddressFromPubKey,
 } from '@avalabs/core-wallets-sdk';
 import { useGetAvaxBalance } from '@/hooks/useGetAvaxBalance';
-import { PubKeyType } from '@core/service-worker';
+import { PubKeyType, SecretType } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,
@@ -19,7 +19,6 @@ import {
 } from '@avalabs/core-k2-components';
 import { DerivationPathDropdown } from '@/pages/Onboarding/components/DerivationPathDropDown';
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
-import { SecretType } from '@core/service-worker';
 import { useImportLedger } from '@/pages/Accounts/hooks/useImportLedger';
 
 export interface AddressType {

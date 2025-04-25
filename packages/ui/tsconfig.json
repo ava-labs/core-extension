@@ -6,5 +6,5 @@
       "@shared/*": ["../../src/*"]
     }
   },
-  "include": ["./src", "globals.d.ts"]
+  "include": ["./src", "./src/types/*.d.ts"]
 }

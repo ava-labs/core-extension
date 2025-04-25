@@ -8,7 +8,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useFidoErrorMessage } from '@/hooks/useFidoErrorMessage';
 import { Trans, useTranslation } from 'react-i18next';
-import { AuthErrorCode } from '@core/service-worker';
+import { AuthErrorCode } from '@core/types';
 
 type Props = {
   error?: AuthErrorCode;

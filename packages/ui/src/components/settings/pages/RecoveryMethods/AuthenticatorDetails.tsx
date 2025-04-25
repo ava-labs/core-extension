@@ -25,10 +25,10 @@ import { useSeedlessMfa } from '@/hooks/useSeedlessMfa';
 import { TOTPChallenge } from '@/components/common/seedless/components/TOTPChallenge';
 import { useSeedlessMfaManager } from '@/contexts/SeedlessMfaManagementProvider';
 import {
+	ContextContainer,
   AuthErrorCode,
   TotpResetChallenge,
-} from '@core/service-worker';
-import { ContextContainer } from '@/hooks/useIsSpecificContextContainer';
+} from '@core/types';
 
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 

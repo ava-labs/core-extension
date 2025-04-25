@@ -12,7 +12,7 @@ import {
 import { useWalletContext } from '@/contexts/WalletProvider';
 import { openExtensionNewWindow } from '@core/utils';
 import { useSeedlessAuthPromptState } from '@/hooks/useSeedlessAuthPromptState';
-import { SecretType } from '@core/service-worker';
+import { SecretType } from '@core/types';
 
 export const SeedlessAuthPrompt = () => {
   const { t } = useTranslation();

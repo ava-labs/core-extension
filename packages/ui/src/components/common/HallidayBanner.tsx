@@ -14,7 +14,7 @@ import {
 import { getCoreWebUrl } from '@core/utils';
 import { useDismissedBanners } from '@/hooks/useDismissedBanners';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
-import { FeatureGates } from '@core/service-worker';
+import { FeatureGates } from '@core/types';
 
 const HALLIDAY_BANNER_ID = 'halliday-e2d6f109-2175-4303-9321-17b010781371';
 

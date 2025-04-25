@@ -1,7 +1,7 @@
 import { Stack, Typography, useTheme } from '@avalabs/core-k2-components';
 import React from 'react';
 
-type TxDetailsRowProps = { label: string | React.ReactNode };
+type TxDetailsRowProps = React.PropsWithChildren<{ label: string | React.ReactNode }>;
 
 export const TxDetailsRow: React.FC<TxDetailsRowProps> = ({
   children,

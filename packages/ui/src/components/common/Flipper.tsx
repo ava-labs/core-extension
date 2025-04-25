@@ -1,10 +1,11 @@
+import { Box, BoxProps, IconBaseProps } from '@avalabs/core-k2-components';
 import { cloneElement } from 'react';
-import { Box } from '@avalabs/core-k2-components';
 
+type IconProps = IconBaseProps & { sx?: BoxProps['sx'] };
 type FlipperProps = {
   size: number;
   isFlipped: boolean;
-  children: [React.ReactElement, React.ReactElement];
+  children: [React.ReactElement<IconProps>, React.ReactElement<IconProps>];
 };
 
 export const Flipper = ({ children, size, isFlipped }: FlipperProps) => {

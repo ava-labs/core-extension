@@ -4,7 +4,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { AuthErrorCode } from '@core/service-worker';
+import { AuthErrorCode } from '@core/types';
 
 type Props = {
   error: AuthErrorCode;

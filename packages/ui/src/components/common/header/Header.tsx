@@ -21,10 +21,10 @@ import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
 import { NetworkSwitcher } from './NetworkSwitcher';
 import { AccountSelectorButton } from '../account/AccountSelectorButton';
 import { useWalletContext } from '@/contexts/WalletProvider';
-import { AccountType } from '@core/service-worker';
+import { AccountType } from '@core/types';
 import { WalletChip } from '../WalletChip';
 import { getAddressForChain } from '@core/utils';
-import getAllAddressesForAccount from '@core/utils';
+import { getAllAddressesForAccount } from '@core/utils';
 
 export function Header() {
   const domain = useCurrentDomain();

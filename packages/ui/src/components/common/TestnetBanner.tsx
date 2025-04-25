@@ -5,10 +5,11 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export const TestnetBanner = () => {
   const { isDeveloperMode } = useNetworkContext();
+	const { t } = useTranslation();
   const theme = useTheme();
 
   return (

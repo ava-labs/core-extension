@@ -10,9 +10,9 @@ import { useTranslation } from 'react-i18next';
 import {
   MfaChoiceRequest,
   RecoveryMethod as RecoveryMethodT,
-} from '@core/service-worker';
+	PartialBy,
+} from '@core/types';
 import { RecoveryMethod } from '@/components/common/seedless/components/RecoveryMethod';
-import { PartialBy } from '@core/service-worker';
 
 type Props = {
   mfaChoice?: PartialBy<MfaChoiceRequest, 'mfaId'>;

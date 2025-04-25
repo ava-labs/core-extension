@@ -1,15 +1,17 @@
 export {
+  isSessionPermissionsMismatchEvent,
+  isWalletConnectEvent,
+  isUriGeneratedEvent,
+} from './services/walletConnect/events/eventFilters';
+
+export {
   isSeedlessMfaChoiceRequest,
   isSeedlessMfaEvent,
-	isSeedlessMfaMethodsUpdatedEvent,
-	isSeedlessTokenEvent,
+  isSeedlessMfaMethodsUpdatedEvent,
+  isSeedlessTokenEvent,
 } from './services/seedless/events/eventFilters';
-
 export { isApprovalRequest } from './services/approvals/events/approvalEventFilters';
 export { isActionsUpdate } from './services/actions/events/actionEventFilters';
-export type { BridgeCreateTransactionHandler } from './services/bridge/handlers/createBridgeTransaction';
-export type { BridgeRemoveTransactionHandler } from './services/bridge/handlers/removeBridgeTransaction';
-export type { BridgeSetIsDevEnvHandler } from './services/bridge/handlers/setIsDevEnv';
 export { filterBridgeStateToNetwork } from './services/bridge/utils';
 export { contactsUpdatedEventListener } from './services/contacts/events/listeners';
 export { currencyRatesUpdatedEventListener } from './services/currency/events/listeners';
@@ -17,12 +19,15 @@ export { defiPortfolioUpdatedEventListener } from './services/defi/events/listen
 export { permissionsUpdatedEventListener } from './services/permissions/events/permissionsStateUpdatesListener';
 export { isNetworkUpdatedEvent } from './services/network/events/isNetworkUpdatedEvent';
 export { networksUpdatedEventListener } from './services/network/events/networksUpdatedEventListener';
-export { isBridgeStateUpdateEventListener } from './services/bridge/events/listeners';
-export { isUnifiedBridgeStateUpdate } from './services/unifiedBridge/events/eventFilters';
+export { isBridgeStateUpdateEventListener,isBridgeConfigUpdateEventListener, isBridgeTransferEventListener } from './services/bridge/events/listeners';
+export { isUnifiedBridgeStateUpdate, isUnifiedBridgeTransferStepChanged } from './services/unifiedBridge/events/eventFilters';
 export { lockStateChangedEventListener } from './services/lock/events/lockStateChangedEventListener';
 export { walletStateChangedEventListener } from './services/secrets/events/WalletUpdatedEventListener';
 export { accountsUpdatedEventListener } from './services/accounts/events/accountsUpdatedEventListener';
 export { balancesUpdatedEventListener } from './services/balances/events/balancesUpdatedEventListener';
+export type { BridgeCreateTransactionHandler } from './services/bridge/handlers/createBridgeTransaction';
+export type { BridgeRemoveTransactionHandler } from './services/bridge/handlers/removeBridgeTransaction';
+export type { BridgeSetIsDevEnvHandler } from './services/bridge/handlers/setIsDevEnv';
 export type { BridgeGetStateHandler } from './services/bridge/handlers/getBridgeState';
 export type { AvalancheRenameAccountHandler } from './services/accounts/handlers/avalanche_renameAccount';
 export type { AvalancheDeleteAccountsHandler } from './services/accounts/handlers/avalanche_deleteAccounts';
@@ -125,7 +130,6 @@ export type { HandlerType as AddCustomTokenHandler } from './services/settings/h
 export type { HandlerType as GetTokenDataHandler } from './services/settings/handlers/getTokenDataByAddress';
 export { analyticsStateUpdatedEventListener } from './services/analytics/events/listeners';
 export { featureFlagsUpdatedEventListener } from './services/featureFlags/events/featureFlagsUpdatedEventListener';
-export { isUriGeneratedEvent } from './services/walletConnect/events/eventFilters';
 export { settingsUpdatedEventListener } from './services/settings/events/listeners';
 export {
   DAppProviderRequest,
