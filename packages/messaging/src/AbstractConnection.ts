@@ -1,10 +1,9 @@
-import { DEFERRED_RESPONSE } from '../../service-worker/src/connections/middlewares/models';
+import { DEFERRED_RESPONSE, PartialBy } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { EventEmitter } from 'events';
 import { isDevelopment } from '../../utils/src/environment';
 import { isRequest, isResponse, Message, Request, Response } from './models';
 import type { JsonRpcRequest } from '@core/service-worker';
-import { PartialBy } from '@core/types';
 
 export abstract class AbstractConnection extends EventEmitter {
   #concurrentRequestLimit: number;

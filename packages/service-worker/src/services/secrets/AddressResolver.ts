@@ -9,8 +9,10 @@ import {
   DerivationPathsMap,
   SecretType,
   NetworkWithCaipId,
+  CommonError,
+  SecretsError,
 } from '@core/types';
-import { assertPresent, CommonError, SecretsError } from '@core/utils';
+import { assertPresent } from '@core/utils';
 
 import { NetworkService } from '../network/NetworkService';
 import { emptyAddresses, emptyDerivationPaths } from './utils';

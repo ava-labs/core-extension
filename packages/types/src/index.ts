@@ -1,3 +1,5 @@
+import { KeyLike } from 'jose';
+
 export * from './account';
 export * from './actions';
 export * from './analytics';

@@ -1,0 +1,87 @@
+import { defineConfig } from '@rsbuild/core';
+import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
+import path from 'path';
+import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
+import { CopyRspackPlugin } from '@rspack/core';
+import { pluginReact } from '@rsbuild/plugin-react';
+
+export default defineConfig({
+  environments: {
+    'web-worker': {
+      source: {
+        decorators: {
+          version: 'legacy',
+        },
+        entry: {
+          backgroundPage: path.join(__dirname, 'src/init.ts'),
+        },
+      },
+      output: {
+        target: 'web-worker',
+      },
+    },
+  },
+  output: {
+    cleanDistPath: {
+      keep: [
+        // preserving the files from the inpage build
+        /dist\/js\/inpage.js/,
+      ],
+    },
+    sourceMap: {
+      js: 'hidden-source-map',
+    },
+    inlineStyles: true,
+    injectStyles: true,
+    filename: {
+      js: '[name].js', // this is the default, but just to make sure
+    },
+    distPath: {
+      js: 'js',
+      jsAsync: 'js',
+      image: 'images',
+      font: 'js/assets',
+      // assets: 'assets',
+    },
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
+    alias: {
+      path: require.resolve('path-browserify'),
+      '@hpke/core': path.resolve('../../node_modules/@hpke/core/esm/core/mod.js'),
+      '@cubist-labs/cubesigner-sdk': path.resolve(
+        '../../node_modules/@cubist-labs/cubesigner-sdk/dist/cjs/src/index.js',
+      ),
+      // Joi by default goes to browser-specific version which does not include the list of TLDS (which we need for email validation)
+      joi: path.resolve('../../node_modules/joi/lib/index.js'),
+    },
+    dedupe: ['bn.js'],
+  },
+  plugins: [
+    pluginNodePolyfill(),
+    pluginReact({
+      swcReactOptions: {
+        refresh: false,
+      },
+    }),
+  ],
+  tools: {
+    rspack: (_, { appendPlugins, appendRules }) => {
+      if (process.env.RSDOCTOR === 'true') {
+        appendPlugins(new RsdoctorRspackPlugin({}));
+      }
+
+      appendRules({
+        test: /\.wasm$/,
+        // Tells WebPack that this module should be included as
+        // base64-encoded binary file and not as code
+        loader: 'base64-loader',
+        // Disables WebPack's opinion where WebAssembly should be,
+        // makes it think that it's not WebAssembly
+        //
+        // Error: WebAssembly module is included in initial chunk.
+        type: 'javascript/auto',
+      });
+    },
+  },
+});

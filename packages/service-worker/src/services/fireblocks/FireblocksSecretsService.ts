@@ -4,18 +4,20 @@ import { singleton } from 'tsyringe';
 import { AccountsService } from '@/services/accounts/AccountsService';
 import { SecretsService } from '@/services/secrets/SecretsService';
 import {
-	FireblocksBtcAccessError,
-	FireblocksBtcAccessErrorCode,
-	FireblocksSecretsProvider,
-	SecretType,
+  FireblocksBtcAccessError,
+  FireblocksBtcAccessErrorCode,
+  SecretType,
 } from '@core/types';
+import { FireblocksSecretsProvider } from './models';
 
 @singleton()
-export class FireblocksSecretsService implements FireblocksSecretsProvider {
+export class FireblocksSecretsService extends FireblocksSecretsProvider {
   constructor(
     private secretsService: SecretsService,
     private accountsService: AccountsService,
-  ) {}
+  ) {
+		super();
+	}
 
   async getSecrets(): Promise<{ apiKey: string; privateKey: KeyLike }> {
     if (!this.accountsService.activeAccount) {

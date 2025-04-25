@@ -3,7 +3,7 @@ import './monitoring/initSentryForBackground';
 import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { BackgroundRuntime } from './runtime/BackgroundRuntime';
-import '@src/localization/init';
+import '@shared/localization/init';
 import Big from 'big.js';
 
 Big.PE = 99;

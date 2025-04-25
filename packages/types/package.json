@@ -3,5 +3,10 @@
   "packageManager": "yarn@4.7.0",
   "private": true,
   "main": "src/index.ts",
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "fireblocks-sdk": "5.20.0",
+    "joi": "17.7.0",
+    "jose": "4.15.5"
+  }
 }

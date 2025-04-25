@@ -10,12 +10,12 @@ import {
   ExtensionRequestHandler,
   FireblocksBtcAccessError,
   FireblocksBtcAccessErrorCode,
-  FireblocksSecretsProvider,
   MAINNET_LOOKUP_ASSETS,
   SecretType,
   TESTNET_LOOKUP_ASSETS,
 } from '@core/types';
 import { FireblocksService } from '../FireblocksService';
+import { FireblocksSecretsProvider } from '../models';
 
 export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
@@ -82,14 +82,16 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
   ): Promise<FireblocksSecretsProvider> {
     try {
       const privateKey = await importPKCS8(secretKey, 'RS256');
-      return {
+      class Y extends FireblocksSecretsProvider {
         async getSecrets() {
           return {
             apiKey,
             privateKey,
           };
-        },
-      };
+        };
+      }
+
+			return new Y();
     } catch {
       throw new FireblocksBtcAccessError(
         FireblocksBtcAccessErrorCode.InvalidSecretKey,

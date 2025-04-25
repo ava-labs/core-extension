@@ -19,12 +19,12 @@ import { isWrappedError } from '@core/utils';
 import {
   CommonError,
   AddressResponse,
-  FireblocksSecretsProvider,
   PaginatedAddressesResponse,
   FireblocksErrorCode,
   KnownAddressDictionary,
 } from '@core/types';
 
+import { FireblocksSecretsProvider } from './models';
 // Create registry for FireblocksSecretsProviders to be injected.
 // FireblocksSecretsProvider is an interface that can have multiple implementation,
 // the registry defines which one to be injected automatically

@@ -49,9 +49,6 @@ export const MAINNET_LOOKUP_ASSETS = ['AVAX'];
 
 export const FIREBLOCKS_REQUEST_EXPIRY = 120 * 60; // 2 hours, used only by WalletConnect connections
 
-export interface FireblocksSecretsProvider {
-  getSecrets(): Promise<{ apiKey: string; privateKey: KeyLike }>;
-}
 
 export type AddressResponse = Omit<_AddressResponse, 'type'> & {
   type?: string;

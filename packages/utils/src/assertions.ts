@@ -1,5 +1,5 @@
 import { ethErrors } from 'eth-rpc-errors';
-import { CommonError, ErrorCode } from './errors';
+import { CommonError, ErrorCode } from '@core/types';
 
 export function assertPresent<T>(
   value: T,
