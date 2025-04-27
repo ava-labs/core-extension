@@ -4,7 +4,12 @@ import { useGetRequestId } from '@src/hooks/useGetRequestId';
 import { useCallback, useEffect, useState } from 'react';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { useTranslation } from 'react-i18next';
-import { AlertType, DisplayData, RpcMethod } from '@avalabs/vm-module-types';
+import {
+  AlertType,
+  DisplayData,
+  RpcMethod,
+  TokenType,
+} from '@avalabs/vm-module-types';
 import {
   Alert,
   AlertContent,
@@ -41,6 +46,7 @@ import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails'
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { GaslessPhase } from '@src/background/services/gasless/model';
+import { useLiveBalance } from '@src/hooks/useLiveBalance';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };
@@ -57,7 +63,11 @@ function hasContextInfo(
   );
 }
 
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20]; // Approval screen should always have the latest balance
+
 export function GenericApprovalScreen() {
+  useLiveBalance(POLLED_BALANCES);
+
   const { t } = useTranslation();
   const requestId = useGetRequestId();
   const { action, updateAction, cancelHandler } =

@@ -136,8 +136,15 @@ function setGlobalProvider(
     // some browser was faster and defined the window.ethereum as non writable before us
     console.error('Cannot set Core window.ethereum provider', e);
 
-    // try to set the providerInstance in case it's a proxy like we are
-    globalObject.ethereum = providerInstance;
+    try {
+      // try to set the providerInstance in case it's a proxy like we are
+      globalObject.ethereum = providerInstance;
+    } catch (fallbackError) {
+      console.error(
+        'Cannot set Core window.ethereum provider as fallback',
+        fallbackError,
+      );
+    }
   }
 }
 

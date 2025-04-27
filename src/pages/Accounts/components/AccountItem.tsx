@@ -307,7 +307,7 @@ export const AccountItem = forwardRef(
                       {t('Active network is not supported')}
                     </Typography>
                   )}
-                  <Grow in={cardHovered || isActive}>
+                  <Grow in={Boolean(address) && (cardHovered || isActive)}>
                     <IconButton
                       color="primary"
                       size="small"

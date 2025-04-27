@@ -85,7 +85,8 @@ export function Accounts() {
       if (walletDetails?.id) {
         fetchBalanceForWallet(walletDetails.id);
       }
-    } catch (_err) {
+    } catch (err) {
+      console.error(err);
       toast.error(t('An error occurred, please try again later'));
     }
 

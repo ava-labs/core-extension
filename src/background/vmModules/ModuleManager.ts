@@ -20,7 +20,11 @@ import { isDevelopment } from '@src/utils/environment';
 import { NetworkWithCaipId } from '../services/network/models';
 import { VMModuleError } from './models';
 import { ApprovalController } from './ApprovalController';
-import { AvaxCaipId, BitcoinCaipId } from '@src/utils/caipConversion';
+import {
+  AvaxCaipId,
+  AvaxLegacyCaipId,
+  BitcoinCaipId,
+} from '@src/utils/caipConversion';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -136,7 +140,9 @@ export class ModuleManager {
     const scopeConversion =
       BitcoinCaipId[chainIdOrScope] ??
       AvaxCaipId[chainIdOrScope] ??
+      AvaxLegacyCaipId[chainIdOrScope] ??
       chainIdOrScope;
+
     const [namespace] = scopeConversion.split(':');
     if (!namespace || !NAMESPACE_REGEX.test(namespace)) {
       throw ethErrors.rpc.invalidParams({

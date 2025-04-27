@@ -219,6 +219,12 @@ const Keystone3TroubleshootingPopup = lazy(() => {
   }));
 });
 
+const LedgerDeriveSolanaAddresses = lazy(() => {
+  return import('../pages/Ledger/LedgerDeriveSolanaAddresses').then((m) => ({
+    default: m.LedgerDeriveSolanaAddresses,
+  }));
+});
+
 export const AppRoutes = () => (
   <Switch>
     <Route path="/ledger/troubleshooting">
@@ -229,6 +235,11 @@ export const AppRoutes = () => (
     <Route path="/keystone3/troubleshooting">
       <Suspense fallback={<CircularProgress />}>
         <Keystone3TroubleshootingPopup />
+      </Suspense>
+    </Route>
+    <Route path="/ledger/derive-solana-addresses">
+      <Suspense fallback={<CircularProgress />}>
+        <LedgerDeriveSolanaAddresses />
       </Suspense>
     </Route>
     <Route path="/token/add">

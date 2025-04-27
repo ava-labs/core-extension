@@ -13,20 +13,22 @@ import {
 } from '../secrets/models';
 import { DistributiveOmit } from '@src/utils/distributiveomit';
 import { VMABI, TransactionPayload } from 'hypersdk-client';
-import { RpcMethod } from '@avalabs/vm-module-types';
+import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 
 export interface HVMTransactionRequest {
   txPayload: TransactionPayload;
   abi: VMABI;
 }
 
-export type SolanaSigningRequest = {
-  type:
-    | RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION
-    | RpcMethod.SOLANA_SIGN_TRANSACTION;
-  data: string; // Base-64 encoded "Wire Transaction"
-  account: string;
-};
+export type SolanaSigningRequest = Extract<
+  SigningData,
+  {
+    type:
+      | RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION
+      | RpcMethod.SOLANA_SIGN_TRANSACTION
+      | RpcMethod.SOLANA_SIGN_MESSAGE;
+  }
+>;
 
 export type SignTransactionRequest =
   | TransactionRequest
@@ -35,12 +37,20 @@ export type SignTransactionRequest =
   | HVMTransactionRequest
   | SolanaSigningRequest;
 
-export const isSolanaSigningRequest = (
+export const isSolanaRequest = (
   sigReq: SignTransactionRequest,
 ): sigReq is SolanaSigningRequest =>
   'type' in sigReq &&
   (sigReq.type === RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION ||
-    sigReq.type === RpcMethod.SOLANA_SIGN_TRANSACTION);
+    sigReq.type === RpcMethod.SOLANA_SIGN_TRANSACTION ||
+    sigReq.type === RpcMethod.SOLANA_SIGN_MESSAGE);
+
+export const isSolanaMsgRequest = (
+  sigReq: SolanaSigningRequest,
+): sigReq is Extract<
+  SolanaSigningRequest,
+  { type: RpcMethod.SOLANA_SIGN_MESSAGE }
+> => sigReq.type === RpcMethod.SOLANA_SIGN_MESSAGE;
 
 export interface BtcTransactionRequest {
   inputs: BitcoinInputUTXO[];
@@ -158,6 +168,7 @@ export type PubKeyType = {
    * Public keys used for X/P chain are from a different derivation path.
    */
   xp?: string;
+  svm?: string;
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
   ed25519?: string;
 };

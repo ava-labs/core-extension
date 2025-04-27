@@ -56,9 +56,11 @@ import { TransactionPayload, VMABI } from 'hypersdk-client';
 import { buildExtendedPublicKey } from '../secrets/utils';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { SecretsError } from '@src/utils/errors';
+import { AddressResolver } from '../secrets/AddressResolver';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
+jest.mock('../secrets/AddressResolver');
 jest.mock('../ledger/LedgerService');
 jest.mock('../keystone/KeystoneService');
 jest.mock('./utils/prepareBtcTxForLedger');
@@ -93,6 +95,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   let keystoneService: KeystoneService;
   let walletConnectService: WalletConnectService;
   let fireblocksService: FireblocksService;
+  let addressResolver: AddressResolver;
   let secretsService: jest.Mocked<SecretsService>;
   const accountsService: jest.Mocked<AccountsService> = {
     activeAccount: {} as unknown as Account,
@@ -116,6 +119,8 @@ describe('background/services/wallet/WalletService.ts', () => {
   const walletConnectSignerMock = Object.create(WalletConnectSigner.prototype);
   const seedlessWalletMock = Object.create(SeedlessWallet.prototype);
   const mnemonic = 'mnemonic';
+
+  const getDerivationPathsByVM = jest.fn();
 
   let getDefaultFujiProviderMock: jest.Mock;
   let getAddressMock: jest.Mock;
@@ -309,6 +314,7 @@ describe('background/services/wallet/WalletService.ts', () => {
     fireblocksService = new FireblocksService({} as any);
 
     secretsService = jest.mocked(new SecretsService({} as any));
+    addressResolver = jest.mocked({ getDerivationPathsByVM } as any);
 
     secretsService.getPrimaryWalletsDetails = jest.fn().mockResolvedValue([]);
 
@@ -342,6 +348,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       fireblocksService,
       secretsService,
       accountsService,
+      addressResolver,
     );
 
     (networkService.getAvalanceProviderXP as jest.Mock).mockReturnValue(
