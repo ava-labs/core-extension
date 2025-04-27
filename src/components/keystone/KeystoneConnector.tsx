@@ -107,6 +107,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
       popDeviceSelection();
     }
   }, [
+    getMfp,
     capture,
     getAddressFromXpubKey,
     getExtendedPublicKey,
