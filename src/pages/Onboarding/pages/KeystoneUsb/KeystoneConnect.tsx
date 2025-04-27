@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState, useCallback } from 'react';
 import { OnboardingStepHeader } from '../../components/OnboardingStepHeader';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { useOnboardingContext } from '@src/contexts/OnboardingProvider';
@@ -66,11 +66,27 @@ export function KeystoneConnect() {
     capture(ONBOARDING_EVENT_NAMES.keystone);
   }, [capture, setOnboardingPhase, setOnboardingWalletType]);
 
-  const handleDeviceChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedDevice(event.target.value as KeystoneDevice);
-  };
+  const disableNext = useMemo(() => {
+    return (
+      (!hasPublicKeys && step === KeystoneConnectStep.CALC_ADDRESSES) ||
+      inProgress
+    );
+  }, [hasPublicKeys, inProgress, step]);
 
-  const handleNext = () => {
+  const handleDeviceChange = useCallback(
+    (event: React.ChangeEvent<{ value: unknown }>) => {
+      const nextSelectedDevice = event.target.value as KeystoneDevice;
+      setSelectedDevice(nextSelectedDevice);
+      if (nextSelectedDevice !== KeystoneDevice.Keystone3) {
+        setShowKeystoneConnector(false);
+      }
+      setStep(KeystoneConnectStep.CONNECT_DEVICE);
+      setInProgress(false);
+    },
+    [],
+  );
+
+  const handleNext = useCallback(() => {
     setInProgress(true);
     if (
       selectedDevice === KeystoneDevice.Keystone3 &&
@@ -82,7 +98,7 @@ export function KeystoneConnect() {
     } else {
       history.push(OnboardingURLs.KEYSTONE);
     }
-  };
+  }, [history, selectedDevice, step, setInProgress, setShowKeystoneConnector]);
 
   const onSuccess = (data: KeystoneConnectorData) => {
     setXpub(data.xpub);
@@ -165,10 +181,7 @@ export function KeystoneConnect() {
           history.goBack();
         }}
         onNext={handleNext}
-        disableNext={
-          (!hasPublicKeys && step === KeystoneConnectStep.CALC_ADDRESSES) ||
-          inProgress
-        }
+        disableNext={disableNext}
         expand={true}
         steps={KeystoneConnectStep.STEP}
         activeStep={step}
