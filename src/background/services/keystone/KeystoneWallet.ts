@@ -18,6 +18,7 @@ import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
 import { UREncoder, URDecoder, UR } from '@ngraveio/bc-ur';
 import { makeBNLike } from '@src/utils/makeBNLike';
+import { utils } from '@avalabs/avalanchejs';
 
 import { CBOR, KeystoneTransport } from './models';
 import { convertTxData } from './utils';
@@ -222,7 +223,7 @@ export class KeystoneWallet {
       this.activeAccountIndex,
     );
 
-    tx.addSignature(Buffer.from(sig, 'hex'));
+    tx.addSignature(utils.hexToBuffer(sig));
     return tx;
   }
 }
