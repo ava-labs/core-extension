@@ -12,7 +12,7 @@ import { LedgerApprovalOverlay } from '@src/pages/SignTransaction/components/Led
 import { Keystone3ApprovalOverlay } from '@src/pages/SignTransaction/components/Keystone3ApprovalOverlay';
 import { KeystoneApprovalOverlay } from '@src/pages/SignTransaction/components/KeystoneApprovalOverlay';
 
-const getTxInfoForLedger = (
+const getTxInfoForHardware = (
   signingData: SigningData,
   network: NetworkWithCaipId,
 ) => {
@@ -72,13 +72,17 @@ export const DeviceApproval = ({
   if (isUsingLedgerWallet) {
     return (
       <LedgerApprovalOverlay
-        {...getTxInfoForLedger(action.signingData, network)}
+        {...getTxInfoForHardware(action.signingData, network)}
       />
     );
   }
 
   if (isUsingKeystone3Wallet) {
-    return <Keystone3ApprovalOverlay />;
+    return (
+      <Keystone3ApprovalOverlay
+        {...getTxInfoForHardware(action.signingData, network)}
+      />
+    );
   }
 
   if (isUsingKeystoneWallet) {
