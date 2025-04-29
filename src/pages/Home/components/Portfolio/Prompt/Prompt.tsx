@@ -329,75 +329,102 @@ export function Prompt() {
         return [...prev, { role: 'user', content: message }];
       });
       setInput('');
-      const response = await sendMessage(message);
+      try {
+        const response = await sendMessage(message);
 
-      // For simplicity, this uses the first function call found.
-      const call = response?.functionCalls?.[0];
-      if (call) {
-        // Call the executable function named in the function call
-        // with the arguments specified in the function call and
-        // let it call the hypothetical API.
-        try {
-          const apiResponse = await functions[call.name](call.args);
+        // For simplicity, this uses the first function call found.
+        const call = response?.functionCalls?.[0];
+        if (call) {
+          // Call the executable function named in the function call
+          // with the arguments specified in the function call and
+          // let it call the hypothetical API.
+          try {
+            const apiResponse = await functions[call.name](call.args);
 
-          // Send the API response back to the model so it can generate
-          // a text response that can be displayed to the user.
-          const functionResult = await sendMessage(message, [
-            { role: 'model', parts: [{ functionCall: { ...call } }] },
-            {
-              role: 'function',
-              parts: [
-                {
-                  functionResponse: {
-                    name: 'send',
-                    response: {
-                      content: apiResponse.content,
+            // Send the API response back to the model so it can generate
+            // a text response that can be displayed to the user.
+            const functionResult = await sendMessage(message, [
+              { role: 'model', parts: [{ functionCall: { ...call } }] },
+              {
+                role: 'function',
+                parts: [
+                  {
+                    functionResponse: {
+                      name: 'send',
+                      response: {
+                        content: apiResponse.content,
+                      },
                     },
                   },
-                },
-              ],
-            },
-          ]);
-          // Log the text response.
-          setPrompts((prev) => {
-            return [...prev, { role: 'model', content: functionResult.text }];
-          });
-        } catch (e: any) {
-          const errorMessage =
-            'code' in e
-              ? errorValues[e.code]?.message || 'Unkown error happened'
-              : e.toString();
+                ],
+              },
+            ]);
+            // Log the text response.
+            setPrompts((prev) => {
+              return [...prev, { role: 'model', content: functionResult.text }];
+            });
+          } catch (e: any) {
+            const errorMessage =
+              'code' in e
+                ? errorValues[e.code]?.message || 'Unkown error happened'
+                : e.toString();
 
-          // Send the API response back to the model so it can generate
-          // a text response that can be displayed to the user.
-          const errorResult = await sendMessage(message, [
-            { role: 'model', parts: [{ functionCall: { ...call } }] },
-            {
-              role: 'function',
-              parts: [
-                {
-                  functionResponse: {
-                    name: 'send',
-                    response: {
-                      content: `Send failed. ${errorMessage}`,
+            // Send the API response back to the model so it can generate
+            // a text response that can be displayed to the user.
+            const errorResult = await sendMessage(message, [
+              { role: 'model', parts: [{ functionCall: { ...call } }] },
+              {
+                role: 'function',
+                parts: [
+                  {
+                    functionResponse: {
+                      name: 'send',
+                      response: {
+                        content: `Send failed. ${errorMessage}`,
+                      },
                     },
                   },
-                },
-              ],
-            },
-          ]);
+                ],
+              },
+            ]);
 
-          // Log the text response.
+            // Log the text response.
+            setPrompts((prev) => {
+              return [...prev, { role: 'model', content: errorResult.text }];
+            });
+          }
+        } else {
           setPrompts((prev) => {
-            return [...prev, { role: 'model', content: errorResult.text }];
+            return [...prev, { role: 'model', content: response.text }];
           });
         }
-      } else {
-        setPrompts((prev) => {
-          return [...prev, { role: 'model', content: response.text }];
-        });
+      } catch (e: any) {
+        if (e.name === 'FirebaseError') {
+          setPrompts((prev) => {
+            return [
+              ...prev,
+              {
+                role: 'model',
+                content:
+                  'Whooops... There is something wrong with the service please try again later!',
+              },
+            ];
+          });
+        } else {
+          setPrompts((prev) => {
+            return [
+              ...prev,
+              {
+                role: 'model',
+                content:
+                  "Whooopsie... We've encountered some issues please try again later!",
+              },
+            ];
+          });
+        }
+      } finally {
+        setIsTyping(false);
       }
-      setIsTyping(false);
     },
     [functions, sendMessage, setPrompts],
   );
