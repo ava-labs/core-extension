@@ -38,6 +38,18 @@ export class BitcoinKeystoneWallet {
       });
     });
 
+    if (outputs.length >= 2) {
+      psbt.updateOutput(outputs.length - 1, {
+        bip32Derivation: [
+          {
+            masterFingerprint: Buffer.from(this.fingerprint, 'hex'),
+            pubkey: this.pubKey,
+            path: this.keyPath,
+          },
+        ],
+      });
+    }
+
     const cryptoPSBT = new CryptoPSBT(psbt.toBuffer());
     const ur = cryptoPSBT.toUR();
 
