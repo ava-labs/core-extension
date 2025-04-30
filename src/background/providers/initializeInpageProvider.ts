@@ -8,7 +8,7 @@ import type AbstractConnection from '../utils/messaging/AbstractConnection';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';
-import { isProductionBuild } from '@src/utils/environment';
+import { isProductionBuild } from '../../utils/environment';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
