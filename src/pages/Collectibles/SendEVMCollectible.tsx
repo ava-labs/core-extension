@@ -31,7 +31,6 @@ import {
   NftTokenWithBalance,
 } from '@avalabs/vm-module-types';
 import { useNetworkFeeContext } from '@src/contexts/NetworkFeeProvider';
-import { GaslessPhase } from '@src/background/services/gasless/model';
 
 type Props = SendPageProps<
   JsonRpcBatchInternal,
@@ -69,7 +68,7 @@ export const SendEVMCollectible = ({
   const setCollectibleParams = useSetCollectibleParams();
   const [token] = tokenList;
   const { capture } = useAnalyticsContext();
-  const { gaslessPhase } = useNetworkFeeContext();
+  const { setGaslessEligibility, isGaslessEligible } = useNetworkFeeContext();
 
   const { error, isSending, isValid, isValidating, send, validate } =
     useEVMSend({
@@ -79,6 +78,10 @@ export const SendEVMCollectible = ({
       nativeToken,
       provider,
     });
+
+  useEffect(() => {
+    setGaslessEligibility(network.chainId);
+  }, [network.chainId, setGaslessEligibility]);
 
   useEffect(() => {
     validate({ address, token });
@@ -97,7 +100,7 @@ export const SendEVMCollectible = ({
   }, [address, token, validate, setCollectibleParams, params]);
 
   const isSendAvailableWithGasless =
-    gaslessPhase !== GaslessPhase.NOT_ELIGIBLE &&
+    isGaslessEligible &&
     error === SendErrorMessage.INSUFFICIENT_BALANCE_FOR_FEE;
 
   const onSend = useCallback(async () => {

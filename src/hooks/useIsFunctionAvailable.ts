@@ -151,6 +151,9 @@ const disabledFeatures: Record<string, BlacklistConfig> = {
       ChainId.DFK_TESTNET,
       ChainId.SWIMMER,
       ChainId.SWIMMER_TESTNET,
+      ChainId.SOLANA_MAINNET_ID,
+      ChainId.SOLANA_TESTNET_ID,
+      ChainId.SOLANA_DEVNET_ID,
     ],
     complexChecks: [disableForAccountsWithoutBtcSupport],
   },
@@ -162,8 +165,6 @@ const enabledFeatures = {
     ChainId.AVALANCHE_MAINNET_ID,
     ChainId.AVALANCHE_TESTNET_ID,
     ChainId.ETHEREUM_HOMESTEAD,
-    ChainId.SOLANA_MAINNET_ID,
-    ChainId.SOLANA_DEVNET_ID,
   ],
   Swap: [ChainId.AVALANCHE_MAINNET_ID, ChainId.ETHEREUM_HOMESTEAD],
   Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
@@ -195,6 +196,7 @@ export const useIsFunctionAvailable = (
   const {
     accounts: { active },
   } = useAccountsContext();
+
   const isReady = Boolean(network && active);
 
   const checkIsFunctionAvailable = (functionToCheck: FunctionNames) => {
@@ -281,7 +283,7 @@ export const useIsFunctionAvailable = (
     return true;
   };
 
-  if (!network || !active || !functionName) {
+  if (!functionName) {
     return {
       isReady,
       isFunctionAvailable: false,

@@ -79,14 +79,6 @@ export function Swap() {
     forceShowTokensWithoutBalances: true,
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
-  const allSwappableTokens = useMemo(
-    () =>
-      allTokensOnNetwork.filter(
-        (token) =>
-          token.type === TokenType.ERC20 || token.type === TokenType.NATIVE,
-      ),
-    [allTokensOnNetwork],
-  );
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -120,6 +112,17 @@ export function Swap() {
     destAmount,
     resetValues,
   } = useSwapStateFunctions();
+
+  const allSwappableTokens = useMemo(
+    () =>
+      allTokensOnNetwork.filter(
+        (token) =>
+          (token.type === TokenType.ERC20 || token.type === TokenType.NATIVE) &&
+          (token.name !== selectedFromToken?.name ||
+            token.symbol !== selectedFromToken?.symbol),
+      ),
+    [allTokensOnNetwork, selectedFromToken?.name, selectedFromToken?.symbol],
+  );
 
   const isFromTokenKnown = useMemo(
     () =>
@@ -174,6 +177,16 @@ export function Swap() {
 
     return result;
   }, [destAmount, destinationInputField, toTokenValue]);
+
+  const fromTokensList = useMemo(
+    () =>
+      tokensWBalances.filter(
+        (token) =>
+          token.name !== selectedToToken?.name ||
+          token.symbol !== selectedToToken?.symbol,
+      ),
+    [selectedToToken?.name, selectedToToken?.symbol, tokensWBalances],
+  );
 
   async function performSwap() {
     const {
@@ -314,7 +327,7 @@ export function Swap() {
               setIsFromTokenSelectOpen(!isFromTokenSelectOpen);
               setIsToTokenSelectOpen(false);
             }}
-            tokensList={tokensWBalances}
+            tokensList={fromTokensList}
             skipHandleMaxAmount
             isOpen={isFromTokenSelectOpen}
             selectedToken={selectedFromToken}

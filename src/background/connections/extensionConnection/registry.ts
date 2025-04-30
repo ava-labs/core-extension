@@ -138,6 +138,8 @@ import { SetCoreAssistantHandler } from '@src/background/services/settings/handl
 import { FirebaseStartChatHandler } from '@src/background/services/firebase/handlers/startChat';
 import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
 
+import { AppendSolanaPublicKeysHandler } from '@src/background/services/secrets/handlers/appendSolanaPublicKeys';
+import { DeriveMissingKeysHandler } from '@src/background/services/seedless/handlers/deriveMissingKeys';
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
  * There is no automatic module discovery in ts like available in java,
@@ -414,6 +416,14 @@ import { FirebaseSendMessageHandler } from '@src/background/services/firebase/ha
   {
     token: 'ExtensionRequestHandler',
     useToken: FirebaseSendMessageHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: AppendSolanaPublicKeysHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: DeriveMissingKeysHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

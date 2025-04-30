@@ -3,10 +3,7 @@ import Joi from 'joi';
 import * as Legacy from './legacyModels';
 import {
   btcWalletPolicyDetailsSchema,
-  fireblocksSchema,
-  privateKeySchema,
   pubKeyTypeSchema,
-  walletConnectSchema,
 } from './commonSchemas';
 
 const seedlessSchema = Joi.object<Legacy.SeedlessSecrets, true>({
@@ -68,11 +65,8 @@ export const legacySecretsSchema = Joi.object<Legacy.LegacySchema, true>({
       seedlessSchema,
     )
     .required(),
-  importedAccounts: Joi.object()
-    .pattern(
-      Joi.string(),
-      Joi.alternatives(privateKeySchema, walletConnectSchema, fireblocksSchema),
-    )
-    .optional(),
+  // We don't really care about the contents of `importedAccounts`,
+  // as we don't modify it in any way.
+  importedAccounts: Joi.object().unknown().optional(),
   version: Joi.number().valid(4).required(),
 }).unknown();

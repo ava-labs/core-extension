@@ -120,7 +120,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
   }
 
   async function toggleTokenVisibility(token: TokenWithBalance) {
-    if (token.type !== TokenType.ERC20) {
+    if (token.type !== TokenType.ERC20 && token.type !== TokenType.SPL) {
       return;
     }
 
@@ -139,7 +139,8 @@ export function SettingsContextProvider({ children }: { children: any }) {
 
   const getTokenVisibility = useCallback(
     (token: TokenWithBalance) => {
-      const key = token.type === TokenType.ERC20 ? token.address : token.symbol;
+      const key =
+        token.type === TokenType.NATIVE ? token.symbol : token.address;
       const tokensVisibility = settings?.tokensVisibility ?? {};
 
       // If the token is flagged as malicious, only show it if the user specifcially enabled it.

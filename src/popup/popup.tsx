@@ -42,6 +42,8 @@ import { ApprovalRoutes } from './ApprovalRoutes';
 import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@src/components/common/InAppApprovalOverlay';
 import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
+import LedgerSolanaAddressPrompt from '@src/pages/Ledger/LedgerSolanaAddressPrompt';
+import { SeedlessUpdatingAccountDialog } from '@src/components/common/seedless/SeedlessUpdatingAccountDialog';
 import { FirebaseContextProvider } from '@src/contexts/FirebaseProvider';
 
 const pagesWithoutHeader = [
@@ -123,27 +125,27 @@ export function Popup() {
     !pagesWithoutHeader.some((path) => location.pathname.startsWith(path));
 
   return (
-    <FirebaseContextProvider>
-      <DialogContextProvider>
-        <LedgerContextProvider>
-          <KeystoneContextProvider>
-            <OnboardingContextProvider>
-              <AccountsContextProvider>
-                <NetworkContextProvider>
-                  <NetworkFeeContextProvider>
-                    <WalletContextProvider>
-                      <CurrenciesContextProvider>
-                        <BalancesProvider>
-                          <DefiContextProvider>
-                            <SwapContextProvider>
-                              <UnifiedBridgeProvider>
-                                <BridgeProvider>
-                                  <ContactsContextProvider>
-                                    <PermissionContextProvider>
-                                      <WalletConnectContextProvider>
-                                        <SeedlessMfaManagementProvider>
-                                          <WalletLoading>
-                                            <ApprovalsContextProvider>
+    <DialogContextProvider>
+      <LedgerContextProvider>
+        <KeystoneContextProvider>
+          <AccountsContextProvider>
+            <NetworkContextProvider>
+              <OnboardingContextProvider>
+                <NetworkFeeContextProvider>
+                  <WalletContextProvider>
+                    <CurrenciesContextProvider>
+                      <BalancesProvider>
+                        <DefiContextProvider>
+                          <SwapContextProvider>
+                            <UnifiedBridgeProvider>
+                              <BridgeProvider>
+                                <ContactsContextProvider>
+                                  <PermissionContextProvider>
+                                    <WalletConnectContextProvider>
+                                      <SeedlessMfaManagementProvider>
+                                        <WalletLoading>
+                                          <ApprovalsContextProvider>
+                                            <FirebaseContextProvider>
                                               <TestnetBanner />
                                               <AnalyticsOptInDialog />
                                               <Stack
@@ -180,32 +182,34 @@ export function Popup() {
                                                   )}
                                                   <LedgerIncorrectDevice />
                                                   <LedgerRegisterBtcWalletPolicy />
+                                                  <LedgerSolanaAddressPrompt />
                                                   <SeedlessAuthPrompt />
+                                                  <SeedlessUpdatingAccountDialog />
                                                   {isMiniMode && (
                                                     <InAppApprovalOverlay />
                                                   )}
                                                 </Stack>
                                               </Stack>
-                                            </ApprovalsContextProvider>
-                                          </WalletLoading>
-                                        </SeedlessMfaManagementProvider>
-                                      </WalletConnectContextProvider>
-                                    </PermissionContextProvider>
-                                  </ContactsContextProvider>
-                                </BridgeProvider>
-                              </UnifiedBridgeProvider>
-                            </SwapContextProvider>
-                          </DefiContextProvider>
-                        </BalancesProvider>
-                      </CurrenciesContextProvider>
-                    </WalletContextProvider>
-                  </NetworkFeeContextProvider>
-                </NetworkContextProvider>
-              </AccountsContextProvider>
-            </OnboardingContextProvider>
-          </KeystoneContextProvider>
-        </LedgerContextProvider>
-      </DialogContextProvider>
-    </FirebaseContextProvider>
+                                            </FirebaseContextProvider>
+                                          </ApprovalsContextProvider>
+                                        </WalletLoading>
+                                      </SeedlessMfaManagementProvider>
+                                    </WalletConnectContextProvider>
+                                  </PermissionContextProvider>
+                                </ContactsContextProvider>
+                              </BridgeProvider>
+                            </UnifiedBridgeProvider>
+                          </SwapContextProvider>
+                        </DefiContextProvider>
+                      </BalancesProvider>
+                    </CurrenciesContextProvider>
+                  </WalletContextProvider>
+                </NetworkFeeContextProvider>
+              </OnboardingContextProvider>
+            </NetworkContextProvider>
+          </AccountsContextProvider>
+        </KeystoneContextProvider>
+      </LedgerContextProvider>
+    </DialogContextProvider>
   );
 }

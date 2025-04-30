@@ -21,6 +21,8 @@ export enum ExtensionRequest {
   ACCOUNT_ADD = 'account_add',
   ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
 
+  SECRETS_APPEND_SOLANA_PUBLIC_KEYS = 'secrets_append_solana_public_keys',
+
   BALANCES_GET = 'balances_get',
   BALANCES_START_POLLING = 'balances_start_polling',
   BALANCES_STOP_POLLING = 'balances_stop_polling',
@@ -147,6 +149,7 @@ export enum ExtensionRequest {
   SEEDLESS_ADD_FIDO_DEVICE = 'seedless_add_fido_device',
   SEEDLESS_REMOVE_FIDO_DEVICE = 'seedless_remove_fido_device',
   SEEDLESS_REMOVE_TOTP = 'seedless_remove_totp',
+  SEEDLESS_DERIVE_MISSING_KEYS = 'seedless_derive_missing_keys',
 
   UNIFIED_BRIDGE_GET_FEE = 'unified_bridge_get_fee',
   UNIFIED_BRIDGE_ESTIMATE_GAS = 'unified_bridge_estimate_gas',
