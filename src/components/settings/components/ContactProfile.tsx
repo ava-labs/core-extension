@@ -19,6 +19,7 @@ import {
 } from '@avalabs/core-k2-components';
 import Dialog from '@src/components/common/Dialog';
 import { truncateAddress } from '@src/utils/truncateAddress';
+import { useIsSolanaEnabled } from '@src/hooks/useIsSolanaEnabled';
 
 interface ContactProfileProps {
   goBack: () => void;
@@ -28,6 +29,7 @@ interface ContactProfileProps {
 export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const isSolanaEnabled = useIsSolanaEnabled();
   const { contactId } = useContactIdFromParams();
   const { removeContact, updateContact, getContactById } = useContactsContext();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -245,7 +247,7 @@ export const ContactProfile = ({ goBack, width }: ContactProfileProps) => {
           </Tooltip>
         </Stack>
       )}
-      {contact.addressSVM && (
+      {isSolanaEnabled && contact.addressSVM && (
         <Stack sx={{ mt: 4 }}>
           <Tooltip
             title={contact.addressSVM}
