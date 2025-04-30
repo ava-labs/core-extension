@@ -5,9 +5,9 @@ import {
   Typography,
   Tooltip,
 } from '@avalabs/core-k2-components';
-import { ParaswapIcon } from '@src/components/icons/ParaswapIcon';
+import { VeloraIcon } from '@src/components/icons/VeloraIcon';
 
-export function ParaswapNotice() {
+export function VeloraNotice() {
   const { t } = useTranslation();
 
   return (
@@ -20,13 +20,11 @@ export function ParaswapNotice() {
       }}
     >
       <Typography variant="caption">{t('Powered by')}</Typography>
-      <ParaswapIcon />
+      <VeloraIcon />
       <Stack sx={{ flexDirection: 'row' }}>
         <Tooltip
           placement={'top'}
-          title={t(
-            "You will interact directly with Paraswap's smart contracts.",
-          )}
+          title={t("You will interact directly with Velora's smart contracts.")}
         >
           <InfoCircleIcon size="14px" />
         </Tooltip>

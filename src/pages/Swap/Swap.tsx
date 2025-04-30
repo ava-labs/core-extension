@@ -9,7 +9,7 @@ import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 import { FunctionIsOffline } from '@src/components/common/FunctionIsOffline';
-import { ParaswapNotice } from './components/ParaswapNotice';
+import { VeloraNotice } from './components/VeloraNotice';
 import {
   FunctionNames,
   useIsFunctionAvailable,
@@ -444,7 +444,7 @@ export function Swap() {
           <ReviewOrderButtonContainer
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
-            <ParaswapNotice />
+            <VeloraNotice />
             <Button
               data-testid="swap-review-order-button"
               sx={{
