@@ -83,7 +83,7 @@ export function useFeeCustomizer({
 
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
-    GasFeeModifier.SLOW,
+    GasFeeModifier.FAST,
   );
   const [isBatchApprovalScreen, setIsBatchApprovalScreen] = useState(false);
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);

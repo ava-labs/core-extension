@@ -177,7 +177,7 @@ export function CustomFees({
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
     networkFee?.isFixedFee
       ? GasFeeModifier.SLOW
-      : selectedGasFeeModifier || GasFeeModifier.SLOW,
+      : selectedGasFeeModifier || GasFeeModifier.FAST,
   );
 
   const { isGaslessOn, setIsGaslessOn, gaslessPhase, isGaslessEligible } =
@@ -308,7 +308,7 @@ export function CustomFees({
   }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
   const onGaslessSwitch = useCallback(async () => {
-    handleModifierClick(GasFeeModifier.NORMAL);
+    handleModifierClick(GasFeeModifier.FAST);
     setIsGaslessOn(!isGaslessOn);
   }, [handleModifierClick, isGaslessOn, setIsGaslessOn]);
 
