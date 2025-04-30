@@ -24,9 +24,7 @@ export function VeloraNotice() {
       <Stack sx={{ flexDirection: 'row' }}>
         <Tooltip
           placement={'top'}
-          title={t(
-            "You will interact directly with Paraswap's smart contracts.",
-          )}
+          title={t("You will interact directly with Velora's smart contracts.")}
         >
           <InfoCircleIcon size="14px" />
         </Tooltip>
