@@ -28,6 +28,7 @@ import {
   MultiTxAction,
   isBatchApprovalAction,
 } from '@src/background/services/actions/models';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 const getInitialFeeRate = (
   data?: SigningData | MultiTxFeeData,
@@ -83,8 +84,18 @@ export function useFeeCustomizer({
 
   const [isCalculatingFee, setIsCalculatingFee] = useState(false);
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
-    GasFeeModifier.FAST,
+    GasFeeModifier.SLOW,
   );
+
+  useEffect(() => {
+    if (
+      network?.chainId === ChainId.AVALANCHE_MAINNET_ID ||
+      network?.chainId === ChainId.AVALANCHE_DEVNET_ID
+    ) {
+      setGasFeeModifier(GasFeeModifier.FAST);
+    }
+  }, [network?.chainId]);
+
   const [isBatchApprovalScreen, setIsBatchApprovalScreen] = useState(false);
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 

@@ -177,7 +177,7 @@ export function CustomFees({
   const [selectedFee, setSelectedFee] = useState<GasFeeModifier>(
     networkFee?.isFixedFee
       ? GasFeeModifier.SLOW
-      : selectedGasFeeModifier || GasFeeModifier.FAST,
+      : selectedGasFeeModifier || GasFeeModifier.SLOW,
   );
 
   const { isGaslessOn, setIsGaslessOn, gaslessPhase, isGaslessEligible } =
