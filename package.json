@@ -274,7 +274,6 @@
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>@ledgerhq/hw-app-btc>bitcoinjs-lib>bip32>tiny-secp256k1": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>@avalabs/core-wallets-sdk>hdkey>secp256k1": false,
       "firebase>@firebase/firestore>@grpc/grpc-js>@grpc/proto-loader>protobufjs": false,
-      "firebase>@firebase/app>@firebase/util": false,
       "@avalabs/core-bridge-sdk>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>@metamask/utils>@ethereumjs/tx>@ethereumjs/common>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>@metamask/sdk-communication-layer>bufferutil": false,
       "@avalabs/avalanche-module>@avalabs/vm-module-types>hypersdk-client>@metamask/sdk>@metamask/sdk-communication-layer>utf-8-validate": false,
@@ -283,7 +282,8 @@
       "@avalabs/avalanche-module>@avalabs/core-wallets-sdk>@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>secp256k1": false,
       "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false
+      "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "firebase>@firebase/app>@firebase/util": false
     }
   },
   "packageManager": "yarn@4.7.0+sha512.5a0afa1d4c1d844b3447ee3319633797bcd6385d9a44be07993ae52ff4facabccafb4af5dcd1c2f9a94ac113e5e9ff56f6130431905884414229e284e37bb7c9"
