@@ -1,7 +1,7 @@
 import { formatUnits, parseUnits } from 'ethers';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useNativeTokenPrice } from '@/hooks/useTokenPrice';
-import { calculateGasAndFees } from '@core/utils';
+import { calculateGasAndFees } from '@core/common';
 import { useEffect, useState } from 'react';
 import { PageTitle } from './PageTitle';
 import { useTranslation } from 'react-i18next';

@@ -3,7 +3,7 @@ import {
   ExtensionRequest,
   ExtensionRequestHandler,
 } from '@core/types';
-import { resolve } from '@core/utils';
+import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { runtime } from 'webextension-polyfill';

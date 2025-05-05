@@ -26,7 +26,7 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import * as utils from './utils';
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '@core/utils';
+import { mapVMAddresses } from '@core/common';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 jest.mock('../storage/StorageService');

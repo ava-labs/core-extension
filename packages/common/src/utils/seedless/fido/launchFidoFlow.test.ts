@@ -1,11 +1,8 @@
 import { windows } from 'webextension-polyfill';
 
-import { openPopup } from 'packages/utils/src/extensionUtils';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common';
+import { openPopup, Monitoring } from '@core/common';
 
-import { FIDOApiEndpoint, KeyType } from './types';
+import { FIDOApiEndpoint, KeyType } from '@core/types';
 import { launchFidoFlow } from './launchFidoFlow';
 import { convertRequest } from './convertRequest';
 import { convertResult } from './convertResult';
@@ -27,7 +24,7 @@ jest.mock('webextension-polyfill', () => {
     },
   };
 });
-jest.mock('@src/monitoring/sentryCaptureException');
+jest.mock('@core/common');
 jest.mock('../../extensionUtils');
 jest.mock('./convertRequest');
 
@@ -198,9 +195,9 @@ describe('src/utils/seedless/fido/launchFidoFlow', () => {
     );
     await new Promise(process.nextTick);
 
-    expect(sentryCaptureException).toHaveBeenCalledWith(
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
       new Error('Invalid Identity API response: "id" is required'),
-      SentryExceptionTypes.SEEDLESS,
+      Monitoring.SentryExceptionTypes.SEEDLESS,
     );
   });
 

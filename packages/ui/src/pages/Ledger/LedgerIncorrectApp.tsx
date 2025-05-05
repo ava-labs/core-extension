@@ -4,7 +4,7 @@ import { LedgerAppType, useLedgerContext } from '@/contexts/LedgerProvider';
 import {
   useIsSpecificContextContainer,
 } from '@/hooks/useIsSpecificContextContainer';
-import { openExtensionNewWindow } from '@core/utils';
+import { openExtensionNewWindow } from '@core/common';
 import { ContextContainer } from '@core/types';
 
 interface LedgerIncorrectAppProps {

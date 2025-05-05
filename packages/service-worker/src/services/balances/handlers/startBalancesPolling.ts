@@ -5,7 +5,7 @@ import {
   ExtensionRequestHandler,
 } from '@core/types';
 import { injectable } from 'tsyringe';
-import { caipToChainId } from '@core/utils';
+import { caipToChainId } from '@core/common';
 import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
 import { BalancePollingService } from '@/services/balances/BalancePollingService';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';

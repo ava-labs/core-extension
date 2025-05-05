@@ -9,7 +9,7 @@ import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useTranslation } from 'react-i18next';
 import { useSeedlessActions } from '@/pages/Onboarding/hooks/useSeedlessActions';
-import { authenticateWithGoogle } from '@core/utils';
+import { authenticateWithGoogle } from '@core/common';
 
 export interface SeedlesButton {
   setIsLoading: Dispatch<SetStateAction<boolean>>;

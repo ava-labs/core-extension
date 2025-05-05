@@ -11,7 +11,7 @@ import {
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import { GetNetworkFeeHandler } from '@core/service-worker';
 import { ExtensionRequest, NetworkFee } from '@core/types';
-import { chainIdToCaip } from '@core/utils';
+import { chainIdToCaip } from '@core/common';
 
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import {

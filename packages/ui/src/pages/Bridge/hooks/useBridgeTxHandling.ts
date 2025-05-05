@@ -1,5 +1,5 @@
 import { BridgeOptions } from '@core/types';
-import { handleTxOutcome } from '@core/utils';
+import { handleTxOutcome } from '@core/common';
 import { useCallback, useState } from 'react';
 
 export const useBridgeTxHandling = ({

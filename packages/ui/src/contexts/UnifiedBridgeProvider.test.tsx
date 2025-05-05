@@ -21,7 +21,7 @@ import {
 } from './UnifiedBridgeProvider';
 import { FeatureGates } from '@core/types';
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { chainIdToCaip } from '@core/utils';
+import { chainIdToCaip } from '@core/common';
 import { CommonError } from '@core/types';
 import { UnifiedBridgeError } from '@core/types';
 import { RpcMethod } from '@avalabs/vm-module-types';

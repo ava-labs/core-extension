@@ -1,9 +1,9 @@
 import { Account } from '@core/types';
-import { calculateTotalBalance } from '@core/utils';
+import { calculateTotalBalance } from '@core/common';
 
 import { calculateTotalBalanceForAccounts } from './calculateTotalBalanceForAccounts';
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 
 describe('src/background/services/balances/handlers/helpers/calculateTotalBalanceForAccounts', () => {
   it('aggregates results of calculateTotalBalance() for provided accounts', () => {

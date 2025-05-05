@@ -52,7 +52,7 @@ import {
   getProviderForNetwork,
   isBitcoinCaipId,
   lowerCaseKeys,
-} from '@core/utils';
+} from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';

@@ -6,7 +6,7 @@ import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { GetTokensListHandler } from '@core/service-worker';
 import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
-import { getAddressForChain } from '@core/utils';
+import { getAddressForChain } from '@core/common';
 import { merge } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 

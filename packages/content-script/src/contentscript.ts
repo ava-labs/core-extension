@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 import { CONTENT_SCRIPT } from '@core/common';
-import { onPageActivated } from '@core/utils';
+import { onPageActivated } from '@core/common';
 import {
   AutoPairingPostMessageConnection,
   PortConnection,

@@ -8,7 +8,7 @@ import { injectable } from 'tsyringe';
 import { AccountsService } from '@/services/accounts/AccountsService';
 import { NetworkService } from '@/services/network/NetworkService';
 import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
-import { caipToChainId } from '@core/utils';
+import { caipToChainId } from '@core/common';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 export type HandlerType = ExtensionRequestHandler<

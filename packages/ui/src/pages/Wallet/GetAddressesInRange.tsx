@@ -25,7 +25,7 @@ import {
   DomainMetadata,
   GetAddressesInRangeDisplayData,
 } from '@core/types';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
 
 export function GetAddressesInRange() {

@@ -3,7 +3,7 @@ import {
   Balances,
   TotalPriceChange,
 } from '@core/service-worker';
-import { getAddressForChain } from '@core/utils';
+import { getAddressForChain } from '@core/common';
 import { NetworkWithCaipId } from '@core/service-worker';
 import { hasAccountBalances } from './hasAccountBalances';
 

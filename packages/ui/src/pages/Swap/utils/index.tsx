@@ -1,6 +1,6 @@
 import { TokenIcon as TokenImage } from '@/components/common/TokenIcon';
 import { TokenType, TokenWithBalanceEVM } from '@avalabs/vm-module-types';
-import { calculateGasAndFees, stringToBigint, WrappedError } from '@core/utils';
+import { calculateGasAndFees, stringToBigint, WrappedError } from '@core/common';
 import { OptimalRate } from '@paraswap/sdk';
 
 interface GetTokenIconProps {

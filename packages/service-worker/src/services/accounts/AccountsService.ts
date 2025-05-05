@@ -25,7 +25,7 @@ import {
   isProductionBuild,
   mapAddressesToVMs,
   mapVMAddresses,
-} from '@core/utils';
+} from '@core/common';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
 import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';

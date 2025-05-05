@@ -5,7 +5,7 @@ import {
 	FeatureGates,
 	FirebaseEvents
 } from '@core/types';
-import { isSupportedBrowser } from '@core/utils';
+import { isSupportedBrowser } from '@core/common';
 import { FirebaseApp, initializeApp } from 'firebase/app';
 import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
 import {
@@ -20,7 +20,7 @@ import { FirebaseService } from './FirebaseService';
 jest.mock('firebase/app');
 jest.mock('firebase/messaging');
 jest.mock('firebase/messaging/sw');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 
 describe('FirebaseService', () => {
   const realEnv = process.env;

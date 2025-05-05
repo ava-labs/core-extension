@@ -28,7 +28,7 @@ import {
   isTokenWithBalancePVM,
   isXchainNetwork,
   normalizeBalance,
-} from '@core/utils';
+} from '@core/common';
 import Big from 'big.js';
 import { Trans, useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

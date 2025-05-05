@@ -27,7 +27,7 @@ import {
   isEthereumChainId,
   isPchainNetwork,
   isXchainNetwork,
-} from '@core/utils';
+} from '@core/common';
 import { useTranslation } from 'react-i18next';
 
 export const Receive = () => {

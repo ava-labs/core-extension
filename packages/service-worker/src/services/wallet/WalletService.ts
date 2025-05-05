@@ -67,7 +67,7 @@ import { FIREBLOCKS_REQUEST_EXPIRY } from '@core/types';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import {} from '@core/types';
 import { AccountsService } from '../accounts/AccountsService';
 import { utils } from '@avalabs/avalanchejs';
@@ -79,10 +79,10 @@ import {
   getPublicKeyFor,
   isPrimaryWalletSecrets,
 } from '../secrets/utils';
-import { assertPresent, omitUndefined } from '@core/utils';
+import { assertPresent, omitUndefined } from '@core/common';
 import { AddressResolver } from '../secrets/AddressResolver';
-import { isXchainNetwork } from '@core/utils/src/network/isAvalancheXchainNetwork';
-import { isPchainNetwork } from '@core/utils/src/network/isAvalanchePchainNetwork';
+import { isXchainNetwork } from '@core/common';
+import { isPchainNetwork } from '@core/common';
 
 @singleton()
 export class WalletService implements OnUnlock {

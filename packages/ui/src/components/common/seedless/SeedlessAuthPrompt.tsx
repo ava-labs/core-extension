@@ -10,7 +10,7 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { useWalletContext } from '@/contexts/WalletProvider';
-import { openExtensionNewWindow } from '@core/utils';
+import { openExtensionNewWindow } from '@core/common';
 import { useSeedlessAuthPromptState } from '@/hooks/useSeedlessAuthPromptState';
 import { SecretType } from '@core/types';
 

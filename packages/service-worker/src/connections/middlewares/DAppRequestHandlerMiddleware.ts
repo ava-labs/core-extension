@@ -6,7 +6,7 @@ import {
   JsonRpcResponse,
   DEFERRED_RESPONSE,
 } from '@core/types';
-import { engine, resolve } from '@core/utils';
+import { engine, resolve } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 
 import { ModuleManager } from '../../vmModules/ModuleManager';

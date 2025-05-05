@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { chainIdToCaip } from '@core/utils';
+import { chainIdToCaip } from '@core/common';
 import { AbstractConnection } from '@core/messaging';
 import { ethErrors, serializeError } from 'eth-rpc-errors';
 

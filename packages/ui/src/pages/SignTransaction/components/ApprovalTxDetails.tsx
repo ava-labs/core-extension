@@ -12,7 +12,7 @@ import {
 	Typography,
 } from '@avalabs/core-k2-components';
 import { DomainMetadata } from '@core/types';
-import { getExplorerAddressByNetwork, openNewTab, truncateAddress } from '@core/utils';
+import { getExplorerAddressByNetwork, openNewTab, truncateAddress } from '@core/common';
 import { useTranslation } from 'react-i18next';
 
 type ContractDetailsProps = {

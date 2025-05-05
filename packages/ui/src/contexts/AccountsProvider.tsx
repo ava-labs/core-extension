@@ -24,7 +24,7 @@ import {
   AvalancheDeleteAccountsHandler,
 } from '@core/service-worker';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType, getAllAddressesForAccount } from '@core/utils';
+import { getAddressByVMType, getAllAddressesForAccount } from '@core/common';
 
 const AccountsContext = createContext<{
   accounts: Accounts;

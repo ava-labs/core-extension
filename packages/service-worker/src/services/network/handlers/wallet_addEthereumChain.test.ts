@@ -7,13 +7,13 @@ import {
   DEFERRED_RESPONSE,
   Network,
 } from '@core/types';
-import { canSkipApproval, decorateWithCaipId } from '@core/utils';
+import { canSkipApproval, decorateWithCaipId } from '@core/common';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { ethErrors } from 'eth-rpc-errors';
 import { NetworkService } from '../NetworkService';
 import { WalletAddEthereumChainHandler } from './wallet_addEthereumChain';
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('../NetworkService');
 jest.mock('@/runtime/openApprovalWindow');
 

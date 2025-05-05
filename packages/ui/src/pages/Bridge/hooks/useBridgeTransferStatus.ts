@@ -1,7 +1,7 @@
 import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 
-import { isUnifiedBridgeTransfer } from '@core/utils';
+import { isUnifiedBridgeTransfer } from '@core/common';
 
 export const useBridgeTransferStatus = (
   bridgeTx?: BridgeTransaction | BridgeTransfer,

@@ -2,7 +2,7 @@ import {
   NftTokenWithBalance,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
-import { isNFT } from '@core/utils/src/nfts/isNFT';
+import { isNFT } from '@core/common';
 
 export function groupTokensByType(
   balances?: Record<string, Record<string, TokenWithBalance>>,

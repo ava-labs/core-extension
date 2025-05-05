@@ -28,10 +28,7 @@ import {
 	useTheme,
 } from '@avalabs/core-k2-components';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
-import sentryCaptureException, {
-	SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
-import { isBitcoinNetwork, isSolanaNetwork, isUserRejectionError, resolve } from '@core/utils';
+import { isBitcoinNetwork, isSolanaNetwork, isUserRejectionError, Monitoring, resolve } from '@core/common';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -223,7 +220,7 @@ export function Swap() {
 
     if (error && !isUserRejectionError(error)) {
       console.error(error);
-      sentryCaptureException(error, SentryExceptionTypes.SWAP);
+      Monitoring.sentryCaptureException(error, Monitoring.SentryExceptionTypes.SWAP);
 
       const { title, hint } = getTranslatedError(error);
       toast.custom(

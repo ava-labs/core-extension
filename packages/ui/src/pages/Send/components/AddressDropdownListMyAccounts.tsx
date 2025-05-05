@@ -18,7 +18,7 @@ import {
 	isPchainNetwork,
 	isSolanaNetwork,
 	isXchainNetwork,
-} from '@core/utils';
+} from '@core/common';
 import { useMemo } from 'react';
 import { AddressDropdownListItem } from './AddressDropdownListItem';
 

@@ -2,7 +2,7 @@ import { Blockchain, BridgeConfig } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { NetworkWithCaipId } from '@core/types';
-import { caipToChainId } from '@core/utils';
+import { caipToChainId } from '@core/common';
 
 export const blockchainToNetwork = (
   blockChain: Blockchain | Chain,

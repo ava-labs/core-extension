@@ -11,7 +11,7 @@ import {
   XIcon,
 } from '@avalabs/core-k2-components';
 
-import { getCoreWebUrl } from '@core/utils';
+import { getCoreWebUrl } from '@core/common';
 import { useDismissedBanners } from '@/hooks/useDismissedBanners';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/types';

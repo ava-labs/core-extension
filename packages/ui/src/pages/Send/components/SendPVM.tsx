@@ -2,7 +2,7 @@ import { Grow, Stack } from '@avalabs/core-k2-components';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { handleTxOutcome } from '@core/utils';
+import { handleTxOutcome } from '@core/common';
 
 import { CustomFees } from '@/components/common/CustomFees';
 import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
@@ -10,7 +10,7 @@ import { FunctionNames } from '@/hooks/useIsFunctionAvailable';
 import { useQueryParams } from '@/hooks/useQueryParams';
 import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
 import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 import { usePvmSend } from '../hooks/useSend';
 import { SendPagePropsWithWalletPVM } from '../models';
 import { SendForm } from './SendForm';

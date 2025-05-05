@@ -4,7 +4,7 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 
 type TruncatedIdentifierProps = {
   identifier: string;

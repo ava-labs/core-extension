@@ -4,7 +4,7 @@ import {
   isValidAddress,
   isValidBtcAddress,
   isValidXPAddress,
-} from '@core/utils';
+} from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { useContactsContext } from '@/contexts/ContactsProvider';
 import { Stack, TextField } from '@avalabs/core-k2-components';

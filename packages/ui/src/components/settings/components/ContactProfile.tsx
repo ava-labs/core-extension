@@ -18,7 +18,7 @@ import {
   CopyIcon,
 } from '@avalabs/core-k2-components';
 import Dialog from '@/components/common/Dialog';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 
 interface ContactProfileProps {
   goBack: () => void;

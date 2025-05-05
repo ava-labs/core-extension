@@ -19,7 +19,7 @@ import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { Account } from '@core/types';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { getAllAddressesForAccount } from '@core/utils';
+import { getAllAddressesForAccount } from '@core/common';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type ConnectedListType = {

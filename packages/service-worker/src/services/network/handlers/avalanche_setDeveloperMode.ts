@@ -5,7 +5,7 @@ import {
   DAppRequestHandler,
   DEFERRED_RESPONSE,
 } from '@core/types';
-import { chainIdToCaip } from '@core/utils';
+import { chainIdToCaip } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';

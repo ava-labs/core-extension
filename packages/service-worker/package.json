@@ -34,7 +34,6 @@
     "@coinbase/cbpay-js": "1.6.0",
     "@core/common": "workspace:*",
     "@core/types": "workspace:*",
-    "@core/utils": "workspace:*",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@cubist-labs/cubesigner-sdk-ethers-v6": "0.3.28",
     "@ethereumjs/common": "2.6.5",

@@ -12,7 +12,7 @@ import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
   getBtcInputUtxos,
   validateBtcSend,
-} from '@core/utils';
+} from '@core/common';
 
 import { SendAdapterBTC } from './models';
 import { BaseSendOptions } from '../../models';

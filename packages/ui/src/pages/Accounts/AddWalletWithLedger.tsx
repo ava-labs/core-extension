@@ -27,9 +27,7 @@ import {
   LedgerTroubleStepsFontVariant,
 } from '../../components/ledger/LedgerTroublesSteps';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
+import { Monitoring } from '@core/common';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
 import { useLedgerContext } from '@/contexts/LedgerProvider';
 import { Overlay } from '@/components/common/Overlay';
@@ -122,9 +120,9 @@ export function AddWalletWithLedger() {
         setStep(Step.Completed);
       } catch (err) {
         capture('LedgerImportFailure');
-        sentryCaptureException(
+        Monitoring.sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT,
+          Monitoring.SentryExceptionTypes.WALLET_IMPORT,
         );
         const { title } = getErrorMessage(err);
         toast.error(title);

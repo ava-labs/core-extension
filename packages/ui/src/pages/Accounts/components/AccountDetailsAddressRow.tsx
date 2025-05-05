@@ -1,7 +1,7 @@
 import { Button, Stack, Typography } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { stripAddressPrefix, truncateAddress } from '@core/utils';
+import { stripAddressPrefix, truncateAddress } from '@core/common';
 
 export const AccountDetailsAddressRow = ({
   icon,

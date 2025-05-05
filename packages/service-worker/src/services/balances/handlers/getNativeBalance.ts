@@ -11,7 +11,7 @@ import {
   NetworkVMType,
   TokenType,
 } from '@avalabs/vm-module-types';
-import { mapVMAddresses } from '@core/utils';
+import { mapVMAddresses } from '@core/common';
 
 export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCE_NATIVE_GET,

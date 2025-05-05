@@ -8,7 +8,7 @@ import { FeatureFlagService } from '../../../services/featureFlags/FeatureFlagSe
 import {
   caipToChainId,
   decorateWithCaipId,
-} from '@core/utils';
+} from '@core/common';
 
 jest.mock('../../../services/network/NetworkService');
 

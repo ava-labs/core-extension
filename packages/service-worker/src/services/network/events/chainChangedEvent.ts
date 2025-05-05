@@ -4,7 +4,7 @@ import {
   ExtensionConnectionEvent,
   Web3Event,
 } from '@core/types';
-import { caipToChainId, getSyncDomain } from '@core/utils';
+import { caipToChainId, getSyncDomain } from '@core/common';
 import { EventEmitter } from 'events';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';

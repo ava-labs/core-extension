@@ -2,7 +2,7 @@ import { singleton } from 'tsyringe';
 import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { SettingsService } from '../settings/SettingsService';
-import { getPriceChangeValues } from '@core/utils/src/balance/getPriceChangeValues';
+import { getPriceChangeValues } from '@core/common';
 import * as Sentry from '@sentry/browser';
 import {
   Network,

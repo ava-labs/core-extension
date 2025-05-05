@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
 import { NetworkService } from '../../network/NetworkService';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { Action } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { DEFERRED_RESPONSE } from '@core/types';
@@ -19,7 +19,7 @@ type Params = [
   internalLimit: number,
 ];
 import { AccountsService } from '../AccountsService';
-import { getAddressesInRange } from '@core/utils';
+import { getAddressesInRange } from '@core/common';
 import { getExtendedPublicKey } from '../../secrets/utils';
 import { AVALANCHE_BASE_DERIVATION_PATH } from '@core/types';
 

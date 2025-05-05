@@ -9,7 +9,7 @@ import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import type { AvalancheSendTransactionHandler } from '@core/service-worker';
 import { DAppProviderRequest, FeatureGates, SendErrorMessage } from '@core/types';
-import { isValidPvmAddress, resolve, stripAddressPrefix } from '@core/utils';
+import { isValidPvmAddress, resolve, stripAddressPrefix } from '@core/common';
 
 import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
 import { PVMSendOptions } from '../../models';

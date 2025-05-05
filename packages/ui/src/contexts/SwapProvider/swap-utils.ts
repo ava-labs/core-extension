@@ -10,8 +10,8 @@ import {
   isUserRejectionError,
   isWrappedError,
   WrappedError,
-} from '@core/utils';
-import { resolve } from '@core/utils';
+} from '@core/common';
+import { resolve } from '@core/common';
 import { CommonError,SwapErrorCode, RequestHandlerType } from '@core/types';
 import { SwapError } from '@/pages/Swap/hooks/useSwap';
 

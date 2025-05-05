@@ -13,7 +13,7 @@ import {
   TransactionStatus,
 } from 'fireblocks-sdk';
 
-import { wrapError } from '@core/utils';
+import { wrapError } from '@core/common';
 
 import {
   BtcTransactionRequest,

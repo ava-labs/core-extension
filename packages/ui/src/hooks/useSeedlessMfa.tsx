@@ -16,7 +16,7 @@ import {
   RecoveryMethod as RecoveryMethodT,
   SeedlessEvents,
 } from '@core/types';
-import { launchFidoFlow } from '@core/utils';
+import { launchFidoFlow } from '@core/common';
 
 import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
 import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';

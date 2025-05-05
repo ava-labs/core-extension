@@ -11,7 +11,7 @@ import useIsUsingLedgerWallet from '@/hooks/useIsUsingLedgerWallet';
 import { LedgerDisconnected } from '@/pages/Ledger/LedgerDisconnected';
 import { LedgerIncorrectApp } from '@/pages/Ledger/LedgerIncorrectApp';
 import { LedgerWrongVersionContent } from '@/pages/Ledger/LedgerWrongVersion';
-import { isLedgerVersionCompatible } from '@core/utils';
+import { isLedgerVersionCompatible } from '@core/common';
 import { renderHook } from '@testing-library/react-hooks';
 import { useTranslation } from 'react-i18next';
 import { useLedgerDisconnectedDialog } from './useLedgerDisconnectedDialog';
@@ -42,7 +42,7 @@ jest.mock('@/contexts/NetworkProvider', () => ({
 }));
 
 jest.mock('@/hooks/useIsUsingLedgerWallet');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 
 describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () => {
   const onCancelMock = jest.fn();

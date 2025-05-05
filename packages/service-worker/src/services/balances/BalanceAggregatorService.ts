@@ -23,9 +23,9 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
-import { isFulfilled } from '@core/utils';
+import { isFulfilled } from '@core/common';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { groupTokensByType } from '@core/utils/src/balance/groupTokensByType';
+import { groupTokensByType } from '@core/common';
 
 @singleton()
 export class BalanceAggregatorService implements OnLock, OnUnlock {

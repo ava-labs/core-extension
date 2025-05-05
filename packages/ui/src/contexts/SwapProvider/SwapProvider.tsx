@@ -60,7 +60,7 @@ import {
   getProviderForNetwork,
   getExplorerAddressByNetwork,
   toastCardWithLink,
-} from '@core/utils';
+} from '@core/common';
 import { useWalletContext } from '../WalletProvider';
 import { toast } from '@avalabs/core-k2-components';
 import { SwapPendingToast } from '@/pages/Swap/components/SwapPendingToast';

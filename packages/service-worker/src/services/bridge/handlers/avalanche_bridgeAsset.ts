@@ -37,9 +37,9 @@ import {
   getBtcInputUtxos,
   validateBtcSend,
   resolve,
-} from '@core/utils';
+} from '@core/common';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
-import { isBitcoinNetwork } from '@core/utils/src/network/isBitcoinNetwork';
+import { isBitcoinNetwork } from '@core/common';
 import { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { WalletService } from '../../wallet/WalletService';
 import { ContractTransaction } from 'ethers';

@@ -12,7 +12,7 @@ import {
   SwapErrorCode,
   UnifiedBridgeError,
 } from '@core/types';
-import { isWrappedError } from '@core/utils';
+import { isWrappedError } from '@core/common';
 
 type ErrorTranslation = {
   title: string;

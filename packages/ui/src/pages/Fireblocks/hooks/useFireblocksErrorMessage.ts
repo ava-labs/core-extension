@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FireblocksBtcAccessErrorCode } from '@core/types';
-import { getFireblocksBtcAccessErrorCode } from '@core/utils';
+import { getFireblocksBtcAccessErrorCode } from '@core/common';
 
 export const useFireblocksErrorMessage = () => {
   const { t } = useTranslation();

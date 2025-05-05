@@ -5,7 +5,7 @@ import ERC1155 from '@openzeppelin/contracts/build/contracts/ERC1155.json';
 
 import * as builder from './buildSendTx';
 import { TokenType } from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 
 jest.mock('ethers');
 

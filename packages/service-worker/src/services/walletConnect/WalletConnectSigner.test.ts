@@ -8,9 +8,9 @@ import {
 } from '@core/types';
 import { AVM, EVM, PVM } from '@avalabs/avalanchejs';
 import { BNLike } from 'ethereumjs-util';
-import { makeBNLike } from '@core/utils';
+import { makeBNLike } from '@core/common';
 
-jest.mock('@core/utils', () => ({
+jest.mock('@core/common', () => ({
   makeBNLike: jest.fn(),
 }));
 

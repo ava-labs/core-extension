@@ -29,7 +29,7 @@ import {
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { buildRpcCall } from '@shared/tests/test-utils';
-import { getBtcInputUtxos, getProviderForNetwork } from '@core/utils';
+import { getBtcInputUtxos, getProviderForNetwork } from '@core/common';
 import { TokenType } from '@avalabs/vm-module-types';
 
 jest.mock('@src/background/runtime/openApprovalWindow');

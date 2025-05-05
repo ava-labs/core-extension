@@ -17,9 +17,9 @@ import {
 import { Network } from '@core/types';
 import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { getProviderForNetwork } from '@core/utils';
-import { toastCardWithLink } from '@core/utils';
-import { getExplorerAddressByNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
+import { toastCardWithLink } from '@core/common';
+import { getExplorerAddressByNetwork } from '@core/common';
 import { useNetworkFeeContext } from '@/contexts/NetworkFeeProvider';
 
 import { LoadingSendForm } from '../Send/components/LoadingSendForm';

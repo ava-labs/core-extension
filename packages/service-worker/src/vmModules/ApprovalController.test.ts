@@ -3,7 +3,7 @@ import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
 import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
-import { chainIdToCaip, getProviderForNetwork } from '@core/utils';
+import { chainIdToCaip, getProviderForNetwork } from '@core/common';
 
 import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';
@@ -32,7 +32,7 @@ jest.mock('tsyringe', () => {
   };
 });
 jest.mock('@/runtime/openApprovalWindow');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 
 const btcNetwork = {
   chainId: ChainId.BITCOIN_TESTNET,

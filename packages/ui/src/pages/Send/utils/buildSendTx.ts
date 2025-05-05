@@ -11,7 +11,7 @@ import {
   SendOptions,
 } from '../models';
 import { TokenType } from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 
 const asHex = (value: bigint) => `0x${value.toString(16)}`;
 

@@ -1,5 +1,5 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { caipToChainId } from '@core/utils';
+import { caipToChainId } from '@core/common';
 import { ExtensionRequest } from '@core/types';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';

@@ -8,7 +8,7 @@ import {
 	QRCodeIcon,
 	Stack,
 } from '@avalabs/core-k2-components';
-import { getCoreWebUrl, openNewTab } from '@core/utils';
+import { getCoreWebUrl, openNewTab } from '@core/common';
 import { useTranslation } from 'react-i18next';
 
 export function ZeroWidget() {

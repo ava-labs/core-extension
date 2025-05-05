@@ -24,7 +24,7 @@ import { PageNav } from '../components/PageNav';
 import { TypographyLink } from '../components/TypographyLink';
 
 import { WalletType } from '@avalabs/types';
-import { isNewsletterConfigured } from '@core/utils';
+import { isNewsletterConfigured } from '@core/common';
 import Joi from 'joi';
 import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
 

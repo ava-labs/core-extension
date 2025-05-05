@@ -20,7 +20,7 @@ import {
   GetTokenDataHandler,
 } from '@core/service-worker';
 import { ExtensionRequest } from '@core/types';
-import { isTokenMalicious } from '@core/utils';
+import { isTokenMalicious } from '@core/common';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

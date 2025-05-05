@@ -16,7 +16,7 @@ import {
 import { Account, ActionStatus } from '@core/types';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 
 export function SwitchAccount() {
   const theme = useTheme();

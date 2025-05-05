@@ -5,7 +5,7 @@ import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
 import { Transaction } from '@avalabs/vm-module-types';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
-import { resolve } from '@core/utils';
+import { resolve } from '@core/common';
 import { Monitoring } from '@core/common';
 import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 

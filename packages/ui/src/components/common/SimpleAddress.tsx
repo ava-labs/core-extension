@@ -9,7 +9,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 
 export type SimpleAddressProps = StackProps & {
   address: string;

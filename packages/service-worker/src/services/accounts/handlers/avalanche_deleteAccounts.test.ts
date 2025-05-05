@@ -11,10 +11,10 @@ import {
 } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { AvalancheDeleteAccountsHandler } from './avalanche_deleteAccounts';
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('../../../runtime/openApprovalWindow');
 
 describe('src/background/services/accounts/handlers/avalanche_deleteAccounts', () => {

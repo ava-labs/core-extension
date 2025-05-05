@@ -1,7 +1,7 @@
 import { Blockchain } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 import { Network } from '@avalabs/core-chains-sdk';
-import { networkToBlockchain } from '@core/utils';
+import { networkToBlockchain } from '@core/common';
 import type { NetworkWithCaipId } from '@core/types';
 
 function getAvalancheExplorerBaseUrl(isMainnet = true) {

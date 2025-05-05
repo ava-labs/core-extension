@@ -15,10 +15,10 @@ import { AutoSizer } from 'react-virtualized';
 import VirtualizedList from '@/components/common/VirtualizedList';
 import { Button, Stack, styled } from '@avalabs/core-k2-components';
 import { TokenIcon } from '@/components/common/TokenIcon';
-import { normalizeBalance } from '@core/utils';
+import { normalizeBalance } from '@core/common';
 import Big from 'big.js';
 import { TokenType } from '@avalabs/vm-module-types';
-import { isTokenMalicious } from '@core/utils';
+import { isTokenMalicious } from '@core/common';
 
 const TokenRow = styled('div')`
   padding: 0 10px 0 16px;

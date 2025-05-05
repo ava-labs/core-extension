@@ -1,5 +1,5 @@
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import { resolve } from '@core/utils';
+import { resolve } from '@core/common';
 import Transport from '@ledgerhq/hw-transport';
 import { Monitoring } from '@core/common';
 

@@ -12,7 +12,7 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { DefiProtocol } from '@core/types';
-import { openNewTab } from '@core/utils';
+import { openNewTab } from '@core/common';
 
 import { useConvertedCurrencyFormatter } from '../hooks/useConvertedCurrencyFormatter';
 

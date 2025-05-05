@@ -1,5 +1,5 @@
 import { HttpClient } from '@avalabs/core-utils-sdk';
-import { getUserEnvironment } from '@core/utils';
+import { getUserEnvironment } from '@core/common';
 import { singleton } from 'tsyringe';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { SettingsService } from '../settings/SettingsService';

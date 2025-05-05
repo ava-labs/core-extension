@@ -11,7 +11,7 @@ import { TxDetailsRow } from '@/components/common/approval/TxDetailsRow';
 import { TruncatedIdentifier } from './TruncatedIdentifier';
 import { AvaxAmount } from './AvaxAmount';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { isPrimarySubnet } from '@core/utils';
+import { isPrimarySubnet } from '@core/common';
 
 type AddPermssionlessValidatorProps = {
   tx: Avalanche.AddPermissionlessValidatorTx;

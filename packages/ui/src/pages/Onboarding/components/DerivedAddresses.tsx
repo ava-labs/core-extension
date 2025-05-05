@@ -1,6 +1,6 @@
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 import { AddressType } from '../pages/Ledger/LedgerConnect';
-import { getAvalancheAddressLink } from '@core/utils';
+import { getAvalancheAddressLink } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import {
   Card,

@@ -13,7 +13,7 @@ import {
   OnboardingPhase,
   OnboardingURLs,
 } from '@core/types';
-import { isPhraseCorrect } from '@core/utils';
+import { isPhraseCorrect } from '@core/common';
 import { useCallback, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

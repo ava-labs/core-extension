@@ -1,4 +1,4 @@
-import { assertPresent } from '@core/utils';
+import { assertPresent } from '@core/common';
 import { SchemaMap } from './models';
 import { SCHEMA_MAP } from './schemaMap';
 import { CommonError } from '@core/types';

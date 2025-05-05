@@ -13,7 +13,7 @@ import {
   isBatchApprovalAction,
   MultiTxAction,
 } from '@core/types';
-import { getUpdatedSigningData } from '@core/utils';
+import { getUpdatedSigningData } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { EventEmitter } from 'events';
 import { omit } from 'lodash';

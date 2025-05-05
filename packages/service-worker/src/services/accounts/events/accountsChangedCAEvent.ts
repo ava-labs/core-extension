@@ -12,7 +12,7 @@ import {
   PermissionEvents,
   Permissions,
 } from '@core/types';
-import { getAllAddressesForAccount } from '@core/utils';
+import { getAllAddressesForAccount } from '@core/common';
 
 import { AccountsService } from '../AccountsService';
 import { PermissionsService } from '../../permissions/PermissionsService';

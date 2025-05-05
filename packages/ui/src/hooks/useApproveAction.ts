@@ -17,7 +17,7 @@ import {
 	useIsSpecificContextContainer,
 } from './useIsSpecificContextContainer';
 import { useCallback, useEffect, useState } from 'react';
-import { getUpdatedSigningData, useWindowGetsClosedOrHidden } from '@core/utils';
+import { getUpdatedSigningData, useWindowGetsClosedOrHidden } from '@core/common';
 
 type ActionType<IsBatchApproval> = IsBatchApproval extends true
   ? MultiTxAction

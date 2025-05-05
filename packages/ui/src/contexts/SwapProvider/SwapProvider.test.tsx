@@ -25,7 +25,7 @@ import { SecretType } from '@core/types';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import * as swapUtils from './swap-utils';
 import { CommonError, SwapErrorCode } from '@core/types';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { constructPartialSDK, OptimalRate } from '@paraswap/sdk';
 import { NATIVE_TOKEN_ADDRESS } from './constants';
@@ -96,7 +96,7 @@ jest.mock('../ConnectionProvider', () => ({
   useConnectionContext: jest.fn(),
 }));
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('@/hooks/useTokensWithBalances');
 
 jest.mock('react-i18next', () => ({

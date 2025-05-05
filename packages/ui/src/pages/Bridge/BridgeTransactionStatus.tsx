@@ -9,7 +9,7 @@ import { VsCurrencyType } from '@avalabs/core-coingecko-sdk';
 import { ElapsedTimer } from './components/ElapsedTimer';
 import { useIsMainnet } from '@/hooks/useIsMainnet';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { getExplorerAddress } from '@core/utils';
+import { getExplorerAddress } from '@core/common';
 import { useLogoUriForBridgeTransaction } from './hooks/useLogoUriForBridgeTransaction';
 import { useTranslation } from 'react-i18next';
 import { useCoinGeckoId } from '@/hooks/useCoinGeckoId';
@@ -39,7 +39,7 @@ import {
   blockchainToNetwork,
   getNativeTokenSymbol,
   isUnifiedBridgeTransfer,
-} from '@core/utils';
+} from '@core/common';
 
 import { useBridgeAmounts } from './hooks/useBridgeAmounts';
 import { useSyncBridgeConfig } from './hooks/useSyncBridgeConfig';

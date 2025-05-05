@@ -26,7 +26,7 @@ import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import { useScopedToast } from '@/hooks/useScopedToast';
 import { AccountType } from '@core/types';
-import { isPrimaryAccount } from '@core/utils';
+import { isPrimaryAccount } from '@core/common';
 
 import { AccountListImported } from './components/AccountListImported';
 import { AccountListPrimary } from './components/AccountListPrimary';

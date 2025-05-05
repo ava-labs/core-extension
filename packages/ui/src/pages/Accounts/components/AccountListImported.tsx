@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { Account, IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
-import { isImportedAccount } from '@core/utils';
+import { isImportedAccount } from '@core/common';
 
 import { useTranslation } from 'react-i18next';
 import { useWalletTotalBalance } from '../hooks/useWalletTotalBalance';

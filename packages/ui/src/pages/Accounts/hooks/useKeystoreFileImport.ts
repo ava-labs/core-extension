@@ -12,7 +12,7 @@ import {
   extractKeysFromDecryptedFile,
   isWrappedError,
   readKeyFile,
-} from '@core/utils';
+} from '@core/common';
 
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useImportSeedphrase } from './useImportSeedphrase';

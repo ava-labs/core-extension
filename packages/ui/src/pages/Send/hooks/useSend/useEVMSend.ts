@@ -18,7 +18,7 @@ import {
 } from '../../models';
 import { SendAdapterEVM } from './models';
 import { RpcMethod, TokenType } from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 
 export const useEVMSend: SendAdapterEVM = ({
   chainId,

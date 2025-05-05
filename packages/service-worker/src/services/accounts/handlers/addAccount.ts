@@ -1,7 +1,7 @@
 import { ImportData, ExtensionRequest, ExtensionRequestHandler } from '@core/types';	
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
-import { isPrimaryAccount } from '@core/utils';
+import { isPrimaryAccount } from '@core/common';
 
 export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_ADD,

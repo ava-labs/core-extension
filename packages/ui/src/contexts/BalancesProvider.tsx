@@ -34,7 +34,7 @@ import {
   getSmallImageForNFT,
   ipfsResolverWithFallback,
   isNotNullish,
-} from '@core/utils';
+} from '@core/common';
 import { useAccountsContext } from './AccountsProvider';
 import { useNetworkContext } from './NetworkProvider';
 

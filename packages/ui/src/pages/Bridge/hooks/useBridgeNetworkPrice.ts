@@ -2,7 +2,7 @@ import { Blockchain, usePriceForChain } from '@avalabs/core-bridge-sdk';
 import { Chain } from '@avalabs/bridge-unified';
 import { useMemo } from 'react';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { caipToChainId, networkToBlockchain } from '@core/utils';
+import { caipToChainId, networkToBlockchain } from '@core/common';
 
 export const useBridgeNetworkPrice = (chain?: Blockchain | Chain) => {
   const { networks } = useNetworkContext();

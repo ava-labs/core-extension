@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { openNewTab } from '@core/utils';
+import { openNewTab } from '@core/common';
 
 export const DefiZeroState = (props: StackProps) => {
   const { t } = useTranslation();

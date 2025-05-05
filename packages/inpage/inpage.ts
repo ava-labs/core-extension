@@ -1,4 +1,4 @@
-import { onPageActivated } from '@core/utils';
+import { onPageActivated } from '@core/common';
 import { AutoPairingPostMessageConnection } from '@core/messaging';
 
 import { initializeProvider } from './src/initializeInpageProvider';

@@ -2,7 +2,7 @@ import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { BridgeTransaction } from '@avalabs/core-bridge-sdk';
 import { useMemo } from 'react';
 
-import { bigintToBig, isUnifiedBridgeTransfer } from '@core/utils';
+import { bigintToBig, isUnifiedBridgeTransfer } from '@core/common';
 
 export const useBridgeAmounts = (
   bridgeTx?: BridgeTransaction | BridgeTransfer,

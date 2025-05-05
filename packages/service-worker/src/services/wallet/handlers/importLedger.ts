@@ -4,7 +4,7 @@ import {
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 
-import { assertPresent } from '@core/utils';
+import { assertPresent } from '@core/common';
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   AddressPublicKeyJson,

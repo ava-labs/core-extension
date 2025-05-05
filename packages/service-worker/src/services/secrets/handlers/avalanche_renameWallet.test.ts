@@ -3,10 +3,10 @@ import { AvalancheRenameWalletHandler } from './avalanche_renameWallet';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { ethErrors } from 'eth-rpc-errors';
 import { SecretsService } from '../SecretsService';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 
 jest.mock('@/runtime/openApprovalWindow');
 

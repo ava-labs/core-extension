@@ -5,7 +5,7 @@ import {
   getAllAddressesForAccounts,
   getXPChainIds,
   isNotNullish,
-} from '@core/utils';
+} from '@core/common';
 
 import {
   AVALANCHE_BASE_DERIVATION_PATH,

@@ -2,9 +2,6 @@ import { useIsSpecificContextContainer } from '@/hooks/useIsSpecificContextConta
 import { LoadingContent } from '@/popup/LoadingContent';
 import { toast } from '@avalabs/core-k2-components';
 import { WalletType } from '@avalabs/types';
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
 import {
   GetIsOnboardedHandler,
   KeystoneOnboardingHandler,
@@ -21,7 +18,7 @@ import {
   PubKeyType,
   SeedlessAuthProvider,
 } from '@core/types';
-import { signUpForNewsletter } from '@core/utils';
+import { Monitoring, signUpForNewsletter } from '@core/common';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import {
   createContext,
@@ -359,9 +356,9 @@ export function OnboardingContextProvider({ children }: { children: any }) {
                 '<user-email>',
               );
 
-              sentryCaptureException(
+              Monitoring.sentryCaptureException(
                 new Error(sanitizedMessage),
-                SentryExceptionTypes.ONBOARDING,
+                Monitoring.SentryExceptionTypes.ONBOARDING,
               );
               capture('NewsletterSignupFailure');
             }

@@ -22,7 +22,7 @@ import { AccountDetails } from '@/pages/SignTransaction/components/ApprovalTxDet
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useContactsContext } from '@/contexts/ContactsProvider';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 import { runtime } from 'webextension-polyfill';
 import { TxDetailsRow } from './TxDetailsRow';
 

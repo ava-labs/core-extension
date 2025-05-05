@@ -25,11 +25,11 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { AccountType, FeatureGates } from '@core/types';
-import { isPrimaryAccount } from '@core/utils';
+import { isPrimaryAccount } from '@core/common';
 import { useScopedToast } from '@/hooks/useScopedToast';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { stripAddressPrefix } from '@core/utils';
+import { stripAddressPrefix } from '@core/common';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 

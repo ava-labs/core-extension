@@ -12,7 +12,7 @@ import { SeedlessTokenStorage } from '../SeedlessTokenStorage';
 import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { UserExportInitResponse } from '@cubist-labs/cubesigner-sdk';
-import { isExportRequestOutdated } from '@core/utils/src/seedless/fido/utils';
+import { isExportRequestOutdated } from '@core/common';
 import { AccountsService } from '../../accounts/AccountsService';
 
 export type HandlerType = ExtensionRequestHandler<

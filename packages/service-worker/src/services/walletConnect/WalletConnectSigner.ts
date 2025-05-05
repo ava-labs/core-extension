@@ -9,7 +9,7 @@ import {
   WalletConnectTransport,
 } from '@core/types';
 
-import { makeBNLike } from '@core/utils';
+import { makeBNLike } from '@core/common';
 
 export class WalletConnectSigner {
   constructor(

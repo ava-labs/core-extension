@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useQueryParams } from '@/hooks/useQueryParams';
 import { useSetSendDataInParams } from '@/hooks/useSetSendDataInParams';
-import { handleTxOutcome, isValidAddress } from '@core/utils';
+import { handleTxOutcome, isValidAddress } from '@core/common';
 import { useValidAddressFromParams } from '../hooks/useValidAddressFromParams';
 
 import {
@@ -12,7 +12,7 @@ import {
 	TokenType,
 	TokenWithBalanceEVM,
 } from '@avalabs/vm-module-types';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 import { useEVMSend } from '../hooks/useSend';
 import { SendOptions, SendPageProps } from '../models';
 import { SendForm } from './SendForm';

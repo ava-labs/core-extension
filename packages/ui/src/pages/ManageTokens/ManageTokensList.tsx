@@ -10,7 +10,7 @@ import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { TokenIcon } from '@/components/common/TokenIcon';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
-import { isTokenMalicious } from '@core/utils';
+import { isTokenMalicious } from '@core/common';
 import { MaliciousTokenWarningIcon } from '@/components/common/MaliciousTokenWarning';
 
 import { Sort } from './ManageTokens';

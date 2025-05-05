@@ -1,4 +1,4 @@
-import { bufferToBase64Url } from '@core/utils';
+import { bufferToBase64Url } from '@core/common';
 
 import { FIDOApiEndpoint, FIDOApiRequest } from '@core/types';
 

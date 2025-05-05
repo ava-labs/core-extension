@@ -12,7 +12,7 @@ import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType } from '@core/utils';
+import { getAddressByVMType } from '@core/common';
 
 /**
  * This is called when the user requests to connect the via dapp. We need

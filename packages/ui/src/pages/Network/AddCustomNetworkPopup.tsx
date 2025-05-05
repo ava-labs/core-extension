@@ -20,7 +20,7 @@ import {
 	Typography,
 } from '@avalabs/core-k2-components';
 import { ActionStatus, AddEthereumChainDisplayData } from '@core/types';
-import { buildGlacierAuthHeaders } from '@core/utils';
+import { buildGlacierAuthHeaders } from '@core/common';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApproveAction } from '../../hooks/useApproveAction';

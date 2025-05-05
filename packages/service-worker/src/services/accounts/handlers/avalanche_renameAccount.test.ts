@@ -5,9 +5,9 @@ import { DAppProviderRequest, DEFERRED_RESPONSE, Account } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
 import { AvalancheRenameAccountHandler } from './avalanche_renameAccount';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('../../../runtime/openApprovalWindow');
 
 describe('src/background/services/accounts/handlers/avalanche_renameAccount', () => {

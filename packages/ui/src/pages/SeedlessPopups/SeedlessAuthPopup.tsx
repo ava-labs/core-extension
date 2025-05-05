@@ -8,7 +8,7 @@ import { useWalletContext } from '@/contexts/WalletProvider';
 import { AuthStep, useSeedlessAuth } from '@/hooks/useSeedlessAuth';
 import { UpdateSignerTokenHandler } from '@core/service-worker';
 import { ExtensionRequest, AuthErrorCode } from '@core/types';
-import { getOidcTokenProvider } from '@core/utils';
+import { getOidcTokenProvider } from '@core/common';
 
 import { AuthenticationError } from '@/components/common/seedless/components/AuthenticationError';
 import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';

@@ -11,7 +11,7 @@ import {
   JsonRpcRequestParams,
   NetworkWithCaipId,
 } from '@core/types';
-import { canSkipApproval, decorateWithCaipId } from '@core/utils';
+import { canSkipApproval, decorateWithCaipId } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';

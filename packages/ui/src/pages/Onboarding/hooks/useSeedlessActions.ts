@@ -16,7 +16,7 @@ import {
   getSignerToken,
   launchFidoFlow,
   requestOidcAuth,
-} from '@core/utils';
+} from '@core/common';
 import { SignerSession, TotpChallenge } from '@cubist-labs/cubesigner-sdk';
 import {
   Dispatch,

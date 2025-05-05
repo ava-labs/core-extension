@@ -7,7 +7,7 @@ import {
   CircularProgress,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 
 interface LedgerApprovalDialogProps {
   address?: string;

@@ -11,7 +11,7 @@ import {
 import { NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { CustomNetworkPayload } from '@core/types';
-import { caipToChainId } from '@core/utils';
+import { caipToChainId } from '@core/common';
 import { runtime } from 'webextension-polyfill';
 import { NetworkService } from '../NetworkService';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';

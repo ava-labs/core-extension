@@ -39,7 +39,7 @@ import {
 import { SeedlessBtcSigner } from './SeedlessBtcSigner';
 import { SeedlessSessionManager } from './SeedlessSessionManager';
 import { SeedlessMfaService } from './SeedlessMfaService';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import { AddressPublicKey } from '../secrets/AddressPublicKey';
 
 jest.mock('@cubist-labs/cubesigner-sdk');

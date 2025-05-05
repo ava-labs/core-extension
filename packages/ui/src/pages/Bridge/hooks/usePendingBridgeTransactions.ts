@@ -1,7 +1,7 @@
 import { useBridgeContext } from '@/contexts/BridgeProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
-import { caipToChainId } from '@core/utils';
+import { caipToChainId } from '@core/common';
 import { useMemo } from 'react';
 
 export const usePendingBridgeTransactions = () => {

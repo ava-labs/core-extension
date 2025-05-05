@@ -14,7 +14,7 @@ import { SignJWT } from 'jose';
 import { inject, singleton } from 'tsyringe';
 
 import { Monitoring } from '@core/common';
-import { isWrappedError } from '@core/utils';
+import { isWrappedError } from '@core/common';
 
 import {
   CommonError,

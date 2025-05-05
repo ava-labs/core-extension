@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { createNewMnemonic } from '@core/utils';
+import { createNewMnemonic } from '@core/common';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { ConfirmPhrase } from './ConfirmPhrase';
 import { CopyPhrase } from './CopyPhrase';

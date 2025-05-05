@@ -1,7 +1,7 @@
 import { uniq } from 'lodash';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
-import { getAddressesInRange } from '@core/utils';
+import { getAddressesInRange } from '@core/common';
 
 import {
   AddressActivityFetcher,

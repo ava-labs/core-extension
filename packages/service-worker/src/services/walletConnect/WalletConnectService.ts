@@ -29,7 +29,7 @@ import {
 	WalletConnectAddresses,
 } from '@core/types';
 import { buildSessionProposal } from './utils';
-import { areArraysOverlapping, isDevelopment, isUserRejectionError } from '@core/utils';
+import { areArraysOverlapping, isDevelopment, isUserRejectionError } from '@core/common';
 
 @singleton()
 export class WalletConnectService implements WalletConnectTransport {

@@ -7,7 +7,7 @@ import {
   ContactsState,
 } from '@core/types';
 import type { Contact } from '@avalabs/types';
-import { isContactValid } from '@core/utils';
+import { isContactValid } from '@core/common';
 
 @singleton()
 export class ContactsService {

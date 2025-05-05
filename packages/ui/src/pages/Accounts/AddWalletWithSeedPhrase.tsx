@@ -20,20 +20,17 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 
-import { Account } from '@core/service-worker';
+import { Account } from '@core/types';
 import { PageTitle } from '@/components/common/PageTitle';
-import { truncateAddress } from '@core/utils';
+import { Monitoring, truncateAddress } from '@core/common';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 
 import { useConvertedCurrencyFormatter } from '../DeFi/hooks/useConvertedCurrencyFormatter';
 
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
 import { NameYourWallet } from './components/NameYourWallet';
 import { useImportSeedphrase } from './hooks/useImportSeedphrase';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { isPhraseCorrect } from '@core/utils';
+import { isPhraseCorrect } from '@core/common';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useErrorMessage } from '@/hooks/useErrorMessage';
@@ -146,9 +143,9 @@ export function AddWalletWithSeedPhrase() {
         history.replace('/accounts');
       } catch (err) {
         capture('SeedphraseImportFailure');
-        sentryCaptureException(
+        Monitoring.sentryCaptureException(
           err as Error,
-          SentryExceptionTypes.WALLET_IMPORT,
+          Monitoring.SentryExceptionTypes.WALLET_IMPORT,
         );
         const { title } = getErrorMessage(err);
         toast.error(title);

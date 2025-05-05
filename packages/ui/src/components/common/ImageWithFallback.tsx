@@ -1,4 +1,4 @@
-import { ipfsResolverWithFallback } from '@core/utils';
+import { ipfsResolverWithFallback } from '@core/common';
 import { ReactEventHandler, useState } from 'react';
 
 interface ImageWithFallbackProps {

@@ -5,7 +5,7 @@ import { BrandName } from '@/components/icons/BrandName';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '@/hooks/useLanguages';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { getCoreWebUrl } from '@core/utils';
+import { getCoreWebUrl } from '@core/common';
 import {
   Button,
   IconButton,

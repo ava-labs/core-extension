@@ -5,9 +5,7 @@ import {
 } from '@cubist-labs/cubesigner-sdk';
 import { Dispatch, SetStateAction, useCallback, useState } from 'react';
 
-import sentryCaptureException, {
-  SentryExceptionTypes,
-} from '@core/common/src/monitoring/sentryCaptureException';
+import { Monitoring } from '@core/common';
 
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import {
@@ -24,7 +22,7 @@ import {
   mapMfasToRecoveryMethods,
   OidcTokenGetter,
   requestOidcAuth,
-} from '@core/utils';
+} from '@core/common';
 
 export enum AuthStep {
   NotInitialized,
@@ -179,14 +177,17 @@ export const useSeedlessAuth = ({
           }
         } else {
           setError(AuthErrorCode.NoMfaDetails);
-          sentryCaptureException(
+          Monitoring.sentryCaptureException(
             new Error('MFA is required, but no details were provided'),
-            SentryExceptionTypes.SEEDLESS,
+            Monitoring.SentryExceptionTypes.SEEDLESS,
           );
         }
       } catch (err) {
         setError(AuthErrorCode.UnknownError);
-        sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
+        );
       } finally {
         setIsLoading(false);
       }
@@ -204,9 +205,9 @@ export const useSeedlessAuth = ({
     async (totpCode: string) => {
       if (!session) {
         setError(AuthErrorCode.UnknownError);
-        sentryCaptureException(
+        Monitoring.sentryCaptureException(
           new Error('Session not carried over from initial authentication'),
-          SentryExceptionTypes.SEEDLESS,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
         );
         return false;
       }
@@ -256,7 +257,10 @@ export const useSeedlessAuth = ({
       } catch (err) {
         setError(AuthErrorCode.UnknownError);
         capture('TotpVaridationFailed');
-        sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
+        );
 
         return false;
       } finally {
@@ -278,9 +282,9 @@ export const useSeedlessAuth = ({
   const completeFidoChallenge = useCallback(async () => {
     if (!session) {
       setError(AuthErrorCode.UnknownError);
-      sentryCaptureException(
+      Monitoring.sentryCaptureException(
         new Error('Session not carried over from initial authentication'),
-        SentryExceptionTypes.SEEDLESS,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
       );
       return false;
     }
@@ -323,9 +327,9 @@ export const useSeedlessAuth = ({
       if (authResponse.requiresMfa()) {
         setIsLoading(false);
         setError(AuthErrorCode.UnknownError);
-        sentryCaptureException(
+        Monitoring.sentryCaptureException(
           new Error('MFA should not be required after approval'),
-          SentryExceptionTypes.SEEDLESS,
+          Monitoring.SentryExceptionTypes.SEEDLESS,
         );
         return false;
       }
@@ -343,7 +347,10 @@ export const useSeedlessAuth = ({
       return true;
     } catch (err) {
       setError(AuthErrorCode.UnknownError);
-      sentryCaptureException(err as Error, SentryExceptionTypes.SEEDLESS);
+      Monitoring.sentryCaptureException(
+        err as Error,
+        Monitoring.SentryExceptionTypes.SEEDLESS,
+      );
 
       return false;
     } finally {

@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { runtime } from 'webextension-polyfill';
 
 import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
-import { chainIdToCaip, resolve } from '@core/utils';
+import { chainIdToCaip, resolve } from '@core/common';
 
 import { NetworkService } from '../NetworkService';
 

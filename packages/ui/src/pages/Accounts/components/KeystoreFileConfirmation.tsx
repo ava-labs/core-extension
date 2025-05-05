@@ -5,7 +5,7 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { KeystoreFileContentInfo } from '@core/utils';
+import { KeystoreFileContentInfo } from '@core/common';
 import { useTranslation } from 'react-i18next';
 
 type KeystoreFileConfirmationProps = {

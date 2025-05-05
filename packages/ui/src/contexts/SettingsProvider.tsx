@@ -22,7 +22,7 @@ import {
   SettingsState,
   ThemeVariant,
 } from '@core/types';
-import { isTokenMalicious, updateIfDifferent } from '@core/utils';
+import { isTokenMalicious, updateIfDifferent } from '@core/common';
 import { changeLanguage } from 'i18next';
 import { omit, set } from 'lodash';
 import {

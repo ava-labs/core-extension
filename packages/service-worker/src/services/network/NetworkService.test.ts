@@ -16,7 +16,7 @@ import {
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { runtime } from 'webextension-polyfill';
-import { decorateWithCaipId } from '@core/utils';
+import { decorateWithCaipId } from '@core/common';
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -44,7 +44,7 @@ jest.mock('ethers', () => ({
   FetchRequest: jest.fn(),
 }));
 
-jest.mock('@core/utils', () => ({
+jest.mock('@core/common', () => ({
   addGlacierAPIKeyIfNeeded: jest.fn(),
 }));
 

@@ -23,7 +23,7 @@ import {
 	LedgerError,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
-import { assertPresent, mapVMAddresses, isPrimaryAccount } from '@core/utils';
+import { assertPresent, mapVMAddresses, isPrimaryAccount } from '@core/common';
 import {
   getPubKeyFromTransport,
   DerivationPath,

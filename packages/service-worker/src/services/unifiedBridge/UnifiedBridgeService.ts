@@ -29,7 +29,7 @@ import {
 } from '@core/types';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { Monitoring } from '@core/common';
-import { getExponentialBackoffDelay, getEnabledBridgeTypes } from '@core/utils';
+import { getExponentialBackoffDelay, getEnabledBridgeTypes } from '@core/common';
 
 @singleton()
 export class UnifiedBridgeService implements OnStorageReady {

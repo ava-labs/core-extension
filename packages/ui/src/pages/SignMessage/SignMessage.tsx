@@ -37,7 +37,7 @@ import useIsUsingWalletConnectAccount from '@/hooks/useIsUsingWalletConnectAccou
 import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { AccountType, DAppProviderRequest } from '@core/types';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 import { FireblocksApprovalOverlay } from '../SignTransaction/components/FireblocksApproval/FireblocksApprovalOverlay';
 import { SignTxErrorBoundary } from '../SignTransaction/components/SignTxErrorBoundary';
 import { WalletConnectApprovalOverlay } from '../SignTransaction/components/WalletConnectApproval/WalletConnectApprovalOverlay';

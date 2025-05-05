@@ -1,5 +1,5 @@
 import { Account, Balances, NetworkWithCaipId } from '@core/types';
-import { calculateTotalBalance } from '@core/utils';
+import { calculateTotalBalance } from '@core/common';
 
 
 export function calculateTotalBalanceForAccounts(

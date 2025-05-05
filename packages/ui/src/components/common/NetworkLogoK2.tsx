@@ -1,5 +1,5 @@
 import { GlobeIcon, styled } from '@avalabs/core-k2-components';
-import { ipfsResolverWithFallback } from '@core/utils';
+import { ipfsResolverWithFallback } from '@core/common';
 
 export const GlobeIconContainer = styled('div')<NetworkLogoProps>`
   width: auto;

@@ -2,13 +2,13 @@ import { t } from 'i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { USDC_ADDRESSES } from '@core/utils';
+import { USDC_ADDRESSES } from '@core/common';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
 import { usePageHistory } from '@/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@/hooks/useSendAnalyticsData';
 import { useSwap } from './useSwap';
 import { DISALLOWED_SWAP_ASSETS } from '@/contexts/SwapProvider/models';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 
 import { Amount, DestinationInput, getTokenAddress } from '../utils';
 import { useTokensBySymbols } from './useTokensBySymbols';

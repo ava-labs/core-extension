@@ -1,6 +1,6 @@
 import { windows } from 'webextension-polyfill';
 
-import { openPopup } from '@core/utils';
+import { openPopup } from '@core/common';
 
 import {
   DecodedFIDOResult,

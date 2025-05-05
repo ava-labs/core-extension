@@ -16,7 +16,7 @@ import { useConnectionContext } from '@/contexts/ConnectionProvider';
 
 import { SendAdapterSVM } from './models';
 import { SOLANA_FIXED_BASE_FEE, SolanaSendOptions } from '../../models';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 
 const RENT_EXEMPT_CACHE = new Map<bigint, bigint>();
 const ACCOUNT_SPACE_CACHE = new Map<Address, bigint>();

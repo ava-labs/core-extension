@@ -21,7 +21,7 @@ import {
 import { NetworkLogo } from '@/components/common/NetworkLogo';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { ipfsResolverWithFallback } from '@core/utils';
+import { ipfsResolverWithFallback } from '@core/common';
 
 import { NetworkListItem } from './NetworkListItem';
 import {

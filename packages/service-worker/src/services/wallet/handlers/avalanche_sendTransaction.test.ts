@@ -16,7 +16,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { encryptAnalyticsData } from '../../analytics/utils/encryptAnalyticsData';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 import { buildRpcCall } from '@shared/tests/test-utils';
-import { measureDuration } from '@core/utils';
+import { measureDuration } from '@core/common';
 import { HEADERS } from '../../glacier/glacierConfig';
 
 jest.mock('@avalabs/avalanchejs');
@@ -24,7 +24,7 @@ jest.mock('@avalabs/core-wallets-sdk');
 jest.mock('../utils/getProvidedUtxos');
 jest.mock('../../analytics/utils/encryptAnalyticsData');
 jest.mock('@/runtime/openApprovalWindow');
-jest.mock('@core/utils', () => {
+jest.mock('@core/common', () => {
   const measureDurationMock = {
     start: jest.fn(),
     end: jest.fn(),

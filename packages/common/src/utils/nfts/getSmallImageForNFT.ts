@@ -1,4 +1,4 @@
-import { ipfsResolverWithFallback } from '@core/utils';
+import { ipfsResolverWithFallback } from '@core/common';
 
 const COVALENT_IMG_SIZER =
   'https://image-proxy.svc.prod.covalenthq.com/cdn-cgi/image';

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { handleTxOutcome, stringToBigint } from '@core/utils';
+import { handleTxOutcome, stringToBigint } from '@core/common';
 
 import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
 import { FunctionNames } from '@/hooks/useIsFunctionAvailable';

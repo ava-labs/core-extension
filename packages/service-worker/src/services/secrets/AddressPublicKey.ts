@@ -16,7 +16,7 @@ import {
   PrimaryWalletSecrets,
   SecretType,
 } from '@core/types';
-import { assertPresent } from '@core/utils';
+import { assertPresent } from '@core/common';
 
 import {
   assertDerivationPath,

@@ -23,10 +23,10 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useApproveAction } from '@/hooks/useApproveAction';
 import { useGetRequestId } from '@/hooks/useGetRequestId';
 import { ActionStatus, EnsureDefined, MultiTxAction, NetworkWithCaipId } from '@core/types';
-import { useWindowGetsClosedOrHidden } from '@core/utils';
+import { useWindowGetsClosedOrHidden } from '@core/common';
 
 import { FlexScrollbars } from '@/components/common/FlexScrollbars';
-import { hasDefined } from '@core/utils';
+import { hasDefined } from '@core/common';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { NetworkDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';

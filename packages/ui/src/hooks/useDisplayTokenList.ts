@@ -1,5 +1,5 @@
 import { TokenWithBalance } from '@avalabs/vm-module-types';
-import { isNFT, normalizeBalance } from '@core/utils';
+import { isNFT, normalizeBalance } from '@core/common';
 import Big from 'big.js';
 import { partition } from 'lodash';
 import { useMemo } from 'react';

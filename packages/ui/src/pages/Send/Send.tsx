@@ -37,7 +37,7 @@ import {
   getExplorerAddressByNetwork,
   getProviderForNetwork,
   toastCardWithLink,
-} from '@core/utils';
+} from '@core/common';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

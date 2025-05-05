@@ -17,7 +17,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { filterBridgeStateToNetwork } from '@core/service-worker';
 import { NetworkWithCaipId } from '@core/types';
-import { caipToChainId, getAddressForChain } from '@core/utils';
+import { caipToChainId, getAddressForChain } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { NetworkCard } from './common/NetworkCard';
 import { getNetworkBalance, tokensWithBalances } from './NetworksWidget';

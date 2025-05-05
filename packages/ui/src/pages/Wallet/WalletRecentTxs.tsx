@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import { TxHistoryItem } from '@core/types';
-import { getExplorerAddressByNetwork, isNftTokenType } from '@core/utils';
+import { getExplorerAddressByNetwork, isNftTokenType } from '@core/common';
 import { endOfToday, endOfYesterday, format, isSameDay } from 'date-fns';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,7 +30,7 @@ import {
   isPchainNetwork,
   isPchainTxHistoryItem,
   isXchainNetwork,
-} from '@core/utils';
+} from '@core/common';
 import { PchainActivityCard } from './components/History/components/ActivityCard/PchainActivityCard';
 import { XchainActivityCard } from './components/History/components/ActivityCard/XchainActivityCard';
 import {

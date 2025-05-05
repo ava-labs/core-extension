@@ -1,7 +1,7 @@
 import { getLedgerTransport } from '@/contexts/utils/getLedgerTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import { ExtensionRequest } from '@core/types';
-import { resolve } from '@core/utils';
+import { resolve } from '@core/common';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import {
   AppClient as Btc,

@@ -11,7 +11,7 @@ import { MigrationWithDeps } from '../../models';
 import { legacySecretsSchema } from './legacySchema';
 import * as Legacy from './legacyModels';
 import * as New from './newModels';
-import { assertPresent } from '@core/utils';
+import { assertPresent } from '@core/common';
 import { AddressPublicKey } from '@/services/secrets/AddressPublicKey';
 import { rpcErrors } from '@metamask/rpc-errors';
 

@@ -22,7 +22,7 @@ import {
   BitcoinCaipId,
   isDevelopment,
   assertPresent,
-} from '@core/utils';
+} from '@core/common';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2

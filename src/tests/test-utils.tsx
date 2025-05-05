@@ -3,7 +3,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import { PartialBy,
   JsonRpcRequestParams,
   JsonRpcRequestPayload, } from '@core/types';
-import { CommonError, ErrorCode } from '@core/utils';
+import { CommonError, ErrorCode } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 
 const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {

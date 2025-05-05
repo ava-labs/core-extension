@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { openNewTab } from '@core/utils';
+import { openNewTab } from '@core/common';
 import { useDefiContext } from '@/contexts/DefiProvider';
 import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';

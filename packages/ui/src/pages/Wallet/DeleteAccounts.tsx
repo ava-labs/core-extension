@@ -15,7 +15,7 @@ import {
 } from '@/components/common/approval/ApprovalSection';
 import { WebsiteDetails } from '../SignTransaction/components/ApprovalTxDetails';
 import type { DomainMetadata } from '@core/types';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 import type { DeleteAccountsDisplayData } from '@core/service-worker';
 import { AccountType } from '@core/types';
 

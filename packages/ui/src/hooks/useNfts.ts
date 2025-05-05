@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useBalancesContext } from '@/contexts/BalancesProvider';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { getAddressForChain } from '@core/utils';
+import { getAddressForChain } from '@core/common';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 
 export const useNfts = () => {

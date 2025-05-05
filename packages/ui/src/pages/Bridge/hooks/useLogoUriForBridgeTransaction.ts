@@ -10,7 +10,7 @@ import {
   findTokenForAsset,
   getBridgedAssetSymbol,
   networkToBlockchain,
-} from '@core/utils';
+} from '@core/common';
 
 export function useLogoUriForBridgeTransaction(
   bridgeTransaction: BridgeTransaction | BridgeTransfer | undefined,

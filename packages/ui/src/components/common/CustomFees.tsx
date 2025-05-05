@@ -28,7 +28,7 @@ import {
 	GaslessPhase,
 	NetworkFee,
 } from '@core/types';
-import { calculateGasAndFees } from '@core/utils';
+import { calculateGasAndFees } from '@core/common';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomGasSettings } from './CustomGasSettings';

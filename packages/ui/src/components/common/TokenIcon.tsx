@@ -3,7 +3,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { ipfsResolverWithFallback } from '@core/utils';
+import { ipfsResolverWithFallback } from '@core/common';
 import { useEffect, useState } from 'react';
 
 const TOKEN_IMAGE_BORDER_RADIUS = '50%';

@@ -23,8 +23,8 @@ import { AccountSelectorButton } from '../account/AccountSelectorButton';
 import { useWalletContext } from '@/contexts/WalletProvider';
 import { AccountType } from '@core/types';
 import { WalletChip } from '../WalletChip';
-import { getAddressForChain } from '@core/utils';
-import { getAllAddressesForAccount } from '@core/utils';
+import { getAddressForChain } from '@core/common';
+import { getAllAddressesForAccount } from '@core/common';
 
 export function Header() {
   const domain = useCurrentDomain();

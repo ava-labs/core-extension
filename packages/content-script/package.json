@@ -5,7 +5,6 @@
   "main": "src/index.ts",
   "dependencies": {
     "@core/common": "workspace:*",
-    "@core/messaging": "workspace:*",
-    "@core/utils": "workspace:*"
+    "@core/messaging": "workspace:*"
   }
 }

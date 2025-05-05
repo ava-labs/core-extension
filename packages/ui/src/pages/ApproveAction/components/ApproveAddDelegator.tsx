@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { bigToLocaleString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@/contexts/SettingsProvider';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { bigintToBig } from '@core/utils';
+import { bigintToBig } from '@core/common';
 import { AvalancheChainStrings } from '@core/types';
 
 export function AddDelegator({

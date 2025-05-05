@@ -1,4 +1,4 @@
-import { requestLog, responseLog } from '@core/utils';
+import { requestLog, responseLog } from '@core/common';
 import {
   JsonRpcRequest,
   JsonRpcResponse,

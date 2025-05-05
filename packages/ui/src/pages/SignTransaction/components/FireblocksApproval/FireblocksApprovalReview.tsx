@@ -13,7 +13,7 @@ import {
   isBitcoinNetwork,
   isFireblocksAccount,
   isFireblocksApiSupported,
-} from '@core/utils';
+} from '@core/common';
 import { useMemo } from 'react';
 import { Trans } from 'react-i18next';
 import { ApprovalStep } from '../../utils/getActiveStepForRemoteApproval';

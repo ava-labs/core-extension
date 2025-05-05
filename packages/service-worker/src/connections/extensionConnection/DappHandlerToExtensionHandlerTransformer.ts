@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { resolve } from '@core/utils';
+import { resolve } from '@core/common';
 import {
   DAppProviderRequest,
   JsonRpcRequestParams,

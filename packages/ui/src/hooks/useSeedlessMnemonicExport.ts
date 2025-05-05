@@ -11,7 +11,7 @@ import {
   InitRecoveryPhraseExportHandler,
 } from '@core/service-worker';
 import { ExtensionRequest, SeedlessExportAnalytics } from '@core/types';
-import { isProductionBuild } from '@core/utils';
+import { isProductionBuild } from '@core/common';
 
 export enum ExportState {
   Loading,

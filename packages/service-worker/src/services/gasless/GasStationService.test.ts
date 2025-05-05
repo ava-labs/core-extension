@@ -1,6 +1,6 @@
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { ExtensionRequest, GaslessEvents } from '@core/types';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import { Transaction, TransactionLike } from 'ethers';
 import { AppCheckService } from '../appcheck/AppCheckService';
 import { NetworkService } from '../network/NetworkService';
@@ -19,7 +19,7 @@ jest.mock('@avalabs/core-gasless-sdk', () => {
 
 jest.mock('../appcheck/AppCheckService');
 jest.mock('ethers');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 describe('src/background/services/gasless/GasStationService', () => {
   const appCheckMock = jest.mocked<AppCheckService>({
     getAppcheckToken: jest.fn().mockResolvedValue({ token: 'appCheckToken' }),

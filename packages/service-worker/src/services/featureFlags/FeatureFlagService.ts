@@ -8,7 +8,7 @@ import {
 	FeatureFlags,
 	FeatureGates,
 } from '@core/types';
-import { formatAndLog, isProductionBuild } from '@core/utils';
+import { formatAndLog, isProductionBuild } from '@core/common';
 import { coerce, satisfies, validRange } from 'semver';
 import { AnalyticsService } from '../analytics/AnalyticsService';
 import { LockService } from '../lock/LockService';

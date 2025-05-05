@@ -11,12 +11,12 @@ import {
   DEFERRED_RESPONSE,
   type JsonRpcRequestParams,
 } from '@core/types';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../AccountsService';
-import { isPrimaryAccount } from '@core/utils';
+import { isPrimaryAccount } from '@core/common';
 
 type PrimaryWalletAccounts = {
   [walletId: string]: PrimaryAccount[];

@@ -1,5 +1,5 @@
 import { deserializeFromJSON } from '@core/messaging/src/serialization/deserialize';
-import { isDevelopment, requestLog, responseLog } from '@core/utils';
+import { isDevelopment, requestLog, responseLog } from '@core/common';
 import { firstValueFrom, Subject } from 'rxjs';
 import { Runtime } from 'webextension-polyfill';
 import {

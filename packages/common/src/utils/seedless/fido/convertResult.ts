@@ -1,6 +1,6 @@
 import { cloneDeep, get, update } from 'lodash';
 
-import { base64UrlToBuffer } from '@core/utils';
+import { base64UrlToBuffer } from '@core/common';
 
 import { DecodedFIDOResult, EncodedFIDOResult } from '@core/types';
 

@@ -3,10 +3,10 @@ import {
   ExtensionRequestHandler,
   NetworkOverrides,
 } from '@core/types';
-import { resolve } from '@core/utils';
+import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { isValidHttpHeader } from '@core/utils/src/network/isValidHttpHeader';
+import { isValidHttpHeader } from '@core/common';
 
 export type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_UPDATE_DEFAULT,

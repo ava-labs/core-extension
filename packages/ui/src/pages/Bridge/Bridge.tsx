@@ -25,9 +25,9 @@ import { useLiveBalance } from '@/hooks/useLiveBalance';
 import { usePageHistory } from '@/hooks/usePageHistory';
 import { TokenType } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
-import { isBitcoinNetwork } from '@core/utils';
+import { isBitcoinNetwork } from '@core/common';
 
-import { isAddressBlockedError } from '@core/utils';
+import { isAddressBlockedError } from '@core/common';
 import { BridgeForm } from './components/BridgeForm';
 import { BridgeFormSkeleton } from './components/BridgeFormSkeleton';
 import { BridgeSanctions } from './components/BridgeSanctions';

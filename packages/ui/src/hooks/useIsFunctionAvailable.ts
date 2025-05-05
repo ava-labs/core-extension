@@ -13,7 +13,7 @@ import {
   isWalletConnectAccount,
   isXchainNetwork,
   isXchainNetworkId,
-} from '@core/utils';
+} from '@core/common';
 import useIsUsingSeedlessAccount from './useIsUsingSeedlessAccount';
 
 export enum FunctionNames {

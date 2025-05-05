@@ -41,7 +41,7 @@ import { useHasEnoughForGas } from '../hooks/useHasEnoughtForGas';
 
 import { CustomFees } from '@/components/common/CustomFees';
 import { NetworkFee } from '@core/types';
-import { findMatchingBridgeAsset, isBitcoinNetwork } from '@core/utils';
+import { findMatchingBridgeAsset, isBitcoinNetwork } from '@core/common';
 import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 import { NetworkSelector } from './NetworkSelector';
 

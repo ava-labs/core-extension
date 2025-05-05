@@ -28,7 +28,7 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useBalanceTotalInCurrency } from '@/hooks/useBalanceTotalInCurrency';
 import { useScopedToast } from '@/hooks/useScopedToast';
 import { Account, AccountType, SecretType } from '@core/types';
-import { getAddressForChain, truncateAddress } from '@core/utils';
+import { getAddressForChain, truncateAddress } from '@core/common';
 
 import { AccountBalance } from '../AccountBalance';
 import { useAccountRemoval } from '../hooks/useAccountRemoval';

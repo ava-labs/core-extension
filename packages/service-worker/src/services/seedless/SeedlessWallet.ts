@@ -1,13 +1,5 @@
-import * as cs from '@cubist-labs/cubesigner-sdk';
-import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
+import { utils } from '@avalabs/avalanchejs';
 import { strip0x } from '@avalabs/core-utils-sdk';
-import {
-  JsonRpcApiProvider,
-  TransactionRequest,
-  getBytes,
-  hashMessage,
-  BytesLike,
-} from 'ethers';
 import {
   Avalanche,
   BitcoinInputUTXO,
@@ -16,25 +8,42 @@ import {
   createPsbt,
   getEvmAddressFromPubKey,
 } from '@avalabs/core-wallets-sdk';
-import { sha256 } from '@noble/hashes/sha256';
-import { utils } from '@avalabs/avalanchejs';
+import * as cs from '@cubist-labs/cubesigner-sdk';
+import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import {
   SignTypedDataVersion,
   TypedDataUtils,
   typedSignatureHash,
 } from '@metamask/eth-sig-util';
+import { sha256 } from '@noble/hashes/sha256';
+import {
+  BytesLike,
+  JsonRpcApiProvider,
+  TransactionRequest,
+  getBytes,
+  hashMessage,
+} from 'ethers';
 
-import { NetworkService } from '../network/NetworkService';
-import { AddressPublicKeyJson, MessageParams, MessageType } from '@core/types';
-import { SeedlessBtcSigner } from './SeedlessBtcSigner';
+import {
+  assertPresent,
+  getProviderForNetwork,
+  isBitcoinNetwork,
+  isTokenExpiredError,
+} from '@core/common';
+import {
+  AddressPublicKeyJson,
+  CommonError,
+  CoreApiError,
+  MessageParams,
+  MessageType,
+  Network,
+} from '@core/types';
 import { Transaction } from 'bitcoinjs-lib';
-import { isBitcoinNetwork } from '@core/utils/src/network/isBitcoinNetwork';
-import { CoreApiError, CommonError, Network } from '@core/types';
-import { SeedlessSessionManager } from './SeedlessSessionManager';
-import { isTokenExpiredError } from '@core/utils/src/seedless/fido/utils';
-import { SeedlessMfaService } from './SeedlessMfaService';
 import { toUtf8 } from 'ethereumjs-util';
-import { assertPresent, getProviderForNetwork } from '@core/utils';
+import { NetworkService } from '../network/NetworkService';
+import { SeedlessBtcSigner } from './SeedlessBtcSigner';
+import { SeedlessMfaService } from './SeedlessMfaService';
+import { SeedlessSessionManager } from './SeedlessSessionManager';
 
 type ConstructorOpts = {
   networkService?: NetworkService;

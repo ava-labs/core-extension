@@ -10,7 +10,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { TransactionType } from '@avalabs/vm-module-types';
-import { isNftTokenType } from '@core/utils';
+import { isNftTokenType } from '@core/common';
 import { TxHistoryItem } from '@core/types';
 import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
 import { useEffect, useState } from 'react';

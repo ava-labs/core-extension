@@ -12,7 +12,7 @@ import { GaslessSdk } from '@avalabs/core-gasless-sdk';
 import { Signal } from 'micro-signals';
 import { JsonRpcProvider, Transaction } from 'ethers';
 import { NetworkService } from '../network/NetworkService';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 @singleton()
 export class GasStationService {

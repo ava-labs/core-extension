@@ -25,7 +25,7 @@ import {
   TotpResetChallenge,
 	KeyType,
 } from '@core/types';
-import { incrementalPromiseResolve } from '@core/utils';
+import { incrementalPromiseResolve } from '@core/common';
 
 import { RemoveTotpHandler } from '@core/service-worker';
 import { useConnectionContext } from './ConnectionProvider';

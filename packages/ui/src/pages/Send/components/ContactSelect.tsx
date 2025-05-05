@@ -23,7 +23,7 @@ import {
   isSolanaNetwork,
   isXchainNetwork,
   stripAddressPrefix,
-} from '@core/utils';
+} from '@core/common';
 import { indexOf } from 'lodash';
 import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { AddressDropdownList } from './AddressDropdownList';

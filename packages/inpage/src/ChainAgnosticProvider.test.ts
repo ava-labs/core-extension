@@ -4,7 +4,7 @@ import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import onDomReady from './utils/onDomReady';
 import { DAppProviderRequest } from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { chainIdToCaip } from '@core/utils';
+import { chainIdToCaip } from '@core/common';
 
 jest.mock('../utils/messaging/AutoPairingPostMessageConnection', () => {
   const mocks = {

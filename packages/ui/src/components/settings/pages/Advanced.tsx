@@ -10,7 +10,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { useBridgeContext } from '@/contexts/BridgeProvider';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { isProductionBuild } from '@core/utils';
+import { isProductionBuild } from '@core/common';
 import { useHistory } from 'react-router-dom';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';

@@ -14,7 +14,7 @@ import { useNetworkContext } from '@/contexts/NetworkProvider';
 import { useUnifiedBridgeContext } from '@/contexts/UnifiedBridgeProvider';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 import { useTokensWithBalances } from '@/hooks/useTokensWithBalances';
-import { isNFT, findMatchingBridgeAsset } from '@core/utils';
+import { isNFT, findMatchingBridgeAsset } from '@core/common';
 
 interface Bridge {
   amount?: bigint;

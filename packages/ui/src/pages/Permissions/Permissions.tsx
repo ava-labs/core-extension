@@ -24,7 +24,7 @@ import {
   DAppProviderRequest,
   FeatureGates,
 } from '@core/types';
-import { mapAddressesToVMs } from '@core/utils';
+import { mapAddressesToVMs } from '@core/common';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountsDropdown } from './components/AccountsDropdown';

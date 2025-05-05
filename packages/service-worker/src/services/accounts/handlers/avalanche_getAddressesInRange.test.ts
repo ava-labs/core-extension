@@ -3,7 +3,7 @@ import { DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
 import { buildRpcCall } from '@src/tests/test-utils';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { DEFERRED_RESPONSE } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { AccountsService } from '../AccountsService';
@@ -13,7 +13,7 @@ import {
 } from '@core/types';
 
 jest.mock('@avalabs/core-wallets-sdk');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('../../../runtime/openApprovalWindow');
 
 describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts', () => {

@@ -35,9 +35,9 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import { isPchainNetwork } from '@core/utils/src/network/isAvalanchePchainNetwork';
+import { isPchainNetwork } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { isXchainNetwork } from '@core/utils/src/network/isAvalancheXchainNetwork';
+import { isXchainNetwork } from '@core/common';
 import { runtime } from 'webextension-polyfill';
 import {
   caipToChainId,
@@ -47,8 +47,8 @@ import {
   getExponentialBackoffDelay,
   getProviderForNetwork,
   isSyncDomain,
-} from '@core/utils';
-import { isSolanaNetwork } from '@core/utils/src/network/isSolanaNetwork';
+} from '@core/common';
+import { isSolanaNetwork } from '@core/common';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {

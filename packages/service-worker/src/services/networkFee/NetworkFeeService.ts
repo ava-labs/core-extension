@@ -1,7 +1,7 @@
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { Network, NetworkVMType } from '@avalabs/vm-module-types';
 import { NetworkFee, NetworkWithCaipId } from '@core/types';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import { singleton } from 'tsyringe';
 import { ModuleManager } from '@/vmModules/ModuleManager';
 

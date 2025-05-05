@@ -1,4 +1,4 @@
-import { isProductionBuild } from '@core/utils';
+import { isProductionBuild } from '@core/common';
 
 const CORE_WEB_DOMAIN = 'core.app' as const;
 const CORE_WEB_TESTNET_DOMAIN = 'test.core.app' as const;

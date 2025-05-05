@@ -10,7 +10,7 @@ import { LedgerDisconnected } from '@/pages/Ledger/LedgerDisconnected';
 import { LedgerIncorrectApp } from '@/pages/Ledger/LedgerIncorrectApp';
 import { LedgerWrongVersionContent } from '@/pages/Ledger/LedgerWrongVersion';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { isEthereumNetwork, isLedgerVersionCompatible } from '@core/utils';
+import { isEthereumNetwork, isLedgerVersionCompatible } from '@core/common';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

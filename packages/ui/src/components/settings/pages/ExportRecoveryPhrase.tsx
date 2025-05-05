@@ -28,7 +28,7 @@ import { SeedlessExportAnalytics } from '@core/types';
 import { SettingsHeader } from '../SettingsHeader';
 import { SettingsPageProps } from '../models';
 
-import { openExtensionNewWindow } from '@core/utils';
+import { openExtensionNewWindow } from '@core/common';
 import { ExportPending } from '@/components/common/seedless/components/ExportPending';
 import { ExportError } from '@/components/common/seedless/components/ExportError';
 

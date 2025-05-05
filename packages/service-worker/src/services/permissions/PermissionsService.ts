@@ -13,7 +13,7 @@ import {
   PermissionsState,
   DappPermissions,
 } from '@core/types';
-import { getAddressByVMType, getAllAddressesForAccount } from '@core/utils';
+import { getAddressByVMType, getAllAddressesForAccount } from '@core/common';
 import { SYNCED_DOMAINS } from '@core/common';
 
 @singleton()

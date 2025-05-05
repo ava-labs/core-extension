@@ -11,7 +11,7 @@ import { wait } from '@avalabs/core-utils-sdk';
 
 jest.mock('@avalabs/bridge-unified');
 jest.mock('@avalabs/core-utils-sdk');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('@core/common');
 
 describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {

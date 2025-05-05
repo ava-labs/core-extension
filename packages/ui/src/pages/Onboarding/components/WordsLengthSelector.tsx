@@ -9,7 +9,7 @@ import {
   MenuList,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { wordPhraseLength } from '@core/utils';
+import { wordPhraseLength } from '@core/common';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

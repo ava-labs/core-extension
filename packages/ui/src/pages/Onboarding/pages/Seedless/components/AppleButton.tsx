@@ -7,7 +7,7 @@ import {
 	OnboardingPhase,
 	SeedlessAuthProvider,
 } from '@core/types';
-import { authenticateWithApple } from '@core/utils';
+import { authenticateWithApple } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { SeedlesButton } from './GoogleButton';
 

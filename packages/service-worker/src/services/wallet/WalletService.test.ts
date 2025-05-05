@@ -51,7 +51,7 @@ import { SecretsService } from '../secrets/SecretsService';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '@core/types';
-import { decorateWithCaipId } from '@core/utils';
+import { decorateWithCaipId } from '@core/common';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';

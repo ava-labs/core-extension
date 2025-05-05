@@ -2,7 +2,7 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 import { Account } from '@core/types';
-import { omitUndefined } from '@core/utils';
+import { omitUndefined } from '@core/common';
 
 export const mapVMAddresses = (addresses: Record<NetworkVMType, string>) =>
   omitUndefined({

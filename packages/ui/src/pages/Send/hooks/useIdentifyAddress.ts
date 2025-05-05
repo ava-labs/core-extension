@@ -7,7 +7,7 @@ import {
   isPchainNetwork,
   isSolanaNetwork,
   isXchainNetwork,
-} from '@core/utils';
+} from '@core/common';
 import { useCallback } from 'react';
 import { correctAddressByPrefix } from '../utils/correctAddressByPrefix';
 

@@ -16,7 +16,7 @@ import {
 } from '@core/types';
 import { Monitoring } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
-import { isSupportedBrowser } from '@core/utils';
+import { isSupportedBrowser } from '@core/common';
 
 @singleton()
 export class FirebaseService {

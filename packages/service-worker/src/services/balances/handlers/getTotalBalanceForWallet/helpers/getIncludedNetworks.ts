@@ -4,7 +4,7 @@ import {
   ChainListWithCaipIds,
   NetworkWithCaipId,
 } from '@core/types';
-import { getDefaultChainIds, isNotNullish } from '@core/utils';
+import { getDefaultChainIds, isNotNullish } from '@core/common';
 
 export function getIncludedNetworks(
   isMainnet: boolean,

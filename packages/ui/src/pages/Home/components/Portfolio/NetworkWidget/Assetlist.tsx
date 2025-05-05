@@ -17,7 +17,7 @@ import {
 import { TokenEllipsis } from '@/components/common/TokenEllipsis';
 import { BalanceColumn } from '@/components/common/BalanceColumn';
 import { PAndL } from '@/components/common/ProfitAndLoss';
-import { hasUnconfirmedBalance } from '@core/utils';
+import { hasUnconfirmedBalance } from '@core/common';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { getUnconfirmedBalanceInCurrency } from '@core/types';
 

@@ -1,5 +1,5 @@
 import { GaslessSdk } from '@avalabs/core-gasless-sdk';
-import { OFFSCREEN_SCRIPT } from '@core/common/src/script-names';
+import { OFFSCREEN_SCRIPT } from '@core/common';
 import { ExtensionRequest, GaslessEvents } from '@core/types';
 import browser, { Runtime } from 'webextension-polyfill';
 

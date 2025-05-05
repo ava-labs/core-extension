@@ -1,6 +1,6 @@
 import { Typography } from '@avalabs/core-k2-components';
 import { useAccountsContext } from '@/contexts/AccountsProvider';
-import { truncateAddress } from '@core/utils';
+import { truncateAddress } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { useBlockchainNames } from '../../useBlockchainNames';
 import { ActivityCardProp } from './ActivityCard';

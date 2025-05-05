@@ -3,11 +3,11 @@ import { buildRpcCall } from '@shared/tests/test-utils';
 import { DAppProviderRequest, DEFERRED_RESPONSE } from '@core/types';
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { ethErrors } from 'eth-rpc-errors';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';
 
 jest.mock('@/runtime/openApprovalWindow');
-jest.mock('@core/utils');
+jest.mock('@core/common');
 
 const mockActiveNetwork: Network = {
   chainName: 'Avalanche (C-Chain)',

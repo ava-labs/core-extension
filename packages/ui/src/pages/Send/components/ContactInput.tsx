@@ -20,7 +20,7 @@ import {
   isValidPvmAddress,
   isXchainNetwork,
   truncateAddress,
-} from '@core/utils';
+} from '@core/common';
 import { isAddress as isSolanaAddress } from '@solana/kit';
 import { isAddress } from 'ethers';
 import { RefObject, useEffect, useRef, useState } from 'react';

@@ -13,7 +13,7 @@ import {
   CustomRpcHeaders,
   PLACEHOLDER_RPC_HEADERS,
 } from '@core/types';
-import { isValidHttpHeader } from '@core/utils';
+import { isValidHttpHeader } from '@core/common';
 
 type Props = {
   isReadOnly: boolean;

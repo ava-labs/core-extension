@@ -10,7 +10,7 @@ import {
   DEFERRED_RESPONSE,
 } from '@core/types';
 import { openApprovalWindow } from '@/runtime/openApprovalWindow';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 
 import { SecretsService } from '../SecretsService';
 

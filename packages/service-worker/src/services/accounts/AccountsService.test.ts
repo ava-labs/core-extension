@@ -21,7 +21,7 @@ import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { isProductionBuild, mapAddressesToVMs, mapVMAddresses } from '@core/utils';
+import { isProductionBuild, mapAddressesToVMs, mapVMAddresses } from '@core/common';
 import { expectToThrowErrorCode } from '@src/tests/test-utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 

@@ -26,7 +26,7 @@ import {
   useIsFunctionAvailable,
 } from '@/hooks/useIsFunctionAvailable';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
-import { getCoreWebUrl } from '@core/utils';
+import { getCoreWebUrl } from '@core/common';
 import { Flipper } from '../Flipper';
 
 const ActionButtonWrapper = styled(Stack)`

@@ -36,8 +36,8 @@ import { DropdownItem } from './Dropdown';
 import { useDisplaytokenlist } from '@/hooks/useDisplayTokenList';
 import { TokenIcon } from './TokenIcon';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
-import { bigintToBig } from '@core/utils';
-import { stringToBigint } from '@core/utils';
+import { bigintToBig } from '@core/common';
+import { stringToBigint } from '@core/common';
 
 const InputContainer = styled(Card)`
   justify-content: space-between;

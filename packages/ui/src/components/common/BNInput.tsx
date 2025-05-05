@@ -8,7 +8,7 @@ import {
   CircularProgress,
 } from '@avalabs/core-k2-components';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
-import { stringToBigint } from '@core/utils';
+import { stringToBigint } from '@core/common';
 
 export interface BNInputProps {
   value?: bigint;

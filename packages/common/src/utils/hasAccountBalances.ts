@@ -1,5 +1,5 @@
 import { Account, Balances } from '@core/types';
-import { getAllAddressesForAccount } from '@core/utils';
+import { getAllAddressesForAccount } from '@core/common';
 
 export function hasAccountBalances(
   balances: Balances,

@@ -16,7 +16,7 @@ import {
 import { TokenUnit, weiToAvax } from '@avalabs/core-utils-sdk';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { TxHistoryItem } from '@core/types';
-import { isBitcoinNetwork, isNftTokenType, isSolanaNetwork } from '@core/utils';
+import { isBitcoinNetwork, isNftTokenType, isSolanaNetwork } from '@core/common';
 import Big from 'big.js';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

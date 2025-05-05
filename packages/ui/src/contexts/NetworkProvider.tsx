@@ -28,7 +28,7 @@ import {
   getNetworkCaipId,
   getProviderForNetwork,
   updateIfDifferent,
-} from '@core/utils';
+} from '@core/common';
 import {
   Dispatch,
   SetStateAction,

@@ -1,10 +1,10 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkFeeService } from './NetworkFeeService';
-import { getProviderForNetwork } from '@core/utils';
+import { getProviderForNetwork } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 import { serializeToJSON } from '@core/messaging';
 
-jest.mock('@core/utils');
+jest.mock('@core/common');
 jest.mock('@/vmModules/ModuleManager');
 
 describe('src/background/services/networkFee/NetworkFeeService', () => {

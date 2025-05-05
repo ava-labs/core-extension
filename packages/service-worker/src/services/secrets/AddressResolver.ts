@@ -12,7 +12,7 @@ import {
   CommonError,
   SecretsError,
 } from '@core/types';
-import { assertPresent } from '@core/utils';
+import { assertPresent } from '@core/common';
 
 import { NetworkService } from '../network/NetworkService';
 import { emptyAddresses, emptyDerivationPaths } from './utils';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { isVideo, isImageDark } from '../utils';
 import { ImageWrapper } from './ImageWrapper';
 import { ImageWithFallback } from '@/components/common/ImageWithFallback';
-import { ipfsResolverWithFallback } from '@core/utils';
+import { ipfsResolverWithFallback } from '@core/common';
 import {
   Chip,
   Stack,

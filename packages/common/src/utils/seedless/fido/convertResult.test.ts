@@ -1,4 +1,4 @@
-import { base64UrlToBuffer } from '@core/utils';
+import { base64UrlToBuffer } from '@core/common';
 import { convertResult } from './convertResult';
 import {
   EncodedFIDOAuthenticationResult,

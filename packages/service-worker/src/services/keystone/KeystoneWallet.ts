@@ -13,7 +13,7 @@ import {
 import { TransactionRequest, hexlify } from 'ethers';
 import { BufferLike, rlp } from 'ethereumjs-util';
 
-import { makeBNLike } from '@core/utils';
+import { makeBNLike } from '@core/common';
 
 import { CBOR, KeystoneTransport } from '@core/types';
 import { convertTxData } from './utils';

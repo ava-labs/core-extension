@@ -12,8 +12,8 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { useQueryParams } from '@/hooks/useQueryParams';
-import { isValidAddress } from '@core/utils';
-import { handleTxOutcome } from '@core/utils';
+import { isValidAddress } from '@core/common';
+import { handleTxOutcome } from '@core/common';
 import { SendErrorMessage } from '@core/types';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 

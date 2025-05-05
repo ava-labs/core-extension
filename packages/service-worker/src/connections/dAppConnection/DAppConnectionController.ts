@@ -4,7 +4,7 @@ import {
   disconnectLog,
   eventLog,
   responseLog,
-} from '@core/utils';
+} from '@core/common';
 import { injectable, injectAll } from 'tsyringe';
 import { Runtime } from 'webextension-polyfill';
 import { Context, Pipeline } from '../middlewares/models';

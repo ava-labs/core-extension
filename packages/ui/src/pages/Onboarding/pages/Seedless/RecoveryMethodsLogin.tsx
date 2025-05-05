@@ -16,7 +16,7 @@ import { FeatureGates, OnboardingURLs } from '@core/types';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { useOnboardingContext } from '@/contexts/OnboardingProvider';
 import { TOTPModal } from './modals/TOTPModal';
-import { getOidcClient } from '@core/utils';
+import { getOidcClient } from '@core/common';
 import { FIDOModal } from './modals/FIDOModal';
 import { FIDOSteps, RecoveryMethodTypes } from './models';
 import { WalletType } from '@avalabs/types';

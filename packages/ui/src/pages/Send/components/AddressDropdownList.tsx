@@ -10,7 +10,7 @@ import {
   isPchainNetwork,
   isSolanaNetwork,
   isXchainNetwork,
-} from '@core/utils';
+} from '@core/common';
 import { AddressDropdownListItem } from './AddressDropdownListItem';
 
 type AddressDropdownListProps = {

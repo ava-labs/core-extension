@@ -3732,7 +3732,6 @@ __metadata:
   dependencies:
     "@core/common": "workspace:*"
     "@core/messaging": "workspace:*"
-    "@core/utils": "workspace:*"
   languageName: unknown
   linkType: soft
 
@@ -3806,7 +3805,6 @@ __metadata:
     "@commitlint/config-conventional": "npm:17.0.3"
     "@core/common": "workspace:*"
     "@core/types": "workspace:*"
-    "@core/utils": "workspace:*"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
     "@cubist-labs/cubesigner-sdk-ethers-v6": "npm:0.3.28"
     "@eslint/compat": "npm:1.2.4"
@@ -3982,7 +3980,6 @@ __metadata:
     "@commitlint/config-conventional": "npm:17.0.3"
     "@core/common": "workspace:*"
     "@core/types": "workspace:*"
-    "@core/utils": "workspace:*"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
     "@cubist-labs/cubesigner-sdk-ethers-v6": "npm:0.3.28"
     "@eslint/compat": "npm:1.2.4"
@@ -4131,12 +4128,6 @@ __metadata:
     webpack-merge: "npm:5.8.0"
     xss: "npm:1.0.13"
     zxcvbn: "npm:4.4.2"
-  languageName: unknown
-  linkType: soft
-
-"@core/utils@workspace:*, @core/utils@workspace:packages/utils":
-  version: 0.0.0-use.local
-  resolution: "@core/utils@workspace:packages/utils"
   languageName: unknown
   linkType: soft
 

@@ -4,7 +4,7 @@ import {
   DAppProviderRequest,
   DEFERRED_RESPONSE,
 } from '@core/types';
-import { isContactValid } from '@core/utils';
+import { isContactValid } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';

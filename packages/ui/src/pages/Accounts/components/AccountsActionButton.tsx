@@ -28,7 +28,7 @@ import browser from 'webextension-polyfill';
 import { useFeatureFlagContext } from '@/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/types';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { isProductionBuild } from '@core/utils';
+import { isProductionBuild } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { useAnalyticsContext } from '@/contexts/AnalyticsProvider';
 

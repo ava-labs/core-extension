@@ -8,7 +8,7 @@ import {
   JsonRpcRequestParams,
   NetworkWithCaipId,
 } from '@core/types';
-import { canSkipApproval } from '@core/utils';
+import { canSkipApproval } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';

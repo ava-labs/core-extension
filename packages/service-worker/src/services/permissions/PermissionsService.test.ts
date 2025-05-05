@@ -7,7 +7,7 @@ import {
   PermissionsState,
   Account,
 } from '@core/types';
-import { mapAddressesToVMs } from '@core/utils';
+import { mapAddressesToVMs } from '@core/common';
 import { SYNCED_DOMAINS } from '@core/common';
 import { PermissionsService } from './PermissionsService';
 import { omit } from 'lodash';

@@ -11,7 +11,7 @@ import {
   type PrimaryWalletSecrets,
   SecretType,
 } from './secrets';
-import type { DistributiveOmit } from '@core/utils';
+import type { DistributiveOmit } from '@core/common';
 import type { VMABI, TransactionPayload } from 'hypersdk-client';
 import { RpcMethod } from '@avalabs/vm-module-types';
 

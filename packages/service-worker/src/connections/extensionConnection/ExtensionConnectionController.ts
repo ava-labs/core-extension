@@ -18,7 +18,7 @@ import {
   eventLog,
   responseLog,
 	isDevelopment,
-} from '@core/utils';
+} from '@core/common';
 
 import { resolve } from '@avalabs/core-utils-sdk';
 import './registry';

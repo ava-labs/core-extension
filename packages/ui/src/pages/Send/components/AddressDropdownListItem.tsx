@@ -12,7 +12,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { ContactAddress } from './ContactAddress';
 import { useNetworkContext } from '@/contexts/NetworkProvider';
-import { isPchainNetwork, isXchainNetwork } from '@core/utils';
+import { isPchainNetwork, isXchainNetwork } from '@core/common';
 
 import SolanaLogo from '@/images/logos/solana.png';
 

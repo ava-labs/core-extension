@@ -37,7 +37,7 @@ import {
   isTokenMalicious,
   isXchainNetwork,
   openNewTab,
-} from '@core/utils';
+} from '@core/common';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router';
