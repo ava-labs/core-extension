@@ -17,15 +17,15 @@ import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import {
   FetchAndSolveChallengeHandler,
   FundTxHandler,
-  gaslessChallangeUpdateEventListener,
   GetGaslessEligibilityHandler,
   SetDefaultStateValuesHandler,
 } from '@core/service-worker';
 import { FeatureGates, GaslessPhase } from '@core/types';
 import { AddressLike } from 'ethers';
 import { filter, map } from 'rxjs';
-import { useFeatureFlagContext } from './FeatureFlagsProvider';
-import { useNetworkContext } from './NetworkProvider';
+import { useFeatureFlagContext } from '../FeatureFlagsProvider';
+import { useNetworkContext } from '../NetworkProvider';
+import { gaslessChallangeUpdateEventListener } from './gaslessChallangeUpdateListener';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;

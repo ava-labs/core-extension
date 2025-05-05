@@ -1,9 +1,5 @@
 // Make sure to only ever export TYPES from this file, no actual functions or classes.
 
-export { gaslessSendOffscreenMessageEventListener } from './services/gasless/events/gaslessSendMessageListener';
-
-export { gaslessChallangeUpdateEventListener } from './services/gasless/events/gaslessChallangeUpdateListener';
-
 export type { CloseLedgerTransportHandler } from './services/ledger/handlers/closeOpenTransporters';
 export type { GetLedgerVersionWarningHandler } from './services/ledger/handlers/getLedgerVersionWarning';
 export type { InitLedgerTransportHandler } from './services/ledger/handlers/initLedgerTransport';
