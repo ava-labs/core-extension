@@ -5,7 +5,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { GlacierService } from '@/services/glacier/GlacierService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NFT_REFRESH_METADATA,
   Erc721Token | Erc1155Token,
   [address: string, chainId: string, tokenId: string]

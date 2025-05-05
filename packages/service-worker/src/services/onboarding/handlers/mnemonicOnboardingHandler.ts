@@ -23,7 +23,7 @@ import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.MNEMONIC_ONBOARDING_SUBMIT,
   true,
   [

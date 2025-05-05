@@ -5,7 +5,7 @@ import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { NetworkService } from '../../network/NetworkService';
 import { Monitoring } from '@core/common';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
   NetworkContractToken | null | false,
   [tokenAddress: string]

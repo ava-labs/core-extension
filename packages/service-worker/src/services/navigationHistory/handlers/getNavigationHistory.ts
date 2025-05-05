@@ -1,7 +1,7 @@
 import { ExtensionRequest, ExtensionRequestHandler, NavigationHistoryState } from '@core/types';
 import { injectable } from 'tsyringe';
 import { NavigationHistoryService } from '../NavigationHistoryService';
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NAVIGATION_HISTORY_GET,
   NavigationHistoryState
 >;

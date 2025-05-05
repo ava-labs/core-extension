@@ -15,7 +15,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 import { isCoreMobile } from '../utils';
 import { Monitoring } from '@core/common';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_CONNECT_IMPORT_ACCOUNT,
   { accountId: string; connectedApp: WalletConnectSessionInfo['walletApp'] },
   [reconnectionAddress?: string]

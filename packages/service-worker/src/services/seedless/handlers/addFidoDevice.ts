@@ -4,7 +4,7 @@ import { ExtensionRequest, ExtensionRequestHandler, KeyType } from '@core/types'
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_ADD_FIDO_DEVICE,
   void,
   [name: string, keyType: KeyType]

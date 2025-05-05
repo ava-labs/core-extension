@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler, WalletDetails } from '@core/
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_DETAILS,
   WalletDetails[]
 >;

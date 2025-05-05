@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { LockService } from '../LockService';
 
-export type HandlerType = ExtensionRequestHandler<ExtensionRequest.LOCK_WALLET, true>;
+type HandlerType = ExtensionRequestHandler<ExtensionRequest.LOCK_WALLET, true>;
 
 @injectable()
 export class LockWalletHandler implements HandlerType {

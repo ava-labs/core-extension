@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler, TokensVisibility } from '@co
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_TOKENS_VISIBILITY,
   true,
   [tokensVisibility: TokensVisibility]

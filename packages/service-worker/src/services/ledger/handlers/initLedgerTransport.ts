@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { LedgerService } from '../LedgerService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_INIT_TRANSPORT,
   true,
   [ledgerTransportUUID: string]

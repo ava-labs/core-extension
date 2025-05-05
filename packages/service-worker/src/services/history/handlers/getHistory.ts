@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 import { HistoryService } from '../HistoryService';
 import { NetworkService } from '../../network/NetworkService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.HISTORY_GET,
   TxHistoryItem[]
 >;

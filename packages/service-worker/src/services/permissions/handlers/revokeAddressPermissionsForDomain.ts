@@ -8,7 +8,7 @@ import {
 import { PermissionsService } from '../PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN,
   true,
   [domain: string, addresses: string[]]

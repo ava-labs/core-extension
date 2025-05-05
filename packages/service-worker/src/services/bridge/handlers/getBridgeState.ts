@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_GET_STATE,
   BridgeState
 >;

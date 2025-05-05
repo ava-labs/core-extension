@@ -7,7 +7,7 @@ import { chainIdToCaip, resolve } from '@core/common';
 
 import { NetworkService } from '../NetworkService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SET_DEVELOPER_MODE,
   'success',
   [boolean]

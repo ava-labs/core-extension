@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler, SettingsState } from '@core/
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_GET,
   SettingsState
 >;

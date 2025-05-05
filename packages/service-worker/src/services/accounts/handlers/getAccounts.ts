@@ -2,7 +2,7 @@ import { Accounts, ExtensionRequest, ExtensionRequestHandler } from '@core/types
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_GET_ACCOUNTS,
   Accounts
 >;

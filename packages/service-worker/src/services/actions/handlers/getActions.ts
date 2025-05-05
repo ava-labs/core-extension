@@ -7,7 +7,7 @@ import {
 import { injectable } from 'tsyringe';
 import { ActionsService } from '../ActionsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_GET,
   Action | MultiTxAction,
   [messageId: string]

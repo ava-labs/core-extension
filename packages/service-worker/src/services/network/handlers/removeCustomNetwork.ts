@@ -3,7 +3,7 @@ import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_REMOVE_CUSTOM,
   'success',
   [number]

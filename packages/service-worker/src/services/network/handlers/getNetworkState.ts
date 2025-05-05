@@ -8,7 +8,7 @@ import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORKS_GET_STATE,
   {
     networks: NetworkWithCaipId[];

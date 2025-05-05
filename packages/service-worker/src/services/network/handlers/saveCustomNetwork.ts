@@ -8,7 +8,7 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { runtime } from 'webextension-polyfill';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SAVE_CUSTOM,
   'success',
   [CustomNetworkPayload]

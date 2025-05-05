@@ -12,7 +12,7 @@ import { SeedlessSessionManager } from '../SeedlessSessionManager';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_UPDATE_SIGNER_TOKEN,
   void,
   [token: SignerSessionData, email: string | undefined, userId: string]

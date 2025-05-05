@@ -12,7 +12,7 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_GET_RECOVERY_METHODS,
   RecoveryMethod[]
 >;

@@ -11,7 +11,7 @@ import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorS
 import { caipToChainId } from '@core/common';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
   { tokens: Balances; nfts: Balances<NftTokenWithBalance> },
   [accounts?: Account[], networks?: number[]] | undefined

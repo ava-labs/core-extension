@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { GasStationService } from '../GasStationService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
   undefined
 >;

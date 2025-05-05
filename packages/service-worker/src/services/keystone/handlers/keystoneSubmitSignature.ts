@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler, KeystoneDeviceResponseData }
 import { injectable } from 'tsyringe';
 import { KeystoneService } from '../KeystoneService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.KEYSTONE_SUBMIT_SIGNATURE,
   boolean,
   [response: KeystoneDeviceResponseData]

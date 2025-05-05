@@ -8,7 +8,7 @@ import { injectable } from 'tsyringe';
 import { FeatureFlagService } from '../../featureFlags/FeatureFlagService';
 import { AnalyticsServicePosthog } from '../AnalyticsServicePosthog';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ANALYTICS_CAPTURE_EVENT,
   null,
   [event: AnalyticsCapturedEvent, useEncryption?: boolean]

@@ -13,7 +13,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { SeedlessMfaService } from '../SeedlessMfaService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_CANCEL_RECOVERY_PHRASE_EXPORT,
   boolean
 >;

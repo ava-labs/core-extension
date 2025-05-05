@@ -24,7 +24,7 @@ interface GetPrivateKeyHandlerParamsProps {
   chain: PrivateKeyChain;
 }
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
   string | null,
   [GetPrivateKeyHandlerParamsProps]

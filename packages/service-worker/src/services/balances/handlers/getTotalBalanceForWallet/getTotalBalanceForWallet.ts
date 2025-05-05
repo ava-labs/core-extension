@@ -32,7 +32,7 @@ import {
 } from './helpers';
 import { getExtendedPublicKey } from '@/services/secrets/utils';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
   TotalBalanceForWallet,
   GetTotalBalanceForWalletParams

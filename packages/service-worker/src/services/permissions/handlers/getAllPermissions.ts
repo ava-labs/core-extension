@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { PermissionsService } from '../PermissionsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.PERMISSIONS_GET_ALL_PERMISSIONS,
   Permissions
 >;

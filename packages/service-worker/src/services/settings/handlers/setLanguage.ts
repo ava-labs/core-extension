@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler, Languages } from '@core/type
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_SET_LANGUAGE,
   true,
   [language: Languages]

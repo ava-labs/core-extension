@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { ActionsService } from '../ActionsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACTION_UPDATE,
   true,
   [ActionUpdate, boolean | undefined]

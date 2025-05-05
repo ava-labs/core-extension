@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET,
   BalancesInfo
 >;

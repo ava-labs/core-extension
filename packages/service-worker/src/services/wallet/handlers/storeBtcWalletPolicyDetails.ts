@@ -14,7 +14,7 @@ import { NetworkService } from '../../network/NetworkService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_STORE_BTC_WALLET_POLICY_DETAILS,
   { isCorrectDevice: boolean },
   [xpub: string, masterFingerprint: string, hmacHex: string, name: string]

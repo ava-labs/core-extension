@@ -17,7 +17,7 @@ import {
 import { FireblocksService } from '../FireblocksService';
 import { FireblocksSecretsProvider } from '../models';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBLOCKS_UPDATE_API_CREDENTIALS,
   boolean,
   [accountId: string, apiKey: string, secretKey: string]

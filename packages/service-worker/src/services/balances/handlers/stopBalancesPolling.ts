@@ -2,7 +2,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { BalancePollingService } from '@/services/balances/BalancePollingService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_STOP_POLLING,
   boolean
 >;

@@ -8,7 +8,7 @@ import {
 
 import { SeedlessMfaService } from '../SeedlessMfaService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_CHOOSE_MFA_METHOD,
   true,
   [response: MfaChoiceResponse]

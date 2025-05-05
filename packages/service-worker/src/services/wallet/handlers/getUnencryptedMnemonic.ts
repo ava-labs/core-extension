@@ -8,7 +8,7 @@ import { LockService } from '../../lock/LockService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_UNENCRYPTED_MNEMONIC,
   string,
   [password: string]

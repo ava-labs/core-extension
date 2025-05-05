@@ -23,7 +23,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 
 import { buildExtendedPublicKey } from '../../secrets/utils';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,
   ImportWalletResult,
   [ImportSeedphraseWalletParams]

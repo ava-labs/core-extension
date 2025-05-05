@@ -8,7 +8,7 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { isValidHttpHeader } from '@core/common';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_UPDATE_DEFAULT,
   'success',
   {

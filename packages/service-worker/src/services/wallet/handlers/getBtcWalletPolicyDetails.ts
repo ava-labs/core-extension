@@ -7,7 +7,7 @@ import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { SecretsService } from '../../secrets/SecretsService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,
   { masterFingerprint?: string } | undefined
 >;

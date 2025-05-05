@@ -5,7 +5,7 @@ import { TokenManagerService } from '../../tokens/TokenManagerService';
 import { SettingsService } from '../SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_ADD_CUSTOM_TOKEN,
   boolean,
   [tokenAddress: string]

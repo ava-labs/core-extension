@@ -3,7 +3,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
 import { BridgeService } from '../BridgeService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_GET_CONFIG,
   BridgeConfig
 >;

@@ -4,7 +4,7 @@ import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { SeedlessSessionManager } from '../SeedlessSessionManager';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SEEDLESS_HAS_TOKEN_EXPIRED,
   boolean | undefined
 >;

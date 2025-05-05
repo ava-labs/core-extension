@@ -6,7 +6,7 @@ import { BridgeService } from '../BridgeService';
 import { injectable } from 'tsyringe';
 import { resolve } from '@avalabs/core-utils-sdk';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,
   'success',
   [enabled: boolean]

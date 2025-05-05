@@ -8,7 +8,7 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../../network/NetworkService';
 import { NetworkFeeService } from '../NetworkFeeService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_FEE_GET,
   NetworkFee | null,
   [networkCaipId?: string]

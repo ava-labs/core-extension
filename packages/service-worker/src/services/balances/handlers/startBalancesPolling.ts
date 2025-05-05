@@ -10,7 +10,7 @@ import { BalanceAggregatorService } from '@/services/balances/BalanceAggregatorS
 import { BalancePollingService } from '@/services/balances/BalancePollingService';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_START_POLLING,
   {
     balances: {

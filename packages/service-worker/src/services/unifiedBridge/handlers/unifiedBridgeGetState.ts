@@ -5,7 +5,7 @@ import { ExtensionRequest, ExtensionRequestHandler, UnifiedBridgeState } from '@
 import { UnifiedBridgeService } from '../UnifiedBridgeService';
 
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.UNIFIED_BRIDGE_GET_STATE,
   UnifiedBridgeState
 >;

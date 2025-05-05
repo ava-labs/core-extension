@@ -5,7 +5,7 @@ import { AnalyticsService } from '../../analytics/AnalyticsService';
 import { OnboardingService } from '../../onboarding/OnboardingService';
 import { StorageService } from '../StorageService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.RESET_EXTENSION_STATE,
   true,
   [openOnboarding: boolean]

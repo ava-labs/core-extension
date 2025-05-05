@@ -6,7 +6,7 @@ import {
 import { injectable } from 'tsyringe';
 import { WalletConnectService } from '../WalletConnectService';
 
-export type HandlerType = ExtensionRequestHandler<
+type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION,
   null | WalletConnectSessionInfo,
   [address: string, chainId: number]
