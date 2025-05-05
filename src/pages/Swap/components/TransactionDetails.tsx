@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { SlippageToolTip } from './SlippageToolTip';
 import { useTranslation } from 'react-i18next';
 import {
@@ -12,7 +13,10 @@ import {
   Tooltip,
   InfoCircleIcon,
 } from '@avalabs/core-k2-components';
-import { PARASWAP_PARTNER_FEE_BPS } from '@src/contexts/SwapProvider/constants';
+import {
+  JUPITER_PARTNER_FEE_BPS,
+  PARASWAP_PARTNER_FEE_BPS,
+} from '@src/contexts/SwapProvider/constants';
 import {
   formatBasisPointsToPercentage,
   isSlippageValid,
@@ -20,6 +24,7 @@ import {
 } from '../utils';
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -61,6 +66,7 @@ export function TransactionDetails({
   isTransactionDetailsOpen,
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
+  const { network } = useNetworkContext();
   const { isFlagEnabled } = useFeatureFlagContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState(
     isTransactionDetailsOpen || false,
@@ -68,6 +74,40 @@ export function TransactionDetails({
   const [error, setError] = useState('');
 
   const theme = useTheme();
+
+  const swapFeesInfo = useMemo(() => {
+    if (!network) {
+      return {
+        isCollectingFees: false,
+      };
+    }
+
+    if (network.vmName === NetworkVMType.EVM) {
+      const isCollectingFees = isFlagEnabled(FeatureGates.SWAP_FEES);
+
+      return {
+        isCollectingFees,
+        percentage: isCollectingFees
+          ? formatBasisPointsToPercentage(PARASWAP_PARTNER_FEE_BPS)
+          : undefined,
+      };
+    }
+
+    if (network.vmName === NetworkVMType.SVM) {
+      const isCollectingFees = isFlagEnabled(FeatureGates.SWAP_FEES_JUPITER);
+
+      return {
+        isCollectingFees,
+        percentage: isCollectingFees
+          ? formatBasisPointsToPercentage(JUPITER_PARTNER_FEE_BPS)
+          : undefined,
+      };
+    }
+
+    return {
+      isCollectingFees: false,
+    };
+  }, [isFlagEnabled, network]);
 
   return (
     <Container>
@@ -159,7 +199,7 @@ export function TransactionDetails({
               </Typography>
             </Stack>
           </Stack>
-          {isFlagEnabled(FeatureGates.SWAP_FEES) && (
+          {swapFeesInfo.isCollectingFees && (
             <DetailsRow
               sx={{
                 mt: 2,
@@ -168,9 +208,7 @@ export function TransactionDetails({
             >
               <Typography variant="caption" color="text.secondary">
                 {t('Quote includes a {{formattedFeePercent}} Core fee', {
-                  formattedFeePercent: formatBasisPointsToPercentage(
-                    PARASWAP_PARTNER_FEE_BPS,
-                  ),
+                  formattedFeePercent: swapFeesInfo.percentage,
                 })}
               </Typography>
               <Tooltip
@@ -181,9 +219,7 @@ export function TransactionDetails({
                 title={t(
                   'Core always finds the best price from the top liquidity providers. A fee of {{formattedFeePercent}} is automatically factored into this quote.',
                   {
-                    formattedFeePercent: formatBasisPointsToPercentage(
-                      PARASWAP_PARTNER_FEE_BPS,
-                    ),
+                    formattedFeePercent: swapFeesInfo.percentage,
                   },
                 )}
               >

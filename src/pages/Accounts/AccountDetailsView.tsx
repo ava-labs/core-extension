@@ -44,7 +44,7 @@ import { usePrivateKeyExport } from './hooks/usePrivateKeyExport';
 import { WalletTypeIcon } from './components/WalletTypeIcon';
 import { useWalletTypeName } from './hooks/useWalletTypeName';
 import { SolanaLogoIcon } from '@src/components/common/SolanaLogoIcon';
-
+import { useIsSolanaEnabled } from '@src/hooks/useIsSolanaEnabled';
 export const AccountDetailsView = () => {
   const { t } = useTranslation();
   const toast = useScopedToast('account-switcher');
@@ -56,6 +56,7 @@ export const AccountDetailsView = () => {
   const account = getAccountById(accountId);
   const history = useHistory();
   const { capture } = useAnalyticsContext();
+  const isSolanaEnabled = useIsSolanaEnabled();
   const walletDetails = isPrimaryAccount(account)
     ? getWallet(account.walletId)
     : getWallet(account?.id ?? '');
@@ -253,7 +254,7 @@ export const AccountDetailsView = () => {
                   )}
                 />
               )}
-              {account.addressSVM && (
+              {isSolanaEnabled && account.addressSVM && (
                 <AccountDetailsAddressRow
                   data-testid="account-address-solana"
                   icon={<SolanaLogoIcon size={32} sx={{ p: 0.5 }} />}
