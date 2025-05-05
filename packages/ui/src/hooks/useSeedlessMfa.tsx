@@ -2,11 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { filter } from 'rxjs';
 
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import {
-  isSeedlessMfaChoiceRequest,
-  isSeedlessMfaEvent,
-  SubmitMfaResponseHandler,
-} from '@core/service-worker';
+import { SubmitMfaResponseHandler } from '@core/service-worker';
 import {
   AuthErrorCode,
   ExtensionRequest,
@@ -16,7 +12,11 @@ import {
   RecoveryMethod as RecoveryMethodT,
   SeedlessEvents,
 } from '@core/types';
-import { launchFidoFlow } from '@core/common';
+import {
+  isSeedlessMfaChoiceRequest,
+  isSeedlessMfaEvent,
+  launchFidoFlow,
+} from '@core/common';
 
 import { FIDOChallenge } from '@/components/common/seedless/components/FIDOChallenge';
 import { MfaChoicePrompt } from '@/components/common/seedless/components/MfaChoicePrompt';

@@ -16,12 +16,6 @@ export {
   isWalletConnectEvent,
   isUriGeneratedEvent,
 } from './services/walletConnect/events/eventFilters';
-export {
-  isSeedlessMfaChoiceRequest,
-  isSeedlessMfaEvent,
-  isSeedlessMfaMethodsUpdatedEvent,
-  isSeedlessTokenEvent,
-} from './services/seedless/events/eventFilters';
 export { isApprovalRequest } from './services/approvals/events/approvalEventFilters';
 export { isActionsUpdate } from './services/actions/events/actionEventFilters';
 export { filterBridgeStateToNetwork } from './services/bridge/utils';

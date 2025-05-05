@@ -8,13 +8,12 @@ import {
 } from 'react';
 import { filter } from 'rxjs';
 
-import {
+import type {
 	AddFidoDeviceHandler,
   CompleteAuthenticatorChangeHandler,
   GetRecoveryMethodsHandler,
   InitAuthenticatorChangeHandler,
   RemoveFidoDeviceHandler,
-  isSeedlessMfaMethodsUpdatedEvent,
 } from '@core/service-worker';
 import {
   ExtensionRequest,
@@ -25,7 +24,7 @@ import {
   TotpResetChallenge,
 	KeyType,
 } from '@core/types';
-import { incrementalPromiseResolve } from '@core/common';
+import { incrementalPromiseResolve, isSeedlessMfaMethodsUpdatedEvent } from '@core/common';
 
 import { RemoveTotpHandler } from '@core/service-worker';
 import { useConnectionContext } from './ConnectionProvider';

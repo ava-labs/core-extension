@@ -4,10 +4,10 @@ import { Subscription, filter } from 'rxjs';
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
 import {
   HasSignerTokenExpiredHandler,
-  isSeedlessTokenEvent,
 } from '@core/service-worker';
 import { ExtensionRequest, SeedlessEvents } from '@core/types';
 import { useLocation } from 'react-router-dom';
+import { isSeedlessTokenEvent } from '@core/common';
 
 export const useSeedlessAuthPromptState = () => {
   const { events, request } = useConnectionContext();
