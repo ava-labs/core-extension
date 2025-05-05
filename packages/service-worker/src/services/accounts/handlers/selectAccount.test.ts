@@ -1,6 +1,6 @@
 import { ExtensionRequest } from '@core/types';
 import { SelectAccountHandler } from './selectAccount';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/accounts/handlers/selectAccount.ts', () => {
   const activateAccountMock = jest.fn();

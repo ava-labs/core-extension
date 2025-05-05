@@ -2,7 +2,7 @@ import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAddressesInRangeHandler } from './avalanche_getAddressesInRange';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { canSkipApproval } from '@core/common';
 import { DEFERRED_RESPONSE } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';

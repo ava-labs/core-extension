@@ -1,6 +1,6 @@
 import { AccountType, ImportType, ExtensionRequest } from '@core/types';
 import { AddAccountHandler } from './addAccount';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 const WALLET_ID = 'wallet-id';
 const ACCOUNT_NAME = 'account-name';

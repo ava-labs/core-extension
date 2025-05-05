@@ -9,7 +9,7 @@ import {
 import { GetPrivateKeyHandler } from './getPrivateKey';
 import { LockService } from '../../lock/LockService';
 import { getWalletFromMnemonic } from '@avalabs/core-wallets-sdk';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { AccountsService } from '../AccountsService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => ({

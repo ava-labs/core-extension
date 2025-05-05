@@ -1,6 +1,6 @@
 import { ethErrors } from 'eth-rpc-errors';
 
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import {
   AccountType,
   type ImportedAccount,

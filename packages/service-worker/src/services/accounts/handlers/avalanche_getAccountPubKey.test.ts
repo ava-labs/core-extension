@@ -1,7 +1,7 @@
 import { DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { AvalancheGetAccountPubKeyHandler } from './avalanche_getAccountPubKey';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/accounts/handlers/avalanche_getAccountPubKey.ts', () => {
   const publicKeys = {

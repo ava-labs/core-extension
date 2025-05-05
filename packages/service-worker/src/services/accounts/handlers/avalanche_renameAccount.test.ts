@@ -1,6 +1,6 @@
 import { ethErrors } from 'eth-rpc-errors';
 
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { DAppProviderRequest, DEFERRED_RESPONSE, Account } from '@core/types';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 

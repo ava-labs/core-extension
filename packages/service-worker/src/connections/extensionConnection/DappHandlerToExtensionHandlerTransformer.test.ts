@@ -3,7 +3,7 @@ import browser from 'webextension-polyfill';
 import { DAppRequestHandler, DEFERRED_RESPONSE } from '@core/types';
 
 import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensionHandlerTransformer';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('src/background/connections/extensionConnection/DappHandlerToExtensionHandlerTransformer', () => {
   const transformer = new DappHandlerToExtensionHandlerTransformer();

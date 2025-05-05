@@ -1,6 +1,6 @@
 import { ExtensionRequest, AccountType } from '@core/types';
 import { GetAccountsHandler } from './getAccounts';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/accounts/handlers/getAccounts.ts', () => {
   const accounts = {

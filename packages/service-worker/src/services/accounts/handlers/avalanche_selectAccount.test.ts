@@ -3,7 +3,7 @@ import { AvalancheSelectAccountHandler } from './avalanche_selectAccount';
 import { container } from 'tsyringe';
 import { ActionsService } from '../../actions/ActionsService';
 import { DEFERRED_RESPONSE, AccountType } from '@core/types';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { canSkipApproval, openExtensionNewWindow } from '@core/common';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 

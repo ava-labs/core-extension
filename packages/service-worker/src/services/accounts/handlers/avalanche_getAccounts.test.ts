@@ -1,6 +1,6 @@
 import { AccountType, SecretType, DAppProviderRequest } from '@core/types';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
-import { buildRpcCall } from '@src/tests/test-utils';
+import { buildRpcCall } from '@shared/tests/test-utils';
 import { SecretsService } from '../../secrets/SecretsService';
 
 const walletName = 'Wallet-Name-001';
