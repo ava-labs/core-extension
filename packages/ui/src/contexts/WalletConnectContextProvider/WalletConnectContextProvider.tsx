@@ -1,7 +1,7 @@
 import { filter } from 'rxjs';
 import { createContext, useCallback, useContext, useReducer } from 'react';
 
-import { isUriGeneratedEvent, WalletConnectImportAccount } from '@core/service-worker';
+import { WalletConnectImportAccount } from '@core/service-worker';
 import { ExtensionRequest } from '@core/types';
 
 import {
@@ -11,6 +11,7 @@ import {
 } from './models';
 import { importReducer } from './importReducer';
 import { useConnectionContext } from '../ConnectionProvider';
+import { isUriGeneratedEvent } from '@core/common';
 
 const WalletConnectContext = createContext<{
   importState: AccountImportState;

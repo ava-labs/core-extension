@@ -2,17 +2,17 @@ import { useCallback, useState } from 'react';
 import { filter } from 'rxjs';
 
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
-import {
-  EstablishRequiredSession,
-  isSessionPermissionsMismatchEvent,
-  isUriGeneratedEvent,
-  isWalletConnectEvent,
-} from '@core/service-worker';
+import { EstablishRequiredSession } from '@core/service-worker';
 import {
   ExtensionRequest,
   WalletConnectEventType,
   WalletConnectSessionInfo,
 } from '@core/types';
+import {
+  isSessionPermissionsMismatchEvent,
+  isUriGeneratedEvent,
+  isWalletConnectEvent,
+} from '@core/common';
 
 export const useRequiredSession = () => {
   const { tabId, events, request } = useConnectionContext();

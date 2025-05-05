@@ -5,8 +5,7 @@ import {
 } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { EnsureDefined, PartialBy } from '@core/service-worker';
-import { Network } from '@core/service-worker';
+import { EnsureDefined, PartialBy, Network } from '@core/types';
 
 export enum CaipNamespace {
   AVAX = 'avax',

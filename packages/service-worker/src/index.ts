@@ -11,11 +11,6 @@ export type { AvalancheSendTransactionHandler } from './services/wallet/handlers
 
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 export type { BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
-export {
-  isSessionPermissionsMismatchEvent,
-  isWalletConnectEvent,
-  isUriGeneratedEvent,
-} from './services/walletConnect/events/eventFilters';
 export { isApprovalRequest } from './services/approvals/events/approvalEventFilters';
 export { isActionsUpdate } from './services/actions/events/actionEventFilters';
 export { filterBridgeStateToNetwork } from './services/bridge/utils';

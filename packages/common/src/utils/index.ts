@@ -40,6 +40,7 @@ export * from './seedless/getOidcTokenProvider';
 export * from './seedless/getSignerToken';
 export * from './seedless/fido';
 export * from './seedless/seedlessEventFilters';
+export * from './walletConnectEventFilters';
 export * from './nfts/getSmallImageForNFT';
 export * from './nfts/metadataParser';
 export * from './nfts/isNFT';
