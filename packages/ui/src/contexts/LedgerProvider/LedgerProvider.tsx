@@ -26,7 +26,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { useConnectionContext } from './ConnectionProvider';
+import { useConnectionContext } from '../ConnectionProvider';
 
 import { VM } from '@avalabs/avalanchejs';
 import {
@@ -40,7 +40,6 @@ import {
   CloseLedgerTransportHandler,
   GetLedgerVersionWarningHandler,
   InitLedgerTransportHandler,
-  ledgerDiscoverTransportsEventListener,
   LedgerResponseHandler,
   LedgerVersionWarningClosedHandler,
   lockStateChangedEventListener,
@@ -49,6 +48,7 @@ import {
 import { LedgerEvent } from '@core/types';
 import Eth from '@ledgerhq/hw-app-eth';
 import Transport from '@ledgerhq/hw-transport';
+import { ledgerDiscoverTransportsEventListener } from './ledgerDiscoverTransportsEventListener';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',

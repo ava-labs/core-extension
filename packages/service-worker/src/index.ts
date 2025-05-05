@@ -6,7 +6,6 @@ export type { InitLedgerTransportHandler } from './services/ledger/handlers/init
 export type { LedgerResponseHandler } from './services/ledger/handlers/ledgerResponse';
 export type { RemoveLedgerTransportHandler } from './services/ledger/handlers/removeLedgerTransport';
 export type { LedgerVersionWarningClosedHandler } from './services/ledger/handlers/setLedgerVersionWarningClosed';
-export { ledgerDiscoverTransportsEventListener } from './services/ledger/events/ledgerDiscoverTransportsEventListener';
 
 export { onboardingUpdatedEventListener } from './services/onboarding/events/listeners';
 export type { AvalancheSendTransactionHandler } from './services/wallet/handlers/avalanche_sendTransaction';

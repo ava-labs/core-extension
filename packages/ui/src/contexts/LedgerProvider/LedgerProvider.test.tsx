@@ -9,14 +9,14 @@ import {
 } from '@shared/tests/test-utils';
 import React, { useState } from 'react';
 import { Subject } from 'rxjs';
-import { useConnectionContext } from './ConnectionProvider';
+import { useConnectionContext } from '../ConnectionProvider';
 import {
   LedgerAppType,
   LedgerContextProvider,
   useLedgerContext,
-} from './LedgerProvider';
+} from '.';
 import { StatusCodes } from '@ledgerhq/hw-transport';
-import { getLedgerTransport } from './utils/getLedgerTransport';
+import { getLedgerTransport } from '../utils/getLedgerTransport';
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import {
   AppClient as Btc,
