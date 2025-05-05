@@ -3,6 +3,7 @@ import {
   TokenType,
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
+import { toLower } from 'lodash';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
@@ -45,7 +46,7 @@ export function useTokensBySymbols<T extends RequestedTokens>(
           } else if (Array.isArray(identifier)) {
             return (
               token.type !== TokenType.NATIVE &&
-              identifier.includes(token.address.toLowerCase())
+              identifier.map(toLower).includes(token.address.toLowerCase())
             );
           }
         }),

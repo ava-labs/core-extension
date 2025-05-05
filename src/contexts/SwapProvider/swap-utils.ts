@@ -1,10 +1,18 @@
 import { Contract } from 'ethers';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
+import {
+  JsonRpcBatchInternal,
+  SolanaProvider,
+} from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
 import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import { t } from 'i18next';
 import type { BuildTxInputBase } from '@paraswap/sdk/dist/methods/swap/transaction';
+import {
+  findAssociatedTokenPda,
+  TOKEN_PROGRAM_ADDRESS,
+} from '@solana-program/token';
+import { address } from '@solana/kit';
 
 import {
   CommonError,
@@ -14,7 +22,11 @@ import {
 } from '@src/utils/errors';
 import { resolve } from '@src/utils/promiseResolver';
 import { RequestHandlerType } from '@src/background/connections/models';
-import { SwapError } from '@src/pages/Swap/hooks/useSwap';
+import {
+  isJupiterQuote,
+  JupiterQuote,
+  SwapError,
+} from '@src/contexts/SwapProvider/models';
 
 import {
   PARASWAP_RETRYABLE_ERRORS,
@@ -24,24 +36,29 @@ import {
   hasParaswapError,
 } from './models';
 import {
+  JUPITER_PARTNER_ADDRESS,
   PARASWAP_PARTNER_ADDRESS,
   PARASWAP_PARTNER_FEE_BPS,
+  SOL_MINT,
 } from './constants';
-import { FetcherError, TransactionParams } from '@paraswap/sdk';
+import { FetcherError, OptimalRate, TransactionParams } from '@paraswap/sdk';
 
-export function validateParams(
-  params: Partial<SwapParams>,
-): Required<SwapParams> | never {
-  const {
-    srcToken,
-    destToken,
-    srcAmount,
-    srcDecimals,
-    destDecimals,
-    destAmount,
-    priceRoute,
-    slippage,
-  } = params;
+export function validateParaswapParams(
+  params: Partial<SwapParams<OptimalRate>>,
+):
+  | Required<
+      SwapParams<OptimalRate> & { srcAmount: string; destAmount: string }
+    >
+  | never {
+  const { srcToken, destToken, srcDecimals, destDecimals, quote, slippage } =
+    params;
+
+  if (!quote) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: quote'),
+    );
+  }
 
   if (!srcToken) {
     throw swapError(
@@ -57,7 +74,7 @@ export function validateParams(
     );
   }
 
-  if (!srcAmount) {
+  if (!quote.srcAmount) {
     throw swapError(
       SwapErrorCode.MissingParams,
       new Error('Missing parameter: srcAmount'),
@@ -78,17 +95,10 @@ export function validateParams(
     );
   }
 
-  if (!destAmount) {
+  if (!quote.destAmount) {
     throw swapError(
       SwapErrorCode.MissingParams,
       new Error('Missing parameter: destAmount'),
-    );
-  }
-
-  if (!priceRoute) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: priceRoute'),
     );
   }
 
@@ -101,12 +111,85 @@ export function validateParams(
 
   return {
     srcToken,
+    srcAmount: quote.srcAmount,
     destToken,
-    srcAmount,
+    destAmount: quote.destAmount,
     srcDecimals,
     destDecimals,
-    destAmount,
-    priceRoute,
+    quote,
+    slippage,
+  };
+}
+
+export function validateJupiterParams(
+  params: Partial<SwapParams<JupiterQuote>>,
+):
+  | Required<
+      SwapParams<JupiterQuote> & { srcAmount: string; destAmount: string }
+    >
+  | never {
+  const { srcToken, destToken, srcDecimals, destDecimals, quote, slippage } =
+    params;
+
+  if (!quote) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: quote'),
+    );
+  }
+
+  if (!isJupiterQuote(quote)) {
+    throw swapError(
+      SwapErrorCode.InvalidParams,
+      new Error('Invalid parameter: quote'),
+    );
+  }
+
+  if (!srcToken) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcToken'),
+    );
+  }
+
+  if (!destToken) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destToken'),
+    );
+  }
+
+  if (!srcDecimals) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: srcDecimals'),
+    );
+  }
+
+  if (!destDecimals) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: destDecimals'),
+    );
+  }
+
+  if (!slippage) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: slippage'),
+    );
+  }
+
+  const isSelling = quote.swapMode === 'ExactIn';
+
+  return {
+    srcToken,
+    srcAmount: isSelling ? quote.outAmount : quote.inAmount,
+    destToken,
+    destAmount: isSelling ? quote.inAmount : quote.outAmount,
+    srcDecimals,
+    destDecimals,
+    quote,
     slippage,
   };
 }
@@ -386,5 +469,97 @@ export const getPartnerFeeParams = (
     partnerAddress: PARASWAP_PARTNER_ADDRESS,
     partnerFeeBps: PARASWAP_PARTNER_FEE_BPS,
     isDirectFeeTransfer: true,
+  };
+};
+
+export const getJupiterFeeAccount = async (
+  isFlagEnabled: boolean,
+  quote: JupiterQuote,
+  provider: SolanaProvider,
+  onFeeAccountNotInitialized: (mint: string) => void,
+): Promise<string | undefined> => {
+  if (!isFlagEnabled) {
+    return;
+  }
+
+  // The `mints` array will hold token mints in which it would be possible for us to collect the fees,
+  // with the preferred tokens being at the beginning of the array.
+  let mints: [string] | [string, string] | undefined;
+  /**
+   * The fees are always collected either the input or output token
+   * (e.g. we can't choose SOL if user is swapping USDC -> JUP).
+   */
+  if (quote.swapMode === 'ExactIn') {
+    /*
+     * With `swapMode` being "ExactOut", we can choose which of the tokens to use for fees.
+     * SOL is always preferred, so we check if it's a part of the swap and if it is,
+     * we try to collect fees on that token.
+     */
+    if (quote.outputMint === SOL_MINT) {
+      mints = [SOL_MINT, quote.inputMint];
+    } else if (quote.inputMint === SOL_MINT) {
+      mints = [SOL_MINT, quote.outputMint];
+    } else {
+      mints = [quote.inputMint, quote.outputMint];
+    }
+  } else if (quote.swapMode === 'ExactOut') {
+    // With `swapMode` being "ExactOut", we can only collect fees on the input token.
+    mints = [quote.inputMint];
+  }
+
+  if (!mints) {
+    return;
+  }
+
+  const [primaryFeeToken, secondaryFeeToken] = mints;
+
+  const { feeAccount, isInitialized } = await getFeeAccountInfo(
+    provider,
+    primaryFeeToken,
+  );
+
+  if (isInitialized) {
+    return feeAccount;
+  } else {
+    // Capture the primary fee account not being initialized.
+    onFeeAccountNotInitialized(primaryFeeToken);
+  }
+
+  // If we can't collect fees on the other token either, return early.
+  if (!secondaryFeeToken) {
+    return;
+  }
+
+  // If we can use the other token to collect fees, let's try that:
+  const {
+    feeAccount: secondaryFeeAccount,
+    isInitialized: isSecondaryFeeAccountInitialized,
+  } = await getFeeAccountInfo(provider, secondaryFeeToken);
+
+  if (isSecondaryFeeAccountInitialized) {
+    return secondaryFeeAccount;
+  }
+
+  // Capture the secondary fee account not being initialized either.
+  onFeeAccountNotInitialized(secondaryFeeToken);
+};
+
+export const getFeeAccountInfo = async (
+  provider: SolanaProvider,
+  feeAccountAddress: string,
+) => {
+  const [feeAccount] = await findAssociatedTokenPda({
+    mint: address(feeAccountAddress),
+    owner: address(JUPITER_PARTNER_ADDRESS),
+    tokenProgram: TOKEN_PROGRAM_ADDRESS,
+  });
+
+  const feeAccountInfo = await provider
+    .getAccountInfo(feeAccount, { encoding: 'base64' })
+    .send();
+
+  return {
+    feeAccount,
+    isInitialized: Boolean(feeAccountInfo.value),
   };
 };

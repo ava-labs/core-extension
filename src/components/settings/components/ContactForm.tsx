@@ -9,6 +9,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useContactsContext } from '@src/contexts/ContactsProvider';
 import { Stack, TextField } from '@avalabs/core-k2-components';
+import { useIsSolanaEnabled } from '@src/hooks/useIsSolanaEnabled';
+
 interface ContactFormProps {
   contact: Contact;
   handleChange: (contact: Contact, formValid: boolean) => void;
@@ -29,6 +31,7 @@ export const ContactForm = ({
   const [addressXpError, setAddressXpError] = useState<string>();
   const [addressSvmError, setAddressSvmError] = useState<string>();
   const { contacts } = useContactsContext();
+  const isSolanaEnabled = useIsSolanaEnabled();
 
   const FormErrors = {
     NAME_ERROR: t('Name is required'),
@@ -272,22 +275,24 @@ export const ContactForm = ({
         rows={2}
       />
 
-      <TextField
-        data-testid="svm-address-textarea"
-        size="small"
-        onChange={(e) => {
-          e.stopPropagation();
-          handleUpdate('addressSVM', e.target.value);
-        }}
-        value={contact.addressSVM}
-        label={t('Solana Address')}
-        error={!!addressSvmError}
-        helperText={addressSvmError}
-        placeholder={t(`Enter Solana address`)}
-        fullWidth
-        multiline
-        rows={2}
-      />
+      {isSolanaEnabled && (
+        <TextField
+          data-testid="svm-address-textarea"
+          size="small"
+          onChange={(e) => {
+            e.stopPropagation();
+            handleUpdate('addressSVM', e.target.value);
+          }}
+          value={contact.addressSVM}
+          label={t('Solana Address')}
+          error={!!addressSvmError}
+          helperText={addressSvmError}
+          placeholder={t(`Enter Solana address`)}
+          fullWidth
+          multiline
+          rows={2}
+        />
+      )}
     </Stack>
   );
 };

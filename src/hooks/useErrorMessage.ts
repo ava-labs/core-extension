@@ -154,6 +154,20 @@ export const useErrorMessage = () => {
         title: t('Unexpected response from our pricing provider.'),
         hint: t('Please try again later.'),
       },
+      [SwapErrorCode.InvalidParams]: {
+        title: t('Some of the required parameters are invalid.'),
+        hint: t(
+          'Our team was made aware of this issue. Feel free to contact us for further information.',
+        ),
+      },
+      [SwapErrorCode.FeatureDisabled]: {
+        title: t('Feature is disabled'),
+        hint: t('Please try again later.'),
+      },
+      [SwapErrorCode.TransactionError]: {
+        title: t('This transaction would likely fail'),
+        hint: t('Please try again later or choose a different token pair.'),
+      },
     }),
     [t],
   );
@@ -203,6 +217,12 @@ export const useErrorMessage = () => {
       },
       [CommonError.UnableToEstimateGas]: {
         title: t('Unable to estimate gas'),
+      },
+      [CommonError.MismatchingProvider]: {
+        title: t('Mismatching provider'),
+        hint: t(
+          'Core has entered an unexpected state. Please restart the browser if the issue persists.',
+        ),
       },
     }),
     [t],
