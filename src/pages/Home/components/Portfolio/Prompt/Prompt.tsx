@@ -54,7 +54,7 @@ export function Prompt() {
   const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { startChat, sendMessage, prompts, setPrompts } = useFirebaseContext();
-  const [isModelReady, setIsModelReady] = useState(false);
+  const isModelReady = useRef(false);
 
   const tokens = useTokensWithBalances();
 
@@ -77,10 +77,6 @@ export function Prompt() {
 
   const functions = useMemo(
     () => ({
-      close: async () => {
-        setIsDialogOpen(false);
-        return true;
-      },
       send: async ({ recepient, token, amount }) => {
         if (!accounts.active) {
           throw new Error(`You don't have an active account`);
@@ -255,12 +251,12 @@ export function Prompt() {
   );
 
   const systemPrompt = useMemo(() => {
-    if (!network || !tokens) {
+    if (!network || !tokens || !accounts) {
       return '';
     }
     return systemPromptTemplate
       .replace(
-        '__TOKENS__',
+        '__KNOWN_TOKENS__',
         JSON.stringify(
           tokens.map((token) => ({
             name: token.name,
@@ -271,7 +267,7 @@ export function Prompt() {
         ),
       )
       .replace(
-        '__NETWORKS___',
+        '__NETWORKS__',
         JSON.stringify(
           networks.map((n) => ({
             id: n.caipId,
@@ -281,7 +277,7 @@ export function Prompt() {
         ),
       )
       .replace(
-        '__CURRENT_NETWORK___',
+        '__CURRENT_NETWORK_ID__',
         JSON.stringify({
           id: network.caipId,
           name: network.chainName,
@@ -295,32 +291,15 @@ export function Prompt() {
           [
             ...Object.values(accounts.primary).flat(),
             ...Object.values(accounts.imported),
-          ].map((a) => ({ name: a.name, id: a.id, address: a.addressC })),
+          ].map((a) => ({
+            name: a.name,
+            id: a.id,
+            address: a.addressC,
+            active: a.id === accounts.active?.id,
+          })),
         ),
       );
   }, [tokens, network, contacts, accounts, networks]);
-
-  useEffect(() => {
-    startChat({
-      tools: [
-        {
-          functionDeclarations,
-        },
-      ],
-      toolConfig: {
-        functionCallingConfig: {
-          mode: FunctionCallingMode.AUTO,
-        },
-      },
-      systemInstruction: systemPrompt,
-    })
-      .then(() => {
-        setIsModelReady(true);
-      })
-      .catch(() => {
-        setIsModelReady(false);
-      });
-  }, [prompts, startChat, systemPrompt]);
 
   const prompt = useCallback(
     async (message: string) => {
@@ -329,6 +308,27 @@ export function Prompt() {
         return [...prev, { role: 'user', content: message }];
       });
       setInput('');
+      if (!isModelReady.current) {
+        await startChat({
+          tools: [
+            {
+              functionDeclarations,
+            },
+          ],
+          toolConfig: {
+            functionCallingConfig: {
+              mode: FunctionCallingMode.AUTO,
+            },
+          },
+          systemInstruction: systemPrompt,
+        })
+          .then(() => {
+            isModelReady.current = true;
+          })
+          .catch(() => {
+            isModelReady.current = false;
+          });
+      }
       try {
         const response = await sendMessage(message);
 
@@ -426,7 +426,7 @@ export function Prompt() {
         setIsTyping(false);
       }
     },
-    [functions, sendMessage, setPrompts],
+    [functions, sendMessage, setPrompts, startChat, systemPrompt],
   );
 
   return (
@@ -496,7 +496,6 @@ export function Prompt() {
                 input={input}
                 setInput={setInput}
                 setPrompt={prompt}
-                disabled={!isModelReady}
                 userMessages={userMessages}
               />
             </Stack>

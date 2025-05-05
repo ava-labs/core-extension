@@ -2,10 +2,6 @@ import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
 
 export const functionDeclarations: FunctionDeclaration[] = [
   {
-    name: 'close',
-    description: `Close the chat window.`,
-  },
-  {
     name: 'send',
     description: `Send the specified amount of a token to the recepient address on the current network.`,
     parameters: {
@@ -141,9 +137,14 @@ export const systemPromptTemplate = `
   Current network id: __CURRENT_NETWORK_ID___
   The user has the following contacts:
     __CONTACTS__
-  The user has the following accounts. The active account is marked with the active property:
-    __ACCOUNTS__
+  The user has the following accounts:
+	  __ACCOUNTS__
+  The active account is marked with the "active" property.
+  Accounts can be identified by their "name" or "address" properties.
+  When asked to switch the account, replace user-provided name or address with the matching account id.
   The user has the following tokens on the active account:  
     __TOKENS__
+  The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
+  All known tokens for the current network are listed in the following array: __KNOWN_TOKENS__
   Bridging is only available the following networks and tokens: __BRIDGE_DATA__
 `;

@@ -100,15 +100,21 @@ interface UserInputProps {
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   setPrompt: (message: string) => Promise<void>;
-  disabled: boolean;
   userMessages?: string[];
 }
+
+const BorderTextField = styled(TextField)`
+  & .MuiOutlinedInput-root {
+    &.Mui-focused fieldset.MuiOutlinedInput-notchedOutline {
+      border: none;
+    }
+  }
+`;
 
 export const UserInput = ({
   input,
   setInput,
   setPrompt,
-  disabled,
   userMessages,
 }: UserInputProps) => {
   const [userMessageHistoryIndex, setUserMessageHistoryIndex] =
@@ -116,15 +122,14 @@ export const UserInput = ({
 
   const { t } = useTranslation();
   return (
-    <TextField
+    <BorderTextField
       placeholder={t('Core AI')}
       value={input}
       size="large"
-      disabled={disabled}
       sx={{
         color: 'grey.400',
         backgroundColor: 'grey.800',
-        border: 'none',
+        borderRadius: 1,
       }}
       focused
       color="primary"
