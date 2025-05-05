@@ -196,7 +196,7 @@ export function Prompt() {
           srcToken.decimals,
         );
 
-        const rate = await getRate({
+        const result = await getRate({
           srcDecimals: srcToken.decimals,
           srcToken:
             srcToken.type === TokenType.ERC20
@@ -208,12 +208,13 @@ export function Prompt() {
           srcAmount: amountBigInt.toString(),
         });
         if (
-          isAPIError(rate.optimalRate) ||
-          !rate.optimalRate ||
-          !rate.destAmount
+          isAPIError(result) ||
+          !result ||
+          !result.destAmount ||
+          !result.quote
         ) {
           throw new Error(
-            `Error while getting swap rate. ${isAPIError(rate.optimalRate) ? rate.optimalRate.message : ''}`,
+            `Error while getting swap rate. ${isAPIError(result) ? result.error?.message : ''}`,
           );
         }
 
@@ -226,14 +227,13 @@ export function Prompt() {
             toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
           srcDecimals: srcToken.decimals,
           destDecimals: toToken.decimals,
-          srcAmount: rate.optimalRate.srcAmount,
-          priceRoute: rate.optimalRate,
-          destAmount: rate.destAmount,
+          quote: result.quote,
+
           slippage: 0.15,
         });
 
         return {
-          content: `Swap initiated ${amount}${srcToken.symbol} to ${rate.destAmount}${toToken.symbol}.`,
+          content: `Swap initiated ${amount}${srcToken.symbol} to ${result.destAmount}${toToken.symbol}.`,
         };
       },
     }),
