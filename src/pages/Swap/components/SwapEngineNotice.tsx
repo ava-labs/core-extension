@@ -5,7 +5,7 @@ import {
   Typography,
   Tooltip,
 } from '@avalabs/core-k2-components';
-import { ParaswapIcon } from '@src/components/icons/ParaswapIcon';
+import { VeloraIcon } from '@src/components/icons/VeloraIcon';
 import JupiterLogo from '@src/images/logos/jupiter-logo.svg';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useMemo } from 'react';
@@ -22,17 +22,14 @@ export function SwapEngineNotice() {
 
     if (network.vmName === NetworkVMType.EVM) {
       return {
-        icon: <ParaswapIcon />,
-        notice: t(
-          "You will interact directly with Paraswap's smart contracts.",
-        ),
+        icon: <VeloraIcon />,
+        notice: t("You will interact directly with Velora's smart contracts."),
       };
     }
 
     if (network.vmName === NetworkVMType.SVM) {
       return {
         icon: <img src={JupiterLogo} alt="Jupiter" />,
-        name: '', // Name is included in the logotype
         notice: t('You will interact directly with the Metis router.'),
       };
     }
@@ -55,9 +52,6 @@ export function SwapEngineNotice() {
     >
       <Typography variant="caption">{t('Powered by')}</Typography>
       {engineInfo.icon}
-      {engineInfo.name && (
-        <Typography variant="caption">{engineInfo.name}</Typography>
-      )}
       <Stack sx={{ flexDirection: 'row' }}>
         <Tooltip placement={'top'} title={engineInfo.notice}>
           <InfoCircleIcon size="16px" />

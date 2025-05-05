@@ -308,7 +308,7 @@ export function CustomFees({
   }, [network?.networkToken, estimatedFee, newFees.feeUnit]);
 
   const onGaslessSwitch = useCallback(async () => {
-    handleModifierClick(GasFeeModifier.NORMAL);
+    handleModifierClick(GasFeeModifier.FAST);
     setIsGaslessOn(!isGaslessOn);
   }, [handleModifierClick, isGaslessOn, setIsGaslessOn]);
 
