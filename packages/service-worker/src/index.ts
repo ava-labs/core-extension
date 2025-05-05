@@ -7,7 +7,6 @@ export type { LedgerResponseHandler } from './services/ledger/handlers/ledgerRes
 export type { RemoveLedgerTransportHandler } from './services/ledger/handlers/removeLedgerTransport';
 export type { LedgerVersionWarningClosedHandler } from './services/ledger/handlers/setLedgerVersionWarningClosed';
 
-export { onboardingUpdatedEventListener } from './services/onboarding/events/listeners';
 export type { AvalancheSendTransactionHandler } from './services/wallet/handlers/avalanche_sendTransaction';
 
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';

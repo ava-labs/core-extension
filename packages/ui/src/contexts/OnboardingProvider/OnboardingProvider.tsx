@@ -7,7 +7,6 @@ import {
   KeystoneOnboardingHandler,
   LedgerOnboardingHandler,
   MnemonicOnboardingHandler,
-  onboardingUpdatedEventListener,
   SeedlessOnboardingHandler,
 } from '@core/service-worker';
 import {
@@ -34,8 +33,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
-import { useAnalyticsContext } from './AnalyticsProvider';
-import { useConnectionContext } from './ConnectionProvider';
+import { useAnalyticsContext } from '../AnalyticsProvider';
+import { useConnectionContext } from '../ConnectionProvider';
+import { onboardingUpdatedEventListener } from './listeners';
 
 const Onboarding = lazy(() =>
   import('@/pages/Onboarding/Onboarding').then((m) => ({
