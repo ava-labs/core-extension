@@ -13,13 +13,10 @@ export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledge
 export type { BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
 export { isApprovalRequest } from './services/approvals/events/approvalEventFilters';
 export { isActionsUpdate } from './services/actions/events/actionEventFilters';
-export { filterBridgeStateToNetwork } from './services/bridge/utils';
 export { contactsUpdatedEventListener } from './services/contacts/events/listeners';
 export { currencyRatesUpdatedEventListener } from './services/currency/events/listeners';
 export { defiPortfolioUpdatedEventListener } from './services/defi/events/listeners';
 export { permissionsUpdatedEventListener } from './services/permissions/events/permissionsStateUpdatesListener';
-export { isBridgeStateUpdateEventListener,isBridgeConfigUpdateEventListener, isBridgeTransferEventListener } from './services/bridge/events/listeners';
-export { isUnifiedBridgeStateUpdate, isUnifiedBridgeTransferStepChanged } from './services/unifiedBridge/events/eventFilters';
 export { lockStateChangedEventListener } from './services/lock/events/lockStateChangedEventListener';
 export { walletStateChangedEventListener } from './services/secrets/events/WalletUpdatedEventListener';
 export { accountsUpdatedEventListener } from './services/accounts/events/accountsUpdatedEventListener';

@@ -40,10 +40,8 @@ import {
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
 	UnifiedBridgeGetState,
-	isUnifiedBridgeStateUpdate,
   BridgeGetStateHandler,
   UnifiedBridgeTrackTransfer,
-  isBridgeStateUpdateEventListener,
 } from '@core/service-worker';
 import {
 	assert,
@@ -52,6 +50,8 @@ import {
   getProviderForNetwork,
   isBitcoinCaipId,
   lowerCaseKeys,
+	isBridgeStateUpdateEventListener,
+	isUnifiedBridgeStateUpdate,
 } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { useAccountsContext } from './AccountsProvider';

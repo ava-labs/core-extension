@@ -23,8 +23,6 @@ import {
 	BridgeGetStateHandler,
 	BridgeRemoveTransactionHandler,
 	BridgeSetIsDevEnvHandler,
-	filterBridgeStateToNetwork,
-	isBridgeStateUpdateEventListener,
 } from '@core/service-worker';
 import Big from 'big.js';
 import {
@@ -40,6 +38,7 @@ import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useNetworkContext } from './NetworkProvider';
 import { type ContractTransaction, toBeHex } from 'ethers';
+import { filterBridgeStateToNetwork, isBridgeStateUpdateEventListener } from '@core/common';
 
 export interface BridgeContext {
   createBridgeTransaction(tx: PartialBridgeTransaction): Promise<void>;
