@@ -1,9 +1,9 @@
 import { useConnectionContext } from '@/contexts/ConnectionProvider';
+import { isNetworkUpdatedEvent } from '@/contexts/NetworkProvider/isNetworkUpdatedEvent';
 import { useBridgeConfigUpdater, useBridgeSDK } from '@avalabs/core-bridge-sdk';
 import {
   BridgeGetConfigHandler,
   isBridgeStateUpdateEventListener,
-  networkUpdatedEventListener,
 } from '@core/service-worker';
 import { ExtensionRequest } from '@core/types';
 import { useCallback, useEffect } from 'react';
@@ -33,7 +33,7 @@ export function useSyncBridgeConfig() {
       .pipe(
         filter(
           (event) =>
-            networkUpdatedEventListener(event) ||
+            isNetworkUpdatedEvent(event) ||
             isBridgeStateUpdateEventListener(event),
         ),
       )

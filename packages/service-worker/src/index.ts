@@ -11,7 +11,6 @@ export type { AvalancheSendTransactionHandler } from './services/wallet/handlers
 
 export type { MigrateMissingPublicKeysFromLedgerHandler } from './services/ledger/handlers/migrateMissingPublicKeysFromLedger';
 export type { BridgeGetConfigHandler } from './services/bridge/handlers/getBridgeConfig';
-export { networkUpdatedEventListener } from './services/network/events/networkUpdatedEventListener';
 export {
   isSessionPermissionsMismatchEvent,
   isWalletConnectEvent,
@@ -30,8 +29,6 @@ export { contactsUpdatedEventListener } from './services/contacts/events/listene
 export { currencyRatesUpdatedEventListener } from './services/currency/events/listeners';
 export { defiPortfolioUpdatedEventListener } from './services/defi/events/listeners';
 export { permissionsUpdatedEventListener } from './services/permissions/events/permissionsStateUpdatesListener';
-export { isNetworkUpdatedEvent } from './services/network/events/isNetworkUpdatedEvent';
-export { networksUpdatedEventListener } from './services/network/events/networksUpdatedEventListener';
 export { isBridgeStateUpdateEventListener,isBridgeConfigUpdateEventListener, isBridgeTransferEventListener } from './services/bridge/events/listeners';
 export { isUnifiedBridgeStateUpdate, isUnifiedBridgeTransferStepChanged } from './services/unifiedBridge/events/eventFilters';
 export { lockStateChangedEventListener } from './services/lock/events/lockStateChangedEventListener';

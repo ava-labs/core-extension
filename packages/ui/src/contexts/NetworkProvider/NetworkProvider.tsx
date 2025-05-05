@@ -21,8 +21,6 @@ import {
   SetActiveNetworkHandler,
   SetDevelopermodeNetworkHandler,
   UpdateDefaultNetworkHandler,
-  isNetworkUpdatedEvent,
-  networksUpdatedEventListener,
 } from '@core/service-worker';
 import {
   getNetworkCaipId,
@@ -40,9 +38,11 @@ import {
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
-import { useAnalyticsContext } from './AnalyticsProvider';
-import { useConnectionContext } from './ConnectionProvider';
-import { networkChanged } from './NetworkProvider/networkChanges';
+import { useAnalyticsContext } from '../AnalyticsProvider';
+import { useConnectionContext } from '../ConnectionProvider';
+import { networkChanged } from './networkChanges';
+import { networksUpdatedEventListener } from './networksUpdatedEventListener';
+import { isNetworkUpdatedEvent } from './isNetworkUpdatedEvent';
 
 const NetworkContext = createContext<{
   network?: NetworkWithCaipId | undefined;

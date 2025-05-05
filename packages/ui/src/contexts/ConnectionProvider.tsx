@@ -15,7 +15,7 @@ import { EXTENSION_SCRIPT } from '@core/common';
 import { requestEngine } from '@/contexts/utils/connectionResponseMapper';
 import { Signal, ValueCache } from 'micro-signals';
 import { LoadingContent } from '@/popup/LoadingContent';
-import { networkChanges } from '@/contexts/NetworkProvider/networkChanges';
+import { networkChanges } from '@/contexts/NetworkProvider';
 
 const requestEngineCache = new ValueCache<ReturnType<typeof requestEngine>>();
 const requestEngineSignal = new Signal<ReturnType<typeof requestEngine>>();
