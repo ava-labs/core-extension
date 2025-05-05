@@ -6,10 +6,10 @@ import {
 } from '@core/types';
 import {
   isActionsUpdate,
-  isApprovalRequest,
 } from '@core/service-worker';
 
-import { useConnectionContext } from './ConnectionProvider';
+import { useConnectionContext } from '../ConnectionProvider';
+import { isApprovalRequest } from './isApprovalRequest';
 
 export const ApprovalsContext = createContext<{
   approval?: ApprovalRequest;
