@@ -48,32 +48,6 @@ export const functionDeclarations: FunctionDeclaration[] = [
     },
   },
   {
-    name: 'bridge',
-    description: `Send a token from one network to another.`,
-    parameters: {
-      type: SchemaType.OBJECT,
-      properties: {
-        amount: {
-          type: SchemaType.NUMBER,
-          description: `The amount of tokens to bridge`,
-        },
-        token: {
-          type: SchemaType.STRING,
-          description: 'The address of the token to be bridged',
-        },
-        sourceNetwork: {
-          type: SchemaType.STRING,
-          description: `The network's chainId to send the tokens from`,
-        },
-        destinationNetwork: {
-          type: SchemaType.STRING,
-          description: `The destination network's chainId`,
-        },
-      },
-      required: ['amount', 'token', 'sourceNetwork', 'destinationNetwork'],
-    },
-  },
-  {
     name: 'switchAccount',
     description: `Switches the currently active account`,
     parameters: {
@@ -146,5 +120,4 @@ export const systemPromptTemplate = `
     __TOKENS__
   The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
   All known tokens for the current network are listed in the following array: __KNOWN_TOKENS__
-  Bridging is only available the following networks and tokens: __BRIDGE_DATA__
 `;
