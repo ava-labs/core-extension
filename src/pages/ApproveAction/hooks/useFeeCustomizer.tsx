@@ -28,6 +28,7 @@ import {
   MultiTxAction,
   isBatchApprovalAction,
 } from '@src/background/services/actions/models';
+import { isAvalancheNetwork } from '@src/background/services/network/utils/isAvalancheNetwork';
 
 const getInitialFeeRate = (
   data?: SigningData | MultiTxFeeData,
@@ -85,6 +86,13 @@ export function useFeeCustomizer({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.SLOW,
   );
+
+  useEffect(() => {
+    if (network && isAvalancheNetwork(network)) {
+      setGasFeeModifier(GasFeeModifier.FAST);
+    }
+  }, [network]);
+
   const [isBatchApprovalScreen, setIsBatchApprovalScreen] = useState(false);
   const isFeeSelectorEnabled = Boolean(action?.displayData.networkFeeSelector);
 

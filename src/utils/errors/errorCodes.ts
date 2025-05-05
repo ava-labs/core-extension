@@ -20,6 +20,7 @@ export enum CommonError {
   UnableToSign = 'unable-to-sign',
   UnableToEstimateGas = 'unable-to-estimate-gas',
   UnsupportedTokenType = 'unsupported-token-type',
+  MismatchingProvider = 'mismatching-network-provider',
 }
 
 export enum LedgerError {
@@ -43,6 +44,7 @@ export enum SecretsError {
 export enum AccountError {
   EVMAddressNotFound = 'evm-address-not-found',
   BTCAddressNotFound = 'btc-address-not-found',
+  SVMAddressNotFound = 'svm-address-not-found',
   NoAddressesFound = 'no-addresses-found',
 }
 
