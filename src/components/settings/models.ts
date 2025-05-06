@@ -15,6 +15,7 @@ export enum SettingsPages {
   FEEDBACK = 'FEEDBACK',
   EXPORT_RECOVERY_PHRASE = 'EXPORT_RECOVERY_PHRASE',
   RECOVERY_METHODS = 'RECOVERY_METHODS',
+  NOTIFICATIONS = 'NOTIFICATIONS',
 }
 
 export interface SettingsPageProps {

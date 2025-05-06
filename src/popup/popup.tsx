@@ -45,6 +45,7 @@ import { NetworkFeeContextProvider } from '@src/contexts/NetworkFeeProvider';
 import LedgerSolanaAddressPrompt from '@src/pages/Ledger/LedgerSolanaAddressPrompt';
 import { SeedlessUpdatingAccountDialog } from '@src/components/common/seedless/SeedlessUpdatingAccountDialog';
 import { FirebaseContextProvider } from '@src/contexts/FirebaseProvider';
+import { NotificationsContextProvider } from '@src/contexts/NotificationsProvider';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -133,76 +134,78 @@ export function Popup() {
               <OnboardingContextProvider>
                 <NetworkFeeContextProvider>
                   <WalletContextProvider>
-                    <CurrenciesContextProvider>
-                      <BalancesProvider>
-                        <DefiContextProvider>
-                          <SwapContextProvider>
-                            <UnifiedBridgeProvider>
-                              <BridgeProvider>
-                                <ContactsContextProvider>
-                                  <PermissionContextProvider>
-                                    <WalletConnectContextProvider>
-                                      <SeedlessMfaManagementProvider>
-                                        <WalletLoading>
-                                          <ApprovalsContextProvider>
-                                            <FirebaseContextProvider>
-                                              <TestnetBanner />
-                                              <AnalyticsOptInDialog />
-                                              <Stack
-                                                sx={{
-                                                  flexGrow: 1,
-                                                  width: dimensions.width,
-                                                  maxHeight: 'auto',
-                                                  overflow: 'auto',
-                                                  alignItems: 'center',
-                                                  margin: 'auto',
-                                                }}
-                                              >
-                                                {displayHeader && (
-                                                  <Stack sx={{ width: 1 }}>
-                                                    <Header />
-                                                  </Stack>
-                                                )}
-
+                    <NotificationsContextProvider>
+                      <CurrenciesContextProvider>
+                        <BalancesProvider>
+                          <DefiContextProvider>
+                            <SwapContextProvider>
+                              <UnifiedBridgeProvider>
+                                <BridgeProvider>
+                                  <ContactsContextProvider>
+                                    <PermissionContextProvider>
+                                      <WalletConnectContextProvider>
+                                        <FirebaseContextProvider>
+                                          <SeedlessMfaManagementProvider>
+                                            <WalletLoading>
+                                              <ApprovalsContextProvider>
+                                                <TestnetBanner />
+                                                <AnalyticsOptInDialog />
                                                 <Stack
-                                                  direction="row"
                                                   sx={{
                                                     flexGrow: 1,
-                                                    justifyContent: 'center',
-                                                    py: isMiniMode ? 0 : 2,
-                                                    maxWidth: '100%',
-                                                    maxHeight: '100%',
-                                                    width: appWidth,
+                                                    width: dimensions.width,
+                                                    maxHeight: 'auto',
+                                                    overflow: 'auto',
+                                                    alignItems: 'center',
+                                                    margin: 'auto',
                                                   }}
                                                 >
-                                                  {isConfirm ? (
-                                                    <ApprovalRoutes />
-                                                  ) : (
-                                                    <AppRoutes />
+                                                  {displayHeader && (
+                                                    <Stack sx={{ width: 1 }}>
+                                                      <Header />
+                                                    </Stack>
                                                   )}
-                                                  <LedgerIncorrectDevice />
-                                                  <LedgerRegisterBtcWalletPolicy />
-                                                  <LedgerSolanaAddressPrompt />
-                                                  <SeedlessAuthPrompt />
-                                                  <SeedlessUpdatingAccountDialog />
-                                                  {isMiniMode && (
-                                                    <InAppApprovalOverlay />
-                                                  )}
+
+                                                  <Stack
+                                                    direction="row"
+                                                    sx={{
+                                                      flexGrow: 1,
+                                                      justifyContent: 'center',
+                                                      py: isMiniMode ? 0 : 2,
+                                                      maxWidth: '100%',
+                                                      maxHeight: '100%',
+                                                      width: appWidth,
+                                                    }}
+                                                  >
+                                                    {isConfirm ? (
+                                                      <ApprovalRoutes />
+                                                    ) : (
+                                                      <AppRoutes />
+                                                    )}
+                                                    <LedgerIncorrectDevice />
+                                                    <LedgerRegisterBtcWalletPolicy />
+                                                    <LedgerSolanaAddressPrompt />
+                                                    <SeedlessAuthPrompt />
+                                                    <SeedlessUpdatingAccountDialog />
+                                                    {isMiniMode && (
+                                                      <InAppApprovalOverlay />
+                                                    )}
+                                                  </Stack>
                                                 </Stack>
-                                              </Stack>
-                                            </FirebaseContextProvider>
-                                          </ApprovalsContextProvider>
-                                        </WalletLoading>
-                                      </SeedlessMfaManagementProvider>
-                                    </WalletConnectContextProvider>
-                                  </PermissionContextProvider>
-                                </ContactsContextProvider>
-                              </BridgeProvider>
-                            </UnifiedBridgeProvider>
-                          </SwapContextProvider>
-                        </DefiContextProvider>
-                      </BalancesProvider>
-                    </CurrenciesContextProvider>
+                                              </ApprovalsContextProvider>
+                                            </WalletLoading>
+                                          </SeedlessMfaManagementProvider>
+                                        </FirebaseContextProvider>
+                                      </WalletConnectContextProvider>
+                                    </PermissionContextProvider>
+                                  </ContactsContextProvider>
+                                </BridgeProvider>
+                              </UnifiedBridgeProvider>
+                            </SwapContextProvider>
+                          </DefiContextProvider>
+                        </BalancesProvider>
+                      </CurrenciesContextProvider>
+                    </NotificationsContextProvider>
                   </WalletContextProvider>
                 </NetworkFeeContextProvider>
               </OnboardingContextProvider>

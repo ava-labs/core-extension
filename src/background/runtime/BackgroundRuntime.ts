@@ -9,6 +9,7 @@ import { BridgeService } from '../services/bridge/BridgeService';
 import { AddressResolver } from '../services/secrets/AddressResolver';
 import { AppCheckService } from '@src/background/services/appcheck/AppCheckService';
 import { GasStationService } from '../services/gasless/GasStationService';
+import { NotificationsService } from '../services/notifications/NotificationsService';
 
 @singleton()
 export class BackgroundRuntime {
@@ -22,6 +23,7 @@ export class BackgroundRuntime {
     private addressResolver: AddressResolver,
     private appCheckService: AppCheckService,
     private gasStationService: GasStationService,
+    private notificationsService: NotificationsService,
   ) {}
 
   activate() {

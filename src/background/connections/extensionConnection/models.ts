@@ -173,4 +173,8 @@ export enum ExtensionRequest {
 
   FIREBASE_START_CHAT = 'firebase_start_chat',
   FIREBASE_SEND_MESSAGE = 'firebase_send_message',
+
+  NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
+  NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
+  NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
 }

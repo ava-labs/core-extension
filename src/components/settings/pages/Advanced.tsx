@@ -7,12 +7,15 @@ import {
   Switch,
   Tooltip,
   InfoCircleIcon,
+  ListItemButton,
+  ListItemIcon,
+  ChevronRightIcon,
 } from '@avalabs/core-k2-components';
 import { useBridgeContext } from '@src/contexts/BridgeProvider';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { isProductionBuild } from '@src/utils/environment';
 import { useHistory } from 'react-router-dom';
-import { SettingsPageProps } from '../models';
+import { SettingsPageProps, SettingsPages } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { useTranslation, Trans } from 'react-i18next';
 import { useSettingsContext } from '@src/contexts/SettingsProvider';
@@ -157,6 +160,30 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
             checked={showTokensWithoutBalances}
             onChange={() => toggleShowTokensWithoutBalanceSetting()}
           />
+        </ListItem>
+        <ListItem sx={{ p: 0 }}>
+          <ListItemButton
+            sx={{
+              justifyContent: 'space-between',
+              py: 1,
+              px: 2,
+              m: 0,
+              '&:hover': { borderRadius: 0 },
+            }}
+            data-testid="notification-settings-menu-item"
+            onClick={() => {
+              capture('NotificationSettingsClicked');
+              navigateTo(SettingsPages.NOTIFICATIONS);
+            }}
+          >
+            <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
+              {t('Notifications')}
+            </ListItemText>
+
+            <ListItemIcon>
+              <ChevronRightIcon size={24} />
+            </ListItemIcon>
+          </ListItemButton>
         </ListItem>
       </List>
     </Stack>

@@ -6,6 +6,7 @@ import {
   Messaging,
   NextFn,
   onBackgroundMessage,
+  isSupported as isSupportedBrowserByFcm,
 } from 'firebase/messaging/sw';
 import {
   FeatureFlagEvents,
@@ -13,8 +14,9 @@ import {
   FeatureGates,
 } from '../featureFlags/models';
 import { deleteToken, getToken, MessagePayload } from 'firebase/messaging';
-import { FcmMessageEvents, FirebaseEvents } from './models';
+import { FirebaseEvents } from './models';
 import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
+import { MESSAGE_EVENT as APPCHECK_MESSAGE_EVENT } from '../appcheck/AppCheckService';
 
 jest.mock('firebase/app');
 jest.mock('firebase/messaging');
@@ -29,11 +31,17 @@ describe('FirebaseService', () => {
   const appMock = { name: 'test' } as FirebaseApp;
   const messagingMock = { app: appMock } as Messaging;
 
+  const messageListeners = [
+    { type: 'test1', listener: jest.fn() },
+    { type: 'test2', listener: jest.fn() },
+  ];
+
   beforeEach(() => {
     jest.resetAllMocks();
     jest.mocked(initializeApp).mockReturnValue(appMock);
     jest.mocked(getMessaging).mockReturnValue(messagingMock);
     jest.mocked(isSupportedBrowser).mockReturnValue(true);
+    jest.mocked(isSupportedBrowserByFcm).mockResolvedValue(true);
 
     process.env = {
       ...realEnv,
@@ -86,6 +94,30 @@ describe('FirebaseService', () => {
 
     beforeEach(() => {
       jest.mocked(getToken).mockResolvedValue(fcmTokenMock);
+    });
+
+    it('does not initialize FCM when the browser is not supported', async () => {
+      jest.mocked(isSupportedBrowserByFcm).mockResolvedValueOnce(false);
+
+      const initializedEventListener = jest.fn();
+      const firebaseService = new FirebaseService(featureFlagService);
+
+      firebaseService.addFirebaseEventListener(
+        FirebaseEvents.FCM_INITIALIZED,
+        initializedEventListener,
+      );
+
+      // simulate FEATURE_FLAG_UPDATED event
+      await expect(
+        jest.mocked(featureFlagService.addListener).mock.calls[0]?.[1]({
+          [FeatureGates.FIREBASE_CLOUD_MESSAGING]: true,
+        } as FeatureFlags),
+      ).resolves.toBeUndefined();
+
+      expect(firebaseService.isFcmInitialized).toBe(false);
+      expect(firebaseService.getFcmToken()).toBe(undefined);
+      expect(getToken).not.toHaveBeenCalled();
+      expect(initializedEventListener).not.toHaveBeenCalled();
     });
 
     it('initializes FCM when the feature is enabled', async () => {
@@ -143,28 +175,52 @@ describe('FirebaseService', () => {
       expect(terminatedEventListener).toHaveBeenCalledTimes(1);
     });
 
-    it.each(Object.values(FcmMessageEvents))(
+    it('emits incoming messages to the AppCheck listeners correctly', async () => {
+      const messageListener = jest.fn();
+      const firebaseService = new FirebaseService(featureFlagService);
+
+      firebaseService.addFcmMessageListener(
+        APPCHECK_MESSAGE_EVENT,
+        messageListener,
+      );
+
+      const messageMock = {
+        data: {
+          event: APPCHECK_MESSAGE_EVENT,
+          foo: 'bar',
+        },
+      } as unknown as MessagePayload;
+
+      (
+        jest.mocked(onBackgroundMessage).mock
+          .calls[0]?.[1] as NextFn<MessagePayload>
+      )(messageMock);
+
+      expect(messageListener).toHaveBeenCalledTimes(1);
+      expect(messageListener).toHaveBeenCalledWith(messageMock);
+    });
+
+    it.each(messageListeners)(
       'emits incoming messages to the listeners correctly',
-      async (event) => {
+      async ({ type, listener }) => {
+        const firebaseService = new FirebaseService(featureFlagService);
+
+        firebaseService.addFcmMessageListener(type, listener);
+
         const messageMock = {
           data: {
-            event,
+            type,
             foo: 'bar',
           },
         } as unknown as MessagePayload;
-        const eventListener = jest.fn();
-        const firebaseService = new FirebaseService(featureFlagService);
 
-        firebaseService.addFcmMessageListener(event, eventListener);
-
-        // simulate incoming message
         (
           jest.mocked(onBackgroundMessage).mock
             .calls[0]?.[1] as NextFn<MessagePayload>
         )(messageMock);
 
-        expect(eventListener).toHaveBeenCalledTimes(1);
-        expect(eventListener).toHaveBeenCalledWith(messageMock);
+        expect(listener).toHaveBeenCalledTimes(1);
+        expect(listener).toHaveBeenCalledWith(messageMock);
       },
     );
   });

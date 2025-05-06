@@ -12,10 +12,6 @@ export enum FirebaseEvents {
   FCM_TERMINATED = 'FCM_TERMINATED',
 }
 
-export enum FcmMessageEvents {
-  ID_CHALLENGE = 'ID_CHALLENGE',
-}
-
 export type FcmMessageListener = (
   payload: MessagePayload,
 ) => unknown | Promise<unknown>;

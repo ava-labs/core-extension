@@ -5,10 +5,10 @@ import {
   getMessaging,
   MessagePayload,
   onBackgroundMessage,
+  isSupported as isSupportedBrowserByFcm,
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
 import {
-  FcmMessageEvents,
   FirebaseEvents,
   FcmMessageListener,
   ChatConfig,
@@ -26,6 +26,7 @@ import {
   GenerativeModel,
   Content,
 } from 'firebase/vertexai';
+import { MESSAGE_EVENT as APPCHECK_MESSAGE_EVENT } from '../appcheck/AppCheckService';
 
 @singleton()
 export class FirebaseService {
@@ -36,6 +37,7 @@ export class FirebaseService {
   #fcmMessageEventEmitter = new EventEmitter();
   #model?: GenerativeModel;
   #config?: ChatConfig;
+  #fcmMessageHandlers: Record<string, (payload: MessagePayload) => void> = {};
 
   constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
@@ -57,6 +59,12 @@ export class FirebaseService {
     this.featureFlagService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
       async (featureFlags) => {
+        const isSupported = await isSupportedBrowserByFcm();
+
+        if (!isSupported) {
+          return;
+        }
+
         try {
           if (
             this.#isFcmInitialized &&
@@ -108,8 +116,13 @@ export class FirebaseService {
     this.#firebaseEventEmitter.on(event, callback);
   }
 
-  addFcmMessageListener(event: FcmMessageEvents, listener: FcmMessageListener) {
-    this.#fcmMessageEventEmitter.on(event, listener);
+  addFcmMessageListener(type: string, listener: FcmMessageListener) {
+    if (this.#fcmMessageHandlers[type]) {
+      throw new Error(`Message handler for type ${type} already exists`);
+    }
+
+    this.#fcmMessageEventEmitter.on(type, listener);
+    this.#fcmMessageHandlers[type] = listener;
   }
 
   #getModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
@@ -165,10 +178,15 @@ export class FirebaseService {
   }
 
   async #handleMessage(payload: MessagePayload) {
-    const event = payload.data?.event ?? '';
+    // TODO: remove this once we can set type for ID challenges
+    if (payload.data?.event === APPCHECK_MESSAGE_EVENT) {
+      this.#fcmMessageEventEmitter.emit(payload.data.event, payload);
+    }
 
-    if (Object.values(FcmMessageEvents).includes(event as FcmMessageEvents)) {
-      this.#fcmMessageEventEmitter.emit(event, payload);
+    const type = payload.data?.type ?? '';
+
+    if (this.#fcmMessageHandlers[type]) {
+      this.#fcmMessageEventEmitter.emit(type, payload);
     }
   }
 }
