@@ -1,4 +1,3 @@
-import { FcmMessageEvents } from '../firebase/models';
 import * as Sentry from '@sentry/browser';
 
 export type ChallengeRequest = {
@@ -24,6 +23,6 @@ export type AppCheckRegistrationChallenge = {
   requestId: string;
   registrationId: string;
   type: ChallengeTypes;
-  event: FcmMessageEvents.ID_CHALLENGE;
+  event: string;
   details: string;
 };
