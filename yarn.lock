@@ -5014,6 +5014,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch":
+  version: 0.12.17
+  resolution: "@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch::version=0.12.17&hash=4a301b"
+  dependencies:
+    "@firebase/component": "npm:0.6.13"
+    "@firebase/installations": "npm:0.6.13"
+    "@firebase/messaging-interop-types": "npm:0.2.3"
+    "@firebase/util": "npm:1.11.0"
+    idb: "npm:7.1.1"
+    tslib: "npm:^2.1.0"
+  peerDependencies:
+    "@firebase/app": 0.x
+  checksum: 10c0/50de2374960bffdd79eb6f7a3295f0cf1134b9c749f114505e7d3cd7da528ab4c4eadd09e9757e061f02985fdc100d1090e3eb97b23a20a691169166490e483d
+  languageName: node
+  linkType: hard
+
 "@firebase/performance-compat@npm:0.2.15":
   version: 0.2.15
   resolution: "@firebase/performance-compat@npm:0.2.15"
