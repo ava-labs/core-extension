@@ -1,4 +1,11 @@
 import { MessagePayload } from 'firebase/messaging';
+import {
+  Content,
+  GenerationConfig,
+  Part,
+  Tool,
+  ToolConfig,
+} from 'firebase/vertexai';
 
 export enum FirebaseEvents {
   FCM_INITIALIZED = 'FCM_INITIALIZED',
@@ -8,3 +15,12 @@ export enum FirebaseEvents {
 export type FcmMessageListener = (
   payload: MessagePayload,
 ) => unknown | Promise<unknown>;
+
+export interface ConfigParams {
+  tools?: Tool[];
+  toolConfig?: ToolConfig;
+  systemInstruction?: string | Part | Content;
+}
+export interface ChatConfig extends ConfigParams {
+  generationConfig: GenerationConfig;
+}

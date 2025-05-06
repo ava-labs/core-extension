@@ -134,6 +134,10 @@ import { GetGaslessEligibilityHandler } from '@src/background/services/gasless/h
 import { FetchAndSolveChallengeHandler } from '@src/background/services/gasless/handlers/fetchAndSolveChallenge';
 import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/events/gaslessChallangeUpdateEvent';
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
+import { SetCoreAssistantHandler } from '@src/background/services/settings/handlers/setCoreAssistant';
+import { FirebaseStartChatHandler } from '@src/background/services/firebase/handlers/startChat';
+import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
+
 import { AppendSolanaPublicKeysHandler } from '@src/background/services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '@src/background/services/seedless/handlers/deriveMissingKeys';
 import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
@@ -405,6 +409,18 @@ import { SubscriptionsChangedEvents } from '@src/background/services/notificatio
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDefaultStateValuesHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetCoreAssistantHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FirebaseStartChatHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: FirebaseSendMessageHandler,
   },
   {
     token: 'ExtensionRequestHandler',

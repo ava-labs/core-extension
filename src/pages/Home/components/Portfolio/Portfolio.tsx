@@ -22,6 +22,8 @@ import { usePersistedTabs } from '@src/hooks/usePersistedTabs';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { FAB } from '@src/components/common/fab/FAB';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
+import { Prompt } from './Prompt/Prompt';
+import { useSettingsContext } from '@src/contexts/SettingsProvider';
 
 export enum PortfolioTabs {
   ASSETS,
@@ -61,6 +63,7 @@ export function Portfolio() {
   const [listType, setListType] = useState<ListType>();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
   const { getPageHistoryData } = usePageHistory();
+  const { coreAssistant } = useSettingsContext();
 
   const {
     listType: historyListType,
@@ -157,6 +160,9 @@ export function Portfolio() {
       <WalletBalances />
       <FAB isContentScrolling={isScrolling} />
       <Stack sx={{ flexGrow: 1 }}>
+        {coreAssistant && featureFlags[FeatureGates.CORE_ASSISTANT] && (
+          <Prompt />
+        )}
         <Box sx={{ mx: 2, mt: 1, borderBottom: 1, borderColor: 'divider' }}>
           {tabs}
         </Box>
