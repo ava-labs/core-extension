@@ -9,7 +9,7 @@ import {
 import { MessagePayload } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
 import { FirebaseService } from '../firebase/FirebaseService';
-import { FcmMessageEvents, FirebaseEvents } from '../firebase/models';
+import { FirebaseEvents } from '../firebase/models';
 import { AppCheckRegistrationChallenge, ChallengeRequest } from './models';
 import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';
@@ -17,6 +17,7 @@ import solveChallenge from './utils/solveChallenge';
 
 export const WAIT_FOR_CHALLENGE_ATTEMPT_COUNT = 20;
 export const WAIT_FOR_CHALLENGE_DELAY_MS = 500;
+export const MESSAGE_EVENT = 'ID_CHALLENGE';
 
 // Implementation based on https://github.com/ava-labs/core-id-service/blob/main/docs/extension-appcheck-attestation.md
 @singleton()
@@ -27,9 +28,8 @@ export class AppCheckService {
   constructor(private firebaseService: FirebaseService) {}
 
   activate(): void {
-    this.firebaseService.addFcmMessageListener(
-      FcmMessageEvents.ID_CHALLENGE,
-      (payload) => this.#handleMessage(payload),
+    this.firebaseService.addFcmMessageListener(MESSAGE_EVENT, (payload) =>
+      this.#handleMessage(payload),
     );
 
     this.firebaseService.addFirebaseEventListener(
@@ -159,7 +159,7 @@ export class AppCheckService {
   #handleMessage(payload: MessagePayload) {
     const event = payload.data?.event;
 
-    if (event !== FcmMessageEvents.ID_CHALLENGE) {
+    if (event !== MESSAGE_EVENT) {
       throw new Error(`Unsupported event: "${event}"`);
     }
 

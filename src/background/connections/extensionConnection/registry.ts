@@ -136,6 +136,11 @@ import { GaslessChallangeUpdateEvent } from '@src/background/services/gasless/ev
 import { SetDefaultStateValuesHandler } from '@src/background/services/gasless/handlers/setDefaultStateValues';
 import { AppendSolanaPublicKeysHandler } from '@src/background/services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '@src/background/services/seedless/handlers/deriveMissingKeys';
+import { SubscribeToNotification } from '@src/background/services/notifications/handlers/subscribe';
+import { UnsubscribeFromNotification } from '@src/background/services/notifications/handlers/unsubscribe';
+import { GetNotificationSubscriptions } from '@src/background/services/notifications/handlers/getSubscriptions';
+import { SubscriptionsChangedEvents } from '@src/background/services/notifications/events/subscriptionsChangedEvent';
+
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
  * There is no automatic module discovery in ts like available in java,
@@ -409,6 +414,18 @@ import { DeriveMissingKeysHandler } from '@src/background/services/seedless/hand
     token: 'ExtensionRequestHandler',
     useToken: DeriveMissingKeysHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SubscribeToNotification,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: UnsubscribeFromNotification,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetNotificationSubscriptions,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -440,5 +457,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: UnifiedBridgeEvents },
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
+  { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

@@ -117,7 +117,10 @@ export const useTokensWithBalances = (
         }>((tokensWithBalances, [address, tokenData]) => {
           tokensWithBalances[address.toLowerCase()] = {
             ...tokenData,
-            type: TokenType.ERC20,
+            type:
+              tokenData.contractType === 'SPL'
+                ? TokenType.SPL
+                : TokenType.ERC20,
             balance: 0n,
             balanceDisplayValue: '0',
             reputation: null,

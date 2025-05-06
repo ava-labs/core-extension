@@ -6,15 +6,25 @@ import { USDC_ADDRESSES } from '@src/utils/constants';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
 import { usePageHistory } from '@src/hooks/usePageHistory';
 import { useSendAnalyticsData } from '@src/hooks/useSendAnalyticsData';
-import { useSwap } from './useSwap';
 import { DISALLOWED_SWAP_ASSETS } from '@src/contexts/SwapProvider/models';
 import { stringToBigint } from '@src/utils/stringToBigint';
 
 import { Amount, DestinationInput, getTokenAddress } from '../utils';
 import { useTokensBySymbols } from './useTokensBySymbols';
 import { SwappableToken } from '../models';
+import { useSwapContext } from '@src/contexts/SwapProvider';
 
 export function useSwapStateFunctions() {
+  const {
+    setError,
+    destAmount,
+    setDestAmount,
+    swapFormValuesStream,
+    error,
+    isSwapLoading,
+    setIsSwapLoading,
+    quote,
+  } = useSwapContext();
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
@@ -39,18 +49,18 @@ export function useSwapStateFunctions() {
   const [defaultFromValue, setFromDefaultValue] = useState<bigint>();
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
+  const [slippageTolerance, setSlippageTolerance] = useState('1');
 
-  const {
-    setValuesDebouncedSubject,
-    swapError,
-    isSwapLoading,
-    setIsSwapLoading,
-    optimalRate,
-    swapGasLimit,
-    destAmount,
-    setDestAmount,
-    setSwapError,
-  } = useSwap();
+  const updateSlippage = useCallback(
+    (value: string) => {
+      setSlippageTolerance(value);
+      swapFormValuesStream.next({
+        ...swapFormValuesStream.getValue(),
+        slippageTolerance: value,
+      });
+    },
+    [swapFormValuesStream],
+  );
 
   const calculateTokenValueToInput = useCallback(
     (
@@ -65,8 +75,8 @@ export function useSwapStateFunctions() {
 
       setSwapWarning('');
       setDestinationInputField(destinationInput);
-      setValuesDebouncedSubject.next({
-        ...setValuesDebouncedSubject.getValue(),
+      swapFormValuesStream.next({
+        ...swapFormValuesStream.getValue(),
         fromTokenAddress: getTokenAddress(sourceToken),
         toTokenAddress: getTokenAddress(destinationToken),
         fromTokenDecimals: sourceToken.decimals,
@@ -74,9 +84,10 @@ export function useSwapStateFunctions() {
         amount,
         destinationInputField: destinationInput,
         fromTokenBalance: sourceToken?.balance,
+        slippageTolerance,
       });
     },
-    [setValuesDebouncedSubject],
+    [swapFormValuesStream, slippageTolerance],
   );
 
   const { $NATIVE, USDC } = useTokensBySymbols({
@@ -147,13 +158,13 @@ export function useSwapStateFunctions() {
         setSelectedToToken(USDC);
       }
 
-      setValuesDebouncedSubject.next({
-        ...setValuesDebouncedSubject.getValue(),
+      swapFormValuesStream.next({
+        ...swapFormValuesStream.getValue(),
         amount: undefined,
         destinationInputField: undefined,
       });
     },
-    [setValuesDebouncedSubject, $NATIVE, USDC],
+    [swapFormValuesStream, $NATIVE, USDC],
   );
 
   const calculateSwapValue = ({
@@ -196,7 +207,7 @@ export function useSwapStateFunctions() {
       );
       return;
     }
-    setSwapError({ message: '' });
+    setError({ message: '' });
     setSelectedFromToken(toToken);
     setSelectedToToken(fromToken);
     setIsReversed((reversed) => reversed);
@@ -340,7 +351,7 @@ export function useSwapStateFunctions() {
     sendAmountEnteredAnalytics('Swap');
   };
 
-  const getSwapValues = () => setValuesDebouncedSubject.getValue();
+  const getSwapValues = () => swapFormValuesStream.getValue();
 
   return {
     calculateTokenValueToInput,
@@ -348,20 +359,21 @@ export function useSwapStateFunctions() {
     onTokenChange,
     onFromInputAmountChange,
     onToInputAmountChange,
-    setValuesDebouncedSubject,
+    swapFormValuesStream,
     selectedFromToken,
-    swapGasLimit,
     selectedToToken,
     destinationInputField,
     fromTokenValue,
-    swapError: swapError.message ? swapError : null,
+    swapError: error.message ? error : null,
     isLoading: isSwapLoading,
     defaultFromValue,
     swapWarning,
     isReversed,
     toTokenValue,
-    optimalRate,
+    quote,
     destAmount,
+    slippageTolerance,
+    updateSlippage,
     getSwapValues,
     resetValues,
   };

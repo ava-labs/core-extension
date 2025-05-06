@@ -12232,6 +12232,7 @@ __metadata:
     "@sentry/browser": "npm:7.66.0"
     "@sentry/integrations": "npm:7.66.0"
     "@sentry/react": "npm:7.66.0"
+    "@solana-program/token": "npm:0.5.1"
     "@testing-library/react": "npm:12.1.5"
     "@testing-library/react-hooks": "npm:8.0.1"
     "@types/argon2-browser": "npm:1.18.4"
@@ -12346,6 +12347,7 @@ __metadata:
     webpack-cli: "npm:4.9.2"
     webpack-merge: "npm:5.8.0"
     xss: "npm:1.0.13"
+    zod: "npm:3.23.8"
     zxcvbn: "npm:4.4.2"
   languageName: unknown
   linkType: soft
