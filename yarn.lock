@@ -4786,6 +4786,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@firebase/component@npm:0.6.11":
+  version: 0.6.11
+  resolution: "@firebase/component@npm:0.6.11"
+  dependencies:
+    "@firebase/util": "npm:1.10.2"
+    tslib: "npm:^2.1.0"
+  checksum: 10c0/788d66a0acb506507042173d1906edaf533ca68405f84aed16f33d8f2a130a8796e2f5c2d80177fc6c1826b74ea510da4541df9c381f6bf0f2b5417d3527797c
+  languageName: node
+  linkType: hard
+
 "@firebase/component@npm:0.6.13":
   version: 0.6.13
   resolution: "@firebase/component@npm:0.6.13"
@@ -4954,6 +4964,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@firebase/installations@npm:0.6.11":
+  version: 0.6.11
+  resolution: "@firebase/installations@npm:0.6.11"
+  dependencies:
+    "@firebase/component": "npm:0.6.11"
+    "@firebase/util": "npm:1.10.2"
+    idb: "npm:7.1.1"
+    tslib: "npm:^2.1.0"
+  peerDependencies:
+    "@firebase/app": 0.x
+  checksum: 10c0/4af7d5d7d9c4a0792a3ecfef510410b426beec085ae8cc6ae71b79fec47c68976239744c004d0239f5c759005f32cd5fb35d80c0f4725d8b47b4970ec5745ce0
+  languageName: node
+  linkType: hard
+
 "@firebase/installations@npm:0.6.13":
   version: 0.6.13
   resolution: "@firebase/installations@npm:0.6.13"
@@ -4998,35 +5022,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firebase/messaging@npm:0.12.17":
-  version: 0.12.17
-  resolution: "@firebase/messaging@npm:0.12.17"
+"@firebase/messaging@npm:0.12.15":
+  version: 0.12.15
+  resolution: "@firebase/messaging@npm:0.12.15"
   dependencies:
-    "@firebase/component": "npm:0.6.13"
-    "@firebase/installations": "npm:0.6.13"
+    "@firebase/component": "npm:0.6.11"
+    "@firebase/installations": "npm:0.6.11"
     "@firebase/messaging-interop-types": "npm:0.2.3"
-    "@firebase/util": "npm:1.11.0"
+    "@firebase/util": "npm:1.10.2"
     idb: "npm:7.1.1"
     tslib: "npm:^2.1.0"
   peerDependencies:
     "@firebase/app": 0.x
-  checksum: 10c0/4f421a0220659611e31188e02e6020f5e7498669a1d1a6e3775851976a1e39940a3926e3707aff861dc0415d7bb7682c535b4b43931b3808d998ca079dd0e59c
+  checksum: 10c0/d3922785d8cbc83f5656250a75911e10d74c05337d67b79188dd8049917de97bd73ad7e15b335dd9680b2c0813dadf52e29864dcaf50f465f2a551223abb9231
   languageName: node
   linkType: hard
 
-"@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch":
-  version: 0.12.17
-  resolution: "@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch::version=0.12.17&hash=4a301b"
+"@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch":
+  version: 0.12.15
+  resolution: "@firebase/messaging@patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch::version=0.12.15&hash=a408fa"
   dependencies:
-    "@firebase/component": "npm:0.6.13"
-    "@firebase/installations": "npm:0.6.13"
+    "@firebase/component": "npm:0.6.11"
+    "@firebase/installations": "npm:0.6.11"
     "@firebase/messaging-interop-types": "npm:0.2.3"
-    "@firebase/util": "npm:1.11.0"
+    "@firebase/util": "npm:1.10.2"
     idb: "npm:7.1.1"
     tslib: "npm:^2.1.0"
   peerDependencies:
     "@firebase/app": 0.x
-  checksum: 10c0/50de2374960bffdd79eb6f7a3295f0cf1134b9c749f114505e7d3cd7da528ab4c4eadd09e9757e061f02985fdc100d1090e3eb97b23a20a691169166490e483d
+  checksum: 10c0/8923f82155ecc28e78ab5bd08cb6a3afe08014730911a297290777207ee4a55acce2a2aece665c506c9dd125767d9e4a4a76edc8a7715603afc560c61fcf79a5
   languageName: node
   linkType: hard
 
@@ -5142,6 +5166,15 @@ __metadata:
   peerDependencies:
     "@firebase/app": 0.x
   checksum: 10c0/0d54e4c669e05be43bd92fb49721d8ab4fb182e61462570280bb05ab47e7469ca6ed3050c838b524f9fe97641f71329a3fe13692927623bbadb36715af5068b0
+  languageName: node
+  linkType: hard
+
+"@firebase/util@npm:1.10.2":
+  version: 1.10.2
+  resolution: "@firebase/util@npm:1.10.2"
+  dependencies:
+    tslib: "npm:^2.1.0"
+  checksum: 10c0/d6abb471948517cc9c560ebbb44e9e135716829c3abcd248a1af8aa111e48311ab410b693adc8f3bfe3b564896da7000dd7e26e34ecf59326f3b204a6a8b123c
   languageName: node
   linkType: hard
 
