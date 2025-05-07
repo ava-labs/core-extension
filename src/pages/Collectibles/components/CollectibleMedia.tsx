@@ -113,7 +113,7 @@ export function CollectibleMedia({
           justifyContent: 'flex-end',
           alignItems: 'flex-end',
           columnGap: 1,
-          zIndex: 3,
+          zIndex: 1,
           mr: 3,
           mt: 1,
           pr: 1,
