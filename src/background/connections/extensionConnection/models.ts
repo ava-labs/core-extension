@@ -80,6 +80,7 @@ export enum ExtensionRequest {
   SETTINGS_GET_DEFAULT_EXTENSION = 'settings_get_default_extension',
   SETTINGS_SET_ANALYTICS_CONSENT = 'settings_set_analytics_consent',
   SETTINGS_SET_LANGUAGE = 'settings_set_language',
+  SETTINGS_SET_CORE_ASSISTANT = 'settings_set_core_assistant',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',
@@ -169,6 +170,9 @@ export enum ExtensionRequest {
   GASLESS_SET_DEFAUlT_STATE_VALUES = 'gasless_set_default_state_values',
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
+
+  FIREBASE_START_CHAT = 'firebase_start_chat',
+  FIREBASE_SEND_MESSAGE = 'firebase_send_message',
 
   NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',

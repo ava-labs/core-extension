@@ -61,6 +61,7 @@
     "@cubist-labs/cubesigner-sdk-ethers-v6": "0.3.28",
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
+    "@google/generative-ai": "0.22.0",
     "@hpke/core": "1.2.5",
     "@keystonehq/animated-qr": "0.5.2",
     "@keystonehq/bc-ur-registry-eth": "0.15.2",
@@ -94,7 +95,7 @@
     "eth-rpc-errors": "4.0.3",
     "ethers": "6.13.5",
     "events": "3.3.0",
-    "firebase": "11.1.0",
+    "firebase": "11.6.0",
     "fireblocks-sdk": "5.20.0",
     "hypersdk-client": "0.4.17",
     "i18next": "21.9.2",
@@ -125,6 +126,7 @@
     "semver": "7.6.0",
     "tsyringe": "4.8.0",
     "tweetnacl": "1.0.3",
+    "typewriter-effect": "2.21.0",
     "web3": "1.8.2",
     "xss": "1.0.13",
     "zod": "3.23.8",
@@ -234,7 +236,7 @@
     "@ledgerhq/hw-transport": "6.30.6",
     "jest-runner@npm:^29.7.0": "patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch",
     "jest-runner@npm:^27.5.1": "patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch",
-    "@firebase/messaging@npm:0.12.15": "patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch"
+    "@firebase/messaging@npm:0.12.17": "patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch"
   },
   "prettier": {
     "tabWidth": 2,
@@ -298,6 +300,7 @@
       "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography>keccak": false,
       "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
+      "firebase>@firebase/app>@firebase/util": false,
       "@rsbuild/core>core-js": false
     }
   },

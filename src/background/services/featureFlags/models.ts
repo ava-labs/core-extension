@@ -54,6 +54,7 @@ export enum FeatureGates {
   ONE_CLICK_SWAP = 'one-click-swap',
   GASLESS = 'gasless',
   SOLANA_SUPPORT = 'solana-support',
+  CORE_ASSISTANT = 'core-assistant',
 }
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
@@ -114,6 +115,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.ONE_CLICK_SWAP]: false,
   [FeatureGates.GASLESS]: false,
   [FeatureGates.SOLANA_SUPPORT]: false,
+  [FeatureGates.CORE_ASSISTANT]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -173,6 +175,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.ONE_CLICK_SWAP]: true,
   [FeatureGates.GASLESS]: true,
   [FeatureGates.SOLANA_SUPPORT]: true,
+  [FeatureGates.CORE_ASSISTANT]: true,
 };
 
 export enum FeatureFlagEvents {
