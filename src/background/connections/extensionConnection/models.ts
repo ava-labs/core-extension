@@ -171,7 +171,7 @@ export enum ExtensionRequest {
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
 
-  FIREBASE_START_CHAT = 'firebase_start_chat',
+  FIREBASE_SET_MODEL = 'firebase_set_model',
   FIREBASE_SEND_MESSAGE = 'firebase_send_message',
 
   NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
