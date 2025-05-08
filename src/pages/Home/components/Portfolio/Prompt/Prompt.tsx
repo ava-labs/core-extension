@@ -43,6 +43,7 @@ import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function Prompt() {
   const theme = useTheme();
@@ -58,6 +59,7 @@ export function Prompt() {
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
+  const { capture } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
@@ -360,8 +362,11 @@ export function Prompt() {
           // with the arguments specified in the function call and
           // let it call the hypothetical API.
           try {
+            capture('CoreAssistantFunctionCall', {
+              functionName: call.name,
+              message,
+            });
             const apiResponse = await functions[call.name](call.args);
-
             // Send the API response back to the model so it can generate
             // a text response that can be displayed to the user.
             const functionResult = await sendMessage(message, [
@@ -424,6 +429,11 @@ export function Prompt() {
         }
       } catch (e: any) {
         sentryCaptureException(e as Error, SentryExceptionTypes.AI_AGENT);
+        capture('CoreAssistantFunctionCallError', {
+          errorName: e.name || '',
+          errorMessage: e.message || '',
+          userMessage: message,
+        });
         if (e.name === 'FirebaseError') {
           setPrompts((prev) => {
             return [
@@ -462,7 +472,7 @@ export function Prompt() {
         setIsTyping(false);
       }
     },
-    [functions, sendMessage, setPrompts, setModel, systemPrompt],
+    [setPrompts, setModel, systemPrompt, sendMessage, functions, capture],
   );
 
   return (
