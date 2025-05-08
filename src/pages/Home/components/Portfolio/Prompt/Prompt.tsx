@@ -40,6 +40,9 @@ import {
 import { useFirebaseContext } from '@src/contexts/FirebaseProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
 
 export function Prompt() {
   const theme = useTheme();
@@ -412,11 +415,15 @@ export function Prompt() {
             });
           }
         } else {
+          if (!response.text) {
+            throw new Error('EMPTY_RESPONSE');
+          }
           setPrompts((prev) => {
             return [...prev, { role: 'model', content: response.text }];
           });
         }
       } catch (e: any) {
+        sentryCaptureException(e as Error, SentryExceptionTypes.AI_AGENT);
         if (e.name === 'FirebaseError') {
           setPrompts((prev) => {
             return [
@@ -425,6 +432,17 @@ export function Prompt() {
                 role: 'model',
                 content:
                   'Whooops... There is something wrong with the service please try again later!',
+              },
+            ];
+          });
+        } else if (e.message === 'EMPTY_RESPONSE') {
+          setPrompts((prev) => {
+            return [
+              ...prev,
+              {
+                role: 'model',
+                content:
+                  "I'm sorry but I cannot fullfil your request at the moment. You can try again later!",
               },
             ];
           });

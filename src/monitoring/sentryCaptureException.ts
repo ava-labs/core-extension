@@ -10,6 +10,8 @@ export enum SentryExceptionTypes {
 
   SWAP = 'swap',
 
+  AI_AGENT = 'aiAgent',
+
   // ledger
   LEDGER = 'ledger',
 
