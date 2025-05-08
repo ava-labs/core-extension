@@ -53,7 +53,7 @@ export function Prompt() {
   const { swap, getRate } = useSwapContext();
   const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
-  const { startChat, sendMessage, prompts, setPrompts } = useFirebaseContext();
+  const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
 
   const tokens = useTokensWithBalances();
@@ -308,8 +308,9 @@ export function Prompt() {
         return [...prev, { role: 'user', content: message }];
       });
       setInput('');
-      if (!isModelReady.current) {
-        await startChat({
+
+      try {
+        await setModel({
           tools: [
             {
               functionDeclarations,
@@ -325,11 +326,13 @@ export function Prompt() {
           .then(() => {
             isModelReady.current = true;
           })
-          .catch(() => {
-            isModelReady.current = false;
+          .catch((e) => {
+            if (isModelReady.current) {
+              console.error('Failed to update the model configuration');
+            }
+            throw new Error(e);
           });
-      }
-      try {
+
         const response = await sendMessage(message);
 
         // For simplicity, this uses the first function call found.
@@ -426,7 +429,7 @@ export function Prompt() {
         setIsTyping(false);
       }
     },
-    [functions, sendMessage, setPrompts, startChat, systemPrompt],
+    [functions, sendMessage, setPrompts, setModel, systemPrompt],
   );
 
   return (

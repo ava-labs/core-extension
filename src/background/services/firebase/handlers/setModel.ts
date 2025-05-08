@@ -5,20 +5,20 @@ import { FirebaseService } from '../FirebaseService';
 import { ConfigParams } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.FIREBASE_START_CHAT,
+  ExtensionRequest.FIREBASE_SET_MODEL,
   boolean,
   ConfigParams
 >;
 
 @injectable()
-export class FirebaseStartChatHandler implements HandlerType {
-  method = ExtensionRequest.FIREBASE_START_CHAT as const;
+export class FirebaseSetModelHandler implements HandlerType {
+  method = ExtensionRequest.FIREBASE_SET_MODEL as const;
 
   constructor(private firebaseService: FirebaseService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const { tools, toolConfig, systemInstruction } = request.params;
-    const chat = await this.firebaseService.startChat({
+    const chat = await this.firebaseService.setModel({
       tools,
       toolConfig,
       systemInstruction,
