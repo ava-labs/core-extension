@@ -1,0 +1,31 @@
+{
+  "name": "@core/inpage",
+  "packageManager": "yarn@4.7.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "rsbuild build -w --config rsbuild.inpage.ts",
+    "build": "rsbuild build --config rsbuild.inpage.ts",
+    "lint": "eslint --fix \"src/**/*.ts*\"",
+    "prettify": "prettier --write \"src/**/*.ts*\"",
+    "typecheck": "yarn tsc --skipLibCheck --noEmit"
+  },
+  "dependencies": {
+    "@avalabs/evm-module": "1.6.2",
+    "@avalabs/svm-module": "1.6.2",
+    "@core/common": "workspace:*",
+    "@core/messaging": "workspace:*",
+    "@core/types": "workspace:*",
+    "eth-rpc-errors": "4.0.3",
+    "events": "3.3.0"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "1.3.3",
+    "@rsbuild/plugin-node-polyfill": "1.3.0",
+    "@rsbuild/plugin-react": "1.1.1",
+    "@rsdoctor/rspack-plugin": "1.0.2",
+    "@rspack/core": "1.3.2",
+    "ethers": "6.13.5",
+    "typescript": "5.7.3"
+  }
+}

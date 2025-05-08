@@ -1,11 +1,12 @@
 import React, { FC, ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import {
+  PartialBy,
   JsonRpcRequestParams,
   JsonRpcRequestPayload,
-} from '@src/background/connections/dAppConnection/models';
-import { PartialBy } from '@src/background/models';
-import { CommonError, ErrorCode } from '@src/utils/errors';
+  CommonError,
+  ErrorCode,
+} from '@core/types';
 
 const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
   // K2 ThemeProvider causes issues here.
