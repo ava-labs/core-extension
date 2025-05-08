@@ -430,8 +430,8 @@ export function Prompt() {
       } catch (e: any) {
         sentryCaptureException(e as Error, SentryExceptionTypes.AI_AGENT);
         capture('CoreAssistantFunctionCallError', {
-          errorName: e.name || '',
-          errorMessage: e.message || '',
+          errorName: e.name,
+          errorMessage: e.message,
           userMessage: message,
         });
         if (e.name === 'FirebaseError') {
