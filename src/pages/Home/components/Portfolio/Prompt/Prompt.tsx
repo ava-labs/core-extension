@@ -364,7 +364,7 @@ export function Prompt() {
           try {
             capture('CoreAssistantFunctionCall', {
               functionName: call.name,
-              message,
+              userMessage: message,
             });
             const apiResponse = await functions[call.name](call.args);
             // Send the API response back to the model so it can generate
