@@ -5,11 +5,18 @@
   "private": true,
   "scripts": {
     "start": "yarn dev",
+    "rsbuild:build:inpage": "rsbuild build --config rsbuild.inpage.ts",
+    "rsbuild:dev:inpage": "rsbuild dev --config rsbuild.inpage.ts",
     "build:inpage": "webpack --config webpack.inpage.js",
     "dev:inpage": "webpack -w --config webpack.inpage.js",
     "build": "yarn run build:inpage --mode=production && webpack --config webpack.prod.js",
     "build:alpha": "yarn run build:inpage --mode=production && webpack --config webpack.alpha.js",
     "dev": "yarn run build:inpage && webpack -w --config webpack.dev.js",
+    "rsbuild:build": "yarn run rsbuild:build:inpage && rsbuild build --config rsbuild.prod.ts",
+    "rsbuild:build:alpha": "yarn run rsbuild:build:inpage && rsbuild build --config resbuild.alpha.ts",
+    "rsbuild:dev": "yarn run rsbuild:build:inpage && rsbuild build -w --config rsbuild.dev.ts",
+    "rsbuild:dev:rsdoctor": "RSDOCTOR=true rsbuild build --config rsbuild.dev.ts",
+    "rsbuild:dev:inspect": "yarn run rsbuild:build:inpage && rsbuild inspect --verbose --config rsbuild.dev.ts",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit",
     "postinstall": "husky install",
@@ -22,6 +29,9 @@
     "scanner": "i18next-scanner --config i18next-scanner.config.js",
     "sentry": "node sentryscript.js"
   },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
   "dependencies": {
     "@avalabs/avalanche-module": "1.9.0",
     "@avalabs/avalanchejs": "4.2.0-alpha.1",
@@ -137,6 +147,11 @@
     "@google/semantic-release-replace-plugin": "1.1.0",
     "@lavamoat/allow-scripts": "2.0.0",
     "@lavamoat/preinstall-always-fail": "1.0.0",
+    "@rsbuild/core": "1.3.16",
+    "@rsbuild/plugin-node-polyfill": "1.3.0",
+    "@rsbuild/plugin-react": "1.3.0",
+    "@rsdoctor/rspack-plugin": "1.1.0",
+    "@rspack/core": "1.3.8",
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
     "@semantic-release/github": "8.0.2",
@@ -285,7 +300,8 @@
       "@metamask/eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
       "@metamask/eth-sig-util>ethereumjs-util>ethereum-cryptography>keccak": false,
       "eth-json-rpc-middleware>eth-sig-util>ethereumjs-abi>ethereumjs-util>ethereum-cryptography>keccak": false,
-      "firebase>@firebase/app>@firebase/util": false
+      "firebase>@firebase/app>@firebase/util": false,
+      "@rsbuild/core>core-js": false
     }
   },
   "packageManager": "yarn@4.7.0+sha512.5a0afa1d4c1d844b3447ee3319633797bcd6385d9a44be07993ae52ff4facabccafb4af5dcd1c2f9a94ac113e5e9ff56f6130431905884414229e284e37bb7c9"
