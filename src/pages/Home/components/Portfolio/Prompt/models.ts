@@ -3,7 +3,7 @@ import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
 export const functionDeclarations: FunctionDeclaration[] = [
   {
     name: 'send',
-    description: `Send the specified amount of a token to the recepient address on the current network.`,
+    description: `Send the specified amount of a token to the recipient address on the current network.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
@@ -11,9 +11,9 @@ export const functionDeclarations: FunctionDeclaration[] = [
           type: SchemaType.NUMBER,
           description: `The amount of tokens to send. The amount cannot be more than the token's balance.`,
         },
-        recepient: {
+        recipient: {
           type: SchemaType.STRING,
-          description: `The wallet address of the recepient. It has to be a valid EVM address which is in a hexadecimal format and is 42 characters long. The recepeint can be a contact or one of the user's accounts. The active account cannot be the recepient.`,
+          description: `The wallet address of the recipient. It has to be a valid EVM address which is in a hexadecimal format and is 42 characters long. The recipient can be a contact or one of the user's accounts. The active account cannot be the recipient.`,
         },
         token: {
           type: SchemaType.STRING,
@@ -21,7 +21,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
             'The address of the token to be sent. The user has to hold balance of the token.',
         },
       },
-      required: ['recepient', 'token', 'amount'],
+      required: ['recipient', 'token', 'amount'],
     },
   },
   {
