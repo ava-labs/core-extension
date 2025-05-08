@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useConnectionContext } from './ConnectionProvider';
 import { ExtensionRequest } from '@src/background/connections/extensionConnection/models';
-import { FirebaseStartChatHandler } from '@src/background/services/firebase/handlers/startChat';
+import { FirebaseSetModelHandler } from '@src/background/services/firebase/handlers/setModel';
 import { Content, FunctionCall } from '@firebase/vertexai';
 import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
 import { ConfigParams } from '@src/background/services/firebase/models';
@@ -19,11 +19,7 @@ interface ChatDialog {
 }
 
 const FirebaseContext = createContext<{
-  startChat: ({
-    tools,
-    toolConfig,
-    systemInstruction,
-  }: any) => Promise<boolean>;
+  setModel: ({ tools, toolConfig, systemInstruction }: any) => Promise<boolean>;
   sendMessage: (
     message: string,
     parts?: Content[],
@@ -53,10 +49,10 @@ export function FirebaseContextProvider({ children }: { children: any }) {
     },
   ]);
 
-  const startChat = useCallback(
+  const setModel = useCallback(
     ({ tools, toolConfig, systemInstruction }: ConfigParams) => {
-      return request<FirebaseStartChatHandler>({
-        method: ExtensionRequest.FIREBASE_START_CHAT,
+      return request<FirebaseSetModelHandler>({
+        method: ExtensionRequest.FIREBASE_SET_MODEL,
         params: {
           tools,
           toolConfig,
@@ -80,7 +76,7 @@ export function FirebaseContextProvider({ children }: { children: any }) {
   return (
     <FirebaseContext.Provider
       value={{
-        startChat,
+        setModel,
         sendMessage,
         prompts,
         setPrompts,

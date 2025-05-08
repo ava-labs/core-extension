@@ -166,14 +166,13 @@ export class FirebaseService {
     return response;
   }
 
-  async startChat({ tools, toolConfig, systemInstruction }: ConfigParams) {
-    if (!this.#model) {
-      this.#model = this.#getModel({
-        tools,
-        toolConfig,
-        systemInstruction,
-      });
-    }
+  async setModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
+    this.#model = this.#getModel({
+      tools,
+      toolConfig,
+      systemInstruction,
+    });
+
     return true;
   }
 

@@ -10,6 +10,8 @@
     // "rootDir": "./src",
     "outDir": "dist/js",
     "strict": true,
+    "isolatedModules": true,
+    "importsNotUsedAsValues": "remove",
     "sourceMap": true,
     "jsx": "react-jsx",
     "esModuleInterop": true,
@@ -20,6 +22,7 @@
     "resolveJsonModule": true,
     "noImplicitAny": false,
     "noUncheckedIndexedAccess": true,
+    "useDefineForClassFields": true,
     "types": ["chrome", "jest"]
   },
   "exclude": ["**/node_modules/*"]
