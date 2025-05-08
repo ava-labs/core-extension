@@ -1,0 +1,8 @@
+{
+  "name": "@core/tsconfig",
+  "private": true,
+  "type": "module",
+  "files": [
+    "tsconfig.base.json"
+  ]
+}

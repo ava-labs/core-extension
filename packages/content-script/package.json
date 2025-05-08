@@ -1,0 +1,25 @@
+{
+  "name": "@core/content-script",
+  "packageManager": "yarn@4.7.0",
+  "private": true,
+  "main": "src/contentscript.ts",
+  "scripts": {
+    "dev": "rsbuild build -w --config rsbuild.content-script.dev.ts",
+    "build": "rsbuild build --config rsbuild.content-script.prod.ts",
+    "lint": "eslint --fix \"src/**/*.ts*\"",
+    "prettify": "prettier --write \"src/**/*.ts*\"",
+    "typecheck": "yarn tsc --skipLibCheck --noEmit"
+  },
+  "dependencies": {
+    "@core/common": "workspace:*",
+    "@core/messaging": "workspace:*"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "1.3.3",
+    "@rsbuild/plugin-node-polyfill": "1.3.0",
+    "@rsbuild/plugin-react": "1.1.1",
+    "@rsdoctor/rspack-plugin": "1.0.2",
+    "@rspack/core": "1.3.2",
+    "typescript": "5.7.3"
+  }
+}

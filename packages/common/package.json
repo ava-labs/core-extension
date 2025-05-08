@@ -1,0 +1,13 @@
+{
+  "name": "@core/common",
+  "packageManager": "yarn@4.7.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint --fix \"src/**/*.ts*\"",
+    "prettify": "prettier --write \"src/**/*.ts*\""
+  },
+  "peerDependencies": {
+    "@sentry/browser": "7.66.0"
+  }
+}

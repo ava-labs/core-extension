@@ -1,0 +1,13 @@
+{
+  "name": "@core/messaging",
+  "packageManager": "yarn@4.7.0",
+  "main": "src/index.ts",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --fix \"src/**/*.ts*\"",
+    "prettify": "prettier --write \"src/**/*.ts*\""
+  },
+  "devDependencies": {
+    "typescript": "5.7.3"
+  }
+}
