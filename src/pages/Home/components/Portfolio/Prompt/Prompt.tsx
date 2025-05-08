@@ -57,6 +57,9 @@ export function Prompt() {
   const isModelReady = useRef(false);
 
   const tokens = useTokensWithBalances();
+  const allAvailableTokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+  });
 
   const userMessages = useMemo(
     () =>
@@ -77,7 +80,7 @@ export function Prompt() {
 
   const functions = useMemo(
     () => ({
-      send: async ({ recepient, token, amount }) => {
+      send: async ({ recipient, token, amount }) => {
         if (!accounts.active) {
           throw new Error(`You don't have an active account`);
         }
@@ -101,7 +104,7 @@ export function Prompt() {
           provider as JsonRpcBatchInternal,
           {
             amount: amount.toString(),
-            address: recepient,
+            address: recipient,
             token: tokenToSend,
           },
         );
@@ -121,7 +124,7 @@ export function Prompt() {
           label: t('View in Explorer'),
         });
         return {
-          recepient,
+          recipient,
           token,
           amount,
           content: `Transaction successful. Tx hash: ${hash}`,
@@ -171,7 +174,7 @@ export function Prompt() {
             item.symbol === fromTokenAddress ||
             ('address' in item && item.address === fromTokenAddress),
         );
-        const toToken = tokens.find(
+        const toToken = allAvailableTokens.find(
           (item) =>
             item.symbol === toTokenAddress ||
             ('address' in item && item.address === toTokenAddress),
@@ -239,6 +242,7 @@ export function Prompt() {
     }),
     [
       accounts.active,
+      allAvailableTokens,
       createContact,
       getRate,
       network,
@@ -256,9 +260,20 @@ export function Prompt() {
     }
     return systemPromptTemplate
       .replace(
-        '__KNOWN_TOKENS__',
+        '__TOKENS__',
         JSON.stringify(
           tokens.map((token) => ({
+            name: token.name,
+            symbol: token.symbol,
+            balance: token.balanceDisplayValue,
+          })),
+          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+        ),
+      )
+      .replace(
+        '__AVAILABLE_TOKENS__',
+        JSON.stringify(
+          allAvailableTokens.map((token) => ({
             name: token.name,
             symbol: token.symbol,
             balance: token.balanceDisplayValue,
@@ -299,7 +314,7 @@ export function Prompt() {
           })),
         ),
       );
-  }, [tokens, network, contacts, accounts, networks]);
+  }, [network, tokens, accounts, allAvailableTokens, networks, contacts]);
 
   const prompt = useCallback(
     async (message: string) => {
