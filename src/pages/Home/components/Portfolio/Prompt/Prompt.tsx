@@ -135,7 +135,7 @@ export function Prompt() {
 
   const functions = useMemo(
     () => ({
-      send: async ({ recepient, token, amount }) => {
+      send: async ({ recipient, token, amount }) => {
         if (!accounts.active) {
           throw new Error(`You don't have an active account`);
         }
@@ -159,7 +159,7 @@ export function Prompt() {
           provider as JsonRpcBatchInternal,
           {
             amount: amount.toString(),
-            address: recepient,
+            address: recipient,
             token: tokenToSend,
           },
         );
@@ -179,7 +179,7 @@ export function Prompt() {
           label: t('View in Explorer'),
         });
         return {
-          recepient,
+          recipient,
           token,
           amount,
           content: `Transaction successful. Tx hash: ${hash}`,

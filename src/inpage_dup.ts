@@ -11,7 +11,7 @@ const shouldInjectProvider = () => {
  *
  * @returns {boolean} {@code true} if the doctype is html or if none exists
  */
-const doctypeCheck = () => {
+const doctypeCheck = (): boolean => {
   const { doctype } = window.document;
   if (doctype) {
     return doctype.name === 'html';
@@ -28,7 +28,7 @@ const doctypeCheck = () => {
  *
  * @returns {boolean} whether or not the extension of the current document is prohibited
  */
-const suffixCheck = () => {
+const suffixCheck = (): boolean => {
   const prohibitedTypes = [/\.xml$/u, /\.pdf$/u];
   const currentUrl = window.location.pathname;
   for (let i = 0; i < prohibitedTypes.length; i++) {
@@ -44,7 +44,7 @@ const suffixCheck = () => {
  *
  * @returns {boolean} {@code true} if the documentElement is an html node or if none exists
  */
-const documentElementCheck = () => {
+const documentElementCheck = (): boolean => {
   const documentElement = document.documentElement.nodeName;
   if (documentElement) {
     return documentElement.toLowerCase() === 'html';
