@@ -59,7 +59,7 @@ export function Prompt() {
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
-  const { capture } = useAnalyticsContext();
+  const { captureEncrypted } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
@@ -362,7 +362,7 @@ export function Prompt() {
           // with the arguments specified in the function call and
           // let it call the hypothetical API.
           try {
-            capture('CoreAssistantFunctionCall', {
+            captureEncrypted('CoreAssistantFunctionCall', {
               functionName: call.name,
               userMessage: message,
             });
@@ -429,7 +429,7 @@ export function Prompt() {
         }
       } catch (e: any) {
         sentryCaptureException(e as Error, SentryExceptionTypes.AI_AGENT);
-        capture('CoreAssistantFunctionCallError', {
+        captureEncrypted('CoreAssistantFunctionCallError', {
           errorName: e.name,
           errorMessage: e.message,
           userMessage: message,
@@ -472,7 +472,14 @@ export function Prompt() {
         setIsTyping(false);
       }
     },
-    [setPrompts, setModel, systemPrompt, sendMessage, functions, capture],
+    [
+      setPrompts,
+      setModel,
+      systemPrompt,
+      sendMessage,
+      captureEncrypted,
+      functions,
+    ],
   );
 
   return (
