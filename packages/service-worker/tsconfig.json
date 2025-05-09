@@ -1,0 +1,10 @@
+{
+  "extends": "@core/tsconfig/tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"],
+      "@shared/*": ["../../src/*"]
+    }
+  },
+  "include": ["./src", "../types/*.d.ts"]
+}
