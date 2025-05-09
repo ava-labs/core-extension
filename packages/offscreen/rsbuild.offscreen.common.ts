@@ -24,9 +24,6 @@ export default defineConfig({
   },
   output: {
     cleanDistPath: true,
-    sourceMap: {
-      js: 'hidden-source-map',
-    },
     filename: {
       js: '[name].js', // this is the default, but just to make sure
     },

@@ -39,9 +39,6 @@ export default defineConfig({
         /dist\/sw\/.*/,
       ],
     },
-    sourceMap: {
-      js: 'hidden-source-map',
-    },
     inlineStyles: true,
     injectStyles: true,
     filename: {

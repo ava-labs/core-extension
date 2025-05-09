@@ -8,9 +8,9 @@ export default mergeRsbuildConfig(commonConfig, {
     define: getEnvVars('dev'),
   },
   output: {
-    // sourceMap: {
-    //   js: 'inline-source-map',
-    // },
+    sourceMap: {
+      js: 'hidden-source-map',
+    },
   },
   // tools: {
   //   rspack: {
