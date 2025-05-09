@@ -44,6 +44,10 @@ import { useBridge } from '@src/pages/Bridge/hooks/useBridge';
 import { findMatchingBridgeAsset } from '@src/pages/Bridge/utils/findMatchingBridgeAsset';
 import { useBridgeTxHandling } from '@src/pages/Bridge/hooks/useBridgeTxHandling';
 import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
+import sentryCaptureException, {
+  SentryExceptionTypes,
+} from '@src/monitoring/sentryCaptureException';
+import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
 
 export function Prompt() {
   const theme = useTheme();
@@ -85,6 +89,7 @@ export function Prompt() {
   console.log('targetChain: ', targetChain);
   console.log('bridgeAmount: ', bridgeAmount);
   console.log('asset: ', asset);
+  const { captureEncrypted } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
@@ -481,8 +486,11 @@ export function Prompt() {
           // with the arguments specified in the function call and
           // let it call the hypothetical API.
           try {
+            captureEncrypted('CoreAssistantFunctionCall', {
+              functionName: call.name,
+              userMessage: message,
+            });
             const apiResponse = await functions[call.name](call.args);
-
             // Send the API response back to the model so it can generate
             // a text response that can be displayed to the user.
             const functionResult = await sendMessage(message, [
@@ -536,11 +544,20 @@ export function Prompt() {
             });
           }
         } else {
+          if (!response.text) {
+            throw new Error('EMPTY_RESPONSE');
+          }
           setPrompts((prev) => {
             return [...prev, { role: 'model', content: response.text }];
           });
         }
       } catch (e: any) {
+        sentryCaptureException(e as Error, SentryExceptionTypes.AI_AGENT);
+        captureEncrypted('CoreAssistantFunctionCallError', {
+          errorName: e.name,
+          errorMessage: e.message,
+          userMessage: message,
+        });
         if (e.name === 'FirebaseError') {
           setPrompts((prev) => {
             return [
@@ -549,6 +566,17 @@ export function Prompt() {
                 role: 'model',
                 content:
                   'Whooops... There is something wrong with the service please try again later!',
+              },
+            ];
+          });
+        } else if (e.message === 'EMPTY_RESPONSE') {
+          setPrompts((prev) => {
+            return [
+              ...prev,
+              {
+                role: 'model',
+                content:
+                  "I'm sorry but I cannot fullfil your request at the moment. You can try again later!",
               },
             ];
           });
@@ -568,7 +596,14 @@ export function Prompt() {
         setIsTyping(false);
       }
     },
-    [functions, sendMessage, setPrompts, setModel, systemPrompt],
+    [
+      setPrompts,
+      setModel,
+      systemPrompt,
+      sendMessage,
+      captureEncrypted,
+      functions,
+    ],
   );
 
   return (

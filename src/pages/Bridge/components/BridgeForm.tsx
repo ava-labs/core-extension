@@ -147,19 +147,25 @@ export const BridgeForm = ({
   }, [estimateGas, amount, isAmountTooLow]);
 
   useEffect(() => {
+    const balanceErrorMessage = t('Insufficient balance');
     if (typeof maximum === 'bigint' && amount && amount > maximum) {
-      const errorMessage = t('Insufficient balance');
-
       setBridgeError((prevError) => {
-        if (prevError === errorMessage) {
+        if (prevError === balanceErrorMessage) {
           return prevError;
         }
 
         capture('BridgeTokenSelectError', {
-          errorMessage,
+          errorMessage: balanceErrorMessage,
         });
 
-        return errorMessage;
+        return balanceErrorMessage;
+      });
+    } else {
+      setBridgeError((prevError) => {
+        if (prevError === balanceErrorMessage) {
+          return '';
+        }
+        return prevError;
       });
     }
   }, [amount, capture, maximum, setBridgeError, t]);

@@ -32,7 +32,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
       properties: {
         amount: {
           type: SchemaType.NUMBER,
-          description: `The amount of tokens to swap`,
+          description: `The amount of tokens to swap. The amount must not be greater than the user balance in that given token. E.g. if the user has .1 avax do not let swap a value which is greater than that.`,
         },
         fromTokenAddress: {
           type: SchemaType.STRING,
