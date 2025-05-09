@@ -173,7 +173,7 @@ export function SwitchAccount() {
             }}
             fullWidth
           >
-            {t('Approve')}
+            {t('Switch')}
           </Button>
         </Stack>
       </Stack>
