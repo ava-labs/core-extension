@@ -203,7 +203,7 @@ export function OnboardingContextProvider({
 
   /**
    * If they are on the popup.html file then force onboarding to a tab. These files are created
-   * in the webpack config and we decipher the environment by the .html file.
+   * in the rsbuild config and we decipher the environment by the .html file.
    */
   useEffect(() => {
     if (!isHome && onboardingState && !onboardingState.isOnBoarded) {
