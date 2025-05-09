@@ -10,6 +10,11 @@ export default mergeRsbuildConfig(commonConfig, {
   source: {
     define: getEnvVars('dev'),
   },
+  output: {
+    sourceMap: {
+      js: 'hidden-source-map',
+    },
+  },
   tools: {
     rspack: {
       plugins: [
