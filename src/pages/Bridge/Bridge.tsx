@@ -285,6 +285,7 @@ export function Bridge() {
     bridgableTokens,
     sourceBalance,
   };
+  console.log('possibleTargetChains: ', possibleTargetChains);
 
   if (!isFunctionAvailable) {
     return (
