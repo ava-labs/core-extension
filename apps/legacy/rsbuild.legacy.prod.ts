@@ -7,7 +7,9 @@ import { getEnvVars } from '../../build-scripts/getEnvVars';
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'production',
   output: {
-    sourceMap: false,
+    sourceMap: {
+      js: 'hidden-source-map',
+    },
   },
   source: {
     define: {
