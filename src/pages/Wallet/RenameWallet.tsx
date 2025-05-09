@@ -102,7 +102,7 @@ export function RenameWallet() {
             }}
             fullWidth
           >
-            {t('Approve')}
+            {t('Rename')}
           </Button>
         </Stack>
       </Stack>

@@ -152,7 +152,7 @@ export function UpdateContacts({
             });
           }}
         >
-          {t('Approve')}
+          {t('Save')}
         </Button>
       </Stack>
     </Stack>
