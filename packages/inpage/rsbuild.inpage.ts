@@ -42,7 +42,9 @@ export default defineConfig(({ envMode }) => {
     output: {
       cleanDistPath: true,
       target: 'web-worker',
-      sourceMap: false,
+      sourceMap: {
+        js: 'hidden-source-map',
+      },
       filename: {
         js: '[name].js',
       },
