@@ -5,9 +5,7 @@ import { getEnvVars } from '../../build-scripts/getEnvVars';
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'production',
   output: {
-    sourceMap: {
-      js: 'inline-source-map',
-    },
+    sourceMap: false,
   },
   source: {
     define: getEnvVars('production'),

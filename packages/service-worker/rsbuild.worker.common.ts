@@ -22,9 +22,6 @@ export default defineConfig({
   },
   output: {
     cleanDistPath: true,
-    sourceMap: {
-      js: 'hidden-source-map',
-    },
     inlineStyles: true,
     injectStyles: true,
     filename: {
