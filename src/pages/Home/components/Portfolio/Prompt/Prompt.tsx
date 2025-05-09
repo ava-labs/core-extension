@@ -50,7 +50,7 @@ export function Prompt() {
   const { t } = useTranslation();
   const [input, setInput] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const { network, networks, setNetwork } = useNetworkContext();
+  const { network, networks, setNetwork, getNetwork } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
@@ -143,12 +143,7 @@ export function Prompt() {
         };
       },
       switchNetwork: async ({ networkId }: { networkId: string }) => {
-        const newActiveNetwork = networks.find((networkItem) => {
-          return (
-            networkItem.caipId === networkId ||
-            networkItem.chainId === parseInt(networkId)
-          );
-        });
+        const newActiveNetwork = getNetwork(networkId);
         if (!newActiveNetwork) {
           throw new Error(`Cannot find the new network you want to activate.`);
         }
@@ -264,9 +259,9 @@ export function Prompt() {
       accounts.active,
       allAvailableTokens,
       createContact,
+      getNetwork,
       getRate,
       network,
-      networks,
       request,
       selectAccount,
       setNetwork,
