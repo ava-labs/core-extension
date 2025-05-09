@@ -63,13 +63,13 @@ export const functionDeclarations: FunctionDeclaration[] = [
   },
   {
     name: 'switchNetwork',
-    description: `Switches the currently active network to the given new one.`,
+    description: `Switches the currently active network to the given new one. You can switch to ANY type of networks. When the user wants to list them, you MUST format the list and use only the "id" and the "name" of the networks and do not use any code formatting like JSON or any other objects. You can use any networks which has an id not just the evm ones.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         networkId: {
           type: SchemaType.STRING,
-          description: `The chainId or the caipId of the network to activate. The chainId or the caipId lives in the available networks list as an id property. E.g. You can find them by the name of the network.`,
+          description: `The chainId or the caipId of the network to activate. The chainId or the caipId lives in the available networks list as an id property. E.g. You can find them by the name of the network. When the network cannot be found you must try to provide existing alternatives from the network list.`,
         },
       },
       required: ['networkId'],
