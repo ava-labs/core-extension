@@ -174,10 +174,7 @@
     "json5": "2.2.2",
     "got": "11.8.5",
     "@ledgerhq/hw-app-eth": "6.36.1",
-    "@ledgerhq/hw-transport": "6.30.6",
-    "jest-runner@npm:^29.7.0": "patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch",
-    "jest-runner@npm:^27.5.1": "patch:jest-runner@npm%3A29.7.0#~/.yarn/patches/jest-runner-npm-29.7.0-3bc9f82b58.patch",
-    "@firebase/messaging@npm:0.12.15": "patch:@firebase/messaging@npm%3A0.12.15#~/.yarn/patches/@firebase-messaging-npm-0.12.15-983d487531.patch"
+    "@ledgerhq/hw-transport": "6.30.6"
   },
   "private": true
 }
