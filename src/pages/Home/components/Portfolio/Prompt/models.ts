@@ -62,6 +62,20 @@ export const functionDeclarations: FunctionDeclaration[] = [
     },
   },
   {
+    name: 'switchNetwork',
+    description: `Switches the currently active network to the given new one.`,
+    parameters: {
+      type: SchemaType.OBJECT,
+      properties: {
+        networkId: {
+          type: SchemaType.STRING,
+          description: `The chainId or the caipId of the network to activate. The chainId or the caipId lives in the available networks list as an id property. E.g. You can find them by the name of the network.`,
+        },
+      },
+      required: ['networkId'],
+    },
+  },
+  {
     name: 'goToDapp',
     description: `Open a dapp in a new tab and connect Core to it`,
     parameters: {
