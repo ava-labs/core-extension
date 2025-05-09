@@ -6,10 +6,14 @@
   "scripts": {
     "start": "yarn dev:legacy",
     "dev": "yarn dev:legacy",
+    "dev:next": "yarn workspaces foreach --include '@core/*' --include @core-ext/next -Api run dev:next",
     "dev:legacy": "yarn workspaces foreach --include '@core/*' --include @core-ext/legacy -Api run dev",
     "build:packages": "yarn workspaces foreach -Api --include '@core/*' run build",
+    "build:packages:next": "yarn workspaces foreach -Api --include '@core/*' run build:next",
     "build:legacy": "yarn build:packages && yarn workspace @core-ext/legacy run build",
     "build:legacy:alpha": "yarn build:packages && yarn workspace @core-ext/legacy run build:alpha",
+    "build:next": "yarn build:packages:next && yarn workspace @core-ext/next run build:next",
+    "build:next:alpha": "yarn build:packages:next && yarn workspace @core-ext/next run build:alpha",
     "build": "yarn build:legacy",
     "build:alpha": "yarn build:legacy:alpha",
     "lint": "yarn workspaces foreach -Ap run lint",
@@ -22,6 +26,7 @@
     "test:path": "yarn jest --watch --testPathPattern",
     "zip": "node zipscript.js",
     "scanner": "yarn scanner:legacy",
+    "scanner:next": "yarn workspace @core-ext/next run scanner",
     "scanner:legacy": "yarn workspace @core-ext/legacy run scanner",
     "sentry": "node sentryscript.js"
   },

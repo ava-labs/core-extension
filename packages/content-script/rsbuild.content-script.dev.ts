@@ -1,10 +1,12 @@
-import { mergeRsbuildConfig } from '@rsbuild/core';
+import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core';
 import commonConfig from './rsbuild.content-script.common';
 import { getEnvVars } from '../../build-scripts/getEnvVars';
 
-export default mergeRsbuildConfig(commonConfig, {
-  mode: 'development',
-  source: {
-    define: getEnvVars('dev'),
-  },
-});
+export default defineConfig((...args) =>
+  mergeRsbuildConfig(commonConfig(...args), {
+    mode: 'development',
+    source: {
+      define: getEnvVars('dev'),
+    },
+  }),
+);
