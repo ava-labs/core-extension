@@ -20,6 +20,8 @@ import {
   OnboardingURLs,
 } from '@src/background/services/onboarding/models';
 import { Keystone } from './pages/Keystone/Keystone';
+import { KeystoneConnect } from './pages/KeystoneUsb/KeystoneConnect';
+import { KeystoneTrouble } from './pages/KeystoneUsb/KeystoneTrouble';
 import { LedgerConnect } from './pages/Ledger/LedgerConnect';
 import { ImportWallet } from './pages/ImportWallet';
 import { CreatePassword } from './pages/CreatePassword';
@@ -94,6 +96,11 @@ export function Onboarding() {
               <Route path={OnboardingURLs.KEYSTONE}>
                 <Suspense fallback={<CircularProgress />}>
                   <Keystone />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.KEYSTONE_USB}>
+                <Suspense fallback={<CircularProgress />}>
+                  <KeystoneConnect />
                 </Suspense>
               </Route>
               <Route path={OnboardingURLs.LEDGER}>
