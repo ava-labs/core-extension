@@ -54,7 +54,7 @@ export function Prompt() {
   const { t } = useTranslation();
   const [input, setInput] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const { network, networks } = useNetworkContext();
+  const { network, networks, setNetwork, getNetwork } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
@@ -195,6 +195,16 @@ export function Prompt() {
 
         return {
           content: `Success! The new active account is ${accountId}`,
+        };
+      },
+      switchNetwork: async ({ networkId }: { networkId: string }) => {
+        const newActiveNetwork = getNetwork(networkId);
+        if (!newActiveNetwork) {
+          throw new Error(`Cannot find the new network you want to activate.`);
+        }
+        setNetwork(newActiveNetwork);
+        return {
+          content: `Success! The new active network is ${newActiveNetwork.chainName}`,
         };
       },
       createContact: async ({
@@ -349,6 +359,7 @@ export function Prompt() {
       accounts.active,
       allAvailableTokens,
       createContact,
+      getNetwork,
       getRate,
       network,
       onTransfer,
@@ -357,6 +368,7 @@ export function Prompt() {
       setAmount,
       setAsset,
       setTargetChain,
+      setNetwork,
       swap,
       t,
       targetChain?.caipId,

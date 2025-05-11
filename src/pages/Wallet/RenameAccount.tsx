@@ -104,7 +104,7 @@ export function RenameAccount() {
             }}
             fullWidth
           >
-            {t('Approve')}
+            {t('Rename')}
           </Button>
         </Stack>
       </Stack>
