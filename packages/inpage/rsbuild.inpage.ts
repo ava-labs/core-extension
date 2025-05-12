@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { defineConfig } from '@rsbuild/core';
 import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { DefinePlugin } from '@rspack/core';
-import { readCoreCliArgument } from '../../build-scripts/readCoreCliArgument';
+import { readCoreCliArgument } from '../../build-scripts/readCoreCliArgument.mjs';
 
 const svgPath = path.resolve(__dirname, 'src/images/favicon.svg');
 const svgCoreIcon = fs.readFileSync(svgPath, 'base64');
