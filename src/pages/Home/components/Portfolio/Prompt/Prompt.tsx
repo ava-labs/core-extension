@@ -310,9 +310,9 @@ export function Prompt() {
         };
       },
       bridge: async ({ amount, token, sourceNetwork, destinationNetwork }) => {
-        console.log('amount: ', amount);
-        console.log('token: ', token);
-        console.log('sourceNetwork: ', sourceNetwork);
+        // console.log('amount: ', amount);
+        // console.log('token: ', token);
+        // console.log('sourceNetwork: ', sourceNetwork);
         console.log('destinationNetwork: ', destinationNetwork);
         if (!amount) {
           throw new Error('You have to grant the amount you want to bridge.');
@@ -320,11 +320,11 @@ export function Prompt() {
         if (!token) {
           throw new Error('You have to grant the token you want to bridge.');
         }
-        console.log('transferableAssets: ', transferableAssets);
+        // console.log('transferableAssets: ', transferableAssets);
         const tokenData = tokens.find((item) => item.symbol === token);
-        console.log('tokenData: ', tokenData);
+        // console.log('tokenData: ', tokenData);
         const newAmount = stringToBigint(amount, tokenData?.decimals);
-        console.log('newAmount: ', newAmount);
+        // console.log('newAmount: ', newAmount);
         setAmount(newAmount);
         const foundAsset = findMatchingBridgeAsset(
           transferableAssets,

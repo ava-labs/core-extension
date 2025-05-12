@@ -123,19 +123,20 @@ export const functionDeclarations: FunctionDeclaration[] = [
       properties: {
         amount: {
           type: SchemaType.STRING,
-          description: `The amount of tokens to bridge`,
+          description: `The amount of tokens to bridge. It has to be less then the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to brisge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
         },
         token: {
           type: SchemaType.STRING,
-          description: 'The address of the token to be bridged',
+          description:
+            'The address of the token to be bridged. The allowed tokens list is in the given data in the prompt template.',
         },
         sourceNetwork: {
           type: SchemaType.STRING,
-          description: `The network's chainId to send the tokens from`,
+          description: `The network's chainId to send the tokens from. It is always the actual active network. The user cannot change it.`,
         },
         destinationNetwork: {
           type: SchemaType.STRING,
-          description: `The destination network's chainId`,
+          description: `The destination network's chainId. You can find the chainId in the network list so the user has to be able to ask that by the name of the network.`,
         },
       },
       required: ['amount', 'token', 'sourceNetwork', 'destinationNetwork'],

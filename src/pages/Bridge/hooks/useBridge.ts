@@ -53,6 +53,7 @@ export function useBridge(): Bridge {
     getMinimumTransferAmount,
   } = useUnifiedBridgeContext();
   const [amount, setAmount] = useState<bigint>();
+  console.log('useBridge amount: ', amount);
   const [asset, setAsset] = useState<BridgeAsset>();
   const firstTargetChainId = Object.keys(asset?.destinations ?? {})[0] ?? '';
   const [targetChain, setTargetChain] = useState(
@@ -152,6 +153,8 @@ export function useBridge(): Bridge {
 
   const transfer = useCallback(
     async (options: BridgeOptions) => {
+      console.log('useBridge amount: ', amount);
+      console.log('useBridge options: ', options);
       if (!amount) {
         throw new Error('No amount chosen');
       }
