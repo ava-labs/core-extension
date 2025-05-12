@@ -35,7 +35,7 @@
     "jest-environment-jsdom": "29.3.1",
     "prettier": "3.4.2",
     "ts-jest": "29.3.0",
-    "typescript": "5.7.3",
+    "typescript": "5.8.2",
     "webextension-polyfill": "0.10.0"
   }
 }

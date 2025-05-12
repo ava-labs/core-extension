@@ -47,6 +47,7 @@ typings/
 
 __dist
 dist
+dist-next
 builds
 .DS_Store
 todo.*

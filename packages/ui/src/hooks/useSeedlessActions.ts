@@ -1,7 +1,6 @@
 import { useAnalyticsContext } from '../contexts';
 import { useFeatureFlagContext } from '../contexts';
 import { useOnboardingContext } from '../contexts';
-import { toast } from '@avalabs/core-k2-components';
 import {
   FIDOApiEndpoint,
   FeatureGates,
@@ -53,7 +52,11 @@ const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
   }
 };
 
-export function useSeedlessActions() {
+export function useSeedlessActions({
+  onError,
+}: {
+  onError: (message: string) => void;
+}) {
   const { capture } = useAnalyticsContext();
   const {
     setOidcToken,
@@ -74,8 +77,8 @@ export function useSeedlessActions() {
     if (!errorMessage) {
       return;
     }
-    toast.error(errorMessage);
-  }, [errorMessage]);
+    onError(errorMessage);
+  }, [errorMessage, onError]);
 
   const handleOidcToken = useCallback(
     async (idToken) => {
@@ -91,7 +94,7 @@ export function useSeedlessActions() {
         );
 
         if (result !== SeedlessRegistartionResult.APPROVED) {
-          toast.error(t('Seedless login error'));
+          onError(t('Seedless login error'));
           return;
         }
       } else {
@@ -125,6 +128,7 @@ export function useSeedlessActions() {
       t,
       history,
       featureFlags,
+      onError,
     ],
   );
 
@@ -139,13 +143,13 @@ export function useSeedlessActions() {
         .then(handleOidcToken)
         .catch(() => {
           capture('SeedlessSignInFailed', { provider });
-          toast.error(t('Seedless login error'));
+          onError(t('Seedless login error'));
         })
         .finally(() => {
           setIsLoading(false);
         });
     },
-    [capture, handleOidcToken, t],
+    [capture, handleOidcToken, onError, t],
   );
 
   const registerTOTPStart = useCallback(() => {
@@ -168,7 +172,7 @@ export function useSeedlessActions() {
           })
           .catch((e) => {
             console.error(e);
-            toast(t('Unable to set TOTP configuration'));
+            onError(t('Unable to set TOTP configuration'));
           });
         return true;
       })
@@ -177,7 +181,7 @@ export function useSeedlessActions() {
         capture('SeedlessRegisterTOTPStartFailed');
         return false;
       });
-  }, [capture, oidcToken, t]);
+  }, [capture, oidcToken, onError, t]);
 
   const verifyRegistrationCode = useCallback(
     async (code: string) => {

@@ -24,7 +24,7 @@ import { Overlay } from '@/components/common/Overlay';
 import { useBalancesContext } from '@core/ui';
 import { useSettingsContext } from '@core/ui';
 import { useWalletContext } from '@core/ui';
-import { useScopedToast } from '@core/ui';
+import { useScopedToast } from '@/hooks/useScopedToast';
 import { AccountType } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
 
