@@ -31,6 +31,7 @@ export default defineConfig({
   },
   output: {
     cleanDistPath: {
+      enable: true,
       keep: [
         // preserving the files from package builds
         /dist\/cs\/.*/,
