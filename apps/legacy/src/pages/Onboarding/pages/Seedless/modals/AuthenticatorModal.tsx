@@ -41,7 +41,7 @@ export function AuthenticatorModal({
   const theme = useTheme();
   const [step, setStep] = useState(activeStep);
   const { registerTOTPStart, totpChallenge, verifyRegistrationCode } =
-    useSeedlessActions();
+    useSeedlessActions({ onError: (msg) => toast.error(msg) });
   const [totpCode, setTotpCode] = useState('');
   const [isCodeVerifying, setIsCodeVerifying] = useState(false);
   const [error, setError] = useState('');

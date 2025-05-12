@@ -34,7 +34,6 @@ export * from './useOnline';
 export * from './usePageHistory';
 export * from './usePersistedTabs';
 export * from './useQueryParams';
-export * from './useScopedToast';
 export * from './useSeedlessAuth';
 export * from './useSeedlessAuthPromptState';
 export * from './useSeedlessMnemonicExport';

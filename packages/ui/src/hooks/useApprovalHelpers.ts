@@ -1,23 +1,18 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useIsUsingLedgerWallet } from './useIsUsingLedgerWallet';
 import { useIsUsingKeystoneWallet } from './useIsUsingKeystoneWallet';
 import { useIsUsingWalletConnectAccount } from './useIsUsingWalletConnectAccount';
-import { toast } from '@avalabs/core-k2-components';
 import { useIsUsingFireblocksAccount } from './useIsUsingFireblocksAccount';
 
 type UseApprovalHelpersProps = {
   onApprove: () => Promise<unknown>;
   onReject: () => unknown;
-  pendingMessage?: string;
-  showPending?: boolean;
 };
 
 export function useApprovalHelpers({
   onApprove,
   onReject,
-  pendingMessage,
-  showPending,
 }: UseApprovalHelpersProps) {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
@@ -36,7 +31,6 @@ export function useApprovalHelpers({
   const [isApprovalOverlayVisible, setIsApprovalOverlayVisible] =
     useState(false);
 
-  const pendingToastIdRef = useRef<string>('');
   const handleApproval = useCallback(async () => {
     setIsApprovalOverlayVisible(isUsingExternalSigner);
 
@@ -48,25 +42,10 @@ export function useApprovalHelpers({
       return;
     }
 
-    if (pendingMessage && !isUsingExternalSigner && showPending) {
-      const toastId = toast.loading(pendingMessage);
-      pendingToastIdRef.current = toastId;
-    }
-
     // This has to be awaited, otherwise the overlay would disappear immediately.
     await onApprove();
-    if (pendingToastIdRef.current) {
-      toast.dismiss(pendingToastIdRef.current);
-    }
     setIsApprovalOverlayVisible(false);
-  }, [
-    isUsingExternalSigner,
-    isTwoStepApproval,
-    isReadyToSign,
-    pendingMessage,
-    showPending,
-    onApprove,
-  ]);
+  }, [isUsingExternalSigner, isTwoStepApproval, isReadyToSign, onApprove]);
 
   const handleRejection = useCallback(async () => {
     setIsApprovalOverlayVisible(false);

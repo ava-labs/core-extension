@@ -7,6 +7,7 @@ import {
   XIcon,
   useTheme,
   AlertCircleIcon,
+  toast,
 } from '@avalabs/core-k2-components';
 import { Overlay } from '@/components/common/Overlay';
 import { useSeedlessActions } from '@core/ui';
@@ -30,7 +31,9 @@ export function FIDOModal({
 }: SeedlessModalProps) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { addFIDODevice, loginWithFIDO } = useSeedlessActions();
+  const { addFIDODevice, loginWithFIDO } = useSeedlessActions({
+    onError: (msg) => toast.error(msg),
+  });
   const { capture } = useAnalyticsContext();
 
   const [FIDODeviceName, setFIDODeviceName] = useState('');
