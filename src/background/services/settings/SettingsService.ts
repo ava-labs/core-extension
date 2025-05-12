@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   collectiblesVisibility: {},
   analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
-  coreAssistant: false,
+  coreAssistant: true,
 };
 
 @singleton()
