@@ -31,6 +31,7 @@ export default defineConfig({
   },
   output: {
     cleanDistPath: {
+      enable: true,
       keep: [
         // preserving the files from package builds
         /dist-next\/cs\/.*/,
@@ -65,7 +66,9 @@ export default defineConfig({
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
       react: path.resolve('./node_modules/react'),
-      '@emotion/cache': path.resolve('./node_modules/@emotion/cache/dist/emotion-cache.esm.js'),
+      '@emotion/cache': path.resolve(
+        './node_modules/@emotion/cache/dist/emotion-cache.esm.js',
+      ),
       'react-dom': path.resolve('./node_modules/react-dom'),
       path: require.resolve('path-browserify'),
     },

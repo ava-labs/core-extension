@@ -2,7 +2,7 @@ import { defineConfig } from '@rsbuild/core';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import path from 'path';
 import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
-import { readCoreCliArgument } from '../../build-scripts/readCoreCliArgument';
+import { readCoreCliArgument } from '../../build-scripts/readCoreCliArgument.mjs';
 
 export default defineConfig(() => {
   const gen = readCoreCliArgument('gen') || 'legacy';
