@@ -44,7 +44,7 @@
 yarn
 ```
 
-2. Create environment variable file `.env` based on the `.env.example`.
+2. Create environment variable file `.env.dev` based on the `.env.example`.
 
 3. Run the project
 
