@@ -48,6 +48,7 @@ import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { useAnalyticsContext } from '@src/contexts/AnalyticsProvider';
+import browser from 'webextension-polyfill';
 
 export function Prompt() {
   const theme = useTheme();
@@ -228,6 +229,23 @@ export function Prompt() {
 
         return {
           content: `Success! New contact added!`,
+        };
+      },
+      goToDapp: async ({ url }) => {
+        const openUrl = url.includes('https://') ? url : `https://${url}`;
+        chrome.tabs.create({ url: openUrl, active: true }, () =>
+          browser.action.openPopup(),
+        );
+        return {
+          content: `${url} opened in a new tab!`,
+        };
+      },
+      buy: async () => {
+        chrome.tabs.create({ url: `https://core.app/buy/`, active: true }, () =>
+          browser.action.openPopup(),
+        );
+        return {
+          content: `You can buy tokens at https://core.app/buy/ !`,
         };
       },
       swap: async ({
