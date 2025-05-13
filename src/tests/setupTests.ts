@@ -27,7 +27,6 @@ Object.defineProperties(global.crypto, {
     value: (arr) => arr.map(() => 1),
   },
   subtle: {
-    // @ts-expect-error : eslint is throwing an error saying "subtle" is not exported
     value: crypto.subtle,
   },
 });
