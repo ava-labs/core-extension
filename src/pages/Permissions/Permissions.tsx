@@ -258,7 +258,7 @@ export function PermissionsPage() {
               isLoading={isSubmitting}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '' : t('Approve')}
+              {isSubmitting ? '' : t('Connect')}
             </Button>
           </Stack>
         </Stack>

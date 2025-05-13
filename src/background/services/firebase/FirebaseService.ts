@@ -8,13 +8,24 @@ import {
   isSupported as isSupportedBrowserByFcm,
 } from 'firebase/messaging/sw';
 import { singleton } from 'tsyringe';
-import { FirebaseEvents, FcmMessageListener } from './models';
+import {
+  FirebaseEvents,
+  FcmMessageListener,
+  ChatConfig,
+  ConfigParams,
+} from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FeatureFlagEvents, FeatureGates } from '../featureFlags/models';
 import { isSupportedBrowser } from '@src/utils/isSupportedBrowser';
+import {
+  getVertexAI,
+  getGenerativeModel,
+  GenerativeModel,
+  Content,
+} from 'firebase/vertexai';
 import { MESSAGE_EVENT as APPCHECK_MESSAGE_EVENT } from '../appcheck/AppCheckService';
 
 @singleton()
@@ -24,6 +35,8 @@ export class FirebaseService {
   #fcmToken?: string;
   #firebaseEventEmitter = new EventEmitter();
   #fcmMessageEventEmitter = new EventEmitter();
+  #model?: GenerativeModel;
+  #config?: ChatConfig;
   #fcmMessageHandlers: Record<string, (payload: MessagePayload) => void> = {};
 
   constructor(private featureFlagService: FeatureFlagService) {
@@ -110,6 +123,57 @@ export class FirebaseService {
 
     this.#fcmMessageEventEmitter.on(type, listener);
     this.#fcmMessageHandlers[type] = listener;
+  }
+
+  #getModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
+    if (!this.#app) {
+      throw new Error('Firebase app has not initialized');
+    }
+    const vertexAI = getVertexAI(this.#app);
+    const generationConfig = {
+      topP: 0.95,
+      topK: 40,
+      maxOutputTokens: 8192,
+    };
+    this.#config = {
+      generationConfig,
+      tools,
+      toolConfig,
+      systemInstruction,
+    };
+
+    return getGenerativeModel(vertexAI, {
+      model: 'gemini-2.0-flash',
+      generationConfig,
+      tools,
+      toolConfig,
+      systemInstruction,
+    });
+  }
+
+  async generateContent(message: string, parts?: Content[]) {
+    const contents = parts
+      ? ([{ role: 'user', parts: [{ text: message }] }, ...parts] as Content[])
+      : ([{ role: 'user', parts: [{ text: message }] }] as Content[]);
+    const result = await this.#model?.generateContent({
+      ...this.#config,
+      contents,
+    });
+    if (!result) {
+      throw new Error('no result');
+    }
+    const response = result.response;
+    return response;
+  }
+
+  async setModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
+    this.#model = this.#getModel({
+      tools,
+      toolConfig,
+      systemInstruction,
+    });
+
+    return true;
   }
 
   async #handleMessage(payload: MessagePayload) {

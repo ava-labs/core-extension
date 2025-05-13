@@ -71,6 +71,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Denied,
     language: Languages.DE,
+    coreAssistant: true,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -81,6 +82,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Approved,
     language: Languages.DE,
+    coreAssistant: false,
   };
 
   const customToken: NetworkContractToken = {
@@ -392,6 +394,24 @@ describe('background/services/settings/SettingsService.ts', () => {
           SETTINGS_UNENCRYPTED_STORAGE_KEY,
           { language: Languages.HI },
         );
+      });
+    });
+    describe('setCoreAssistant', () => {
+      it('should save the core assistant properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+        await service.setCoreAssistant(true);
+
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          coreAssistant: true,
+        });
+      });
+      it('should emit only the core assistant if it fails to save', async () => {
+        await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
+          await service.setCoreAssistant(true);
+        });
       });
     });
   });

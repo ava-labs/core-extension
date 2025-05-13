@@ -29,6 +29,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   collectiblesVisibility: {},
   analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
+  coreAssistant: true,
 };
 
 @singleton()
@@ -198,6 +199,14 @@ export class SettingsService implements OnStorageReady, OnLock {
       language,
     };
     await this.saveSettings(newSettings);
+  }
+
+  async setCoreAssistant(state: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      coreAssistant: state,
+    });
   }
 
   private async saveSettings(state: SettingsState) {
