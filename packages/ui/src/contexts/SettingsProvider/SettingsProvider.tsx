@@ -61,10 +61,12 @@ type SettingsFromProvider = SettingsState & {
     activePage: SettingsPages,
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
+  nextGenTheme: 'system' | 'testnet' | 'dark' | 'light';
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
+export const SettingsContextConsumer = SettingsContext.Consumer;
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [settings, setSettings] = useState<SettingsState>();
@@ -212,6 +214,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
       value={
         {
           ...settings,
+          nextGenTheme: 'system', // TODO: fix this
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
