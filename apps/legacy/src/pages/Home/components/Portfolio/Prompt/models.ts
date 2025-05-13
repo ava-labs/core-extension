@@ -115,6 +115,10 @@ export const functionDeclarations: FunctionDeclaration[] = [
       required: ['name', 'address'],
     },
   },
+  {
+    name: 'buy',
+    description: `User can buy tokens in a new window at https://core.app/buy/ webpage.`,
+  },
 ];
 
 export const systemPromptTemplate = `
@@ -134,4 +138,5 @@ The user has the following tokens on the active account:
 __TOKENS__
 The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
+The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
 `;
