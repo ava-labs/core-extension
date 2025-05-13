@@ -152,14 +152,29 @@ export function useBridge(): Bridge {
   }, [estimateTransferGas, targetChain?.caipId, asset?.symbol, amount]);
 
   const transfer = useCallback(
-    async (options: BridgeOptions) => {
+    async (
+      options: BridgeOptions,
+      newAmount?: bigint,
+      newTargetChain?: NetworkWithCaipId,
+      newAsset?: BridgeAsset,
+    ) => {
       console.log('useBridge amount: ', amount);
       console.log('useBridge options: ', options);
-      if (!amount) {
+      console.log('targetChain: ', targetChain);
+      console.log('newAmount: ', newAmount);
+      console.log('newTargetChain: ', newTargetChain);
+      const targetChainId = targetChain?.caipId
+        ? targetChain.caipId
+        : newTargetChain;
+      console.log('targetChainId: ', targetChainId);
+      const bridgeAmount = amount ?? newAmount;
+      console.log('bridgeAmount: ', bridgeAmount);
+      const bridgeAsset = asset ?? newAsset;
+      if (!bridgeAmount) {
         throw new Error('No amount chosen');
       }
 
-      if (!asset) {
+      if (!bridgeAsset) {
         throw new Error('No asset chosen');
       }
 
@@ -167,33 +182,26 @@ export function useBridge(): Bridge {
         throw new Error('No source chain chosen');
       }
 
-      if (!targetChain?.caipId) {
+      if (!targetChainId) {
         throw new Error('No target chain chosen');
       }
 
       capture('unifedBridgeTransferStarted', {
         bridgeType: options.bridgeType,
         sourceBlockchain: network.caipId,
-        targetBlockchain: targetChain.caipId,
+        targetBlockchain: targetChainId,
       });
 
       const hash = await transferAsset(
-        asset.symbol,
-        amount,
-        targetChain?.caipId,
+        bridgeAsset.symbol,
+        bridgeAmount,
+        targetChainId,
         options.gasSettings,
       );
 
       return hash;
     },
-    [
-      amount,
-      asset,
-      targetChain?.caipId,
-      transferAsset,
-      capture,
-      network?.caipId,
-    ],
+    [amount, targetChain, asset, network?.caipId, capture, transferAsset],
   );
 
   useEffect(() => {

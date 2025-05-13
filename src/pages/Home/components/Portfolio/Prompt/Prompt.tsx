@@ -343,7 +343,7 @@ export function Prompt() {
         // console.log('tokenData: ', tokenData);
         const newAmount = stringToBigint(amount, tokenData?.decimals);
         // console.log('newAmount: ', newAmount);
-        setAmount(newAmount);
+        // setAmount(newAmount);
         const foundAsset = findMatchingBridgeAsset(
           transferableAssets,
           tokenData,
@@ -352,7 +352,7 @@ export function Prompt() {
         if (!foundAsset) {
           throw new Error(`You cannot bridge the token ${token}.`);
         }
-        setAsset(foundAsset);
+        // setAsset(foundAsset);
         if (!sourceNetwork) {
           throw new Error(
             'You have to grant the source network you want to bridge.',
@@ -363,14 +363,19 @@ export function Prompt() {
             'You have to grant the destination network you want to bridge.',
           );
         }
-        setTargetChain(destinationNetwork);
+        // setTargetChain(destinationNetwork);
         const [bridgeType] =
           foundAsset?.destinations[targetChain?.caipId ?? ''] ?? [];
-        await onTransfer({
-          bridgeType,
-          // gasSettings: withFeeBox && networkFee.low.maxFeePerGas ? { price: networkFee.low.maxFeePerGas } : undefined,
-          gasSettings: undefined,
-        });
+        await onTransfer(
+          {
+            bridgeType,
+            // gasSettings: withFeeBox && networkFee.low.maxFeePerGas ? { price: networkFee.low.maxFeePerGas } : undefined,
+            gasSettings: undefined,
+          },
+          newAmount,
+          destinationNetwork,
+          foundAsset,
+        );
       },
     }),
     [
@@ -383,9 +388,7 @@ export function Prompt() {
       onTransfer,
       request,
       selectAccount,
-      setAmount,
       setAsset,
-      setTargetChain,
       setNetwork,
       swap,
       t,
