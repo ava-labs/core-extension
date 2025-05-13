@@ -188,6 +188,45 @@ export function validateJupiterParams(
   };
 }
 
+export async function buildWrapTx({
+  userAddress,
+  tokenAddress,
+  amount,
+  provider,
+  abi,
+}) {
+  const contract = new Contract(tokenAddress, abi, provider);
+
+  const { to, data } = await contract.deposit!.populateTransaction();
+
+  return {
+    to,
+    data,
+    from: userAddress,
+    value: `0x${BigInt(amount).toString(16)}`,
+  };
+}
+
+export async function buildUnwrapTx({
+  userAddress,
+  tokenAddress,
+  amount,
+  provider,
+  abi,
+}) {
+  const contract = new Contract(tokenAddress, abi, provider);
+
+  const { to, data } = await contract.withdraw!.populateTransaction(
+    `0x${BigInt(amount).toString(16)}`,
+  );
+
+  return {
+    to,
+    data,
+    from: userAddress,
+  };
+}
+
 export async function buildApprovalTx({
   userAddress,
   spenderAddress,

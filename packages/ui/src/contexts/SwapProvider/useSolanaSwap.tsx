@@ -26,10 +26,10 @@ import {
 import { JUPITER_QUOTE_SCHEMA, JUPITER_TX_SCHEMA } from './schemas';
 import { GetRateParams, JupiterQuote, SwapAdapter, SwapParams } from './models';
 
-export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
-  { account, network },
-  { onTransactionReceipt, showPendingToast },
-) => {
+export const useSolanaSwap: SwapAdapter<
+  JupiterQuote,
+  SwapParams<JupiterQuote>
+> = ({ account, network }, { onTransactionReceipt, showPendingToast }) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { capture } = useAnalyticsContext();

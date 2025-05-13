@@ -37,8 +37,13 @@ import {
   SwapError,
   SwapFormValues,
   SwapParams,
+  SwapQuote,
+  UnwrapOperation,
+  WrapOperation,
   isJupiterSwapParams,
   isParaswapSwapParams,
+  isUnwrapOperationParams,
+  isWrapOperationParams,
 } from './models';
 import { swapError } from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
@@ -76,7 +81,7 @@ export function SwapContextProvider({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
 
-  const [quote, setQuote] = useState<OptimalRate | JupiterQuote | null>(null);
+  const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [error, setError] = useState<SwapError>({ message: '' });
   const [destAmount, setDestAmount] = useState('');
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
@@ -206,7 +211,13 @@ export function SwapContextProvider({
   );
 
   const swap = useCallback(
-    async (params: SwapParams<OptimalRate | JupiterQuote>) => {
+    async (
+      params:
+        | SwapParams<OptimalRate>
+        | SwapParams<WrapOperation>
+        | SwapParams<UnwrapOperation>
+        | SwapParams<JupiterQuote>,
+    ) => {
       if (isSolanaNetwork(activeNetwork)) {
         if (!isJupiterSwapParams(params)) {
           throw swapError(SwapErrorCode.InvalidParams);
@@ -215,7 +226,11 @@ export function SwapContextProvider({
         return svmSwap(params);
       }
 
-      if (!isParaswapSwapParams(params)) {
+      if (
+        !isParaswapSwapParams(params) &&
+        !isWrapOperationParams(params) &&
+        !isUnwrapOperationParams(params)
+      ) {
         throw swapError(SwapErrorCode.InvalidParams);
       }
 

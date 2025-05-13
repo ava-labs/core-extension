@@ -35,18 +35,26 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
-import { NATIVE_TOKEN_ADDRESS } from './constants';
+import { NATIVE_TOKEN_ADDRESS, WAVAX_ADDRESS, WETH_ADDRESS } from './constants';
+import WAVAX_ABI from './ABI_WAVAX.json';
+import WETH_ABI from './ABI_WETH.json';
 import {
   BuildTxParams,
   GetRateParams,
   GetSwapPropsParams,
   isAPIError,
+  isUnwrapOperationParams,
+  isWrapOperationParams,
   SwapAdapter,
   SwapParams,
+  UnwrapOperation,
   ValidTransactionResponse,
+  WrapOperation,
 } from './models';
 import {
   buildApprovalTx,
+  buildUnwrapTx,
+  buildWrapTx,
   checkForErrorsInBuildTxResult,
   checkForErrorsInGetRateResult,
   ensureAllowance,
@@ -57,7 +65,12 @@ import {
   validateParaswapParams,
 } from './swap-utils';
 
-export const useEvmSwap: SwapAdapter<OptimalRate> = (
+export const useEvmSwap: SwapAdapter<
+  OptimalRate | WrapOperation | UnwrapOperation,
+  | SwapParams<OptimalRate>
+  | SwapParams<WrapOperation>
+  | SwapParams<UnwrapOperation>
+> = (
   { account, network, walletDetails },
   { onTransactionReceipt, showPendingToast },
 ) => {
@@ -130,6 +143,35 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = (
 
       const isFromTokenNative = network.networkToken.symbol === srcToken;
       const isDestTokenNative = network.networkToken.symbol === destToken;
+      const wrappableTokens = [WAVAX_ADDRESS, WETH_ADDRESS];
+
+      if (
+        isFromTokenNative &&
+        wrappableTokens.includes(destToken.toLowerCase())
+      ) {
+        return {
+          error: undefined,
+          quote: {
+            type: 'WRAP' as const,
+            target: destToken,
+            amount: srcAmount,
+          },
+          destAmount: srcAmount,
+        };
+      } else if (
+        isDestTokenNative &&
+        wrappableTokens.includes(srcToken.toLowerCase())
+      ) {
+        return {
+          error: undefined,
+          quote: {
+            type: 'UNWRAP' as const,
+            source: srcToken,
+            amount: srcAmount,
+          },
+          destAmount: srcAmount,
+        };
+      }
 
       const optimalRates = async () => {
         return await paraswap.getRate({
@@ -484,6 +526,77 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = (
     ],
   );
 
+  const performWrapOperation = useCallback(
+    async (params: SwapParams<WrapOperation> | SwapParams<UnwrapOperation>) => {
+      assertPresent(network, CommonError.NoActiveNetwork);
+      assertPresent(account, CommonError.NoActiveAccount);
+      assertPresent(rpcProvider, CommonError.Unknown);
+      assert(!network.isTestnet, CommonError.UnknownNetwork);
+
+      const { srcToken, destToken, srcDecimals, destDecimals } = params;
+      const userAddress = account.addressC;
+      const tokenAddress =
+        params.quote.type === 'WRAP'
+          ? params.quote.target
+          : params.quote.source;
+      const amount = params.quote.amount;
+
+      const abi = tokenAddress === WETH_ADDRESS ? WETH_ABI : WAVAX_ABI;
+      const buildTxParams = {
+        userAddress,
+        tokenAddress,
+        amount,
+        provider: rpcProvider,
+        abi,
+      };
+      const tx =
+        params.quote.type === 'WRAP'
+          ? await buildWrapTx(buildTxParams)
+          : await buildUnwrapTx(buildTxParams);
+
+      const [txHash, signError] = await resolve(
+        request({
+          method: RpcMethod.ETH_SEND_TRANSACTION,
+          params: [tx],
+        }),
+      );
+
+      if (isUserRejectionError(signError)) {
+        throw signError;
+      } else if (signError || !txHash) {
+        throw swapError(CommonError.UnableToSign, signError);
+      }
+
+      const pendingToastId = showPendingToast();
+
+      rpcProvider.waitForTransaction(txHash).then((receipt) => {
+        const isSuccessful = Boolean(receipt && receipt.status === 1);
+
+        onTransactionReceipt({
+          isSuccessful,
+          pendingToastId,
+          txHash: txHash,
+          chainId: network.chainId,
+          userAddress,
+          srcToken,
+          destToken,
+          srcAmount: amount,
+          destAmount: amount,
+          srcDecimals,
+          destDecimals,
+        });
+      });
+    },
+    [
+      request,
+      account,
+      network,
+      rpcProvider,
+      showPendingToast,
+      onTransactionReceipt,
+    ],
+  );
+
   const regularSwap = useCallback(
     async (params: SwapParams<OptimalRate>) => {
       assertPresent(network, CommonError.NoActiveNetwork);
@@ -611,7 +724,12 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = (
   );
 
   const swap = useCallback(
-    async (params: SwapParams<OptimalRate>) => {
+    async (
+      params:
+        | SwapParams<OptimalRate>
+        | SwapParams<WrapOperation>
+        | SwapParams<UnwrapOperation>,
+    ) => {
       if (!isFlagEnabled(FeatureGates.SWAP)) {
         throw swapError(SwapErrorCode.FeatureDisabled);
       }
@@ -622,13 +740,23 @@ export const useEvmSwap: SwapAdapter<OptimalRate> = (
         walletDetails?.type === SecretType.Seedless ||
         walletDetails?.type === SecretType.PrivateKey;
 
+      if (isWrapOperationParams(params) || isUnwrapOperationParams(params)) {
+        return performWrapOperation(params);
+      }
+
       if (isOneClickSwapEnabled && isOneClickSwapSupported) {
         return oneClickSwap(params);
       }
 
       return regularSwap(params);
     },
-    [regularSwap, oneClickSwap, isFlagEnabled, walletDetails?.type],
+    [
+      regularSwap,
+      oneClickSwap,
+      isFlagEnabled,
+      walletDetails?.type,
+      performWrapOperation,
+    ],
   );
 
   return {

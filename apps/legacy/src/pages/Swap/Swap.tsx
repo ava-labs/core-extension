@@ -420,6 +420,7 @@ export function Swap() {
 
           {isDetailsAvailable && (
             <TransactionDetails
+              quote={quote}
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(quote, {
@@ -435,7 +436,7 @@ export function Swap() {
           <ReviewOrderButtonContainer
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
-            <SwapEngineNotice />
+            <SwapEngineNotice quote={quote} />
             <Button
               data-testid="swap-review-order-button"
               sx={{
