@@ -2,7 +2,7 @@ import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
 import { PageTitle } from '@/components/common/PageTitle';
 import { TokenSelect } from '@/components/common/TokenSelect';
-import { useAccountsContext } from '@core/ui';
+import { isJupiterQuote, isParaswapQuote, useAccountsContext } from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
 import { useNetworkFeeContext } from '@core/ui';
 import { useNetworkContext } from '@core/ui';
@@ -254,6 +254,11 @@ export function Swap() {
     }
   }
 
+  const showEngineNotice = useMemo(
+    () => quote && (isParaswapQuote(quote) || isJupiterQuote(quote)),
+    [quote],
+  );
+
   if (!isSwapSupported) {
     return (
       <FunctionIsUnavailable
@@ -436,7 +441,7 @@ export function Swap() {
           <ReviewOrderButtonContainer
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
-            <SwapEngineNotice quote={quote} />
+            {showEngineNotice && <SwapEngineNotice />}
             <Button
               data-testid="swap-review-order-button"
               sx={{

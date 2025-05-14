@@ -7,25 +7,16 @@ import {
 } from '@avalabs/core-k2-components';
 import { VeloraIcon } from '@/components/icons/VeloraIcon';
 import JupiterLogo from '@/images/logos/jupiter-logo.svg';
-import {
-  isUnwrapOperation,
-  isWrapOperation,
-  useNetworkContext,
-} from '@core/ui';
+import { useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { SwapQuote } from '@core/ui';
 
-export function SwapEngineNotice({ quote }: { quote: SwapQuote | null }) {
+export function SwapEngineNotice() {
   const { t } = useTranslation();
   const { network } = useNetworkContext();
 
   const engineInfo = useMemo(() => {
     if (!network) {
-      return null;
-    }
-
-    if (quote && (isUnwrapOperation(quote) || isWrapOperation(quote))) {
       return null;
     }
 
@@ -44,7 +35,7 @@ export function SwapEngineNotice({ quote }: { quote: SwapQuote | null }) {
     }
 
     return null;
-  }, [network, quote, t]);
+  }, [network, t]);
 
   if (!engineInfo) {
     return null;
