@@ -43,7 +43,6 @@ import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useBridge } from '@src/pages/Bridge/hooks/useBridge';
 import { findMatchingBridgeAsset } from '@src/pages/Bridge/utils/findMatchingBridgeAsset';
 import { useBridgeTxHandling } from '@src/pages/Bridge/hooks/useBridgeTxHandling';
-import { isBitcoinNetwork } from '@src/background/services/network/utils/isBitcoinNetwork';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
@@ -64,32 +63,7 @@ export function Prompt() {
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
-  const {
-    amount: bridgeAmount,
-    setAmount,
-    bridgableTokens,
-    availableChainIds,
-    bridgeFee,
-    estimateGas,
-    isReady,
-    minimum,
-    maximum,
-    receiveAmount,
-    setTargetChain,
-    possibleTargetChains,
-    asset,
-    setAsset,
-    targetChain,
-    transferableAssets,
-    sourceBalance,
-    transfer,
-  } = useBridge();
-  // console.log('bridgableTokens: ', bridgableTokens);
-  // console.log('possibleTargetChains: ', possibleTargetChains);
-  // console.log('availableChainIds: ', availableChainIds);
-  console.log('targetChain: ', targetChain);
-  console.log('bridgeAmount: ', bridgeAmount);
-  console.log('asset: ', asset);
+  const { targetChain, transferableAssets, transfer } = useBridge();
   const { captureEncrypted } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
@@ -327,10 +301,18 @@ export function Prompt() {
           content: `Swap initiated ${amount}${srcToken.symbol} to ${result.destAmount}${toToken.symbol}.`,
         };
       },
-      bridge: async ({ amount, token, sourceNetwork, destinationNetwork }) => {
-        // console.log('amount: ', amount);
-        // console.log('token: ', token);
-        // console.log('sourceNetwork: ', sourceNetwork);
+      bridge: async ({
+        amount,
+        token,
+        sourceNetwork,
+        destinationNetwork,
+      }: {
+        amount: string;
+        token: string;
+        sourceNetwork: string;
+        destinationNetwork: string;
+      }) => {
+        console.log('token: ', token);
         console.log('destinationNetwork: ', destinationNetwork);
         if (!amount) {
           throw new Error('You have to grant the amount you want to bridge.');
@@ -338,12 +320,15 @@ export function Prompt() {
         if (!token) {
           throw new Error('You have to grant the token you want to bridge.');
         }
-        // console.log('transferableAssets: ', transferableAssets);
-        const tokenData = tokens.find((item) => item.symbol === token);
-        // console.log('tokenData: ', tokenData);
+        const tokenData = tokens.find(
+          (item) => item.symbol === token,
+        ) as TokenWithBalanceERC20;
+
+        if (!tokenData) {
+          throw new Error('You have to grant the token you want to bridge.');
+        }
         const newAmount = stringToBigint(amount, tokenData?.decimals);
-        // console.log('newAmount: ', newAmount);
-        // setAmount(newAmount);
+
         const foundAsset = findMatchingBridgeAsset(
           transferableAssets,
           tokenData,
@@ -352,7 +337,7 @@ export function Prompt() {
         if (!foundAsset) {
           throw new Error(`You cannot bridge the token ${token}.`);
         }
-        // setAsset(foundAsset);
+
         if (!sourceNetwork) {
           throw new Error(
             'You have to grant the source network you want to bridge.',
@@ -363,19 +348,20 @@ export function Prompt() {
             'You have to grant the destination network you want to bridge.',
           );
         }
-        // setTargetChain(destinationNetwork);
         const [bridgeType] =
           foundAsset?.destinations[targetChain?.caipId ?? ''] ?? [];
         await onTransfer(
           {
             bridgeType,
-            // gasSettings: withFeeBox && networkFee.low.maxFeePerGas ? { price: networkFee.low.maxFeePerGas } : undefined,
             gasSettings: undefined,
           },
           newAmount,
           destinationNetwork,
           foundAsset,
         );
+        return {
+          content: `Bridge initiated ${amount}${foundAsset.symbol} to ${destinationNetwork}.`,
+        };
       },
     }),
     [
@@ -388,7 +374,6 @@ export function Prompt() {
       onTransfer,
       request,
       selectAccount,
-      setAsset,
       setNetwork,
       swap,
       t,
@@ -547,6 +532,7 @@ export function Prompt() {
               return [...prev, { role: 'model', content: functionResult.text }];
             });
           } catch (e: any) {
+            console.log('e: ', e);
             const errorMessage =
               'code' in e
                 ? errorValues[e.code]?.message || 'Unkown error happened'

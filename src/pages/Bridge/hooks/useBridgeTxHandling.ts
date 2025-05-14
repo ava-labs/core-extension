@@ -1,7 +1,6 @@
 import { handleTxOutcome } from '@src/utils/handleTxOutcome';
 import { useCallback, useState } from 'react';
 import { BridgeOptions } from '../models';
-import { NetworkWithCaipId } from '@src/background/services/network/models';
 import { BridgeAsset } from '@avalabs/bridge-unified';
 
 export const useBridgeTxHandling = ({
@@ -14,7 +13,7 @@ export const useBridgeTxHandling = ({
   transfer: (
     options: BridgeOptions,
     newAmount?: bigint,
-    newTargetChain?: NetworkWithCaipId,
+    newTargetChainId?: string,
     newAsset?: BridgeAsset,
   ) => Promise<string>;
   onInitiated: () => void;
@@ -28,7 +27,7 @@ export const useBridgeTxHandling = ({
     async (
       options: BridgeOptions,
       newAmount?: bigint,
-      newTargetChain?: NetworkWithCaipId,
+      newTargetChainId?: string,
       newAsset?: BridgeAsset,
     ) => {
       setIsPending(true);
@@ -42,7 +41,7 @@ export const useBridgeTxHandling = ({
           result: txHash,
           error: txError,
         } = await handleTxOutcome(
-          transfer(options, newAmount, newTargetChain, newAsset),
+          transfer(options, newAmount, newTargetChainId, newAsset),
         );
 
         if (isApproved) {

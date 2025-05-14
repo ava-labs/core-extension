@@ -53,7 +53,6 @@ export function useBridge(): Bridge {
     getMinimumTransferAmount,
   } = useUnifiedBridgeContext();
   const [amount, setAmount] = useState<bigint>();
-  console.log('useBridge amount: ', amount);
   const [asset, setAsset] = useState<BridgeAsset>();
   const firstTargetChainId = Object.keys(asset?.destinations ?? {})[0] ?? '';
   const [targetChain, setTargetChain] = useState(
@@ -155,20 +154,13 @@ export function useBridge(): Bridge {
     async (
       options: BridgeOptions,
       newAmount?: bigint,
-      newTargetChain?: NetworkWithCaipId,
+      newTargetChainId?: string,
       newAsset?: BridgeAsset,
     ) => {
-      console.log('useBridge amount: ', amount);
-      console.log('useBridge options: ', options);
-      console.log('targetChain: ', targetChain);
-      console.log('newAmount: ', newAmount);
-      console.log('newTargetChain: ', newTargetChain);
       const targetChainId = targetChain?.caipId
         ? targetChain.caipId
-        : newTargetChain;
-      console.log('targetChainId: ', targetChainId);
+        : newTargetChainId;
       const bridgeAmount = amount ?? newAmount;
-      console.log('bridgeAmount: ', bridgeAmount);
       const bridgeAsset = asset ?? newAsset;
       if (!bridgeAmount) {
         throw new Error('No amount chosen');
