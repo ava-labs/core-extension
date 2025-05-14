@@ -42,7 +42,6 @@ import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
 import { useBridge } from '@src/pages/Bridge/hooks/useBridge';
 import { findMatchingBridgeAsset } from '@src/pages/Bridge/utils/findMatchingBridgeAsset';
-import { useBridgeTxHandling } from '@src/pages/Bridge/hooks/useBridgeTxHandling';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
@@ -69,31 +68,6 @@ export function Prompt() {
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
-  });
-
-  const onInitiated = useCallback(() => {
-    console.log('onInitiated: ', onInitiated);
-    return 'Initiated';
-  }, []);
-  const onSuccess = useCallback(() => {
-    console.log('onSuccess: ');
-    return 'Success';
-  }, []);
-  const onFailure = useCallback((transferError: any) => {
-    console.log('onFailure: ', transferError);
-    throw new Error(transferError);
-  }, []);
-  const onRejected = useCallback(() => {
-    console.log('onRejected: ');
-    return 'Rejected';
-  }, []);
-
-  const { onTransfer } = useBridgeTxHandling({
-    transfer,
-    onInitiated,
-    onSuccess,
-    onFailure,
-    onRejected,
   });
 
   const userMessages = useMemo(
@@ -350,7 +324,7 @@ export function Prompt() {
         }
         const [bridgeType] =
           foundAsset?.destinations[targetChain?.caipId ?? ''] ?? [];
-        await onTransfer(
+        await transfer(
           {
             bridgeType,
             gasSettings: undefined,
@@ -371,7 +345,6 @@ export function Prompt() {
       getNetwork,
       getRate,
       network,
-      onTransfer,
       request,
       selectAccount,
       setNetwork,
@@ -379,6 +352,7 @@ export function Prompt() {
       t,
       targetChain?.caipId,
       tokens,
+      transfer,
       transferableAssets,
     ],
   );

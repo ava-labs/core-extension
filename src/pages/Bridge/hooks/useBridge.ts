@@ -37,7 +37,12 @@ interface Bridge {
   bridgeFee?: bigint;
   bridgableTokens: Exclude<TokenWithBalance, NftTokenWithBalance>[];
   transferableAssets: BridgeAsset[];
-  transfer: (options: BridgeOptions) => Promise<string>;
+  transfer: (
+    options: BridgeOptions,
+    newAmount?: bigint,
+    newTargetChainId?: string,
+    newAsset?: BridgeAsset,
+  ) => Promise<string>;
 }
 
 export function useBridge(): Bridge {
