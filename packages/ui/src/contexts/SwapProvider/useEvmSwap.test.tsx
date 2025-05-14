@@ -1057,7 +1057,7 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
             data: 'unwrap_data',
           }),
         },
-      } as any);
+      } as unknown as Contract);
 
       jest.mocked(useConnectionContext).mockReturnValue({
         request: requestMock,

@@ -535,10 +535,9 @@ export const useEvmSwap: SwapAdapter<
 
       const { srcToken, destToken, srcDecimals, destDecimals } = params;
       const userAddress = account.addressC;
-      const tokenAddress =
-        params.quote.type === 'WRAP'
-          ? params.quote.target
-          : params.quote.source;
+      const tokenAddress = isWrapOperationParams(params)
+        ? params.quote.target
+        : params.quote.source;
       const amount = params.quote.amount;
 
       const abi = tokenAddress === WETH_ADDRESS ? WETH_ABI : WAVAX_ABI;
@@ -549,10 +548,9 @@ export const useEvmSwap: SwapAdapter<
         provider: rpcProvider,
         abi,
       };
-      const tx =
-        params.quote.type === 'WRAP'
-          ? await buildWrapTx(buildTxParams)
-          : await buildUnwrapTx(buildTxParams);
+      const tx = isWrapOperationParams(params)
+        ? await buildWrapTx(buildTxParams)
+        : await buildUnwrapTx(buildTxParams);
 
       const [txHash, signError] = await resolve(
         request({
@@ -570,7 +568,7 @@ export const useEvmSwap: SwapAdapter<
       const pendingToastId = showPendingToast();
 
       rpcProvider.waitForTransaction(txHash).then((receipt) => {
-        const isSuccessful = Boolean(receipt && receipt.status === 1);
+        const isSuccessful = Boolean(receipt?.status === 1);
 
         onTransactionReceipt({
           isSuccessful,
