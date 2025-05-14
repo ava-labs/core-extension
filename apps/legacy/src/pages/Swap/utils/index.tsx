@@ -7,17 +7,12 @@ import {
 import { calculateGasAndFees, stringToBigint } from '@core/common';
 import { OptimalRate } from '@paraswap/sdk';
 import { SwappableToken } from '../models';
-import {
-  isJupiterQuote,
-  isParaswapQuote,
-  JupiterQuote,
-  UnwrapOperation,
-  WrapOperation,
-} from '@core/ui';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
 }
+
+export { calculateRate } from './calculateRate';
 
 export const MIN_SLIPPAGE = 0.1;
 
@@ -90,29 +85,6 @@ export const getMaxValueWithGas = ({
 
   const max = getMaxValue(selectedFromToken, newFees.fee);
   return max;
-};
-
-export const calculateRate = (
-  quote: OptimalRate | JupiterQuote | WrapOperation | UnwrapOperation,
-  context: { srcDecimals: number; destDecimals: number },
-) => {
-  if (isParaswapQuote(quote)) {
-    const { destAmount, destDecimals, srcAmount, srcDecimals } = quote;
-    const destAmountNumber =
-      parseInt(destAmount, 10) / Math.pow(10, destDecimals);
-    const sourceAmountNumber =
-      parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
-    return destAmountNumber / sourceAmountNumber;
-  } else if (isJupiterQuote(quote)) {
-    const { inAmount, outAmount } = quote;
-
-    const realOutValue = parseInt(outAmount, 10) / 10 ** context.destDecimals;
-    const realInValue = parseInt(inAmount, 10) / 10 ** context.srcDecimals;
-
-    return realOutValue / realInValue;
-  }
-
-  return 1; // wrap/unwrap
 };
 
 export interface Token {
