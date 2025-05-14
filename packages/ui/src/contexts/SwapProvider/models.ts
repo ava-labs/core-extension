@@ -75,9 +75,7 @@ export const isParaswapSwapParams = (
   return isParaswapQuote(swapParams.quote);
 };
 
-export function isWrapOperation(
-  quote: SwapQuote,
-): quote is WrapOperation | UnwrapOperation {
+export function isWrapOperation(quote: SwapQuote): quote is WrapOperation {
   return 'type' in quote && quote.type === 'WRAP';
 }
 
