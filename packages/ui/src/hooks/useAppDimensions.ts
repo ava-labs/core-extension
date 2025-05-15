@@ -1,5 +1,5 @@
 import { ContextContainer } from '@core/types';
-import { useIsSpecificContextContainer } from './useIsSpecificContextContainer';
+import { isSpecificContextContainer } from '../utils/isSpecificContextContainer';
 
 type AppDimensions = {
   width: string;
@@ -14,11 +14,9 @@ const dimensions = {
 } as const satisfies Record<string, AppDimensions>;
 
 export function useAppDimensions(): AppDimensions {
-  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
-  const isFullscreen = useIsSpecificContextContainer(
-    ContextContainer.FULLSCREEN,
-  );
+  const isConfirm = isSpecificContextContainer(ContextContainer.CONFIRM);
+  const isMiniMode = isSpecificContextContainer(ContextContainer.POPUP);
+  const isFullscreen = isSpecificContextContainer(ContextContainer.FULLSCREEN);
 
   if (isMiniMode) {
     return dimensions.miniMode;

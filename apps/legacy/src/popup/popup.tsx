@@ -13,7 +13,7 @@ import { PermissionContextProvider } from '@core/ui';
 import { SwapContextProvider } from '@core/ui';
 import { WalletContextProvider } from '@core/ui';
 import { useAppDimensions } from '@core/ui';
-import { useIsSpecificContextContainer } from '@core/ui';
+import { isSpecificContextContainer } from '@core/ui';
 import { useOnline } from '@core/ui';
 import { usePageHistory } from '@core/ui';
 
@@ -68,9 +68,9 @@ const pagesWithoutHeader = [
 export function Popup() {
   const { t } = useTranslation();
   const dimensions = useAppDimensions();
-  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
-  const isFullscreen = useIsSpecificContextContainer(
+  const isConfirm = isSpecificContextContainer(ContextContainer.CONFIRM);
+  const isMiniMode = isSpecificContextContainer(ContextContainer.POPUP);
+  const isFullscreen = isSpecificContextContainer(
     ContextContainer.FULLSCREEN,
   );
   const history = useHistory();
