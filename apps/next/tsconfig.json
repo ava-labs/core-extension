@@ -1,6 +1,9 @@
 {
   "extends": "@core/tsconfig/tsconfig.base.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
     "paths": {
       "~/*": ["../../packages/service-worker/src/*"],
       "@/*": ["./src/*"],
