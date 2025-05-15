@@ -13,8 +13,11 @@ import { SettingsContextProvider } from '@core/ui';
 import { LoadingContent } from './LoadingContent';
 import { FeatureFlagsContextProvider } from '@core/ui';
 import { I18nextProvider } from 'react-i18next';
-import i18n from '@/localization/init';
+import { initI18n, i18next } from '@core/common';
 import { darkTheme, ThemeProvider } from '@avalabs/core-k2-components';
+
+// Initialize translations
+initI18n();
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './popup').then((m) => ({
@@ -32,7 +35,7 @@ browser.tabs.query({ active: true }).then(() => {
           theme={darkTheme}
           withResponsiveFontSizes={false}
         >
-          <I18nextProvider i18n={i18n}>
+          <I18nextProvider i18n={i18next}>
             <ConnectionContextProvider LoadingComponent={LoadingContent}>
               <SettingsContextProvider>
                 <FeatureFlagsContextProvider>
