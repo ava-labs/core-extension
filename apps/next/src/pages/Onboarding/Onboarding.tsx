@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Button, Collapse, Stack, styled } from '@avalabs/k2-alpine';
 
-import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
-import { CoreSplash } from '@/components/CoreSplash';
-
 // FIXME: import from @avalabs/k2-alpine
 import { FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
-import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
+import { CoreSplash } from '@/components/CoreSplash';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
+
+import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
 
 export function Onboarding() {
   const { t } = useTranslation();
