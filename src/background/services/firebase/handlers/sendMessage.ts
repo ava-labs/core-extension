@@ -26,7 +26,6 @@ export class FirebaseSendMessageHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const { message, parts, history } = request.params;
-    console.log('history: ', history);
     if (!message) {
       return {
         ...request,
