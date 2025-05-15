@@ -81,7 +81,7 @@
     "react-virtualized": "9.22.3",
     "react-window": "^1.8.11",
     "reflect-metadata": "0.1.13",
-    "rxjs": "7.5.1",
+    "rxjs": "7.8.2",
     "semver": "7.6.0",
     "typewriter-effect": "2.21.0",
     "xss": "1.0.13",

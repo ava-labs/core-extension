@@ -122,7 +122,7 @@ const LedgerRegisterBtcWalletPolicy = () => {
           params: [
             xpub,
             masterFingerprint,
-            Buffer.from(hmac).toString('hex'),
+            hmac.toString('hex'),
             walletPolicyName,
           ],
         });

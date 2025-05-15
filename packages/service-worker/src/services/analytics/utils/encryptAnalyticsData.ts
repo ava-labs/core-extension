@@ -22,7 +22,8 @@ export async function encryptAnalyticsData(
   }
 
   const publicKey = await suite.kem.deserializePublicKey(
-    Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY, 'base64'),
+    Uint8Array.from(Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY, 'base64'))
+      .buffer,
   );
 
   const sender = await suite.createSenderContext({
@@ -31,7 +32,10 @@ export async function encryptAnalyticsData(
 
   const aad = new TextEncoder().encode(process.env.ANALYTICS_ENCRYPTION_KEY_ID);
   const data = new TextEncoder().encode(message);
-  const ct = await sender.seal(data, aad);
+  const ct = await sender.seal(
+    Uint8Array.from(data).buffer,
+    Uint8Array.from(aad).buffer,
+  );
 
   const encrypted = Buffer.from(ct).toString('base64');
   const enc = Buffer.from(sender.enc).toString('base64');
