@@ -40,6 +40,8 @@ import {
 import { useFirebaseContext } from '@src/contexts/FirebaseProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { useBridge } from '@src/pages/Bridge/hooks/useBridge';
+import { findMatchingBridgeAsset } from '@src/pages/Bridge/utils/findMatchingBridgeAsset';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
@@ -60,6 +62,7 @@ export function Prompt() {
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
+  const { targetChain, transferableAssets, transfer } = useBridge();
   const { captureEncrypted } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
@@ -272,6 +275,68 @@ export function Prompt() {
           content: `Swap initiated ${amount}${srcToken.symbol} to ${result.destAmount}${toToken.symbol}.`,
         };
       },
+      bridge: async ({
+        amount,
+        token,
+        sourceNetwork,
+        destinationNetwork,
+      }: {
+        amount: string;
+        token: string;
+        sourceNetwork: string;
+        destinationNetwork: string;
+      }) => {
+        console.log('token: ', token);
+        console.log('destinationNetwork: ', destinationNetwork);
+        if (!amount) {
+          throw new Error('You have to grant the amount you want to bridge.');
+        }
+        if (!token) {
+          throw new Error('You have to grant the token you want to bridge.');
+        }
+        const tokenData = tokens.find(
+          (item) => item.symbol === token,
+        ) as TokenWithBalanceERC20;
+
+        if (!tokenData) {
+          throw new Error('You have to grant the token you want to bridge.');
+        }
+        const newAmount = stringToBigint(amount, tokenData?.decimals);
+
+        const foundAsset = findMatchingBridgeAsset(
+          transferableAssets,
+          tokenData,
+        );
+        console.log('foundAsset: ', foundAsset);
+        if (!foundAsset) {
+          throw new Error(`You cannot bridge the token ${token}.`);
+        }
+
+        if (!sourceNetwork) {
+          throw new Error(
+            'You have to grant the source network you want to bridge.',
+          );
+        }
+        if (!destinationNetwork) {
+          throw new Error(
+            'You have to grant the destination network you want to bridge.',
+          );
+        }
+        const [bridgeType] =
+          foundAsset?.destinations[targetChain?.caipId ?? ''] ?? [];
+        await transfer(
+          {
+            bridgeType,
+            gasSettings: undefined,
+          },
+          newAmount,
+          destinationNetwork,
+          foundAsset,
+        );
+        return {
+          content: `Bridge initiated ${amount}${foundAsset.symbol} to ${destinationNetwork}.`,
+        };
+      },
     }),
     [
       accounts.active,
@@ -285,7 +350,10 @@ export function Prompt() {
       setNetwork,
       swap,
       t,
+      targetChain?.caipId,
       tokens,
+      transfer,
+      transferableAssets,
     ],
   );
 
@@ -348,8 +416,26 @@ export function Prompt() {
             active: a.id === accounts.active?.id,
           })),
         ),
+      )
+      .replace(
+        '__BRIDGE_DATA__',
+        JSON.stringify(
+          transferableAssets.map((token) => ({
+            name: token.name,
+            symbol: token.symbol,
+          })),
+          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+        ),
       );
-  }, [network, tokens, accounts, allAvailableTokens, networks, contacts]);
+  }, [
+    network,
+    tokens,
+    accounts,
+    allAvailableTokens,
+    networks,
+    contacts,
+    transferableAssets,
+  ]);
 
   const prompt = useCallback(
     async (message: string) => {
@@ -423,6 +509,7 @@ export function Prompt() {
               return [...prev, { role: 'model', content: functionResult.text }];
             });
           } catch (e: any) {
+            console.log('e: ', e);
             const errorMessage =
               'code' in e
                 ? errorValues[e.code]?.message || 'Unkown error happened'
