@@ -66,7 +66,6 @@ type SettingsFromProvider = SettingsState & {
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
-export const SettingsContextConsumer = SettingsContext.Consumer;
 export function SettingsContextProvider({ children }: { children: any }) {
   const { request, events } = useConnectionContext();
   const [settings, setSettings] = useState<SettingsState>();

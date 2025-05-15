@@ -1,4 +1,4 @@
-import { CircularProgress, ThemeProvider, toast } from '@avalabs/k2-alpine';
+import { ThemeProvider, toast, CircularProgress } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   NetworkContextProvider,

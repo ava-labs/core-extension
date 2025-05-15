@@ -64,6 +64,7 @@ export function LanguageSelector() {
                 capture('OnboardingLanguageChanged', {
                   language: lang.code,
                 });
+                handleClose();
               }}
               data-testid={`onboarding-language-selector-menu-item-${lang.code}`}
               selected={lang.code === currentLanguage?.code}
