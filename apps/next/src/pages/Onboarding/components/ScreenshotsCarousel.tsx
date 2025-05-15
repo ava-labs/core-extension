@@ -98,6 +98,7 @@ const Slide = styled(Box, {
   height: '100%',
   width: '100%',
   overflow: 'hidden',
+  willChange: 'transform, box-shadow, z-index',
   transitionProperty: 'transform, box-shadow, z-index',
   transitionDuration: '0.4s, 0.4s, 0.4s',
   transitionDelay: '0ms, 0ms, 0.2s',

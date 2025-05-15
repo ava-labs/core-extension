@@ -48,6 +48,7 @@ export const FullscreenAnimatedBackground = styled(Stack)`
   z-index: -1;
   pointer-events: none;
   position: fixed;
+  will-change: background-position, filter, background-image;
   inset: 0;
   // backgroundColor: palette.background.default;
   background-position: top var(--top) right var(--right);
