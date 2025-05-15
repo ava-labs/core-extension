@@ -54,20 +54,8 @@ export function LanguageSelector() {
           vertical: 'bottom',
           horizontal: 'left',
         }}
-        slotProps={{
-          paper: {
-            sx: {
-              backdropFilter: 'blur(100px)',
-            },
-          },
-        }}
       >
-        <PopoverContent
-          sx={{
-            backgroundImage: 'none',
-            backgroundColor: '#000000aa',
-          }}
-        >
+        <PopoverContent>
           {availableLanguages.map((lang) => (
             <PopoverItem
               key={lang.code}
