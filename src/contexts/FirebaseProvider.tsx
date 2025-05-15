@@ -11,19 +11,22 @@ import { ExtensionRequest } from '@src/background/connections/extensionConnectio
 import { FirebaseSetModelHandler } from '@src/background/services/firebase/handlers/setModel';
 import { Content, FunctionCall } from '@firebase/vertexai';
 import { FirebaseSendMessageHandler } from '@src/background/services/firebase/handlers/sendMessage';
-import { ConfigParams } from '@src/background/services/firebase/models';
-
-interface ChatDialog {
-  role: 'model' | 'user';
-  content: string;
-}
+import {
+  ChatDialogHistory,
+  ConfigParams,
+} from '@src/background/services/firebase/models';
 
 const FirebaseContext = createContext<{
   setModel: ({ tools, toolConfig, systemInstruction }: any) => Promise<boolean>;
-  sendMessage: (
-    message: string,
-    parts?: Content[],
-  ) => Promise<{ text: string; functionCalls?: FunctionCall[] }>;
+  sendMessage: ({
+    message,
+    parts,
+    history,
+  }: {
+    message: string;
+    parts?: Content[];
+    history?: ChatDialogHistory[];
+  }) => Promise<{ text: string; functionCalls?: FunctionCall[] }>;
   prompts: {
     role: 'model' | 'user';
     content: string;
@@ -42,7 +45,7 @@ const FirebaseContext = createContext<{
 
 export function FirebaseContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
-  const [prompts, setPrompts] = useState<ChatDialog[]>([
+  const [prompts, setPrompts] = useState<ChatDialogHistory[]>([
     {
       role: 'model',
       content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
@@ -64,10 +67,18 @@ export function FirebaseContextProvider({ children }: { children: any }) {
   );
 
   const sendMessage = useCallback(
-    (message, parts) => {
+    ({
+      message,
+      parts,
+      history,
+    }: {
+      message: string;
+      parts?: Content[];
+      history?: ChatDialogHistory[];
+    }) => {
       return request<FirebaseSendMessageHandler>({
         method: ExtensionRequest.FIREBASE_SEND_MESSAGE,
-        params: [message, parts],
+        params: { message, parts, history },
       });
     },
     [request],

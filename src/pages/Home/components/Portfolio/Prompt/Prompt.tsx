@@ -383,7 +383,7 @@ export function Prompt() {
             throw new Error(e);
           });
 
-        const response = await sendMessage(message);
+        const response = await sendMessage({ message, history: prompts });
 
         // For simplicity, this uses the first function call found.
         const call = response?.functionCalls?.[0];
@@ -399,22 +399,25 @@ export function Prompt() {
             const apiResponse = await functions[call.name](call.args);
             // Send the API response back to the model so it can generate
             // a text response that can be displayed to the user.
-            const functionResult = await sendMessage(message, [
-              { role: 'model', parts: [{ functionCall: { ...call } }] },
-              {
-                role: 'function',
-                parts: [
-                  {
-                    functionResponse: {
-                      name: 'send',
-                      response: {
-                        content: apiResponse.content,
+            const functionResult = await sendMessage({
+              message,
+              parts: [
+                { role: 'model', parts: [{ functionCall: { ...call } }] },
+                {
+                  role: 'function',
+                  parts: [
+                    {
+                      functionResponse: {
+                        name: 'send',
+                        response: {
+                          content: apiResponse.content,
+                        },
                       },
                     },
-                  },
-                ],
-              },
-            ]);
+                  ],
+                },
+              ],
+            });
             // Log the text response.
             setPrompts((prev) => {
               return [...prev, { role: 'model', content: functionResult.text }];
@@ -427,22 +430,25 @@ export function Prompt() {
 
             // Send the API response back to the model so it can generate
             // a text response that can be displayed to the user.
-            const errorResult = await sendMessage(message, [
-              { role: 'model', parts: [{ functionCall: { ...call } }] },
-              {
-                role: 'function',
-                parts: [
-                  {
-                    functionResponse: {
-                      name: 'send',
-                      response: {
-                        content: `Send failed. ${errorMessage}`,
+            const errorResult = await sendMessage({
+              message,
+              parts: [
+                { role: 'model', parts: [{ functionCall: { ...call } }] },
+                {
+                  role: 'function',
+                  parts: [
+                    {
+                      functionResponse: {
+                        name: 'send',
+                        response: {
+                          content: `Send failed. ${errorMessage}`,
+                        },
                       },
                     },
-                  },
-                ],
-              },
-            ]);
+                  ],
+                },
+              ],
+            });
 
             // Log the text response.
             setPrompts((prev) => {
@@ -507,6 +513,7 @@ export function Prompt() {
       setModel,
       systemPrompt,
       sendMessage,
+      prompts,
       captureEncrypted,
       functions,
     ],
