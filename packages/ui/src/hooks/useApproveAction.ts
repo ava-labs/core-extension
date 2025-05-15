@@ -9,7 +9,7 @@ import {
   ContextContainer,
 } from '@core/types';
 import { GetActionHandler, UpdateActionHandler } from '@core/service-worker';
-import { useIsSpecificContextContainer } from './useIsSpecificContextContainer';
+import { isSpecificContextContainer } from '../utils/isSpecificContextContainer';
 import { useCallback, useEffect, useState } from 'react';
 import { getUpdatedSigningData } from '@core/common';
 import { useWindowGetsClosedOrHidden } from './useWindowGetsClosedOrHidden';
@@ -45,7 +45,7 @@ export function useApproveAction<DisplayData = any>(
   isBatchApproval: boolean = false,
 ): HookResult<Action<DisplayData> | MultiTxAction | undefined> {
   const { request } = useConnectionContext();
-  const isConfirmPopup = useIsSpecificContextContainer(
+  const isConfirmPopup = isSpecificContextContainer(
     ContextContainer.CONFIRM,
   );
   const { approval } = useApprovalsContext();
