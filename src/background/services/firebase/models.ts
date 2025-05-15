@@ -24,3 +24,8 @@ export interface ConfigParams {
 export interface ChatConfig extends ConfigParams {
   generationConfig: GenerationConfig;
 }
+
+export interface ChatDialogHistory {
+  role: 'model' | 'user';
+  content: string;
+}
