@@ -1,7 +1,19 @@
 import { ContextContainer } from '@core/types';
 import { useIsSpecificContextContainer } from './useIsSpecificContextContainer';
 
-export function useAppDimensions(): { width: string; height: string } {
+type AppDimensions = {
+  width: string;
+  height: string;
+};
+
+const dimensions = {
+  miniMode: { width: '375px', height: '600px' },
+  confirm: { width: '375px', height: '640px' },
+  fullscreen: { width: '100%', height: '100%' },
+  unknown: { width: '', height: '' },
+} as const satisfies Record<string, AppDimensions>;
+
+export function useAppDimensions(): AppDimensions {
   const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
   const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
   const isFullscreen = useIsSpecificContextContainer(
@@ -9,24 +21,12 @@ export function useAppDimensions(): { width: string; height: string } {
   );
 
   if (isMiniMode) {
-    return {
-      height: '600px',
-      width: '375px',
-    };
+    return dimensions.miniMode;
   } else if (isConfirm) {
-    return {
-      height: '640px',
-      width: '375px',
-    };
+    return dimensions.confirm;
   } else if (isFullscreen) {
-    return {
-      height: '100%',
-      width: '100%',
-    };
+    return dimensions.fullscreen;
   }
 
-  return {
-    height: '',
-    width: '',
-  };
+  return dimensions.unknown;
 }
