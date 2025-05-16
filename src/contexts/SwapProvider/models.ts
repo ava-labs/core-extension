@@ -42,7 +42,12 @@ export const hasParaswapError = (
   return typeof response.error === 'string';
 };
 
-export type SwapQuote = OptimalRate | JupiterQuote;
+export type EvmSwapQuote = OptimalRate | WrapOperation | UnwrapOperation;
+export type SwapQuote =
+  | OptimalRate
+  | WrapOperation
+  | UnwrapOperation
+  | JupiterQuote;
 
 export const isJupiterSwapParams = (
   swapParams: SwapParams<SwapQuote>,
@@ -119,8 +124,8 @@ export type SwapContextAPI = {
   setError(error: SwapError): void;
   isSwapLoading: boolean;
   setIsSwapLoading(isSwapLoading: boolean): void;
-  quote: OptimalRate | JupiterQuote | null;
-  setQuote(quote: OptimalRate | JupiterQuote | null): void;
+  quote: SwapQuote | null;
+  setQuote(quote: SwapQuote | null): void;
   swapFormValuesStream: BehaviorSubject<SwapFormValues>;
   destAmount: string;
   setDestAmount(destAmount: string): void;
@@ -213,12 +218,47 @@ export type SwapAdapterMethods = {
   showPendingToast: () => string;
 };
 
-export type SwapAdapter<T extends SwapQuote> = (
+export type SwapAdapter<
+  T extends SwapQuote,
+  U extends SwapParams<SwapQuote>,
+> = (
   walletState: SwapWalletState,
   methods: SwapAdapterMethods,
 ) => {
   getRate: (params: GetRateParams) => Promise<GetRateResult<T>>;
-  swap: (params: SwapParams<T>) => Promise<void>;
+  swap: (params: U) => Promise<void>;
 };
 
 export type { JupiterQuote };
+
+export type WrapOperation = {
+  type: 'WRAP';
+  target: string;
+  amount: string;
+};
+
+export type UnwrapOperation = {
+  type: 'UNWRAP';
+  source: string;
+  amount: string;
+};
+
+export function isWrapOperation(quote: SwapQuote): quote is WrapOperation {
+  return 'type' in quote && quote.type === 'WRAP';
+}
+
+export function isUnwrapOperation(quote: SwapQuote): quote is UnwrapOperation {
+  return 'type' in quote && quote.type === 'UNWRAP';
+}
+
+export function isWrapOperationParams(
+  params: SwapParams<SwapQuote>,
+): params is SwapParams<WrapOperation> {
+  return isWrapOperation(params.quote);
+}
+
+export function isUnwrapOperationParams(
+  params: SwapParams<SwapQuote>,
+): params is SwapParams<UnwrapOperation> {
+  return isUnwrapOperation(params.quote);
+}

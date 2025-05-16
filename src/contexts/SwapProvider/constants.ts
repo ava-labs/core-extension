@@ -37,3 +37,6 @@ export const JUPITER_PARTNER_ADDRESS =
  * @example 85 -> 0.85%
  */
 export const JUPITER_PARTNER_FEE_BPS = 85 as const satisfies number;
+
+export const WAVAX_ADDRESS = '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7';
+export const WETH_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';

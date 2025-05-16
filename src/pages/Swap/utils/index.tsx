@@ -9,10 +9,6 @@ import { stringToBigint } from '@src/utils/stringToBigint';
 import { WrappedError } from '@src/utils/errors';
 import { OptimalRate } from '@paraswap/sdk';
 import { SwappableToken } from '../models';
-import {
-  isParaswapQuote,
-  JupiterQuote,
-} from '@src/contexts/SwapProvider/models';
 
 interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
@@ -95,27 +91,6 @@ export const getMaxValueWithGas = ({
   return max;
 };
 
-export const calculateRate = (
-  quote: OptimalRate | JupiterQuote,
-  context: { srcDecimals: number; destDecimals: number },
-) => {
-  if (isParaswapQuote(quote)) {
-    const { destAmount, destDecimals, srcAmount, srcDecimals } = quote;
-    const destAmountNumber =
-      parseInt(destAmount, 10) / Math.pow(10, destDecimals);
-    const sourceAmountNumber =
-      parseInt(srcAmount, 10) / Math.pow(10, srcDecimals);
-    return destAmountNumber / sourceAmountNumber;
-  }
-
-  const { inAmount, outAmount } = quote;
-
-  const realOutValue = parseInt(outAmount, 10) / 10 ** context.destDecimals;
-  const realInValue = parseInt(inAmount, 10) / 10 ** context.srcDecimals;
-
-  return realOutValue / realInValue;
-};
-
 export interface Token {
   icon?: JSX.Element;
   name?: string;
@@ -160,3 +135,5 @@ export const isSwappableToken = (
 
   return token.type === TokenType.ERC20 || token.type === TokenType.NATIVE;
 };
+
+export { calculateRate } from './calculateRate';
