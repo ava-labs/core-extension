@@ -1,16 +1,95 @@
-import { TokenWithBalance } from '@avalabs/vm-module-types';
-import { isNFT, normalizeBalance } from '@core/common';
-import Big from 'big.js';
-import { partition } from 'lodash';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { isNFT } from '@core/common';
 import { useMemo } from 'react';
 
-export interface DisplayToken {
+export interface DisplayToken<T extends TokenWithBalance = TokenWithBalance> {
   name: string;
   symbol: string;
   displayValue: string;
-  token: TokenWithBalance;
+  token: T;
   decimals: number;
 }
+
+const hasCurrencyValue = (
+  displayToken: DisplayToken,
+): displayToken is DisplayToken<
+  TokenWithBalance & { balanceInCurrency: number }
+> => typeof displayToken.token.balanceInCurrency === 'number';
+
+const isNativeToken = (
+  displayToken: DisplayToken,
+): displayToken is DisplayToken<
+  TokenWithBalance & { type: TokenType.NATIVE }
+> => displayToken.token.type === TokenType.NATIVE;
+
+/**
+ * Native tokens first, then tokens sorted by balance in currency, then tokens sorted by balance, then tokens sorted by symbol
+ */
+const sortTokens = (tokens: DisplayToken[]): DisplayToken[] => {
+  const [nativeTokens, tokensWithCurrency, tokensWithoutCurrency] =
+    tokens.reduce<
+      [
+        DisplayToken<TokenWithBalance & { type: TokenType.NATIVE }>[],
+        DisplayToken<TokenWithBalance & { balanceInCurrency: number }>[],
+        DisplayToken<TokenWithBalance>[],
+      ]
+    >(
+      ([natives, withCurrencyValue, withoutCurrencyValue], displayToken) => {
+        if (isNativeToken(displayToken)) {
+          return [
+            [...natives, displayToken],
+            withCurrencyValue,
+            withoutCurrencyValue,
+          ];
+        }
+
+        if (hasCurrencyValue(displayToken)) {
+          return [
+            natives,
+            [...withCurrencyValue, displayToken],
+            withoutCurrencyValue,
+          ];
+        }
+
+        return [
+          natives,
+          withCurrencyValue,
+          [...withoutCurrencyValue, displayToken],
+        ];
+      },
+      [[], [], []],
+    );
+
+  return [
+    // native tokens always first
+    ...nativeTokens,
+    // then tokens with known fiat value
+    ...tokensWithCurrency.sort(({ token: a }, { token: b }) => {
+      // ...sorted by fiat value, descending
+      if (a.balanceInCurrency !== b.balanceInCurrency) {
+        return b.balanceInCurrency - a.balanceInCurrency;
+      }
+
+      // if fiat value is the same, then sort by balance (desc)
+      if (a.balance !== b.balance) {
+        return Number(BigInt(b.balance) - BigInt(a.balance));
+      }
+
+      // if balance is the same, then sort by name (asc)
+      return a.name.localeCompare(b.name);
+    }),
+    // tokens with unknown fiat value come last
+    ...tokensWithoutCurrency.sort(({ token: a }, { token: b }) => {
+      // sorted by balance (desc)
+      if (a.balance !== b.balance) {
+        return Number(BigInt(b.balance) - BigInt(a.balance));
+      }
+
+      // if balance is the same, then sort by name (asc)
+      return a.name.localeCompare(b.name);
+    }),
+  ];
+};
 
 export const useDisplaytokenlist = ({
   tokensList,
@@ -37,36 +116,7 @@ export const useDisplaytokenlist = ({
         };
       });
 
-    const [tokensWithBalance, tokensWithoutBalance]: DisplayToken[][] =
-      partition(initialList, (token) => {
-        const balance = normalizeBalance(token.token.balance, token.decimals);
-
-        return balance ? balance.gt(new Big(0)) : false;
-      });
-
-    // Sorting specification per: https://ava-labs.atlassian.net/browse/CP-7768
-    // First part of the list should be tokens with a balance sorted by balance (descending)
-    // Second part of the list should be all no balance assets in order alphabetically
-    return [
-      ...tokensWithBalance.sort((tokenOne, tokenTwo) => {
-        const firstBalance =
-          normalizeBalance(tokenOne.token.balance, tokenOne.decimals) ??
-          new Big(0);
-
-        const secondBalance =
-          normalizeBalance(tokenTwo.token.balance, tokenTwo.decimals) ??
-          new Big(0);
-
-        const comparison = firstBalance.cmp(secondBalance);
-        if (comparison) {
-          return comparison * -1;
-        }
-        return tokenOne.name.localeCompare(tokenTwo.name);
-      }),
-      ...tokensWithoutBalance.sort((tokenOne, tokenTwo) => {
-        return tokenOne.name.localeCompare(tokenTwo.name);
-      }),
-    ];
+    return sortTokens(initialList);
   }, [tokensList, searchQuery]);
   return displayTokenList;
 };
