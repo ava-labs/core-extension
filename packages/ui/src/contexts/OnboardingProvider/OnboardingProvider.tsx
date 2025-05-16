@@ -1,4 +1,3 @@
-import { toast } from '@avalabs/core-k2-components';
 import { WalletType } from '@avalabs/types';
 import {
   GetIsOnboardedHandler,
@@ -78,10 +77,12 @@ export function OnboardingContextProvider({
   children,
   LoadingComponent,
   OnboardingScreen,
+  onError,
 }: PropsWithChildren<{
   children: any;
   LoadingComponent: React.FC;
   OnboardingScreen: React.FC;
+  onError: (message: string) => void;
 }>) {
   const { request, events } = useConnectionContext();
   const isHome = useIsSpecificContextContainer(ContextContainer.HOME);
@@ -372,9 +373,7 @@ export function OnboardingContextProvider({
         .catch(() => {
           capture('OnboardingSubmitFailed', { walletType });
           setNextPhase(OnboardingPhase.PASSWORD);
-          toast.error(t('Something went wrong. Please try again.'), {
-            duration: 3000,
-          });
+          onError(t('Something went wrong. Please try again.'));
           setAnalyticsConsent(undefined);
         })
         .finally(() => {
@@ -397,6 +396,7 @@ export function OnboardingContextProvider({
       t,
       walletType,
       xpub,
+      onError,
     ],
   );
 

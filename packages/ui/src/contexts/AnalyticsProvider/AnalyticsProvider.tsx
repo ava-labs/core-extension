@@ -7,6 +7,7 @@ import {
 } from '@core/service-worker';
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -35,7 +36,7 @@ const AnalyticsContext = createContext<{
 
 const windowId = crypto.randomUUID();
 
-export function AnalyticsContextProvider({ children }: { children: any }) {
+export function AnalyticsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { analyticsConsent } = useSettingsContext();
   const [isInitialized, setIsInitialized] = useState(false);

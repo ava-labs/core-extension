@@ -1,4 +1,3 @@
-import { toast } from '@avalabs/core-k2-components';
 import { TokenType } from '@avalabs/vm-module-types';
 import { OptimalRate, SwapSide } from '@paraswap/sdk';
 import Big from 'big.js';
@@ -48,6 +47,8 @@ import { useSolanaSwap } from './useSolanaSwap';
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
 type SwapContextProviderProps = PropsWithChildren<{
+  removeToast: (toastId: string) => void;
+  showErrorToast: (message: string) => void;
   showPendingToast: () => string;
   showToastWithLink: (options: {
     title: string;
@@ -58,6 +59,8 @@ type SwapContextProviderProps = PropsWithChildren<{
 
 export function SwapContextProvider({
   children,
+  removeToast,
+  showErrorToast,
   showPendingToast,
   showToastWithLink,
 }: SwapContextProviderProps) {
@@ -128,7 +131,7 @@ export function SwapContextProvider({
         ? t('Swap transaction succeeded! 🎉')
         : t('Swap transaction failed! ❌');
 
-      toast.remove(pendingToastId);
+      removeToast(pendingToastId);
 
       if (isSuccessful) {
         showToastWithLink({
@@ -140,7 +143,7 @@ export function SwapContextProvider({
           label: t('View in Explorer'),
         });
       } else {
-        toast.error(notificationText, { duration: 5000 });
+        showErrorToast(notificationText);
       }
 
       browser.notifications.create({
@@ -169,7 +172,15 @@ export function SwapContextProvider({
             ),
       });
     },
-    [activeNetwork, captureEncrypted, findSymbol, t, showToastWithLink],
+    [
+      activeNetwork,
+      captureEncrypted,
+      findSymbol,
+      t,
+      showToastWithLink,
+      removeToast,
+      showErrorToast,
+    ],
   );
 
   const { getRate: getEvmRate, swap: evmSwap } = useEvmSwap(

@@ -26,7 +26,7 @@ import {
 
 import { AccountType, FeatureGates } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
-import { useScopedToast } from '@core/ui';
+import { useScopedToast } from '@/hooks/useScopedToast';
 import { useWalletContext } from '@core/ui';
 import { useAccountsContext } from '@core/ui';
 import { stripAddressPrefix } from '@core/common';

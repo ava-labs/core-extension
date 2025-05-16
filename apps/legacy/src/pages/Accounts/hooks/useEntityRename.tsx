@@ -1,4 +1,4 @@
-import { useScopedToast } from '@core/ui';
+import { useScopedToast } from '@/hooks/useScopedToast';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RenameDialog } from '../components/RenameDialog';

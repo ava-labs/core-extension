@@ -25,7 +25,7 @@ import { useHistory } from 'react-router-dom';
 import { DerivedAddress, NetworkType } from './components/DerivedAddress';
 import { utils } from '@avalabs/avalanchejs';
 import { usePrivateKeyImport } from '@core/ui';
-import { useScopedToast } from '@core/ui';
+import { useScopedToast } from '@/hooks/useScopedToast';
 import { useAccountsContext } from '@core/ui';
 import { DuplicatedAccountDialog } from './components/DuplicatedAccountDialog';
 import { useTranslation } from 'react-i18next';

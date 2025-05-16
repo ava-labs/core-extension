@@ -29,6 +29,8 @@ const getSwapProvider = async (): Promise<SwapContextAPI> => {
       <SwapContextProvider
         showPendingToast={jest.fn()}
         showToastWithLink={jest.fn()}
+        removeToast={jest.fn()}
+        showErrorToast={jest.fn()}
       >
         <TestConsumerComponent ref={ref} />
       </SwapContextProvider>,
@@ -49,17 +51,6 @@ const TestConsumerComponent = forwardRef((_props: unknown, ref) => {
   return <></>;
 });
 TestConsumerComponent.displayName = 'TestComponent';
-
-jest.mock('@avalabs/core-k2-components', () => ({
-  toast: {
-    success: jest.fn(),
-    loading: jest.fn(),
-    dismiss: jest.fn(),
-    error: jest.fn(),
-    custom: jest.fn(),
-    remove: jest.fn(),
-  },
-}));
 
 jest.mock('../AnalyticsProvider', () => ({
   useAnalyticsContext: jest.fn(),

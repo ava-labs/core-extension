@@ -149,6 +149,11 @@ export function Popup() {
               <OnboardingContextProvider
                 LoadingComponent={LoadingContent}
                 OnboardingScreen={Onboarding}
+                onError={(message: string) =>
+                  toast.error(message, {
+                    duration: 3000,
+                  })
+                }
               >
                 <NetworkFeeContextProvider>
                   <WalletContextProvider LockedComponent={WalletLocked}>
@@ -157,6 +162,8 @@ export function Popup() {
                         <BalancesProvider>
                           <DefiContextProvider>
                             <SwapContextProvider
+                              removeToast={toast.remove}
+                              showErrorToast={toast.error}
                               showPendingToast={showPendingToast}
                               showToastWithLink={toastCardWithLink}
                             >

@@ -26,7 +26,7 @@ import { useAnalyticsContext } from '@core/ui';
 import { useBalancesContext } from '@core/ui';
 import { useNetworkContext } from '@core/ui';
 import { useBalanceTotalInCurrency } from '@core/ui';
-import { useScopedToast } from '@core/ui';
+import { useScopedToast } from '@/hooks/useScopedToast';
 import { Account, AccountType, SecretType } from '@core/types';
 import { getAddressForChain, truncateAddress } from '@core/common';
 

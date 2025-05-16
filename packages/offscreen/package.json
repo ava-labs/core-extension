@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.offscreen.dev.ts",
+    "dev:next": "rsbuild build -w --config rsbuild.offscreen.dev.ts -- --core-gen=next",
     "build": "rsbuild build --config rsbuild.offscreen.prod.ts",
+    "build:next": "rsbuild build --config rsbuild.offscreen.prod.ts -- --core-gen=next",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
@@ -21,7 +23,7 @@
     "@rsbuild/plugin-react": "1.1.1",
     "@rsdoctor/rspack-plugin": "1.0.2",
     "@rspack/core": "1.3.2",
-    "typescript": "5.7.3",
+    "typescript": "5.8.2",
     "webextension-polyfill": "0.10.0"
   }
 }
