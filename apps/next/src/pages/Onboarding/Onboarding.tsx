@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -18,10 +18,14 @@ import { LanguageSelector } from '@/components/LanguageSelector';
 import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 
 import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
+import { FullscreenLoading } from '@/components/FullscreenLoading';
+import { AccessExistingWallet } from './AccessExistingWallet';
+import { Route, Switch, useHistory } from 'react-router-dom';
 
 export function Onboarding() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const history = useHistory();
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
 
   return (
@@ -89,6 +93,9 @@ export function Onboarding() {
                   variant="contained"
                   color="secondary"
                   size="large"
+                  onClick={() => {
+                    history.push('/onboarding/access-existing-wallet');
+                  }}
                 >
                   {t('Access existing wallet')}
                 </Button>
@@ -99,6 +106,14 @@ export function Onboarding() {
         <SlidesColumn>
           <ScreenshotsCarousel />
         </SlidesColumn>
+
+        <Suspense fallback={<FullscreenLoading />}>
+          <Switch>
+            <Route path="/onboarding/access-existing-wallet">
+              <AccessExistingWallet open={true} onClose={() => {}} />
+            </Route>
+          </Switch>
+        </Suspense>
       </Stack>
     </>
   );
