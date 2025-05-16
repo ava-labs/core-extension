@@ -15,16 +15,18 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 
+import { NATIVE_TOKEN_ADDRESS, WAVAX_ADDRESS } from './constants';
 import {
   GetRateParams,
   SwapAdapterMethods,
   SwapErrorCode,
   SwapParams,
   SwapWalletState,
+  UnwrapOperation,
+  WrapOperation,
 } from './models';
 import { useEvmSwap } from './useEvmSwap';
 import * as swapUtils from './swap-utils';
-import { NATIVE_TOKEN_ADDRESS } from './constants';
 
 const ROUTE_ADDRESS = '0x12341234';
 
@@ -348,10 +350,56 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
         });
       });
     });
+
+    it('returns UNWRAP details when needed', async () => {
+      const { getRate } = await buildAdapter(buildWalletState());
+
+      const params = buildGetRateParams({
+        srcToken: WAVAX_ADDRESS,
+        destToken: 'AVAX',
+      });
+
+      await act(async () => {
+        expect(await getRate(params)).toStrictEqual({
+          destAmount: '1000',
+          error: undefined,
+          quote: {
+            type: 'UNWRAP',
+            source: WAVAX_ADDRESS,
+            amount: '1000',
+          },
+        });
+      });
+    });
+
+    it('returns WRAP details when needed', async () => {
+      const { getRate } = await buildAdapter(buildWalletState());
+
+      const params = buildGetRateParams({
+        srcToken: 'AVAX',
+        destToken: WAVAX_ADDRESS,
+      });
+
+      await act(async () => {
+        expect(await getRate(params)).toStrictEqual({
+          destAmount: '1000',
+          error: undefined,
+          quote: {
+            type: 'WRAP',
+            target: WAVAX_ADDRESS,
+            amount: '1000',
+          },
+        });
+      });
+    });
   });
 
   describe('swap() function', () => {
-    const getSwapParams = (overrides?: Partial<SwapParams<OptimalRate>>) =>
+    const getSwapParams = (
+      overrides?: Partial<
+        SwapParams<OptimalRate | WrapOperation | UnwrapOperation>
+      >,
+    ) =>
       ({
         srcToken: 'srcToken',
         srcDecimals: 10,
@@ -950,6 +998,90 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
             ),
           ).not.toThrow();
         });
+      });
+    });
+
+    it('performs a wrap when needed', async () => {
+      const requestMock = jest.fn().mockResolvedValueOnce('0xSWAP_HASH');
+
+      jest.mocked(Contract).mockReturnValue({
+        deposit: {
+          populateTransaction: jest.fn().mockResolvedValueOnce({
+            to: 'wrap_to',
+            data: 'wrap_data',
+          }),
+        },
+      } as any);
+
+      jest.mocked(useConnectionContext).mockReturnValue({
+        request: requestMock,
+        events: jest.fn(),
+      } as any);
+
+      const { swap } = await buildAdapter(buildWalletState());
+
+      await act(async () => {
+        await swap(
+          getSwapParams({
+            srcToken: 'AVAX',
+            destToken: WAVAX_ADDRESS,
+            quote: {
+              type: 'WRAP',
+              target: WAVAX_ADDRESS,
+              amount: '1000',
+            },
+          }),
+        );
+
+        expect(requestMock).toHaveBeenCalledWith(
+          matchingPayload({
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [matchingPayload({ to: 'wrap_to', data: 'wrap_data' })],
+          }),
+        );
+      });
+    });
+
+    it('performs an unwrap when needed', async () => {
+      const requestMock = jest.fn().mockResolvedValueOnce('0xSWAP_HASH');
+
+      jest.mocked(Contract).mockReturnValue({
+        withdraw: {
+          populateTransaction: jest.fn().mockResolvedValueOnce({
+            to: 'unwrap_from',
+            data: 'unwrap_data',
+          }),
+        },
+      } as unknown as Contract);
+
+      jest.mocked(useConnectionContext).mockReturnValue({
+        request: requestMock,
+        events: jest.fn(),
+      } as any);
+
+      const { swap } = await buildAdapter(buildWalletState());
+
+      await act(async () => {
+        await swap(
+          getSwapParams({
+            destToken: 'AVAX',
+            srcToken: WAVAX_ADDRESS,
+            quote: {
+              type: 'UNWRAP',
+              source: WAVAX_ADDRESS,
+              amount: '1000',
+            },
+          }),
+        );
+
+        expect(requestMock).toHaveBeenCalledWith(
+          matchingPayload({
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [
+              matchingPayload({ to: 'unwrap_from', data: 'unwrap_data' }),
+            ],
+          }),
+        );
       });
     });
   });

@@ -32,10 +32,10 @@ import {
   SwapParams,
 } from './models';
 
-export const useSolanaSwap: SwapAdapter<JupiterQuote> = (
-  { account, network },
-  { onTransactionReceipt, showPendingToast },
-) => {
+export const useSolanaSwap: SwapAdapter<
+  JupiterQuote,
+  SwapParams<JupiterQuote>
+> = ({ account, network }, { onTransactionReceipt, showPendingToast }) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { capture } = useAnalyticsContext();
