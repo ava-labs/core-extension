@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Collapse, Stack, styled } from '@avalabs/k2-alpine';
+import {
+  Box,
+  Button,
+  Collapse,
+  Stack,
+  styled,
+  useTheme,
+} from '@avalabs/k2-alpine';
 
 // FIXME: import from @avalabs/k2-alpine
 import { FaApple } from 'react-icons/fa';
@@ -14,6 +21,7 @@ import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
 
 export function Onboarding() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
 
   return (
@@ -32,11 +40,15 @@ export function Onboarding() {
         </Box>
         <Column>
           <Stack direction="row" justifyContent="center" alignItems="center">
-            <CoreSplash onGifEnd={() => setHasLogoAnimationEnded(true)} />
+            <CoreSplash
+              size="big"
+              onGifEnd={() => setHasLogoAnimationEnded(true)}
+              style={{ marginTop: theme.spacing(-5), transform: 'scale(0.75)' }}
+            />
           </Stack>
           <Collapse in={hasLogoAnimationEnded}>
             <Stack
-              marginTop={12}
+              marginTop={8.5}
               width={320}
               direction="column"
               justifyContent="center"

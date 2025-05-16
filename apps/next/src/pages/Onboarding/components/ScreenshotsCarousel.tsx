@@ -93,10 +93,11 @@ const Slide = styled(Box, {
   shouldForwardProp: (p) => p !== 'src' && p !== 'active',
 })<SlideProps>(({ phase }) => ({
   position: 'absolute',
-  top: 0,
+  top: '50%',
   left: 0,
   height: '100%',
-  width: '100%',
+  maxHeight: 450,
+  aspectRatio: 640 / 1200,
   overflow: 'hidden',
   willChange: 'transform, box-shadow, z-index',
   transitionProperty: 'transform, box-shadow, z-index',
@@ -112,25 +113,25 @@ const getStyleForPhase = (phase: SlidePhase) => {
       return {
         zIndex: 2,
         boxShadow: `0px 0px 20px 10px rgba(0, 0, 0, 0.4)`,
-        transform: `scale(1) translateX(0) translateY(-10px)`,
+        transform: `scale(1) translateX(0) translateY(calc(-50% + 10px))`,
         transitionDelay: '0ms',
       };
     case 'next':
       return {
         zIndex: 1,
         boxShadow: `0px 0px 0 0px rgba(0, 0, 0, 0.0)`,
-        transform: `scale(0.95) translateX(50%) translateY(-10px)`,
+        transform: `scale(0.95) translateX(50%) translateY(-50%)`,
         '@media(min-width: 1200px)': {
-          transform: `scale(0.95) translateX(80%) translateY(-10px)`,
+          transform: `scale(0.95) translateX(80%) translateY(-50%)`,
         },
       };
     case 'previous':
       return {
         zIndex: 0,
         boxShadow: `0px 0px 0 0px rgba(0, 0, 0, 0.0)`,
-        transform: `scale(0.95) translateX(-50%) translateY(-10px)`,
+        transform: `scale(0.95) translateX(-50%) translateY(-50%)`,
         '@media(min-width: 1200px)': {
-          transform: `scale(0.95) translateX(-80%) translateY(-10px)`,
+          transform: `scale(0.95) translateX(-80%) translateY(-50%)`,
         },
       };
   }
