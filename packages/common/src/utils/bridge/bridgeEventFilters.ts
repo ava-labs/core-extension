@@ -10,14 +10,14 @@ import {
 import { BridgeConfig } from '@avalabs/core-bridge-sdk';
 
 export function isBridgeStateUpdateEventListener(
-  evt: ExtensionConnectionEvent<BridgeState>,
-) {
+  evt: ExtensionConnectionEvent,
+): evt is ExtensionConnectionEvent<BridgeState> {
   return evt.name === BridgeEvents.BRIDGE_STATE_UPDATE_EVENT;
 }
 
 export function isBridgeConfigUpdateEventListener(
-  evt: ExtensionConnectionEvent<BridgeConfig>,
-) {
+  evt: ExtensionConnectionEvent,
+): evt is ExtensionConnectionEvent<BridgeConfig> {
   return evt?.name === BridgeEvents.BRIDGE_CONFIG_UPDATE_EVENT;
 }
 

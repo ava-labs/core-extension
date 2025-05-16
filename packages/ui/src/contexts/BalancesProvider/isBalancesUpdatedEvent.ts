@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 
 export function isBalancesUpdatedEvent(
-  evt: ExtensionConnectionEvent<BalancesInfo>,
-) {
+  evt: ExtensionConnectionEvent,
+): evt is ExtensionConnectionEvent<BalancesInfo> {
   return evt.name === BalanceServiceEvents.UPDATED;
 }

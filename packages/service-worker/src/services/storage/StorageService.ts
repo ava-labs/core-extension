@@ -107,7 +107,7 @@ export class StorageService implements OnLock {
         })
       : await encryptWithKey({
           secret: serializeToJSON<T>(dataWithSchemaVersion),
-          encryptionKey: Buffer.from(this._storageKey ?? ''),
+          encryptionKey: Uint8Array.from(Buffer.from(this._storageKey ?? '')),
         });
 
     const dataToStore: Record<string, EncryptedData> = {
@@ -152,7 +152,7 @@ export class StorageService implements OnLock {
           encryptedData.keyDerivationVersion ?? KeyDerivationVersion.V1,
       });
     } else {
-      const keyBuffer = Buffer.from(this._storageKey ?? '');
+      const keyBuffer = Uint8Array.from(Buffer.from(this._storageKey ?? ''));
 
       try {
         data = await decryptWithKey({

@@ -47,7 +47,10 @@ import {
 import { LedgerEvent } from '@core/types';
 import Eth from '@ledgerhq/hw-app-eth';
 import Transport from '@ledgerhq/hw-transport';
-import { ledgerDiscoverTransportsEventListener } from './ledgerDiscoverTransportsEventListener';
+import {
+  isLedgerDeviceRequestEvent,
+  ledgerDiscoverTransportsEventListener,
+} from './listeners';
 import { useConnectionContext } from '../ConnectionProvider';
 import { getLedgerTransport } from '../utils/getLedgerTransport';
 
@@ -116,7 +119,7 @@ export function LedgerContextProvider({ children }: { children: any }) {
   useEffect(() => {
     const subscription = events()
       .pipe(
-        filter((evt) => evt.name === LedgerEvent.TRANSPORT_REQUEST),
+        filter(isLedgerDeviceRequestEvent),
         filter((evt) => evt.value.connectionUUID === LEDGER_INSTANCE_UUID),
       )
       .subscribe(async (res) => {

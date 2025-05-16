@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 
 export function contactsUpdatedEventListener(
-  evt: ExtensionConnectionEvent<ContactsState>,
-) {
+  evt: ExtensionConnectionEvent,
+): evt is ExtensionConnectionEvent<ContactsState> {
   return evt.name === ContactsEvents.CONTACTS_UPDATED;
 }

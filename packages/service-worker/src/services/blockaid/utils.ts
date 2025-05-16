@@ -1,5 +1,4 @@
 import Blockaid from '@blockaid/client';
-import { TransactionValidationResponse } from '@blockaid/client/resources';
 
 export const isToken = (
   asset: Asset,
@@ -30,7 +29,7 @@ export type TokenDetails =
   | Blockaid.NativeAssetDetails;
 
 export const getValidationResultType = (
-  validation?: TransactionValidationResponse,
+  validation?: Blockaid.TransactionValidationResponse,
 ) => ({
   isMalicious: validation?.result_type === 'Malicious',
   isSuspicious: validation?.result_type === 'Warning',

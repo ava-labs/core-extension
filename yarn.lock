@@ -4081,7 +4081,7 @@ __metadata:
     react-virtualized: "npm:9.22.3"
     react-window: "npm:1.8.11"
     reflect-metadata: "npm:0.1.13"
-    rxjs: "npm:7.5.1"
+    rxjs: "npm:7.8.2"
     semantic-release: "npm:19.0.3"
     semver: "npm:7.6.0"
     shell-quote: "npm:1.8.1"
@@ -4464,7 +4464,7 @@ __metadata:
     postinstall-postinstall: "npm:2.1.0"
     prettier: "npm:3.4.2"
     reflect-metadata: "npm:0.1.13"
-    rxjs: "npm:7.5.1"
+    rxjs: "npm:7.8.2"
     semantic-release: "npm:19.0.3"
     semver: "npm:7.6.0"
     shell-quote: "npm:1.8.1"
@@ -4632,7 +4632,7 @@ __metadata:
     react-virtualized: "npm:9.22.3"
     react-window: "npm:^1.8.11"
     reflect-metadata: "npm:0.1.13"
-    rxjs: "npm:7.5.1"
+    rxjs: "npm:7.8.2"
     semantic-release: "npm:19.0.3"
     semver: "npm:7.6.0"
     shell-quote: "npm:1.8.1"
@@ -30433,12 +30433,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:7.5.1":
-  version: 7.5.1
-  resolution: "rxjs@npm:7.5.1"
+"rxjs@npm:7.8.2":
+  version: 7.8.2
+  resolution: "rxjs@npm:7.8.2"
   dependencies:
     tslib: "npm:^2.1.0"
-  checksum: 10c0/72d7a30ea53c239132e9a56f11f18b55155b64c3e32010e147663e83af6141b5eb5f988fca7210389fd0d8385727fad658142341c9a7745e4e3d3a9f480d6977
+  checksum: 10c0/1fcd33d2066ada98ba8f21fcbbcaee9f0b271de1d38dc7f4e256bfbc6ffcdde68c8bfb69093de7eeb46f24b1fb820620bf0223706cff26b4ab99a7ff7b2e2c45
   languageName: node
   linkType: hard
 

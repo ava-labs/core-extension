@@ -8,6 +8,7 @@ export interface LedgerDeviceResponseData {
 export interface LedgerDeviceRequestData {
   requestId: string;
   method: string;
+  connectionUUID: string;
   params: any;
 }
 

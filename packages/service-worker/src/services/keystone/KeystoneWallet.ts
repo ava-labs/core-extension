@@ -75,7 +75,7 @@ export class KeystoneWallet {
     // This here is BIP44 for the first account (index 0). 2nd account should be M/44'/60'/0'/0/1, etc..
     const keyPath = `M/44'/60'/0'/0/${activeAccountIndex}`;
     const ethSignRequest = EthSignRequest.constructETHRequest(
-      Buffer.from(message),
+      message,
       dataType,
       keyPath,
       fingerprint,

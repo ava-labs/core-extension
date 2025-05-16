@@ -148,7 +148,7 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
       matchingXpub.derivationPath.length + 1, // Add one to account for the trailing slash from the lookup
     );
     const node = fromBase58(matchingXpub.key).derivePath(pathSuffix);
-    const key = hex.encode(node.publicKey);
+    const key = hex.encode(Uint8Array.from(node.publicKey));
 
     return new AddressPublicKey(
       key,
@@ -170,7 +170,9 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
         break;
 
       case 'secp256k1':
-        key = hex.encode(getPublicKeyFromPrivateKey(privateKey));
+        key = hex.encode(
+          Uint8Array.from(getPublicKeyFromPrivateKey(privateKey)),
+        );
         break;
 
       default:
@@ -197,13 +199,17 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
     switch (curve) {
       case 'secp256k1': {
         const seedNode = fromSeed(seed);
-        key = hex.encode(seedNode.derivePath(derivationPath).publicKey);
+        key = hex.encode(
+          Uint8Array.from(seedNode.derivePath(derivationPath).publicKey),
+        );
         break;
       }
 
       case 'ed25519': {
-        const hdKey = slip10.fromMasterSeed(seed);
-        key = hex.encode(hdKey.derive(derivationPath).publicKeyRaw);
+        const hdKey = slip10.fromMasterSeed(Uint8Array.from(seed));
+        key = hex.encode(
+          Uint8Array.from(hdKey.derive(derivationPath).publicKeyRaw),
+        );
         break;
       }
 

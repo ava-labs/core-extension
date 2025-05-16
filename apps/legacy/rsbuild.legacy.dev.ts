@@ -12,7 +12,7 @@ export default mergeRsbuildConfig(commonConfig, {
   },
   output: {
     sourceMap: {
-      js: 'hidden-source-map',
+      js: 'inline-source-map',
     },
   },
   tools: {

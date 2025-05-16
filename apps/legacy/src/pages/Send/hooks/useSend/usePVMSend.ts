@@ -15,7 +15,7 @@ import {
 } from '@core/types';
 import { isValidPvmAddress, resolve, stripAddressPrefix } from '@core/common';
 
-import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
+import type { pvm } from '@avalabs/avalanchejs';
 import { PVMSendOptions } from '../../models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
@@ -39,7 +39,7 @@ export const usePvmSend: SendAdapterPVM = ({
   const [isSending, setIsSending] = useState(false);
   const [maxAmount, setMaxAmount] = useState('0');
   const [estimatedFee, setEstimatedFee] = useState(0n);
-  const [feeState, setFeeState] = useState<FeeState>();
+  const [feeState, setFeeState] = useState<pvm.FeeState>();
   const [utxoSet, setUtxoSet] = useState<utils.UtxoSet>();
 
   const wallet = useMemo(() => {
@@ -318,7 +318,7 @@ export const usePvmSend: SendAdapterPVM = ({
   };
 };
 
-const getFeeTolerance = (chosenGasPrice?: bigint, feeState?: FeeState) => {
+const getFeeTolerance = (chosenGasPrice?: bigint, feeState?: pvm.FeeState) => {
   if (!chosenGasPrice || !feeState) {
     return;
   }

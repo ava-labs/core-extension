@@ -1,5 +1,5 @@
 import { utils } from '@avalabs/avalanchejs';
-import { FeeState } from '@avalabs/avalanchejs/dist/vms/pvm';
+import type { pvm } from '@avalabs/avalanchejs';
 import { Network } from '@avalabs/core-chains-sdk';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { CommonError, LEDGER_TX_SIZE_LIMIT_BYTES } from '@core/types';
@@ -15,7 +15,7 @@ export async function getMaxUtxoSet(
   provider: Avalanche.JsonRpcProvider,
   wallet: Avalanche.AddressWallet,
   network: Network,
-  feeState?: FeeState,
+  feeState?: pvm.FeeState,
   preloadedUtxoSet?: utils.UtxoSet,
 ) {
   const chainAliasToUse = isPchainNetwork(network)
