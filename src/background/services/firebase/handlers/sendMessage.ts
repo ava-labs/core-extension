@@ -3,7 +3,7 @@ import { ExtensionRequestHandler } from '@src/background/connections/models';
 import { injectable } from 'tsyringe';
 import { FirebaseService } from '../FirebaseService';
 import { Content, FunctionCall } from 'firebase/vertexai';
-import { ChatDialogHistory } from '../models';
+import { ChatDialogHistory, ConfigParams } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBASE_SEND_MESSAGE,
@@ -13,8 +13,9 @@ type HandlerType = ExtensionRequestHandler<
   },
   {
     message: string;
-    parts: Content[] | undefined;
-    history: ChatDialogHistory[] | undefined;
+    parts?: Content[];
+    history?: ChatDialogHistory[];
+    config?: ConfigParams;
   }
 >;
 
@@ -25,7 +26,7 @@ export class FirebaseSendMessageHandler implements HandlerType {
   constructor(private firebaseService: FirebaseService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { message, parts, history } = request.params;
+    const { message, parts, history, config } = request.params;
     if (!message) {
       return {
         ...request,
@@ -37,6 +38,7 @@ export class FirebaseSendMessageHandler implements HandlerType {
         message,
         parts,
         history,
+        config,
       });
 
       return {

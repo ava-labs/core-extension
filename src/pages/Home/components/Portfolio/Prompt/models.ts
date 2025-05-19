@@ -1,4 +1,5 @@
-import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
+import { SchemaType } from '@google/generative-ai';
+import { FunctionDeclaration } from 'firebase/vertexai';
 
 export const functionDeclarations: FunctionDeclaration[] = [
   {
@@ -165,9 +166,7 @@ The user has the following tokens on the active account:
 __TOKENS__
 The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
-<<<<<<< HEAD
-Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network isalways the actual "active" network.
-=======
+Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network is always the actual "active" network.
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
->>>>>>> main
+The important words should be emphasised with bold formatting e.g.  tokan and network names and / or ids, command names and similar things. 
 `;

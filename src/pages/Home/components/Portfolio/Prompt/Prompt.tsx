@@ -10,7 +10,6 @@ import {
   Backdrop,
 } from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FunctionCallingMode } from '@google/generative-ai';
 import { functionDeclarations, systemPromptTemplate } from './models';
 import { useTranslation } from 'react-i18next';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -446,30 +445,38 @@ export function Prompt() {
       setInput('');
 
       try {
-        await setModel({
-          tools: [
-            {
-              functionDeclarations,
-            },
-          ],
-          toolConfig: {
-            functionCallingConfig: {
-              mode: FunctionCallingMode.AUTO,
-            },
-          },
-          systemInstruction: systemPrompt,
-        })
-          .then(() => {
-            isModelReady.current = true;
+        if (!isModelReady.current) {
+          await setModel({
+            tools: [
+              {
+                functionDeclarations,
+              },
+            ],
+            systemInstruction: systemPrompt,
           })
-          .catch((e) => {
-            if (isModelReady.current) {
-              console.error('Failed to update the model configuration');
-            }
-            throw new Error(e);
-          });
+            .then(() => {
+              isModelReady.current = true;
+            })
+            .catch((e) => {
+              if (isModelReady.current) {
+                console.error('Failed to update the model configuration');
+              }
+              throw new Error(e);
+            });
+        }
 
-        const response = await sendMessage({ message, history: prompts });
+        const response = await sendMessage({
+          message,
+          history: prompts,
+          config: {
+            tools: [
+              {
+                functionDeclarations,
+              },
+            ],
+            systemInstruction: systemPrompt,
+          },
+        });
 
         // For simplicity, this uses the first function call found.
         const call = response?.functionCalls?.[0];
@@ -660,6 +667,7 @@ export function Prompt() {
                         message={message}
                         key={i}
                         scrollToBottom={scrollToBottom}
+                        isDialogOpen={isDialogOpen}
                       />
                     );
                   }

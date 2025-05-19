@@ -40,6 +40,12 @@ export class FirebaseService {
   #config?: ChatConfig;
   #fcmMessageHandlers: Record<string, (payload: MessagePayload) => void> = {};
 
+  #generationConfig = {
+    topP: 0.95,
+    topK: 40,
+    maxOutputTokens: 8192,
+  };
+
   constructor(private featureFlagService: FeatureFlagService) {
     if (!process.env.FIREBASE_CONFIG) {
       throw new Error('FIREBASE_CONFIG is missing');
@@ -126,41 +132,47 @@ export class FirebaseService {
     this.#fcmMessageHandlers[type] = listener;
   }
 
-  #getModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
+  #getModel({ tools, systemInstruction }: ConfigParams) {
     if (!this.#app) {
       throw new Error('Firebase app has not initialized');
     }
     const vertexAI = getVertexAI(this.#app);
-    const generationConfig = {
-      topP: 0.95,
-      topK: 40,
-      maxOutputTokens: 8192,
-    };
     this.#config = {
-      generationConfig,
+      generationConfig: this.#generationConfig,
       tools,
-      toolConfig,
       systemInstruction,
     };
 
     return getGenerativeModel(vertexAI, {
       model: 'gemini-2.0-flash',
-      generationConfig,
+      generationConfig: this.#generationConfig,
       tools,
-      toolConfig,
       systemInstruction,
     });
+  }
+
+  #updateConfig(config: ConfigParams) {
+    this.#config = {
+      ...this.#config,
+      ...config,
+      generationConfig: this.#generationConfig,
+    };
   }
 
   async generateContent({
     message,
     parts,
     history,
+    config,
   }: {
     message: string;
     parts?: Content[];
     history?: ChatDialogHistory[];
+    config?: ConfigParams;
   }) {
+    if (config) {
+      this.#updateConfig(config);
+    }
     const chatHistory = history
       ? history.map((messageItem) => {
           return {
@@ -190,10 +202,9 @@ export class FirebaseService {
     return response;
   }
 
-  async setModel({ tools, toolConfig, systemInstruction }: ConfigParams) {
+  async setModel({ tools, systemInstruction }: ConfigParams) {
     this.#model = this.#getModel({
       tools,
-      toolConfig,
       systemInstruction,
     });
 

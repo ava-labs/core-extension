@@ -9,9 +9,11 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Typewriter from 'typewriter-effect';
+import ReactMarkdown from 'react-markdown';
+import { PromptItem } from '@src/contexts/FirebaseProvider';
 
 const Avatar = styled(Stack)(() => ({
   position: 'relative',
@@ -25,12 +27,35 @@ const Avatar = styled(Stack)(() => ({
   },
 }));
 
-export const AIDialog = ({ message, scrollToBottom }) => {
+export const AIDialog = ({
+  message,
+  scrollToBottom,
+  isDialogOpen,
+}: {
+  message: PromptItem;
+  scrollToBottom: () => void;
+  isDialogOpen?: boolean;
+}) => {
   const theme = useTheme();
   const [isTextTyped, setIsTextTyped] = useState(false);
+  useEffect(() => {
+    if (!isTextTyped && !isDialogOpen) {
+      setIsTextTyped(true);
+    }
+  }, [isTextTyped, isDialogOpen]);
 
   return (
-    <Stack sx={{ flexDirection: 'row' }}>
+    <Stack
+      sx={{
+        flexDirection: 'row',
+        cursor: !isTextTyped ? 'pointer' : 'default',
+      }}
+      onClick={() => {
+        if (!isTextTyped) {
+          setIsTextTyped(true);
+        }
+      }}
+    >
       <Avatar>
         <img src="images/ai-avatar.svg" />
         <img src="images/ai-avatar-text.svg" className="text" />
@@ -67,7 +92,11 @@ export const AIDialog = ({ message, scrollToBottom }) => {
             />
           </Typography>
         )}
-        {isTextTyped && <Typography>{message.content}</Typography>}
+        {isTextTyped && (
+          <Typography>
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </Typography>
+        )}
       </Box>
     </Stack>
   );
