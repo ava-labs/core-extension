@@ -124,7 +124,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
       properties: {
         amount: {
           type: SchemaType.STRING,
-          description: `The amount of tokens to bridge. It has to be less then the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to brisge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
+          description: `The amount of tokens to bridge. It has to be less then the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to bridge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
         },
         token: {
           type: SchemaType.STRING,
