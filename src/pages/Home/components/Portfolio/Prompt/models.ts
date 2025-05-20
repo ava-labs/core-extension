@@ -13,7 +13,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
         },
         recipient: {
           type: SchemaType.STRING,
-          description: `The wallet address of the recipient. It has to be a valid EVM address which is in a hexadecimal format and is 42 characters long. The recipient can be a contact or one of the user's accounts. The active account cannot be the recipient.`,
+          description: `The wallet address of the recipient. It has to be a valid EVM address which is in a hexadecimal format and is 42 characters long. The recipient can be a contact or one of the user's accounts. The active account cannot be the recipient but the user can use the other accounts as a recipient.`,
         },
         token: {
           type: SchemaType.STRING,

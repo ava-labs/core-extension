@@ -13,6 +13,7 @@ import {
   FcmMessageListener,
   ChatConfig,
   ConfigParams,
+  ChatDialogHistory,
 } from './models';
 import sentryCaptureException, {
   SentryExceptionTypes,
@@ -151,10 +152,33 @@ export class FirebaseService {
     });
   }
 
-  async generateContent(message: string, parts?: Content[]) {
+  async generateContent({
+    message,
+    parts,
+    history,
+  }: {
+    message: string;
+    parts?: Content[];
+    history?: ChatDialogHistory[];
+  }) {
+    const chatHistory = history
+      ? history.map((messageItem) => {
+          return {
+            role: messageItem.role,
+            parts: [{ text: messageItem.content }],
+          };
+        })
+      : [];
     const contents = parts
-      ? ([{ role: 'user', parts: [{ text: message }] }, ...parts] as Content[])
-      : ([{ role: 'user', parts: [{ text: message }] }] as Content[]);
+      ? ([
+          ...chatHistory,
+          { role: 'user', parts: [{ text: message }] },
+          ...parts,
+        ] as Content[])
+      : ([
+          ...chatHistory,
+          { role: 'user', parts: [{ text: message }] },
+        ] as Content[]);
     const result = await this.#model?.generateContent({
       ...this.#config,
       contents,
