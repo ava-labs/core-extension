@@ -285,8 +285,6 @@ export function Prompt() {
         sourceNetwork: string;
         destinationNetwork: string;
       }) => {
-        console.log('token: ', token);
-        console.log('destinationNetwork: ', destinationNetwork);
         if (!amount) {
           throw new Error('You have to grant the amount you want to bridge.');
         }
@@ -306,7 +304,6 @@ export function Prompt() {
           transferableAssets,
           tokenData,
         );
-        console.log('foundAsset: ', foundAsset);
         if (!foundAsset) {
           throw new Error(`You cannot bridge the token ${token}.`);
         }
@@ -516,7 +513,6 @@ export function Prompt() {
               return [...prev, { role: 'model', content: functionResult.text }];
             });
           } catch (e: any) {
-            console.log('e: ', e);
             const errorMessage =
               'code' in e
                 ? errorValues[e.code]?.message || 'Unkown error happened'
