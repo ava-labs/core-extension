@@ -9,11 +9,11 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Typewriter from 'typewriter-effect';
-import ReactMarkdown from 'react-markdown';
 import { PromptItem } from '@src/contexts/FirebaseProvider';
+import { Typewriter } from './Typewriter';
+import ReactMarkdown from 'react-markdown';
 
 const Avatar = styled(Stack)(() => ({
   position: 'relative',
@@ -38,6 +38,28 @@ export const AIDialog = ({
 }) => {
   const theme = useTheme();
   const [isTextTyped, setIsTextTyped] = useState(false);
+
+  const messageLength = useMemo(
+    () => message.content.length,
+    [message.content.length],
+  );
+
+  const typingSpeed = useMemo(() => {
+    if (messageLength < 50) {
+      return 20;
+    }
+    if (messageLength > 50 && messageLength <= 500) {
+      return 10;
+    }
+    if (messageLength > 500 && messageLength <= 1000) {
+      return 4;
+    }
+    if (messageLength > 1000) {
+      return 1;
+    }
+    return 5;
+  }, [messageLength]);
+
   useEffect(() => {
     if (!isTextTyped && !isDialogOpen) {
       setIsTextTyped(true);
@@ -74,21 +96,15 @@ export const AIDialog = ({
           wordWrap: 'break-word',
           marginLeft: -1,
           height: '100%',
+          overflow: 'hidden',
         }}
       >
         {!isTextTyped && (
           <Typography>
             <Typewriter
-              onInit={(typewriter) => {
-                typewriter
-                  .changeDelay(3)
-                  .typeString(message.content)
-                  .callFunction(() => {
-                    setIsTextTyped(true);
-                    scrollToBottom();
-                  })
-                  .start();
-              }}
+              text={message.content}
+              scrollToBottom={scrollToBottom}
+              typingSpeed={typingSpeed}
             />
           </Typography>
         )}
