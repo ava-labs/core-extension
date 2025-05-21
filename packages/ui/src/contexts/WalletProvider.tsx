@@ -60,7 +60,7 @@ export function WalletContextProvider({
   LockedComponent,
 }: PropsWithChildren<{
   LockedComponent: React.FC<{
-    unlockWallet: (password: string) => Promise<any>;
+    unlockWallet: (password: string) => Promise<void>;
   }>;
 }>) {
   const { initLedgerTransport } = useLedgerContext();
