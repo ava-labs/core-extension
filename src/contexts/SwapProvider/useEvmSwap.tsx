@@ -58,7 +58,12 @@ import {
   SwapSide,
   constructGetSpender,
 } from '@paraswap/sdk';
-import { NATIVE_TOKEN_ADDRESS, WAVAX_ADDRESS, WETH_ADDRESS } from './constants';
+import {
+  NATIVE_TOKEN_ADDRESS,
+  PARASWAP_PARTNER_FEE_BPS,
+  WAVAX_ADDRESS,
+  WETH_ADDRESS,
+} from './constants';
 import WAVAX_ABI from './ABI_WAVAX.json';
 import WETH_ABI from './ABI_WETH.json';
 
@@ -334,10 +339,21 @@ export const useEvmSwap: SwapAdapter<
       assertPresent(paraswap, SwapErrorCode.ClientNotInitialized);
       assertPresent(network, CommonError.NoActiveNetwork);
 
+      const isCollectingFees = isFlagEnabled(FeatureGates.SWAP_FEES);
+
+      const slippagePercentage = slippage / 100;
+      const feePercentage = isCollectingFees
+        ? PARASWAP_PARTNER_FEE_BPS / 10000
+        : 0;
+      const totalDeductionPercentage = slippagePercentage + feePercentage;
+
       const minAmount = new Big(priceRoute.destAmount)
-        .times(1 - slippage / 100)
+        .times(1 - totalDeductionPercentage)
         .toFixed(0);
-      const maxAmount = new Big(srcAmount).times(1 + slippage / 100).toFixed(0);
+      const maxAmount = new Big(srcAmount)
+        .times(1 + totalDeductionPercentage)
+        .toFixed(0);
+
       const sourceAmount =
         priceRoute.side === SwapSide.SELL ? srcAmount : maxAmount;
 
@@ -354,7 +370,7 @@ export const useEvmSwap: SwapAdapter<
         destinationAmount,
       };
     },
-    [paraswap, network],
+    [paraswap, network, isFlagEnabled],
   );
 
   /**
