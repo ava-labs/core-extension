@@ -63,6 +63,7 @@ export function Prompt() {
   const { captureEncrypted } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
+  console.log('tokens: ', tokens);
   const allAvailableTokens = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
   });
@@ -301,6 +302,8 @@ export function Prompt() {
             name: token.name,
             symbol: token.symbol,
             balance: token.balanceDisplayValue,
+            priceChanges: token.priceChanges,
+            priceInCurrency: token.priceInCurrency,
           })),
           (_, v) => (typeof v === 'bigint' ? v.toString() : v),
         ),

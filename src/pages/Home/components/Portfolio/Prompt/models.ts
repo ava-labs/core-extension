@@ -139,4 +139,5 @@ __TOKENS__
 The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
+The user can ask the daily summary of the tokens which means you are asked to list out the price changes of the owned tokens. The changes are in the __TOKENS__ list. Each index is an owned token and each one has the "priceChanges" property which contains a percentage and a value and a currency vale in the "value" property. The changes can be positive or negative. You can mark the positive changes with green color and the negative ones with red. You can summarize all the changes in short as well how the prices and the percentages are changed and that information is important so format it well e.g. with bold text.
 `;
