@@ -290,7 +290,7 @@ export const useEvmSwap: SwapAdapter<
               ignoreChecks,
             },
           )
-          .catch(wrapError(swapError(CommonError.NetworkError)));
+          .catch(wrapError(swapError(SwapErrorCode.CannotBuildTx)));
 
       const validationResult = responseSchema.validate(
         transactionParamsOrError,
@@ -345,13 +345,13 @@ export const useEvmSwap: SwapAdapter<
       const feePercentage = isCollectingFees
         ? PARASWAP_PARTNER_FEE_BPS / 10000
         : 0;
-      const totalDeductionPercentage = slippagePercentage + feePercentage;
+      const totalPercentage = slippagePercentage + feePercentage;
 
       const minAmount = new Big(priceRoute.destAmount)
-        .times(1 - totalDeductionPercentage)
+        .times(1 - totalPercentage)
         .toFixed(0);
       const maxAmount = new Big(srcAmount)
-        .times(1 + totalDeductionPercentage)
+        .times(1 + totalPercentage)
         .toFixed(0);
 
       const sourceAmount =
