@@ -124,7 +124,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
       properties: {
         amount: {
           type: SchemaType.STRING,
-          description: `The amount of tokens to bridge. It has to be less then the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to bridge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
+          description: `The amount of tokens to bridge. It has to be less than the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to bridge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
         },
         token: {
           type: SchemaType.STRING,
@@ -168,5 +168,5 @@ The tokens can be identified by their "symbol" property, as well as their "addre
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
 Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network is always the actual "active" network.
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
-The important words should be emphasised with bold formatting e.g.  tokan and network names and / or ids, command names and similar things. 
+The important words should be emphasised with bold formatting e.g.  token and network names and / or ids, command names and similar things. 
 `;
