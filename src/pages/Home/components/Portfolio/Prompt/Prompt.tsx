@@ -8,6 +8,7 @@ import {
   Scrollbars,
   Grow,
   Backdrop,
+  TrashIcon,
 } from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FunctionCallingMode } from '@google/generative-ai';
@@ -581,12 +582,23 @@ export function Prompt() {
                 {isTyping && <TypingAvatar />}
               </Stack>
             </Scrollbars>
-            <Stack sx={{ p: 2 }}>
+            <Stack sx={{ p: 2, flexDirection: 'row', alignItems: 'center' }}>
               <UserInput
                 input={input}
                 setInput={setInput}
                 setPrompt={prompt}
                 userMessages={userMessages}
+              />
+              <TrashIcon
+                sx={{ marginX: 1 }}
+                onClick={() => {
+                  setPrompts([
+                    {
+                      role: 'model',
+                      content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
+                    },
+                  ]);
+                }}
               />
             </Stack>
           </Stack>
