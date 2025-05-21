@@ -164,8 +164,8 @@ export const UserInput = ({
 }: UserInputProps) => {
   const [userMessageHistoryIndex, setUserMessageHistoryIndex] =
     useState<number>();
-
   const { t } = useTranslation();
+
   return (
     <BorderTextField
       placeholder={t('Core AI')}
@@ -187,7 +187,9 @@ export const UserInput = ({
                 cursor: 'pointer',
               }}
               onClick={() => {
-                setPrompt(input);
+                if (input) {
+                  setPrompt(input);
+                }
               }}
             />
           </InputAdornment>
