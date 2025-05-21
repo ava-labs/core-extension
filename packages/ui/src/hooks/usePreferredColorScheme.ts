@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSettingsContext } from '../contexts';
 
+type ColorScheme = 'dark' | 'light' | 'testnet';
+
 export const usePreferredColorScheme = () => {
   const { nextGenTheme: theme } = useSettingsContext();
 
-  const [preferredColorScheme, setPreferredColorScheme] = useState<
-    'dark' | 'light' | 'testnet'
-  >();
+  const [preferredColorScheme, setPreferredColorScheme] =
+    useState<ColorScheme>('light');
 
   useEffect(() => {
     if (theme !== 'system') {
@@ -26,7 +27,7 @@ export const usePreferredColorScheme = () => {
 
     const { signal, abort } = new AbortController();
 
-    const getListener = (scheme: 'dark' | 'light') => {
+    const getListener = (scheme: ColorScheme) => {
       return ({ matches }: MediaQueryListEvent) => {
         if (matches) setPreferredColorScheme(scheme);
       };

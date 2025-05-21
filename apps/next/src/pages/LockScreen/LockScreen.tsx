@@ -1,16 +1,16 @@
-import { BrandName } from '@/components/BrandName';
+import { CoreSplash } from '@/components/CoreSplash';
+import { StandaloneField } from '@/components/StandaloneField';
 import {
   Button,
   Stack,
-  TextField,
   Box,
-  Avatar,
   InputAdornment,
   IconButton,
-  TriangleDownIcon as VisibilityOff,
-  TriangleUpIcon as Visibility,
+  HideIcon,
+  Collapse,
+  Theme,
 } from '@avalabs/k2-alpine';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -23,13 +23,8 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showUnlockForm, setShowUnlockForm] = useState(false);
-
-  console.log(isLoading, error);
-
-  useEffect(() => {
-    setTimeout(setShowUnlockForm, 2000, true);
-  }, []);
+  // TODO: Ensure this is set to FALSE once the work is done
+  const [showUnlockForm, setShowUnlockForm] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,68 +47,82 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
       flexDirection="column"
       alignItems="center"
       justifyContent="space-between"
-      bgcolor="background.paper"
-      height="100%"
+      height={1}
+      width={1}
       px="20px"
       sx={{
         container: 'root / size',
       }}
     >
-      <BrandName margin="auto 0" />
+      <Box position="absolute" top={0} left={0} right={0}>
+        <div style={{ position: 'absolute', top: 0, right: 0 }}>DPS</div>
+      </Box>
+      <CoreSplash
+        style={{ marginBlock: 'auto' }}
+        onGifEnd={() => setShowUnlockForm(true)}
+      />
       <Stack marginBlockEnd={showUnlockForm ? 8 : '20cqh'} alignItems="center">
-        <Avatar
-          src="/images/__REMOVE_ME_bear.svg"
-          sx={{ width: 88, height: 88 }}
-        />
+        <img src="/images/__REMOVE_ME_bear.svg" width={88} height={88} />
       </Stack>
-      {showUnlockForm && (
-        <>
-          <Stack direction="column" rowGap={1.5}>
-            <TextField
-              type={showPassword ? 'text' : 'password'}
-              variant="outlined"
-              placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={
-                          showPassword
-                            ? 'hide the password'
-                            : 'display the password'
-                        }
-                        onClick={() => setShowPassword((state) => !state)}
-                        edge="end"
-                      >
-                        {showPassword ? (
-                          <VisibilityOff size="16" />
-                        ) : (
-                          <Visibility size="16" />
-                        )}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-            <Button variant="contained" onClick={handleSubmit}>
-              Login
-            </Button>
-          </Stack>
-          <Box
-            display="flex"
-            height="20cqh"
-            alignItems="center"
-            justifyContent="center"
+      <Collapse in={showUnlockForm}>
+        <Stack direction="column" rowGap={1.5}>
+          <StandaloneField
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter your password"
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!error}
+            helperText={error}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      aria-label={
+                        showPassword
+                          ? 'hide the password'
+                          : 'display the password'
+                      }
+                      onMouseUp={() => setShowPassword(false)}
+                      onMouseDown={() => setShowPassword(true)}
+                      edge="end"
+                    >
+                      <HideIcon
+                        size={24}
+                        sx={(theme: Theme) => ({
+                          position: 'absolute',
+                          right: 0,
+                          color: showPassword
+                            ? theme.palette.text.secondary
+                            : theme.palette.text.primary,
+                        })}
+                      />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <Button
+            disabled={!password}
+            variant="contained"
+            onClick={handleSubmit}
+            loading={isLoading}
           >
-            <Button variant="text" size="small">
-              Forgot password?
-            </Button>
-          </Box>
-        </>
-      )}
+            Login
+          </Button>
+        </Stack>
+        <Box
+          display="flex"
+          height="20cqh"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Button variant="text" size="small">
+            Forgot password?
+          </Button>
+        </Box>
+      </Collapse>
     </Box>
   );
 };

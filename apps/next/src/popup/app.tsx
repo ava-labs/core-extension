@@ -4,7 +4,6 @@ import {
   NetworkContextProvider,
   OnboardingContextProvider,
   usePreferredColorScheme,
-  WalletContextProvider,
 } from '@core/ui';
 
 import { Onboarding } from '@/pages/Onboarding';
@@ -26,11 +25,9 @@ export function App() {
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           >
-            <WalletContextProvider LockedComponent={LockScreen}>
-              <LockScreen
-                unlockWallet={() => (alert('unlocked'), Promise.resolve())}
-              />
-            </WalletContextProvider>
+            <LockScreen
+              unlockWallet={() => (alert('unlocked'), Promise.resolve())}
+            />
           </OnboardingContextProvider>
         </NetworkContextProvider>
       </AccountsContextProvider>

@@ -14,6 +14,17 @@ type Props = HTMLAttributes<HTMLImageElement> & {
 
 const GIF_DURATION = 1230;
 
+const imgSrc = {
+  light: {
+    default: CoreSplashLight,
+    big: CoreSplashLightBig,
+  },
+  dark: {
+    default: CoreSplashDark,
+    big: CoreSplashDarkBig,
+  },
+};
+
 export const CoreSplash = ({ onGifEnd, size = 'default', ...rest }: Props) => {
   const scheme = usePreferredColorScheme();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -26,35 +37,23 @@ export const CoreSplash = ({ onGifEnd, size = 'default', ...rest }: Props) => {
     };
   }, []);
 
-  const props = {
-    width: size === 'big' ? 360 : 180,
-    height: size === 'big' ? 120 : 60,
-    alt: 'Core Logo',
-    onLoad: onGifEnd
-      ? () => {
-          if (timerRef.current) {
-            clearTimeout(timerRef.current);
-          }
-          timerRef.current = setTimeout(onGifEnd, GIF_DURATION);
-        }
-      : undefined,
-  } as const;
-
-  if (scheme === 'light') {
-    return (
-      <img
-        src={size === 'big' ? CoreSplashLightBig : CoreSplashLight}
-        {...rest}
-        {...props}
-      />
-    );
-  }
-
   return (
     <img
-      src={size === 'big' ? CoreSplashDarkBig : CoreSplashDark}
+      src={(imgSrc[scheme] ?? imgSrc.light)[size]}
       {...rest}
-      {...props}
+      width={size === 'big' ? 360 : 180}
+      height={size === 'big' ? 120 : 60}
+      alt="Core Logo"
+      onLoad={
+        onGifEnd
+          ? () => {
+              if (timerRef.current) {
+                clearTimeout(timerRef.current);
+              }
+              timerRef.current = setTimeout(onGifEnd, GIF_DURATION);
+            }
+          : undefined
+      }
     />
   );
 };
