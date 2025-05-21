@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Stack } from '@avalabs/core-k2-components';
 
 export const Typewriter = ({
@@ -30,9 +29,7 @@ export const Typewriter = ({
 
   return (
     <Stack>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {text.substring(0, visibleLength)}
-      </ReactMarkdown>
+      <ReactMarkdown>{text.substring(0, visibleLength)}</ReactMarkdown>
     </Stack>
   );
 };
