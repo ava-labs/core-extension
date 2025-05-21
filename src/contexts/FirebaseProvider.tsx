@@ -19,6 +19,7 @@ import {
 export interface PromptItem {
   role: 'model' | 'user';
   content: string;
+  timestamp: number;
 }
 
 const FirebaseContext = createContext<{
@@ -40,6 +41,7 @@ const FirebaseContext = createContext<{
       {
         role: 'model' | 'user';
         content: string;
+        timestamp: number;
       }[]
     >
   >;
@@ -53,6 +55,7 @@ export function FirebaseContextProvider({ children }: { children: any }) {
     {
       role: 'model',
       content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
+      timestamp: Date.now(),
     },
   ]);
 

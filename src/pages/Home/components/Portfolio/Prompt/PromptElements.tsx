@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { PromptItem } from '@src/contexts/FirebaseProvider';
 import { Typewriter } from './Typewriter';
 import ReactMarkdown from 'react-markdown';
+import TimeAgo from 'react-timeago';
 
 const Avatar = styled(Stack)(() => ({
   position: 'relative',
@@ -67,53 +68,60 @@ export const AIDialog = ({
   }, [isTextTyped, isDialogOpen]);
 
   return (
-    <Stack
-      sx={{
-        flexDirection: 'row',
-        cursor: !isTextTyped ? 'pointer' : 'default',
-      }}
-      onClick={() => {
-        if (!isTextTyped) {
-          setIsTextTyped(true);
-        }
-      }}
-    >
-      <Avatar>
-        <img src="images/ai-avatar.svg" />
-        <img src="images/ai-avatar-text.svg" className="text" />
-      </Avatar>
-      <Box
+    <Stack>
+      <Stack sx={{ alignItems: 'flex-start' }}>
+        <Typography variant="overline" color="text.secondary">
+          <TimeAgo date={message.timestamp} />
+        </Typography>
+      </Stack>
+      <Stack
         sx={{
-          backgroundColor: theme.palette.grey[850],
-          py: 1,
-          px: 2,
-          my: 2,
-          maxWidth: '80%',
-          width: 'fit-content',
-          borderRadius: '20px',
-          borderTopLeftRadius: '3px',
-          justifySelf: 'flex-start',
-          wordWrap: 'break-word',
-          marginLeft: -1,
-          height: '100%',
-          overflow: 'hidden',
+          flexDirection: 'row',
+          cursor: !isTextTyped ? 'pointer' : 'default',
+        }}
+        onClick={() => {
+          if (!isTextTyped) {
+            setIsTextTyped(true);
+          }
         }}
       >
-        {!isTextTyped && (
-          <Typography>
-            <Typewriter
-              text={message.content}
-              scrollToBottom={scrollToBottom}
-              typingSpeed={typingSpeed}
-            />
-          </Typography>
-        )}
-        {isTextTyped && (
-          <Typography>
-            <ReactMarkdown>{message.content}</ReactMarkdown>
-          </Typography>
-        )}
-      </Box>
+        <Avatar>
+          <img src="images/ai-avatar.svg" />
+          <img src="images/ai-avatar-text.svg" className="text" />
+        </Avatar>
+        <Box
+          sx={{
+            backgroundColor: theme.palette.grey[850],
+            py: 1,
+            px: 2,
+            my: 2,
+            maxWidth: '80%',
+            width: 'fit-content',
+            borderRadius: '20px',
+            borderTopLeftRadius: '3px',
+            justifySelf: 'flex-start',
+            wordWrap: 'break-word',
+            marginLeft: -1,
+            height: '100%',
+            overflow: 'hidden',
+          }}
+        >
+          {!isTextTyped && (
+            <Typography>
+              <Typewriter
+                text={message.content}
+                scrollToBottom={scrollToBottom}
+                typingSpeed={typingSpeed}
+              />
+            </Typography>
+          )}
+          {isTextTyped && (
+            <Typography>
+              <ReactMarkdown>{message.content}</ReactMarkdown>
+            </Typography>
+          )}
+        </Box>
+      </Stack>
     </Stack>
   );
 };
@@ -121,22 +129,29 @@ export const AIDialog = ({
 export const UserDialog = ({ message }) => {
   const theme = useTheme();
   return (
-    <Stack
-      sx={{
-        backgroundColor: theme.palette.common.white,
-        py: 1,
-        px: 2,
-        my: 1,
-        maxWidth: '80%',
-        width: 'fit-content',
-        borderRadius: '20px',
-        borderTopRightRadius: '3px',
-        alignSelf: 'flex-end',
-        wordWrap: 'break-word',
-        color: theme.palette.grey[900],
-      }}
-    >
-      <Typography>{message.content}</Typography>
+    <Stack>
+      <Stack sx={{ alignItems: 'flex-end' }}>
+        <Typography variant="overline" color="text.secondary">
+          <TimeAgo date={message.timestamp} />
+        </Typography>
+      </Stack>
+      <Stack
+        sx={{
+          backgroundColor: theme.palette.common.white,
+          py: 1,
+          px: 2,
+          my: 1,
+          maxWidth: '80%',
+          width: 'fit-content',
+          borderRadius: '20px',
+          borderTopRightRadius: '3px',
+          alignSelf: 'flex-end',
+          wordWrap: 'break-word',
+          color: theme.palette.grey[900],
+        }}
+      >
+        <Typography>{message.content}</Typography>
+      </Stack>
     </Stack>
   );
 };
