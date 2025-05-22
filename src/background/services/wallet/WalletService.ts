@@ -701,7 +701,9 @@ export class WalletService implements OnUnlock {
       const result =
         wallet instanceof SeedlessWallet
           ? await wallet.signAvalancheTx(txToSign)
-          : await wallet.signTx(txToSign, originalRequestMethod);
+          : wallet instanceof Avalanche.SimpleLedgerSigner
+            ? await wallet.signTx(txToSign, true)
+            : await wallet.signTx(txToSign, originalRequestMethod);
 
       return this.#normalizeSigningResult(result);
     }
@@ -747,7 +749,7 @@ export class WalletService implements OnUnlock {
       return { signedTx: signingResult.toHex() };
     }
 
-    return signingResult;
+    return { signedTx: JSON.stringify((signingResult as any).toJSON()) };
   }
 
   /**
