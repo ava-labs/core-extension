@@ -25,7 +25,7 @@ export const usePreferredColorScheme = () => {
       setPreferredColorScheme('light'); // Light by default
     }
 
-    const { signal, abort } = new AbortController();
+    const controller = new AbortController();
 
     const getListener = (scheme: ColorScheme) => {
       return ({ matches }: MediaQueryListEvent) => {
@@ -34,13 +34,13 @@ export const usePreferredColorScheme = () => {
     };
 
     isLight.addEventListener('change', getListener('light'), {
-      signal,
+      signal: controller.signal,
     });
     isDark.addEventListener('change', getListener('dark'), {
-      signal,
+      signal: controller.signal,
     });
 
-    return abort;
+    return () => controller.abort();
   }, [theme]);
 
   return preferredColorScheme;

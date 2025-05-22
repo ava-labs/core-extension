@@ -23,6 +23,10 @@ const imgSrc = {
     default: CoreSplashDark,
     big: CoreSplashDarkBig,
   },
+  testnet: {
+    default: CoreSplashDark,
+    big: CoreSplashDarkBig,
+  },
 };
 
 export const CoreSplash = ({ onGifEnd, size = 'default', ...rest }: Props) => {
@@ -39,7 +43,7 @@ export const CoreSplash = ({ onGifEnd, size = 'default', ...rest }: Props) => {
 
   return (
     <img
-      src={(imgSrc[scheme] ?? imgSrc.light)[size]}
+      src={imgSrc[scheme][size]}
       {...rest}
       width={size === 'big' ? 360 : 180}
       height={size === 'big' ? 120 : 60}
