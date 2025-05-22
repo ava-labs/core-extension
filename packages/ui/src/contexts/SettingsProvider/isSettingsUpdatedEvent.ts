@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 
 export function isSettingsUpdatedEvent(
-  evt: ExtensionConnectionEvent<SettingsState>,
-) {
+  evt: ExtensionConnectionEvent,
+): evt is ExtensionConnectionEvent<SettingsState> {
   return evt.name === SettingsEvents.SETTINGS_UPDATED;
 }

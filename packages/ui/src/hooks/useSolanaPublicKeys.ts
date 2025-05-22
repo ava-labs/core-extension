@@ -31,7 +31,7 @@ export const useSolanaPublicKeys = () => {
 
       return {
         index: accountIndex,
-        key: hex.encode(publicKey),
+        key: hex.encode(Uint8Array.from(publicKey)),
       };
     },
     [getPublicKey],

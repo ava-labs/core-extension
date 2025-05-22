@@ -10,7 +10,7 @@ export default defineConfig((...args) =>
     },
     output: {
       sourceMap: {
-        js: 'hidden-source-map',
+        js: 'inline-source-map',
       },
     },
   }),

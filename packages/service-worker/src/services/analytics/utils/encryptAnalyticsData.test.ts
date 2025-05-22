@@ -1,5 +1,6 @@
 import { CipherSuite, DhkemP521HkdfSha512 } from '@hpke/core';
 import { encryptAnalyticsData } from './encryptAnalyticsData';
+import { toArrayBuffer } from '@core/common';
 
 describe('src/background/services/analytics/utils/encryptAnalyticsData', () => {
   const env = process.env;
@@ -61,13 +62,16 @@ describe('src/background/services/analytics/utils/encryptAnalyticsData', () => {
 
     expect(
       DhkemP521HkdfSha512.prototype.deserializePublicKey,
-    ).toHaveBeenCalledWith(Buffer.from(publicKey, 'base64'));
+    ).toHaveBeenCalledWith(toArrayBuffer(Buffer.from(publicKey, 'base64')));
 
     expect(CipherSuite.prototype.createSenderContext).toHaveBeenCalledWith({
       recipientPublicKey: pubKey,
     });
 
-    expect(mockedSender.seal).toHaveBeenCalledWith(encodedMsg, encodedKeyId);
+    expect(mockedSender.seal).toHaveBeenCalledWith(
+      toArrayBuffer(encodedMsg),
+      toArrayBuffer(encodedKeyId),
+    );
 
     expect(result).toEqual({
       data: Buffer.from(sealedData).toString('base64'),

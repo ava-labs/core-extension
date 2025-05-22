@@ -21,10 +21,9 @@ export default mergeRsbuildConfig(commonConfig, {
               from: '**/*.json',
               to: './',
               transform: transformManifestFiles({
-                name: 'Core Beta DEVELOPMENT BUILD',
-                shortName: 'Core Beta',
-                actionDefaultTitle:
-                  'Core Beta Browser Extension DEVELOPMENT BUILD',
+                name: '[alpha] Core NextGen',
+                shortName: '[alpha] Core NextGen',
+                actionDefaultTitle: '[alpha] Core NextGen Browser Extension',
                 oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
               }),
               force: true,

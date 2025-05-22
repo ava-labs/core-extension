@@ -12,7 +12,7 @@ export default mergeRsbuildConfig(commonConfig, {
   },
   output: {
     sourceMap: {
-      js: 'hidden-source-map',
+      js: 'inline-source-map',
     },
   },
   tools: {
@@ -26,11 +26,11 @@ export default mergeRsbuildConfig(commonConfig, {
               to: './',
               force: true,
               transform: transformManifestFiles({
-                name: 'Core NextGen',
-                shortName: 'Core NextGen',
-                actionDefaultTitle: 'Core NextGen Browser Extension',
+                name: '[dev] Core NextGen',
+                shortName: '[dev] Core NextGen',
+                actionDefaultTitle: '[dev] Core NextGen Browser Extension',
                 oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-                publicKey: '', // TODO: add public key
+                publicKey: process.env.NEXT_GEN_EXTENSION_PUBLIC_KEY,
               }),
             },
           ],
