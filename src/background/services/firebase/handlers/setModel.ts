@@ -17,10 +17,10 @@ export class FirebaseSetModelHandler implements HandlerType {
   constructor(private firebaseService: FirebaseService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { tools, toolConfig, systemInstruction } = request.params;
+    const { tools, systemInstruction } = request.params;
     const chat = await this.firebaseService.setModel({
       tools,
-      toolConfig,
+
       systemInstruction,
     });
 

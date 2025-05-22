@@ -9,9 +9,11 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Typewriter from 'typewriter-effect';
+import { PromptItem } from '@src/contexts/FirebaseProvider';
+import { Typewriter } from './Typewriter';
+import ReactMarkdown from 'react-markdown';
 
 const Avatar = styled(Stack)(() => ({
   position: 'relative',
@@ -25,12 +27,52 @@ const Avatar = styled(Stack)(() => ({
   },
 }));
 
-export const AIDialog = ({ message, scrollToBottom }) => {
+export const AIDialog = ({
+  message,
+  scrollToBottom,
+  isDialogOpen,
+}: {
+  message: PromptItem;
+  scrollToBottom: () => void;
+  isDialogOpen?: boolean;
+}) => {
   const theme = useTheme();
   const [isTextTyped, setIsTextTyped] = useState(false);
 
+  const typingSpeed = useMemo(() => {
+    if (message.content.length < 50) {
+      return 20;
+    }
+    if (message.content.length > 50 && message.content.length <= 500) {
+      return 10;
+    }
+    if (message.content.length > 500 && message.content.length <= 1000) {
+      return 4;
+    }
+    if (message.content.length > 1000) {
+      return 1;
+    }
+    return 5;
+  }, [message.content.length]);
+
+  useEffect(() => {
+    if (!isTextTyped && !isDialogOpen) {
+      setIsTextTyped(true);
+    }
+  }, [isTextTyped, isDialogOpen]);
+
   return (
-    <Stack sx={{ flexDirection: 'row' }}>
+    <Stack
+      sx={{
+        flexDirection: 'row',
+        cursor: !isTextTyped ? 'pointer' : 'default',
+      }}
+      onClick={() => {
+        if (!isTextTyped) {
+          setIsTextTyped(true);
+        }
+      }}
+    >
       <Avatar>
         <img src="images/ai-avatar.svg" />
         <img src="images/ai-avatar-text.svg" className="text" />
@@ -49,25 +91,23 @@ export const AIDialog = ({ message, scrollToBottom }) => {
           wordWrap: 'break-word',
           marginLeft: -1,
           height: '100%',
+          overflow: 'hidden',
         }}
       >
         {!isTextTyped && (
           <Typography>
             <Typewriter
-              onInit={(typewriter) => {
-                typewriter
-                  .changeDelay(3)
-                  .typeString(message.content)
-                  .callFunction(() => {
-                    setIsTextTyped(true);
-                    scrollToBottom();
-                  })
-                  .start();
-              }}
+              text={message.content}
+              scrollToBottom={scrollToBottom}
+              typingSpeed={typingSpeed}
             />
           </Typography>
         )}
-        {isTextTyped && <Typography>{message.content}</Typography>}
+        {isTextTyped && (
+          <Typography>
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </Typography>
+        )}
       </Box>
     </Stack>
   );
@@ -119,8 +159,8 @@ export const UserInput = ({
 }: UserInputProps) => {
   const [userMessageHistoryIndex, setUserMessageHistoryIndex] =
     useState<number>();
-
   const { t } = useTranslation();
+
   return (
     <BorderTextField
       placeholder={t('Core AI')}
@@ -142,7 +182,9 @@ export const UserInput = ({
                 cursor: 'pointer',
               }}
               onClick={() => {
-                setPrompt(input);
+                if (input) {
+                  setPrompt(input);
+                }
               }}
             />
           </InputAdornment>
