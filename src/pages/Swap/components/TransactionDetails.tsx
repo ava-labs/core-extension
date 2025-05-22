@@ -25,6 +25,11 @@ import {
 import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@src/background/services/featureFlags/models';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
+import {
+  isParaswapQuote,
+  isJupiterQuote,
+  SwapQuote,
+} from '@src/contexts/SwapProvider/models';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -34,6 +39,7 @@ interface TransactionDetailsProps {
   setSlippage: (slippage: string) => void;
   setIsOpen?: (isOpen: boolean) => void;
   isTransactionDetailsOpen?: boolean;
+  quote: SwapQuote | null;
 }
 
 const Container = styled('div')`
@@ -64,6 +70,7 @@ export function TransactionDetails({
   setSlippage,
   setIsOpen,
   isTransactionDetailsOpen,
+  quote,
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
   const { network } = useNetworkContext();
@@ -109,6 +116,10 @@ export function TransactionDetails({
     };
   }, [isFlagEnabled, network]);
 
+  const showFeesAndSlippage = useMemo(() => {
+    return quote && (isJupiterQuote(quote) || isParaswapQuote(quote));
+  }, [quote]);
+
   return (
     <Container>
       <TitleContainer
@@ -153,79 +164,91 @@ export function TransactionDetails({
               1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
             </Typography>
           </DetailsRow>
-          <Stack>
-            <Stack sx={{ flexDirection: 'row', alignItems: 'center', mb: 1 }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  my: 0,
-                  mr: 1,
-                  ml: 0,
-                  fontWeight: theme.typography.fontWeightSemibold,
-                }}
-              >
-                {t('Slippage tolerance')}
-              </Typography>
-              <SlippageToolTip />
-            </Stack>
-            <Stack sx={{ flexDirection: 'column', gap: 0.5, width: '100%' }}>
-              <TextField
-                data-testid="swap-slippage-tolerance-input"
-                size={'small'}
-                value={slippage}
-                placeholder="Input Percent %"
-                fullWidth
-                type="number"
-                InputProps={{
-                  inputProps: {
-                    min: MIN_SLIPPAGE,
-                    max: 100,
-                    step: 0.1,
-                  },
-                }}
-                onChange={(e) => {
-                  const inputValue = e.target.value;
-                  setSlippage(inputValue);
+          {showFeesAndSlippage && (
+            <>
+              <Stack>
+                <Stack
+                  sx={{ flexDirection: 'row', alignItems: 'center', mb: 1 }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      my: 0,
+                      mr: 1,
+                      ml: 0,
+                      fontWeight: theme.typography.fontWeightSemibold,
+                    }}
+                  >
+                    {t('Slippage tolerance')}
+                  </Typography>
+                  <SlippageToolTip />
+                </Stack>
+                <Stack
+                  sx={{ flexDirection: 'column', gap: 0.5, width: '100%' }}
+                >
+                  <TextField
+                    data-testid="swap-slippage-tolerance-input"
+                    size={'small'}
+                    value={slippage}
+                    placeholder="Input Percent %"
+                    fullWidth
+                    type="number"
+                    InputProps={{
+                      inputProps: {
+                        min: MIN_SLIPPAGE,
+                        max: 100,
+                        step: 0.1,
+                      },
+                    }}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      setSlippage(inputValue);
 
-                  if (isSlippageValid(inputValue)) {
-                    setError('');
-                  } else {
-                    setError(t('Enter a value of at least 0.1%'));
-                  }
-                }}
-              />
-              <Typography variant="caption" color="error.main" minHeight="14px">
-                {error}
-              </Typography>
-            </Stack>
-          </Stack>
-          {swapFeesInfo.isCollectingFees && (
-            <DetailsRow
-              sx={{
-                mt: 2,
-                justifyContent: 'start',
-              }}
-            >
-              <Typography variant="caption" color="text.secondary">
-                {t('Quote includes a {{formattedFeePercent}} Core fee', {
-                  formattedFeePercent: swapFeesInfo.percentage,
-                })}
-              </Typography>
-              <Tooltip
-                sx={{
-                  px: 1,
-                }}
-                isInfo
-                title={t(
-                  'Core always finds the best price from the top liquidity providers. A fee of {{formattedFeePercent}} is automatically factored into this quote.',
-                  {
-                    formattedFeePercent: swapFeesInfo.percentage,
-                  },
-                )}
-              >
-                <InfoCircleIcon sx={{ color: 'text.secondary' }} />
-              </Tooltip>
-            </DetailsRow>
+                      setError(
+                        isSlippageValid(inputValue)
+                          ? ''
+                          : t('Enter a value of at least 0.1%'),
+                      );
+                    }}
+                  />
+                  <Typography
+                    variant="caption"
+                    color="error.main"
+                    minHeight="14px"
+                  >
+                    {error}
+                  </Typography>
+                </Stack>
+              </Stack>
+              {swapFeesInfo.isCollectingFees && (
+                <DetailsRow
+                  sx={{
+                    mt: 2,
+                    justifyContent: 'start',
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    {t('Quote includes a {{formattedFeePercent}} Core fee', {
+                      formattedFeePercent: swapFeesInfo.percentage,
+                    })}
+                  </Typography>
+                  <Tooltip
+                    sx={{
+                      px: 1,
+                    }}
+                    isInfo
+                    title={t(
+                      'Core always finds the best price from the top liquidity providers. A fee of {{formattedFeePercent}} is automatically factored into this quote.',
+                      {
+                        formattedFeePercent: swapFeesInfo.percentage,
+                      },
+                    )}
+                  >
+                    <InfoCircleIcon sx={{ color: 'text.secondary' }} />
+                  </Tooltip>
+                </DetailsRow>
+              )}
+            </>
           )}
         </DetailsContainer>
       </Grow>

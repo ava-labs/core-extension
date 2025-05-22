@@ -11,7 +11,6 @@ import {
   TrashIcon,
 } from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FunctionCallingMode } from '@google/generative-ai';
 import { functionDeclarations, systemPromptTemplate } from './models';
 import { useTranslation } from 'react-i18next';
 import { useTokensWithBalances } from '@src/hooks/useTokensWithBalances';
@@ -41,6 +40,8 @@ import {
 import { useFirebaseContext } from '@src/contexts/FirebaseProvider';
 import { toastCardWithLink } from '@src/utils/toastCardWithLink';
 import { getExplorerAddressByNetwork } from '@src/utils/getExplorerAddress';
+import { useBridge } from '@src/pages/Bridge/hooks/useBridge';
+import { findMatchingBridgeAsset } from '@src/pages/Bridge/utils/findMatchingBridgeAsset';
 import sentryCaptureException, {
   SentryExceptionTypes,
 } from '@src/monitoring/sentryCaptureException';
@@ -61,6 +62,7 @@ export function Prompt() {
   const scrollbarRef = useRef<ScrollbarsRef | null>(null);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
+  const { targetChain, transferableAssets, transfer } = useBridge();
   const { captureEncrypted } = useAnalyticsContext();
 
   const tokens = useTokensWithBalances();
@@ -273,6 +275,65 @@ export function Prompt() {
           content: `Swap initiated ${amount}${srcToken.symbol} to ${result.destAmount}${toToken.symbol}.`,
         };
       },
+      bridge: async ({
+        amount,
+        token,
+        sourceNetwork,
+        destinationNetwork,
+      }: {
+        amount: string;
+        token: string;
+        sourceNetwork: string;
+        destinationNetwork: string;
+      }) => {
+        if (!amount) {
+          throw new Error('You have to grant the amount you want to bridge.');
+        }
+        if (!token) {
+          throw new Error('You have to grant the token you want to bridge.');
+        }
+        const tokenData = tokens.find(
+          (item) => item.symbol === token,
+        ) as TokenWithBalanceERC20;
+
+        if (!tokenData) {
+          throw new Error('You have to grant the token you want to bridge.');
+        }
+        const newAmount = stringToBigint(amount, tokenData?.decimals);
+
+        const foundAsset = findMatchingBridgeAsset(
+          transferableAssets,
+          tokenData,
+        );
+        if (!foundAsset) {
+          throw new Error(`You cannot bridge the token ${token}.`);
+        }
+
+        if (!sourceNetwork) {
+          throw new Error(
+            'You have to grant the source network you want to bridge.',
+          );
+        }
+        if (!destinationNetwork) {
+          throw new Error(
+            'You have to grant the destination network you want to bridge.',
+          );
+        }
+        const [bridgeType] =
+          foundAsset?.destinations[targetChain?.caipId ?? ''] ?? [];
+        await transfer(
+          {
+            bridgeType,
+            gasSettings: undefined,
+          },
+          newAmount,
+          destinationNetwork,
+          foundAsset,
+        );
+        return {
+          content: `Bridge initiated ${amount}${foundAsset.symbol} to ${destinationNetwork}.`,
+        };
+      },
     }),
     [
       accounts.active,
@@ -286,7 +347,10 @@ export function Prompt() {
       setNetwork,
       swap,
       t,
+      targetChain?.caipId,
       tokens,
+      transfer,
+      transferableAssets,
     ],
   );
 
@@ -349,8 +413,26 @@ export function Prompt() {
             active: a.id === accounts.active?.id,
           })),
         ),
+      )
+      .replace(
+        '__BRIDGE_DATA__',
+        JSON.stringify(
+          transferableAssets.map((token) => ({
+            name: token.name,
+            symbol: token.symbol,
+          })),
+          (_, v) => (typeof v === 'bigint' ? v.toString() : v),
+        ),
       );
-  }, [network, tokens, accounts, allAvailableTokens, networks, contacts]);
+  }, [
+    network,
+    tokens,
+    accounts,
+    allAvailableTokens,
+    networks,
+    contacts,
+    transferableAssets,
+  ]);
 
   const prompt = useCallback(
     async (message: string) => {
@@ -361,30 +443,38 @@ export function Prompt() {
       setInput('');
 
       try {
-        await setModel({
-          tools: [
-            {
-              functionDeclarations,
-            },
-          ],
-          toolConfig: {
-            functionCallingConfig: {
-              mode: FunctionCallingMode.AUTO,
-            },
-          },
-          systemInstruction: systemPrompt,
-        })
-          .then(() => {
-            isModelReady.current = true;
+        if (!isModelReady.current) {
+          await setModel({
+            tools: [
+              {
+                functionDeclarations,
+              },
+            ],
+            systemInstruction: systemPrompt,
           })
-          .catch((e) => {
-            if (isModelReady.current) {
-              console.error('Failed to update the model configuration');
-            }
-            throw new Error(e);
-          });
+            .then(() => {
+              isModelReady.current = true;
+            })
+            .catch((e) => {
+              if (isModelReady.current) {
+                console.error('Failed to update the model configuration');
+              }
+              throw new Error(e);
+            });
+        }
 
-        const response = await sendMessage({ message, history: prompts });
+        const response = await sendMessage({
+          message,
+          history: prompts,
+          config: {
+            tools: [
+              {
+                functionDeclarations,
+              },
+            ],
+            systemInstruction: systemPrompt,
+          },
+        });
 
         // For simplicity, this uses the first function call found.
         const call = response?.functionCalls?.[0];
@@ -574,6 +664,7 @@ export function Prompt() {
                         message={message}
                         key={i}
                         scrollToBottom={scrollToBottom}
+                        isDialogOpen={isDialogOpen}
                       />
                     );
                   }

@@ -42,6 +42,8 @@ import { useLiveBalance } from '@src/hooks/useLiveBalance';
 import { useErrorMessage } from '@src/hooks/useErrorMessage';
 import { SwappableToken } from './models';
 import { useSwappableTokens } from './hooks/useSwapTokens';
+import { isParaswapQuote } from '@src/contexts/SwapProvider/models';
+import { isJupiterQuote } from '@src/contexts/SwapProvider/models';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -282,6 +284,9 @@ export function Swap() {
     setIsTransactionDetailsOpen(false);
   }
 
+  const showEngineNotice =
+    quote && (isParaswapQuote(quote) || isJupiterQuote(quote));
+
   return (
     <Stack
       sx={{
@@ -420,6 +425,7 @@ export function Swap() {
 
           {isDetailsAvailable && (
             <TransactionDetails
+              quote={quote}
               fromTokenSymbol={selectedFromToken?.symbol}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(quote, {
@@ -435,7 +441,7 @@ export function Swap() {
           <ReviewOrderButtonContainer
             isTransactionDetailsOpen={isTransactionDetailsOpen}
           >
-            <SwapEngineNotice />
+            {showEngineNotice && <SwapEngineNotice />}
             <Button
               data-testid="swap-review-order-button"
               sx={{

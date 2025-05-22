@@ -41,6 +41,11 @@ import {
   DISALLOWED_SWAP_ASSETS,
   OnTransactionReceiptCallback,
   SwapErrorCode,
+  SwapQuote,
+  isUnwrapOperationParams,
+  isWrapOperationParams,
+  UnwrapOperation,
+  WrapOperation,
 } from './models';
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
@@ -61,7 +66,7 @@ export function SwapContextProvider({ children }: { children: any }) {
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
 
-  const [quote, setQuote] = useState<OptimalRate | JupiterQuote | null>(null);
+  const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [error, setError] = useState<SwapError>({ message: '' });
   const [destAmount, setDestAmount] = useState('');
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
@@ -196,7 +201,13 @@ export function SwapContextProvider({ children }: { children: any }) {
   );
 
   const swap = useCallback(
-    async (params: SwapParams<OptimalRate | JupiterQuote>) => {
+    async (
+      params:
+        | SwapParams<OptimalRate>
+        | SwapParams<WrapOperation>
+        | SwapParams<UnwrapOperation>
+        | SwapParams<JupiterQuote>,
+    ) => {
       if (isSolanaNetwork(activeNetwork)) {
         if (!isJupiterSwapParams(params)) {
           throw swapError(SwapErrorCode.InvalidParams);
@@ -205,7 +216,11 @@ export function SwapContextProvider({ children }: { children: any }) {
         return svmSwap(params);
       }
 
-      if (!isParaswapSwapParams(params)) {
+      if (
+        !isParaswapSwapParams(params) &&
+        !isWrapOperationParams(params) &&
+        !isUnwrapOperationParams(params)
+      ) {
         throw swapError(SwapErrorCode.InvalidParams);
       }
 
