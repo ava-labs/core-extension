@@ -33,6 +33,7 @@ export * from './useNfts';
 export * from './useOnline';
 export * from './usePageHistory';
 export * from './usePersistedTabs';
+export * from './usePreferredColorScheme';
 export * from './useQueryParams';
 export * from './useSeedlessAuth';
 export * from './useSeedlessAuthPromptState';
