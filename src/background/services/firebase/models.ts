@@ -21,4 +21,5 @@ export interface ChatConfig extends ConfigParams {
 export interface ChatDialogHistory {
   role: 'model' | 'user';
   content: string;
+  timestamp: number;
 }

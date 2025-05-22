@@ -437,7 +437,10 @@ export function Prompt() {
     async (message: string) => {
       setIsTyping(true);
       setPrompts((prev) => {
-        return [...prev, { role: 'user', content: message }];
+        return [
+          ...prev,
+          { role: 'user', content: message, timestamp: Date.now() },
+        ];
       });
       setInput('');
 
@@ -510,7 +513,14 @@ export function Prompt() {
             });
             // Log the text response.
             setPrompts((prev) => {
-              return [...prev, { role: 'model', content: functionResult.text }];
+              return [
+                ...prev,
+                {
+                  role: 'model',
+                  content: functionResult.text,
+                  timestamp: Date.now(),
+                },
+              ];
             });
           } catch (e: any) {
             const errorMessage =
@@ -542,7 +552,14 @@ export function Prompt() {
 
             // Log the text response.
             setPrompts((prev) => {
-              return [...prev, { role: 'model', content: errorResult.text }];
+              return [
+                ...prev,
+                {
+                  role: 'model',
+                  content: errorResult.text,
+                  timestamp: Date.now(),
+                },
+              ];
             });
           }
         } else {
@@ -550,7 +567,10 @@ export function Prompt() {
             throw new Error('EMPTY_RESPONSE');
           }
           setPrompts((prev) => {
-            return [...prev, { role: 'model', content: response.text }];
+            return [
+              ...prev,
+              { role: 'model', content: response.text, timestamp: Date.now() },
+            ];
           });
         }
       } catch (e: any) {
@@ -568,6 +588,7 @@ export function Prompt() {
                 role: 'model',
                 content:
                   'Whooops... There is something wrong with the service please try again later!',
+                timestamp: Date.now(),
               },
             ];
           });
@@ -579,6 +600,7 @@ export function Prompt() {
                 role: 'model',
                 content:
                   "I'm sorry but I cannot fullfil your request at the moment. You can try again later!",
+                timestamp: Date.now(),
               },
             ];
           });
@@ -590,6 +612,7 @@ export function Prompt() {
                 role: 'model',
                 content:
                   "Whooopsie... We've encountered some issues please try again later!",
+                timestamp: Date.now(),
               },
             ];
           });

@@ -12747,6 +12747,7 @@ __metadata:
     react-router-dom: "npm:5.3.0"
     react-scripts: "npm:5.0.1"
     react-test-renderer: "npm:17.0.2"
+    react-timeago: "npm:^8.2.0"
     react-timer-hook: "npm:3.0.5"
     react-transition-group: "npm:4.4.2"
     react-virtualized: "npm:9.22.3"
@@ -28850,6 +28851,15 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 10c0/a4ea1e745a87bb9015540d96a3077b614bf88e306a0edd639f8fb849a393fa5104e84eca4349bc4b026f2f0b115a4172d58950d7076316115795266557659276
+  languageName: node
+  linkType: hard
+
+"react-timeago@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "react-timeago@npm:8.2.0"
+  peerDependencies:
+    react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/6616994851f673661b9db9be5eb91086734fda32055765a30a822e7ed4c7a4871660eb772fecaa2b64be8d68fe5043d37624cfd6cdd19b40aba72180ee786e18
   languageName: node
   linkType: hard
 
