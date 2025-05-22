@@ -242,8 +242,10 @@ describe('src/background/services/storage/StorageService.ts', () => {
       expect(encryptWithKey).toHaveBeenCalledTimes(1);
       expect(encryptWithKey).toHaveBeenCalledWith({
         secret: '"some-data"',
-        encryptionKey: Buffer.from(
-          '0101010101010101010101010101010101010101010101010101010101010101',
+        encryptionKey: Uint8Array.from(
+          Buffer.from(
+            '0101010101010101010101010101010101010101010101010101010101010101',
+          ),
         ),
       });
     });
@@ -319,7 +321,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       expect(encryptWithKey).toHaveBeenCalledTimes(1);
       expect(encryptWithKey).toHaveBeenCalledWith({
         secret: '{"data":1}',
-        encryptionKey: Buffer.from('encryption-key'),
+        encryptionKey: Uint8Array.from(Buffer.from('encryption-key')),
       });
       expect(encryptWithPassword).not.toHaveBeenCalledTimes(1);
 
@@ -444,7 +446,7 @@ describe('src/background/services/storage/StorageService.ts', () => {
       expect(jest.mocked(decryptWithKey).mock.calls[0]).toEqual([
         {
           cypher: new Uint8Array([1, 1, 1]),
-          encryptionKey: Buffer.from('encryption-key'),
+          encryptionKey: Uint8Array.from(Buffer.from('encryption-key')),
           nonce: new Uint8Array([2, 2]),
         },
       ]);

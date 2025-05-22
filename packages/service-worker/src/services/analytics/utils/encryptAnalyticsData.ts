@@ -1,3 +1,4 @@
+import { toArrayBuffer } from '@core/common';
 import {
   Aes256Gcm,
   CipherSuite,
@@ -22,8 +23,7 @@ export async function encryptAnalyticsData(
   }
 
   const publicKey = await suite.kem.deserializePublicKey(
-    Uint8Array.from(Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY, 'base64'))
-      .buffer,
+    toArrayBuffer(Buffer.from(process.env.ANALYTICS_ENCRYPTION_KEY, 'base64')),
   );
 
   const sender = await suite.createSenderContext({
@@ -32,10 +32,7 @@ export async function encryptAnalyticsData(
 
   const aad = new TextEncoder().encode(process.env.ANALYTICS_ENCRYPTION_KEY_ID);
   const data = new TextEncoder().encode(message);
-  const ct = await sender.seal(
-    Uint8Array.from(data).buffer,
-    Uint8Array.from(aad).buffer,
-  );
+  const ct = await sender.seal(toArrayBuffer(data), toArrayBuffer(aad));
 
   const encrypted = Buffer.from(ct).toString('base64');
   const enc = Buffer.from(sender.enc).toString('base64');

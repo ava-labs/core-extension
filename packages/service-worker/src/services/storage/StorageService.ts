@@ -152,12 +152,12 @@ export class StorageService implements OnLock {
           encryptedData.keyDerivationVersion ?? KeyDerivationVersion.V1,
       });
     } else {
-      const keyBuffer = Uint8Array.from(Buffer.from(this._storageKey ?? ''));
+      const keyBuffer = Buffer.from(this._storageKey ?? '');
 
       try {
         data = await decryptWithKey({
           cypher: Uint8Array.from(encryptedData.cypher),
-          encryptionKey: keyBuffer,
+          encryptionKey: Uint8Array.from(keyBuffer),
           nonce: Uint8Array.from(encryptedData.nonce),
           salt: encryptedData.salt && Uint8Array.from(encryptedData.salt),
         });
