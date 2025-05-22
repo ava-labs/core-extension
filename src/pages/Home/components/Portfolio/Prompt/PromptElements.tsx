@@ -40,26 +40,21 @@ export const AIDialog = ({
   const theme = useTheme();
   const [isTextTyped, setIsTextTyped] = useState(false);
 
-  const messageLength = useMemo(
-    () => message.content.length,
-    [message.content.length],
-  );
-
   const typingSpeed = useMemo(() => {
-    if (messageLength < 50) {
+    if (message.content.length < 50) {
       return 20;
     }
-    if (messageLength > 50 && messageLength <= 500) {
+    if (message.content.length > 50 && message.content.length <= 500) {
       return 10;
     }
-    if (messageLength > 500 && messageLength <= 1000) {
+    if (message.content.length > 500 && message.content.length <= 1000) {
       return 4;
     }
-    if (messageLength > 1000) {
+    if (message.content.length > 1000) {
       return 1;
     }
     return 5;
-  }, [messageLength]);
+  }, [message.content.length]);
 
   useEffect(() => {
     if (!isTextTyped && !isDialogOpen) {
