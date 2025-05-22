@@ -5,9 +5,12 @@ import {
   styled,
 } from '@avalabs/k2-alpine';
 
-type Props = Omit<FilledTextFieldProps, 'variant' | 'size'>;
+export type StandaloneFieldProps = Omit<
+  FilledTextFieldProps,
+  'variant' | 'size'
+>;
 
-export const StandaloneField = styled((props: Props) => (
+export const StandaloneField = styled((props: StandaloneFieldProps) => (
   <TextField
     {...props}
     variant="filled"
