@@ -11,7 +11,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PromptItem } from '@src/contexts/FirebaseProvider';
+import { PromptItem } from '@core/ui';
 import { Typewriter } from './Typewriter';
 import ReactMarkdown from 'react-markdown';
 

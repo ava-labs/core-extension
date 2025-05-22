@@ -1,8 +1,12 @@
-import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
+import {
+  ChatDialogHistory,
+  ConfigParams,
+  ExtensionRequest,
+  ExtensionRequestHandler,
+} from '@core/types';
 import { injectable } from 'tsyringe';
 import { FirebaseService } from '../FirebaseService';
 import { Content, FunctionCall } from 'firebase/vertexai';
-import { ChatDialogHistory, ConfigParams } from '../models';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.FIREBASE_SEND_MESSAGE,
