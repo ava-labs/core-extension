@@ -1,4 +1,5 @@
-import { FunctionDeclaration, SchemaType } from '@google/generative-ai';
+import { SchemaType } from '@google/generative-ai';
+import { FunctionDeclaration } from 'firebase/vertexai';
 
 export const functionDeclarations: FunctionDeclaration[] = [
   {
@@ -116,6 +117,33 @@ export const functionDeclarations: FunctionDeclaration[] = [
     },
   },
   {
+    name: 'bridge',
+    description: `Send a token from one network to another.`,
+    parameters: {
+      type: SchemaType.OBJECT,
+      properties: {
+        amount: {
+          type: SchemaType.STRING,
+          description: `The amount of tokens to bridge. It has to be less than the balance of the user from that given token. Do not let the user to initiate a bridge transaction if the balance is less than the user wants to bridge. E.g. if the user has 1 USDC do not let start a bridge with 10 USDC. The user cannot provide an amount of anything else just the amount of the token.`,
+        },
+        token: {
+          type: SchemaType.STRING,
+          description:
+            'The address of the token to be bridged. The allowed tokens list is in the given data in the prompt template.',
+        },
+        sourceNetwork: {
+          type: SchemaType.STRING,
+          description: `The network's chainId to send the tokens from. It is always the actual active network. The user cannot change it.`,
+        },
+        destinationNetwork: {
+          type: SchemaType.STRING,
+          description: `The destination network's chainId. You can find the chainId in the network list so the user has to be able to ask that by the name of the network.`,
+        },
+      },
+      required: ['amount', 'token', 'sourceNetwork', 'destinationNetwork'],
+    },
+  },
+  {
     name: 'buy',
     description: `User can buy tokens in a new window at https://core.app/buy/ webpage.`,
   },
@@ -138,6 +166,8 @@ The user has the following tokens on the active account:
 __TOKENS__
 The tokens can be identified by their "symbol" property, as well as their "address" property. Both identifiers are case-insensitive.
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
+Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network is always the actual "active" network.
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
 The user can ask the daily summary of the tokens which means you are asked to list out the price changes of the owned tokens. The changes are in the __TOKENS__ list. Each index is an owned token and each one has the "priceChanges" property which contains a percentage and a value and a currency vale in the "value" property. The changes can be positive or negative. You can mark the positive changes with green color and the negative ones with red. You can summarize all the changes in short as well how the prices and the percentages are changed and that information is important so format it well e.g. with bold text.
+The important words should be emphasised with bold formatting and the positive changes with green color and the negative ones with red color e.g. token and network names and / or ids, command names and similar things. You can also use colored icons for demonstrate the increasing or decreasing. If there is no price or change (means no data or the values are zero or null) you should not report that token at all.
 `;

@@ -42,6 +42,8 @@ import {
   SOL_MINT,
 } from './constants';
 import { FetcherError, OptimalRate, TransactionParams } from '@paraswap/sdk';
+import type WAVAX_ABI from './ABI_WAVAX.json';
+import type WETH_ABI from './ABI_WETH.json';
 
 export function validateParaswapParams(
   params: Partial<SwapParams<OptimalRate>>,
@@ -563,3 +565,50 @@ export const getFeeAccountInfo = async (
     isInitialized: Boolean(feeAccountInfo.value),
   };
 };
+
+type WrapUnwrapTxParams = {
+  userAddress: string;
+  tokenAddress: string;
+  amount: string;
+  provider: JsonRpcBatchInternal;
+  abi: typeof WAVAX_ABI | typeof WETH_ABI;
+};
+
+export async function buildWrapTx({
+  userAddress,
+  tokenAddress,
+  amount,
+  provider,
+  abi,
+}: WrapUnwrapTxParams) {
+  const contract = new Contract(tokenAddress, abi, provider);
+
+  const { to, data } = await contract.deposit!.populateTransaction();
+
+  return {
+    to,
+    data,
+    from: userAddress,
+    value: `0x${BigInt(amount).toString(16)}`,
+  };
+}
+
+export async function buildUnwrapTx({
+  userAddress,
+  tokenAddress,
+  amount,
+  provider,
+  abi,
+}: WrapUnwrapTxParams) {
+  const contract = new Contract(tokenAddress, abi, provider);
+
+  const { to, data } = await contract.withdraw!.populateTransaction(
+    `0x${BigInt(amount).toString(16)}`,
+  );
+
+  return {
+    to,
+    data,
+    from: userAddress,
+  };
+}
