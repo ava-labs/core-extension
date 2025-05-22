@@ -15,7 +15,11 @@ import { getProviderForNetwork } from '@src/utils/network/getProviderForNetwork'
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 
-import { NATIVE_TOKEN_ADDRESS, WAVAX_ADDRESS } from './constants';
+import {
+  NATIVE_TOKEN_ADDRESS,
+  PARASWAP_PARTNER_FEE_BPS,
+  WAVAX_ADDRESS,
+} from './constants';
 import {
   GetRateParams,
   SwapAdapterMethods,
@@ -634,12 +638,15 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
       await act(async () => {
         await swap({ ...params, slippage, quote });
 
+        const totalFeePercentage =
+          slippage / 100 + PARASWAP_PARTNER_FEE_BPS / 10000;
+
         expect(paraswapInstance.buildTx).toHaveBeenCalledWith(
           {
             ...params,
             srcAmount: new Big(quote.srcAmount)
-              .times(1 + slippage / 100)
-              .toFixed(0), // increased by slippage
+              .times(1 + totalFeePercentage)
+              .toFixed(0), // increased by slippage + fees
             destAmount: quote.destAmount,
             priceRoute: quote,
             userAddress: '0x12341234',
