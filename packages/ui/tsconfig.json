@@ -1,0 +1,12 @@
+{
+  "extends": "@core/tsconfig/tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["../service-worker/src/*"],
+      "@shared/*": ["../../src/*"]
+    },
+    "jsx": "react-jsx"
+  },
+  "exclude": ["**/node_modules/*"],
+  "include": ["./src", "../types/*.d.ts"]
+}
