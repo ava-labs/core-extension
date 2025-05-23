@@ -14,7 +14,10 @@ type Props = HTMLAttributes<HTMLImageElement> & {
 
 const GIF_DURATION = 1230;
 
-const imgSrc = {
+const imgSrc: Record<
+  ReturnType<typeof usePreferredColorScheme>,
+  Record<NonNullable<Props['size']>, string>
+> = {
   light: {
     default: CoreSplashLight,
     big: CoreSplashLightBig,
