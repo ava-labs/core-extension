@@ -40,7 +40,7 @@ export const Unlock: React.FC<Props> = ({
   };
 
   return (
-    <Stack direction="column" rowGap={1.5} width="100cqw" px="20px" mt={8}>
+    <Stack direction="column" width="100cqw" px="20px" mt={8}>
       <PasswordField
         onChange={(e) => setPassword(e.target.value)}
         onKeyUp={(e) => {
@@ -54,8 +54,10 @@ export const Unlock: React.FC<Props> = ({
       <Button
         disabled={isPasswordMissing}
         variant="contained"
+        size="small"
         onClick={handleSubmit}
         loading={isLoading}
+        sx={{ mt: 1.5, height: '32px' }}
       >
         {t('Login')}
       </Button>
