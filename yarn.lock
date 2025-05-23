@@ -527,9 +527,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/k2-alpine@npm:1.197.0":
-  version: 1.197.0
-  resolution: "@avalabs/k2-alpine@npm:1.197.0"
+"@avalabs/k2-alpine@npm:1.199.0":
+  version: 1.199.0
+  resolution: "@avalabs/k2-alpine@npm:1.199.0"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
@@ -542,7 +542,7 @@ __metadata:
     react: ^19.0.0
     react-dom: ^19.0.0
     react-icons: ^5.4.0
-  checksum: 10c0/e51c2895dad7c3316e1939935fe4e0d2836459069c28219e53d27ada5b4773cf9cab2cf63372dc95a17e9f6392623ac997317db8fb1bd39c38dd27e75b87bc5b
+  checksum: 10c0/8f3dc30ce77418cf29f911d71f0664e7e3f9c529d0dbb109f2b2a7101e6405fd4555bfa1a039d04b11e4a5bee62cee61b2652a74738a87f5c6b19a4b0e63ad02
   languageName: node
   linkType: hard
 
@@ -4107,7 +4107,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
-    "@avalabs/k2-alpine": "npm:1.197.0"
+    "@avalabs/k2-alpine": "npm:1.199.0"
+    "@avalabs/types": "npm:3.1.0-alpha.51"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-react": "npm:7.24.1"
@@ -4199,6 +4200,7 @@ __metadata:
     ts-loader: "npm:9.2.6"
     typescript: "npm:5.8.2"
     webextension-polyfill: "npm:0.10.0"
+    zod: "npm:3.23.8"
   languageName: unknown
   linkType: soft
 
