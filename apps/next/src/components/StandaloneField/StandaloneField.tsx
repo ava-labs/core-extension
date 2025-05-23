@@ -38,8 +38,8 @@ export const StandaloneField = styled((props: StandaloneFieldProps) => (
     '&:hover': {
       backgroundColor:
         theme.palette.mode === 'light'
-          ? theme.palette.common.white_30
-          : theme.palette.neutral['850_30'],
+          ? theme.palette.neutral['850_30']
+          : theme.palette.common.white_30,
     },
     '&:focus-within': {
       color: theme.palette.neutral['850'],
