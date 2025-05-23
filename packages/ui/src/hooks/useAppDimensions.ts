@@ -1,32 +1,32 @@
 import { ContextContainer } from '@core/types';
-import { useIsSpecificContextContainer } from './useIsSpecificContextContainer';
+import { isSpecificContextContainer } from '../utils/isSpecificContextContainer';
 
-export function useAppDimensions(): { width: string; height: string } {
-  const isConfirm = useIsSpecificContextContainer(ContextContainer.CONFIRM);
-  const isMiniMode = useIsSpecificContextContainer(ContextContainer.POPUP);
-  const isFullscreen = useIsSpecificContextContainer(
+type AppDimensions = {
+  width: string;
+  height: string;
+};
+
+const dimensions = {
+  miniMode: { width: '375px', height: '640px' },
+  confirm: { width: '375px', height: '600px' },
+  fullscreen: { width: '100%', height: '100%' },
+  unknown: { width: '', height: '' },
+} as const satisfies Record<string, AppDimensions>;
+
+export function useAppDimensions(): AppDimensions {
+  const isConfirm = isSpecificContextContainer(ContextContainer.CONFIRM);
+  const isMiniMode = isSpecificContextContainer(ContextContainer.POPUP);
+  const isFullscreen = isSpecificContextContainer(
     ContextContainer.FULLSCREEN,
   );
 
   if (isMiniMode) {
-    return {
-      height: '600px',
-      width: '375px',
-    };
+    return dimensions.miniMode;
   } else if (isConfirm) {
-    return {
-      height: '640px',
-      width: '375px',
-    };
+    return dimensions.confirm;
   } else if (isFullscreen) {
-    return {
-      height: '100%',
-      width: '100%',
-    };
+    return dimensions.fullscreen;
   }
 
-  return {
-    height: '',
-    width: '',
-  };
+  return dimensions.unknown;
 }

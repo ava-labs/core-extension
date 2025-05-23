@@ -4,21 +4,19 @@ export function useOnline() {
   const [isOnline, setIsOnline] = useState(window.navigator.onLine);
 
   useEffect(() => {
-    const onConnectionChange = (event) => {
-      if (event.type === 'online') {
-        setIsOnline(true);
-        return;
-      }
-      setIsOnline(false);
+    const onConnectionChange: EventListener = (event) => {
+      setIsOnline(event.type === 'online');
     };
 
-    window.addEventListener('online', onConnectionChange);
+    const abortController = new AbortController();
+    window.addEventListener('online', onConnectionChange, {
+      signal: abortController.signal,
+    });
+    window.addEventListener('offline', onConnectionChange, {
+      signal: abortController.signal,
+    });
 
-    window.addEventListener('offline', onConnectionChange);
-    return () => {
-      window.removeEventListener('online', () => onConnectionChange);
-      window.removeEventListener('offline', () => onConnectionChange);
-    };
+    return () => abortController.abort();
   }, []);
 
   return { isOnline };
