@@ -17,8 +17,8 @@ function getAvalancheTxLink(hash: string, isMainnet = true) {
 
 function getEtherscanLink(txHash: string, isMainnet: boolean) {
   const root = isMainnet
-    ? 'https://etherscan.io'
-    : 'https://sepolia.etherscan.io';
+    ? 'https://routescan.io'
+    : 'https://testnet.routescan.io';
   return `${root}/tx/${txHash}`;
 }
 

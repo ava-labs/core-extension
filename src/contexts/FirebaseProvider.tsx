@@ -16,21 +16,25 @@ import {
   ConfigParams,
 } from '@src/background/services/firebase/models';
 
+export interface PromptItem {
+  role: 'model' | 'user';
+  content: string;
+}
+
 const FirebaseContext = createContext<{
-  setModel: ({ tools, toolConfig, systemInstruction }: any) => Promise<boolean>;
+  setModel: ({ tools, systemInstruction }: ConfigParams) => Promise<boolean>;
   sendMessage: ({
     message,
     parts,
     history,
+    config,
   }: {
     message: string;
     parts?: Content[];
     history?: ChatDialogHistory[];
+    config?: ConfigParams;
   }) => Promise<{ text: string; functionCalls?: FunctionCall[] }>;
-  prompts: {
-    role: 'model' | 'user';
-    content: string;
-  }[];
+  prompts: PromptItem[];
   setPrompts: Dispatch<
     SetStateAction<
       {
@@ -53,12 +57,11 @@ export function FirebaseContextProvider({ children }: { children: any }) {
   ]);
 
   const setModel = useCallback(
-    ({ tools, toolConfig, systemInstruction }: ConfigParams) => {
+    ({ tools, systemInstruction }: ConfigParams) => {
       return request<FirebaseSetModelHandler>({
         method: ExtensionRequest.FIREBASE_SET_MODEL,
         params: {
           tools,
-          toolConfig,
           systemInstruction,
         },
       });
@@ -71,14 +74,16 @@ export function FirebaseContextProvider({ children }: { children: any }) {
       message,
       parts,
       history,
+      config,
     }: {
       message: string;
       parts?: Content[];
       history?: ChatDialogHistory[];
+      config?: ConfigParams;
     }) => {
       return request<FirebaseSendMessageHandler>({
         method: ExtensionRequest.FIREBASE_SEND_MESSAGE,
-        params: { message, parts, history },
+        params: { message, parts, history, config },
       });
     },
     [request],
