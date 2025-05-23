@@ -49,6 +49,7 @@ dist
 builds
 .DS_Store
 todo.*
+dist-next
 
 # snyk
 .dccache
