@@ -52,7 +52,8 @@ const up = async (walletStorage: PreviousSchema) => {
       ? 'Recovery Phrase'
       : secretType === SecretType.Seedless
         ? 'Seedless'
-        : secretType === SecretType.Keystone
+        : secretType === SecretType.Keystone ||
+            secretType === SecretType.Keystone3Pro
           ? 'Keystone'
           : 'Ledger';
 
