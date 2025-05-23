@@ -1,5 +1,5 @@
 import { WarningMessage } from '@/components/WarningMessage';
-import { Button, Modal, Stack, Typography } from '@avalabs/k2-alpine';
+import { Button, Modal, Stack, SxProps, Typography } from '@avalabs/k2-alpine';
 import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
 import { FC } from 'react';
@@ -10,6 +10,10 @@ type Props = {
   open: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+};
+
+const smallButtonFixSx: SxProps = {
+  height: '32px',
 };
 
 export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
@@ -28,9 +32,9 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
     <Modal open={open} disablePortal closeAfterTransition>
       <Stack
         direction="column"
-        rowGap="25px"
+        rowGap={3}
         height={1}
-        paddingBlock="115px 22px"
+        paddingBlock="85px 22px"
         paddingInline="14px 30px"
       >
         <Typography variant="h2">
@@ -42,10 +46,21 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
           )}
         </WarningMessage>
         <Stack direction="column" rowGap="10px" mt="auto">
-          <Button variant="contained" onClick={onConfirmClick}>
+          <Button
+            sx={smallButtonFixSx}
+            variant="contained"
+            size="small"
+            onClick={onConfirmClick}
+          >
             {t('Confirm')}
           </Button>
-          <Button variant="contained" color="secondary" onClick={onCancel}>
+          <Button
+            sx={smallButtonFixSx}
+            variant="contained"
+            size="small"
+            color="secondary"
+            onClick={onCancel}
+          >
             {t('Cancel')}
           </Button>
         </Stack>
