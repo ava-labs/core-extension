@@ -1,10 +1,19 @@
-import { HideIcon, InputAdornment, IconButton } from '@avalabs/k2-alpine';
+import {
+  HideIcon,
+  InputAdornment,
+  IconButton,
+  SxProps,
+} from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
   onHide: VoidFunction;
   onShow: VoidFunction;
+};
+
+const colorSx: SxProps = {
+  color: 'currentColor',
 };
 
 export const ShowPasswordAdornment: React.FC<Props> = ({
@@ -14,20 +23,21 @@ export const ShowPasswordAdornment: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <InputAdornment position="end">
+    <InputAdornment sx={colorSx} position="end">
       <IconButton
+        sx={colorSx}
         size="small"
         aria-label={visible ? t('Hide password') : t('Show password')}
         onMouseUp={onHide}
         onMouseDown={onShow}
-        edge="end"
+        disableRipple
       >
         <HideIcon
           size={24}
           sx={{
             position: 'absolute',
             right: 0,
-            color: visible ? 'text.secondary' : 'text.primary',
+            opacity: visible ? 0.5 : 1,
           }}
         />
       </IconButton>
