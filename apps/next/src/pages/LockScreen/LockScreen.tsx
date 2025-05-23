@@ -1,16 +1,19 @@
+import { ComponentProps, FC, useState } from 'react';
 import { CoreSplash } from '@/components/CoreSplash';
-import { styled, Stack, Collapse, toast } from '@avalabs/k2-alpine';
-import { FC, useState } from 'react';
-import { Unlock } from './components/Unlock';
 import { ForgotPassword } from './components/ForgotPassword';
-import { useOnline } from '@core/ui';
 import { NavigationBar } from './components/NavigationBar';
-import { WarningMessage } from '@/components/WarningMessage';
-import { useTranslation } from 'react-i18next';
+import { styled, Stack, Collapse, toast } from '@avalabs/k2-alpine';
+import { Unlock } from './components/Unlock';
+import { useOnline } from '@core/ui';
 import { UserAvatar } from './components/UserAvatar';
+import { useTranslation } from 'react-i18next';
+import { WalletContextProviderProps } from '@core/ui';
+import { WarningMessage } from '@/components/WarningMessage';
 
 type Props = {
-  unlockWallet(password: string): Promise<void>;
+  unlockWallet: ComponentProps<
+    WalletContextProviderProps['LockedComponent']
+  >['unlockWallet'];
 };
 
 const Root = styled(Stack)({
@@ -39,7 +42,7 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
   const isUIReady = isOnline && showUnlockForm;
 
   return (
-    <Root id="lock-screen">
+    <Root>
       <NavigationBar
         showBack={showForgotPassword}
         onBackClicked={hideForgotPasswordModal}

@@ -1,11 +1,11 @@
-import { Box } from '@avalabs/k2-alpine';
-import { PasswordField } from '@/components/StandaloneField';
-import { Stack, Button } from '@avalabs/k2-alpine';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Box } from '@avalabs/k2-alpine';
+import { Stack, Button } from '@avalabs/k2-alpine';
+import { PasswordField } from '@/components/StandaloneField';
 
 type Props = {
-  onUnlock: (password: string) => Promise<void>;
+  onUnlock: (password: string) => Promise<true>;
   onForgotPasswordClick: () => void;
 };
 

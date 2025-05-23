@@ -55,14 +55,16 @@ const WalletContext = createContext<WalletStateAndMethods>({
   wallets: [],
 } as any);
 
+export type WalletContextProviderProps = PropsWithChildren<{
+  LockedComponent: React.FC<{
+    unlockWallet: (password: string) => Promise<true>;
+  }>;
+}>;
+
 export function WalletContextProvider({
   children,
   LockedComponent,
-}: PropsWithChildren<{
-  LockedComponent: React.FC<{
-    unlockWallet: (password: string) => Promise<void>;
-  }>;
-}>) {
+}: WalletContextProviderProps) {
   const { initLedgerTransport } = useLedgerContext();
   const { request, events } = useConnectionContext();
   const [isWalletLocked, setIsWalletLocked] = useState<boolean>(true);
