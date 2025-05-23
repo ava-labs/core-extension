@@ -54,9 +54,10 @@ export const Unlock: React.FC<Props> = ({
       <Button
         disabled={isPasswordMissing}
         variant="contained"
+        size="small"
         onClick={handleSubmit}
         loading={isLoading}
-        sx={{ mt: 1.5 }}
+        sx={{ mt: 1.5, height: '32px' }}
       >
         {t('Login')}
       </Button>
