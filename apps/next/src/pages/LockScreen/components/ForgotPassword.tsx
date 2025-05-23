@@ -1,7 +1,10 @@
 import { WarningMessage } from '@/components/WarningMessage';
 import { Button, Modal, Stack, Typography } from '@avalabs/k2-alpine';
+import { ExtensionRequest } from '@core/types';
+import { useConnectionContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExtensionState';
 
 type Props = {
   open: boolean;
@@ -11,6 +14,16 @@ type Props = {
 
 export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
   const { t } = useTranslation();
+  const { request } = useConnectionContext();
+
+  const onConfirmClick = async () => {
+    await request<ResetExtensionStateHandler>({
+      method: ExtensionRequest.RESET_EXTENSION_STATE,
+      params: [true],
+    });
+    onConfirm();
+  };
+
   return (
     <Modal open={open} disablePortal closeAfterTransition>
       <Stack
@@ -29,7 +42,7 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
           )}
         </WarningMessage>
         <Stack direction="column" rowGap="10px" mt="auto">
-          <Button variant="contained" onClick={onConfirm}>
+          <Button variant="contained" onClick={onConfirmClick}>
             {t('Confirm')}
           </Button>
           <Button variant="contained" color="secondary" onClick={onCancel}>

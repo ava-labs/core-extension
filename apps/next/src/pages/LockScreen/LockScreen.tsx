@@ -2,7 +2,7 @@ import { ComponentProps, FC, useState } from 'react';
 import { CoreSplash } from '@/components/CoreSplash';
 import { ForgotPassword } from './components/ForgotPassword';
 import { NavigationBar } from './components/NavigationBar';
-import { styled, Stack, Collapse, toast } from '@avalabs/k2-alpine';
+import { styled, Stack, Collapse } from '@avalabs/k2-alpine';
 import { Unlock } from './components/Unlock';
 import { useOnline } from '@core/ui';
 import { UserAvatar } from './components/UserAvatar';
@@ -68,10 +68,7 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
       <ForgotPassword
         open={showForgotPassword}
         onCancel={hideForgotPasswordModal}
-        onConfirm={() => {
-          toast.success(t('Password reset confirmed'));
-          hideForgotPasswordModal();
-        }}
+        onConfirm={hideForgotPasswordModal}
       />
     </Root>
   );
