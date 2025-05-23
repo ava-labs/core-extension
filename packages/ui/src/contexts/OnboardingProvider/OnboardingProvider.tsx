@@ -45,7 +45,13 @@ const OnboardingContext = createContext<{
   setXpubXP: Dispatch<SetStateAction<string>>;
   setAnalyticsConsent: Dispatch<SetStateAction<boolean | undefined>>;
   analyticsConsent: boolean | undefined;
-  setPasswordAndNames: (password: string, walletName?: string) => void;
+  password: string;
+  setPassword: Dispatch<SetStateAction<string>>;
+  walletName: string;
+  setWalletName: Dispatch<SetStateAction<string>>;
+  avatar: string;
+  setAvatar: Dispatch<SetStateAction<string>>;
+  setPasswordAndNames: (password: string, walletName: string) => void;
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
   publicKeys?: PubKeyType[];
@@ -92,6 +98,8 @@ export function OnboardingContextProvider({
 
   const [mnemonic, setMnemonic] = useState('');
 
+  const [avatar, setAvatar] = useState<string>('');
+
   const [xpub, setXpub] = useState('');
 
   const [xpubXP, setXpubXP] = useState('');
@@ -100,7 +108,7 @@ export function OnboardingContextProvider({
 
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [isNewsletterEnabled, setIsNewsletterEnabled] = useState(false);
-  const [walletName, setWalletName] = useState<string>();
+  const [walletName, setWalletName] = useState<string>('');
 
   const [analyticsConsent, setAnalyticsConsent] = useState<boolean | undefined>(
     undefined,
@@ -150,7 +158,7 @@ export function OnboardingContextProvider({
     setSeedlessSignerToken(undefined);
     setWalletType(undefined);
     setUserId(undefined);
-    setWalletName(undefined);
+    setWalletName('');
     setIsSeedlessMfaRequired(false);
     setOnboardingWalletType(undefined);
     setIsNewsletterEnabled(false);
@@ -214,7 +222,7 @@ export function OnboardingContextProvider({
   }, [isHome, onboardingState]);
 
   const setPasswordAndNames = useCallback(
-    (pass: string, newWalletName?: string) => {
+    (pass: string, newWalletName: string) => {
       setPassword(pass);
       setWalletName(newWalletName);
     },
@@ -418,6 +426,12 @@ export function OnboardingContextProvider({
         setMnemonic,
         setXpub,
         setXpubXP,
+        avatar,
+        setAvatar,
+        password,
+        setPassword,
+        walletName,
+        setWalletName,
         setPasswordAndNames,
         submit,
         setAnalyticsConsent,
