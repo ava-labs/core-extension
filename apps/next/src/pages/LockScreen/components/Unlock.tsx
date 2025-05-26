@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box } from '@avalabs/k2-alpine';
 import { Stack, Button } from '@avalabs/k2-alpine';
+
 import { PasswordField } from '@/components/StandaloneField';
 
 type Props = {
@@ -14,9 +15,9 @@ export const Unlock: React.FC<Props> = ({
   onForgotPasswordClick,
 }) => {
   const { t } = useTranslation();
-  const [password, setPassword] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const isPasswordMissing = password.trim().length === 0;
 

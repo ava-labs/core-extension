@@ -1,6 +1,6 @@
-import { IconButton, Stack } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
+import { IconButton, Stack } from '@avalabs/k2-alpine';
 
 type Props = {
   showBack: boolean;

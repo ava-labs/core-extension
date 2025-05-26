@@ -1,5 +1,5 @@
-import { Stack, StackProps, styled } from '@avalabs/k2-alpine';
 import { FC } from 'react';
+import { Stack, StackProps, styled } from '@avalabs/k2-alpine';
 
 type Props = Omit<StackProps, 'alignItems'> & OwnProps;
 

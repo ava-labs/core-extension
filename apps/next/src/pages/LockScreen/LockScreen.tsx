@@ -1,14 +1,16 @@
 import { ComponentProps, FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Collapse, Stack, styled } from '@avalabs/k2-alpine';
+
+import { useOnline, WalletContextProviderProps } from '@core/ui';
+
 import { CoreSplash } from '@/components/CoreSplash';
+import { WarningMessage } from '@/components/WarningMessage';
+
 import { ForgotPassword } from './components/ForgotPassword';
 import { NavigationBar } from './components/NavigationBar';
-import { styled, Stack, Collapse } from '@avalabs/k2-alpine';
 import { Unlock } from './components/Unlock';
-import { useOnline } from '@core/ui';
 import { UserAvatar } from './components/UserAvatar';
-import { useTranslation } from 'react-i18next';
-import { WalletContextProviderProps } from '@core/ui';
-import { WarningMessage } from '@/components/WarningMessage';
 
 type Props = {
   unlockWallet: ComponentProps<

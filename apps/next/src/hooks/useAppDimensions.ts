@@ -16,15 +16,15 @@ const dimensions = {
 export function useAppDimensions(): AppDimensions {
   if (isSpecificContextContainer(ContextContainer.POPUP)) {
     return dimensions.miniMode;
-  } 
-  
+  }
+
   if (isSpecificContextContainer(ContextContainer.CONFIRM)) {
     return dimensions.confirm;
-  } 
-  
+  }
+
   if (isSpecificContextContainer(ContextContainer.FULLSCREEN)) {
     return dimensions.fullscreen;
   }
 
   return dimensions.unknown;
-} 
+}

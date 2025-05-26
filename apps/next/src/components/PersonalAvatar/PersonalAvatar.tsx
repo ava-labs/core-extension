@@ -29,7 +29,7 @@ type PersonalAvatarByDataUriProps = PersonalAvatarSharedProps & {
 type PersonalAvatarProps = BoxProps &
   (PersonalAvatarByNameProps | PersonalAvatarByDataUriProps);
 
-const getAvatarSrc = memoize((src: string) => {
+const getAvatarSrc = memoize((src: string): Promise<string> => {
   if (src in AVATAR_DICTIONARY) {
     return AVATAR_DICTIONARY[src];
   }
@@ -90,7 +90,13 @@ export const PersonalAvatar = ({
       )}
       {...props}
     >
-      <AvatarHex alt={alt} size={size} src={src} selected={selected} />
+      <AvatarHex
+        alt={alt}
+        size={size}
+        src={src}
+        // @ts-expect-error - Missing property in @avalabs/k2-alpine
+        selected={selected}
+      />
     </Box>
   );
 };

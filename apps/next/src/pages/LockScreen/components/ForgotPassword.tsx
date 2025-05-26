@@ -1,10 +1,12 @@
-import { WarningMessage } from '@/components/WarningMessage';
-import { Button, Modal, Stack, SxProps, Typography } from '@avalabs/k2-alpine';
-import { ExtensionRequest } from '@core/types';
-import { useConnectionContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Button, Modal, Stack, SxProps, Typography } from '@avalabs/k2-alpine';
+
+import { useConnectionContext } from '@core/ui';
+import { ExtensionRequest } from '@core/types';
 import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExtensionState';
+
+import { WarningMessage } from '@/components/WarningMessage';
 
 type Props = {
   open: boolean;
