@@ -57,7 +57,6 @@ const promptTextAnimation = keyframes`
 
 const TextAnimation = styled('span')`
   animation: 6000ms ease 0s infinite normal none running ${promptTextAnimation};
-  overflow: hidden;
 `;
 
 CSS.registerProperty({
