@@ -111,7 +111,7 @@ export function Advanced({ goBack, navigateTo, width }: SettingsPageProps) {
         {featureFlags[FeatureGates.CORE_ASSISTANT] && (
           <ListItem data-testid="core-assistant-menu-item">
             <ListItemText primaryTypographyProps={{ variant: 'body2' }}>
-              {t('Core Assistant')}
+              {t('Core Concierge')}
             </ListItemText>
             <Switch
               size="small"
