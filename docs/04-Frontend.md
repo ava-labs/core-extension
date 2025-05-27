@@ -6,7 +6,7 @@ The extension frontend is a React application using built-in React tools for sta
 
 ## Entry points
 
-Even though we only have a single bundle, the frontend has multiple entry points created during the build process. You can use the utils in `src/hooks/useIsSpecificContextContainer.ts` to determine the current context the frontend is running in.
+Even though we only have a single bundle, the frontend has multiple entry points created during the build process. You can use the utils in `src/utils/isSpecificContextContainer.ts` to determine the current context the frontend is running in.
 
 - **POPUP** The popup is the main extension UI. It's displayed when the user clicks on the extension's icon in the browser navigation bar. Due to browser restrictions, it can't be opened programmatically (imagine how annoying would that be for a user).
 - **CONFIRM** The confirmation UIs are the standalone popup windows that are triggered by Dapp interactions. They are used for requesting the user's consent on various actions like approving transactions or website connections.

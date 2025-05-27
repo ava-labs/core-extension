@@ -15,12 +15,8 @@ export const CardMenu = styled(MenuList)(({ theme }) => ({
   paddingBottom: theme.spacing(1),
   width: '100%',
   flex: '0 0 auto',
-  backgroundColor: getHexAlpha(
-    theme.palette.mode === 'light'
-      ? theme.palette.neutral[850]
-      : theme.palette.common.white,
-    10,
-  ),
+  backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
+  // @ts-expect-error - Broken Theme type in @avalabs/k2-alpine
   borderRadius: theme.shape.mediumBorderRadius,
 }));
 

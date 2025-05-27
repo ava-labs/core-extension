@@ -33,7 +33,7 @@ import browser from 'webextension-polyfill';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { onboardingUpdatedEventListener } from './listeners';
-import { useIsSpecificContextContainer } from '../../hooks';
+import { isSpecificContextContainer } from '../../utils';
 
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
@@ -91,7 +91,7 @@ export function OnboardingContextProvider({
   onError: (message: string) => void;
 }>) {
   const { request, events } = useConnectionContext();
-  const isHome = useIsSpecificContextContainer(ContextContainer.HOME);
+  const isHome = isSpecificContextContainer(ContextContainer.HOME);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>();
 
   const [nextPhase, setNextPhase] = useState<OnboardingPhase>();
