@@ -32,7 +32,7 @@ export const ScreenshotsCarousel = (props: StackProps) => {
         : LightThemeScreenshotCollection,
     [colorScheme],
   );
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(1);
 
   useEffect(() => {
     const interval = setInterval(() => {
