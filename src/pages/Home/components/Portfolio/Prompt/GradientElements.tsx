@@ -139,8 +139,8 @@ export const PromptButton = ({ onClick }) => {
   const [index, setIndex] = useState(0);
   const buttonLabels = useMemo(() => {
     return [
-      t('Core AI - Manage your wallet'),
-      t('Core assistant pick up where you left off'),
+      t('Core Concierge - Manage your wallet'),
+      t('Core Concierge pick up where you left off'),
       t('Ask Core to transfer funds'),
     ].sort(() => 0.5 - Math.random());
   }, [t]);

@@ -163,7 +163,7 @@ export const UserInput = ({
 
   return (
     <BorderTextField
-      placeholder={t('Core AI')}
+      placeholder={t('Core Concierge')}
       value={input}
       size="large"
       sx={{

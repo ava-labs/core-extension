@@ -52,7 +52,7 @@ export function FirebaseContextProvider({ children }: { children: any }) {
   const [prompts, setPrompts] = useState<ChatDialogHistory[]>([
     {
       role: 'model',
-      content: `Hey there! I'm Core AI, here to help you manage your assets safely and smoothly. What can I do for you today?`,
+      content: `Hey there! I'm Core Concierge, here to help you manage your assets safely and smoothly. What can I do for you today?`,
     },
   ]);
 
