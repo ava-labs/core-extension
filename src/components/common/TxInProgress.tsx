@@ -87,7 +87,6 @@ export function TxInProgress({
   }
 
   if (isUsingKeystoneWallet) {
-    debugger;
     if (isUsingKeystone3Wallet) {
       return (
         <Overlay>

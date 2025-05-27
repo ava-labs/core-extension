@@ -43,7 +43,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const {
-    getMfp,
+    getMasterFingerprint,
     getExtendedPublicKey,
     popDeviceSelection,
     hasKeystoneTransport,
@@ -77,7 +77,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
         await getAddressFromXpubKey(xpubValue, accountIndex + 1, newAddresses);
       }
       if (accountIndex >= 2) {
-        capture('OnboardingKeystoneConnected');
+        capture('OnboardingKeystone3Connected');
         setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
         setHasPublicKeys(true);
       }
@@ -87,7 +87,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
 
   const getXPublicKey = useCallback(async () => {
     try {
-      const mfp = await getMfp();
+      const mfp = await getMasterFingerprint();
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X);
       capture('OnboardingKeystoneConnected');
@@ -107,7 +107,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
       popDeviceSelection();
     }
   }, [
-    getMfp,
+    getMasterFingerprint,
     capture,
     getAddressFromXpubKey,
     getExtendedPublicKey,
@@ -171,7 +171,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   return (
     <Stack>
       {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTED && (
-        <DerivedAddresses addresses={addresses} />
+        <DerivedAddresses addresses={addresses} balanceSymbol="AVAX" />
       )}
       {publicKeyState === KeystoneStatus.KEYSTONE_CONNECTION_FAILED && (
         <Stack sx={{ mt: 1, rowGap: 3, width: theme.spacing(44) }}>

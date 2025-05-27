@@ -21,7 +21,6 @@ import {
 } from '@src/background/services/onboarding/models';
 import { Keystone } from './pages/Keystone/Keystone';
 import { KeystoneConnect } from './pages/KeystoneUsb/KeystoneConnect';
-import { KeystoneTrouble } from './pages/KeystoneUsb/KeystoneTrouble';
 import { LedgerConnect } from './pages/Ledger/LedgerConnect';
 import { ImportWallet } from './pages/ImportWallet';
 import { CreatePassword } from './pages/CreatePassword';

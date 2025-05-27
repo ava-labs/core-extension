@@ -33,7 +33,7 @@ import { LedgerLiveSupportButton } from '@src/components/ledger/LedgerLiveSuppor
 
 export interface AddressType {
   address: string;
-  explorerLink: string;
+  explorerLink?: string;
   balance: string;
 }
 

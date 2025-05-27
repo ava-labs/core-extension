@@ -14,17 +14,19 @@ import { resolve } from '@src/utils/promiseResolver';
 import { fromPublicKey } from 'bip32';
 import Avalanche, { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 
-export enum KeystoneAppType {
-  AVALANCHE = 'Avalanche',
-  BITCOIN = 'Bitcoin',
-  ETHEREUM = 'Ethereum',
-  UNKNOWN = 'UNKNOWN',
+interface KeystoneContextType {
+  initKeystoneTransport: () => Promise<void>;
+  popDeviceSelection: () => Promise<boolean>;
+  getExtendedPublicKey: (chainType?: ChainIDAlias) => Promise<string>;
+  wasTransportAttempted: boolean;
+  getMasterFingerprint: () => Promise<string>;
+  hasKeystoneTransport: boolean;
 }
 
-const KeystoneContext = createContext<any>({} as any);
+const KeystoneContext = createContext<KeystoneContextType>({} as any);
 
 export function KeystoneUsbContextProvider({ children }: { children: any }) {
-  const [initialized, setInialized] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const { request } = useConnectionContext();
   const avalancheAppRef = useRef<Avalanche | null>(null);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
@@ -52,7 +54,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   }, [initialized, request]);
 
   const initKeystoneTransport = useCallback(async () => {
-    setInialized(true);
+    setInitialized(true);
   }, []);
 
   const popDeviceSelection = useCallback(async () => {
@@ -77,7 +79,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     return fromPublicKey(Buffer.from(publicKey, 'hex'), chainCode).toBase58();
   };
 
-  const getMfp = async () => {
+  const getMasterFingerprint = async () => {
     if (!avalancheAppRef.current) {
       throw new Error('no device detected');
     }
@@ -92,7 +94,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
         popDeviceSelection,
         getExtendedPublicKey,
         wasTransportAttempted,
-        getMfp,
+        getMasterFingerprint,
         hasKeystoneTransport: !!avalancheAppRef.current,
       }}
     >
