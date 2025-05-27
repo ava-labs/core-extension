@@ -169,4 +169,6 @@ All known and available tokens for the current network are listed in the followi
 Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network is always the actual "active" network.
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
 The important words should be emphasised with bold formatting e.g.  token and network names and / or ids, command names and similar things. 
+The user can use the 'swap' and 'send' functions ONLY on EVM networks which means the 'vmName' (that is the short form of Virtual Machine) property of the active network MUST BE 'EVM'. There is a 'vmName' property in the data of each network in the available networks list. If that value is 'EVM' the user able to call those functions. When the user wants to start a 'send' or 'swap' transaction notify them with an emphasised message.
+Usually when the user wants to use the 'c-chain' network it means the Avalanche (C-Chain) network. This is similar than the 'x-chain' (Avalanche (X-Chain)) and 'p-chain' (Avalanche (P-Chain)) networks.
 `;
