@@ -85,6 +85,6 @@ export class BitcoinKeystoneWallet {
 
     const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();
 
-    return formatResult(Psbt.fromBuffer(signedTx));
+    return Psbt.fromBuffer(signedTx).extractTransaction();
   }
 }
