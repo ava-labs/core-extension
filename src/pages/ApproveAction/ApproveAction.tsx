@@ -8,9 +8,12 @@ import { BridgeTransferAsset } from './BridgeTransferAsset';
 import { useTranslation } from 'react-i18next';
 import { useNetworkContext } from '@src/contexts/NetworkProvider';
 import { useLedgerDisconnectedDialog } from '../SignTransaction/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@src/pages/SignTransaction/hooks/useKeystone3DisconnectedDialog';
 import { LedgerApprovalOverlay } from '../SignTransaction/components/LedgerApprovalOverlay';
+import { Keystone3ApprovalOverlay } from '../SignTransaction/components/Keystone3ApprovalOverlay';
 import useIsUsingLedgerWallet from '@src/hooks/useIsUsingLedgerWallet';
 import useIsUsingKeystoneWallet from '@src/hooks/useIsUsingKeystoneWallet';
+import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 import { KeystoneApprovalOverlay } from '../SignTransaction/components/KeystoneApprovalOverlay';
 import {
   CircularProgress,
@@ -43,6 +46,7 @@ export function ApproveAction() {
   const { network } = useNetworkContext();
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
@@ -69,6 +73,7 @@ export function ApproveAction() {
     });
 
   useLedgerDisconnectedDialog(() => handleRejection(), undefined, network);
+  useKeystone3DisconnectedDialog(() => handleRejection());
 
   if (!action) {
     return (
@@ -94,9 +99,13 @@ export function ApproveAction() {
   const renderDeviceApproval = () => {
     if (isApprovalOverlayVisible) {
       if (isUsingLedgerWallet) return <LedgerApprovalOverlay />;
-      else if (isUsingKeystoneWallet)
-        return <KeystoneApprovalOverlay onReject={handleRejection} />;
-      else if (isWalletConnectAccount)
+      else if (isUsingKeystoneWallet) {
+        if (isUsingKeystone3Wallet) {
+          return <Keystone3ApprovalOverlay />;
+        } else {
+          return <KeystoneApprovalOverlay onReject={handleRejection} />;
+        }
+      } else if (isWalletConnectAccount)
         return (
           <WalletConnectApprovalOverlay
             onSubmit={handleApproval}

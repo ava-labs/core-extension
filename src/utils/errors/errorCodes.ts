@@ -28,6 +28,13 @@ export enum LedgerError {
   NoPublicKeyReturned = 'ledger-no-public-key-returned',
 }
 
+export enum AccountError {
+  EVMAddressNotFound = 'evm-address-not-found',
+  BTCAddressNotFound = 'btc-address-not-found',
+  SVMAddressNotFound = 'svm-address-not-found',
+  NoAddressesFound = 'no-addresses-found',
+}
+
 export enum SecretsError {
   SecretsNotFound = 'secrets-not-found',
   UnsupportedSecretType = 'unsupported-secret-type',
@@ -39,13 +46,6 @@ export enum SecretsError {
   UnknownDerivationPathFormat = 'unknown-derivation-path-format',
   DerivationPathTooShort = 'derivation-path-too-short',
   UnsupportedCurve = 'unsupported-curve',
-}
-
-export enum AccountError {
-  EVMAddressNotFound = 'evm-address-not-found',
-  BTCAddressNotFound = 'btc-address-not-found',
-  SVMAddressNotFound = 'svm-address-not-found',
-  NoAddressesFound = 'no-addresses-found',
 }
 
 export enum RpcErrorCode {
