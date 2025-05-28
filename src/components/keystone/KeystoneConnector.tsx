@@ -90,7 +90,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
       const mfp = await getMasterFingerprint();
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X);
-      capture('OnboardingKeystoneConnected');
+      capture('OnboardingKeystone3Connected');
       onSuccess({
         xpub: xpubValue,
         xpubXP: xpubXPValue,
@@ -102,7 +102,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
       setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTED);
       await getAddressFromXpubKey(xpubValue, 0);
     } catch {
-      capture('OnboardingKeystoneConnectionFailed');
+      capture('OnboardingKeystone3ConnectionFailed');
       setPublicKeyState(KeystoneStatus.KEYSTONE_CONNECTION_FAILED);
       popDeviceSelection();
     }
@@ -124,7 +124,7 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   }, [initKeystoneTransport]);
 
   const tryPublicKey = useCallback(async () => {
-    capture('OnboardingKeystoneRetry');
+    capture('OnboardingKeystone3Retry');
     setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
     if (!hasKeystoneTransport) {
       await initKeystoneTransport();
