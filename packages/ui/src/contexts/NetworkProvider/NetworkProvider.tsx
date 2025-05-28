@@ -92,7 +92,7 @@ const NetworkContext = createContext<{
  * user changes the network we write that to storage, storage then fires an event and all contexts receive that
  * event. Thus updating all instances of the network provider and everything stays in sync.
  */
-export function NetworkContextProvider({ children }: { children: any }) {
+export function NetworkContextProvider({ children }: { children?: any }) {
   const [network, setNetwork] = useState<NetworkWithCaipId | undefined>();
   const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);

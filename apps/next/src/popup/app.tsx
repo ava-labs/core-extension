@@ -9,6 +9,7 @@ import {
 
 import { Onboarding } from '@/pages/Onboarding';
 import { LockScreen } from '@/pages/LockScreen';
+import { Providers } from '.';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -18,20 +19,21 @@ export function App() {
   }
 
   return (
-    <ThemeProvider theme={preferredColorScheme}>
-      <AccountsContextProvider>
-        <NetworkContextProvider>
-          <OnboardingContextProvider
-            onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
-            OnboardingScreen={Onboarding}
-          >
-            <WalletContextProvider LockedComponent={LockScreen}>
-              <>Under construction 🚧</>
-            </WalletContextProvider>
-          </OnboardingContextProvider>
-        </NetworkContextProvider>
-      </AccountsContextProvider>
-    </ThemeProvider>
+    <Providers
+      providers={[
+        <ThemeProvider theme={preferredColorScheme} key={0} />,
+        <AccountsContextProvider key={1} />,
+        <NetworkContextProvider key={2} />,
+        <OnboardingContextProvider
+          onError={(message: string) => toast.error(message)}
+          LoadingComponent={CircularProgress}
+          OnboardingScreen={Onboarding}
+          key={3}
+        />,
+        <WalletContextProvider LockedComponent={LockScreen} key={4} />,
+      ]}
+    >
+      <>Under construction 🚧</>
+    </Providers>
   );
 }

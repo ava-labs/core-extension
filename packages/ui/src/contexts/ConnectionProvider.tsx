@@ -40,7 +40,7 @@ const ConnectionContext = createContext<ConnectionContextType>({} as any);
 export function ConnectionContextProvider({
   children,
   LoadingComponent,
-}: PropsWithChildren<{ children: any; LoadingComponent: React.FC }>) {
+}: PropsWithChildren<{ children?: any; LoadingComponent: React.FC }>) {
   const [connection, setConnection] = useState<Runtime.Port>();
 
   useEffect(() => {
