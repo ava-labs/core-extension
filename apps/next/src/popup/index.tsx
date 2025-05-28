@@ -16,6 +16,7 @@ import { lazy, Suspense } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { HashRouter as Router } from 'react-router-dom';
 import { initI18n, i18next } from '@core/common';
+import React from 'react';
 
 // Initialize translations
 initI18n();
@@ -28,23 +29,43 @@ const App = lazy(() => {
 
 const root = createRoot(document.getElementById('popup') as HTMLElement);
 
+export const Providers = ({ providers, children }) => {
+  const renderProvider = (renderedProviders: any, renderedChildren: any) => {
+    const [provider, ...restProviders] = renderedProviders;
+
+    if (provider) {
+      return React.cloneElement(
+        provider,
+        undefined,
+        renderProvider(restProviders, renderedChildren),
+      );
+    }
+
+    return renderedChildren;
+  };
+
+  return renderProvider(providers, children);
+};
+
 browser.tabs.query({ active: true }).then(() => {
   root.render(
     <Sentry.ErrorBoundary>
       <Router>
-        <I18nextProvider i18n={i18next}>
-          <ConnectionContextProvider LoadingComponent={CircularProgress}>
-            <SettingsContextProvider>
-              <FeatureFlagsContextProvider>
-                <AnalyticsContextProvider>
-                  <Suspense fallback={<CircularProgress />}>
-                    <App />
-                  </Suspense>
-                </AnalyticsContextProvider>
-              </FeatureFlagsContextProvider>
-            </SettingsContextProvider>
-          </ConnectionContextProvider>
-        </I18nextProvider>
+        <Providers
+          providers={[
+            <I18nextProvider i18n={i18next} key={0} />,
+            <ConnectionContextProvider
+              LoadingComponent={CircularProgress}
+              key={1}
+            />,
+            <SettingsContextProvider key={2} />,
+            <FeatureFlagsContextProvider key={3} />,
+            <AnalyticsContextProvider key={4} />,
+            <Suspense fallback={<CircularProgress />} key={5} />,
+          ]}
+        >
+          <App />
+        </Providers>
       </Router>
     </Sentry.ErrorBoundary>,
   );
