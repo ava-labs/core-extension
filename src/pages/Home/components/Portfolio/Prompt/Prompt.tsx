@@ -638,7 +638,7 @@ export function Prompt() {
                 p: 2,
               }}
             >
-              <Typography variant="h4">{t('Core AI Assistant')}</Typography>
+              <Typography variant="h4">{t('Core Concierge')}</Typography>
               <Button
                 variant="text"
                 onClick={() => {
