@@ -603,6 +603,9 @@ export class WalletService implements OnUnlock {
         );
 
         assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
+        if (secretType === SecretType.Keystone3Pro) {
+          assertPresent(avmExtendedPubKey, SecretsError.PublicKeyNotFound);
+        }
 
         return new KeystoneWallet(
           secrets.masterFingerprint,
