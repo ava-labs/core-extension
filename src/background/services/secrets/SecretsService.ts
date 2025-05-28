@@ -875,7 +875,7 @@ export class SecretsService implements OnUnlock {
         ).toJSON();
         newPublicKeys.push(publicKeyEVM);
       }
-      if (!hasAVMPublicKey) {
+      if (!hasAVMPublicKey && secrets.secretType === SecretType.Keystone3Pro) {
         const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
           secrets.extendedPublicKeys,
           'secp256k1',
