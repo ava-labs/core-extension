@@ -30,10 +30,15 @@ export function ApproveConvertSubnetToL1({
           <TxDetailsRow label={t('Subnet ID')}>
             <TruncatedIdentifier identifier={subnetID} size={14} />
           </TxDetailsRow>
-          <TxDetailsRow label={t('Chain ID')}>
+        </ApprovalSectionBody>
+      </ApprovalSection>
+      <ApprovalSection sx={{ gap: 1 }}>
+        <ApprovalSectionHeader label={t('Validator Manager')} />
+        <ApprovalSectionBody sx={{ justifyContent: 'start', py: 2.25 }}>
+          <TxDetailsRow label={t('Blockchain ID')}>
             <TruncatedIdentifier identifier={chainID} size={14} />
           </TxDetailsRow>
-          <TxDetailsRow label={t('Manager Address')}>
+          <TxDetailsRow label={t('Address')}>
             <TruncatedIdentifier identifier={managerAddress} size={14} />
           </TxDetailsRow>
         </ApprovalSectionBody>
