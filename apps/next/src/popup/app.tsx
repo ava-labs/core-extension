@@ -1,4 +1,9 @@
-import { ThemeProvider, toast, CircularProgress } from '@avalabs/k2-alpine';
+import {
+  ThemeProvider,
+  toast,
+  CircularProgress,
+  Stack,
+} from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   NetworkContextProvider,
@@ -10,6 +15,23 @@ import {
 import { Onboarding } from '@/pages/Onboarding';
 import { LockScreen } from '@/pages/LockScreen';
 import { Providers } from '.';
+import { Header } from '@/components/Header';
+
+const pagesWithoutHeader = [
+  '/tokens/manage',
+  '/bridge/confirm',
+  '/bridge/transaction-status',
+  '/bridge/transaction-details',
+  '/send/confirm',
+  '/collectible',
+  '/collectible/send/confirm',
+  '/accounts',
+  '/import-private-key',
+  '/import-with-walletconnect',
+  '/defi',
+  '/fireblocks',
+  '/export-private-key',
+];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -17,6 +39,10 @@ export function App() {
   if (!preferredColorScheme) {
     return <CircularProgress />;
   }
+
+  const displayHeader = !pagesWithoutHeader.some((path) =>
+    location.pathname.startsWith(path),
+  );
 
   return (
     <Providers
@@ -33,6 +59,11 @@ export function App() {
         <WalletContextProvider LockedComponent={LockScreen} key={4} />,
       ]}
     >
+      {displayHeader && (
+        <Stack sx={{ width: 1 }}>
+          <Header />
+        </Stack>
+      )}
       <>Under construction 🚧</>
     </Providers>
   );
