@@ -1,4 +1,9 @@
-import { ThemeProvider, toast, CircularProgress } from '@avalabs/k2-alpine';
+import {
+  ThemeProvider,
+  toast,
+  CircularProgress,
+  Stack,
+} from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   NetworkContextProvider,
@@ -9,6 +14,7 @@ import {
 
 import { Onboarding } from '@/pages/Onboarding';
 import { LockScreen } from '@/pages/LockScreen';
+import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -27,7 +33,10 @@ export function App() {
             OnboardingScreen={Onboarding}
           >
             <WalletContextProvider LockedComponent={LockScreen}>
-              <>Under construction 🚧</>
+              <Stack direction="row" justifyContent="space-between">
+                <AccountManagement />
+                Under construction 🚧
+              </Stack>
             </WalletContextProvider>
           </OnboardingContextProvider>
         </NetworkContextProvider>
