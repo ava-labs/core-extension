@@ -1,11 +1,13 @@
-import { getHexAlpha, styled, Typography } from '@avalabs/k2-alpine';
+import { getHexAlpha, styled } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import {
   useAccountsContext,
-  useBalancesContext,
+  useBalanceTotalInCurrency,
   useSettingsContext,
   useWalletContext,
+  useWalletTotalBalance,
 } from '@core/ui';
+import { Typography } from './Typography';
 
 const Root = styled('div')(({ theme }) => ({
   display: 'grid',
@@ -20,23 +22,22 @@ const Root = styled('div')(({ theme }) => ({
 const CurrentAccount: FC = () => {
   const { accounts } = useAccountsContext();
   const { walletDetails } = useWalletContext();
-  const { totalBalance, getTotalBalance } = useBalancesContext();
+  const { totalBalanceInCurrency = 0 } = useWalletTotalBalance(
+    walletDetails?.id,
+  );
+  const accountBalance = useBalanceTotalInCurrency(accounts.active);
   const { currencyFormatter } = useSettingsContext();
   return (
     <Root>
-      <Typography variant="caption" fontWeight="500">
+      <Typography variant="caption" color="text.disabled">
         Currently using {walletDetails?.name}
       </Typography>
-      <Typography variant="caption" fontWeight="500" textAlign="end">
-        {currencyFormatter(totalBalance?.sum ?? 0)}
+      <Typography variant="caption" textAlign="end" color="text.disabled">
+        {currencyFormatter(totalBalanceInCurrency)}
       </Typography>
-      <Typography variant="body1" fontWeight="600">
-        {accounts.active?.name}
-      </Typography>
-      <Typography variant="body1" fontWeight="600" textAlign="end">
-        {currencyFormatter(
-          getTotalBalance(accounts.active?.addressC ?? '')?.sum ?? 0,
-        )}
+      <Typography variant="titleBold">{accounts.active?.name}</Typography>
+      <Typography variant="titleBold" textAlign="end">
+        {currencyFormatter(accountBalance?.sum ?? 0)}
       </Typography>
     </Root>
   );

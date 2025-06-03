@@ -4,9 +4,7 @@ import {
   accordionSummaryClasses,
   typographyClasses,
   styled,
-  getHexAlpha,
 } from '@avalabs/k2-alpine';
-import { Typography } from '../../Typography';
 
 export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
@@ -27,14 +25,13 @@ export const NarrowSummary = styled(AccordionSummary)(({ theme }) => ({
       width: '100%',
     },
   },
+  '& .accordion-header-icon': {
+    display: 'block',
+  },
   [`& .${accordionSummaryClasses.content}`]: {
     marginLeft: 'unset',
   },
   [`& .${accordionSummaryClasses.expandIconWrapper}`]: {
-    color: getHexAlpha(theme.palette.text.primary, 60),
+    color: theme.palette.text.disabled,
   },
-}));
-
-export const FadedText = styled(Typography)(({ theme }) => ({
-  color: getHexAlpha(theme.palette.text.primary, 60),
 }));

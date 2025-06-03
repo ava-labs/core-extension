@@ -10,7 +10,6 @@ import { FC } from 'react';
 import { PrimaryAccount } from '@core/types';
 import { useBalanceTotalInCurrency, useSettingsContext } from '@core/ui';
 import { Typography } from '../../Typography';
-import * as Styled from './Styled';
 
 interface Props {
   account: PrimaryAccount;
@@ -21,7 +20,6 @@ interface Props {
 const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
   const { currencyFormatter } = useSettingsContext();
   const balance = useBalanceTotalInCurrency(account);
-  const BalanceText = selected ? Typography : Styled.FadedText;
 
   return (
     <ListItem disablePadding>
@@ -56,9 +54,12 @@ const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
         <ListItemText
           sx={{ flexGrow: 0 }}
           primary={
-            <BalanceText variant="title">
+            <Typography
+              variant="title"
+              color={selected ? 'text.primary' : 'text.disabled'}
+            >
               {currencyFormatter(balance?.sum ?? 0)}
-            </BalanceText>
+            </Typography>
           }
         />
       </ListItemButton>
