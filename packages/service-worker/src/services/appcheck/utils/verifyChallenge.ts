@@ -41,12 +41,6 @@ const _solveChallenge = async ({ path, nonce }: Challenge) => {
 };
 
 const verifyChallenge = async ({ challengeId, path, nonce }: Challenge) => {
-  const url = process.env.ID_SERVICE_URL;
-
-  if (!url) {
-    throw new Error('ID_SERVICE_URL is missing');
-  }
-
   const solution = await _solveChallenge({ challengeId, path, nonce });
 
   try {

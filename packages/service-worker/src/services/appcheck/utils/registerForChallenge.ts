@@ -9,12 +9,6 @@ const REGISTER_TIMEOUT_MS = 10_000;
 const REGISTER_PATH = 'v2/ext/register';
 
 const registerForChallenge = async ({ requestId }: Params) => {
-  const url = process.env.ID_SERVICE_URL;
-
-  if (!url) {
-    throw new Error('ID_SERVICE_URL is missing');
-  }
-
   try {
     const registerResponse = await sendRequest({
       path: REGISTER_PATH,
