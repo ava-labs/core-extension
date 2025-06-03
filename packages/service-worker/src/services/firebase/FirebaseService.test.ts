@@ -14,7 +14,6 @@ import {
   NextFn,
   onBackgroundMessage,
 } from 'firebase/messaging/sw';
-import { MESSAGE_EVENT as APPCHECK_MESSAGE_EVENT } from '../appcheck/AppCheckService';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { FirebaseService } from './FirebaseService';
 
@@ -63,12 +62,16 @@ describe('FirebaseService', () => {
     );
   });
 
-  it('does not initialize when the browser is not supported', () => {
+  it('does not subscribe to FCM when the browser is not supported', () => {
     jest.mocked(isSupportedBrowser).mockReturnValueOnce(false);
 
     const firebaseService = new FirebaseService(featureFlagService);
-    expect(firebaseService.getFirebaseApp()).toBeUndefined();
-    expect(initializeApp).not.toHaveBeenCalled();
+    expect(firebaseService.getFirebaseApp()).toBe(appMock);
+    expect(initializeApp).toHaveBeenCalledWith({ foo: 'bar' });
+
+    expect(getMessaging).not.toHaveBeenCalled();
+    expect(onBackgroundMessage).not.toHaveBeenCalled();
+    expect(featureFlagService.addListener).not.toHaveBeenCalled();
   });
 
   it('initializes correctly', () => {
@@ -173,31 +176,6 @@ describe('FirebaseService', () => {
       expect(getMessaging).toHaveBeenCalledWith(appMock);
       expect(deleteToken).toHaveBeenCalledWith(messagingMock);
       expect(terminatedEventListener).toHaveBeenCalledTimes(1);
-    });
-
-    it('emits incoming messages to the AppCheck listeners correctly', async () => {
-      const messageListener = jest.fn();
-      const firebaseService = new FirebaseService(featureFlagService);
-
-      firebaseService.addFcmMessageListener(
-        APPCHECK_MESSAGE_EVENT,
-        messageListener,
-      );
-
-      const messageMock = {
-        data: {
-          event: APPCHECK_MESSAGE_EVENT,
-          foo: 'bar',
-        },
-      } as unknown as MessagePayload;
-
-      (
-        jest.mocked(onBackgroundMessage).mock
-          .calls[0]?.[1] as NextFn<MessagePayload>
-      )(messageMock);
-
-      expect(messageListener).toHaveBeenCalledTimes(1);
-      expect(messageListener).toHaveBeenCalledWith(messageMock);
     });
 
     it.each(messageListeners)(
