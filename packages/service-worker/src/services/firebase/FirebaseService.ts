@@ -24,7 +24,6 @@ import {
   Content,
 } from 'firebase/vertexai';
 import { singleton } from 'tsyringe';
-import { MESSAGE_EVENT as APPCHECK_MESSAGE_EVENT } from '../appcheck/AppCheckService';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 
 @singleton()
@@ -49,13 +48,13 @@ export class FirebaseService {
       throw new Error('FIREBASE_CONFIG is missing');
     }
 
-    if (!isSupportedBrowser()) {
-      return;
-    }
-
     this.#app = initializeApp(
       JSON.parse(Buffer.from(process.env.FIREBASE_CONFIG, 'base64').toString()),
     );
+
+    if (!isSupportedBrowser()) {
+      return;
+    }
 
     onBackgroundMessage(getMessaging(this.#app), (payload) => {
       this.#handleMessage(payload);
@@ -213,11 +212,6 @@ export class FirebaseService {
   }
 
   async #handleMessage(payload: MessagePayload) {
-    // TODO: remove this once we can set type for ID challenges
-    if (payload.data?.event === APPCHECK_MESSAGE_EVENT) {
-      this.#fcmMessageEventEmitter.emit(payload.data.event, payload);
-    }
-
     const type = payload.data?.type ?? '';
 
     if (this.#fcmMessageHandlers[type]) {

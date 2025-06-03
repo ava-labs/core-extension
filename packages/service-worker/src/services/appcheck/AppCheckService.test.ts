@@ -6,16 +6,9 @@ import {
   setTokenAutoRefreshEnabled,
 } from 'firebase/app-check';
 import { FirebaseService } from '../firebase/FirebaseService';
-import {
-  AppCheckService,
-  MESSAGE_EVENT,
-  WAIT_FOR_CHALLENGE_ATTEMPT_COUNT,
-  WAIT_FOR_CHALLENGE_DELAY_MS,
-} from './AppCheckService';
+import { AppCheckService } from './AppCheckService';
 import registerForChallenge from './utils/registerForChallenge';
-import { ChallengeTypes, FirebaseEvents } from '@core/types';
 import { MessagePayload } from 'firebase/messaging/sw';
-import solveChallenge from './utils/solveChallenge';
 import verifyChallenge from './utils/verifyChallenge';
 
 jest.mock('@sentry/browser');
