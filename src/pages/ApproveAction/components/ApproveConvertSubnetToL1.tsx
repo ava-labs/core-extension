@@ -64,8 +64,8 @@ export function ApproveConvertSubnetToL1({
                 <TxDetailsRow label={t('Balance')}>
                   <AvaxAmount amount={balance} avaxPrice={avaxPrice} />
                 </TxDetailsRow>
-                <TxDetailsRow label={t('Stake')}>
-                  <AvaxAmount amount={stake} avaxPrice={avaxPrice} />
+                <TxDetailsRow label={t('Stake Weight')}>
+                  <Typography variant="body2">{String(stake)}</Typography>
                 </TxDetailsRow>
                 <Stack sx={{ gap: 1, mb: 2 }}>
                   <Typography variant="caption" color="text.secondary">
