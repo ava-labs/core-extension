@@ -614,6 +614,9 @@ export class NetworkService implements OnLock, OnStorageReady {
     });
     this.updateNetworkState();
 
+    // Automatically favorite the newly added network
+    await this.addFavoriteNetwork(chainId);
+
     return customNetwork;
   }
 
