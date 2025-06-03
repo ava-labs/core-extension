@@ -221,10 +221,22 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   };
 
   const saveCustomNetwork = async (customNetwork: CustomNetworkPayload) => {
-    return request<SaveCustomNetworkHandler>({
+    const result = await request<SaveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_SAVE_CUSTOM,
       params: [customNetwork],
     }).then(getNetworkState);
+
+    const chainId =
+      typeof customNetwork.chainId === 'string'
+        ? parseInt(customNetwork.chainId, 16)
+        : customNetwork.chainId;
+
+    capture('NetworkFavoriteAdded', {
+      networkChainId: chainId,
+      isCustom: true,
+    });
+
+    return result;
   };
 
   const updateDefaultNetwork = async (networkOverrides: NetworkOverrides) => {
