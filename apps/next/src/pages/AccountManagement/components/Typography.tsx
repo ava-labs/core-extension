@@ -14,7 +14,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
-type Variant = 'title' | 'titleBold' | 'details' | 'monospace';
+type Variant = 'title' | 'titleBold' | 'details' | 'monospace' | 'caption';
 
 type Props = Omit<TypographyProps, 'variant'> & {
   variant: Variant;
@@ -35,6 +35,11 @@ const overrides: Record<Variant, TypographyProps> = {
     fontSize: 10,
     fontWeight: 400,
     lineHeight: '14px',
+  },
+  caption: {
+    fontSize: 11,
+    fontWeight: 500,
+    lineHeight: 'normal',
   },
   monospace: {
     fontFamily: 'DejaVu Sans Mono',

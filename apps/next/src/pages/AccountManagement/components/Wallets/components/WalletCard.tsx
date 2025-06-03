@@ -1,42 +1,69 @@
-import {
-  AccordionDetails,
-  Stack,
-  WalletOpenIcon,
-  WalletClosedIcon,
-} from '@avalabs/k2-alpine';
-import AccountListItem from './AccountListItem';
+import { AccordionDetails, CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
-import { FC, useState } from 'react';
 import {
   useAccountsContext,
-  useBalanceTotalInCurrency,
   useSettingsContext,
+  useWalletTotalBalance,
 } from '@core/ui';
+import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MdErrorOutline } from 'react-icons/md';
 import { Typography } from '../../Typography';
+import AccountListItem from './AccountListItem';
 import * as Styled from './Styled';
+import { ViewPChainButton } from './ViewPChainButton';
+import { WalletIcon } from './WalletIcon';
 
 interface WalletCardProps {
   wallet: WalletDetails;
 }
 
 const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
+  const { t } = useTranslation();
   const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
-  const balance = useBalanceTotalInCurrency(accounts.active);
+  const {
+    isLoading,
+    hasErrorOccurred,
+    totalBalanceInCurrency,
+    hasBalanceOnUnderivedAccounts,
+  } = useWalletTotalBalance(wallet.id);
   const { currencyFormatter } = useSettingsContext();
-  const [isExpanded, setIsExpanded] = useState(false);
-  const WalletIcon = isExpanded ? WalletOpenIcon : WalletClosedIcon;
+
+  const hasActiveAccount = Boolean(
+    accounts.primary[wallet.id]?.some(
+      (account) => account.id === accounts.active?.id,
+    ),
+  );
+
+  const [isExpanded, setIsExpanded] = useState(hasActiveAccount);
 
   return (
     <Styled.Accordion
       expanded={isExpanded}
       onChange={(_, expanded) => setIsExpanded(expanded)}
     >
-      <Styled.NarrowSummary icon={<WalletIcon size={21} />}>
-        <Stack direction="row" justifyContent="space-between">
+      <Styled.NarrowSummary
+        icon={<WalletIcon wallet={wallet} expanded={isExpanded} />}
+      >
+        <Stack
+          direction="row"
+          height="21px"
+          alignItems="center"
+          justifyContent="space-between"
+        >
           <Typography variant="titleBold">{wallet.name}</Typography>
-          <Styled.FadedText variant="title">
-            {currencyFormatter(balance?.sum ?? 0)}
-          </Styled.FadedText>
+          {isLoading && <CircularProgress size={21} />}
+          {!isLoading && !hasErrorOccurred && (
+            <Typography variant="title" color="text.disabled">
+              {currencyFormatter(totalBalanceInCurrency ?? 0)}
+            </Typography>
+          )}
+          {!isLoading && hasErrorOccurred && (
+            <Typography variant="title" color="error">
+              <MdErrorOutline size={21} />
+              {t('Unable to load balances')}
+            </Typography>
+          )}
         </Stack>
       </Styled.NarrowSummary>
       <AccordionDetails>
@@ -49,6 +76,7 @@ const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
           />
         ))}
       </AccordionDetails>
+      {hasBalanceOnUnderivedAccounts && <ViewPChainButton />}
     </Styled.Accordion>
   );
 };
