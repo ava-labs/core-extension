@@ -25,10 +25,15 @@ export const PasswordSection: FC<Props> = ({
   const { t } = useTranslation();
   const { password, setPassword } = useOnboardingContext();
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isPasswordTouched, setIsPasswordTouched] = useState(false);
+  const [isConfirmPasswordTouched, setIsConfirmPasswordTouched] =
+    useState(false);
 
   const passwordsMetadata = validatePasswords({
     password,
     confirmPassword,
+    isPasswordTouched,
+    isConfirmPasswordTouched,
     t,
   });
 
@@ -57,7 +62,10 @@ export const PasswordSection: FC<Props> = ({
               }}
               fullWidth
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setIsPasswordTouched(true);
+              }}
             />
           </Stack>
         </SectionRow>
@@ -78,7 +86,10 @@ export const PasswordSection: FC<Props> = ({
               }}
               fullWidth
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setIsConfirmPasswordTouched(true);
+              }}
             />
           </Stack>
         </SectionRow>
@@ -99,10 +110,6 @@ export const PasswordSection: FC<Props> = ({
 };
 
 const validatePasswordStrength = (password: string, t: TFunction) => {
-  if (!password) {
-    return;
-  }
-
   const { score } = zxcvbn(password);
 
   if (score < 2) {
@@ -133,11 +140,6 @@ const validatePasswordMatch = (
   confirmPassword: string,
   t: TFunction,
 ) => {
-  // Only compare if both values are provided
-  if (!password || !confirmPassword) {
-    return;
-  }
-
   if (password !== confirmPassword) {
     return {
       isValid: false,
@@ -153,16 +155,31 @@ const validatePasswordMatch = (
   };
 };
 
-const validatePasswords = ({ password, confirmPassword, t }) => {
+type ValidatePasswordArgs = {
+  password: string;
+  confirmPassword: string;
+  isPasswordTouched: boolean;
+  isConfirmPasswordTouched: boolean;
+  t: TFunction;
+};
+
+const validatePasswords = ({
+  password,
+  confirmPassword,
+  isPasswordTouched,
+  isConfirmPasswordTouched,
+  t,
+}: ValidatePasswordArgs) => {
+  // If no values are provided, we show no messages
   if (!password && !confirmPassword) {
-    return;
+    return null;
   }
 
-  // If we only have one of the fields, focus on the password strength
-  if (Boolean(password) !== Boolean(confirmPassword)) {
-    return validatePasswordStrength(password || confirmPassword, t);
+  const strength = validatePasswordStrength(password || confirmPassword, t);
+
+  if (!strength.isValid || !isPasswordTouched || !isConfirmPasswordTouched) {
+    return strength;
   }
 
-  // If we have both fields, focus on the password match
   return validatePasswordMatch(password, confirmPassword, t);
 };
