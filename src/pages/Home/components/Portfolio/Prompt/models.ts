@@ -4,7 +4,7 @@ import { FunctionDeclaration } from 'firebase/vertexai';
 export const functionDeclarations: FunctionDeclaration[] = [
   {
     name: 'send',
-    description: `Send the specified amount of a token to the recipient address on the current network.`,
+    description: `Send the specified amount of a token to the recipient address on the current network. If the user wants to initiate a send meanwhile the active network is not an EVM type network or the target network is not an EVM type network do not let it happen and warn the user about the feature is not available for now.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
@@ -27,7 +27,7 @@ export const functionDeclarations: FunctionDeclaration[] = [
   },
   {
     name: 'swap',
-    description: `Swap a token for another token`,
+    description: `Swap a token for another token. If the user wants to initiate a swap on a network which is not an EVM type do not let it happen and warn the user about it.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
@@ -168,7 +168,7 @@ The tokens can be identified by their "symbol" property, as well as their "addre
 All known and available tokens for the current network are listed in the following array: __AVAILABLE_TOKENS__
 Bridge must be only available the following tokens: __BRIDGE_DATA__ and the source network is always the actual "active" network.
 The user can open a dApp by name or by a given URL or if the user wants to buy a token you can open a new window where it can be done.
-The important words should be emphasised with bold formatting e.g.  token and network names and / or ids, command names and similar things. 
+The important words should be emphasised with bold formatting e.g. token and network names and / or ids, command names and similar things. 
 The user can use the 'swap' and 'send' functions ONLY on EVM networks which means the 'vmName' (that is the short form of Virtual Machine) property of the active network MUST BE 'EVM'. There is a 'vmName' property in the data of each network in the available networks list. If that value is 'EVM' the user able to call those functions. When the user wants to start a 'send' or 'swap' transaction notify them with an emphasised message.
 Usually when the user wants to use the 'c-chain' network it means the Avalanche (C-Chain) network. This is similar than the 'x-chain' (Avalanche (X-Chain)) and 'p-chain' (Avalanche (P-Chain)) networks.
 `;
