@@ -73,13 +73,6 @@ export function AvalancheSignTx() {
     }
   }, [txData?.isValidAvaxBurnedAmount]);
 
-  useLedgerDisconnectedDialog(
-    () => handleRejection(),
-    LedgerAppType.AVALANCHE,
-    network,
-  );
-  useKeystone3DisconnectedDialog(() => handleRejection());
-
   const signTx = useCallback(async () => {
     await updateAction(
       {
@@ -105,6 +98,13 @@ export function AvalancheSignTx() {
       onApprove: signTx,
       onReject: cancelHandler,
     });
+
+  useLedgerDisconnectedDialog(
+    handleRejection,
+    LedgerAppType.AVALANCHE,
+    network,
+  );
+  useKeystone3DisconnectedDialog(handleRejection);
 
   const renderDeviceApproval = useCallback(() => {
     if (isApprovalOverlayVisible) {

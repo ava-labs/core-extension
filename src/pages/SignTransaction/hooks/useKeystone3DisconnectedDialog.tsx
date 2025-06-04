@@ -1,27 +1,38 @@
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import useIsUsingKeystone3Wallet from '@src/hooks/useIsUsingKeystone3Wallet';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
-import { tabs } from 'webextension-polyfill';
+import { useDialog } from '@src/contexts/DialogContextProvider';
+import { Keystone3Disconnected } from '@src/pages/Keystone/Keystone3Disconnected';
 
 export function useKeystone3DisconnectedDialog(onCancel: () => void) {
+  const { t } = useTranslation();
+  const { showDialog, clearDialog } = useDialog();
   const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
 
-  const gotoTroubleshooting = useCallback(() => {
-    onCancel();
-    tabs.create({
-      url: '/fullscreen.html#/keystone3/troubleshooting',
+  const showKeystone3DisconnectedDialog = useCallback(() => {
+    showDialog({
+      title: t('Keystone Disconnected'),
+      content: <Keystone3Disconnected />,
+      open: true,
+      onClose: () => {
+        onCancel();
+        clearDialog();
+      },
     });
-  }, [onCancel]);
+  }, [clearDialog, onCancel, showDialog, t]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       if (isUsingKeystone3Wallet) {
-        createKeystoneTransport().catch(gotoTroubleshooting);
+        createKeystoneTransport()
+          .then(clearDialog)
+          .catch(showKeystone3DisconnectedDialog);
       }
     }, 1000);
 
     return () => {
       clearInterval(timer);
     };
-  }, [gotoTroubleshooting, isUsingKeystone3Wallet]);
+  }, [showKeystone3DisconnectedDialog, isUsingKeystone3Wallet, clearDialog]);
 }
