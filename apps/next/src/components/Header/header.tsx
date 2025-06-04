@@ -1,13 +1,26 @@
-import { Stack, useTheme, getHexAlpha } from '@avalabs/k2-alpine';
+import {
+  Stack,
+  useTheme,
+  getHexAlpha,
+  Select,
+  MenuItem,
+  styled,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
 import { MdQrCode2 } from 'react-icons/md';
 import { MdOutlineUnpublished } from 'react-icons/md';
 import { MdCheckCircle } from 'react-icons/md';
 import { MdOutlineSettings } from 'react-icons/md';
 import { MdError } from 'react-icons/md';
+import { AVATAR_OPTIONS, PersonalAvatar } from '../PersonalAvatar';
 
+const AddressList = styled(Select)`
+  /* display: none; */
+`;
 export const Header = () => {
   const { accounts } = useAccountsContext();
+  const activeAccount = accounts.active;
   const theme = useTheme();
   console.log('theme: ', theme);
   console.log('accounts: ', accounts);
@@ -25,13 +38,66 @@ export const Header = () => {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
+          px: 1,
         }}
       >
-        <Stack>Avatar</Stack>
-        <Stack sx={{ flexDirection: 'row' }}>
-          <MdCheckCircle size={24} />
-          <MdOutlineUnpublished size={24} />
-          <MdError size={24} />
+        <Stack>
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            <PersonalAvatar name={AVATAR_OPTIONS[0]} size="small" />
+            <Typography variant="body1">{activeAccount?.name}</Typography>
+          </Stack>
+          <AddressList
+            labelId="label2-id"
+            value={'option-4'}
+            label={'Label'}
+            onChange={(e) => {
+              console.log('e: ', e);
+            }}
+            sx={{
+              backgroundColor: theme.palette.background.paper,
+              alignItems: 'center',
+
+              // borderRadius: theme.shape.borderRadius,
+            }}
+            MenuProps={{
+              hideBackdrop: true,
+              PaperProps: {
+                sx: {
+                  background: 'red',
+                },
+              },
+            }}
+          >
+            <MenuItem value="borderless-option-1">
+              <MdQrCode2 size={24} />
+              Option 1
+            </MenuItem>
+            <MenuItem value="borderless-option-2">Option 2</MenuItem>
+            <MenuItem value="borderless-option-3">Option 3</MenuItem>
+            <MenuItem
+              value="option-4"
+              sx={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 1,
+                display: 'none',
+              }}
+            >
+              <PersonalAvatar name={AVATAR_OPTIONS[0]} size="small" />
+              <Typography variant="body1">{activeAccount?.name}</Typography>
+            </MenuItem>
+          </AddressList>
+        </Stack>
+        <Stack sx={{ flexDirection: 'row', gap: 1 }}>
+          <MdCheckCircle size={24} color={theme.palette.success.main} />
+          {/* <MdOutlineUnpublished size={24} />
+          <MdError size={24} color={theme.palette.error.main} /> */}
           <MdQrCode2 size={24} />
           <MdOutlineSettings size={24} />
           <svg
@@ -89,21 +155,6 @@ export const Header = () => {
           </svg>
         </Stack>
       </Stack>
-      {/* <Select
-        labelId="label2-id"
-        value={'Sanyi'}
-        label={'Label'}
-        onChange={(e) => {
-          console.log('e: ', e);
-        }}
-      >
-        <MenuItem value="borderless-option-1">
-          <PiPlusFill />
-          Option 1
-        </MenuItem>
-        <MenuItem value="borderless-option-2">Option 2</MenuItem>
-        <MenuItem value="borderless-option-3">Option 3</MenuItem>
-      </Select> */}
     </>
   );
 };
