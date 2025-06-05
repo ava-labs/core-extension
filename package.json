@@ -32,8 +32,7 @@
     "scanner": "yarn scanner:legacy",
     "scanner:next": "yarn workspace @core-ext/next run scanner",
     "scanner:legacy": "yarn workspace @core-ext/legacy run scanner",
-    "sentry": "node sentryscript.js",
-    "semantic-release": "yarn workspace @core-ext/legacy run semantic-release"
+    "sentry": "node sentryscript.js"
   },
   "workspaces": [
     "apps/*",
@@ -46,6 +45,7 @@
     "@eslint/compat": "1.2.4",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.16.0",
+    "@google/semantic-release-replace-plugin": "1.1.0",
     "@lavamoat/allow-scripts": "2.0.0",
     "@lavamoat/preinstall-always-fail": "1.0.0",
     "@rsbuild/core": "1.3.3",
@@ -53,6 +53,9 @@
     "@rsbuild/plugin-react": "1.1.1",
     "@rsdoctor/rspack-plugin": "1.0.2",
     "@rspack/core": "1.3.2",
+    "@semantic-release/commit-analyzer": "9.0.2",
+    "@semantic-release/exec": "6.0.3",
+    "@semantic-release/github": "8.0.2",
     "@typescript-eslint/eslint-plugin": "8.17.0",
     "@typescript-eslint/parser": "8.17.0",
     "eslint": "9.15.0",
@@ -62,6 +65,7 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "husky": "7.0.4",
     "prettier": "3.4.2",
+    "semantic-release": "19.0.3",
     "typescript": "5.8.2"
   },
   "prettier": {
