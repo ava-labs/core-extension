@@ -12,9 +12,7 @@ export default mergeRsbuildConfig(commonConfig, {
     },
   },
   source: {
-    define: {
-      define: getEnvVars('production'),
-    },
+    define: getEnvVars('production'),
   },
   tools: {
     rspack: {

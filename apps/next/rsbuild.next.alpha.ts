@@ -7,9 +7,7 @@ import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'production',
   source: {
-    define: {
-      define: getEnvVars('production'),
-    },
+    define: getEnvVars('production'),
   },
   tools: {
     rspack: {
