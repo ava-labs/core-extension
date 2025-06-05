@@ -128,8 +128,6 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
     setPublicKeyState(KeystoneStatus.KEYSTONE_LOADING);
     if (!hasKeystoneTransport) {
       await initKeystoneTransport();
-    } else {
-      console.log('has transport');
     }
     await getXPublicKey();
     return;
