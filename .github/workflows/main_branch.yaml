@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - feat/appcheck-v2
 jobs:
   release:
     name: Release Main Branch
@@ -69,4 +70,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TYPE: alpha
+          ID_SERVICE_URL: ${{ secrets.ID_SERVICE_URL }}
+          ID_SERVICE_API_KEY: ${{ secrets.ID_SERVICE_API_KEY }}
         run: yarn run semantic-release
