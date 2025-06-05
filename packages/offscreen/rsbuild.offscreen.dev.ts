@@ -4,9 +4,13 @@ import { getEnvVars } from '../../build-scripts/getEnvVars';
 
 export default defineConfig((...args) =>
   mergeRsbuildConfig(commonConfig(...args), {
-    mode: 'development',
     source: {
       define: getEnvVars('dev'),
+    },
+    output: {
+      sourceMap: {
+        js: 'inline-source-map',
+      },
     },
   }),
 );

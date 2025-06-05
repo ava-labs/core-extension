@@ -29,6 +29,7 @@ export default defineConfig(() => {
     },
     output: {
       cleanDistPath: true,
+      assetPrefix: './',
       filename: {
         js: '[name].js', // this is the default, but just to make sure
       },
