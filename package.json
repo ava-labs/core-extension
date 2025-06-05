@@ -27,7 +27,7 @@
     "test:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run test",
     "test:watch": "yarn workspaces foreach -Ap run test:watch",
     "test:path": "yarn jest --watch --testPathPattern",
-    "zip": "node build-scripts/zipscript.mjs",
+    "zip": "node build-scripts/zipscript.mjs --core-gen=legacy",
     "zip:next": "node build-scripts/zipscript.mjs --core-gen=next",
     "scanner": "yarn scanner:legacy",
     "scanner:next": "yarn workspace @core-ext/next run scanner",
@@ -53,6 +53,9 @@
     "@rsbuild/plugin-react": "1.1.1",
     "@rsdoctor/rspack-plugin": "1.0.2",
     "@rspack/core": "1.3.2",
+    "@semantic-release/commit-analyzer": "9.0.2",
+    "@semantic-release/exec": "6.0.3",
+    "@semantic-release/github": "8.0.2",
     "@typescript-eslint/eslint-plugin": "8.17.0",
     "@typescript-eslint/parser": "8.17.0",
     "eslint": "9.15.0",
@@ -62,6 +65,7 @@
     "eslint-plugin-react-hooks": "5.1.0",
     "husky": "7.0.4",
     "prettier": "3.4.2",
+    "semantic-release": "19.0.3",
     "typescript": "5.8.2"
   },
   "prettier": {
