@@ -72,4 +72,4 @@ jobs:
           RELEASE_TYPE: alpha
           ID_SERVICE_URL: ${{ secrets.ID_SERVICE_URL }}
           ID_SERVICE_API_KEY: ${{ secrets.ID_SERVICE_API_KEY }}
-        run: yarn run semantic-release --dr-run
+        run: yarn run semantic-release --dry-run
