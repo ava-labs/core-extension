@@ -7,7 +7,7 @@ if (process.argv.length === 2) {
 }
 
 const sourcemaps = execFileSync('find', [
-  './dist/js',
+  './dist',
   '-name',
   '*.js.map',
 ]).toString();
@@ -28,7 +28,7 @@ const commands = [
   },
   {
     cmd: 'find',
-    args: ['./dist/js', '-name', '*.js.map', '-delete'],
+    args: ['./dist', '-name', '*.js.map', '-delete'],
   },
 ];
 

@@ -1,0 +1,17 @@
+{
+  "name": "@core/types",
+  "packageManager": "yarn@4.7.0",
+  "private": true,
+  "main": "src/index.ts",
+  "devDependencies": {
+    "fireblocks-sdk": "5.20.0",
+    "joi": "17.7.0",
+    "jose": "4.15.5"
+  },
+  "files": [
+    "src",
+    "webextension-polyfill.d.ts",
+    "images.d.ts",
+    "types.d.ts"
+  ]
+}
