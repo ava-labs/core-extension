@@ -27,7 +27,7 @@
     "test:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run test",
     "test:watch": "yarn workspaces foreach -Ap run test:watch",
     "test:path": "yarn jest --watch --testPathPattern",
-    "zip": "node build-scripts/zipscript.mjs",
+    "zip": "node build-scripts/zipscript.mjs --core-gen=legacy",
     "zip:next": "node build-scripts/zipscript.mjs --core-gen=next",
     "scanner": "yarn scanner:legacy",
     "scanner:next": "yarn workspace @core-ext/next run scanner",
