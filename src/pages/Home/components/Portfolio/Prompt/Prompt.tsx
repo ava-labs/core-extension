@@ -8,6 +8,8 @@ import {
   Scrollbars,
   Grow,
   Backdrop,
+  PlusIcon,
+  Slide,
 } from '@avalabs/core-k2-components';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { functionDeclarations, systemPromptTemplate } from './models';
@@ -53,6 +55,7 @@ export function Prompt() {
   const { t } = useTranslation();
   const [input, setInput] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [isCommandsOpen, setIsCommandsOpen] = useState<boolean>(false);
   const { network, networks, setNetwork, getNetwork } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
@@ -668,12 +671,34 @@ export function Prompt() {
                 {prompts.map((message, i) => {
                   if (message.role === 'model') {
                     return (
-                      <AIDialog
-                        message={message}
-                        key={i}
-                        scrollToBottom={scrollToBottom}
-                        isDialogOpen={isDialogOpen}
-                      />
+                      <>
+                        <AIDialog
+                          message={message}
+                          key={i}
+                          scrollToBottom={scrollToBottom}
+                          isDialogOpen={isDialogOpen}
+                        />
+                        <Stack sx={{ flexDirection: 'row' }}>
+                          <Button
+                            variant="outlined"
+                            sx={{ my: 0.5, width: 'auto' }}
+                            onClick={() => {
+                              prompt('Switch Network');
+                            }}
+                          >
+                            Switch Network
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            sx={{ my: 0.5, width: 'auto' }}
+                            onClick={() => {
+                              prompt('Tokens');
+                            }}
+                          >
+                            Tokens
+                          </Button>
+                        </Stack>
+                      </>
                     );
                   }
                   return <UserDialog message={message} key={i} />;
@@ -681,7 +706,112 @@ export function Prompt() {
                 {isTyping && <TypingAvatar />}
               </Stack>
             </Scrollbars>
-            <Stack sx={{ p: 2 }}>
+            <Stack
+              sx={{
+                p: 2,
+                flexDirection: 'row',
+                alignItems: 'center',
+                position: 'relative',
+              }}
+            >
+              <Slide in={isCommandsOpen} direction="right">
+                <Stack
+                  sx={{
+                    position: 'absolute',
+                    bottom: '80px',
+                    left: 0,
+                    width: 'auto',
+                    zIndex: 1,
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Tokens list');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Tokens
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Networks list');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Networks
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Daily Summary
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Send');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Send
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Swap');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Swap
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Switch Account');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Switch Account
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Bridge');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Bridge
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ my: 0.5 }}
+                    onClick={() => {
+                      prompt('Switch Network');
+                      setIsCommandsOpen(false);
+                    }}
+                  >
+                    Switch Network
+                  </Button>
+                </Stack>
+              </Slide>
+              <PlusIcon
+                onClick={() => {
+                  setIsCommandsOpen(!isCommandsOpen);
+                }}
+                size={24}
+                sx={{ cursor: 'pointer' }}
+              />
               <UserInput
                 input={input}
                 setInput={setInput}
