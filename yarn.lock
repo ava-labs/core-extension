@@ -6154,7 +6154,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonehq/alias-sampling@npm:^0.1.2":
+"@keystonehq/alias-sampling@npm:0.1.2":
   version: 0.1.2
   resolution: "@keystonehq/alias-sampling@npm:0.1.2"
   checksum: 10c0/acc6bd5db4fcb7ae7d2a2f7153962ec6e8612921d8d3927de7ba540283eceee57a06f32a66f17bdecd2f39b8b6d0ebf281596b656e158e7c3467a1e14a754086
@@ -6279,7 +6279,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonehq/hw-app-avalanche@npm:^0.0.2":
+"@keystonehq/hw-app-avalanche@npm:0.0.2":
   version: 0.0.2
   resolution: "@keystonehq/hw-app-avalanche@npm:0.0.2"
   dependencies:
@@ -6308,7 +6308,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonehq/hw-app-eth@npm:^0.4.4":
+"@keystonehq/hw-app-eth@npm:0.4.4":
   version: 0.4.4
   resolution: "@keystonehq/hw-app-eth@npm:0.4.4"
   dependencies:
@@ -6344,6 +6344,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@keystonehq/hw-transport-webusb@npm:0.5.1":
+  version: 0.5.1
+  resolution: "@keystonehq/hw-transport-webusb@npm:0.5.1"
+  dependencies:
+    "@keystonehq/hw-transport-error": "npm:^0.0.2"
+    "@keystonehq/hw-transport-usb": "npm:^0.1.1"
+    buffer: "npm:^6.0.3"
+  checksum: 10c0/f0b762cf8d351206a28c6553e4cf98cd8b5aba4d7261f57c78b8a9184c186b9e1c2af29c76e415327e7daebc521f479a685831e728a14c14a766ab4e9abf5879
+  languageName: node
+  linkType: hard
+
 "@keystonehq/hw-transport-webusb@npm:^0.3.2":
   version: 0.3.3
   resolution: "@keystonehq/hw-transport-webusb@npm:0.3.3"
@@ -6361,17 +6372,6 @@ __metadata:
     "@keystonehq/hw-transport-error": "npm:^0.0.2"
     buffer: "npm:^6.0.3"
   checksum: 10c0/92a5a63caf512045c9d6cde8209b28aa0cb5dfeb2d6cffffa9bec0b23234cea27bf569a68df9bc46b8653a9e1bd6e1969ec05f3dad6162a70b223a0b6dc15a31
-  languageName: node
-  linkType: hard
-
-"@keystonehq/hw-transport-webusb@npm:^0.5.1":
-  version: 0.5.1
-  resolution: "@keystonehq/hw-transport-webusb@npm:0.5.1"
-  dependencies:
-    "@keystonehq/hw-transport-error": "npm:^0.0.2"
-    "@keystonehq/hw-transport-usb": "npm:^0.1.1"
-    buffer: "npm:^6.0.3"
-  checksum: 10c0/f0b762cf8d351206a28c6553e4cf98cd8b5aba4d7261f57c78b8a9184c186b9e1c2af29c76e415327e7daebc521f479a685831e728a14c14a766ab4e9abf5879
   languageName: node
   linkType: hard
 
@@ -12846,12 +12846,12 @@ __metadata:
     "@google/generative-ai": "npm:0.22.0"
     "@google/semantic-release-replace-plugin": "npm:1.1.0"
     "@hpke/core": "npm:1.2.5"
-    "@keystonehq/alias-sampling": "npm:^0.1.2"
+    "@keystonehq/alias-sampling": "npm:0.1.2"
     "@keystonehq/animated-qr": "npm:0.5.2"
     "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
-    "@keystonehq/hw-app-avalanche": "npm:^0.0.2"
-    "@keystonehq/hw-app-eth": "npm:^0.4.4"
-    "@keystonehq/hw-transport-webusb": "npm:^0.5.1"
+    "@keystonehq/hw-app-avalanche": "npm:0.0.2"
+    "@keystonehq/hw-app-eth": "npm:0.4.4"
+    "@keystonehq/hw-transport-webusb": "npm:0.5.1"
     "@keystonehq/ur-decoder": "npm:0.9.2"
     "@lavamoat/allow-scripts": "npm:2.0.0"
     "@lavamoat/preinstall-always-fail": "npm:1.0.0"

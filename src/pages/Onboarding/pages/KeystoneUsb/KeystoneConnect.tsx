@@ -24,6 +24,8 @@ import {
   KeystoneConnector,
   KeystoneConnectorData,
 } from '@src/components/keystone/KeystoneConnector';
+import { useFeatureFlagContext } from '@src/contexts/FeatureFlagsProvider';
+import { FeatureGates } from '@src/background/services/featureFlags/models';
 
 enum KeystoneDevice {
   Keystone3 = 'USB (Keystone 3 Pro)',
@@ -85,6 +87,8 @@ export function KeystoneConnect() {
     },
     [],
   );
+
+  const { featureFlags } = useFeatureFlagContext();
 
   const handleNext = useCallback(() => {
     setInProgress(true);
@@ -161,10 +165,16 @@ export function KeystoneConnect() {
               onChange={handleDeviceChange}
               fullWidth
             >
-              <MenuItem value={KeystoneDevice.Keystone3}>
+              <MenuItem
+                value={KeystoneDevice.Keystone3}
+                disabled={!featureFlags[FeatureGates.KEYSTONE_3]}
+              >
                 {KeystoneDevice.Keystone3}
               </MenuItem>
-              <MenuItem value={KeystoneDevice.KeystoneEssential}>
+              <MenuItem
+                value={KeystoneDevice.KeystoneEssential}
+                disabled={!featureFlags[FeatureGates.KEYSTONE]}
+              >
                 {KeystoneDevice.KeystoneEssential}
               </MenuItem>
             </Select>
