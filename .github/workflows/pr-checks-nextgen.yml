@@ -23,10 +23,10 @@ jobs:
       - name: Create env file
         run: |
           touch .env.production
-          echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
-          echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
-          echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
-          echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
+          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
+          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
+          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
+          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
       - name: Install dependencies
         run: |
           yarn install
