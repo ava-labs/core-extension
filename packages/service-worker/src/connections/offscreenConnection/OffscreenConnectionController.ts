@@ -84,8 +84,9 @@ export class OffscreenConnectionController implements ConnectionController {
   }
 
   async sendMessage(message: string) {
-    const hasOffscreenDocument =
-      await this.hasOffscreenDocument('offscreen.html');
+    const hasOffscreenDocument = await this.hasOffscreenDocument(
+      'offscreen/offscreen.html',
+    );
     if (!hasOffscreenDocument) {
       throw new Error(
         'OffscreenConnectionController is not connected to an offscreen document',
@@ -171,8 +172,9 @@ export class OffscreenConnectionController implements ConnectionController {
   }
 
   private async onEvent(evt: ExtensionConnectionEvent) {
-    const hasOffscreenDocument =
-      await this.hasOffscreenDocument('offscreen.html');
+    const hasOffscreenDocument = await this.hasOffscreenDocument(
+      'offscreen/offscreen.html',
+    );
 
     if (!hasOffscreenDocument) {
       throw new Error(
