@@ -37,7 +37,7 @@ export default defineConfig(({ envMode }) => {
     : prodEvmProviderConfig;
 
   return {
-    mode: 'development',
+    mode: isDevBuild ? 'development' : 'production',
     source: {
       entry: {
         inpage: path.join(__dirname, 'inpage.ts'),
@@ -47,7 +47,7 @@ export default defineConfig(({ envMode }) => {
       cleanDistPath: true,
       target: 'web-worker',
       sourceMap: {
-        js: 'hidden-source-map',
+        js: isDevBuild ? 'inline-source-map' : 'hidden-source-map',
       },
       filename: {
         js: '[name].js',
