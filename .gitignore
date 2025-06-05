@@ -17,6 +17,7 @@ pids
 .env
 .env.dev
 .env.production
+.env.dev
 
 # Dependency directories
 node_modules/
@@ -44,13 +45,13 @@ typings/
 # IDE files
 .idea
 .idea/*
-
 __dist
 dist
 dist-next
 builds
 .DS_Store
 todo.*
+dist-next
 
 # snyk
 .dccache

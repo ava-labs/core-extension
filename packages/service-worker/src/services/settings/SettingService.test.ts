@@ -397,7 +397,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       });
     });
     describe('setCoreAssistant', () => {
-      it('should save the core assistant properly', async () => {
+      it('should save the core concierge properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
@@ -408,7 +408,7 @@ describe('background/services/settings/SettingsService.ts', () => {
           coreAssistant: true,
         });
       });
-      it('should emit only the core assistant if it fails to save', async () => {
+      it('should emit only the core concierge if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setCoreAssistant(true);
         });
