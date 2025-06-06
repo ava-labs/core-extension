@@ -1,12 +1,10 @@
 import { ContextContainer } from '@core/types';
-import { useIsSpecificContextContainer } from './useIsSpecificContextContainer';
+import { isSpecificContextContainer } from '../utils/isSpecificContextContainer';
 import { useEffect } from 'react';
 import { filter, first, fromEventPattern, merge } from 'rxjs';
 
 export function useWindowGetsClosedOrHidden(cancelHandler: () => void) {
-  const isConfirmPopup = useIsSpecificContextContainer(
-    ContextContainer.CONFIRM,
-  );
+  const isConfirmPopup = isSpecificContextContainer(ContextContainer.CONFIRM);
 
   useEffect(() => {
     const subscription = merge(
