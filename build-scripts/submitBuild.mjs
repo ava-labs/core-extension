@@ -1,13 +1,14 @@
 import { createHash } from 'crypto';
-import pjson from '../package.json' with { type: 'json' };
 import { readdir, readFile } from 'node:fs/promises';
 import { readCoreCliArgument } from './readCoreCliArgument.mjs';
-
-const { version } = pjson;
 
 const gen = readCoreCliArgument('gen') || 'legacy';
 const dir = gen === 'legacy' ? 'dist' : 'dist-next';
 const pathChecksumMap = {};
+
+const manifestBytes = await readFile(`${dir}/manifest.json`);
+const { version } = JSON.parse(manifestBytes.toString('utf-8'));
+const encodedManifest = manifestBytes.toString('base64');
 
 const files = await readdir(dir, {
   withFileTypes: true,
@@ -32,10 +33,6 @@ for (const file of files) {
     pathChecksumMap[pathWithoutDist] = hash;
   }
 }
-
-const encodedManifest = (await readFile(`${dir}/manifest.json`)).toString(
-  'base64',
-);
 
 const submitBuildResponse = await fetch(
   `${process.env.ID_SERVICE_URL}/v2/ext/submit-build`,
