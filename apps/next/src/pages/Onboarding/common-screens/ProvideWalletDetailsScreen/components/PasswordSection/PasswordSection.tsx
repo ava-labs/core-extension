@@ -1,6 +1,5 @@
-import zxcvbn from 'zxcvbn';
 import { FC, useEffect, useState } from 'react';
-import { TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 
 import { useOnboardingContext } from '@core/ui';
@@ -10,8 +9,9 @@ import {
   SectionLabel,
   SectionRow,
 } from '@/pages/Onboarding/components/Section';
-
 import { BorderlessTextField } from '@/components/BorderlessTextField';
+
+import { validatePasswords } from './lib/passwordValidation';
 
 type Props = StackProps & {
   onValidityChange: (isValid: boolean) => void;
@@ -107,79 +107,4 @@ export const PasswordSection: FC<Props> = ({
       </Typography>
     </Stack>
   );
-};
-
-const validatePasswordStrength = (password: string, t: TFunction) => {
-  const { score } = zxcvbn(password);
-
-  if (score < 2) {
-    return {
-      isValid: false,
-      colorKey: 'error.light',
-      message: t('Weak password! Try adding more characters'),
-    };
-  }
-
-  if (score < 3) {
-    return {
-      isValid: true,
-      colorKey: 'warning.light',
-      message: t('Average password - this will do'),
-    };
-  }
-
-  return {
-    isValid: true,
-    colorKey: 'green.light',
-    message: t('Strong password! Keep this one!'),
-  };
-};
-
-const validatePasswordMatch = (
-  password: string,
-  confirmPassword: string,
-  t: TFunction,
-) => {
-  if (password !== confirmPassword) {
-    return {
-      isValid: false,
-      colorKey: 'error.light',
-      message: t('Passwords do not match'),
-    };
-  }
-
-  return {
-    isValid: true,
-    colorKey: 'green.light',
-    message: t('Awesome!'),
-  };
-};
-
-type ValidatePasswordArgs = {
-  password: string;
-  confirmPassword: string;
-  isPasswordTouched: boolean;
-  isConfirmPasswordTouched: boolean;
-  t: TFunction;
-};
-
-const validatePasswords = ({
-  password,
-  confirmPassword,
-  isPasswordTouched,
-  isConfirmPasswordTouched,
-  t,
-}: ValidatePasswordArgs) => {
-  // If no values are provided, we show no messages
-  if (!password && !confirmPassword) {
-    return null;
-  }
-
-  const strength = validatePasswordStrength(password || confirmPassword, t);
-
-  if (!strength.isValid || !isPasswordTouched || !isConfirmPasswordTouched) {
-    return strength;
-  }
-
-  return validatePasswordMatch(password, confirmPassword, t);
 };
