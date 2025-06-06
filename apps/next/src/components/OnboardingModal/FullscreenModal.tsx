@@ -1,7 +1,7 @@
 import { Dialog, getHexAlpha, styled } from '@avalabs/k2-alpine';
 
 export const FullscreenModal = styled(Dialog)(({ theme }) => ({
-  '& .MuiPaper-root': {
+  '& .MuiDialog-paper': {
     padding: 0,
     width: '100%',
     maxWidth: '600px',
