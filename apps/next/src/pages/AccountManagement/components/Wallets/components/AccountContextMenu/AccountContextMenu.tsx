@@ -72,7 +72,7 @@ export const AccountContextMenu: FC<Props> = ({
       <AddressItem
         label="Ethereum"
         Icon={EthereumColorIcon}
-        address={account.addressCoreEth}
+        address={account.addressC}
         onClose={onClose}
       />
       <AddressItem
