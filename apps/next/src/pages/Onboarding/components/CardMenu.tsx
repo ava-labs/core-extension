@@ -7,7 +7,7 @@ import {
   styled,
   Typography,
 } from '@avalabs/k2-alpine';
-import { FC } from 'react';
+import { FC, type ReactElement } from 'react';
 import { useHistory } from 'react-router-dom';
 
 export const CardMenu = styled(MenuList)(({ theme }) => ({
@@ -22,7 +22,7 @@ export const CardMenu = styled(MenuList)(({ theme }) => ({
 
 type CardMenuItemProps = {
   link: string;
-  icon: React.ReactNode;
+  icon: ReactElement;
   text: string;
 };
 
