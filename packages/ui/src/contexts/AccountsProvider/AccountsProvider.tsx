@@ -39,7 +39,7 @@ const AccountsContext = createContext<{
   getAccountById(id: string): Account | undefined;
 }>({} as any);
 
-export function AccountsContextProvider({ children }: { children: any }) {
+export function AccountsContextProvider({ children }: { children?: any }) {
   const { request, events } = useConnectionContext();
   const [accounts, setAccounts] = useState<Accounts>({
     active: undefined,
