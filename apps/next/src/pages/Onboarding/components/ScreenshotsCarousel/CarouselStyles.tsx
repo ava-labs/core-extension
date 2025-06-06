@@ -1,4 +1,4 @@
-import { Box, Stack, styled } from '@avalabs/k2-alpine';
+import { Box, CSSObject, Stack, styled } from '@avalabs/k2-alpine';
 
 export const SlidesContainer = styled(Stack)`
   flex-direction: row;
@@ -40,7 +40,7 @@ export const CarouselSlide = styled(Box, {
   ...getStyleForPhase(phase),
 }));
 
-const getStyleForPhase = (phase: CarouselSlidePhase) => {
+const getStyleForPhase = (phase: CarouselSlidePhase): CSSObject => {
   switch (phase) {
     case 'active':
       return {
