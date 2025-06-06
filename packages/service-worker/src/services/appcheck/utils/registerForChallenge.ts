@@ -1,35 +1,30 @@
+import { Challenge } from '@core/types';
+import { sendRequest } from './sendRequest';
+
 type Params = {
-  token: string;
   requestId: string;
 };
 
 const REGISTER_TIMEOUT_MS = 10_000;
+const REGISTER_PATH = 'v2/ext/register';
 
-const registerForChallenge = async ({ token, requestId }: Params) => {
-  const url = process.env.ID_SERVICE_URL;
-
-  if (!url) {
-    throw new Error('ID_SERVICE_URL is missing');
-  }
-
+const registerForChallenge = async ({ requestId }: Params) => {
   try {
-    const registerResponse = await fetch(`${url}/v1/ext/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-App-Type': 'extension',
-        'X-App-Version': chrome.runtime.getManifest().version,
-      },
-      body: JSON.stringify({
-        token,
+    const registerResponse = await sendRequest({
+      path: REGISTER_PATH,
+      payload: {
         requestId,
-      }),
-      signal: AbortSignal.timeout(REGISTER_TIMEOUT_MS),
+      },
+      timeout: REGISTER_TIMEOUT_MS,
     });
 
     if (!registerResponse.ok) {
-      throw new Error(registerResponse.statusText);
+      throw new Error(
+        `registration failed with status ${registerResponse.status}: ${registerResponse.statusText}`,
+      );
     }
+
+    return registerResponse.json() as Promise<Challenge>;
   } catch (err) {
     throw new Error(
       `[AppCheck] challenge registration error "${(err as Error).message}"`,

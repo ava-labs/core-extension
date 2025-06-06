@@ -63,6 +63,7 @@ global.chrome = {
       manifest_version: 3,
       version: '0.0.0',
     }),
+    getURL: (path: string) => path,
   },
   notifications: {
     create: jest.fn(),
