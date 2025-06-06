@@ -3,12 +3,12 @@ import { readdir, readFile } from 'node:fs/promises';
 import { readCoreCliArgument } from './readCoreCliArgument.mjs';
 
 const gen = readCoreCliArgument('gen') || 'legacy';
+const version = readCoreCliArgument('version') || '0.0.0';
 const dir = gen === 'legacy' ? 'dist' : 'dist-next';
 const pathChecksumMap = {};
-
-const manifestBytes = await readFile(`${dir}/manifest.json`);
-const { version } = JSON.parse(manifestBytes.toString('utf-8'));
-const encodedManifest = manifestBytes.toString('base64');
+const encodedManifest = (await readFile(`${dir}/manifest.json`)).toString(
+  'base64',
+);
 
 const files = await readdir(dir, {
   withFileTypes: true,
