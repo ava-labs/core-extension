@@ -35,7 +35,7 @@ export const ScreenshotsCarousel = (props: StackProps) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrent((prev) => (prev === screens.length - 1 ? 0 : prev + 1));
+      setCurrent((prev) => (prev + 1) % screens.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [screens.length]);
