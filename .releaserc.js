@@ -100,6 +100,13 @@ const githubSetting = [
   },
 ];
 
+const execSubmitBuildSetting = [
+  '@semantic-release/exec',
+  {
+    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build`,
+  },
+];
+
 const execZipSetting = [
   '@semantic-release/exec',
   {
@@ -128,6 +135,7 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
     execPatchAnyCommitSetting,
     execSentryReleaseSetting,
     releaseReplaceSetting,
+    execSubmitBuildSetting,
     execZipSetting,
     githubSetting,
   ];
@@ -136,6 +144,10 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
 module.exports = {
   // define a main version release branch even though we are doing all releases from main
   // this branch list gets overwritten in the production release Github Action
-  branches: ['release', { name: 'main', prerelease: 'alpha' }],
+  branches: [
+    'release',
+    { name: 'main', prerelease: 'alpha' },
+    { name: 'feat/appcheck-v2', prerelease: 'beta' },
+  ],
   plugins,
 };
