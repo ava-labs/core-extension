@@ -26,6 +26,11 @@
         font: inherit;
         vertical-align: baseline;
         height: 100%;
+        background-color: #ffffff;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: #28282e;
+        }
       }
 
       #popup {
@@ -34,6 +39,8 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
     </style>
   </head>

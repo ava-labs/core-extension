@@ -1,4 +1,5 @@
 {
+  "Access existing wallet": "Access existing wallet",
   "Action was not approved. Please try again.": "Action was not approved. Please try again.",
   "All keys contained in this file are already imported.": "All keys contained in this file are already imported.",
   "Amount is too low": "Amount is too low",
@@ -14,6 +15,8 @@
   "Code verification error": "Code verification error",
   "Confirm Bridge": "Confirm Bridge",
   "Confirm Swap": "Confirm Swap",
+  "Continue with Apple": "Continue with Apple",
+  "Continue with Google": "Continue with Google",
   "Core has entered an unexpected state. Please restart the browser if the issue persists.": "Core has entered an unexpected state. Please restart the browser if the issue persists.",
   "Could not swap {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}": "Could not swap {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}",
   "Deposit": "Deposit",
@@ -52,6 +55,7 @@
   "Limit exceeded": "Limit exceeded",
   "Liquidity Pool": "Liquidity Pool",
   "Locked": "Locked",
+  "Manually create new wallet": "Manually create new wallet",
   "Mismatching provider": "Mismatching provider",
   "Network error": "Network error",
   "No New Wallets Found": "No New Wallets Found",
@@ -141,12 +145,9 @@
   "Vesting": "Vesting",
   "View in Explorer": "View in Explorer",
   "Wallet secrets not found for the requested ID": "Wallet secrets not found for the requested ID",
-  "We are excited to see you!": "We are excited to see you!",
   "We were not able to verify this code. Please try again.": "We were not able to verify this code. Please try again.",
-  "Welcome to new Core!": "Welcome to new Core!",
   "Yield": "Yield",
   "You do not have enough funds to cover the network fees.": "You do not have enough funds to cover the network fees.",
   "You will be prompted {{remaining}} more time(s).": "You will be prompted {{remaining}} more time(s).",
-  "paraswap error message while get rate: {{message}}": "paraswap error message while get rate: {{message}}",
-  "😇": "😇"
+  "paraswap error message while get rate: {{message}}": "paraswap error message while get rate: {{message}}"
 }

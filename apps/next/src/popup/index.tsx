@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 // MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
-import { CircularProgress, ThemeProvider } from '@avalabs/k2-alpine';
+import { CircularProgress } from '@avalabs/k2-alpine';
 import {
   AnalyticsContextProvider,
   ConnectionContextProvider,
@@ -32,21 +32,19 @@ browser.tabs.query({ active: true }).then(() => {
   root.render(
     <Sentry.ErrorBoundary>
       <Router>
-        <ThemeProvider theme="light">
-          <I18nextProvider i18n={i18next}>
-            <ConnectionContextProvider LoadingComponent={CircularProgress}>
-              <SettingsContextProvider>
-                <FeatureFlagsContextProvider>
-                  <AnalyticsContextProvider>
-                    <Suspense fallback={<CircularProgress />}>
-                      <App />
-                    </Suspense>
-                  </AnalyticsContextProvider>
-                </FeatureFlagsContextProvider>
-              </SettingsContextProvider>
-            </ConnectionContextProvider>
-          </I18nextProvider>
-        </ThemeProvider>
+        <I18nextProvider i18n={i18next}>
+          <ConnectionContextProvider LoadingComponent={CircularProgress}>
+            <SettingsContextProvider>
+              <FeatureFlagsContextProvider>
+                <AnalyticsContextProvider>
+                  <Suspense fallback={<CircularProgress />}>
+                    <App />
+                  </Suspense>
+                </AnalyticsContextProvider>
+              </FeatureFlagsContextProvider>
+            </SettingsContextProvider>
+          </ConnectionContextProvider>
+        </I18nextProvider>
       </Router>
     </Sentry.ErrorBoundary>,
   );
