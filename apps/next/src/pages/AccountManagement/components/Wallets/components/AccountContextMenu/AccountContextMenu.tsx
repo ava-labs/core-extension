@@ -58,7 +58,7 @@ export const AccountContextMenu: FC<Props> = ({
         onClose={onClose}
       />
       <AddressItem
-        label="Avalanche X/P-Chain"
+        label="Avalanche X-Chain"
         Icon={XPChainIcon}
         address={account.addressAVM}
         onClose={onClose}

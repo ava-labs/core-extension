@@ -1,3 +1,4 @@
+import { Typography } from '@/components/Typography';
 import {
   Button,
   ListItemIcon,
@@ -8,8 +9,7 @@ import {
   Tooltip,
   truncateAddress,
 } from '@avalabs/k2-alpine';
-import { Typography } from '@/components/Typography';
-
+import { stripAddressPrefix } from '@core/common';
 import { ComponentType, FC } from 'react';
 import { IconBaseProps } from 'react-icons';
 
@@ -25,6 +25,8 @@ export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
     return null;
   }
 
+  const strippedAddress = stripAddressPrefix(address);
+
   return (
     <MenuItem>
       <ListItemIcon>
@@ -32,9 +34,9 @@ export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
       </ListItemIcon>
       <Stack direction="column" gap={0.5} marginInlineEnd={1}>
         <Typography variant="caption">{label}</Typography>
-        <Tooltip title={address} enterDelay={1000}>
+        <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography variant="monospace" color="text.secondary">
-            {truncateAddress(address)}
+            {truncateAddress(strippedAddress)}
           </Typography>
         </Tooltip>
       </Stack>
