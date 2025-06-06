@@ -6,10 +6,12 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  BalancesProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
   usePreferredColorScheme,
   WalletContextProvider,
+  WalletTotalBalanceProvider,
 } from '@core/ui';
 
 import { Onboarding } from '@/pages/Onboarding';
@@ -27,18 +29,22 @@ export function App() {
     <ThemeProvider theme={preferredColorScheme}>
       <AccountsContextProvider>
         <NetworkContextProvider>
-          <OnboardingContextProvider
-            onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
-            OnboardingScreen={Onboarding}
-          >
-            <WalletContextProvider LockedComponent={LockScreen}>
-              <Stack direction="row" justifyContent="space-between">
-                <AccountManagement />
-                Under construction 🚧
-              </Stack>
-            </WalletContextProvider>
-          </OnboardingContextProvider>
+          <BalancesProvider>
+            <OnboardingContextProvider
+              onError={(message: string) => toast.error(message)}
+              LoadingComponent={CircularProgress}
+              OnboardingScreen={Onboarding}
+            >
+              <WalletContextProvider LockedComponent={LockScreen}>
+                <WalletTotalBalanceProvider>
+                  <Stack direction="row" justifyContent="space-between">
+                    <AccountManagement />
+                    Under construction 🚧
+                  </Stack>
+                </WalletTotalBalanceProvider>
+              </WalletContextProvider>
+            </OnboardingContextProvider>
+          </BalancesProvider>
         </NetworkContextProvider>
       </AccountsContextProvider>
     </ThemeProvider>

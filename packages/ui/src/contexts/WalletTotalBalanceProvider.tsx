@@ -1,7 +1,7 @@
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -28,13 +28,13 @@ export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
   hasErrorOccurred: boolean;
 };
 
-export const WalletTotalBalanceContext = createContext<{
-  fetchBalanceForWallet(walletId: string): Promise<void>;
-  walletBalances: Record<string, WalletTotalBalanceState>;
-}>({
-  walletBalances: {},
-  fetchBalanceForWallet: () => Promise.resolve(),
-});
+const WalletTotalBalanceContext = createContext<
+  | {
+      fetchBalanceForWallet(walletId: string): Promise<void>;
+      walletBalances: Record<string, WalletTotalBalanceState>;
+    }
+  | undefined
+>(undefined);
 
 export const WalletTotalBalanceProvider = ({
   children,
@@ -132,5 +132,11 @@ export const WalletTotalBalanceProvider = ({
 };
 
 export function useWalletTotalBalanceContext() {
-  return useContext(WalletTotalBalanceContext);
+  const context = use(WalletTotalBalanceContext);
+  if (!context) {
+    throw new Error(
+      'useWalletTotalBalanceContext must be used within a WalletTotalBalanceProvider',
+    );
+  }
+  return context;
 }

@@ -1,54 +1,58 @@
-import { useState, FC } from 'react';
-import CurrentAccount from './components/CurrentAccount';
-import { Wallets } from './components/Wallets';
-import AddOrConnectWalletButton from './components/AddOrConnectWalletButton';
-import { MdArrowBack, MdSettings } from 'react-icons/md';
 import {
   Dialog,
   DialogContent,
+  DialogProps,
   DialogTitle,
+  IconButton,
   Slide,
   Stack,
+  styled,
 } from '@avalabs/k2-alpine';
-import { IconButton } from '@avalabs/k2-alpine';
+import { FC } from 'react';
+import { MdArrowBack } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
+import AddOrConnectWalletButton from './components/AddOrConnectWalletButton';
+import CurrentAccount from './components/CurrentAccount';
+import { Wallets } from './components/Wallets';
+
+const PaddedEndStack = styled(Stack)(({ theme }) => ({
+  '&:after': {
+    content: '""',
+    height: theme.spacing(4),
+  },
+}));
+
+const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
+  slots: {
+    transition: Slide,
+  },
+  slotProps: {
+    transition: {
+      direction: 'up',
+    },
+    paper: {
+      sx: { borderRadius: 0 },
+    },
+  },
+};
 
 const AccountManagement: FC = () => {
-  const [open, setOpen] = useState(true);
+  const { goBack } = useHistory();
   return (
-    <>
-      <IconButton onClick={() => setOpen((x) => !x)}>
-        <MdSettings />
-      </IconButton>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        fullScreen
-        slots={{
-          transition: Slide,
-        }}
-        slotProps={{
-          transition: {
-            direction: 'up',
-          },
-          paper: {
-            sx: { borderRadius: 0 },
-          },
-        }}
-      >
-        <DialogTitle sx={{ padding: 1.5 }}>
-          <IconButton onClick={() => setOpen(false)}>
-            <MdArrowBack />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Stack gap={1.5}>
-            <CurrentAccount />
-            <Wallets />
-            <AddOrConnectWalletButton />
-          </Stack>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
+      <DialogTitle sx={{ padding: 1.5 }}>
+        <IconButton onClick={goBack}>
+          <MdArrowBack />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ paddingInline: 1.5 }}>
+        <PaddedEndStack gap={1.5}>
+          <CurrentAccount />
+          <Wallets />
+          <AddOrConnectWalletButton />
+        </PaddedEndStack>
+      </DialogContent>
+    </Dialog>
   );
 };
 

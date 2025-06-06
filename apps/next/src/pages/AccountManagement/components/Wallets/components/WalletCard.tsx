@@ -5,10 +5,9 @@ import {
   useSettingsContext,
   useWalletTotalBalance,
 } from '@core/ui';
-import { FC, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdErrorOutline } from 'react-icons/md';
-import { Typography } from '../../Typography';
+import { Typography } from '@/components/Typography';
 import AccountListItem from './AccountListItem';
 import * as Styled from './Styled';
 import { ViewPChainButton } from './ViewPChainButton';
@@ -20,6 +19,7 @@ interface WalletCardProps {
 
 const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
   const { t } = useTranslation();
+  const detailsRef = useRef<HTMLDivElement>(null);
   const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
   const {
     isLoading,
@@ -30,9 +30,7 @@ const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
   const { currencyFormatter } = useSettingsContext();
 
   const hasActiveAccount = Boolean(
-    accounts.primary[wallet.id]?.some(
-      (account) => account.id === accounts.active?.id,
-    ),
+    accounts.primary[wallet.id]?.some(({ id }) => isActiveAccount(id)),
   );
 
   const [isExpanded, setIsExpanded] = useState(hasActiveAccount);
@@ -49,24 +47,45 @@ const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
           direction="row"
           height="21px"
           alignItems="center"
-          justifyContent="space-between"
+          gap={0.5}
+          width="calc(100% - 8px)"
         >
-          <Typography variant="titleBold">{wallet.name}</Typography>
-          {isLoading && <CircularProgress size={21} />}
+          <Typography
+            variant="titleBold"
+            marginInlineEnd="auto"
+            whiteSpace="nowrap"
+            overflow="hidden"
+            textOverflow="ellipsis"
+          >
+            {wallet.name}
+          </Typography>
+          {isLoading && <CircularProgress size={14} />}
           {!isLoading && !hasErrorOccurred && (
             <Typography variant="title" color="text.disabled">
               {currencyFormatter(totalBalanceInCurrency ?? 0)}
             </Typography>
           )}
           {!isLoading && hasErrorOccurred && (
-            <Typography variant="title" color="error">
-              <MdErrorOutline size={21} />
-              {t('Unable to load balances')}
-            </Typography>
+            <>
+              <Styled.ErrorIcon size={16} />
+              <Typography
+                variant="title"
+                color="error"
+                component="span"
+                whiteSpace="nowrap"
+              >
+                {t('Unable to load balances')}
+              </Typography>
+            </>
           )}
         </Stack>
       </Styled.NarrowSummary>
-      <AccordionDetails>
+      <AccordionDetails
+        ref={detailsRef}
+        sx={{
+          paddingInline: 1.5,
+        }}
+      >
         {accounts.primary[wallet.id]?.map((account) => (
           <AccountListItem
             key={account.id}

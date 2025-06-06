@@ -1,7 +1,8 @@
 import {
   createContext,
+  PropsWithChildren,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -26,20 +27,23 @@ import { getAddressByVMType, getAllAddressesForAccount } from '@core/common';
 import { isAccountsUpdatedEvent } from './isAccountsUpdatedEvent';
 import { useConnectionContext } from '../ConnectionProvider';
 
-const AccountsContext = createContext<{
-  accounts: Accounts;
-  allAccounts: Account[];
-  getAllAccountsForVM: (vm: NetworkVMType) => Account[];
-  isActiveAccount(id: string): boolean;
-  selectAccount(id: string): Promise<any>;
-  renameAccount(id: string, name: string): Promise<any>;
-  addAccount(name?: string, importData?: ImportData): Promise<string>;
-  deleteAccounts(ids: string[]): Promise<any>;
-  getAccount(address: string): Account | undefined;
-  getAccountById(id: string): Account | undefined;
-}>({} as any);
+const AccountsContext = createContext<
+  | {
+      accounts: Accounts;
+      allAccounts: Account[];
+      getAllAccountsForVM: (vm: NetworkVMType) => Account[];
+      isActiveAccount(id: string): boolean;
+      selectAccount(id: string): Promise<any>;
+      renameAccount(id: string, name: string): Promise<any>;
+      addAccount(name?: string, importData?: ImportData): Promise<string>;
+      deleteAccounts(ids: string[]): Promise<any>;
+      getAccount(address: string): Account | undefined;
+      getAccountById(id: string): Account | undefined;
+    }
+  | undefined
+>(undefined);
 
-export function AccountsContextProvider({ children }: { children: any }) {
+export function AccountsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [accounts, setAccounts] = useState<Accounts>({
     active: undefined,
@@ -170,5 +174,11 @@ export function AccountsContextProvider({ children }: { children: any }) {
 }
 
 export function useAccountsContext() {
-  return useContext(AccountsContext);
+  const context = use(AccountsContext);
+  if (!context) {
+    throw new Error(
+      'useAccountsContext must be used within a AccountsContextProvider',
+    );
+  }
+  return context;
 }
