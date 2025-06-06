@@ -49,7 +49,14 @@ export const BlockchainGenesisFile = ({ onClose, data }) => {
             <ApprovalSectionBody sx={{ flexGrow: 1 }}>
               <Scrollbars>
                 <Typography component="pre" variant="caption" monospace>
-                  {data}
+                  {(() => {
+                    try {
+                      const parsed = JSON.parse(data);
+                      return JSON.stringify(parsed, null, 2);
+                    } catch {
+                      return data;
+                    }
+                  })()}
                 </Typography>
               </Scrollbars>
             </ApprovalSectionBody>

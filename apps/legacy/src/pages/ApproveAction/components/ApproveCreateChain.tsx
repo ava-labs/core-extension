@@ -22,7 +22,7 @@ export function ApproveCreateChain({
   avaxPrice: number;
 }) {
   const { t } = useTranslation();
-  const { chainID, chainName, vmID, genesisData, txFee } = tx;
+  const { subnetID, chainName, vmID, genesisData, txFee } = tx;
 
   const [isGenesisFileShown, setIsGenesisFileShown] = useState(false);
 
@@ -37,11 +37,14 @@ export function ApproveCreateChain({
       <ApprovalSection sx={{ gap: 1 }}>
         <ApprovalSectionHeader label={t('Blockchain Details')} />
         <ApprovalSectionBody sx={{ justifyContent: 'start', py: 2.25 }}>
+          <TxDetailsRow label={t('Subnet ID')}>
+            <TruncatedIdentifier identifier={subnetID} />
+          </TxDetailsRow>
           <TxDetailsRow label={t('Blockchain Name')}>
             <Typography variant="caption">{chainName}</Typography>
           </TxDetailsRow>
-          <TxDetailsRow label={t('Blockchain ID')}>
-            <TruncatedIdentifier identifier={chainID} />
+          <TxDetailsRow label={t('Virtual Machine ID')}>
+            <TruncatedIdentifier identifier={vmID} />
           </TxDetailsRow>
           <TxDetailsRow label={t('Genesis File')}>
             <Button
@@ -51,9 +54,6 @@ export function ApproveCreateChain({
             >
               {t('View')}
             </Button>
-          </TxDetailsRow>
-          <TxDetailsRow label={t('Virtual Machine ID')}>
-            <TruncatedIdentifier identifier={vmID} />
           </TxDetailsRow>
         </ApprovalSectionBody>
       </ApprovalSection>
