@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 export const ViewPChainButton = () => {
   const { isDeveloperMode } = useNetworkContext();
   const { t } = useTranslation();
+  const subdomain = isDeveloperMode ? 'test.' : '';
   return (
     <Stack direction="row" justifyContent="flex-end" px={2} mt={1}>
       <Button
@@ -12,9 +13,7 @@ export const ViewPChainButton = () => {
         variant="text"
         onClick={() => {
           window.open(
-            `https://${
-              isDeveloperMode ? 'test.' : ''
-            }core.app/tools/utxo-manager`,
+            `https://${subdomain}core.app/tools/utxo-manager`,
             '_blank',
             'noreferrer',
           );

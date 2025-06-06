@@ -6,8 +6,13 @@ import {
   useSettingsContext,
   useWalletContext,
   useWalletTotalBalance,
+  useLiveBalance,
 } from '@core/ui';
-import { Typography } from './Typography';
+import { Typography } from '@/components/Typography';
+import { TokenType } from '@avalabs/vm-module-types';
+import { useTranslation } from 'react-i18next';
+
+const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
 
 const Root = styled('div')(({ theme }) => ({
   display: 'grid',
@@ -20,6 +25,7 @@ const Root = styled('div')(({ theme }) => ({
 }));
 
 const CurrentAccount: FC = () => {
+  const { t } = useTranslation();
   const { accounts } = useAccountsContext();
   const { walletDetails } = useWalletContext();
   const { totalBalanceInCurrency = 0 } = useWalletTotalBalance(
@@ -27,10 +33,12 @@ const CurrentAccount: FC = () => {
   );
   const accountBalance = useBalanceTotalInCurrency(accounts.active);
   const { currencyFormatter } = useSettingsContext();
+  useLiveBalance(POLLED_BALANCES);
+
   return (
     <Root>
       <Typography variant="caption" color="text.disabled">
-        Currently using {walletDetails?.name}
+        {t('Currently using {{name}}', { name: walletDetails?.name })}
       </Typography>
       <Typography variant="caption" textAlign="end" color="text.disabled">
         {currencyFormatter(totalBalanceInCurrency)}

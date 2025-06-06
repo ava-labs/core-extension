@@ -5,12 +5,35 @@ import AddOrConnectWalletButton from './components/AddOrConnectWalletButton';
 import { MdArrowBack, MdSettings } from 'react-icons/md';
 import {
   Dialog,
+  DialogProps,
   DialogContent,
   DialogTitle,
   Slide,
   Stack,
+  styled,
 } from '@avalabs/k2-alpine';
 import { IconButton } from '@avalabs/k2-alpine';
+
+const PaddedEndStack = styled(Stack)(({ theme }) => ({
+  '&:after': {
+    content: '""',
+    height: theme.spacing(4),
+  },
+}));
+
+const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
+  slots: {
+    transition: Slide,
+  },
+  slotProps: {
+    transition: {
+      direction: 'up',
+    },
+    paper: {
+      sx: { borderRadius: 0 },
+    },
+  },
+};
 
 const AccountManagement: FC = () => {
   const [open, setOpen] = useState(true);
@@ -20,32 +43,22 @@ const AccountManagement: FC = () => {
         <MdSettings />
       </IconButton>
       <Dialog
+        {...dialogSlots}
         open={open}
         onClose={() => setOpen(false)}
         fullScreen
-        slots={{
-          transition: Slide,
-        }}
-        slotProps={{
-          transition: {
-            direction: 'up',
-          },
-          paper: {
-            sx: { borderRadius: 0 },
-          },
-        }}
       >
         <DialogTitle sx={{ padding: 1.5 }}>
           <IconButton onClick={() => setOpen(false)}>
             <MdArrowBack />
           </IconButton>
         </DialogTitle>
-        <DialogContent>
-          <Stack gap={1.5}>
+        <DialogContent sx={{ paddingInline: 1.5 }}>
+          <PaddedEndStack gap={1.5}>
             <CurrentAccount />
             <Wallets />
             <AddOrConnectWalletButton />
-          </Stack>
+          </PaddedEndStack>
         </DialogContent>
       </Dialog>
     </>

@@ -9,7 +9,7 @@
  * removed.
  */
 import {
-  Typography as AlpineTypography,
+  Typography as K2Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
@@ -52,8 +52,8 @@ const overrides: Record<Variant, TypographyProps> = {
 
 export const Typography: FC<Props> = ({ variant, children, ...props }) => {
   return (
-    <AlpineTypography {...props} {...overrides[variant]}>
+    <K2Typography {...props} {...overrides[variant]}>
       {children}
-    </AlpineTypography>
+    </K2Typography>
   );
 };
