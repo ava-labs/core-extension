@@ -1,27 +1,27 @@
-import { Button, OutboundIcon, Stack } from '@avalabs/k2-alpine';
+import { Button, OutboundIcon, SxProps } from '@avalabs/k2-alpine';
 import { useNetworkContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
+
+const sx: SxProps = {
+  marginInline: 'auto',
+  gap: 0,
+};
 
 export const ViewPChainButton = () => {
   const { isDeveloperMode } = useNetworkContext();
   const { t } = useTranslation();
   const subdomain = isDeveloperMode ? 'test.' : '';
   return (
-    <Stack direction="row" justifyContent="flex-end" px={2} mt={1}>
-      <Button
-        size="small"
-        variant="text"
-        onClick={() => {
-          window.open(
-            `https://${subdomain}core.app/tools/utxo-manager`,
-            '_blank',
-            'noreferrer',
-          );
-        }}
-        endIcon={<OutboundIcon />}
-      >
-        {t('View P-Chain Details')}
-      </Button>
-    </Stack>
+    <Button
+      sx={sx}
+      size="small"
+      variant="text"
+      href={`https://${subdomain}core.app/tools/utxo-manager`}
+      target="_blank"
+      rel="noreferrer"
+      endIcon={<OutboundIcon />}
+    >
+      {t('View P-Chain Details')}
+    </Button>
   );
 };

@@ -12,7 +12,6 @@ import {
   OnboardingContextProvider,
   usePreferredColorScheme,
   WalletContextProvider,
-  WalletTotalBalanceProvider,
 } from '@core/ui';
 
 import { Onboarding } from '@/pages/Onboarding';
@@ -40,31 +39,27 @@ export function App() {
               OnboardingScreen={Onboarding}
             >
               <WalletContextProvider LockedComponent={LockScreen}>
-                <WalletTotalBalanceProvider>
-                  <Stack direction="row" justifyContent="space-between">
-                    <Switch>
-                      <Route
-                        path="/account-management"
-                        component={AccountManagement}
-                      />
-                      <Route
-                        path="/"
-                        render={() => (
-                          <div>
-                            <div>Under construction 🚧</div>
-                            <IconButton
-                              onClick={() =>
-                                history.push('/account-management')
-                              }
-                            >
-                              <MdSwitchAccount />
-                            </IconButton>
-                          </div>
-                        )}
-                      />
-                    </Switch>
-                  </Stack>
-                </WalletTotalBalanceProvider>
+                <Stack direction="row" justifyContent="space-between">
+                  <Switch>
+                    <Route
+                      path="/account-management"
+                      component={AccountManagement}
+                    />
+                    <Route
+                      path="/"
+                      render={() => (
+                        <div>
+                          <div>Under construction 🚧</div>
+                          <IconButton
+                            onClick={() => history.push('/account-management')}
+                          >
+                            <MdSwitchAccount />
+                          </IconButton>
+                        </div>
+                      )}
+                    />
+                  </Switch>
+                </Stack>
               </WalletContextProvider>
             </OnboardingContextProvider>
           </BalancesProvider>

@@ -7,11 +7,15 @@ import { SecretType, SeedlessAuthProvider, WalletDetails } from '@core/types';
 import { FC } from 'react';
 import { FaApple, FaGoogle } from 'react-icons/fa';
 
-type Props = {
-  expanded: boolean;
+export type WalletIconProps = {
+  expanded?: boolean;
 } & Pick<WalletDetails, 'type' | 'authProvider'>;
 
-export const WalletIcon: FC<Props> = ({ type, authProvider, expanded }) => {
+export const WalletIcon: FC<WalletIconProps> = ({
+  type,
+  authProvider,
+  expanded,
+}) => {
   if (type === SecretType.Ledger || type === SecretType.LedgerLive) {
     return <LedgerIcon size={16} />;
   }
