@@ -12,6 +12,7 @@ import {
   OnboardingStepTitle,
   useModalPageControl,
 } from '@/components/OnboardingModal';
+import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { PasswordSection } from './components/PasswordSection';
 import { AirdropSection } from './components/AirdropSection';
@@ -19,20 +20,16 @@ import { WalletNameSection } from './components/WalletNameSection';
 import { TermsAgreementSection } from './components/TermsAgreementSection';
 import { MarketingAgreementSection } from './components/MarketingAgreementSection';
 
-type ProvideWalletDetailsProps = {
-  step: number;
-  totalSteps: number;
-};
-
 type SectionsValidity = {
   password: boolean;
   newsletter: boolean;
   terms: boolean;
 };
 
-export const ProvideWalletDetailsScreen: FC<ProvideWalletDetailsProps> = ({
+export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
   step,
   totalSteps,
+  nextScreenPath,
 }) => {
   const { t } = useTranslation();
   const history = useHistory();
@@ -74,8 +71,8 @@ export const ProvideWalletDetailsScreen: FC<ProvideWalletDetailsProps> = ({
       return;
     }
 
-    history.push('/onboarding/import/recovery-phrase/select-avatar');
-  }, [history, isFormValid]);
+    history.push(nextScreenPath);
+  }, [history, isFormValid, nextScreenPath]);
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: onNext,

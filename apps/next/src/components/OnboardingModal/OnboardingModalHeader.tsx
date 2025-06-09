@@ -28,7 +28,10 @@ export const OnboardingModalHeader = ({
   return (
     <StyledHeader {...props}>
       {isBackButtonVisible && onBack && (
-        <IconButton sx={{ position: 'absolute', left: 0 }} onClick={onBack}>
+        <IconButton
+          sx={{ position: 'absolute', left: '-8px' }}
+          onClick={onBack}
+        >
           <FiArrowLeft />
         </IconButton>
       )}

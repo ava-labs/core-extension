@@ -11,6 +11,8 @@ import {
 } from '../../common-screens';
 import { EnterRecoveryPhraseScreen } from './screens';
 
+const BASE_PATH = '/onboarding/import/recovery-phrase';
+
 export const ImportRecoveryPhraseFlow = () => {
   const { setOnboardingWalletType } = useOnboardingContext();
 
@@ -20,16 +22,28 @@ export const ImportRecoveryPhraseFlow = () => {
 
   return (
     <Switch>
-      <Route exact path="/onboarding/import/recovery-phrase">
-        <EnterRecoveryPhraseScreen />
+      <Route exact path={BASE_PATH}>
+        <EnterRecoveryPhraseScreen
+          step={2}
+          totalSteps={5}
+          nextScreenPath={`${BASE_PATH}/wallet-details`}
+        />
       </Route>
-      <Route path="/onboarding/import/recovery-phrase/wallet-details">
-        <ProvideWalletDetailsScreen step={3} totalSteps={5} />
+      <Route path={`${BASE_PATH}/wallet-details`}>
+        <ProvideWalletDetailsScreen
+          step={3}
+          totalSteps={5}
+          nextScreenPath={`${BASE_PATH}/select-avatar`}
+        />
       </Route>
-      <Route path="/onboarding/import/recovery-phrase/select-avatar">
-        <SelectAvatarScreen step={4} totalSteps={5} />
+      <Route path={`${BASE_PATH}/select-avatar`}>
+        <SelectAvatarScreen
+          step={4}
+          totalSteps={5}
+          nextScreenPath={`${BASE_PATH}/enjoy-your-wallet`}
+        />
       </Route>
-      <Route path="/onboarding/import/recovery-phrase/enjoy-your-wallet">
+      <Route path={`${BASE_PATH}/enjoy-your-wallet`}>
         <EnjoyYourWalletScreen />
       </Route>
     </Switch>

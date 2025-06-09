@@ -14,10 +14,15 @@ import {
   OnboardingStepTitle,
   useModalPageControl,
 } from '@/components/OnboardingModal';
+import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { RecoveryPhraseForm } from '../components/RecoveryPhraseForm';
 
-export const EnterRecoveryPhraseScreen: FC = () => {
+export const EnterRecoveryPhraseScreen: FC<OnboardingScreenProps> = ({
+  step,
+  totalSteps,
+  nextScreenPath,
+}) => {
   const { t } = useTranslation();
   const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
@@ -31,9 +36,9 @@ export const EnterRecoveryPhraseScreen: FC = () => {
   const isValid = hasAllWords && isPhraseCorrect(phrase);
 
   useEffect(() => {
-    setCurrent(2);
-    setTotal(5);
-  }, [setCurrent, setTotal]);
+    setCurrent(step);
+    setTotal(totalSteps);
+  }, [setCurrent, setTotal, step, totalSteps]);
 
   const onNext = () => {
     if (!isValid) {
@@ -41,7 +46,7 @@ export const EnterRecoveryPhraseScreen: FC = () => {
     }
 
     setMnemonic(phrase);
-    history.push('/onboarding/import/recovery-phrase/wallet-details');
+    history.push(nextScreenPath);
   };
 
   const keyboardHandlers = useKeyboardShortcuts({
