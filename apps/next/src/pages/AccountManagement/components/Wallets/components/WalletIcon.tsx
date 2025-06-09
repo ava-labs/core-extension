@@ -1,31 +1,27 @@
-import { SecretType, SeedlessAuthProvider, WalletDetails } from '@core/types';
-import { FC } from 'react';
 import {
   LedgerIcon,
-  WalletOpenIcon,
   WalletClosedIcon,
+  WalletOpenIcon,
 } from '@avalabs/k2-alpine';
+import { SecretType, SeedlessAuthProvider, WalletDetails } from '@core/types';
+import { FC } from 'react';
 import { FaApple, FaGoogle } from 'react-icons/fa';
 
 type Props = {
-  wallet: WalletDetails;
   expanded: boolean;
-};
+} & Pick<WalletDetails, 'type' | 'authProvider'>;
 
-export const WalletIcon: FC<Props> = ({ wallet, expanded }) => {
-  if (
-    wallet.type === SecretType.Ledger ||
-    wallet.type === SecretType.LedgerLive
-  ) {
+export const WalletIcon: FC<Props> = ({ type, authProvider, expanded }) => {
+  if (type === SecretType.Ledger || type === SecretType.LedgerLive) {
     return <LedgerIcon size={16} />;
   }
 
-  if (wallet.type === SecretType.Seedless) {
-    if (wallet.authProvider === SeedlessAuthProvider.Google) {
+  if (type === SecretType.Seedless) {
+    if (authProvider === SeedlessAuthProvider.Google) {
       return <FaGoogle size={16} />;
     }
 
-    if (wallet.authProvider === SeedlessAuthProvider.Apple) {
+    if (authProvider === SeedlessAuthProvider.Apple) {
       return <FaApple size={16} />;
     }
   }

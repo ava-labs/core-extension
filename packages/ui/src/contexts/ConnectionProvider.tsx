@@ -3,7 +3,7 @@ import {
   createContext,
   PropsWithChildren,
   useCallback,
-  use,
+  useContext,
   useEffect,
   useState,
 } from 'react';
@@ -104,7 +104,7 @@ export function ConnectionContextProvider({
 }
 
 export function useConnectionContext() {
-  const context = use(ConnectionContext);
+  const context = useContext(ConnectionContext);
   if (!context) {
     throw new Error(
       'useConnectionContext must be used within a ConnectionContextProvider',

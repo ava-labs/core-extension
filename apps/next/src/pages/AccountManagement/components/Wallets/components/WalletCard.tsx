@@ -1,39 +1,34 @@
+import { Typography } from '@/components/Typography';
 import { AccordionDetails, CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
-import {
-  useAccountsContext,
-  useSettingsContext,
-  useWalletTotalBalance,
-} from '@core/ui';
-import { FC, useRef, useState } from 'react';
+import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
+import { FC, ReactElement, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Typography } from '@/components/Typography';
-import AccountListItem from './AccountListItem';
 import * as Styled from './Styled';
 import { ViewPChainButton } from './ViewPChainButton';
 import { WalletIcon } from './WalletIcon';
-
 interface WalletCardProps {
   wallet: WalletDetails;
+  initialExpanded: boolean;
+  children: ReactElement[];
 }
 
-const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
+const WalletCard: FC<WalletCardProps> = ({
+  wallet: { id, name, type, authProvider },
+  initialExpanded,
+  children,
+}) => {
   const { t } = useTranslation();
   const detailsRef = useRef<HTMLDivElement>(null);
-  const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
   const {
     isLoading,
     hasErrorOccurred,
     totalBalanceInCurrency,
     hasBalanceOnUnderivedAccounts,
-  } = useWalletTotalBalance(wallet.id);
+  } = useWalletTotalBalance(id);
   const { currencyFormatter } = useSettingsContext();
 
-  const hasActiveAccount = Boolean(
-    accounts.primary[wallet.id]?.some(({ id }) => isActiveAccount(id)),
-  );
-
-  const [isExpanded, setIsExpanded] = useState(hasActiveAccount);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
 
   return (
     <Styled.Accordion
@@ -41,7 +36,13 @@ const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
       onChange={(_, expanded) => setIsExpanded(expanded)}
     >
       <Styled.NarrowSummary
-        icon={<WalletIcon wallet={wallet} expanded={isExpanded} />}
+        icon={
+          <WalletIcon
+            type={type}
+            authProvider={authProvider}
+            expanded={isExpanded}
+          />
+        }
       >
         <Stack
           direction="row"
@@ -57,7 +58,7 @@ const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
             overflow="hidden"
             textOverflow="ellipsis"
           >
-            {wallet.name}
+            {name}
           </Typography>
           {isLoading && <CircularProgress size={14} />}
           {!isLoading && !hasErrorOccurred && (
@@ -86,14 +87,7 @@ const WalletCard: FC<WalletCardProps> = ({ wallet }) => {
           paddingInline: 1.5,
         }}
       >
-        {accounts.primary[wallet.id]?.map((account) => (
-          <AccountListItem
-            key={account.id}
-            account={account}
-            selected={isActiveAccount(account.id)}
-            onSelect={selectAccount}
-          />
-        ))}
+        {children}
       </AccordionDetails>
       {hasBalanceOnUnderivedAccounts && <ViewPChainButton />}
     </Styled.Accordion>

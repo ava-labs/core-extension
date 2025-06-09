@@ -1,8 +1,8 @@
 import {
   createContext,
   PropsWithChildren,
-  use,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -32,7 +32,7 @@ const AccountsContext = createContext<
       accounts: Accounts;
       allAccounts: Account[];
       getAllAccountsForVM: (vm: NetworkVMType) => Account[];
-      isActiveAccount(id: string): boolean;
+      isActiveAccount(id: Account | Account['id']): boolean;
       selectAccount(id: string): Promise<any>;
       renameAccount(id: string, name: string): Promise<any>;
       addAccount(name?: string, importData?: ImportData): Promise<string>;
@@ -146,8 +146,11 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
-  const isActiveAccount = useCallback(
-    (id: string) => {
+  const isActiveAccount = useCallback<
+    (accountOrId: Account | Account['id']) => boolean
+  >(
+    (accountOrId) => {
+      const id = typeof accountOrId === 'string' ? accountOrId : accountOrId.id;
       return accounts.active?.id === id;
     },
     [accounts],
@@ -174,7 +177,7 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
 }
 
 export function useAccountsContext() {
-  const context = use(AccountsContext);
+  const context = useContext(AccountsContext);
   if (!context) {
     throw new Error(
       'useAccountsContext must be used within a AccountsContextProvider',

@@ -1,4 +1,4 @@
-import { Button, Box } from '@avalabs/k2-alpine';
+import { Box, Button } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
 const AddOrConnectWalletButton: FC = () => (

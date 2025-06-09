@@ -1,6 +1,6 @@
 import {
   createContext,
-  use,
+  useContext,
   useCallback,
   useEffect,
   useMemo,
@@ -132,7 +132,7 @@ export const WalletTotalBalanceProvider = ({
 };
 
 export function useWalletTotalBalanceContext() {
-  const context = use(WalletTotalBalanceContext);
+  const context = useContext(WalletTotalBalanceContext);
   if (!context) {
     throw new Error(
       'useWalletTotalBalanceContext must be used within a WalletTotalBalanceProvider',

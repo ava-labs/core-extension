@@ -1,9 +1,9 @@
 import {
-  Accordion as K2Accordion,
   AccordionSummary,
   accordionSummaryClasses,
-  typographyClasses,
+  Accordion as K2Accordion,
   styled,
+  typographyClasses,
 } from '@avalabs/k2-alpine';
 import { MdError } from 'react-icons/md';
 

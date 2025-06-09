@@ -1,22 +1,22 @@
 import {
-  PopoverPosition,
-  CChainIcon,
-  XPChainIcon,
   BitcoinColorIcon,
+  CChainIcon,
   EthereumColorIcon,
-  SolanaColorIcon,
   Menu,
   MenuProps,
+  PopoverPosition,
+  SolanaColorIcon,
+  XPChainIcon,
   getHexAlpha,
 } from '@avalabs/k2-alpine';
-import { PrimaryAccount } from '@core/types';
+import { Account } from '@core/types';
 import { FC } from 'react';
 import { AddressItem } from './components/AddressItem';
 
 type Props = {
   position: PopoverPosition | undefined;
   onClose: VoidFunction;
-  account: PrimaryAccount;
+  account: Account;
 };
 
 const menuSlotProps: MenuProps['slotProps'] = {

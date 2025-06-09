@@ -19,8 +19,8 @@ import {
 import {
   createContext,
   PropsWithChildren,
-  use,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -229,7 +229,7 @@ export function WalletContextProvider({
 }
 
 export function useWalletContext() {
-  const context = use(WalletContext);
+  const context = useContext(WalletContext);
   if (!context) {
     throw new Error(
       'useWalletContext must be used within a WalletContextProvider',

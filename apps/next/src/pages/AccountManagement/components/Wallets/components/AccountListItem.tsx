@@ -1,30 +1,30 @@
+import { Typography } from '@/components/Typography';
 import {
   ListItem,
-  ListItemText,
   ListItemButton,
   ListItemIcon,
-  truncateAddress,
-  Tooltip,
-  Stack,
+  ListItemText,
   PopoverPosition,
+  Stack,
+  Tooltip,
+  truncateAddress,
 } from '@avalabs/k2-alpine';
-import { MdCheck } from 'react-icons/md';
-import { FC, useState } from 'react';
-import { PrimaryAccount } from '@core/types';
+import { Account } from '@core/types';
 import {
   useBalanceTotalInCurrency,
   useBalancesContext,
   useSettingsContext,
 } from '@core/ui';
-import { Typography } from '@/components/Typography';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as Styled from './Styled';
+import { MdCheck } from 'react-icons/md';
 import { AccountContextMenu } from './AccountContextMenu';
+import * as Styled from './Styled';
 
 interface Props {
-  account: PrimaryAccount;
+  account: Account;
   selected: boolean;
-  onSelect: (account: PrimaryAccount['id']) => void;
+  onSelect: (account: Account['id']) => void;
 }
 
 const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {

@@ -37,7 +37,8 @@ const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
 };
 
 const AccountManagement: FC = () => {
-  const { goBack } = useHistory();
+  const history = useHistory();
+  const goBack = () => history.goBack();
   return (
     <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
       <DialogTitle sx={{ padding: 1.5 }}>

@@ -1,15 +1,15 @@
+import { Typography } from '@/components/Typography';
 import { getHexAlpha, styled } from '@avalabs/k2-alpine';
-import { FC } from 'react';
+import { TokenType } from '@avalabs/vm-module-types';
 import {
   useAccountsContext,
   useBalanceTotalInCurrency,
+  useLiveBalance,
   useSettingsContext,
   useWalletContext,
   useWalletTotalBalance,
-  useLiveBalance,
 } from '@core/ui';
-import { Typography } from '@/components/Typography';
-import { TokenType } from '@avalabs/vm-module-types';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
@@ -20,6 +20,7 @@ const Root = styled('div')(({ theme }) => ({
   gridTemplateRows: 'auto auto',
 
   padding: theme.spacing(1.5),
+  marginBlockEnd: theme.spacing(1.5),
   borderRadius: theme.shape.borderRadius * 2,
   backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
 }));
