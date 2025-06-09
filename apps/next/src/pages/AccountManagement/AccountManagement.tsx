@@ -17,6 +17,7 @@ import CurrentAccount from './components/CurrentAccount';
 import { Wallets } from './components/Wallets';
 
 const PaddedEndStack = styled(Stack)(({ theme }) => ({
+  gap: theme.spacing(1.5),
   '&:after': {
     content: '""',
     height: theme.spacing(4),
@@ -49,7 +50,7 @@ const AccountManagement: FC = () => {
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ paddingInline: 1.5 }}>
-          <PaddedEndStack gap={1.5}>
+          <PaddedEndStack>
             <CurrentAccount />
             <Wallets />
             <AddOrConnectWalletButton />

@@ -1,9 +1,9 @@
 import {
+  CircularProgress,
+  IconButton,
+  Stack,
   ThemeProvider,
   toast,
-  CircularProgress,
-  Stack,
-  IconButton,
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
@@ -14,11 +14,11 @@ import {
   WalletContextProvider,
 } from '@core/ui';
 
-import { Onboarding } from '@/pages/Onboarding';
-import { LockScreen } from '@/pages/LockScreen';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { LockScreen } from '@/pages/LockScreen';
+import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
+import { Route, Switch, useHistory } from 'react-router-dom';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
