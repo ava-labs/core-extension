@@ -8,7 +8,7 @@ import {
   Stack,
   styled,
 } from '@avalabs/k2-alpine';
-import { WalletTotalBalanceProvider } from '@core/ui';
+import { BalancesProvider, WalletTotalBalanceProvider } from '@core/ui';
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
@@ -42,22 +42,24 @@ const AccountManagement: FC = () => {
   const history = useHistory();
   const goBack = () => history.goBack();
   return (
-    <WalletTotalBalanceProvider>
-      <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
-        <DialogTitle sx={{ padding: 1.5 }}>
-          <IconButton onClick={goBack}>
-            <MdArrowBack />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ paddingInline: 1.5 }}>
-          <PaddedEndStack>
-            <CurrentAccount />
-            <Wallets />
-            <AddOrConnectWalletButton />
-          </PaddedEndStack>
-        </DialogContent>
-      </Dialog>
-    </WalletTotalBalanceProvider>
+    <BalancesProvider>
+      <WalletTotalBalanceProvider>
+        <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
+          <DialogTitle sx={{ padding: 1.5 }}>
+            <IconButton onClick={goBack}>
+              <MdArrowBack />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ paddingInline: 1.5 }}>
+            <PaddedEndStack>
+              <CurrentAccount />
+              <Wallets />
+              <AddOrConnectWalletButton />
+            </PaddedEndStack>
+          </DialogContent>
+        </Dialog>
+      </WalletTotalBalanceProvider>
+    </BalancesProvider>
   );
 };
 

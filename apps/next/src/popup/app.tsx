@@ -1,13 +1,11 @@
 import {
   CircularProgress,
   IconButton,
-  Stack,
   ThemeProvider,
   toast,
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
-  BalancesProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
   usePreferredColorScheme,
@@ -32,37 +30,33 @@ export function App() {
     <ThemeProvider theme={preferredColorScheme}>
       <AccountsContextProvider>
         <NetworkContextProvider>
-          <BalancesProvider>
-            <OnboardingContextProvider
-              onError={(message: string) => toast.error(message)}
-              LoadingComponent={CircularProgress}
-              OnboardingScreen={Onboarding}
-            >
-              <WalletContextProvider LockedComponent={LockScreen}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Switch>
-                    <Route
-                      path="/account-management"
-                      component={AccountManagement}
-                    />
-                    <Route
-                      path="/"
-                      render={() => (
-                        <div>
-                          <div>Under construction 🚧</div>
-                          <IconButton
-                            onClick={() => history.push('/account-management')}
-                          >
-                            <MdSwitchAccount />
-                          </IconButton>
-                        </div>
-                      )}
-                    />
-                  </Switch>
-                </Stack>
-              </WalletContextProvider>
-            </OnboardingContextProvider>
-          </BalancesProvider>
+          <OnboardingContextProvider
+            onError={(message: string) => toast.error(message)}
+            LoadingComponent={CircularProgress}
+            OnboardingScreen={Onboarding}
+          >
+            <WalletContextProvider LockedComponent={LockScreen}>
+              <Switch>
+                <Route
+                  path="/account-management"
+                  component={AccountManagement}
+                />
+                <Route
+                  path="/"
+                  render={() => (
+                    <div>
+                      <div>Under construction 🚧</div>
+                      <IconButton
+                        onClick={() => history.push('/account-management')}
+                      >
+                        <MdSwitchAccount />
+                      </IconButton>
+                    </div>
+                  )}
+                />
+              </Switch>
+            </WalletContextProvider>
+          </OnboardingContextProvider>
         </NetworkContextProvider>
       </AccountsContextProvider>
     </ThemeProvider>

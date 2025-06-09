@@ -1,8 +1,8 @@
 import { Typography } from '@/components/Typography';
-import { AccordionDetails, CircularProgress, Stack } from '@avalabs/k2-alpine';
+import { CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
 import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
-import { cloneElement, FC, ReactElement, useRef, useState } from 'react';
+import { cloneElement, FC, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Styled from './Styled';
 import { ViewPChainButton } from './ViewPChainButton';
@@ -23,7 +23,6 @@ export const WalletCard: FC<WalletCardProps> = ({
   children,
 }) => {
   const { t } = useTranslation();
-  const detailsRef = useRef<HTMLDivElement>(null);
   const {
     isLoading,
     hasErrorOccurred,
@@ -40,7 +39,7 @@ export const WalletCard: FC<WalletCardProps> = ({
         expanded={isExpanded}
         onChange={(_, expanded) => setIsExpanded(expanded)}
       >
-        <Styled.NarrowSummary
+        <Styled.AccordionSummary
           icon={cloneElement(icon, { expanded: isExpanded })}
         >
           <Stack
@@ -79,17 +78,10 @@ export const WalletCard: FC<WalletCardProps> = ({
               </>
             )}
           </Stack>
-        </Styled.NarrowSummary>
-        <AccordionDetails
-          ref={detailsRef}
-          sx={{
-            paddingInline: 1.5,
-          }}
-        >
-          {children}
-        </AccordionDetails>
+        </Styled.AccordionSummary>
+        <Styled.AccordionDetails>{children}</Styled.AccordionDetails>
       </Styled.Accordion>
-      {hasBalanceOnUnderivedAccounts && <ViewPChainButton />}
+      {isExpanded && hasBalanceOnUnderivedAccounts && <ViewPChainButton />}
     </>
   );
 };

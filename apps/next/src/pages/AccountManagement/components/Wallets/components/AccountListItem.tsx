@@ -1,7 +1,6 @@
 import { Typography } from '@/components/Typography';
 import {
   ListItem,
-  ListItemButton,
   ListItemIcon,
   ListItemText,
   PopoverPosition,
@@ -38,23 +37,13 @@ const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
 
   return (
     <ListItem disablePadding>
-      <ListItemButton
+      <Styled.ListItemButton
+        selected={selected}
         onClick={() => onSelect(account.id)}
         onContextMenu={(e) => {
           e.preventDefault();
           setPosition({ top: e.clientY, left: e.clientX });
         }}
-        sx={({ spacing, palette }) => ({
-          backgroundColor: selected
-            ? // @ts-expect-error Theme palette is not typed correctly
-              palette.surface.secondary
-            : // @ts-expect-error Theme palette is not typed correctly
-              palette.surface.primary,
-          gap: spacing(0.75),
-          paddingLeft: spacing(0.25),
-          paddingRight: spacing(2),
-          borderRadius: 1,
-        })}
       >
         <ListItemIcon sx={{ minWidth: 'unset ' }}>
           <MdCheck
@@ -99,7 +88,7 @@ const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
             </Stack>
           }
         />
-      </ListItemButton>
+      </Styled.ListItemButton>
       <AccountContextMenu
         account={account}
         position={position}
