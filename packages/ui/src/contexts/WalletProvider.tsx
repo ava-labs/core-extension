@@ -51,9 +51,9 @@ type WalletStateAndMethods = {
   renameWallet(id: string, name: string): Promise<any>;
 };
 
-const WalletContext = createContext<WalletStateAndMethods>({
-  wallets: [],
-} as any);
+const WalletContext = createContext<WalletStateAndMethods | undefined>(
+  undefined,
+);
 
 export type WalletContextProviderProps = PropsWithChildren<{
   LockedComponent: React.FC<{
@@ -229,5 +229,11 @@ export function WalletContextProvider({
 }
 
 export function useWalletContext() {
-  return useContext(WalletContext);
+  const context = useContext(WalletContext);
+  if (!context) {
+    throw new Error(
+      'useWalletContext must be used within a WalletContextProvider',
+    );
+  }
+  return context;
 }
