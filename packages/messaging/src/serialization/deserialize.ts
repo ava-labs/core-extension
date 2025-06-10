@@ -8,7 +8,7 @@ export type DeserializableValue =
       value: string;
     }
   | {
-      type: 'Buffer';
+      type: 'Buffer' | 'Uint8Array';
       value: number[];
     };
 
@@ -47,6 +47,8 @@ function deserializeValue({
       return BigInt(value);
     case 'Buffer':
       return Buffer.from(value);
+    case 'Uint8Array':
+      return Uint8Array.from(value);
     default:
       throw new Error('unhandled serialization');
   }
