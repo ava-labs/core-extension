@@ -1,6 +1,7 @@
 import { act } from 'react-dom/test-utils';
-import { useDisplaytokenlist } from './useDisplayTokenList';
+import { useDisplayTokenList } from './useDisplayTokenList';
 import { renderHook } from '@testing-library/react-hooks';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 const TOKENS = [
   {
@@ -87,13 +88,13 @@ const TOKENS = [
     balanceInCurrency: 1.72,
     type: 'ERC20',
   },
-];
+] as unknown as TokenWithBalance[];
 
 describe('sortTokens', () => {
   it('properly sorts tokens', async () => {
     const { result } = renderHook(() =>
-      useDisplaytokenlist({
-        tokensList: TOKENS as any,
+      useDisplayTokenList({
+        tokensList: TOKENS,
         searchQuery: '',
       }),
     );

@@ -39,7 +39,7 @@ const sortTokens = (tokens: DisplayToken[]): DisplayToken[] =>
     ['desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
   );
 
-export const useDisplaytokenlist = ({
+export const useDisplayTokenList = ({
   tokensList,
   searchQuery,
 }: {
