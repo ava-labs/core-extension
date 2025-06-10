@@ -14,8 +14,16 @@ export const sendRequest = async ({ path, payload, timeout }: Params) => {
   }
 
   const manifestResponse = await fetch(chrome.runtime.getURL('manifest.json'));
-  const manifestBuffer = await manifestResponse.arrayBuffer();
-  const encodedManifest = Buffer.from(manifestBuffer).toString('base64');
+  const manifest = await manifestResponse.json();
+
+  const orderedManifestKeys = Object.keys(manifest).sort();
+  const orderedManifest = new Map(
+    orderedManifestKeys.map((key) => [key, manifest[key]]),
+  );
+
+  const encodedManifest = Buffer.from(
+    JSON.stringify(Array.from(orderedManifest.entries())),
+  ).toString('base64');
 
   return fetch(`${process.env.ID_SERVICE_URL}/${path}`, {
     method: 'POST',

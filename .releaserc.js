@@ -103,7 +103,7 @@ const githubSetting = [
 const execSubmitBuildSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=legacy --core-version=<%= nextRelease.version %>`,
+    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=legacy`,
   },
 ];
 

@@ -12,7 +12,6 @@ import registerForChallenge from './utils/registerForChallenge';
 import verifyChallenge from './utils/verifyChallenge';
 
 // Implementation based on https://github.com/ava-labs/core-id-service/blob/main/docs/extension-appcheck-attestation.md
-// TODO: replace doc link
 @singleton()
 export class AppCheckService {
   #appCheck?: AppCheck;

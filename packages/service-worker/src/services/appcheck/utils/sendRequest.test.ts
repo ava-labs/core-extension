@@ -5,7 +5,7 @@ describe('sendRequest', () => {
   const realFetch = global.fetch;
 
   const manifestResponseMock = {
-    arrayBuffer: jest.fn(),
+    json: jest.fn(),
   };
 
   const responseMock = {
@@ -16,9 +16,9 @@ describe('sendRequest', () => {
     process.env = { ...realEnv };
     global.fetch = jest.fn();
 
-    jest
-      .mocked(manifestResponseMock.arrayBuffer)
-      .mockResolvedValue(Buffer.from('test', 'utf-8'));
+    jest.mocked(manifestResponseMock.json).mockResolvedValue({
+      version: '0.0.0',
+    });
 
     jest
       .mocked(global.fetch)
@@ -61,7 +61,7 @@ describe('sendRequest', () => {
         'Content-Type': 'application/json',
         'X-App-Version': '0.0.0',
         'X-App-Type': 'extension',
-        'X-App-Manifest': 'dGVzdA==',
+        'X-App-Manifest': 'W1sidmVyc2lvbiIsIjAuMC4wIl1d',
       },
       body: JSON.stringify({ foo: 'bar' }),
     });
@@ -90,7 +90,7 @@ describe('sendRequest', () => {
         'Content-Type': 'application/json',
         'X-App-Version': '0.0.0',
         'X-App-Type': 'extension',
-        'X-App-Manifest': 'dGVzdA==',
+        'X-App-Manifest': 'W1sidmVyc2lvbiIsIjAuMC4wIl1d',
         'X-Api-Key': 'testkey',
       },
       body: JSON.stringify({ foo: 'bar' }),
