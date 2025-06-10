@@ -6,11 +6,13 @@ import {
   menuItemClasses,
   Stack,
   styled,
+  toast,
   Tooltip,
   truncateAddress,
 } from '@avalabs/k2-alpine';
 import { stripAddressPrefix } from '@core/common';
 import { ComponentType, FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IconBaseProps } from 'react-icons';
 
 type Props = {
@@ -21,6 +23,8 @@ type Props = {
 };
 
 export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
+  const { t } = useTranslation();
+
   if (!address) {
     return null;
   }
@@ -46,6 +50,7 @@ export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
         size="small"
         onClick={() => {
           navigator.clipboard.writeText(address);
+          toast.success(t('Address copied!'));
           onClose();
         }}
       >
