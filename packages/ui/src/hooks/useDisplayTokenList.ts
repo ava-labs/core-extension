@@ -1,6 +1,6 @@
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { isNFT } from '@core/common';
-import { orderBy, property } from 'lodash';
+import { orderBy } from 'lodash';
 import { useMemo } from 'react';
 
 export interface DisplayToken<T extends TokenWithBalance = TokenWithBalance> {
@@ -32,9 +32,9 @@ const sortTokens = (tokens: DisplayToken[]): DisplayToken[] =>
     [
       isNativeToken,
       hasCurrencyValue,
-      property(['token', 'balanceInCurrency']),
-      property(['token', 'balance']),
-      property(['token', 'name']),
+      'token.balanceInCurrency',
+      'token.balance',
+      'token.name',
     ],
     ['desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
   );
