@@ -18,17 +18,14 @@ import {
   PersonalAvatar,
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
+import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { AvatarGrid } from './SelectAvatarScreen/components/AvatarGrid';
 
-type SelectAvatarScreenProps = {
-  step: number;
-  totalSteps: number;
-};
-
-export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
+export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
   step,
   totalSteps,
+  nextScreenPath,
 }) => {
   const { t } = useTranslation();
   const history = useHistory();
@@ -48,8 +45,8 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
     // Save avatar data URI. This way even if we accidentally remove or rename the image
     // in the repo, user won't lose their avatar.
     setAvatar(await getAvatarDataUri(selectedAvatar));
-    history.push(`/onboarding/import/recovery-phrase/enjoy-your-wallet`);
-  }, [history, setAvatar, selectedAvatar]);
+    history.push(nextScreenPath);
+  }, [history, setAvatar, selectedAvatar, nextScreenPath]);
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: onNext,
