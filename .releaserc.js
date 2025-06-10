@@ -12,9 +12,9 @@ and add it to the GITHUB_TOKEN env variable then specify what kind of release ou
 $ export GITHUB_TOKEN=<token>
 $ export RELEASE_TYPE=<production or alpha>
 $ run yarn run semantic-release -d
-
-
 */
+
+const fs = require('fs');
 
 const commitAnalyzerSetting = [
   '@semantic-release/commit-analyzer',
@@ -44,12 +44,24 @@ const execPatchAnyCommitSetting = [
   },
 ];
 
+const hasNextGenBuild =
+  process.env.NEXT_GEN_BUILD_STATUS === 'success' &&
+  fs.existsSync('dist-next/manifest.json');
+
+const manifestReplacePaths = ['dist/manifest.json'];
+const inpageReplacePaths = ['dist/inpage/js/inpage.js'];
+
+if (hasNextGenBuild) {
+  manifestReplacePaths.push('dist-next/manifest.json');
+  inpageReplacePaths.push('dist-next/inpage/js/inpage.js');
+}
+
 const releaseReplaceSetting = [
   '@google/semantic-release-replace-plugin',
   {
     replacements: [
       {
-        files: ['dist/manifest.json'],
+        files: manifestReplacePaths,
         from: '"version": ".*"',
         // Remove "-alpha" string from the version in the manifest.
         // Chrome only supports numbers and dots in the version number.
@@ -65,7 +77,7 @@ const releaseReplaceSetting = [
         countMatches: true,
       },
       {
-        files: ['dist/inpage/js/inpage.js'],
+        files: inpageReplacePaths,
         from: 'CORE_EXTENSION_VERSION',
         // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
         to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
@@ -136,6 +148,10 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
 module.exports = {
   // define a main version release branch even though we are doing all releases from main
   // this branch list gets overwritten in the production release Github Action
-  branches: ['release', { name: 'main', prerelease: 'alpha' }],
+  branches: [
+    'release',
+    { name: 'main', prerelease: 'alpha' },
+    { name: 'feat/ng-onboarding-new-phrase', prerelease: 'beta' },
+  ],
   plugins,
 };
