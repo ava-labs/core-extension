@@ -1,5 +1,6 @@
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { isNFT } from '@core/common';
+import { orderBy, property } from 'lodash';
 import { useMemo } from 'react';
 
 export interface DisplayToken<T extends TokenWithBalance = TokenWithBalance> {
@@ -25,71 +26,18 @@ const isNativeToken = (
 /**
  * Native tokens first, then tokens sorted by balance in currency, then tokens sorted by balance, then tokens sorted by symbol
  */
-const sortTokens = (tokens: DisplayToken[]): DisplayToken[] => {
-  const [nativeTokens, tokensWithCurrency, tokensWithoutCurrency] =
-    tokens.reduce<
-      [
-        DisplayToken<TokenWithBalance & { type: TokenType.NATIVE }>[],
-        DisplayToken<TokenWithBalance & { balanceInCurrency: number }>[],
-        DisplayToken<TokenWithBalance>[],
-      ]
-    >(
-      ([natives, withCurrencyValue, withoutCurrencyValue], displayToken) => {
-        if (isNativeToken(displayToken)) {
-          return [
-            [...natives, displayToken],
-            withCurrencyValue,
-            withoutCurrencyValue,
-          ];
-        }
-
-        if (hasCurrencyValue(displayToken)) {
-          return [
-            natives,
-            [...withCurrencyValue, displayToken],
-            withoutCurrencyValue,
-          ];
-        }
-
-        return [
-          natives,
-          withCurrencyValue,
-          [...withoutCurrencyValue, displayToken],
-        ];
-      },
-      [[], [], []],
-    );
-
-  return [
-    // native tokens always first
-    ...nativeTokens,
-    // then tokens with known fiat value
-    ...tokensWithCurrency.sort(({ token: a }, { token: b }) => {
-      // ...sorted by fiat value, descending
-      if (a.balanceInCurrency !== b.balanceInCurrency) {
-        return b.balanceInCurrency - a.balanceInCurrency;
-      }
-
-      // if fiat value is the same, then sort by balance (desc)
-      if (a.balance !== b.balance) {
-        return Number(BigInt(b.balance) - BigInt(a.balance));
-      }
-
-      // if balance is the same, then sort by name (asc)
-      return a.name.localeCompare(b.name);
-    }),
-    // tokens with unknown fiat value come last
-    ...tokensWithoutCurrency.sort(({ token: a }, { token: b }) => {
-      // sorted by balance (desc)
-      if (a.balance !== b.balance) {
-        return Number(BigInt(b.balance) - BigInt(a.balance));
-      }
-
-      // if balance is the same, then sort by name (asc)
-      return a.name.localeCompare(b.name);
-    }),
-  ];
-};
+const sortTokens = (tokens: DisplayToken[]): DisplayToken[] =>
+  orderBy(
+    tokens,
+    [
+      isNativeToken,
+      hasCurrencyValue,
+      property(['token', 'balanceInCurrency']),
+      property(['token', 'balance']),
+      property(['token', 'name']),
+    ],
+    ['desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
+  );
 
 export const useDisplaytokenlist = ({
   tokensList,
