@@ -52,7 +52,7 @@ export const CreatePassword = () => {
     onboardingWalletType,
   } = useOnboardingContext();
   const { isFlagEnabled } = useFeatureFlagContext();
-  const [walletName, setWalletName] = useState<string>();
+  const [walletName, setWalletName] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPasswordVal, setConfirmPasswordVal] = useState<string>('');
   const [termAndPolicyChecked, setTermAndPolicyChecked] =
