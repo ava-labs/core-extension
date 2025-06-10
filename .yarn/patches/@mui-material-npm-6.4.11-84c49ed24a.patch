@@ -1,0 +1,13 @@
+diff --git a/styles/createThemeNoVars.js b/styles/createThemeNoVars.js
+index 155988969c4947d85fcde9cb1b55faa266cb12f7..5945487cdd9e7218c36dfe52f7e5daff094d7bcd 100644
+--- a/styles/createThemeNoVars.js
++++ b/styles/createThemeNoVars.js
+@@ -67,7 +67,7 @@ function createThemeNoVars(options = {}, ...args) {
+     };
+     Object.keys(muiTheme.components).forEach(component => {
+       const styleOverrides = muiTheme.components[component].styleOverrides;
+-      if (styleOverrides && component.startsWith('Mui')) {
++      if (styleOverrides && typeof styleOverrides !== 'string' &&component.startsWith('Mui')) {
+         traverse(styleOverrides, component);
+       }
+     });

@@ -65,13 +65,13 @@ const releaseReplaceSetting = [
         countMatches: true,
       },
       {
-        files: ['dist/js/inpage.js'],
+        files: ['dist/inpage/js/inpage.js'],
         from: 'CORE_EXTENSION_VERSION',
         // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
         to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
         results: [
           {
-            file: 'dist/js/inpage.js',
+            file: 'dist/inpage/js/inpage.js',
             hasChanged: true,
             numMatches: 2,
             numReplacements: 2,
