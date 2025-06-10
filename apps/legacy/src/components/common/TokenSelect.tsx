@@ -33,7 +33,7 @@ import { BNInput } from '@/components/common/BNInput';
 import { TokenSelector } from './TokenSelector';
 import { TokenEllipsis } from './TokenEllipsis';
 import { DropdownItem } from './Dropdown';
-import { useDisplaytokenlist } from '@core/ui';
+import { useDisplayTokenList } from '@core/ui';
 import { TokenIcon } from './TokenIcon';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { bigintToBig } from '@core/common';
@@ -139,7 +139,7 @@ export function TokenSelect({
   );
   const hideTokenDropdown = tokensList && tokensList.length < 2;
 
-  const displayTokenList = useDisplaytokenlist({
+  const displayTokenList = useDisplayTokenList({
     tokensList,
     searchQuery,
   });
