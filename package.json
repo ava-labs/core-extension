@@ -45,7 +45,6 @@
     "@eslint/compat": "1.2.4",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.16.0",
-    "@google/semantic-release-replace-plugin": "1.1.0",
     "@lavamoat/allow-scripts": "2.0.0",
     "@lavamoat/preinstall-always-fail": "1.0.0",
     "@rsbuild/core": "1.3.3",
@@ -137,6 +136,6 @@
   "packageManager": "yarn@4.7.0+sha512.5a0afa1d4c1d844b3447ee3319633797bcd6385d9a44be07993ae52ff4facabccafb4af5dcd1c2f9a94ac113e5e9ff56f6130431905884414229e284e37bb7c9",
   "resolutions": {
     "@firebase/messaging@npm:0.12.17": "patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch",
-    "@mui/material@npm:^6.4.2": "patch:@mui/material@npm%3A6.4.11#~/.yarn/patches/@mui-material-npm-6.4.11-84c49ed24a.patch"
+    "@mui/material@npm:^6.4.10": "patch:@mui/material@npm%3A6.4.11#~/.yarn/patches/@mui-material-npm-6.4.11-84c49ed24a.patch"
   }
 }
