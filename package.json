@@ -13,7 +13,7 @@
     "build:legacy": "yarn build:packages && yarn workspace @core-ext/legacy run build",
     "build:legacy:alpha": "yarn build:packages && yarn workspace @core-ext/legacy run build:alpha",
     "build:next": "yarn build:packages:next && yarn workspace @core-ext/next run build",
-    "build:next:alpha": "echo oops; exit 1;",
+    "build:next:alpha": "yarn build:packages:next && yarn workspace @core-ext/next run build:alpha",
     "build": "yarn build:legacy",
     "build:alpha": "yarn build:legacy:alpha",
     "lint": "yarn workspaces foreach -Ap --exclude @core-ext/next run lint",

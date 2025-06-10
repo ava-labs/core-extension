@@ -50,7 +50,7 @@ const hasNextGenBuild =
 
 const replacementConfig = [
   {
-    files: 'dist/manifest.json',
+    files: ['dist/manifest.json'],
     from: '"version": ".*"',
     // Remove "-alpha" string from the version in the manifest.
     // Chrome only supports numbers and dots in the version number.
@@ -66,7 +66,7 @@ const replacementConfig = [
     countMatches: true,
   },
   {
-    files: 'dist/inpage/js/inpage.js',
+    files: ['dist/inpage/js/inpage.js'],
     from: 'CORE_EXTENSION_VERSION',
     // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
     to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
@@ -85,7 +85,7 @@ const replacementConfig = [
 if (hasNextGenBuild) {
   replacementConfig.push(
     {
-      files: 'dist-next/manifest.json',
+      files: ['dist-next/manifest.json'],
       from: '"version": ".*"',
       // Remove "-alpha" string from the version in the manifest.
       // Chrome only supports numbers and dots in the version number.
@@ -101,7 +101,7 @@ if (hasNextGenBuild) {
       countMatches: true,
     },
     {
-      files: 'dist-next/inpage/js/inpage.js',
+      files: ['dist-next/inpage/js/inpage.js'],
       from: 'CORE_EXTENSION_VERSION',
       // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
       to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
@@ -187,10 +187,6 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
 module.exports = {
   // define a main version release branch even though we are doing all releases from main
   // this branch list gets overwritten in the production release Github Action
-  branches: [
-    'release',
-    { name: 'main', prerelease: 'alpha' },
-    { name: 'feat/ng-onboarding-new-phrase', prerelease: 'beta' },
-  ],
+  branches: ['release', { name: 'main', prerelease: 'alpha' }],
   plugins,
 };
