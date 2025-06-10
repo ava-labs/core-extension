@@ -14,6 +14,7 @@ import { NewSeedphraseScreen } from './screens/NewSeedphraseScreen';
 import { ConfirmSeedphraseScreen } from './screens/ConfirmSeedphraseScreen';
 
 const BASE_PATH = '/onboarding/create';
+const TOTAL_STEPS = 5;
 
 export const CreateNewWalletFlow = () => {
   const history = useHistory();
@@ -45,28 +46,28 @@ export const CreateNewWalletFlow = () => {
         <Route exact path={BASE_PATH}>
           <NewSeedphraseScreen
             step={1}
-            totalSteps={5}
+            totalSteps={TOTAL_STEPS}
             nextScreenPath={`${BASE_PATH}/confirm-seedphrase`}
           />
         </Route>
         <Route path={`${BASE_PATH}/confirm-seedphrase`}>
           <ConfirmSeedphraseScreen
             step={2}
-            totalSteps={5}
+            totalSteps={TOTAL_STEPS}
             nextScreenPath={`${BASE_PATH}/wallet-details`}
           />
         </Route>
         <Route path={`${BASE_PATH}/wallet-details`}>
           <ProvideWalletDetailsScreen
             step={3}
-            totalSteps={5}
+            totalSteps={TOTAL_STEPS}
             nextScreenPath={`${BASE_PATH}/select-avatar`}
           />
         </Route>
         <Route path={`${BASE_PATH}/select-avatar`}>
           <SelectAvatarScreen
             step={4}
-            totalSteps={5}
+            totalSteps={TOTAL_STEPS}
             nextScreenPath={`${BASE_PATH}/enjoy-your-wallet`}
           />
         </Route>

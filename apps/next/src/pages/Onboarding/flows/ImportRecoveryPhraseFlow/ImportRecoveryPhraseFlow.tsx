@@ -12,6 +12,7 @@ import {
 import { EnterRecoveryPhraseScreen } from './screens';
 
 const BASE_PATH = '/onboarding/import/recovery-phrase';
+const TOTAL_STEPS = 5;
 
 export const ImportRecoveryPhraseFlow = () => {
   const { setOnboardingWalletType } = useOnboardingContext();
@@ -25,21 +26,21 @@ export const ImportRecoveryPhraseFlow = () => {
       <Route exact path={BASE_PATH}>
         <EnterRecoveryPhraseScreen
           step={2}
-          totalSteps={5}
+          totalSteps={TOTAL_STEPS}
           nextScreenPath={`${BASE_PATH}/wallet-details`}
         />
       </Route>
       <Route path={`${BASE_PATH}/wallet-details`}>
         <ProvideWalletDetailsScreen
           step={3}
-          totalSteps={5}
+          totalSteps={TOTAL_STEPS}
           nextScreenPath={`${BASE_PATH}/select-avatar`}
         />
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
           step={4}
-          totalSteps={5}
+          totalSteps={TOTAL_STEPS}
           nextScreenPath={`${BASE_PATH}/enjoy-your-wallet`}
         />
       </Route>
