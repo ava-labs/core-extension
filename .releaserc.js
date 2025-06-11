@@ -151,10 +151,15 @@ const githubSetting = [
   },
 ];
 
+const getSubmitBuildCmd = (target) =>
+  `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=${target}`;
+
 const execSubmitBuildSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=legacy`,
+    prepareCmd: hasNextGenBuild
+      ? `${getSubmitBuildCmd('legacy')} && ${getSubmitBuildCmd('next')}`
+      : getSubmitBuildCmd('legacy'),
   },
 ];
 
@@ -196,6 +201,10 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
 module.exports = {
   // define a main version release branch even though we are doing all releases from main
   // this branch list gets overwritten in the production release Github Action
-  branches: ['release', { name: 'main', prerelease: 'alpha' }],
+  branches: [
+    'release',
+    { name: 'main', prerelease: 'alpha' },
+    { name: 'feat/appcheck-v2', prerelease: 'beta' },
+  ],
   plugins,
 };
