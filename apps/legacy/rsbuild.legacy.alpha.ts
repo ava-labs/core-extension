@@ -4,12 +4,12 @@ import commonConfig from './rsbuild.legacy.common.ts';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
 import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
 
+const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'production',
   output: {
-    sourceMap: {
-      js: 'hidden-source-map',
-    },
+    sourceMap: skipSourceMap ? false : { js: 'hidden-source-map' },
   },
   source: {
     define: getEnvVars('production'),
