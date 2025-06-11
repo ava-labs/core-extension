@@ -33,7 +33,8 @@
     "scanner": "yarn scanner:legacy",
     "scanner:next": "yarn workspace @core-ext/next run scanner",
     "scanner:legacy": "yarn workspace @core-ext/legacy run scanner",
-    "sentry": "node sentryscript.js"
+    "sentry": "node sentryscript.js",
+    "submit-build": "node build-scripts/submitBuild.mjs"
   },
   "workspaces": [
     "apps/*",

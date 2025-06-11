@@ -46,6 +46,7 @@ jobs:
           echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
           echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
           echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
       - name: Install dependencies
         run: |
           yarn install
@@ -64,4 +65,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TYPE: production
+          ID_SERVICE_URL: ${{ secrets.ID_SERVICE_URL }}
+          ID_SERVICE_API_KEY: ${{ secrets.ID_SERVICE_API_KEY }}
         run: yarn run semantic-release --branches ${{ github.ref_name }}
