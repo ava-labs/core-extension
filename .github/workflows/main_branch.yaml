@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - feat/appcheck-v2
 jobs:
   release:
     name: Release Main Branch
@@ -56,8 +55,8 @@ jobs:
         run: |
           yarn install
           yarn allow-scripts
-      #- name: Run tests
-      #  run: yarn test
+      - name: Run tests
+        run: yarn test
       - name: Build app (Legacy)
         id: build_legacy
         run: yarn build:alpha
