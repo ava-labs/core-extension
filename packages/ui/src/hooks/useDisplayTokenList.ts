@@ -1,18 +1,45 @@
-import { TokenWithBalance } from '@avalabs/vm-module-types';
-import { isNFT, normalizeBalance } from '@core/common';
-import Big from 'big.js';
-import { partition } from 'lodash';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { isNFT } from '@core/common';
+import { orderBy } from 'lodash';
 import { useMemo } from 'react';
 
-export interface DisplayToken {
+export interface DisplayToken<T extends TokenWithBalance = TokenWithBalance> {
   name: string;
   symbol: string;
   displayValue: string;
-  token: TokenWithBalance;
+  token: T;
   decimals: number;
 }
 
-export const useDisplaytokenlist = ({
+const hasCurrencyValue = (
+  displayToken: DisplayToken,
+): displayToken is DisplayToken<
+  TokenWithBalance & { balanceInCurrency: number }
+> => typeof displayToken.token.balanceInCurrency === 'number';
+
+const isNativeToken = (
+  displayToken: DisplayToken,
+): displayToken is DisplayToken<
+  TokenWithBalance & { type: TokenType.NATIVE }
+> => displayToken.token.type === TokenType.NATIVE;
+
+/**
+ * Native tokens first, then tokens sorted by balance in currency, then tokens sorted by balance, then tokens sorted by symbol
+ */
+const sortTokens = (tokens: DisplayToken[]): DisplayToken[] =>
+  orderBy(
+    tokens,
+    [
+      isNativeToken,
+      hasCurrencyValue,
+      'token.balanceInCurrency',
+      'token.balance',
+      'token.name',
+    ],
+    ['desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
+  );
+
+export const useDisplayTokenList = ({
   tokensList,
   searchQuery,
 }: {
@@ -37,36 +64,7 @@ export const useDisplaytokenlist = ({
         };
       });
 
-    const [tokensWithBalance, tokensWithoutBalance]: DisplayToken[][] =
-      partition(initialList, (token) => {
-        const balance = normalizeBalance(token.token.balance, token.decimals);
-
-        return balance ? balance.gt(new Big(0)) : false;
-      });
-
-    // Sorting specification per: https://ava-labs.atlassian.net/browse/CP-7768
-    // First part of the list should be tokens with a balance sorted by balance (descending)
-    // Second part of the list should be all no balance assets in order alphabetically
-    return [
-      ...tokensWithBalance.sort((tokenOne, tokenTwo) => {
-        const firstBalance =
-          normalizeBalance(tokenOne.token.balance, tokenOne.decimals) ??
-          new Big(0);
-
-        const secondBalance =
-          normalizeBalance(tokenTwo.token.balance, tokenTwo.decimals) ??
-          new Big(0);
-
-        const comparison = firstBalance.cmp(secondBalance);
-        if (comparison) {
-          return comparison * -1;
-        }
-        return tokenOne.name.localeCompare(tokenTwo.name);
-      }),
-      ...tokensWithoutBalance.sort((tokenOne, tokenTwo) => {
-        return tokenOne.name.localeCompare(tokenTwo.name);
-      }),
-    ];
+    return sortTokens(initialList);
   }, [tokensList, searchQuery]);
   return displayTokenList;
 };
