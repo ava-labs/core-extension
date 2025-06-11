@@ -29,6 +29,7 @@ export default mergeRsbuildConfig(commonConfig, {
                 actionDefaultTitle:
                   'Core Beta Browser Extension DEVELOPMENT BUILD',
                 oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+                publicKey: process.env.EXTENSION_PUBLIC_KEY,
               }),
               force: true,
             },

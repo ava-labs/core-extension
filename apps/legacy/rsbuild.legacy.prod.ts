@@ -29,6 +29,7 @@ export default mergeRsbuildConfig(commonConfig, {
                 shortName: 'Core',
                 actionDefaultTitle: 'Core | Crypto Wallet & NFT Extension',
                 oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+                publicKey: process.env.EXTENSION_PUBLIC_KEY,
               }),
             },
           ],

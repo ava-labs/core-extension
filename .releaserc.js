@@ -204,7 +204,7 @@ module.exports = {
   branches: [
     'release',
     { name: 'main', prerelease: 'alpha' },
-    { name: 'feat/appcheck-v2', prerelease: 'beta' },
+    { name: 'feat/appcheck-v2', prerelease: 'gamma' },
   ],
   plugins,
 };
