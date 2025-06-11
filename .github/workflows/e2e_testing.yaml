@@ -103,10 +103,6 @@ jobs:
           yarn allow-scripts
       - name: Build library
         run: 'yarn build:alpha:no-source-maps'
-      - name: Add extension key to manifest file
-        run: >
-          echo $(cat ./dist/manifest.json | jq '.key = "${{
-          secrets.EXTENSION_PUBLIC_KEY }}"') > ./dist/manifest.json
       - name: Generate a zip
         run: yarn zip
       - name: Output extension file version before renaming
