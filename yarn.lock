@@ -129,7 +129,7 @@ __metadata:
     coinselect: ^3.1.12
     ethers: ^6.7.1
     react: ^17.0.2
-  checksum: 10c0/9d9ec63150957252476ca37987ce66af250c771057374a05bda53203e89a8233341f5ca5ec83bb622ad3979da53ffb9a9b8f78441f93cc0d84843ecd5ab1e06e
+  checksum: 10c0/f12575cba5855f249f5630ec4a431233d8dbb92a4d409e402e2205860aba4dfc416fdd5c5ad4be2e613af4fadd326a1e8760511ecf80e27f5fb33eaecc513a59
   languageName: node
   linkType: hard
 
@@ -156,7 +156,7 @@ __metadata:
   resolution: "@avalabs/core-chains-sdk@npm:3.1.0-canary.de02ccd.0"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/ddf8714c3ab64331a58cdf359b3e5dff725b3c65d2354daad4ce3cfa051daea5fc84f7d5271dd7519bedd9ed845755ecec35cd263cb1022a8fd414b459fa3174
+  checksum: 10c0/a391777f4e9e171b85f4d403ae52ba70ac413b738f0b476b54ad66338ad74db8c5f4dcc916840b1b9a8e846fc2fab5b9a96148b6e315599cf6f1e28e36764f39
   languageName: node
   linkType: hard
 
@@ -183,7 +183,7 @@ __metadata:
   resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-canary.de02ccd.0"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/d24391a31366f8f94bf92db61606dad898cb9f62476fcf31e0a451b27e2d520e923e5e0806790341e9da2acc92241c4da6c1b588344653357d322fa24358a63c
+  checksum: 10c0/d4bd5be665f0617f22f9c74000b759c0b5adcb2f25f26a77e3e86bfef73bf88c2688f53e29323fd19ca184fae3aed78858ec526ec3c6858b877bfbe8429a2e13
   languageName: node
   linkType: hard
 
@@ -192,7 +192,7 @@ __metadata:
   resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-canary.de02ccd.0"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/3e363292485e448e8c7001f778ab695d3b5855d26c155951681c0dc0942d0d8a04eeaf3b961e9473f3114d9a099373f29342ac9e00e2cc60294285c312b62e3b
+  checksum: 10c0/2cd4e81b3fb63f01dbb112bb603edec0fe8ce013ada061c8abe9279f8925724afe8983cb240b4c2e3d95a80c2b5819b74e4052835df63f506b8f068093c8f34e
   languageName: node
   linkType: hard
 
@@ -219,7 +219,7 @@ __metadata:
   resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-canary.de02ccd.0"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/0ebb2fc5fc8f1db21b49b5bff702b6dae009c2399f80c44403cd837c0b1fea9c847c72b0b52b01adb43fcb2ab3d7643427a53f33cf10276ea153a25b4222f61c
+  checksum: 10c0/23e490c5c3bc9fef664cee6f460887189d83dc002eba4d2745026e0912200537fb3181e04310511183dc8df49ca2ab76c5701a0d73323da88a7f9e267ab20096
   languageName: node
   linkType: hard
 
@@ -229,7 +229,7 @@ __metadata:
   dependencies:
     "@noble/hashes": "npm:1.7.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/e93717dd71176b27a1939b5d7722c37b4fe4c9942f88b77f9a286246a6cc3f8e21c1cd92691fe614a51adb028eddfac8d79dda6fceeb0a8f4a2175c35588abb7
+  checksum: 10c0/03fd00270e9534c5c454c1090b9de322ae71a54de33404fe9889f4ca6fb96ca09b2aca8c962083fd7b5b8f36d2dc37935cb397e63af80bc40da80e39615bf381
   languageName: node
   linkType: hard
 
@@ -267,7 +267,7 @@ __metadata:
   resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.de02ccd.0"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/aaea7711da82e664b4f9728791970f2a2ba05db8b25ae25aa2d5075f2368c8360343b5d1468852faab46b43f653ba002cb2d7a779e7967bcb9c22c40c6a79e1f
+  checksum: 10c0/cd207bb9c796a525f6f7a776e9e8f22499c508e22f097b9c35d2d535c26994b8975a1a799554dd872162f80104c5b3f53fc44378d75d54e610edb52a8f110644
   languageName: node
   linkType: hard
 
@@ -277,7 +277,7 @@ __metadata:
   dependencies:
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.de02ccd.0"
     "@avalabs/core-utils-sdk": "npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/66652b524a7ec12a1fa64fc898ff3c712e8fd531f85dc5df6bdd51f3099ace6d82be129314a4523c163248d295b58b4ec0745136322afb4102e72e6129f6266a
+  checksum: 10c0/03926fedcd8010e32af2e3a85f83bb693dd58fa4d7f1bce80c1ba1826ae1e51d7639b556034b8016e84e28309f5e9ff7913e33154a35e71e620ecc59059a8a60
   languageName: node
   linkType: hard
 
@@ -319,7 +319,7 @@ __metadata:
     big.js: ^6.2.1
     bn.js: ^5.2.1
     ethers: ^6.7.1
-  checksum: 10c0/388c6b6c34aaaaa79afee0f1fa8c5080749e727f09e0da658fb82fc45eebf24e228815b7dc32ff2d5576c8be17f6702e2bbf26cb5a1bce038f5e8ac249222b17
+  checksum: 10c0/5f3fc6bec16523f0c2551dda53ce30f91e6d7d9ba29b6535c98a6460d616ca871f6048e6964f6529ad8067eea60028da8bf0560b3c5e854e8e71f2ee616b4214
   languageName: node
   linkType: hard
 
@@ -424,7 +424,7 @@ __metadata:
     xss: "npm:1.0.14"
   peerDependencies:
     ethers: ^6.7.1
-  checksum: 10c0/6f60015b1b6da77cc7c4cad8610e65205d1f500f33bfc57bf6d33ead9f5c4d727f27d13b9f2347b57dda9327a54201368052204ebec0287df46493bedf24030d
+  checksum: 10c0/9f0915856a19341a5e1c9ccbb9597a6aea109b2d1e4f54cbb848b8a0fd6d090e2e116721352cb395b10563d128cc36df6caed9381817076ad7c27233d85a77ef
   languageName: node
   linkType: hard
 
@@ -495,7 +495,7 @@ __metadata:
 "@avalabs/glacier-sdk@npm:3.1.0-canary.de02ccd.0":
   version: 3.1.0-canary.de02ccd.0
   resolution: "@avalabs/glacier-sdk@npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/4fad173b717e353f1b3e55d112f5d38a7d182b6278182e08b36c5a99c1d182e97012aa7a08855e7d0b6908b8f4a93ed719be274fee8fa0103ac1c38e9aab1f82
+  checksum: 10c0/bf57c6f8ff311ab336ed635102242d74c18338cdb99c936c7642feb3cddfbbe97559ced0c71c13cf81e5ed66fb2add2be8f59c207ceedcf371459314081c96cd
   languageName: node
   linkType: hard
 
@@ -608,7 +608,7 @@ __metadata:
 "@avalabs/types@npm:3.1.0-canary.de02ccd.0":
   version: 3.1.0-canary.de02ccd.0
   resolution: "@avalabs/types@npm:3.1.0-canary.de02ccd.0"
-  checksum: 10c0/68f57ded804b835e5292fb63a5dd794497aad2c64fae4c5f862665f4089da6e09285235d4fce92820c49351f450ff24f5fbf7b9fd985c669c2ce20af9a937d81
+  checksum: 10c0/f36cd28791474edeb3002f101635d896950d6dad6a63f866f5d012956a0a6212865959189dff73fd3fef4283ab8cffc7dd6cec74f6c9bb23774055050a8d4bc4
   languageName: node
   linkType: hard
 
