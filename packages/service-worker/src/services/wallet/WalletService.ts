@@ -853,7 +853,10 @@ export class WalletService implements OnUnlock {
     }
     // TODO: These are currently fixed to X/P chains, do we need core eth support?
 
-    if (wallet instanceof Avalanche.SimpleLedgerSigner) {
+    if (
+      wallet instanceof Avalanche.SimpleLedgerSigner ||
+      wallet instanceof Avalanche.LedgerSigner
+    ) {
       if (!this.ledgerService.recentTransport) {
         throw new Error('Ledger transport not available');
       }
