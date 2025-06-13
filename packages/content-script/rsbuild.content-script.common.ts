@@ -37,6 +37,12 @@ export default defineConfig(() => {
     },
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
+      fallback: {
+        path: false,
+        fs: false,
+        Buffer: false,
+        process: false,
+      },
     },
     plugins: [pluginNodePolyfill()],
     tools: {

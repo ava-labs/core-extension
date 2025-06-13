@@ -5,7 +5,7 @@ import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
-export default defineConfig({
+export default defineConfig(() => ({
   environments: {
     web: {
       html: {
@@ -72,6 +72,12 @@ export default defineConfig({
       'react-dom': path.resolve('./node_modules/react-dom'),
       path: require.resolve('path-browserify'),
     },
+    fallback: {
+      path: false,
+      fs: false,
+      Buffer: false,
+      process: false,
+    },
   },
   plugins: [
     pluginNodePolyfill(),
@@ -108,4 +114,4 @@ export default defineConfig({
       });
     },
   },
-});
+}));

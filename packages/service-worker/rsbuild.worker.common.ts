@@ -50,6 +50,12 @@ export default defineConfig(() => {
         joi: require.resolve('joi/lib/index.js'),
       },
       dedupe: ['bn.js'],
+      fallback: {
+        path: false,
+        fs: false,
+        Buffer: false,
+        process: false,
+      },
     },
     plugins: [
       pluginNodePolyfill(),

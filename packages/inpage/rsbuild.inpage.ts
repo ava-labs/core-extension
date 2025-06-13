@@ -60,6 +60,12 @@ export default defineConfig(({ envMode }) => {
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
       alias: {},
+      fallback: {
+        path: false,
+        fs: false,
+        Buffer: false,
+        process: false,
+      },
     },
     plugins: [pluginNodePolyfill()],
     tools: {

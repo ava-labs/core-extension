@@ -5,7 +5,7 @@ import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
 import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 
-export default defineConfig({
+export default defineConfig(() => ({
   environments: {
     web: {
       html: {
@@ -70,6 +70,12 @@ export default defineConfig({
       joi: path.resolve('../../node_modules/joi/lib/index.js'),
     },
     dedupe: ['bn.js'],
+    fallback: {
+      path: false,
+      fs: false,
+      Buffer: false,
+      process: false,
+    },
   },
   plugins: [
     pluginNodePolyfill(),
@@ -106,4 +112,4 @@ export default defineConfig({
       });
     },
   },
-});
+}));
