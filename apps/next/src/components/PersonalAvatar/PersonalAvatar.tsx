@@ -13,7 +13,7 @@ import { AVATAR_DICTIONARY, PersonalAvatarName } from './avatar-dictionary';
 
 type PersonalAvatarSharedProps = {
   isGlowing?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
   selected?: boolean;
   dimmed?: boolean;
 };
