@@ -11,7 +11,8 @@ import {
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC } from 'react';
-import { AddressItem } from './components/AddressItem';
+import { AddressItem } from '../../AddressItem';
+import * as Styled from '../../Styled';
 
 type Props = {
   position: PopoverPosition | undefined;
@@ -55,31 +56,35 @@ export const AccountContextMenu: FC<Props> = ({
         label="Avalanche C-Chain"
         Icon={CChainIcon}
         address={account.addressC}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Avalanche X-Chain"
         Icon={XPChainIcon}
         address={account.addressAVM}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Bitcoin"
         Icon={BitcoinColorIcon}
         address={account.addressBTC}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Ethereum"
         Icon={EthereumColorIcon}
         address={account.addressC}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Solana"
         Icon={SolanaColorIcon}
         address={account.addressSVM}
-        onClose={onClose}
+        onClick={onClose}
       />
     </Menu>
   );

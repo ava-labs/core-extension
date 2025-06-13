@@ -1,10 +1,11 @@
 import { Typography } from '@/components/Typography';
 import {
   Button,
+  ListItem,
+  listItemClasses,
   ListItemIcon,
-  MenuItem,
-  menuItemClasses,
   Stack,
+  TypographyProps,
   styled,
   toast,
   Tooltip,
@@ -18,11 +19,24 @@ import { IconBaseProps } from 'react-icons';
 type Props = {
   Icon: ComponentType<IconBaseProps>;
   label: string;
+  labelVariant?: TypographyProps['variant'];
   address: string | undefined;
-  onClose: VoidFunction;
+  onClick?: VoidFunction;
+  copyActionVisibility?: 'always' | 'hover';
 };
 
-export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
+const ItemIcon = styled(ListItemIcon)({
+  minWidth: 36,
+});
+
+export const AddressItem: FC<Props> = ({
+  Icon,
+  label,
+  labelVariant = 'caption',
+  address,
+  onClick,
+  copyActionVisibility = 'hover',
+}) => {
   const { t } = useTranslation();
 
   if (!address) {
@@ -30,42 +44,49 @@ export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
   }
 
   const strippedAddress = stripAddressPrefix(address);
+  const CopyActionButton =
+    copyActionVisibility === 'always' ? CopyButton : GhostCopyButton;
 
   return (
-    <MenuItem>
-      <ListItemIcon>
+    <ListItem>
+      <ItemIcon>
         <Icon />
-      </ListItemIcon>
-      <Stack direction="column" gap={0.5} marginInlineEnd={1}>
-        <Typography variant="caption">{label}</Typography>
+      </ItemIcon>
+      <Stack direction="column" gap={0} marginInlineEnd={1}>
+        <Typography variant={labelVariant}>{label}</Typography>
         <Tooltip title={strippedAddress} enterDelay={1000}>
-          <Typography variant="monospace" color="text.secondary">
+          <Typography variant="monospace10" color="text.secondary">
             {truncateAddress(strippedAddress)}
           </Typography>
         </Tooltip>
       </Stack>
-      <GhostButton
+      <CopyActionButton
         variant="contained"
         color="secondary"
         size="small"
         onClick={() => {
           navigator.clipboard.writeText(address);
-          toast.success(t('Address copied!'));
-          onClose();
+          toast.success(t('Address copied!'), {
+            id: 'address-copied',
+          });
+          onClick?.();
         }}
       >
         Copy
-      </GhostButton>
-    </MenuItem>
+      </CopyActionButton>
+    </ListItem>
   );
 };
 
-const GhostButton = styled(Button)(({ theme }) => ({
+const CopyButton = styled(Button)({
   marginInlineStart: 'auto',
+});
+
+const GhostCopyButton = styled(CopyButton)(({ theme }) => ({
   opacity: 0,
   transition: theme.transitions.create(['opacity']),
 
-  [`.${menuItemClasses.root}:hover &`]: {
+  [`.${listItemClasses.root}:hover &`]: {
     opacity: 1,
   },
 }));
