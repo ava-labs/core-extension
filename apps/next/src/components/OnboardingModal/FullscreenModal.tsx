@@ -7,9 +7,7 @@ export const FullscreenModal = styled(Dialog)(({ theme }) => ({
     maxWidth: '600px',
     height: '80vh',
     maxHeight: '720px',
-    // @ts-expect-error - Broken Theme type in @avalabs/k2-alpine
     borderRadius: theme.shape.largeBorderRadius,
-    // @ts-expect-error - Broken Theme type in @avalabs/k2-alpine
     backgroundColor: theme.palette.surface.secondary,
     borderStyle: 'solid',
     borderWidth: 1,

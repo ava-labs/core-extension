@@ -9,8 +9,7 @@ export * from '../../Styled';
 export const Card = styled(K2Card)(({ theme }) => ({
   backgroundColor:
     theme.palette.mode === 'light'
-      ? // @ts-expect-error - K2 Alpine types are not updated
-        theme.palette.surface.primary
+      ? theme.palette.surface.primary
       : theme.palette.background.paper,
 }));
 
