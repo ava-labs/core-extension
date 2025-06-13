@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -10,9 +10,10 @@ import {
 } from '@avalabs/k2-alpine';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
-// FIXME: import from @avalabs/k2-alpine
 import { FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
+
+import { useAnalyticsContext } from '@core/ui';
 
 import { CoreSplash } from '@/components/CoreSplash';
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -21,12 +22,20 @@ import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBac
 
 import { ImportWallet } from './ImportWallet';
 import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
+import { CreateNewWalletFlow } from './flows/CreateNewWallet';
 
 export function Onboarding() {
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
+  const { initAnalyticsIds } = useAnalyticsContext();
+
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
+
+  useEffect(() => {
+    initAnalyticsIds(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -85,6 +94,9 @@ export function Onboarding() {
                   variant="contained"
                   color="secondary"
                   size="large"
+                  onClick={() => {
+                    history.push('/onboarding/create');
+                  }}
                 >
                   {t('Manually create new wallet')}
                 </Button>
@@ -111,6 +123,9 @@ export function Onboarding() {
           <Switch>
             <Route path="/onboarding/import">
               <ImportWallet />
+            </Route>
+            <Route path="/onboarding/create">
+              <CreateNewWalletFlow />
             </Route>
           </Switch>
         </Suspense>

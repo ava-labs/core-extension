@@ -1,6 +1,6 @@
 import { Trans } from 'react-i18next';
 import { Checkbox, combineSx, StackProps } from '@avalabs/k2-alpine';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 
 import {
   Section,
@@ -20,10 +20,6 @@ export const TermsAgreementSection: FC<Props> = ({
 }) => {
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
-  useEffect(() => {
-    onValidityChange(isTermsAccepted);
-  }, [isTermsAccepted, onValidityChange]);
-
   return (
     <Section sx={combineSx({ py: 0.5 }, sx)} {...props}>
       <SectionRow
@@ -38,7 +34,10 @@ export const TermsAgreementSection: FC<Props> = ({
       >
         <Checkbox
           checked={isTermsAccepted}
-          onChange={(e) => setIsTermsAccepted(e.target.checked)}
+          onChange={(e) => {
+            setIsTermsAccepted(e.target.checked);
+            onValidityChange(e.target.checked);
+          }}
         />
         <SectionLabel>
           <Trans

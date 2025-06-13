@@ -7,9 +7,7 @@ import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'production',
   source: {
-    define: {
-      define: getEnvVars('production'),
-    },
+    define: getEnvVars('production'),
   },
   tools: {
     rspack: {
@@ -25,6 +23,7 @@ export default mergeRsbuildConfig(commonConfig, {
                 shortName: '[alpha] Core NextGen',
                 actionDefaultTitle: '[alpha] Core NextGen Browser Extension',
                 oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+                publicKey: process.env.NEXT_GEN_EXTENSION_PUBLIC_KEY,
               }),
               force: true,
             },

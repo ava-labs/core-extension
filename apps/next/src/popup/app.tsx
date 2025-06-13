@@ -3,6 +3,10 @@ import {
   toast,
   CircularProgress,
   Stack,
+  CircularProgress,
+  IconButton,
+  ThemeProvider,
+  toast,
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
@@ -11,6 +15,11 @@ import {
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
+import AccountManagement from '@/pages/AccountManagement/AccountManagement';
+import { LockScreen } from '@/pages/LockScreen';
+import { Onboarding } from '@/pages/Onboarding';
+import { MdSwitchAccount } from 'react-icons/md';
+import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { Onboarding } from '@/pages/Onboarding';
 import { LockScreen } from '@/pages/LockScreen';
@@ -35,6 +44,7 @@ const pagesWithoutHeader = [
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
+  const history = useHistory();
 
   if (!preferredColorScheme) {
     return <CircularProgress />;
@@ -59,12 +69,25 @@ export function App() {
         <WalletContextProvider LockedComponent={LockScreen} key={4} />,
       ]}
     >
-      {displayHeader && (
-        <Stack sx={{ width: 1 }}>
-          <Header />
-        </Stack>
-      )}
-      <>Under construction 🚧</>
+      <Switch>
+        <Route path="/account-management" component={AccountManagement} />
+        <Route
+          path="/"
+          render={() => (
+            <div>
+              {displayHeader && (
+                <Stack sx={{ width: 1 }}>
+                  <Header />
+                </Stack>
+              )}
+              <div>Under construction 🚧</div>
+              <IconButton onClick={() => history.push('/account-management')}>
+                <MdSwitchAccount />
+              </IconButton>
+            </div>
+          )}
+        />
+      </Switch>
     </Providers>
   );
 }

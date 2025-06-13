@@ -12,9 +12,9 @@ and add it to the GITHUB_TOKEN env variable then specify what kind of release ou
 $ export GITHUB_TOKEN=<token>
 $ export RELEASE_TYPE=<production or alpha>
 $ run yarn run semantic-release -d
-
-
 */
+
+const fs = require('fs');
 
 const commitAnalyzerSetting = [
   '@semantic-release/commit-analyzer',
@@ -44,55 +44,106 @@ const execPatchAnyCommitSetting = [
   },
 ];
 
-const releaseReplaceSetting = [
-  '@google/semantic-release-replace-plugin',
+const hasNextGenBuild =
+  process.env.NEXT_GEN_BUILD_STATUS === 'success' &&
+  fs.existsSync('dist-next/manifest.json');
+
+const replacementConfig = [
   {
-    replacements: [
+    files: ['dist/manifest.json'],
+    from: '"version": ".*"',
+    // Remove "-alpha" string from the version in the manifest.
+    // Chrome only supports numbers and dots in the version number.
+    to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
+    results: [
       {
-        files: ['dist/manifest.json'],
-        from: '"version": ".*"',
-        // Remove "-alpha" string from the version in the manifest.
-        // Chrome only supports numbers and dots in the version number.
-        to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
-        results: [
-          {
-            file: 'dist/manifest.json',
-            hasChanged: true,
-            numMatches: 1,
-            numReplacements: 1,
-          },
-        ],
-        countMatches: true,
-      },
-      {
-        files: ['dist/js/inpage.js'],
-        from: 'CORE_EXTENSION_VERSION',
-        // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
-        to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
-        results: [
-          {
-            file: 'dist/js/inpage.js',
-            hasChanged: true,
-            numMatches: 2,
-            numReplacements: 2,
-          },
-        ],
-        countMatches: true,
+        file: 'dist/manifest.json',
+        hasChanged: true,
+        numMatches: 1,
+        numReplacements: 1,
       },
     ],
+    countMatches: true,
+  },
+  {
+    files: ['dist/inpage/js/inpage.js'],
+    from: 'CORE_EXTENSION_VERSION',
+    // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
+    to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
+    results: [
+      {
+        file: 'dist/inpage/js/inpage.js',
+        hasChanged: true,
+        numMatches: 2,
+        numReplacements: 2,
+      },
+    ],
+    countMatches: true,
   },
 ];
 
+if (hasNextGenBuild) {
+  replacementConfig.push(
+    {
+      files: ['dist-next/manifest.json'],
+      from: '"version": ".*"',
+      // Remove "-alpha" string from the version in the manifest.
+      // Chrome only supports numbers and dots in the version number.
+      to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
+      results: [
+        {
+          file: 'dist-next/manifest.json',
+          hasChanged: true,
+          numMatches: 1,
+          numReplacements: 1,
+        },
+      ],
+      countMatches: true,
+    },
+    {
+      files: ['dist-next/inpage/js/inpage.js'],
+      from: 'CORE_EXTENSION_VERSION',
+      // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
+      to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
+      results: [
+        {
+          file: 'dist-next/inpage/js/inpage.js',
+          hasChanged: true,
+          numMatches: 2,
+          numReplacements: 2,
+        },
+      ],
+      countMatches: true,
+    },
+  );
+}
+
+const releaseReplaceSetting = [
+  '@google/semantic-release-replace-plugin',
+  {
+    replacements: replacementConfig,
+  },
+];
+
+const assets = [
+  {
+    path: 'builds/avalanche-wallet-extension.zip',
+    name: 'Avalanche-wallet-extension-${nextRelease.gitTag}.zip',
+    label: 'Wallet Extension (${nextRelease.gitTag})',
+  },
+];
+
+if (hasNextGenBuild) {
+  assets.push({
+    path: 'builds/avalanche-wallet-extension-next.zip',
+    name: 'NextGen-Core-Extension-${nextRelease.gitTag}.zip',
+    label: '[NextGen] Core Extension (${nextRelease.gitTag})',
+  });
+}
 const githubSetting = [
   '@semantic-release/github',
   {
-    assets: [
-      {
-        path: 'builds/avalanche-wallet-extension.zip',
-        name: 'Avalanche-wallet-extension-${nextRelease.gitTag}.zip',
-        label: 'Wallet Extension (${nextRelease.gitTag})',
-      },
-    ],
+    assets,
     failTitle: false,
     successComment: false,
     failComment: false,
@@ -100,10 +151,22 @@ const githubSetting = [
   },
 ];
 
+const getSubmitBuildCmd = (target) =>
+  `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=${target}`;
+
+const execSubmitBuildSetting = [
+  '@semantic-release/exec',
+  {
+    prepareCmd: hasNextGenBuild
+      ? `${getSubmitBuildCmd('legacy')} && ${getSubmitBuildCmd('next')}`
+      : getSubmitBuildCmd('legacy'),
+  },
+];
+
 const execZipSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: 'yarn zip',
+    prepareCmd: hasNextGenBuild ? 'yarn zip && yarn zip:next' : 'yarn zip',
   },
 ];
 
@@ -120,6 +183,7 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
     commitAnalyzerSetting,
     execSentryReleaseSetting,
     releaseReplaceSetting,
+    execSubmitBuildSetting,
     execZipSetting,
     githubSetting,
   ];
@@ -128,6 +192,7 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
     execPatchAnyCommitSetting,
     execSentryReleaseSetting,
     releaseReplaceSetting,
+    execSubmitBuildSetting,
     execZipSetting,
     githubSetting,
   ];

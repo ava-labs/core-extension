@@ -4,12 +4,15 @@ import commonConfig from './rsbuild.legacy.common.ts';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
 import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
 
+const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+
 export default mergeRsbuildConfig(commonConfig, {
   mode: 'production',
+  output: {
+    sourceMap: skipSourceMap ? false : { js: 'hidden-source-map' },
+  },
   source: {
-    define: {
-      define: getEnvVars('production'),
-    },
+    define: getEnvVars('production'),
   },
   tools: {
     rspack: {
@@ -26,6 +29,7 @@ export default mergeRsbuildConfig(commonConfig, {
                 actionDefaultTitle:
                   'Core Beta Browser Extension DEVELOPMENT BUILD',
                 oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
+                publicKey: process.env.EXTENSION_PUBLIC_KEY,
               }),
               force: true,
             },

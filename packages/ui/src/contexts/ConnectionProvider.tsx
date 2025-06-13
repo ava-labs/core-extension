@@ -35,12 +35,14 @@ export interface ConnectionContextType {
   tabId: number;
 }
 
-const ConnectionContext = createContext<ConnectionContextType>({} as any);
+const ConnectionContext = createContext<ConnectionContextType | undefined>(
+  undefined,
+);
 
 export function ConnectionContextProvider({
   children,
   LoadingComponent,
-}: PropsWithChildren<{ children?: any; LoadingComponent: React.FC }>) {
+}: PropsWithChildren<{ LoadingComponent: React.FC }>) {
   const [connection, setConnection] = useState<Runtime.Port>();
 
   useEffect(() => {
@@ -102,5 +104,11 @@ export function ConnectionContextProvider({
 }
 
 export function useConnectionContext() {
-  return useContext(ConnectionContext);
+  const context = useContext(ConnectionContext);
+  if (!context) {
+    throw new Error(
+      'useConnectionContext must be used within a ConnectionContextProvider',
+    );
+  }
+  return context;
 }

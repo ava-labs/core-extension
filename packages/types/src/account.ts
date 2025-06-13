@@ -110,10 +110,7 @@ export type WalletId = string;
 export interface Accounts {
   active?: Account;
   primary: Record<WalletId, PrimaryAccount[]>;
-  imported: Record<
-    string,
-    ImportedAccount | WalletConnectAccount | FireblocksAccount
-  >;
+  imported: Record<string, ImportedAccount>;
 }
 
 export const ACCOUNTS_STORAGE_KEY = 'accounts';

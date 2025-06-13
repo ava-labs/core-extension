@@ -19,6 +19,7 @@ import {
 } from '@avalabs/core-k2-components';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import {
+  NetworkVMType,
   RpcMethod,
   TokenType,
   TokenWithBalanceERC20,
@@ -93,6 +94,10 @@ export function Prompt() {
         if (!network) {
           throw new Error(`No network`);
         }
+        if (network.vmName !== NetworkVMType.EVM) {
+          throw new Error('Only EVM networks supported at the moment');
+        }
+
         const provider = await getProviderForNetwork(network);
         if (!provider) {
           throw new Error(`No network`);
@@ -202,6 +207,9 @@ export function Prompt() {
         fromTokenAddress: string;
         toTokenAddress: string;
       }) => {
+        if (network && network.vmName !== NetworkVMType.EVM) {
+          throw new Error('Only EVM networks supported at the moment');
+        }
         const srcToken = tokens.find(
           (item) =>
             item.symbol === fromTokenAddress ||
@@ -385,6 +393,7 @@ export function Prompt() {
             id: n.caipId,
             name: n.chainName,
             isTestnet: n.isTestnet,
+            vmName: n.vmName,
           })),
         ),
       )
@@ -639,7 +648,7 @@ export function Prompt() {
                 p: 2,
               }}
             >
-              <Typography variant="h4">{t('Core AI Assistant')}</Typography>
+              <Typography variant="h4">{t('Core Concierge')}</Typography>
               <Button
                 variant="text"
                 onClick={() => {

@@ -3970,7 +3970,6 @@ __metadata:
     "@ethereumjs/common": "npm:2.6.5"
     "@ethereumjs/tx": "npm:3.4.0"
     "@google/generative-ai": "npm:0.22.0"
-    "@google/semantic-release-replace-plugin": "npm:1.1.0"
     "@hpke/core": "npm:1.2.5"
     "@keystonehq/animated-qr": "npm:0.5.2"
     "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
@@ -3993,9 +3992,6 @@ __metadata:
     "@rsdoctor/rspack-plugin": "npm:1.0.2"
     "@rspack/core": "npm:1.3.2"
     "@scure/base": "npm:1.2.4"
-    "@semantic-release/commit-analyzer": "npm:9.0.2"
-    "@semantic-release/exec": "npm:6.0.3"
-    "@semantic-release/github": "npm:8.0.2"
     "@sentry/browser": "npm:7.66.0"
     "@sentry/integrations": "npm:7.66.0"
     "@sentry/react": "npm:7.66.0"
@@ -4094,7 +4090,6 @@ __metadata:
     react-window: "npm:1.8.11"
     reflect-metadata: "npm:0.1.13"
     rxjs: "npm:7.8.2"
-    semantic-release: "npm:19.0.3"
     semver: "npm:7.6.0"
     shell-quote: "npm:1.8.1"
     style-loader: "npm:3.3.1"
@@ -6368,22 +6363,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/core@npm:^1.7.1":
-  version: 1.7.1
-  resolution: "@floating-ui/core@npm:1.7.1"
+"@floating-ui/core@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@floating-ui/core@npm:1.7.0"
   dependencies:
     "@floating-ui/utils": "npm:^0.2.9"
-  checksum: 10c0/40df1e1dd8a2bad6f70c1ee163f0e151c456f52b9b98a38488d88720b2be72ccd631501a66f8369f96d2e8ad1c4250936b6fd4243e3a99833f2d008ee6afec18
+  checksum: 10c0/f7e66a650ad8c73765edb39a7530d81fa990c08c172f03b6129030234d32bccd4401c29ded9c8a4e4135e9beac349c5608d94962fa08c2a2ae2dab7a6530550c
   languageName: node
   linkType: hard
 
 "@floating-ui/dom@npm:^1.0.0":
-  version: 1.7.1
-  resolution: "@floating-ui/dom@npm:1.7.1"
+  version: 1.7.0
+  resolution: "@floating-ui/dom@npm:1.7.0"
   dependencies:
-    "@floating-ui/core": "npm:^1.7.1"
+    "@floating-ui/core": "npm:^1.7.0"
     "@floating-ui/utils": "npm:^0.2.9"
-  checksum: 10c0/33b0e892f4c50ce568169cd58793ff5e3bc1e72ee007237d73b9458d4475e1e5f5a4b3f9e6752422d5f5ac902bc0c135ca7dc0a23c6df187fd9d28dc34cdceed
+  checksum: 10c0/49a7f0fbef82ba2c2f0bde7bb4812b276ae431b59e6a81427283a55cfb36c0af9cc459cbeb0bb1a5cc3efca1a332f584e123e7b1a8f0a9c94a21989b09b8c060
   languageName: node
   linkType: hard
 
@@ -6410,14 +6405,14 @@ __metadata:
   linkType: hard
 
 "@floating-ui/react-dom@npm:^2.1.1":
-  version: 2.1.3
-  resolution: "@floating-ui/react-dom@npm:2.1.3"
+  version: 2.1.2
+  resolution: "@floating-ui/react-dom@npm:2.1.2"
   dependencies:
     "@floating-ui/dom": "npm:^1.0.0"
   peerDependencies:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: 10c0/e88750ea2fb352264d52d502d3979f94155ce2c8ab9a50862810d0cfc8c8e49cb6bbde466d668736cb38624d089360ef97451397b647408a0eb2c1870234c19a
+  checksum: 10c0/e855131c74e68cab505f7f44f92cd4e2efab1c125796db3116c54c0859323adae4bf697bf292ee83ac77b9335a41ad67852193d7aeace90aa2e1c4a640cafa60
   languageName: node
   linkType: hard
 
@@ -8076,9 +8071,9 @@ __metadata:
   linkType: hard
 
 "@mui/core-downloads-tracker@npm:^6.4.11":
-  version: 6.4.12
-  resolution: "@mui/core-downloads-tracker@npm:6.4.12"
-  checksum: 10c0/c0fa3ee1c3d6b69a3474e58d943ee84167810e6e40652edee35c1096580e254fad5df531c153513a9f16ee6981c10bcad712252cd9740dda5ce9ddeb93bd710a
+  version: 6.4.11
+  resolution: "@mui/core-downloads-tracker@npm:6.4.11"
+  checksum: 10c0/6875a06188119320083566bbe000369a838ea4badbae81fb36fcc750103f3c9ec15fac3407c1efd7f3596889f30732780c58842434d0d48f997219192f7fc3d1
   languageName: node
   linkType: hard
 
@@ -8383,8 +8378,8 @@ __metadata:
   linkType: hard
 
 "@mui/system@npm:^6.4.10, @mui/system@npm:^6.4.11":
-  version: 6.4.12
-  resolution: "@mui/system@npm:6.4.12"
+  version: 6.4.11
+  resolution: "@mui/system@npm:6.4.11"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
     "@mui/private-theming": "npm:^6.4.9"
@@ -8406,7 +8401,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10c0/502ab620caccb59c3acae9376534e706ace38d136c10e254c958f0b7931743fe693ffd1b5c493a9fdfe27aa29ff37867652cfc61595ceb725038df94b37f6f5e
+  checksum: 10c0/6d1875232d8836c84b6f94bf32215f8b46370c98c4948a68ba934ef2baa652a5eb08e3048fa77ad16c464167a4d8d0548809d62d5f221829cfa744a5cdd90be5
   languageName: node
   linkType: hard
 
@@ -14128,6 +14123,9 @@ __metadata:
     "@rsbuild/plugin-react": "npm:1.1.1"
     "@rsdoctor/rspack-plugin": "npm:1.0.2"
     "@rspack/core": "npm:1.3.2"
+    "@semantic-release/commit-analyzer": "npm:9.0.2"
+    "@semantic-release/exec": "npm:6.0.3"
+    "@semantic-release/github": "npm:8.0.2"
     "@typescript-eslint/eslint-plugin": "npm:8.17.0"
     "@typescript-eslint/parser": "npm:8.17.0"
     eslint: "npm:9.15.0"
@@ -14137,6 +14135,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:5.1.0"
     husky: "npm:7.0.4"
     prettier: "npm:3.4.2"
+    semantic-release: "npm:19.0.3"
     typescript: "npm:5.8.2"
   languageName: unknown
   linkType: soft
@@ -32097,12 +32096,12 @@ __metadata:
   linkType: hard
 
 "sonner@npm:^2.0.3":
-  version: 2.0.5
-  resolution: "sonner@npm:2.0.5"
+  version: 2.0.3
+  resolution: "sonner@npm:2.0.3"
   peerDependencies:
     react: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
     react-dom: ^18.0.0 || ^19.0.0 || ^19.0.0-rc
-  checksum: 10c0/38ec98e2f5d7e086825307f737a90bdc8639182d184e002719c2368bf3a9259c340f41afda731716d2b78c40e5e3aa9165058375be42f6a93bda0876b9b433ba
+  checksum: 10c0/59f84142f7a692dd1ec90e6df2003a70ff0b325eaef1d5dd17ad250e7f992b71053824f1a7ab3912f8c4caa5ce30523a096b5f5108b3e8ae13f906048691aca1
   languageName: node
   linkType: hard
 

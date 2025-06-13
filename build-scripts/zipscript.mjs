@@ -15,10 +15,10 @@ const cwd = gen === 'legacy' ? 'dist' : 'dist-next';
 zip({
   cwd,
   source: '*',
-  destination: `../builds/avalanche-wallet-extension-${gen}-${version}.zip`,
+  destination: `../builds/avalanche-wallet-extension${gen === 'next' ? '-next' : ''}.zip`,
 })
   .then(() => {
-    console.log(`version ${version} successfully created in /builds`);
+    console.log(`version ${version} (${gen}) successfully created in /builds`);
   })
   .catch((err) => {
     console.error(err.stack);

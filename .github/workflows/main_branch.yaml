@@ -24,39 +24,46 @@ jobs:
         run: |
           touch .env.production
           echo RELEASE=alpha >> .env.production
-          echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
-          echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
-          echo ANALYTICS_ENCRYPTION_KEY=${{ secrets.ANALYTICS_ENCRYPTION_KEY }} >> .env.production
-          echo ANALYTICS_ENCRYPTION_KEY_ID=${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }} >> .env.production
-          echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
-          echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
-          echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
-          echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
-          echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
-          echo CORE_WEB_BASE_URL=${{ secrets.CORE_WEB_BASE_URL }} >> .env.production
-          echo WALLET_CONNECT_PROJECT_ID=${{ secrets.WALLET_CONNECT_PROJECT_ID }} >> .env.production
-          echo SEEDLESS_URL=${{ secrets.SEEDLESS_URL }} >> .env.production
-          echo SEEDLESS_ORG_ID=${{ secrets.SEEDLESS_ORG_ID }} >> .env.production
-          echo GOOGLE_OAUTH_CLIENT_ID=${{ secrets.GOOGLE_OAUTH_CLIENT_ID }} >> .env.production
-          echo APPLE_OAUTH_CLIENT_ID=${{ secrets.APPLE_OAUTH_CLIENT_ID }} >> .env.production
-          echo APPLE_OAUTH_REDIRECT_URL=${{ secrets.APPLE_OAUTH_REDIRECT_URL }} >> .env.production
-          echo CUBESIGNER_ENV=${{ secrets.CUBESIGNER_ENV }} >> .env.production
-          echo SEEDLESS_FIDO_IDENTITY_URL=${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }} >> .env.production
-          echo NEWSLETTER_BASE_URL=${{ secrets.NEWSLETTER_BASE_URL }} >> .env.production
-          echo NEWSLETTER_PORTAL_ID=${{ secrets.NEWSLETTER_PORTAL_ID }} >> .env.production
-          echo NEWSLETTER_FORM_ID=${{ secrets.NEWSLETTER_FORM_ID }} >> .env.production
-          echo FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }} >> .env.production
-          echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
-          echo GASLESS_SERVICE_URL=${{ secrets.GASLESS_SERVICE_URL }} >> .env.production
-          echo NOTIFICATION_SENDER_SERVICE_URL=${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }} >> .env.production
+          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
+          echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY="${{ secrets.ANALYTICS_ENCRYPTION_KEY }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY_ID="${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }}"' >> .env.production
+          echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
+          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
+          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
+          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
+          echo 'SENTRY_DSN="${{ secrets.SENTRY_DSN }}"' >> .env.production
+          echo 'CORE_WEB_BASE_URL="${{ secrets.CORE_WEB_BASE_URL }}"' >> .env.production
+          echo 'WALLET_CONNECT_PROJECT_ID="${{ secrets.WALLET_CONNECT_PROJECT_ID }}"' >> .env.production
+          echo 'SEEDLESS_URL="${{ secrets.SEEDLESS_URL }}"' >> .env.production
+          echo 'SEEDLESS_ORG_ID="${{ secrets.SEEDLESS_ORG_ID }}"' >> .env.production
+          echo 'GOOGLE_OAUTH_CLIENT_ID="${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_CLIENT_ID="${{ secrets.APPLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_REDIRECT_URL="${{ secrets.APPLE_OAUTH_REDIRECT_URL }}"' >> .env.production
+          echo 'CUBESIGNER_ENV="${{ secrets.CUBESIGNER_ENV }}"' >> .env.production
+          echo 'SEEDLESS_FIDO_IDENTITY_URL="${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }}"' >> .env.production
+          echo 'NEWSLETTER_BASE_URL="${{ secrets.NEWSLETTER_BASE_URL }}"' >> .env.production
+          echo 'NEWSLETTER_PORTAL_ID="${{ secrets.NEWSLETTER_PORTAL_ID }}"' >> .env.production
+          echo 'NEWSLETTER_FORM_ID="${{ secrets.NEWSLETTER_FORM_ID }}"' >> .env.production
+          echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
+          echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
+          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
+          echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
+          echo 'NEXT_GEN_EXTENSION_PUBLIC_KEY="${{ secrets.NEXT_GEN_EXTENSION_PUBLIC_KEY }}"' >> .env.production
       - name: Install dependencies
         run: |
           yarn install
           yarn allow-scripts
       - name: Run tests
         run: yarn test
-      - name: Build library
+      - name: Build app (Legacy)
+        id: build_legacy
         run: yarn build:alpha
+      - name: Build app (Next)
+        id: build_next
+        run: yarn build:next:alpha
+        continue-on-error: true
       - name: Setup sentry-cli
         run: |
           curl -sL https://sentry.io/get-cli/ | bash
@@ -67,6 +74,9 @@ jobs:
           echo project=${{ secrets.SENTRY_PROJECT }} >> .sentryclirc
       - name: Release
         env:
+          NEXT_GEN_BUILD_STATUS: ${{ steps.build_next.conclusion }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TYPE: alpha
+          ID_SERVICE_URL: ${{ secrets.ID_SERVICE_URL }}
+          ID_SERVICE_API_KEY: ${{ secrets.ID_SERVICE_API_KEY }}
         run: yarn run semantic-release
