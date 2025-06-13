@@ -8,19 +8,28 @@
  * Once UX team updates the design system, this component should be
  * removed.
  */
+declare module '@avalabs/k2-alpine' {
+  interface TypographyPropsVariantOverrides {
+    title: true;
+    titleBold: true;
+    details: true;
+    caption: true;
+    monospace: true;
+    monospace10: true;
+  }
+}
+
 import {
   Typography as K2Typography,
   TypographyProps,
+  TypographyPropsVariantOverrides,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
-type Variant = 'title' | 'titleBold' | 'details' | 'monospace' | 'caption';
-
-type Props = Omit<TypographyProps, 'variant'> & {
-  variant: Variant;
-};
-
-const overrides: Record<Variant, TypographyProps> = {
+const overrides: Record<
+  keyof TypographyPropsVariantOverrides,
+  TypographyProps
+> = {
   title: {
     fontSize: 12,
     fontWeight: 500,
@@ -48,12 +57,25 @@ const overrides: Record<Variant, TypographyProps> = {
     fontWeight: 400,
     lineHeight: '14px',
   },
+  monospace10: {
+    fontFamily: 'DejaVu Sans Mono',
+    fontSize: 10,
+    fontStyle: 'normal',
+    fontWeight: 400,
+    lineHeight: '14px',
+  },
 };
 
-export const Typography: FC<Props> = ({ variant, children, ...props }) => {
-  return (
-    <K2Typography {...props} {...overrides[variant]}>
-      {children}
-    </K2Typography>
-  );
-};
+export const Typography: FC<TypographyProps> = ({
+  variant = 'title',
+  children,
+  ...props
+}) => (
+  <K2Typography
+    {...props}
+    {...overrides[variant]}
+    variant={variant in overrides ? 'body1' : variant}
+  >
+    {children}
+  </K2Typography>
+);
