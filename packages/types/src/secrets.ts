@@ -20,6 +20,7 @@ export enum SecretType {
   Ledger = 'ledger',
   LedgerLive = 'ledger-live',
   Keystone = 'keystone',
+  Keystone3Pro = 'keystone3-pro',
   Seedless = 'seedless',
   // Importable wallets types
   PrivateKey = 'private-key',
@@ -75,8 +76,17 @@ export interface MnemonicSecrets extends PrimarySecretsBase {
   derivationPathSpec: DerivationPath.BIP44;
 }
 
+export const isKeystoneSecrets = (
+  secrets: PrimaryWalletSecrets,
+): secrets is KeystoneSecrets => {
+  return (
+    secrets.secretType === SecretType.Keystone ||
+    secrets.secretType === SecretType.Keystone3Pro
+  );
+};
+
 export interface KeystoneSecrets extends PrimarySecretsBase {
-  secretType: SecretType.Keystone;
+  secretType: SecretType.Keystone | SecretType.Keystone3Pro;
   masterFingerprint: string;
   extendedPublicKeys: ExtendedPublicKey[];
   derivationPathSpec: DerivationPath.BIP44;

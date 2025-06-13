@@ -89,12 +89,12 @@ export function useLedgerDisconnectedDialog(
   }, [showDialog, t, onCancel, clearDialog]);
 
   useEffect(() => {
-    clearDialog();
     // only show dialogs for ledger wallets and
     // wait for transport to be attempted at least once
     if (!isUsingLedgerWallet || !wasTransportAttempted) {
       return;
     }
+    clearDialog();
 
     const hasRequiredApp = hasLedgerTransport && appType === requiredAppType;
     if (!hasLedgerTransport) {

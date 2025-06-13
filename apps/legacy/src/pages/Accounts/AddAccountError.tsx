@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { LedgerAppType } from '@core/ui';
 import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@/hooks/useKeystone3DisconnectedDialog';
 
 export function AddAccountError() {
   const history = useHistory();
@@ -11,6 +12,7 @@ export function AddAccountError() {
   const { t } = useTranslation();
 
   useLedgerDisconnectedDialog(history.goBack, LedgerAppType.AVALANCHE);
+  useKeystone3DisconnectedDialog(history.goBack);
 
   return (
     <Stack sx={{ px: 2, py: 1 }}>
