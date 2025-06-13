@@ -4,7 +4,7 @@ import { SecretType } from '@core/types';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Redirect, useLocation } from 'react-router-dom';
+import { Redirect, useHistory, useLocation } from 'react-router-dom';
 import { AddressesCard } from './components/AddressesCard';
 import { AccountDetailsHeader } from './components/Header';
 import { MoreDetailsCard } from './components/MoreDetailsCard';
@@ -16,6 +16,7 @@ const toastOptions: ToastOptions = {
 
 export const AccountDetails: FC = () => {
   const { t } = useTranslation();
+  const history = useHistory();
   const { search } = useLocation();
   const { getAccountById, renameAccount, deleteAccounts } =
     useAccountsContext();
@@ -62,10 +63,23 @@ export const AccountDetails: FC = () => {
       </Typography>
       <ActionButtons
         onRename={() => {
-          renameAccount(account.id, 'New Name');
+          // TODO: Implement rename account screen
+          const newName = prompt('Enter new account name');
+          if (newName) {
+            renameAccount(account.id, newName);
+          }
         }}
-        onRemove={() => {
-          deleteAccounts([account.id]);
+        onRemove={async () => {
+          // TODO: Implement proper delete account dialog
+          const confirmed = confirm(
+            'Are you sure you want to delete this account?',
+          );
+          if (confirmed) {
+            deleteAccounts([account.id]).then(() => {
+              history.push('/account-management');
+              toast.success(t('Account deleted'), toastOptions);
+            });
+          }
         }}
       />
     </Stack>

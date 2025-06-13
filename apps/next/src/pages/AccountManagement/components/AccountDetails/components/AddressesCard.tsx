@@ -26,6 +26,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressC}
             copyActionVisibility="always"
             labelVariant="titleBold"
+            qrCode
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -34,6 +35,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressAVM}
             copyActionVisibility="always"
             labelVariant="titleBold"
+            qrCode
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -42,6 +44,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressBTC}
             copyActionVisibility="always"
             labelVariant="titleBold"
+            qrCode
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -50,6 +53,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressC}
             copyActionVisibility="always"
             labelVariant="titleBold"
+            qrCode
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -58,6 +62,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressSVM}
             copyActionVisibility="always"
             labelVariant="titleBold"
+            qrCode
           />
         </List>
       </Styled.CardContent>

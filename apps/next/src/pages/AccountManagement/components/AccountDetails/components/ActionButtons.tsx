@@ -7,8 +7,13 @@ type Props = {
 };
 
 export const ActionButtons: FC<Props> = ({ onRename, onRemove }) => (
-  <Stack mt="auto" gap={1} flexBasis={32}>
-    <Button variant="text" color="error" size="small" onClick={onRename}>
+  <Stack mt="auto" gap={1}>
+    <Button
+      variant="contained"
+      color="secondary"
+      size="small"
+      onClick={onRename}
+    >
       Rename
     </Button>
     <Button
