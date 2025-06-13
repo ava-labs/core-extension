@@ -12,9 +12,10 @@ import {
   truncateAddress,
 } from '@avalabs/k2-alpine';
 import { stripAddressPrefix } from '@core/common';
-import { ComponentType, FC } from 'react';
+import { ComponentType, FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconBaseProps } from 'react-icons';
+import { QRCodeIconButton } from './QRCodeIconButton';
 
 type Props = {
   Icon: ComponentType<IconBaseProps>;
@@ -23,6 +24,7 @@ type Props = {
   address: string | undefined;
   onClick?: VoidFunction;
   copyActionVisibility?: 'always' | 'hover';
+  qrCode?: boolean;
 };
 
 const ItemIcon = styled(ListItemIcon)({
@@ -36,6 +38,7 @@ export const AddressItem: FC<Props> = ({
   address,
   onClick,
   copyActionVisibility = 'hover',
+  qrCode = false,
 }) => {
   const { t } = useTranslation();
 
@@ -47,10 +50,14 @@ export const AddressItem: FC<Props> = ({
   const CopyActionButton =
     copyActionVisibility === 'always' ? CopyButton : GhostCopyButton;
 
+  const IconWrapper = qrCode ? QRCodeIconButton : Fragment;
+
   return (
     <ListItem>
       <ItemIcon>
-        <Icon />
+        <IconWrapper value={strippedAddress}>
+          <Icon />
+        </IconWrapper>
       </ItemIcon>
       <Stack direction="column" gap={0} marginInlineEnd={1}>
         <Typography variant={labelVariant}>{label}</Typography>
@@ -72,7 +79,7 @@ export const AddressItem: FC<Props> = ({
           onClick?.();
         }}
       >
-        Copy
+        {t('Copy')}
       </CopyActionButton>
     </ListItem>
   );
