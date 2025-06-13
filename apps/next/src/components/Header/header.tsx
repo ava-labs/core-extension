@@ -17,6 +17,7 @@ import {
   TruncateText,
   AvalancheIcon,
   Divider,
+  CChainIcon,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext, usePermissionContext } from '@core/ui';
 import {
@@ -38,6 +39,7 @@ import { TypographyBold } from '../TypographyBold';
 import { Permissions, Account } from '@core/types';
 import { getAllAddressesForAccount } from '@core/common';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { AddressItem } from '@/pages/AccountManagement/components/Wallets/components/AccountContextMenu/components/AddressItem';
 
 const AccountInfo = styled(Stack)(({ theme }) => ({
   cursor: 'pointer',
@@ -203,7 +205,13 @@ export const Header = () => {
                 paper: { style: { width: '300px' } },
               }}
             >
-              <StackRow sx={{ alignItems: 'center' }}>
+              <AddressItem
+                label="Avalanche C-Chain"
+                Icon={CChainIcon}
+                address={activeAccount?.addressC}
+                onClose={handleAddressClose}
+              />
+              {/* <StackRow sx={{ alignItems: 'center' }}>
                 <AvalancheColorIcon size={20} />
                 <Stack>
                   <StackRow sx={{ alignItems: 'center' }}>
@@ -244,7 +252,7 @@ export const Header = () => {
                   </Button>
                 </StackRow>
                 <Divider />
-              </StackRow>
+              </StackRow> */}
             </Popover>
           </AccountSelectContainer>
           <Stack sx={{ flexDirection: 'row', gap: 1 }}>

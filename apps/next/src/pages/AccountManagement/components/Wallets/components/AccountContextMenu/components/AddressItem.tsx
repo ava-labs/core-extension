@@ -54,7 +54,7 @@ export const AddressItem: FC<Props> = ({ Icon, label, address, onClose }) => {
           onClose();
         }}
       >
-        Copy
+        {t('Copy')}
       </GhostButton>
     </MenuItem>
   );
