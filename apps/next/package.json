@@ -16,7 +16,7 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/k2-alpine": "1.199.0",
+    "@avalabs/k2-alpine": "1.202.1-alpha.1",
     "@avalabs/types": "3.1.0-alpha.51",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
