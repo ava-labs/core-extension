@@ -37,7 +37,6 @@ export const StandaloneField = styled((props: StandaloneFieldProps) => (
       backgroundColor: getHexAlpha(theme.palette.primary.main, 30),
     },
     '&:focus-within': {
-      // @ts-expect-error - Broken Theme type in @avalabs/k2-alpine
       color: theme.palette.neutral['850'],
       backgroundColor: theme.palette.common.white,
       boxShadow: `${alpha(theme.palette.common.black, 0.25)} 0 5px 15px 0`,

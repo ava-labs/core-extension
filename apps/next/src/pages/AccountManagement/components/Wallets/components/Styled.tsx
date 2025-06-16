@@ -12,7 +12,7 @@ import { MdError } from 'react-icons/md';
 
 export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: theme.shape.mediumBorderRadius,
   boxShadow: '0px 5px 30px 0px rgba(0, 0, 0, 0.15)',
 }));
 
@@ -62,7 +62,6 @@ export const ListItemButton = styled(K2ListItemButton)(({ theme }) => ({
   borderRadius: theme.spacing(1.5),
 
   [`&.${listItemButtonClasses.selected}`]: {
-    // @ts-expect-error Theme palette is not typed correctly
     backgroundColor: theme.palette.surface.secondary,
   },
 }));

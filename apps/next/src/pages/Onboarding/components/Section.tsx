@@ -13,7 +13,6 @@ export const Section: FC<StackProps> = ({ sx, ...props }) => {
       sx={combineSx(
         {
           backgroundColor: 'background.paper',
-          // @ts-expect-error - Broken Theme type in @avalabs/k2-alpine
           borderRadius: theme.shape.mediumBorderRadius,
           py: 0.75,
           px: 2,

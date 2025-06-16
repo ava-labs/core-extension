@@ -28,7 +28,6 @@ const menuSlotProps: MenuProps['slotProps'] = {
   },
   paper: {
     sx: (theme) => ({
-      // @ts-expect-error - K2-Alpine types are not up to date
       backgroundColor: theme.palette.surface.primary,
       borderRadius: '10px',
       borderWidth: '1px',
