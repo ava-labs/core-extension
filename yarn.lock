@@ -4102,6 +4102,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
+    "@avalabs/avalanchejs": "npm:4.2.0-alpha.1"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.51"
     "@avalabs/k2-alpine": "npm:1.199.0"
     "@avalabs/types": "npm:3.1.0-alpha.51"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
