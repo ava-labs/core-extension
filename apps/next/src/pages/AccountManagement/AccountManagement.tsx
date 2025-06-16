@@ -12,6 +12,7 @@ import { MdArrowBack } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { Wallets } from './components/Wallets';
 import { AccountDetails } from './components/AccountDetails';
+import { QRCode } from './components/QRCode';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -41,6 +42,7 @@ const AccountManagement: FC = () => {
           </DialogTitle>
           <DialogContent sx={{ paddingInline: 1.5 }}>
             <Switch>
+              <Route path="/account-management/qr-code" component={QRCode} />
               <Route
                 path="/account-management/account"
                 component={AccountDetails}
