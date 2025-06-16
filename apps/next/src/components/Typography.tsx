@@ -27,7 +27,7 @@ import {
 import { FC } from 'react';
 
 const overrides: Record<
-  keyof TypographyPropsVariantOverrides,
+  Exclude<keyof TypographyPropsVariantOverrides, 'body3'>,
   TypographyProps
 > = {
   title: {
