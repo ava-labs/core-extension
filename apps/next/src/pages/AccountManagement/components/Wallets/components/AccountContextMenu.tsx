@@ -11,7 +11,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC } from 'react';
-import { AddressItem } from '../../AddressItem';
+import { AddressItem } from '../../AddressItem/AddressItem';
 import * as Styled from '../../Styled';
 
 type Props = {
@@ -29,6 +29,7 @@ const menuSlotProps: MenuProps['slotProps'] = {
   },
   paper: {
     sx: (theme) => ({
+      color: theme.palette.text.primary,
       backgroundColor: theme.palette.surface.primary,
       borderRadius: '10px',
       borderWidth: '1px',

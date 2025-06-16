@@ -18,12 +18,12 @@ export const AccountDetails: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
   const { search } = useLocation();
-  const { getAccountById, renameAccount, deleteAccounts } =
-    useAccountsContext();
-  const { getWallet, wallets } = useWalletContext();
   const searchParams = new URLSearchParams(search);
   const accountId = searchParams.get('accountId');
-  const walletId = searchParams.get('walletId');
+
+  const { getWallet, wallets } = useWalletContext();
+  const { getAccountById, renameAccount, deleteAccounts } =
+    useAccountsContext();
 
   if (!accountId) {
     toast.error(t('Account Id is not provided'), toastOptions);
@@ -37,16 +37,13 @@ export const AccountDetails: FC = () => {
     return <Redirect to="/account-management" />;
   }
 
-  if (wallets.length === 0) {
+  const isPrimaryAccount = account.type === 'primary';
+
+  if (isPrimaryAccount && wallets.length === 0) {
     return <LinearProgress />;
   }
 
-  const wallet = walletId ? getWallet(walletId) : undefined;
-
-  if (walletId && !wallet) {
-    toast.error(t('Wallet not found'), toastOptions);
-    return <Redirect to="/account-management" />;
-  }
+  const wallet = isPrimaryAccount ? getWallet(account.walletId) : undefined;
 
   return (
     <Stack height={1} gap={1.5}>

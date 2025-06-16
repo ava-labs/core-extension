@@ -1,41 +1,22 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
   IconButton,
+  IconButtonProps,
   QrCodeIcon,
   styled,
 } from '@avalabs/k2-alpine';
-import QRCode from 'qrcode.react';
-import { FC, ReactElement, useState } from 'react';
+import { FC, ReactElement } from 'react';
 import { IconBaseProps } from 'react-icons';
-import { MdArrowBack } from 'react-icons/md';
 
-type Props = {
-  value: string;
+type Props = IconButtonProps & {
   children: ReactElement<IconBaseProps>;
 };
 
-export const QRCodeIconButton: FC<Props> = ({ value, children }) => {
-  const [open, setOpen] = useState(false);
-
+export const QRCodeIconButton: FC<Props> = ({ children, ...props }) => {
   return (
-    <>
-      <HoverableButton disableRipple size="small" onClick={() => setOpen(true)}>
-        <span>{children}</span>
-        <QrCodeIcon />
-      </HoverableButton>
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle sx={{ padding: 1.5 }}>
-          <IconButton onClick={() => setOpen(false)}>
-            <MdArrowBack />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <QRCode renderAs="svg" value={value} level="H" />
-        </DialogContent>
-      </Dialog>
-    </>
+    <HoverableButton disableRipple size="small" {...props}>
+      <span>{children}</span>
+      <QrCodeIcon />
+    </HoverableButton>
   );
 };
 

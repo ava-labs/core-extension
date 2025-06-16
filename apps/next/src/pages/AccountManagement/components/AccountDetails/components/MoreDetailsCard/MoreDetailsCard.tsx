@@ -7,7 +7,7 @@ import {
   toast,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
-import * as Styled from '../Styled';
+import * as Styled from '../../../Styled';
 import { SecretType } from '@core/types';
 import { useTranslation } from 'react-i18next';
 import { getSecretTypeDisplayName } from './utils';
