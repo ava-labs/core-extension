@@ -12,7 +12,7 @@ import {
   FeatureFlagsContextProvider,
   SettingsContextProvider,
 } from '@core/ui';
-import { lazy, Suspense } from 'react';
+import { lazy, ReactElement, Suspense } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { HashRouter as Router } from 'react-router-dom';
 import { initI18n, i18next } from '@core/common';
@@ -29,8 +29,22 @@ const App = lazy(() => {
 
 const root = createRoot(document.getElementById('popup') as HTMLElement);
 
-export const Providers = ({ providers, children }) => {
-  const renderProvider = (renderedProviders: any, renderedChildren: any) => {
+type ProviderElement = ReactElement<
+  unknown,
+  string | React.JSXElementConstructor<any>
+>;
+
+export const Providers = ({
+  providers,
+  children,
+}: {
+  providers: ProviderElement[];
+  children: ProviderElement;
+}) => {
+  const renderProvider = (
+    renderedProviders: ProviderElement[],
+    renderedChildren: ProviderElement,
+  ) => {
     const [provider, ...restProviders] = renderedProviders;
 
     if (provider) {

@@ -173,11 +173,9 @@ export const Header = () => {
 
   const [connectedSitesAnchorEl, setConnectedSitesAnchorEl] =
     useState<HTMLButtonElement | null>(null);
-  console.log('connectedSitesAnchorEl: ', connectedSitesAnchorEl);
 
   const addressesPopoverOpen = !!addressesAnchorEl;
   const connectedSitesPopoverOpen = !!connectedSitesAnchorEl;
-  console.log('connectedSitesPopoverOpen: ', connectedSitesPopoverOpen);
 
   const handleAddressClick = (event) => {
     setAddressesAnchorEl(event.currentTarget);
@@ -190,12 +188,9 @@ export const Header = () => {
     setAddressesAnchorEl(null);
   };
   const handleConnectedSitesClose = () => {
-    console.log('handleConnectedSitesClose: ');
     setConnectedSitesAnchorEl(null);
   };
 
-  console.log('theme: ', theme);
-  console.log('accounts: ', accounts);
   return (
     <>
       <Stack
@@ -437,9 +432,7 @@ export const Header = () => {
                       cursor: 'pointer',
                       padding: 1.2,
                     }}
-                    onClick={() => {
-                      console.log('Go to settings');
-                    }}
+                    onClick={() => {}}
                   >
                     <Typography sx={{ color: theme.palette.text.primary }}>
                       {t('View All Connected Sites')}
