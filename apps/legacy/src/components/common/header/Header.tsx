@@ -29,7 +29,6 @@ export function Header() {
   const domain = useCurrentDomain();
   const { revokeAddressPermisson, isDomainConnectedToAccount } =
     usePermissionContext();
-  console.log('isDomainConnectedToAccount: ', isDomainConnectedToAccount);
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();

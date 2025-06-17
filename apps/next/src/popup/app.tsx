@@ -3,10 +3,7 @@ import {
   toast,
   CircularProgress,
   Stack,
-  CircularProgress,
   IconButton,
-  ThemeProvider,
-  toast,
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
@@ -21,8 +18,6 @@ import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
-import { Onboarding } from '@/pages/Onboarding';
-import { LockScreen } from '@/pages/LockScreen';
 import { Providers } from '.';
 import { Header } from '@/components/Header';
 
