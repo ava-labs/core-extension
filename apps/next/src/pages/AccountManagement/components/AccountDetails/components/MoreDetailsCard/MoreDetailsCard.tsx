@@ -1,17 +1,17 @@
 import {
-  ListItemButton,
+  ChevronRightIcon,
   List,
   ListItem,
-  ChevronRightIcon,
+  ListItemButton,
   ListItemText,
   toast,
 } from '@avalabs/k2-alpine';
-import { FC } from 'react';
-import * as Styled from '../../../Styled';
 import { SecretType } from '@core/types';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getSecretTypeDisplayName } from './utils';
+import * as Styled from '../../../Styled';
 import { textProps } from './config';
+import { getSecretTypeDisplayName } from './utils';
 
 type Props = {
   walletName: string;
@@ -34,7 +34,7 @@ export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
           </ListItem>
           <Styled.Divider variant="middle" component="li" />
           <ListItem>
-            <ListItemText primary={t('Name')} {...textProps} />
+            <ListItemText primary={t('Wallet')} {...textProps} />
             <ListItemText secondary={walletName} {...textProps} />
           </ListItem>
           <Styled.Divider variant="middle" component="li" />

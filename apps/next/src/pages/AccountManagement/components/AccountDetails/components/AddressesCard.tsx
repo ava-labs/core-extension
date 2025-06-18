@@ -8,12 +8,11 @@ import {
   XPChainIcon,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { FC } from 'react';
-import * as Styled from '../../Styled';
-import { QRCodeIconButton } from '../../QRCodeIconButton';
-import { useHistory } from 'react-router-dom';
-
 import { History } from 'history';
+import { FC } from 'react';
+import { useHistory } from 'react-router-dom';
+import { QRCodeIconButton } from '../../QRCodeIconButton';
+import * as Styled from '../../Styled';
 
 type Props = {
   account: Account;
@@ -97,7 +96,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
                 <SolanaColorIcon />
               </QRCodeIconButton>
             }
-            address={account.addressSVM}
+            address={account.addressAVM}
             copyActionVisibility="always"
             labelVariant="titleBold"
           />

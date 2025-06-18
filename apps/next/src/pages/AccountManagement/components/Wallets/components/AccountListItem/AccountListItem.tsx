@@ -10,11 +10,12 @@ import {
 } from '@avalabs/k2-alpine';
 import { Account, AccountType } from '@core/types';
 import { FC, MouseEventHandler, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MdCheck } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
 import { AccountContextMenu } from '../AccountContextMenu';
 import * as Styled from '../Styled';
 import { AccountBalance } from './components/AccountBalance';
-import { useHistory } from 'react-router-dom';
 
 interface Props {
   account: Account;
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
+  const { t } = useTranslation();
   const history = useHistory();
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState<PopoverPosition | undefined>(
@@ -84,7 +86,7 @@ export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
                   variant="contained"
                   onClick={navigateToAccount}
                 >
-                  Options
+                  {t('Options')}
                 </Button>
               ) : (
                 <AccountBalance account={account} selected={selected} />

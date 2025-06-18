@@ -4,14 +4,16 @@ import {
   EthereumColorIcon,
   Menu,
   MenuProps,
+  PopoverPaper,
   PopoverPosition,
   SolanaColorIcon,
   XPChainIcon,
   getHexAlpha,
+  withThemeInvert,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC } from 'react';
-import { AddressItem } from '../../AddressItem/AddressItem';
+import { AddressItem } from '../../AddressItem';
 import * as Styled from '../../Styled';
 
 type Props = {
@@ -20,22 +22,27 @@ type Props = {
   account: Account;
 };
 
-const menuSlotProps: MenuProps['slotProps'] = {
-  backdrop: {
-    sx: {
-      backgroundColor: 'transparent',
-      backdropFilter: 'none',
-    },
+const menuSlots: Pick<MenuProps, 'slots' | 'slotProps'> = {
+  slots: {
+    paper: withThemeInvert(PopoverPaper),
   },
-  paper: {
-    sx: (theme) => ({
-      color: theme.palette.text.primary,
-      backgroundColor: theme.palette.surface.primary,
-      borderRadius: '10px',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      borderColor: getHexAlpha(theme.palette.primary.main, 10),
-    }),
+  slotProps: {
+    backdrop: {
+      sx: {
+        backgroundColor: 'transparent',
+        backdropFilter: 'none',
+      },
+    },
+    paper: {
+      sx: (theme) => ({
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.surface.primary,
+        borderRadius: '10px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: getHexAlpha(theme.palette.primary.main, 10),
+      }),
+    },
   },
 };
 
@@ -43,14 +50,15 @@ export const AccountContextMenu: FC<Props> = ({
   position,
   onClose,
   account,
-}: Props) => {
+}) => {
   return (
     <Menu
       open={position !== undefined}
       onClose={onClose}
       anchorReference="anchorPosition"
       anchorPosition={position}
-      slotProps={menuSlotProps}
+      hideBackdrop
+      {...menuSlots}
     >
       <AddressItem
         label="Avalanche C-Chain"

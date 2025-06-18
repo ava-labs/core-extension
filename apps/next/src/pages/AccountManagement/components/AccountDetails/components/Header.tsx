@@ -1,4 +1,4 @@
-import { Typography, Tooltip, styled } from '@avalabs/k2-alpine';
+import { Button, styled, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import {
   useBalancesContext,
@@ -20,25 +20,38 @@ const SecondaryText = styled('span')(({ theme }) => ({
 export const AccountDetailsHeader: FC<Props> = ({ account }) => {
   const { t } = useTranslation();
   const balance = useBalanceTotalInCurrency(account);
-  const { isTokensCached } = useBalancesContext();
+  const { isTokensCached, updateBalanceOnNetworks } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
 
   return (
-    <Typography variant="h2" marginBlockEnd={0.5}>
-      <SecondaryText>{account.name}</SecondaryText>
-      <br />
-      <span>
-        {isTokensCached && (
-          <Tooltip
-            title={t('Balances loading...')}
-            placement="bottom"
-            color="error"
+    <header>
+      <Typography variant="h2" marginBlockEnd={0.5}>
+        <SecondaryText>{account.name}</SecondaryText>
+        <br />
+        <span>{currencyFormatter(balance?.sum ?? 0)}</span>
+      </Typography>
+      {!isTokensCached && (
+        <StaleBalanceContainer>
+          <Typography variant="h6" color="error">
+            <MdError size={16} /> {t('Unable to load balances')}
+          </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            color="secondary"
+            onClick={() => updateBalanceOnNetworks([account])}
           >
-            <MdError size={14} />
-          </Tooltip>
-        )}
-        {currencyFormatter(balance?.sum ?? 0)}
-      </span>
-    </Typography>
+            {t('Refresh')}
+          </Button>
+        </StaleBalanceContainer>
+      )}
+    </header>
   );
 };
+
+const StaleBalanceContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: theme.spacing(1),
+}));
