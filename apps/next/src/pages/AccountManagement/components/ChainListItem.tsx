@@ -1,8 +1,8 @@
-import { Typography } from '@/components/Typography';
 import {
   ListItem,
   ListItemIcon,
   Stack,
+  Typography,
   TypographyProps,
   styled,
   Box,
@@ -27,7 +27,7 @@ export const ChainListItem: FC<Props> = ({
   Icon,
   iconSize,
   label,
-  labelVariant = 'caption',
+  labelVariant = 'subtitle1',
   subtitle,
   action,
 }) => {

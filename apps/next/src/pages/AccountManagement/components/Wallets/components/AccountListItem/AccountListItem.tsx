@@ -1,4 +1,3 @@
-import { Typography } from '@/components/Typography';
 import {
   Button,
   ListItem,
@@ -6,6 +5,7 @@ import {
   ListItemText,
   PopoverPosition,
   Tooltip,
+  Typography,
   truncateAddress,
 } from '@avalabs/k2-alpine';
 import { Account, AccountType } from '@core/types';
@@ -61,11 +61,12 @@ export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
           />
         </ListItemIcon>
         <ListItemText
-          primary={<Typography variant="title">{account.name}</Typography>}
+          primary={<Typography variant="subtitle1">{account.name}</Typography>}
           secondary={
             <Tooltip title={account.addressC} enterDelay={1000}>
               <Typography
-                variant="monospace"
+                fontFamily=""
+                variant="caption"
                 color="text.secondary"
                 component="span"
               >

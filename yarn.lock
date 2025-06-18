@@ -527,9 +527,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/k2-alpine@npm:1.202.1-alpha.1":
-  version: 1.202.1-alpha.1
-  resolution: "@avalabs/k2-alpine@npm:1.202.1-alpha.1"
+"@avalabs/k2-alpine@npm:1.204.3-alpha.0":
+  version: 1.204.3-alpha.0
+  resolution: "@avalabs/k2-alpine@npm:1.204.3-alpha.0"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
@@ -544,7 +544,7 @@ __metadata:
     react: ^19.0.0
     react-dom: ^19.0.0
     react-icons: ^5.4.0
-  checksum: 10c0/98c52f00f4b321d47686db1e1749b266434407ad52a24b51b7df45c5aec20ba216cbfccd256b378ecf70f38706d59daa4c50473baee463070f9c428af25f34e5
+  checksum: 10c0/b711e13da214716da7a3678c25f99fd7b1135c0da25dbe663b67fd5ed17d07b9e7772d1685794bad8356107fc915b4c0f19bf3cb6a6f7839ba669a3b43b2e11e
   languageName: node
   linkType: hard
 
@@ -4104,7 +4104,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
-    "@avalabs/k2-alpine": "npm:1.202.1-alpha.1"
+    "@avalabs/k2-alpine": "npm:1.204.3-alpha.0"
     "@avalabs/types": "npm:3.1.0-alpha.51"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"

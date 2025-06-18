@@ -1,5 +1,6 @@
 import {
   LinearProgress,
+  styled,
   Stack,
   toast,
   ToastOptions,
@@ -18,6 +19,10 @@ import { MoreDetailsCard } from './components/MoreDetailsCard';
 const toastOptions: ToastOptions = {
   id: 'account-details-guard',
 };
+
+const Scroller = styled('div')({
+  overflow: 'auto',
+});
 
 export const AccountDetails: FC = () => {
   const { t } = useTranslation();
@@ -51,14 +56,18 @@ export const AccountDetails: FC = () => {
   const wallet = isPrimaryAccount ? getWallet(account.walletId) : undefined;
 
   return (
-    <Stack height={1} gap={1.5}>
+    <Stack height={1} gap={2}>
       <AccountDetailsHeader account={account} />
-      <AddressesCard account={account} />
-      <MoreDetailsCard
-        walletName={wallet?.name ?? t('Imported Accounts')}
-        walletType={wallet?.type ?? SecretType.PrivateKey}
-      />
-      <Typography variant="caption" px={1.5} mt={-0.25} color="text.secondary">
+      <Scroller>
+        <Stack direction="column" gap={1.5}>
+          <AddressesCard account={account} />
+          <MoreDetailsCard
+            walletName={wallet?.name ?? t('Imported Accounts')}
+            walletType={wallet?.type ?? SecretType.PrivateKey}
+          />
+        </Stack>
+      </Scroller>
+      <Typography variant="caption" px={1.5} mt={-1} color="text.secondary">
         Your account&apos;s private key is a fixed password for accessing the
         specific addresses above. Keep it secure, anyone with this private key
         can access the account associated with it.
