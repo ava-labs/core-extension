@@ -16,7 +16,6 @@ export const ImportWallet = () => {
       withAppInfo
       withLanguageSelector
       onBack={history.goBack}
-      onClose={() => history.push('/')}
     >
       <Switch>
         <Route exact path="/onboarding/import">

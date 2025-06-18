@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   ButtonProps,
   ChevronDownIcon,
@@ -16,6 +17,7 @@ import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { InTextLink } from '@/components/InTextLink';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
+import { ErrorType } from './LedgerConnector/types';
 
 type DerivationPathSelectorProps = {
   derivationPathSpec: DerivationPath;
@@ -44,7 +46,7 @@ export const DerivationPathSelector = ({
 );
 
 type LedgerConnectionErrorProps = {
-  errorType: 'unable-to-connect' | 'unsupported-version';
+  errorType: ErrorType;
   onTroubleshoot: () => void;
   onRetry: () => void;
 };
@@ -144,7 +146,9 @@ export const ObtainedAddressesSkeleton = ({ count }: { count: number }) => {
           </Stack>
           <Stack direction="row" gap={1.5} alignItems="center">
             <Skeleton variant="text" width="100px" animation="wave" />
-            <Skeleton variant="circular" width="24px" height="24px" />
+            <Box width={32}>
+              <Skeleton variant="circular" width="24px" height="24px" />
+            </Box>
           </Stack>
         </SectionRow>
       ))}

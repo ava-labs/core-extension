@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect } from 'react';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
   OnboardingStepActions,
@@ -10,13 +10,14 @@ import {
   useModalPageControl,
 } from '@/components/OnboardingModal';
 
-type ConnectionErrorProps = {
+type ConnectionErrorProps = StackProps & {
   onRetry: () => void;
   onBack: () => void;
 };
 export const ConnectionError: FC<ConnectionErrorProps> = ({
   onBack,
   onRetry,
+  ...stackProps
 }) => {
   const { t } = useTranslation();
   const { setOnBackHandler } = useModalPageControl();
@@ -30,7 +31,7 @@ export const ConnectionError: FC<ConnectionErrorProps> = ({
   }, [onBack, setOnBackHandler]);
 
   return (
-    <>
+    <Stack height="100%" width="100%" {...stackProps}>
       <OnboardingStepTitle>{t('oopsies')}</OnboardingStepTitle>
       <OnboardingStepDescription>{t('big oopsies')}</OnboardingStepDescription>
       <OnboardingStepContent>
@@ -50,6 +51,6 @@ export const ConnectionError: FC<ConnectionErrorProps> = ({
           {t('Next')}
         </Button>
       </OnboardingStepActions>
-    </>
+    </Stack>
   );
 };

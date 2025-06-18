@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Button } from '@avalabs/k2-alpine';
+import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
@@ -10,36 +10,55 @@ import {
   OnboardingStepTitle,
 } from '@/components/OnboardingModal';
 
-import { type DerivationStatus } from '../../../hooks/useBasePublicKeys';
-
 import * as Styled from './Styled';
-import { LedgerConnector } from './LedgerConnector';
+import {
+  type DerivationStatus,
+  AvalancheLedgerConnector,
+} from './LedgerConnector';
+import { DerivedKeys } from './LedgerConnector/types';
 
-type ConnectionStepProps = {
-  onNext: () => void;
+type ConnectionStepProps = StackProps & {
+  onNext: (keys: DerivedKeys) => void;
   onTroubleshoot: () => void;
 };
 export const ConnectAvalanche: FC<ConnectionStepProps> = ({
   onNext,
   onTroubleshoot,
+  ...stackProps
 }) => {
   const { t } = useTranslation();
 
-  const [status, setStatus] = useState<DerivationStatus>('error');
+  const [status, setStatus] = useState<DerivationStatus>('waiting');
   const [derivationPathSpec, setDerivationPathSpec] = useState<DerivationPath>(
     DerivationPath.BIP44,
   );
 
-  console.log('derivationPath', derivationPathSpec);
+  const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>({
+    addressPublicKeys: [],
+    extendedPublicKeys: [],
+  });
+
+  const isValid =
+    derivationPathSpec === DerivationPath.BIP44
+      ? Boolean(
+          derivedKeys.addressPublicKeys.length &&
+            derivedKeys.extendedPublicKeys?.length,
+        )
+      : derivedKeys.addressPublicKeys.length > 0;
+
   return (
-    <>
+    <Stack height="100%" width="100%" {...stackProps}>
       <OnboardingStepTitle>{t('Connect your Ledger')}</OnboardingStepTitle>
       <OnboardingStepDescription>
-        {t('Select the derivation path type to see your derived addresses')}
+        {status === 'error'
+          ? t(
+              'Please connect your device, open the Avalanche application, and connect the wallet with the Ledger option to continue.',
+            )
+          : t('Select the derivation path type to see your derived addresses.')}
       </OnboardingStepDescription>
       <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
-        <LedgerConnector
-          onSuccess={(keys) => console.log(keys)}
+        <AvalancheLedgerConnector
+          onSuccess={(keys) => setDerivedKeys(keys)}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={(_status) => setStatus(_status)}
           setDerivationPathSpec={setDerivationPathSpec}
@@ -49,21 +68,23 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
       </OnboardingStepContent>
       <OnboardingStepActions>
         {status === 'error' ? (
-          <Styled.LedgerLiveButton>
-            {t('Download Ledger Live to update')}
-          </Styled.LedgerLiveButton>
+          <Stack width="100%" justifyContent="center" alignItems="center">
+            <Styled.LedgerLiveButton>
+              {t('Download Ledger Live to update')}
+            </Styled.LedgerLiveButton>
+          </Stack>
         ) : (
           <Button
             sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-            // disabled={!isValid}
+            disabled={!isValid}
             variant="contained"
             color="primary"
-            onClick={onNext}
+            onClick={() => onNext(derivedKeys)}
           >
             {t('Next')}
           </Button>
         )}
       </OnboardingStepActions>
-    </>
+    </Stack>
   );
 };

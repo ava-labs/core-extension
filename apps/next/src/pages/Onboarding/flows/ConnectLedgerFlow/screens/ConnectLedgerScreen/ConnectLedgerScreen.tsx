@@ -1,70 +1,129 @@
 import { useHistory } from 'react-router-dom';
-import { FC, useEffect, useState } from 'react';
-import { WalletType } from '@avalabs/types';
+import { FC, useCallback, useEffect, useState } from 'react';
 
-import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
+import { useOnboardingContext } from '@core/ui';
 
 import { useModalPageControl } from '@/components/OnboardingModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
-import { ConnectAvalanche, ConnectSolana, PromptSolana } from './components';
+import {
+  ConnectAvalanche,
+  ConnectSolana,
+  PromptSolana,
+  Troubleshooting,
+} from './components';
+import { DerivedKeys } from './components/LedgerConnector/types';
+import { WalletType } from '@avalabs/types';
 
-type ConnectionStatus = 'connect-avax' | 'prompt-solana' | 'connect-solana';
-
-type PathSpec = 'bip44' | 'ledger-live';
+type ImportPhase =
+  | 'connect-avax'
+  | 'prompt-solana'
+  | 'connect-solana'
+  | 'troubleshooting-avalanche'
+  | 'troubleshooting-solana';
 
 export const ConnectLedgerScreen: FC<OnboardingScreenProps> = ({
   step,
   totalSteps,
   nextScreenPath,
 }) => {
-  // const { t } = useTranslation();
-  const { setOnboardingWalletType } = useOnboardingContext();
   const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
+  const {
+    setAddressPublicKeys,
+    setExtendedPublicKeys,
+    setOnboardingWalletType,
+  } = useOnboardingContext();
 
   useEffect(() => {
     setCurrent(step);
     setTotal(totalSteps);
   }, [setCurrent, setTotal, step, totalSteps]);
 
-  const [status, setStatus] = useState<ConnectionStatus>('connect-avax');
-  const [pathSpec, setPathSpec] = useState<PathSpec>('bip44');
+  const [phase, setPhase] = useState<ImportPhase>('connect-avax');
+
+  const onNext = useCallback(() => {
+    history.push(nextScreenPath);
+  }, [history, nextScreenPath]);
+
+  const goToAvalancheConnectScreen = useCallback(() => {
+    setPhase('connect-avax');
+  }, [setPhase]);
+
+  const saveBaseKeysAndPromptForSolana = useCallback(
+    (keys: DerivedKeys) => {
+      setAddressPublicKeys(keys.addressPublicKeys.map(({ key }) => key));
+      setExtendedPublicKeys(keys.extendedPublicKeys ?? []);
+      setPhase('prompt-solana');
+    },
+    [setPhase, setAddressPublicKeys, setExtendedPublicKeys],
+  );
+
+  const goToSolanaConnectScreen = useCallback(
+    () => setPhase('connect-solana'),
+    [setPhase],
+  );
+
+  const goToAvalancheTroubleshootingScreen = useCallback(
+    () => setPhase('troubleshooting-avalanche'),
+    [setPhase],
+  );
+
+  const goToSolanaTroubleshootingScreen = useCallback(
+    () => setPhase('troubleshooting-solana'),
+    [setPhase],
+  );
+
+  const goToPromptSolanaScreen = useCallback(
+    () => setPhase('prompt-solana'),
+    [setPhase],
+  );
+
+  const saveSolanaKeysAndContinue = useCallback(
+    (keys: DerivedKeys) => {
+      setAddressPublicKeys((prev) => [
+        ...prev,
+        ...keys.addressPublicKeys.map(({ key }) => key),
+      ]);
+      onNext();
+    },
+    [onNext, setAddressPublicKeys],
+  );
 
   useEffect(() => {
-    // TODO: move to callback?
-    setOnboardingWalletType(
-      pathSpec === 'bip44' ? WalletType.Ledger : WalletType.LedgerLive,
-    );
-  }, [pathSpec, setOnboardingWalletType]);
-
-  const isValid = true; // TODO
-
-  const onNext = () => {
-    if (!isValid) {
-      return;
-    }
-
-    // TODO: save public keys
-    history.push(nextScreenPath);
-  };
-
-  const keyboardHandlers = useKeyboardShortcuts({
-    Enter: onNext,
-  });
+    setOnboardingWalletType(WalletType.Ledger);
+  }, [setOnboardingWalletType]);
 
   return (
     <>
-      {status === 'connect-avax' && (
-        <ConnectAvalanche onNext={() => setStatus('prompt-solana')} />
+      {phase === 'connect-avax' && (
+        <ConnectAvalanche
+          onNext={saveBaseKeysAndPromptForSolana}
+          onTroubleshoot={goToAvalancheTroubleshootingScreen}
+        />
       )}
-      {status === 'prompt-solana' && (
+      {phase === 'prompt-solana' && (
         <PromptSolana
-          onBack={() => setStatus('connect-avax')}
-          onNext={() => setStatus('connect-solana')}
+          onBack={goToAvalancheConnectScreen}
+          onNext={goToSolanaConnectScreen}
           onSkip={onNext}
         />
       )}
-      {status === 'connect-solana' && <ConnectSolana onNext={onNext} />}
+      {phase === 'connect-solana' && (
+        <ConnectSolana
+          onBack={goToPromptSolanaScreen}
+          onNext={saveSolanaKeysAndContinue}
+          onTroubleshoot={goToSolanaTroubleshootingScreen}
+        />
+      )}
+      {phase === 'troubleshooting-avalanche' && (
+        <Troubleshooting
+          appName="Avalanche"
+          onClose={goToAvalancheConnectScreen}
+        />
+      )}
+      {phase === 'troubleshooting-solana' && (
+        <Troubleshooting appName="Solana" onClose={goToSolanaConnectScreen} />
+      )}
     </>
   );
 };

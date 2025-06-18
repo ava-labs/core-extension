@@ -1,10 +1,7 @@
-import { hex } from '@scure/base';
 import { useCallback, useEffect, useState } from 'react';
 import {
   DerivationPath,
-  getAddressDerivationPath,
   getAddressPublicKeyFromXPub,
-  getEvmAddressFromPubKey,
 } from '@avalabs/core-wallets-sdk';
 import { VM } from '@avalabs/avalanchejs';
 
@@ -20,37 +17,17 @@ import {
 } from '@core/types';
 import { isLedgerVersionCompatible } from '@core/common';
 
-export type DerivationStatus = 'waiting' | 'ready' | 'error';
-export type ErrorType = 'unable-to-connect' | 'unsupported-version';
-export type PublicKeyAVM = {
-  key: AddressPublicKeyJson;
-  vm: 'AVM';
-  index: number;
-};
-export type PublicKeyEVM = {
-  key: AddressPublicKeyJson;
-  vm: 'EVM';
-  index: number;
-  address: string;
-};
-export type PublicKey = PublicKeyAVM | PublicKeyEVM;
+import {
+  DerivationStatus,
+  ErrorType,
+  PublicKey,
+  UseLedgerPublicKeyFetcher,
+} from '../../types';
+import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 
-const buildAddressPublicKey = (
-  key: Buffer,
-  vm: VM,
-  accountIndex: number,
-): AddressPublicKeyJson => ({
-  curve: 'secp256k1',
-  derivationPath: getAddressDerivationPath(
-    accountIndex,
-    DerivationPath.LedgerLive,
-    vm,
-  ),
-  type: 'address-pubkey',
-  key: hex.encode(Uint8Array.from(key)),
-});
-
-export const useBasePublicKeys = (derivationPathSpec: DerivationPath) => {
+export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
+  derivationPathSpec,
+) => {
   const {
     appType,
     avaxAppVersion,
@@ -73,7 +50,7 @@ export const useBasePublicKeys = (derivationPathSpec: DerivationPath) => {
         vm,
       );
 
-      return buildAddressPublicKey(publicKey, vm, accountIndex);
+      return buildAddressPublicKey(publicKey, vm, accountIndex, 'secp256k1');
     },
     [getPublicKey],
   );
@@ -90,7 +67,6 @@ export const useBasePublicKeys = (derivationPathSpec: DerivationPath) => {
           index,
           vm: 'EVM',
           key: evmKey,
-          address: getEvmAddressFromPubKey(Buffer.from(hex.decode(evmKey.key))),
         });
 
         const xpKey = await getPublicKeyFromLedger(index, 'AVM');
@@ -133,8 +109,7 @@ export const useBasePublicKeys = (derivationPathSpec: DerivationPath) => {
         keys.push({
           index,
           vm: 'EVM',
-          key: buildAddressPublicKey(evmKey, 'EVM', index),
-          address: getEvmAddressFromPubKey(evmKey),
+          key: buildAddressPublicKey(evmKey, 'EVM', index, 'secp256k1'),
         });
 
         const xpKey = await getAddressPublicKeyFromXPub(
@@ -144,12 +119,21 @@ export const useBasePublicKeys = (derivationPathSpec: DerivationPath) => {
         keys.push({
           index,
           vm: 'AVM',
-          key: buildAddressPublicKey(xpKey, 'AVM', index),
+          key: buildAddressPublicKey(xpKey, 'AVM', index, 'secp256k1'),
         });
       }
 
       return {
-        extendedPublicKeys: [evmExtendedPublicKey, xpExtendedPublicKey],
+        extendedPublicKeys: [
+          buildExtendedPublicKey(
+            evmExtendedPublicKey,
+            EVM_BASE_DERIVATION_PATH,
+          ),
+          buildExtendedPublicKey(
+            xpExtendedPublicKey,
+            AVALANCHE_BASE_DERIVATION_PATH,
+          ),
+        ],
         addressPublicKeys: keys,
       };
     },
@@ -200,7 +184,7 @@ export const useBasePublicKeys = (derivationPathSpec: DerivationPath) => {
       const timer = setTimeout(() => {
         setStatus('error');
         setError('unable-to-connect');
-      }, 20_000); // Give the user 20 seconds to connect their ledger, then show an error message with some instructions
+      }, 5_000); // Give the user 20 seconds to connect their ledger, then show an error message with some instructions
 
       return () => clearTimeout(timer);
     }

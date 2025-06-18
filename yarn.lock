@@ -4105,6 +4105,7 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:4.2.0-alpha.1"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.51"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.51"
     "@avalabs/k2-alpine": "npm:1.202.1-alpha.1"
     "@avalabs/types": "npm:3.1.0-alpha.51"

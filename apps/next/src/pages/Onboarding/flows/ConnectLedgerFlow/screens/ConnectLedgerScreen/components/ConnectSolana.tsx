@@ -1,45 +1,86 @@
+import { FC, useEffect, useState } from 'react';
+import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { FC } from 'react';
-import { Button, Stack } from '@avalabs/k2-alpine';
-
-import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
 
 import {
   OnboardingStepActions,
   OnboardingStepContent,
   OnboardingStepDescription,
   OnboardingStepTitle,
+  useModalPageControl,
 } from '@/components/OnboardingModal';
 
-type ConnectionStepProps = {
-  onNext: () => void;
+import * as Styled from './Styled';
+import {
+  type DerivationStatus,
+  SolanaLedgerConnector,
+} from './LedgerConnector';
+import { DerivedKeys } from './LedgerConnector/types';
+
+type ConnectionStepProps = StackProps & {
+  onBack: () => void;
+  onNext: (keys: DerivedKeys) => void;
+  onTroubleshoot: () => void;
 };
-export const ConnectSolana: FC<ConnectionStepProps> = ({ onNext }) => {
+
+export const ConnectSolana: FC<ConnectionStepProps> = ({
+  onNext,
+  onBack,
+  onTroubleshoot,
+  ...stackProps
+}) => {
   const { t } = useTranslation();
+  const { setOnBackHandler } = useModalPageControl();
+
+  const [status, setStatus] = useState<DerivationStatus>('error');
+  const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>({
+    addressPublicKeys: [],
+    extendedPublicKeys: [],
+  });
+
+  const isValid = derivedKeys.addressPublicKeys.length > 0;
+
+  useEffect(() => {
+    setOnBackHandler(() => onBack);
+
+    return () => {
+      setOnBackHandler(undefined);
+    };
+  }, [onBack, setOnBackHandler]);
 
   return (
-    <>
+    <Stack height="100%" width="100%" {...stackProps}>
       <OnboardingStepTitle>{t('Connect your Ledger')}</OnboardingStepTitle>
       <OnboardingStepDescription>
         {t('Open the Solana app on your Ledger device')}
       </OnboardingStepDescription>
-      <OnboardingStepContent>
-        <Stack gap={2}>
-          <Stack>Solana Key 1</Stack>
-          <Stack>Solana Key 2</Stack>
-        </Stack>
+      <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
+        <SolanaLedgerConnector
+          onSuccess={(keys) => setDerivedKeys(keys)}
+          onTroubleshoot={onTroubleshoot}
+          onStatusChange={(_status) => setStatus(_status)}
+          numberOfKeys={3}
+        />
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          // disabled={!isValid}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-        >
-          {t('Next')}
-        </Button>
+        {status === 'error' ? (
+          <Stack width="100%" justifyContent="center" alignItems="center">
+            <Styled.LedgerLiveButton>
+              {t('Download Ledger Live to update')}
+            </Styled.LedgerLiveButton>
+          </Stack>
+        ) : (
+          <Button
+            sx={{ minWidth: 150, alignSelf: 'flex-end' }}
+            disabled={!isValid}
+            variant="contained"
+            color="primary"
+            onClick={() => onNext(derivedKeys)}
+          >
+            {t('Next')}
+          </Button>
+        )}
       </OnboardingStepActions>
-    </>
+    </Stack>
   );
 };

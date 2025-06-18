@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect } from 'react';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
   OnboardingStepActions,
@@ -10,7 +10,9 @@ import {
   useModalPageControl,
 } from '@/components/OnboardingModal';
 
-type SolanaPromptProps = {
+import SolanaGlow from '../images/SolanaGlow.png';
+
+type SolanaPromptProps = StackProps & {
   onBack: () => void;
   onNext: () => void;
   onSkip: () => void;
@@ -19,6 +21,7 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
   onBack,
   onNext,
   onSkip,
+  ...stackProps
 }) => {
   const { t } = useTranslation();
   const { setOnBackHandler } = useModalPageControl();
@@ -32,7 +35,7 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
   }, [onBack, setOnBackHandler]);
 
   return (
-    <>
+    <Stack height="100%" width="100%" {...stackProps}>
       <OnboardingStepTitle>
         {t(`Do you want to add Solana to your wallet?`)}
       </OnboardingStepTitle>
@@ -42,9 +45,13 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
         )}
       </OnboardingStepDescription>
       <OnboardingStepContent>
-        <Stack gap={2}>
-          <Stack>Solana Key 1</Stack>
-          <Stack>Solana Key 2</Stack>
+        <Stack
+          flexGrow={1}
+          alignItems="center"
+          justifyContent="center"
+          height="100%"
+        >
+          <img src={SolanaGlow} alt="Solana Glowing Logo" height="270px" />
         </Stack>
       </OnboardingStepContent>
       <OnboardingStepActions>
@@ -66,6 +73,6 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
           {t('Add Solana')}
         </Button>
       </OnboardingStepActions>
-    </>
+    </Stack>
   );
 };
