@@ -1,5 +1,4 @@
-import { Typography } from '@/components/Typography';
-import { ListItemTextProps } from '@avalabs/k2-alpine';
+import { ListItemTextProps, Typography } from '@avalabs/k2-alpine';
 
 export const textProps: ListItemTextProps = {
   slots: {
@@ -13,10 +12,10 @@ export const textProps: ListItemTextProps = {
       },
     },
     primary: {
-      variant: 'titleBold',
+      variant: 'subtitle1',
     },
     secondary: {
-      variant: 'title',
+      variant: 'body1',
       textAlign: 'end',
     },
   },

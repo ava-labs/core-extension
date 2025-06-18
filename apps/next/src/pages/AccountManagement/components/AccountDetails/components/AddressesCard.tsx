@@ -1,4 +1,4 @@
-import { AddressItem } from '@/pages/AccountManagement/components/AddressItem/AddressItem';
+import { AddressItem } from '@/pages/AccountManagement/components/AddressItem';
 import {
   BitcoinColorIcon,
   CChainIcon,
@@ -42,7 +42,6 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressC}
             copyActionVisibility="always"
-            labelVariant="titleBold"
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -56,7 +55,6 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressAVM}
             copyActionVisibility="always"
-            labelVariant="titleBold"
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -70,7 +68,6 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressBTC}
             copyActionVisibility="always"
-            labelVariant="titleBold"
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -84,7 +81,6 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressC}
             copyActionVisibility="always"
-            labelVariant="titleBold"
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -96,9 +92,8 @@ export const AddressesCard: FC<Props> = ({ account }) => {
                 <SolanaColorIcon />
               </QRCodeIconButton>
             }
-            address={account.addressAVM}
+            address={account.addressSVM}
             copyActionVisibility="always"
-            labelVariant="titleBold"
           />
         </List>
       </Styled.CardContent>

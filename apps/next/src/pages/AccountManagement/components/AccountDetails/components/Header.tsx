@@ -32,17 +32,18 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
       </Typography>
       {!isTokensCached && (
         <StaleBalanceContainer>
+          <MdError size={14} />
           <Typography variant="h6" color="error">
-            <MdError size={16} /> {t('Unable to load balances')}
+            {t('Unable to load balances')}
           </Typography>
-          <Button
+          <EndAction
             variant="contained"
             size="small"
             color="secondary"
             onClick={() => updateBalanceOnNetworks([account])}
           >
             {t('Refresh')}
-          </Button>
+          </EndAction>
         </StaleBalanceContainer>
       )}
     </header>
@@ -52,6 +53,10 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
 const StaleBalanceContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
   gap: theme.spacing(1),
+  color: theme.palette.error.main,
 }));
+
+const EndAction = styled(Button)({
+  marginLeft: 'auto',
+});

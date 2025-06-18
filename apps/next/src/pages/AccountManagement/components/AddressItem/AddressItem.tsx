@@ -1,11 +1,10 @@
-import { Typography } from '@/components/Typography';
 import {
   Button,
   listItemClasses,
-  TypographyProps,
   styled,
   toast,
   Tooltip,
+  Typography,
   truncateAddress,
 } from '@avalabs/k2-alpine';
 import { stripAddressPrefix } from '@core/common';
@@ -17,7 +16,6 @@ import { ChainListItem } from '../ChainListItem';
 export type Props = {
   Icon: ComponentType<IconBaseProps> | ReactElement<IconBaseProps>;
   label: string;
-  labelVariant?: TypographyProps['variant'];
   address: string | undefined;
   onClick?: VoidFunction;
   copyActionVisibility?: 'always' | 'hover';
@@ -27,7 +25,6 @@ export type Props = {
 export const AddressItem: FC<Props> = ({
   Icon,
   label,
-  labelVariant = 'caption',
   address,
   onClick,
   copyActionVisibility = 'hover',
@@ -47,11 +44,12 @@ export const AddressItem: FC<Props> = ({
     <ChainListItem
       Icon={Icon}
       label={label}
-      labelVariant={labelVariant}
+      labelVariant="subtitle2"
       subtitle={
         <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography
-            variant="monospace10"
+            variant="overline"
+            fontFamily="monospace"
             color="text.secondary"
             sx={truncate ? undefined : { lineBreak: 'anywhere' }}
           >

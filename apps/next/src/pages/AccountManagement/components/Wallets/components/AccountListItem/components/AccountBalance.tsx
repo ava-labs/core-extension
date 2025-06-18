@@ -1,5 +1,4 @@
-import { Typography } from '@/components/Typography';
-import { Stack, Tooltip } from '@avalabs/k2-alpine';
+import { Stack, Tooltip, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 
 import { useBalancesContext } from '@core/ui/src/contexts/BalancesProvider';
@@ -31,7 +30,7 @@ export const AccountBalance: FC<Props> = ({ account, selected }) => {
         </Tooltip>
       )}
       <Typography
-        variant="title"
+        variant="body1"
         component="span"
         color={selected ? 'text.primary' : 'text.disabled'}
       >
