@@ -1,14 +1,19 @@
-import { Typography } from '@/components/Typography';
-import { Stack, toast, ToastOptions, LinearProgress } from '@avalabs/k2-alpine';
+import {
+  LinearProgress,
+  Stack,
+  toast,
+  ToastOptions,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { SecretType } from '@core/types';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory, useLocation } from 'react-router-dom';
+import { ActionButtons } from './components/ActionButtons';
 import { AddressesCard } from './components/AddressesCard';
 import { AccountDetailsHeader } from './components/Header';
 import { MoreDetailsCard } from './components/MoreDetailsCard';
-import { ActionButtons } from './components/ActionButtons';
 
 const toastOptions: ToastOptions = {
   id: 'account-details-guard',
@@ -53,7 +58,7 @@ export const AccountDetails: FC = () => {
         walletName={wallet?.name ?? t('Imported Accounts')}
         walletType={wallet?.type ?? SecretType.PrivateKey}
       />
-      <Typography variant="details" px={1.5} mt={-0.25} color="text.secondary">
+      <Typography variant="caption" px={1.5} mt={-0.25} color="text.secondary">
         Your account&apos;s private key is a fixed password for accessing the
         specific addresses above. Keep it secure, anyone with this private key
         can access the account associated with it.
