@@ -7,6 +7,8 @@ const ModalPageControlContext = createContext<
   | (PageControlData & {
       setTotal: (total: number) => void;
       setCurrent: (current: number) => void;
+      onBackHandler?: () => void;
+      setOnBackHandler: (onBackHandler: (() => void) | undefined) => void;
       isBackButtonVisible: boolean;
       setIsBackButtonVisible: (isBackButtonVisible: boolean) => void;
     })
@@ -16,6 +18,7 @@ export const ModalPageControlProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isBackButtonVisible, setIsBackButtonVisible] = useState(true);
+  const [onBackHandler, setOnBackHandler] = useState<() => void>();
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(0);
 
@@ -26,6 +29,8 @@ export const ModalPageControlProvider: FC<{ children: ReactNode }> = ({
         current,
         setTotal,
         setCurrent,
+        onBackHandler,
+        setOnBackHandler,
         isBackButtonVisible,
         setIsBackButtonVisible,
       }}

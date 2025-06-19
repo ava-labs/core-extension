@@ -1,10 +1,11 @@
 import { Link, styled } from '@avalabs/k2-alpine';
 
-export const InTextLink = styled(Link)(({ theme }) => ({
+export const InTextLink = styled(Link)({
   cursor: 'pointer',
   textDecoration: 'underline',
-  transition: 'color 0.15s ease-in-out',
+  color: 'currentColor',
+  transition: 'opacity 0.15s ease-in-out',
   '&:hover': {
-    color: theme.palette.text.secondary,
+    opacity: 0.8,
   },
-}));
+});

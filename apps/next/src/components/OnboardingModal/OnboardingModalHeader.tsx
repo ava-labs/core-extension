@@ -23,14 +23,15 @@ export const OnboardingModalHeader = ({
   onBack,
   ...props
 }: OnboardingModalHeaderProps) => {
-  const { total, current, isBackButtonVisible } = useModalPageControl();
+  const { total, current, isBackButtonVisible, onBackHandler } =
+    useModalPageControl();
 
   return (
     <StyledHeader {...props}>
       {isBackButtonVisible && onBack && (
         <IconButton
           sx={{ position: 'absolute', left: '-8px' }}
-          onClick={onBack}
+          onClick={onBackHandler ?? onBack}
         >
           <FiArrowLeft />
         </IconButton>
