@@ -1,5 +1,4 @@
-import { Typography } from '@/components/Typography';
-import { CircularProgress, Stack } from '@avalabs/k2-alpine';
+import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
 import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
 import { cloneElement, FC, ReactElement, useState } from 'react';
@@ -47,10 +46,10 @@ export const WalletCard: FC<WalletCardProps> = ({
             height="21px"
             alignItems="center"
             gap={0.5}
-            width="calc(100% - 8px)"
+            width="calc(100% - 32px)"
           >
             <Typography
-              variant="titleBold"
+              variant="subtitle1"
               marginInlineEnd="auto"
               whiteSpace="nowrap"
               overflow="hidden"
@@ -60,7 +59,7 @@ export const WalletCard: FC<WalletCardProps> = ({
             </Typography>
             {isLoading && <CircularProgress size={14} />}
             {!isLoading && !hasErrorOccurred && (
-              <Typography variant="title" color="text.disabled">
+              <Typography variant="body1" color="text.disabled">
                 {currencyFormatter(totalBalanceInCurrency ?? 0)}
               </Typography>
             )}
@@ -68,7 +67,7 @@ export const WalletCard: FC<WalletCardProps> = ({
               <>
                 <Styled.ErrorIcon size={16} />
                 <Typography
-                  variant="title"
+                  variant="subtitle1"
                   color="error"
                   component="span"
                   whiteSpace="nowrap"
