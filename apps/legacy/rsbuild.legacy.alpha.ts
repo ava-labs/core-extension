@@ -1,8 +1,8 @@
 import { defineConfig, mergeRsbuildConfig } from '@rsbuild/core';
 import { CopyRspackPlugin } from '@rspack/core';
-import commonConfig from './rsbuild.legacy.common.ts';
+import commonConfig from './rsbuild.legacy.common';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
-import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
+import { getEnvVars } from '../../build-scripts/getEnvVars';
 
 const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
 
