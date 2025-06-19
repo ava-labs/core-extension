@@ -1,0 +1,187 @@
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+index 0000000000000000000000000000000000000000..7bc07ec21cfe35e60fd050ad8560bcdf2334de92
+--- /dev/null
++++ b/.idea/.gitignore
+@@ -0,0 +1,10 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Editor-based HTTP Client requests
++/httpRequests/
++# Environment-dependent path to Maven home directory
++/mavenHomeManager.xml
++# Datasource local storage ignored files
++/dataSources/
++/dataSources.local.xml
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..f03c948745359297c14ea81d2547ea6e20bd3995
+--- /dev/null
++++ b/.idea/misc.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_23" default="true" project-jdk-name="23" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9fb14e4d06a030cba3cd105982c4f196e0718a0
+--- /dev/null
++++ b/.idea/modules.xml
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/user.iml" filepath="$PROJECT_DIR$/.idea/user.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/.idea/user.iml b/.idea/user.iml
+new file mode 100644
+index 0000000000000000000000000000000000000000..d6ebd4805981b8400db3e3291c74a743fef9a824
+--- /dev/null
++++ b/.idea/user.iml
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" inherit-compiler-output="true">
++    <exclude-output />
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..a338c4d0601d428fa04c12b6b91979f20caf87da
+--- /dev/null
++++ b/.idea/workspace.xml
+@@ -0,0 +1,52 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ChangeListManager">
++    <list default="true" id="77c79474-01a5-47c7-acd9-c2f4691dc440" name="Changes" comment="" />
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
++  <component name="KubernetesApiProvider"><![CDATA[{
++  "isMigrated": true
++}]]></component>
++  <component name="ProjectColorInfo"><![CDATA[{
++  "associatedIndex": 7
++}]]></component>
++  <component name="ProjectId" id="2yiXF2ERQ6ZHf6DCCHPA8PPKYzI" />
++  <component name="ProjectViewState">
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "ModuleVcsDetector.initialDetectionPerformed": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "nodejs_package_manager_path": "npm",
++    "vue.rearranger.settings.migration": "true"
++  }
++}]]></component>
++  <component name="SharedIndexes">
++    <attachedChunks>
++      <set>
++        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26094.121" />
++        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-IU-251.26094.121" />
++      </set>
++    </attachedChunks>
++  </component>
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="77c79474-01a5-47c7-acd9-c2f4691dc440" name="Changes" comment="" />
++      <created>1750318260274</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1750318260274</updated>
++      <workItem from="1750318262005" duration="62000" />
++    </task>
++    <servers />
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/dist/esm/index.esm2017.js b/dist/esm/index.esm2017.js
+index 0ccacd0074ecd0e8c3d7aecff784035c976c3507..45b1bbdecd576496512cbeff1a3ae3360416e71c 100644
+--- a/dist/esm/index.esm2017.js
++++ b/dist/esm/index.esm2017.js
+@@ -1072,8 +1072,6 @@ const version = "0.8.13";
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api.js';
+-const RECAPTCHA_ENTERPRISE_URL = 'https://www.google.com/recaptcha/enterprise.js';
+ function initializeV3(app, siteKey) {
+     const initialized = new Deferred();
+     const state = getStateReference(app);
+@@ -1178,18 +1176,8 @@ function renderInvisibleWidget(app, siteKey, grecaptcha, container) {
+     state.reCAPTCHAState = Object.assign(Object.assign({}, state.reCAPTCHAState), { // state.reCAPTCHAState is set in the initialize()
+         widgetId });
+ }
+-function loadReCAPTCHAV3Script(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
+-function loadReCAPTCHAEnterpriseScript(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_ENTERPRISE_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
++function loadReCAPTCHAV3Script(onload) {}
++function loadReCAPTCHAEnterpriseScript(onload) {}
+ 
+ /**
+  * @license
+diff --git a/dist/index.cjs.js b/dist/index.cjs.js
+index 0c2a517b474822b9546c2826f3d31b0d170380a5..91e54ea0cdcbd4f89d57d4e609eaf47a9f6bcd41 100644
+--- a/dist/index.cjs.js
++++ b/dist/index.cjs.js
+@@ -1076,8 +1076,6 @@ const version = "0.8.13";
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api.js';
+-const RECAPTCHA_ENTERPRISE_URL = 'https://www.google.com/recaptcha/enterprise.js';
+ function initializeV3(app, siteKey) {
+     const initialized = new util.Deferred();
+     const state = getStateReference(app);
+@@ -1182,18 +1180,8 @@ function renderInvisibleWidget(app, siteKey, grecaptcha, container) {
+     state.reCAPTCHAState = Object.assign(Object.assign({}, state.reCAPTCHAState), { // state.reCAPTCHAState is set in the initialize()
+         widgetId });
+ }
+-function loadReCAPTCHAV3Script(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
+-function loadReCAPTCHAEnterpriseScript(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_ENTERPRISE_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
++function loadReCAPTCHAV3Script(onload) {}
++function loadReCAPTCHAEnterpriseScript(onload) {}
+ 
+ /**
+  * @license
