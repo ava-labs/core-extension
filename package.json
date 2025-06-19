@@ -16,6 +16,7 @@
     "build:next:alpha": "yarn build:packages:next && yarn workspace @core-ext/next run build:alpha",
     "build": "yarn build:legacy",
     "build:alpha": "yarn build:legacy:alpha",
+    "build:alpha:no-source-maps": "NO_SOURCE_MAPS=true yarn build:alpha",
     "lint": "yarn workspaces foreach -Ap --exclude @core-ext/next run lint",
     "lint:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run lint",
     "postinstall": "husky install",
@@ -32,7 +33,8 @@
     "scanner": "yarn scanner:legacy",
     "scanner:next": "yarn workspace @core-ext/next run scanner",
     "scanner:legacy": "yarn workspace @core-ext/legacy run scanner",
-    "sentry": "node sentryscript.js"
+    "sentry": "node sentryscript.js",
+    "submit-build": "node build-scripts/submitBuild.mjs"
   },
   "workspaces": [
     "apps/*",

@@ -151,6 +151,18 @@ const githubSetting = [
   },
 ];
 
+const getSubmitBuildCmd = (target) =>
+  `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=${target}`;
+
+const execSubmitBuildSetting = [
+  '@semantic-release/exec',
+  {
+    prepareCmd: hasNextGenBuild
+      ? `${getSubmitBuildCmd('legacy')} && ${getSubmitBuildCmd('next')}`
+      : getSubmitBuildCmd('legacy'),
+  },
+];
+
 const execZipSetting = [
   '@semantic-release/exec',
   {
@@ -171,6 +183,7 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
     commitAnalyzerSetting,
     execSentryReleaseSetting,
     releaseReplaceSetting,
+    execSubmitBuildSetting,
     execZipSetting,
     githubSetting,
   ];
@@ -179,6 +192,7 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
     execPatchAnyCommitSetting,
     execSentryReleaseSetting,
     releaseReplaceSetting,
+    execSubmitBuildSetting,
     execZipSetting,
     githubSetting,
   ];
