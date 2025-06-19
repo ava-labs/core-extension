@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Scrollbars, Stack } from '@avalabs/core-k2-components';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
-import { useApproveAction } from '@core/ui';
+import { useApproveAction, useIsUsingKeystone3Wallet } from '@core/ui';
 import { useGetRequestId } from '@core/ui';
 import { LoadingOverlay } from '../../components/common/LoadingOverlay';
 import { ActionStatus } from '@core/types';
@@ -39,6 +39,8 @@ import { ApproveRegisterL1Validator } from './components/ApproveRegisterL1Valida
 import { ApproveIncreaseL1ValidatorBalance } from './components/ApproveIncreaseL1ValidatorBalance';
 import { ApproveDisableL1Validator } from './components/ApproveDisableL1Validator';
 import { ApproveSetL1ValidatorWeight } from './components/ApproveSetL1ValidatorWeight';
+import { useKeystone3DisconnectedDialog } from '@/hooks/useKeystone3DisconnectedDialog';
+import { Keystone3ApprovalOverlay } from '../SignTransaction/components/Keystone3ApprovalOverlay';
 
 export function AvalancheSignTx() {
   const requestId = useGetRequestId();
@@ -50,6 +52,7 @@ export function AvalancheSignTx() {
   );
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const [showBurnWarning, setShowBurnWarning] = useState(false);
@@ -66,24 +69,22 @@ export function AvalancheSignTx() {
     }
   }, [txData?.isValidAvaxBurnedAmount]);
 
-  useLedgerDisconnectedDialog(
-    () => handleRejection(),
-    LedgerAppType.AVALANCHE,
-    network,
-  );
-
   const signTx = useCallback(async () => {
     await updateAction(
       {
         status: ActionStatus.SUBMITTING,
         id: requestId,
       },
-      isUsingLedgerWallet || isWalletConnectAccount || isFireblocksAccount,
+      isUsingLedgerWallet ||
+        isWalletConnectAccount ||
+        isFireblocksAccount ||
+        isUsingKeystone3Wallet,
     );
   }, [
     updateAction,
     requestId,
     isUsingLedgerWallet,
+    isUsingKeystone3Wallet,
     isWalletConnectAccount,
     isFireblocksAccount,
   ]);
@@ -94,10 +95,21 @@ export function AvalancheSignTx() {
       onReject: cancelHandler,
     });
 
+  useLedgerDisconnectedDialog(
+    handleRejection,
+    LedgerAppType.AVALANCHE,
+    network,
+  );
+  useKeystone3DisconnectedDialog(handleRejection);
+
   const renderDeviceApproval = useCallback(() => {
     if (isApprovalOverlayVisible) {
       if (isUsingLedgerWallet) {
         return <LedgerApprovalOverlay />;
+      }
+
+      if (isUsingKeystone3Wallet) {
+        return <Keystone3ApprovalOverlay />;
       }
 
       if (isWalletConnectAccount) {
@@ -120,6 +132,7 @@ export function AvalancheSignTx() {
   }, [
     isApprovalOverlayVisible,
     isUsingLedgerWallet,
+    isUsingKeystone3Wallet,
     isWalletConnectAccount,
     isFireblocksAccount,
     handleRejection,

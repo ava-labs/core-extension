@@ -15,6 +15,7 @@ import {
 import { SubmitKeystoneSignature } from '@core/service-worker';
 import { filter } from 'rxjs';
 import { useConnectionContext } from './ConnectionProvider';
+import { KeystoneUsbContextProvider } from './KeystoneUsbProvider';
 
 const KeystoneContext = createContext<{
   txRequest?: KeystoneDeviceRequestData;
@@ -57,15 +58,17 @@ export function KeystoneContextProvider({ children }: { children: any }) {
   }, []);
 
   return (
-    <KeystoneContext.Provider
-      value={{
-        txRequest,
-        resetKeystoneRequest,
-        submitSignature,
-      }}
-    >
-      {children}
-    </KeystoneContext.Provider>
+    <KeystoneUsbContextProvider>
+      <KeystoneContext.Provider
+        value={{
+          txRequest,
+          resetKeystoneRequest,
+          submitSignature,
+        }}
+      >
+        {children}
+      </KeystoneContext.Provider>
+    </KeystoneUsbContextProvider>
   );
 }
 

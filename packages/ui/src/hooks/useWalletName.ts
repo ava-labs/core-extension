@@ -20,6 +20,7 @@ export const useWalletName = () => {
         });
 
       case SecretType.Keystone:
+      case SecretType.Keystone3Pro:
         return t('Keystone {{number}}', {
           number: '01',
         });
