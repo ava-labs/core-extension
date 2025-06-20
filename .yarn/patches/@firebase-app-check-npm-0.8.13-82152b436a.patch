@@ -1,0 +1,68 @@
+diff --git a/dist/esm/index.esm2017.js b/dist/esm/index.esm2017.js
+index 0ccacd0074ecd0e8c3d7aecff784035c976c3507..45b1bbdecd576496512cbeff1a3ae3360416e71c 100644
+--- a/dist/esm/index.esm2017.js
++++ b/dist/esm/index.esm2017.js
+@@ -1072,8 +1072,6 @@ const version = "0.8.13";
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api.js';
+-const RECAPTCHA_ENTERPRISE_URL = 'https://www.google.com/recaptcha/enterprise.js';
+ function initializeV3(app, siteKey) {
+     const initialized = new Deferred();
+     const state = getStateReference(app);
+@@ -1178,18 +1176,8 @@ function renderInvisibleWidget(app, siteKey, grecaptcha, container) {
+     state.reCAPTCHAState = Object.assign(Object.assign({}, state.reCAPTCHAState), { // state.reCAPTCHAState is set in the initialize()
+         widgetId });
+ }
+-function loadReCAPTCHAV3Script(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
+-function loadReCAPTCHAEnterpriseScript(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_ENTERPRISE_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
++function loadReCAPTCHAV3Script(onload) {}
++function loadReCAPTCHAEnterpriseScript(onload) {}
+ 
+ /**
+  * @license
+diff --git a/dist/index.cjs.js b/dist/index.cjs.js
+index 0c2a517b474822b9546c2826f3d31b0d170380a5..91e54ea0cdcbd4f89d57d4e609eaf47a9f6bcd41 100644
+--- a/dist/index.cjs.js
++++ b/dist/index.cjs.js
+@@ -1076,8 +1076,6 @@ const version = "0.8.13";
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-const RECAPTCHA_URL = 'https://www.google.com/recaptcha/api.js';
+-const RECAPTCHA_ENTERPRISE_URL = 'https://www.google.com/recaptcha/enterprise.js';
+ function initializeV3(app, siteKey) {
+     const initialized = new util.Deferred();
+     const state = getStateReference(app);
+@@ -1182,18 +1180,8 @@ function renderInvisibleWidget(app, siteKey, grecaptcha, container) {
+     state.reCAPTCHAState = Object.assign(Object.assign({}, state.reCAPTCHAState), { // state.reCAPTCHAState is set in the initialize()
+         widgetId });
+ }
+-function loadReCAPTCHAV3Script(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
+-function loadReCAPTCHAEnterpriseScript(onload) {
+-    const script = document.createElement('script');
+-    script.src = RECAPTCHA_ENTERPRISE_URL;
+-    script.onload = onload;
+-    document.head.appendChild(script);
+-}
++function loadReCAPTCHAV3Script(onload) {}
++function loadReCAPTCHAEnterpriseScript(onload) {}
+ 
+ /**
+  * @license
