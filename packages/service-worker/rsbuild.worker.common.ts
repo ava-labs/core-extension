@@ -58,7 +58,11 @@ export default defineConfig(() => {
       },
     },
     plugins: [
-      pluginNodePolyfill(),
+      pluginNodePolyfill({
+        overrides: {
+          buffer: 'buffer',
+        },
+      }),
       pluginReact({
         swcReactOptions: {
           refresh: false,

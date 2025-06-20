@@ -4433,6 +4433,7 @@ __metadata:
     "@walletconnect/sign-client": "npm:2.9.1"
     "@walletconnect/types": "npm:2.9.1"
     "@walletconnect/utils": "npm:2.9.2"
+    Buffer: "npm:6.0.3"
     argon2-browser: "npm:1.18.0"
     babel-jest: "npm:29.7.0"
     babel-loader: "npm:9.1.3"
@@ -13338,6 +13339,16 @@ __metadata:
   version: 0.9.0
   resolution: "@zxing/text-encoding@npm:0.9.0"
   checksum: 10c0/d15bff181d46c2ab709e7242801a8d40408aa8c19b44462e5f60e766bf59105b44957914ab6baab60d10d466a5e965f21fe890c67dfdb7d5c7f940df457b4d0d
+  languageName: node
+  linkType: hard
+
+"Buffer@npm:6.0.3":
+  version: 6.0.3
+  resolution: "Buffer@npm:6.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2Fbuffer%2F-%2Fbuffer-6.0.3.tgz"
+  dependencies:
+    base64-js: "npm:^1.3.1"
+    ieee754: "npm:^1.2.1"
+  checksum: 10c0/e64e8f520dbe983868c5a0e8f8e8a156d6f8f4b038f45f47a170e3431ee504a37a1230bd2c4bfdbb8c0f374f4dc606829e9010e04c19a3bf6b6b1675c65d81ea
   languageName: node
   linkType: hard
 
