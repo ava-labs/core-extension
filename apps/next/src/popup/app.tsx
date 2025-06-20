@@ -1,8 +1,9 @@
 import {
-  CircularProgress,
-  IconButton,
   ThemeProvider,
   toast,
+  CircularProgress,
+  Stack,
+  IconButton,
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
@@ -11,12 +12,30 @@ import {
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
-
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
+
+import { Providers } from '.';
+import { Header } from '@/components/Header';
+
+const pagesWithoutHeader = [
+  '/tokens/manage',
+  '/bridge/confirm',
+  '/bridge/transaction-status',
+  '/bridge/transaction-details',
+  '/send/confirm',
+  '/collectible',
+  '/collectible/send/confirm',
+  '/accounts',
+  '/import-private-key',
+  '/import-with-walletconnect',
+  '/defi',
+  '/fireblocks',
+  '/export-private-key',
+];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -26,39 +45,44 @@ export function App() {
     return <CircularProgress />;
   }
 
+  const displayHeader = !pagesWithoutHeader.some((path) =>
+    location.pathname.startsWith(path),
+  );
+
   return (
-    <ThemeProvider theme={preferredColorScheme}>
-      <AccountsContextProvider>
-        <NetworkContextProvider>
-          <OnboardingContextProvider
-            onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
-            OnboardingScreen={Onboarding}
-          >
-            <WalletContextProvider LockedComponent={LockScreen}>
-              <Switch>
-                <Route
-                  path="/account-management"
-                  component={AccountManagement}
-                />
-                <Route
-                  path="/"
-                  render={() => (
-                    <div>
-                      <div>Under construction 🚧</div>
-                      <IconButton
-                        onClick={() => history.push('/account-management')}
-                      >
-                        <MdSwitchAccount />
-                      </IconButton>
-                    </div>
-                  )}
-                />
-              </Switch>
-            </WalletContextProvider>
-          </OnboardingContextProvider>
-        </NetworkContextProvider>
-      </AccountsContextProvider>
-    </ThemeProvider>
+    <Providers
+      providers={[
+        <ThemeProvider theme={preferredColorScheme} key={0} />,
+        <AccountsContextProvider key={1} />,
+        <NetworkContextProvider key={2} />,
+        <OnboardingContextProvider
+          onError={(message: string) => toast.error(message)}
+          LoadingComponent={CircularProgress}
+          OnboardingScreen={Onboarding}
+          key={3}
+        />,
+        <WalletContextProvider LockedComponent={LockScreen} key={4} />,
+      ]}
+    >
+      <Switch>
+        <Route path="/account-management" component={AccountManagement} />
+        <Route
+          path="/"
+          render={() => (
+            <div>
+              {displayHeader && (
+                <Stack sx={{ width: 1 }}>
+                  <Header />
+                </Stack>
+              )}
+              <div>Under construction 🚧</div>
+              <IconButton onClick={() => history.push('/account-management')}>
+                <MdSwitchAccount />
+              </IconButton>
+            </div>
+          )}
+        />
+      </Switch>
+    </Providers>
   );
 }

@@ -13,7 +13,7 @@ import { AVATAR_DICTIONARY, PersonalAvatarName } from './avatar-dictionary';
 
 type PersonalAvatarSharedProps = {
   isGlowing?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
   selected?: boolean;
   dimmed?: boolean;
 };
@@ -90,13 +90,7 @@ export const PersonalAvatar = ({
       )}
       {...props}
     >
-      <AvatarHex
-        alt={alt}
-        size={size}
-        src={src}
-        // @ts-expect-error - Missing property in @avalabs/k2-alpine
-        selected={selected}
-      />
+      <AvatarHex alt={alt} size={size} src={src} selected={selected} />
     </Box>
   );
 };
