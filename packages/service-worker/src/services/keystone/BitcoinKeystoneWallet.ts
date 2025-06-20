@@ -1,9 +1,12 @@
 import { BitcoinProviderAbstract, createPsbt } from '@avalabs/core-wallets-sdk';
 import { CryptoPSBT } from '@keystonehq/bc-ur-registry-eth';
+import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
 import { Psbt, Transaction } from 'bitcoinjs-lib';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import { UREncoder } from '@ngraveio/bc-ur';
+import { BtcTransactionRequest, KeystoneTransport } from '@core/types';
 
-import { BtcTransactionRequest } from '@core/types';
-import { KeystoneTransport } from '@core/types';
+import { parseResponoseUR } from './KeystoneWallet';
 
 export class BitcoinKeystoneWallet {
   constructor(
@@ -13,6 +16,7 @@ export class BitcoinKeystoneWallet {
     private keystoneTransport: KeystoneTransport,
     private provider: BitcoinProviderAbstract,
     private tabId?: number,
+    private viaUSB?: boolean,
   ) {}
 
   async signTx(
@@ -33,19 +37,53 @@ export class BitcoinKeystoneWallet {
       });
     });
 
+    if (outputs.length >= 2) {
+      psbt.updateOutput(outputs.length - 1, {
+        bip32Derivation: [
+          {
+            masterFingerprint: Buffer.from(this.fingerprint, 'hex'),
+            pubkey: this.pubKey,
+            path: this.keyPath,
+          },
+        ],
+      });
+    }
+
     const cryptoPSBT = new CryptoPSBT(psbt.toBuffer());
-    const { type, cbor } = cryptoPSBT.toUR();
+    const ur = cryptoPSBT.toUR();
+
+    const formatResult = (_psbt: Psbt) => {
+      if (_psbt.validateSignaturesOfAllInputs()) {
+        _psbt.finalizeAllInputs();
+        return _psbt.extractTransaction();
+      }
+      return _psbt.extractTransaction();
+    };
+
+    if (this.viaUSB) {
+      const app = new KeystoneUSBEthSDK(
+        (await createKeystoneTransport()) as any,
+      );
+      const encodedUR = new UREncoder(ur!, Infinity).nextPart().toUpperCase();
+      const signedCborBuffer = parseResponoseUR(
+        (await app.signTransactionFromUr(encodedUR)).payload,
+      ).cbor;
+
+      const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();
+
+      return formatResult(Psbt.fromBuffer(signedTx));
+    }
 
     const signedCborBuffer = await this.keystoneTransport.requestSignature(
       {
-        type,
-        cbor: cbor.toString('hex'),
+        type: ur.type,
+        cbor: ur.cbor.toString('hex'),
       },
       this.tabId,
     );
 
     const signedTx = CryptoPSBT.fromCBOR(signedCborBuffer).getPSBT();
 
-    return Psbt.fromBuffer(signedTx).extractTransaction();
+    return formatResult(Psbt.fromBuffer(signedTx));
   }
 }

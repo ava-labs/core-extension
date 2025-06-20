@@ -15,6 +15,9 @@ export enum SentryExceptionTypes {
   // ledger
   LEDGER = 'ledger',
 
+  // keystone
+  KEYSTONE = 'keystone',
+
   WALLETCONNECT = 'walletConnect',
 
   SEEDLESS = 'seedless',
