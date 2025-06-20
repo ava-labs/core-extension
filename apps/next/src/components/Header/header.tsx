@@ -129,6 +129,9 @@ const StackRowStyled = styled(StackRow)`
   &:hover > .sidebarDockIcon {
     display: block;
   }
+  &:hover > .sidebarUndockIcon {
+    display: block;
+  }
 `;
 
 export const Header = () => {
@@ -136,6 +139,7 @@ export const Header = () => {
   const { accounts } = useAccountsContext();
   const activeAccount = accounts.active;
   const theme = useTheme();
+  console.log('theme: ', theme);
   const { t } = useTranslation();
   const { permissions, revokeAddressPermisson, isDomainConnectedToAccount } =
     usePermissionContext();
@@ -152,7 +156,7 @@ export const Header = () => {
       )) ||
     false;
   // TODO: implement a getter for the sidebar funcionality
-  const isSidebar = false;
+  const isSidebar = true;
   // TODO: implement a getter for the dApp property `isDomainMalicious`
   const isDomainMalicious = false;
 
@@ -285,7 +289,7 @@ export const Header = () => {
           </AccountSelectContainer>
           <Stack sx={{ flexDirection: 'row', gap: 1 }}>
             <Stack sx={{ cursor: 'pointer' }}>
-              {isConnected && (
+              {isConnected && !isDomainMalicious && (
                 <MdCheckCircle
                   size={24}
                   color={theme.palette.success.main}
