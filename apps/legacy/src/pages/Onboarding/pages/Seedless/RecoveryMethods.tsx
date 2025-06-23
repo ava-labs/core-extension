@@ -6,7 +6,6 @@ import {
   KeyIcon,
   QRCodeIcon,
   Stack,
-  toast,
   Typography,
   UsbIcon,
 } from '@avalabs/core-k2-components';
@@ -25,6 +24,7 @@ import {
 } from './modals/AuthenticatorModal';
 import { FIDOModal } from './modals/FIDOModal';
 import { RecoveryMethodTypes } from '@core/types';
+import { SEEDLESS_ACTIONS_DEFAULTS } from '../../utils/seedlessOnboardingUrls';
 
 export function RecoveryMethods() {
   const history = useHistory();
@@ -39,9 +39,7 @@ export function RecoveryMethods() {
     isSeedlessMfaRequired: isSeedlessMfaRequiredForAccount,
     setOnboardingWalletType,
   } = useOnboardingContext();
-  const { loginWithoutMFA } = useSeedlessActions({
-    onError: (msg) => toast.error(msg),
-  });
+  const { loginWithoutMFA } = useSeedlessActions(SEEDLESS_ACTIONS_DEFAULTS);
 
   useEffect(() => {
     if (!oidcToken) {

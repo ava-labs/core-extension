@@ -7,7 +7,6 @@ import {
   XIcon,
   useTheme,
   AlertCircleIcon,
-  toast,
 } from '@avalabs/core-k2-components';
 import { Overlay } from '@/components/common/Overlay';
 import { useSeedlessActions } from '@core/ui';
@@ -15,6 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAnalyticsContext } from '@core/ui';
 import { FIDOSteps, RecoveryMethodTypes } from '@core/types';
+import { SEEDLESS_ACTIONS_DEFAULTS } from '@/pages/Onboarding/utils/seedlessOnboardingUrls';
 
 interface SeedlessModalProps {
   onFinish: () => void;
@@ -31,9 +31,9 @@ export function FIDOModal({
 }: SeedlessModalProps) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { addFIDODevice, loginWithFIDO } = useSeedlessActions({
-    onError: (msg) => toast.error(msg),
-  });
+  const { addFIDODevice, loginWithFIDO } = useSeedlessActions(
+    SEEDLESS_ACTIONS_DEFAULTS,
+  );
   const { capture } = useAnalyticsContext();
 
   const [FIDODeviceName, setFIDODeviceName] = useState('');
