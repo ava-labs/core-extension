@@ -29,7 +29,7 @@ export const getAddressItemProps = memoize(
       case 'PChain':
       case 'XChain':
         return {
-          label: 'Avalanche X-Chain',
+          label: 'Avalanche X/P-Chain',
           address: account.addressAVM,
           Icon: XPChainIcon,
         };
