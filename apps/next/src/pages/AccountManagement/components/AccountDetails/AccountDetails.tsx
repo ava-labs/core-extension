@@ -68,9 +68,9 @@ export const AccountDetails: FC = () => {
         </Stack>
       </Scroller>
       <Typography variant="caption" px={1.5} mt={-1} color="text.secondary">
-        Your account&apos;s private key is a fixed password for accessing the
+        {t(`Your account's private key is a fixed password for accessing the
         specific addresses above. Keep it secure, anyone with this private key
-        can access the account associated with it.
+        can access the account associated with it.`)}
       </Typography>
       <ActionButtons
         onRename={() => {

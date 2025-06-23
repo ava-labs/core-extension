@@ -30,7 +30,7 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
         <br />
         <span>{currencyFormatter(balance?.sum ?? 0)}</span>
       </Typography>
-      {!isTokensCached && (
+      {isTokensCached && (
         <StaleBalanceContainer>
           <MdError size={14} />
           <Typography variant="h6" color="error">

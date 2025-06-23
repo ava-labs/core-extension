@@ -45,7 +45,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
-            label="Avalanche X-Chain"
+            label="Avalanche X/P Chain"
             Icon={
               <QRCodeIconButton
                 onClick={getNavigateToQRCode(history, account.id, 'XChain')}

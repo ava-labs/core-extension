@@ -55,14 +55,14 @@ export const AccountContextMenu: FC<Props> = ({
       {...menuSlots}
     >
       <AddressItem
-        label="Avalanche C-Chain"
+        label="Avalanche C Chain"
         Icon={CChainIcon}
         address={account.addressC}
         onClick={onClose}
       />
       <Styled.Divider variant="inset" component="li" />
       <AddressItem
-        label="Avalanche X-Chain"
+        label="Avalanche X/P Chain"
         Icon={XPChainIcon}
         address={account.addressAVM}
         onClick={onClose}
