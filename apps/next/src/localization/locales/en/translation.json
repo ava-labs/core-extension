@@ -229,6 +229,7 @@
   "You do not have enough funds to cover the network fees.": "You do not have enough funds to cover the network fees.",
   "You will be prompted {{remaining}} more time(s).": "You will be prompted {{remaining}} more time(s).",
   "You're about to terminate this session": "You're about to terminate this session",
+  "Your account's private key is a fixed password for accessing the\n        specific addresses above. Keep it secure, anyone with this private key\n        can access the account associated with it.": "Your account's private key is a fixed password for accessing the\n        specific addresses above. Keep it secure, anyone with this private key\n        can access the account associated with it.",
   "paraswap error message while get rate: {{message}}": "paraswap error message while get rate: {{message}}",
   "your avatar": "your avatar",
   "{{length}}-word phrase": "{{length}}-word phrase"
