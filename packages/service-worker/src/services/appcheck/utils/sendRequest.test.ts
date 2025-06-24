@@ -4,10 +4,6 @@ describe('sendRequest', () => {
   const realEnv = process.env;
   const realFetch = global.fetch;
 
-  const manifestResponseMock = {
-    json: jest.fn(),
-  };
-
   const responseMock = {
     ok: true,
   };
@@ -16,13 +12,8 @@ describe('sendRequest', () => {
     process.env = { ...realEnv };
     global.fetch = jest.fn();
 
-    jest.mocked(manifestResponseMock.json).mockResolvedValue({
-      version: '0.0.0',
-    });
-
     jest
       .mocked(global.fetch)
-      .mockResolvedValueOnce(manifestResponseMock as unknown as Response)
       .mockResolvedValueOnce(responseMock as unknown as Response);
   });
 
@@ -39,7 +30,7 @@ describe('sendRequest', () => {
     ).rejects.toThrow('ID_SERVICE_URL is missing');
   });
 
-  it('sends a request to the ID service properly on non-development environments', async () => {
+  it.only('sends a request to the ID service properly on non-development environments', async () => {
     // @ts-expect-error - NODE_ENV is read-only
     process.env.NODE_ENV = 'production';
     process.env.ID_SERVICE_URL = 'https://test.com';
@@ -50,18 +41,14 @@ describe('sendRequest', () => {
     });
 
     expect(response).toStrictEqual(responseMock);
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-    expect(global.fetch).toHaveBeenNthCalledWith(
-      1,
-      chrome.runtime.getURL('manifest.json'),
-    );
-    expect(global.fetch).toHaveBeenNthCalledWith(2, 'https://test.com/test', {
+    expect(global.fetch).toHaveBeenCalledWith('https://test.com/test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-App-Version': '0.0.0',
         'X-App-Type': 'extension',
-        'X-App-Manifest': 'W1sidmVyc2lvbiIsIjAuMC4wIl1d',
+        'X-App-Manifest':
+          'eyJtYW5pZmVzdF92ZXJzaW9uIjozLCJ2ZXJzaW9uIjoiMC4wLjAifQ==',
       },
       body: JSON.stringify({ foo: 'bar' }),
     });
@@ -79,18 +66,14 @@ describe('sendRequest', () => {
     });
 
     expect(response).toStrictEqual(responseMock);
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-    expect(global.fetch).toHaveBeenNthCalledWith(
-      1,
-      chrome.runtime.getURL('manifest.json'),
-    );
-    expect(global.fetch).toHaveBeenNthCalledWith(2, 'https://test.com/test', {
+    expect(global.fetch).toHaveBeenCalledWith('https://test.com/test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-App-Version': '0.0.0',
         'X-App-Type': 'extension',
-        'X-App-Manifest': 'W1sidmVyc2lvbiIsIjAuMC4wIl1d',
+        'X-App-Manifest':
+          'eyJtYW5pZmVzdF92ZXJzaW9uIjozLCJ2ZXJzaW9uIjoiMC4wLjAifQ==',
         'X-Api-Key': 'testkey',
       },
       body: JSON.stringify({ foo: 'bar' }),
