@@ -5,24 +5,14 @@ import {
   DialogTitle,
   IconButton,
   Slide,
-  Stack,
-  styled,
 } from '@avalabs/k2-alpine';
 import { BalancesProvider, WalletTotalBalanceProvider } from '@core/ui';
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
-import AddOrConnectWalletButton from './components/AddOrConnectWalletButton';
-import CurrentAccount from './components/CurrentAccount';
+import { Route, Switch, useHistory } from 'react-router-dom';
 import { Wallets } from './components/Wallets';
-
-const PaddedEndStack = styled(Stack)(({ theme }) => ({
-  gap: theme.spacing(1.5),
-  '&:after': {
-    content: '""',
-    height: theme.spacing(4),
-  },
-}));
+import { AccountDetails } from './components/AccountDetails';
+import { QRCode } from './components/QRCode';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -51,11 +41,14 @@ const AccountManagement: FC = () => {
             </IconButton>
           </DialogTitle>
           <DialogContent sx={{ paddingInline: 1.5 }}>
-            <PaddedEndStack>
-              <CurrentAccount />
-              <Wallets />
-              <AddOrConnectWalletButton />
-            </PaddedEndStack>
+            <Switch>
+              <Route path="/account-management/qr-code" component={QRCode} />
+              <Route
+                path="/account-management/account"
+                component={AccountDetails}
+              />
+              <Route path="/account-management" component={Wallets} />
+            </Switch>
           </DialogContent>
         </Dialog>
       </WalletTotalBalanceProvider>

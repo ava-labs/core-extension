@@ -11,7 +11,6 @@ export const SeedphraseGrid: FC<SeedphraseGridProps> = ({ phrase }) => {
   const words = phrase.split(/\s+/);
 
   return (
-    // @ts-expect-error - Broken Theme type in @avalabs/k2-alpine
     <Paper sx={{ px: 3, py: 2, borderRadius: theme.shape.mediumBorderRadius }}>
       <Grid2 container spacing={1.5} component="ol">
         {Array.from({ length: words.length }, (_, i) => {
