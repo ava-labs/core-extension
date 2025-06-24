@@ -56,9 +56,9 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
       </OnboardingStepDescription>
       <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
         <SolanaLedgerConnector
-          onSuccess={(keys) => setDerivedKeys(keys)}
+          onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
-          onStatusChange={(_status) => setStatus(_status)}
+          onStatusChange={setStatus}
           numberOfKeys={3}
         />
       </OnboardingStepContent>

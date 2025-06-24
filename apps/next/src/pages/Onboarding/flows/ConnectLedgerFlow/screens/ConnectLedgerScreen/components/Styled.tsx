@@ -161,9 +161,10 @@ export const LedgerLiveButton: FC<ButtonProps> = (props) => (
     size="medium"
     variant="text"
     endIcon={<OutboundIcon size={24} />}
-    onClick={() => {
-      window.open('https://www.ledger.com/ledger-live', '_blank', 'noreferrer');
-    }}
+    component="a"
+    href="https://www.ledger.com/ledger-live"
+    target="_blank"
+    rel="noreferrer"
     {...props}
   />
 );

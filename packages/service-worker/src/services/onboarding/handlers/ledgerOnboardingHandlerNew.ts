@@ -48,13 +48,15 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const {
-      addressPublicKeys,
-      extendedPublicKeys,
-      password,
-      analyticsConsent,
-      walletName,
-    } = (request.params ?? [])[0] ?? {};
+    const [
+      {
+        addressPublicKeys,
+        extendedPublicKeys,
+        password,
+        analyticsConsent,
+        walletName,
+      },
+    ] = request.params;
 
     await startOnboarding({
       settingsService: this.settingsService,

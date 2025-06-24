@@ -58,9 +58,9 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
       </OnboardingStepDescription>
       <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
         <AvalancheLedgerConnector
-          onSuccess={(keys) => setDerivedKeys(keys)}
+          onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
-          onStatusChange={(_status) => setStatus(_status)}
+          onStatusChange={setStatus}
           setDerivationPathSpec={setDerivationPathSpec}
           derivationPathSpec={derivationPathSpec}
           numberOfKeys={3}

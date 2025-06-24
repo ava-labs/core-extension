@@ -16,7 +16,6 @@ type AvalancheLedgerConnectorProps = Omit<
   | 'useLedgerPublicKeyFetcher'
   | 'derivedAddressesChainCaipId'
 >;
-// type AvalancheLedgerConnectorProps = ComponentProps<typeof BaseLedgerConnector>;
 
 const AVALANCHE_C_CHAIN_CAIP_ID = `eip155:${ChainId.AVALANCHE_MAINNET_ID}`;
 

@@ -5,6 +5,7 @@ import {
   Divider,
   Stack,
   StackProps,
+  styled,
   Typography,
 } from '@avalabs/k2-alpine';
 
@@ -67,13 +68,13 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
               {t('Connect the Ledger device to your computer')}
             </Typography>
           </li>
-          <Divider sx={{ my: 2, ml: -2, mr: 2 }} />
+          <StyledDivider />
           <li>
             <Typography variant="body2">
               {t('Enter your PIN on your Ledger')}
             </Typography>
           </li>
-          <Divider sx={{ my: 2, ml: -2, mr: 2 }} />
+          <StyledDivider />
           <li>
             <Typography variant="body2">
               {t(
@@ -87,7 +88,6 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
       <OnboardingStepActions>
         <Button
           sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          // disabled={!isValid}
           variant="contained"
           color="primary"
           onClick={onClose}
@@ -98,3 +98,9 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
     </Stack>
   );
 };
+
+const StyledDivider = styled(Divider)(({ theme }) => ({
+  marginBlock: theme.spacing(2),
+  marginLeft: theme.spacing(-2),
+  marginRight: theme.spacing(2),
+}));
