@@ -26,7 +26,6 @@ type Props = {
   Icon: ComponentType<IconProps>;
   label: string;
   address: string | undefined;
-  onClose: VoidFunction;
   lastElement?: boolean;
 };
 
@@ -34,17 +33,12 @@ const GhostButton = styled(Button)(({ theme }) => ({
   marginInlineStart: 'auto',
   opacity: 0,
   transition: theme.transitions.create(['opacity']),
-  '&.MuiButton-root.MuiButton-contained': {
-    background: getHexAlpha(theme.palette.primary.main, 10),
-    color: theme.palette.text.primary,
-  },
 }));
 
 export const AccountItem: FC<Props> = ({
   Icon,
   label,
   address,
-  onClose,
   lastElement,
 }) => {
   const { t } = useTranslation();
@@ -107,7 +101,6 @@ export const AccountItem: FC<Props> = ({
               onClick={() => {
                 navigator.clipboard.writeText(address);
                 toast.success(t('Address copied!'));
-                onClose();
               }}
             >
               {t('Copy')}

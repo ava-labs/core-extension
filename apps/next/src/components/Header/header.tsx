@@ -15,6 +15,7 @@ import {
   SidebarIcon,
   SidebarDockIcon,
   SidebarUndockIcon,
+  Grow,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext, usePermissionContext } from '@core/ui';
 import {
@@ -38,27 +39,30 @@ import { NetworkVMType } from '@avalabs/vm-module-types';
 import { AccountItem } from './Account/AccountItems';
 import { useCurrentDomain } from '@/pages/Permissions/useCurrentDomain';
 
-const AccountInfo = styled(Stack)(({ theme }) => ({
-  cursor: 'pointer',
-  borderRadius: '10px',
-  padding: theme.spacing(0.5),
-  transition: theme.transitions.create(['background', 'opacity']),
-  '& > svg ': {
-    opacity: 0,
-  },
-  ':hover': {
-    background: getHexAlpha(theme.palette.primary.main, 10),
-    '& > svg ': {
-      opacity: 1,
-    },
-  },
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 1,
-}));
+const AccountInfo = styled(Stack)`
+  cursor: pointer;
+  border-radius: 10px;
+  padding: ${({ theme }) => theme.spacing(0.5)};
+  transition: ${({ theme }) =>
+    theme.transitions.create(['background', 'opacity'])};
+
+  flex-direction: row;
+  align-items: center;
+  gap: 1;
+  & > svg {
+    opacity: 0;
+  }
+`;
 
 const AccountSelectContainer = styled(Stack)`
   cursor: pointer;
+  position: relative;
+  &:hover > div:first-of-type {
+    background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
+    & > svg {
+      opacity: 1;
+    }
+  }
 `;
 
 CSS.registerProperty({
@@ -139,7 +143,6 @@ export const Header = () => {
   const { accounts } = useAccountsContext();
   const activeAccount = accounts.active;
   const theme = useTheme();
-  console.log('theme: ', theme);
   const { t } = useTranslation();
   const { permissions, revokeAddressPermisson, isDomainConnectedToAccount } =
     usePermissionContext();
@@ -147,6 +150,7 @@ export const Header = () => {
     list: permissions,
     account: activeAccount,
   });
+  const [isAddressAppear, setIsAddressAppear] = useState(false);
 
   const isConnected =
     (isDomainConnectedToAccount &&
@@ -155,7 +159,7 @@ export const Header = () => {
         getAllAddressesForAccount(activeAccount ?? {}),
       )) ||
     false;
-  // TODO: implement a getter for the sidebar funcionality
+  // TODO: implement a getter for the sidebar functionality
   const isSidebar = true;
   // TODO: implement a getter for the dApp property `isDomainMalicious`
   const isDomainMalicious = false;
@@ -163,7 +167,7 @@ export const Header = () => {
   const popoverBackground =
     theme.palette.mode === 'dark'
       ? //@ts-expect-error type error from K2
-        theme.palette.neutral['850_60']
+        theme.palette.neutral['850_90']
       : theme.palette.common['white_60'];
 
   const popoverHeadline =
@@ -172,24 +176,13 @@ export const Header = () => {
       : //@ts-expect-error type error from K2
         theme.palette.neutral['850_10'];
 
-  const [addressesAnchorEl, setAddressesAnchorEl] =
-    useState<HTMLButtonElement | null>(null);
-
   const [connectedSitesAnchorEl, setConnectedSitesAnchorEl] =
     useState<HTMLButtonElement | null>(null);
 
-  const addressesPopoverOpen = !!addressesAnchorEl;
   const connectedSitesPopoverOpen = !!connectedSitesAnchorEl;
 
-  const handleAddressClick = (event) => {
-    setAddressesAnchorEl(event.currentTarget);
-  };
   const handleConnectedSitesClick = (event) => {
     setConnectedSitesAnchorEl(event.currentTarget);
-  };
-
-  const handleAddressClose = () => {
-    setAddressesAnchorEl(null);
   };
   const handleConnectedSitesClose = () => {
     setConnectedSitesAnchorEl(null);
@@ -217,8 +210,11 @@ export const Header = () => {
             zIndex: 1,
           }}
         >
-          <AccountSelectContainer>
-            <AccountInfo onClick={handleAddressClick}>
+          <AccountSelectContainer
+            onMouseOver={() => setIsAddressAppear(true)}
+            onMouseLeave={() => setIsAddressAppear(false)}
+          >
+            <AccountInfo>
               <PersonalAvatar
                 name={AVATAR_OPTIONS[0]}
                 size="xsmall"
@@ -232,60 +228,46 @@ export const Header = () => {
                 color={getHexAlpha(theme.palette.primary.main, 70)}
               />
             </AccountInfo>
-            <Popover
-              open={addressesPopoverOpen}
-              anchorEl={addressesAnchorEl}
-              onClose={handleAddressClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              slotProps={{
-                paper: {
-                  style: {
-                    width: '250px',
-                    background: popoverBackground,
-                    border: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
-                  },
-                },
-              }}
-            >
-              <AccountItem
-                label="Avalanche C-Chain"
-                Icon={CChainIcon}
-                address={activeAccount?.addressC}
-                onClose={handleAddressClose}
-              />
-              <AccountItem
-                label="Avalanche X-Chain"
-                Icon={XPChainIcon}
-                address={activeAccount?.addressAVM}
-                onClose={handleAddressClose}
-              />
-              <AccountItem
-                label="Bitcoin"
-                Icon={BitcoinColorIcon}
-                address={activeAccount?.addressBTC}
-                onClose={handleAddressClose}
-              />
-              <AccountItem
-                label="Ethereum"
-                Icon={EthereumColorIcon}
-                address={activeAccount?.addressC}
-                onClose={handleAddressClose}
-              />
-              <AccountItem
-                label="Solana"
-                Icon={SolanaColorIcon}
-                address={activeAccount?.addressSVM}
-                onClose={handleAddressClose}
-                lastElement
-              />
-            </Popover>
+            <Grow in={isAddressAppear}>
+              <Stack
+                sx={{
+                  position: 'absolute',
+                  top: theme.spacing(4.5),
+                  left: theme.spacing(0.5),
+                  width: '250px',
+                  background: popoverBackground,
+                  border: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
+                  borderRadius: `${theme.shape.borderRadius * 2}px`,
+                }}
+              >
+                <AccountItem
+                  label="Avalanche C-Chain"
+                  Icon={CChainIcon}
+                  address={activeAccount?.addressC}
+                />
+                <AccountItem
+                  label="Avalanche X-Chain"
+                  Icon={XPChainIcon}
+                  address={activeAccount?.addressAVM}
+                />
+                <AccountItem
+                  label="Bitcoin"
+                  Icon={BitcoinColorIcon}
+                  address={activeAccount?.addressBTC}
+                />
+                <AccountItem
+                  label="Ethereum"
+                  Icon={EthereumColorIcon}
+                  address={activeAccount?.addressC}
+                />
+                <AccountItem
+                  label="Solana"
+                  Icon={SolanaColorIcon}
+                  address={activeAccount?.addressSVM}
+                  lastElement
+                />
+              </Stack>
+            </Grow>
           </AccountSelectContainer>
           <Stack sx={{ flexDirection: 'row', gap: 1 }}>
             <Stack sx={{ cursor: 'pointer' }}>
