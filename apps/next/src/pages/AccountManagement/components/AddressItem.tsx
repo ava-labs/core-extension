@@ -11,7 +11,7 @@ import { stripAddressPrefix } from '@core/common';
 import { ComponentType, FC, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconBaseProps } from 'react-icons';
-import { ChainListItem } from '../ChainListItem';
+import { ChainListItem } from './ChainListItem';
 
 export type Props = {
   Icon: ComponentType<IconBaseProps> | ReactElement<IconBaseProps>;
@@ -48,8 +48,7 @@ export const AddressItem: FC<Props> = ({
       subtitle={
         <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography
-            variant="overline"
-            fontFamily="monospace"
+            variant="mono"
             color="text.secondary"
             sx={truncate ? undefined : { lineBreak: 'anywhere' }}
           >

@@ -10,6 +10,7 @@ import {
 export * from './Styled';
 
 export const Card = styled(K2Card)(({ theme }) => ({
+  paddingBlock: theme.spacing(0.5),
   backgroundColor:
     theme.palette.mode === 'light'
       ? theme.palette.surface.primary

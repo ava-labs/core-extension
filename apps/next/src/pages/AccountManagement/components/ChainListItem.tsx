@@ -7,7 +7,13 @@ import {
   styled,
   Box,
 } from '@avalabs/k2-alpine';
-import { ComponentType, FC, isValidElement, ReactElement } from 'react';
+import {
+  cloneElement,
+  ComponentType,
+  FC,
+  isValidElement,
+  ReactElement,
+} from 'react';
 import { IconBaseProps } from 'react-icons';
 
 export type Props = {
@@ -34,9 +40,22 @@ export const ChainListItem: FC<Props> = ({
   return (
     <ListItem>
       <ItemIcon>
-        {isValidElement(Icon) ? Icon : <Icon size={iconSize} />}
+        {isValidElement(Icon) ? (
+          iconSize ? (
+            cloneElement(Icon, { size: iconSize })
+          ) : (
+            Icon
+          )
+        ) : (
+          <Icon size={iconSize} />
+        )}
       </ItemIcon>
-      <Stack direction="column" gap={0} marginInlineEnd={1}>
+      <Stack
+        direction="column"
+        gap={0}
+        marginInlineEnd={1}
+        sx={{ cursor: 'default', userSelect: 'none' }}
+      >
         <Typography variant={labelVariant}>{label}</Typography>
         {subtitle}
       </Stack>

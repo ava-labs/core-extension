@@ -40,7 +40,7 @@ const AccountManagement: FC = () => {
               <MdArrowBack />
             </IconButton>
           </DialogTitle>
-          <DialogContent sx={{ paddingInline: 1.5 }}>
+          <DialogContent sx={{ padding: 1.5 }}>
             <Switch>
               <Route path="/account-management/qr-code" component={QRCode} />
               <Route
