@@ -129,7 +129,7 @@ __metadata:
     coinselect: ^3.1.12
     ethers: ^6.7.1
     react: ^17.0.2
-  checksum: 10c0/f12575cba5855f249f5630ec4a431233d8dbb92a4d409e402e2205860aba4dfc416fdd5c5ad4be2e613af4fadd326a1e8760511ecf80e27f5fb33eaecc513a59
+  checksum: 10c0/775b7dc306fbbd0347b2be11cc4b4e777f2cb38047c61e8b957dfe4aabf8afacfd47fa0ef14818b24da8764f573b0baf6098fbd44120c271548d26d7b443ffaa
   languageName: node
   linkType: hard
 
@@ -156,7 +156,7 @@ __metadata:
   resolution: "@avalabs/core-chains-sdk@npm:3.1.0-alpha.58"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.58"
-  checksum: 10c0/a391777f4e9e171b85f4d403ae52ba70ac413b738f0b476b54ad66338ad74db8c5f4dcc916840b1b9a8e846fc2fab5b9a96148b6e315599cf6f1e28e36764f39
+  checksum: 10c0/27c5c65fa3fea1f7f112da22923350a4ba2be523ba15d0d8356dd5ede8945ca77d8cd7b97e5558835d41afb5b156bae1357bc540504bef30c49682aadba02b4f
   languageName: node
   linkType: hard
 
@@ -183,7 +183,7 @@ __metadata:
   resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-alpha.58"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.58"
-  checksum: 10c0/d4bd5be665f0617f22f9c74000b759c0b5adcb2f25f26a77e3e86bfef73bf88c2688f53e29323fd19ca184fae3aed78858ec526ec3c6858b877bfbe8429a2e13
+  checksum: 10c0/92b6c2048d7491d020138cab4414cf7f857dd61a69cb14fa43e69ad45362cf6df6823094873b9b2de4290d0bfee8dfc2bb55704b70f36e62beaec4dbff93a4d7
   languageName: node
   linkType: hard
 
@@ -192,7 +192,7 @@ __metadata:
   resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-alpha.58"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.58"
-  checksum: 10c0/2cd4e81b3fb63f01dbb112bb603edec0fe8ce013ada061c8abe9279f8925724afe8983cb240b4c2e3d95a80c2b5819b74e4052835df63f506b8f068093c8f34e
+  checksum: 10c0/4bb9d458bac2239167e157fa31df9e88bd6abc47f5c638e905b616950217d504b542ea4951cc757bd0cc2a68787f5bfce4dc2d72c72cd9bfa6169d1b8abaaa0d
   languageName: node
   linkType: hard
 
@@ -219,7 +219,7 @@ __metadata:
   resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-alpha.58"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.58"
-  checksum: 10c0/23e490c5c3bc9fef664cee6f460887189d83dc002eba4d2745026e0912200537fb3181e04310511183dc8df49ca2ab76c5701a0d73323da88a7f9e267ab20096
+  checksum: 10c0/fd37e0a9640296896dfa0cce3c495687157771814408ae3f29bd3766ff389b93adddc4b40e6a1cf37e983349c211c8f4d220b9e129960fefbe08d6a39acc8957
   languageName: node
   linkType: hard
 
@@ -229,7 +229,7 @@ __metadata:
   dependencies:
     "@noble/hashes": "npm:1.7.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/03fd00270e9534c5c454c1090b9de322ae71a54de33404fe9889f4ca6fb96ca09b2aca8c962083fd7b5b8f36d2dc37935cb397e63af80bc40da80e39615bf381
+  checksum: 10c0/868768298e86051e96cef1568535c4d597c10609afd6c76ba229c8204fa7991a0e89ed82481cfa234d24720e4979e7b344b55ccab591618b93e9f5668b905d24
   languageName: node
   linkType: hard
 
@@ -267,7 +267,7 @@ __metadata:
   resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-alpha.58"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.58"
-  checksum: 10c0/cd207bb9c796a525f6f7a776e9e8f22499c508e22f097b9c35d2d535c26994b8975a1a799554dd872162f80104c5b3f53fc44378d75d54e610edb52a8f110644
+  checksum: 10c0/496b4ba703fb740b0b844d29a91cfa3493d68a2d292984eb4a237fd9f0ab49e81e1f2f68bd06b4aeccaf98215363109fc1c49717a302991d70840071072f8c88
   languageName: node
   linkType: hard
 
@@ -277,7 +277,7 @@ __metadata:
   dependencies:
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.58"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.58"
-  checksum: 10c0/03926fedcd8010e32af2e3a85f83bb693dd58fa4d7f1bce80c1ba1826ae1e51d7639b556034b8016e84e28309f5e9ff7913e33154a35e71e620ecc59059a8a60
+  checksum: 10c0/85d614ed846aaf34ca2cb00ef7fc5809126fdd2c477c522c0dbdb069b4c998545d60a95a19b7e045702b8f803dc5d946945ecb81566af6d5e986b0a2fe11ab7f
   languageName: node
   linkType: hard
 
@@ -319,7 +319,7 @@ __metadata:
     big.js: ^6.2.1
     bn.js: ^5.2.1
     ethers: ^6.7.1
-  checksum: 10c0/5f3fc6bec16523f0c2551dda53ce30f91e6d7d9ba29b6535c98a6460d616ca871f6048e6964f6529ad8067eea60028da8bf0560b3c5e854e8e71f2ee616b4214
+  checksum: 10c0/ab31489ef92350a15b84a03c443b33fd92bbfd44ceb918729fdfc923bd4e1a86b9a50eadfa1086cacf5eb431f77732a7a35b21ea733ff95336eda5fbd90470ea
   languageName: node
   linkType: hard
 
@@ -424,7 +424,7 @@ __metadata:
     xss: "npm:1.0.14"
   peerDependencies:
     ethers: ^6.7.1
-  checksum: 10c0/9f0915856a19341a5e1c9ccbb9597a6aea109b2d1e4f54cbb848b8a0fd6d090e2e116721352cb395b10563d128cc36df6caed9381817076ad7c27233d85a77ef
+  checksum: 10c0/57a0b4b52177c991b36e6585cd4ef43d70bf40838e21fbf47ecc174423b34baa39328ebcf92eb71280874f0423a30e51417b62ee61e1cfc6ef0826b5e3301c72
   languageName: node
   linkType: hard
 
@@ -502,7 +502,7 @@ __metadata:
 "@avalabs/glacier-sdk@npm:3.1.0-alpha.58":
   version: 3.1.0-alpha.58
   resolution: "@avalabs/glacier-sdk@npm:3.1.0-alpha.58"
-  checksum: 10c0/bf57c6f8ff311ab336ed635102242d74c18338cdb99c936c7642feb3cddfbbe97559ced0c71c13cf81e5ed66fb2add2be8f59c207ceedcf371459314081c96cd
+  checksum: 10c0/94b33df21d1cfea6e2d673ac216d83298381b1d589b16097b5df7f4d1f4cbc2f85af16f3178d6e5a4b9ee8478e04b9752d839a0d6964073c4404a2204be1ced1
   languageName: node
   linkType: hard
 
@@ -617,7 +617,7 @@ __metadata:
 "@avalabs/types@npm:3.1.0-alpha.58":
   version: 3.1.0-alpha.58
   resolution: "@avalabs/types@npm:3.1.0-alpha.58"
-  checksum: 10c0/f36cd28791474edeb3002f101635d896950d6dad6a63f866f5d012956a0a6212865959189dff73fd3fef4283ab8cffc7dd6cec74f6c9bb23774055050a8d4bc4
+  checksum: 10c0/a865b506c8a72f7afefef6b86d669d84117539699bbfe467c133419b82ae50d1931774bc1166556689bed4c1fe2ff99e49bbbd9e9bda57fa1820f4f64e7877f9
   languageName: node
   linkType: hard
 
