@@ -33,7 +33,7 @@ import { PageNav } from '../../components/PageNav';
 
 export interface AddressType {
   address: string;
-  explorerLink: string;
+  explorerLink?: string;
   balance: string;
 }
 

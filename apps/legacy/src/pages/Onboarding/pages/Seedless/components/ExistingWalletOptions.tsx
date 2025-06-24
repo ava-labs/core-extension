@@ -70,14 +70,19 @@ export const ExistingWalletOptions = forwardRef(function ExistingWalletOptions(
               }}
             />
           </Stack>
-          {featureFlags[FeatureGates.KEYSTONE] && (
-            <Stack sx={{ flexDirection: 'row' }}>
+          {(featureFlags[FeatureGates.KEYSTONE] ||
+            featureFlags[FeatureGates.KEYSTONE_3]) && (
+            <Stack sx={{ flexDirection: 'row', columnGap: 3, pb: 3 }}>
               <ExistingWalletButton
                 data-testid="access-with-seed-keystone"
                 icon={<KeystoneIcon size={30} />}
                 text={t('Add using Keystone')}
                 onClick={() => {
-                  history.push(OnboardingURLs.KEYSTONE);
+                  history.push(
+                    featureFlags[FeatureGates.KEYSTONE_3]
+                      ? OnboardingURLs.KEYSTONE_USB
+                      : OnboardingURLs.KEYSTONE,
+                  );
                 }}
               />
             </Stack>

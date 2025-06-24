@@ -165,6 +165,7 @@ export class WalletService implements OnUnlock {
     }
     if (
       (secrets.secretType === SecretType.Keystone ||
+        secrets.secretType === SecretType.Keystone3Pro ||
         secrets.secretType === SecretType.Ledger) &&
       !secrets.extendedPublicKeys?.length
     ) {
@@ -326,15 +327,44 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      if (secretType === SecretType.Keystone) {
+      if (
+        secretType === SecretType.Keystone ||
+        secretType === SecretType.Keystone3Pro
+      ) {
         const accountIndexToUse =
           accountIndex === undefined ? secrets.account.index : accountIndex;
+
+        const derivationPathEVM = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'EVM',
+        );
+        const derivationPathAVM = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'AVM',
+        );
+        const evmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
+          derivationPathEVM,
+          'secp256k1',
+        );
+        const avmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
+          derivationPathAVM,
+          'secp256k1',
+        );
+
+        assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
+
         return new KeystoneWallet(
           secrets.masterFingerprint,
           accountIndexToUse,
           this.keystoneService,
           network.chainId,
           tabId,
+          evmExtendedPubKey.key,
+          avmExtendedPubKey ? avmExtendedPubKey.key : undefined,
         );
       }
 
@@ -411,7 +441,10 @@ export class WalletService implements OnUnlock {
 
       assertPresent(publicKey, SecretsError.PublicKeyNotFound);
 
-      if (secretType === SecretType.Keystone) {
+      if (
+        secretType === SecretType.Keystone ||
+        secretType === SecretType.Keystone3Pro
+      ) {
         return new BitcoinKeystoneWallet(
           secrets.masterFingerprint,
           Buffer.from(publicKey.key, 'hex'),
@@ -419,6 +452,7 @@ export class WalletService implements OnUnlock {
           this.keystoneService,
           provider as BitcoinProviderAbstract,
           tabId,
+          secretType === SecretType.Keystone3Pro,
         );
       }
 
@@ -539,6 +573,50 @@ export class WalletService implements OnUnlock {
           Buffer.from(pubkeyEVM.key, 'hex'),
           derivationPathEVM,
           provider as Avalanche.JsonRpcProvider,
+        );
+      }
+
+      if (
+        secretType === SecretType.Keystone ||
+        secretType === SecretType.Keystone3Pro
+      ) {
+        const accountIndexToUse =
+          accountIndex === undefined ? secrets.account.index : accountIndex;
+
+        const derivationPathEVM = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'EVM',
+        );
+        const derivationPathAVM = getAddressDerivationPath(
+          accountIndexToUse,
+          secrets.derivationPathSpec,
+          'AVM',
+        );
+        const evmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
+          derivationPathEVM,
+          'secp256k1',
+        );
+        const avmExtendedPubKey = getExtendedPublicKeyFor(
+          secrets.extendedPublicKeys,
+          derivationPathAVM,
+          'secp256k1',
+        );
+
+        assertPresent(evmExtendedPubKey, SecretsError.PublicKeyNotFound);
+        if (secretType === SecretType.Keystone3Pro) {
+          assertPresent(avmExtendedPubKey, SecretsError.PublicKeyNotFound);
+        }
+
+        return new KeystoneWallet(
+          secrets.masterFingerprint,
+          accountIndexToUse,
+          this.keystoneService,
+          network.chainId,
+          tabId,
+          evmExtendedPubKey.key,
+          avmExtendedPubKey ? avmExtendedPubKey.key : undefined,
         );
       }
 
@@ -685,6 +763,7 @@ export class WalletService implements OnUnlock {
         !(wallet instanceof Avalanche.StaticSigner) &&
         !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
         !(wallet instanceof Avalanche.LedgerSigner) &&
+        !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
       ) {
