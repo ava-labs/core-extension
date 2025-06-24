@@ -1,5 +1,4 @@
-import { Typography } from '@/components/Typography';
-import { getHexAlpha, styled } from '@avalabs/k2-alpine';
+import { getHexAlpha, styled, Typography } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   useAccountsContext,
@@ -21,7 +20,7 @@ const Root = styled('div')(({ theme }) => ({
 
   padding: theme.spacing(1.5),
   marginBlockEnd: theme.spacing(1.5),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: 12,
   backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
 }));
 
@@ -38,14 +37,14 @@ const CurrentAccount: FC = () => {
 
   return (
     <Root>
-      <Typography variant="caption" color="text.disabled">
+      <Typography variant="body2" color="text.disabled">
         {t('Currently using {{name}}', { name: walletDetails?.name })}
       </Typography>
-      <Typography variant="caption" textAlign="end" color="text.disabled">
+      <Typography variant="body2" textAlign="end" color="text.disabled">
         {currencyFormatter(totalBalanceInCurrency)}
       </Typography>
-      <Typography variant="titleBold">{accounts.active?.name}</Typography>
-      <Typography variant="titleBold" textAlign="end">
+      <Typography variant="subtitle1">{accounts.active?.name}</Typography>
+      <Typography variant="subtitle1" textAlign="end">
         {currencyFormatter(accountBalance?.sum ?? 0)}
       </Typography>
     </Root>
