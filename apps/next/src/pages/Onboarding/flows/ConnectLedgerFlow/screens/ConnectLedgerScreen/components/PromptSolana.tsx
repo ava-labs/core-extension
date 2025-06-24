@@ -61,7 +61,7 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
           color="secondary"
           onClick={onSkip}
         >
-          {t('No Thanks')}
+          {t('No thanks')}
         </Button>
         <Button
           sx={{ minWidth: 150, alignSelf: 'flex-end' }}

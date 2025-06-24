@@ -1,5 +1,6 @@
 import { useHistory } from 'react-router-dom';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { WalletType } from '@avalabs/types';
 
 import { useOnboardingContext } from '@core/ui';
 
@@ -11,8 +12,6 @@ import {
   PromptSolana,
   Troubleshooting,
 } from './components';
-import { DerivedKeys } from './components/LedgerConnector/types';
-import { WalletType } from '@avalabs/types';
 
 type ImportPhase =
   | 'connect-avax'
@@ -41,54 +40,6 @@ export const ConnectLedgerScreen: FC<OnboardingScreenProps> = ({
 
   const [phase, setPhase] = useState<ImportPhase>('connect-avax');
 
-  const onNext = useCallback(() => {
-    history.push(nextScreenPath);
-  }, [history, nextScreenPath]);
-
-  const goToAvalancheConnectScreen = useCallback(() => {
-    setPhase('connect-avax');
-  }, [setPhase]);
-
-  const saveBaseKeysAndPromptForSolana = useCallback(
-    (keys: DerivedKeys) => {
-      setAddressPublicKeys(keys.addressPublicKeys.map(({ key }) => key));
-      setExtendedPublicKeys(keys.extendedPublicKeys ?? []);
-      setPhase('prompt-solana');
-    },
-    [setPhase, setAddressPublicKeys, setExtendedPublicKeys],
-  );
-
-  const goToSolanaConnectScreen = useCallback(
-    () => setPhase('connect-solana'),
-    [setPhase],
-  );
-
-  const goToAvalancheTroubleshootingScreen = useCallback(
-    () => setPhase('troubleshooting-avalanche'),
-    [setPhase],
-  );
-
-  const goToSolanaTroubleshootingScreen = useCallback(
-    () => setPhase('troubleshooting-solana'),
-    [setPhase],
-  );
-
-  const goToPromptSolanaScreen = useCallback(
-    () => setPhase('prompt-solana'),
-    [setPhase],
-  );
-
-  const saveSolanaKeysAndContinue = useCallback(
-    (keys: DerivedKeys) => {
-      setAddressPublicKeys((prev) => [
-        ...prev,
-        ...keys.addressPublicKeys.map(({ key }) => key),
-      ]);
-      onNext();
-    },
-    [onNext, setAddressPublicKeys],
-  );
-
   useEffect(() => {
     setOnboardingWalletType(WalletType.Ledger);
   }, [setOnboardingWalletType]);
@@ -97,32 +48,45 @@ export const ConnectLedgerScreen: FC<OnboardingScreenProps> = ({
     <>
       {phase === 'connect-avax' && (
         <ConnectAvalanche
-          onNext={saveBaseKeysAndPromptForSolana}
-          onTroubleshoot={goToAvalancheTroubleshootingScreen}
+          onNext={({ addressPublicKeys, extendedPublicKeys }) => {
+            setAddressPublicKeys(addressPublicKeys.map(({ key }) => key));
+            setExtendedPublicKeys(extendedPublicKeys ?? []);
+            setPhase('prompt-solana');
+          }}
+          onTroubleshoot={() => setPhase('troubleshooting-avalanche')}
         />
       )}
       {phase === 'prompt-solana' && (
         <PromptSolana
-          onBack={goToAvalancheConnectScreen}
-          onNext={goToSolanaConnectScreen}
-          onSkip={onNext}
+          onBack={() => setPhase('connect-avax')}
+          onNext={() => setPhase('connect-solana')}
+          onSkip={() => history.push(nextScreenPath)}
         />
       )}
       {phase === 'connect-solana' && (
         <ConnectSolana
-          onBack={goToPromptSolanaScreen}
-          onNext={saveSolanaKeysAndContinue}
-          onTroubleshoot={goToSolanaTroubleshootingScreen}
+          onBack={() => setPhase('prompt-solana')}
+          onNext={({ addressPublicKeys }) => {
+            setAddressPublicKeys((prev) => [
+              ...prev,
+              ...addressPublicKeys.map(({ key }) => key),
+            ]);
+            history.push(nextScreenPath);
+          }}
+          onTroubleshoot={() => setPhase('troubleshooting-solana')}
         />
       )}
       {phase === 'troubleshooting-avalanche' && (
         <Troubleshooting
           appName="Avalanche"
-          onClose={goToAvalancheConnectScreen}
+          onClose={() => setPhase('connect-avax')}
         />
       )}
       {phase === 'troubleshooting-solana' && (
-        <Troubleshooting appName="Solana" onClose={goToSolanaConnectScreen} />
+        <Troubleshooting
+          appName="Solana"
+          onClose={() => setPhase('connect-solana')}
+        />
       )}
     </>
   );

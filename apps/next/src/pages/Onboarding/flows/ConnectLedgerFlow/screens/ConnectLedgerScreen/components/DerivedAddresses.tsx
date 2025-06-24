@@ -32,32 +32,30 @@ export const DerivedAddresses = ({
 }: DerivedAddressesProps) => {
   const { fetchBalance } = useNativeBalanceFetcher(chainCaipId);
 
-  const [balances, setBalances] = useState<BalanceInfoMap>(
+  const [balances, setBalances] = useState<BalanceInfoMap>(() =>
     initialBalanceInfoMap(addresses),
   );
 
-  const fetchBalances = useCallback(async () => {
-    const requestMap = new Map(
-      addresses.map((address) => [address, fetchBalance(address)]),
-    );
-
-    requestMap.entries().forEach(async ([address, request]) => {
-      request
-        .then((balance) => {
-          setBalances((prev) => updateMap(prev, address, balance));
-        })
-        .catch(() => {
-          // If we can't fetch the balance, we simply won't show it.
-          console.warn(`Failed to fetch balance for address ${address}`);
-          setBalances((prev) => updateMap(prev, address, undefined));
-        });
-    });
-
-    await Promise.allSettled(requestMap.values());
-  }, [fetchBalance, addresses]);
+  const fetchBalances = useCallback(
+    async (addressesToFetch: string[]) => {
+      const requests = addressesToFetch.map((address) =>
+        fetchBalance(address)
+          .then((balance) => {
+            setBalances((prev) => updateMap(prev, address, balance));
+          })
+          .catch(() => {
+            // If we can't fetch the balance, we simply won't show it.
+            console.warn(`Failed to fetch balance for address ${address}`);
+            setBalances((prev) => updateMap(prev, address, undefined));
+          }),
+      );
+      await Promise.allSettled(requests);
+    },
+    [fetchBalance],
+  );
 
   useEffect(() => {
-    fetchBalances();
+    fetchBalances(addresses);
   }, [fetchBalances, addresses]);
 
   const sortedAddresses = balances
