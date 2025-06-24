@@ -30,7 +30,7 @@ describe('sendRequest', () => {
     ).rejects.toThrow('ID_SERVICE_URL is missing');
   });
 
-  it.only('sends a request to the ID service properly on non-development environments', async () => {
+  it('sends a request to the ID service properly on non-development environments', async () => {
     // @ts-expect-error - NODE_ENV is read-only
     process.env.NODE_ENV = 'production';
     process.env.ID_SERVICE_URL = 'https://test.com';
