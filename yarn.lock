@@ -5877,6 +5877,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@firebase/app-check@patch:@firebase/app-check@npm%3A0.8.13#~/.yarn/patches/@firebase-app-check-npm-0.8.13-82152b436a.patch":
+  version: 0.8.13
+  resolution: "@firebase/app-check@patch:@firebase/app-check@npm%3A0.8.13#~/.yarn/patches/@firebase-app-check-npm-0.8.13-82152b436a.patch::version=0.8.13&hash=a5b584"
+  dependencies:
+    "@firebase/component": "npm:0.6.13"
+    "@firebase/logger": "npm:0.4.4"
+    "@firebase/util": "npm:1.11.0"
+    tslib: "npm:^2.1.0"
+  peerDependencies:
+    "@firebase/app": 0.x
+  checksum: 10c0/ff0c1df6d1596f233459d44cee36ea48a71103b69652a8d53a1434f284f5af41314b8cee81e8f20ef0a525ec57c14b6514e96257db27afbd1e290acd788339a4
+  languageName: node
+  linkType: hard
+
 "@firebase/app-compat@npm:0.2.53":
   version: 0.2.53
   resolution: "@firebase/app-compat@npm:0.2.53"
