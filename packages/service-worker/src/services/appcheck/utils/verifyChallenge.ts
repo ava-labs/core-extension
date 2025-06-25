@@ -7,15 +7,15 @@ const VERIFY_TIMEOUT_MS = 10_000;
 const VERIFY_PATH = 'v2/ext/verify';
 
 const _solveChallenge = async ({ path, nonce }: Challenge) => {
+  const manifest = chrome.runtime.getManifest();
+
   if (isDevelopment()) {
-    const manifestResponse = await fetch(
-      chrome.runtime.getURL('manifest.json'),
+    const encodedManifest = Buffer.from(JSON.stringify(manifest)).toString(
+      'base64',
     );
-    const manifestBuffer = await manifestResponse.arrayBuffer();
-    const encodedManifest = Buffer.from(manifestBuffer).toString('base64');
 
     const checksum = createHash('sha256')
-      .update(`${chrome.runtime.getManifest().version}:${encodedManifest}`)
+      .update(`${manifest.version}:${encodedManifest}`)
       .digest('hex');
 
     const solution = createHash('sha256')
@@ -30,7 +30,7 @@ const _solveChallenge = async ({ path, nonce }: Challenge) => {
   const encodedFile = Buffer.from(fileBuffer).toString('base64');
 
   const checksum = createHash('sha256')
-    .update(`${chrome.runtime.getManifest().version}:${encodedFile}`)
+    .update(`${manifest.version}:${encodedFile}`)
     .digest('hex');
 
   const solution = createHash('sha256')

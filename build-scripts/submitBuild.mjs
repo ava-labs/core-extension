@@ -7,18 +7,7 @@ const dir = gen === 'legacy' ? 'dist' : 'dist-next';
 const pathChecksumMap = {};
 const manifestBytes = await readFile(`${dir}/manifest.json`);
 const manifest = JSON.parse(manifestBytes.toString('utf-8'));
-
-const orderedManifest = new Map(
-  Object.keys(manifest)
-    .sort()
-    .map((key) => [key, manifest[key]]),
-);
-
-const encodedManifest = Buffer.from(
-  JSON.stringify(Array.from(orderedManifest.entries())),
-).toString('base64');
-
-const manifestHash = createHash('sha256').update(encodedManifest).digest('hex');
+const encodedManifest = Buffer.from(manifestBytes).toString('base64');
 
 const files = await readdir(dir, {
   withFileTypes: true,
@@ -54,7 +43,7 @@ const submitBuildResponse = await fetch(
       'X-Api-Key': process.env.ID_SERVICE_API_KEY,
     },
     body: JSON.stringify({
-      manifest: manifestHash,
+      manifest: encodedManifest,
       pathChecksumMap,
     }),
   },
