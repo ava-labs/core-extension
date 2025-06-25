@@ -5,9 +5,10 @@ import {
   SolanaColorIcon,
   XPChainIcon,
 } from '@avalabs/k2-alpine';
-import { History } from 'history';
-import memoize from 'lodash/memoize';
 import { Account } from '@core/types';
+import { History } from 'history';
+import curry from 'lodash/curry';
+import memoize from 'lodash/memoize';
 import { Props as AddressItemProps } from '../AddressItem';
 
 export type AddressType = keyof {
@@ -72,20 +73,21 @@ const SUPPORTED_ADDRESSES: string[] = [
   'SVM',
 ] satisfies AddressType[];
 
-export const getNavigateToQRCode =
+export const getNavigateToQRCode = curry(
   (
     navigate: History['push' | 'replace'],
     accountId: string,
     addressType: AddressType,
   ) =>
-  () =>
-    navigate({
-      pathname: '/account-management/qr-code',
-      search: new URLSearchParams({
-        [SEARCH_PARAMS.accountId]: accountId,
-        [SEARCH_PARAMS.addressType]: addressType,
-      }).toString(),
-    });
+    () =>
+      navigate({
+        pathname: '/account-management/qr-code',
+        search: new URLSearchParams({
+          [SEARCH_PARAMS.accountId]: accountId,
+          [SEARCH_PARAMS.addressType]: addressType,
+        }).toString(),
+      }),
+);
 
 type QRCodeSearchParams = {
   accountId: Account['id'] | undefined;

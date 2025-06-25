@@ -11,7 +11,10 @@ import { AddressSelector } from './components/AddressSelector';
 import { CChainDisclaimer } from './components/CChainDisclaimer';
 import { getAddressItemProps, getSearchParams } from './utils';
 
-const BgBox = styled(Box)(({ theme }) => ({
+const QRCodeBox = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  padding: theme.spacing(1.25),
+  borderRadius: theme.shape.mediumBorderRadius,
   backgroundColor:
     theme.palette.mode === 'light'
       ? theme.palette.surface.primary
@@ -41,14 +44,14 @@ export const QRCode: FC = () => {
 
       <Stack gap={1.5} alignItems="center" my="auto">
         <AddressSelector type={addressType} account={account} />
-        <BgBox position="relative" padding={1.25} borderRadius={3}>
+        <QRCodeBox>
           <QRCodeSVG
             renderAs="svg"
             value={account[`address${addressType}`] ?? ''}
             level="H"
             size={180}
           />
-        </BgBox>
+        </QRCodeBox>
 
         <Collapse in={addressType === 'C'}>
           <CChainDisclaimer />

@@ -20,7 +20,7 @@ type Props = {
 
 export const AddressesCard: FC<Props> = ({ account }) => {
   const history = useHistory();
-  const getNavigate = getNavigateToQRCode.bind(null, history.push, account.id);
+  const getNavigate = getNavigateToQRCode(history.push, account.id);
   return (
     <Styled.Card>
       <Styled.CardContent>
