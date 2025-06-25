@@ -11,7 +11,8 @@ import {
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC } from 'react';
-import { AddressItem } from './components/AddressItem';
+import { AddressItem } from '../../AddressItem';
+import * as Styled from '../../Styled';
 
 type Props = {
   position: PopoverPosition | undefined;
@@ -19,21 +20,24 @@ type Props = {
   account: Account;
 };
 
-const menuSlotProps: MenuProps['slotProps'] = {
-  backdrop: {
-    sx: {
-      backgroundColor: 'transparent',
-      backdropFilter: 'none',
+const menuSlots: Pick<MenuProps, 'slots' | 'slotProps'> = {
+  slotProps: {
+    backdrop: {
+      sx: {
+        backgroundColor: 'transparent',
+        backdropFilter: 'none',
+      },
     },
-  },
-  paper: {
-    sx: (theme) => ({
-      backgroundColor: theme.palette.surface.primary,
-      borderRadius: '10px',
-      borderWidth: '1px',
-      borderStyle: 'solid',
-      borderColor: getHexAlpha(theme.palette.primary.main, 10),
-    }),
+    paper: {
+      sx: (theme) => ({
+        color: theme.palette.text.primary,
+        backgroundColor: getHexAlpha(theme.palette.background.default, 60),
+        borderRadius: '10px',
+        borderWidth: '1px',
+        borderStyle: 'solid',
+        borderColor: getHexAlpha(theme.palette.primary.main, 10),
+      }),
+    },
   },
 };
 
@@ -41,44 +45,48 @@ export const AccountContextMenu: FC<Props> = ({
   position,
   onClose,
   account,
-}: Props) => {
+}) => {
   return (
     <Menu
       open={position !== undefined}
       onClose={onClose}
       anchorReference="anchorPosition"
       anchorPosition={position}
-      slotProps={menuSlotProps}
+      {...menuSlots}
     >
       <AddressItem
         label="Avalanche C-Chain"
         Icon={CChainIcon}
         address={account.addressC}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
-        label="Avalanche X-Chain"
+        label="Avalanche X/P-Chain"
         Icon={XPChainIcon}
         address={account.addressAVM}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Bitcoin"
         Icon={BitcoinColorIcon}
         address={account.addressBTC}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Ethereum"
         Icon={EthereumColorIcon}
         address={account.addressC}
-        onClose={onClose}
+        onClick={onClose}
       />
+      <Styled.Divider variant="inset" component="li" />
       <AddressItem
         label="Solana"
         Icon={SolanaColorIcon}
         address={account.addressSVM}
-        onClose={onClose}
+        onClick={onClose}
       />
     </Menu>
   );

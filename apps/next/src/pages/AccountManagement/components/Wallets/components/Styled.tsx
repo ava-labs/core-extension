@@ -14,6 +14,10 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
   borderRadius: theme.shape.mediumBorderRadius,
   boxShadow: '0px 5px 30px 0px rgba(0, 0, 0, 0.15)',
+  backgroundColor:
+    theme.palette.mode === 'light'
+      ? theme.palette.surface.primary
+      : theme.palette.background.paper,
 }));
 
 export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
@@ -62,6 +66,6 @@ export const ListItemButton = styled(K2ListItemButton)(({ theme }) => ({
   borderRadius: theme.spacing(1.5),
 
   [`&.${listItemButtonClasses.selected}`]: {
-    backgroundColor: theme.palette.surface.secondary,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
