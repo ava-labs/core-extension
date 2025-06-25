@@ -16,7 +16,7 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/avalanchejs": "4.2.0-alpha.1",
+    "@avalabs/avalanchejs": "5.1.0-alpha.2",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.58",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.58",
     "@avalabs/k2-alpine": "1.204.3-alpha.0",
