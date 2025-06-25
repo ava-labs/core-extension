@@ -26,7 +26,8 @@ export const ConnectLedgerScreen: FC<OnboardingScreenProps> = ({
   nextScreenPath,
 }) => {
   const history = useHistory();
-  const { setCurrent, setTotal } = useModalPageControl();
+  const { setCurrent, setTotal, registerBackButtonHandler } =
+    useModalPageControl();
   const {
     setAddressPublicKeys,
     setExtendedPublicKeys,
@@ -44,6 +45,31 @@ export const ConnectLedgerScreen: FC<OnboardingScreenProps> = ({
     setOnboardingWalletType(WalletType.Ledger);
   }, [setOnboardingWalletType]);
 
+  useEffect(() => {
+    let previousScreen: ImportPhase | undefined;
+
+    switch (phase) {
+      case 'prompt-solana':
+        previousScreen = 'connect-avax';
+        break;
+      case 'connect-solana':
+        previousScreen = 'prompt-solana';
+        break;
+      case 'troubleshooting-solana':
+        previousScreen = 'connect-solana';
+        break;
+      case 'troubleshooting-avalanche':
+        previousScreen = 'connect-avax';
+        break;
+      case 'connect-avax':
+        previousScreen = undefined;
+        break;
+    }
+    return registerBackButtonHandler(
+      previousScreen ? () => setPhase(previousScreen) : history.goBack,
+    );
+  }, [phase, registerBackButtonHandler, history.goBack]);
+
   return (
     <>
       {phase === 'connect-avax' && (
@@ -58,14 +84,12 @@ export const ConnectLedgerScreen: FC<OnboardingScreenProps> = ({
       )}
       {phase === 'prompt-solana' && (
         <PromptSolana
-          onBack={() => setPhase('connect-avax')}
           onNext={() => setPhase('connect-solana')}
           onSkip={() => history.push(nextScreenPath)}
         />
       )}
       {phase === 'connect-solana' && (
         <ConnectSolana
-          onBack={() => setPhase('prompt-solana')}
           onNext={({ addressPublicKeys }) => {
             setAddressPublicKeys((prev) => [
               ...prev,

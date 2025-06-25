@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
@@ -7,7 +7,6 @@ import {
   OnboardingStepContent,
   OnboardingStepDescription,
   OnboardingStepTitle,
-  useModalPageControl,
 } from '@/components/OnboardingModal';
 
 import * as Styled from './Styled';
@@ -18,19 +17,16 @@ import {
 import { DerivedKeys } from './LedgerConnector/types';
 
 type ConnectionStepProps = StackProps & {
-  onBack: () => void;
   onNext: (keys: DerivedKeys) => void;
   onTroubleshoot: () => void;
 };
 
 export const ConnectSolana: FC<ConnectionStepProps> = ({
   onNext,
-  onBack,
   onTroubleshoot,
   ...stackProps
 }) => {
   const { t } = useTranslation();
-  const { setOnBackHandler } = useModalPageControl();
 
   const [status, setStatus] = useState<DerivationStatus>('error');
   const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>({
@@ -39,14 +35,6 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
   });
 
   const isValid = derivedKeys.addressPublicKeys.length > 0;
-
-  useEffect(() => {
-    setOnBackHandler(() => onBack);
-
-    return () => {
-      setOnBackHandler(undefined);
-    };
-  }, [onBack, setOnBackHandler]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>

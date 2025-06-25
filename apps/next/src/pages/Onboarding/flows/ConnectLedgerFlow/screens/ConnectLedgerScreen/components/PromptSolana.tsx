@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
@@ -7,32 +7,20 @@ import {
   OnboardingStepContent,
   OnboardingStepDescription,
   OnboardingStepTitle,
-  useModalPageControl,
 } from '@/components/OnboardingModal';
 
 import SolanaGlow from '../images/SolanaGlow.png';
 
 type SolanaPromptProps = StackProps & {
-  onBack: () => void;
   onNext: () => void;
   onSkip: () => void;
 };
 export const PromptSolana: FC<SolanaPromptProps> = ({
-  onBack,
   onNext,
   onSkip,
   ...stackProps
 }) => {
   const { t } = useTranslation();
-  const { setOnBackHandler } = useModalPageControl();
-
-  useEffect(() => {
-    setOnBackHandler(() => onBack);
-
-    return () => {
-      setOnBackHandler(undefined);
-    };
-  }, [onBack, setOnBackHandler]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>

@@ -1,14 +1,23 @@
-import { createContext, FC, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { PageControlData } from '../PageControl';
+
+type BackButtonHandler = () => void;
 
 const ModalPageControlContext = createContext<
   | undefined
   | (PageControlData & {
       setTotal: (total: number) => void;
       setCurrent: (current: number) => void;
-      onBackHandler?: () => void;
-      setOnBackHandler: (onBackHandler: (() => void) | undefined) => void;
+      onBackHandler?: BackButtonHandler;
+      registerBackButtonHandler: (onBackHandler: BackButtonHandler) => void;
       isBackButtonVisible: boolean;
       setIsBackButtonVisible: (isBackButtonVisible: boolean) => void;
     })
@@ -18,9 +27,24 @@ export const ModalPageControlProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [isBackButtonVisible, setIsBackButtonVisible] = useState(true);
-  const [onBackHandler, setOnBackHandler] = useState<() => void>();
+  const [onBackHandler, setOnBackHandler] = useState<BackButtonHandler>();
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(0);
+
+  /**
+   * Used by modal's child components to register a listener for the "back" button.
+   * @returns {Function} a callback that unregisters the handler.
+   */
+  const registerBackButtonHandler = useCallback(
+    (newHandler: BackButtonHandler) => {
+      setOnBackHandler(() => newHandler);
+
+      return () => {
+        setOnBackHandler(undefined);
+      };
+    },
+    [setOnBackHandler],
+  );
 
   return (
     <ModalPageControlContext.Provider
@@ -30,7 +54,7 @@ export const ModalPageControlProvider: FC<{ children: ReactNode }> = ({
         setTotal,
         setCurrent,
         onBackHandler,
-        setOnBackHandler,
+        registerBackButtonHandler,
         isBackButtonVisible,
         setIsBackButtonVisible,
       }}

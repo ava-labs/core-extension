@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   Button,
@@ -13,7 +13,6 @@ import {
   OnboardingStepActions,
   OnboardingStepContent,
   OnboardingStepTitle,
-  useModalPageControl,
 } from '@/components/OnboardingModal';
 import { InTextLink } from '@/components/InTextLink';
 import { CardMenu } from '@/pages/Onboarding/components/CardMenu';
@@ -30,15 +29,6 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
   ...stackProps
 }) => {
   const { t } = useTranslation();
-  const { setOnBackHandler } = useModalPageControl();
-
-  useEffect(() => {
-    setOnBackHandler(() => onClose);
-
-    return () => {
-      setOnBackHandler(undefined);
-    };
-  }, [onClose, setOnBackHandler]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
