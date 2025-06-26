@@ -16,7 +16,7 @@ export const Select = styled(K2Select)(({ theme }) => ({
   [`&.${selectClasses.root}`]: {
     width: 220,
     borderRadius: theme.shape.fullBorderRadius,
-    paddingBlock: theme.spacing(0.5),
+    paddingBlock: theme.spacing(0.75),
     paddingInline: theme.spacing(1),
     backgroundColor:
       theme.palette.mode === 'light'
