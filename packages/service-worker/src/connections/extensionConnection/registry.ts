@@ -144,6 +144,7 @@ import { SubscribeToNotification } from '../../services/notifications/handlers/s
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { GetNotificationSubscriptions } from '../../services/notifications/handlers/getSubscriptions';
 import { SubscriptionsChangedEvents } from '../../services/notifications/events/subscriptionsChangedEvent';
+import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -441,6 +442,10 @@ import { SubscriptionsChangedEvents } from '../../services/notifications/events/
   {
     token: 'ExtensionRequestHandler',
     useToken: GetNotificationSubscriptions,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: LedgerOnboardingHandlerNew,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

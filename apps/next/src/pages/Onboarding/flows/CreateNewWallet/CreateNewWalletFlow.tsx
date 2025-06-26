@@ -40,7 +40,6 @@ export const CreateNewWalletFlow = () => {
       withAppInfo
       withLanguageSelector
       onBack={history.goBack}
-      onClose={() => history.push('/')}
     >
       <Switch>
         <Route exact path={BASE_PATH}>

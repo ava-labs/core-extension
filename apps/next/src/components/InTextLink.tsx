@@ -3,8 +3,9 @@ import { Link, styled } from '@avalabs/k2-alpine';
 export const InTextLink = styled(Link)(({ theme }) => ({
   cursor: 'pointer',
   textDecoration: 'underline',
-  transition: 'color 0.15s ease-in-out',
+  color: 'currentColor',
+  transition: theme.transitions.create('opacity'),
   '&:hover': {
-    color: theme.palette.text.secondary,
+    opacity: 0.8,
   },
 }));

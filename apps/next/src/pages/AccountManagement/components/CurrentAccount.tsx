@@ -20,7 +20,7 @@ const Root = styled('div')(({ theme }) => ({
 
   padding: theme.spacing(1.5),
   marginBlockEnd: theme.spacing(1.5),
-  borderRadius: 12,
+  borderRadius: theme.shape.mediumBorderRadius,
   backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
 }));
 
