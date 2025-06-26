@@ -23,6 +23,9 @@ import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBac
 import { ImportWallet } from './ImportWallet';
 import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
 import { CreateNewWalletFlow } from './flows/CreateNewWallet';
+import { SeedlessSignInButton } from './components/SeedlessSignInButton';
+import { SeedlessAuthProvider } from '@core/types';
+import { SeedlessFlow } from './flows/SeedlessFlow';
 
 export function Onboarding() {
   const { t } = useTranslation();
@@ -69,24 +72,18 @@ export function Onboarding() {
               gap={4}
             >
               <Stack direction="column" width={1} gap={2}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  size="large"
+                <SeedlessSignInButton
+                  provider={SeedlessAuthProvider.Google}
                   startIcon={<FcGoogle />}
                 >
                   {t('Continue with Google')}
-                </Button>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  size="large"
+                </SeedlessSignInButton>
+                <SeedlessSignInButton
+                  provider={SeedlessAuthProvider.Apple}
                   startIcon={<FaApple />}
                 >
                   {t('Continue with Apple')}
-                </Button>
+                </SeedlessSignInButton>
               </Stack>
               <Stack direction="column" width={1} gap={2}>
                 <Button
@@ -126,6 +123,9 @@ export function Onboarding() {
             </Route>
             <Route path="/onboarding/create">
               <CreateNewWalletFlow />
+            </Route>
+            <Route path="/onboarding/seedless">
+              <SeedlessFlow />
             </Route>
           </Switch>
         </Suspense>
