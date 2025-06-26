@@ -14,6 +14,7 @@ import { useOnboardingContext, useSeedlessAuth, AuthStep } from '@core/ui';
 
 import { SeedlessLoginChooseMfaMethod } from './SeedlessLoginChooseMfaMethod';
 import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
+import { useModalPageControl } from '@/components/OnboardingModal';
 
 type SeedlessMfaLoginFlowProps = {
   nextScreenPath: string;
@@ -24,6 +25,7 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
 }) => {
   const { t } = useTranslation();
   const history = useHistory();
+  const { registerBackButtonHandler } = useModalPageControl();
   const { oidcToken, setSeedlessSignerToken } = useOnboardingContext();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,7 +63,21 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
     if (step === AuthStep.NotInitialized) {
       authenticate({});
     }
-  }, [authenticate, step, nextScreenPath, history]);
+  }, [authenticate, step]);
+
+  useEffect(() => {
+    let callback: () => void;
+
+    switch (step) {
+      case AuthStep.FidoChallenge:
+      case AuthStep.TotpChallenge:
+        callback = () => authenticate({});
+        break;
+      default:
+        callback = history.goBack;
+    }
+    return registerBackButtonHandler(callback);
+  }, [step, registerBackButtonHandler, history.goBack, authenticate]);
 
   return (
     <>

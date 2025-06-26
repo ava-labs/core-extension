@@ -18,7 +18,8 @@ const TOTAL_STEPS = 5;
 
 export const SeedlessFlow = () => {
   const history = useHistory();
-  const { setOnboardingWalletType, oidcToken } = useOnboardingContext();
+  const { setOnboardingWalletType, oidcToken, onboardingState } =
+    useOnboardingContext();
 
   useEffect(() => {
     setOnboardingWalletType(WalletType.Seedless);
@@ -29,10 +30,10 @@ export const SeedlessFlow = () => {
   }, [setOnboardingWalletType]);
 
   useEffect(() => {
-    if (!oidcToken) {
+    if (!oidcToken && !onboardingState.isOnBoarded) {
       history.replace('/onboarding');
     }
-  }, [oidcToken, history]);
+  }, [oidcToken, history, onboardingState.isOnBoarded]);
 
   return (
     <OnboardingModal
