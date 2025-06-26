@@ -10,9 +10,9 @@ import {
 import { Account } from '@core/types';
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
+import { getNavigateToQRCode } from '../../QRCode/utils';
 import { QRCodeIconButton } from '../../QRCodeIconButton';
 import * as Styled from '../../Styled';
-import { getNavigateToQRCode } from '../../QRCode/utils';
 
 type Props = {
   account: Account;

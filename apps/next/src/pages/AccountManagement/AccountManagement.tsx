@@ -10,9 +10,9 @@ import { BalancesProvider, WalletTotalBalanceProvider } from '@core/ui';
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { Wallets } from './components/Wallets';
 import { AccountDetails } from './components/AccountDetails';
 import { QRCode } from './components/QRCode';
+import { Wallets } from './components/Wallets';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {

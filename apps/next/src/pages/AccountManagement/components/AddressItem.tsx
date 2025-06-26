@@ -4,8 +4,8 @@ import {
   styled,
   toast,
   Tooltip,
-  Typography,
   truncateAddress,
+  Typography,
 } from '@avalabs/k2-alpine';
 import { stripAddressPrefix } from '@core/common';
 import { ComponentType, FC, ReactElement } from 'react';

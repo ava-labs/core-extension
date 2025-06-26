@@ -1,7 +1,7 @@
 import {
-  Divider as K2Divider,
   Card as K2Card,
   CardContent as K2CardContent,
+  Divider as K2Divider,
   dividerClasses,
   menuItemClasses,
   styled,

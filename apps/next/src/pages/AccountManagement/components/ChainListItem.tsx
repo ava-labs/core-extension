@@ -1,11 +1,11 @@
 import {
+  Box,
   ListItem,
   ListItemIcon,
   Stack,
+  styled,
   Typography,
   TypographyProps,
-  styled,
-  Box,
 } from '@avalabs/k2-alpine';
 import {
   cloneElement,

@@ -10,8 +10,8 @@ import { History } from 'history';
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AddressType, getNavigateToQRCode } from '../../utils';
-import * as Styled from './components/Styled';
 import { ArrowDownIcon, FixedXPChainIcon } from './components/Icons';
+import * as Styled from './components/Styled';
 
 type Props = {
   type: AddressType;
