@@ -9,7 +9,7 @@ import CurrentAccount from '../CurrentAccount';
 import * as Styled from '../Styled';
 import { AddressSelector } from './components/AddressSelector';
 import { CChainDisclaimer } from './components/CChainDisclaimer';
-import { getAddressItemProps, getSearchParams } from './utils';
+import { getLabelAndIcon, getSearchParams } from './utils';
 
 const QRCodeBox = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -61,8 +61,10 @@ export const QRCode: FC = () => {
       <Stack mt="auto" gap={1.5}>
         <Styled.Card>
           <AddressItem
-            {...getAddressItemProps(addressType)}
+            {...getLabelAndIcon(addressType)}
             address={account[`address${addressType}`]}
+            truncate={false}
+            copyActionVisibility="always"
           />
         </Styled.Card>
 

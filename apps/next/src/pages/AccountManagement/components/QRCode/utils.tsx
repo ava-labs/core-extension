@@ -1,57 +1,45 @@
 import {
+  AvalancheColorIcon,
   BitcoinColorIcon,
-  CChainIcon,
-  EthereumColorIcon,
   SolanaColorIcon,
-  XPChainIcon,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { History } from 'history';
 import curry from 'lodash/curry';
 import memoize from 'lodash/memoize';
-import { Props as AddressItemProps } from '../AddressItem';
+import { ComponentType } from 'react';
+import { IconBaseProps } from 'react-icons';
+import { FixedXPChainIcon } from './components/AddressSelector/components/Icons';
 
 export type AddressType = keyof {
   [AK in keyof Account as AK extends `address${infer VM}` ? VM : never]: AK;
 };
 
-type PropsForAddressType = Omit<AddressItemProps, 'address'>;
-
-const COMMON_PROPS: Omit<PropsForAddressType, 'Icon' | 'label'> = {
-  truncate: false,
-  copyActionVisibility: 'always',
+type AddressLabelAndIcon = {
+  label: string;
+  Icon: ComponentType<IconBaseProps>;
 };
 
-export const getAddressItemProps = memoize(
-  (type: AddressType): PropsForAddressType => {
+export const getLabelAndIcon = memoize(
+  (type: AddressType): AddressLabelAndIcon => {
     switch (type) {
       case 'C':
         return {
-          ...COMMON_PROPS,
-          label: 'Avalanche C-Chain',
-          Icon: CChainIcon,
+          label: 'Avalanche C-Chain / EVM',
+          Icon: AvalancheColorIcon,
         };
       case 'AVM':
         return {
-          ...COMMON_PROPS,
           label: 'Avalanche X/P-Chain',
-          Icon: XPChainIcon,
+          Icon: FixedXPChainIcon,
         };
       case 'BTC':
         return {
-          ...COMMON_PROPS,
           label: 'Bitcoin',
           Icon: BitcoinColorIcon,
         };
-      case 'CoreEth':
-        return {
-          ...COMMON_PROPS,
-          label: 'Ethereum',
-          Icon: EthereumColorIcon,
-        };
       case 'SVM':
         return {
-          ...COMMON_PROPS,
           label: 'Solana',
           Icon: SolanaColorIcon,
         };
