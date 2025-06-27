@@ -17,6 +17,7 @@ import QRCode from 'qrcode.react';
 import { useSeedlessActions } from '@core/ui';
 import { InlineBold } from '@/components/common/InlineBold';
 import { useAnalyticsContext } from '@core/ui';
+import { SEEDLESS_ACTIONS_DEFAULTS } from '@/pages/Onboarding/utils/seedlessOnboardingUrls';
 
 export enum AuthenticatorSteps {
   SCAN = 'scan',
@@ -41,7 +42,7 @@ export function AuthenticatorModal({
   const theme = useTheme();
   const [step, setStep] = useState(activeStep);
   const { registerTOTPStart, totpChallenge, verifyRegistrationCode } =
-    useSeedlessActions({ onError: (msg) => toast.error(msg) });
+    useSeedlessActions(SEEDLESS_ACTIONS_DEFAULTS);
   const [totpCode, setTotpCode] = useState('');
   const [isCodeVerifying, setIsCodeVerifying] = useState(false);
   const [error, setError] = useState('');

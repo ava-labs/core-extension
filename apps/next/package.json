@@ -27,6 +27,7 @@
     "@core/service-worker": "workspace:*",
     "@core/types": "workspace:*",
     "@core/ui": "workspace:*",
+    "@cubist-labs/cubesigner-sdk": "0.3.28",
     "motion": "12.5.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",

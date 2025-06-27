@@ -1,7 +1,7 @@
 import { useAnalyticsContext } from '@core/ui';
 import { useOnboardingContext } from '@core/ui';
 import { useSeedlessActions } from '@core/ui';
-import { AppleIcon, Button, toast } from '@avalabs/core-k2-components';
+import { AppleIcon, Button } from '@avalabs/core-k2-components';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
@@ -10,12 +10,13 @@ import {
 import { authenticateWithApple } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { SeedlesButton } from './GoogleButton';
+import { SEEDLESS_ACTIONS_DEFAULTS } from '@/pages/Onboarding/utils/seedlessOnboardingUrls';
 
 export function AppleButton({ setIsLoading }: SeedlesButton) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { setOnboardingPhase, setAuthProvider } = useOnboardingContext();
-  const { signIn } = useSeedlessActions({ onError: (msg) => toast.error(msg) });
+  const { signIn } = useSeedlessActions(SEEDLESS_ACTIONS_DEFAULTS);
 
   return (
     <Button

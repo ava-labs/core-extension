@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { GoogleColorIcon, Button, toast } from '@avalabs/core-k2-components';
+import { GoogleColorIcon, Button } from '@avalabs/core-k2-components';
 import {
   ONBOARDING_EVENT_NAMES,
   OnboardingPhase,
@@ -10,6 +10,7 @@ import { useAnalyticsContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { useSeedlessActions } from '@core/ui';
 import { authenticateWithGoogle } from '@core/common';
+import { SEEDLESS_ACTIONS_DEFAULTS } from '@/pages/Onboarding/utils/seedlessOnboardingUrls';
 
 export interface SeedlesButton {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
@@ -19,7 +20,7 @@ export function GoogleButton({ setIsLoading }: SeedlesButton) {
   const { capture } = useAnalyticsContext();
   const { setOnboardingPhase, setAuthProvider } = useOnboardingContext();
   const { t } = useTranslation();
-  const { signIn } = useSeedlessActions({ onError: (msg) => toast.error(msg) });
+  const { signIn } = useSeedlessActions(SEEDLESS_ACTIONS_DEFAULTS);
 
   return (
     <Button
