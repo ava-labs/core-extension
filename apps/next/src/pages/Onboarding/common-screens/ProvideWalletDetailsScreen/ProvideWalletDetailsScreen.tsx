@@ -1,6 +1,6 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Stack } from '@avalabs/k2-alpine';
+import { Stack, styled } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { useKeyboardShortcuts } from '@core/ui';
@@ -118,9 +118,9 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
           </Stack>
         </OnboardingStepContent>
       </Stack>
-      <Stack sx={{ py: 1.5, flexShrink: 0 }} {...keyboardHandlers}>
+      <FooterSection {...keyboardHandlers}>
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
-      </Stack>
+      </FooterSection>
       <OnboardingStepActions>
         <NavButton disabled={!isFormValid} color="primary" onClick={onNext}>
           {t('Next')}
@@ -129,3 +129,15 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
     </>
   );
 };
+
+// Adds a slight border on the top to better indicate scrollable content above
+const FooterSection = styled(Stack)(({ theme }) => ({
+  flexShrink: 0,
+  border: 'inset',
+  borderWidth: 0,
+  borderTopWidth: 1,
+  borderTopColor: theme.palette.divider,
+  marginInline: theme.spacing(-4),
+  paddingInline: theme.spacing(4),
+  paddingBlock: theme.spacing(1.5),
+}));
