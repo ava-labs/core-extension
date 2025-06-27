@@ -18,6 +18,8 @@ import {
 } from '@/components/OnboardingModal';
 import { AVATAR_OPTIONS, PersonalAvatar } from '@/components/PersonalAvatar';
 
+import { LoadingScreen } from '../components/LoadingScreen';
+
 export const EnjoyYourWalletScreen: FC = () => {
   const { t } = useTranslation();
   const { setCurrent, setTotal, setIsBackButtonVisible } =
@@ -69,20 +71,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             width: 1,
           }}
         >
-          <Suspense
-            fallback={
-              <Stack
-                sx={{
-                  width: 1,
-                  height: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <CircularProgress />
-              </Stack>
-            }
-          >
+          <Suspense fallback={<LoadingScreen />}>
             <PersonalAvatar {...avatarProps} size="large" isGlowing />
           </Suspense>
         </Stack>
