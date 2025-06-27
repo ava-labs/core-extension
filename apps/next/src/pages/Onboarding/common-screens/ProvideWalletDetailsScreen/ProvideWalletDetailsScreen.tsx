@@ -139,5 +139,5 @@ const FooterSection = styled(Stack)(({ theme }) => ({
   borderTopColor: theme.palette.divider,
   marginInline: theme.spacing(-4),
   paddingInline: theme.spacing(4),
-  paddingBlock: theme.spacing(1.5),
+  paddingTop: theme.spacing(1.5),
 }));
