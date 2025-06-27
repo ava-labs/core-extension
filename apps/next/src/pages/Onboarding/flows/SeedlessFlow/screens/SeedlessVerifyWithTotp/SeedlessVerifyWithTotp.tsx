@@ -1,6 +1,8 @@
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, TextField, useTheme } from '@avalabs/k2-alpine';
+
+import { AuthErrorCode } from '@core/types';
+import { useTotpErrorMessage } from '@core/ui';
 
 import {
   OnboardingStepActions,
@@ -8,23 +10,25 @@ import {
   OnboardingStepDescription,
   OnboardingStepTitle,
 } from '@/components/OnboardingModal';
-import { AuthErrorCode } from '@core/types';
-import { useTotpErrorMessage } from '@core/ui';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
-type AuthenticatorVerificationProps = {
+import { TotpCodeField } from './components/TotpCodeField';
+
+type SeedlessVerifyWithTotpProps = {
   onSubmit: (code: string) => void;
   isLoading: boolean;
   error?: AuthErrorCode;
 };
 
-export const AuthenticatorVerifyCode: FC<AuthenticatorVerificationProps> = ({
+export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
   onSubmit,
   isLoading,
   error,
 }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const [code, setCode] = useState<string>('');
+
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const totpError = useTotpErrorMessage(error);
 
   return (
@@ -33,41 +37,38 @@ export const AuthenticatorVerifyCode: FC<AuthenticatorVerificationProps> = ({
       <OnboardingStepDescription>
         {t(`Enter the code generated in your authenticator app.`)}
       </OnboardingStepDescription>
-      <OnboardingStepContent>
-        <TextField
-          fullWidth
-          autoFocus
-          type="tel"
-          error={!!totpError}
-          helperText={totpError}
-          onChange={(e) => setCode(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              onSubmit(code);
+      <OnboardingStepContent
+        sx={{ overflow: 'visible' }} // do not cut off the field when shaking
+      >
+        <TotpCodeField
+          error={isSubmitted && !!totpError}
+          helperText={isSubmitted && totpError}
+          onChange={(e) => {
+            setCode(e.target.value);
+            if (error && !isLoading) {
+              setIsSubmitted(false);
             }
           }}
-          slotProps={{
-            htmlInput: {
-              sx: {
-                textAlign: 'center',
-                py: 4,
-                ...theme.typography.h1,
-              },
-            },
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setIsSubmitted(true);
+              onSubmit(code);
+            }
           }}
         />
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150 }}
+        <NavButton
           disabled={!code}
           loading={isLoading}
-          variant="contained"
           color="primary"
-          onClick={() => onSubmit(code)}
+          onClick={() => {
+            setIsSubmitted(true);
+            onSubmit(code);
+          }}
         >
           {t(`Continue`)}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );
