@@ -16,7 +16,7 @@ const validatePasswordStrength = (
   if (score < 2) {
     return {
       isValid: false,
-      colorKey: 'error.light',
+      colorKey: 'error.main',
       message: t('Weak password! Try adding more characters'),
     };
   }
@@ -24,14 +24,14 @@ const validatePasswordStrength = (
   if (score < 3) {
     return {
       isValid: true,
-      colorKey: 'warning.light',
+      colorKey: 'warning.dark',
       message: t('Average password - this will do'),
     };
   }
 
   return {
     isValid: true,
-    colorKey: 'green.light',
+    colorKey: 'success.main',
     message: t('Strong password! Keep this one!'),
   };
 };
@@ -44,14 +44,14 @@ const validatePasswordMatch = (
   if (password !== confirmPassword) {
     return {
       isValid: false,
-      colorKey: 'error.light',
+      colorKey: 'error.main',
       message: t('Passwords do not match'),
     };
   }
 
   return {
     isValid: true,
-    colorKey: 'green.light',
+    colorKey: 'success.main',
     message: t('Awesome!'),
   };
 };

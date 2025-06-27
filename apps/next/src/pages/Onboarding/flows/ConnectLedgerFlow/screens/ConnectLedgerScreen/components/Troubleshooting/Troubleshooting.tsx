@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import {
-  Button,
   Divider,
   Stack,
   StackProps,
@@ -16,6 +15,7 @@ import {
 } from '@/components/OnboardingModal';
 import { InTextLink } from '@/components/InTextLink';
 import { CardMenu } from '@/pages/Onboarding/components/CardMenu';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import { InfoBox } from './InfoBox';
 
@@ -76,14 +76,9 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
         </CardMenu>
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          variant="contained"
-          color="primary"
-          onClick={onClose}
-        >
+        <NavButton color="primary" onClick={onClose}>
           {t('Close')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </Stack>
   );

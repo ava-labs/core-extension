@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
-import { Button, EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
+import { EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
   OnboardingStepActions,
@@ -10,6 +10,7 @@ import {
   OnboardingStepTitle,
 } from '@/components/OnboardingModal';
 
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 
 type SeedlessMfaSetupScreenProps = StackProps & {
@@ -65,14 +66,9 @@ export const SeedlessMfaSetupScreen: FC<SeedlessMfaSetupScreenProps> = ({
         </CardMenu>
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          variant="contained"
-          color="secondary"
-          onClick={onSkip}
-        >
+        <NavButton color="secondary" onClick={onSkip}>
           {t('Skip')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </Stack>
   );

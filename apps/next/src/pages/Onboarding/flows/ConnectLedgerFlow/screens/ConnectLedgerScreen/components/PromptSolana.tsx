@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
-import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
+import { Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
   OnboardingStepActions,
@@ -8,6 +8,7 @@ import {
   OnboardingStepDescription,
   OnboardingStepTitle,
 } from '@/components/OnboardingModal';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import SolanaGlow from '../images/SolanaGlow.png';
 
@@ -43,23 +44,12 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
         </Stack>
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          variant="contained"
-          color="secondary"
-          onClick={onSkip}
-        >
+        <NavButton color="secondary" onClick={onSkip}>
           {t('No thanks')}
-        </Button>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          // disabled={!isValid}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-        >
+        </NavButton>
+        <NavButton color="primary" onClick={onNext}>
           {t('Add Solana')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </Stack>
   );

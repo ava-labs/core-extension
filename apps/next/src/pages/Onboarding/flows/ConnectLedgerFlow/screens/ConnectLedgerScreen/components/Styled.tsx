@@ -16,7 +16,9 @@ import { Trans, useTranslation } from 'react-i18next';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { InTextLink } from '@/components/InTextLink';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
+
 import { ErrorType } from './LedgerConnector/types';
 
 type DerivationPathSelectorProps = {
@@ -75,15 +77,9 @@ export const LedgerConnectionError = ({
         {errorType === 'unsupported-version' && <UnsupportedVersionMessage />}
       </Stack>
       <Stack direction="row" justifyContent="center">
-        <Button
-          sx={{ minWidth: 150 }}
-          size="medium"
-          variant="contained"
-          color="primary"
-          onClick={onRetry}
-        >
+        <NavButton size="medium" color="primary" onClick={onRetry}>
           {t('Retry')}
-        </Button>
+        </NavButton>
       </Stack>
     </Stack>
   );

@@ -14,6 +14,7 @@ import {
   OnboardingStepTitle,
   useModalPageControl,
 } from '@/components/OnboardingModal';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { SeedphraseGrid } from './components/SeedphraseGrid';
@@ -71,14 +72,9 @@ export const NewSeedphraseScreen: FC<OnboardingScreenProps> = ({
         </Stack>
       </OnboardingStepContent>
       <OnboardingStepActions gap={6} pt={2}>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-        >
+        <NavButton color="primary" onClick={onNext}>
           {t('Next')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );

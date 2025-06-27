@@ -1,20 +1,17 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, useCallback, useEffect, useState } from 'react';
-import {
-  CircularProgress,
-  Stack,
-  toast,
-  Typography,
-  XIcon,
-} from '@avalabs/k2-alpine';
+import { toast } from '@avalabs/k2-alpine';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
 import { useOnboardingContext, useSeedlessAuth, AuthStep } from '@core/ui';
 
-import { SeedlessLoginChooseMfaMethod } from './SeedlessLoginChooseMfaMethod';
-import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
+import { LoadingScreen } from '@/pages/Onboarding/components/LoadingScreen';
 import { useModalPageControl } from '@/components/OnboardingModal';
+
+import { SeedlessVerifyWithFido } from './SeedlessVerifyWithFido';
+import { SeedlessVerifyWithTotp } from './SeedlessVerifyWithTotp';
+import { SeedlessChooseAuthMethod } from './SeedlessChooseAuthMethod';
 
 type SeedlessMfaLoginFlowProps = {
   nextScreenPath: string;
@@ -43,8 +40,10 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
     step,
     methods,
     chooseMfaMethod,
+    mfaDeviceName,
     error,
     verifyTotpCode,
+    completeFidoChallenge,
   } = useSeedlessAuth({
     getOidcToken,
     setIsLoading,
@@ -82,41 +81,28 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
   return (
     <>
       {(step === AuthStep.NotInitialized || step === AuthStep.Initialized) && (
-        <Stack
-          width="100%"
-          height="100%"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <CircularProgress />
-        </Stack>
+        <LoadingScreen />
       )}
       {step === AuthStep.ChooseMfaMethod && (
-        <SeedlessLoginChooseMfaMethod
+        <SeedlessChooseAuthMethod
           onMethodChosen={chooseMfaMethod}
           methods={methods}
         />
       )}
       {step === AuthStep.TotpChallenge && (
-        <AuthenticatorVerifyCode
+        <SeedlessVerifyWithTotp
           onSubmit={verifyTotpCode}
           isLoading={isLoading}
           error={error}
         />
       )}
       {step === AuthStep.FidoChallenge && (
-        <Stack
-          width="100%"
-          height="100%"
-          justifyContent="center"
-          alignItems="center"
-          gap={3}
-        >
-          <XIcon color="error.main" size={48} />
-          <Typography color="error.main" variant="body1">
-            {t('Not implemented yet')}
-          </Typography>
-        </Stack>
+        <SeedlessVerifyWithFido
+          isLoading={isLoading}
+          login={completeFidoChallenge}
+          name={mfaDeviceName}
+          error={error}
+        />
       )}
     </>
   );
