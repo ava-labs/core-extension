@@ -1,6 +1,6 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Stack } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { useKeyboardShortcuts } from '@core/ui';
@@ -14,6 +14,7 @@ import {
 } from '@/components/OnboardingModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
+import { NavButton } from '../../components/NavButton';
 import { PasswordSection } from './components/PasswordSection';
 import { AirdropSection } from './components/AirdropSection';
 import { WalletNameSection } from './components/WalletNameSection';
@@ -121,15 +122,9 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
       </Stack>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150 }}
-          disabled={!isFormValid}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-        >
+        <NavButton disabled={!isFormValid} color="primary" onClick={onNext}>
           {t('Next')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );

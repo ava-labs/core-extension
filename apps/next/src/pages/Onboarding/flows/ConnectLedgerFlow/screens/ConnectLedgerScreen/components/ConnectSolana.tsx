@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
+import { Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -8,6 +8,7 @@ import {
   OnboardingStepDescription,
   OnboardingStepTitle,
 } from '@/components/OnboardingModal';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import * as Styled from './Styled';
 import {
@@ -58,15 +59,13 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
             </Styled.LedgerLiveButton>
           </Stack>
         ) : (
-          <Button
-            sx={{ minWidth: 150, alignSelf: 'flex-end' }}
+          <NavButton
             disabled={!isValid}
-            variant="contained"
             color="primary"
             onClick={() => onNext(derivedKeys)}
           >
             {t('Next')}
-          </Button>
+          </NavButton>
         )}
       </OnboardingStepActions>
     </Stack>
