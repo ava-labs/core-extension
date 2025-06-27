@@ -173,6 +173,7 @@
   "The transaction timed out": "The transaction timed out",
   "There was an error contacting our pricing provider.": "There was an error contacting our pricing provider.",
   "There was an error fetching your spend approvals.": "There was an error fetching your spend approvals.",
+  "This address supports receiving tokens and NFTs on Avalanche C-Chain, Ethereum, Base, Arbitrum, Optimism and Avalanche L1s": "This address supports receiving tokens and NFTs on Avalanche C-Chain, Ethereum, Base, Arbitrum, Optimism and Avalanche L1s",
   "This asset cannot be bridged": "This asset cannot be bridged",
   "This email looks invalid": "This email looks invalid",
   "This is taking longer than expected. Please try again later.": "This is taking longer than expected. Please try again later.",
