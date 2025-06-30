@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
 import { EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
@@ -8,21 +8,27 @@ import {
   OnboardingStepContent,
   OnboardingStepDescription,
   OnboardingStepTitle,
+  useModalPageControl,
 } from '@/components/OnboardingModal';
 
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 
-type SeedlessMfaSetupScreenProps = StackProps & {
-  onSkip: () => void;
-  nextScreenPath: string;
+import { NewMfaMethod } from '../types';
+
+type SeedlessChooseSetupMethodProps = StackProps & {
+  onMethodChosen: (method: NewMfaMethod) => void;
 };
-export const SeedlessMfaSetupScreen: FC<SeedlessMfaSetupScreenProps> = ({
-  onSkip,
-  nextScreenPath,
+export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
+  onMethodChosen,
   ...stackProps
 }) => {
   const { t } = useTranslation();
+  const { setTotal } = useModalPageControl();
+
+  useEffect(() => {
+    setTotal(0);
+  }, [setTotal]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
@@ -37,8 +43,7 @@ export const SeedlessMfaSetupScreen: FC<SeedlessMfaSetupScreenProps> = ({
       <OnboardingStepContent>
         <CardMenu>
           <CardMenuItem
-            // link="/onboarding/seedless/mfa-setup/fido?type=passkey"
-            onClick={() => alert('Not implemented yet')}
+            onClick={() => onMethodChosen('passkey')}
             icon={<MdOutlinePassword size={24} />}
             text={t('Passkey')}
             description={t(
@@ -46,8 +51,7 @@ export const SeedlessMfaSetupScreen: FC<SeedlessMfaSetupScreenProps> = ({
             )}
           />
           <CardMenuItem
-            // link="/onboarding/seedless/mfa-setup/authenticator"
-            onClick={() => alert('Not implemented yet')}
+            onClick={() => onMethodChosen('totp')}
             icon={<EncryptedIcon size={24} />}
             text={t('Authenticator app')}
             description={t(
@@ -55,8 +59,7 @@ export const SeedlessMfaSetupScreen: FC<SeedlessMfaSetupScreenProps> = ({
             )}
           />
           <CardMenuItem
-            // link="/onboarding/seedless/mfa-setup/fido?type=yubikey"
-            onClick={() => alert('Not implemented yet')}
+            onClick={() => onMethodChosen('yubikey')}
             icon={<MdOutlinePassword size={24} />} // TODO: replace with YubiKey icon
             text={t('Yubikey')}
             description={t(
@@ -66,7 +69,7 @@ export const SeedlessMfaSetupScreen: FC<SeedlessMfaSetupScreenProps> = ({
         </CardMenu>
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <NavButton color="secondary" onClick={onSkip}>
+        <NavButton color="secondary" onClick={() => onMethodChosen('none')}>
           {t('Skip')}
         </NavButton>
       </OnboardingStepActions>

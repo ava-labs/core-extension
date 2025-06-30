@@ -1,9 +1,11 @@
 import { FC, useState } from 'react';
-import { Button, ButtonProps, toast } from '@avalabs/k2-alpine';
+import { Button, ButtonProps } from '@avalabs/k2-alpine';
 
 import { SeedlessAuthProvider } from '@core/types';
 import { useOnboardingContext, useSeedlessActions } from '@core/ui';
 import { authenticateWithApple, authenticateWithGoogle } from '@core/common';
+
+import { SEEDLESS_ACTIONS_OPTIONS } from '../config';
 
 type SeedlessSignInButtonProps = Omit<ButtonProps, 'loading' | 'onClick'> & {
   provider: SeedlessAuthProvider;
@@ -15,14 +17,6 @@ const OIDC_STRATEGY: Record<SeedlessAuthProvider, OidcTokenFetcher> = {
   [SeedlessAuthProvider.Google]: authenticateWithGoogle,
   [SeedlessAuthProvider.Apple]: authenticateWithApple,
 };
-
-const SEEDLESS_ACTIONS_OPTIONS = {
-  onError: (msg) => toast.error(msg),
-  urls: {
-    mfaSetup: '/onboarding/seedless/setup',
-    mfaLogin: '/onboarding/seedless/login',
-  },
-} as const;
 
 export const SeedlessSignInButton: FC<SeedlessSignInButtonProps> = ({
   provider,
