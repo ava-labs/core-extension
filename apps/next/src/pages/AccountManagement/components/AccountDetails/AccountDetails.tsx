@@ -12,6 +12,9 @@ const toastOptions: ToastOptions = {
   id: 'account-details-guard',
 };
 
+const VIEWS = ['details', 'rename', 'remove'] as const;
+type View = (typeof VIEWS)[number];
+
 export const AccountDetails: FC = () => {
   const { t } = useTranslation();
   const {
@@ -23,13 +26,16 @@ export const AccountDetails: FC = () => {
   const { getAccountById, renameAccount, deleteAccounts } =
     useAccountsContext();
 
-  const [view, setView] = useState<'details' | 'rename' | 'remove'>('details');
-  const switchTo = useMemo<Record<typeof view, () => void>>(
-    () => ({
-      details: () => setView('details'),
-      rename: () => setView('rename'),
-      remove: () => setView('remove'),
-    }),
+  const [view, setView] = useState<View>('details');
+  const switchTo = useMemo(
+    () =>
+      VIEWS.reduce(
+        (acc, viewName) => {
+          acc[viewName] = () => setView(viewName);
+          return acc;
+        },
+        {} as Record<View, VoidFunction>,
+      ),
     [setView],
   );
 

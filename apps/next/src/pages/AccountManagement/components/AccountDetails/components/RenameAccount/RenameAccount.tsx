@@ -32,7 +32,7 @@ export const RenameAccount: FC<Props> = ({ account, onSave, onCancel }) => {
 
   return (
     <>
-      <Typography variant="h6">{t('Rename Account')}</Typography>
+      <Typography variant="h2">{t('Rename Account')}</Typography>
       <StandaloneField
         value={name}
         placeholder={account.name}
