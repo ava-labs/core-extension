@@ -9,7 +9,7 @@ import {
   OnboardingStepTitle,
 } from '@/components/OnboardingModal';
 import { AuthErrorCode } from '@core/types';
-import { useTotpErrorMessage } from '@core/ui';
+import { useKeyboardShortcuts, useTotpErrorMessage } from '@core/ui';
 
 type AuthenticatorVerificationProps = {
   onSubmit: (code: string) => void;
@@ -26,6 +26,9 @@ export const AuthenticatorVerifyCode: FC<AuthenticatorVerificationProps> = ({
   const theme = useTheme();
   const [code, setCode] = useState<string>('');
   const totpError = useTotpErrorMessage(error);
+  const keyboardShortcuts = useKeyboardShortcuts({
+    Enter: () => onSubmit(code),
+  });
 
   return (
     <>
@@ -33,7 +36,7 @@ export const AuthenticatorVerifyCode: FC<AuthenticatorVerificationProps> = ({
       <OnboardingStepDescription>
         {t(`Enter the code generated in your authenticator app.`)}
       </OnboardingStepDescription>
-      <OnboardingStepContent>
+      <OnboardingStepContent {...keyboardShortcuts}>
         <TextField
           fullWidth
           autoFocus
