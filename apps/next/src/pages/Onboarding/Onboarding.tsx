@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -17,12 +17,14 @@ import { useAnalyticsContext } from '@core/ui';
 
 import { CoreSplash } from '@/components/CoreSplash';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import { FullscreenLoading } from '@/components/FullscreenLoading';
 import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 
 import { ImportWallet } from './ImportWallet';
 import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
 import { CreateNewWalletFlow } from './flows/CreateNewWallet';
+import { SeedlessSignInButton } from './components/SeedlessSignInButton';
+import { SeedlessAuthProvider } from '@core/types';
+import { SeedlessFlow } from './flows/SeedlessFlow';
 
 export function Onboarding() {
   const { t } = useTranslation();
@@ -69,24 +71,18 @@ export function Onboarding() {
               gap={4}
             >
               <Stack direction="column" width={1} gap={2}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  size="large"
+                <SeedlessSignInButton
+                  provider={SeedlessAuthProvider.Google}
                   startIcon={<FcGoogle />}
                 >
                   {t('Continue with Google')}
-                </Button>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  size="large"
+                </SeedlessSignInButton>
+                <SeedlessSignInButton
+                  provider={SeedlessAuthProvider.Apple}
                   startIcon={<FaApple />}
                 >
                   {t('Continue with Apple')}
-                </Button>
+                </SeedlessSignInButton>
               </Stack>
               <Stack direction="column" width={1} gap={2}>
                 <Button
@@ -119,16 +115,17 @@ export function Onboarding() {
           <ScreenshotsCarousel />
         </SlidesColumn>
 
-        <Suspense fallback={<FullscreenLoading />}>
-          <Switch>
-            <Route path="/onboarding/import">
-              <ImportWallet />
-            </Route>
-            <Route path="/onboarding/create">
-              <CreateNewWalletFlow />
-            </Route>
-          </Switch>
-        </Suspense>
+        <Switch>
+          <Route path="/onboarding/import">
+            <ImportWallet />
+          </Route>
+          <Route path="/onboarding/create">
+            <CreateNewWalletFlow />
+          </Route>
+          <Route path="/onboarding/seedless">
+            <SeedlessFlow />
+          </Route>
+        </Switch>
       </Stack>
     </>
   );
