@@ -10,6 +10,7 @@ const AddOrConnectWalletButton: FC = () => {
       <Button
         variant="contained"
         color="primary"
+        size="small"
         fullWidth
         onClick={() => alert('Under development')}
       >

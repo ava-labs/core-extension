@@ -8,9 +8,9 @@ import {
   XPChainIcon,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { History } from 'history';
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
+import { getNavigateToQRCode } from '../../QRCode/utils';
 import { QRCodeIconButton } from '../../QRCodeIconButton';
 import * as Styled from '../../Styled';
 
@@ -18,15 +18,9 @@ type Props = {
   account: Account;
 };
 
-const getNavigateToQRCode =
-  (history: History, accountId: string, chain: string) => () =>
-    history.push({
-      pathname: '/account-management/qr-code',
-      search: new URLSearchParams({ accountId, chain }).toString(),
-    });
-
 export const AddressesCard: FC<Props> = ({ account }) => {
   const history = useHistory();
+  const getNavigate = getNavigateToQRCode(history.push, account.id);
   return (
     <Styled.Card>
       <Styled.CardContent>
@@ -34,9 +28,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <AddressItem
             label="Avalanche C-Chain"
             Icon={
-              <QRCodeIconButton
-                onClick={getNavigateToQRCode(history, account.id, 'CChain')}
-              >
+              <QRCodeIconButton onClick={getNavigate('C')}>
                 <CChainIcon />
               </QRCodeIconButton>
             }
@@ -47,9 +39,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <AddressItem
             label="Avalanche X/P-Chain"
             Icon={
-              <QRCodeIconButton
-                onClick={getNavigateToQRCode(history, account.id, 'XChain')}
-              >
+              <QRCodeIconButton onClick={getNavigate('AVM')}>
                 <XPChainIcon />
               </QRCodeIconButton>
             }
@@ -60,9 +50,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <AddressItem
             label="Bitcoin"
             Icon={
-              <QRCodeIconButton
-                onClick={getNavigateToQRCode(history, account.id, 'BTC')}
-              >
+              <QRCodeIconButton onClick={getNavigate('BTC')}>
                 <BitcoinColorIcon />
               </QRCodeIconButton>
             }
@@ -73,9 +61,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <AddressItem
             label="Ethereum"
             Icon={
-              <QRCodeIconButton
-                onClick={getNavigateToQRCode(history, account.id, 'ETH')}
-              >
+              <QRCodeIconButton onClick={getNavigate('C')}>
                 <EthereumColorIcon />
               </QRCodeIconButton>
             }
@@ -86,9 +72,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
           <AddressItem
             label="Solana"
             Icon={
-              <QRCodeIconButton
-                onClick={getNavigateToQRCode(history, account.id, 'SOL')}
-              >
+              <QRCodeIconButton onClick={getNavigate('SVM')}>
                 <SolanaColorIcon />
               </QRCodeIconButton>
             }

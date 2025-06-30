@@ -1,12 +1,12 @@
 import {
-  AccordionSummary as K2AccordionSummary,
   accordionSummaryClasses,
   Accordion as K2Accordion,
   AccordionDetails as K2AccordionDetails,
+  AccordionSummary as K2AccordionSummary,
   ListItemButton as K2ListItemButton,
+  listItemButtonClasses,
   styled,
   typographyClasses,
-  listItemButtonClasses,
 } from '@avalabs/k2-alpine';
 import { MdError } from 'react-icons/md';
 
