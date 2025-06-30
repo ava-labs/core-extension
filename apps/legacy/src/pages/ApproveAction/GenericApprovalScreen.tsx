@@ -95,7 +95,7 @@ export function GenericApprovalScreen() {
 
   const { captureEncrypted } = useAnalyticsContext();
 
-  const { displayData, context, signingData } = action ?? {};
+  const { displayData, context, signingData, caipId } = action ?? {};
   const hasFeeSelector = action?.displayData.networkFeeSelector;
   const isFeeValid =
     (isGaslessOn && isGaslessEligible) ||
@@ -103,24 +103,25 @@ export function GenericApprovalScreen() {
     (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
 
   useEffect(() => {
-    if (!displayData?.network?.chainId) {
+    if (!caipId) {
       return;
     }
 
-    setNetwork(getNetwork(displayData.network.chainId));
+    setNetwork(getNetwork(caipId));
 
     if (signingData && signingData.type === RpcMethod.ETH_SEND_TRANSACTION) {
+      const evmChainId = caipId.split(':')[1] ?? '';
+
       setGaslessEligibility(
-        displayData.network.chainId,
+        evmChainId,
         signingData?.data?.from,
         signingData?.data?.nonce,
       );
       return;
     }
-    setGaslessEligibility(displayData.network.chainId);
+    setGaslessEligibility(caipId);
   }, [
-    displayData,
-    displayData?.network?.chainId,
+    caipId,
     fetchAndSolveGaslessChallange,
     getNetwork,
     setGaslessEligibility,
@@ -219,7 +220,7 @@ export function GenericApprovalScreen() {
             pb: 2,
             px: 2,
             zIndex: 1,
-            height: '56px',
+            minHeight: '56px',
           }}
         >
           <Typography variant="h4">

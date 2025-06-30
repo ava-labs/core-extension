@@ -1,7 +1,7 @@
 import {
   LinearProgress,
-  styled,
   Stack,
+  styled,
   toast,
   ToastOptions,
   Typography,

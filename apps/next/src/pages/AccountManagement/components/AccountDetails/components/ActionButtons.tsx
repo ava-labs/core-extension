@@ -1,4 +1,4 @@
-import { Stack, Button, styled } from '@avalabs/k2-alpine';
+import { Button, Stack, styled } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 

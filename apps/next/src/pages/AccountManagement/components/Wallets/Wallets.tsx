@@ -12,10 +12,16 @@ const PaddedEndStack = styled(Stack)(({ theme }) => ({
   },
 }));
 
+const CurrentAccountWithExtraBottomMargin = styled(CurrentAccount)(
+  ({ theme }) => ({
+    marginBlockEnd: theme.spacing(1.5),
+  }),
+);
+
 export const Wallets: FC = () => {
   return (
     <PaddedEndStack>
-      <CurrentAccount />
+      <CurrentAccountWithExtraBottomMargin />
       <WalletList />
       <AddOrConnectWalletButton />
     </PaddedEndStack>
