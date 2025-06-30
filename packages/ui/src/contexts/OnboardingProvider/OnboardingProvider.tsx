@@ -1,13 +1,16 @@
 import { WalletType } from '@avalabs/types';
-import {
+import type {
   GetIsOnboardedHandler,
   KeystoneOnboardingHandler,
   LedgerOnboardingHandler,
+  LedgerOnboardingHandlerNew,
   MnemonicOnboardingHandler,
   SeedlessOnboardingHandler,
 } from '@core/service-worker';
 import {
+  AddressPublicKeyJson,
   ContextContainer,
+  ExtendedPublicKey,
   ExtensionRequest,
   OnboardingPhase,
   OnboardingState,
@@ -77,6 +80,10 @@ const OnboardingContext = createContext<{
   onboardingWalletType: WalletType | undefined;
   numberOfAccountsToCreate: number;
   setNumberOfAccountsToCreate: Dispatch<SetStateAction<number>>;
+  setAddressPublicKeys: Dispatch<SetStateAction<AddressPublicKeyJson[]>>;
+  setExtendedPublicKeys: Dispatch<SetStateAction<ExtendedPublicKey[]>>;
+  addressPublicKeys?: AddressPublicKeyJson[];
+  extendedPublicKeys?: ExtendedPublicKey[];
 }>({} as any);
 
 export function OnboardingContextProvider({
@@ -117,6 +124,14 @@ export function OnboardingContextProvider({
   const [submitInProgress, setSubmitInProgress] = useState(false);
 
   const [publicKeys, setPublicKeys] = useState<PubKeyType[]>();
+
+  const [addressPublicKeys, setAddressPublicKeys] = useState<
+    AddressPublicKeyJson[]
+  >([]);
+
+  const [extendedPublicKeys, setExtendedPublicKeys] = useState<
+    ExtendedPublicKey[]
+  >([]);
 
   const [masterFingerprint, setMasterFingerprint] = useState<string>('');
 
@@ -270,6 +285,35 @@ export function OnboardingContextProvider({
     walletName,
   ]);
 
+  const submitLedgerNew = useCallback(() => {
+    if (!addressPublicKeys || !extendedPublicKeys) {
+      throw new Error('Missing public keys');
+    }
+
+    return request<LedgerOnboardingHandlerNew>({
+      method: ExtensionRequest.LEDGER_ONBOARDING_SUBMIT_NEW,
+      params: [
+        {
+          addressPublicKeys,
+          extendedPublicKeys,
+          password,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [
+    analyticsConsent,
+    addressPublicKeys,
+    extendedPublicKeys,
+    password,
+    request,
+    walletName,
+  ]);
+
+  /**
+   * @deprecated Try to use submitLedgerNew() instead
+   */
   const submitLedger = useCallback(() => {
     return request<LedgerOnboardingHandler>({
       method: ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
@@ -342,7 +386,7 @@ export function OnboardingContextProvider({
       }
 
       if (!handler && onboardingWalletType === WalletType.Ledger) {
-        handler = submitLedger;
+        handler = addressPublicKeys.length > 0 ? submitLedgerNew : submitLedger;
       }
 
       if (!handler) {
@@ -405,6 +449,8 @@ export function OnboardingContextProvider({
       walletType,
       xpub,
       onError,
+      submitLedgerNew,
+      addressPublicKeys.length,
     ],
   );
 
@@ -454,6 +500,8 @@ export function OnboardingContextProvider({
         onboardingWalletType,
         numberOfAccountsToCreate,
         setNumberOfAccountsToCreate,
+        setAddressPublicKeys,
+        setExtendedPublicKeys,
       }}
     >
       {/*

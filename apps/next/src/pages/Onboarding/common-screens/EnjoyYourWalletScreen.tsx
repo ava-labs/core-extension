@@ -88,7 +88,7 @@ export const EnjoyYourWalletScreen: FC = () => {
         </Stack>
         {submitInProgress ? (
           <Stack sx={{ width: 1, pt: 6, alignItems: 'center' }}>
-            <CircularProgress size={60} />
+            <CircularProgress size={32} />
           </Stack>
         ) : (
           <Stack sx={{ gap: 3, textAlign: 'center' }}>

@@ -23,7 +23,7 @@ const Root = styled('div')(({ theme }) => ({
   gridTemplateRows: 'auto auto',
 
   padding: theme.spacing(1.5),
-  borderRadius: 12,
+  borderRadius: theme.shape.mediumBorderRadius,
   backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
 }));
 

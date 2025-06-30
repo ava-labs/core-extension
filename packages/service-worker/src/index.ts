@@ -1,5 +1,6 @@
 // Make sure to only ever export TYPES from this file, no actual functions or classes.
 export type { AppendSolanaPublicKeysHandler } from './services/secrets/handlers/appendSolanaPublicKeys';
+export type { LedgerOnboardingHandlerNew } from './services/onboarding/handlers/ledgerOnboardingHandlerNew';
 export type { SetCoreAssistantHandler } from './services/settings/handlers/setCoreAssistant';
 export type { SubscribeToNotification } from './services/notifications/handlers/subscribe';
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';

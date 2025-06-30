@@ -12,7 +12,7 @@ import { MdError } from 'react-icons/md';
 
 export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
-  borderRadius: 12,
+  borderRadius: theme.shape.mediumBorderRadius,
   boxShadow: '0px 5px 30px 0px rgba(0, 0, 0, 0.15)',
   backgroundColor:
     theme.palette.mode === 'light'
