@@ -1,7 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, Suspense, useCallback, useEffect, useState } from 'react';
-import { Button, CircularProgress, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 
 import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
 
@@ -21,6 +21,7 @@ import {
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { AvatarGrid } from './SelectAvatarScreen/components/AvatarGrid';
+import { LoadingScreen } from '../components/LoadingScreen';
 
 export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
   step,
@@ -67,20 +68,7 @@ export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
         {...keyboardHandlers}
       >
         <Stack>
-          <Suspense
-            fallback={
-              <Stack
-                sx={{
-                  width: 1,
-                  height: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <CircularProgress />
-              </Stack>
-            }
-          >
+          <Suspense fallback={<LoadingScreen />}>
             <Stack
               sx={{
                 flexDirection: 'row',

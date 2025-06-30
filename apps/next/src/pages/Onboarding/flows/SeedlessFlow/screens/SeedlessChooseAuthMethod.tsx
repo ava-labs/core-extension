@@ -12,14 +12,15 @@ import {
 } from '@/components/OnboardingModal';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 
-type SeedlessLoginChooseMfaMethodProps = {
+type SeedlessChooseAuthMethodProps = {
   methods: RecoveryMethod[];
   onMethodChosen: (method: RecoveryMethod) => void;
 };
 
-export const SeedlessLoginChooseMfaMethod: FC<
-  SeedlessLoginChooseMfaMethodProps
-> = ({ methods, onMethodChosen }) => {
+export const SeedlessChooseAuthMethod: FC<SeedlessChooseAuthMethodProps> = ({
+  methods,
+  onMethodChosen,
+}) => {
   const { t } = useTranslation();
 
   return (

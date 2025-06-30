@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { WalletType } from '@avalabs/types';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useOnboardingContext } from '@core/ui';
 
@@ -15,7 +15,17 @@ const BASE_PATH = '/onboarding/import/recovery-phrase';
 const TOTAL_STEPS = 5;
 
 export const ImportRecoveryPhraseFlow = () => {
-  const { setOnboardingWalletType } = useOnboardingContext();
+  const history = useHistory();
+  const { setOnboardingWalletType, mnemonic, onboardingState } =
+    useOnboardingContext();
+
+  useEffect(() => {
+    // If at any of the screens below the user does not have the required state,
+    // restart the onboarding flow.
+    if (!mnemonic && !onboardingState.isOnBoarded) {
+      history.replace(BASE_PATH);
+    }
+  }, [mnemonic, history, onboardingState.isOnBoarded]);
 
   useEffect(() => {
     setOnboardingWalletType(WalletType.Mnemonic);

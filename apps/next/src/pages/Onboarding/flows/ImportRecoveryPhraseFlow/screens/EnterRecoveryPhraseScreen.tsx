@@ -2,7 +2,7 @@ import { useHistory } from 'react-router-dom';
 import { FiAlertCircle } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useState } from 'react';
-import { Button, Typography, Fade, Stack, Box } from '@avalabs/k2-alpine';
+import { Typography, Fade, Stack, Box } from '@avalabs/k2-alpine';
 
 import { isPhraseCorrect } from '@core/common';
 import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
@@ -14,6 +14,7 @@ import {
   OnboardingStepTitle,
   useModalPageControl,
 } from '@/components/OnboardingModal';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { RecoveryPhraseForm } from '../components/RecoveryPhraseForm';
@@ -95,15 +96,9 @@ export const EnterRecoveryPhraseScreen: FC<OnboardingScreenProps> = ({
             </Typography>
           </Stack>
         </Fade>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          disabled={!isValid}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-        >
+        <NavButton disabled={!isValid} color="primary" onClick={onNext}>
           {t('Next')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );
