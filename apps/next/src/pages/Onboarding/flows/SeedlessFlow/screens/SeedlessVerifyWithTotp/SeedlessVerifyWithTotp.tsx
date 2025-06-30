@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AuthErrorCode } from '@core/types';
-import { useTotpErrorMessage } from '@core/ui';
+import { useKeyboardShortcuts, useTotpErrorMessage } from '@core/ui';
 
 import {
   OnboardingStepActions,
@@ -30,6 +30,9 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const totpError = useTotpErrorMessage(error);
+  const keyboardShortcuts = useKeyboardShortcuts({
+    Enter: () => onSubmit(code),
+  });
 
   return (
     <>
@@ -38,6 +41,7 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
         {t(`Enter the code generated in your authenticator app.`)}
       </OnboardingStepDescription>
       <OnboardingStepContent
+        {...keyboardShortcuts}
         sx={{ overflow: 'visible' }} // do not cut off the field when shaking
       >
         <TotpCodeField

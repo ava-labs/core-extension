@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -17,7 +17,6 @@ import { useAnalyticsContext } from '@core/ui';
 
 import { CoreSplash } from '@/components/CoreSplash';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import { FullscreenLoading } from '@/components/FullscreenLoading';
 import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 
 import { ImportWallet } from './ImportWallet';
@@ -116,19 +115,17 @@ export function Onboarding() {
           <ScreenshotsCarousel />
         </SlidesColumn>
 
-        <Suspense fallback={<FullscreenLoading />}>
-          <Switch>
-            <Route path="/onboarding/import">
-              <ImportWallet />
-            </Route>
-            <Route path="/onboarding/create">
-              <CreateNewWalletFlow />
-            </Route>
-            <Route path="/onboarding/seedless">
-              <SeedlessFlow />
-            </Route>
-          </Switch>
-        </Suspense>
+        <Switch>
+          <Route path="/onboarding/import">
+            <ImportWallet />
+          </Route>
+          <Route path="/onboarding/create">
+            <CreateNewWalletFlow />
+          </Route>
+          <Route path="/onboarding/seedless">
+            <SeedlessFlow />
+          </Route>
+        </Switch>
       </Stack>
     </>
   );
