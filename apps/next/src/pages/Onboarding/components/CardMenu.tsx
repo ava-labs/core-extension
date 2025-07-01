@@ -1,4 +1,5 @@
 import {
+  Box,
   ChevronDownIcon,
   getHexAlpha,
   MenuItem,
@@ -20,20 +21,53 @@ export const CardMenu = styled(MenuList)(({ theme }) => ({
 }));
 
 type CardMenuItemProps = {
-  link: string;
   icon: ReactElement;
   text: string;
-};
+  description?: string;
+} & (
+  | {
+      link: string;
+    }
+  | {
+      onClick: () => void;
+    }
+);
 
-export const CardMenuItem: FC<CardMenuItemProps> = ({ link, icon, text }) => {
+export const CardMenuItem: FC<CardMenuItemProps> = ({
+  icon,
+  text,
+  description,
+  ...props
+}) => {
   const history = useHistory();
 
+  const onClick =
+    'onClick' in props ? props.onClick : () => history.push(props.link);
+
   return (
-    <CardMenuItemContainer onClick={() => history.push(link)}>
+    <CardMenuItemContainer onClick={onClick}>
       {icon}
       <Stack className="CardLikeMenuItem-text-wrapper">
-        <Typography variant="button">{text}</Typography>
-        <ChevronDownIcon className="CardLikeMenuItem-chevron" size={20} />
+        <Stack gap={0.5}>
+          <Typography variant="button">{text}</Typography>
+          {description && (
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              whiteSpace="normal"
+            >
+              {description}
+            </Typography>
+          )}
+        </Stack>
+        <Box
+          display="flex"
+          flexShrink={0}
+          alignItems="center"
+          justifyContent="center"
+        >
+          <ChevronDownIcon className="CardLikeMenuItem-chevron" size={20} />
+        </Box>
       </Stack>
     </CardMenuItemContainer>
   );

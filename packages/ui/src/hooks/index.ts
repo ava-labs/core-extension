@@ -12,6 +12,7 @@ export * from './useDisplayTokenList';
 export * from './useErrorMessage';
 export * from './useFidoErrorMessage';
 export * from './useGetAvaxBalance';
+export * from './useNativeBalanceFetcher';
 export * from './useGetRequestId';
 export * from './useGetSolBalance';
 export * from './useGoBack';

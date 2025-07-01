@@ -1,6 +1,6 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Stack, styled } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { useKeyboardShortcuts } from '@core/ui';
@@ -14,6 +14,7 @@ import {
 } from '@/components/OnboardingModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
+import { NavButton } from '../../components/NavButton';
 import { PasswordSection } from './components/PasswordSection';
 import { AirdropSection } from './components/AirdropSection';
 import { WalletNameSection } from './components/WalletNameSection';
@@ -117,20 +118,26 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
           </Stack>
         </OnboardingStepContent>
       </Stack>
-      <Stack sx={{ py: 1.5, flexShrink: 0 }} {...keyboardHandlers}>
+      <FooterSection {...keyboardHandlers}>
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
-      </Stack>
+      </FooterSection>
       <OnboardingStepActions>
-        <Button
-          sx={{ minWidth: 150 }}
-          disabled={!isFormValid}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-        >
+        <NavButton disabled={!isFormValid} color="primary" onClick={onNext}>
           {t('Next')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );
 };
+
+// Adds a slight border on the top to better indicate scrollable content above
+const FooterSection = styled(Stack)(({ theme }) => ({
+  flexShrink: 0,
+  border: 'inset',
+  borderWidth: 0,
+  borderTopWidth: 1,
+  borderTopColor: theme.palette.divider,
+  marginInline: theme.spacing(-4),
+  paddingInline: theme.spacing(4),
+  paddingTop: theme.spacing(1.5),
+}));

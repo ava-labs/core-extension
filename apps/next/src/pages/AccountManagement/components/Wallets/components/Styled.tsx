@@ -1,18 +1,18 @@
 import {
-  AccordionSummary as K2AccordionSummary,
   accordionSummaryClasses,
   Accordion as K2Accordion,
   AccordionDetails as K2AccordionDetails,
+  AccordionSummary as K2AccordionSummary,
   ListItemButton as K2ListItemButton,
+  listItemButtonClasses,
   styled,
   typographyClasses,
-  listItemButtonClasses,
 } from '@avalabs/k2-alpine';
 import { MdError } from 'react-icons/md';
 
 export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
-  borderRadius: 12,
+  borderRadius: theme.shape.mediumBorderRadius,
   boxShadow: '0px 5px 30px 0px rgba(0, 0, 0, 0.15)',
   backgroundColor:
     theme.palette.mode === 'light'

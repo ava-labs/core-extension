@@ -12,6 +12,7 @@ import {
   OnboardingStepTitle,
   useModalPageControl,
 } from '@/components/OnboardingModal';
+import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { getConfirmationWords } from '../lib/phraseConfirmation';
@@ -113,15 +114,9 @@ export const ConfirmSeedphraseScreen: FC<OnboardingScreenProps> = ({
         )}
       </OnboardingStepContent>
       <OnboardingStepActions gap={6} pt={2}>
-        <Button
-          sx={{ minWidth: 150, alignSelf: 'flex-end' }}
-          variant="contained"
-          color="primary"
-          onClick={onNext}
-          disabled={!isConfirmed}
-        >
+        <NavButton color="primary" onClick={onNext} disabled={!isConfirmed}>
           {t('Next')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );

@@ -34,6 +34,7 @@ export default defineConfig((...args) =>
                   publicKey: process.env.NEXT_GEN_EXTENSION_PUBLIC_KEY,
                 }),
               },
+              { from: 'src/images/dev-logos', to: './images', force: true },
             ],
           }),
         ],

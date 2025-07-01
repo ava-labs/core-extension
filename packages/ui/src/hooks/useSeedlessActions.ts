@@ -5,7 +5,6 @@ import {
   FIDOApiEndpoint,
   FeatureGates,
   KeyType,
-  OnboardingURLs,
   RecoveryMethodTypes,
   SeedlessAuthProvider,
 } from '@core/types';
@@ -52,11 +51,18 @@ const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
   }
 };
 
+type UseSeedlessActionsOptions = {
+  onError: (message: string) => void;
+  urls: {
+    mfaSetup: string;
+    mfaLogin: string;
+  };
+};
+
 export function useSeedlessActions({
   onError,
-}: {
-  onError: (message: string) => void;
-}) {
+  urls,
+}: UseSeedlessActionsOptions) {
   const { capture } = useAnalyticsContext();
   const {
     setOidcToken,
@@ -115,9 +121,9 @@ export function useSeedlessActions({
       setNewsletterEmail(identity.email ?? '');
 
       if ((identity.user_info?.configured_mfa ?? []).length === 0) {
-        history.push(OnboardingURLs.RECOVERY_METHODS);
+        history.push(urls.mfaSetup);
       } else {
-        history.push(OnboardingURLs.RECOVERY_METHODS_LOGIN);
+        history.push(urls.mfaLogin);
       }
     },
     [
@@ -129,6 +135,7 @@ export function useSeedlessActions({
       history,
       featureFlags,
       onError,
+      urls,
     ],
   );
 

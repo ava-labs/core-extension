@@ -11,6 +11,10 @@ import {
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
+type Props = {
+  className?: string;
+};
+
 const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
 
 const Root = styled('div')(({ theme }) => ({
@@ -19,12 +23,11 @@ const Root = styled('div')(({ theme }) => ({
   gridTemplateRows: 'auto auto',
 
   padding: theme.spacing(1.5),
-  marginBlockEnd: theme.spacing(1.5),
-  borderRadius: 12,
+  borderRadius: theme.shape.mediumBorderRadius,
   backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
 }));
 
-const CurrentAccount: FC = () => {
+const CurrentAccount: FC<Props> = ({ className }) => {
   const { t } = useTranslation();
   const { accounts } = useAccountsContext();
   const { walletDetails } = useWalletContext();
@@ -36,7 +39,7 @@ const CurrentAccount: FC = () => {
   useLiveBalance(POLLED_BALANCES);
 
   return (
-    <Root>
+    <Root className={className}>
       <Typography variant="body2" color="text.disabled">
         {t('Currently using {{name}}', { name: walletDetails?.name })}
       </Typography>

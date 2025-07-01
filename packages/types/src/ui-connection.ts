@@ -6,6 +6,7 @@ export enum ExtensionRequest {
   SEEDLESS_ONBOARDING_SUBMIT = 'seedless_onboarding_submit',
   KEYSTONE_ONBOARDING_SUBMIT = 'keystone_onboarding_submit',
   LEDGER_ONBOARDING_SUBMIT = 'ledger_onboarding_submit',
+  LEDGER_ONBOARDING_SUBMIT_NEW = 'ledger_onboarding_submit_new',
 
   NETWORK_SET_ACTIVE = 'network_setActiveNetwork',
   NETWORK_SET_DEVELOPER_MODE = 'network_setDeveloperMode',
