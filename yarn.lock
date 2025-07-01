@@ -4460,7 +4460,6 @@ __metadata:
     "@walletconnect/sign-client": "npm:2.9.1"
     "@walletconnect/types": "npm:2.9.1"
     "@walletconnect/utils": "npm:2.9.2"
-    Buffer: "npm:6.0.3"
     argon2-browser: "npm:1.18.0"
     babel-jest: "npm:29.7.0"
     babel-loader: "npm:9.1.3"
@@ -4471,6 +4470,7 @@ __metadata:
     bip39: "npm:3.0.4"
     bitcoinjs-lib: "npm:5.2.0"
     bn.js: "npm:5.2.1"
+    buffer: "npm:6.0.3"
     conventional-changelog-cli: "npm:2.2.2"
     css-loader: "npm:5.2.4"
     date-fns: "npm:2.28.0"
@@ -7547,12 +7547,13 @@ __metadata:
   linkType: hard
 
 "@keystonehq/hw-transport-usb@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@keystonehq/hw-transport-usb@npm:0.1.1"
+  version: 0.1.3
+  resolution: "@keystonehq/hw-transport-usb@npm:0.1.3"
   dependencies:
     "@keystonehq/hw-transport-error": "npm:^0.0.2"
+    "@types/w3c-web-usb": "npm:^1.0.10"
     buffer: "npm:^6.0.3"
-  checksum: 10c0/3eb2b560a7a352fe08f58b79924b2171c2638c7ec236524a54528146d3e7852cad0653f920370338929974fa3a0be5f9bc55c9ec8fa6eb7c9b03e6c327e31a8d
+  checksum: 10c0/86edadd2ae5d0a87a711ebb4123f55d434be3b793cb5f0309267e2acf9e6ec4d3bf7b7a03a4ab89d99dbfe64e7c554b51fa21820091e0d14ce96a5e1fcf79c93
   languageName: node
   linkType: hard
 
@@ -8306,9 +8307,9 @@ __metadata:
   linkType: hard
 
 "@mui/core-downloads-tracker@npm:^5.15.1":
-  version: 5.15.6
-  resolution: "@mui/core-downloads-tracker@npm:5.15.6"
-  checksum: 10c0/62d3491755b568c2fdbe1eb73603df58e713c4267db0d71a86629d3e6b101b0733f5aefcadb03580b1e95e50c440d73eb271533112d3ab814de1651768cc5354
+  version: 5.17.1
+  resolution: "@mui/core-downloads-tracker@npm:5.17.1"
+  checksum: 10c0/c36641e274a27cdef8a75218021a5ebef0ce588cd0aec004802d56e8d59ac9d8603b8b4840df480de40ce2c3af8898d49929a8564ed5a784ff2b3100dce31366
   languageName: node
   linkType: hard
 
@@ -12565,6 +12566,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/w3c-web-usb@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "@types/w3c-web-usb@npm:1.0.10"
+  checksum: 10c0/3df5733a334c5fd22ef3fa1e97a70c029542591058d11905d1304c26bab8705d975168818b5b7ec21fef5591cdea776dbdb31d4c04aa433e7fe7d61dd7ebdecf
+  languageName: node
+  linkType: hard
+
 "@types/web3@npm:1.2.2":
   version: 1.2.2
   resolution: "@types/web3@npm:1.2.2"
@@ -13373,16 +13381,6 @@ __metadata:
   version: 0.9.0
   resolution: "@zxing/text-encoding@npm:0.9.0"
   checksum: 10c0/d15bff181d46c2ab709e7242801a8d40408aa8c19b44462e5f60e766bf59105b44957914ab6baab60d10d466a5e965f21fe890c67dfdb7d5c7f940df457b4d0d
-  languageName: node
-  linkType: hard
-
-"Buffer@npm:6.0.3":
-  version: 6.0.3
-  resolution: "Buffer@npm:6.0.3::__archiveUrl=https%3A%2F%2Fregistry.npmjs.org%2Fbuffer%2F-%2Fbuffer-6.0.3.tgz"
-  dependencies:
-    base64-js: "npm:^1.3.1"
-    ieee754: "npm:^1.2.1"
-  checksum: 10c0/e64e8f520dbe983868c5a0e8f8e8a156d6f8f4b038f45f47a170e3431ee504a37a1230bd2c4bfdbb8c0f374f4dc606829e9010e04c19a3bf6b6b1675c65d81ea
   languageName: node
   linkType: hard
 
