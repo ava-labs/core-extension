@@ -5,6 +5,7 @@ import {
   DialogTitle,
   IconButton,
   Slide,
+  SxProps,
 } from '@avalabs/k2-alpine';
 import { BalancesProvider, WalletTotalBalanceProvider } from '@core/ui';
 import { FC } from 'react';
@@ -29,6 +30,12 @@ const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   },
 };
 
+const dialogContentSx: SxProps = {
+  container: 'account-management / size',
+  padding: 1.5,
+  overflow: 'hidden',
+};
+
 const AccountManagement: FC = () => {
   return (
     <BalancesProvider>
@@ -41,9 +48,7 @@ const AccountManagement: FC = () => {
                   <MdArrowBack />
                 </IconButton>
               </DialogTitle>
-              <DialogContent
-                sx={{ padding: 1.5, container: 'account-management / size' }}
-              >
+              <DialogContent sx={dialogContentSx}>
                 <Switch>
                   <Route
                     path="/account-management/qr-code"

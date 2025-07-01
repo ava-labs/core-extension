@@ -1,6 +1,6 @@
 import { Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { Account, SecretType } from '@core/types';
-import { useWalletContext } from '@core/ui';
+import { useAccountManager, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionButtons } from './ActionButtons';
@@ -22,6 +22,7 @@ export const PageContent: FC<Props> = ({ account, onRename, onRemove }) => {
   const { t } = useTranslation();
 
   const { getWallet } = useWalletContext();
+  const { isAccountSelectable } = useAccountManager();
 
   const isPrimaryAccount = account.type === 'primary';
   const wallet = isPrimaryAccount ? getWallet(account.walletId) : undefined;
@@ -36,13 +37,18 @@ export const PageContent: FC<Props> = ({ account, onRename, onRemove }) => {
             walletName={wallet?.name ?? t('Imported Accounts')}
             walletType={wallet?.type ?? SecretType.PrivateKey}
           />
-        </Stack>
-      </Scroller>
-      <Typography variant="caption" px={1.5} mt={-1} color="text.secondary">
-        {t(`Your account's private key is a fixed password for accessing the
+          <Typography
+            variant="caption"
+            px={1.5}
+            mt={-0.5}
+            color="text.secondary"
+          >
+            {t(`Your account's private key is a fixed password for accessing the
         specific addresses above. Keep it secure, anyone with this private key
         can access the account associated with it.`)}
-      </Typography>
+          </Typography>
+        </Stack>
+      </Scroller>
       <ActionButtons
         top={{
           label: t('Rename'),
@@ -54,6 +60,7 @@ export const PageContent: FC<Props> = ({ account, onRename, onRemove }) => {
           onClick: onRemove,
           color: 'secondary',
           panic: true,
+          disabled: !isAccountSelectable(account),
         }}
       />
     </>
