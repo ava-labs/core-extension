@@ -12,11 +12,26 @@ import {
 } from '@keystonehq/bc-ur-registry-eth';
 import { TransactionRequest, hexlify } from 'ethers';
 import { BufferLike, rlp } from 'ethereumjs-util';
-
+import { Avalanche } from '@avalabs/core-wallets-sdk';
+import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
+import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import { UREncoder, URDecoder, UR } from '@ngraveio/bc-ur';
 import { makeBNLike } from '@core/common';
+import { utils } from '@avalabs/avalanchejs';
 
 import { CBOR, KeystoneTransport } from '@core/types';
 import { convertTxData } from './utils';
+
+export const parseResponoseUR = (urPlayload: string): UR => {
+  const decoder = new URDecoder();
+  decoder.receivePart(urPlayload);
+  if (!decoder.isComplete()) {
+    throw new Error('UR incomplete');
+  }
+  const resultUR = decoder.resultUR();
+  return resultUR;
+};
 
 export class KeystoneWallet {
   constructor(
@@ -25,9 +40,39 @@ export class KeystoneWallet {
     private keystoneTransport: KeystoneTransport,
     private chainId?: number,
     private tabId?: number,
+    private xpub?: string,
+    private xpubXP?: string,
   ) {}
 
   async signTransaction(txRequest: TransactionRequest): Promise<string> {
+    const isKeystone3 = !!this.xpubXP;
+    if (isKeystone3) {
+      const app = new KeystoneUSBEthSDK(
+        (await createKeystoneTransport()) as any,
+      );
+      const ur = await this.buildSignatureUR(
+        txRequest,
+        this.fingerprint,
+        this.activeAccountIndex,
+      );
+      const encodedUR = new UREncoder(ur!, Infinity).nextPart().toUpperCase();
+      const payload = (await app.signTransactionFromUr(encodedUR)).payload;
+      const signature = ETHSignature.fromCBOR(
+        parseResponoseUR(payload).cbor,
+      ).getSignature();
+
+      const r = hexlify(new Uint8Array(signature.slice(0, 32)));
+      const s = hexlify(new Uint8Array(signature.slice(32, 64)));
+      const v = new BN(signature.slice(64)).toNumber();
+
+      const signedTx = await this.getTxFromTransactionRequest(txRequest, {
+        r,
+        s,
+        v,
+      });
+
+      return '0x' + signedTx.serialize().toString('hex');
+    }
     const cborBuffer = await this.keystoneTransport.requestSignature(
       await this.buildSignatureRequest(
         txRequest,
@@ -51,11 +96,11 @@ export class KeystoneWallet {
     return '0x' + signedTx.serialize().toString('hex');
   }
 
-  private async buildSignatureRequest(
+  private async buildSignatureUR(
     txRequest: TransactionRequest,
     fingerprint: string,
     activeAccountIndex: number,
-  ): Promise<CBOR> {
+  ): Promise<UR> {
     const chainId = txRequest.chainId ?? this.chainId;
     const isLegacyTx = typeof txRequest.gasPrice !== 'undefined';
 
@@ -85,6 +130,19 @@ export class KeystoneWallet {
 
     const ur = ethSignRequest.toUR();
 
+    return ur;
+  }
+
+  private async buildSignatureRequest(
+    txRequest: TransactionRequest,
+    fingerprint: string,
+    activeAccountIndex: number,
+  ): Promise<CBOR> {
+    const ur = await this.buildSignatureUR(
+      txRequest,
+      fingerprint,
+      activeAccountIndex,
+    );
     return {
       cbor: ur.cbor.toString('hex'),
       type: ur.type,
@@ -147,5 +205,25 @@ export class KeystoneWallet {
       data: data as BufferLike,
       type: type || undefined,
     };
+  }
+
+  /**
+   * Avalanche P/X chain transaction signing
+   */
+  public async signTx(
+    txRequest: Avalanche.SignTxRequest,
+  ): Promise<Avalanche.SignTxRequest['tx']> {
+    const tx = txRequest.tx;
+    const isEvmChain = tx.getVM() === 'EVM';
+    const app = new KeystoneUSBAvalancheSDK(await createKeystoneTransport());
+    const sig = await app.signTx(
+      tx as any,
+      this.fingerprint,
+      isEvmChain ? this.xpub! : this.xpubXP!,
+      this.activeAccountIndex,
+    );
+
+    tx.addSignature(utils.hexToBuffer(sig));
+    return tx;
   }
 }

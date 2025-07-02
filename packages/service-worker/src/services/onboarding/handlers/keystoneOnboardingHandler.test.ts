@@ -1,6 +1,7 @@
 import {
   ExtensionRequest,
   EVM_BASE_DERIVATION_PATH,
+  AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
 } from '@core/types';
 import {
@@ -112,7 +113,15 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     const request = getRequest([
       {
         xpub: 'xpub',
-        xpubXP: '',
+        password: 'password',
+        analyticsConsent: false,
+        masterFingerprint: 'masterFingerprint',
+      },
+    ]);
+    const keystone3request = getRequest([
+      {
+        xpub: 'xpub',
+        xpubXP: 'xpubXP',
         password: 'password',
         analyticsConsent: false,
         masterFingerprint: 'masterFingerprint',
@@ -152,5 +161,24 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     ).not.toHaveBeenCalled();
 
     expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
+
+    const result2 = await handler.handle(buildRpcCall(keystone3request));
+
+    expect(result2).toEqual({
+      ...keystone3request,
+      result: true,
+    });
+
+    expect(walletServiceMock.init).toHaveBeenCalledWith({
+      extendedPublicKeys: [
+        buildExtendedPublicKey('xpub', EVM_BASE_DERIVATION_PATH),
+        buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
+      ],
+      publicKeys: [],
+      masterFingerprint: 'masterFingerprint',
+      derivationPathSpec: DerivationPath.BIP44,
+      secretType: SecretType.Keystone3Pro,
+      name: undefined,
+    });
   });
 });

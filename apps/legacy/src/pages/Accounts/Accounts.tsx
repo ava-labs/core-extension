@@ -14,19 +14,23 @@ import { useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { useAccountsContext } from '@core/ui';
-import { useAnalyticsContext } from '@core/ui';
-import { useLedgerContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useLedgerContext,
+  useIsUsingKeystone3Wallet,
+  useBalancesContext,
+  useSettingsContext,
+  useWalletContext,
+} from '@core/ui';
+import { AccountType } from '@core/types';
+import { isPrimaryAccount } from '@core/common';
 import { LedgerApprovalDialog } from '@/pages/SignTransaction/components/LedgerApprovalDialog';
+import { KeystoneApprovalDialog } from '@/pages/SignTransaction/components/KeystoneApprovalDialog';
 
 import { NetworkSwitcher } from '@/components/common/header/NetworkSwitcher';
 import { Overlay } from '@/components/common/Overlay';
-import { useBalancesContext } from '@core/ui';
-import { useSettingsContext } from '@core/ui';
-import { useWalletContext } from '@core/ui';
 import { useScopedToast } from '@/hooks/useScopedToast';
-import { AccountType } from '@core/types';
-import { isPrimaryAccount } from '@core/common';
 
 import { AccountListImported } from './components/AccountListImported';
 import { AccountListPrimary } from './components/AccountListPrimary';
@@ -51,6 +55,7 @@ export function Accounts() {
 
   const [addAccountLoading, setAddAccountLoading] = useState(false);
   const { hasLedgerTransport } = useLedgerContext();
+  const isUsingKeystone3 = useIsUsingKeystone3Wallet();
   const { capture } = useAnalyticsContext();
   const theme = useTheme();
   const history = useHistory();
@@ -108,6 +113,11 @@ export function Accounts() {
       {addAccountLoading && hasLedgerTransport && (
         <Overlay>
           <LedgerApprovalDialog header={t('Waiting for Ledger')} />
+        </Overlay>
+      )}
+      {addAccountLoading && isUsingKeystone3 && (
+        <Overlay>
+          <KeystoneApprovalDialog header={t('Waiting for Keystone')} />
         </Overlay>
       )}
       {confirmRemovalDialog()}
