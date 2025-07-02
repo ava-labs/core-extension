@@ -9,7 +9,8 @@ export const useIsUsingKeystoneWallet = () => {
   } = useAccountsContext();
 
   return (
-    walletDetails?.type === SecretType.Keystone &&
+    (walletDetails?.type === SecretType.Keystone ||
+      walletDetails?.type === SecretType.Keystone3Pro) &&
     activeAccount?.type === AccountType.PRIMARY
   );
 };
