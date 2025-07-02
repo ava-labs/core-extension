@@ -57,8 +57,6 @@ export type BridgeFormProps = ReturnType<typeof useBridge> & {
   setIsAmountTooLow: Dispatch<SetStateAction<boolean>>;
   networkFee: NetworkFee;
 
-  price?: number;
-
   sourceBalance?: Exclude<TokenWithBalance, NftTokenWithBalance>;
   bridgeError: string;
   setBridgeError: Dispatch<SetStateAction<string>>;
@@ -82,7 +80,6 @@ export const BridgeForm = ({
   sourceBalance,
   targetChain,
   setTargetChain,
-  price,
   estimateGas,
   bridgeError,
   setBridgeError,
@@ -223,14 +220,18 @@ export const BridgeForm = ({
   }, [receiveAmount, asset]);
 
   const formattedReceiveAmountCurrency = useMemo(() => {
-    if (!price || typeof receiveAmount !== 'bigint' || !asset) {
+    if (
+      !sourceBalance?.priceInCurrency ||
+      typeof receiveAmount !== 'bigint' ||
+      !asset
+    ) {
       return '-';
     }
 
     const unit = new TokenUnit(receiveAmount, asset.decimals, asset.symbol);
 
-    return `~${formatCurrency(price * unit.toDisplay({ asNumber: true }))}`;
-  }, [formatCurrency, price, receiveAmount, asset]);
+    return `~${formatCurrency(sourceBalance.priceInCurrency * unit.toDisplay({ asNumber: true }))}`;
+  }, [formatCurrency, sourceBalance?.priceInCurrency, receiveAmount, asset]);
 
   const handleAmountChanged = useCallback(
     (value: { bigint: bigint; amount: string }) => {
