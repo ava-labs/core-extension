@@ -1,14 +1,15 @@
+import { isPrivateKeyRevealable } from '@/pages/AccountManagement/utils/isPrivateKeyRevealable';
 import {
   ChevronRightIcon,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  toast,
 } from '@avalabs/k2-alpine';
 import { SecretType } from '@core/types';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 import * as Styled from '../../../Styled';
 import { textProps } from './config';
 import { getSecretTypeDisplayName } from './utils';
@@ -20,6 +21,10 @@ type Props = {
 
 export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
   const { t } = useTranslation();
+  const {
+    push,
+    location: { search },
+  } = useHistory();
 
   return (
     <Styled.Card>
@@ -37,13 +42,16 @@ export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
             <ListItemText primary={t('Wallet')} {...textProps} />
             <ListItemText secondary={walletName} {...textProps} />
           </ListItem>
+          {}
           <Styled.Divider variant="middle" component="li" />
           <ListItem disablePadding>
             <ListItemButton
               sx={{ paddingBlock: 0.5 }}
+              disabled={!isPrivateKeyRevealable(walletType)}
               onClick={() => {
-                toast.info('Under construction', {
-                  id: 'show-private-key',
+                push({
+                  pathname: '/account-management/show-private-key',
+                  search,
                 });
               }}
             >
