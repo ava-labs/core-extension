@@ -2,14 +2,15 @@ import { satoshiToBtc } from '@avalabs/core-bridge-sdk';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 
-import { useIsUsingKeystoneWallet } from '@core/ui';
+import { useIsUsingKeystone3Wallet, useIsUsingKeystoneWallet } from '@core/ui';
 import { useIsUsingLedgerWallet } from '@core/ui';
 import { Action, ActionStatus, NetworkWithCaipId } from '@core/types';
 
 import { KeystoneApprovalOverlay } from '@/pages/SignTransaction/components/KeystoneApprovalOverlay';
 import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
+import { Keystone3ApprovalOverlay } from '@/pages/SignTransaction/components/Keystone3ApprovalOverlay';
 
-const getTxInfoForLedger = (
+const getTxInfoForHardware = (
   signingData: SigningData,
   network: NetworkWithCaipId,
 ) => {
@@ -55,6 +56,7 @@ export const DeviceApproval = ({
   handleRejection: () => void;
 }) => {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
 
   if (!action || !network || !action.signingData) {
@@ -68,7 +70,15 @@ export const DeviceApproval = ({
   if (isUsingLedgerWallet) {
     return (
       <LedgerApprovalOverlay
-        {...getTxInfoForLedger(action.signingData, network)}
+        {...getTxInfoForHardware(action.signingData, network)}
+      />
+    );
+  }
+
+  if (isUsingKeystone3Wallet) {
+    return (
+      <Keystone3ApprovalOverlay
+        {...getTxInfoForHardware(action.signingData, network)}
       />
     );
   }

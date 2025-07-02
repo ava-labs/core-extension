@@ -24,6 +24,7 @@ export const WalletTypeIcon = ({
       return <ListIcon {...props} />;
 
     case SecretType.Keystone:
+    case SecretType.Keystone3Pro:
       return <KeystoneIcon {...props} />;
 
     case SecretType.Ledger:

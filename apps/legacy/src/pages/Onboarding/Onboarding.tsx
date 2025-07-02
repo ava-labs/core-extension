@@ -24,6 +24,7 @@ import { CreatePassword } from './pages/CreatePassword';
 import { CreateWallet } from './pages/CreateWallet/CreateWallet';
 import { ImportWallet } from './pages/ImportWallet';
 import { Keystone } from './pages/Keystone/Keystone';
+import { KeystoneConnect } from './pages/KeystoneUsb/KeystoneConnect';
 import { LedgerConnect } from './pages/Ledger/LedgerConnect';
 import { LedgerTrouble } from './pages/Ledger/LedgerTrouble';
 import { RecoveryMethods } from './pages/Seedless/RecoveryMethods';
@@ -91,6 +92,11 @@ export function Onboarding() {
               <Route path={OnboardingURLs.KEYSTONE}>
                 <Suspense fallback={<CircularProgress />}>
                   <Keystone />
+                </Suspense>
+              </Route>
+              <Route path={OnboardingURLs.KEYSTONE_USB}>
+                <Suspense fallback={<CircularProgress />}>
+                  <KeystoneConnect />
                 </Suspense>
               </Route>
               <Route path={OnboardingURLs.LEDGER}>

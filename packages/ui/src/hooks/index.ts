@@ -22,6 +22,7 @@ export * from './useIsMainnet';
 export * from './useIsSolanaEnabled';
 export * from './useIsUsingFireblocksAccount';
 export * from './useIsUsingKeystoneWallet';
+export * from './useIsUsingKeystone3Wallet';
 export * from './useIsUsingLedgerWallet';
 export * from './useIsUsingSeedlessAccount';
 export * from './useIsUsingWalletConnectAccount';
