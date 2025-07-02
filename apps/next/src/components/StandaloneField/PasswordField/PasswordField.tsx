@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
-import { ShowPasswordAdornment } from './components/ShowPasswordAdornment';
-import { StandaloneField, StandaloneFieldProps } from '../StandaloneField';
 import { useTranslation } from 'react-i18next';
+import { StandaloneField, StandaloneFieldProps } from '../StandaloneField';
+import { ShowPasswordAdornment } from './components/ShowPasswordAdornment';
 
 export const PasswordField: FC<StandaloneFieldProps> = (props) => {
   const { t } = useTranslation();
@@ -10,7 +10,7 @@ export const PasswordField: FC<StandaloneFieldProps> = (props) => {
     <StandaloneField
       {...props}
       type={showPassword ? 'text' : 'password'}
-      placeholder={t('Enter your password')}
+      placeholder={props.placeholder ?? t('Enter your password')}
       slotProps={{
         ...props.slotProps,
         input: {
