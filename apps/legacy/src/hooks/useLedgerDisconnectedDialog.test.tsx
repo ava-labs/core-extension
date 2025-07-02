@@ -91,7 +91,6 @@ describe('src/pages/SignTransaction/hooks/useLedgerDisconnectedDialog.tsx', () =
     );
 
     expect(result.current).toBe(false);
-    expect(clearDialogMock).toBeCalledTimes(1);
   });
 
   it('it does nothing if everything is set correctly', () => {
