@@ -27,6 +27,7 @@ export const useWalletTypeName = (
         return t('WalletConnect');
 
       case SecretType.Keystone:
+      case SecretType.Keystone3Pro:
         return t('Keystone');
 
       case SecretType.Seedless:

@@ -17,20 +17,23 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { SiteAvatar } from '@/components/common/SiteAvatar';
 import { TokenIcon } from '@/components/common/TokenIcon';
-import { useApproveAction } from '@core/ui';
-import { useGetRequestId } from '@core/ui';
-import { useIsUsingLedgerWallet } from '@core/ui';
+import { useApproveAction, useIsUsingKeystone3Wallet } from '@core/ui';
+import {
+  useGetRequestId,
+  useIsUsingLedgerWallet,
+  useAccountsContext,
+  LedgerAppType,
+  useApprovalHelpers,
+  FunctionNames,
+  useIsFunctionAvailable,
+  useIsUsingFireblocksAccount,
+  useIsUsingWalletConnectAccount,
+} from '@core/ui';
 import { ActionStatus, MessageType } from '@core/types';
 
 import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
 import { TxWarningBox } from '@/components/common/TxWarningBox';
-import { useAccountsContext } from '@core/ui';
-import { LedgerAppType } from '@core/ui';
-import { useApprovalHelpers } from '@core/ui';
-import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
-import { useIsUsingFireblocksAccount } from '@core/ui';
-import { useIsUsingWalletConnectAccount } from '@core/ui';
 import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
 import { LedgerApprovalOverlay } from '@/pages/SignTransaction/components/LedgerApprovalOverlay';
 import { AccountType, DAppProviderRequest } from '@core/types';
@@ -44,6 +47,8 @@ import { SignData } from './components/SignData';
 import { SignDataV3 } from './components/SignDataV3';
 import { SignDataV4 } from './components/SignDataV4';
 import { useIsIntersecting } from './hooks/useIsIntersecting';
+import { Keystone3ApprovalOverlay } from '../SignTransaction/components/Keystone3ApprovalOverlay';
+import { useKeystone3DisconnectedDialog } from '@/hooks/useKeystone3DisconnectedDialog';
 
 export function SignMessage() {
   const { t } = useTranslation();
@@ -55,6 +60,7 @@ export function SignMessage() {
   } = useApproveAction(requestId);
 
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
+  const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
   const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
@@ -156,6 +162,10 @@ export function SignMessage() {
       return <LedgerApprovalOverlay />;
     }
 
+    if (isUsingKeystone3Wallet && action?.status === ActionStatus.SUBMITTING) {
+      return <Keystone3ApprovalOverlay />;
+    }
+
     return null;
   };
 
@@ -165,6 +175,7 @@ export function SignMessage() {
       ? LedgerAppType.AVALANCHE
       : LedgerAppType.ETHEREUM,
   );
+  useKeystone3DisconnectedDialog(() => handleRejection());
 
   if (!action) {
     return (

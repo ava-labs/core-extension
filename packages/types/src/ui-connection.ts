@@ -106,6 +106,8 @@ export enum ExtensionRequest {
   LEDGER_VERSION_WARNING_CLOSED = 'ledger_version_warning_closed',
   LEDGER_MIGRATE_MISSING_PUBKEYS = 'ledger_migrate_missing_pubkeys',
 
+  KEYSTONE_INIT_TRANSPORT = 'keystone_init_transport',
+  KEYSTONE_CLOSE_TRANSPORT = 'keystone_close_transport',
   KEYSTONE_SUBMIT_SIGNATURE = 'keystone_submit_signature',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',

@@ -6,14 +6,16 @@ import {
 import { TransactionDetailItem } from '@/components/common/approval/TransactionDetailItem';
 import { LoadingOverlay } from '@/components/common/LoadingOverlay';
 import { MaliciousTxAlert } from '@/components/common/MaliciousTxAlert';
-import { useAnalyticsContext } from '@core/ui';
-import { useNetworkFeeContext } from '@core/ui';
-import { useNetworkContext } from '@core/ui';
-import { useApproveAction } from '@core/ui';
-import { useGetRequestId } from '@core/ui';
-import { useIsUsingKeystoneWallet } from '@core/ui';
-import { useIsUsingLedgerWallet } from '@core/ui';
-import { useLiveBalance } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useNetworkFeeContext,
+  useNetworkContext,
+  useApproveAction,
+  useGetRequestId,
+  useIsUsingKeystoneWallet,
+  useIsUsingLedgerWallet,
+  useLiveBalance,
+} from '@core/ui';
 import {
   Alert,
   AlertContent,
@@ -44,6 +46,7 @@ import { TxBalanceChange } from '../SignTransaction/components/TxBalanceChange';
 import { SpendLimitInfo } from '../SignTransaction/components/SpendLimitInfo/SpendLimitInfo';
 import { DeviceApproval } from './components/DeviceApproval';
 import { useLedgerDisconnectedDialog } from '@/hooks/useLedgerDisconnectedDialog';
+import { useKeystone3DisconnectedDialog } from '@/hooks/useKeystone3DisconnectedDialog';
 
 type WithContextAlert = {
   alert: { type: 'info'; title: string; notice: string };
@@ -193,6 +196,7 @@ export function GenericApprovalScreen() {
 
   // Make the user switch to the correct app or close the window
   useLedgerDisconnectedDialog(handleRejection, undefined, network);
+  useKeystone3DisconnectedDialog(handleRejection);
 
   if (!action || !displayData) {
     return <LoadingOverlay />;
