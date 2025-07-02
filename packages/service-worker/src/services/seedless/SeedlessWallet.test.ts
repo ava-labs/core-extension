@@ -13,7 +13,7 @@ import {
 import * as cs from '@cubist-labs/cubesigner-sdk';
 import { Signer } from '@cubist-labs/cubesigner-sdk-ethers-v6';
 import { networks } from 'bitcoinjs-lib';
-import { JsonRpcProvider, getBytes, hashMessage } from 'ethers';
+import { JsonRpcProvider, getBytes } from 'ethers';
 
 import { NetworkService } from '../network/NetworkService';
 
@@ -700,6 +700,9 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         signBlob: jest.fn().mockResolvedValue({
           data: jest.fn().mockReturnValue({ signature }),
         }),
+        signEip191: jest.fn().mockResolvedValue({
+          data: jest.fn().mockReturnValue({ signature }),
+        }),
       } as any;
       jest
         .mocked(cs.SignerSession.loadSignerSession)
@@ -715,22 +718,6 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         await expect(
           wallet.signMessage(MessageType.ETH_SIGN, getMessage()),
         ).rejects.toThrow('Public key not available');
-      });
-    });
-
-    describe('when network is not provided', () => {
-      beforeEach(() => {
-        wallet = new SeedlessWallet({
-          networkService,
-          sessionStorage,
-          addressPublicKey: {} as any,
-        });
-      });
-
-      it('raises an error', async () => {
-        await expect(
-          wallet.signMessage(MessageType.ETH_SIGN, getMessage()),
-        ).rejects.toThrow('Network not available');
       });
     });
 
@@ -752,7 +739,6 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       const base64encode = (payload) =>
         Buffer.from(getBytes(payload)).toString('base64');
 
-      const ethSignMsg = getMessage({ data: '0x4243' });
       const typedDataV1Msg = getMessage({
         data: [{ name: 'Foo', type: 'bool', value: true }],
       });
@@ -778,24 +764,10 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             .mockRejectedValue(sessionExpiredError);
         },
         executeSigning: () =>
-          wallet.signMessage(MessageType.ETH_SIGN, ethSignMsg),
+          wallet.signMessage(MessageType.SIGN_TYPED_DATA, typedDataV1Msg),
       });
 
       it.each([
-        {
-          type: MessageType.ETH_SIGN,
-          msg: ethSignMsg,
-          payload: base64encode(
-            hashMessage(Uint8Array.from(Buffer.from('4243', 'hex'))),
-          ),
-        },
-        {
-          type: MessageType.PERSONAL_SIGN,
-          msg: ethSignMsg,
-          payload: base64encode(
-            hashMessage(Uint8Array.from(Buffer.from('4243', 'hex'))),
-          ),
-        },
         {
           type: MessageType.SIGN_TYPED_DATA,
           msg: typedDataV1Msg,
@@ -844,6 +816,67 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it('raises an error for unknown message types', async () => {
         await expect(
           wallet.signMessage('Some unknown type' as MessageType, {} as any),
+        ).rejects.toThrow('Unknown message type');
+      });
+    });
+
+    describe('with ETH_SIGN or PERSONAL_SIGN messages', () => {
+      beforeEach(() => {
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          addressPublicKey: {
+            key: strip0x(evmKey.publicKey),
+          } as any,
+          sessionManager,
+        });
+
+        jest.mocked(getEvmAddressFromPubKey).mockReturnValue(evmKey.materialId);
+      });
+
+      const ethSignMsg = getMessage({ data: '0x4243' });
+
+      itCorrectlyHandlesExpiredSession({
+        additionalSetup: (sessionExpiredError) => {
+          jest
+            .spyOn(session, 'signEip191')
+            .mockRejectedValue(sessionExpiredError);
+        },
+        executeSigning: () =>
+          wallet.signMessage(MessageType.ETH_SIGN, ethSignMsg),
+      });
+
+      it.each([
+        {
+          type: MessageType.ETH_SIGN,
+          msg: ethSignMsg,
+          payload: Uint8Array.from(Buffer.from('4243', 'hex')),
+        },
+        {
+          type: MessageType.PERSONAL_SIGN,
+          msg: ethSignMsg,
+          payload: Uint8Array.from(Buffer.from('4243', 'hex')),
+        },
+      ])(
+        'calls .signEip191() with proper payload for $type',
+        async ({ type, msg }) => {
+          await wallet.signMessage(type, msg);
+
+          expect(session.signEip191).toHaveBeenCalledWith(
+            evmKey.key_id.slice(4), // removes "Key#" prefix
+            {
+              data: ethSignMsg.data,
+            },
+          );
+        },
+      );
+
+      it('raises an error for unknown message types', async () => {
+        await expect(
+          wallet.signMessage('Some unknown type' as MessageType, {
+            data: '0x',
+            from: '0x1234',
+          }),
         ).rejects.toThrow('Unknown message type');
       });
     });
@@ -914,7 +947,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       jest.mocked(getEvmAddressFromPubKey).mockReturnValue(evmKey.materialId);
 
-      session.signBlob.mockResolvedValue({
+      session.signEip191.mockResolvedValue({
         data: () => ({
           signature: 'dummy-signature',
         }),
