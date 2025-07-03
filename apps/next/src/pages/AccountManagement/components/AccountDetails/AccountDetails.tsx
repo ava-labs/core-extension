@@ -3,6 +3,7 @@ import { useAccountsContext } from '@core/ui';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory } from 'react-router-dom';
+import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
 import { PageContent } from './components/PageContent';
 import { RemoveAccount } from './components/RemoveAccount';
 import { RenameAccount } from './components/RenameAccount';
@@ -17,14 +18,9 @@ type View = (typeof VIEWS)[number];
 
 export const AccountDetails: FC = () => {
   const { t } = useTranslation();
-  const {
-    location: { search },
-    replace,
-  } = useHistory();
-  const searchParams = new URLSearchParams(search);
-  const accountId = searchParams.get('accountId');
-  const { getAccountById, renameAccount, deleteAccounts } =
-    useAccountsContext();
+  const { replace } = useHistory();
+  const { renameAccount, deleteAccounts } = useAccountsContext();
+  const accountParams = useAccountSearchParams();
 
   const [view, setView] = useState<View>('details');
   const switchTo = useMemo(
@@ -39,17 +35,12 @@ export const AccountDetails: FC = () => {
     [setView],
   );
 
-  if (!accountId) {
-    toast.error(t('Account Id is not provided'), toastOptions);
+  if (!accountParams.success) {
+    toast.error(accountParams.error, toastOptions);
     return <Redirect to="/account-management" />;
   }
 
-  const account = getAccountById(accountId);
-
-  if (!account) {
-    toast.error(t('Account not found'), toastOptions);
-    return <Redirect to="/account-management" />;
-  }
+  const { account } = accountParams;
 
   return (
     <>
