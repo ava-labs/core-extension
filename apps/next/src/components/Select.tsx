@@ -18,7 +18,9 @@ export const Select: FC<SelectProps> = ({ label, ...props }) => {
   );
 };
 
-const SelectExpandIcon: FC = () => <ChevronRightIcon size={20} />;
+const SelectExpandIcon: FC = () => (
+  <ChevronRightIcon size={20} sx={{ flexShrink: 0 }} />
+);
 
 const SelectWithProperStyling = styled(K2Select)(({ theme }) => ({
   [`&.${selectClasses.root}`]: {
@@ -31,10 +33,9 @@ const SelectWithProperStyling = styled(K2Select)(({ theme }) => ({
         : theme.palette.background.paper,
   },
   [`& .${selectClasses.select}`]: {
-    width: 'auto',
-    marginLeft: 'auto',
+    textAlign: 'end',
+    fontWeight: 500,
     color: theme.palette.text.secondary,
-    ...theme.typography.subtitle1,
   },
   [`& .${outlinedInputClasses.notchedOutline}`]: {
     all: 'unset',
