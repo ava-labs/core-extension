@@ -32,7 +32,7 @@ const LogoContainer = styled('div')`
 `;
 
 const NetworkListContainer = styled(Stack)`
-  margin: 16px 0;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 `;
 

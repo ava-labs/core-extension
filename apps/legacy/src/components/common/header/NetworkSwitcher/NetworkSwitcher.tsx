@@ -1,4 +1,4 @@
-import { useNetworkContext } from '@core/ui';
+import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { useRef, useState } from 'react';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { useHistory } from 'react-router-dom';
@@ -20,6 +20,7 @@ import {
   Box,
 } from '@avalabs/core-k2-components';
 import { useAnalyticsContext } from '@core/ui';
+import { isChainSupportedByAccount } from '@core/common';
 
 const defaultNetworks = [
   ChainId.AVALANCHE_MAINNET_ID,
@@ -40,6 +41,9 @@ const NetworkSelectronMenuItem = styled(MenuItem)`
 `;
 
 export function NetworkSwitcher() {
+  const {
+    accounts: { active },
+  } = useAccountsContext();
   const { network, setNetwork, favoriteNetworks, networks } =
     useNetworkContext();
 
@@ -54,7 +58,7 @@ export function NetworkSwitcher() {
         !defaultNetworks.includes(networkItem.chainId) &&
         networkItem.chainId !== network?.chainId,
     ),
-  ];
+  ].filter((networkItem) => isChainSupportedByAccount(networkItem, active));
 
   const isActiveInList = networkList.find(
     (networkItem) => networkItem?.chainId === network?.chainId,

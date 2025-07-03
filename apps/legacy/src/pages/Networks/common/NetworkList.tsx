@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { ChainId, Network } from '@avalabs/core-chains-sdk';
+import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   Collapse,
   Divider,
@@ -13,15 +13,20 @@ import {
   Stack,
   StarFilledIcon,
   StarIcon,
+  Tooltip,
   Typography,
   toast,
   useTheme,
 } from '@avalabs/core-k2-components';
 
 import { NetworkLogo } from '@/components/common/NetworkLogo';
-import { useNetworkContext } from '@core/ui';
+import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
-import { ipfsResolverWithFallback } from '@core/common';
+import {
+  ipfsResolverWithFallback,
+  isChainSupportedByAccount,
+} from '@core/common';
+import { NetworkWithCaipId } from '@core/types';
 
 import { NetworkListItem } from './NetworkListItem';
 import {
@@ -31,11 +36,14 @@ import {
 } from './NetworkLogo';
 
 interface NetworkListProps {
-  networkList: Network[];
+  networkList: NetworkWithCaipId[];
 }
 
 export function NetworkList({ networkList }: NetworkListProps) {
   const { t } = useTranslation();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
   const {
     network,
     setNetwork,
@@ -57,104 +65,130 @@ export function NetworkList({ networkList }: NetworkListProps) {
       <TransitionGroup component={null}>
         {networkList.map((networkItem, index) => {
           const isFavorite = isFavoriteNetwork(networkItem.chainId);
+          const isSupportedByActiveAccount = isChainSupportedByAccount(
+            networkItem,
+            active,
+          );
           return (
             <Collapse key={networkItem.chainId} className="item">
               {index > 0 && <Divider sx={{ mx: 2 }} />}
-              <NetworkListItem
-                onClick={() => {
-                  setNetwork(networkItem);
-                  toast.success(t('Active Network has changed!'), {
-                    duration: 2000,
-                  });
-                  history.push('/home');
-                }}
-                data-testid={`network-li-${index}`}
-                isActive={networkItem.chainId === network?.chainId}
+              <Tooltip
+                wrapWithSpan={false}
+                title={
+                  isSupportedByActiveAccount
+                    ? ''
+                    : t('This network is not supported by your active account')
+                }
               >
-                <Stack direction="row" sx={{ alignItems: 'center', gap: 2 }}>
-                  <NetworkLogoContainer>
-                    <CSSTransition
-                      key={networkItem.chainId}
-                      timeout={500}
-                      classNames="item"
-                      appear
-                      in={favoritedItem === networkItem.chainId}
-                    >
-                      {networkItem.logoUri ? (
-                        <AnimatedNetworkLogo
-                          src={ipfsResolverWithFallback(networkItem.logoUri)}
-                          position={index + 1}
-                          isFavorited={index === favoritedItem}
-                        />
-                      ) : (
-                        <AnimatedGlobeIconContainer
-                          position={index + 1}
-                          isFavorited={index === favoritedItem}
-                        >
-                          <GlobeIcon
-                            width="100%"
-                            height="100%"
-                            color={theme.palette.common.white}
-                            size={32}
-                          />
-                        </AnimatedGlobeIconContainer>
-                      )}
-                    </CSSTransition>
-
-                    <NetworkLogo
-                      src={networkItem.logoUri}
-                      width="32px"
-                      height="32px"
-                      position="absolute"
-                      defaultSize={32}
-                    />
-                  </NetworkLogoContainer>
-                  <Typography
-                    variant="body1"
-                    sx={{ fontWeight: 'fontWeightSemibold' }}
-                  >
-                    {networkItem.chainName}
-                  </Typography>
-                </Stack>
-                <Stack
-                  direction="row"
-                  sx={{ flexShrink: 0, alignItems: 'center' }}
+                <NetworkListItem
+                  onClick={() => {
+                    if (!isSupportedByActiveAccount) {
+                      return;
+                    }
+                    setNetwork(networkItem);
+                    toast.success(t('Active Network has changed!'), {
+                      duration: 2000,
+                    });
+                    history.push('/home');
+                  }}
+                  role="button"
+                  aria-disabled={!isSupportedByActiveAccount}
+                  data-testid={`network-li-${index}`}
+                  isActive={networkItem.chainId === network?.chainId}
+                  sx={{
+                    opacity: isSupportedByActiveAccount ? 1 : 0.5,
+                    cursor: isSupportedByActiveAccount
+                      ? 'pointer'
+                      : 'not-allowed',
+                  }}
                 >
-                  {networkItem.chainId !== ChainId.AVALANCHE_MAINNET_ID && (
+                  <Stack direction="row" sx={{ alignItems: 'center', gap: 2 }}>
+                    <NetworkLogoContainer>
+                      <CSSTransition
+                        key={networkItem.chainId}
+                        timeout={500}
+                        classNames="item"
+                        appear
+                        in={favoritedItem === networkItem.chainId}
+                      >
+                        {networkItem.logoUri ? (
+                          <AnimatedNetworkLogo
+                            src={ipfsResolverWithFallback(networkItem.logoUri)}
+                            position={index + 1}
+                            isFavorited={index === favoritedItem}
+                          />
+                        ) : (
+                          <AnimatedGlobeIconContainer
+                            position={index + 1}
+                            isFavorited={index === favoritedItem}
+                          >
+                            <GlobeIcon
+                              width="100%"
+                              height="100%"
+                              color={theme.palette.common.white}
+                              size={32}
+                            />
+                          </AnimatedGlobeIconContainer>
+                        )}
+                      </CSSTransition>
+
+                      <NetworkLogo
+                        src={networkItem.logoUri}
+                        width="32px"
+                        height="32px"
+                        position="absolute"
+                        defaultSize={32}
+                      />
+                    </NetworkLogoContainer>
+                    <Typography
+                      variant="body1"
+                      sx={{ fontWeight: 'fontWeightSemibold' }}
+                    >
+                      {networkItem.chainName}
+                    </Typography>
+                  </Stack>
+                  <Stack
+                    direction="row"
+                    sx={{ flexShrink: 0, alignItems: 'center' }}
+                  >
+                    {networkItem.chainId !== ChainId.AVALANCHE_MAINNET_ID && (
+                      <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isFavorite) {
+                            setFavoritedItem(networkItem.chainId);
+                            addFavoriteNetwork(networkItem.chainId);
+                          } else {
+                            setFavoritedItem(null);
+                            removeFavoriteNetwork(networkItem.chainId);
+                          }
+                        }}
+                        data-testid="favorite-network"
+                      >
+                        {isFavorite ? (
+                          <StarFilledIcon size={24} />
+                        ) : (
+                          <StarIcon size={24} />
+                        )}
+                      </IconButton>
+                    )}
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (!isFavorite) {
-                          setFavoritedItem(networkItem.chainId);
-                          addFavoriteNetwork(networkItem.chainId);
-                        } else {
-                          setFavoritedItem(null);
-                          removeFavoriteNetwork(networkItem.chainId);
-                        }
+                        capture('NetworkDetailsClicked', {
+                          chainId: networkItem.chainId,
+                        });
+                        history.push(
+                          `/networks/details/${networkItem.chainId}`,
+                        );
                       }}
-                      data-testid="favorite-network"
+                      data-testid="network-details"
                     >
-                      {isFavorite ? (
-                        <StarFilledIcon size={24} />
-                      ) : (
-                        <StarIcon size={24} />
-                      )}
+                      <InfoCircleIcon size={24} />
                     </IconButton>
-                  )}
-                  <IconButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      capture('NetworkDetailsClicked', {
-                        chainId: networkItem.chainId,
-                      });
-                      history.push(`/networks/details/${networkItem.chainId}`);
-                    }}
-                    data-testid="network-details"
-                  >
-                    <InfoCircleIcon size={24} />
-                  </IconButton>
-                </Stack>
-              </NetworkListItem>
+                  </Stack>
+                </NetworkListItem>
+              </Tooltip>
             </Collapse>
           );
         })}
