@@ -33,8 +33,9 @@ const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
 
 const dialogContentSx: SxProps = {
   container: 'account-management / size',
-  padding: 1.5,
-  overflow: 'hidden',
+  paddingBlock: 1.5,
+  paddingInline: 0,
+  scrollbarGutter: 'stable both-edges',
 };
 
 const AccountManagement: FC = () => {
