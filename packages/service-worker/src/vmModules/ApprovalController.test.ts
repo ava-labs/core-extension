@@ -53,6 +53,7 @@ const dappInfo: DappInfo = {
 const actionId = crypto.randomUUID();
 const getExpectedAction = (params) => ({
   [ACTION_HANDLED_BY_MODULE]: true,
+  actionId,
   caipId: params.request.chainId,
   dappInfo: params.request.dappInfo,
   signingData: params.signingData,
