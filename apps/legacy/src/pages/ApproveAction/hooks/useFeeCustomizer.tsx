@@ -337,7 +337,7 @@ export function useFeeCustomizer({
         if (!isMounted) {
           return;
         }
-        setFeeError(err);
+        setFeeError(SendErrorMessage.UNKNOWN_ERROR);
       })
       .finally(() => {
         if (!isMounted) {

@@ -7,14 +7,13 @@ export const openApprovalWindow = async (
   action: Action | MultiTxAction,
   url: string,
 ) => {
-  const actionId = crypto.randomUUID();
   // using direct injection instead of the constructor to prevent circular dependencies
   const approvalService = container.resolve(ApprovalService);
 
   return approvalService.requestApproval(
     {
       ...action,
-      actionId,
+      actionId: action.actionId || crypto.randomUUID(), // Only generate the UUID if not provided
     },
     url,
   );

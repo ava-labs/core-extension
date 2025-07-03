@@ -316,6 +316,8 @@ export function CustomFees({
   const isMaxFeeUsed =
     network?.vmName === NetworkVMType.EVM && !networkFee.isFixedFee;
 
+  const isCustomFeeSupported = network?.vmName === NetworkVMType.EVM;
+
   return (
     <ApprovalSection>
       <ApprovalSectionHeader
@@ -429,28 +431,35 @@ export function CustomFees({
                       {t('Fast')}
                     </Typography>
                   </FeeButton>
-                  <FeeButton
-                    data-testid="gas-fee-custom-button"
-                    disabled={gasPriceEditDisabled}
-                    color={
-                      selectedFee === GasFeeModifier.CUSTOM
-                        ? 'primary'
-                        : 'secondary'
+                  <Tooltip
+                    title={
+                      !isCustomFeeSupported &&
+                      t('Custom fee is not supported for this network')
                     }
-                    onClick={() => {
-                      handleModifierClick(GasFeeModifier.CUSTOM);
-                      customInputRef?.current?.focus();
-                      setShowEditGasLimit(true);
-                    }}
-                    disableRipple
                   >
-                    <Typography
-                      variant={size === 'small' ? 'caption' : 'body2'}
-                      sx={{ fontWeight: 'semibold' }}
+                    <FeeButton
+                      data-testid="gas-fee-custom-button"
+                      disabled={gasPriceEditDisabled || !isCustomFeeSupported}
+                      color={
+                        selectedFee === GasFeeModifier.CUSTOM
+                          ? 'primary'
+                          : 'secondary'
+                      }
+                      onClick={() => {
+                        handleModifierClick(GasFeeModifier.CUSTOM);
+                        customInputRef?.current?.focus();
+                        setShowEditGasLimit(true);
+                      }}
+                      disableRipple
                     >
-                      {t('Custom')}
-                    </Typography>
-                  </FeeButton>
+                      <Typography
+                        variant={size === 'small' ? 'caption' : 'body2'}
+                        sx={{ fontWeight: 'semibold' }}
+                      >
+                        {t('Custom')}
+                      </Typography>
+                    </FeeButton>
+                  </Tooltip>
                 </>
               )}
             </Stack>
@@ -515,9 +524,7 @@ export function CustomFees({
       </ApprovalSectionBody>
       <CustomGasLimitDialog
         open={Boolean(
-          network?.vmName === NetworkVMType.EVM &&
-            showEditGasLimit &&
-            customFee?.maxFeePerGas,
+          isCustomFeeSupported && showEditGasLimit && customFee?.maxFeePerGas,
         )}
       >
         <CustomGasSettings
