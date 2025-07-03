@@ -973,6 +973,7 @@
   "This is taking longer than expected. Please try again later.": "This is taking longer than expected. Please try again later.",
   "This is your secret recovery phrase. Write it down, and store it in a secure location.": "This is your secret recovery phrase. Write it down, and store it in a secure location.",
   "This message contains non-standard elements.": "This message contains non-standard elements.",
+  "This network is not supported by your active account": "This network is not supported by your active account",
   "This network requires additional authentication to be fully functional.": "This network requires additional authentication to be fully functional.",
   "This operation requires {{total}} approvals.": "This operation requires {{total}} approvals.",
   "This password was set when you created the keystore file.": "This password was set when you created the keystore file.",
