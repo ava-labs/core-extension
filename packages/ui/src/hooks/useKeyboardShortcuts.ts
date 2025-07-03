@@ -1,21 +1,20 @@
-import { KeyboardEventHandler, useCallback } from 'react';
+import { KeyboardEventHandler, useCallback, useRef } from 'react';
 
-type Callback = () => void;
 type KeyNames = 'Enter' | 'Escape';
-type KeyboardShortcuts = Partial<Record<KeyNames, Callback>>;
+type KeyboardShortcuts = Partial<Record<KeyNames, KeyboardEventHandler>>;
 
 export const useKeyboardShortcuts = (shortcuts: KeyboardShortcuts) => {
-  const onKeyDown: KeyboardEventHandler = useCallback(
-    async (event) => {
-      const callback = shortcuts[event.key];
+  const shortcutsRef = useRef(shortcuts);
+  shortcutsRef.current = shortcuts;
 
-      if (typeof callback === 'function') {
-        event.preventDefault();
-        await callback();
-      }
-    },
-    [shortcuts],
-  );
+  const onKeyDown = useCallback<KeyboardEventHandler>(async (event) => {
+    const callback = shortcutsRef.current[event.key];
+
+    if (typeof callback === 'function') {
+      event.preventDefault();
+      await callback(event);
+    }
+  }, []);
 
   return {
     onKeyDown,

@@ -1,34 +1,36 @@
-import { Button, Stack, styled } from '@avalabs/k2-alpine';
+import { Button, ButtonProps, Stack, styled } from '@avalabs/k2-alpine';
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
-  onRename: () => void;
-  onRemove: () => void;
+  top: ActionButtonProps;
+  bottom: ActionButtonProps;
 };
 
-export const ActionButtons: FC<Props> = ({ onRename, onRemove }) => {
-  const { t } = useTranslation();
+type ActionButtonProps = Omit<ButtonProps, 'children'> & {
+  label: string;
+  panic?: boolean;
+};
 
+export const ActionButtons: FC<Props> = ({ top, bottom }) => {
   return (
     <Stack mt="auto" gap={1}>
-      <Button
-        variant="contained"
-        color="secondary"
-        size="small"
-        onClick={onRename}
-      >
-        {t('Rename')}
-      </Button>
-      <Button
-        variant="contained"
-        color="secondary"
-        size="small"
-        onClick={onRemove}
-      >
-        <PanicButtonText>{t('Remove account')}</PanicButtonText>
-      </Button>
+      <ActionButton {...top} />
+      <ActionButton {...bottom} />
     </Stack>
+  );
+};
+
+const ActionButton: FC<ActionButtonProps> = ({
+  label,
+  color = 'secondary',
+  panic,
+  ...props
+}) => {
+  const isPanicLabel = !props.disabled && panic;
+  return (
+    <Button variant="contained" size="small" color={color} {...props}>
+      {isPanicLabel ? <PanicButtonText>{label}</PanicButtonText> : label}
+    </Button>
   );
 };
 
