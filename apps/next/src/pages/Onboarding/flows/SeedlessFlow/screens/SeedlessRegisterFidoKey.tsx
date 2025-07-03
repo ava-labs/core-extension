@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
@@ -19,37 +19,31 @@ import {
 } from '@/components/OnboardingModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
-type SeedlessVerifyWithFidoProps = {
-  isLoading: boolean;
-  login: () => Promise<boolean>;
-  name: string;
+type SeedlessRegisterFidoKeyProps = {
   error?: AuthErrorCode;
+  isLoading: boolean;
+  keyType: 'passkey' | 'yubikey';
+  onRetry: () => void;
   onCancel: () => void;
 };
 
-export const SeedlessVerifyWithFido: FC<SeedlessVerifyWithFidoProps> = ({
+export const SeedlessRegisterFidoKey: FC<SeedlessRegisterFidoKeyProps> = ({
   error,
   isLoading,
-  login,
-  name,
+  keyType,
+  onRetry,
   onCancel,
 }) => {
   const { t } = useTranslation();
-
   const fidoError = useFidoErrorMessage(error);
-
-  useEffect(() => {
-    login();
-  }, [login]);
-
   return (
     <>
       <OnboardingStepTitle>
-        {t(`Verify with {{name}}`, { name })}
+        {keyType === 'passkey' ? t(`Passkey setup`) : t(`Yubikey setup`)}
       </OnboardingStepTitle>
       <OnboardingStepDescription>
         {t(
-          `You may need to enable popups to continue, you can find this setting near the address bar.`,
+          `Follow the instructions in your browser window to add this key to your account.`,
         )}
       </OnboardingStepDescription>
       <OnboardingStepContent>
@@ -74,7 +68,7 @@ export const SeedlessVerifyWithFido: FC<SeedlessVerifyWithFidoProps> = ({
                 </Typography>
                 <Typography variant="subtitle1">{fidoError}</Typography>
               </Stack>
-              <Button variant="contained" color="primary" onClick={login}>
+              <Button variant="contained" color="primary" onClick={onRetry}>
                 {t('Retry')}
               </Button>
             </Stack>

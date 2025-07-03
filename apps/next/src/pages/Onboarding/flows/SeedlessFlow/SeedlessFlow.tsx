@@ -11,7 +11,7 @@ import {
   SelectAvatarScreen,
   EnjoyYourWalletScreen,
 } from '../../common-screens';
-import { SeedlessMfaLoginFlow, SeedlessMfaSetupScreen } from './screens';
+import { SeedlessMfaLoginFlow, SeedlessMfaSetupFlow } from './subflows';
 
 const BASE_PATH = '/onboarding/seedless';
 const TOTAL_STEPS = 5;
@@ -50,10 +50,7 @@ export const SeedlessFlow = () => {
           />
         </Route>
         <Route path={`${BASE_PATH}/setup`}>
-          <SeedlessMfaSetupScreen
-            onSkip={() => {
-              history.push(`${BASE_PATH}/wallet-details`);
-            }}
+          <SeedlessMfaSetupFlow
             nextScreenPath={`${BASE_PATH}/wallet-details`}
           />
         </Route>

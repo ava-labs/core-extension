@@ -3,15 +3,17 @@ import {
   ChevronDownIcon,
   getHexAlpha,
   MenuItem,
-  MenuList,
   Stack,
+  StackProps,
   styled,
   Typography,
 } from '@avalabs/k2-alpine';
-import { FC, type ReactElement } from 'react';
+import { FC, ReactNode, type ReactElement } from 'react';
 import { useHistory } from 'react-router-dom';
 
-export const CardMenu = styled(MenuList)(({ theme }) => ({
+type CardMenuProps = StackProps & { divider?: ReactNode };
+
+export const CardMenu: FC<CardMenuProps> = styled(Stack)(({ theme }) => ({
   paddingTop: theme.spacing(1),
   paddingBottom: theme.spacing(1),
   width: '100%',

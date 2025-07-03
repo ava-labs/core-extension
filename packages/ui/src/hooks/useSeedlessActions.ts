@@ -2,6 +2,7 @@ import { useAnalyticsContext } from '../contexts';
 import { useFeatureFlagContext } from '../contexts';
 import { useOnboardingContext } from '../contexts';
 import {
+  AuthErrorCode,
   FIDOApiEndpoint,
   FeatureGates,
   KeyType,
@@ -52,16 +53,25 @@ const recoveryMethodToFidoKeyType = (method: RecoveryMethodTypes): KeyType => {
 };
 
 type UseSeedlessActionsOptions = {
-  onError: (message: string) => void;
   urls: {
     mfaSetup: string;
     mfaLogin: string;
   };
-};
+} & (
+  | {
+      preferErrorCode: true;
+      onError: (errorCode: AuthErrorCode) => void;
+    }
+  | {
+      preferErrorCode?: false;
+      onError: (message: string) => void;
+    }
+);
 
 export function useSeedlessActions({
   onError,
   urls,
+  preferErrorCode,
 }: UseSeedlessActionsOptions) {
   const { capture } = useAnalyticsContext();
   const {
@@ -80,11 +90,11 @@ export function useSeedlessActions({
   const { featureFlags } = useFeatureFlagContext();
 
   useEffect(() => {
-    if (!errorMessage) {
+    if (!errorMessage || preferErrorCode) {
       return;
     }
     onError(errorMessage);
-  }, [errorMessage, onError]);
+  }, [errorMessage, onError, preferErrorCode]);
 
   const handleOidcToken = useCallback(
     async (idToken) => {
@@ -179,7 +189,11 @@ export function useSeedlessActions({
           })
           .catch((e) => {
             console.error(e);
-            onError(t('Unable to set TOTP configuration'));
+            onError(
+              preferErrorCode
+                ? AuthErrorCode.TotpConfigurationError
+                : t('Unable to set TOTP configuration'),
+            );
           });
         return true;
       })
@@ -188,7 +202,7 @@ export function useSeedlessActions({
         capture('SeedlessRegisterTOTPStartFailed');
         return false;
       });
-  }, [capture, oidcToken, onError, t]);
+  }, [capture, oidcToken, onError, t, preferErrorCode]);
 
   const verifyRegistrationCode = useCallback(
     async (code: string) => {
@@ -207,7 +221,11 @@ export function useSeedlessActions({
         const status = await mfaSession.totpApprove(c.mfaId(), code);
 
         if (!status.receipt?.confirmation) {
-          setErrorMessage(t('Code verification error'));
+          if (preferErrorCode) {
+            onError(AuthErrorCode.TotpVerificationError);
+          } else {
+            setErrorMessage(t('Code verification error'));
+          }
           return;
         }
 
@@ -221,11 +239,23 @@ export function useSeedlessActions({
         setSeedlessSignerToken(signerToken);
         return true;
       } catch (_err) {
-        setErrorMessage(t('Invalid code'));
+        if (preferErrorCode) {
+          onError(AuthErrorCode.InvalidTotpCode);
+        } else {
+          setErrorMessage(t('Invalid code'));
+        }
         return false;
       }
     },
-    [oidcToken, setSeedlessSignerToken, t, totpChallenge, mfaSession],
+    [
+      oidcToken,
+      setSeedlessSignerToken,
+      t,
+      totpChallenge,
+      mfaSession,
+      preferErrorCode,
+      onError,
+    ],
   );
 
   const loginWithFIDO = useCallback(async () => {

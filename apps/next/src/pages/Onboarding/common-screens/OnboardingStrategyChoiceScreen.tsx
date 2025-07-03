@@ -25,19 +25,20 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
         {t('How would you like to access your existing wallet?')}
       </OnboardingStepTitle>
       <OnboardingStepContent>
-        <CardMenu sx={{ width: 1, flex: '0 0 auto' }}>
+        <CardMenu
+          sx={{ width: 1, flex: '0 0 auto' }}
+          divider={<Divider sx={{ ml: 8, mr: 3 }} />}
+        >
           <CardMenuItem
             link={'/onboarding/import/recovery-phrase'}
             icon={<EncryptedIcon size={24} />}
             text={t('Manually enter a recovery phrase')}
           />
-          <Divider sx={{ ml: 7, mr: 2 }} />
           <CardMenuItem
             link={'/onboarding/import/ledger'}
             icon={<LedgerIcon size={24} />}
             text={t('Add using Ledger')}
           />
-          <Divider sx={{ ml: 7, mr: 2 }} />
           <CardMenuItem
             link={'/onboarding/import/keystone'}
             icon={<LedgerIcon size={24} />} // TODO: Add Keystone icon

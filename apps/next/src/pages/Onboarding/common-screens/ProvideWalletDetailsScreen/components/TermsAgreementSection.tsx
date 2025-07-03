@@ -21,7 +21,7 @@ export const TermsAgreementSection: FC<Props> = ({
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
   return (
-    <Section sx={combineSx({ py: 0.5 }, sx)} {...props}>
+    <Section sx={combineSx({ py: 1.5 }, sx)} {...props}>
       <SectionRow
         component="label"
         sx={{
