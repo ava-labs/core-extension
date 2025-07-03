@@ -1,5 +1,12 @@
+import { Select } from '@/components/Select';
 import { PasswordField } from '@/components/StandaloneField';
-import { Button, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  MenuItem,
+  Stack,
+  styled,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { Account, AccountType, PrivateKeyChain, SecretType } from '@core/types';
 import { useKeyboardShortcuts } from '@core/ui';
 import { FC, useRef, useState } from 'react';
@@ -14,13 +21,19 @@ type Props = {
   onAuthenticated(key: string | null): void;
 };
 
+const LessRoundedPasswordField = styled(PasswordField)(({ theme }) => ({
+  '& .MuiFilledInput-root': {
+    borderRadius: theme.shape.borderRadius,
+  },
+}));
+
 export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
   const { t } = useTranslation();
+  const [chain, setChain] = useState<PrivateKeyChain>(PrivateKeyChain.C);
   const revealButtonRef = useRef<HTMLButtonElement>(null);
   const [password, setPassword] = useState('');
   const { revealKey, error, isLoading } = useRevealKey();
 
-  const chain: PrivateKeyChain = PrivateKeyChain.C;
   const id = account.id;
   const index = account.type === AccountType.IMPORTED ? 0 : account.index;
   const type =
@@ -38,7 +51,18 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
         {t('Enter your password to reveal the private key')}
       </Typography>
 
-      <PasswordField
+      <Select
+        label={t('Chain')}
+        value={chain}
+        onChange={(e) => setChain(e.target.value as PrivateKeyChain)}
+      >
+        <MenuItem value={PrivateKeyChain.C}>{t('Avalanche C-Chain')}</MenuItem>
+        <MenuItem value={PrivateKeyChain.XP}>
+          {t('Avalanche X/P-Chain')}
+        </MenuItem>
+      </Select>
+
+      <LessRoundedPasswordField
         value={password}
         placeholder={t('Enter password')}
         onChange={(e) => setPassword(e.target.value)}
