@@ -277,6 +277,7 @@
   "Custom RPC Headers": "Custom RPC Headers",
   "Custom Spend Limit": "Custom Spend Limit",
   "Custom Token Address": "Custom Token Address",
+  "Custom fee is not supported for this network": "Custom fee is not supported for this network",
   "Custom network added!": "Custom network added!",
   "Data currently unavailable, check back later.": "Data currently unavailable, check back later.",
   "DeFi": "DeFi",
