@@ -60,7 +60,7 @@ export const SeedlessTotpQRCode: FC<SeedlessTotpQRCodeProps> = ({
                 )}
               </Typography>
               <Typography
-                variant="body2"
+                variant="mono"
                 color="text.primary"
                 role="button"
                 sx={{ cursor: 'pointer' }}

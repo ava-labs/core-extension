@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
-import { EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
+import { Divider, EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
   OnboardingStepActions,
@@ -41,7 +41,7 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
         )}
       </OnboardingStepDescription>
       <OnboardingStepContent>
-        <CardMenu>
+        <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
           <CardMenuItem
             onClick={() => onMethodChosen('passkey')}
             icon={<MdOutlinePassword size={24} />}
