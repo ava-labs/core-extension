@@ -6,8 +6,8 @@ import {
   useState,
 } from 'react';
 
-import { FeatureGates, Account } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
+import { Account, FeatureGates } from '@core/types';
 import { useAccountsContext } from './AccountsProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 
@@ -15,7 +15,7 @@ interface AccountManagerContextProps {
   children?: React.ReactNode;
 }
 
-export const AccountManagerContext = createContext<{
+const AccountManagerContext = createContext<{
   exitManageMode(): void;
   isManageMode: boolean;
   isAccountSelectable(account: Account): boolean;

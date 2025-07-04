@@ -1,12 +1,18 @@
 import { Box, Button } from '@avalabs/k2-alpine';
+import { useAccountManager } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const AddOrConnectWalletButton: FC = () => {
   const { t } = useTranslation();
+  const { isManageMode } = useAccountManager();
+
+  if (isManageMode) {
+    return null;
+  }
 
   return (
-    <Box position="fixed" bottom={0} left={0} right={0} p={1.5}>
+    <Box marginTop="auto">
       <Button
         variant="contained"
         color="primary"

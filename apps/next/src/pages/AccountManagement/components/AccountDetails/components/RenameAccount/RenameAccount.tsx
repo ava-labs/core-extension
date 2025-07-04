@@ -4,8 +4,8 @@ import { Account } from '@core/types';
 import { useKeyboardShortcuts } from '@core/ui';
 import { FC, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ActionButtons } from '../../../ActionButtons';
 import { useNavigateBack } from '../../../NavigateBackContext';
-import { ActionButtons } from '../ActionButtons';
 import { validateName } from './utils';
 
 type Props = {
