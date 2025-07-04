@@ -2,15 +2,8 @@ import { Stack, styled } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import AddOrConnectWalletButton from '../AddOrConnectWalletButton';
 import CurrentAccount from '../CurrentAccount';
+import { BulkDeleteButtons } from './components/BulkDeleteButtons';
 import { WalletList } from './components/WalletList';
-
-const PaddedEndStack = styled(Stack)(({ theme }) => ({
-  gap: theme.spacing(1.5),
-  '&:after': {
-    content: '""',
-    height: theme.spacing(4),
-  },
-}));
 
 const CurrentAccountWithExtraBottomMargin = styled(CurrentAccount)(
   ({ theme }) => ({
@@ -20,10 +13,13 @@ const CurrentAccountWithExtraBottomMargin = styled(CurrentAccount)(
 
 export const Wallets: FC = () => {
   return (
-    <PaddedEndStack>
+    <Stack gap={1.5} height={1}>
       <CurrentAccountWithExtraBottomMargin />
-      <WalletList />
+      <Stack gap={1.5} overflow="auto">
+        <WalletList />
+      </Stack>
+      <BulkDeleteButtons />
       <AddOrConnectWalletButton />
-    </PaddedEndStack>
+    </Stack>
   );
 };

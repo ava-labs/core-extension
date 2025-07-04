@@ -1,35 +1,33 @@
 import { Stack, Typography } from '@avalabs/k2-alpine';
-import { Account } from '@core/types';
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
-import { useNavigateBack } from '../../NavigateBackContext';
-import { ActionButtons } from './ActionButtons';
+import { ActionButtons } from '../ActionButtons';
+import { ViewHost } from '../ViewHost';
 
 type Props = {
-  account: Account;
+  label: string;
+  message: string;
   onDelete: () => void;
   onCancel: () => void;
 };
 
-export const RemoveAccount: FC<Props> = ({ account, onDelete, onCancel }) => {
+export const DeleteAccountForm: FC<Props> = ({
+  label,
+  message,
+  onDelete,
+  onCancel,
+}) => {
   const { t } = useTranslation();
-  const { register } = useNavigateBack();
-
-  useEffect(() => register(onCancel), [register, onCancel]);
 
   return (
-    <>
+    <ViewHost in={true}>
       <Typography variant="h2" pr={2}>
-        {t('Are you sure you want to delete {{name}} account?', {
-          name: account.name,
-        })}
+        {label}
       </Typography>
       <Stack gap={1} direction="row" pr={2} color="error.main">
         <MdErrorOutline size={24} />
-        <Typography variant="body1">
-          {t('Deleting this account is permanent and cannot be undone')}
-        </Typography>
+        <Typography variant="body1">{message}</Typography>
       </Stack>
       <ActionButtons
         top={{
@@ -44,6 +42,6 @@ export const RemoveAccount: FC<Props> = ({ account, onDelete, onCancel }) => {
           color: 'secondary',
         }}
       />
-    </>
+    </ViewHost>
   );
 };
