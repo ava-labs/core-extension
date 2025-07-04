@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
@@ -26,8 +26,10 @@ export const DeleteAccountForm: FC<Props> = ({
         {label}
       </Typography>
       <Stack gap={1} direction="row" pr={2} color="error.main">
-        <MdErrorOutline size={24} />
-        <Typography variant="body1">{message}</Typography>
+        <Box flexShrink={0}>
+          <MdErrorOutline size={24} />
+        </Box>
+        <Typography variant="subtitle1">{message}</Typography>
       </Stack>
       <ActionButtons
         top={{
