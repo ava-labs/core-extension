@@ -7,11 +7,16 @@ import {
   Slide,
   SxProps,
 } from '@avalabs/k2-alpine';
-import { BalancesProvider, WalletTotalBalanceProvider } from '@core/ui';
+import {
+  AccountManagerProvider,
+  BalancesProvider,
+  WalletTotalBalanceProvider,
+} from '@core/ui';
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import { Route, Switch } from 'react-router-dom';
 import { AccountDetails } from './components/AccountDetails';
+import { DeleteAccount } from './components/DeleteAccount';
 import { NavigateBackProvider } from './components/NavigateBackContext';
 import { QRCode } from './components/QRCode';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
@@ -34,43 +39,47 @@ const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
 const dialogContentSx: SxProps = {
   container: 'account-management / size',
   padding: 1.5,
-  // TODO: Improve scrollbar
-  paddingRight: 0,
-  scrollbarGutter: 'stable',
+  overflow: 'hidden',
 };
 
 const AccountManagement: FC = () => {
   return (
     <BalancesProvider>
       <WalletTotalBalanceProvider>
-        <NavigateBackProvider>
-          {(goBack) => (
-            <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
-              <DialogTitle sx={{ padding: 1.5 }}>
-                <IconButton onClick={goBack}>
-                  <MdArrowBack />
-                </IconButton>
-              </DialogTitle>
-              <DialogContent sx={dialogContentSx}>
-                <Switch>
-                  <Route
-                    path="/account-management/qr-code"
-                    component={QRCode}
-                  />
-                  <Route
-                    path="/account-management/account"
-                    component={AccountDetails}
-                  />
-                  <Route
-                    path="/account-management/show-private-key"
-                    component={ShowPrivateKey}
-                  />
-                  <Route path="/account-management" component={Wallets} />
-                </Switch>
-              </DialogContent>
-            </Dialog>
-          )}
-        </NavigateBackProvider>
+        <AccountManagerProvider>
+          <NavigateBackProvider>
+            {(goBack) => (
+              <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
+                <DialogTitle sx={{ padding: 1.5 }}>
+                  <IconButton onClick={goBack}>
+                    <MdArrowBack />
+                  </IconButton>
+                </DialogTitle>
+                <DialogContent sx={dialogContentSx}>
+                  <Switch>
+                    <Route
+                      path="/account-management/qr-code"
+                      component={QRCode}
+                    />
+                    <Route
+                      path="/account-management/delete-account"
+                      component={DeleteAccount}
+                    />
+                    <Route
+                      path="/account-management/account"
+                      component={AccountDetails}
+                    />
+                    <Route
+                      path="/account-management/show-private-key"
+                      component={ShowPrivateKey}
+                    />
+                    <Route path="/account-management" component={Wallets} />
+                  </Switch>
+                </DialogContent>
+              </Dialog>
+            )}
+          </NavigateBackProvider>
+        </AccountManagerProvider>
       </WalletTotalBalanceProvider>
     </BalancesProvider>
   );
