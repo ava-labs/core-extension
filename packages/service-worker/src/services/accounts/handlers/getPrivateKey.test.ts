@@ -159,7 +159,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
 
   it('should return an error when account is not found', async () => {
     secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
-    accountsServiceMock.getAccountByID.mockReturnValue(undefined);
+    accountsServiceMock.getAccountByID.mockResolvedValue(undefined);
     const handler = getHandler();
     const params = [
       {
@@ -186,7 +186,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   });
 
   it('should return error when the secrets has no values', async () => {
-    accountsServiceMock.getAccountByID.mockReturnValue({
+    accountsServiceMock.getAccountByID.mockResolvedValue({
       index: 0,
     } as PrimaryAccount);
     secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue(null);
@@ -219,7 +219,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
     (getWalletFromMnemonic as jest.Mock).mockReturnValue({
       path: undefined,
     });
-    accountsServiceMock.getAccountByID.mockReturnValue({
+    accountsServiceMock.getAccountByID.mockResolvedValue({
       index: 0,
     } as PrimaryAccount);
     secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
@@ -253,7 +253,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   });
 
   it('should return the private key for the given account for C chain', async () => {
-    accountsServiceMock.getAccountByID.mockReturnValue({
+    accountsServiceMock.getAccountByID.mockResolvedValue({
       index: 0,
     } as PrimaryAccount);
     secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
@@ -293,7 +293,7 @@ describe('background/services/accounts/handlers/getPrivateKey.ts', () => {
   });
 
   it('should return the private key for the given account for X/P chain', async () => {
-    accountsServiceMock.getAccountByID.mockReturnValue({
+    accountsServiceMock.getAccountByID.mockResolvedValue({
       index: 0,
     } as PrimaryAccount);
     secretServiceMock.getPrimaryAccountSecrets.mockResolvedValue({
