@@ -3,7 +3,7 @@ import { useAccountsContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 
-type AtLeastOneArray<T> = [T, ...T[]];
+type AtLeastOneItemArray<T> = [T, ...T[]];
 
 type UseAccountSearchParams<Multiple extends boolean> =
   | {
@@ -13,7 +13,7 @@ type UseAccountSearchParams<Multiple extends boolean> =
   | (Multiple extends true
       ? {
           success: true;
-          accounts: AtLeastOneArray<Account>;
+          accounts: AtLeastOneItemArray<Account>;
         }
       : {
           success: true;
@@ -39,7 +39,7 @@ export function useAccountSearchParams<Multiple extends boolean = false>(
   const accounts = ids.map((id) => getAccountById(id));
   const validAccounts = accounts.filter((account) => account !== undefined);
 
-  if (!isAtLeastOne(validAccounts)) {
+  if (!hasAtLeastOneItem(validAccounts)) {
     return {
       success: false,
       error: t('Account not found'),
@@ -61,6 +61,6 @@ export function useAccountSearchParams<Multiple extends boolean = false>(
   } as UseAccountSearchParams<Multiple>;
 }
 
-function isAtLeastOne<T>(value: T[]): value is AtLeastOneArray<T> {
+function hasAtLeastOneItem<T>(value: T[]): value is AtLeastOneItemArray<T> {
   return value.length > 0;
 }

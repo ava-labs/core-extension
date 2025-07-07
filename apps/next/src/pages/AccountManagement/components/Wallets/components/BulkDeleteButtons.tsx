@@ -52,7 +52,7 @@ export const BulkDeleteButtons: FC = () => {
             }
           >
             {t('Delete selected')}
-          </Button>{' '}
+          </Button>
           <Button
             variant="contained"
             color="secondary"
