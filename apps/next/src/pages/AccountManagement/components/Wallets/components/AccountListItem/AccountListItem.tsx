@@ -8,7 +8,7 @@ import {
   Typography,
   truncateAddress,
 } from '@avalabs/k2-alpine';
-import { Account, AccountType } from '@core/types';
+import { Account } from '@core/types';
 import { FC, MouseEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdCheck } from 'react-icons/md';
@@ -37,7 +37,6 @@ export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
       pathname: '/account-management/account',
       search: new URLSearchParams({
         accountId: account.id,
-        walletId: account.type === AccountType.PRIMARY ? account.walletId : '',
       }).toString(),
     });
   };

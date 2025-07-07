@@ -215,13 +215,12 @@ export class ApprovalController implements BatchApprovalController {
       };
     }
 
-    const action = await openApprovalWindow(
-      this.#buildAction(params),
-      'approve/generic',
-    );
+    const actionId = crypto.randomUUID();
+
+    openApprovalWindow(this.#buildAction(params, actionId), 'approve/generic');
 
     return new Promise((resolve) => {
-      this.#requests.set(action.actionId as string, {
+      this.#requests.set(actionId, {
         params,
         network,
         resolve,
@@ -248,13 +247,15 @@ export class ApprovalController implements BatchApprovalController {
       };
     }
 
-    const action = await openApprovalWindow(
-      this.#buildMultiApprovalAction(params),
+    const actionId = crypto.randomUUID();
+
+    openApprovalWindow(
+      this.#buildMultiApprovalAction(params, actionId),
       'approve/tx-batch',
     );
 
     return new Promise((resolve) => {
-      this.#requests.set(action.actionId as string, {
+      this.#requests.set(actionId, {
         params,
         network,
         resolve,
@@ -363,9 +364,13 @@ export class ApprovalController implements BatchApprovalController {
     }
   };
 
-  #buildAction = (params: ApprovalParamsWithContext): Action => {
+  #buildAction = (
+    params: ApprovalParamsWithContext,
+    actionId?: string,
+  ): Action => {
     return {
       [ACTION_HANDLED_BY_MODULE]: true,
+      actionId,
       type: ActionType.Single,
       caipId: params.request.chainId,
       dappInfo: params.request.dappInfo,
@@ -383,9 +388,11 @@ export class ApprovalController implements BatchApprovalController {
 
   #buildMultiApprovalAction = (
     params: MultiApprovalParamsWithContext,
+    actionId?: string,
   ): MultiTxAction => {
     return {
       [ACTION_HANDLED_BY_MODULE]: true,
+      actionId,
       type: ActionType.Batch,
       caipId: params.request.chainId,
       signingRequests: params.signingRequests,

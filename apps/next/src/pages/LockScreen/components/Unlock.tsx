@@ -1,9 +1,9 @@
+import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box } from '@avalabs/k2-alpine';
-import { Stack, Button } from '@avalabs/k2-alpine';
 
 import { PasswordField } from '@/components/StandaloneField';
+import { useKeyboardShortcuts } from '@core/ui';
 
 type Props = {
   onUnlock: (password: string) => Promise<true>;
@@ -40,15 +40,15 @@ export const Unlock: React.FC<Props> = ({
     }
   };
 
+  const handleKeyboard = useKeyboardShortcuts({
+    Enter: handleSubmit,
+  });
+
   return (
     <Stack direction="column" width="100cqw" px="20px" mt={8}>
       <PasswordField
         onChange={(e) => setPassword(e.target.value)}
-        onKeyUp={(e) => {
-          if (e.key === 'Enter') {
-            handleSubmit(e);
-          }
-        }}
+        onKeyDown={handleKeyboard.onKeyDown}
         error={!!error}
         helperText={error}
       />
