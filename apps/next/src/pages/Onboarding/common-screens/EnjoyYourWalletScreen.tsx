@@ -58,7 +58,7 @@ export const EnjoyYourWalletScreen: FC = () => {
   }, [submit, submitInProgress]);
 
   return (
-    <Stack {...keyboardHandlers} sx={{ px: 15, flexGrow: 1 }}>
+    <Stack {...keyboardHandlers} sx={{ px: 11, flexGrow: 1 }}>
       <OnboardingStepContent sx={{ overflow: 'unset', pt: 0 }}>
         <Stack
           sx={{
@@ -80,7 +80,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             <CircularProgress size={32} />
           </Stack>
         ) : (
-          <Stack sx={{ gap: 3, textAlign: 'center' }}>
+          <Stack sx={{ gap: 3, textAlign: 'center', px: 5 }}>
             <Stack>
               <Typography variant="h2">{t("That's it!")}</Typography>
               <Typography variant="h2">{t('Enjoy your wallet')}</Typography>
@@ -93,7 +93,7 @@ export const EnjoyYourWalletScreen: FC = () => {
           </Stack>
         )}
       </OnboardingStepContent>
-      <OnboardingStepActions sx={{ justifyContent: 'center' }}>
+      <OnboardingStepActions sx={{ justifyContent: 'center', pb: 6 }}>
         <Fade in={!submitInProgress}>
           <Button
             fullWidth
@@ -102,7 +102,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             color="primary"
             onClick={openWallet}
           >
-            {t('Open wallet')}
+            {t("Let's go!")}
           </Button>
         </Fade>
       </OnboardingStepActions>

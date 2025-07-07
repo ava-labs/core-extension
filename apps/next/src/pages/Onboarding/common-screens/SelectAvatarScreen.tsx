@@ -1,7 +1,7 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, Suspense, useCallback, useEffect, useState } from 'react';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Stack } from '@avalabs/k2-alpine';
 
 import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
 
@@ -22,6 +22,7 @@ import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { AvatarGrid } from './SelectAvatarScreen/components/AvatarGrid';
 import { LoadingScreen } from '../components/LoadingScreen';
+import { NavButton } from '../components/NavButton';
 
 export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
   step,
@@ -92,9 +93,9 @@ export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
         </Stack>
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <Button variant="contained" color="primary" onClick={onNext}>
+        <NavButton color="primary" onClick={onNext}>
           {t('Next')}
-        </Button>
+        </NavButton>
       </OnboardingStepActions>
     </>
   );
