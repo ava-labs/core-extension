@@ -58,14 +58,14 @@ export const SeedlessFlow = () => {
           <ProvideWalletDetailsScreen
             step={3}
             totalSteps={TOTAL_STEPS}
-            nextScreenPath={`${BASE_PATH}/select-avatar`}
+            onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
           />
         </Route>
         <Route path={`${BASE_PATH}/select-avatar`}>
           <SelectAvatarScreen
             step={4}
             totalSteps={TOTAL_STEPS}
-            nextScreenPath={`${BASE_PATH}/enjoy-your-wallet`}
+            onNext={() => history.push(`${BASE_PATH}/enjoy-your-wallet`)}
           />
         </Route>
         <Route path={`${BASE_PATH}/enjoy-your-wallet`}>

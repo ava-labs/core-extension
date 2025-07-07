@@ -14,6 +14,7 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import * as Styled from './Styled';
 import {
   type DerivationStatus,
+  type ConnectorCallbacks,
   AvalancheLedgerConnector,
 } from './LedgerConnector';
 import { DerivedKeys } from './LedgerConnector/types';
@@ -21,10 +22,13 @@ import { DerivedKeys } from './LedgerConnector/types';
 type ConnectionStepProps = StackProps & {
   onNext: (keys: DerivedKeys) => void;
   onTroubleshoot: () => void;
+  connectorCallbacks?: ConnectorCallbacks;
 };
+
 export const ConnectAvalanche: FC<ConnectionStepProps> = ({
   onNext,
   onTroubleshoot,
+  connectorCallbacks,
   ...stackProps
 }) => {
   const { t } = useTranslation();
@@ -59,6 +63,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
       </OnboardingStepDescription>
       <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
         <AvalancheLedgerConnector
+          callbacks={connectorCallbacks}
           onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={setStatus}

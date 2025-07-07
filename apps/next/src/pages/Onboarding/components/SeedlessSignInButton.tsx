@@ -2,7 +2,11 @@ import { FC, useState } from 'react';
 import { Button, ButtonProps } from '@avalabs/k2-alpine';
 
 import { SeedlessAuthProvider } from '@core/types';
-import { useOnboardingContext, useSeedlessActions } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useOnboardingContext,
+  useSeedlessActions,
+} from '@core/ui';
 import { authenticateWithApple, authenticateWithGoogle } from '@core/common';
 
 import { SEEDLESS_ACTIONS_OPTIONS } from '../config';
@@ -18,11 +22,17 @@ const OIDC_STRATEGY: Record<SeedlessAuthProvider, OidcTokenFetcher> = {
   [SeedlessAuthProvider.Apple]: authenticateWithApple,
 };
 
+const EVENT_NAMES: Record<SeedlessAuthProvider, string> = {
+  [SeedlessAuthProvider.Google]: 'OnboardingSeedlessGoogleSelected',
+  [SeedlessAuthProvider.Apple]: 'OnboardingSeedlessAppleSelected',
+};
+
 export const SeedlessSignInButton: FC<SeedlessSignInButtonProps> = ({
   provider,
   ...buttonProps
 }) => {
   const { setAuthProvider } = useOnboardingContext();
+  const { capture } = useAnalyticsContext();
   const { signIn } = useSeedlessActions(SEEDLESS_ACTIONS_OPTIONS);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +45,7 @@ export const SeedlessSignInButton: FC<SeedlessSignInButtonProps> = ({
       variant="contained"
       size="large"
       onClick={() => {
+        capture(EVENT_NAMES[provider]);
         setAuthProvider(provider);
         signIn({
           setIsLoading,

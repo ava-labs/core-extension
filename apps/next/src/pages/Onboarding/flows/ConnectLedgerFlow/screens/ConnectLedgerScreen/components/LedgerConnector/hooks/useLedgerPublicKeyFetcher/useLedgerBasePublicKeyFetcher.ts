@@ -184,7 +184,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       const timer = setTimeout(() => {
         setStatus('error');
         setError('unable-to-connect');
-      }, 5_000); // Give the user 20 seconds to connect their ledger, then show an error message with some instructions
+      }, 20_000); // Give the user 20 seconds to connect their ledger, then show an error message with some instructions
 
       return () => clearTimeout(timer);
     }
