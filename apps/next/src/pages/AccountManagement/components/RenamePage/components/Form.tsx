@@ -33,7 +33,7 @@ export const RenameForm: FC<Props> = ({
   const isError = touchedRef.current && !validation.success;
 
   return (
-    <ViewHost in={true}>
+    <ViewHost in>
       <Typography variant="h2">{label}</Typography>
       <StandaloneField
         value={name}

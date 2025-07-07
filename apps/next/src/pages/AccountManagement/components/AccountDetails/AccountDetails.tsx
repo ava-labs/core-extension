@@ -1,5 +1,5 @@
 import { toast, ToastOptions } from '@avalabs/k2-alpine';
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
 import { ViewHost } from '../ViewHost';
@@ -9,8 +9,6 @@ const toastOptions: ToastOptions = {
   id: 'account-details-guard',
 };
 
-type View = 'details' | 'rename' | 'remove';
-
 export const AccountDetails: FC = () => {
   const accountParams = useAccountSearchParams();
   const {
@@ -18,10 +16,8 @@ export const AccountDetails: FC = () => {
     location: { search },
   } = useHistory();
 
-  const [view, setView] = useState<View>('details');
   const switchTo = useMemo(
     () => ({
-      details: () => setView('details'),
       rename: () =>
         push({
           pathname: '/account-management/rename',
@@ -44,7 +40,7 @@ export const AccountDetails: FC = () => {
   const { account } = accountParams;
 
   return (
-    <ViewHost in={view === 'details'}>
+    <ViewHost in>
       <DetailsView
         account={account}
         onRename={switchTo.rename}

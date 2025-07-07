@@ -42,6 +42,7 @@ export const RenamableTitle: FC<Props> = ({
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
     event.preventDefault();
+    event.stopPropagation();
     push({
       pathname: '/account-management/rename',
       search: new URLSearchParams({

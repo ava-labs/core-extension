@@ -6,15 +6,15 @@ import { RenameAccountForm } from './components/AccountForm';
 import { RenameWalletForm } from './components/WalletForm';
 
 export const RenamePage: FC = () => {
-  const addressParams = useAccountSearchParams(false);
+  const accountParams = useAccountSearchParams(false);
   const walletParams = useWalletSearchParams();
 
   if (walletParams.success) {
     return <RenameWalletForm wallet={walletParams.wallet} />;
   }
 
-  if (addressParams.success) {
-    return <RenameAccountForm account={addressParams.account} />;
+  if (accountParams.success) {
+    return <RenameAccountForm account={accountParams.account} />;
   }
 
   return <Redirect to="/account-management" />;
