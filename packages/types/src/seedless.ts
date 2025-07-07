@@ -144,6 +144,7 @@ export type TotpResetChallenge = Pick<TotpChallenge, 'totpId' | 'totpUrl'>;
 export enum AuthErrorCode {
   InvalidTotpCode = 'invalid-totp-code',
   TotpVerificationError = 'totp-verification-error',
+  TotpConfigurationError = 'totp-configuration-error',
   NoMfaDetails = 'no-mfa-details',
   UnknownError = 'unknown-error',
   UnsupportedProvider = 'unsupported-provider',
@@ -152,6 +153,7 @@ export enum AuthErrorCode {
   MissingUserId = 'missing-user-id',
   MismatchingUserId = 'mismatching-user-id',
   UnsupportedMfaMethod = 'unsupported-mfa-method',
+  FidoConfigurationError = 'fido-configuration-error',
   FidoChallengeNotApproved = 'fido-challenge-not-approved',
   FidoChallengeFailed = 'fido-challenge-failed',
   NoMfaMethodsConfigured = 'no-mfa-methods-configured',

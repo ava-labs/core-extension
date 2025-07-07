@@ -9,9 +9,11 @@ import { useOnboardingContext, useSeedlessAuth, AuthStep } from '@core/ui';
 import { LoadingScreen } from '@/pages/Onboarding/components/LoadingScreen';
 import { useModalPageControl } from '@/components/OnboardingModal';
 
-import { SeedlessVerifyWithFido } from './SeedlessVerifyWithFido';
-import { SeedlessVerifyWithTotp } from './SeedlessVerifyWithTotp';
-import { SeedlessChooseAuthMethod } from './SeedlessChooseAuthMethod';
+import {
+  SeedlessChooseAuthMethod,
+  SeedlessVerifyWithFido,
+  SeedlessVerifyWithTotp,
+} from '../screens';
 
 type SeedlessMfaLoginFlowProps = {
   nextScreenPath: string;
@@ -22,9 +24,13 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
 }) => {
   const { t } = useTranslation();
   const history = useHistory();
-  const { registerBackButtonHandler } = useModalPageControl();
+  const { registerBackButtonHandler, setTotal } = useModalPageControl();
   const { oidcToken, setSeedlessSignerToken } = useOnboardingContext();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setTotal(0);
+  }, [setTotal]);
 
   const onAuthSuccess = useCallback(
     async (token: SignerSessionData) => {
@@ -102,6 +108,7 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
           login={completeFidoChallenge}
           name={mfaDeviceName}
           error={error}
+          onCancel={history.goBack}
         />
       )}
     </>

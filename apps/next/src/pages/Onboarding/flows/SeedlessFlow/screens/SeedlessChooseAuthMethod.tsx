@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { EncryptedIcon } from '@avalabs/k2-alpine';
+import { Divider, EncryptedIcon } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
 
@@ -30,7 +30,7 @@ export const SeedlessChooseAuthMethod: FC<SeedlessChooseAuthMethodProps> = ({
         {t(`Choose a recovery method associated with your wallet.`)}
       </OnboardingStepDescription>
       <OnboardingStepContent>
-        <CardMenu>
+        <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
           {methods.map((mfa, index) => {
             if (mfa.type === 'totp') {
               return (

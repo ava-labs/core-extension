@@ -21,7 +21,7 @@ export function launchWebAuthFlow(url: URL): Promise<string> {
         const idToken = params.get('id_token');
 
         if (!idToken) {
-          throw new Error('no id token');
+          return reject(new Error('no id token'));
         }
 
         resolve(idToken);
