@@ -66,10 +66,8 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     const vm = Avalanche.getVmByChainAlias(chainAlias);
     const txBytes = utils.hexToBuffer(transactionHex);
     const provider = await this.networkService.getAvalanceProviderXP();
-    const currentAddress = getAddressByVM(
-      vm,
-      this.accountsService.activeAccount,
-    );
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const currentAddress = getAddressByVM(vm, activeAccount);
 
     if (!currentAddress) {
       return {

@@ -4,10 +4,10 @@ import { buildRpcCall } from '@shared/tests/test-utils';
 
 describe('background/services/accounts/handlers/eth_accounts.ts', () => {
   const accountServiceMock = {
-    activeAccount: {
+    getActiveAccount: async () => ({
       index: 1,
       addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-    },
+    }),
   } as any;
 
   const request = {
@@ -22,7 +22,7 @@ describe('background/services/accounts/handlers/eth_accounts.ts', () => {
   describe('handleAuthenticated', () => {
     it('error, no active account', async () => {
       const handler = new EthAccountsHandler({
-        activeAccount: undefined,
+        getActiveAccount: async () => undefined,
       } as any);
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));

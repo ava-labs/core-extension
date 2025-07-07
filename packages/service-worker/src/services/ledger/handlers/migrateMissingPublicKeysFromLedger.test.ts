@@ -5,7 +5,6 @@ import {
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import {
-  Account,
   ExtensionRequest,
   AVALANCHE_BASE_DERIVATION_PATH,
   AddressPublicKeyJson,
@@ -64,7 +63,7 @@ describe('src/background/services/ledger/handlers/migrateMissingPublicKeysFromLe
     method: ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
   } as any;
   const accountsService: jest.Mocked<AccountsService> = {
-    activeAccount: {} as unknown as Account,
+    getActiveAccount: async () => ({}),
     getPrimaryAccountsByWalletId: jest.fn(),
   } as any;
 

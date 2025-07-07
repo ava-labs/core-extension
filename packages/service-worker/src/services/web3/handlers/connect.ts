@@ -32,7 +32,9 @@ export class ConnectRequestHandler implements DAppRequestHandler {
   async handleAuthenticated(rpcCall) {
     const { request } = rpcCall;
 
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+
+    if (!activeAccount) {
       return {
         ...request,
         error: ethErrors.rpc.internal('wallet locked, undefined or malformed'),
@@ -41,7 +43,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
 
     return {
       ...request,
-      result: [this.accountsService.activeAccount.addressC],
+      result: [activeAccount.addressC],
     };
   }
 
@@ -77,7 +79,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     onSuccess,
     onError,
   ) => {
-    const selectedAccount = this.accountsService.getAccountByID(result);
+    const selectedAccount = await this.accountsService.getAccountByID(result);
 
     if (!selectedAccount) {
       onError(ethErrors.rpc.internal('Selected account not found'));
@@ -89,7 +91,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       return;
     }
 
-    const activeAccount = this.accountsService.activeAccount;
+    const activeAccount = await this.accountsService.getActiveAccount();
     // The site was already approved
     // We usually get here when an already approved site attempts to connect and the extension was locked
     if (

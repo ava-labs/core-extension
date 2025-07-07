@@ -20,8 +20,8 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async ({ request }) => {
-    const accounts = this.accountsService.getAccountList();
-    const activeAccount = this.accountsService.activeAccount;
+    const accounts = await this.accountsService.getAccountList();
+    const activeAccount = await this.accountsService.getActiveAccount();
     const wallets = await this.secretsService.getPrimaryWalletsDetails();
 
     const getWalletData = (acc: Account) => {

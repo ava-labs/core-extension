@@ -20,7 +20,7 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         getInitialNetworkForDapp: () => undefined,
       } as unknown as NetworkService;
       const handler = new AvalancheGetProviderState(networkService, {
-        activeAccount: { addressC: '0x000000' },
+        getActiveAccount: async () => ({ addressC: '0x000000' }),
       } as AccountsService);
 
       expect(
@@ -41,7 +41,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         {
           getInitialNetworkForDapp: () => ({ chainId: 1 }),
         } as unknown as NetworkService,
-        { activeAccount: { addressC: '0x000000' } } as AccountsService,
+        {
+          getActiveAccount: async () => ({ addressC: '0x000000' }),
+        } as AccountsService,
       );
 
       expect(
@@ -65,7 +67,7 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
       } as unknown as NetworkService;
 
       const handler = new AvalancheGetProviderState(networkService, {
-        activeAccount: { addressC: '0x000000' },
+        getActiveAccount: async () => ({ addressC: '0x000000' }),
       } as AccountsService);
 
       expect(
@@ -86,7 +88,9 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         {
           getInitialNetworkForDapp: () => ({ chainId: 1 }),
         } as unknown as NetworkService,
-        { activeAccount: { addressC: '0x000000' } } as AccountsService,
+        {
+          getActiveAccount: async () => ({ addressC: '0x000000' }),
+        } as AccountsService,
       );
 
       expect(
@@ -107,7 +111,7 @@ describe('background/services/web3/handlers/avalanche_getProviderState.ts', () =
         {
           getInitialNetworkForDapp: () => ({ chainId: 43114 }),
         } as unknown as NetworkService,
-        { activeAccount: undefined } as AccountsService,
+        { getActiveAccount: async () => undefined } as AccountsService,
       );
 
       expect(

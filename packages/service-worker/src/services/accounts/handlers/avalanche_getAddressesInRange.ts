@@ -66,9 +66,9 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
     externalLimit,
   }) => {
     const provXP = await this.networkService.getAvalanceProviderXP();
-    const secrets = await this.secretsService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const secrets =
+      await this.secretsService.getPrimaryAccountSecrets(activeAccount);
 
     const addresses: { external: string[]; internal: string[] } = {
       external: [],

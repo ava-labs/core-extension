@@ -32,9 +32,9 @@ export class GetRecoveryPhraseExportStateHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const secrets = await this.secretsService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const secrets =
+      await this.secretsService.getPrimaryAccountSecrets(activeAccount);
 
     if (secrets?.secretType !== SecretType.Seedless) {
       return {

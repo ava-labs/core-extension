@@ -11,10 +11,10 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
   let accountServiceMock = {
     addPrimaryAccount: addPrimaryAccountMock,
     addImportedAccount: addImportedAccountMock,
-    activeAccount: {
+    getActiveAccount: async () => ({
       walletId: 'wallet-id',
       type: AccountType.PRIMARY,
-    },
+    }),
   } as any;
 
   beforeEach(() => {
@@ -109,10 +109,10 @@ describe('background/services/accounts/handlers/addAccount.ts', () => {
     accountServiceMock = {
       addPrimaryAccount: addPrimaryAccountMock,
       addImportedAccount: addImportedAccountMock,
-      activeAccount: {
+      getActiveAccount: async () => ({
         walletId: '',
         type: AccountType.PRIMARY,
-      },
+      }),
     } as any;
     const handler = new AddAccountHandler(accountServiceMock);
     const request = {

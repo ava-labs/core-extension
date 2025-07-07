@@ -100,7 +100,7 @@ describe('background/services/wallet/WalletService.ts', () => {
   let addressResolver: AddressResolver;
   let secretsService: jest.Mocked<SecretsService>;
   const accountsService: jest.Mocked<AccountsService> = {
-    activeAccount: {} as unknown as Account,
+    getActiveAccount: async () => ({}),
   } as any;
 
   const privateKeyMock =

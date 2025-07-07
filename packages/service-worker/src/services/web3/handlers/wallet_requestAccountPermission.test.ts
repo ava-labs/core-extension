@@ -22,7 +22,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
   describe('handleAuthenticated', () => {
     it('returns error when no active account available', async () => {
       const handler = new RequestAccountPermissionHandler(
-        { activeAccount: undefined } as AccountsService,
+        { getActiveAccount: async () => undefined } as AccountsService,
         {} as PermissionsService,
       );
 
@@ -42,10 +42,10 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
     it('returns active account address for selected VM', async () => {
       const handler = new RequestAccountPermissionHandler(
         {
-          activeAccount: {
+          getActiveAccount: async () => ({
             addressC,
             addressSVM,
-          },
+          }),
         } as AccountsService,
         {} as PermissionsService,
       );
@@ -127,6 +127,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
     const accountsServiceMock = {
       getAccountByID: jest.fn(),
       activateAccount: jest.fn(),
+      getActiveAccount: jest.fn(),
     };
 
     const permissionServiceMock = {
@@ -216,13 +217,13 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         {
           ...accountsServiceMock,
-          activeAccount: {
+          getActiveAccount: async () => ({
             index: 2,
             id: 'uuid',
             addressC,
             addressSVM,
             type: AccountType.PRIMARY,
-          },
+          }),
         } as any,
         permissionServiceMock as any,
       );

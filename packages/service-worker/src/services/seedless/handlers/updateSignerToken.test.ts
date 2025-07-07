@@ -8,7 +8,7 @@ describe('src/background/services/seedless/handlers/updateSignerToken', () => {
   let secretsService;
 
   const accountsService: jest.Mocked<AccountsService> = {
-    activeAccount: {} as unknown as Account,
+    getActiveAccount: async () => ({}) as Account,
   } as any;
 
   beforeEach(() => {

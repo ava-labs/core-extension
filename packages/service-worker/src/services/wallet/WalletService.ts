@@ -227,12 +227,11 @@ export class WalletService implements OnUnlock {
     tabId?: number;
     accountIndex?: number;
   }) {
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       return;
     }
-    const secrets = await this.secretService.getAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const secrets = await this.secretService.getAccountSecrets(activeAccount);
     if (!secrets.account) {
       // wallet is not initialized
       return;
@@ -462,7 +461,7 @@ export class WalletService implements OnUnlock {
         }
 
         const walletPolicy = await this.parseWalletPolicyDetails(
-          this.accountsService.activeAccount,
+          secrets.account,
         );
 
         return new BitcoinLedgerWallet(
@@ -836,12 +835,11 @@ export class WalletService implements OnUnlock {
    * @throws Will throw error for LedgerLive accounts that have not been added yet.
    */
   async getActiveAccountPublicKey(): Promise<PubKeyType> {
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       throw new Error('There is no active account');
     }
-    const secrets = await this.secretService.getAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const secrets = await this.secretService.getAccountSecrets(activeAccount);
 
     if (secrets.secretType === SecretType.Fireblocks) {
       // TODO: We technically can fetch some public keys using the API,
@@ -1063,9 +1061,9 @@ export class WalletService implements OnUnlock {
     isChange: boolean,
   ) {
     const provXP = await this.networkService.getAvalanceProviderXP();
-    const secrets = await this.secretService.getPrimaryAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const secrets =
+      await this.secretService.getPrimaryAccountSecrets(activeAccount);
 
     if (!secrets || !('extendedPublicKeys' in secrets)) {
       return [];

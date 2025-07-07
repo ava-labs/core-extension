@@ -8,9 +8,9 @@ jest.mock('../../permissions/PermissionsService');
 
 describe('AccountsChangedCAEvents', () => {
   const accountsService = {
-    activeAccount: {
+    getActiveAccount: async () => ({
       addressC: '0x123',
-    },
+    }),
     addListener: jest.fn(),
   } as any;
   const permissionsService = {
@@ -39,7 +39,7 @@ describe('AccountsChangedCAEvents', () => {
         accounts: { '0x123': 'vm1' },
       },
     };
-    (permissionsService.addListener as jest.Mock).mockImplementation(
+    (permissionsService.addListener as jest.Mock).mockImplementationOnce(
       (_, callback) => {
         callback(permissions);
       },
@@ -72,7 +72,7 @@ describe('AccountsChangedCAEvents', () => {
     (permissionsService.getPermissionsForDomain as jest.Mock).mockResolvedValue(
       permissions['example.com'],
     );
-    (accountsService.addListener as jest.Mock).mockImplementation(
+    (accountsService.addListener as jest.Mock).mockImplementationOnce(
       (_, callback) => {
         callback(permissions);
       },
@@ -107,7 +107,7 @@ describe('AccountsChangedCAEvents', () => {
     const listener = jest.fn();
     emitterExampleCom.addListener(listener);
 
-    emitterExampleCom.emitAccountsChanged(permissions['example.com']);
+    await emitterExampleCom.emitAccountsChanged(permissions['example.com']);
 
     expect(listener).toHaveBeenCalledTimes(1);
     expect(listener).toHaveBeenCalledWith({
@@ -115,7 +115,7 @@ describe('AccountsChangedCAEvents', () => {
       params: [{ address: '0x123', vm: 'EVM' }],
     });
 
-    emitterExampleCom.emitAccountsChanged(permissions['example.com']);
+    await emitterExampleCom.emitAccountsChanged(permissions['example.com']);
     expect(listener).toHaveBeenCalledTimes(1); // No more calls
   });
 });

@@ -29,7 +29,7 @@ export async function finalizeOnboarding({
   const cChain = await networkService.getAvalancheNetwork();
   await networkService.setNetwork(runtime.id, cChain.caipId);
 
-  const allAccounts = accountsService.getAccounts();
+  const allAccounts = await accountsService.getAccounts();
   const addedAccounts = allAccounts.primary[walletId];
 
   if (addedAccounts) {

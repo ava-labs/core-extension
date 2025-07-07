@@ -21,7 +21,7 @@ export class HistoryService {
     network: NetworkWithCaipId,
     otherAddress?: string,
   ): Promise<TxHistoryItem[]> {
-    const address = otherAddress ?? this.#getAddress(network);
+    const address = otherAddress ?? (await this.#getAddress(network));
 
     if (!address) {
       return [];
@@ -74,20 +74,21 @@ export class HistoryService {
     return this.unifiedBridgeService.analyzeTx(params);
   }
 
-  #getAddress(network: NetworkWithCaipId) {
+  async #getAddress(network: NetworkWithCaipId) {
+    const activeAccount = await this.accountsService.getActiveAccount();
     switch (network.vmName) {
       case NetworkVMType.EVM:
-        return this.accountsService.activeAccount?.addressC;
+        return activeAccount?.addressC;
       case NetworkVMType.BITCOIN:
-        return this.accountsService.activeAccount?.addressBTC;
+        return activeAccount?.addressBTC;
       case NetworkVMType.AVM:
-        return this.accountsService.activeAccount?.addressAVM;
+        return activeAccount?.addressAVM;
       case NetworkVMType.PVM:
-        return this.accountsService.activeAccount?.addressPVM;
+        return activeAccount?.addressPVM;
       case NetworkVMType.CoreEth:
-        return this.accountsService.activeAccount?.addressCoreEth;
+        return activeAccount?.addressCoreEth;
       case NetworkVMType.SVM:
-        return this.accountsService.activeAccount?.addressSVM;
+        return activeAccount?.addressSVM;
       default:
         return undefined;
     }

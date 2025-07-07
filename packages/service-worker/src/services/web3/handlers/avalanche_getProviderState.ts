@@ -42,6 +42,7 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
 
   handleAuthenticated = async ({ request }) => {
     const activeNetwork = await this.#getInitialNetwork(request.site.domain);
+    const activeAccount = await this.accountsService.getActiveAccount();
 
     return {
       ...request,
@@ -53,9 +54,7 @@ export class AvalancheGetProviderState extends DAppRequestHandler {
         networkVersion: activeNetwork?.chainId
           ? `${activeNetwork?.chainId}`
           : 'loading',
-        accounts: this.accountsService.activeAccount
-          ? [this.accountsService.activeAccount.addressC]
-          : [],
+        accounts: activeAccount ? [activeAccount.addressC] : [],
       },
     };
   };

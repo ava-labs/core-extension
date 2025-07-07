@@ -4,7 +4,6 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import {
   ExtensionRequest,
-  Account,
   AccountType,
   AccountWithSecrets,
   SecretType,
@@ -34,7 +33,7 @@ describe('src/background/services/wallet/handlers/storeBtcWalletPolicyDetails.ts
   } as any;
 
   const accountsServiceMock: jest.Mocked<AccountsService> = {
-    activeAccount: {} as unknown as Account,
+    getActiveAccount: async () => ({}),
   } as any;
 
   beforeEach(() => {

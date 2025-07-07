@@ -107,7 +107,7 @@ export class FireblocksUpdateApiCredentialsHandler implements HandlerType {
         await this.#getSecretsProvider(apiKey, secretKey),
       );
 
-      const account = this.accountsService.getAccountByID(coreAccountId);
+      const account = await this.accountsService.getAccountByID(coreAccountId);
 
       if (!account) {
         throw new Error('No account found with the given ID');

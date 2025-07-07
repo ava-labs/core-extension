@@ -2,7 +2,6 @@ import { AccountsService } from '~/services/accounts/AccountsService';
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { Monitoring } from '@core/common';
 import {
-  Account,
   AccountType,
   CommonError,
   FireblocksAccount,
@@ -63,7 +62,7 @@ const mockResponsesByPath =
 
 describe('src/background/services/fireblocks/FireblocksService', () => {
   const accountsService: jest.Mocked<AccountsService> = {
-    activeAccount: {} as unknown as Account,
+    getActiveAccount: async () => ({}),
   } as any;
   const secretsService = jest.mocked(new SecretsService({} as any));
   const secretsProvider = new FireblocksSecretsService(
