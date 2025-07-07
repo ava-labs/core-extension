@@ -92,7 +92,7 @@ export function OnboardingContextProvider({
   OnboardingScreen,
   onError,
 }: PropsWithChildren<{
-  children: any;
+  children?: any;
   LoadingComponent: React.FC;
   OnboardingScreen: React.FC;
   onError: (message: string) => void;

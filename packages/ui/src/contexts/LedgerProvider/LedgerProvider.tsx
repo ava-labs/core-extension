@@ -99,7 +99,7 @@ const LedgerContext = createContext<{
   closeCurrentApp: () => Promise<void>;
 }>({} as any);
 
-export function LedgerContextProvider({ children }: { children: any }) {
+export function LedgerContextProvider({ children }: { children?: any }) {
   const [initialized, setInialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [app, setApp] = useState<Btc | AppAvalanche | Eth | AppSolana>();
