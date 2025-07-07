@@ -7,6 +7,7 @@ import {
   toast,
   Typography,
 } from '@avalabs/k2-alpine';
+import { AccountType } from '@core/types';
 import { useAccountsContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,8 +21,10 @@ const underDevelopmentClick = () => toast.error('Under development');
 
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
-  const { addAccount } = useAccountsContext();
+  const { addAccount, accounts } = useAccountsContext();
   const { goBack } = useHistory();
+
+  const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
 
   return (
     <Stack gap={2} height={1}>
@@ -30,17 +33,19 @@ export const AddOrConnectWallet: FC = () => {
       </Typography>
       <Card>
         <List disablePadding dense>
-          <AccountListItem
-            Icon={MdAdd}
-            primary={t('Create new account')}
-            secondary={t('Generate a new account in your active wallet')}
-            onClick={() =>
-              addAccount().then(() => {
-                goBack();
-                toast.success(t('Account created successfully'));
-              })
-            }
-          />
+          {isPrimaryAccount && (
+            <AccountListItem
+              Icon={MdAdd}
+              primary={t('Create new account')}
+              secondary={t('Generate a new account in your active wallet')}
+              onClick={() =>
+                addAccount().then(() => {
+                  goBack();
+                  toast.success(t('Account created successfully'));
+                })
+              }
+            />
+          )}
           <Divider />
           <AccountListItem
             Icon={MdKey}

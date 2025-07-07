@@ -1,12 +1,9 @@
 import { toast, ToastOptions } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
 import { FC, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory } from 'react-router-dom';
 import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
 import { ViewHost } from '../ViewHost';
-import { PageContent } from './components/PageContent';
-import { RenameAccount } from './components/RenameAccount';
+import { DetailsView } from './components/DetailsView';
 
 const toastOptions: ToastOptions = {
   id: 'account-details-guard',
@@ -15,8 +12,6 @@ const toastOptions: ToastOptions = {
 type View = 'details' | 'rename' | 'remove';
 
 export const AccountDetails: FC = () => {
-  const { t } = useTranslation();
-  const { renameAccount } = useAccountsContext();
   const accountParams = useAccountSearchParams();
   const {
     push,
@@ -27,7 +22,11 @@ export const AccountDetails: FC = () => {
   const switchTo = useMemo(
     () => ({
       details: () => setView('details'),
-      rename: () => setView('rename'),
+      rename: () =>
+        push({
+          pathname: '/account-management/rename',
+          search,
+        }),
       remove: () =>
         push({
           pathname: '/account-management/delete-account',
@@ -45,30 +44,12 @@ export const AccountDetails: FC = () => {
   const { account } = accountParams;
 
   return (
-    <>
-      <ViewHost in={view === 'details'}>
-        <PageContent
-          account={account}
-          onRename={switchTo.rename}
-          onRemove={switchTo.remove}
-        />
-      </ViewHost>
-      <ViewHost in={view === 'rename'}>
-        <RenameAccount
-          account={account}
-          onCancel={switchTo.details}
-          onSave={(newName) => {
-            renameAccount(account.id, newName)
-              .then(() => {
-                setView('details');
-                toast.success(t('Account renamed'));
-              })
-              .catch(() => {
-                toast.error(t('Failed to rename account. Try again.'));
-              });
-          }}
-        />
-      </ViewHost>
-    </>
+    <ViewHost in={view === 'details'}>
+      <DetailsView
+        account={account}
+        onRename={switchTo.rename}
+        onRemove={switchTo.remove}
+      />
+    </ViewHost>
   );
 };

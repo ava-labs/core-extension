@@ -9,6 +9,7 @@ import curry from 'lodash/curry';
 import memoize from 'lodash/memoize';
 import { ComponentType } from 'react';
 import { IconBaseProps } from 'react-icons';
+import { URL_SEARCH_TOKENS } from '../../utils/searchParams';
 import { FixedXPChainIcon } from './components/AddressSelector/components/Icons';
 
 export type AddressType = keyof {
@@ -49,11 +50,6 @@ export const getLabelAndIcon = memoize(
   },
 );
 
-const SEARCH_PARAMS = {
-  accountId: 'aid',
-  addressType: 'at',
-} as const;
-
 const SUPPORTED_ADDRESSES: string[] = [
   'C',
   'AVM',
@@ -71,8 +67,8 @@ export const getNavigateToQRCode = curry(
       navigate({
         pathname: '/account-management/qr-code',
         search: new URLSearchParams({
-          [SEARCH_PARAMS.accountId]: accountId,
-          [SEARCH_PARAMS.addressType]: addressType,
+          [URL_SEARCH_TOKENS.account]: accountId,
+          [URL_SEARCH_TOKENS.addressType]: addressType,
         }).toString(),
       }),
 );
@@ -84,8 +80,8 @@ type QRCodeSearchParams = {
 
 export const getSearchParams = (search: string): QRCodeSearchParams => {
   const searchParams = new URLSearchParams(search);
-  const accountId = searchParams.get(SEARCH_PARAMS.accountId) ?? undefined;
-  const type = searchParams.get(SEARCH_PARAMS.addressType) as AddressType;
+  const accountId = searchParams.get(URL_SEARCH_TOKENS.account) ?? undefined;
+  const type = searchParams.get(URL_SEARCH_TOKENS.addressType) as AddressType;
 
   return {
     accountId,

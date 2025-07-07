@@ -20,6 +20,7 @@ import { AddOrConnectWallet } from './components/AddOrCreateWallet/AddOrConnectW
 import { DeleteAccount } from './components/DeleteAccount';
 import { NavigateBackProvider } from './components/NavigateBackContext';
 import { QRCode } from './components/QRCode';
+import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
 
@@ -59,12 +60,16 @@ const AccountManagement: FC = () => {
                 <DialogContent sx={dialogContentSx}>
                   <Switch>
                     <Route
-                      path="/account-management/qr-code"
-                      component={QRCode}
+                      path="/account-management/rename"
+                      component={RenamePage}
                     />
                     <Route
                       path="/account-management/delete-account"
                       component={DeleteAccount}
+                    />
+                    <Route
+                      path="/account-management/qr-code"
+                      component={QRCode}
                     />
                     <Route
                       path="/account-management/add-wallet"

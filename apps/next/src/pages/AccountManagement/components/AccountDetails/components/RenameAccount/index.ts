@@ -1,1 +1,0 @@
-export { RenameAccount } from './RenameAccount';
