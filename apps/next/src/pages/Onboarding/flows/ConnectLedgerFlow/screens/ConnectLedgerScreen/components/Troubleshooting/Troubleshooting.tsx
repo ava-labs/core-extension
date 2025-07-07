@@ -52,7 +52,7 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
             />
           </Typography>
         </InfoBox>
-        <CardMenu sx={{ width: 1, flex: '0 0 auto', py: 2 }} as="ol">
+        <CardMenu sx={{ width: 1, flex: '0 0 auto', py: 2 }} component="ol">
           <li>
             <Typography variant="body2">
               {t('Connect the Ledger device to your computer')}
