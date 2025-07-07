@@ -14,6 +14,7 @@ import { Route, Switch } from 'react-router-dom';
 import { AccountDetails } from './components/AccountDetails';
 import { NavigateBackProvider } from './components/NavigateBackContext';
 import { QRCode } from './components/QRCode';
+import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
@@ -33,7 +34,9 @@ const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
 const dialogContentSx: SxProps = {
   container: 'account-management / size',
   padding: 1.5,
-  overflow: 'hidden',
+  // TODO: Improve scrollbar
+  paddingRight: 0,
+  scrollbarGutter: 'stable',
 };
 
 const AccountManagement: FC = () => {
@@ -57,6 +60,10 @@ const AccountManagement: FC = () => {
                   <Route
                     path="/account-management/account"
                     component={AccountDetails}
+                  />
+                  <Route
+                    path="/account-management/show-private-key"
+                    component={ShowPrivateKey}
                   />
                   <Route path="/account-management" component={Wallets} />
                 </Switch>
