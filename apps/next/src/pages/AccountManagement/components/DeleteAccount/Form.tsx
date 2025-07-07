@@ -21,7 +21,7 @@ export const DeleteAccountForm: FC<Props> = ({
   const { t } = useTranslation();
 
   return (
-    <ViewHost in={true}>
+    <ViewHost in>
       <Typography variant="h2" pr={2}>
         {label}
       </Typography>

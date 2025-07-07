@@ -1,3 +1,4 @@
+import { AccountManagementRouteState } from '@/pages/AccountManagement/types';
 import { Box, Button, Slide, Stack } from '@avalabs/k2-alpine';
 import { useAccountManager } from '@core/ui';
 import { FC, useState } from 'react';
@@ -9,7 +10,7 @@ export const BulkDeleteButtons: FC = () => {
   const { isManageMode, toggleManageMode, exitManageMode, selectedAccounts } =
     useAccountManager();
   const [showButtons, setShowButtons] = useState(isManageMode);
-  const { push } = useHistory();
+  const { push } = useHistory<AccountManagementRouteState>();
 
   return (
     <>
@@ -43,12 +44,15 @@ export const BulkDeleteButtons: FC = () => {
             fullWidth
             disabled={selectedAccounts.length === 0}
             onClick={() =>
-              push({
-                pathname: '/account-management/delete-account',
-                search: new URLSearchParams(
-                  selectedAccounts.map((id) => ['accountId', id]),
-                ).toString(),
-              })
+              push(
+                {
+                  pathname: '/account-management/delete-account',
+                  search: new URLSearchParams(
+                    selectedAccounts.map((id) => ['accountId', id]),
+                  ).toString(),
+                },
+                { bulkMode: true },
+              )
             }
           >
             {t('Delete selected')}
