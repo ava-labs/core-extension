@@ -334,6 +334,8 @@ export const CORE_DOMAINS = [
   'avacloud.io',
   'avacloud-app.pages.dev',
   'redesign-aa3.pages.dev',
+  'launch-4zn.pages.dev',
+  'launchpad.avacloud.io ',
 ];
 
 export interface ConnectionController {
