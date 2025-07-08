@@ -1,5 +1,6 @@
 import {
   Button,
+  Divider,
   getHexAlpha,
   Popover,
   Stack,
@@ -215,13 +216,8 @@ export const ConnectedSites = ({ activeAccount }) => {
               </Stack>
             </StackRow>
           )}
-          <hr
-            style={{
-              width: '100%',
-              paddingTop: theme.spacing(1),
-              border: 'none',
-              borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
-            }}
+          <Divider
+            sx={{ borderColor: getHexAlpha(theme.palette.primary.main, 10) }}
           />
           <StackRow
             sx={{
