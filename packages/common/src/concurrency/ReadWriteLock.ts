@@ -22,11 +22,7 @@ export class ReadWriteLock {
     try {
       if (this.#writeCount > 0 || this.#waitingWriters > 0) {
         const readPromise = new Promise<void>((resolve) => {
-          const handler = () => {
-            this.#emitter.removeListener('writeComplete', handler);
-            resolve();
-          };
-          this.#emitter.on('writeComplete', handler);
+          this.#emitter.once('writeComplete', resolve);
         });
         this.#mutex.unlock();
         await readPromise;

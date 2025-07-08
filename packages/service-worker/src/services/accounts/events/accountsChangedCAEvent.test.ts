@@ -39,11 +39,11 @@ describe('AccountsChangedCAEvents', () => {
         accounts: { '0x123': 'vm1' },
       },
     };
-    (permissionsService.addListener as jest.Mock).mockImplementationOnce(
-      (_, callback) => {
+    jest
+      .mocked(permissionsService.addListener)
+      .mockImplementationOnce((_, callback) => {
         callback(permissions);
-      },
-    );
+      });
 
     const emitterExampleCom = getEventEmitter('example.com');
     const emitterOtherCom = getEventEmitter('other.com');
