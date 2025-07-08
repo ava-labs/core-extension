@@ -4,7 +4,6 @@ import {
   getHexAlpha,
   styled,
   Typography,
-  keyframes,
   CChainIcon,
   XPChainIcon,
   SolanaColorIcon,
@@ -50,34 +49,6 @@ const AccountSelectContainer = styled(Stack)`
     }
   }
 `;
-
-CSS.registerProperty({
-  name: '--angle',
-  syntax: '<angle>',
-  inherits: false,
-  initialValue: '0deg',
-});
-
-const promptBackgroundAnimation = keyframes`
-  to {
-	  --angle: 360deg;
-	}
-`;
-export const PromptButtonBackground = styled(Stack)(() => ({
-  background: `conic-gradient(
-      from var(--angle),
-      #26F2FF 0deg,
-      #7748FF 180deg,
-      #FF048C 330deg
-    )`,
-  animation: `10s ${promptBackgroundAnimation} linear infinite`,
-  width: '360px',
-  height: '36px',
-  flexShrink: 0,
-  filter: ' blur(15px)',
-  position: 'absolute',
-  top: '20px',
-}));
 
 // TODO: implement the Icon change logic
 const StackRowStyled = styled(StackRow)`
@@ -156,6 +127,7 @@ export const Header = () => {
               <Stack
                 sx={{
                   position: 'absolute',
+                  backdropFilter: 'blur(15px)',
                   top: theme.spacing(4.5),
                   left: theme.spacing(0.5),
                   width: '260px',
@@ -211,7 +183,6 @@ export const Header = () => {
             </StackRowStyled>
           </Stack>
         </StackRow>
-        <PromptButtonBackground />
       </Stack>
     </>
   );
