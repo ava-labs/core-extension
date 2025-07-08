@@ -1,5 +1,6 @@
 import {
   Box,
+  getHexAlpha,
   ListItem,
   ListItemIcon,
   Stack,
@@ -25,9 +26,13 @@ export type Props = {
   action?: ReactElement;
 };
 
-const ItemIcon = styled(ListItemIcon)({
+const ItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: 36,
-});
+  svg: {
+    borderRadius: '50%',
+    boxShadow: `inset 0 0 10px ${getHexAlpha(theme.palette.primary.main, 30)}`,
+  },
+}));
 
 export const ChainListItem: FC<Props> = ({
   Icon,
