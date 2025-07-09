@@ -9,7 +9,7 @@ import {
   BitcoinColorIcon,
   Grow,
 } from '@avalabs/k2-alpine';
-import { AddressItem } from '@/pages/AccountManagement/components/AddressItem';
+import { AddressItem } from '@/components/Address/AddressItem';
 import { Divider } from '@/pages/AccountManagement/components/Styled';
 import { Account } from '@core/types';
 

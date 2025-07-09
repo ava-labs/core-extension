@@ -4,7 +4,7 @@ import QRCodeSVG from 'qrcode.react';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory } from 'react-router-dom';
-import { AddressItem } from '../AddressItem';
+import { AddressItem } from '../../../../components/Address/AddressItem';
 import CurrentAccount from '../CurrentAccount';
 import * as Styled from '../Styled';
 import { AddressSelector } from './components/AddressSelector';
