@@ -30,7 +30,9 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
     getAvalanceProviderXP: jest.fn(),
   } as any;
 
-  const accountsService = jest.mocked<AccountsService>({} as any);
+  const accountsService = jest.mocked<AccountsService>({
+    getActiveAccount: async () => undefined,
+  } as any);
 
   const handleRequest = async (request) => {
     const handler = new AvalancheGetAddressesInRangeHandler(

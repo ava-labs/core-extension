@@ -18,7 +18,7 @@ export class GetAccountsHandler implements HandlerType {
   constructor(private accountsService: AccountsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const accounts = this.accountsService.getAccounts();
+    const accounts = await this.accountsService.getAccounts();
 
     return {
       ...request,

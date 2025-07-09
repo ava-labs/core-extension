@@ -46,7 +46,9 @@ export class RequestAccountPermissionHandler
   ) {
     const { request } = rpcCall;
 
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+
+    if (!activeAccount) {
       return {
         ...request,
         error: ethErrors.rpc.internal('wallet locked, undefined or malformed'),
@@ -54,7 +56,7 @@ export class RequestAccountPermissionHandler
     }
 
     const address = getAddressByVMType(
-      this.accountsService.activeAccount,
+      activeAccount,
       request.params?.addressVM ?? NetworkVMType.EVM,
     );
 
@@ -117,7 +119,7 @@ export class RequestAccountPermissionHandler
     onError,
   ) => {
     const vm = pendingAction.params.addressVM || NetworkVMType.EVM;
-    const selectedAccount = this.accountsService.getAccountByID(result);
+    const selectedAccount = await this.accountsService.getAccountByID(result);
 
     if (!selectedAccount) {
       onError(ethErrors.rpc.internal('Selected account not found'));
@@ -140,7 +142,7 @@ export class RequestAccountPermissionHandler
       return;
     }
 
-    const activeAccount = this.accountsService.activeAccount;
+    const activeAccount = await this.accountsService.getActiveAccount();
     // The site was already approved
     // We usually get here when an already approved site attempts to connect
     // and the extension was locked in the meantime

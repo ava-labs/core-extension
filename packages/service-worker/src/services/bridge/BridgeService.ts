@@ -173,14 +173,15 @@ export class BridgeService implements OnLock, OnStorageReady {
     if (!this.config?.config) {
       throw new Error('missing bridge config');
     }
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       throw new Error('no active account found');
     }
     this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
 
     if (currentBlockchain === Blockchain.BITCOIN) {
       const btcNetwork = await this.networkService.getBitcoinNetwork();
-      const addressBtc = this.accountsService.activeAccount.addressBTC;
+      const addressBtc = activeAccount.addressBTC;
 
       if (!addressBtc) {
         throw new Error('No BTC address');
@@ -188,7 +189,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
       const balances = await this.networkBalancesService.getBalancesForNetworks(
         [btcNetwork.chainId],
-        [this.accountsService.activeAccount],
+        [activeAccount],
         [TokenType.NATIVE], // We only care about BTC here, which is a native token
       );
 
@@ -219,7 +220,7 @@ export class BridgeService implements OnLock, OnStorageReady {
 
       return estimateGas(
         amount,
-        this.accountsService.activeAccount.addressC,
+        activeAccount.addressC,
         asset as Exclude<Asset, BitcoinConfigAsset>,
         {
           ethereum: ethereumProvider,
@@ -240,7 +241,8 @@ export class BridgeService implements OnLock, OnStorageReady {
     symbol: string,
   ) {
     const { config } = await this.updateBridgeConfig();
-    if (!this.accountsService.activeAccount || !config) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount || !config) {
       throw new Error('wallet not ready');
     }
 
@@ -250,8 +252,8 @@ export class BridgeService implements OnLock, OnStorageReady {
 
     this.featureFlagService.ensureFlagEnabled(FeatureGates.BRIDGE);
 
-    const addressC = this.accountsService.activeAccount.addressC;
-    const addressBTC = this.accountsService.activeAccount.addressBTC ?? '';
+    const addressC = activeAccount.addressC;
+    const addressBTC = activeAccount.addressBTC ?? '';
 
     const requiredConfirmationCount = getMinimumConfirmations(
       sourceChain,

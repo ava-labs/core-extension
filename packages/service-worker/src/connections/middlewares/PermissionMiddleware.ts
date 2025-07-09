@@ -136,7 +136,7 @@ export function PermissionMiddleware(
 
     // check if domain has permission
     const domain = context.domainMetadata?.domain ?? '';
-    const activeAccount = accountsService.activeAccount;
+    const activeAccount = await accountsService.getActiveAccount();
 
     if (domain && activeAccount) {
       context.authenticated =

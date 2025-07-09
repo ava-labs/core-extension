@@ -58,7 +58,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
     jest
       .mocked(fireblocksServiceMock.getBtcAddressByAccountId)
       .mockResolvedValue('bc1qy76a8lk4ym3af4u45f7fghuqc6ftfh7l6c87ed');
-    jest.mocked(accountServiceMock.getAccountByID).mockReturnValue({
+    jest.mocked(accountServiceMock.getAccountByID).mockResolvedValue({
       type: AccountType.FIREBLOCKS,
       id: '1',
       name: 'fireblocks',
@@ -154,7 +154,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
       networkServiceMock,
       secretsServiceMock,
     );
-    jest.mocked(accountServiceMock.getAccountByID).mockReturnValue({
+    jest.mocked(accountServiceMock.getAccountByID).mockResolvedValue({
       type: AccountType.WALLET_CONNECT,
       id: '1',
       name: 'walletConnect',
@@ -175,7 +175,7 @@ describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredent
       networkServiceMock,
       secretsServiceMock,
     );
-    jest.mocked(accountServiceMock.getAccountByID).mockReturnValue(undefined);
+    jest.mocked(accountServiceMock.getAccountByID).mockResolvedValue(undefined);
 
     expect(await handler.handle(mockRequest)).toEqual({
       ...mockRequest.request,

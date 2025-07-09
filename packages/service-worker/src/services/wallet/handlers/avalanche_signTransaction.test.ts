@@ -52,7 +52,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     isMainnet: () => false,
   };
   const accountsServiceMock = {
-    activeAccount: activeAccountMock,
+    getActiveAccount: async () => activeAccountMock,
   };
   const txBytes = new Uint8Array([0, 1, 2]);
   const providerMock = {};
@@ -117,7 +117,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         {} as any,
         {} as any,
-        {} as any,
+        { getActiveAccount: async () => undefined } as any,
       );
       const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
@@ -134,7 +134,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         {} as any,
         {} as any,
-        {} as any,
+        accountsServiceMock as any,
       );
       const result = await handler.handleAuthenticated(
         buildRpcCall(requestWithoutParam),
@@ -175,7 +175,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       const handler = new AvalancheSignTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        {} as any,
+        { getActiveAccount: async () => undefined } as any,
       );
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
@@ -286,9 +286,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
       expect(utils.addressesFromBytes).toHaveBeenCalledWith([
         signerAddressBytesMock,
       ]);
-      expect(utils.parse).toHaveBeenCalledWith(
-        accountsServiceMock.activeAccount.addressAVM,
-      );
+      expect(utils.parse).toHaveBeenCalledWith(activeAccountMock.addressAVM);
       expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
         signerAddressMock,
       );

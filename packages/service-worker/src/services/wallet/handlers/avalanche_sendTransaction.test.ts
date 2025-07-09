@@ -81,7 +81,9 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     getAvalancheNetworkXP: getAvalancheNetworkXPMock,
     isMainnet: jest.fn(),
   } as any;
-  const accountsServiceMock = {} as any;
+  const accountsServiceMock = {
+    getActiveAccount: async () => activeAccountMock,
+  } as any;
   const analyticsServicePosthogMock = {
     captureEncryptedEvent: jest.fn(),
   } as any;
@@ -142,7 +144,6 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
     getAvalanceProviderXPMock.mockResolvedValue(providerMock);
     getAddressesMock.mockReturnValue([]);
     jest.mocked(openApprovalWindow).mockResolvedValue({} as any);
-    (accountsServiceMock as any).activeAccount = activeAccountMock;
     (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValue(AVM);
     (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValue(utxosMock);
     (utils.hexToBuffer as jest.Mock).mockReturnValue(txBytes);
@@ -223,7 +224,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
       handler = new AvalancheSendTransactionHandler(
         walletServiceMock as any,
         networkServiceMock as any,
-        {} as any,
+        { getActiveAccount: async () => undefined } as any,
         {} as any,
       );
 

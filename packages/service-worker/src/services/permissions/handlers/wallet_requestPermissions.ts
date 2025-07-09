@@ -51,7 +51,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
     onSuccess: (result: unknown) => void,
     onError: (error: Error) => void,
   ) => {
-    const selectedAccount = this.accountsService.getAccountByID(result);
+    const selectedAccount = await this.accountsService.getAccountByID(result);
     if (!selectedAccount) {
       onError(ethErrors.rpc.internal('Selected account not found'));
       return;

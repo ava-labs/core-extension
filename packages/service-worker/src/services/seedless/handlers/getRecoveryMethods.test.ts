@@ -16,7 +16,9 @@ describe('src/background/services/seedless/handlers/getRecoveryMethods', () => {
     getPrimaryAccountSecrets: jest.fn(),
   } as any);
 
-  const accountsService = jest.mocked<AccountsService>({} as any);
+  const accountsService = jest.mocked<AccountsService>({
+    getActiveAccount: async () => undefined,
+  } as any);
 
   const handle = () => {
     const handler = new GetRecoveryMethodsHandler(

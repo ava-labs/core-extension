@@ -22,6 +22,8 @@ export class AddAccountHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const { name, importData, walletId } = request.params ?? {};
 
+    const activeAccount = await this.accountsService.getActiveAccount();
+
     try {
       let id = '';
       if (importData) {
@@ -32,8 +34,7 @@ export class AddAccountHandler implements HandlerType {
       } else {
         const newAccountWalletId =
           walletId ||
-          (isPrimaryAccount(this.accountsService.activeAccount) &&
-            this.accountsService.activeAccount.walletId);
+          (isPrimaryAccount(activeAccount) && activeAccount.walletId);
 
         if (!newAccountWalletId) {
           throw new Error('There is no wallet id for the new primary account');

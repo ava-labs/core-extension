@@ -140,7 +140,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   };
 
   const mockAccounts = (accounts = ACCOUNTS) => {
-    accountsService.getAccounts.mockReturnValue(accounts);
+    accountsService.getAccounts.mockResolvedValue(accounts);
   };
 
   const mockSecrets = (xpubXP?: string) => {

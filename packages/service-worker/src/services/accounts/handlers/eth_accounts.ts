@@ -17,7 +17,8 @@ export class EthAccountsHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async ({ request }) => {
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       return {
         ...request,
         error: 'wallet locked, undefined or malformed',
@@ -26,7 +27,7 @@ export class EthAccountsHandler extends DAppRequestHandler {
 
     return {
       ...request,
-      result: [this.accountsService.activeAccount.addressC],
+      result: [activeAccount.addressC],
     };
   };
 

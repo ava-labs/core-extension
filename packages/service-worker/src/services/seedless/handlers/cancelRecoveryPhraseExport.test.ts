@@ -15,7 +15,9 @@ describe('src/background/services/seedless/handlers/cancelRecoveryPhraseExport',
   } as any);
   const networkService = jest.mocked<NetworkService>({} as any);
   const mfaService = jest.mocked<SeedlessMfaService>({} as any);
-  const accountsService = jest.mocked<AccountsService>({} as any);
+  const accountsService = jest.mocked<AccountsService>({
+    getActiveAccount: async () => ({}),
+  } as any);
 
   const handle = () => {
     const handler = new CancelRecoveryPhraseExportHandler(

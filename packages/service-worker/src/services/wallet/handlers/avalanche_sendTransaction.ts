@@ -88,10 +88,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     const vm = Avalanche.getVmByChainAlias(chainAlias);
     const txBytes = utils.hexToBuffer(transactionHex);
     const provider = await this.networkService.getAvalanceProviderXP();
-    const currentAddress = getAddressByVM(
-      vm,
-      this.accountsService.activeAccount,
-    );
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const currentAddress = getAddressByVM(vm, activeAccount);
 
     if (!currentAddress) {
       return {
@@ -201,8 +199,8 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
     };
   };
 
-  #getAddressForVM(vm: VM) {
-    const account = this.accountsService.activeAccount;
+  async #getAddressForVM(vm: VM) {
+    const account = await this.accountsService.getActiveAccount();
 
     if (!account) {
       return;
@@ -243,7 +241,7 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
       params: { externalIndices, internalIndices },
     } = pendingAction;
 
-    const usedAddress = this.#getAddressForVM(vm);
+    const usedAddress = await this.#getAddressForVM(vm);
     const usedNetwork = this.#getChainIdForVM(vm);
     const measurement = measureDuration();
     try {

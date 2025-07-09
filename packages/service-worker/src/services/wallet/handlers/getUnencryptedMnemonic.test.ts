@@ -1,6 +1,6 @@
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { LockService } from '../../lock/LockService';
-import { Account, SecretType } from '@core/types';
+import { SecretType } from '@core/types';
 import { SecretsService } from '../../secrets/SecretsService';
 import { GetUnencryptedMnemonicHandler } from './getUnencryptedMnemonic';
 import { AccountsService } from '../../accounts/AccountsService';
@@ -14,7 +14,7 @@ describe('src/background/services/wallet/handlers/getUnencryptedMnemonic.ts', ()
   } as any;
 
   const accountsService: jest.Mocked<AccountsService> = {
-    activeAccount: {} as unknown as Account,
+    getActiveAccount: async () => ({}),
   } as any;
 
   const buildHandler = () =>

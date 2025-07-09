@@ -57,7 +57,8 @@ export class AccountsChangedEvents implements DAppEventEmitter {
   }
 
   async emitAccountsChanged(currentPermissions?: DappPermissions) {
-    const addressC = this.accountsService.activeAccount?.addressC;
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const addressC = activeAccount?.addressC;
     const hasAccessTodApp =
       currentPermissions &&
       addressC &&

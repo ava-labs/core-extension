@@ -66,12 +66,13 @@ const networkBalancesService = {
 
 describe('src/background/services/bridge/BridgeService.ts', () => {
   describe('.estimateGas()', () => {
+    const addressC = '1234-abcd';
     const accountsService = {
-      activeAccount: {
-        addressC: '1234-abcd',
+      getActiveAccount: async () => ({
+        addressC,
         addressBTC,
         type: AccountType.FIREBLOCKS,
-      },
+      }),
     } as unknown as AccountsService;
 
     let service: BridgeService;
@@ -119,7 +120,7 @@ describe('src/background/services/bridge/BridgeService.ts', () => {
 
         expect(estimateGas).toHaveBeenCalledWith(
           new Big('1'),
-          accountsService.activeAccount?.addressC,
+          addressC,
           {} as any,
           {
             ethereum: networkService.getEthereumProvider(),

@@ -32,7 +32,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
 
   const accountServiceMock = {
     getAccountList: () => accounts,
-    activeAccount: accounts[0],
+    getActiveAccount: async () => accounts[0],
   } as any;
 
   const secretsService = new SecretsService({} as any);

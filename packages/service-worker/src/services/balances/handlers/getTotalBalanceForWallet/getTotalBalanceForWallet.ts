@@ -97,7 +97,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const requestsImportedAccounts = isImportedAccountsRequest(walletId);
 
     try {
-      const allAccounts = this.accountsService.getAccounts();
+      const allAccounts = await this.accountsService.getAccounts();
       const derivedAccounts = requestsImportedAccounts
         ? Object.values(allAccounts.imported ?? {})
         : (allAccounts.primary[walletId] ?? []);

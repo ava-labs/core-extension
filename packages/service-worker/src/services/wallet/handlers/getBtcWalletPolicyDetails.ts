@@ -23,7 +23,7 @@ export class GetBtcWalletPolicyDetails implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
-      const { activeAccount } = this.accountService;
+      const activeAccount = await this.accountService.getActiveAccount();
 
       if (!activeAccount) {
         throw new Error('no account selected');

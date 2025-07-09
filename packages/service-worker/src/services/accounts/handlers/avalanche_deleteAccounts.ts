@@ -66,7 +66,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
 
     // Getting accounts by ids from params and organizing
     for (const accountId of accountIds) {
-      const account = this.accountsService.getAccountByID(accountId);
+      const account = await this.accountsService.getAccountByID(accountId);
       if (account) {
         if (isPrimaryAccount(account)) {
           if (primaryWalletAccounts[account.walletId]) {
@@ -99,7 +99,7 @@ export class AvalancheDeleteAccountsHandler extends DAppRequestHandler<
       //Sort in descending order by index
       accountsInWallet.sort((a, b) => b.index - a.index);
       const walletAccounts =
-        this.accountsService.getPrimaryAccountsByWalletId(walletId);
+        await this.accountsService.getPrimaryAccountsByWalletId(walletId);
 
       // This should not happen in normal cases. But need it to satisfy typescript
       if (!walletAccounts || !walletAccounts.length) {
