@@ -21,7 +21,7 @@ const underDevelopmentClick = () => toast.error('Under development');
 
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
-  const { addAccount, accounts } = useAccountsContext();
+  const { addAccount, accounts, selectAccount } = useAccountsContext();
   const { goBack } = useHistory();
 
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
@@ -39,10 +39,12 @@ export const AddOrConnectWallet: FC = () => {
               primary={t('Create new account')}
               secondary={t('Generate a new account in your active wallet')}
               onClick={() =>
-                addAccount().then(() => {
-                  goBack();
-                  toast.success(t('Account created successfully'));
-                })
+                addAccount()
+                  .then(selectAccount)
+                  .then(goBack)
+                  .then(() => {
+                    toast.success(t('Account created successfully'));
+                  })
               }
             />
           )}

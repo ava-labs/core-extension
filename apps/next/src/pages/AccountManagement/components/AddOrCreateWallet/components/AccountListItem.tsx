@@ -5,7 +5,13 @@ import {
   ListItemText,
   ListItemTextProps,
 } from '@avalabs/k2-alpine';
-import { ComponentType, FC } from 'react';
+import {
+  ComponentType,
+  FC,
+  MouseEvent,
+  MouseEventHandler,
+  useState,
+} from 'react';
 import * as Styled from './Styled';
 
 const listItemTextProps: ListItemTextProps['slotProps'] = {
@@ -21,7 +27,9 @@ type Props = {
   Icon: ComponentType<{ size?: number | string }>;
   primary: string;
   secondary: string;
-  onClick: VoidFunction;
+  onClick:
+    | MouseEventHandler<HTMLButtonElement>
+    | ((event: MouseEvent<HTMLButtonElement>) => Promise<void>);
 };
 
 export const AccountListItem: FC<Props> = ({
@@ -30,9 +38,23 @@ export const AccountListItem: FC<Props> = ({
   secondary,
   onClick,
 }) => {
+  const [isPending, setPending] = useState(false);
+  const handleClick = async (event: MouseEvent<HTMLButtonElement>) => {
+    setPending(true);
+    try {
+      await onClick(event);
+    } finally {
+      setPending(false);
+    }
+  };
+
   return (
     <Styled.ListItem disablePadding>
-      <ListItemButton onClick={onClick}>
+      <ListItemButton
+        component="button"
+        onClick={handleClick}
+        disabled={isPending}
+      >
         <ListItemIcon>
           <Icon size={20} />
         </ListItemIcon>
