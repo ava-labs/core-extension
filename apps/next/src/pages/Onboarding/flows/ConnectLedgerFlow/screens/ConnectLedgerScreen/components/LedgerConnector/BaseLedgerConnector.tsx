@@ -5,7 +5,12 @@ import { Stack } from '@avalabs/k2-alpine';
 
 import * as Styled from '../Styled';
 import { DerivedAddresses } from '../DerivedAddresses';
-import { DerivedKeys, PublicKey, UseLedgerPublicKeyFetcher } from './types';
+import {
+  ConnectorCallbacks,
+  DerivedKeys,
+  PublicKey,
+  UseLedgerPublicKeyFetcher,
+} from './types';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
@@ -15,6 +20,7 @@ type CommonProps = {
   deriveAddresses: (keys: PublicKey[]) => string[];
   derivedAddressesChainCaipId: string;
   useLedgerPublicKeyFetcher: UseLedgerPublicKeyFetcher;
+  callbacks?: ConnectorCallbacks;
 };
 
 type PropsWithDerivationPathSpec = CommonProps & {
@@ -46,6 +52,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
     useLedgerPublicKeyFetcher,
     deriveAddresses,
     derivedAddressesChainCaipId,
+    callbacks,
   } = props;
   const { t } = useTranslation();
   const withDerivationPathSpec = isWithDerivationPathSpec(props);
@@ -63,14 +70,16 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
       .then((retrievedKeys) => {
         setKeys(retrievedKeys.addressPublicKeys);
         onSuccess(retrievedKeys);
+        callbacks?.onConnectionSuccess();
       })
       .catch((err) => {
         console.error('Failed to derive keys', err);
+        callbacks?.onConnectionFailed();
       })
       .finally(() => {
         setIsRetrieving(false);
       });
-  }, [numberOfKeys, retrieveKeys, onSuccess]);
+  }, [numberOfKeys, retrieveKeys, onSuccess, callbacks]);
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
@@ -126,7 +135,10 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
         <Styled.LedgerConnectionError
           errorType={error}
           onTroubleshoot={onTroubleshoot}
-          onRetry={onRetry}
+          onRetry={() => {
+            callbacks?.onConnectionRetry();
+            onRetry();
+          }}
         />
       )}
       {status !== 'error' && (

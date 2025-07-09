@@ -1,11 +1,10 @@
-import { useHistory } from 'react-router-dom';
 import { FiAlertCircle } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useState } from 'react';
 import { Typography, Fade, Stack, Box } from '@avalabs/k2-alpine';
 
 import { isPhraseCorrect } from '@core/common';
-import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
+import { useKeyboardShortcuts } from '@core/ui';
 
 import {
   OnboardingStepActions,
@@ -19,15 +18,17 @@ import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { RecoveryPhraseForm } from '../components/RecoveryPhraseForm';
 
-export const EnterRecoveryPhraseScreen: FC<OnboardingScreenProps> = ({
+type EnterRecoveryPhraseScreenProps = OnboardingScreenProps & {
+  onNext: (phrase: string) => void;
+};
+
+export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
   step,
   totalSteps,
-  nextScreenPath,
+  onNext,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
-  const { setMnemonic } = useOnboardingContext();
 
   const [words, setWords] = useState<string[]>([]);
   const [phraseLength, setPhraseLength] = useState(24);
@@ -41,17 +42,12 @@ export const EnterRecoveryPhraseScreen: FC<OnboardingScreenProps> = ({
     setTotal(totalSteps);
   }, [setCurrent, setTotal, step, totalSteps]);
 
-  const onNext = () => {
-    if (!isValid) {
-      return;
-    }
-
-    setMnemonic(phrase);
-    history.push(nextScreenPath);
+  const handleNextClick = () => {
+    onNext(phrase);
   };
 
   const keyboardHandlers = useKeyboardShortcuts({
-    Enter: onNext,
+    Enter: isValid ? handleNextClick : undefined,
   });
 
   return (
@@ -96,7 +92,11 @@ export const EnterRecoveryPhraseScreen: FC<OnboardingScreenProps> = ({
             </Typography>
           </Stack>
         </Fade>
-        <NavButton disabled={!isValid} color="primary" onClick={onNext}>
+        <NavButton
+          disabled={!isValid}
+          color="primary"
+          onClick={handleNextClick}
+        >
           {t('Next')}
         </NavButton>
       </OnboardingStepActions>

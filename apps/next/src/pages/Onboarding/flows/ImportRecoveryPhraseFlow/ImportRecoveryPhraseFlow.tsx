@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { WalletType } from '@avalabs/types';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
-import { useOnboardingContext } from '@core/ui';
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import {
   ProvideWalletDetailsScreen,
@@ -16,8 +16,14 @@ const TOTAL_STEPS = 5;
 
 export const ImportRecoveryPhraseFlow = () => {
   const history = useHistory();
-  const { setOnboardingWalletType, mnemonic, onboardingState } =
-    useOnboardingContext();
+  const {
+    setAvatar,
+    setOnboardingWalletType,
+    mnemonic,
+    setMnemonic,
+    onboardingState,
+  } = useOnboardingContext();
+  const { capture } = useAnalyticsContext();
 
   useEffect(() => {
     // If at any of the screens below the user does not have the required state,
@@ -31,27 +37,49 @@ export const ImportRecoveryPhraseFlow = () => {
     setOnboardingWalletType(WalletType.Mnemonic);
   }, [setOnboardingWalletType]);
 
+  const onMnemonicImported = useCallback(
+    (phrase: string) => {
+      setMnemonic(phrase);
+      capture('OnboardingMnemonicImported');
+      history.push(`${BASE_PATH}/wallet-details`);
+    },
+    [capture, setMnemonic, history],
+  );
+
+  const onDetailsProvided = useCallback(() => {
+    history.push(`${BASE_PATH}/select-avatar`);
+  }, [history]);
+
+  const onAvatarSelected = useCallback(
+    (avatarUri: string) => {
+      setAvatar(avatarUri);
+      capture('OnboardingAvatarSelected');
+      history.push(`${BASE_PATH}/enjoy-your-wallet`);
+    },
+    [capture, setAvatar, history],
+  );
+
   return (
     <Switch>
       <Route exact path={BASE_PATH}>
         <EnterRecoveryPhraseScreen
           step={2}
           totalSteps={TOTAL_STEPS}
-          nextScreenPath={`${BASE_PATH}/wallet-details`}
+          onNext={onMnemonicImported}
         />
       </Route>
       <Route path={`${BASE_PATH}/wallet-details`}>
         <ProvideWalletDetailsScreen
           step={3}
           totalSteps={TOTAL_STEPS}
-          nextScreenPath={`${BASE_PATH}/select-avatar`}
+          onNext={onDetailsProvided}
         />
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
           step={4}
           totalSteps={TOTAL_STEPS}
-          nextScreenPath={`${BASE_PATH}/enjoy-your-wallet`}
+          onNext={onAvatarSelected}
         />
       </Route>
       <Route path={`${BASE_PATH}/enjoy-your-wallet`}>

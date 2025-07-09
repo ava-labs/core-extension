@@ -1,9 +1,8 @@
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, Suspense, useCallback, useEffect, useState } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 
-import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
+import { useKeyboardShortcuts } from '@core/ui';
 
 import {
   OnboardingStepActions,
@@ -24,15 +23,17 @@ import { AvatarGrid } from './SelectAvatarScreen/components/AvatarGrid';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { NavButton } from '../components/NavButton';
 
-export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
+type SelectAvatarScreenProps = OnboardingScreenProps & {
+  onNext: (avatarUri: string) => void;
+};
+
+export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
   step,
   totalSteps,
-  nextScreenPath,
+  onNext,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
-  const { setAvatar } = useOnboardingContext();
 
   const [selectedAvatar, setSelectedAvatar] = useState<PersonalAvatarName>(
     AVATAR_OPTIONS[0],
@@ -43,15 +44,14 @@ export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
     setTotal(totalSteps);
   }, [setCurrent, setTotal, totalSteps, step]);
 
-  const onNext = useCallback(async () => {
+  const handleNextClick = useCallback(async () => {
     // Save avatar data URI. This way even if we accidentally remove or rename the image
     // in the repo, user won't lose their avatar.
-    setAvatar(await getAvatarDataUri(selectedAvatar));
-    history.push(nextScreenPath);
-  }, [history, setAvatar, selectedAvatar, nextScreenPath]);
+    onNext(await getAvatarDataUri(selectedAvatar));
+  }, [onNext, selectedAvatar]);
 
   const keyboardHandlers = useKeyboardShortcuts({
-    Enter: onNext,
+    Enter: handleNextClick,
   });
 
   return (
@@ -93,7 +93,7 @@ export const SelectAvatarScreen: FC<OnboardingScreenProps> = ({
         </Stack>
       </OnboardingStepContent>
       <OnboardingStepActions>
-        <NavButton color="primary" onClick={onNext}>
+        <NavButton color="primary" onClick={handleNextClick}>
           {t('Next')}
         </NavButton>
       </OnboardingStepActions>

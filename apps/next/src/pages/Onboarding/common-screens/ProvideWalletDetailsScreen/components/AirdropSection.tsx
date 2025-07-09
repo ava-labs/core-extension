@@ -8,7 +8,7 @@ import {
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useOnboardingContext } from '@core/ui';
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import {
   Section,
@@ -19,6 +19,7 @@ import {
 export const AirdropSection: FC<StackProps> = ({ sx, ...props }) => {
   const { t } = useTranslation();
   const { analyticsConsent, setAnalyticsConsent } = useOnboardingContext();
+  const { capture, stopDataCollection } = useAnalyticsContext();
 
   return (
     <Stack sx={combineSx({ gap: 1 }, sx)} {...props}>
@@ -42,7 +43,18 @@ export const AirdropSection: FC<StackProps> = ({ sx, ...props }) => {
               id="airdrop-switch"
               size="small"
               checked={analyticsConsent}
-              onChange={(e) => setAnalyticsConsent(e.target.checked)}
+              onChange={(e) => {
+                const isAccepted = e.target.checked;
+
+                if (isAccepted) {
+                  capture('OnboardingAnalyticsAccepted');
+                } else {
+                  capture('OnboardingAnalyticsRejected');
+                  stopDataCollection();
+                }
+
+                setAnalyticsConsent(isAccepted);
+              }}
             />
           </Stack>
         </SectionRow>

@@ -11,7 +11,7 @@ import {
 import { FC, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
-import { useOnboardingContext } from '@core/ui';
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import {
   Section,
@@ -38,6 +38,7 @@ export const MarketingAgreementSection: FC<Props> = ({
     newsletterEmail,
     setNewsletterEmail,
   } = useOnboardingContext();
+  const { capture } = useAnalyticsContext();
 
   const [isEmailTouched, setIsEmailTouched] = useState(false);
   const isValidEmail = validateEmail(newsletterEmail);
@@ -56,8 +57,14 @@ export const MarketingAgreementSection: FC<Props> = ({
             sx={{ ml: -0.75 }}
             checked={isNewsletterEnabled}
             onChange={(ev) => {
-              setIsNewsletterEnabled(ev.target.checked);
-              if (!ev.target.checked) {
+              const isEnabled = ev.target.checked;
+
+              setIsNewsletterEnabled(isEnabled);
+
+              if (isEnabled) {
+                capture('OnboardingNewsletterAccepted');
+              } else {
+                capture('OnboardingNewsletterRejected');
                 setNewsletterEmail('');
                 setIsEmailTouched(false);
               }

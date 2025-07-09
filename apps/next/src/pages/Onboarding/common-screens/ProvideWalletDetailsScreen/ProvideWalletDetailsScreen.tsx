@@ -1,9 +1,9 @@
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Stack, styled } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { useKeyboardShortcuts } from '@core/ui';
+import { isNewsletterConfigured } from '@core/common';
 
 import {
   OnboardingStepActions,
@@ -27,13 +27,14 @@ type SectionsValidity = {
   terms: boolean;
 };
 
-export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
-  step,
-  totalSteps,
-  nextScreenPath,
-}) => {
+type ProvideWalletDetailsScreenProps = OnboardingScreenProps & {
+  onNext: VoidFunction;
+};
+
+export const ProvideWalletDetailsScreen: FC<
+  ProvideWalletDetailsScreenProps
+> = ({ step, totalSteps, onNext }) => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
 
   useEffect(() => {
@@ -67,16 +68,10 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
 
   const isFormValid = Object.values(sectionsValidity).every(Boolean);
 
-  const onNext = useCallback(() => {
-    if (!isFormValid) {
-      return;
-    }
-
-    history.push(nextScreenPath);
-  }, [history, isFormValid, nextScreenPath]);
+  const handleNextClick = () => onNext();
 
   const keyboardHandlers = useKeyboardShortcuts({
-    Enter: onNext,
+    Enter: isFormValid ? handleNextClick : undefined,
   });
 
   return (
@@ -111,9 +106,11 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
               <WalletNameSection />
               <AirdropSection />
               <PasswordSection onValidityChange={onPasswordValidityChange} />
-              <MarketingAgreementSection
-                onValidityChange={onNewsletterValidityChange}
-              />
+              {isNewsletterConfigured() && (
+                <MarketingAgreementSection
+                  onValidityChange={onNewsletterValidityChange}
+                />
+              )}
             </Stack>
           </Stack>
         </OnboardingStepContent>
@@ -122,7 +119,11 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
       </FooterSection>
       <OnboardingStepActions>
-        <NavButton disabled={!isFormValid} color="primary" onClick={onNext}>
+        <NavButton
+          disabled={!isFormValid}
+          color="primary"
+          onClick={handleNextClick}
+        >
           {t('Next')}
         </NavButton>
       </OnboardingStepActions>
