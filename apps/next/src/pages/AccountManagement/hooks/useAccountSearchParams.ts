@@ -2,6 +2,7 @@ import { Account } from '@core/types';
 import { useAccountsContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
+import { URL_SEARCH_TOKENS } from '../utils/searchParams';
 
 type AtLeastOneItemArray<T> = [T, ...T[]];
 
@@ -27,7 +28,7 @@ export function useAccountSearchParams<Multiple extends boolean = false>(
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const { getAccountById } = useAccountsContext();
-  const ids = searchParams.getAll('accountId');
+  const ids = searchParams.getAll(URL_SEARCH_TOKENS.account);
 
   if (ids.length === 0) {
     return {

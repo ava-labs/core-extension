@@ -3,6 +3,7 @@ import { WalletDetails } from '@core/types';
 import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
 import { cloneElement, FC, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { RenamableTitle } from '../../RenamableTitle';
 import * as Styled from './Styled';
 import { ViewPChainButton } from './ViewPChainButton';
 import { WalletIconProps } from './WalletIcon';
@@ -12,14 +13,16 @@ interface WalletCardProps {
   icon: ReactElement<WalletIconProps>;
   initialExpanded: boolean;
   children: ReactElement[];
+  disableRename?: boolean;
 }
 
 export const WalletCard: FC<WalletCardProps> = ({
-  id,
-  name,
-  icon,
-  initialExpanded,
   children,
+  disableRename,
+  icon,
+  id,
+  initialExpanded,
+  name,
 }) => {
   const { t } = useTranslation();
   const {
@@ -31,6 +34,7 @@ export const WalletCard: FC<WalletCardProps> = ({
   const { currencyFormatter } = useSettingsContext();
 
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
+  const Title = disableRename ? Typography : RenamableTitle;
 
   return (
     <>
@@ -48,15 +52,17 @@ export const WalletCard: FC<WalletCardProps> = ({
             gap={0.5}
             width="calc(100% - 32px)"
           >
-            <Typography
+            <Title
+              type="wallet"
+              tokenId={id}
+              width={1}
               variant="subtitle1"
-              marginInlineEnd="auto"
               whiteSpace="nowrap"
               overflow="hidden"
               textOverflow="ellipsis"
             >
               {name}
-            </Typography>
+            </Title>
             {isLoading && <CircularProgress size={14} />}
             {!isLoading && !hasErrorOccurred && (
               <Typography variant="body1" color="text.disabled">
@@ -69,8 +75,9 @@ export const WalletCard: FC<WalletCardProps> = ({
                 <Typography
                   variant="subtitle1"
                   color="error"
-                  component="span"
+                  component={Styled.Shrinkable}
                   whiteSpace="nowrap"
+                  id="error-message"
                 >
                   {t('Unable to load balances')}
                 </Typography>

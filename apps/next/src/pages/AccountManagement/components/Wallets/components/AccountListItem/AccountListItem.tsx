@@ -1,3 +1,4 @@
+import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 import {
   Button,
   ListItem,
@@ -5,14 +6,15 @@ import {
   ListItemText,
   PopoverPosition,
   Tooltip,
-  Typography,
   truncateAddress,
+  Typography,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { useAccountManager } from '@core/ui';
 import { DOMAttributes, FC, MouseEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { RenamableTitle } from '../../../RenamableTitle';
 import { AccountContextMenu } from '../AccountContextMenu';
 import * as Styled from '../Styled';
 import { AccountBalance } from './components/AccountBalance';
@@ -44,7 +46,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
     history.push({
       pathname: '/account-management/account',
       search: new URLSearchParams({
-        accountId: account.id,
+        [URL_SEARCH_TOKENS.account]: account.id,
       }).toString(),
     });
   };
@@ -79,7 +81,15 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
           <AccountListCheckbox account={account} active={active} />
         </ListItemIcon>
         <ListItemText
-          primary={<Typography variant="subtitle1">{account.name}</Typography>}
+          primary={
+            <RenamableTitle
+              variant="subtitle1"
+              type="account"
+              tokenId={account.id}
+            >
+              {account.name}
+            </RenamableTitle>
+          }
           secondary={
             <Tooltip title={account.addressC} enterDelay={1000}>
               <Typography
@@ -94,7 +104,6 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
           }
         />
         <ListItemText
-          sx={{ flexGrow: 0 }}
           className="secondary-text"
           primary={
             <>
