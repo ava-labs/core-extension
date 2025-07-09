@@ -53,17 +53,18 @@ export const WalletList: FC = () => {
   );
 };
 
+type AccountsCtx = ReturnType<typeof useAccountsContext>;
 const getAccountRenderer =
   (
-    isActiveAccount: ReturnType<typeof useAccountsContext>['isActiveAccount'],
-    selectAccount: ReturnType<typeof useAccountsContext>['selectAccount'],
+    isActiveAccount: AccountsCtx['isActiveAccount'],
+    selectAccount: AccountsCtx['selectAccount'],
   ) =>
   // eslint-disable-next-line react/display-name
   (account: Account) => (
     <AccountListItem
       key={account.id}
       account={account}
-      selected={isActiveAccount(account.id)}
+      active={isActiveAccount(account.id)}
       onSelect={selectAccount}
     />
   );

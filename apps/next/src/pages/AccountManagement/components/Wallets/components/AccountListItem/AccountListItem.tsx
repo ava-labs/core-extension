@@ -9,23 +9,31 @@ import {
   truncateAddress,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { FC, MouseEventHandler, useState } from 'react';
+import { useAccountManager } from '@core/ui';
+import { DOMAttributes, FC, MouseEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdCheck } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { AccountContextMenu } from '../AccountContextMenu';
 import * as Styled from '../Styled';
 import { AccountBalance } from './components/AccountBalance';
+import { AccountListCheckbox } from './components/AccountListCheckbox';
 
 interface Props {
   account: Account;
-  selected: boolean;
+  active: boolean;
   onSelect: (account: Account['id']) => void;
 }
 
-export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
+export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
   const { t } = useTranslation();
   const history = useHistory();
+  const {
+    isManageMode,
+    isAccountSelectable,
+    selectAccount,
+    deselectAccount,
+    selectedAccounts,
+  } = useAccountManager();
   const [isHovered, setIsHovered] = useState(false);
   const [position, setPosition] = useState<PopoverPosition | undefined>(
     undefined,
@@ -41,23 +49,34 @@ export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
     });
   };
 
+  const domEventHandlers: DOMAttributes<HTMLElement> = isManageMode
+    ? {
+        onClick: (e) => {
+          e.preventDefault();
+          const checked = selectedAccounts.includes(account.id);
+          const action = checked ? deselectAccount : selectAccount;
+          action(account.id, true);
+        },
+      }
+    : {
+        onClick: () => onSelect(account.id),
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false),
+        onContextMenu: (e) => {
+          e.preventDefault();
+          setPosition({ top: e.clientY, left: e.clientX });
+        },
+      };
+
   return (
     <ListItem disablePadding>
       <Styled.ListItemButton
-        selected={selected}
-        onClick={() => onSelect(account.id)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          setPosition({ top: e.clientY, left: e.clientX });
-        }}
+        disabled={isManageMode && !isAccountSelectable(account)}
+        selected={!isManageMode && active}
+        {...domEventHandlers}
       >
         <ListItemIcon sx={{ minWidth: 'unset ' }}>
-          <MdCheck
-            size={24}
-            color={selected ? 'currentColor' : 'transparent'}
-          />
+          <AccountListCheckbox account={account} active={active} />
         </ListItemIcon>
         <ListItemText
           primary={<Typography variant="subtitle1">{account.name}</Typography>}
@@ -89,7 +108,7 @@ export const AccountListItem: FC<Props> = ({ account, selected, onSelect }) => {
                   {t('Options')}
                 </Button>
               ) : (
-                <AccountBalance account={account} selected={selected} />
+                <AccountBalance account={account} selected={active} />
               )}
             </>
           }

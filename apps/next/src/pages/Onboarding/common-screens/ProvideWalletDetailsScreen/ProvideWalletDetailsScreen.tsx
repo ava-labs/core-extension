@@ -118,7 +118,7 @@ export const ProvideWalletDetailsScreen: FC<OnboardingScreenProps> = ({
           </Stack>
         </OnboardingStepContent>
       </Stack>
-      <FooterSection {...keyboardHandlers}>
+      <FooterSection sx={{ py: 1.5 }} {...keyboardHandlers}>
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
       </FooterSection>
       <OnboardingStepActions>
@@ -139,5 +139,4 @@ const FooterSection = styled(Stack)(({ theme }) => ({
   borderTopColor: theme.palette.divider,
   marginInline: theme.spacing(-4),
   paddingInline: theme.spacing(4),
-  paddingTop: theme.spacing(1.5),
 }));
