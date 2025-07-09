@@ -2,6 +2,8 @@ import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EncryptedIcon, Divider, LedgerIcon, Stack } from '@avalabs/k2-alpine';
 
+import { useAnalyticsContext } from '@core/ui';
+
 import {
   OnboardingStepContent,
   OnboardingStepTitle,
@@ -13,6 +15,7 @@ import { CardMenu, CardMenuItem } from '../components/CardMenu';
 export const OnboardingStrategyChoiceScreen: FC = () => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
+  const { capture } = useAnalyticsContext();
 
   useEffect(() => {
     setCurrent(0);
@@ -33,16 +36,19 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
             link={'/onboarding/import/recovery-phrase'}
             icon={<EncryptedIcon size={24} />}
             text={t('Manually enter a recovery phrase')}
+            onClick={() => capture('OnboardingImportMnemonicSelected')}
           />
           <CardMenuItem
             link={'/onboarding/import/ledger'}
             icon={<LedgerIcon size={24} />}
             text={t('Add using Ledger')}
+            onClick={() => capture('OnboardingImportLedgerSelected')}
           />
           <CardMenuItem
             link={'/onboarding/import/keystone'}
             icon={<LedgerIcon size={24} />} // TODO: Add Keystone icon
             text={t('Add using Keystone')}
+            onClick={() => capture('OnboardingKeystoneSelected')}
           />
         </CardMenu>
       </OnboardingStepContent>

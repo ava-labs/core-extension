@@ -15,16 +15,18 @@ import {
   type DerivationStatus,
   SolanaLedgerConnector,
 } from './LedgerConnector';
-import { DerivedKeys } from './LedgerConnector/types';
+import { ConnectorCallbacks, DerivedKeys } from './LedgerConnector/types';
 
 type ConnectionStepProps = StackProps & {
   onNext: (keys: DerivedKeys) => void;
   onTroubleshoot: () => void;
+  connectorCallbacks?: ConnectorCallbacks;
 };
 
 export const ConnectSolana: FC<ConnectionStepProps> = ({
   onNext,
   onTroubleshoot,
+  connectorCallbacks,
   ...stackProps
 }) => {
   const { t } = useTranslation();
@@ -45,6 +47,7 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
       </OnboardingStepDescription>
       <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
         <SolanaLedgerConnector
+          callbacks={connectorCallbacks}
           onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={setStatus}

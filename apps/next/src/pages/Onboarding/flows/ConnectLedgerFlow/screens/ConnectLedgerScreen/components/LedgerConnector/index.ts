@@ -1,3 +1,3 @@
 export * from './AvalancheLedgerConnector';
 export * from './SolanaLedgerConnector';
-export { type DerivationStatus } from './types';
+export { type DerivationStatus, type ConnectorCallbacks } from './types';

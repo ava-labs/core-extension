@@ -1,11 +1,8 @@
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useState } from 'react';
-import { WalletType } from '@avalabs/types';
 import { Button, Stack, toast } from '@avalabs/k2-alpine';
 
 import { createNewMnemonic } from '@core/common';
-import { useOnboardingContext } from '@core/ui';
 
 import {
   OnboardingStepActions,
@@ -20,26 +17,26 @@ import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import { SeedphraseGrid } from './components/SeedphraseGrid';
 import { LostPhraseLostFundsWarning } from './components/LostPhraseLostFundsWarning';
 
-export const NewSeedphraseScreen: FC<OnboardingScreenProps> = ({
+type NewSeedphraseScreenProps = OnboardingScreenProps & {
+  onNext: (phrase: string) => void;
+};
+
+export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
   step,
   totalSteps,
-  nextScreenPath,
+  onNext,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
-  const { setMnemonic, setOnboardingWalletType } = useOnboardingContext();
   const [generatedSeedphrase] = useState<string>(createNewMnemonic());
 
   useEffect(() => {
     setCurrent(step);
     setTotal(totalSteps);
-    setOnboardingWalletType(WalletType.Mnemonic);
-  }, [setCurrent, setTotal, setOnboardingWalletType, step, totalSteps]);
+  }, [setCurrent, setTotal, step, totalSteps]);
 
-  const onNext = () => {
-    setMnemonic(generatedSeedphrase);
-    history.push(nextScreenPath);
+  const handleNextClick = () => {
+    onNext(generatedSeedphrase);
   };
 
   return (
@@ -72,7 +69,7 @@ export const NewSeedphraseScreen: FC<OnboardingScreenProps> = ({
         </Stack>
       </OnboardingStepContent>
       <OnboardingStepActions gap={6} pt={2}>
-        <NavButton color="primary" onClick={onNext}>
+        <NavButton color="primary" onClick={handleNextClick}>
           {t('Next')}
         </NavButton>
       </OnboardingStepActions>

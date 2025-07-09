@@ -25,3 +25,9 @@ export type UseLedgerPublicKeyFetcherResult = {
 export type UseLedgerPublicKeyFetcher = (
   derivationPathSpec?: DerivationPath,
 ) => UseLedgerPublicKeyFetcherResult;
+
+export type ConnectorCallbacks = {
+  onConnectionSuccess: VoidFunction;
+  onConnectionFailed: VoidFunction;
+  onConnectionRetry: VoidFunction;
+};

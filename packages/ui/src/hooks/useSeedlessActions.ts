@@ -131,12 +131,15 @@ export function useSeedlessActions({
       setNewsletterEmail(identity.email ?? '');
 
       if ((identity.user_info?.configured_mfa ?? []).length === 0) {
+        capture('OnboardingSeedlessRegistrationRequired');
         history.push(urls.mfaSetup);
       } else {
+        capture('OnboardingSeedlessLoginRequired');
         history.push(urls.mfaLogin);
       }
     },
     [
+      capture,
       setOidcToken,
       setUserId,
       setIsSeedlessMfaRequired,
@@ -173,6 +176,7 @@ export function useSeedlessActions({
     if (!oidcToken) {
       return false;
     }
+    capture('OnboardingSeedlessTOTPRegistrationStarted');
     requestOidcAuth(oidcToken)
       .then(async (c) => {
         const mfaSessionInfo = c.requiresMfa() ? c.mfaSessionInfo() : c.data();
@@ -215,12 +219,14 @@ export function useSeedlessActions({
         // attempt to reuse the code quickly
         const c = await requestOidcAuth(oidcToken);
         if (!c.requiresMfa()) {
+          capture('OnboardingSeedlessTOTPRegistrationError_MfaNotRequired');
           throw new Error('MFA setup failed');
         }
 
         const status = await mfaSession.totpApprove(c.mfaId(), code);
 
         if (!status.receipt?.confirmation) {
+          capture('OnboardingSeedlessTOTPRegistrationError_NoConfirmation');
           if (preferErrorCode) {
             onError(AuthErrorCode.TotpVerificationError);
           } else {
@@ -236,9 +242,11 @@ export function useSeedlessActions({
         });
 
         const signerToken = oidcAuthResponse.data();
+        capture('OnboardingSeedlessTOTPRegistrationSuccess');
         setSeedlessSignerToken(signerToken);
         return true;
       } catch (_err) {
+        capture('OnboardingSeedlessTOTPRegistrationWrongCode');
         if (preferErrorCode) {
           onError(AuthErrorCode.InvalidTotpCode);
         } else {
@@ -248,6 +256,7 @@ export function useSeedlessActions({
       }
     },
     [
+      capture,
       oidcToken,
       setSeedlessSignerToken,
       t,
@@ -303,6 +312,7 @@ export function useSeedlessActions({
     if (!oidcToken) {
       throw new Error('There is no token to log in');
     }
+    capture('OnboardingSeedlessSkippedMfaSetup');
     const authResponse = await requestOidcAuth(oidcToken);
     const signerToken = await getSignerToken(authResponse);
     setSeedlessSignerToken(signerToken);
@@ -313,6 +323,9 @@ export function useSeedlessActions({
       if (!oidcToken) {
         return false;
       }
+      capture('OnboardingSeedlessFIDORegistrationStarted', {
+        method: selectedMethod,
+      });
       const loginResp = await requestOidcAuth(oidcToken);
 
       const mfaSessionInfo = loginResp.requiresMfa()
@@ -340,13 +353,19 @@ export function useSeedlessActions({
         FIDOApiEndpoint.Register,
         challenge.options,
         recoveryMethodToFidoKeyType(selectedMethod),
-      );
+      ).catch((err) => {
+        capture('OnboardingSeedlessFIDORegistrationError');
+        throw err;
+      });
 
-      await challenge.answer(answer);
+      await challenge.answer(answer).catch((err) => {
+        capture('OnboardingSeedlessFIDORegistrationFailed');
+        throw err;
+      });
 
       return true;
     },
-    [oidcToken],
+    [capture, oidcToken],
   );
 
   return {
