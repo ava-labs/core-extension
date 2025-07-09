@@ -1,7 +1,12 @@
 import { Stack } from '@avalabs/core-k2-components';
 
 import { getUnconfirmedBalanceInCurrency } from '@core/types';
-import { useTokensWithBalances } from '@core/ui';
+import {
+  useAccountsContext,
+  useNetworkContext,
+  useTokensWithBalances,
+} from '@core/ui';
+import { isChainSupportedByAccount } from '@core/common';
 
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
@@ -52,6 +57,10 @@ export const getNetworkTokensPriceChanges = (assetList: TokenWithBalance[]) => {
 
 export function NetworksWidget() {
   const activeNetworkAssetList = useTokensWithBalances();
+  const { network } = useNetworkContext();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
 
   const activeNetworkBalance = getNetworkBalance(activeNetworkAssetList);
   const activeNetworkPriceChanges = getNetworkTokensPriceChanges(
@@ -59,12 +68,14 @@ export function NetworksWidget() {
   );
 
   return (
-    <Stack sx={{ m: 2 }}>
-      <ActiveNetworkWidget
-        assetList={activeNetworkAssetList}
-        activeNetworkBalance={activeNetworkBalance}
-        activeNetworkPriceChanges={activeNetworkPriceChanges}
-      />
+    <Stack sx={{ m: 2, gap: 2 }}>
+      {isChainSupportedByAccount(network, active) && (
+        <ActiveNetworkWidget
+          assetList={activeNetworkAssetList}
+          activeNetworkBalance={activeNetworkBalance}
+          activeNetworkPriceChanges={activeNetworkPriceChanges}
+        />
+      )}
       <NetworkList />
     </Stack>
   );
