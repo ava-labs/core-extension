@@ -1,5 +1,5 @@
 import { useLocalStorage } from '@core/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useRef } from 'react';
 import {
   AVATAR_OPTIONS,
   getAvatarDataUri,
@@ -10,22 +10,14 @@ const SELECTED_AVATAR_STORAGE_KEY = 'selected-avatar-data-uri';
 
 export function useCachedPersonalAvatar() {
   const localStorage = useLocalStorage();
-  const [fallbackAvatar] = AVATAR_OPTIONS;
-  const [avatar, setAvatar] = useState<string>(fallbackAvatar);
+  const loaderRef = useRef<Promise<string | undefined>>(undefined);
 
-  useEffect(() => {
-    (async () => {
-      const cachedAvatar = await localStorage.get<string>(
-        SELECTED_AVATAR_STORAGE_KEY,
-      );
+  if (!loaderRef.current) {
+    loaderRef.current = localStorage.get<string>(SELECTED_AVATAR_STORAGE_KEY);
+  }
 
-      if (cachedAvatar) {
-        setAvatar(cachedAvatar);
-      }
-    })();
-  }, [localStorage]);
-
-  return avatar;
+  const cachedAvatar = use(loaderRef.current);
+  return cachedAvatar ?? AVATAR_OPTIONS[0];
 }
 
 export function usePersonalAvatarSaver() {
