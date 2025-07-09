@@ -52,8 +52,12 @@ export const PersonalAvatar = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const cachedAvatar = useCachedPersonalAvatar();
-  const src = use(getAvatarSrc(props.name ?? props.dataUri ?? cachedAvatar));
+  const cachedAvatar = useCachedPersonalAvatar(!cached);
+  const src = use(
+    getAvatarSrc(
+      cached ? cachedAvatar : (props.name ?? props.dataUri ?? cachedAvatar),
+    ),
+  );
   const alt = props.name ? props.name : t('your avatar');
 
   return (

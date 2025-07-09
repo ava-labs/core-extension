@@ -8,9 +8,13 @@ import {
 
 const SELECTED_AVATAR_STORAGE_KEY = 'selected-avatar-data-uri';
 
-export function useCachedPersonalAvatar() {
+export function useCachedPersonalAvatar(skip: boolean) {
   const localStorage = useLocalStorage();
   const loaderRef = useRef<Promise<string | undefined>>(undefined);
+
+  if (skip) {
+    return AVATAR_OPTIONS[0];
+  }
 
   if (!loaderRef.current) {
     loaderRef.current = localStorage.get<string>(SELECTED_AVATAR_STORAGE_KEY);
