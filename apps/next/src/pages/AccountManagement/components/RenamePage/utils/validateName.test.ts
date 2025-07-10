@@ -1,5 +1,5 @@
 import { TFunction } from 'react-i18next';
-import { validateName } from './utils';
+import { validateName } from './validateName';
 
 // Mock the translation function
 const mockT = jest.fn((key) => key) satisfies TFunction;

@@ -60,6 +60,8 @@ export const ErrorIcon = styled(MdError)(({ theme }) => ({
 }));
 
 export const ListItemButton = styled(K2ListItemButton)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: 'auto 1fr auto',
   gap: theme.spacing(0.75),
   paddingLeft: theme.spacing(0.25),
   paddingRight: theme.spacing(2),
@@ -67,5 +69,16 @@ export const ListItemButton = styled(K2ListItemButton)(({ theme }) => ({
 
   [`&.${listItemButtonClasses.selected}`]: {
     backgroundColor: theme.palette.background.paper,
+  },
+}));
+
+export const Shrinkable = styled('span')(({ theme }) => ({
+  width: '100%',
+  opacity: 1,
+  transition: theme.transitions.create(['width', 'opacity']),
+
+  [`.${accordionSummaryClasses.root}:hover &`]: {
+    width: '0%',
+    opacity: 0,
   },
 }));

@@ -1,4 +1,5 @@
 import { AccountManagementRouteState } from '@/pages/AccountManagement/types';
+import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 import { Box, Button, Slide, Stack } from '@avalabs/k2-alpine';
 import { useAccountManager } from '@core/ui';
 import { FC, useState } from 'react';
@@ -48,7 +49,10 @@ export const BulkDeleteButtons: FC = () => {
                 {
                   pathname: '/account-management/delete-account',
                   search: new URLSearchParams(
-                    selectedAccounts.map((id) => ['accountId', id]),
+                    selectedAccounts.map((id) => [
+                      URL_SEARCH_TOKENS.account,
+                      id,
+                    ]),
                   ).toString(),
                 },
                 { bulkMode: true },
