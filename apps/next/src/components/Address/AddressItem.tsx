@@ -11,7 +11,7 @@ import { stripAddressPrefix } from '@core/common';
 import { ComponentType, FC, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconBaseProps } from 'react-icons';
-import { ChainListItem } from '../../pages/AccountManagement/components/ChainListItem';
+import { ChainListItem } from './ChainListItem';
 
 export type Props = {
   Icon: ComponentType<IconBaseProps> | ReactElement<IconBaseProps>;

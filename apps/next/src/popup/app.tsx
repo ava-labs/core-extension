@@ -22,22 +22,9 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { Providers } from '.';
 import { Header } from '@/components/Header';
+import { Children } from 'react';
 
-const pagesWithoutHeader = [
-  '/tokens/manage',
-  '/bridge/confirm',
-  '/bridge/transaction-status',
-  '/bridge/transaction-details',
-  '/send/confirm',
-  '/collectible',
-  '/collectible/send/confirm',
-  '/accounts',
-  '/import-private-key',
-  '/import-with-walletconnect',
-  '/defi',
-  '/fireblocks',
-  '/export-private-key',
-];
+const pagesWithoutHeader = ['/account-management'];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -53,19 +40,18 @@ export function App() {
 
   return (
     <Providers
-      providers={[
-        <ThemeProvider theme={preferredColorScheme} key={0} />,
-        <AccountsContextProvider key={1} />,
-        <NetworkContextProvider key={2} />,
+      providers={Children.toArray([
+        <ThemeProvider theme={preferredColorScheme} />,
+        <AccountsContextProvider />,
+        <NetworkContextProvider />,
         <OnboardingContextProvider
           onError={(message: string) => toast.error(message)}
           LoadingComponent={CircularProgress}
           OnboardingScreen={Onboarding}
-          key={3}
         />,
-        <WalletContextProvider LockedComponent={LockScreen} key={4} />,
-        <LedgerContextProvider key={5} />,
-      ]}
+        <WalletContextProvider LockedComponent={LockScreen} />,
+        <LedgerContextProvider />,
+      ])}
     >
       <Switch>
         <Route path="/account-management" component={AccountManagement} />
