@@ -23,7 +23,10 @@ export function useSwapStateFunctions() {
     error,
     isSwapLoading,
     setIsSwapLoading,
-    quote,
+    quotes,
+    setQuotes,
+    manuallySelected,
+    setManuallySelected,
   } = useSwapContext();
   const tokensWBalances = useTokensWithBalances({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
@@ -370,7 +373,10 @@ export function useSwapStateFunctions() {
     swapWarning,
     isReversed,
     toTokenValue,
-    quote,
+    quotes,
+    setQuotes,
+    manuallySelected,
+    setManuallySelected,
     destAmount,
     slippageTolerance,
     updateSlippage,

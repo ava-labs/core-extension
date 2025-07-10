@@ -1,16 +1,25 @@
 import { OptimalRate } from '@paraswap/sdk';
 import {
   isJupiterQuote,
+  isMarkrQuote,
   isParaswapQuote,
   JupiterQuote,
-  UnwrapOperation,
-  WrapOperation,
 } from '@core/ui';
+import {
+  EvmUnwrapQuote,
+  EvmWrapQuote,
+} from '@core/ui/src/contexts/SwapProvider/types';
+import { MarkrQuote } from '@core/ui/src/contexts/SwapProvider/services/MarkrService';
 
 type RateCalculationContext = { srcDecimals: number; destDecimals: number };
 type RateCalculationStrategy = {
   calculate(
-    quote: OptimalRate | JupiterQuote | WrapOperation | UnwrapOperation,
+    quote:
+      | OptimalRate
+      | JupiterQuote
+      | EvmWrapQuote
+      | EvmUnwrapQuote
+      | MarkrQuote,
     context: RateCalculationContext,
   ): number;
 };
@@ -20,6 +29,20 @@ const ParaswapRateStrategy: RateCalculationStrategy = {
     const { destAmount, destDecimals, srcAmount, srcDecimals } = quote;
     const destAmountNumber = parseInt(destAmount, 10) / 10 ** destDecimals;
     const sourceAmountNumber = parseInt(srcAmount, 10) / 10 ** srcDecimals;
+    return destAmountNumber / sourceAmountNumber;
+  },
+};
+
+const MarkrRateStrategy: RateCalculationStrategy = {
+  calculate(quote: MarkrQuote): number {
+    const { amountOut, amountIn, tokenOutDecimals, tokenInDecimals } = quote;
+    if (!amountOut || !amountIn || !tokenOutDecimals || !tokenInDecimals) {
+      return 0;
+    }
+    const destAmountNumber =
+      parseInt(amountOut) / Math.pow(10, tokenOutDecimals);
+    const sourceAmountNumber =
+      parseInt(amountIn) / Math.pow(10, tokenInDecimals);
     return destAmountNumber / sourceAmountNumber;
   },
 };
@@ -40,7 +63,12 @@ const WrapUnwrapRateStrategy: RateCalculationStrategy = {
 };
 
 export const calculateRate = (
-  quote: OptimalRate | JupiterQuote | WrapOperation | UnwrapOperation,
+  quote:
+    | OptimalRate
+    | JupiterQuote
+    | EvmWrapQuote
+    | EvmUnwrapQuote
+    | MarkrQuote,
   context: RateCalculationContext,
 ) => {
   let strategy: RateCalculationStrategy;
@@ -49,6 +77,8 @@ export const calculateRate = (
     strategy = ParaswapRateStrategy;
   } else if (isJupiterQuote(quote)) {
     strategy = JupiterRateStrategy;
+  } else if (isMarkrQuote(quote)) {
+    strategy = MarkrRateStrategy;
   } else {
     strategy = WrapUnwrapRateStrategy;
   }

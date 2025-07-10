@@ -29,6 +29,12 @@ export enum SwapErrorCode {
   InvalidParams = 'invalid-params',
   FeatureDisabled = 'feature-disabled',
   TransactionError = 'transaction-error',
+  IncorrectTokenAddress = 'incorrect-token-address',
+  WrongQuoteProvider = 'wrong-quote-provider',
+  CannotFetchSpender = 'cannot-fetch-spender',
+  ApprovalTxFailed = 'approval-tx-failed',
+  InvalidSlippageTolerance = 'invalid-slippage-tolerance',
+  InsufficientBalance = 'insufficient-balance',
 }
 
 export enum VMModuleError {

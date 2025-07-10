@@ -56,6 +56,7 @@ export enum FeatureGates {
   GASLESS = 'gasless',
   SOLANA_SUPPORT = 'solana-support',
   CORE_ASSISTANT = 'core-assistant',
+  SWAP_USE_MARKR = 'swap-use-markr',
 }
 
 export enum FeatureFlagEvents {
