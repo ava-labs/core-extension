@@ -5,7 +5,6 @@ import { cloneElement, FC, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RenamableTitle } from '../../RenamableTitle';
 import * as Styled from './Styled';
-import { ViewPChainButton } from './ViewPChainButton';
 import { WalletIconProps } from './WalletIcon';
 interface WalletCardProps {
   id: WalletDetails['id'];
@@ -25,12 +24,8 @@ export const WalletCard: FC<WalletCardProps> = ({
   name,
 }) => {
   const { t } = useTranslation();
-  const {
-    isLoading,
-    hasErrorOccurred,
-    totalBalanceInCurrency,
-    hasBalanceOnUnderivedAccounts,
-  } = useWalletTotalBalance(id);
+  const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
+    useWalletTotalBalance(id);
   const { currencyFormatter } = useSettingsContext();
 
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
@@ -87,7 +82,6 @@ export const WalletCard: FC<WalletCardProps> = ({
         </Styled.AccordionSummary>
         <Styled.AccordionDetails>{children}</Styled.AccordionDetails>
       </Styled.Accordion>
-      {isExpanded && hasBalanceOnUnderivedAccounts && <ViewPChainButton />}
     </>
   );
 };
