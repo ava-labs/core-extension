@@ -5,6 +5,7 @@ export enum ExtensionRequest {
   MNEMONIC_ONBOARDING_SUBMIT = 'mnemonic_onboarding_submit',
   SEEDLESS_ONBOARDING_SUBMIT = 'seedless_onboarding_submit',
   KEYSTONE_ONBOARDING_SUBMIT = 'keystone_onboarding_submit',
+  KEYSTONE_ONBOARDING_SUBMIT_NEW = 'keystone_onboarding_submit_new',
   LEDGER_ONBOARDING_SUBMIT = 'ledger_onboarding_submit',
   LEDGER_ONBOARDING_SUBMIT_NEW = 'ledger_onboarding_submit_new',
 

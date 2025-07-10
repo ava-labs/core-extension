@@ -145,6 +145,7 @@ import { UnsubscribeFromNotification } from '../../services/notifications/handle
 import { GetNotificationSubscriptions } from '../../services/notifications/handlers/getSubscriptions';
 import { SubscriptionsChangedEvents } from '../../services/notifications/events/subscriptionsChangedEvent';
 import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
+import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/keystoneOnboardingHandlerNew';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -446,6 +447,10 @@ import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledge
   {
     token: 'ExtensionRequestHandler',
     useToken: LedgerOnboardingHandlerNew,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: KeystoneOnboardingHandlerNew,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
