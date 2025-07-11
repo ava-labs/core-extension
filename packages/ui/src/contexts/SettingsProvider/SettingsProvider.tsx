@@ -27,6 +27,7 @@ import { omit, set } from 'lodash';
 import {
   createContext,
   Dispatch,
+  PropsWithChildren,
   SetStateAction,
   useCallback,
   useContext,
@@ -66,7 +67,11 @@ type SettingsFromProvider = SettingsState & {
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
-export function SettingsContextProvider({ children }: { children?: any }) {
+export function SettingsContextProvider({
+  children,
+}: {
+  children?: PropsWithChildren;
+}) {
   const { request, events } = useConnectionContext();
   const [settings, setSettings] = useState<SettingsState>();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
