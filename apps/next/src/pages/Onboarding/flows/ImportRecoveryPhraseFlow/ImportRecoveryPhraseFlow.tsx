@@ -1,13 +1,13 @@
-import { useCallback, useEffect } from 'react';
 import { WalletType } from '@avalabs/types';
+import { useCallback, useEffect } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import {
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
 import { EnterRecoveryPhraseScreen } from './screens';
 
@@ -16,13 +16,8 @@ const TOTAL_STEPS = 5;
 
 export const ImportRecoveryPhraseFlow = () => {
   const history = useHistory();
-  const {
-    setAvatar,
-    setOnboardingWalletType,
-    mnemonic,
-    setMnemonic,
-    onboardingState,
-  } = useOnboardingContext();
+  const { setOnboardingWalletType, mnemonic, setMnemonic, onboardingState } =
+    useOnboardingContext();
   const { capture } = useAnalyticsContext();
 
   useEffect(() => {
@@ -50,14 +45,10 @@ export const ImportRecoveryPhraseFlow = () => {
     history.push(`${BASE_PATH}/select-avatar`);
   }, [history]);
 
-  const onAvatarSelected = useCallback(
-    (avatarUri: string) => {
-      setAvatar(avatarUri);
-      capture('OnboardingAvatarSelected');
-      history.push(`${BASE_PATH}/enjoy-your-wallet`);
-    },
-    [capture, setAvatar, history],
-  );
+  const onAvatarSelected = useCallback(() => {
+    capture('OnboardingAvatarSelected');
+    history.push(`${BASE_PATH}/enjoy-your-wallet`);
+  }, [capture, history]);
 
   return (
     <Switch>

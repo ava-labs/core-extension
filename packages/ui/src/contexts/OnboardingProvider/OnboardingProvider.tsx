@@ -1,4 +1,5 @@
 import { WalletType } from '@avalabs/types';
+import { Monitoring, signUpForNewsletter } from '@core/common';
 import type {
   GetIsOnboardedHandler,
   KeystoneOnboardingHandler,
@@ -17,7 +18,6 @@ import {
   PubKeyType,
   SeedlessAuthProvider,
 } from '@core/types';
-import { Monitoring, signUpForNewsletter } from '@core/common';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import {
   createContext,
@@ -33,10 +33,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
+import { isSpecificContextContainer } from '../../utils';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { onboardingUpdatedEventListener } from './listeners';
-import { isSpecificContextContainer } from '../../utils';
 
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
@@ -52,8 +52,6 @@ const OnboardingContext = createContext<{
   setPassword: Dispatch<SetStateAction<string>>;
   walletName: string;
   setWalletName: Dispatch<SetStateAction<string>>;
-  avatar: string;
-  setAvatar: Dispatch<SetStateAction<string>>;
   setPasswordAndNames: (password: string, walletName: string) => void;
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
@@ -104,8 +102,6 @@ export function OnboardingContextProvider({
   const [nextPhase, setNextPhase] = useState<OnboardingPhase>();
 
   const [mnemonic, setMnemonic] = useState('');
-
-  const [avatar, setAvatar] = useState<string>('');
 
   const [xpub, setXpub] = useState('');
 
@@ -474,8 +470,6 @@ export function OnboardingContextProvider({
         setMnemonic,
         setXpub,
         setXpubXP,
-        avatar,
-        setAvatar,
         password,
         setPassword,
         walletName,
