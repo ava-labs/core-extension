@@ -1,5 +1,3 @@
-import { FC, Suspense, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   CircularProgress,
@@ -7,6 +5,8 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-alpine';
+import { FC, Suspense, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { action } from 'webextension-polyfill';
 
 import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
@@ -16,7 +16,7 @@ import {
   OnboardingStepContent,
   useModalPageControl,
 } from '@/components/OnboardingModal';
-import { AVATAR_OPTIONS, PersonalAvatar } from '@/components/PersonalAvatar';
+import { PersonalAvatar } from '@/components/PersonalAvatar';
 
 import { LoadingScreen } from '../components/LoadingScreen';
 
@@ -24,11 +24,7 @@ export const EnjoyYourWalletScreen: FC = () => {
   const { t } = useTranslation();
   const { setCurrent, setTotal, setIsBackButtonVisible } =
     useModalPageControl();
-  const {
-    avatar: avatarDataUri,
-    submitInProgress,
-    submit,
-  } = useOnboardingContext();
+  const { submitInProgress, submit } = useOnboardingContext();
 
   useEffect(() => {
     // We don't want to display any page controls on the last screen
@@ -45,11 +41,6 @@ export const EnjoyYourWalletScreen: FC = () => {
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: openWallet,
   });
-
-  // If for whatever reason we did not save the avatar, use a fallback
-  const avatarProps = avatarDataUri
-    ? { dataUri: avatarDataUri }
-    : { name: AVATAR_OPTIONS[0] };
 
   useEffect(() => {
     if (!submitInProgress) {
@@ -72,7 +63,7 @@ export const EnjoyYourWalletScreen: FC = () => {
           }}
         >
           <Suspense fallback={<LoadingScreen />}>
-            <PersonalAvatar {...avatarProps} size="large" isGlowing />
+            <PersonalAvatar cached size="large" isGlowing />
           </Suspense>
         </Stack>
         {submitInProgress ? (
