@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  KeystoneContextProvider,
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
@@ -32,33 +33,35 @@ export function App() {
       <AccountsContextProvider>
         <NetworkContextProvider>
           <LedgerContextProvider>
-            <OnboardingContextProvider
-              onError={(message: string) => toast.error(message)}
-              LoadingComponent={CircularProgress}
-              OnboardingScreen={Onboarding}
-            >
-              <WalletContextProvider LockedComponent={LockScreen}>
-                <Switch>
-                  <Route
-                    path="/account-management"
-                    component={AccountManagement}
-                  />
-                  <Route
-                    path="/"
-                    render={() => (
-                      <div>
-                        <div>Under construction 🚧</div>
-                        <IconButton
-                          onClick={() => history.push('/account-management')}
-                        >
-                          <MdSwitchAccount />
-                        </IconButton>
-                      </div>
-                    )}
-                  />
-                </Switch>
-              </WalletContextProvider>
-            </OnboardingContextProvider>
+            <KeystoneContextProvider>
+              <OnboardingContextProvider
+                onError={(message: string) => toast.error(message)}
+                LoadingComponent={CircularProgress}
+                OnboardingScreen={Onboarding}
+              >
+                <WalletContextProvider LockedComponent={LockScreen}>
+                  <Switch>
+                    <Route
+                      path="/account-management"
+                      component={AccountManagement}
+                    />
+                    <Route
+                      path="/"
+                      render={() => (
+                        <div>
+                          <div>Under construction 🚧</div>
+                          <IconButton
+                            onClick={() => history.push('/account-management')}
+                          >
+                            <MdSwitchAccount />
+                          </IconButton>
+                        </div>
+                      )}
+                    />
+                  </Switch>
+                </WalletContextProvider>
+              </OnboardingContextProvider>
+            </KeystoneContextProvider>
           </LedgerContextProvider>
         </NetworkContextProvider>
       </AccountsContextProvider>

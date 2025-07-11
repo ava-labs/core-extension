@@ -14,7 +14,6 @@ export function useCameraPermissions() {
     setPermissions(permissionsObserver.state);
     setObserver(permissionsObserver);
   }, []);
-
   useEffect(() => {
     getPermissions();
   }, [getPermissions]);
@@ -32,5 +31,15 @@ export function useCameraPermissions() {
   return {
     permissions,
     refreshPermissions: getPermissions,
+    prompt,
   };
 }
+
+const prompt = () =>
+  navigator.mediaDevices
+    .getUserMedia({
+      video: true,
+    })
+    .catch(() => {
+      // Observer will notify us about the change if it occurs.
+    });
