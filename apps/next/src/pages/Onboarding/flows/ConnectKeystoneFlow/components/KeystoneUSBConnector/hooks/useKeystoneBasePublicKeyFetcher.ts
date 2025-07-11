@@ -115,7 +115,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher =
         const timer = setTimeout(() => {
           setStatus('error');
           setError('unable-to-connect');
-        }, 2_000); // Give the user 20 seconds to connect their keystone, then show an error message with some instructions
+        }, 20_000); // Give the user 20 seconds to connect their keystone, then show an error message with some instructions
 
         return () => clearTimeout(timer);
       }
