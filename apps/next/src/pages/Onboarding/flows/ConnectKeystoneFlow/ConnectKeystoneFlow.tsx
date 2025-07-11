@@ -25,7 +25,6 @@ export const ConnectKeystoneFlow = () => {
   const {
     addressPublicKeys,
     onboardingState,
-    setAvatar,
     setOnboardingWalletType,
     setExtendedPublicKeys,
     setMasterFingerprint,
@@ -53,14 +52,10 @@ export const ConnectKeystoneFlow = () => {
     return resetStates;
   }, [setOnboardingWalletType, resetStates]);
 
-  const onAvatarSelected = useCallback(
-    (avatarUri: string) => {
-      setAvatar(avatarUri);
-      capture('OnboardingAvatarSelected');
-      history.push(`${BASE_PATH}/enjoy-your-wallet`);
-    },
-    [capture, history, setAvatar],
-  );
+  const onAvatarSelected = useCallback(() => {
+    capture('OnboardingAvatarSelected');
+    history.push(`${BASE_PATH}/enjoy-your-wallet`);
+  }, [capture, history]);
 
   const onQRCodeScanned = useCallback(
     (obtainedKeys: QRCodeDerivedKeys) => {
