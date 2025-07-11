@@ -1,5 +1,5 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { OptimalRate, SwapSide } from '@paraswap/sdk';
+import { SwapSide } from '@paraswap/sdk';
 import Big from 'big.js';
 import {
   createContext,
@@ -31,7 +31,6 @@ import { SwapErrorCode } from '@core/types';
 import {
   DISALLOWED_SWAP_ASSETS,
   GetRateParams,
-  JupiterQuote,
   OnTransactionReceiptCallback,
   SwapContextAPI,
   SwapError,
@@ -40,14 +39,14 @@ import {
   isJupiterSwapParams,
   isParaswapSwapParams,
   SwapQuote,
-  isUnwrapOperationParams,
-  isWrapOperationParams,
-  UnwrapOperation,
-  WrapOperation,
+  isEvmWrapSwapParams,
+  isMarkrSwapParams,
+  isEvmUnwrapSwapParams,
 } from './models';
 import { swapError } from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
+import { NormalizedSwapQuoteResult } from './types';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -81,9 +80,11 @@ export function SwapContextProvider({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
 
-  const [quote, setQuote] = useState<SwapQuote | null>(null);
+  const [quotes, setQuotes] = useState<NormalizedSwapQuoteResult | null>(null);
+  const [manuallySelected, setManuallySelected] = useState<boolean>(false);
   const [error, setError] = useState<SwapError>({ message: '' });
   const [destAmount, setDestAmount] = useState('');
+  const [srcAmount, setSrcAmount] = useState('');
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
 
   const findSymbol = useCallback(
@@ -112,7 +113,7 @@ export function SwapContextProvider({
       userAddress,
       srcToken,
       destToken,
-      srcAmount,
+      srcAmount: resultSrcAmount,
       destAmount: resultDestAmount,
       srcDecimals,
       destDecimals,
@@ -125,7 +126,7 @@ export function SwapContextProvider({
 
       const srcAsset = findSymbol(srcToken);
       const destAsset = findSymbol(destToken);
-      const srcAssetAmount = new Big(srcAmount)
+      const srcAssetAmount = new Big(resultSrcAmount)
         .div(10 ** srcDecimals)
         .toString();
       const destAssetAmount = new Big(resultDestAmount)
@@ -211,13 +212,7 @@ export function SwapContextProvider({
   );
 
   const swap = useCallback(
-    async (
-      params:
-        | SwapParams<OptimalRate>
-        | SwapParams<WrapOperation>
-        | SwapParams<UnwrapOperation>
-        | SwapParams<JupiterQuote>,
-    ) => {
+    async (params: SwapParams<SwapQuote>) => {
       if (isSolanaNetwork(activeNetwork)) {
         if (!isJupiterSwapParams(params)) {
           throw swapError(SwapErrorCode.InvalidParams);
@@ -228,8 +223,9 @@ export function SwapContextProvider({
 
       if (
         !isParaswapSwapParams(params) &&
-        !isWrapOperationParams(params) &&
-        !isUnwrapOperationParams(params)
+        !isEvmWrapSwapParams(params) &&
+        !isEvmUnwrapSwapParams(params) &&
+        !isMarkrSwapParams(params)
       ) {
         throw swapError(SwapErrorCode.InvalidParams);
       }
@@ -274,7 +270,7 @@ export function SwapContextProvider({
             const amountString = amount.toString();
 
             if (amountString === '0') {
-              setQuote(null);
+              setQuotes(null);
               setError({ message: t('Please enter an amount') });
               setDestAmount('');
               setIsSwapLoading(false);
@@ -293,18 +289,31 @@ export function SwapContextProvider({
               swapSide,
               fromTokenBalance,
               slippageTolerance,
+              onUpdate: (update: NormalizedSwapQuoteResult) => {
+                setManuallySelected(false);
+                setQuotes(update);
+                const selected = update.selected;
+                // Set amountOut for sell side
+                const amountOut = selected.metadata.amountOut;
+                if (amountOut && typeof amountOut === 'string') {
+                  setDestAmount(amountOut);
+                }
+                // Set amountIn for buy side
+                const amountIn = selected.metadata.amountIn;
+                if (amountIn && typeof amountIn === 'string') {
+                  setSrcAmount(amountIn);
+                }
+              },
             })
               .then((result) => {
-                if (result.error) {
-                  setError(result.error);
-                  setQuote(null);
-                } else {
-                  setQuote(result.quote);
+                if (result) {
+                  setQuotes(result);
                   setError({ message: '' });
-                }
-
-                if (typeof result.destAmount === 'string') {
-                  setDestAmount(result.destAmount);
+                  const selected = result.selected;
+                  const amountOut = selected.metadata.amountOut;
+                  if (amountOut && typeof amountOut === 'string') {
+                    setDestAmount(amountOut);
+                  }
                 }
               })
               .catch((err) => {
@@ -314,7 +323,7 @@ export function SwapContextProvider({
                   err as Error,
                   Monitoring.SentryExceptionTypes.SWAP,
                 );
-                setQuote(null);
+                setQuotes(null);
                 setError({ message: t('An unknown error occurred') });
               })
               .finally(() => {
@@ -322,7 +331,7 @@ export function SwapContextProvider({
               });
           } else {
             setDestAmount('');
-            setQuote(null);
+            setQuotes(null);
           }
         },
       );
@@ -341,11 +350,15 @@ export function SwapContextProvider({
         setError,
         isSwapLoading,
         setIsSwapLoading,
-        quote,
-        setQuote,
+        quotes,
+        setQuotes,
+        manuallySelected,
+        setManuallySelected,
         swapFormValuesStream,
         destAmount,
         setDestAmount,
+        srcAmount,
+        setSrcAmount,
       }}
     >
       {children}

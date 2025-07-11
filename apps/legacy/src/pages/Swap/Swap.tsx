@@ -95,7 +95,10 @@ export function Swap() {
     swapWarning,
     isReversed,
     toTokenValue,
-    quote,
+    quotes,
+    setQuotes,
+    manuallySelected,
+    setManuallySelected,
     destAmount,
     resetValues,
     slippageTolerance,
@@ -111,6 +114,27 @@ export function Swap() {
       ),
     [targetTokens, selectedFromToken?.name, selectedFromToken?.symbol],
   );
+
+  const quote = useMemo(() => {
+    if (!quotes || !quotes.selected) {
+      return null;
+    }
+    return quotes.selected.quote;
+  }, [quotes]);
+
+  const amountOut = useMemo(() => {
+    if (!quotes || !quotes.selected) {
+      return null;
+    }
+    return quotes.selected.metadata.amountOut as string;
+  }, [quotes]);
+
+  const amountIn = useMemo(() => {
+    if (!quotes || !quotes.selected) {
+      return null;
+    }
+    return quotes.selected.metadata.amountIn as string;
+  }, [quotes]);
 
   const isFromTokenKnown = useMemo(
     () =>
@@ -152,19 +176,21 @@ export function Swap() {
 
   const fromAmount = useMemo(() => {
     const result =
-      destinationInputField === 'from' ? BigInt(destAmount) : defaultFromValue;
+      destinationInputField === 'from'
+        ? BigInt(amountIn || '0') // todo: check if this is correct
+        : defaultFromValue;
 
     return result;
-  }, [defaultFromValue, destAmount, destinationInputField]);
+  }, [amountIn, defaultFromValue, destinationInputField]);
 
   const toAmount = useMemo(() => {
     const result =
       destinationInputField === 'to'
-        ? BigInt(destAmount)
+        ? BigInt(amountOut || '0')
         : toTokenValue?.bigint;
 
     return result;
-  }, [destAmount, destinationInputField, toTokenValue]);
+  }, [amountOut, destinationInputField, toTokenValue]);
 
   const fromTokensList = useMemo(
     () =>
@@ -191,6 +217,7 @@ export function Swap() {
       !fromTokenAddress ||
       !fromTokenDecimals ||
       !amount ||
+      !quotes ||
       !quote
     ) {
       return;
@@ -208,6 +235,9 @@ export function Swap() {
         destDecimals: toTokenDecimals,
         quote,
         slippage: parseFloat(slippage),
+        swapProvider: quotes.provider,
+        amountIn: amount.toString(),
+        amountOut: destAmount,
       }),
     );
 
@@ -424,7 +454,12 @@ export function Swap() {
           {isDetailsAvailable && (
             <TransactionDetails
               quote={quote}
+              quotes={quotes}
+              setQuotes={setQuotes}
+              manuallySelected={manuallySelected}
+              setManuallySelected={setManuallySelected}
               fromTokenSymbol={selectedFromToken?.symbol}
+              toToken={selectedToToken}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(quote, {
                 srcDecimals: selectedFromToken?.decimals,
