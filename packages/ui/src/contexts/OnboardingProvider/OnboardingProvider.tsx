@@ -23,6 +23,7 @@ import {
   createContext,
   Dispatch,
   PropsWithChildren,
+  ReactNode,
   SetStateAction,
   Suspense,
   useCallback,
@@ -90,7 +91,7 @@ export function OnboardingContextProvider({
   OnboardingScreen,
   onError,
 }: PropsWithChildren<{
-  children: any;
+  children?: ReactNode;
   LoadingComponent: React.FC;
   OnboardingScreen: React.FC;
   onError: (message: string) => void;

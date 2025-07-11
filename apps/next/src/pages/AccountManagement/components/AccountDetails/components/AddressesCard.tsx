@@ -1,4 +1,4 @@
-import { AddressItem } from '@/pages/AccountManagement/components/AddressItem';
+import { AddressItem } from '@/components/Address/AddressItem';
 import {
   BitcoinColorIcon,
   CChainIcon,
