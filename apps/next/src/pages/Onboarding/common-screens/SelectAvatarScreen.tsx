@@ -14,7 +14,7 @@ import {
 import {
   AVATAR_OPTIONS,
   PersonalAvatar,
-  usePersonalAvatarSaver,
+  usePersonalAvatar,
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
@@ -34,7 +34,7 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
 }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
-  const saveAvatar = usePersonalAvatarSaver();
+  const { saveAvatar } = usePersonalAvatar();
   const [selectedAvatar, setSelectedAvatar] = useState<PersonalAvatarName>(
     AVATAR_OPTIONS[0],
   );
