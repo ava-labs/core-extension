@@ -6,7 +6,10 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import {
   Button,
+  Card,
   CircularProgress,
+  IconButton,
+  InputAdornment,
   Stack,
   TextField,
   toast,
@@ -24,20 +27,22 @@ import { DerivedAddressList } from './DerivedAddressList';
 import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
+import { EyeIcon, EyeOffIcon } from '@avalabs/core-k2-components';
 
 export const ImportPrivateKeyForm = () => {
   const { t } = useTranslation();
+  const { replace } = useHistory();
+
   const { allAccounts, selectAccount } = useAccountsContext();
   const { network } = useNetworkContext();
   const { updateBalanceOnNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
 
-  const { replace } = useHistory();
-
   const [isKnownAccount, setIsKnownAccount] = useState(false);
   const [privateKey, setPrivateKey] = useState('');
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
 
@@ -146,35 +151,84 @@ export const ImportPrivateKeyForm = () => {
     }
   };
 
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+  };
+  const handleMouseUpPassword = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    event.preventDefault();
+  };
+
   return (
-    <Stack>
-      <Typography variant="h2">{t('Import private key')}</Typography>
+    <Stack sx={{ height: '100%' }}>
+      <Typography variant="h2" sx={{ mt: '23px', mb: 6 }}>
+        {t('Import private key')}
+      </Typography>
 
-      <TextField onChange={keyInputHandler} />
-      {error && <Typography color="error">{error}</Typography>}
-      <DerivedAddressList
-        derivedAddresses={derivedAddresses}
-        isLoading={isImportLoading}
-      />
+      <Stack sx={{ rowGap: 2 }}>
+        <TextField
+          onChange={keyInputHandler}
+          type={showPassword ? 'text' : 'password'}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label={
+                      showPassword
+                        ? 'hide the password'
+                        : 'display the password'
+                    }
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    onMouseUp={handleMouseUpPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
+          }}
+          label={t('Enter private key')}
+        />
+        {error && <Typography color="error">{error}</Typography>}
+        <DerivedAddressList
+          derivedAddresses={derivedAddresses}
+          isLoading={isImportLoading}
+        />
 
-      {derivedAddresses && (
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
-            {t('Total Balance')}
-          </Typography>
-          <Typography variant="body2">
-            {isBalanceLoading ? (
-              <CircularProgress size={16} />
-            ) : balance !== null && balance?.sum ? (
-              currencyFormatter(balance?.sum).replace(currency, '')
-            ) : (
-              '-'
-            )}
-          </Typography>
-        </Stack>
-      )}
-
-      <Button disabled={!readyToImport} onClick={handleImport}>
+        {derivedAddresses && (
+          <Card sx={{ p: 2 }}>
+            <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 'fontWeightSemibold' }}
+              >
+                {t('Total Balance')}
+              </Typography>
+              <Typography variant="body2">
+                {isBalanceLoading ? (
+                  <CircularProgress size={16} />
+                ) : balance !== null && balance?.sum ? (
+                  currencyFormatter(balance?.sum).replace(currency, '')
+                ) : (
+                  '-'
+                )}
+              </Typography>
+            </Stack>
+          </Card>
+        )}
+      </Stack>
+      <Button
+        disabled={!readyToImport}
+        onClick={handleImport}
+        sx={{ marginTop: 'auto' }}
+      >
         {t('Import')}
       </Button>
     </Stack>

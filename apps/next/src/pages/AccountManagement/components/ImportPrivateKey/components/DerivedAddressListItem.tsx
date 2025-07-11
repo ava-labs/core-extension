@@ -6,6 +6,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
+import { truncateAddress } from '@avalabs/k2-alpine';
 
 export enum NetworkType {
   AVALANCHE = 'avalanche',
@@ -52,8 +53,15 @@ export function DerivedAddressListItem({
           alignItems: 'center',
         }}
       >
+        <Typography
+          variant="body2"
+          sx={{ wordBreak: 'break-all', fontFamily: 'DejaVu Sans Mono' }}
+        >
+          {truncateAddress(address, 10)}
+        </Typography>
         <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-          {address}
+          {/* TODO: Add balance and fix color */}
+          {'$123.45'}
         </Typography>
         {isLoading && <CircularProgress size={16} />}
       </Stack>

@@ -1,4 +1,4 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Card, Stack } from '@avalabs/k2-alpine';
 import { DerivedAddresses } from '../types';
 import { DerivedAddressListItem, NetworkType } from './DerivedAddressListItem';
 
@@ -12,21 +12,23 @@ export const DerivedAddressList = ({
   isLoading,
 }: DerivedAddressesProps) => {
   return (
-    <Stack>
-      {derivedAddresses && (
-        <>
-          <DerivedAddressListItem
-            networkType={NetworkType.AVALANCHE}
-            address={derivedAddresses.addressC}
-            isLoading={isLoading}
-          />
-          <DerivedAddressListItem
-            networkType={NetworkType.BITCOIN}
-            address={derivedAddresses.addressBTC}
-            isLoading={isLoading}
-          />
-        </>
-      )}
-    </Stack>
+    <Card>
+      <Stack>
+        {derivedAddresses && (
+          <>
+            <DerivedAddressListItem
+              networkType={NetworkType.AVALANCHE}
+              address={derivedAddresses.addressC}
+              isLoading={isLoading}
+            />
+            <DerivedAddressListItem
+              networkType={NetworkType.BITCOIN}
+              address={derivedAddresses.addressBTC}
+              isLoading={isLoading}
+            />
+          </>
+        )}
+      </Stack>
+    </Card>
   );
 };
