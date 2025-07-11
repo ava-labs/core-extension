@@ -20,11 +20,7 @@ const FeatureFlagsContext = createContext<{
   isFlagEnabled: () => false,
 } as any);
 
-export function FeatureFlagsContextProvider({
-  children,
-}: {
-  children?: PropsWithChildren;
-}) {
+export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
   const { events, request } = useConnectionContext();
   const [featureFlags, setFeatureFlags] =
     useState<Record<FeatureGates, boolean>>(DEFAULT_FLAGS);
@@ -53,17 +49,18 @@ export function FeatureFlagsContextProvider({
       subscription.unsubscribe();
     };
   }, [events, request]);
-
-  return (
-    <FeatureFlagsContext.Provider
-      value={{
-        isFlagEnabled: (flagName) => featureFlags[flagName],
-        featureFlags,
-      }}
-    >
-      {children}
-    </FeatureFlagsContext.Provider>
-  );
+  if (children) {
+    return (
+      <FeatureFlagsContext.Provider
+        value={{
+          isFlagEnabled: (flagName) => featureFlags[flagName],
+          featureFlags,
+        }}
+      >
+        {children}
+      </FeatureFlagsContext.Provider>
+    );
+  }
 }
 
 export function useFeatureFlagContext() {
