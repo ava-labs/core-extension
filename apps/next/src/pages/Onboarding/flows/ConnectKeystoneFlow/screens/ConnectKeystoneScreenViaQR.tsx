@@ -10,12 +10,11 @@ import {
 } from '@/components/OnboardingModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
-import { KeystoneSupportButton } from '../components/Styled';
-import { KeystoneQRConnector } from '../components/KeystoneQRConnector';
-import { QRCodeDerivedKeys } from '../types';
+import { KeystoneSupportButton, KeystoneQRConnector } from '../components';
+import { DerivedKeys } from '../types';
 
 type ConnectKeystoneScreenViaQRProps = OnboardingScreenProps & {
-  onSuccess: (derivedInfo: QRCodeDerivedKeys) => void;
+  onSuccess: (derivedInfo: DerivedKeys) => void;
   onFailure: (isDimensionsError: boolean) => void;
   accountIndexes: number[];
 };

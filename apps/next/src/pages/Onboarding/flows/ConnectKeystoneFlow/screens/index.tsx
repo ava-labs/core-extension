@@ -1,2 +1,2 @@
-export * from './ChooseKeystoneScreen';
+export * from './ConnectKeystoneScreen';
 export * from './ConnectKeystoneScreenViaQR';
