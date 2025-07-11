@@ -6,6 +6,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import {
   Button,
+  CircularProgress,
   Stack,
   TextField,
   toast,
@@ -13,25 +14,32 @@ import {
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { useNetworkContext } from '@core/ui/src/contexts/NetworkProvider';
-import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { networks } from 'bitcoinjs-lib';
 import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
 import { useHistory } from 'react-router-dom';
+import { DerivedAddresses } from '../types';
+import { DerivedAddressList } from './DerivedAddressList';
+import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
+import { Account } from '@core/types';
+import { useBalancesContext, useSettingsContext } from '@core/ui';
 
-type DerivedAddresses = {
-  addressC: string;
-  addressBTC: string;
-};
 export const ImportPrivateKeyForm = () => {
   const { t } = useTranslation();
   const { allAccounts, selectAccount } = useAccountsContext();
-  const [isKnownAccount, setIsKnownAccount] = useState(false);
   const { network } = useNetworkContext();
+  const { updateBalanceOnNetworks } = useBalancesContext();
+  const { currency, currencyFormatter } = useSettingsContext();
+
   const { replace } = useHistory();
 
+  const [isKnownAccount, setIsKnownAccount] = useState(false);
   const [privateKey, setPrivateKey] = useState('');
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
+  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+
+  const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
 
   const [error, setError] = useState('');
   const [isDuplicatedAccountDialogOpen, setIsDuplicatedAccountDialogOpen] =
@@ -39,6 +47,15 @@ export const ImportPrivateKeyForm = () => {
 
   const { isImporting: isImportLoading, importPrivateKey } =
     useImportPrivateKey();
+
+  useEffect(() => {
+    if (derivedAddresses && updateBalanceOnNetworks) {
+      setIsBalanceLoading(true);
+      updateBalanceOnNetworks([derivedAddresses as Account]).finally(() =>
+        setIsBalanceLoading(false),
+      );
+    }
+  }, [derivedAddresses, updateBalanceOnNetworks]);
 
   const checkIfAccountExists = useCallback(
     (address) => {
@@ -135,6 +152,28 @@ export const ImportPrivateKeyForm = () => {
 
       <TextField onChange={keyInputHandler} />
       {error && <Typography color="error">{error}</Typography>}
+      <DerivedAddressList
+        derivedAddresses={derivedAddresses}
+        isLoading={isImportLoading}
+      />
+
+      {derivedAddresses && (
+        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+          <Typography variant="body2" sx={{ fontWeight: 'fontWeightSemibold' }}>
+            {t('Total Balance')}
+          </Typography>
+          <Typography variant="body2">
+            {isBalanceLoading ? (
+              <CircularProgress size={16} />
+            ) : balance !== null && balance?.sum ? (
+              currencyFormatter(balance?.sum).replace(currency, '')
+            ) : (
+              '-'
+            )}
+          </Typography>
+        </Stack>
+      )}
+
       <Button disabled={!readyToImport} onClick={handleImport}>
         {t('Import')}
       </Button>
