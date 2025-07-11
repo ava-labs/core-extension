@@ -3,8 +3,8 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack } from '@avalabs/k2-alpine';
 
+import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
 import * as Styled from '../Styled';
-import { DerivedAddresses } from '../DerivedAddresses';
 import {
   ConnectorCallbacks,
   DerivedKeys,

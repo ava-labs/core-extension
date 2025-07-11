@@ -3,6 +3,7 @@ import { Monitoring, signUpForNewsletter } from '@core/common';
 import type {
   GetIsOnboardedHandler,
   KeystoneOnboardingHandler,
+  KeystoneOnboardingHandlerNew,
   LedgerOnboardingHandler,
   LedgerOnboardingHandlerNew,
   MnemonicOnboardingHandler,
@@ -175,6 +176,8 @@ export function OnboardingContextProvider({
     setIsNewsletterEnabled(false);
     setNewsletterEmail('');
     setNumberOfAccountsToCreate(0);
+    setAddressPublicKeys([]);
+    setExtendedPublicKeys([]);
   }, []);
 
   useEffect(() => {
@@ -336,6 +339,33 @@ export function OnboardingContextProvider({
     xpubXP,
   ]);
 
+  const submitKeystoneNew = useCallback(() => {
+    return request<KeystoneOnboardingHandlerNew>({
+      method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT_NEW,
+      params: [
+        {
+          masterFingerprint,
+          addressPublicKeys,
+          extendedPublicKeys,
+          password,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [
+    analyticsConsent,
+    addressPublicKeys,
+    extendedPublicKeys,
+    masterFingerprint,
+    password,
+    request,
+    walletName,
+  ]);
+
+  /**
+   * @deprecated Try to use submitKeystoneNew() instead
+   */
   const submitKeystone = useCallback(() => {
     return request<KeystoneOnboardingHandler>({
       method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
@@ -380,7 +410,8 @@ export function OnboardingContextProvider({
       }
 
       if (!handler && onboardingWalletType === WalletType.Keystone) {
-        handler = submitKeystone;
+        handler =
+          addressPublicKeys.length > 0 ? submitKeystoneNew : submitKeystone;
       }
 
       if (!handler && onboardingWalletType === WalletType.Ledger) {
@@ -440,6 +471,7 @@ export function OnboardingContextProvider({
       resetStates,
       submitInProgress,
       submitKeystone,
+      submitKeystoneNew,
       submitLedger,
       submitMnemonic,
       submitSeedless,
