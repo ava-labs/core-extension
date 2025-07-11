@@ -109,7 +109,8 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher =
         setStatus('ready');
         setError(undefined);
       } else if (!hasKeystoneTransport && !wasTransportAttempted) {
-        popDeviceSelection().then(initKeystoneTransport);
+        popDeviceSelection();
+        initKeystoneTransport();
       } else if (!hasKeystoneTransport) {
         const timer = setTimeout(() => {
           setStatus('error');
