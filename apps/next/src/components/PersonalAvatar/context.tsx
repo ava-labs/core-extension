@@ -35,6 +35,7 @@ export const PersonalAvatarProvider: FC<PropsWithChildren> = ({ children }) => {
     async (avatarName: PersonalAvatarName) => {
       const dataUri = await getAvatarDataUri(avatarName);
       await localStorage.set(SELECTED_AVATAR_STORAGE_KEY, dataUri);
+      setAvatar(dataUri);
       return dataUri;
     },
     [localStorage],
