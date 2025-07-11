@@ -43,6 +43,7 @@ export const WalletList: FC = () => {
           key={IMPORTED_ACCOUNTS_WALLET_ID}
           id={IMPORTED_ACCOUNTS_WALLET_ID}
           name={t('Imported Accounts')}
+          disableRename
           icon={<WalletIcon type={SecretType.PrivateKey} />}
           initialExpanded={importedAccounts.some(isActiveAccount)}
         >

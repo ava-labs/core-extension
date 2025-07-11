@@ -19,7 +19,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
   describe('handleAuthenticated', () => {
     it('returns error when no active account available', async () => {
       const handler = new ConnectRequestHandler(
-        { activeAccount: undefined } as AccountsService,
+        { getActiveAccount: async () => undefined } as AccountsService,
         {} as PermissionsService,
       );
 
@@ -39,10 +39,10 @@ describe('background/services/web3/handlers/connect.ts', () => {
     it('returns active account address', async () => {
       const handler = new ConnectRequestHandler(
         {
-          activeAccount: {
+          getActiveAccount: async () => ({
             addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
             addressBTC: '',
-          },
+          }),
         } as AccountsService,
         {} as PermissionsService,
       );
@@ -120,6 +120,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
 
     const accountsServiceMock = {
       getAccountByID: jest.fn(),
+      getActiveAccount: jest.fn(),
       activateAccount: jest.fn(),
     };
 
@@ -204,12 +205,12 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         {
           ...accountsServiceMock,
-          activeAccount: {
+          getActiveAccount: async () => ({
             index: 2,
             id: 'uuid',
             addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
             type: AccountType.PRIMARY,
-          },
+          }),
         } as any,
         permissionServiceMock as any,
       );

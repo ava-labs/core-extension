@@ -20,13 +20,12 @@ export class FireblocksSecretsService extends FireblocksSecretsProvider {
   }
 
   async getSecrets(): Promise<{ apiKey: string; privateKey: KeyLike }> {
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       throw new Error('There is no active account!');
     }
     // By default thought, we'll get the credentials directly from SecretsService
-    const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const secrets = await this.secretsService.getAccountSecrets(activeAccount);
 
     if (secrets.secretType !== SecretType.Fireblocks) {
       throw new FireblocksBtcAccessError(

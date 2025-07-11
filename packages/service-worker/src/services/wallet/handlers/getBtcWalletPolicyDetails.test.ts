@@ -14,7 +14,7 @@ describe('src/background/services/wallet/handlers/getBtcWalletPolicyDetails.ts',
 
   const getAccountServiceMock = (activeAccount?: { type: AccountType }) =>
     ({
-      activeAccount,
+      getActiveAccount: async () => activeAccount,
     }) as any;
 
   beforeEach(() => {

@@ -110,7 +110,7 @@ export class GetPrivateKeyHandler implements HandlerType {
         }
       }
 
-      const account = this.accountsService.getAccountByID(accountId);
+      const account = await this.accountsService.getAccountByID(accountId);
 
       if (!account) {
         return {

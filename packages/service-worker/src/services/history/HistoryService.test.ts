@@ -31,12 +31,12 @@ describe('src/background/services/history/HistoryService.ts', () => {
     loadModuleByNetwork: jest.fn(),
   } as any;
   const accountsServiceMock = {
-    activeAccount: {
+    getActiveAccount: async () => ({
       addressC: 'addressC',
       addressBTC: 'addressBtc',
       addressPVM: 'addressBtc',
       addressAVM: 'addressBtc',
-    },
+    }),
   } as any;
   const unifiedBridgeServiceMock = {
     analyzeTx: jest.fn(),

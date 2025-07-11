@@ -23,7 +23,6 @@ import { sha256 } from '@noble/hashes/sha256';
 import {
   BytesLike,
   getBytes,
-  hashMessage,
   JsonRpcApiProvider,
   TransactionRequest,
 } from 'ethers';
@@ -600,10 +599,6 @@ export class SeedlessWallet {
       throw new Error('Public key not available');
     }
 
-    if (!this.#network) {
-      throw new Error('Network not available');
-    }
-
     if (messageType === MessageType.AVALANCHE_SIGN) {
       if (!this.#addressPublicKey.key) {
         throw new Error('X/P public key not available');
@@ -633,12 +628,7 @@ export class SeedlessWallet {
     switch (messageType) {
       case MessageType.ETH_SIGN:
       case MessageType.PERSONAL_SIGN:
-        return this.#signBlob(
-          addressEVM,
-          hashMessage(
-            Uint8Array.from(Buffer.from(strip0x(messageParams.data), 'hex')),
-          ),
-        );
+        return this.#signEip191(addressEVM, messageParams.data);
       case MessageType.SIGN_TYPED_DATA:
       case MessageType.SIGN_TYPED_DATA_V1:
         return this.#signBlob(
@@ -661,6 +651,16 @@ export class SeedlessWallet {
 
       default:
         throw new Error('Unknown message type method');
+    }
+  }
+
+  async #signEip191(address: string, data: string): Promise<string> {
+    try {
+      const session = await this.#getSession();
+      const response = await session.signEip191(address, { data });
+      return response.data().signature;
+    } catch (err) {
+      this.#handleError(err);
     }
   }
 

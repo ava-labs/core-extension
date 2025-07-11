@@ -117,9 +117,8 @@ export class BalanceNotificationService {
     ];
 
     // only evm addresses for now
-    const addresses = this.accountService
-      .getAccountList()
-      .map((account) => account.addressC);
+    const accounts = await this.accountService.getAccountList();
+    const addresses = accounts.map((account) => account.addressC);
 
     // no need to compare chain ids as they are fixed
     if (

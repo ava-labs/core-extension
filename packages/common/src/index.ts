@@ -4,3 +4,4 @@ export * from './constants';
 export * from './feature-flags';
 export * from './utils';
 export * from './initI18n';
+export * from './concurrency';

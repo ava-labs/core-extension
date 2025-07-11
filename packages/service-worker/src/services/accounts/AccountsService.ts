@@ -25,6 +25,7 @@ import {
   isProductionBuild,
   mapAddressesToVMs,
   mapVMAddresses,
+  ReadWriteLock,
 } from '@core/common';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
@@ -45,52 +46,50 @@ type AddAccountParams = {
 
 @singleton()
 export class AccountsService implements OnLock, OnUnlock {
+  #rwLock = new ReadWriteLock();
+
   private eventEmitter = new EventEmitter();
 
-  private _accounts: Accounts = {
+  #_accounts: Accounts = {
     active: undefined,
     primary: {},
     imported: {},
   };
 
-  private set accounts(accounts: Accounts) {
-    if (JSON.stringify(this._accounts) === JSON.stringify(accounts)) {
+  get #accounts() {
+    return this.#_accounts;
+  }
+
+  set #accounts(accounts: Accounts) {
+    if (JSON.stringify(this.#_accounts) === JSON.stringify(accounts)) {
       return;
     }
 
     const activeAccountChanged =
-      this._accounts.active?.id !== accounts.active?.id;
-    this._accounts = accounts;
+      this.#_accounts.active?.id !== accounts.active?.id;
+    this.#_accounts = accounts;
 
     if (Object.keys(accounts.primary).length > 0) {
       if (isPrimaryAccount(accounts.active)) {
         const activeWalletAccounts = accounts.primary[accounts.active.walletId];
 
-        this._accounts.active =
+        this.#_accounts.active =
           activeWalletAccounts?.[accounts.active.index] ?? // Try to restore the active account
           Object.values(accounts.primary).flat()[0]; // Fall back to the first primary account
       } else if (accounts.active) {
-        this._accounts.active = accounts.imported[accounts.active.id];
+        this.#_accounts.active = accounts.imported[accounts.active.id];
       }
-      this.saveAccounts(this._accounts);
+      this.saveAccounts(this.#_accounts);
     }
 
     if (activeAccountChanged) {
       this.eventEmitter.emit(
         AccountsEvents.ACTIVE_ACCOUNT_CHANGED,
-        this.accounts.active,
+        this.#_accounts.active,
       );
     }
 
-    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.accounts);
-  }
-
-  private get accounts() {
-    return this._accounts;
-  }
-
-  public get activeAccount() {
-    return this.accounts.active;
+    this.eventEmitter.emit(AccountsEvents.ACCOUNTS_UPDATED, this.#_accounts);
   }
 
   constructor(
@@ -112,12 +111,37 @@ export class AccountsService implements OnLock, OnUnlock {
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
   }
 
-  onLock() {
-    this.accounts = {
+  async getActiveAccount() {
+    const accounts = await this.getAccounts();
+    return accounts.active;
+  }
+
+  async getAccounts() {
+    await this.#rwLock.acquireReadLock();
+
+    try {
+      return this.#accounts;
+    } finally {
+      await this.#rwLock.releaseReadLock();
+    }
+  }
+
+  async #setAccounts(accounts: Accounts) {
+    await this.#rwLock.acquireReadLock();
+
+    try {
+      this.#accounts = accounts;
+    } finally {
+      await this.#rwLock.releaseReadLock();
+    }
+  }
+
+  async onLock() {
+    await this.#setAccounts({
       active: undefined,
       primary: {},
       imported: {},
-    };
+    });
 
     this.networkService.developerModeChanged.remove(
       this.onDeveloperModeChanged,
@@ -132,9 +156,9 @@ export class AccountsService implements OnLock, OnUnlock {
     // we need to change to the primary account instead.
     // UI is responsible for communicating this to the user.
     const isOnFireblocksAccount =
-      this.activeAccount?.type === AccountType.FIREBLOCKS;
+      this.#accounts.active?.type === AccountType.FIREBLOCKS;
 
-    const [primaryAccount] = Object.values(this.accounts.primary).flat();
+    const [primaryAccount] = Object.values(this.#accounts.primary).flat();
     const shouldSwitchToPrimaryAccount =
       primaryAccount &&
       isOnFireblocksAccount &&
@@ -147,71 +171,79 @@ export class AccountsService implements OnLock, OnUnlock {
   };
 
   private init = async (updateAddresses?: boolean) => {
-    const accounts = await this.loadAccounts();
+    await this.#rwLock.acquireWriteLock();
 
-    // no wallets added yet, onboarding is not finished
-    if (Object.keys(accounts.primary).length === 0) {
-      return;
-    }
+    try {
+      const accounts = await this.loadAccounts();
 
-    const refreshAccount = async <T extends Account>(
-      account: T,
-    ): Promise<T> => {
-      const isUpdated =
-        !updateAddresses &&
-        account.addressC &&
-        account.addressBTC &&
-        account.addressAVM &&
-        account.addressPVM &&
-        account.addressCoreEth;
-
-      if (isUpdated) {
-        return account;
+      // no wallets added yet, onboarding is not finished
+      if (Object.keys(accounts.primary).length === 0) {
+        return;
       }
 
-      const addresses = await this.getAddressesForAccount(account);
+      const refreshAccount = async <T extends Account>(
+        account: T,
+      ): Promise<T> => {
+        const isUpdated =
+          !updateAddresses &&
+          account.addressC &&
+          account.addressBTC &&
+          account.addressAVM &&
+          account.addressPVM &&
+          account.addressCoreEth;
 
-      return {
-        ...account,
-        ...addresses,
+        if (isUpdated) {
+          return account;
+        }
+
+        const addresses = await this.#getAddressesForAccount(account);
+
+        return {
+          ...account,
+          ...addresses,
+        };
       };
-    };
 
-    const [
-      activeWalletPrimaryAccountsWithAddresses,
-      importedAccountsWithAddresses,
-    ] = await Promise.all([
-      Promise.all(Object.values(accounts.primary).flat().map(refreshAccount)),
-      Promise.all(Object.values(accounts.imported).map(refreshAccount)),
-    ]);
+      const [
+        activeWalletPrimaryAccountsWithAddresses,
+        importedAccountsWithAddresses,
+      ] = await Promise.all([
+        Promise.all(Object.values(accounts.primary).flat().map(refreshAccount)),
+        Promise.all(Object.values(accounts.imported).map(refreshAccount)),
+      ]);
 
-    const primaryAccounts: Record<WalletId, PrimaryAccount[]> = {};
-    for (const account of activeWalletPrimaryAccountsWithAddresses) {
-      const walletAccounts =
-        primaryAccounts && primaryAccounts[account.walletId];
-      if (walletAccounts) {
-        primaryAccounts[account.walletId] = [...walletAccounts, account];
-        continue;
+      const primaryAccounts: Record<WalletId, PrimaryAccount[]> = {};
+      for (const account of activeWalletPrimaryAccountsWithAddresses) {
+        const walletAccounts =
+          primaryAccounts && primaryAccounts[account.walletId];
+        if (walletAccounts) {
+          primaryAccounts[account.walletId] = [...walletAccounts, account];
+          continue;
+        }
+        primaryAccounts[account.walletId] = [account];
       }
-      primaryAccounts[account.walletId] = [account];
-    }
 
-    const importedAccounts: Record<string, ImportedAccount> = {};
-    for (const account of importedAccountsWithAddresses) {
-      importedAccounts[account.id] = account;
-    }
+      const importedAccounts: Record<string, ImportedAccount> = {};
+      for (const account of importedAccountsWithAddresses) {
+        importedAccounts[account.id] = account;
+      }
 
-    if (!accounts.active) {
-      throw new Error('There is no active account to restore');
+      if (!accounts.active) {
+        throw new Error('There is no active account to restore');
+      }
+
+      // We're already wrapped in a read-write lock, so we can access .#accounts directly here.
+      this.#accounts = {
+        ...accounts,
+        primary: primaryAccounts,
+        imported: importedAccounts,
+      };
+    } finally {
+      await this.#rwLock.releaseWriteLock();
     }
-    this.accounts = {
-      ...accounts,
-      primary: primaryAccounts,
-      imported: importedAccounts,
-    };
   };
 
-  async getAddressesForAccount(
+  async #getAddressesForAccount(
     account: AccountWithOptionalAddresses,
   ): Promise<DerivedAddresses> {
     if (isPrimaryAccount(account)) {
@@ -246,20 +278,20 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async refreshAddressesForAccount(accountId: string): Promise<void> {
-    const account = this.getAccountByID(accountId);
+    const account = await this.getAccountByID(accountId);
 
     if (!account) {
       return;
     }
 
-    const addresses = await this.getAddressesForAccount(account);
+    const addresses = await this.#getAddressesForAccount(account);
     if (account.type === AccountType.PRIMARY) {
-      const walletAccounts = this.accounts.primary[account.walletId]!;
+      const walletAccounts = this.#accounts.primary[account.walletId]!;
 
-      this.accounts = {
-        ...this.accounts,
+      this.#accounts = {
+        ...this.#accounts,
         primary: {
-          ...this.accounts.primary,
+          ...this.#accounts.primary,
           [account.walletId]: Object.values(walletAccounts).map((acc) => {
             if (acc.id !== accountId) {
               return acc;
@@ -275,10 +307,10 @@ export class AccountsService implements OnLock, OnUnlock {
 
       return;
     } else {
-      this.accounts = {
-        ...this.accounts,
+      this.#accounts = {
+        ...this.#accounts,
         imported: {
-          ...this.accounts.imported,
+          ...this.#accounts.imported,
           [accountId]: {
             ...account,
             ...addresses,
@@ -305,34 +337,36 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.storageService.save<Accounts>(ACCOUNTS_STORAGE_KEY, accounts);
   }
 
-  getAccountByID(id: string) {
+  async getAccountByID(id: string) {
+    const accounts = await this.getAccounts();
+
     return (
-      this.accounts.imported[id] ??
-      Object.values(this.accounts.primary)
+      accounts.imported[id] ??
+      Object.values(accounts.primary)
         .flat()
         .find((acc) => acc.id === id)
     );
   }
 
-  getAccounts(): Accounts {
-    return this.accounts;
-  }
+  async getAccountList(): Promise<Account[]> {
+    const accounts = await this.getAccounts();
 
-  getAccountList(): Account[] {
     return [
-      ...Object.values(this.accounts.primary).flat(),
-      ...Object.values(this.accounts.imported),
+      ...Object.values(accounts.primary).flat(),
+      ...Object.values(accounts.imported),
     ];
   }
 
   #findAccountByAddress(addressC: string) {
-    return Object.values(this.accounts.imported).find(
+    return Object.values(this.#accounts.imported).find(
       (acc) => acc.addressC === addressC,
     );
   }
 
-  getPrimaryAccountsByWalletId(walletId: string) {
-    return this.accounts.primary[walletId] ?? [];
+  async getPrimaryAccountsByWalletId(walletId: string) {
+    const accounts = await this.getAccounts();
+
+    return accounts.primary[walletId] ?? [];
   }
 
   #buildAccount(
@@ -346,16 +380,19 @@ export class AccountsService implements OnLock, OnUnlock {
       ...accountData,
       name:
         suggestedName ||
-        `Imported Account ${Object.keys(this.accounts.imported).length + 1}`,
+        `Imported Account ${Object.keys(this.#accounts.imported).length + 1}`,
       type,
     };
   }
-  #getAllAddresses() {
-    return this.getAccountList().flatMap(getAllAddressesForAccount);
+
+  async #getAllAddresses() {
+    const accounts = await this.getAccountList();
+
+    return accounts.flatMap(getAllAddressesForAccount);
   }
 
   async addPrimaryAccount({ walletId }: AddAccountParams) {
-    const selectedWalletAccounts = this.accounts.primary[walletId] ?? [];
+    const selectedWalletAccounts = this.#accounts.primary[walletId] ?? [];
     const lastAccount = selectedWalletAccounts.at(-1);
 
     const nextIndex = lastAccount ? lastAccount.index + 1 : 0;
@@ -375,15 +412,15 @@ export class AccountsService implements OnLock, OnUnlock {
       addressResolver: this.addressResolver,
     });
 
-    const addresses = await this.getAddressesForAccount(newAccount);
+    const addresses = await this.#getAddressesForAccount(newAccount);
 
     assertPropDefined(addresses, 'addressC', AccountError.EVMAddressNotFound);
     assertPropDefined(addresses, 'addressBTC', AccountError.BTCAddressNotFound);
 
-    this.accounts = {
-      ...this.accounts,
+    await this.#setAccounts({
+      ...this.#accounts,
       primary: {
-        ...this.accounts.primary,
+        ...this.#accounts.primary,
         [walletId]: [
           ...selectedWalletAccounts,
           {
@@ -392,7 +429,7 @@ export class AccountsService implements OnLock, OnUnlock {
           },
         ],
       },
-    };
+    });
     await this.permissionsService.whitelistCoreDomains(
       mapAddressesToVMs({
         ...newAccount,
@@ -403,7 +440,7 @@ export class AccountsService implements OnLock, OnUnlock {
     this.analyticsServicePosthog.captureEncryptedEvent({
       name: 'addedNewPrimaryAccount',
       windowId: crypto.randomUUID(),
-      properties: { addresses: this.#getAllAddresses() },
+      properties: { addresses: await this.#getAllAddresses() },
     });
     return id;
   }
@@ -439,20 +476,20 @@ export class AccountsService implements OnLock, OnUnlock {
         name,
       );
 
-      this.accounts = {
-        ...this.accounts,
+      await this.#setAccounts({
+        ...this.#accounts,
         imported: {
-          ...this.accounts.imported,
+          ...this.#accounts.imported,
           [newAccount.id]: newAccount,
         },
-      };
+      });
       await this.permissionsService.whitelistCoreDomains(
         mapAddressesToVMs(newAccount),
       );
       this.analyticsServicePosthog.captureEncryptedEvent({
         name: 'addedNewImportedAccount',
         windowId: crypto.randomUUID(),
-        properties: { addresses: this.#getAllAddresses() },
+        properties: { addresses: await this.#getAllAddresses() },
       });
       return account.id;
     } catch (err) {
@@ -463,7 +500,7 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async setAccountName(id: string, name: string) {
-    const accountToChange = this.getAccountByID(id);
+    const accountToChange = await this.getAccountByID(id);
 
     if (!accountToChange) {
       throw new Error(`Account rename failed: account not found`);
@@ -478,15 +515,15 @@ export class AccountsService implements OnLock, OnUnlock {
 
   async #renameImportedAccount(account: ImportedAccount, name: string) {
     const accountWithNewName = { ...account, name };
-    const newAccounts = { ...this.accounts.imported };
+    const newAccounts = { ...this.#accounts.imported };
     newAccounts[account.id] = accountWithNewName;
-    this.accounts = { ...this.accounts, imported: newAccounts };
+    await this.#setAccounts({ ...this.#accounts, imported: newAccounts });
   }
 
   async #renamePrimaryAccount(account: PrimaryAccount, name: string) {
     const accountWithNewName = { ...account, name };
 
-    const walletAccounts = this.accounts.primary[account.walletId];
+    const walletAccounts = this.#accounts.primary[account.walletId];
 
     if (!walletAccounts) {
       throw new Error(
@@ -500,37 +537,41 @@ export class AccountsService implements OnLock, OnUnlock {
     const newWalletAccounts = [...walletAccounts];
     newWalletAccounts[account.index] = accountWithNewName;
 
-    this.accounts = {
-      ...this.accounts,
+    await this.#setAccounts({
+      ...this.#accounts,
       primary: {
-        ...this.accounts.primary,
+        ...this.#accounts.primary,
         [accountWithNewName.walletId]: newWalletAccounts,
       },
-    };
+    });
   }
 
   async activateAccount(id: string) {
-    const accountToActivate = this.getAccountByID(id);
+    const accountToActivate = await this.getAccountByID(id);
 
     if (!accountToActivate) {
       throw new Error(`Account activation failed: account not found`);
     }
 
-    this.accounts = {
-      ...this.accounts,
+    await this.#setAccounts({
+      ...this.#accounts,
       active: accountToActivate,
-    };
+    });
   }
 
   async deleteAccounts(ids: string[]) {
-    const { active } = this.accounts;
+    const accounts = await this.getAccounts();
 
-    const walletIds = Object.keys(this.accounts.primary);
+    const { active } = accounts;
 
-    const accountsCount = Object.values(this.accounts.primary).flat().length;
-    const importedAccountIds = ids.filter((id) => id in this.accounts.imported);
+    const walletIds = Object.keys(this.#accounts.primary);
+
+    const accountsCount = Object.values(this.#accounts.primary).flat().length;
+    const importedAccountIds = ids.filter(
+      (id) => id in this.#accounts.imported,
+    );
     const primaryAccountIds = ids.filter(
-      (id) => !(id in this.accounts.imported),
+      (id) => !(id in this.#accounts.imported),
     );
 
     if (accountsCount === primaryAccountIds.length) {
@@ -545,7 +586,7 @@ export class AccountsService implements OnLock, OnUnlock {
         continue;
       }
 
-      const walletAccounts = this.accounts.primary[walletId];
+      const walletAccounts = this.#accounts.primary[walletId];
       if (!walletAccounts) {
         continue;
       }
@@ -574,7 +615,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
 
     let newImportedAccounts: Record<string, ImportedAccount> = {};
-    for (const [walletId, values] of Object.entries(this.accounts.imported)) {
+    for (const [walletId, values] of Object.entries(this.#accounts.imported)) {
       if (!importedAccountIds.includes(walletId)) {
         newImportedAccounts = {
           ...newImportedAccounts,
@@ -593,7 +634,7 @@ export class AccountsService implements OnLock, OnUnlock {
     const newActiveAccount =
       active && ids.includes(active.id)
         ? firstPrimaryAccount
-        : this.accounts.active;
+        : this.#accounts.active;
 
     if (!newActiveAccount) {
       throw new Error('There is no new active account!');
@@ -604,11 +645,11 @@ export class AccountsService implements OnLock, OnUnlock {
       this.walletConnectService,
     );
 
-    this.accounts = {
+    await this.#setAccounts({
       primary: newPrimaryAccounts,
       imported: newImportedAccounts,
       active: newActiveAccount,
-    };
+    });
 
     return ids.length;
   }

@@ -42,15 +42,14 @@ export class GetUnencryptedMnemonicHandler implements HandlerType {
       };
     }
 
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       return {
         ...request,
         error: 'there is no active account',
       };
     }
-    const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const secrets = await this.secretsService.getAccountSecrets(activeAccount);
 
     if (secrets.secretType !== SecretType.Mnemonic) {
       return {

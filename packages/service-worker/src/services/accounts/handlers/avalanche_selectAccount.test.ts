@@ -22,6 +22,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
   const accountServiceMock = {
     getAccountList: jest.fn(),
     activateAccount: jest.fn(),
+    getActiveAccount: jest.fn(),
   } as any;
   const actionsServiceMock = {
     addAction: addActionMock,
@@ -90,7 +91,7 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
         type: AccountType.IMPORTED,
       };
 
-      accountServiceMock.getAccountList.mockReturnValue([account]);
+      accountServiceMock.getAccountList.mockResolvedValue([account]);
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,
         permissionsServiceMock,
@@ -207,7 +208,9 @@ describe('background/services/accounts/handlers/avalanche_selectAccount.ts', () 
       ];
 
       accountServiceMock.getAccountList.mockReturnValue(accounts);
-      accountServiceMock.activeAccount = accounts[2];
+      jest
+        .spyOn(accountServiceMock, 'getActiveAccount')
+        .mockResolvedValueOnce(accounts[2]);
 
       const handler = new AvalancheSelectAccountHandler(
         accountServiceMock,

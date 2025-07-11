@@ -44,13 +44,13 @@ export class UpdateSignerTokenHandler implements HandlerType {
     if (!userId) {
       return { ...request, error: 'missing user ID' };
     }
-    if (!this.accountsService.activeAccount) {
+
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       return { ...request, error: 'missing active account' };
     }
 
-    const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const secrets = await this.secretsService.getAccountSecrets(activeAccount);
 
     if (secrets.secretType !== SecretType.Seedless) {
       return {

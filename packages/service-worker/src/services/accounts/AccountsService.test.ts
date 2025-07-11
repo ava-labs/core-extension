@@ -226,7 +226,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.onUnlock();
 
-      const accounts = accountsService.getAccountList();
+      const accounts = await accountsService.getAccountList();
 
       expect(accounts).toStrictEqual([
         {
@@ -281,7 +281,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(emptyAccounts);
     });
 
     it('init returns with accounts not from updating', async () => {
@@ -294,7 +294,7 @@ describe('background/services/accounts/AccountsService', () => {
       expect(storageService.load).toHaveBeenCalledTimes(1);
       expect(storageService.load).toHaveBeenCalledWith(ACCOUNTS_STORAGE_KEY);
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       expect(accounts).toStrictEqual(mockedAccounts);
     });
@@ -341,7 +341,7 @@ describe('background/services/accounts/AccountsService', () => {
         DerivationPath.BIP44,
       );
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       expect(accounts).toStrictEqual(mockedAccounts);
     });
@@ -355,7 +355,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.onUnlock();
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
       expect(accounts).toStrictEqual(mockedAccounts);
 
       mockAddressResolution(true);
@@ -368,7 +368,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(addressResolver.getAddressesForSecretId).toHaveBeenCalledTimes(7);
 
-      const updatedAccounts = accountsService.getAccounts();
+      const updatedAccounts = await accountsService.getAccounts();
       expect(updatedAccounts).toStrictEqual(mockAccounts(true, true));
     });
   });
@@ -404,9 +404,9 @@ describe('background/services/accounts/AccountsService', () => {
       );
 
       expect(addressResolver.getAddressesForSecretId).toHaveBeenCalledTimes(1);
-      expect(accountsService.getAccounts().primary[0]).toEqual(
-        mockAccounts(true, true).primary[0],
-      );
+
+      const accounts = await accountsService.getAccounts();
+      expect(accounts.primary[0]).toEqual(mockAccounts(true, true).primary[0]);
     });
 
     it('correctly updates addresses for selected imported account', async () => {
@@ -422,7 +422,9 @@ describe('background/services/accounts/AccountsService', () => {
       expect(addressResolver.getAddressesForSecretId).toHaveBeenCalledWith(
         'fb-acc',
       );
-      expect(accountsService.getAccounts().imported['fb-acc']).toEqual({
+
+      const accounts = await accountsService.getAccounts();
+      expect(accounts.imported['fb-acc']).toEqual({
         ...mockAccounts(true, true).imported['fb-acc'],
         ...mapVMAddresses(emptyAddresses()),
         addressC: 'addressC-new',
@@ -467,10 +469,10 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       accountsService.onLock();
-      expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(emptyAccounts);
       expect(
         (networkService.developerModeChanged.add as jest.Mock).mock.calls[0][0],
       ).toBe(
@@ -488,8 +490,8 @@ describe('background/services/accounts/AccountsService', () => {
         AccountsEvents.ACCOUNTS_UPDATED,
         eventListener,
       );
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
-      accountsService.onLock();
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      await accountsService.onLock();
       expect(eventListener).toHaveBeenCalledWith(emptyAccounts);
     });
   });
@@ -503,7 +505,7 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       expect(accounts).toStrictEqual(mockedAccounts);
     });
@@ -539,7 +541,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(emptyAccounts);
 
       await accountsService.addPrimaryAccount({
         name: 'Account name',
@@ -553,7 +555,7 @@ describe('background/services/accounts/AccountsService', () => {
         addressResolver,
       });
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
       expect(accounts).toStrictEqual({
         primary: {
           [walletId]: [
@@ -594,7 +596,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.addPrimaryAccount({ walletId: WALLET_ID });
       expect(secretsService.addAddress).toBeCalledTimes(1);
@@ -609,7 +611,7 @@ describe('background/services/accounts/AccountsService', () => {
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       const newAccounts = { ...mockedAccounts };
       newAccounts.primary[walletId].push({
@@ -632,7 +634,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.addPrimaryAccount({
         name: 'New Account',
@@ -650,7 +652,7 @@ describe('background/services/accounts/AccountsService', () => {
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       const newAccounts = { ...mockedAccounts };
       newAccounts.primary[walletId].push({
@@ -718,7 +720,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(emptyAccounts);
 
       (secretsService.addImportedWallet as jest.Mock).mockResolvedValueOnce({
         account: {
@@ -743,7 +745,7 @@ describe('background/services/accounts/AccountsService', () => {
         mapAddressesToVMs(getAllAddresses() as Account),
       );
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
       expect(accounts).toStrictEqual({
         primary: {},
         imported: {
@@ -779,7 +781,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       (secretsService.addImportedWallet as jest.Mock).mockResolvedValueOnce({
         account: {
@@ -801,7 +803,7 @@ describe('background/services/accounts/AccountsService', () => {
         mapAddressesToVMs(getAllAddresses(true) as Account),
       );
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       const newAccounts = {
         ...mockedAccounts,
@@ -878,7 +880,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(storageService.load).toBeCalledTimes(1);
       expect(storageService.load).toBeCalledWith(ACCOUNTS_STORAGE_KEY);
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       (secretsService.addImportedWallet as jest.Mock).mockResolvedValueOnce({
         account: {
@@ -925,7 +927,7 @@ describe('background/services/accounts/AccountsService', () => {
 
     it('throws error if account not found', async () => {
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(emptyAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(emptyAccounts);
 
       await expect(
         accountsService.setAccountName('unknown-uuid', 'updated name'),
@@ -936,11 +938,11 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.setAccountName('uuid3', 'Updated Name');
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       expect(accounts.primary[walletId]).toEqual(
         mockedAccounts.primary[walletId],
@@ -955,10 +957,10 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.setAccountName('uuid2', 'Updated Name');
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
       const expectedAccounts = { ...mockedAccounts };
 
       expectedAccounts.primary[walletId][1]!.name = 'Updated Name';
@@ -969,10 +971,10 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.setAccountName('0x1', 'Updated Name');
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
       const expectedAccounts = { ...mockedAccounts };
       expectedAccounts.imported['0x1'].name = 'Updated Name';
       expect(accounts).toStrictEqual(expectedAccounts);
@@ -984,7 +986,7 @@ describe('background/services/accounts/AccountsService', () => {
       const eventListener = jest.fn();
 
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
@@ -995,7 +997,7 @@ describe('background/services/accounts/AccountsService', () => {
       await accountsService.setAccountName('uuid2', 'Updated Name');
       await accountsService.setAccountName('uuid2', 'Updated Name');
 
-      const result = accountsService.getAccounts();
+      const result = await accountsService.getAccounts();
       const expectedAccounts = mockAccounts(true);
 
       expectedAccounts.primary[walletId][1]!.name = 'Updated Name';
@@ -1015,10 +1017,10 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await expect(
-        accountsService.activateAccount('unknow-uuid'),
+        accountsService.activateAccount('unknown-uuid'),
       ).rejects.toThrow('Account activation failed: account not found');
     });
 
@@ -1026,10 +1028,10 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.activateAccount('uuid2');
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       expect(accounts).toStrictEqual(mockAccounts(true, false, 1));
     });
@@ -1038,10 +1040,10 @@ describe('background/services/accounts/AccountsService', () => {
       const mockedAccounts = mockAccounts(true);
       (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       await accountsService.activateAccount('0x1');
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
 
       const newAccounts = mockAccounts(true, false, '0x1');
       newAccounts.active = {
@@ -1077,7 +1079,7 @@ describe('background/services/accounts/AccountsService', () => {
       const eventListener = jest.fn();
 
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
@@ -1086,7 +1088,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.deleteAccounts(['0x1', '0x2']);
 
-      const result = accountsService.getAccounts();
+      const result = await accountsService.getAccounts();
       const expectedAccounts = {
         ...mockedAccounts,
         imported: {
@@ -1115,7 +1117,7 @@ describe('background/services/accounts/AccountsService', () => {
       const eventListener = jest.fn();
 
       await accountsService.onUnlock();
-      expect(accountsService.getAccounts()).toStrictEqual(mockedAccounts);
+      expect(await accountsService.getAccounts()).toStrictEqual(mockedAccounts);
 
       accountsService.addListener(
         AccountsEvents.ACCOUNTS_UPDATED,
@@ -1124,7 +1126,7 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.deleteAccounts(['0x1']);
 
-      const result = accountsService.getAccounts();
+      const result = await accountsService.getAccounts();
       const expectedAccounts = {
         ...mockedAccounts,
         active: mockedAccounts.primary[walletId][0],
@@ -1165,7 +1167,7 @@ describe('background/services/accounts/AccountsService', () => {
       const result = await accountsService.deleteAccounts(['uuid1']);
       expect(result).toBe(1);
 
-      const accounts = accountsService.getAccounts();
+      const accounts = await accountsService.getAccounts();
       const primaryAccounts = accounts.primary[walletId];
       expect(primaryAccounts && primaryAccounts.length).toBe(1);
     });

@@ -18,7 +18,7 @@ type Props = {
   onRemove: () => void;
 };
 
-export const PageContent: FC<Props> = ({ account, onRename, onRemove }) => {
+export const DetailsView: FC<Props> = ({ account, onRename, onRemove }) => {
   const { t } = useTranslation();
 
   const { getWallet } = useWalletContext();

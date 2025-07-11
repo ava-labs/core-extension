@@ -1,4 +1,3 @@
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { Button, Typography, Stack } from '@avalabs/k2-alpine';
@@ -21,13 +20,16 @@ import { validateAnswers } from '../lib/phraseConfirmation';
 const CONFIRMATION_WORDS_COUNT = 3;
 const CONFIRMATION_OPTIONS_COUNT = 3;
 
-export const ConfirmSeedphraseScreen: FC<OnboardingScreenProps> = ({
+type ConfirmSeedphraseScreenProps = OnboardingScreenProps & {
+  onNext: VoidFunction;
+};
+
+export const ConfirmSeedphraseScreen: FC<ConfirmSeedphraseScreenProps> = ({
   step,
   totalSteps,
-  nextScreenPath,
+  onNext,
 }) => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { setCurrent, setTotal } = useModalPageControl();
   const { mnemonic } = useOnboardingContext();
 
@@ -51,12 +53,12 @@ export const ConfirmSeedphraseScreen: FC<OnboardingScreenProps> = ({
 
   const isConfirmed = validateAnswers(confirmationWords, selectedOptions);
 
-  const onNext = () => {
+  const handleNextClick = () => {
     if (!isConfirmed) {
       return;
     }
 
-    history.push(nextScreenPath);
+    onNext();
   };
 
   return (
@@ -114,7 +116,11 @@ export const ConfirmSeedphraseScreen: FC<OnboardingScreenProps> = ({
         )}
       </OnboardingStepContent>
       <OnboardingStepActions gap={6} pt={2}>
-        <NavButton color="primary" onClick={onNext} disabled={!isConfirmed}>
+        <NavButton
+          color="primary"
+          onClick={handleNextClick}
+          disabled={!isConfirmed}
+        >
           {t('Next')}
         </NavButton>
       </OnboardingStepActions>

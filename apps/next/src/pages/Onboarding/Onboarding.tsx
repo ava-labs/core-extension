@@ -30,7 +30,7 @@ export function Onboarding() {
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
-  const { initAnalyticsIds } = useAnalyticsContext();
+  const { capture, initAnalyticsIds } = useAnalyticsContext();
 
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
 
@@ -91,6 +91,7 @@ export function Onboarding() {
                   color="secondary"
                   size="large"
                   onClick={() => {
+                    capture('OnboardingCreateNewWalletSelected');
                     history.push('/onboarding/create');
                   }}
                 >
@@ -102,6 +103,7 @@ export function Onboarding() {
                   color="secondary"
                   size="large"
                   onClick={() => {
+                    capture('OnboardingImportWalletSelected');
                     history.push('/onboarding/import');
                   }}
                 >

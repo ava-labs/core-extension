@@ -10,7 +10,7 @@ import {
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
-import { TransactionRequest, hexlify } from 'ethers';
+import { Signature, TransactionRequest, hexlify } from 'ethers';
 import { BufferLike, rlp } from 'ethereumjs-util';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
@@ -20,7 +20,12 @@ import { UREncoder, URDecoder, UR } from '@ngraveio/bc-ur';
 import { makeBNLike } from '@core/common';
 import { utils } from '@avalabs/avalanchejs';
 
-import { CBOR, KeystoneTransport } from '@core/types';
+import {
+  CBOR,
+  KeystoneTransport,
+  MessageParams,
+  MessageType,
+} from '@core/types';
 import { convertTxData } from './utils';
 
 export const parseResponoseUR = (urPlayload: string): UR => {
@@ -47,29 +52,14 @@ export class KeystoneWallet {
   async signTransaction(txRequest: TransactionRequest): Promise<string> {
     const isKeystone3 = !!this.xpubXP;
     if (isKeystone3) {
-      const app = new KeystoneUSBEthSDK(
-        (await createKeystoneTransport()) as any,
-      );
       const ur = await this.buildSignatureUR(
         txRequest,
         this.fingerprint,
         this.activeAccountIndex,
       );
-      const encodedUR = new UREncoder(ur!, Infinity).nextPart().toUpperCase();
-      const payload = (await app.signTransactionFromUr(encodedUR)).payload;
-      const signature = ETHSignature.fromCBOR(
-        parseResponoseUR(payload).cbor,
-      ).getSignature();
 
-      const r = hexlify(new Uint8Array(signature.slice(0, 32)));
-      const s = hexlify(new Uint8Array(signature.slice(32, 64)));
-      const v = new BN(signature.slice(64)).toNumber();
-
-      const signedTx = await this.getTxFromTransactionRequest(txRequest, {
-        r,
-        s,
-        v,
-      });
+      const sig = await this.deriveEthSignatureFromUR(ur);
+      const signedTx = await this.getTxFromTransactionRequest(txRequest, sig);
 
       return '0x' + signedTx.serialize().toString('hex');
     }
@@ -225,5 +215,67 @@ export class KeystoneWallet {
 
     tx.addSignature(utils.hexToBuffer(sig));
     return tx;
+  }
+
+  private async deriveEthSignatureFromUR(ur: UR): Promise<{
+    r: string;
+    s: string;
+    v: number;
+  }> {
+    const app = new KeystoneUSBEthSDK((await createKeystoneTransport()) as any);
+    const encodedUR = new UREncoder(ur!, Infinity).nextPart().toUpperCase();
+    const payload = (await app.signTransactionFromUr(encodedUR)).payload;
+    const signature = ETHSignature.fromCBOR(
+      parseResponoseUR(payload).cbor,
+    ).getSignature();
+    const r = hexlify(new Uint8Array(signature.slice(0, 32)));
+    const s = hexlify(new Uint8Array(signature.slice(32, 64)));
+    const v = new BN(signature.slice(64)).toNumber();
+    return { r, s, v };
+  }
+
+  async signMessage(
+    messageType: MessageType,
+    messageParams: MessageParams,
+  ): Promise<string | Buffer> {
+    switch (messageType) {
+      case MessageType.AVALANCHE_SIGN: {
+        throw new Error('AVALANCHE_SIGN not supported');
+      }
+      case MessageType.ETH_SIGN:
+      case MessageType.PERSONAL_SIGN: {
+        const ur = EthSignRequest.constructETHRequest(
+          Buffer.from(messageParams.data.replace('0x', ''), 'hex'),
+          DataType.personalMessage,
+          `M/44'/60'/0'/0/${this.activeAccountIndex}`,
+          this.fingerprint,
+          crypto.randomUUID(),
+        ).toUR();
+
+        const sig = await this.deriveEthSignatureFromUR(ur);
+
+        return Signature.from(sig).serialized;
+      }
+      case MessageType.SIGN_TYPED_DATA:
+      case MessageType.SIGN_TYPED_DATA_V1: {
+        throw new Error('SIGN_TYPED_DATA/SIGN_TYPED_DATA_V1 not supported');
+      }
+      case MessageType.SIGN_TYPED_DATA_V3:
+      case MessageType.SIGN_TYPED_DATA_V4: {
+        const ur = EthSignRequest.constructETHRequest(
+          Buffer.from(JSON.stringify(messageParams.data), 'utf-8'),
+          DataType.typedData,
+          `M/44'/60'/0'/0/${this.activeAccountIndex}`,
+          this.fingerprint,
+          crypto.randomUUID(),
+        ).toUR();
+
+        const sig = await this.deriveEthSignatureFromUR(ur);
+
+        return Signature.from(sig).serialized;
+      }
+      default:
+        throw new Error('Unknown message type method');
+    }
   }
 }

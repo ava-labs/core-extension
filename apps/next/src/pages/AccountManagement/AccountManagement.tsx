@@ -16,9 +16,11 @@ import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import { Route, Switch } from 'react-router-dom';
 import { AccountDetails } from './components/AccountDetails';
+import { AddOrConnectWallet } from './components/AddOrCreateWallet/AddOrConnectWallet';
 import { DeleteAccount } from './components/DeleteAccount';
 import { NavigateBackProvider } from './components/NavigateBackContext';
 import { QRCode } from './components/QRCode';
+import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
 
@@ -58,12 +60,20 @@ const AccountManagement: FC = () => {
                 <DialogContent sx={dialogContentSx}>
                   <Switch>
                     <Route
-                      path="/account-management/qr-code"
-                      component={QRCode}
+                      path="/account-management/rename"
+                      component={RenamePage}
                     />
                     <Route
                       path="/account-management/delete-account"
                       component={DeleteAccount}
+                    />
+                    <Route
+                      path="/account-management/qr-code"
+                      component={QRCode}
+                    />
+                    <Route
+                      path="/account-management/add-wallet"
+                      component={AddOrConnectWallet}
                     />
                     <Route
                       path="/account-management/account"

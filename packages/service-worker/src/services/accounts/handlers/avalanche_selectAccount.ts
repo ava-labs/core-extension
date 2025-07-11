@@ -38,9 +38,9 @@ export class AvalancheSelectAccountHandler extends DAppRequestHandler<
     const [selectedIndexOrID] = request.params;
 
     // until core web sends only IDs...
-    const allAccounts = this.accountsService.getAccountList();
+    const allAccounts = await this.accountsService.getAccountList();
 
-    const activeAccount = this.accountsService.activeAccount;
+    const activeAccount = await this.accountsService.getActiveAccount();
 
     const activeWalletId = isPrimaryAccount(activeAccount)
       ? activeAccount.walletId

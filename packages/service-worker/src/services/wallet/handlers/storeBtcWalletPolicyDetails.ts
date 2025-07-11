@@ -31,12 +31,11 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    if (!this.accountsService.activeAccount) {
+    const activeAccount = await this.accountsService.getActiveAccount();
+    if (!activeAccount) {
       throw new Error('there is no active account');
     }
-    const secrets = await this.secretsService.getAccountSecrets(
-      this.accountsService.activeAccount,
-    );
+    const secrets = await this.secretsService.getAccountSecrets(activeAccount);
 
     if (
       secrets.secretType !== SecretType.Ledger &&
@@ -45,12 +44,12 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
       throw new Error('incorrect account type');
     }
 
-    const { account: activeAccount } = secrets;
+    const { account } = secrets;
 
-    if (!activeAccount) {
+    if (!account) {
       throw new Error('no account selected');
     }
-    if (activeAccount.type !== AccountType.PRIMARY) {
+    if (account.type !== AccountType.PRIMARY) {
       throw new Error('incorrect account type');
     }
 
@@ -62,16 +61,14 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
     }
 
     const accountIndex =
-      secrets.derivationPathSpec === DerivationPath.BIP44
-        ? activeAccount.index
-        : 0;
+      secrets.derivationPathSpec === DerivationPath.BIP44 ? account.index : 0;
 
     const derivedAddressBtc = getBech32AddressFromXPub(
       xpub,
       accountIndex,
       isMainnet ? networks.bitcoin : networks.testnet,
     );
-    const isCorrectDevice = activeAccount.addressBTC === derivedAddressBtc;
+    const isCorrectDevice = account.addressBTC === derivedAddressBtc;
 
     if (isCorrectDevice) {
       await this.secretsService.storeBtcWalletPolicyDetails(
@@ -80,7 +77,7 @@ export class StoreBtcWalletPolicyDetails implements HandlerType {
         hmacHex,
         name,
         secrets.id,
-        this.accountsService.activeAccount,
+        activeAccount,
       );
     }
 

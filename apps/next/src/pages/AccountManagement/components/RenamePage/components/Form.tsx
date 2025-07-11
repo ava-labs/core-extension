@@ -1,28 +1,30 @@
 import { StandaloneField } from '@/components/StandaloneField';
 import { Typography } from '@avalabs/k2-alpine';
-import { Account } from '@core/types';
 import { useKeyboardShortcuts } from '@core/ui';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActionButtons } from '../../../ActionButtons';
-import { useNavigateBack } from '../../../NavigateBackContext';
-import { validateName } from './utils';
+import { ActionButtons } from '../../ActionButtons';
+import { ViewHost } from '../../ViewHost';
+import { validateName } from '../utils/validateName';
 
 type Props = {
-  account: Account;
+  label: string;
+  name: string;
   onSave: (newName: string) => void;
   onCancel: () => void;
 };
 
-export const RenameAccount: FC<Props> = ({ account, onSave, onCancel }) => {
+export const RenameForm: FC<Props> = ({
+  name: currentName,
+  label,
+  onSave,
+  onCancel,
+}) => {
   const { t } = useTranslation();
   const [name, setName] = useState('');
   const touchedRef = useRef(false);
-  const validation = validateName(name, account.name, t);
+  const validation = validateName(name, currentName, t);
   const saveButtonRef = useRef<HTMLButtonElement>(null);
-
-  const { register } = useNavigateBack();
-  useEffect(() => register(onCancel), [register, onCancel]);
 
   const shortcuts = useKeyboardShortcuts({
     Enter: () => saveButtonRef.current?.click(),
@@ -31,11 +33,11 @@ export const RenameAccount: FC<Props> = ({ account, onSave, onCancel }) => {
   const isError = touchedRef.current && !validation.success;
 
   return (
-    <>
-      <Typography variant="h2">{t('Rename Account')}</Typography>
+    <ViewHost in>
+      <Typography variant="h2">{label}</Typography>
       <StandaloneField
         value={name}
-        placeholder={account.name}
+        placeholder={currentName}
         onChange={(e) => {
           touchedRef.current = true;
           setName(e.target.value);
@@ -59,6 +61,6 @@ export const RenameAccount: FC<Props> = ({ account, onSave, onCancel }) => {
           onClick: onCancel,
         }}
       />
-    </>
+    </ViewHost>
   );
 };

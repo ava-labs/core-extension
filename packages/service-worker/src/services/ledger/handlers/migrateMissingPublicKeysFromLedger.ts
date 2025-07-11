@@ -35,12 +35,12 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     try {
-      if (!this.accountsService.activeAccount) {
+      const activeAccount = await this.accountsService.getActiveAccount();
+      if (!activeAccount) {
         throw new Error('There is no active account');
       }
-      const secrets = await this.secretsService.getAccountSecrets(
-        this.accountsService.activeAccount,
-      );
+      const secrets =
+        await this.secretsService.getAccountSecrets(activeAccount);
       if (
         secrets.secretType !== SecretType.Ledger &&
         secrets.secretType !== SecretType.LedgerLive
