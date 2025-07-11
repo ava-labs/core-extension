@@ -1,35 +1,32 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import browser from 'webextension-polyfill';
 
 export function useCurrentDomain() {
   const [domain, setDomain] = useState<string>();
 
-  const updateDomain = useCallback(async () => {
-    const [currentTab] = await browser.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-
-    if (currentTab?.url) {
-      const { hostname } = new URL(currentTab.url);
-      setDomain(hostname);
-    } else {
-      setDomain('');
-    }
-  }, [setDomain]);
-
   useEffect(() => {
+    const updateDomain = async () => {
+      const [currentTab] = await browser.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (currentTab?.url) {
+        const { hostname } = new URL(currentTab.url);
+        setDomain(hostname);
+      } else {
+        setDomain('');
+      }
+    };
+
     updateDomain();
 
-    const listener = async () => {
-      await updateDomain();
-    };
-    browser.tabs.onActivated.addListener(listener);
+    browser.tabs.onActivated.addListener(updateDomain);
 
     return () => {
-      browser.tabs.onActivated.removeListener(listener);
+      browser.tabs.onActivated.removeListener(updateDomain);
     };
-  }, [updateDomain]);
+  }, []);
 
   return domain;
 }

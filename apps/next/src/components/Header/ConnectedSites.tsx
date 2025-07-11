@@ -150,7 +150,7 @@ export const ConnectedSites = ({ activeAccount }) => {
                 color={theme.palette.error.light}
                 size={18}
               />
-              <Typography sx={{ color: theme.palette.error.light }}>
+              <Typography color={theme.palette.error.light}>
                 {t('Flagged as malicious. Disconnect now!')}
               </Typography>
             </StackRow>
@@ -164,7 +164,7 @@ export const ConnectedSites = ({ activeAccount }) => {
               }}
             >
               <Stack>
-                <Typography sx={{ color: theme.palette.text.primary }}>
+                <Typography color={theme.palette.text.primary}>
                   {domain}
                 </Typography>
                 <Typography color={theme.palette.success.light}>
@@ -204,10 +204,10 @@ export const ConnectedSites = ({ activeAccount }) => {
               }}
             >
               <Stack>
-                <Typography sx={{ color: theme.palette.text.primary }}>
+                <Typography color={theme.palette.text.primary}>
                   {domain}
                 </Typography>
-                <Typography sx={{ color: theme.palette.text.secondary }}>
+                <Typography color={theme.palette.text.secondary}>
                   {t('Locate the connect button on their site')}
                 </Typography>
                 <Typography color={theme.palette.error.light}>
@@ -220,6 +220,7 @@ export const ConnectedSites = ({ activeAccount }) => {
             sx={{ borderColor: getHexAlpha(theme.palette.primary.main, 10) }}
           />
           <StackRow
+            // TODO: add redirect to the settings connected sites when it's ready
             sx={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -227,9 +228,8 @@ export const ConnectedSites = ({ activeAccount }) => {
               padding: 1.2,
               alignItems: 'center',
             }}
-            onClick={() => {}}
           >
-            <Typography sx={{ color: theme.palette.text.primary }}>
+            <Typography color={theme.palette.text.primary}>
               {t('View All Connected Sites')}
             </Typography>
             <StackRow

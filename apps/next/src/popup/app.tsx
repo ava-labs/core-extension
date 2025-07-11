@@ -53,25 +53,27 @@ export function App() {
         <LedgerContextProvider />,
       ])}
     >
-      <Switch>
-        <Route path="/account-management" component={AccountManagement} />
-        <Route
-          path="/"
-          render={() => (
-            <div>
-              {displayHeader && (
-                <Stack sx={{ width: 1 }}>
-                  <Header />
-                </Stack>
-              )}
-              <div>Under construction 🚧</div>
-              <IconButton onClick={() => history.push('/account-management')}>
-                <MdSwitchAccount />
-              </IconButton>
-            </div>
-          )}
-        />
-      </Switch>
+      <div>
+        {displayHeader && (
+          <Stack sx={{ width: 1 }}>
+            <Header />
+          </Stack>
+        )}
+        <Switch>
+          <Route path="/account-management" component={AccountManagement} />
+          <Route
+            path="/"
+            render={() => (
+              <>
+                <div>Under construction 🚧</div>
+                <IconButton onClick={() => history.push('/account-management')}>
+                  <MdSwitchAccount />
+                </IconButton>
+              </>
+            )}
+          />
+        </Switch>
+      </div>
     </Providers>
   );
 }

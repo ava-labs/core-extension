@@ -12,7 +12,7 @@ import {
   FeatureFlagsContextProvider,
   SettingsContextProvider,
 } from '@core/ui';
-import { Children, lazy, ReactElement, ReactNode, Suspense } from 'react';
+import { Children, lazy, ReactElement, Suspense } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { HashRouter as Router } from 'react-router-dom';
 import { initI18n, i18next } from '@core/common';
@@ -33,10 +33,13 @@ export const Providers = ({
   providers,
   children,
 }: {
-  providers: ReactNode[];
+  providers: ReactElement[];
   children: ReactElement;
 }) => {
-  const renderProvider = (renderedProviders, renderedChildren) => {
+  const renderProvider = (
+    renderedProviders: ReactElement[],
+    renderedChildren: ReactElement,
+  ) => {
     const [provider, ...restProviders] = renderedProviders;
 
     if (provider) {
