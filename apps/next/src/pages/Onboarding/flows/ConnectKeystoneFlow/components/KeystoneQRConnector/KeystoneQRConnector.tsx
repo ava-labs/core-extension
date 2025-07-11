@@ -24,7 +24,7 @@ import { Crosshair } from './Crosshair';
 import { QRCodeScanner } from './QRCodeScanner';
 import { KeystoneQRError } from './KeystoneQRError';
 import { QRCodeScannerContainer } from './Styled';
-import { buildAddressPublicKey, buildExtendedPublicKey } from './util';
+import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 
 type KeystoneQRConnectorProps = {
   onQRCodeScanned: (info: QRCodeDerivedKeys) => void;
