@@ -7,11 +7,11 @@ import {
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
-import { AnimatedQRScanner, Purpose, URType } from '@keystonehq/animated-qr';
 import { FC, useState, useEffect, useCallback, useRef } from 'react';
 import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 
 import { useCameraPermissions } from '@core/ui';
+import { EVM_BASE_DERIVATION_PATH } from '@core/types';
 
 import {
   ErrorType,
@@ -21,9 +21,10 @@ import {
 } from '../../types';
 
 import { Crosshair } from './Crosshair';
+import { QRCodeScanner } from './QRCodeScanner';
 import { KeystoneQRError } from './KeystoneQRError';
+import { QRCodeScannerContainer } from './Styled';
 import { buildAddressPublicKey, buildExtendedPublicKey } from './util';
-import { EVM_BASE_DERIVATION_PATH } from '@core/types';
 
 type KeystoneQRConnectorProps = {
   onQRCodeScanned: (info: QRCodeDerivedKeys) => void;
@@ -61,6 +62,15 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
     [accountIndexes],
   );
 
+  const handleUnreadableQRCode = useCallback(
+    (isDimensionsError: boolean) => {
+      setStatus('error');
+      setError('invalid-qr-code');
+      onUnreadableQRCode?.(isDimensionsError);
+    },
+    [setError, setStatus, onUnreadableQRCode],
+  );
+
   const handleScan = useCallback(
     async ({ cbor }: { type: string; cbor: string }) => {
       attempts.current = [];
@@ -68,9 +78,7 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
       const cryptoMultiAccounts = CryptoMultiAccounts.fromCBOR(buffer);
 
       const masterFingerprint = cryptoMultiAccounts.getMasterFingerprint();
-      const keys = cryptoMultiAccounts.getKeys();
-
-      const key = keys[0];
+      const [key] = cryptoMultiAccounts.getKeys();
 
       if (key) {
         onQRCodeScanned({
@@ -80,18 +88,14 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
           addressPublicKeys: await getAddressPublicKeys(key.getBip32Key()),
           masterFingerprint: masterFingerprint.toString('hex'),
         });
+      } else {
+        console.error(
+          '[Keystone] Invalid QR code: missing extended public key',
+        );
+        handleUnreadableQRCode(false);
       }
     },
-    [onQRCodeScanned, getAddressPublicKeys],
-  );
-
-  const handleUnreadableQRCode = useCallback(
-    (isDimensionsError: boolean) => {
-      setStatus('error');
-      setError('invalid-qr-code');
-      onUnreadableQRCode?.(isDimensionsError);
-    },
-    [setError, setStatus, onUnreadableQRCode],
+    [onQRCodeScanned, getAddressPublicKeys, handleUnreadableQRCode],
   );
 
   const handleError = useCallback(
@@ -143,41 +147,9 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
 
   return (
     <Stack gap={3} height="100%" width="100%">
-      <Stack
-        sx={{
-          borderRadius: theme.shape.largeBorderRadius,
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexGrow: 1,
-          backgroundColor: theme.palette.common.black,
-          maxHeight: 340,
-        }}
-      >
+      <QRCodeScannerContainer>
         {status === 'scanning' && (
-          <Stack
-            sx={{
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: theme.shape.largeBorderRadius,
-              overflow: 'hidden',
-              width: '100%',
-              height: '100%',
-            }}
-          >
-            <AnimatedQRScanner
-              handleError={handleError}
-              handleScan={handleScan}
-              purpose={Purpose.SYNC}
-              urTypes={[URType.CRYPTO_MULTI_ACCOUNTS]}
-              options={{
-                width: '100%',
-                height: '100%',
-              }}
-            />
-          </Stack>
+          <QRCodeScanner handleError={handleError} handleScan={handleScan} />
         )}
         <Fade in={Boolean(error)} mountOnEnter unmountOnExit>
           <KeystoneQRError errorType={error!} onRetry={onRetry} />
@@ -189,7 +161,7 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
               : theme.palette.warning.main
           }
         />
-      </Stack>
+      </QRCodeScannerContainer>
       <Typography
         variant="caption"
         color="text.secondary"

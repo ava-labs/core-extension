@@ -368,7 +368,7 @@ export function OnboardingContextProvider({
   ]);
 
   /**
-   * @deprecated Try to use submitLedgerNew() instead
+   * @deprecated Try to use submitKeystoneNew() instead
    */
   const submitKeystone = useCallback(() => {
     return request<KeystoneOnboardingHandler>({

@@ -93,7 +93,7 @@ export const ChooseKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
         ) : (
           <>
             {/* TODO: Add USB screen */}
-            {device === 'keystone-usb' && <LoadingScreen />}{' '}
+            {device === 'keystone-usb' && <LoadingScreen />}
             {device === 'keystone-qr' && (
               <KeystoneQRInstructions onScan={onScan} />
             )}

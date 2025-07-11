@@ -57,6 +57,7 @@ const InvalidQRCodeMessage = () => {
     </>
   );
 };
+
 const CameraBlockedMessage = () => {
   const { t } = useTranslation();
 
