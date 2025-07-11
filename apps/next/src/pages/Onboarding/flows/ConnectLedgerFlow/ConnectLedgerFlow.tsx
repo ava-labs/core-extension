@@ -1,21 +1,20 @@
 import { Route, Switch, useHistory } from 'react-router-dom';
 
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
+import { useCallback, useEffect } from 'react';
 import {
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
 import { ConnectLedgerScreen } from './screens';
-import { useCallback, useEffect } from 'react';
-import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 const BASE_PATH = '/onboarding/import/ledger';
 const TOTAL_STEPS = 5;
 
 export const ConnectLedgerFlow = () => {
   const history = useHistory();
-  const { addressPublicKeys, onboardingState, setAvatar } =
-    useOnboardingContext();
+  const { addressPublicKeys, onboardingState } = useOnboardingContext();
   const { capture } = useAnalyticsContext();
 
   useEffect(() => {
@@ -24,14 +23,10 @@ export const ConnectLedgerFlow = () => {
     }
   }, [addressPublicKeys?.length, history, onboardingState.isOnBoarded]);
 
-  const onAvatarSelected = useCallback(
-    (avatarUri: string) => {
-      setAvatar(avatarUri);
-      capture('OnboardingAvatarSelected');
-      history.push(`${BASE_PATH}/enjoy-your-wallet`);
-    },
-    [capture, history, setAvatar],
-  );
+  const handleOnNext = useCallback(() => {
+    capture('OnboardingAvatarSelected');
+    history.push(`${BASE_PATH}/enjoy-your-wallet`);
+  }, [capture, history]);
 
   return (
     <Switch>
@@ -53,7 +48,7 @@ export const ConnectLedgerFlow = () => {
         <SelectAvatarScreen
           step={4}
           totalSteps={TOTAL_STEPS}
-          onNext={onAvatarSelected}
+          onNext={handleOnNext}
         />
       </Route>
       <Route path={`${BASE_PATH}/enjoy-your-wallet`}>
