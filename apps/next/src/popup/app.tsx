@@ -13,6 +13,7 @@ import {
   WalletContextProvider,
 } from '@core/ui';
 
+import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
@@ -29,39 +30,41 @@ export function App() {
 
   return (
     <ThemeProvider theme={preferredColorScheme}>
-      <AccountsContextProvider>
-        <NetworkContextProvider>
-          <LedgerContextProvider>
-            <OnboardingContextProvider
-              onError={(message: string) => toast.error(message)}
-              LoadingComponent={CircularProgress}
-              OnboardingScreen={Onboarding}
-            >
-              <WalletContextProvider LockedComponent={LockScreen}>
-                <Switch>
-                  <Route
-                    path="/account-management"
-                    component={AccountManagement}
-                  />
-                  <Route
-                    path="/"
-                    render={() => (
-                      <div>
-                        <div>Under construction 🚧</div>
-                        <IconButton
-                          onClick={() => history.push('/account-management')}
-                        >
-                          <MdSwitchAccount />
-                        </IconButton>
-                      </div>
-                    )}
-                  />
-                </Switch>
-              </WalletContextProvider>
-            </OnboardingContextProvider>
-          </LedgerContextProvider>
-        </NetworkContextProvider>
-      </AccountsContextProvider>
+      <PersonalAvatarProvider>
+        <AccountsContextProvider>
+          <NetworkContextProvider>
+            <LedgerContextProvider>
+              <OnboardingContextProvider
+                onError={(message: string) => toast.error(message)}
+                LoadingComponent={CircularProgress}
+                OnboardingScreen={Onboarding}
+              >
+                <WalletContextProvider LockedComponent={LockScreen}>
+                  <Switch>
+                    <Route
+                      path="/account-management"
+                      component={AccountManagement}
+                    />
+                    <Route
+                      path="/"
+                      render={() => (
+                        <div>
+                          <div>Under construction 🚧</div>
+                          <IconButton
+                            onClick={() => history.push('/account-management')}
+                          >
+                            <MdSwitchAccount />
+                          </IconButton>
+                        </div>
+                      )}
+                    />
+                  </Switch>
+                </WalletContextProvider>
+              </OnboardingContextProvider>
+            </LedgerContextProvider>
+          </NetworkContextProvider>
+        </AccountsContextProvider>
+      </PersonalAvatarProvider>
     </ThemeProvider>
   );
 }

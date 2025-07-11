@@ -10,7 +10,7 @@ import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AVATAR_DICTIONARY, PersonalAvatarName } from './avatar-dictionary';
-import { useCachedPersonalAvatar } from './useCachedPersonalAvatar';
+import { usePersonalAvatar } from './context';
 
 type OnlyOne<T extends object> = {
   [K in keyof T]: Pick<T, K> & {
@@ -52,11 +52,9 @@ export const PersonalAvatar = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const cachedAvatar = useCachedPersonalAvatar(!cached);
+  const { avatar } = usePersonalAvatar();
   const src = use(
-    getAvatarSrc(
-      cached ? cachedAvatar : (props.name ?? props.dataUri ?? cachedAvatar),
-    ),
+    getAvatarSrc(cached ? avatar : (props.name ?? props.dataUri ?? avatar)),
   );
   const alt = props.name ? props.name : t('your avatar');
 
