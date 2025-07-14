@@ -27,7 +27,12 @@ import { DerivedAddressList } from './DerivedAddressList';
 import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
-import { EyeIcon, EyeOffIcon } from '@avalabs/core-k2-components';
+import {
+  AlertCircleIcon,
+  EyeIcon,
+  EyeOffIcon,
+} from '@avalabs/core-k2-components';
+import { DuplicatedAccountConfirmation } from './DuplicatedAccountConfirmation';
 
 export const ImportPrivateKeyForm = () => {
   const { t } = useTranslation();
@@ -81,7 +86,9 @@ export const ImportPrivateKeyForm = () => {
 
   const validate = useCallback(
     (key: string) => {
-      const validationError = t('Invalid key. Please re-enter the key.');
+      const validationError = t(
+        'The key you entered is invalid. Please try again',
+      );
       const strippedPk = utils.strip0x(key);
 
       if (strippedPk.length === 64) {
@@ -133,7 +140,7 @@ export const ImportPrivateKeyForm = () => {
     return derivedAddresses && !error && !isImportLoading;
   }, [derivedAddresses, error, isImportLoading, isKnownAccount]);
 
-  const handleImport = async () => {
+  const handleImport = useCallback(async () => {
     // capture('ImportPrivateKeyClicked');
     if (isKnownAccount && !isDuplicatedAccountDialogOpen) {
       setIsDuplicatedAccountDialogOpen(true);
@@ -149,7 +156,24 @@ export const ImportPrivateKeyForm = () => {
       toast.error(t('Private Key Import Failed'), { duration: 1000 });
       console.error(err);
     }
-  };
+  }, [
+    isKnownAccount,
+    isDuplicatedAccountDialogOpen,
+    importPrivateKey,
+    privateKey,
+    selectAccount,
+    t,
+    replace,
+  ]);
+
+  const handleNext = useCallback(() => {
+    if (isKnownAccount && !isDuplicatedAccountDialogOpen) {
+      setIsDuplicatedAccountDialogOpen(true);
+      return;
+    }
+
+    return handleImport();
+  }, [isKnownAccount, isDuplicatedAccountDialogOpen, handleImport]);
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (
@@ -165,81 +189,109 @@ export const ImportPrivateKeyForm = () => {
 
   return (
     <Stack sx={{ height: '100%' }}>
-      <Typography variant="h2" sx={{ mt: '23px', mb: 6 }}>
-        {t('Import private key')}
-      </Typography>
-
-      <Stack sx={{ rowGap: 2 }}>
-        <TextField
-          variant="filled"
-          onChange={keyInputHandler}
-          type={showPassword ? 'text' : 'password'}
-          slotProps={{
-            input: {
-              disableUnderline: true,
-              sx: {
-                borderRadius: 2,
-              },
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label={
-                      showPassword
-                        ? 'hide the password'
-                        : 'display the password'
-                    }
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    onMouseUp={handleMouseUpPassword}
-                    edge="end"
-                  >
-                    {showPassword ? <EyeIcon /> : <EyeOffIcon />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
-          label={t('Enter private key')}
+      {isDuplicatedAccountDialogOpen ? (
+        <DuplicatedAccountConfirmation
+          onImportDuplicate={handleImport}
+          onCancel={() => setIsDuplicatedAccountDialogOpen(false)}
         />
-        {error && <Typography color="error">{error}</Typography>}
-        <DerivedAddressList
-          derivedAddresses={derivedAddresses}
-          isLoading={isImportLoading}
-        />
-
-        {derivedAddresses && (
-          <Card sx={{ p: 2 }}>
-            <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 'fontWeightSemibold' }}
+      ) : (
+        <>
+          <Typography variant="h2" sx={{ mt: '23px', mb: 6 }}>
+            {t('Import private key')}
+          </Typography>
+          <Stack>
+            <TextField
+              variant="filled"
+              onChange={keyInputHandler}
+              type={showPassword ? 'text' : 'password'}
+              value={privateKey}
+              slotProps={{
+                input: {
+                  disableUnderline: true,
+                  sx: {
+                    borderRadius: 2,
+                  },
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword
+                            ? 'hide the password'
+                            : 'display the password'
+                        }
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        onMouseUp={handleMouseUpPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+              label={t('Enter private key')}
+            />
+            {error ? (
+              <Stack
+                direction="row"
+                sx={{
+                  mt: '10px',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  columnGap: 1,
+                }}
               >
-                {t('Total Balance')}
-              </Typography>
-              <Typography variant="body2">
-                {isBalanceLoading ? (
-                  <CircularProgress size={16} />
-                ) : balance !== null && balance?.sum ? (
-                  currencyFormatter(balance?.sum).replace(currency, '')
-                ) : (
-                  '-'
+                <AlertCircleIcon size={24} sx={{ color: 'error.main' }} />
+                <Typography color="error">{error}</Typography>
+              </Stack>
+            ) : (
+              <Stack sx={{ mt: 2, rowGap: '10px' }}>
+                <DerivedAddressList
+                  derivedAddresses={derivedAddresses}
+                  isLoading={isImportLoading}
+                />
+
+                {derivedAddresses && (
+                  <Card sx={{ p: 2 }}>
+                    <Stack
+                      direction="row"
+                      sx={{ justifyContent: 'space-between' }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 'fontWeightSemibold' }}
+                      >
+                        {t('Total Balance')}
+                      </Typography>
+                      <Typography variant="body2">
+                        {isBalanceLoading ? (
+                          <CircularProgress size={16} />
+                        ) : balance !== null && balance?.sum ? (
+                          currencyFormatter(balance?.sum).replace(currency, '')
+                        ) : (
+                          '-'
+                        )}
+                      </Typography>
+                    </Stack>
+                  </Card>
                 )}
-              </Typography>
-            </Stack>
-          </Card>
-        )}
-      </Stack>
-      <Button
-        disabled={!readyToImport}
-        onClick={handleImport}
-        sx={{
-          marginTop: 'auto',
-          backgroundColor: 'primary.main',
-          color: 'background.default',
-        }}
-      >
-        {t('Import')}
-      </Button>
+              </Stack>
+            )}
+          </Stack>
+          <Button
+            disabled={!readyToImport}
+            onClick={handleNext}
+            sx={{
+              marginTop: 'auto',
+              backgroundColor: 'primary.main',
+              color: 'background.default',
+            }}
+          >
+            {t('Next')}
+          </Button>
+        </>
+      )}
     </Stack>
   );
 };
