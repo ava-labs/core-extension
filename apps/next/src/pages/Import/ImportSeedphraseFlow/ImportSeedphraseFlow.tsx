@@ -2,13 +2,15 @@ import {
   getAddressFromXPub,
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
+import { toast } from '@avalabs/k2-alpine';
 import { action } from 'webextension-polyfill';
 import { useCallback, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
-import { useImportSeedphrase } from '@core/ui';
+import { useErrorMessage, useImportSeedphrase } from '@core/ui';
 
 import { FullscreenModal } from '@/components/FullscreenModal';
+import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 import {
   ConfirmAddressesScreen,
   NameYourWalletScreen,
@@ -16,13 +18,16 @@ import {
 import { EnterRecoveryPhraseScreen } from './screens';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
+const TOTAL_STEPS = 3;
 
 export const ImportSeedphraseFlow = () => {
   const history = useHistory();
+  const gerErrorMessage = useErrorMessage();
+  const { importSeedphrase, isImporting } = useImportSeedphrase();
+
   const [phrase, setPhrase] = useState<string>('');
   const [isCalculatingAddresses, setIsCalculatingAddresses] = useState(false);
-
-  const { importSeedphrase, isImporting } = useImportSeedphrase();
+  const [addresses, setAddresses] = useState<string[]>(EMPTY_ADDRESSES);
 
   const onPhraseEntered = useCallback(
     async (seedphrase: string) => {
@@ -42,13 +47,17 @@ export const ImportSeedphraseFlow = () => {
 
         history.push('/import-wallet/seedphrase/confirm');
       } catch (error) {
+        const { title, hint } = gerErrorMessage(error);
+        toast.error(title, {
+          description: hint,
+        });
         console.error('Failed to derive addresses', error);
         throw error;
       } finally {
         setIsCalculatingAddresses(false);
       }
     },
-    [history],
+    [history, gerErrorMessage],
   );
 
   const onConfirm = useCallback(async () => {
@@ -66,51 +75,56 @@ export const ImportSeedphraseFlow = () => {
         await action.openPopup();
         window.close();
       } catch (error) {
+        const { title, hint } = gerErrorMessage(error);
+        toast.error(title, {
+          description: hint,
+        });
         console.error('Failed to import seedphrase', error);
         throw error;
       }
     },
-    [importSeedphrase, phrase],
+    [importSeedphrase, phrase, gerErrorMessage],
   );
 
-  const [addresses, setAddresses] = useState<string[]>(EMPTY_ADDRESSES);
-
   return (
-    <FullscreenModal
-      open
-      withCoreLogo
-      withAppInfo
-      withLanguageSelector
-      onBack={history.goBack}
-    >
-      <Switch>
-        <Route exact path="/import-wallet/seedphrase">
-          <EnterRecoveryPhraseScreen
-            step={1}
-            totalSteps={3}
-            onNext={onPhraseEntered}
-            isCalculating={isCalculatingAddresses}
-          />
-        </Route>
-        <Route path="/import-wallet/seedphrase/confirm">
-          <ConfirmAddressesScreen
-            step={2}
-            totalSteps={3}
-            addresses={addresses}
-            chainCaipId="eip155:43114" // Avalanche C-Chain
-            isImporting={isImporting}
-            onNext={onConfirm}
-          />
-        </Route>
-        <Route path="/import-wallet/seedphrase/name">
-          <NameYourWalletScreen
-            step={3}
-            totalSteps={3}
-            isSaving={isImporting}
-            onNext={onSave}
-          />
-        </Route>
-      </Switch>
-    </FullscreenModal>
+    <>
+      <FullscreenAnimatedBackground sx={{ backgroundSize: '80% 60%' }} />
+      <FullscreenModal
+        open
+        withCoreLogo
+        withAppInfo
+        withLanguageSelector
+        onBack={history.goBack}
+      >
+        <Switch>
+          <Route exact path="/import-wallet/seedphrase">
+            <EnterRecoveryPhraseScreen
+              step={1}
+              totalSteps={TOTAL_STEPS}
+              onNext={onPhraseEntered}
+              isCalculating={isCalculatingAddresses}
+            />
+          </Route>
+          <Route path="/import-wallet/seedphrase/confirm">
+            <ConfirmAddressesScreen
+              step={2}
+              totalSteps={TOTAL_STEPS}
+              addresses={addresses}
+              chainCaipId="eip155:43114" // Avalanche C-Chain
+              isImporting={isImporting}
+              onNext={onConfirm}
+            />
+          </Route>
+          <Route path="/import-wallet/seedphrase/name">
+            <NameYourWalletScreen
+              step={3}
+              totalSteps={TOTAL_STEPS}
+              isSaving={isImporting}
+              onNext={onSave}
+            />
+          </Route>
+        </Switch>
+      </FullscreenModal>
+    </>
   );
 };

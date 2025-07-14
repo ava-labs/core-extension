@@ -46,12 +46,7 @@ export const ConfirmAddressesScreen: FC<ConfirmAddressesScreenProps> = ({
       <FullscreenModalContent>
         <DerivedAddresses addresses={addresses} chainCaipId={chainCaipId} />
       </FullscreenModalContent>
-      <FullscreenModalActions
-        sx={{
-          gap: 6,
-          pt: 2,
-        }}
-      >
+      <FullscreenModalActions sx={{ pt: 2 }}>
         <NavButton
           color="primary"
           onClick={onNext}
