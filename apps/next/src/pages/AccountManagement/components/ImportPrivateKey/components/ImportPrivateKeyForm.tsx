@@ -107,7 +107,6 @@ export const ImportPrivateKeyForm = () => {
             addressC,
             addressBTC,
           });
-          setPrivateKey(key);
           setError('');
         } catch (_err) {
           errorHandler(validationError);
@@ -122,6 +121,8 @@ export const ImportPrivateKeyForm = () => {
   const keyInputHandler = useCallback(
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const newKey = event.target.value;
+      setPrivateKey(newKey);
+
       if (newKey) {
         validate(newKey);
       } else {
@@ -258,11 +259,8 @@ export const ImportPrivateKeyForm = () => {
                       direction="row"
                       sx={{ justifyContent: 'space-between' }}
                     >
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 'fontWeightSemibold' }}
-                      >
-                        {t('Total Balance')}
+                      <Typography sx={{ fontWeight: 'fontWeightMedium' }}>
+                        {t('Total balance')}
                       </Typography>
                       <Typography variant="body2">
                         {isBalanceLoading ? (
@@ -288,7 +286,7 @@ export const ImportPrivateKeyForm = () => {
               color: 'background.default',
             }}
           >
-            {t('Next')}
+            {t('Import')}
           </Button>
         </>
       )}

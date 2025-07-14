@@ -57,11 +57,7 @@ export function DerivedAddressListItem({
           variant="body2"
           sx={{ wordBreak: 'break-all', fontFamily: 'DejaVu Sans Mono' }}
         >
-          {truncateAddress(address, 10)}
-        </Typography>
-        <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
-          {/* TODO: Add balance and fix color */}
-          {'$123.45'}
+          {truncateAddress(address, 17)}
         </Typography>
         {isLoading && <CircularProgress size={16} />}
       </Stack>
