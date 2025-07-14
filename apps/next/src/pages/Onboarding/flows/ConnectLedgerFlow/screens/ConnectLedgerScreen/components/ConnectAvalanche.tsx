@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import * as Styled from './Styled';
@@ -53,15 +53,15 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
-      <OnboardingStepTitle>{t('Connect your Ledger')}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t('Connect your Ledger')}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {status === 'error'
           ? t(
               'Please connect your device, open the Avalanche application, and connect the wallet with the Ledger option to continue.',
             )
           : t('Select the derivation path type to see your derived addresses.')}
-      </OnboardingStepDescription>
-      <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
+      </FullscreenModalDescription>
+      <FullscreenModalContent sx={{ gap: 3, alignItems: 'center' }}>
         <AvalancheLedgerConnector
           callbacks={connectorCallbacks}
           onSuccess={setDerivedKeys}
@@ -71,8 +71,8 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           derivationPathSpec={derivationPathSpec}
           numberOfKeys={3}
         />
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         {status === 'error' ? (
           <Stack width="100%" justifyContent="center" alignItems="center">
             <Styled.LedgerLiveButton>
@@ -88,7 +88,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
             {t('Next')}
           </NavButton>
         )}
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

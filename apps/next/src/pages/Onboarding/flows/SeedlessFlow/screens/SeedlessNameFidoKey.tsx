@@ -5,11 +5,11 @@ import { Stack, TextField } from '@avalabs/k2-alpine';
 import { useKeyboardShortcuts } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 type SeedlessNameFidoKeyProps = {
@@ -30,15 +30,15 @@ export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {keyType === 'passkey'
           ? t(`Name your Passkey`)
           : t(`Name your Yubikey`)}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(`Add a name so that it is easier to find later.`)}
-      </OnboardingStepDescription>
-      <OnboardingStepContent {...keyboardShortcuts}>
+      </FullscreenModalDescription>
+      <FullscreenModalContent {...keyboardShortcuts}>
         <Stack width="100%" height="100%">
           <TextField
             autoFocus
@@ -48,8 +48,8 @@ export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
             onChange={(e) => setName(e.target.value)}
           />
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton variant="text" onClick={() => onNext('')}>
           {t(`Skip`)}
         </NavButton>
@@ -60,7 +60,7 @@ export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
         >
           {t(`Save`)}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

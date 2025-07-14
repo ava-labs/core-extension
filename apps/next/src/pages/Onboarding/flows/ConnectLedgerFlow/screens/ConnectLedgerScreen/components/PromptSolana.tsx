@@ -3,11 +3,11 @@ import { FC } from 'react';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import SolanaGlow from '../images/SolanaGlow.png';
@@ -25,15 +25,15 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t(`Do you want to add Solana to your wallet?`)}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           `To use Solana in Core you will need to add an account from your Ledger device. You can always add this later at any time`,
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <Stack
           flexGrow={1}
           alignItems="center"
@@ -42,15 +42,15 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
         >
           <img src={SolanaGlow} alt="Solana Glowing Logo" height="270px" />
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton color="secondary" onClick={onSkip}>
           {t('No thanks')}
         </NavButton>
         <NavButton color="primary" onClick={onNext}>
           {t('Add Solana')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

@@ -6,12 +6,12 @@ import { getEvmAddressFromPubKey } from '@avalabs/core-wallets-sdk';
 import { Stack } from '@avalabs/k2-alpine';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
@@ -67,13 +67,13 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>{t('Connect your Keystone')}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t('Connect your Keystone')}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           'Please choose your device and follow the instructions to connect your Keystone device.',
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent sx={{ alignItems: 'center', gap: 3 }}>
+      </FullscreenModalDescription>
+      <FullscreenModalContent sx={{ alignItems: 'center', gap: 3 }}>
         <KeystoneDeviceSelect
           device={device}
           setDevice={setDevice}
@@ -101,8 +101,8 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
           </>
         )}
         <KeystoneSupportButton />
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton
           color="primary"
           // For USB devices, "Next" is only active once keys are obtained
@@ -115,7 +115,7 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
         >
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

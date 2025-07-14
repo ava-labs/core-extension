@@ -1,5 +1,5 @@
 import { Typography, TypographyProps } from '@avalabs/k2-alpine';
 
-export const OnboardingStepDescription = (props: TypographyProps) => (
+export const FullscreenModalDescription = (props: TypographyProps) => (
   <Typography variant="body1" color="text.primary" {...props} />
 );

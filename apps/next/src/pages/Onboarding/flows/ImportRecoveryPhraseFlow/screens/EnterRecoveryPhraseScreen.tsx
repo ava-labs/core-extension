@@ -7,12 +7,12 @@ import { isPhraseCorrect } from '@core/common';
 import { useKeyboardShortcuts } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
@@ -52,13 +52,13 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>{t('Import Recovery Phrase')}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t('Import Recovery Phrase')}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           'Access an existing wallet with your recovery phrase. You can paste your entire phrase in the first field, or use the tab key to jump to the next field',
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <RecoveryPhraseForm
           onClearAll={() => setWords([])}
           phraseLength={phraseLength}
@@ -67,8 +67,8 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
           setWords={setWords}
           {...keyboardHandlers}
         />
-      </OnboardingStepContent>
-      <OnboardingStepActions
+      </FullscreenModalContent>
+      <FullscreenModalActions
         sx={{
           gap: 6,
           pt: 2,
@@ -99,7 +99,7 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
         >
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

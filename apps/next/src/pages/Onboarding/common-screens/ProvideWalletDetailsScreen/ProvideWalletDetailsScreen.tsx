@@ -6,12 +6,12 @@ import { useKeyboardShortcuts } from '@core/ui';
 import { isNewsletterConfigured } from '@core/common';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { NavButton } from '../../components/NavButton';
@@ -85,15 +85,15 @@ export const ProvideWalletDetailsScreen: FC<
         }}
         {...keyboardHandlers}
       >
-        <OnboardingStepTitle>
+        <FullscreenModalTitle>
           {t('Fill out your wallet details')}
-        </OnboardingStepTitle>
-        <OnboardingStepDescription>
+        </FullscreenModalTitle>
+        <FullscreenModalDescription>
           {t(
             'A few more details are needed before getting any further with your wallet creation',
           )}
-        </OnboardingStepDescription>
-        <OnboardingStepContent sx={{ overflow: 'unset' }}>
+        </FullscreenModalDescription>
+        <FullscreenModalContent sx={{ overflow: 'unset' }}>
           <Stack
             sx={{ flexGrow: 1, height: 1, justifyContent: 'space-between' }}
           >
@@ -113,12 +113,12 @@ export const ProvideWalletDetailsScreen: FC<
               )}
             </Stack>
           </Stack>
-        </OnboardingStepContent>
+        </FullscreenModalContent>
       </Stack>
       <FooterSection sx={{ py: 1.5 }} {...keyboardHandlers}>
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
       </FooterSection>
-      <OnboardingStepActions>
+      <FullscreenModalActions>
         <NavButton
           disabled={!isFormValid}
           color="primary"
@@ -126,7 +126,7 @@ export const ProvideWalletDetailsScreen: FC<
         >
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };
