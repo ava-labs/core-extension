@@ -171,10 +171,15 @@ export const ImportPrivateKeyForm = () => {
 
       <Stack sx={{ rowGap: 2 }}>
         <TextField
+          variant="filled"
           onChange={keyInputHandler}
           type={showPassword ? 'text' : 'password'}
           slotProps={{
             input: {
+              disableUnderline: true,
+              sx: {
+                borderRadius: 2,
+              },
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
@@ -227,7 +232,11 @@ export const ImportPrivateKeyForm = () => {
       <Button
         disabled={!readyToImport}
         onClick={handleImport}
-        sx={{ marginTop: 'auto' }}
+        sx={{
+          marginTop: 'auto',
+          backgroundColor: 'primary.main',
+          color: 'background.default',
+        }}
       >
         {t('Import')}
       </Button>
