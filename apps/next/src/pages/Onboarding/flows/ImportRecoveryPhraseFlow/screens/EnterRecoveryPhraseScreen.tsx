@@ -16,7 +16,7 @@ import {
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
-import { RecoveryPhraseForm } from '../components/RecoveryPhraseForm';
+import { RecoveryPhraseForm } from '@/components/RecoveryPhraseForm';
 
 type EnterRecoveryPhraseScreenProps = OnboardingScreenProps & {
   onNext: (phrase: string) => void;

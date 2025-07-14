@@ -10,16 +10,15 @@ import {
   FullscreenModalActions,
   FullscreenModalContent,
   FullscreenModalDescription,
+  FullscreenModalNavigationProps,
   FullscreenModalTitle,
   useModalPageControl,
 } from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
-// TODO: move RecoveryPhraseForm to a shared component
-import { RecoveryPhraseForm } from '@/pages/Onboarding/flows/ImportRecoveryPhraseFlow/components/RecoveryPhraseForm';
-import { OnboardingScreenProps } from '@/pages/Onboarding/types';
+import { RecoveryPhraseForm } from '@/components/RecoveryPhraseForm/RecoveryPhraseForm';
 
-type EnterRecoveryPhraseScreenProps = OnboardingScreenProps & {
+type EnterRecoveryPhraseScreenProps = FullscreenModalNavigationProps & {
   onNext: (phrase: string) => void;
   isCalculating: boolean;
 };
