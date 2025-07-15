@@ -20,6 +20,7 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
+import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -46,6 +47,10 @@ export function App() {
                       <Route
                         path="/account-management"
                         component={AccountManagement}
+                      />
+                      <Route
+                        path="/import-wallet/seedphrase"
+                        component={ImportSeedphraseFlow}
                       />
                       <Route
                         path="/"
