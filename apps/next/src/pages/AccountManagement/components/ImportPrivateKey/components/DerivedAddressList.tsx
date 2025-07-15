@@ -1,6 +1,6 @@
 import { Card, Divider, Stack } from '@avalabs/k2-alpine';
 import { DerivedAddresses } from '../types';
-import { DerivedAddressListItem, NetworkType } from './DerivedAddressListItem';
+import { DerivedAddressListItem } from './DerivedAddressListItem';
 
 type DerivedAddressesProps = {
   derivedAddresses?: DerivedAddresses;
@@ -17,13 +17,13 @@ export const DerivedAddressList = ({
         {derivedAddresses && (
           <>
             <DerivedAddressListItem
-              networkType={NetworkType.AVALANCHE}
+              networkType="avalanche"
               address={derivedAddresses.addressC}
               isLoading={isLoading}
             />
             <Divider sx={{ mx: 2 }} />
             <DerivedAddressListItem
-              networkType={NetworkType.BITCOIN}
+              networkType="bitcoin"
               address={derivedAddresses.addressBTC}
               isLoading={isLoading}
             />

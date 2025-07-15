@@ -8,16 +8,13 @@ import {
   Button,
   Card,
   CircularProgress,
-  IconButton,
-  InputAdornment,
   Stack,
-  TextField,
   toast,
   Typography,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { useNetworkContext } from '@core/ui/src/contexts/NetworkProvider';
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { networks } from 'bitcoinjs-lib';
 import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
@@ -27,12 +24,8 @@ import { DerivedAddressList } from './DerivedAddressList';
 import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
-import {
-  AlertCircleIcon,
-  EyeIcon,
-  EyeOffIcon,
-} from '@avalabs/core-k2-components';
 import { DuplicatedAccountConfirmation } from './DuplicatedAccountConfirmation';
+import { PasswordField } from '@/components/StandaloneField';
 
 export const ImportPrivateKeyForm = () => {
   const { t } = useTranslation();
@@ -47,7 +40,6 @@ export const ImportPrivateKeyForm = () => {
   const [privateKey, setPrivateKey] = useState('');
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
 
@@ -68,9 +60,10 @@ export const ImportPrivateKeyForm = () => {
   }, [derivedAddresses, updateBalanceOnNetworks]);
 
   const checkIfAccountExists = useCallback(
-    (address) => {
+    (address: string) => {
+      const lowercasedAddress = address.toLowerCase();
       const findAccount = allAccounts.find(
-        ({ addressC }) => addressC.toLowerCase() === address.toLowerCase(),
+        ({ addressC }) => addressC.toLowerCase() === lowercasedAddress,
       );
       if (findAccount) {
         setIsKnownAccount(true);
@@ -91,27 +84,25 @@ export const ImportPrivateKeyForm = () => {
       );
       const strippedPk = utils.strip0x(key);
 
-      if (strippedPk.length === 64) {
-        try {
-          const publicKey = getPublicKeyFromPrivateKey(strippedPk);
+      if (strippedPk.length !== 64) {
+        errorHandler(validationError);
+        return;
+      }
 
-          const addressC = getEvmAddressFromPubKey(publicKey);
-          checkIfAccountExists(addressC);
-
-          const addressBTC = getBtcAddressFromPubKey(
-            publicKey,
-            network?.isTestnet ? networks.testnet : networks.bitcoin,
-          );
-
-          setDerivedAddresses({
-            addressC,
-            addressBTC,
-          });
-          setError('');
-        } catch (_err) {
-          errorHandler(validationError);
-        }
-      } else {
+      try {
+        const publicKey = getPublicKeyFromPrivateKey(strippedPk);
+        const addressC = getEvmAddressFromPubKey(publicKey);
+        checkIfAccountExists(addressC);
+        const addressBTC = getBtcAddressFromPubKey(
+          publicKey,
+          network?.isTestnet ? networks.testnet : networks.bitcoin,
+        );
+        setDerivedAddresses({
+          addressC,
+          addressBTC,
+        });
+        setError('');
+      } catch (_err) {
         errorHandler(validationError);
       }
     },
@@ -132,17 +123,9 @@ export const ImportPrivateKeyForm = () => {
     [errorHandler, t, validate],
   );
 
-  const readyToImport = useMemo(() => {
-    console.log({
-      derivedAddresses,
-      error,
-      isKnownAccount,
-    });
-    return derivedAddresses && !error && !isImportLoading;
-  }, [derivedAddresses, error, isImportLoading, isKnownAccount]);
+  const readyToImport = derivedAddresses && !error && !isImportLoading;
 
   const handleImport = useCallback(async () => {
-    // capture('ImportPrivateKeyClicked');
     if (isKnownAccount && !isDuplicatedAccountDialogOpen) {
       setIsDuplicatedAccountDialogOpen(true);
       return;
@@ -151,8 +134,7 @@ export const ImportPrivateKeyForm = () => {
       const importedAccountId = await importPrivateKey(privateKey);
       await selectAccount(importedAccountId);
       toast.success(t('Private Key Imported'), { duration: 1000 });
-      // capture('ImportPrivateKeySucceeded');
-      replace(`/account-management`); //TODO: change the path
+      replace(`/account-management`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 1000 });
       console.error(err);
@@ -176,18 +158,6 @@ export const ImportPrivateKeyForm = () => {
     return handleImport();
   }, [isKnownAccount, isDuplicatedAccountDialogOpen, handleImport]);
 
-  const handleClickShowPassword = () => setShowPassword(!showPassword);
-  const handleMouseDownPassword = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-  };
-  const handleMouseUpPassword = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    event.preventDefault();
-  };
-
   return (
     <Stack sx={{ height: '100%' }}>
       {isDuplicatedAccountDialogOpen ? (
@@ -201,52 +171,19 @@ export const ImportPrivateKeyForm = () => {
             {t('Import private key')}
           </Typography>
           <Stack>
-            <TextField
-              variant="filled"
-              onChange={keyInputHandler}
-              type={showPassword ? 'text' : 'password'}
+            <PasswordField
               value={privateKey}
-              slotProps={{
-                input: {
-                  disableUnderline: true,
-                  sx: {
-                    borderRadius: 2,
-                  },
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={
-                          showPassword
-                            ? 'hide the password'
-                            : 'display the password'
-                        }
-                        onClick={handleClickShowPassword}
-                        onMouseDown={handleMouseDownPassword}
-                        onMouseUp={handleMouseUpPassword}
-                        edge="end"
-                      >
-                        {showPassword ? <EyeIcon /> : <EyeOffIcon />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+              placeholder={t('Enter private key')}
+              onChange={keyInputHandler}
+              error={!!error}
+              helperText={error}
+              sx={{
+                '& .MuiFilledInput-root': {
+                  borderRadius: 2,
                 },
               }}
-              label={t('Enter private key')}
             />
-            {error ? (
-              <Stack
-                direction="row"
-                sx={{
-                  mt: '10px',
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                  columnGap: 1,
-                }}
-              >
-                <AlertCircleIcon size={24} sx={{ color: 'error.main' }} />
-                <Typography color="error">{error}</Typography>
-              </Stack>
-            ) : (
+            {!error && (
               <Stack sx={{ mt: 2, rowGap: '10px' }}>
                 <DerivedAddressList
                   derivedAddresses={derivedAddresses}
@@ -280,10 +217,9 @@ export const ImportPrivateKeyForm = () => {
           <Button
             disabled={!readyToImport}
             onClick={handleNext}
+            color="primary"
             sx={{
               marginTop: 'auto',
-              backgroundColor: 'primary.main',
-              color: 'background.default',
             }}
           >
             {t('Import')}

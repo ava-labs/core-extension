@@ -20,9 +20,13 @@ export const useImportPrivateKey = () => {
         });
 
         return accountId;
-      } catch (err) {
+      } catch (err: unknown) {
+        if (!(err instanceof Error)) {
+          throw new Error('Failed to import private key');
+        }
+
         Monitoring.sentryCaptureException(
-          err as Error,
+          err,
           Monitoring.SentryExceptionTypes.WALLET_IMPORT,
         );
         throw err;

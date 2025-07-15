@@ -4,14 +4,10 @@ import {
   CircularProgress,
   Stack,
   Typography,
-  useTheme,
 } from '@avalabs/core-k2-components';
-import { truncateAddress } from '@avalabs/k2-alpine';
+import { truncateAddress, useTheme } from '@avalabs/k2-alpine';
 
-export enum NetworkType {
-  AVALANCHE = 'avalanche',
-  BITCOIN = 'bitcoin',
-}
+type NetworkType = 'avalanche' | 'bitcoin';
 
 type DerivedAddressProps = {
   networkType: NetworkType;
@@ -25,7 +21,9 @@ export function DerivedAddressListItem({
   isLoading,
 }: DerivedAddressProps) {
   const theme = useTheme();
-  const iconStyles = { filter: address ? 'none' : 'grayscale(1)' };
+
+  const CoinIcon =
+    networkType === 'avalanche' ? AvalancheColorIcon : BitcoinColorIcon;
 
   return (
     <Stack
@@ -35,16 +33,12 @@ export function DerivedAddressListItem({
         py: 1,
         px: 2,
         alignItems: 'center',
-        background: theme.palette.grey[850],
+        background: theme.palette.grey[850], //TODO check this line
         borderRadius: 1,
         height: 56,
       }}
     >
-      {networkType === NetworkType.AVALANCHE ? (
-        <AvalancheColorIcon size={18} sx={iconStyles} />
-      ) : (
-        <BitcoinColorIcon size={18} sx={iconStyles} />
-      )}
+      <CoinIcon size={18} sx={{ filter: address ? 'none' : 'grayscale(1)' }} />
       <Stack
         direction="row"
         sx={{

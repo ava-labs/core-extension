@@ -27,7 +27,6 @@ export const AddOrConnectWallet: FC = () => {
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
 
   const goToImportPrivateKey = useCallback(() => {
-    // capture('ImportPrivateKey_Clicked');
     push('/account-management/import-private-key');
   }, [push]);
 

@@ -18,17 +18,11 @@ export const DuplicatedAccountConfirmation = ({
       </Typography>
 
       <Stack sx={{ rowGap: '10px', mt: 'auto' }}>
-        <Button
-          onClick={onImportDuplicate}
-          sx={{ backgroundColor: 'text.primary', color: 'background.default' }}
-        >
+        <Button onClick={onImportDuplicate} color="primary">
           {t('Import duplicate')}
         </Button>
-        <Button
-          onClick={onCancel}
-          sx={{ backgroundColor: 'glass.light2', color: 'text.primary' }}
-        >
-          {t('cancel')}
+        <Button onClick={onCancel} color="secondary">
+          {t('Cancel')}
         </Button>
       </Stack>
     </Stack>
