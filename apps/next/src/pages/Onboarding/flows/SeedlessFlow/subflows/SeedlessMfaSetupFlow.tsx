@@ -1,7 +1,7 @@
 import { Redirect } from 'react-router-dom';
 import { FC, useEffect, useState } from 'react';
 
-import { useModalPageControl } from '@/components/OnboardingModal';
+import { useModalPageControl } from '@/components/FullscreenModal';
 
 import { NewMfaMethod } from '../types';
 import { SeedlessChooseSetupMethod } from '../screens';

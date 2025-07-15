@@ -5,12 +5,12 @@ import { Button, Stack, toast } from '@avalabs/k2-alpine';
 import { createNewMnemonic } from '@core/common';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
@@ -41,15 +41,15 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t(`Here is your wallet's recovery phrase`)}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           `This phrase is your access key to your wallet. Carefully write it down and store it in a safe location`,
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <LostPhraseLostFundsWarning />
         <SeedphraseGrid phrase={generatedSeedphrase} />
         <Stack alignItems="center" mt={1.5}>
@@ -67,12 +67,12 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
             {t('Copy phrase')}
           </Button>
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions gap={6} pt={2}>
+      </FullscreenModalContent>
+      <FullscreenModalActions gap={6} pt={2}>
         <NavButton color="primary" onClick={handleNextClick}>
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

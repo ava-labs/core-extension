@@ -12,10 +12,10 @@ import { action } from 'webextension-polyfill';
 import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
+  FullscreenModalActions,
+  FullscreenModalContent,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
 
 import { LoadingScreen } from '../components/LoadingScreen';
@@ -50,7 +50,7 @@ export const EnjoyYourWalletScreen: FC = () => {
 
   return (
     <Stack {...keyboardHandlers} sx={{ px: 11, flexGrow: 1 }}>
-      <OnboardingStepContent sx={{ overflow: 'unset', pt: 0 }}>
+      <FullscreenModalContent sx={{ overflow: 'unset', pt: 0 }}>
         <Stack
           sx={{
             flexDirection: 'row',
@@ -83,8 +83,8 @@ export const EnjoyYourWalletScreen: FC = () => {
             </Typography>
           </Stack>
         )}
-      </OnboardingStepContent>
-      <OnboardingStepActions sx={{ justifyContent: 'center', pb: 6 }}>
+      </FullscreenModalContent>
+      <FullscreenModalActions sx={{ justifyContent: 'center', pb: 6 }}>
         <Fade in={!submitInProgress}>
           <Button
             fullWidth
@@ -96,7 +96,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             {t("Let's go!")}
           </Button>
         </Fade>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

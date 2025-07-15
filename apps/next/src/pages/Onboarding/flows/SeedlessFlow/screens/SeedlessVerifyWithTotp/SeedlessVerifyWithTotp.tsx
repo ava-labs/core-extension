@@ -5,11 +5,11 @@ import { AuthErrorCode } from '@core/types';
 import { useKeyboardShortcuts, useTotpErrorMessage } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import { TotpCodeField } from './components/TotpCodeField';
@@ -36,11 +36,11 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>{t(`Verify code`)}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t(`Verify code`)}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(`Enter the code generated in your authenticator app.`)}
-      </OnboardingStepDescription>
-      <OnboardingStepContent
+      </FullscreenModalDescription>
+      <FullscreenModalContent
         {...keyboardShortcuts}
         sx={{ overflow: 'visible' }} // do not cut off the field when shaking
       >
@@ -60,8 +60,8 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
             }
           }}
         />
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton
           disabled={!code}
           loading={isLoading}
@@ -73,7 +73,7 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
         >
           {t(`Continue`)}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };
