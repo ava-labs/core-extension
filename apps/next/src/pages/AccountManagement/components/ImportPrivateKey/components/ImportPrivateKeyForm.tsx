@@ -9,46 +9,61 @@ import {
   Card,
   CircularProgress,
   Stack,
-  toast,
   Typography,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { useNetworkContext } from '@core/ui/src/contexts/NetworkProvider';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { networks } from 'bitcoinjs-lib';
-import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
-import { useHistory } from 'react-router-dom';
 import { DerivedAddresses } from '../types';
 import { DerivedAddressList } from './DerivedAddressList';
 import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
-import { DuplicatedAccountConfirmation } from './DuplicatedAccountConfirmation';
 import { PasswordField } from '@/components/StandaloneField';
 
-export const ImportPrivateKeyForm = () => {
-  const { t } = useTranslation();
-  const { replace } = useHistory();
+interface ImportPrivateKeyFormProps {
+  handleImport: () => void;
+  isImportLoading: boolean;
+  error: string;
+  setError: Dispatch<SetStateAction<string>>;
+  privateKey: string;
+  setPrivateKey: Dispatch<SetStateAction<string>>;
+  derivedAddresses: DerivedAddresses | undefined;
+  setDerivedAddresses: Dispatch<SetStateAction<DerivedAddresses | undefined>>;
+  showDuplicatedAccountDialog: Dispatch<SetStateAction<boolean>>;
+}
 
-  const { allAccounts, selectAccount } = useAccountsContext();
+export const ImportPrivateKeyForm = ({
+  handleImport,
+  isImportLoading,
+  error,
+  setError,
+  privateKey,
+  setPrivateKey,
+  derivedAddresses,
+  setDerivedAddresses,
+  showDuplicatedAccountDialog,
+}: ImportPrivateKeyFormProps) => {
+  const { t } = useTranslation();
+
+  const { allAccounts } = useAccountsContext();
   const { network } = useNetworkContext();
   const { updateBalanceOnNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
 
   const [isKnownAccount, setIsKnownAccount] = useState(false);
-  const [privateKey, setPrivateKey] = useState('');
-  const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
 
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
-
-  const [error, setError] = useState('');
-  const [isDuplicatedAccountDialogOpen, setIsDuplicatedAccountDialogOpen] =
-    useState(false);
-
-  const { isImporting: isImportLoading, importPrivateKey } =
-    useImportPrivateKey();
 
   useEffect(() => {
     if (derivedAddresses && updateBalanceOnNetworks) {
@@ -69,13 +84,16 @@ export const ImportPrivateKeyForm = () => {
         setIsKnownAccount(true);
       }
     },
-    [allAccounts],
+    [allAccounts, setIsKnownAccount],
   );
 
-  const errorHandler = useCallback((errorMessage: string) => {
-    setDerivedAddresses(undefined);
-    setError(errorMessage);
-  }, []);
+  const errorHandler = useCallback(
+    (errorMessage: string) => {
+      setDerivedAddresses(undefined);
+      setError(errorMessage);
+    },
+    [setDerivedAddresses, setError],
+  );
 
   const validate = useCallback(
     (key: string) => {
@@ -106,7 +124,14 @@ export const ImportPrivateKeyForm = () => {
         errorHandler(validationError);
       }
     },
-    [checkIfAccountExists, errorHandler, network?.isTestnet, t],
+    [
+      checkIfAccountExists,
+      errorHandler,
+      network?.isTestnet,
+      setDerivedAddresses,
+      setError,
+      t,
+    ],
   );
 
   const keyInputHandler = useCallback(
@@ -120,112 +145,77 @@ export const ImportPrivateKeyForm = () => {
         errorHandler(t('Please enter the private key.'));
       }
     },
-    [errorHandler, t, validate],
+    [errorHandler, setPrivateKey, t, validate],
   );
 
   const readyToImport = derivedAddresses && !error && !isImportLoading;
 
-  const handleImport = useCallback(async () => {
-    if (isKnownAccount && !isDuplicatedAccountDialogOpen) {
-      setIsDuplicatedAccountDialogOpen(true);
-      return;
-    }
-    try {
-      const importedAccountId = await importPrivateKey(privateKey);
-      await selectAccount(importedAccountId);
-      toast.success(t('Private Key Imported'), { duration: 1000 });
-      replace(`/account-management`);
-    } catch (err) {
-      toast.error(t('Private Key Import Failed'), { duration: 1000 });
-      console.error(err);
-    }
-  }, [
-    isKnownAccount,
-    isDuplicatedAccountDialogOpen,
-    importPrivateKey,
-    privateKey,
-    selectAccount,
-    t,
-    replace,
-  ]);
-
   const handleNext = useCallback(() => {
-    if (isKnownAccount && !isDuplicatedAccountDialogOpen) {
-      setIsDuplicatedAccountDialogOpen(true);
+    if (isKnownAccount) {
+      showDuplicatedAccountDialog(true);
       return;
     }
 
     return handleImport();
-  }, [isKnownAccount, isDuplicatedAccountDialogOpen, handleImport]);
+  }, [isKnownAccount, showDuplicatedAccountDialog, handleImport]);
 
   return (
-    <Stack sx={{ height: '100%' }}>
-      {isDuplicatedAccountDialogOpen ? (
-        <DuplicatedAccountConfirmation
-          onImportDuplicate={handleImport}
-          onCancel={() => setIsDuplicatedAccountDialogOpen(false)}
+    <>
+      <Typography variant="h2" sx={{ mt: '23px', mb: 6 }}>
+        {t('Import private key')}
+      </Typography>
+      <Stack>
+        <PasswordField
+          value={privateKey}
+          placeholder={t('Enter private key')}
+          onChange={keyInputHandler}
+          error={!!error}
+          helperText={error}
+          sx={{
+            '& .MuiFilledInput-root': {
+              borderRadius: 2,
+            },
+          }}
         />
-      ) : (
-        <>
-          <Typography variant="h2" sx={{ mt: '23px', mb: 6 }}>
-            {t('Import private key')}
-          </Typography>
-          <Stack>
-            <PasswordField
-              value={privateKey}
-              placeholder={t('Enter private key')}
-              onChange={keyInputHandler}
-              error={!!error}
-              helperText={error}
-              sx={{
-                '& .MuiFilledInput-root': {
-                  borderRadius: 2,
-                },
-              }}
-            />
-            {!error && (
-              <Stack sx={{ mt: 2, rowGap: '10px' }}>
-                <DerivedAddressList
-                  derivedAddresses={derivedAddresses}
-                  isLoading={isImportLoading}
-                />
 
-                {derivedAddresses && (
-                  <Card sx={{ p: 2 }}>
-                    <Stack
-                      direction="row"
-                      sx={{ justifyContent: 'space-between' }}
-                    >
-                      <Typography sx={{ fontWeight: 'fontWeightMedium' }}>
-                        {t('Total balance')}
-                      </Typography>
-                      <Typography variant="body2">
-                        {isBalanceLoading ? (
-                          <CircularProgress size={16} />
-                        ) : balance !== null && balance?.sum ? (
-                          currencyFormatter(balance?.sum).replace(currency, '')
-                        ) : (
-                          '-'
-                        )}
-                      </Typography>
-                    </Stack>
-                  </Card>
-                )}
-              </Stack>
+        {!error && (
+          <Stack sx={{ mt: 2, rowGap: '10px' }}>
+            <DerivedAddressList
+              derivedAddresses={derivedAddresses}
+              isLoading={isImportLoading}
+            />
+
+            {derivedAddresses && (
+              <Card sx={{ p: 2 }}>
+                <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+                  <Typography sx={{ fontWeight: 'fontWeightMedium' }}>
+                    {t('Total balance')}
+                  </Typography>
+                  <Typography variant="body2">
+                    {isBalanceLoading ? (
+                      <CircularProgress size={16} />
+                    ) : balance !== null && balance?.sum ? (
+                      currencyFormatter(balance?.sum).replace(currency, '')
+                    ) : (
+                      '-'
+                    )}
+                  </Typography>
+                </Stack>
+              </Card>
             )}
           </Stack>
-          <Button
-            disabled={!readyToImport}
-            onClick={handleNext}
-            color="primary"
-            sx={{
-              marginTop: 'auto',
-            }}
-          >
-            {t('Import')}
-          </Button>
-        </>
-      )}
-    </Stack>
+        )}
+      </Stack>
+      <Button
+        disabled={!readyToImport}
+        onClick={handleNext}
+        color="primary"
+        sx={{
+          marginTop: 'auto',
+        }}
+      >
+        {t('Import')}
+      </Button>
+    </>
   );
 };
