@@ -1,5 +1,5 @@
 import { WalletType } from '@avalabs/types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
 import {
@@ -13,8 +13,8 @@ import {
   SelectAvatarScreen,
   EnjoyYourWalletScreen,
 } from '../../common-screens';
-import { ChooseKeystoneScreen, ConnectKeystoneScreenViaQR } from './screens';
-import { Device, QRCodeDerivedKeys } from './types';
+import { ConnectKeystoneScreen, ConnectKeystoneScreenViaQR } from './screens';
+import { Device, DerivedKeys, ConnectorCallbacks } from './types';
 
 const BASE_PATH = '/onboarding/import/keystone';
 const TOTAL_STEPS = 6;
@@ -38,7 +38,7 @@ export const ConnectKeystoneFlow = () => {
   const [device, setDevice] = useState<Device>(
     isKeystoneUsbSupported ? 'keystone-usb' : 'keystone-qr',
   );
-  const [derivedKeys, setDerivedKeys] = useState<QRCodeDerivedKeys>();
+  const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>();
 
   useEffect(() => {
     if (!addressPublicKeys?.length && !onboardingState.isOnBoarded) {
@@ -58,13 +58,26 @@ export const ConnectKeystoneFlow = () => {
   }, [capture, history]);
 
   const onQRCodeScanned = useCallback(
-    (obtainedKeys: QRCodeDerivedKeys) => {
+    (obtainedKeys: DerivedKeys) => {
       capture(`KeystoneScanQRCodeSuccess`);
 
       setDerivedKeys(obtainedKeys);
 
       history.replace(BASE_PATH);
     },
+    [capture, history],
+  );
+
+  const usbConnectorCallbacks: ConnectorCallbacks = useMemo(
+    () => ({
+      onConnectionSuccess: (obtainedKeys: DerivedKeys) => {
+        capture(`OnboardingKeystone3Connected`);
+        setDerivedKeys(obtainedKeys);
+        history.replace(BASE_PATH);
+      },
+      onConnectionFailed: () => capture('OnboardingKeystone3ConnectionFailed'),
+      onConnectionRetry: () => capture('OnboardingKeystone3Retry'),
+    }),
     [capture, history],
   );
 
@@ -77,6 +90,7 @@ export const ConnectKeystoneFlow = () => {
       setDevice(newDevice);
 
       // Reset the whole state when device changes
+      setDerivedKeys(undefined);
       setExtendedPublicKeys([]);
       setAddressPublicKeys([]);
       setMasterFingerprint('');
@@ -105,7 +119,7 @@ export const ConnectKeystoneFlow = () => {
   return (
     <Switch>
       <Route exact path={BASE_PATH}>
-        <ChooseKeystoneScreen
+        <ConnectKeystoneScreen
           step={2}
           totalSteps={TOTAL_STEPS}
           device={device}
@@ -114,6 +128,8 @@ export const ConnectKeystoneFlow = () => {
           onConfirm={confirmAddresses}
           onScan={onScan}
           derivedInfo={derivedKeys}
+          usbCallbacks={usbConnectorCallbacks}
+          accountIndexes={ACCOUNTS_TO_DERIVE}
         />
       </Route>
       <Route path={`${BASE_PATH}/scan-qr`}>

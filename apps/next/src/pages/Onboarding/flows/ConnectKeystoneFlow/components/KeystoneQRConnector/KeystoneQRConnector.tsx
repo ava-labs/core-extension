@@ -17,17 +17,17 @@ import {
   ErrorType,
   PublicKey,
   QRCodeDerivationStatus,
-  QRCodeDerivedKeys,
+  DerivedKeys,
 } from '../../types';
+import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 
 import { Crosshair } from './Crosshair';
 import { QRCodeScanner } from './QRCodeScanner';
 import { KeystoneQRError } from './KeystoneQRError';
-import { QRCodeScannerContainer } from './Styled';
-import { buildAddressPublicKey, buildExtendedPublicKey } from './util';
+import { QRCodeScannerContainer } from './QRCodeScannerContainer';
 
 type KeystoneQRConnectorProps = {
-  onQRCodeScanned: (info: QRCodeDerivedKeys) => void;
+  onQRCodeScanned: (info: DerivedKeys) => void;
   onUnreadableQRCode?: (isDimensionsError: boolean) => void;
   accountIndexes: number[];
 };
@@ -53,7 +53,8 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
         );
         keys.push({
           index,
-          key: buildAddressPublicKey(evmKey, index),
+          vm: 'EVM',
+          key: buildAddressPublicKey(evmKey, index, 'EVM'),
         });
       }
 
