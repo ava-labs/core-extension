@@ -3,6 +3,7 @@ import {
   FC,
   useCallback,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from 'react';
@@ -45,6 +46,10 @@ export const ModalPageControlProvider: FC<{ children: ReactNode }> = ({
     },
     [setOnBackHandler],
   );
+
+  useEffect(() => {
+    setIsBackButtonVisible(current > 1);
+  }, [current]);
 
   return (
     <ModalPageControlContext.Provider
