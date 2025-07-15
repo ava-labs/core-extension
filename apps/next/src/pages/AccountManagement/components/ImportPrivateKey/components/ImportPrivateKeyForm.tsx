@@ -29,6 +29,7 @@ import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInC
 import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
 import { PasswordField } from '@/components/StandaloneField';
+import { SecretField } from '@/components/StandaloneField/PasswordField/components/SecretField';
 
 interface ImportPrivateKeyFormProps {
   handleImport: () => void;
@@ -176,6 +177,14 @@ export const ImportPrivateKeyForm = ({
               borderRadius: 2,
             },
           }}
+        />
+
+        {/* TODO: clean up this proof of concept */}
+        <SecretField
+          value={privateKey}
+          placeholder={t('Enter private key')}
+          onChange={keyInputHandler}
+          errorText={error}
         />
 
         {!error && (
