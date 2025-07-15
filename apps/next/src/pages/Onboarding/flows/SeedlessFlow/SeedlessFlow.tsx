@@ -4,7 +4,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useOnboardingContext } from '@core/ui';
 
-import { OnboardingModal } from '@/components/OnboardingModal';
+import { FullscreenModal } from '@/components/FullscreenModal';
 
 import {
   ProvideWalletDetailsScreen,
@@ -36,7 +36,7 @@ export const SeedlessFlow = () => {
   }, [oidcToken, history, onboardingState.isOnBoarded]);
 
   return (
-    <OnboardingModal
+    <FullscreenModal
       open
       withCoreLogo
       withAppInfo
@@ -72,6 +72,6 @@ export const SeedlessFlow = () => {
           <EnjoyYourWalletScreen />
         </Route>
       </Switch>
-    </OnboardingModal>
+    </FullscreenModal>
   );
 };

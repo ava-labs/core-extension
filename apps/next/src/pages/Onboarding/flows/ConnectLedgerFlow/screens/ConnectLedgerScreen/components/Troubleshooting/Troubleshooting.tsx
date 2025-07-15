@@ -9,10 +9,10 @@ import {
 } from '@avalabs/k2-alpine';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { InTextLink } from '@/components/InTextLink';
 import { CardMenu } from '@/pages/Onboarding/components/CardMenu';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
@@ -32,8 +32,8 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
-      <OnboardingStepTitle>{t('Trouble connecting')}</OnboardingStepTitle>
-      <OnboardingStepContent>
+      <FullscreenModalTitle>{t('Trouble connecting')}</FullscreenModalTitle>
+      <FullscreenModalContent>
         <InfoBox appName={appName} width="80%">
           <Typography variant="body2">
             <Trans
@@ -74,12 +74,12 @@ export const Troubleshooting: FC<TroubleshootingProps> = ({
             </Typography>
           </li>
         </CardMenu>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton color="primary" onClick={onClose}>
           {t('Close')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

@@ -6,10 +6,10 @@ import { MdOutlinePassword } from 'react-icons/md';
 import { RecoveryMethod } from '@core/types';
 
 import {
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 
 type SeedlessChooseAuthMethodProps = {
@@ -25,11 +25,13 @@ export const SeedlessChooseAuthMethod: FC<SeedlessChooseAuthMethodProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>{t(`Choose a recovery method`)}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>
+        {t(`Choose a recovery method`)}
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(`Choose a recovery method associated with your wallet.`)}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
           {methods.map((mfa, index) => {
             if (mfa.type === 'totp') {
@@ -61,7 +63,7 @@ export const SeedlessChooseAuthMethod: FC<SeedlessChooseAuthMethodProps> = ({
             );
           })}
         </CardMenu>
-      </OnboardingStepContent>
+      </FullscreenModalContent>
     </>
   );
 };

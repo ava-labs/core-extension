@@ -1,6 +1,6 @@
 import { Stack, styled } from '@avalabs/k2-alpine';
 
-export const OnboardingStepContent = styled(Stack)`
+export const FullscreenModalContent = styled(Stack)`
   padding-top: ${({ theme }) => theme.spacing(4)};
   flex-grow: 1;
   height: 100%;
