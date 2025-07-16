@@ -1,28 +1,37 @@
-import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, TextField } from '@avalabs/k2-alpine';
-
-import { useKeyboardShortcuts } from '@core/ui';
+import { FC, useEffect, useState } from 'react';
 
 import {
   FullscreenModalActions,
   FullscreenModalContent,
   FullscreenModalDescription,
   FullscreenModalTitle,
+  useModalPageControl,
 } from '@/components/FullscreenModal';
+import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
+import { Stack, TextField } from '@avalabs/k2-alpine';
+import { useKeyboardShortcuts } from '@core/ui';
 
-type SeedlessNameFidoKeyProps = {
-  keyType: 'passkey' | 'yubikey';
+type NameYourWalletScreenProps = OnboardingScreenProps & {
   onNext: (name: string) => void;
+  isSaving: boolean;
 };
 
-export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
-  keyType,
+export const NameYourWalletScreen: FC<NameYourWalletScreenProps> = ({
   onNext,
+  step,
+  totalSteps,
+  isSaving,
 }) => {
   const { t } = useTranslation();
+  const { setCurrent, setTotal } = useModalPageControl();
   const [name, setName] = useState('');
+
+  useEffect(() => {
+    setCurrent(step);
+    setTotal(totalSteps);
+  }, [setCurrent, setTotal, step, totalSteps]);
 
   const keyboardShortcuts = useKeyboardShortcuts({
     Enter: () => onNext(name),
@@ -31,12 +40,12 @@ export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
   return (
     <>
       <FullscreenModalTitle>
-        {keyType === 'passkey'
-          ? t(`Name your Passkey`)
-          : t(`Name your Yubikey`)}
+        {t('How would you like to name your wallet?')}
       </FullscreenModalTitle>
       <FullscreenModalDescription>
-        {t(`Add a name so that it is easier to find later.`)}
+        {t(
+          'Add a display name for your wallet. You can change it at any time in the settings.',
+        )}
       </FullscreenModalDescription>
       <FullscreenModalContent {...keyboardShortcuts}>
         <Stack width="100%" height="100%">
@@ -49,16 +58,19 @@ export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
           />
         </Stack>
       </FullscreenModalContent>
-      <FullscreenModalActions>
-        <NavButton variant="text" onClick={() => onNext('')}>
-          {t(`Skip`)}
-        </NavButton>
+      <FullscreenModalActions
+        sx={{
+          gap: 6,
+          pt: 2,
+        }}
+      >
         <NavButton
-          disabled={!name}
           color="primary"
           onClick={() => onNext(name)}
+          loading={isSaving}
+          disabled={isSaving}
         >
-          {t(`Save`)}
+          {t('Save')}
         </NavButton>
       </FullscreenModalActions>
     </>

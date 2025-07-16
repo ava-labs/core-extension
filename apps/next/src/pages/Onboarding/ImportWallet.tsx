@@ -1,6 +1,6 @@
 import { Route, Switch, useHistory } from 'react-router-dom';
 
-import { OnboardingModal } from '@/components/OnboardingModal';
+import { FullscreenModal } from '@/components/FullscreenModal';
 
 import { OnboardingStrategyChoiceScreen } from './common-screens/OnboardingStrategyChoiceScreen';
 import { ImportRecoveryPhraseFlow } from './flows/ImportRecoveryPhraseFlow';
@@ -11,7 +11,7 @@ export const ImportWallet = () => {
   const history = useHistory();
 
   return (
-    <OnboardingModal
+    <FullscreenModal
       open
       withCoreLogo
       withAppInfo
@@ -32,6 +32,6 @@ export const ImportWallet = () => {
           <ConnectKeystoneFlow />
         </Route>
       </Switch>
-    </OnboardingModal>
+    </FullscreenModal>
   );
 };

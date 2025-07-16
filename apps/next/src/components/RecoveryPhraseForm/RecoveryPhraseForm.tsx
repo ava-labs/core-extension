@@ -2,8 +2,8 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 
-import { WordsGrid } from './WordsGrid';
 import { RecoveryPhraseLengthSelector } from './RecoveryPhraseLengthSelector';
+import { WordsGrid } from './WordsGrid';
 
 type RecoveryPhraseFormProps = StackProps & {
   onClearAll: () => void;

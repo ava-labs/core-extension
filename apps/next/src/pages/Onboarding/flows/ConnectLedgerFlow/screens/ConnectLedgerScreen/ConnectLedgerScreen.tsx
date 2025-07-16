@@ -4,7 +4,7 @@ import { WalletType } from '@avalabs/types';
 
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
-import { useModalPageControl } from '@/components/OnboardingModal';
+import { useModalPageControl } from '@/components/FullscreenModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import {
   ConnectAvalanche,

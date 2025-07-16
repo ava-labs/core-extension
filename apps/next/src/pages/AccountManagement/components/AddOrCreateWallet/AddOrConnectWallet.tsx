@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { AccountType } from '@core/types';
+import { openFullscreenTab } from '@core/common';
 import { useAccountsContext } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,7 +65,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdList}
             primary={t('Import a recovery phrase')}
             secondary={t('Enter your recovery phrase to import a wallet')}
-            onClick={underDevelopmentClick}
+            onClick={() => openFullscreenTab('import-wallet/seedphrase')}
           />
           <Divider />
           <AccountListItem

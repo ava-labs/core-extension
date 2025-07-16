@@ -10,22 +10,24 @@ import {
   FullscreenModalActions,
   FullscreenModalContent,
   FullscreenModalDescription,
+  FullscreenModalNavigationProps,
   FullscreenModalTitle,
   useModalPageControl,
 } from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
-import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
-import { RecoveryPhraseForm } from '@/components/RecoveryPhraseForm';
+import { RecoveryPhraseForm } from '@/components/RecoveryPhraseForm/RecoveryPhraseForm';
 
-type EnterRecoveryPhraseScreenProps = OnboardingScreenProps & {
+type EnterRecoveryPhraseScreenProps = FullscreenModalNavigationProps & {
   onNext: (phrase: string) => void;
+  isCalculating: boolean;
 };
 
 export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
+  onNext,
+  isCalculating,
   step,
   totalSteps,
-  onNext,
 }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
@@ -37,11 +39,6 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
   const hasAllWords = words.length === phraseLength;
   const isValid = hasAllWords && isPhraseCorrect(phrase);
 
-  useEffect(() => {
-    setCurrent(step);
-    setTotal(totalSteps);
-  }, [setCurrent, setTotal, step, totalSteps]);
-
   const handleNextClick = () => {
     onNext(phrase);
   };
@@ -50,9 +47,16 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
     Enter: isValid ? handleNextClick : undefined,
   });
 
+  useEffect(() => {
+    setCurrent(step);
+    setTotal(totalSteps);
+  }, [setCurrent, setTotal, step, totalSteps]);
+
   return (
     <>
-      <FullscreenModalTitle>{t('Import Recovery Phrase')}</FullscreenModalTitle>
+      <FullscreenModalTitle>
+        {t('Enter your recovery phrase')}
+      </FullscreenModalTitle>
       <FullscreenModalDescription>
         {t(
           'Access an existing wallet with your recovery phrase. You can paste your entire phrase in the first field, or use the tab key to jump to the next field',
@@ -93,7 +97,8 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
           </Stack>
         </Fade>
         <NavButton
-          disabled={!isValid}
+          disabled={!isValid || isCalculating}
+          loading={isCalculating}
           color="primary"
           onClick={handleNextClick}
         >

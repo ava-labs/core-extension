@@ -4,6 +4,6 @@ const StyledTitle = styled(Typography)`
   margin: ${({ theme }) => theme.spacing(2, 0)};
 `;
 
-export const OnboardingStepTitle = (props: TypographyProps) => (
+export const FullscreenModalTitle = (props: TypographyProps) => (
   <StyledTitle variant="h1" {...props} />
 );

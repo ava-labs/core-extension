@@ -1,5 +1,5 @@
 import { Stack, StackProps, styled } from '@avalabs/k2-alpine';
-import { ModalPageControlProvider } from './OnboardingModalPageControlProvider';
+import { ModalPageControlProvider } from './ModalPageControlProvider';
 
 const StyledRoot = styled(Stack)`
   padding: ${({ theme }) => theme.spacing(0, 4)};
@@ -7,7 +7,7 @@ const StyledRoot = styled(Stack)`
   width: 100%;
 `;
 
-export const OnboardingModalContentRoot = ({
+export const FullscreenModalContentRoot = ({
   children,
   ...props
 }: StackProps) => (

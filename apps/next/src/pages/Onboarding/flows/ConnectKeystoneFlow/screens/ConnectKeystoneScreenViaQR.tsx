@@ -2,20 +2,19 @@ import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
-import { KeystoneSupportButton } from '../components/Styled';
-import { KeystoneQRConnector } from '../components/KeystoneQRConnector';
-import { QRCodeDerivedKeys } from '../types';
+import { KeystoneSupportButton, KeystoneQRConnector } from '../components';
+import { DerivedKeys } from '../types';
 
 type ConnectKeystoneScreenViaQRProps = OnboardingScreenProps & {
-  onSuccess: (derivedInfo: QRCodeDerivedKeys) => void;
+  onSuccess: (derivedInfo: DerivedKeys) => void;
   onFailure: (isDimensionsError: boolean) => void;
   accountIndexes: number[];
 };
@@ -33,20 +32,20 @@ export const ConnectKeystoneScreenViaQR: FC<
 
   return (
     <>
-      <OnboardingStepTitle>{t('Camera access')}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t('Camera access')}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t('Allow Chrome to access your camera to scan the QR code.')}
-      </OnboardingStepDescription>
-      <OnboardingStepContent sx={{ alignItems: 'center', gap: 3 }}>
+      </FullscreenModalDescription>
+      <FullscreenModalContent sx={{ alignItems: 'center', gap: 3 }}>
         <KeystoneQRConnector
           onQRCodeScanned={onSuccess}
           onUnreadableQRCode={onFailure}
           accountIndexes={accountIndexes}
         />
-      </OnboardingStepContent>
-      <OnboardingStepActions sx={{ justifyContent: 'center' }}>
+      </FullscreenModalContent>
+      <FullscreenModalActions sx={{ justifyContent: 'center' }}>
         <KeystoneSupportButton />
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };
