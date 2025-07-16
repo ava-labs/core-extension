@@ -1,22 +1,28 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
 import { useEffect, useMemo, useState } from 'react';
-
 import {
-  useAccountsContext,
-  useNetworkContext,
-  useWalletContext,
-} from '@core/ui';
-import { isSolanaNetwork, openFullscreenTab } from '@core/common';
+  Button,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/core-k2-components';
 
-import { SolanaNowSupported } from '@/components/announcements';
+import { isSolanaNetwork } from '@core/common';
+import { useAccountsContext } from '@core/ui';
+import { useWalletContext } from '@core/ui';
+import { useNetworkContext } from '@core/ui';
+import { MagicSolanaLogo } from '@/components/common/MagicSolanaLogo';
+import Dialog from '@/components/common/Dialog';
+import { useTranslation } from 'react-i18next';
+import { openFullscreenTab } from '@core/common';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 const LedgerSolanaAddressPrompt = () => {
+  const { t } = useTranslation();
   const {
     accounts: { active: account },
   } = useAccountsContext();
   const { isLedgerWallet } = useWalletContext();
-  const { network, getNetwork, setNetwork } = useNetworkContext();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { network, setNetwork, getNetwork } = useNetworkContext();
 
   const defaultNetwork = useMemo(
     () =>
@@ -24,6 +30,7 @@ const LedgerSolanaAddressPrompt = () => {
       getNetwork(ChainId.AVALANCHE_TESTNET_ID),
     [getNetwork],
   );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const isMissingSolanaAddress = useMemo(() => {
     if (!account || !network || !isLedgerWallet) {
@@ -32,6 +39,8 @@ const LedgerSolanaAddressPrompt = () => {
 
     return isSolanaNetwork(network) && !account.addressSVM;
   }, [account, isLedgerWallet, network]);
+
+  const theme = useTheme();
 
   useEffect(() => {
     const isOnDerivingScreen = location.hash.includes(
@@ -45,17 +54,40 @@ const LedgerSolanaAddressPrompt = () => {
   }, [isMissingSolanaAddress]);
 
   return (
-    <SolanaNowSupported
+    <Dialog
       open={isDialogOpen}
-      onProceed={() => {
-        openFullscreenTab('ledger/derive-solana-addresses');
-      }}
-      onSkip={() => {
+      onClose={() => {
         if (defaultNetwork) {
           setNetwork(defaultNetwork);
         }
         setIsDialogOpen(false);
       }}
+      title={t('Add a Solana Ledger Account')}
+      content={
+        <Stack sx={{ textAlign: 'center' }}>
+          <Typography
+            variant="body2"
+            align="left"
+            color={theme.palette.grey[500]}
+            sx={{
+              lineHeight: '20px',
+            }}
+          >
+            {t(
+              `To use the Solana network with this account you will need to add a Solana address from your Ledger device.`,
+            )}
+          </Typography>
+          <MagicSolanaLogo outerSize={320} innerSize={187} />
+          <Button
+            size="large"
+            fullWidth
+            color="primary"
+            onClick={() => openFullscreenTab('ledger/derive-solana-addresses')}
+          >
+            {t('Add Solana Address')}
+          </Button>
+        </Stack>
+      }
     />
   );
 };
