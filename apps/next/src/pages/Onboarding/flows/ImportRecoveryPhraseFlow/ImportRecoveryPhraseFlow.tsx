@@ -5,6 +5,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import {
+  CustomizeCore,
   EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
@@ -42,7 +43,7 @@ export const ImportRecoveryPhraseFlow = () => {
   );
 
   const onDetailsProvided = useCallback(() => {
-    history.push(`${BASE_PATH}/select-avatar`);
+    history.push(`${BASE_PATH}/customize-core`);
   }, [history]);
 
   const onAvatarSelected = useCallback(() => {
@@ -64,6 +65,13 @@ export const ImportRecoveryPhraseFlow = () => {
           step={3}
           totalSteps={TOTAL_STEPS}
           onNext={onDetailsProvided}
+        />
+      </Route>
+      <Route path={`${BASE_PATH}/customize-core`}>
+        <CustomizeCore
+          step={4}
+          totalSteps={TOTAL_STEPS}
+          onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
         />
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>

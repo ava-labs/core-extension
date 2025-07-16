@@ -9,12 +9,13 @@ import {
 } from '@core/ui';
 
 import {
+  CustomizeCore,
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
 import { ConnectKeystoneScreen, ConnectKeystoneScreenViaQR } from './screens';
-import { Device, DerivedKeys, ConnectorCallbacks } from './types';
+import { ConnectorCallbacks, DerivedKeys, Device } from './types';
 
 const BASE_PATH = '/onboarding/import/keystone';
 const TOTAL_STEPS = 6;
@@ -149,6 +150,13 @@ export const ConnectKeystoneFlow = () => {
       </Route>
       <Route path={`${BASE_PATH}/wallet-details`}>
         <ProvideWalletDetailsScreen
+          step={4}
+          totalSteps={TOTAL_STEPS}
+          onNext={() => history.push(`${BASE_PATH}/customize-core`)}
+        />
+      </Route>
+      <Route path={`${BASE_PATH}/customize-core`}>
+        <CustomizeCore
           step={4}
           totalSteps={TOTAL_STEPS}
           onNext={() => history.push(`${BASE_PATH}/select-avatar`)}

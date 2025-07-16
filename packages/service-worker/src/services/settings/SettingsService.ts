@@ -1,23 +1,24 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
+import {
+  AnalyticsConsent,
+  CollectiblesVisibility,
+  EnsureDefined,
+  Languages,
+  SETTINGS_STORAGE_KEY,
+  SETTINGS_UNENCRYPTED_STORAGE_KEY,
+  SettingsEvents,
+  SettingsState,
+  ThemeVariant,
+  TokensVisibility,
+  ViewMode,
+} from '@core/types';
 import { EventEmitter } from 'events';
+import { changeLanguage } from 'i18next';
 import { singleton } from 'tsyringe';
+import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
-import {
-  Languages,
-  SettingsEvents,
-  SETTINGS_UNENCRYPTED_STORAGE_KEY,
-  TokensVisibility,
-  CollectiblesVisibility,
-  AnalyticsConsent,
-  SettingsState,
-  SETTINGS_STORAGE_KEY,
-  ThemeVariant,
-  EnsureDefined,
-} from '@core/types';
-import { changeLanguage } from 'i18next';
 
 const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
@@ -29,6 +30,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
   coreAssistant: true,
+  defaultView: 'floating',
 };
 
 @singleton()
@@ -193,7 +195,7 @@ export class SettingsService implements OnStorageReady, OnLock {
   async setLanguage(language: Languages) {
     changeLanguage(language);
     const settings = await this.getSettings();
-    const newSettings = {
+    const newSettings: SettingsState = {
       ...settings,
       language,
     };
@@ -208,12 +210,21 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
+  async setDefaultView(viewMode: ViewMode) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      defaultView: viewMode,
+    });
+  }
+
   private async saveSettings(state: SettingsState) {
-    const language = state.language;
+    const { language, defaultView } = state;
     await this.storageService.saveUnencrypted(
       SETTINGS_UNENCRYPTED_STORAGE_KEY,
       {
-        language: state.language,
+        language,
+        defaultView,
       },
     );
     try {

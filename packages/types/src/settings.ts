@@ -53,6 +53,7 @@ type CustomTokens = {
   };
 };
 
+export type ViewMode = 'floating' | 'sidebar';
 export interface SettingsState {
   currency: string;
   customTokens: CustomTokens;
@@ -63,6 +64,7 @@ export interface SettingsState {
   analyticsConsent: AnalyticsConsent;
   language: Languages;
   coreAssistant: boolean;
+  defaultView: ViewMode;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

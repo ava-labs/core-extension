@@ -15,6 +15,7 @@ import {
 } from '@core/ui';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
+import { ViewContainerSwitch } from '@/components/ViewContainerSwitch';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
@@ -43,6 +44,7 @@ export function App() {
                   OnboardingScreen={Onboarding}
                 >
                   <WalletContextProvider LockedComponent={LockScreen}>
+                    <ViewContainerSwitch />
                     <Switch>
                       <Route
                         path="/account-management"
