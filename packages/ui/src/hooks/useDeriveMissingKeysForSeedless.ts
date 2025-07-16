@@ -58,7 +58,7 @@ export const useDeriveMissingKeysForSeedless = () => {
   );
 
   useEffect(() => {
-    if (!walletDetails?.id) {
+    if (!walletDetails?.id || !hasMissingAddresses) {
       return;
     }
 
@@ -67,7 +67,7 @@ export const useDeriveMissingKeysForSeedless = () => {
     const timer = setTimeout(() => {
       // Only show the "Updating accounts..." message if it takes more than 5 seconds
       toastId = toast.loading(t('Updating accounts...'));
-    }, 1_000);
+    }, 5_000);
 
     deriveMissingKeys(walletDetails.id)
       .then(() => {
@@ -93,7 +93,7 @@ export const useDeriveMissingKeysForSeedless = () => {
 };
 
 const STORAGE_KEY = 'missingKeysDerivationLastAttemptAt' as const;
-const MIN_DELAY_BETWEEN_ATTEMPTS = 1_000; // 1 minute
+const MIN_DELAY_BETWEEN_ATTEMPTS = 60_000; // 1 minute
 
 const hasDelayPassed = async () => {
   const lastAttemptTime = await getLastAttemptTime();
