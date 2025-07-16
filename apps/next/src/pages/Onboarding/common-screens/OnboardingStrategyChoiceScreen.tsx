@@ -6,10 +6,10 @@ import { EncryptedIcon, Divider, LedgerIcon, Stack } from '@avalabs/k2-alpine';
 import { useAnalyticsContext } from '@core/ui';
 
 import {
-  OnboardingStepContent,
-  OnboardingStepTitle,
+  FullscreenModalContent,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 
 import { CardMenu, CardMenuItem } from '../components/CardMenu';
 
@@ -26,10 +26,10 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
 
   return (
     <Stack>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t('How would you like to access your existing wallet?')}
-      </OnboardingStepTitle>
-      <OnboardingStepContent>
+      </FullscreenModalTitle>
+      <FullscreenModalContent>
         <CardMenu
           sx={{ width: 1, flex: '0 0 auto' }}
           divider={<Divider sx={{ ml: 8, mr: 3 }} />}
@@ -59,7 +59,7 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
             }}
           />
         </CardMenu>
-      </OnboardingStepContent>
+      </FullscreenModalContent>
     </Stack>
   );
 };

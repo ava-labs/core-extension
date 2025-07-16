@@ -12,11 +12,11 @@ import { useFidoErrorMessage } from '@core/ui';
 import { AuthErrorCode } from '@core/types';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 type SeedlessVerifyWithFidoProps = {
@@ -44,15 +44,15 @@ export const SeedlessVerifyWithFido: FC<SeedlessVerifyWithFidoProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t(`Verify with {{name}}`, { name })}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           `You may need to enable popups to continue, you can find this setting near the address bar.`,
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <Stack
           width="100%"
           height="100%"
@@ -80,12 +80,12 @@ export const SeedlessVerifyWithFido: FC<SeedlessVerifyWithFidoProps> = ({
             </Stack>
           )}
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton loading={isLoading} color="secondary" onClick={onCancel}>
           {t(`Cancel`)}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

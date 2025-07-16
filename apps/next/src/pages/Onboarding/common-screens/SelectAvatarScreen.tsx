@@ -5,16 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { useKeyboardShortcuts } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import {
   AVATAR_OPTIONS,
   PersonalAvatar,
-  usePersonalAvatarSaver,
+  usePersonalAvatar,
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
@@ -34,7 +34,7 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
 }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
-  const saveAvatar = usePersonalAvatarSaver();
+  const { saveAvatar } = usePersonalAvatar();
   const [selectedAvatar, setSelectedAvatar] = useState<PersonalAvatarName>(
     AVATAR_OPTIONS[0],
   );
@@ -57,15 +57,15 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t('Select your personal avatar')}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           'A few more details are needed before getting any further with your wallet creation',
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent
+      </FullscreenModalDescription>
+      <FullscreenModalContent
         sx={{ overflow: 'unset', pt: 0 }}
         {...keyboardHandlers}
       >
@@ -92,12 +92,12 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
             />
           </Suspense>
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton color="primary" onClick={handleNextClick}>
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

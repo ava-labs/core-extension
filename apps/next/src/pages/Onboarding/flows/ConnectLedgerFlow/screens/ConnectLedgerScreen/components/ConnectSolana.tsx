@@ -3,11 +3,11 @@ import { Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import * as Styled from './Styled';
@@ -41,11 +41,11 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
-      <OnboardingStepTitle>{t('Connect your Ledger')}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t('Connect your Ledger')}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t('Open the Solana app on your Ledger device')}
-      </OnboardingStepDescription>
-      <OnboardingStepContent sx={{ gap: 3, alignItems: 'center' }}>
+      </FullscreenModalDescription>
+      <FullscreenModalContent sx={{ gap: 3, alignItems: 'center' }}>
         <SolanaLedgerConnector
           callbacks={connectorCallbacks}
           onSuccess={setDerivedKeys}
@@ -53,8 +53,8 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
           onStatusChange={setStatus}
           numberOfKeys={3}
         />
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         {status === 'error' ? (
           <Stack width="100%" justifyContent="center" alignItems="center">
             <Styled.LedgerLiveButton>
@@ -70,7 +70,7 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
             {t('Next')}
           </NavButton>
         )}
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

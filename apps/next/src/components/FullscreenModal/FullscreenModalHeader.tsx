@@ -3,7 +3,7 @@ import { IconButton, Stack, StackProps, styled } from '@avalabs/k2-alpine';
 
 import { PageControl } from '../PageControl';
 
-import { useModalPageControl } from './OnboardingModalPageControlProvider';
+import { useModalPageControl } from './ModalPageControlProvider';
 
 const StyledHeader = styled(Stack)`
   padding-top: ${({ theme }) => theme.spacing(4)};
@@ -15,14 +15,14 @@ const StyledHeader = styled(Stack)`
   position: relative;
 `;
 
-type OnboardingModalHeaderProps = StackProps & {
+type FullscreenModalHeaderProps = StackProps & {
   onBack?: () => void;
 };
 
-export const OnboardingModalHeader = ({
+export const FullscreenModalHeader = ({
   onBack,
   ...props
-}: OnboardingModalHeaderProps) => {
+}: FullscreenModalHeaderProps) => {
   const { total, current, isBackButtonVisible, onBackHandler } =
     useModalPageControl();
 

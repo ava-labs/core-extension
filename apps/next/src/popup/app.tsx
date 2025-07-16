@@ -7,6 +7,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  KeystoneContextProvider,
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
@@ -14,11 +15,13 @@ import {
   WalletContextProvider,
 } from '@core/ui';
 
+import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
+import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 
 import { Providers } from '.';
 import { Header } from '@/components/Header';
@@ -52,6 +55,8 @@ export function App() {
           />,
           <WalletContextProvider LockedComponent={LockScreen} />,
           <LedgerContextProvider />,
+          <PersonalAvatarProvider />,
+          <KeystoneContextProvider />,
         ]) as ReactElement[]
       }
     >
@@ -63,6 +68,10 @@ export function App() {
         )}
         <Switch>
           <Route path="/account-management" component={AccountManagement} />
+          <Route
+            path="/import-wallet/seedphrase"
+            component={ImportSeedphraseFlow}
+          />
           <Route
             path="/"
             render={() => (

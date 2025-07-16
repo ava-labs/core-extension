@@ -5,12 +5,12 @@ import { Button, Typography, Stack } from '@avalabs/k2-alpine';
 import { useOnboardingContext } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
@@ -63,13 +63,13 @@ export const ConfirmSeedphraseScreen: FC<ConfirmSeedphraseScreenProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t(`Verify your recovery phrase`)}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(`Select the words below to verify your recovery phrase`)}
-      </OnboardingStepDescription>
-      <OnboardingStepContent gap={4}>
+      </FullscreenModalDescription>
+      <FullscreenModalContent gap={4}>
         {Array.from(confirmationWords).map(
           ([wordIndex, { options }], rowIndex) => (
             <Stack key={wordIndex} gap={1.5}>
@@ -114,8 +114,8 @@ export const ConfirmSeedphraseScreen: FC<ConfirmSeedphraseScreenProps> = ({
             </Stack>
           ),
         )}
-      </OnboardingStepContent>
-      <OnboardingStepActions gap={6} pt={2}>
+      </FullscreenModalContent>
+      <FullscreenModalActions gap={6} pt={2}>
         <NavButton
           color="primary"
           onClick={handleNextClick}
@@ -123,7 +123,7 @@ export const ConfirmSeedphraseScreen: FC<ConfirmSeedphraseScreenProps> = ({
         >
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

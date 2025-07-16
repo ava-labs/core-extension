@@ -9,7 +9,7 @@ import {
   SelectAvatarScreen,
   EnjoyYourWalletScreen,
 } from '../../common-screens';
-import { OnboardingModal } from '@/components/OnboardingModal';
+import { FullscreenModal } from '@/components/FullscreenModal';
 import { NewSeedphraseScreen } from './screens/NewSeedphraseScreen';
 import { ConfirmSeedphraseScreen } from './screens/ConfirmSeedphraseScreen';
 
@@ -49,7 +49,7 @@ export const CreateNewWalletFlow = () => {
   }, [capture, history]);
 
   return (
-    <OnboardingModal
+    <FullscreenModal
       open
       withCoreLogo
       withAppInfo
@@ -89,6 +89,6 @@ export const CreateNewWalletFlow = () => {
           <EnjoyYourWalletScreen />
         </Route>
       </Switch>
-    </OnboardingModal>
+    </FullscreenModal>
   );
 };
