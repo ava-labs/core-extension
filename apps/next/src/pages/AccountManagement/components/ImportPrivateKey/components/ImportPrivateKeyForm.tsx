@@ -150,7 +150,7 @@ export const ImportPrivateKeyForm = ({
 
   const readyToImport = derivedAddresses && !error && !isImportLoading;
 
-  const handleNext = useCallback(() => {
+  const handleSubmit = useCallback(() => {
     capture('ImportPrivateKeyConfirmClicked');
     if (isKnownAccount) {
       setIsDuplicatedAccountDialogOpen(true);
@@ -219,7 +219,7 @@ export const ImportPrivateKeyForm = ({
           color="primary"
           size="small"
           fullWidth
-          onClick={handleNext}
+          onClick={handleSubmit}
         >
           {t('Import')}
         </Button>
