@@ -105,8 +105,8 @@ export type { GetSettingsHandler } from './services/settings/handlers/getSetting
 export type { GetTokenDataHandler } from './services/settings/handlers/getTokenDataByAddress';
 export type { SetAnalyticsConsentHandler } from './services/settings/handlers/setAnalyticsConsent';
 export type { SetCoreAssistantHandler } from './services/settings/handlers/setCoreAssistant';
-export type { SetDefaultViewHandler } from './services/settings/handlers/setDefaultView';
 export type { SetLanguageHandler } from './services/settings/handlers/setLanguage';
+export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
 export type { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
 export type { UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';
 export type { UpdateShowNoBalanceHandler } from './services/settings/handlers/updateShowTokensNoBalance';

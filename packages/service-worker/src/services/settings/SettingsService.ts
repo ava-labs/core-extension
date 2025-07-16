@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
   coreAssistant: true,
-  defaultView: 'floating',
+  preferredView: 'floating',
 };
 
 @singleton()
@@ -210,21 +210,21 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setDefaultView(viewMode: ViewMode) {
+  async setPreferredView(viewMode: ViewMode) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,
-      defaultView: viewMode,
+      preferredView: viewMode,
     });
   }
 
   private async saveSettings(state: SettingsState) {
-    const { language, defaultView } = state;
+    const { language, preferredView } = state;
     await this.storageService.saveUnencrypted(
       SETTINGS_UNENCRYPTED_STORAGE_KEY,
       {
         language,
-        defaultView,
+        preferredView,
       },
     );
     try {

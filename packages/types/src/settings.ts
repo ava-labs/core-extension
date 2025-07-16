@@ -64,7 +64,7 @@ export interface SettingsState {
   analyticsConsent: AnalyticsConsent;
   language: Languages;
   coreAssistant: boolean;
-  defaultView: ViewMode;
+  preferredView: ViewMode;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

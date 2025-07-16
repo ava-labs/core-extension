@@ -9,8 +9,8 @@ import type {
   LockWalletHandler,
   SetAnalyticsConsentHandler,
   SetCoreAssistantHandler,
-  SetDefaultViewHandler,
   SetLanguageHandler,
+  SetPreferredViewHandler,
   UpdateCollectiblesVisibilityHandler,
   UpdateCurrencyHandler,
   UpdateShowNoBalanceHandler,
@@ -64,7 +64,7 @@ type SettingsFromProvider = SettingsState & {
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   nextGenTheme: 'system' | 'testnet' | 'dark' | 'light';
-  setDefaultView: (viewMode: ViewMode) => Promise<boolean>;
+  setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -211,10 +211,10 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
-  const setDefaultView = useCallback(
+  const setPreferredView = useCallback(
     (viewMode: ViewMode) => {
-      return request<SetDefaultViewHandler>({
-        method: ExtensionRequest.SETTINGS_SET_DEFAULT_VIEW,
+      return request<SetPreferredViewHandler>({
+        method: ExtensionRequest.SETTINGS_SET_PREFERRED_VIEW,
         params: [viewMode],
       });
     },
@@ -243,7 +243,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           settingsActivePage,
           setSettingsActivePage,
           setCoreAssistant,
-          setDefaultView,
+          setPreferredView,
         } as SettingsFromProvider
       }
     >

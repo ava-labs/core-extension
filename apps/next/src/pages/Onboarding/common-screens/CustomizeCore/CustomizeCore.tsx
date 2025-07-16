@@ -26,7 +26,7 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
   const { setCurrent, setTotal } = useModalPageControl();
   const [selectedViewMode, setSelectedViewMode] =
     useState<ViewMode>('floating');
-  const { setDefaultView } = useSettingsContext();
+  const { setPreferredView } = useSettingsContext();
 
   useEffect(() => {
     setCurrent(step);
@@ -34,9 +34,9 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
   }, [setCurrent, setTotal, totalSteps, step]);
 
   const handleNextClick = useCallback(async () => {
-    await setDefaultView(selectedViewMode);
+    await setPreferredView(selectedViewMode);
     onNext();
-  }, [onNext, selectedViewMode, setDefaultView]);
+  }, [onNext, selectedViewMode, setPreferredView]);
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: handleNextClick,

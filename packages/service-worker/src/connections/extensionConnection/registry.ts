@@ -140,7 +140,7 @@ import { WalletConnectImportAccount } from '../../services/walletConnect/handler
 
 import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/keystoneOnboardingHandlerNew';
 import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
-import { SetDefaultViewHandler } from '~/services/settings/handlers/setDefaultView';
+import { SetPreferredViewHandler } from '~/services/settings/handlers/setPreferredView';
 import { SubscriptionsChangedEvents } from '../../services/notifications/events/subscriptionsChangedEvent';
 import { GetNotificationSubscriptions } from '../../services/notifications/handlers/getSubscriptions';
 import { SubscribeToNotification } from '../../services/notifications/handlers/subscribe';
@@ -455,7 +455,7 @@ import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriv
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: SetDefaultViewHandler,
+    useToken: SetPreferredViewHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

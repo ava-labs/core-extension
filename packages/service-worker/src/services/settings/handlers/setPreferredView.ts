@@ -7,21 +7,21 @@ import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.SETTINGS_SET_DEFAULT_VIEW,
+  ExtensionRequest.SETTINGS_SET_PREFERRED_VIEW,
   true,
   [viewMode: ViewMode]
 >;
 
 @injectable()
-export class SetDefaultViewHandler implements HandlerType {
-  method = ExtensionRequest.SETTINGS_SET_DEFAULT_VIEW as const;
+export class SetPreferredViewHandler implements HandlerType {
+  method = ExtensionRequest.SETTINGS_SET_PREFERRED_VIEW as const;
 
   constructor(private settingsService: SettingsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [viewMode] = request.params || ['floating'];
 
-    await this.settingsService.setDefaultView(viewMode);
+    await this.settingsService.setPreferredView(viewMode);
 
     return {
       ...request,

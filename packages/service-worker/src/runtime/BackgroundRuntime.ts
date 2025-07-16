@@ -1,15 +1,16 @@
 import { ContextContainer } from '@core/types';
-import browser from 'webextension-polyfill';
-import { ConnectionService } from '../connections/ConnectionService';
 import { singleton } from 'tsyringe';
-import { LockService } from '../services/lock/LockService';
-import { OnboardingService } from '../services/onboarding/OnboardingService';
-import { ModuleManager } from '../vmModules/ModuleManager';
-import { BridgeService } from '../services/bridge/BridgeService';
-import { AddressResolver } from '../services/secrets/AddressResolver';
-import { AppCheckService } from '../services/appcheck/AppCheckService';
-import { GasStationService } from '../services/gasless/GasStationService';
-import { NotificationsService } from '../services/notifications/NotificationsService';
+import browser from 'webextension-polyfill';
+import type { ConnectionService } from '../connections/ConnectionService';
+import type { AppCheckService } from '../services/appcheck/AppCheckService';
+import type { BridgeService } from '../services/bridge/BridgeService';
+import type { GasStationService } from '../services/gasless/GasStationService';
+import type { LockService } from '../services/lock/LockService';
+import type { NotificationsService } from '../services/notifications/NotificationsService';
+import type { OnboardingService } from '../services/onboarding/OnboardingService';
+import type { AddressResolver } from '../services/secrets/AddressResolver';
+import type { SettingsService } from '../services/settings/SettingsService';
+import type { ModuleManager } from '../vmModules/ModuleManager';
 
 @singleton()
 export class BackgroundRuntime {
@@ -24,12 +25,22 @@ export class BackgroundRuntime {
     private appCheckService: AppCheckService,
     private gasStationService: GasStationService,
     private notificationsService: NotificationsService,
+    private settingsService: SettingsService,
   ) {}
 
-  activate() {
+  async activate() {
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
+
+    this.settingsService
+      .getSettings()
+      .then((settings) => {
+        chrome.sidePanel.setPanelBehavior({
+          openPanelOnActionClick: settings.preferredView === 'sidebar',
+        });
+      })
+      .catch((error) => console.error(error));
 
     // Activate services which need to run all the or are required for bootstraping the wallet state
     this.connectionService.activate();
