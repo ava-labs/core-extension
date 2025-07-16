@@ -39,7 +39,6 @@ import { AppRoutes } from './AppRoutes';
 import { InAppApprovalOverlay } from '@/components/common/InAppApprovalOverlay';
 import { NetworkFeeContextProvider } from '@core/ui';
 import LedgerSolanaAddressPrompt from '@/pages/Ledger/LedgerSolanaAddressPrompt';
-import { SeedlessUpdatingAccountDialog } from '@/components/common/seedless/SeedlessUpdatingAccountDialog';
 import { FirebaseContextProvider } from '@core/ui';
 import { NotificationsContextProvider } from '@core/ui';
 import { SwapPendingToast } from '@/pages/Swap/components/SwapPendingToast';
@@ -48,6 +47,7 @@ import { WalletLocked } from '@/pages/Wallet/WalletLocked';
 import { Onboarding } from '@/pages/Onboarding/Onboarding';
 import { LoadingContent } from './LoadingContent';
 import { DialogContextProvider } from '@/contexts/DialogContextProvider';
+import { WhatsNewModal } from '@/components/announcements';
 
 const pagesWithoutHeader = [
   '/tokens/manage',
@@ -214,7 +214,7 @@ export function Popup() {
                                                     <LedgerRegisterBtcWalletPolicy />
                                                     <LedgerSolanaAddressPrompt />
                                                     <SeedlessAuthPrompt />
-                                                    <SeedlessUpdatingAccountDialog />
+                                                    <WhatsNewModal />
                                                     {isMiniMode && (
                                                       <InAppApprovalOverlay />
                                                     )}
