@@ -60,14 +60,16 @@ browser.tabs.query({ active: true }).then(() => {
     <Sentry.ErrorBoundary>
       <Router>
         <Providers
-          providers={Children.toArray([
-            <I18nextProvider i18n={i18next} />,
-            <ConnectionContextProvider LoadingComponent={CircularProgress} />,
-            <SettingsContextProvider />,
-            <FeatureFlagsContextProvider />,
-            <AnalyticsContextProvider />,
-            <Suspense fallback={<CircularProgress />} />,
-          ])}
+          providers={
+            Children.toArray([
+              <I18nextProvider i18n={i18next} />,
+              <ConnectionContextProvider LoadingComponent={CircularProgress} />,
+              <SettingsContextProvider />,
+              <FeatureFlagsContextProvider />,
+              <AnalyticsContextProvider />,
+              <Suspense fallback={<CircularProgress />} />,
+            ]) as ReactElement[]
+          }
         >
           <App />
         </Providers>
