@@ -12,8 +12,6 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
-import { useNetworkContext } from '@core/ui/src/contexts/NetworkProvider';
 import {
   ChangeEvent,
   Dispatch,
@@ -26,12 +24,14 @@ import { useTranslation } from 'react-i18next';
 import { networks } from 'bitcoinjs-lib';
 import { DerivedAddresses } from '../types';
 import { DerivedAddressList } from './DerivedAddressList';
-import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
 import {
   useAnalyticsContext,
   useBalancesContext,
   useSettingsContext,
+  useAccountsContext,
+  useNetworkContext,
+  useBalanceTotalInCurrency,
 } from '@core/ui';
 import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
 

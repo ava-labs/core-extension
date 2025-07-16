@@ -1,13 +1,12 @@
 import { FC } from 'react';
 import { ImportPrivateKeyForm } from './components/ImportPrivateKeyForm';
 import { Stack, toast } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useImportPrivateKey } from './hooks/useImportPrivateKey';
 import { DuplicatedAccountConfirmation } from './components/DuplicatedAccountConfirmation';
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useAccountsContext } from '@core/ui';
 
 export const ImportPrivateKey: FC = () => {
   const { t } = useTranslation();
