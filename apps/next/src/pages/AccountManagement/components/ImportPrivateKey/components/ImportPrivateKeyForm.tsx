@@ -28,7 +28,11 @@ import { DerivedAddresses } from '../types';
 import { DerivedAddressList } from './DerivedAddressList';
 import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
-import { useBalancesContext, useSettingsContext } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useBalancesContext,
+  useSettingsContext,
+} from '@core/ui';
 import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
 
 interface ImportPrivateKeyFormProps {
@@ -47,6 +51,7 @@ export const ImportPrivateKeyForm = ({
   setIsDuplicatedAccountDialogOpen,
 }: ImportPrivateKeyFormProps) => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   const { allAccounts } = useAccountsContext();
   const { network } = useNetworkContext();
@@ -146,13 +151,14 @@ export const ImportPrivateKeyForm = ({
   const readyToImport = derivedAddresses && !error && !isImportLoading;
 
   const handleNext = useCallback(() => {
+    capture('ImportPrivateKeyConfirmClicked');
     if (isKnownAccount) {
       setIsDuplicatedAccountDialogOpen(true);
       return;
     }
 
     return handleImport();
-  }, [isKnownAccount, setIsDuplicatedAccountDialogOpen, handleImport]);
+  }, [isKnownAccount, setIsDuplicatedAccountDialogOpen, handleImport, capture]);
 
   return (
     <>

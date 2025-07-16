@@ -9,7 +9,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { AccountType } from '@core/types';
 import { openFullscreenTab } from '@core/common';
-import { useAccountsContext } from '@core/ui';
+import { useAccountsContext, useAnalyticsContext } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaSquareCaretUp } from 'react-icons/fa6';
@@ -22,14 +22,17 @@ const underDevelopmentClick = () => toast.error('Under development');
 
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+
   const { addAccount, accounts, selectAccount } = useAccountsContext();
   const { goBack, push } = useHistory();
 
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
 
   const goToImportPrivateKey = useCallback(() => {
+    capture('ImportPrivateKey_Clicked');
     push('/account-management/import-private-key');
-  }, [push]);
+  }, [push, capture]);
 
   return (
     <Stack gap={2} height={1}>

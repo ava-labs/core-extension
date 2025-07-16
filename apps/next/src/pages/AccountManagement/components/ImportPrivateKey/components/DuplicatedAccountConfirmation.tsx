@@ -1,5 +1,7 @@
 import { Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { useCallback } from 'react';
+import { useAnalyticsContext } from '@core/ui';
 
 type DuplicatedAccountConfirmationProps = {
   onImportDuplicate: () => void;
@@ -11,6 +13,18 @@ export const DuplicatedAccountConfirmation = ({
   onCancel,
 }: DuplicatedAccountConfirmationProps) => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+
+  const submitHandler = useCallback(() => {
+    capture('ImportPrivateKeyConfirmDuplicateClicked');
+    onImportDuplicate();
+  }, [onImportDuplicate, capture]);
+
+  const cancelHandler = useCallback(() => {
+    capture('ImportPrivateKeyConfirmDuplicateCanceled');
+    onCancel();
+  }, [onCancel, capture]);
+
   return (
     <Stack sx={{ height: '100%', mt: '23px' }}>
       <Typography
@@ -31,7 +45,7 @@ export const DuplicatedAccountConfirmation = ({
           color="primary"
           size="small"
           fullWidth
-          onClick={onImportDuplicate}
+          onClick={submitHandler}
         >
           {t('Import duplicate')}
         </Button>
@@ -40,7 +54,7 @@ export const DuplicatedAccountConfirmation = ({
           color="secondary"
           size="small"
           fullWidth
-          onClick={onCancel}
+          onClick={cancelHandler}
         >
           {t('Cancel')}
         </Button>
