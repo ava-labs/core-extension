@@ -1,7 +1,7 @@
 import { Box, IconButton } from '@avalabs/k2-alpine';
 import { ContextContainer } from '@core/types';
-import { isSpecificContextContainer } from '@core/ui';
-import { FC, MouseEventHandler } from 'react';
+import { isSpecificContextContainer, useSettingsContext } from '@core/ui';
+import { FC } from 'react';
 import DockToLeft from './DockToLeft.svg';
 
 const viewInSidePanel = async () => {
@@ -17,17 +17,20 @@ const viewInPopup = async () => {
   await chrome.action.openPopup({});
 };
 
-const onSwitchClicked: MouseEventHandler = async () => {
-  const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
-  window.close();
-  if (isSidePanel) {
-    await viewInPopup();
-  } else {
-    await viewInSidePanel();
-  }
-};
-
 export const ViewContainerSwitch: FC = () => {
+  const { setPreferredView } = useSettingsContext();
+
+  const onClick = async () => {
+    const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+    window.close();
+    if (isSidePanel) {
+      await viewInPopup();
+    } else {
+      await viewInSidePanel();
+    }
+    setPreferredView(isSidePanel ? 'floating' : 'sidebar');
+  };
+
   return (
     <Box
       position="fixed"
@@ -37,7 +40,7 @@ export const ViewContainerSwitch: FC = () => {
       height={24}
       zIndex={9999}
     >
-      <IconButton size="small" onClick={onSwitchClicked} color="secondary">
+      <IconButton size="small" onClick={onClick} color="primary">
         <img src={DockToLeft} alt="Dock to left" />
       </IconButton>
     </Box>

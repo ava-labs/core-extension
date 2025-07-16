@@ -20,7 +20,6 @@ export class SetPreferredViewHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [viewMode] = request.params || ['floating'];
-
     await this.settingsService.setPreferredView(viewMode);
 
     return {

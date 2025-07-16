@@ -1,16 +1,16 @@
-import { ContextContainer } from '@core/types';
+import { ContextContainer, SettingsEvents, SettingsState } from '@core/types';
 import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
-import type { ConnectionService } from '../connections/ConnectionService';
-import type { AppCheckService } from '../services/appcheck/AppCheckService';
-import type { BridgeService } from '../services/bridge/BridgeService';
-import type { GasStationService } from '../services/gasless/GasStationService';
-import type { LockService } from '../services/lock/LockService';
-import type { NotificationsService } from '../services/notifications/NotificationsService';
-import type { OnboardingService } from '../services/onboarding/OnboardingService';
-import type { AddressResolver } from '../services/secrets/AddressResolver';
-import type { SettingsService } from '../services/settings/SettingsService';
-import type { ModuleManager } from '../vmModules/ModuleManager';
+import { ConnectionService } from '../connections/ConnectionService';
+import { AppCheckService } from '../services/appcheck/AppCheckService';
+import { BridgeService } from '../services/bridge/BridgeService';
+import { GasStationService } from '../services/gasless/GasStationService';
+import { LockService } from '../services/lock/LockService';
+import { NotificationsService } from '../services/notifications/NotificationsService';
+import { OnboardingService } from '../services/onboarding/OnboardingService';
+import { AddressResolver } from '../services/secrets/AddressResolver';
+import { SettingsService } from '../services/settings/SettingsService';
+import { ModuleManager } from '../vmModules/ModuleManager';
 
 @singleton()
 export class BackgroundRuntime {
@@ -32,15 +32,7 @@ export class BackgroundRuntime {
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
-
-    this.settingsService
-      .getSettings()
-      .then((settings) => {
-        chrome.sidePanel.setPanelBehavior({
-          openPanelOnActionClick: settings.preferredView === 'sidebar',
-        });
-      })
-      .catch((error) => console.error(error));
+    await this.setupSidePanel();
 
     // Activate services which need to run all the or are required for bootstraping the wallet state
     this.connectionService.activate();
@@ -134,5 +126,26 @@ export class BackgroundRuntime {
       reasons: ['WORKERS'],
       justification: 'offload computation',
     });
+  }
+
+  private async setupSidePanel() {
+    const setSidePanelBehavior = (settings: SettingsState) => {
+      const { preferredView } = settings;
+
+      if (!preferredView) {
+        return;
+      }
+
+      chrome.sidePanel.setPanelBehavior({
+        openPanelOnActionClick: preferredView === 'sidebar',
+      });
+    };
+
+    setSidePanelBehavior(await this.settingsService.getSettings());
+
+    this.settingsService.addListener(
+      SettingsEvents.SETTINGS_UPDATED,
+      setSidePanelBehavior,
+    );
   }
 }

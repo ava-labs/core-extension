@@ -219,28 +219,29 @@ export class SettingsService implements OnStorageReady, OnLock {
   }
 
   private async saveSettings(state: SettingsState) {
-    const { language, preferredView } = state;
+    const { language, preferredView, ...encryptedState } = state;
+    const unencryptedState = {
+      language,
+      preferredView,
+    };
     await this.storageService.saveUnencrypted(
       SETTINGS_UNENCRYPTED_STORAGE_KEY,
-      {
-        language,
-        preferredView,
-      },
+      unencryptedState,
     );
     try {
-      await this.storageService.save(SETTINGS_STORAGE_KEY, state);
+      await this.storageService.save(SETTINGS_STORAGE_KEY, encryptedState);
       this._cachedSettings = state;
       this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, state);
     } catch {
       this._cachedSettings = {
         ...this._cachedSettings,
-        language,
+        ...unencryptedState,
       } as SettingsState;
-      this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, { language });
+      this.eventEmitter.emit(SettingsEvents.SETTINGS_UPDATED, unencryptedState);
     }
   }
 
-  addListener(event: SettingsEvents, callback: (data: unknown) => void) {
+  addListener<T>(event: SettingsEvents, callback: (data: T) => void) {
     this.eventEmitter.on(event, callback);
   }
 }
