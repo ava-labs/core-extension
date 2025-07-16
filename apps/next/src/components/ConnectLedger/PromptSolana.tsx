@@ -10,7 +10,7 @@ import {
 } from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
-import SolanaGlow from '../images/SolanaGlow.png';
+import SolanaGlow from './images/SolanaGlow.png';
 
 type SolanaPromptProps = StackProps & {
   onNext: () => void;
