@@ -5,6 +5,7 @@ import {
   getPublicKeyFromPrivateKey,
 } from '@avalabs/core-wallets-sdk';
 import {
+  Box,
   Button,
   Card,
   CircularProgress,
@@ -28,8 +29,7 @@ import { DerivedAddressList } from './DerivedAddressList';
 import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
 import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
-import { PasswordField } from '@/components/StandaloneField';
-import { SecretField } from '@/components/StandaloneField/PasswordField/components/SecretField';
+import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
 
 interface ImportPrivateKeyFormProps {
   handleImport: () => void;
@@ -162,29 +162,16 @@ export const ImportPrivateKeyForm = ({
 
   return (
     <>
-      <Typography variant="h2" sx={{ mt: '23px', mb: 6 }}>
+      <Typography variant="h2" sx={{ mt: '23px', mb: 6, fontWeight: '700' }}>
         {t('Import private key')}
       </Typography>
       <Stack>
-        <PasswordField
+        <LessRoundedPasswordField
           value={privateKey}
           placeholder={t('Enter private key')}
           onChange={keyInputHandler}
           error={!!error}
           helperText={error}
-          sx={{
-            '& .MuiFilledInput-root': {
-              borderRadius: 2,
-            },
-          }}
-        />
-
-        {/* TODO: clean up this proof of concept */}
-        <SecretField
-          value={privateKey}
-          placeholder={t('Enter private key')}
-          onChange={keyInputHandler}
-          errorText={error}
         />
 
         {!error && (
@@ -215,16 +202,19 @@ export const ImportPrivateKeyForm = ({
           </Stack>
         )}
       </Stack>
-      <Button
-        disabled={!readyToImport}
-        onClick={handleNext}
-        color="primary"
-        sx={{
-          marginTop: 'auto',
-        }}
-      >
-        {t('Import')}
-      </Button>
+
+      <Box marginTop="auto">
+        <Button
+          disabled={!readyToImport}
+          variant="contained"
+          color="primary"
+          size="small"
+          fullWidth
+          onClick={handleNext}
+        >
+          {t('Import')}
+        </Button>
+      </Box>
     </>
   );
 };

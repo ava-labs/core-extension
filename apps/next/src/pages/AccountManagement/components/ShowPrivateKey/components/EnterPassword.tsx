@@ -21,7 +21,7 @@ type Props = {
   onAuthenticated(key: string | null): void;
 };
 
-const LessRoundedPasswordField = styled(PasswordField)(({ theme }) => ({
+export const LessRoundedPasswordField = styled(PasswordField)(({ theme }) => ({
   '& .MuiFilledInput-root': {
     borderRadius: theme.shape.borderRadius,
   },

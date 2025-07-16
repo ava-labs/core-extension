@@ -13,15 +13,27 @@ export const DuplicatedAccountConfirmation = ({
   const { t } = useTranslation();
   return (
     <Stack sx={{ height: '100%', mt: '23px' }}>
-      <Typography variant="h2" sx={{ textWrap: 'balance' }}>
+      <Typography variant="h2" sx={{ textWrap: 'balance', fontWeight: '700' }}>
         {t('This account has already been imported')}
       </Typography>
 
       <Stack sx={{ rowGap: '10px', mt: 'auto' }}>
-        <Button onClick={onImportDuplicate} color="primary">
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          fullWidth
+          onClick={onImportDuplicate}
+        >
           {t('Import duplicate')}
         </Button>
-        <Button onClick={onCancel} color="secondary">
+        <Button
+          variant="contained"
+          color="secondary"
+          size="small"
+          fullWidth
+          onClick={onCancel}
+        >
           {t('Cancel')}
         </Button>
       </Stack>
