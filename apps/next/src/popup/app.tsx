@@ -22,7 +22,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { Providers } from '.';
 import { Header } from '@/components/Header';
-import { Children } from 'react';
+import { Children, ReactElement } from 'react';
 
 const pagesWithoutHeader = ['/account-management'];
 
@@ -40,18 +40,20 @@ export function App() {
 
   return (
     <Providers
-      providers={Children.toArray([
-        <ThemeProvider theme={preferredColorScheme} />,
-        <AccountsContextProvider />,
-        <NetworkContextProvider />,
-        <OnboardingContextProvider
-          onError={(message: string) => toast.error(message)}
-          LoadingComponent={CircularProgress}
-          OnboardingScreen={Onboarding}
-        />,
-        <WalletContextProvider LockedComponent={LockScreen} />,
-        <LedgerContextProvider />,
-      ])}
+      providers={
+        Children.toArray([
+          <ThemeProvider theme={preferredColorScheme} />,
+          <AccountsContextProvider />,
+          <NetworkContextProvider />,
+          <OnboardingContextProvider
+            onError={(message: string) => toast.error(message)}
+            LoadingComponent={CircularProgress}
+            OnboardingScreen={Onboarding}
+          />,
+          <WalletContextProvider LockedComponent={LockScreen} />,
+          <LedgerContextProvider />,
+        ]) as ReactElement[]
+      }
     >
       <div>
         {displayHeader && (
