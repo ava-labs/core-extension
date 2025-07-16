@@ -34,25 +34,17 @@ import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterP
 interface ImportPrivateKeyFormProps {
   handleImport: () => void;
   isImportLoading: boolean;
-  error: string;
-  setError: Dispatch<SetStateAction<string>>;
   privateKey: string;
   setPrivateKey: Dispatch<SetStateAction<string>>;
-  derivedAddresses: DerivedAddresses | undefined;
-  setDerivedAddresses: Dispatch<SetStateAction<DerivedAddresses | undefined>>;
-  showDuplicatedAccountDialog: Dispatch<SetStateAction<boolean>>;
+  setIsDuplicatedAccountDialogOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const ImportPrivateKeyForm = ({
   handleImport,
   isImportLoading,
-  error,
-  setError,
   privateKey,
   setPrivateKey,
-  derivedAddresses,
-  setDerivedAddresses,
-  showDuplicatedAccountDialog,
+  setIsDuplicatedAccountDialogOpen,
 }: ImportPrivateKeyFormProps) => {
   const { t } = useTranslation();
 
@@ -63,6 +55,8 @@ export const ImportPrivateKeyForm = ({
 
   const [isKnownAccount, setIsKnownAccount] = useState(false);
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
+  const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
+  const [error, setError] = useState('');
 
   const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
 
@@ -153,16 +147,25 @@ export const ImportPrivateKeyForm = ({
 
   const handleNext = useCallback(() => {
     if (isKnownAccount) {
-      showDuplicatedAccountDialog(true);
+      setIsDuplicatedAccountDialogOpen(true);
       return;
     }
 
     return handleImport();
-  }, [isKnownAccount, showDuplicatedAccountDialog, handleImport]);
+  }, [isKnownAccount, setIsDuplicatedAccountDialogOpen, handleImport]);
 
   return (
     <>
-      <Typography variant="h2" sx={{ mt: '23px', mb: 6, fontWeight: '700' }}>
+      <Typography
+        variant="h2"
+        sx={{
+          mt: '23px',
+          mb: 6,
+          '&.MuiTypography-root': {
+            fontWeight: 700,
+          },
+        }}
+      >
         {t('Import private key')}
       </Typography>
       <Stack>

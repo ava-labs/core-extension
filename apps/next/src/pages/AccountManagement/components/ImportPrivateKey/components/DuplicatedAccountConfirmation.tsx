@@ -13,7 +13,15 @@ export const DuplicatedAccountConfirmation = ({
   const { t } = useTranslation();
   return (
     <Stack sx={{ height: '100%', mt: '23px' }}>
-      <Typography variant="h2" sx={{ textWrap: 'balance', fontWeight: '700' }}>
+      <Typography
+        variant="h2"
+        sx={{
+          textWrap: 'balance',
+          '&.MuiTypography-root': {
+            fontWeight: 700,
+          },
+        }}
+      >
         {t('This account has already been imported')}
       </Typography>
 

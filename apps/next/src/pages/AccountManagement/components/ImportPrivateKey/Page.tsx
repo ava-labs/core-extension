@@ -5,7 +5,6 @@ import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { DerivedAddresses } from './types';
 import { useImportPrivateKey } from './hooks/useImportPrivateKey';
 import { DuplicatedAccountConfirmation } from './components/DuplicatedAccountConfirmation';
 
@@ -18,8 +17,6 @@ export const ImportPrivateKey: FC = () => {
     useImportPrivateKey();
 
   const [privateKey, setPrivateKey] = useState('');
-  const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
-  const [error, setError] = useState('');
   const [isDuplicatedAccountDialogOpen, setIsDuplicatedAccountDialogOpen] =
     useState(false);
 
@@ -46,13 +43,9 @@ export const ImportPrivateKey: FC = () => {
         <ImportPrivateKeyForm
           handleImport={handleImport}
           isImportLoading={isImportLoading}
-          error={error}
-          setError={setError}
           privateKey={privateKey}
           setPrivateKey={setPrivateKey}
-          derivedAddresses={derivedAddresses}
-          setDerivedAddresses={setDerivedAddresses}
-          showDuplicatedAccountDialog={setIsDuplicatedAccountDialogOpen}
+          setIsDuplicatedAccountDialogOpen={setIsDuplicatedAccountDialogOpen}
         />
       )}
     </Stack>
