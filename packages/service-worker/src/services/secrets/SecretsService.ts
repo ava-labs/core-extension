@@ -818,7 +818,7 @@ export class SecretsService implements OnUnlock {
         newPublicKeys.push(publicKeyAVM);
       }
     } else if (secrets.secretType === SecretType.Mnemonic) {
-      // For mnemonic, we can derive public keys for EVM/Bitcoin, AVM and HVM
+      // For mnemonic, we can derive public keys for EVM/Bitcoin, X/P-Chains, HyperVM and Solana
       if (!hasEVMPublicKey) {
         const publicKeyEVM = await AddressPublicKey.fromSeedphrase(
           secrets.mnemonic,
