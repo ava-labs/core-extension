@@ -51,14 +51,14 @@ export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
   }, [events, request]);
   if (children) {
     return (
-      <FeatureFlagsContext.Provider
+      <FeatureFlagsContext
         value={{
           isFlagEnabled: (flagName) => featureFlags[flagName],
           featureFlags,
         }}
       >
         {children}
-      </FeatureFlagsContext.Provider>
+      </FeatureFlagsContext>
     );
   }
 }

@@ -20,7 +20,7 @@ import { getAllAddressesForAccount } from '@core/common';
 import { Account } from '@core/types';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { useCurrentDomain } from '@/pages/Permissions/useCurrentDomain';
+import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type ConnectedListType = {
@@ -41,7 +41,7 @@ const getAccountConnectedSites = ({
   if (!account || !list) {
     return [];
   }
-  return Object.values(list).filter((listItem: any) =>
+  return Object.values(list).filter((listItem) =>
     Object.keys(listItem?.accounts).some((address) =>
       getAllAddressesForAccount(account).includes(address),
     ),
@@ -59,12 +59,10 @@ export const ConnectedSites = ({ activeAccount }) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const isConnected =
-    (isDomainConnectedToAccount &&
-      isDomainConnectedToAccount(
-        domain,
-        getAllAddressesForAccount(activeAccount ?? {}),
-      )) ||
-    false;
+    isDomainConnectedToAccount?.(
+      domain,
+      getAllAddressesForAccount(activeAccount ?? {}),
+    ) ?? false;
 
   const handleConnectedSitesClose = () => {
     setConnectedSitesAnchorEl(null);
