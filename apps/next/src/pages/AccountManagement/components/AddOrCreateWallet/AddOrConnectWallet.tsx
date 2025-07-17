@@ -68,7 +68,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={LedgerIcon}
             primary={t('Import Ledger wallet')}
             secondary={t('Use Ledger to connect')}
-            onClick={underDevelopmentClick}
+            onClick={() => openFullscreenTab('import-wallet/ledger')}
           />
           <Divider />
           <AccountListItem
