@@ -1,27 +1,70 @@
 import { Button, Card, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import {
-  ChangeEventHandler,
-  DragEventHandler,
-  RefObject,
+  ChangeEvent,
   useState,
+  DragEvent,
+  Dispatch,
+  SetStateAction,
+  useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { FileImage } from './FileImage';
+import { useKeystoreFileImport } from '@core/ui/src/hooks/useKeystoreFileImport';
+import { KeystoreError } from '@core/types';
+
 type KeystoreFileUploadProps = {
-  inputRef: RefObject<HTMLInputElement | null>;
-  onDrop: DragEventHandler<HTMLDivElement>;
-  onFileSelected: ChangeEventHandler<HTMLInputElement>;
+  file: File | null;
+  setFile: Dispatch<SetStateAction<File | null>>;
+  onSubmit: (file: File | null) => void;
+  onError: (error: KeystoreError) => void;
 };
 
 export const KeystoreFileUpload = ({
-  inputRef,
-  onDrop,
-  onFileSelected,
+  file,
+  setFile,
+  onSubmit,
+  onError,
 }: KeystoreFileUploadProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const { isValidKeystoreFile } = useKeystoreFileImport();
 
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+
+  const handleFileUploaded = async (ev: ChangeEvent<HTMLInputElement>) => {
+    const newFile = ev.target.files?.[0];
+
+    if (!newFile) {
+      onError(KeystoreError.InvalidVersion);
+      return;
+    }
+
+    if (await isValidKeystoreFile(newFile)) {
+      setFile(newFile ?? null);
+    } else {
+      onError(KeystoreError.InvalidVersion);
+    }
+  };
+
+  const handleFileDropped = async (ev: DragEvent<HTMLDivElement>) => {
+    ev.preventDefault();
+    setIsDraggingOver(false);
+    const item = ev.dataTransfer.items[0];
+    if (!item) {
+      setFile(null);
+      return;
+    }
+    const rawFile = item.getAsFile();
+    if (rawFile && (await isValidKeystoreFile(rawFile))) {
+      setFile(rawFile);
+    } else {
+      onError(KeystoreError.InvalidVersion);
+      setFile(null);
+    }
+  };
 
   return (
     <Stack sx={{ px: 2, pt: 1, flexGrow: 1, gap: 1 }}>
@@ -30,18 +73,9 @@ export const KeystoreFileUpload = ({
           p: 4,
           transition: theme.transitions.create(['border', 'color']),
           color: isDraggingOver ? theme.palette.info.light : 'initial',
-          border: `2px dashed ${
-            isDraggingOver
-              ? theme.palette.info.light
-              : theme.palette.neutral['850_30']
-          }`,
+          border: `2px dashed ${theme.palette.background.switchTrackUnchecked}`,
         }}
-        onDrop={(ev) => {
-          ev.preventDefault();
-
-          setIsDraggingOver(false);
-          onDrop(ev);
-        }}
+        onDrop={handleFileDropped}
         onDragOver={(ev) => ev.preventDefault()}
         onDragEnter={() => {
           setIsDraggingOver(true);
@@ -59,18 +93,22 @@ export const KeystoreFileUpload = ({
             textAlign: 'center',
           }}
         >
-          {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}
-          <Typography variant="h6" color="text.primary">
-            {t('Drop your file here to upload')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {t(
-              'Only keystore files exported from the Avalanche Wallet are supported.',
-            )}
-          </Typography>
-          <Typography variant="h5" color="text.secondary" sx={{ my: 2 }}>
-            {t('Or')}
-          </Typography>
+          {file ? (
+            <FileImage />
+          ) : (
+            <>
+              {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}
+              <Typography variant="h6" color="text.primary">
+                {t('Drop your file here to upload')}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {t(
+                  'Only Keystore files from the Avalanche Wallet are supported',
+                )}
+              </Typography>
+            </>
+          )}
+
           <Button
             size="medium"
             fullWidth
@@ -85,10 +123,18 @@ export const KeystoreFileUpload = ({
             type="file"
             hidden
             id="browse-files"
-            onChange={onFileSelected}
+            onChange={handleFileUploaded}
           />
         </Stack>
       </Card>
+
+      <Button
+        disabled={!file}
+        onClick={() => onSubmit(file)}
+        sx={{ marginTop: 'auto' }}
+      >
+        {t('Next')}
+      </Button>
     </Stack>
   );
 };

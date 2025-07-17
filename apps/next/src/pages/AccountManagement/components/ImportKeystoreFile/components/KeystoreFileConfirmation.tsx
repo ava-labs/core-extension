@@ -1,10 +1,4 @@
-import {
-  Button,
-  Card,
-  Stack,
-  Tooltip,
-  Typography,
-} from '@avalabs/core-k2-components';
+import { Button, Card, Stack, Tooltip, Typography } from '@avalabs/k2-alpine';
 import { KeystoreFileContentInfo } from '@core/types';
 import { useTranslation } from 'react-i18next';
 
@@ -62,7 +56,7 @@ export const KeystoreFileConfirmation = ({
             >
               {t('File Name')}
             </Typography>
-            <Tooltip title={fileName} wrapWithSpan={false}>
+            <Tooltip title={fileName}>
               <Typography
                 variant="body2"
                 sx={{
@@ -112,7 +106,7 @@ export const KeystoreFileConfirmation = ({
           fullWidth
           onClick={onConfirm}
           disabled={isLoading}
-          isLoading={isLoading}
+          loading={isLoading}
           data-testid="import-keystore-file"
         >
           {t('Import Keystore File')}

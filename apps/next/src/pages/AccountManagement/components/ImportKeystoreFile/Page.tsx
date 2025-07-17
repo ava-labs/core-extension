@@ -1,27 +1,10 @@
-import { FC, DragEventHandler, useCallback, useRef, useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-  Typography,
-  toast,
-} from '@avalabs/k2-alpine';
-import { useHistory } from 'react-router-dom';
+import { FC, useCallback, useState } from 'react';
+import { Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { KeystoreError, KeystoreFileContentInfo } from '@core/types';
-import {
-  useErrorMessage,
-  useKeyboardShortcuts,
-  useAnalyticsContext,
-  useKeystoreFileImport,
-} from '@core/ui';
+import { KeystoreError } from '@core/types';
+import { useAnalyticsContext, useKeystoreFileImport } from '@core/ui';
 import { KeystoreFileUpload } from './components/KeystoreFileUpload';
-import { KeystoreFileConfirmation } from './components/KeystoreFileConfirmation';
-import { KeystoreFileError } from './components/KeystoreFileError';
+import { KeystoreFilePassword } from './components/KeystoreFilePassword';
 
 enum Step {
   ChooseFile,
@@ -30,44 +13,30 @@ enum Step {
   Error,
 }
 
-const EMPTY_FILE_INFO: KeystoreFileContentInfo = {
-  seedPhrasesCount: 0,
-  privateKeysCount: 0,
-};
-
 export const ImportKeystoreFile: FC = () => {
-  const history = useHistory();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const getTranslatedError = useErrorMessage();
+  // const getTranslatedError = useErrorMessage();
 
   const [step, setStep] = useState(Step.ChooseFile);
   const [file, setFile] = useState<File | null>(null);
-  const [filePassword, setFilePassword] = useState('');
-  const [fileInfo, setFileInfo] = useState(EMPTY_FILE_INFO);
   const [error, setError] = useState<KeystoreError | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const {
-    getKeyCounts,
-    importKeystoreFile,
-    isImporting,
-    isReading,
-    isValidKeystoreFile,
-  } = useKeystoreFileImport();
+  const { isValidKeystoreFile } = useKeystoreFileImport();
+  console.log(error); //TODO remove this
 
-  const { title: errorMessage } = getTranslatedError(error);
+  // const { title: errorMessage } = getTranslatedError(error);
 
-  const restart = useCallback(() => {
-    setError(null);
-    setFile(null);
-    setFileInfo(EMPTY_FILE_INFO);
-    setFilePassword('');
-    setStep(Step.ChooseFile);
+  // const restart = useCallback(() => {
+  //   setError(null);
+  //   setFile(null);
+  //   setFileInfo(EMPTY_FILE_INFO);
+  //   setFilePassword('');
+  //   setStep(Step.ChooseFile);
 
-    if (inputRef.current) {
-      inputRef.current.value = '';
-    }
-  }, []);
+  //   if (inputRef.current) {
+  //     inputRef.current.value = '';
+  //   }
+  // }, []);
 
   const onFileSelected = useCallback(
     async (rawFile: File | null) => {
@@ -90,72 +59,58 @@ export const ImportKeystoreFile: FC = () => {
     [capture, isValidKeystoreFile],
   );
 
-  const handleDrop: DragEventHandler = useCallback(
-    async (ev) => {
-      const item = ev.dataTransfer.items[0];
+  // const handleImport = useCallback(async () => {
+  //   if (!file || isReading || isImporting) {
+  //     return;
+  //   }
 
-      if (!item) {
-        return;
-      }
+  //   try {
+  //     capture('KeystoreFileImportStarted');
+  //     await importKeystoreFile(file, filePassword);
+  //     capture('KeystoreFileImportSuccess');
 
-      const rawFile = item.getAsFile();
-      await onFileSelected(rawFile);
-    },
-    [onFileSelected],
-  );
+  //     toast.success(t('Successfully imported the keystore file.'));
 
-  const handleImport = useCallback(async () => {
-    if (!file || isReading || isImporting) {
-      return;
-    }
+  //     history.replace('/accounts');
+  //   } catch (err: any) {
+  //     capture('KeystoreFileImportFailure');
+  //     setError(err);
+  //     setStep(Step.Error);
+  //   }
+  // }, [
+  //   capture,
+  //   file,
+  //   filePassword,
+  //   history,
+  //   importKeystoreFile,
+  //   isImporting,
+  //   isReading,
+  //   t,
+  // ]);
 
-    try {
-      capture('KeystoreFileImportStarted');
-      await importKeystoreFile(file, filePassword);
-      capture('KeystoreFileImportSuccess');
+  // const readKeystoreFile = useCallback(async () => {
+  //   if (!file || isReading || isImporting) {
+  //     return;
+  //   }
 
-      toast.success(t('Successfully imported the keystore file.'));
+  //   try {
+  //     const info = await getKeyCounts(file, filePassword);
+  //     setFileInfo(info);
+  //     setStep(Step.ConfirmData);
+  //   } catch (err: any) {
+  //     // For wrong password we only highlight the text field.
+  //     if (err !== KeystoreError.InvalidPassword) {
+  //       setStep(Step.Error);
+  //     }
+  //     setError(err);
+  //     setFileInfo(EMPTY_FILE_INFO);
+  //   }
+  // }, [file, filePassword, getKeyCounts, isImporting, isReading]);
 
-      history.replace('/accounts');
-    } catch (err: any) {
-      capture('KeystoreFileImportFailure');
-      setError(err);
-      setStep(Step.Error);
-    }
-  }, [
-    capture,
-    file,
-    filePassword,
-    history,
-    importKeystoreFile,
-    isImporting,
-    isReading,
-    t,
-  ]);
-
-  const readKeystoreFile = useCallback(async () => {
-    if (!file || isReading || isImporting) {
-      return;
-    }
-
-    try {
-      const info = await getKeyCounts(file, filePassword);
-      setFileInfo(info);
-      setStep(Step.ConfirmData);
-    } catch (err: any) {
-      // For wrong password we only highlight the text field.
-      if (err !== KeystoreError.InvalidPassword) {
-        setStep(Step.Error);
-      }
-      setError(err);
-      setFileInfo(EMPTY_FILE_INFO);
-    }
-  }, [file, filePassword, getKeyCounts, isImporting, isReading]);
-
-  const keyboardHandlers = useKeyboardShortcuts({
-    Enter: readKeystoreFile,
-    Escape: restart,
-  });
+  // const keyboardHandlers = useKeyboardShortcuts({
+  //   Enter: readKeystoreFile,
+  //   Escape: restart,
+  // });
 
   return (
     <Stack
@@ -167,96 +122,29 @@ export const ImportKeystoreFile: FC = () => {
       <Stack direction="row" sx={{ mt: 2.5, mb: 0.5, pr: 1 }}>
         <Typography>{t('Upload Keystore File')}</Typography>
       </Stack>
-
-      {(step === Step.ChooseFile || step === Step.ProvidePassword) && (
+      {step === Step.ChooseFile && (
         <KeystoreFileUpload
-          inputRef={inputRef}
-          onDrop={handleDrop}
-          onFileSelected={async (ev) => {
-            if (ev.target.files?.[0]) {
-              await onFileSelected(ev.target.files[0]);
-            }
+          file={file}
+          setFile={setFile}
+          onSubmit={async (newFile) => {
+            await onFileSelected(newFile);
+          }}
+          onError={(newError) => {
+            setError(newError);
+            setStep(Step.Error);
           }}
         />
       )}
-
-      {file && step === Step.ConfirmData && (
-        <KeystoreFileConfirmation
-          fileName={file.name}
-          fileInfo={fileInfo}
-          isLoading={isReading || isImporting}
-          onConfirm={handleImport}
-          onCancel={restart}
+      {step === Step.ProvidePassword && file && (
+        <KeystoreFilePassword
+          file={file}
+          onCancel={() => setStep(Step.ChooseFile)}
+          onError={(newError) => {
+            setError(newError);
+            setStep(Step.Error);
+          }}
         />
       )}
-
-      {error && step === Step.Error && (
-        <KeystoreFileError error={error} onTryAgain={restart} />
-      )}
-
-      <Dialog
-        open={step === Step.ProvidePassword}
-        fullWidth
-        onClose={restart}
-        PaperProps={{
-          sx: { m: 2, width: '100%', maxWidth: 'none' },
-        }}
-      >
-        <DialogTitle>{t('Password Required')}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2">
-            {t('Please enter the keystore file password to continue.')}
-          </Typography>
-          <TextField
-            autoFocus
-            data-testid="keystore-file-password"
-            fullWidth
-            label={t('Password')}
-            inputLabelProps={{
-              sx: {
-                transform: 'none',
-                fontSize: 'body2.fontSize',
-                mb: 1,
-                mt: 4,
-              },
-            }}
-            helperText={
-              error === KeystoreError.InvalidPassword
-                ? errorMessage
-                : t('This password was set when you created the keystore file.')
-            }
-            error={error === KeystoreError.InvalidPassword}
-            placeholder={t('Input Password')}
-            value={filePassword}
-            type="password"
-            onChange={(ev) => setFilePassword(ev.target.value)}
-            {...keyboardHandlers}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            key="continue-upload"
-            size="large"
-            disabled={!filePassword || !file || isReading}
-            isLoading={isReading}
-            fullWidth
-            onClick={readKeystoreFile}
-            data-testid="continue-upload"
-          >
-            {t('Continue Upload')}
-          </Button>
-          <Button
-            key="cancel-upload"
-            variant="text"
-            size="large"
-            fullWidth
-            onClick={restart}
-            data-testid="back-button"
-          >
-            {t('Back')}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Stack>
   );
 };
