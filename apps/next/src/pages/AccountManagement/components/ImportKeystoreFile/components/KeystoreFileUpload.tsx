@@ -1,11 +1,4 @@
-import {
-  Button,
-  Card,
-  Stack,
-  Typography,
-  UploadIcon,
-  useTheme,
-} from '@avalabs/core-k2-components';
+import { Button, Card, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import {
   ChangeEventHandler,
   DragEventHandler,
@@ -34,12 +27,13 @@ export const KeystoreFileUpload = ({
     <Stack sx={{ px: 2, pt: 1, flexGrow: 1, gap: 1 }}>
       <Card
         sx={{
-          backgroundColor: 'grey.800',
           p: 4,
           transition: theme.transitions.create(['border', 'color']),
           color: isDraggingOver ? theme.palette.info.light : 'initial',
-          border: `2px dotted ${
-            isDraggingOver ? theme.palette.info.light : 'transparent'
+          border: `2px dashed ${
+            isDraggingOver
+              ? theme.palette.info.light
+              : theme.palette.neutral['850_30']
           }`,
         }}
         onDrop={(ev) => {
@@ -65,7 +59,7 @@ export const KeystoreFileUpload = ({
             textAlign: 'center',
           }}
         >
-          <UploadIcon size={64} />
+          {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}
           <Typography variant="h6" color="text.primary">
             {t('Drop your file here to upload')}
           </Typography>

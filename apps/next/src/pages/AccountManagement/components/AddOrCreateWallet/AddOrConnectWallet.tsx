@@ -9,8 +9,8 @@ import {
 } from '@avalabs/k2-alpine';
 import { AccountType } from '@core/types';
 import { openFullscreenTab } from '@core/common';
-import { useAccountsContext } from '@core/ui';
-import { FC } from 'react';
+import { useAccountsContext, useAnalyticsContext } from '@core/ui';
+import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaSquareCaretUp } from 'react-icons/fa6';
 import { MdAdd, MdKey, MdList, MdTopic } from 'react-icons/md';
@@ -23,9 +23,15 @@ const underDevelopmentClick = () => toast.error('Under development');
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
   const { addAccount, accounts, selectAccount } = useAccountsContext();
-  const { goBack } = useHistory();
+  const { goBack, push } = useHistory();
+  const { capture } = useAnalyticsContext();
 
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
+
+  const goToImportKeystoreFileScreen = useCallback(() => {
+    capture('AddWalletWithKeystoreFile_Clicked');
+    push('/account-management/import-keystore-file');
+  }, [push, capture]);
 
   return (
     <Stack gap={2} height={1}>
@@ -82,7 +88,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdTopic}
             primary={t('Import a keystore file')}
             secondary={t('Upload a JSON file to import')}
-            onClick={underDevelopmentClick}
+            onClick={goToImportKeystoreFileScreen}
           />
           <Divider />
           <AccountListItem
