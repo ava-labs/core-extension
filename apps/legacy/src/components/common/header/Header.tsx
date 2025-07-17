@@ -9,7 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { SettingsMenu } from '@/components/settings/SettingsMenu';
-import { useCurrentDomain } from '@/pages/Permissions/useCurrentDomain';
+import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 import { SettingsPages, usePermissionContext } from '@core/ui';
 import { useAccountsContext } from '@core/ui';
 import { useNetworkContext } from '@core/ui';
