@@ -4,6 +4,7 @@ import { Account, NetworkWithCaipId, SwapErrorCode } from '@core/types';
 import { fetchAndVerify } from '@core/common';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { swapError } from '../swap-utils';
+import { MarkrQuote, MarkrTransaction } from '../models';
 
 /**
  * Expo fetch is used to fetch the swap rate stream from the Markr orchestrator
@@ -29,28 +30,7 @@ import { swapError } from '../swap-utils';
  * so we will be able to use it directly in the future.
  */
 
-export type MarkrQuote = {
-  uuid: string;
-  aggregator: {
-    id: string;
-    name: string;
-  };
-  tokenIn: string;
-  tokenInDecimals: number;
-  amountIn: string;
-  tokenOut: string;
-  tokenOutDecimals: number;
-  amountOut: string;
-  done?: boolean;
-};
-
-export type MarkrTransaction = {
-  to: string;
-  value: string;
-  data: string;
-};
-
-const ORCHESTRATOR_URL = 'https://orchestrator.markr.io';
+const ORCHESTRATOR_URL = 'https://proxy-api.avax.network/proxy/markr';
 const DATA_PREFIX = 'data:';
 const NEWLINE = '\n';
 

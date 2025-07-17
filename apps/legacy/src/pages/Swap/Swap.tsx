@@ -99,6 +99,7 @@ export function Swap() {
     setQuotes,
     manuallySelected,
     setManuallySelected,
+    srcAmount,
     destAmount,
     resetValues,
     slippageTolerance,
@@ -115,26 +116,7 @@ export function Swap() {
     [targetTokens, selectedFromToken?.name, selectedFromToken?.symbol],
   );
 
-  const quote = useMemo(() => {
-    if (!quotes || !quotes.selected) {
-      return null;
-    }
-    return quotes.selected.quote;
-  }, [quotes]);
-
-  const amountOut = useMemo(() => {
-    if (!quotes || !quotes.selected) {
-      return null;
-    }
-    return quotes.selected.metadata.amountOut as string;
-  }, [quotes]);
-
-  const amountIn = useMemo(() => {
-    if (!quotes || !quotes.selected) {
-      return null;
-    }
-    return quotes.selected.metadata.amountIn as string;
-  }, [quotes]);
+  const quote = useMemo(() => quotes?.selected?.quote ?? null, [quotes]);
 
   const isFromTokenKnown = useMemo(
     () =>
@@ -177,20 +159,20 @@ export function Swap() {
   const fromAmount = useMemo(() => {
     const result =
       destinationInputField === 'from'
-        ? BigInt(amountIn || '0') // todo: check if this is correct
+        ? BigInt(srcAmount || '0')
         : defaultFromValue;
 
     return result;
-  }, [amountIn, defaultFromValue, destinationInputField]);
+  }, [srcAmount, defaultFromValue, destinationInputField]);
 
   const toAmount = useMemo(() => {
     const result =
       destinationInputField === 'to'
-        ? BigInt(amountOut || '0')
+        ? BigInt(destAmount || '0')
         : toTokenValue?.bigint;
 
     return result;
-  }, [amountOut, destinationInputField, toTokenValue]);
+  }, [destAmount, destinationInputField, toTokenValue]);
 
   const fromTokensList = useMemo(
     () =>
@@ -210,15 +192,25 @@ export function Swap() {
       toTokenDecimals,
       fromTokenDecimals,
     } = getSwapValues();
+    if (!amount) {
+      return;
+    }
+
+    const amountIn =
+      destinationInputField === 'from' ? srcAmount : amount.toString();
+    const amountOut =
+      destinationInputField === 'to' ? destAmount : amount.toString();
+
     if (
       !networkFee ||
       !toTokenDecimals ||
       !toTokenAddress ||
       !fromTokenAddress ||
       !fromTokenDecimals ||
-      !amount ||
       !quotes ||
-      !quote
+      !quote ||
+      !amountIn ||
+      !amountOut
     ) {
       return;
     }
@@ -236,8 +228,8 @@ export function Swap() {
         quote,
         slippage: parseFloat(slippage),
         swapProvider: quotes.provider,
-        amountIn: amount.toString(),
-        amountOut: destAmount,
+        amountIn,
+        amountOut,
       }),
     );
 

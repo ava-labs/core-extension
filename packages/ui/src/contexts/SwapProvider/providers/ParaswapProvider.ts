@@ -5,6 +5,7 @@ import {
   NormalizedSwapQuoteResult,
   PerformSwapParams,
   SwapProvider,
+  SwapProviders,
 } from '../types';
 import ParaswapService from '../services/ParaswapService';
 import { TransactionParams as Transaction } from '@paraswap/sdk';
@@ -23,7 +24,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 const PARTNER = 'Avalanche';
 
 export const ParaswapProvider: SwapProvider = {
-  name: 'paraswap',
+  name: SwapProviders.PARASWAP,
 
   async getQuote(
     {
@@ -200,7 +201,7 @@ export const ParaswapProvider: SwapProvider = {
         batch,
       });
 
-      if (!isOneClickSwapEnabled) {
+      if (approvalTxHash && !isOneClickSwapEnabled) {
         const receipt = await provider.waitForTransaction(approvalTxHash);
 
         if (!receipt || (receipt && receipt.status !== 1)) {

@@ -4,6 +4,7 @@ import {
   NormalizedSwapQuoteResult,
   PerformSwapParams,
   SwapProvider,
+  SwapProviders,
 } from '../types';
 import { swapError } from '../swap-utils';
 import { AccountError, CommonError, SwapErrorCode } from '@core/types';
@@ -33,7 +34,7 @@ const getUrl = (path: string, queryParams?: URLSearchParams) => {
 };
 
 export const JupiterProvider: SwapProvider = {
-  name: 'jupiter',
+  name: SwapProviders.JUPITER,
 
   async getQuote({
     fromTokenAddress,

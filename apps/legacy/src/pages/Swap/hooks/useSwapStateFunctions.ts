@@ -17,6 +17,8 @@ import { useSwapContext } from '@core/ui';
 export function useSwapStateFunctions() {
   const {
     setError,
+    srcAmount,
+    setSrcAmount,
     destAmount,
     setDestAmount,
     swapFormValuesStream,
@@ -226,7 +228,8 @@ export function useSwapStateFunctions() {
             bigint: BigInt(destAmount),
           }
         : toTokenValue;
-    setDestAmount('');
+    setSrcAmount(undefined);
+    setDestAmount(undefined);
     setFromTokenValue(fromValue);
     setToTokenValue(undefined);
 
@@ -318,7 +321,8 @@ export function useSwapStateFunctions() {
   };
 
   const onFromInputAmountChange = (value: Amount) => {
-    setDestAmount('');
+    setSrcAmount(undefined);
+    setDestAmount(undefined);
     setFromDefaultValue(value.bigint);
     setFromTokenValue(value);
     calculateTokenValueToInput(
@@ -337,7 +341,8 @@ export function useSwapStateFunctions() {
   };
 
   const onToInputAmountChange = (value: Amount) => {
-    setDestAmount('');
+    setSrcAmount(undefined);
+    setDestAmount(undefined);
     setToTokenValue(value);
     calculateTokenValueToInput(
       value.bigint,
@@ -377,6 +382,7 @@ export function useSwapStateFunctions() {
     setQuotes,
     manuallySelected,
     setManuallySelected,
+    srcAmount,
     destAmount,
     slippageTolerance,
     updateSlippage,

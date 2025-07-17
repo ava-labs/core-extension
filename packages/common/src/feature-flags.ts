@@ -60,6 +60,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.GASLESS]: false,
   [FeatureGates.SOLANA_SUPPORT]: false,
   [FeatureGates.CORE_ASSISTANT]: false,
+  [FeatureGates.SWAP_USE_MARKR]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -121,6 +122,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.GASLESS]: true,
   [FeatureGates.SOLANA_SUPPORT]: true,
   [FeatureGates.CORE_ASSISTANT]: true,
+  [FeatureGates.SWAP_USE_MARKR]: true,
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

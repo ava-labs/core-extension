@@ -16,7 +16,11 @@ import { EvmSwapQuote, GetRateParams, SwapAdapter, SwapParams } from './models';
 import { swapError } from './swap-utils';
 import { MarkrProvider } from './providers/MarkrProvider';
 import { WNativeProvider } from './providers/WNativeProvider';
-import { NormalizedTransactionParams, SwapProvider } from './types';
+import {
+  NormalizedTransactionParams,
+  SwapProvider,
+  SwapProviders,
+} from './types';
 import { ParaswapProvider } from './providers/ParaswapProvider';
 
 const getSwapProvider = (isSwapUseMarkrBlocked: boolean): SwapProvider =>
@@ -24,11 +28,11 @@ const getSwapProvider = (isSwapUseMarkrBlocked: boolean): SwapProvider =>
 
 const getSwapProviderByName = (name: string): SwapProvider => {
   switch (name) {
-    case 'paraswap':
+    case SwapProviders.PARASWAP:
       return ParaswapProvider;
-    case 'markr':
+    case SwapProviders.MARKR:
       return MarkrProvider;
-    case 'wnative':
+    case SwapProviders.WNATIVE:
       return WNativeProvider;
     default:
       throw new Error(`Unsupported swap provider: ${name}`);
@@ -152,22 +156,6 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         }
         throw swapError(CommonError.Unknown);
       }
-
-      // TODO: add balance check on ui level
-
-      // const resultAmount = swapSide === SwapSide.SELL ? result.destAmount : result.srcAmount;
-
-      // // Make sure user has enough balance to cover the amount returned by Paraswap
-      // if (fromTokenBalance) {
-      //   const hasEnough =
-      //     swapSide === SwapSide.BUY
-      //       ? fromTokenBalance >= BigInt(resultAmount ?? '')
-      //       : fromTokenBalance >= BigInt(srcAmount ?? '');
-
-      //   if (!hasEnough) {
-      //     throw new Error(t('Insufficient balance.'));
-      //   }
-      // }
     },
     [account, network, isFlagEnabled],
   );
