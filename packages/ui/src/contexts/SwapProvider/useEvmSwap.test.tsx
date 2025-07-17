@@ -28,11 +28,10 @@ import {
   SwapAdapterMethods,
   SwapParams,
   SwapWalletState,
-  UnwrapOperation,
-  WrapOperation,
 } from './models';
 import * as swapUtils from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
+import { EvmSwapOperation, EvmUnwrapQuote, EvmWrapQuote } from './types';
 
 const ROUTE_ADDRESS = '0x12341234';
 
@@ -406,7 +405,7 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
   describe('swap() function', () => {
     const getSwapParams = (
       overrides?: Partial<
-        SwapParams<OptimalRate | WrapOperation | UnwrapOperation>
+        SwapParams<OptimalRate | EvmWrapQuote | EvmUnwrapQuote>
       >,
     ) =>
       ({
@@ -1038,7 +1037,7 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
             srcToken: 'AVAX',
             destToken: WAVAX_ADDRESS,
             quote: {
-              type: 'WRAP',
+              operation: EvmSwapOperation.WRAP,
               target: WAVAX_ADDRESS,
               amount: '1000',
             },
@@ -1079,7 +1078,7 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
             destToken: 'AVAX',
             srcToken: WAVAX_ADDRESS,
             quote: {
-              type: 'UNWRAP',
+              operation: EvmSwapOperation.UNWRAP,
               source: WAVAX_ADDRESS,
               amount: '1000',
             },

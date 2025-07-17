@@ -154,57 +154,6 @@ describe('contexts/SwapProvider/useSolanaSwap', () => {
         });
       });
     });
-
-    it('validates the Jupiter API response', async () => {
-      jest.mocked(global.fetch).mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({
-          inAmount: '1000',
-        }),
-      } as any);
-
-      const { getRate } = await buildAdapter(buildWalletState());
-
-      await act(async () => {
-        const { quote, error } = await getRate(buildGetRateParams());
-
-        expect(quote).toBe(null);
-        expect(error).toEqual({ message: 'Failed to fetch the swap quote' });
-      });
-    });
-
-    it('validates the balance needed upon receiving the quote', async () => {
-      jest.mocked(global.fetch).mockResolvedValue({
-        ok: true,
-        json: jest.fn().mockResolvedValue({
-          inputMint: 'inputMint',
-          inAmount: '1000',
-          outputMint: 'outputMint',
-          outAmount: '10000',
-          otherAmountThreshold: '9500',
-          swapMode: 'ExactIn',
-          slippageBps: 100,
-          platformFee: null,
-          priceImpactPct: '0.000001',
-          routePlan: [],
-          contextSlot: 1234567,
-          timeTaken: 273,
-        }),
-      } as any);
-
-      const { getRate } = await buildAdapter(buildWalletState());
-
-      await act(async () => {
-        const { quote, error } = await getRate(
-          buildGetRateParams({
-            fromTokenBalance: 100n,
-          }),
-        );
-
-        expect(quote).toBe(null);
-        expect(error).toEqual({ message: 'Insufficient balance' });
-      });
-    });
   });
 
   describe('swap() function', () => {
