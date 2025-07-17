@@ -4,12 +4,12 @@ import {
   isMarkrQuote,
   isParaswapQuote,
   JupiterQuote,
+  MarkrQuote,
 } from '@core/ui';
 import {
   EvmUnwrapQuote,
   EvmWrapQuote,
 } from '@core/ui/src/contexts/SwapProvider/types';
-import { MarkrQuote } from '@core/ui/src/contexts/SwapProvider/services/MarkrService';
 
 type RateCalculationContext = { srcDecimals: number; destDecimals: number };
 type RateCalculationStrategy = {
