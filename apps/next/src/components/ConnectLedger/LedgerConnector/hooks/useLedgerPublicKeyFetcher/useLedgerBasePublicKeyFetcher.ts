@@ -9,19 +9,23 @@ import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
+  useDuplicatedWalletChecker,
 } from '@core/ui';
 import {
   AddressPublicKeyJson,
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,
+  SecretType,
 } from '@core/types';
 import { isLedgerVersionCompatible } from '@core/common';
 
 import {
   DerivationStatus,
+  DerivedKeys,
   ErrorType,
   PublicKey,
   UseLedgerPublicKeyFetcher,
+  WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 
@@ -38,6 +42,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     getExtendedPublicKey,
     getPublicKey,
   } = useLedgerContext();
+  const checkIfWalletExists = useDuplicatedWalletChecker();
 
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<DerivationStatus>('waiting');
@@ -140,14 +145,46 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     [getExtendedPublicKey],
   );
 
+  const assertUniqueWallet = useCallback(
+    async (derivedKeys: DerivedKeys) => {
+      let isDuplicated = false;
+
+      if (derivationPathSpec === DerivationPath.LedgerLive) {
+        const [addressKeyInfo] = derivedKeys.addressPublicKeys;
+
+        isDuplicated = await checkIfWalletExists(
+          SecretType.LedgerLive,
+          addressKeyInfo!.key.key,
+        );
+      } else {
+        const [extKeyInfo] = derivedKeys.extendedPublicKeys!;
+
+        isDuplicated = await checkIfWalletExists(
+          SecretType.Ledger,
+          extKeyInfo!.key,
+        );
+      }
+
+      if (isDuplicated) {
+        setStatus('error');
+        setError('duplicated-wallet');
+        throw new WalletExistsError('This wallet is already imported');
+      }
+    },
+    [derivationPathSpec, checkIfWalletExists],
+  );
+
   const retrieveKeys = useCallback(
     async (indexes: number[]) => {
       try {
-        if (derivationPathSpec === DerivationPath.LedgerLive) {
-          return getKeysDirectlyFromLedger(indexes);
-        }
+        const isLedgerLive = derivationPathSpec === DerivationPath.LedgerLive;
+        const keys = isLedgerLive
+          ? await getKeysDirectlyFromLedger(indexes)
+          : await getKeysFromExtendedPublicKeys(indexes);
 
-        return getKeysFromExtendedPublicKeys(indexes);
+        await assertUniqueWallet(keys);
+
+        return keys;
       } catch (err) {
         console.error(err);
         popDeviceSelection();
@@ -159,11 +196,18 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       getKeysDirectlyFromLedger,
       getKeysFromExtendedPublicKeys,
       popDeviceSelection,
+      assertUniqueWallet,
     ],
   );
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
+    // If we have a duplicated wallet error, always wait for user action,
+    // do not attempt a reconnection.
+    if (error === 'duplicated-wallet') {
+      return;
+    }
+
     if (hasLedgerTransport) {
       if (appType === LedgerAppType.AVALANCHE && avaxAppVersion) {
         if (
@@ -197,10 +241,12 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     retrieveKeys,
     wasTransportAttempted,
     popDeviceSelection,
+    error,
   ]);
 
   const onRetry = useCallback(async () => {
     try {
+      setError(undefined);
       await popDeviceSelection();
       await initLedgerTransport();
       setStatus('waiting');

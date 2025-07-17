@@ -20,7 +20,7 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
+import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -51,6 +51,10 @@ export function App() {
                       <Route
                         path="/import-wallet/seedphrase"
                         component={ImportSeedphraseFlow}
+                      />
+                      <Route
+                        path="/import-wallet/ledger/:phase?"
+                        component={ImportLedgerFlow}
                       />
                       <Route
                         path="/"

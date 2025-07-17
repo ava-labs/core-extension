@@ -3,7 +3,10 @@ import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { AddressPublicKeyJson, ExtendedPublicKey } from '@core/types';
 
 export type DerivationStatus = 'waiting' | 'ready' | 'error';
-export type ErrorType = 'unable-to-connect' | 'unsupported-version';
+export type ErrorType =
+  | 'unable-to-connect'
+  | 'unsupported-version'
+  | 'duplicated-wallet';
 export type PublicKey = {
   key: AddressPublicKeyJson;
   vm: VM | 'SVM';
@@ -28,6 +31,13 @@ export type UseLedgerPublicKeyFetcher = (
 
 export type ConnectorCallbacks = {
   onConnectionSuccess: VoidFunction;
-  onConnectionFailed: VoidFunction;
+  onConnectionFailed: (error: Error) => void;
   onConnectionRetry: VoidFunction;
 };
+
+export class WalletExistsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WalletExistsError';
+  }
+}

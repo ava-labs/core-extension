@@ -95,7 +95,7 @@ export class SecretsService implements OnUnlock {
     wallets.push({
       ...secrets,
       id: walletId,
-      name: secrets.name ?? (await this.#getDefaultName(secrets)),
+      name: secrets.name || (await this.#getDefaultName(secrets)),
     });
 
     await this.storageService.save<Partial<WalletSecretInStorage>>('wallet', {
@@ -553,6 +553,14 @@ export class SecretsService implements OnUnlock {
   async isKnownSecret(
     type: SecretType.Ledger,
     extendedPublicKey: string,
+  ): Promise<boolean>;
+  async isKnownSecret(
+    type:
+      | SecretType.Mnemonic
+      | SecretType.PrivateKey
+      | SecretType.Ledger
+      | SecretType.LedgerLive,
+    secret: unknown,
   ): Promise<boolean>;
   async isKnownSecret(
     type:

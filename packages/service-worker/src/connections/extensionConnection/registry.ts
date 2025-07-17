@@ -109,6 +109,8 @@ import { GetPrivateKeyHandler } from '../../services/accounts/handlers/getPrivat
 import { EstimateGasForBridgeTxHandler } from '../../services/bridge/handlers/estimateGasForBridgeTx';
 import { ImportSeedPhraseHandler } from '../../services/wallet/handlers/importSeedPhrase';
 import { ImportLedgerHandler } from '../../services/wallet/handlers/importLedger';
+import { ImportLedgerHandlerNew } from '../../services/wallet/handlers/importLedgerNew';
+import { CheckIfWalletExists } from '../../services/wallet/handlers/checkIfWalletExists';
 import { GetRecoveryMethodsHandler } from '../../services/seedless/handlers/getRecoveryMethods';
 import { InitAuthenticatorChangeHandler } from '../../services/seedless/handlers/initAuthenticatorChange';
 import { CompleteAuthenticatorChangeHandler } from '../../services/seedless/handlers/completeAuthenticatorChange';
@@ -232,6 +234,8 @@ import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/key
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: LedgerOnboardingHandler },
+  { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
+  { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
   {
     token: 'ExtensionRequestHandler',
     useToken: RevokeAddressPermissionsForDomainHandler,
