@@ -136,7 +136,7 @@ export class BackgroundRuntime {
         return;
       }
 
-      chrome.sidePanel.setPanelBehavior({
+      browser.sidePanel.setPanelBehavior({
         openPanelOnActionClick: preferredView === 'sidebar',
       });
     };

@@ -2,19 +2,20 @@ import { Box, IconButton } from '@avalabs/k2-alpine';
 import { ContextContainer } from '@core/types';
 import { isSpecificContextContainer, useSettingsContext } from '@core/ui';
 import { FC } from 'react';
+import browser from 'webextension-polyfill';
 import DockToLeft from './DockToLeft.svg';
 
 const viewInSidePanel = async () => {
-  const currentWindow = await chrome.windows.getCurrent({ populate: true });
+  const currentWindow = await browser.windows.getCurrent({ populate: true });
   if (currentWindow?.id) {
-    await chrome.sidePanel.open({
+    await browser.sidePanel.open({
       windowId: currentWindow.id,
     });
   }
 };
 
 const viewInPopup = async () => {
-  await chrome.action.openPopup({});
+  await browser.action.openPopup({});
 };
 
 export const ViewContainerSwitch: FC = () => {
@@ -22,13 +23,13 @@ export const ViewContainerSwitch: FC = () => {
 
   const onClick = async () => {
     const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+    setPreferredView(isSidePanel ? 'floating' : 'sidebar');
     window.close();
     if (isSidePanel) {
       await viewInPopup();
     } else {
       await viewInSidePanel();
     }
-    setPreferredView(isSidePanel ? 'floating' : 'sidebar');
   };
 
   return (
