@@ -82,6 +82,8 @@ export type { GetUnencryptedMnemonicHandler } from './services/wallet/handlers/g
 export type { GetWalletDetailsHandler } from './services/wallet/handlers/getWalletDetails';
 export type { ImportSeedPhraseHandler } from './services/wallet/handlers/importSeedPhrase';
 export type { ImportLedgerHandler } from './services/wallet/handlers/importLedger';
+export type { ImportLedgerHandlerNew } from './services/wallet/handlers/importLedgerNew';
+export type { CheckIfWalletExists } from './services/wallet/handlers/checkIfWalletExists';
 export type { UnifiedBridgeTrackTransfer } from './services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
 export type { UnifiedBridgeGetState } from './services/unifiedBridge/handlers/unifiedBridgeGetState';
 export type { SetNavigationHistoryDataHandler } from './services/navigationHistory/handlers/setNavigationHistoryData';
