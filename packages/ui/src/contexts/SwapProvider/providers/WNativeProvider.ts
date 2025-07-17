@@ -8,6 +8,7 @@ import {
   NormalizedSwapQuoteResult,
   PerformSwapParams,
   SwapProvider,
+  SwapProviders,
 } from '../types';
 import { swapError } from '../swap-utils';
 import { CommonError, SwapErrorCode } from '@core/types';
@@ -49,7 +50,7 @@ const getUnwrapOperation = (
 };
 
 export const WNativeProvider: SwapProvider = {
-  name: 'wnative',
+  name: SwapProviders.WNATIVE,
 
   async getQuote({
     fromTokenAddress,

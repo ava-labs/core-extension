@@ -13,6 +13,13 @@ export function isEvmProvider(
   return provider instanceof JsonRpcBatchInternal;
 }
 
+export enum SwapProviders {
+  MARKR = 'markr',
+  PARASWAP = 'paraswap',
+  WNATIVE = 'wnative',
+  JUPITER = 'jupiter',
+}
+
 export enum EvmSwapOperation {
   WRAP = 'WRAP',
   UNWRAP = 'UNWRAP',
@@ -32,7 +39,10 @@ export type EvmUnwrapQuote = {
 
 export type NormalizedSwapQuote = {
   quote: SwapQuote;
-  metadata: Record<string, unknown>;
+  metadata: {
+    amountIn?: string;
+    amountOut?: string;
+  } & Record<string, unknown>;
 };
 
 export type NormalizedSwapQuoteResult = {

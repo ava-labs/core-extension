@@ -47,6 +47,7 @@ import { swapError } from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
 import { NormalizedSwapQuoteResult } from './types';
+import { SWAP_REFRESH_INTERVAL } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -83,8 +84,8 @@ export function SwapContextProvider({
   const [quotes, setQuotes] = useState<NormalizedSwapQuoteResult | null>(null);
   const [manuallySelected, setManuallySelected] = useState<boolean>(false);
   const [error, setError] = useState<SwapError>({ message: '' });
-  const [destAmount, setDestAmount] = useState('');
-  const [srcAmount, setSrcAmount] = useState('');
+  const [destAmount, setDestAmount] = useState<string | undefined>(undefined);
+  const [srcAmount, setSrcAmount] = useState<string | undefined>(undefined);
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
 
   const findSymbol = useCallback(
@@ -246,7 +247,147 @@ export function SwapContextProvider({
     [activeNetwork, getEvmRate, getSvmRate],
   );
 
+  const checkUserBalance = useCallback(
+    (balance: bigint, amount: string | undefined) => {
+      if (balance && amount) {
+        const hasEnough = balance >= BigInt(amount);
+        if (!hasEnough) {
+          setError({ message: t('Insufficient balance.') });
+        }
+      }
+    },
+    [t],
+  );
+
+  const fetchQuotes = useCallback(
+    async ({
+      amount,
+      toTokenAddress,
+      fromTokenAddress,
+      toTokenDecimals,
+      fromTokenDecimals,
+      destinationInputField,
+      fromTokenBalance,
+      slippageTolerance,
+    }: SwapFormValues) => {
+      if (
+        amount &&
+        toTokenAddress &&
+        fromTokenAddress &&
+        fromTokenDecimals &&
+        toTokenDecimals
+      ) {
+        // Reset state
+        setError({ message: '' });
+        setManuallySelected(false);
+        setQuotes(null);
+
+        const amountString = amount.toString();
+
+        if (amountString === '0') {
+          setQuotes(null);
+          setError({ message: t('Please enter an amount') });
+          setSrcAmount(undefined);
+          setDestAmount(undefined);
+          setIsSwapLoading(false);
+          return;
+        }
+
+        const swapSide =
+          destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
+        if (fromTokenBalance && swapSide === SwapSide.SELL) {
+          // TODO: Should we return here? or should we continue with getting the quote?
+          checkUserBalance(fromTokenBalance, amountString);
+        }
+        setIsSwapLoading(true);
+        getRate({
+          srcToken: fromTokenAddress,
+          srcDecimals: fromTokenDecimals,
+          destToken: toTokenAddress,
+          destDecimals: toTokenDecimals,
+          srcAmount: amountString,
+          swapSide,
+          fromTokenBalance,
+          slippageTolerance,
+          onUpdate: (update: NormalizedSwapQuoteResult) => {
+            setManuallySelected(false);
+            setQuotes(update);
+            const selected = update.selected;
+            // Set amountOut for sell side
+            const amountOut = selected.metadata.amountOut;
+            if (
+              swapSide === SwapSide.SELL &&
+              amountOut &&
+              typeof amountOut === 'string'
+            ) {
+              setDestAmount(amountOut);
+            }
+            // Set amountIn for buy side
+            const amountIn = selected.metadata.amountIn;
+            if (
+              swapSide === SwapSide.BUY &&
+              amountIn &&
+              typeof amountIn === 'string'
+            ) {
+              setSrcAmount(amountIn);
+            }
+          },
+        })
+          .then((result) => {
+            if (result) {
+              setManuallySelected(false);
+              setQuotes(result);
+              const selected = result.selected;
+              // Set amountOut for sell side
+              const amountOut = selected.metadata.amountOut;
+              if (
+                swapSide === SwapSide.SELL &&
+                amountOut &&
+                typeof amountOut === 'string'
+              ) {
+                setDestAmount(amountOut);
+              }
+              // Set amountIn for buy side
+              const amountIn = selected.metadata.amountIn;
+              if (
+                swapSide === SwapSide.BUY &&
+                amountIn &&
+                typeof amountIn === 'string'
+              ) {
+                setSrcAmount(amountIn);
+              }
+              // Check balance here
+              if (fromTokenBalance && swapSide === SwapSide.BUY) {
+                checkUserBalance(fromTokenBalance, amountIn);
+              }
+            }
+          })
+          .catch((err) => {
+            // If somehow the error was not caught by the adapter,
+            // log the error & show a generic error message.
+            Monitoring.sentryCaptureException(
+              err as Error,
+              Monitoring.SentryExceptionTypes.SWAP,
+            );
+            setQuotes(null);
+            setError({ message: t('An unknown error occurred') });
+          })
+          .finally(() => {
+            setIsSwapLoading(false);
+          });
+      } else {
+        setSrcAmount(undefined);
+        setDestAmount(undefined);
+        setQuotes(null);
+      }
+    },
+    [getRate, t, checkUserBalance],
+  );
+
   useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    let lastFormValues: SwapFormValues | null = null;
+
     const subscription = swapFormValuesStream
       .pipe(debounceTime(500))
       .subscribe(
@@ -260,86 +401,43 @@ export function SwapContextProvider({
           fromTokenBalance,
           slippageTolerance,
         }) => {
-          if (
-            amount &&
-            toTokenAddress &&
-            fromTokenAddress &&
-            fromTokenDecimals &&
-            toTokenDecimals
-          ) {
-            const amountString = amount.toString();
-
-            if (amountString === '0') {
-              setQuotes(null);
-              setError({ message: t('Please enter an amount') });
-              setDestAmount('');
-              setIsSwapLoading(false);
-              return;
-            }
-
-            const swapSide =
-              destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
-            setIsSwapLoading(true);
-            getRate({
-              srcToken: fromTokenAddress,
-              srcDecimals: fromTokenDecimals,
-              destToken: toTokenAddress,
-              destDecimals: toTokenDecimals,
-              srcAmount: amountString,
-              swapSide,
-              fromTokenBalance,
-              slippageTolerance,
-              onUpdate: (update: NormalizedSwapQuoteResult) => {
-                setManuallySelected(false);
-                setQuotes(update);
-                const selected = update.selected;
-                // Set amountOut for sell side
-                const amountOut = selected.metadata.amountOut;
-                if (amountOut && typeof amountOut === 'string') {
-                  setDestAmount(amountOut);
-                }
-                // Set amountIn for buy side
-                const amountIn = selected.metadata.amountIn;
-                if (amountIn && typeof amountIn === 'string') {
-                  setSrcAmount(amountIn);
-                }
-              },
-            })
-              .then((result) => {
-                if (result) {
-                  setQuotes(result);
-                  setError({ message: '' });
-                  const selected = result.selected;
-                  const amountOut = selected.metadata.amountOut;
-                  if (amountOut && typeof amountOut === 'string') {
-                    setDestAmount(amountOut);
-                  }
-                }
-              })
-              .catch((err) => {
-                // If somehow the error was not caught by the adapter,
-                // log the error & show a generic error message.
-                Monitoring.sentryCaptureException(
-                  err as Error,
-                  Monitoring.SentryExceptionTypes.SWAP,
-                );
-                setQuotes(null);
-                setError({ message: t('An unknown error occurred') });
-              })
-              .finally(() => {
-                setIsSwapLoading(false);
-              });
-          } else {
-            setDestAmount('');
-            setQuotes(null);
+          // Clear previous interval if exists
+          if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
           }
+
+          // Store form values for interval usage
+          lastFormValues = {
+            amount,
+            toTokenAddress,
+            fromTokenAddress,
+            toTokenDecimals,
+            fromTokenDecimals,
+            destinationInputField,
+            fromTokenBalance,
+            slippageTolerance,
+          };
+
+          // Initial fetch
+          fetchQuotes(lastFormValues);
+
+          // Set up 30-second interval for automatic refresh
+          intervalId = setInterval(() => {
+            if (lastFormValues) {
+              fetchQuotes(lastFormValues);
+            }
+          }, SWAP_REFRESH_INTERVAL);
         },
       );
 
     return () => {
       subscription.unsubscribe();
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
-  }, [getRate, swapFormValuesStream, setIsSwapLoading, setError, t]);
+  }, [swapFormValuesStream, fetchQuotes]);
 
   return (
     <SwapContext.Provider

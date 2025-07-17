@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { SlippageToolTip } from './SlippageToolTip';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +12,6 @@ import {
   Grow,
   Tooltip,
   InfoCircleIcon,
-  Menu,
-  MenuItem,
-  Button,
-  ChevronDownIcon,
-  CheckIcon,
-  AvaCloudConnectIcon,
 } from '@avalabs/core-k2-components';
 import {
   isJupiterQuote,
@@ -28,7 +22,6 @@ import {
   SwapQuote,
   useFeatureFlagContext,
   useNetworkContext,
-  useSettingsContext,
 } from '@core/ui';
 import {
   formatBasisPointsToPercentage,
@@ -38,8 +31,7 @@ import {
 import { FeatureGates } from '@core/types';
 import { NormalizedSwapQuoteResult } from '@core/ui/src/contexts/SwapProvider/types';
 import { SwappableToken } from '../models';
-import { bigintToBig, bigToLocaleString } from '@avalabs/core-utils-sdk';
-import { MarkrQuote } from '@core/ui/src/contexts/SwapProvider/services/MarkrService';
+import { SwapProviders } from './SwapProviders';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
@@ -93,10 +85,6 @@ export function TransactionDetails({
   setManuallySelected,
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
-  const { currencyFormatter } = useSettingsContext();
-
-  const [isProviderMenuOpen, setIsProviderMenuOpen] = useState(false);
-  const selectButtonRef = useRef<HTMLDivElement>(null);
 
   const { network } = useNetworkContext();
   const { isFlagEnabled } = useFeatureFlagContext();
@@ -148,43 +136,6 @@ export function TransactionDetails({
     );
   }, [quote]);
 
-  const getPriceInCurrency = useCallback(
-    function (_quote: SwapQuote) {
-      const price = toToken?.priceInCurrency;
-      const amount =
-        _quote && isMarkrQuote(_quote) && price
-          ? currencyFormatter(
-              parseFloat(
-                bigToLocaleString(
-                  bigintToBig(BigInt(_quote.amountOut), toToken.decimals),
-                ).replace(/,/g, ''),
-              ) * price,
-            )
-          : undefined;
-      return amount;
-    },
-    [toToken, currencyFormatter],
-  );
-
-  const providers = useMemo(() => {
-    if (
-      !quotes ||
-      quotes.quotes.length === 0 ||
-      !quotes.selected ||
-      !quotes.quotes[0]
-    ) {
-      return [];
-    }
-    const bestRate = quotes.quotes[0];
-    return [
-      {
-        ...bestRate,
-        quote: { ...bestRate.quote, aggregator: { id: 'auto', name: 'Auto' } },
-      },
-      ...quotes.quotes,
-    ];
-  }, [quotes]);
-
   return (
     <Container>
       <TitleContainer
@@ -229,123 +180,14 @@ export function TransactionDetails({
               1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
             </Typography>
           </DetailsRow>
-          {quotes && quote && isMarkrQuote(quote) && (
-            <DetailsRow>
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: theme.typography.fontWeightSemibold }}
-              >
-                {t('Provider')}
-              </Typography>
-              <Button
-                variant="text"
-                disableRipple
-                onClick={() => {
-                  setIsProviderMenuOpen(!isProviderMenuOpen);
-                }}
-                ref={selectButtonRef}
-                sx={{
-                  color: 'primary.main',
-                  p: 0.5,
-                  '&.Mui-disabled': { color: 'primary.main' },
-                }}
-                endIcon={
-                  isProviderMenuOpen ? <ChevronUpIcon /> : <ChevronDownIcon />
-                }
-              >
-                <Stack
-                  direction="row"
-                  sx={{
-                    columnGap: 1,
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                  }}
-                >
-                  {manuallySelected == false
-                    ? 'Auto • ' + quote.aggregator.name
-                    : quote.aggregator.name}
-                </Stack>
-              </Button>
-              <Menu
-                anchorEl={selectButtonRef.current}
-                open={isProviderMenuOpen}
-                onClose={() => {
-                  setIsProviderMenuOpen(false);
-                }}
-                PaperProps={{
-                  sx: { width: 220, backgroundColor: 'grey.800', mr: 3 },
-                }}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-              >
-                {providers
-                  .filter((q) => isMarkrQuote(q.quote))
-                  .map((qq) => {
-                    const q = qq.quote as MarkrQuote;
-                    return (
-                      <MenuItem
-                        key={q.aggregator.id}
-                        data-testid={`provider-${q.aggregator.id}`}
-                        onClick={() => {
-                          setManuallySelected(true);
-                          setQuotes({ ...quotes, selected: qq });
-                          setIsProviderMenuOpen(false);
-                        }}
-                        disableRipple
-                        sx={{ minHeight: 'auto', py: 1 }}
-                      >
-                        <Stack
-                          direction="row"
-                          sx={{
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            width: '100%',
-                          }}
-                        >
-                          <Stack
-                            direction="row"
-                            sx={{
-                              columnGap: 1,
-                              alignItems: 'center',
-                            }}
-                          >
-                            {q.aggregator.id === 'auto' ? (
-                              <AvaCloudConnectIcon size={32} />
-                            ) : (
-                              <img
-                                src={`/images/logos/provider-${q.aggregator.id}.svg`}
-                                width={32}
-                                height={32}
-                                alt=""
-                              />
-                            )}
-
-                            <Stack direction="column" sx={{ columnGap: 1 }}>
-                              <Typography variant="body2">
-                                {q.aggregator.name}
-                              </Typography>
-                              <Typography variant="caption">
-                                {getPriceInCurrency(q)}
-                              </Typography>
-                            </Stack>
-                          </Stack>
-
-                          {q.aggregator.name === quote.aggregator.name && (
-                            <CheckIcon size={16} />
-                          )}
-                        </Stack>
-                      </MenuItem>
-                    );
-                  })}
-              </Menu>
-            </DetailsRow>
-          )}
+          <SwapProviders
+            quote={quote}
+            quotes={quotes}
+            setQuotes={setQuotes}
+            toToken={toToken}
+            manuallySelected={manuallySelected}
+            setManuallySelected={setManuallySelected}
+          />
           {showFeesAndSlippage && (
             <>
               <Stack>

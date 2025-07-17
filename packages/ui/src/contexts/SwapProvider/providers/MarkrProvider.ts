@@ -3,11 +3,13 @@ import {
   MARKR_EVM_NATIVE_TOKEN_ADDRESS,
   MARKR_EVM_PARTNER_ID,
 } from '../constants';
-import { isMarkrQuote, SwapWalletState } from '../models';
-import MarkrService, {
+import {
+  isMarkrQuote,
   MarkrQuote,
   MarkrTransaction,
-} from '../services/MarkrService';
+  SwapWalletState,
+} from '../models';
+import MarkrService from '../services/MarkrService';
 import { swapError } from '../swap-utils';
 import {
   GetQuoteParams,
@@ -16,6 +18,7 @@ import {
   NormalizedSwapQuoteResult,
   PerformSwapParams,
   SwapProvider,
+  SwapProviders,
 } from '../types';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { ensureAllowance } from '../utils/ensureAllowance';
@@ -39,14 +42,14 @@ const getNormalizedQuoteResult = (
   }
 
   return {
-    provider: 'markr',
+    provider: SwapProviders.MARKR,
     quotes: quotes,
     selected: quotes[0]!,
   };
 };
 
 export const MarkrProvider: SwapProvider = {
-  name: 'markr',
+  name: SwapProviders.MARKR,
 
   async getQuote(
     {
@@ -228,7 +231,7 @@ export const MarkrProvider: SwapProvider = {
         batch,
       });
 
-      if (!isOneClickSwapEnabled) {
+      if (approvalTxHash && !isOneClickSwapEnabled) {
         const receipt = await provider.waitForTransaction(approvalTxHash);
 
         if (!receipt || (receipt && receipt.status !== 1)) {

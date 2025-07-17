@@ -13,7 +13,6 @@ import {
   isEvmWrapQuote,
   NormalizedSwapQuoteResult,
 } from './types';
-import { MarkrQuote } from './services/MarkrService';
 
 /**
  * Paraswap may return both data and an error sometimes.
@@ -166,10 +165,10 @@ export type SwapContextAPI = {
   manuallySelected: boolean;
   setManuallySelected(manuallySelected: boolean): void;
   swapFormValuesStream: BehaviorSubject<SwapFormValues>;
-  destAmount: string;
-  setDestAmount(destAmount: string): void;
-  srcAmount: string;
-  setSrcAmount(srcAmount: string): void;
+  destAmount: string | undefined;
+  setDestAmount(destAmount: string | undefined): void;
+  srcAmount: string | undefined;
+  setSrcAmount(srcAmount: string | undefined): void;
 };
 
 export const DISALLOWED_SWAP_ASSETS: string[] = [
@@ -244,6 +243,27 @@ export type OnTransactionReceiptCallback = (params: {
   srcDecimals: number;
   destDecimals: number;
 }) => void;
+
+export type MarkrQuote = {
+  uuid: string;
+  aggregator: {
+    id: string;
+    name: string;
+  };
+  tokenIn: string;
+  tokenInDecimals: number;
+  amountIn: string;
+  tokenOut: string;
+  tokenOutDecimals: number;
+  amountOut: string;
+  done?: boolean;
+};
+
+export type MarkrTransaction = {
+  to: string;
+  value: string;
+  data: string;
+};
 
 export type SwapAdapterMethods = {
   onTransactionReceipt: OnTransactionReceiptCallback;
