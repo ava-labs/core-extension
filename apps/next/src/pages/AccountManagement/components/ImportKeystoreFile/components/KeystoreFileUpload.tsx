@@ -94,7 +94,13 @@ export const KeystoreFileUpload = ({
           }}
         >
           {file ? (
-            <FileImage />
+            <>
+              <FileImage />
+
+              <Typography variant="h6" color="text.primary">
+                {file.name}
+              </Typography>
+            </>
           ) : (
             <>
               {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}

@@ -1,10 +1,12 @@
-import { Button, Card, Stack, Typography } from '@avalabs/k2-alpine';
+import { Button, Card, Stack, toast, Typography } from '@avalabs/k2-alpine';
 import { FileImage } from './FileImage';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useKeystoreFileImport } from '@core/ui/src/hooks/useKeystoreFileImport';
 import { KeystoreError, KeystoreFileContentInfo } from '@core/types';
 import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
+import { useAnalyticsContext } from '@core/ui';
+import { useHistory } from 'react-router-dom';
 
 type KeystoreFilePasswordProps = {
   file: File;
@@ -17,12 +19,17 @@ export const KeystoreFilePassword = ({
   onError,
 }: KeystoreFilePasswordProps) => {
   const { t } = useTranslation();
-  const { getKeyCounts } = useKeystoreFileImport();
+  const { replace } = useHistory();
+
+  const { getKeyCounts, importKeystoreFile } = useKeystoreFileImport();
+  const { capture } = useAnalyticsContext();
 
   const [filePassword, setFilePassword] = useState('');
   const [fileInfo, setFileInfo] = useState<KeystoreFileContentInfo>();
   const [showInvalidPasswordError, setShowInvalidPasswordError] =
     useState(false);
+
+  const [isImporting, setIsImporting] = useState(false);
 
   useEffect(() => {
     async function fetchFileInfo() {
@@ -45,6 +52,40 @@ export const KeystoreFilePassword = ({
     }
     fetchFileInfo();
   }, [file, filePassword, getKeyCounts, onError]);
+
+  const handleImport = useCallback(async () => {
+    if (!fileInfo || isImporting) {
+      return;
+    }
+    setIsImporting(true);
+    try {
+      capture('KeystoreFileImportStarted');
+      await importKeystoreFile(file, filePassword);
+      capture('KeystoreFileImportSuccess');
+
+      toast.success(t('Successfully imported the keystore file.'));
+
+      replace('/account-management');
+    } catch (err: unknown) {
+      capture('KeystoreFileImportFailure');
+
+      const error = Object.values(KeystoreError).includes(err as KeystoreError)
+        ? (err as KeystoreError)
+        : KeystoreError.Unknown;
+
+      onError(error);
+    }
+  }, [
+    fileInfo,
+    isImporting,
+    capture,
+    importKeystoreFile,
+    file,
+    filePassword,
+    t,
+    replace,
+    onError,
+  ]);
 
   return (
     <Stack>
@@ -86,6 +127,7 @@ export const KeystoreFilePassword = ({
         color="primary"
         fullWidth
         disabled={!fileInfo}
+        onClick={handleImport}
       >
         {t('Import Keystore file')}
       </Button>
