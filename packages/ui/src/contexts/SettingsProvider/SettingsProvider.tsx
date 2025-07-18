@@ -3,12 +3,14 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { isTokenMalicious, updateIfDifferent } from '@core/common';
 import type {
   GetSettingsHandler,
   LockWalletHandler,
   SetAnalyticsConsentHandler,
   SetCoreAssistantHandler,
   SetLanguageHandler,
+  SetPreferredViewHandler,
   UpdateCollectiblesVisibilityHandler,
   UpdateCurrencyHandler,
   UpdateShowNoBalanceHandler,
@@ -20,8 +22,8 @@ import {
   Languages,
   SettingsState,
   ThemeVariant,
+  ViewMode,
 } from '@core/types';
-import { isTokenMalicious, updateIfDifferent } from '@core/common';
 import { changeLanguage } from 'i18next';
 import { omit, set } from 'lodash';
 import {
@@ -62,6 +64,7 @@ type SettingsFromProvider = SettingsState & {
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   nextGenTheme: 'system' | 'testnet' | 'dark' | 'light';
+  setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -145,7 +148,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
         token.type === TokenType.NATIVE ? token.symbol : token.address;
       const tokensVisibility = settings?.tokensVisibility ?? {};
 
-      // If the token is flagged as malicious, only show it if the user specifcially enabled it.
+      // If the token is flagged as malicious, only show it if the user specifically enabled it.
       return isTokenMalicious(token)
         ? tokensVisibility[key]
         : tokensVisibility[key] || tokensVisibility[key] === undefined;
@@ -158,7 +161,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
     const visibility = settings?.collectiblesVisibility ?? {};
     // We used to (wrongly) index by address only.
     const isHidden = (visibility[key] ?? visibility[nft.address]) === false;
-    // If token is now hidde, just remove it from the dictionary,
+    // If token is now hidden, just remove it from the dictionary,
     // otherwise set it to false.
     const updatedVisibility = isHidden
       ? omit(visibility, [nft.address, key])
@@ -208,6 +211,16 @@ export function SettingsContextProvider({ children }: { children: any }) {
     });
   }
 
+  const setPreferredView = useCallback(
+    (viewMode: ViewMode) => {
+      return request<SetPreferredViewHandler>({
+        method: ExtensionRequest.SETTINGS_SET_PREFERRED_VIEW,
+        params: [viewMode],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -230,6 +243,7 @@ export function SettingsContextProvider({ children }: { children: any }) {
           settingsActivePage,
           setSettingsActivePage,
           setCoreAssistant,
+          setPreferredView,
         } as SettingsFromProvider
       }
     >
