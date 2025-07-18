@@ -1,9 +1,4 @@
-import {
-  CircularProgress,
-  IconButton,
-  ThemeProvider,
-  toast,
-} from '@avalabs/k2-alpine';
+import { CircularProgress, ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   KeystoneContextProvider,
@@ -15,17 +10,16 @@ import {
 } from '@core/ui';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
+import { UnderConstruction } from '@/components/UnderConstruction';
 import { ViewModeSwitcher } from '@/components/ViewModeSwitcher';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
+import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
-import { MdSwitchAccount } from 'react-icons/md';
-import { Route, Switch, useHistory } from 'react-router-dom';
-import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
+import { Route, Switch } from 'react-router-dom';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
-  const history = useHistory();
 
   if (!preferredColorScheme) {
     return <CircularProgress />;
@@ -54,21 +48,7 @@ export function App() {
                         path="/import-wallet/seedphrase"
                         component={ImportSeedphraseFlow}
                       />
-                      <Route
-                        path="/"
-                        render={() => (
-                          <div>
-                            <div>Under construction 🚧</div>
-                            <IconButton
-                              onClick={() =>
-                                history.push('/account-management')
-                              }
-                            >
-                              <MdSwitchAccount />
-                            </IconButton>
-                          </div>
-                        )}
-                      />
+                      <Route path="/" component={UnderConstruction} />
                     </Switch>
                   </WalletContextProvider>
                 </OnboardingContextProvider>
