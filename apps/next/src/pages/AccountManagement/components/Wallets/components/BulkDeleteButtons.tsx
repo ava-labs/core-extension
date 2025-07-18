@@ -19,7 +19,7 @@ export const BulkDeleteButtons: FC = () => {
         <Box mx="auto">
           <Button
             variant="contained"
-            size="small"
+            size="xsmall"
             color="secondary"
             onClick={() => {
               toggleManageMode();

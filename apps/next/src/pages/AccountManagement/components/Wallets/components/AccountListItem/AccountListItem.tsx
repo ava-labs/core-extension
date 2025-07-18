@@ -109,7 +109,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
             <>
               {isHovered ? (
                 <Button
-                  size="small"
+                  size="xsmall"
                   color="secondary"
                   variant="contained"
                   onClick={navigateToAccount}
