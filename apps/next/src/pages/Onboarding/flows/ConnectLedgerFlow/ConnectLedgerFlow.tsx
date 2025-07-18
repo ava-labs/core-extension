@@ -11,7 +11,7 @@ import {
 import { ConnectLedgerScreen } from './screens';
 
 const BASE_PATH = '/onboarding/import/ledger';
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export const ConnectLedgerFlow = () => {
   const history = useHistory();
@@ -54,7 +54,7 @@ export const ConnectLedgerFlow = () => {
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
-          step={4}
+          step={5}
           totalSteps={TOTAL_STEPS}
           onNext={handleOnNext}
         />

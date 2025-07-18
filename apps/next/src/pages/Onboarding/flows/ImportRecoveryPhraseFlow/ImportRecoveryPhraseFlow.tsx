@@ -13,7 +13,7 @@ import {
 import { EnterRecoveryPhraseScreen } from './screens';
 
 const BASE_PATH = '/onboarding/import/recovery-phrase';
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export const ImportRecoveryPhraseFlow = () => {
   const history = useHistory();
@@ -51,32 +51,33 @@ export const ImportRecoveryPhraseFlow = () => {
     history.push(`${BASE_PATH}/enjoy-your-wallet`);
   }, [capture, history]);
 
+  let step = 2;
   return (
     <Switch>
       <Route exact path={BASE_PATH}>
         <EnterRecoveryPhraseScreen
-          step={2}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onMnemonicImported}
         />
       </Route>
       <Route path={`${BASE_PATH}/wallet-details`}>
         <ProvideWalletDetailsScreen
-          step={3}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onDetailsProvided}
         />
       </Route>
       <Route path={`${BASE_PATH}/customize-core`}>
         <CustomizeCore
-          step={4}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
         />
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
-          step={4}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onAvatarSelected}
         />
