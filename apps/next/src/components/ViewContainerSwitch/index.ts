@@ -1,1 +1,0 @@
-export { ViewContainerSwitch } from './ViewContainerSwitch';
