@@ -19,7 +19,12 @@ export const ViewModeOption: FC<{
         width={210}
         height={155}
       />
-      <Styled.LabelButton variant="contained" size="small" disableRipple>
+      <Styled.LabelButton
+        component="a"
+        variant="contained"
+        size="small"
+        disableRipple
+      >
         {label}
       </Styled.LabelButton>
     </Stack>

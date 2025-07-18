@@ -38,4 +38,4 @@ export const LabelButton = styled(Button)(({ theme }) => ({
     color: theme.palette.text.primary,
     backgroundColor: 'inherit',
   },
-}));
+})) as typeof Button;
