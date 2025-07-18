@@ -1,4 +1,10 @@
-import { Box, IconButton, SidebarIcon, styled } from '@avalabs/k2-alpine';
+import {
+  Box,
+  SidebarDockIcon,
+  SidebarIcon,
+  SidebarUndockIcon,
+  styled,
+} from '@avalabs/k2-alpine';
 import { ContextContainer } from '@core/types';
 import {
   isSpecificContextContainer,
@@ -6,6 +12,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { FC } from 'react';
+import { MultiIconButton } from '../MultiIconButton';
 import { switchTo } from './utils';
 
 const FixedRoot = styled(Box)(({ theme }) => ({
@@ -18,9 +25,9 @@ const FixedRoot = styled(Box)(({ theme }) => ({
 export const ViewModeSwitcher: FC = () => {
   const { setPreferredView } = useSettingsContext();
   const { capture } = useAnalyticsContext();
+  const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
 
   const onClick = async () => {
-    const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
     const requestedView = isSidePanel ? 'floating' : 'sidebar';
     setPreferredView(requestedView);
     capture('ViewModeSwitched', {
@@ -30,11 +37,17 @@ export const ViewModeSwitcher: FC = () => {
     await switchTo[requestedView]();
   };
 
+  const DockIcon = isSidePanel ? SidebarUndockIcon : SidebarDockIcon;
+
   return (
     <FixedRoot>
-      <IconButton size="medium" onClick={onClick} color="primary">
-        <SidebarIcon size={24} />
-      </IconButton>
+      <MultiIconButton
+        icon={<SidebarIcon size={24} />}
+        hoverIcon={<DockIcon size={24} />}
+        size="medium"
+        onClick={onClick}
+        color="primary"
+      />
     </FixedRoot>
   );
 };
