@@ -118,51 +118,17 @@ export const JupiterProvider: SwapProvider = {
   },
 
   async swap({
-    srcTokenAddress,
-    srcTokenDecimals,
-    destTokenAddress,
-    destTokenDecimals,
     quote,
-    slippage,
     provider,
-    account,
-    network,
+    userAddress,
     signAndSend,
     isSwapFeesEnabled,
     feeAccount,
   }: PerformSwapParams & SwapWalletState) {
-    assertPresent(account, CommonError.NoActiveAccount);
-    assertPresent(network, CommonError.NoActiveNetwork);
-
-    if (!srcTokenAddress)
-      throw swapError(
-        SwapErrorCode.MissingParams,
-        new Error('Missing parameter: srcToken'),
-      );
-    if (!destTokenAddress)
-      throw swapError(
-        SwapErrorCode.MissingParams,
-        new Error('Missing parameter: destToken'),
-      );
-    if (!srcTokenDecimals)
-      throw swapError(
-        SwapErrorCode.MissingParams,
-        new Error('Missing parameter: srcDecimals'),
-      );
-    if (!destTokenDecimals)
-      throw swapError(
-        SwapErrorCode.MissingParams,
-        new Error('Missing parameter: destDecimals'),
-      );
     if (!quote)
       throw swapError(
         SwapErrorCode.MissingParams,
         new Error('Missing parameter: quote'),
-      );
-    if (!slippage)
-      throw swapError(
-        SwapErrorCode.MissingParams,
-        new Error('Missing parameter: slippage'),
       );
     if (isSwapFeesEnabled && !feeAccount)
       throw swapError(
@@ -170,8 +136,7 @@ export const JupiterProvider: SwapProvider = {
         new Error('Missing parameter: feeAccount'),
       );
 
-    const userPublicKey = account.addressSVM;
-    assertPresent(userPublicKey, AccountError.SVMAddressNotFound);
+    assertPresent(userAddress, AccountError.SVMAddressNotFound);
 
     if (!isJupiterQuote(quote)) {
       throw swapError(
@@ -195,7 +160,7 @@ export const JupiterProvider: SwapProvider = {
             },
             body: JSON.stringify({
               quoteResponse: quote,
-              userPublicKey,
+              userPublicKey: userAddress,
               dynamicComputeUnitLimit: true, // Gives us a higher chance of the transaction landing
               feeAccount,
             }),
@@ -220,7 +185,7 @@ export const JupiterProvider: SwapProvider = {
     const [swapTxHash, signError] = await resolve(
       signAndSend(RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION, [
         {
-          account: userPublicKey,
+          account: userAddress,
           serializedTx: txResponse.swapTransaction,
         },
       ]),

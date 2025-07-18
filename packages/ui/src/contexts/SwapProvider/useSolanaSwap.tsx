@@ -137,9 +137,6 @@ export const useSolanaSwap: SwapAdapter<SvmSwapQuote> = (
         srcDecimals,
         destDecimals,
         quote,
-        swapProvider, // eslint-disable-line @typescript-eslint/no-unused-vars
-        amountIn, // eslint-disable-line @typescript-eslint/no-unused-vars
-        amountOut, // eslint-disable-line @typescript-eslint/no-unused-vars
       } = validateJupiterParams(params);
 
       const provider = await getProviderForNetwork(network);

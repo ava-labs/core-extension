@@ -386,50 +386,24 @@ export function SwapContextProvider({
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
-    let lastFormValues: SwapFormValues | null = null;
 
     const subscription = swapFormValuesStream
       .pipe(debounceTime(500))
-      .subscribe(
-        ({
-          amount,
-          toTokenAddress,
-          fromTokenAddress,
-          toTokenDecimals,
-          fromTokenDecimals,
-          destinationInputField,
-          fromTokenBalance,
-          slippageTolerance,
-        }) => {
-          // Clear previous interval if exists
-          if (intervalId) {
-            clearInterval(intervalId);
-            intervalId = null;
-          }
+      .subscribe((formValues) => {
+        // Clear previous interval if exists
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
 
-          // Store form values for interval usage
-          lastFormValues = {
-            amount,
-            toTokenAddress,
-            fromTokenAddress,
-            toTokenDecimals,
-            fromTokenDecimals,
-            destinationInputField,
-            fromTokenBalance,
-            slippageTolerance,
-          };
+        // Initial fetch
+        fetchQuotes(formValues);
 
-          // Initial fetch
-          fetchQuotes(lastFormValues);
-
-          // Set up 30-second interval for automatic refresh
-          intervalId = setInterval(() => {
-            if (lastFormValues) {
-              fetchQuotes(lastFormValues);
-            }
-          }, SWAP_REFRESH_INTERVAL);
-        },
-      );
+        // Set up 30-second interval for automatic refresh
+        intervalId = setInterval(() => {
+          fetchQuotes(formValues);
+        }, SWAP_REFRESH_INTERVAL);
+      });
 
     return () => {
       subscription.unsubscribe();
