@@ -71,7 +71,7 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
         <Button
           variant="contained"
           color="secondary"
-          size="small"
+          size="xsmall"
           onClick={() => {
             navigator.clipboard.writeText(privateKey);
             toast.success(t('Private key copied!'), {

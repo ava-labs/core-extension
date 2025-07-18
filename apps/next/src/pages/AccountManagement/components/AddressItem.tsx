@@ -60,7 +60,7 @@ export const AddressItem: FC<Props> = ({
         <CopyActionButton
           variant="contained"
           color="secondary"
-          size="small"
+          size="xsmall"
           onClick={() => {
             navigator.clipboard.writeText(address);
             toast.success(t('Address copied!'), {
