@@ -43,8 +43,8 @@ export function App() {
                   LoadingComponent={CircularProgress}
                   OnboardingScreen={Onboarding}
                 >
+                  <ViewModeSwitcher />
                   <WalletContextProvider LockedComponent={LockScreen}>
-                    <ViewModeSwitcher />
                     <Switch>
                       <Route
                         path="/account-management"
