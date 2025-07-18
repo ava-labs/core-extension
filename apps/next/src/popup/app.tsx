@@ -5,6 +5,7 @@ import {
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
+  usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
@@ -16,10 +17,26 @@ import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
-import { Route, Switch } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Route, Switch, useHistory } from 'react-router-dom';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
+  const history = useHistory();
+  const historyRef = useRef(history);
+  historyRef.current = history;
+  const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
+  const navigationHistory = getNavigationHistoryState();
+
+  useEffect(() => {
+    if (Object.keys(navigationHistory).length !== 0) {
+      historyRef.current.push(navigationHistory.location); // go to last visited route
+    }
+
+    return historyRef.current.listen(() => {
+      setNavigationHistory(historyRef.current);
+    });
+  }, [navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
     return <CircularProgress />;
