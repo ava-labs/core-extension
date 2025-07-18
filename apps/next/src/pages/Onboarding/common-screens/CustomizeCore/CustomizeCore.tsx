@@ -1,7 +1,11 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useKeyboardShortcuts, useSettingsContext } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useKeyboardShortcuts,
+  useSettingsContext,
+} from '@core/ui';
 
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
@@ -23,6 +27,7 @@ type Props = OnboardingScreenProps & {
 
 export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
   const { setCurrent, setTotal } = useModalPageControl();
   const [selectedViewMode, setSelectedViewMode] =
     useState<ViewMode>('floating');
@@ -34,9 +39,12 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
   }, [setCurrent, setTotal, totalSteps, step]);
 
   const handleNextClick = useCallback(async () => {
+    capture('OnboardingPreferredViewSelected', {
+      preferredView: selectedViewMode,
+    });
     await setPreferredView(selectedViewMode);
     onNext();
-  }, [onNext, selectedViewMode, setPreferredView]);
+  }, [capture, onNext, selectedViewMode, setPreferredView]);
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: handleNextClick,
