@@ -21,6 +21,7 @@ export const ToggleButton = styled(K2ToggleButton)(({ theme }) => ({
 
 export const LabelButton = styled(Button)(({ theme }) => ({
   position: 'static',
+  marginInline: 'auto',
 
   '&:before': {
     content: '""',
