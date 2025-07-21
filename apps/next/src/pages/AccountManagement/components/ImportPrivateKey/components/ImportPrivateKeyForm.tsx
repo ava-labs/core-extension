@@ -1,9 +1,3 @@
-import { utils } from '@avalabs/avalanchejs';
-import {
-  getBtcAddressFromPubKey,
-  getEvmAddressFromPubKey,
-  getPublicKeyFromPrivateKey,
-} from '@avalabs/core-wallets-sdk';
 import {
   Box,
   Button,
@@ -21,7 +15,6 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { networks } from 'bitcoinjs-lib';
 import { DerivedAddresses } from '../types';
 import { DerivedAddressList } from './DerivedAddressList';
 import { Account } from '@core/types';
@@ -29,11 +22,10 @@ import {
   useAnalyticsContext,
   useBalancesContext,
   useSettingsContext,
-  useAccountsContext,
-  useNetworkContext,
   useBalanceTotalInCurrency,
 } from '@core/ui';
-import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
+import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
+import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
 
 interface ImportPrivateKeyFormProps {
   handleImport: () => void;
@@ -53,10 +45,10 @@ export const ImportPrivateKeyForm = ({
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
 
-  const { allAccounts } = useAccountsContext();
-  const { network } = useNetworkContext();
   const { updateBalanceOnNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
+
+  const { getDerivedAddresses } = useImportPrivateKey();
 
   const [isKnownAccount, setIsKnownAccount] = useState(false);
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
@@ -74,19 +66,6 @@ export const ImportPrivateKeyForm = ({
     }
   }, [derivedAddresses, updateBalanceOnNetworks]);
 
-  const checkIfAccountExists = useCallback(
-    (address: string) => {
-      const lowercasedAddress = address.toLowerCase();
-      const findAccount = allAccounts.find(
-        ({ addressC }) => addressC.toLowerCase() === lowercasedAddress,
-      );
-      if (findAccount) {
-        setIsKnownAccount(true);
-      }
-    },
-    [allAccounts, setIsKnownAccount],
-  );
-
   const errorHandler = useCallback(
     (errorMessage: string) => {
       setDerivedAddresses(undefined);
@@ -95,57 +74,23 @@ export const ImportPrivateKeyForm = ({
     [setDerivedAddresses, setError],
   );
 
-  const validate = useCallback(
-    (key: string) => {
-      const validationError = t(
-        'The key you entered is invalid. Please try again',
-      );
-      const strippedPk = utils.strip0x(key);
-
-      if (strippedPk.length !== 64) {
-        errorHandler(validationError);
-        return;
-      }
-
-      try {
-        const publicKey = getPublicKeyFromPrivateKey(strippedPk);
-        const addressC = getEvmAddressFromPubKey(publicKey);
-        checkIfAccountExists(addressC);
-        const addressBTC = getBtcAddressFromPubKey(
-          publicKey,
-          network?.isTestnet ? networks.testnet : networks.bitcoin,
-        );
-        setDerivedAddresses({
-          addressC,
-          addressBTC,
-        });
-        setError('');
-      } catch (_err) {
-        errorHandler(validationError);
-      }
-    },
-    [
-      checkIfAccountExists,
-      errorHandler,
-      network?.isTestnet,
-      setDerivedAddresses,
-      setError,
-      t,
-    ],
-  );
-
   const keyInputHandler = useCallback(
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const newKey = event.target.value;
       setPrivateKey(newKey);
 
       if (newKey) {
-        validate(newKey);
+        const foundDerivedAddresses = getDerivedAddresses(newKey, errorHandler);
+        if (foundDerivedAddresses) {
+          setIsKnownAccount(foundDerivedAddresses.isKnownAddress);
+          setDerivedAddresses(foundDerivedAddresses.derivedAddresses);
+          setError('');
+        }
       } else {
         errorHandler(t('Please enter the private key.'));
       }
     },
-    [errorHandler, setPrivateKey, t, validate],
+    [errorHandler, setPrivateKey, t, getDerivedAddresses],
   );
 
   const readyToImport = derivedAddresses && !error && !isImportLoading;
@@ -183,31 +128,31 @@ export const ImportPrivateKeyForm = ({
           helperText={error}
         />
 
-        {!error && (
+        {!error && derivedAddresses && (
           <Stack sx={{ mt: 2, rowGap: '10px' }}>
             <DerivedAddressList
               derivedAddresses={derivedAddresses}
               isLoading={isImportLoading}
             />
 
-            {derivedAddresses && (
-              <Card sx={{ p: 2 }}>
-                <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontWeight: 'fontWeightMedium' }}>
-                    {t('Total balance')}
-                  </Typography>
-                  <Typography variant="body2">
-                    {isBalanceLoading ? (
-                      <CircularProgress size={16} />
-                    ) : balance !== null && balance?.sum ? (
-                      currencyFormatter(balance?.sum).replace(currency, '')
-                    ) : (
-                      '-'
-                    )}
-                  </Typography>
-                </Stack>
-              </Card>
-            )}
+            <Card sx={{ p: 2 }}>
+              <Stack
+                sx={{ flexDirection: 'row', justifyContent: 'space-between' }}
+              >
+                <Typography sx={{ fontWeight: 'fontWeightMedium' }}>
+                  {t('Total balance')}
+                </Typography>
+                <Typography variant="body2">
+                  {isBalanceLoading ? (
+                    <CircularProgress size={16} />
+                  ) : balance !== null && balance?.sum ? (
+                    currencyFormatter(balance?.sum).replace(currency, '')
+                  ) : (
+                    '-'
+                  )}
+                </Typography>
+              </Stack>
+            </Card>
           </Stack>
         )}
       </Stack>
