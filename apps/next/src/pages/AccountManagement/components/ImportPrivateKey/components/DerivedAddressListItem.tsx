@@ -3,9 +3,9 @@ import {
   BitcoinColorIcon,
   CircularProgress,
   Stack,
+  truncateAddress,
   Typography,
-} from '@avalabs/core-k2-components';
-import { truncateAddress } from '@avalabs/k2-alpine';
+} from '@avalabs/k2-alpine';
 
 type NetworkType = 'avalanche' | 'bitcoin';
 
