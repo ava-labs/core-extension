@@ -34,6 +34,7 @@ export const EnjoyYourWalletScreen: FC = () => {
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
   const openWallet = () => {
+    // TODO: Open according to the preferred view
     action.openPopup();
     window.close();
   };

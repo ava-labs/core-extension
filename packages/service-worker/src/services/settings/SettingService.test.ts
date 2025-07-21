@@ -4,9 +4,9 @@ import {
   NetworkToken,
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
-import { SettingsService } from './SettingsService';
 import {
   AnalyticsConsent,
+  CollectiblesVisibility,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -14,10 +14,10 @@ import {
   SettingsState,
   ThemeVariant,
   TokensVisibility,
-  CollectiblesVisibility,
 } from '@core/types';
 import { changeLanguage } from 'i18next';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
+import { SettingsService } from './SettingsService';
 
 jest.mock('i18next', () => ({
   changeLanguage: jest.fn(),
@@ -72,6 +72,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     analyticsConsent: AnalyticsConsent.Denied,
     language: Languages.DE,
     coreAssistant: true,
+    preferredView: 'floating',
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -83,6 +84,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     analyticsConsent: AnalyticsConsent.Approved,
     language: Languages.DE,
     coreAssistant: false,
+    preferredView: 'floating',
   };
 
   const customToken: NetworkContractToken = {
@@ -193,6 +195,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     await operation();
     expect(eventListener).toHaveBeenCalledWith({
       language: storedSettings.language,
+      preferredView: storedSettings.preferredView,
     });
   };
 
@@ -207,6 +210,7 @@ describe('background/services/settings/SettingsService.ts', () => {
         SETTINGS_UNENCRYPTED_STORAGE_KEY,
         {
           language: storedSettings.language,
+          preferredView: storedSettings.preferredView,
         },
       );
 
@@ -218,9 +222,10 @@ describe('background/services/settings/SettingsService.ts', () => {
           },
         },
       };
+      const { language, preferredView, ...encryptedState } = newState;
       expect(storageServiceMock.save).toBeCalledWith(
         SETTINGS_STORAGE_KEY,
-        newState,
+        encryptedState,
       );
 
       expect(eventListener).toHaveBeenCalledWith(newState);
@@ -381,7 +386,7 @@ describe('background/services/settings/SettingsService.ts', () => {
         });
       });
 
-      it('should emit only the language if it fails to save', async () => {
+      it('should emit only the unencrypted settings if it fails to save', async () => {
         storageServiceMock.save.mockRejectedValue(new Error('error'));
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
@@ -389,13 +394,18 @@ describe('background/services/settings/SettingsService.ts', () => {
         await service.setLanguage(Languages.HI);
         expect(eventListener).toHaveBeenCalledWith({
           language: Languages.HI,
+          preferredView: storedSettings.preferredView,
         });
         expect(storageServiceMock.saveUnencrypted).toHaveBeenCalledWith(
           SETTINGS_UNENCRYPTED_STORAGE_KEY,
-          { language: Languages.HI },
+          {
+            language: Languages.HI,
+            preferredView: storedSettings.preferredView,
+          },
         );
       });
     });
+
     describe('setCoreAssistant', () => {
       it('should save the core concierge properly', async () => {
         const eventListener = jest.fn();
@@ -408,6 +418,7 @@ describe('background/services/settings/SettingsService.ts', () => {
           coreAssistant: true,
         });
       });
+
       it('should emit only the core concierge if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setCoreAssistant(true);
