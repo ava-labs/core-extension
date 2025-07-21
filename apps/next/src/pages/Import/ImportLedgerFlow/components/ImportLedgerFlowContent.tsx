@@ -47,7 +47,8 @@ export const ImportLedgerFlowContent = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { setCurrent, setTotal } = useModalPageControl();
+  const { setCurrent, setTotal, setIsBackButtonVisible } =
+    useModalPageControl();
   const { phase = 'connect-avax' } = useParams<{ phase: ImportRoute }>();
   const { importLedger, isImporting } = useImportLedger();
 
@@ -60,11 +61,15 @@ export const ImportLedgerFlowContent = () => {
     if (step) {
       setCurrent(step);
       setTotal(TOTAL_STEPS);
+
+      // We don't want to display the back button on the first screen
+      // (it won't do anything, since history state is empty)
+      setIsBackButtonVisible(step > 1);
     } else {
       // If we're on troubleshooting screens, hide the page indicator
       setTotal(0);
     }
-  }, [phase, setCurrent, setTotal]);
+  }, [phase, setCurrent, setIsBackButtonVisible, setTotal]);
 
   const avalancheConnectorCallbacks = useMemo(
     () => ({
