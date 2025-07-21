@@ -1,25 +1,39 @@
-import { Button, Card, Stack, toast, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  Card,
+  Stack,
+  toast,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { FileImage } from './FileImage';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { useKeystoreFileImport } from '@core/ui/src/hooks/useKeystoreFileImport';
 import { KeystoreError, KeystoreFileContentInfo } from '@core/types';
 import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useErrorMessage } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { AlertCircleIcon } from '@avalabs/core-k2-components';
+import { MdErrorOutline } from 'react-icons/md';
 type KeystoreFilePasswordProps = {
+  error?: KeystoreError;
   file: File;
   onCancel: () => void;
   onError: (error: KeystoreError) => void;
 };
 
 export const KeystoreFilePassword = ({
+  error,
   file,
   onError,
+  onCancel,
 }: KeystoreFilePasswordProps) => {
   const { t } = useTranslation();
   const { replace } = useHistory();
+  const theme = useTheme();
+
+  const getTranslatedError = useErrorMessage();
+  const { title: errorTitle } = getTranslatedError(error);
 
   const { getKeyCounts, importKeystoreFile } = useKeystoreFileImport();
   const { capture } = useAnalyticsContext();
@@ -69,11 +83,13 @@ export const KeystoreFilePassword = ({
     } catch (err: unknown) {
       capture('KeystoreFileImportFailure');
 
-      const error = Object.values(KeystoreError).includes(err as KeystoreError)
+      const newError = Object.values(KeystoreError).includes(
+        err as KeystoreError,
+      )
         ? (err as KeystoreError)
         : KeystoreError.Unknown;
 
-      onError(error);
+      onError(newError);
     }
   }, [
     fileInfo,
@@ -88,9 +104,16 @@ export const KeystoreFilePassword = ({
   ]);
 
   return (
-    <Stack sx={{ px: 2, flexGrow: 1 }}>
-      <Card>
-        <Stack direction="row">
+    <Stack sx={{ flexGrow: 1 }}>
+      <Card sx={{ p: '12px' }}>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            columnGap: '11px',
+          }}
+        >
           <FileImage />
 
           <Stack>
@@ -98,27 +121,40 @@ export const KeystoreFilePassword = ({
               {file.name}
             </Typography>
 
-            {fileInfo && (
-              <>
-                <Typography variant="body2" color="text.secondary">
-                  {t('{{recoveryPhrasesCount}} new recovery phrases', {
-                    recoveryPhrasesCount: fileInfo.seedPhrasesCount,
-                  })}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {t('{{privateKeyCount}} new private keys', {
-                    privateKeyCount: fileInfo.privateKeysCount,
-                  })}
-                </Typography>
-              </>
-            )}
+            <Typography variant="body2" color="text.secondary">
+              {t('{{recoveryPhrasesCount}} new recovery phrases', {
+                recoveryPhrasesCount: fileInfo
+                  ? fileInfo.seedPhrasesCount
+                  : '-',
+              })}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('{{privateKeyCount}} new private keys', {
+                privateKeyCount: fileInfo ? fileInfo.privateKeysCount : '-',
+              })}
+            </Typography>
           </Stack>
+
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            onClick={onCancel}
+          >
+            {t('Delete')}
+          </Button>
         </Stack>
       </Card>
 
-      <Stack direction="row">
-        <AlertCircleIcon sx={{ color: 'error.main' }} />
-        <Typography variant="body2" color="error.main">
+      <Stack
+        direction="row"
+        sx={{ mt: '27px', mb: '14px', columnGap: '8px', alignItems: 'center' }}
+      >
+        <MdErrorOutline size={40} style={{ color: theme.palette.error.main }} />
+        <Typography
+          color="error.main"
+          sx={{ '&.MuiTypography-root': { fontSize: '12px', fontWeight: 500 } }}
+        >
           {t(
             'This file requires a password. This password was set when the file was created.',
           )}
@@ -128,7 +164,9 @@ export const KeystoreFilePassword = ({
         value={filePassword}
         onChange={(e) => setFilePassword(e.target.value)}
         error={showInvalidPasswordError}
-        helperText={showInvalidPasswordError && t('Invalid password')}
+        helperText={
+          showInvalidPasswordError && (errorTitle ?? t('Invalid password'))
+        }
       />
 
       <Stack sx={{ mt: 'auto', rowGap: '10px' }}>
@@ -141,7 +179,12 @@ export const KeystoreFilePassword = ({
         >
           {t('Import Keystore file')}
         </Button>
-        <Button variant="contained" color="secondary" fullWidth>
+        <Button
+          variant="contained"
+          color="secondary"
+          fullWidth
+          onClick={onCancel}
+        >
           {t('Cancel')}
         </Button>
       </Stack>

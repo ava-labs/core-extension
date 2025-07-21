@@ -1,10 +1,18 @@
-export const FileImageLight = () => {
+type FileImageLightProps = {
+  width?: number;
+  height?: number;
+};
+
+export const FileImageLight = ({
+  width = 32,
+  height = 39,
+}: FileImageLightProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="44"
-      height="51"
-      viewBox="0 0 44 51"
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
       fill="none"
     >
       <g filter="url(#filter0_d_3581_26069)">

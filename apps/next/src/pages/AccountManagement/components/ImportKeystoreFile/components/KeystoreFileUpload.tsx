@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { FileImage } from './FileImage';
 import { useKeystoreFileImport } from '@core/ui/src/hooks/useKeystoreFileImport';
 import { KeystoreError } from '@core/types';
+import { MdFileUpload } from 'react-icons/md';
 
 type KeystoreFileUploadProps = {
   file: File | null;
@@ -67,7 +68,7 @@ export const KeystoreFileUpload = ({
   };
 
   return (
-    <Stack sx={{ px: 2, flexGrow: 1, gap: '14px' }}>
+    <Stack sx={{ flexGrow: 1, gap: '14px' }}>
       <Card
         sx={{
           p: 4,
@@ -95,18 +96,34 @@ export const KeystoreFileUpload = ({
             height: '100%',
           }}
         >
-          <Stack sx={{ justifyContent: 'center', alignItems: 'center' }}>
+          <Stack
+            sx={{
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             {file ? (
               <>
                 <FileImage />
 
-                <Typography variant="h6" color="text.primary">
+                <Typography
+                  variant="h6"
+                  color="text.primary"
+                  sx={{ mt: '11px', mb: '59px' }}
+                >
                   {file.name}
                 </Typography>
               </>
             ) : (
               <>
-                {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}
+                <MdFileUpload
+                  size={40}
+                  style={{
+                    color: theme.palette.text.primary,
+                    marginBottom: '6px',
+                  }}
+                />
+                {/*TODO: Replace with new alpine icon*/}
                 <Typography variant="h6" color="text.primary">
                   {t('Drop your file here to upload')}
                 </Typography>
@@ -120,11 +137,12 @@ export const KeystoreFileUpload = ({
           </Stack>
 
           <Button
-            size="medium"
-            fullWidth
+            size="small"
             component="label"
             htmlFor="browse-files"
             data-testid="browse-files"
+            variant="contained"
+            color="secondary"
           >
             {t('Browse Files')}
           </Button>

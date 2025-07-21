@@ -5,6 +5,7 @@ import { KeystoreError } from '@core/types';
 import { useAnalyticsContext, useKeystoreFileImport } from '@core/ui';
 import { KeystoreFileUpload } from './components/KeystoreFileUpload';
 import { KeystoreFilePassword } from './components/KeystoreFilePassword';
+import { KeystoreFileError } from './components/KeystoreFileError';
 
 enum Step {
   ChooseFile,
@@ -16,15 +17,11 @@ enum Step {
 export const ImportKeystoreFile: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  // const getTranslatedError = useErrorMessage();
 
   const [step, setStep] = useState(Step.ChooseFile);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<KeystoreError | null>(null);
   const { isValidKeystoreFile } = useKeystoreFileImport();
-  console.log(error); //TODO remove this
-
-  // const { title: errorMessage } = getTranslatedError(error);
 
   const reset = useCallback(() => {
     setError(null);
@@ -52,59 +49,6 @@ export const ImportKeystoreFile: FC = () => {
     },
     [capture, isValidKeystoreFile],
   );
-
-  // const handleImport = useCallback(async () => {
-  //   if (!file || isReading || isImporting) {
-  //     return;
-  //   }
-
-  //   try {
-  //     capture('KeystoreFileImportStarted');
-  //     await importKeystoreFile(file, filePassword);
-  //     capture('KeystoreFileImportSuccess');
-
-  //     toast.success(t('Successfully imported the keystore file.'));
-
-  //     history.replace('/accounts');
-  //   } catch (err: any) {
-  //     capture('KeystoreFileImportFailure');
-  //     setError(err);
-  //     setStep(Step.Error);
-  //   }
-  // }, [
-  //   capture,
-  //   file,
-  //   filePassword,
-  //   history,
-  //   importKeystoreFile,
-  //   isImporting,
-  //   isReading,
-  //   t,
-  // ]);
-
-  // const readKeystoreFile = useCallback(async () => {
-  //   if (!file || isReading || isImporting) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const info = await getKeyCounts(file, filePassword);
-  //     setFileInfo(info);
-  //     setStep(Step.ConfirmData);
-  //   } catch (err: any) {
-  //     // For wrong password we only highlight the text field.
-  //     if (err !== KeystoreError.InvalidPassword) {
-  //       setStep(Step.Error);
-  //     }
-  //     setError(err);
-  //     setFileInfo(EMPTY_FILE_INFO);
-  //   }
-  // }, [file, filePassword, getKeyCounts, isImporting, isReading]);
-
-  // const keyboardHandlers = useKeyboardShortcuts({
-  //   Enter: readKeystoreFile,
-  //   Escape: restart,
-  // });
 
   return (
     <Stack
@@ -142,6 +86,9 @@ export const ImportKeystoreFile: FC = () => {
             setStep(Step.Error);
           }}
         />
+      )}
+      {step === Step.Error && error && (
+        <KeystoreFileError error={error} onTryAgain={() => reset()} />
       )}
     </Stack>
   );
