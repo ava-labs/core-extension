@@ -1,15 +1,16 @@
-import { ContextContainer } from '@core/types';
+import { ContextContainer, SettingsEvents, SettingsState } from '@core/types';
+import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 import { ConnectionService } from '../connections/ConnectionService';
-import { singleton } from 'tsyringe';
-import { LockService } from '../services/lock/LockService';
-import { OnboardingService } from '../services/onboarding/OnboardingService';
-import { ModuleManager } from '../vmModules/ModuleManager';
-import { BridgeService } from '../services/bridge/BridgeService';
-import { AddressResolver } from '../services/secrets/AddressResolver';
 import { AppCheckService } from '../services/appcheck/AppCheckService';
+import { BridgeService } from '../services/bridge/BridgeService';
 import { GasStationService } from '../services/gasless/GasStationService';
+import { LockService } from '../services/lock/LockService';
 import { NotificationsService } from '../services/notifications/NotificationsService';
+import { OnboardingService } from '../services/onboarding/OnboardingService';
+import { AddressResolver } from '../services/secrets/AddressResolver';
+import { SettingsService } from '../services/settings/SettingsService';
+import { ModuleManager } from '../vmModules/ModuleManager';
 
 @singleton()
 export class BackgroundRuntime {
@@ -24,12 +25,14 @@ export class BackgroundRuntime {
     private appCheckService: AppCheckService,
     private gasStationService: GasStationService,
     private notificationsService: NotificationsService,
+    private settingsService: SettingsService,
   ) {}
 
-  activate() {
+  async activate() {
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
+    await this.setupSidePanel();
 
     // Activate services which need to run all the or are required for bootstraping the wallet state
     this.connectionService.activate();
@@ -123,5 +126,26 @@ export class BackgroundRuntime {
       reasons: ['WORKERS'],
       justification: 'offload computation',
     });
+  }
+
+  private async setupSidePanel() {
+    const setSidePanelBehavior = (settings: SettingsState) => {
+      const { preferredView } = settings;
+
+      if (!preferredView) {
+        return;
+      }
+
+      browser.sidePanel.setPanelBehavior({
+        openPanelOnActionClick: preferredView === 'sidebar',
+      });
+    };
+
+    setSidePanelBehavior(await this.settingsService.getSettings());
+
+    this.settingsService.addListener(
+      SettingsEvents.SETTINGS_UPDATED,
+      setSidePanelBehavior,
+    );
   }
 }

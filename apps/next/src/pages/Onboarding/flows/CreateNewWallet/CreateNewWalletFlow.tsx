@@ -1,20 +1,21 @@
-import { useCallback, useEffect } from 'react';
 import { WalletType } from '@avalabs/types';
+import { useCallback, useEffect } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
+import { FullscreenModal } from '@/components/FullscreenModal';
 import {
+  CustomizeCore,
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
-import { FullscreenModal } from '@/components/FullscreenModal';
-import { NewSeedphraseScreen } from './screens/NewSeedphraseScreen';
 import { ConfirmSeedphraseScreen } from './screens/ConfirmSeedphraseScreen';
+import { NewSeedphraseScreen } from './screens/NewSeedphraseScreen';
 
 const BASE_PATH = '/onboarding/create';
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export const CreateNewWalletFlow = () => {
   const history = useHistory();
@@ -48,6 +49,7 @@ export const CreateNewWalletFlow = () => {
     history.push(`${BASE_PATH}/wallet-details`);
   }, [capture, history]);
 
+  let step = 2;
   return (
     <FullscreenModal
       open
@@ -59,28 +61,35 @@ export const CreateNewWalletFlow = () => {
       <Switch>
         <Route exact path={BASE_PATH}>
           <NewSeedphraseScreen
-            step={1}
+            step={step++}
             totalSteps={TOTAL_STEPS}
             onNext={onSeedphraseCreated}
           />
         </Route>
         <Route path={`${BASE_PATH}/confirm-seedphrase`}>
           <ConfirmSeedphraseScreen
-            step={2}
+            step={step++}
             totalSteps={TOTAL_STEPS}
             onNext={onSeedphraseConfirmed}
           />
         </Route>
         <Route path={`${BASE_PATH}/wallet-details`}>
           <ProvideWalletDetailsScreen
-            step={3}
+            step={step++}
+            totalSteps={TOTAL_STEPS}
+            onNext={() => history.push(`${BASE_PATH}/customize-core`)}
+          />
+        </Route>
+        <Route path={`${BASE_PATH}/customize-core`}>
+          <CustomizeCore
+            step={step++}
             totalSteps={TOTAL_STEPS}
             onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
           />
         </Route>
         <Route path={`${BASE_PATH}/select-avatar`}>
           <SelectAvatarScreen
-            step={4}
+            step={step++}
             totalSteps={TOTAL_STEPS}
             onNext={() => history.push(`${BASE_PATH}/enjoy-your-wallet`)}
           />
