@@ -75,3 +75,4 @@ export * from './useRegisterBtcWalletPolicy';
 export * from './useSolanaPublicKeys';
 export * from './useSeedlessActions';
 export * from './useDuplicatedWalletChecker';
+export * from './useDeriveMissingKeysForSeedless';

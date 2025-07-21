@@ -48,8 +48,8 @@ export const ModalPageControlProvider: FC<{ children: ReactNode }> = ({
   );
 
   useEffect(() => {
-    setIsBackButtonVisible(current > 1);
-  }, [current]);
+    setIsBackButtonVisible(total > 1);
+  }, [total]);
 
   return (
     <ModalPageControlContext.Provider
