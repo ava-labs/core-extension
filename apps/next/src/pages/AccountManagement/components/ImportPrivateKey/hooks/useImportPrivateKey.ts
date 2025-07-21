@@ -58,15 +58,15 @@ export const useImportPrivateKey = () => {
   );
 
   const getDerivedAddresses = useCallback(
-    (valueToValidate: string, errorHandler: (error: string) => void) => {
+    (valueToValidate: string) => {
       const validationError = t(
         'The key you entered is invalid. Please try again',
       );
+
       const strippedPk = utils.strip0x(valueToValidate);
 
       if (strippedPk.length !== 64) {
-        errorHandler(validationError);
-        return;
+        throw new Error(validationError);
       }
 
       try {
@@ -85,7 +85,7 @@ export const useImportPrivateKey = () => {
           },
         };
       } catch (_err) {
-        errorHandler(validationError);
+        throw new Error(validationError);
       }
     },
     [checkIfAccountExists, network?.isTestnet, t],

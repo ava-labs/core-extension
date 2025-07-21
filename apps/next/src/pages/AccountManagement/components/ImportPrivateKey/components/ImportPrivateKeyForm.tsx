@@ -80,11 +80,18 @@ export const ImportPrivateKeyForm = ({
       setPrivateKey(newKey);
 
       if (newKey) {
-        const foundDerivedAddresses = getDerivedAddresses(newKey, errorHandler);
-        if (foundDerivedAddresses) {
-          setIsKnownAccount(foundDerivedAddresses.isKnownAddress);
-          setDerivedAddresses(foundDerivedAddresses.derivedAddresses);
-          setError('');
+        try {
+          const foundDerivedAddresses = getDerivedAddresses(newKey);
+          if (foundDerivedAddresses) {
+            setIsKnownAccount(foundDerivedAddresses.isKnownAddress);
+            setDerivedAddresses(foundDerivedAddresses.derivedAddresses);
+            setError('');
+          }
+        } catch (err: unknown) {
+          const validationError = t(
+            'The key you entered is invalid. Please try again',
+          );
+          errorHandler(err instanceof Error ? err.message : validationError);
         }
       } else {
         errorHandler(t('Please enter the private key.'));
