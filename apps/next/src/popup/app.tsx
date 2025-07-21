@@ -1,6 +1,7 @@
 import {
   CircularProgress,
   IconButton,
+  QrCodeIcon,
   ThemeProvider,
   toast,
 } from '@avalabs/k2-alpine';
@@ -10,6 +11,7 @@ import {
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
+  useAccountsContext,
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
@@ -21,6 +23,7 @@ import { Onboarding } from '@/pages/Onboarding';
 import { MdSwitchAccount } from 'react-icons/md';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
+import { Receive } from '@/pages/Receive';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -44,6 +47,7 @@ export function App() {
                 >
                   <WalletContextProvider LockedComponent={LockScreen}>
                     <Switch>
+                      <Route path="/receive" component={Receive} />
                       <Route
                         path="/account-management"
                         component={AccountManagement}
@@ -64,6 +68,7 @@ export function App() {
                             >
                               <MdSwitchAccount />
                             </IconButton>
+                            <ReceiveButton />
                           </div>
                         )}
                       />
@@ -78,3 +83,20 @@ export function App() {
     </ThemeProvider>
   );
 }
+
+const ReceiveButton = () => {
+  const history = useHistory();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
+
+  if (!active) {
+    return null;
+  }
+
+  return (
+    <IconButton onClick={() => history.push(`/receive?accId=${active.id}`)}>
+      <QrCodeIcon />
+    </IconButton>
+  );
+};
