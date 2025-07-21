@@ -7,7 +7,7 @@ import { KeystoreError, KeystoreFileContentInfo } from '@core/types';
 import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
 import { useAnalyticsContext } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-
+import { AlertCircleIcon } from '@avalabs/core-k2-components';
 type KeystoreFilePasswordProps = {
   file: File;
   onCancel: () => void;
@@ -88,7 +88,7 @@ export const KeystoreFilePassword = ({
   ]);
 
   return (
-    <Stack>
+    <Stack sx={{ px: 2, flexGrow: 1 }}>
       <Card>
         <Stack direction="row">
           <FileImage />
@@ -115,6 +115,15 @@ export const KeystoreFilePassword = ({
           </Stack>
         </Stack>
       </Card>
+
+      <Stack direction="row">
+        <AlertCircleIcon sx={{ color: 'error.main' }} />
+        <Typography variant="body2" color="error.main">
+          {t(
+            'This file requires a password. This password was set when the file was created.',
+          )}
+        </Typography>
+      </Stack>
       <LessRoundedPasswordField
         value={filePassword}
         onChange={(e) => setFilePassword(e.target.value)}
@@ -122,18 +131,20 @@ export const KeystoreFilePassword = ({
         helperText={showInvalidPasswordError && t('Invalid password')}
       />
 
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        disabled={!fileInfo}
-        onClick={handleImport}
-      >
-        {t('Import Keystore file')}
-      </Button>
-      <Button variant="text" color="secondary" fullWidth>
-        {t('Cancel')}
-      </Button>
+      <Stack sx={{ mt: 'auto', rowGap: '10px' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          fullWidth
+          disabled={!fileInfo}
+          onClick={handleImport}
+        >
+          {t('Import Keystore file')}
+        </Button>
+        <Button variant="contained" color="secondary" fullWidth>
+          {t('Cancel')}
+        </Button>
+      </Stack>
     </Stack>
   );
 };

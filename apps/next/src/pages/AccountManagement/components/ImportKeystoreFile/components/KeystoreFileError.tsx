@@ -1,10 +1,5 @@
-import {
-  AlertCircleIcon,
-  Button,
-  Card,
-  Stack,
-  Typography,
-} from '@avalabs/core-k2-components';
+import { AlertCircleIcon } from '@avalabs/core-k2-components';
+import { Button, Card, Stack, Typography } from '@avalabs/k2-alpine';
 import { useErrorMessage } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 

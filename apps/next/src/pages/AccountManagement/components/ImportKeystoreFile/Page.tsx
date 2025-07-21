@@ -26,17 +26,11 @@ export const ImportKeystoreFile: FC = () => {
 
   // const { title: errorMessage } = getTranslatedError(error);
 
-  // const restart = useCallback(() => {
-  //   setError(null);
-  //   setFile(null);
-  //   setFileInfo(EMPTY_FILE_INFO);
-  //   setFilePassword('');
-  //   setStep(Step.ChooseFile);
-
-  //   if (inputRef.current) {
-  //     inputRef.current.value = '';
-  //   }
-  // }, []);
+  const reset = useCallback(() => {
+    setError(null);
+    setFile(null);
+    setStep(Step.ChooseFile);
+  }, []);
 
   const onFileSelected = useCallback(
     async (rawFile: File | null) => {
@@ -119,8 +113,12 @@ export const ImportKeystoreFile: FC = () => {
         height: '100%',
       }}
     >
-      <Stack direction="row" sx={{ mt: 2.5, mb: 0.5, pr: 1 }}>
-        <Typography>{t('Upload Keystore File')}</Typography>
+      <Stack direction="row" sx={{ mt: 2.5, mb: '25px', pr: 1 }}>
+        <Typography
+          sx={{ '&.MuiTypography-root': { fontSize: '27px', fontWeight: 700 } }}
+        >
+          {t('Upload Keystore File')}
+        </Typography>
       </Stack>
       {step === Step.ChooseFile && (
         <KeystoreFileUpload
@@ -138,7 +136,7 @@ export const ImportKeystoreFile: FC = () => {
       {step === Step.ProvidePassword && file && (
         <KeystoreFilePassword
           file={file}
-          onCancel={() => setStep(Step.ChooseFile)}
+          onCancel={() => reset()}
           onError={(newError) => {
             setError(newError);
             setStep(Step.Error);

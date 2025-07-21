@@ -67,13 +67,14 @@ export const KeystoreFileUpload = ({
   };
 
   return (
-    <Stack sx={{ px: 2, pt: 1, flexGrow: 1, gap: 1 }}>
+    <Stack sx={{ px: 2, flexGrow: 1, gap: '14px' }}>
       <Card
         sx={{
           p: 4,
           transition: theme.transitions.create(['border', 'color']),
           color: isDraggingOver ? theme.palette.info.light : 'initial',
           border: `2px dashed ${theme.palette.background.switchTrackUnchecked}`,
+          flexGrow: 1,
         }}
         onDrop={handleFileDropped}
         onDragOver={(ev) => ev.preventDefault()}
@@ -89,31 +90,34 @@ export const KeystoreFileUpload = ({
             pointerEvents: isDraggingOver ? 'none' : 'all', // prevents dragLeave event from firing when dragging over child elements
             justifyContent: 'center',
             alignItems: 'center',
-            gap: 1,
+            gap: '21px',
             textAlign: 'center',
+            height: '100%',
           }}
         >
-          {file ? (
-            <>
-              <FileImage />
+          <Stack sx={{ justifyContent: 'center', alignItems: 'center' }}>
+            {file ? (
+              <>
+                <FileImage />
 
-              <Typography variant="h6" color="text.primary">
-                {file.name}
-              </Typography>
-            </>
-          ) : (
-            <>
-              {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}
-              <Typography variant="h6" color="text.primary">
-                {t('Drop your file here to upload')}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t(
-                  'Only Keystore files from the Avalanche Wallet are supported',
-                )}
-              </Typography>
-            </>
-          )}
+                <Typography variant="h6" color="text.primary">
+                  {file.name}
+                </Typography>
+              </>
+            ) : (
+              <>
+                {/* <UploadIcon size={64} /> TODO: Replace with new alpine icon*/}
+                <Typography variant="h6" color="text.primary">
+                  {t('Drop your file here to upload')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {t(
+                    'Only Keystore files from the Avalanche Wallet are supported',
+                  )}
+                </Typography>
+              </>
+            )}
+          </Stack>
 
           <Button
             size="medium"
@@ -138,6 +142,9 @@ export const KeystoreFileUpload = ({
         disabled={!file}
         onClick={() => onSubmit(file)}
         sx={{ marginTop: 'auto' }}
+        variant="contained"
+        color="primary"
+        fullWidth
       >
         {t('Next')}
       </Button>
