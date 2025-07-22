@@ -23,6 +23,7 @@ import { ConnectedSites } from './ConnectedSites';
 import { AddressList } from './AddressList';
 import { ContextContainer } from '@core/types';
 import { switchTo } from './utils';
+import { MultiIconButton } from '../MultiIconButton';
 
 const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -50,26 +51,6 @@ const AccountSelectContainer = styled(Stack)`
   }
 `;
 
-// TODO: implement the Icon change logic
-const StackRowStyled = styled(StackRow)`
-  cursor: pointer;
-  & > .sidebarUndockIcon {
-    display: none;
-  }
-  & > .sidebarDockIcon {
-    display: none;
-  }
-  &:hover > .sidebarIcon {
-    display: none;
-  }
-  &:hover > .sidebarDockIcon {
-    display: block;
-  }
-  &:hover > .sidebarUndockIcon {
-    display: block;
-  }
-`;
-
 export const Header = () => {
   const { accounts } = useAccountsContext();
   const activeAccount = accounts.active;
@@ -80,6 +61,7 @@ export const Header = () => {
   const { setPreferredView } = useSettingsContext();
   const { capture } = useAnalyticsContext();
   const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+  const DockIcon = isSidePanel ? SidebarUndockIcon : SidebarDockIcon;
 
   const onSidebarIconClick = async () => {
     const requestedView = isSidePanel ? 'floating' : 'sidebar';
@@ -139,15 +121,14 @@ export const Header = () => {
             <ConnectedSites activeAccount={activeAccount} />
             <MdQrCode2 size={24} />
             <MdOutlineSettings size={24} />
-            <StackRowStyled onClick={onSidebarIconClick}>
-              <SidebarIcon size={24} className="sidebarIcon" />
-              {isSidePanel && (
-                <SidebarUndockIcon size={24} className="sidebarUndockIcon" />
-              )}
-              {!isSidePanel && (
-                <SidebarDockIcon size={24} className="sidebarDockIcon" />
-              )}
-            </StackRowStyled>
+
+            <MultiIconButton
+              icon={<SidebarIcon size={24} />}
+              hoverIcon={<DockIcon size={24} />}
+              size="medium"
+              onClick={onSidebarIconClick}
+              color="primary"
+            />
           </Stack>
         </StackRow>
       </Stack>
