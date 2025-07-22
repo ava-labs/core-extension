@@ -7,7 +7,7 @@ type Props = {
   ref?: RefObject<HTMLDivElement>;
 };
 
-const CChainDisclaimer: FC<Props> = ({ ref }) => {
+const CChainAddressDisclaimer: FC<Props> = ({ ref }) => {
   const { t } = useTranslation();
 
   return (
@@ -22,5 +22,5 @@ const CChainDisclaimer: FC<Props> = ({ ref }) => {
   );
 };
 
-const CChainDisclaimerMemo = memo(CChainDisclaimer);
-export { CChainDisclaimerMemo as CChainDisclaimer };
+const CChainDisclaimerMemo = memo(CChainAddressDisclaimer);
+export { CChainDisclaimerMemo as CChainAddressDisclaimer };

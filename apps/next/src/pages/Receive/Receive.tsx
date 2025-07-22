@@ -17,8 +17,9 @@ import { AddressType } from '@core/types';
 import { stripAddressPrefix } from '@core/common';
 import { useAccountsContext, useQueryParams } from '@core/ui';
 
+import { CChainAddressDisclaimer } from '@/components/CChainAddressDisclaimer';
 import { AddressSelector } from '@/components/AddressSelector';
-import { AddressCopyBox, CChainDisclaimer } from './components';
+import { AddressCopyBox } from './components';
 
 export const Receive = () => {
   const theme = useTheme();
@@ -96,7 +97,7 @@ export const Receive = () => {
             />
           </Box>
           <Collapse in={addressType === 'C'}>
-            <CChainDisclaimer />
+            <CChainAddressDisclaimer />
           </Collapse>
         </Stack>
         <AddressCopyBox address={address} addressType={addressType} />

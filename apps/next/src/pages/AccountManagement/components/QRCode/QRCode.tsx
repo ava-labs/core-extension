@@ -8,10 +8,10 @@ import { AddressItem } from '../AddressItem';
 import CurrentAccount from '../CurrentAccount';
 import * as Styled from '../Styled';
 import { AddressSelector } from '../../../../components/AddressSelector';
-import { CChainDisclaimer } from './components/CChainDisclaimer';
 import { getNavigateToQRCode, getSearchParams } from './utils';
 import { AddressType } from '@core/types';
 import { getChainLabelAndIconByAddressType } from '@/utils/getChainLabelAndIconByAddressType';
+import { CChainAddressDisclaimer } from '@/components/CChainAddressDisclaimer';
 
 const QRCodeBox = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -66,7 +66,7 @@ export const QRCode: FC = () => {
         </QRCodeBox>
 
         <Collapse in={addressType === 'C'}>
-          <CChainDisclaimer />
+          <CChainAddressDisclaimer />
         </Collapse>
       </Stack>
 
