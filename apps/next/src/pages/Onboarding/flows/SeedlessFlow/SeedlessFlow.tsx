@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { WalletType } from '@avalabs/types';
+import { useEffect } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useOnboardingContext } from '@core/ui';
@@ -7,14 +7,15 @@ import { useOnboardingContext } from '@core/ui';
 import { FullscreenModal } from '@/components/FullscreenModal';
 
 import {
+  CustomizeCore,
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
 import { SeedlessMfaLoginFlow, SeedlessMfaSetupFlow } from './subflows';
 
 const BASE_PATH = '/onboarding/seedless';
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export const SeedlessFlow = () => {
   const history = useHistory();
@@ -61,9 +62,16 @@ export const SeedlessFlow = () => {
             onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
           />
         </Route>
+        <Route path={`${BASE_PATH}/customize-core`}>
+          <CustomizeCore
+            step={4}
+            totalSteps={TOTAL_STEPS}
+            onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
+          />
+        </Route>
         <Route path={`${BASE_PATH}/select-avatar`}>
           <SelectAvatarScreen
-            step={4}
+            step={5}
             totalSteps={TOTAL_STEPS}
             onNext={() => history.push(`${BASE_PATH}/enjoy-your-wallet`)}
           />
