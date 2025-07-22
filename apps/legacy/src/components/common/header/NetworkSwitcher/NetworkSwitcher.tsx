@@ -1,4 +1,4 @@
-import { useAccountsContext, useNetworkContext } from '@core/ui';
+import { useNetworkContext } from '@core/ui';
 import { useRef, useState } from 'react';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { useHistory } from 'react-router-dom';
@@ -18,9 +18,10 @@ import {
   Grow,
   ClickAwayListener,
   Box,
+  Tooltip,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext } from '@core/ui';
-import { isChainSupportedByAccount } from '@core/common';
+import { useAnalyticsContext, useWalletContext } from '@core/ui';
+import { isChainSupportedByWallet } from '@core/common';
 
 const defaultNetworks = [
   ChainId.AVALANCHE_MAINNET_ID,
@@ -41,11 +42,9 @@ const NetworkSelectronMenuItem = styled(MenuItem)`
 `;
 
 export function NetworkSwitcher() {
-  const {
-    accounts: { active },
-  } = useAccountsContext();
   const { network, setNetwork, favoriteNetworks, networks } =
     useNetworkContext();
+  const { walletDetails } = useWalletContext();
 
   const networkList = [
     ...networks.filter(
@@ -58,7 +57,7 @@ export function NetworkSwitcher() {
         !defaultNetworks.includes(networkItem.chainId) &&
         networkItem.chainId !== network?.chainId,
     ),
-  ].filter((networkItem) => isChainSupportedByAccount(networkItem, active));
+  ];
 
   const isActiveInList = networkList.find(
     (networkItem) => networkItem?.chainId === network?.chainId,
@@ -143,38 +142,61 @@ export function NetworkSwitcher() {
                       if (!networkItem) {
                         return null;
                       }
+                      const isSupported = isChainSupportedByWallet(
+                        networkItem.vmName,
+                        walletDetails?.type,
+                      );
                       return (
-                        <NetworkSelectronMenuItem
-                          data-testid={`select-network-${networkItem.chainId}-button`}
+                        <Tooltip
                           key={networkItem.chainId}
-                          onClick={() => {
-                            setNetwork(networkItem);
-                            setIsOpen(false);
-                          }}
-                          sx={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            px: 1,
-                            color: 'text.secondary',
-                          }}
+                          wrapWithSpan={false}
+                          title={
+                            !isSupported
+                              ? t(
+                                  'This network is not supported by the active wallet',
+                                )
+                              : ''
+                          }
                         >
-                          <Stack
-                            sx={{ alignItems: 'center', flexDirection: 'row' }}
+                          <NetworkSelectronMenuItem
+                            data-testid={`select-network-${networkItem.chainId}-button`}
+                            onClick={() => {
+                              if (!isSupported) {
+                                return;
+                              }
+                              setNetwork(networkItem);
+                              setIsOpen(false);
+                            }}
+                            sx={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              px: 1,
+                              color: 'text.secondary',
+                              opacity: isSupported ? 1 : 0.5,
+                              cursor: isSupported ? 'pointer' : 'not-allowed',
+                            }}
                           >
-                            <NetworkLogo
-                              src={networkItem.logoUri}
-                              width="16px"
-                              height="16px"
-                            />
+                            <Stack
+                              sx={{
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                              }}
+                            >
+                              <NetworkLogo
+                                src={networkItem.logoUri}
+                                width="16px"
+                                height="16px"
+                              />
 
-                            <Typography variant="body2" sx={{ ml: 1 }}>
-                              {networkItem.chainName}
-                            </Typography>
-                          </Stack>
-                          {networkItem.chainId === network?.chainId && (
-                            <CheckIcon size={16} />
-                          )}
-                        </NetworkSelectronMenuItem>
+                              <Typography variant="body2" sx={{ ml: 1 }}>
+                                {networkItem.chainName}
+                              </Typography>
+                            </Stack>
+                            {networkItem.chainId === network?.chainId && (
+                              <CheckIcon size={16} />
+                            )}
+                          </NetworkSelectronMenuItem>
+                        </Tooltip>
                       );
                     })}
                   <NetworkSelectronMenuItem

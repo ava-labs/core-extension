@@ -13,6 +13,7 @@ import {
   Stack,
   StarFilledIcon,
   StarIcon,
+  ToastCard,
   Tooltip,
   Typography,
   toast,
@@ -20,11 +21,11 @@ import {
 } from '@avalabs/core-k2-components';
 
 import { NetworkLogo } from '@/components/common/NetworkLogo';
-import { useAccountsContext, useNetworkContext } from '@core/ui';
+import { useNetworkContext, useWalletContext } from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
 import {
   ipfsResolverWithFallback,
-  isChainSupportedByAccount,
+  isChainSupportedByWallet,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 
@@ -41,9 +42,7 @@ interface NetworkListProps {
 
 export function NetworkList({ networkList }: NetworkListProps) {
   const { t } = useTranslation();
-  const {
-    accounts: { active },
-  } = useAccountsContext();
+  const { walletDetails } = useWalletContext();
   const {
     network,
     setNetwork,
@@ -65,9 +64,9 @@ export function NetworkList({ networkList }: NetworkListProps) {
       <TransitionGroup component={null}>
         {networkList.map((networkItem, index) => {
           const isFavorite = isFavoriteNetwork(networkItem.chainId);
-          const isSupportedByActiveAccount = isChainSupportedByAccount(
-            networkItem,
-            active,
+          const isSupportedByActiveWallet = isChainSupportedByWallet(
+            networkItem.vmName,
+            walletDetails?.type,
           );
           return (
             <Collapse key={networkItem.chainId} className="item">
@@ -75,16 +74,30 @@ export function NetworkList({ networkList }: NetworkListProps) {
               <Tooltip
                 wrapWithSpan={false}
                 title={
-                  isSupportedByActiveAccount
+                  isSupportedByActiveWallet
                     ? ''
-                    : t('This network is not supported by your active account')
+                    : t('This network is not supported by your active wallet')
                 }
               >
                 <NetworkListItem
                   onClick={() => {
-                    if (!isSupportedByActiveAccount) {
+                    if (!isSupportedByActiveWallet) {
+                      toast.custom(
+                        <ToastCard variant="error">
+                          <Typography variant="subtitle2">
+                            {t('Network not supported.')}
+                          </Typography>
+                          <Typography variant="caption" color="text.primary">
+                            {t(
+                              'Switch to a supported wallet to use this network.',
+                            )}
+                          </Typography>
+                        </ToastCard>,
+                        { duration: 5000 },
+                      );
                       return;
                     }
+
                     setNetwork(networkItem);
                     toast.success(t('Active Network has changed!'), {
                       duration: 2000,
@@ -92,14 +105,10 @@ export function NetworkList({ networkList }: NetworkListProps) {
                     history.push('/home');
                   }}
                   role="button"
-                  aria-disabled={!isSupportedByActiveAccount}
                   data-testid={`network-li-${index}`}
                   isActive={networkItem.chainId === network?.chainId}
                   sx={{
-                    opacity: isSupportedByActiveAccount ? 1 : 0.5,
-                    cursor: isSupportedByActiveAccount
-                      ? 'pointer'
-                      : 'not-allowed',
+                    opacity: isSupportedByActiveWallet ? 1 : 0.5,
                   }}
                 >
                   <Stack direction="row" sx={{ alignItems: 'center', gap: 2 }}>

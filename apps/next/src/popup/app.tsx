@@ -1,6 +1,5 @@
 import {
   CircularProgress,
-  IconButton,
   Stack,
   ThemeProvider,
   toast,
@@ -11,17 +10,21 @@ import {
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
+  usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
+import { UnderConstruction } from '@/components/UnderConstruction';
+import { ViewModeSwitcher } from '@/components/ViewModeSwitcher';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
-import { MdSwitchAccount } from 'react-icons/md';
+import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
+import { Receive } from '@/pages/Receive';
+import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
 
 import { Providers } from '.';
 import { Header } from '@/components/Header';
@@ -32,6 +35,20 @@ const pagesWithoutHeader = ['/account-management'];
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
   const history = useHistory();
+  const historyRef = useRef(history);
+  historyRef.current = history;
+  const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
+  const navigationHistory = getNavigationHistoryState();
+
+  useEffect(() => {
+    if (Object.keys(navigationHistory).length !== 0) {
+      historyRef.current.push(navigationHistory.location); // go to last visited route
+    }
+
+    return historyRef.current.listen(() => {
+      setNavigationHistory(historyRef.current);
+    });
+  }, [navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
     return <CircularProgress />;
@@ -45,6 +62,7 @@ export function App() {
     <Providers
       providers={
         Children.toArray([
+          <PersonalAvatarProvider />,
           <ThemeProvider theme={preferredColorScheme} />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
@@ -55,7 +73,6 @@ export function App() {
           />,
           <WalletContextProvider LockedComponent={LockScreen} />,
           <LedgerContextProvider />,
-          <PersonalAvatarProvider />,
           <KeystoneContextProvider />,
         ]) as ReactElement[]
       }
@@ -66,23 +83,19 @@ export function App() {
             <Header />
           </Stack>
         )}
+        <ViewModeSwitcher />
         <Switch>
+          <Route path="/receive" component={Receive} />
           <Route path="/account-management" component={AccountManagement} />
           <Route
             path="/import-wallet/seedphrase"
             component={ImportSeedphraseFlow}
           />
           <Route
-            path="/"
-            render={() => (
-              <>
-                <div>Under construction 🚧</div>
-                <IconButton onClick={() => history.push('/account-management')}>
-                  <MdSwitchAccount />
-                </IconButton>
-              </>
-            )}
+            path="/import-wallet/ledger/:phase?"
+            component={ImportLedgerFlow}
           />
+          <Route path="/" component={UnderConstruction} />
         </Switch>
       </div>
     </Providers>
