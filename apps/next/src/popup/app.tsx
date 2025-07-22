@@ -1,33 +1,43 @@
-import {
-  CircularProgress,
-  IconButton,
-  QrCodeIcon,
-  ThemeProvider,
-  toast,
-} from '@avalabs/k2-alpine';
+import { CircularProgress, ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   KeystoneContextProvider,
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
-  useAccountsContext,
+  usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
+import { UnderConstruction } from '@/components/UnderConstruction';
+import { ViewModeSwitcher } from '@/components/ViewModeSwitcher';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
+import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
-import { MdSwitchAccount } from 'react-icons/md';
+import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
-import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 import { Receive } from '@/pages/Receive';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
   const history = useHistory();
+  const historyRef = useRef(history);
+  historyRef.current = history;
+  const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
+  const navigationHistory = getNavigationHistoryState();
+
+  useEffect(() => {
+    if (Object.keys(navigationHistory).length !== 0) {
+      historyRef.current.push(navigationHistory.location); // go to last visited route
+    }
+
+    return historyRef.current.listen(() => {
+      setNavigationHistory(historyRef.current);
+    });
+  }, [navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
     return <CircularProgress />;
@@ -45,6 +55,7 @@ export function App() {
                   LoadingComponent={CircularProgress}
                   OnboardingScreen={Onboarding}
                 >
+                  <ViewModeSwitcher />
                   <WalletContextProvider LockedComponent={LockScreen}>
                     <Switch>
                       <Route path="/receive" component={Receive} />
@@ -56,22 +67,7 @@ export function App() {
                         path="/import-wallet/seedphrase"
                         component={ImportSeedphraseFlow}
                       />
-                      <Route
-                        path="/"
-                        render={() => (
-                          <div>
-                            <div>Under construction 🚧</div>
-                            <IconButton
-                              onClick={() =>
-                                history.push('/account-management')
-                              }
-                            >
-                              <MdSwitchAccount />
-                            </IconButton>
-                            <ReceiveButton />
-                          </div>
-                        )}
-                      />
+                      <Route path="/" component={UnderConstruction} />
                     </Switch>
                   </WalletContextProvider>
                 </OnboardingContextProvider>
@@ -83,20 +79,3 @@ export function App() {
     </ThemeProvider>
   );
 }
-
-const ReceiveButton = () => {
-  const history = useHistory();
-  const {
-    accounts: { active },
-  } = useAccountsContext();
-
-  if (!active) {
-    return null;
-  }
-
-  return (
-    <IconButton onClick={() => history.push(`/receive?accId=${active.id}`)}>
-      <QrCodeIcon />
-    </IconButton>
-  );
-};
