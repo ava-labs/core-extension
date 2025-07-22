@@ -129,6 +129,14 @@ export class BackgroundRuntime {
   }
 
   private async setupSidePanel() {
+    const hasSidePanelPermission = await browser.permissions.contains({
+      permissions: ['sidePanel'],
+    });
+
+    if (!hasSidePanelPermission) {
+      return;
+    }
+
     const setSidePanelBehavior = (settings: SettingsState) => {
       const { preferredView } = settings;
 
