@@ -18,6 +18,7 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
+import { Receive } from '@/pages/Receive';
 import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
 
 export function App() {
@@ -57,6 +58,7 @@ export function App() {
                   <ViewModeSwitcher />
                   <WalletContextProvider LockedComponent={LockScreen}>
                     <Switch>
+                      <Route path="/receive" component={Receive} />
                       <Route
                         path="/account-management"
                         component={AccountManagement}

@@ -26,7 +26,7 @@ type Props = {
   size?: number | string;
 };
 
-export const LogoList: FC<Props> = ({ size = 20 }) => {
+export const ChainLogoList: FC<Props> = ({ size = 20 }) => {
   const { getNetwork } = useNetworkContext();
   const networks = CHAIN_IDS_RENDER.toReversed()
     .map(getNetwork)
