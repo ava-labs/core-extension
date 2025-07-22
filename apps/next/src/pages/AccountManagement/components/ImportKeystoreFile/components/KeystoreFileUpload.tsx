@@ -1,4 +1,4 @@
-import { Button, Card, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import { Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import {
   ChangeEvent,
   useState,
@@ -69,12 +69,13 @@ export const KeystoreFileUpload = ({
 
   return (
     <Stack sx={{ flexGrow: 1, gap: '14px' }}>
-      <Card
+      <Stack
         sx={{
           p: 4,
           transition: theme.transitions.create(['border', 'color']),
           color: isDraggingOver ? theme.palette.info.light : 'initial',
           border: `2px dashed ${theme.palette.background.switchTrackUnchecked}`,
+          borderRadius: '12px',
           flexGrow: 1,
         }}
         onDrop={handleFileDropped}
@@ -154,7 +155,7 @@ export const KeystoreFileUpload = ({
             onChange={handleFileUploaded}
           />
         </Stack>
-      </Card>
+      </Stack>
 
       <Button
         disabled={!file}

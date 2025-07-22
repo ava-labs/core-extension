@@ -57,7 +57,7 @@ export const ImportKeystoreFile: FC = () => {
         height: '100%',
       }}
     >
-      <Stack direction="row" sx={{ mt: 2.5, mb: '25px', pr: 1 }}>
+      <Stack sx={{ flexDirection: 'row', mt: 2.5, mb: '25px', pr: 1 }}>
         <Typography
           sx={{ '&.MuiTypography-root': { fontSize: '27px', fontWeight: 700 } }}
         >
@@ -78,14 +78,7 @@ export const ImportKeystoreFile: FC = () => {
         />
       )}
       {step === Step.ProvidePassword && file && (
-        <KeystoreFilePassword
-          file={file}
-          onCancel={() => reset()}
-          onError={(newError) => {
-            setError(newError);
-            setStep(Step.Error);
-          }}
-        />
+        <KeystoreFilePassword file={file} onCancel={() => reset()} />
       )}
       {step === Step.Error && error && (
         <KeystoreFileError error={error} onTryAgain={() => reset()} />

@@ -1,32 +1,26 @@
-type FileImageDarkProps = {
-  width?: number;
-  height?: number;
-};
+// The svg includes the file image (32X39) plus 12px padding on each side.
 
-export const FileImageDark = ({
-  width = 32,
-  height = 39,
-}: FileImageDarkProps) => {
+export const FileImageDark = () => {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={width}
-      height={height}
-      viewBox={`0 0 ${width} ${height}`}
+      width="44"
+      height="51"
+      viewBox="0 0 44 51"
       fill="none"
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <g filter="url(#filter0_di_3581_26540)">
+      <g filter="url(#filter0_di_2897_24088)">
         <path
           d="M6 6C6 4.34315 7.34315 3 9 3H27L38 14V39C38 40.6569 36.6569 42 35 42H9C7.34315 42 6 40.6569 6 39V6Z"
-          fill="url(#paint0_linear_3581_26540)"
+          fill="url(#paint0_linear_2897_24088)"
         />
         <path
           d="M9 3.5H26.793L37.5 14.207V39C37.5 40.3807 36.3807 41.5 35 41.5H9C7.61929 41.5 6.5 40.3807 6.5 39V6C6.5 4.61929 7.61929 3.5 9 3.5Z"
           stroke="#1B1B1D"
         />
       </g>
-      <g filter="url(#filter1_di_3581_26540)">
-        <path d="M27 14H37L27 4V14Z" fill="url(#paint1_linear_3581_26540)" />
+      <g filter="url(#filter1_di_2897_24088)">
+        <path d="M27 14H37L27 4V14Z" fill="url(#paint1_linear_2897_24088)" />
         <path
           d="M26.8086 3.53809C26.9954 3.4607 27.2105 3.50349 27.3535 3.64648L37.3535 13.6465C37.4965 13.7895 37.5393 14.0046 37.4619 14.1914C37.3845 14.3782 37.2022 14.5 37 14.5H27C26.7239 14.5 26.5 14.2761 26.5 14V4C26.5 3.79779 26.6218 3.61549 26.8086 3.53809Z"
           stroke="#1B1B1D"
@@ -35,7 +29,7 @@ export const FileImageDark = ({
       </g>
       <defs>
         <filter
-          id="filter0_di_3581_26540"
+          id="filter0_di_2897_24088"
           x="0"
           y="0"
           width="44"
@@ -60,12 +54,12 @@ export const FileImageDark = ({
           <feBlend
             mode="normal"
             in2="BackgroundImageFix"
-            result="effect1_dropShadow_3581_26540"
+            result="effect1_dropShadow_2897_24088"
           />
           <feBlend
             mode="normal"
             in="SourceGraphic"
-            in2="effect1_dropShadow_3581_26540"
+            in2="effect1_dropShadow_2897_24088"
             result="shape"
           />
           <feColorMatrix
@@ -83,11 +77,11 @@ export const FileImageDark = ({
           <feBlend
             mode="normal"
             in2="shape"
-            result="effect2_innerShadow_3581_26540"
+            result="effect2_innerShadow_2897_24088"
           />
         </filter>
         <filter
-          id="filter1_di_3581_26540"
+          id="filter1_di_2897_24088"
           x="19"
           y="0"
           width="22"
@@ -112,12 +106,12 @@ export const FileImageDark = ({
           <feBlend
             mode="normal"
             in2="BackgroundImageFix"
-            result="effect1_dropShadow_3581_26540"
+            result="effect1_dropShadow_2897_24088"
           />
           <feBlend
             mode="normal"
             in="SourceGraphic"
-            in2="effect1_dropShadow_3581_26540"
+            in2="effect1_dropShadow_2897_24088"
             result="shape"
           />
           <feColorMatrix
@@ -135,11 +129,11 @@ export const FileImageDark = ({
           <feBlend
             mode="normal"
             in2="shape"
-            result="effect2_innerShadow_3581_26540"
+            result="effect2_innerShadow_2897_24088"
           />
         </filter>
         <linearGradient
-          id="paint0_linear_3581_26540"
+          id="paint0_linear_2897_24088"
           x1="22"
           y1="3"
           x2="22"
@@ -150,7 +144,7 @@ export const FileImageDark = ({
           <stop offset="1" stopColor="#5B5B5F" />
         </linearGradient>
         <linearGradient
-          id="paint1_linear_3581_26540"
+          id="paint1_linear_2897_24088"
           x1="32.5"
           y1="9"
           x2="30"

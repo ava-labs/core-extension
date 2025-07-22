@@ -1,114 +1,47 @@
-import {
-  Button,
-  Card,
-  Stack,
-  toast,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Button, Card, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { FileImage } from './FileImage';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useState } from 'react';
-import { useKeystoreFileImport } from '@core/ui/src/hooks/useKeystoreFileImport';
-import { KeystoreError, KeystoreFileContentInfo } from '@core/types';
-import { LessRoundedPasswordField } from '../../ShowPrivateKey/components/EnterPassword';
-import { useAnalyticsContext, useErrorMessage } from '@core/ui';
-import { useHistory } from 'react-router-dom';
+import { useCallback, useState } from 'react';
 import { MdErrorOutline } from 'react-icons/md';
+import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
+import { useImportKeystoreFile } from '../hooks/useImportKeystoreFile';
+
 type KeystoreFilePasswordProps = {
-  error?: KeystoreError;
   file: File;
   onCancel: () => void;
-  onError: (error: KeystoreError) => void;
 };
 
 export const KeystoreFilePassword = ({
-  error,
   file,
-  onError,
   onCancel,
 }: KeystoreFilePasswordProps) => {
   const { t } = useTranslation();
-  const { replace } = useHistory();
   const theme = useTheme();
 
-  const getTranslatedError = useErrorMessage();
-  const { title: errorTitle } = getTranslatedError(error);
-
-  const { getKeyCounts, importKeystoreFile } = useKeystoreFileImport();
-  const { capture } = useAnalyticsContext();
+  const { importFile, isImporting } = useImportKeystoreFile();
 
   const [filePassword, setFilePassword] = useState('');
-  const [fileInfo, setFileInfo] = useState<KeystoreFileContentInfo>();
-  const [showInvalidPasswordError, setShowInvalidPasswordError] =
-    useState(false);
+  const [unlockError, setUnlockError] = useState<string>();
 
-  const [isImporting, setIsImporting] = useState(false);
+  const errorHandler = useCallback(() => {
+    setUnlockError(t('Failed to import the keystore file.'));
+  }, [t]);
 
-  useEffect(() => {
-    async function fetchFileInfo() {
-      if (!filePassword) {
-        return;
-      }
-      try {
-        const fileData = await getKeyCounts(file, filePassword);
-        setFileInfo(fileData);
-        setShowInvalidPasswordError(false);
-      } catch (err: unknown) {
-        // For wrong password we only highlight the text field.
-        if (err !== KeystoreError.InvalidPassword) {
-          onError(KeystoreError.Unknown);
-        }
-
-        setShowInvalidPasswordError(true);
-        setFileInfo(undefined);
-      }
-    }
-    fetchFileInfo();
-  }, [file, filePassword, getKeyCounts, onError]);
-
-  const handleImport = useCallback(async () => {
-    if (!fileInfo || isImporting) {
+  const submit = useCallback(async () => {
+    // Since the password field is required, this should not be falsy. But adding a check for safety.
+    if (!filePassword) {
+      setUnlockError(t('Please enter a password'));
       return;
     }
-    setIsImporting(true);
-    try {
-      capture('KeystoreFileImportStarted');
-      await importKeystoreFile(file, filePassword);
-      capture('KeystoreFileImportSuccess');
-
-      toast.success(t('Successfully imported the keystore file.'));
-
-      replace('/account-management');
-    } catch (err: unknown) {
-      capture('KeystoreFileImportFailure');
-
-      const newError = Object.values(KeystoreError).includes(
-        err as KeystoreError,
-      )
-        ? (err as KeystoreError)
-        : KeystoreError.Unknown;
-
-      onError(newError);
-    }
-  }, [
-    fileInfo,
-    isImporting,
-    capture,
-    importKeystoreFile,
-    file,
-    filePassword,
-    t,
-    replace,
-    onError,
-  ]);
+    importFile(file, filePassword, errorHandler);
+  }, [filePassword, t, file, importFile, errorHandler]);
 
   return (
     <Stack sx={{ flexGrow: 1 }}>
       <Card sx={{ p: '12px' }}>
         <Stack
-          direction="row"
           sx={{
+            flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center',
             columnGap: '11px',
@@ -119,19 +52,6 @@ export const KeystoreFilePassword = ({
           <Stack>
             <Typography variant="h6" color="text.primary">
               {file.name}
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              {t('{{recoveryPhrasesCount}} new recovery phrases', {
-                recoveryPhrasesCount: fileInfo
-                  ? fileInfo.seedPhrasesCount
-                  : '-',
-              })}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('{{privateKeyCount}} new private keys', {
-                privateKeyCount: fileInfo ? fileInfo.privateKeysCount : '-',
-              })}
             </Typography>
           </Stack>
 
@@ -147,8 +67,13 @@ export const KeystoreFilePassword = ({
       </Card>
 
       <Stack
-        direction="row"
-        sx={{ mt: '27px', mb: '14px', columnGap: '8px', alignItems: 'center' }}
+        sx={{
+          mt: '27px',
+          mb: '14px',
+          columnGap: '8px',
+          alignItems: 'center',
+          flexDirection: 'row',
+        }}
       >
         <MdErrorOutline size={40} style={{ color: theme.palette.error.main }} />
         <Typography
@@ -163,10 +88,8 @@ export const KeystoreFilePassword = ({
       <LessRoundedPasswordField
         value={filePassword}
         onChange={(e) => setFilePassword(e.target.value)}
-        error={showInvalidPasswordError}
-        helperText={
-          showInvalidPasswordError && (errorTitle ?? t('Invalid password'))
-        }
+        error={!!unlockError}
+        helperText={unlockError}
       />
 
       <Stack sx={{ mt: 'auto', rowGap: '10px' }}>
@@ -174,8 +97,8 @@ export const KeystoreFilePassword = ({
           variant="contained"
           color="primary"
           fullWidth
-          disabled={!fileInfo}
-          onClick={handleImport}
+          disabled={!filePassword || isImporting}
+          onClick={submit}
         >
           {t('Import Keystore file')}
         </Button>
@@ -184,6 +107,7 @@ export const KeystoreFilePassword = ({
           color="secondary"
           fullWidth
           onClick={onCancel}
+          disabled={isImporting}
         >
           {t('Cancel')}
         </Button>
