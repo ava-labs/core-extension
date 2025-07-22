@@ -165,6 +165,8 @@ export enum ExtensionRequest {
 
   WALLET_IMPORT_SEED_PHRASE = 'wallet_import_seed_phrase',
   WALLET_IMPORT_LEDGER = 'wallet_import_ledger',
+  WALLET_IMPORT_LEDGER_NEW = 'wallet_import_ledger_new',
+  WALLET_CHECK_IF_EXISTS = 'wallet_check_if_exists',
 
   BLOCKAID_DAPP_SCAN = 'blockaid_dapp_scan',
 

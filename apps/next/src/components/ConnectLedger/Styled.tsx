@@ -75,6 +75,7 @@ export const LedgerConnectionError = ({
           <UnableToConnectMessage onTroubleshoot={onTroubleshoot} />
         )}
         {errorType === 'unsupported-version' && <UnsupportedVersionMessage />}
+        {errorType === 'duplicated-wallet' && <DuplicatedWalletMessage />}
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
@@ -96,6 +97,17 @@ const UnsupportedVersionMessage = () => {
     </Typography>
   );
 };
+
+const DuplicatedWalletMessage = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t('This wallet is already imported.')}
+    </Typography>
+  );
+};
+
 const UnableToConnectMessage = ({
   onTroubleshoot,
 }: {

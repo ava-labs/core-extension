@@ -74,7 +74,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
       })
       .catch((err) => {
         console.error('Failed to derive keys', err);
-        callbacks?.onConnectionFailed();
+        callbacks?.onConnectionFailed(err);
       })
       .finally(() => {
         setIsRetrieving(false);
