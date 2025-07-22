@@ -8,7 +8,12 @@ import {
   SidebarDockIcon,
   SidebarUndockIcon,
 } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
+import {
+  isSpecificContextContainer,
+  useAccountsContext,
+  useAnalyticsContext,
+  useSettingsContext,
+} from '@core/ui';
 import { MdOutlineUnfoldMore, MdQrCode2 } from 'react-icons/md';
 import { MdOutlineSettings } from 'react-icons/md';
 import { AVATAR_OPTIONS, PersonalAvatar } from '../PersonalAvatar';
@@ -16,6 +21,8 @@ import { useState } from 'react';
 import { StackRow } from '../StackRow';
 import { ConnectedSites } from './ConnectedSites';
 import { AddressList } from './AddressList';
+import { ContextContainer } from '@core/types';
+import { switchTo } from './utils';
 
 const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -70,8 +77,19 @@ export const Header = () => {
 
   const [isAddressAppear, setIsAddressAppear] = useState(false);
 
-  // TODO: implement a getter for the sidebar functionality
-  const isSidebar = true;
+  const { setPreferredView } = useSettingsContext();
+  const { capture } = useAnalyticsContext();
+  const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+
+  const onSidebarIconClick = async () => {
+    const requestedView = isSidePanel ? 'floating' : 'sidebar';
+    setPreferredView(requestedView);
+    capture('ViewModeSwitched', {
+      viewMode: requestedView,
+    });
+    window.close();
+    await switchTo[requestedView]();
+  };
 
   return (
     <>
@@ -121,12 +139,12 @@ export const Header = () => {
             <ConnectedSites activeAccount={activeAccount} />
             <MdQrCode2 size={24} />
             <MdOutlineSettings size={24} />
-            <StackRowStyled>
+            <StackRowStyled onClick={onSidebarIconClick}>
               <SidebarIcon size={24} className="sidebarIcon" />
-              {isSidebar && (
+              {isSidePanel && (
                 <SidebarUndockIcon size={24} className="sidebarUndockIcon" />
               )}
-              {!isSidebar && (
+              {!isSidePanel && (
                 <SidebarDockIcon size={24} className="sidebarDockIcon" />
               )}
             </StackRowStyled>

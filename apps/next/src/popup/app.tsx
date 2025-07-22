@@ -17,7 +17,6 @@ import {
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { UnderConstruction } from '@/components/UnderConstruction';
-import { ViewModeSwitcher } from '@/components/ViewModeSwitcher';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
@@ -83,7 +82,6 @@ export function App() {
             <Header />
           </Stack>
         )}
-        <ViewModeSwitcher />
         <Switch>
           <Route path="/receive" component={Receive} />
           <Route path="/account-management" component={AccountManagement} />
