@@ -23,6 +23,7 @@ import { QRCode } from './components/QRCode';
 import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
+import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -74,6 +75,10 @@ const AccountManagement: FC = () => {
                     <Route
                       path="/account-management/add-wallet"
                       component={AddOrConnectWallet}
+                    />
+                    <Route
+                      path="/account-management/import-private-key"
+                      component={ImportPrivateKey}
                     />
                     <Route
                       path="/account-management/account"
