@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
   NetworkContextProvider,
@@ -20,6 +21,7 @@ import { UnderConstruction } from '@/components/UnderConstruction';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
+import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { Receive } from '@/pages/Receive';
@@ -40,6 +42,15 @@ export function App() {
   const navigationHistory = getNavigationHistoryState();
 
   useEffect(() => {
+    /* The list of contexts that should support navigation history */
+    const supportedContexts = [
+      ContextContainer.POPUP,
+      ContextContainer.SIDE_PANEL,
+    ];
+    if (!supportedContexts.some(isSpecificContextContainer)) {
+      return;
+    }
+
     if (Object.keys(navigationHistory).length !== 0) {
       historyRef.current.push(navigationHistory.location); // go to last visited route
     }

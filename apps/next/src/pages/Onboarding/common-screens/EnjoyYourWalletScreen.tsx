@@ -7,9 +7,13 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { action } from 'webextension-polyfill';
+import { action, sidePanel, windows } from 'webextension-polyfill';
 
-import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
+import {
+  useKeyboardShortcuts,
+  useOnboardingContext,
+  useSettingsContext,
+} from '@core/ui';
 
 import {
   FullscreenModalActions,
@@ -25,6 +29,7 @@ export const EnjoyYourWalletScreen: FC = () => {
   const { setCurrent, setTotal, setIsBackButtonVisible } =
     useModalPageControl();
   const { submitInProgress, submit } = useOnboardingContext();
+  const { preferredView } = useSettingsContext();
 
   useEffect(() => {
     // We don't want to display any page controls on the last screen
@@ -33,9 +38,15 @@ export const EnjoyYourWalletScreen: FC = () => {
     setTotal(0);
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
-  const openWallet = () => {
-    // TODO: Open according to the preferred view
-    action.openPopup();
+  const openWallet = async () => {
+    if (preferredView === 'floating') {
+      action.openPopup();
+    } else {
+      const window = await windows.getCurrent();
+      if (window.id) {
+        sidePanel.open({ windowId: window.id });
+      }
+    }
     window.close();
   };
 
