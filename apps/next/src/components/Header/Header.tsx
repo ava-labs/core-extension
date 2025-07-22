@@ -4,6 +4,8 @@ import {
   getHexAlpha,
   styled,
   Typography,
+  SyncIcon,
+  keyframes,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
 import { MdOutlineUnfoldMore, MdQrCode2 } from 'react-icons/md';
@@ -13,8 +15,12 @@ import { useState } from 'react';
 import { StackRow } from '../StackRow';
 import { ConnectedSites } from './ConnectedSites';
 import { AddressList } from './AddressList';
-
 import { ViewModeSwitcher } from './ViewModeSwitcher';
+
+const rotate = keyframes`
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+`;
 
 const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -48,6 +54,11 @@ export const Header = () => {
   const theme = useTheme();
 
   const [isAddressAppear, setIsAddressAppear] = useState(false);
+
+  // TODO: fix this after the transactions will be implemented
+  // TODO: fix the icon in k2 dark mode.....
+  // the true will rotate
+  const isTransactionPending = false;
 
   return (
     <>
@@ -97,6 +108,14 @@ export const Header = () => {
             <ConnectedSites activeAccount={activeAccount} />
             <MdQrCode2 size={24} />
             <MdOutlineSettings size={24} />
+            <SyncIcon
+              size={24}
+              sx={{
+                animation: `${isTransactionPending ? rotate : 'none'} 2s linear infinite;`,
+                width: '24px',
+                height: '24px',
+              }}
+            />
             <ViewModeSwitcher />
           </Stack>
         </StackRow>
