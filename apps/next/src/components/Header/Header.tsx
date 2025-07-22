@@ -4,16 +4,8 @@ import {
   getHexAlpha,
   styled,
   Typography,
-  SidebarIcon,
-  SidebarDockIcon,
-  SidebarUndockIcon,
 } from '@avalabs/k2-alpine';
-import {
-  isSpecificContextContainer,
-  useAccountsContext,
-  useAnalyticsContext,
-  useSettingsContext,
-} from '@core/ui';
+import { useAccountsContext } from '@core/ui';
 import { MdOutlineUnfoldMore, MdQrCode2 } from 'react-icons/md';
 import { MdOutlineSettings } from 'react-icons/md';
 import { AVATAR_OPTIONS, PersonalAvatar } from '../PersonalAvatar';
@@ -21,9 +13,8 @@ import { useState } from 'react';
 import { StackRow } from '../StackRow';
 import { ConnectedSites } from './ConnectedSites';
 import { AddressList } from './AddressList';
-import { ContextContainer } from '@core/types';
-import { switchTo } from './utils';
-import { MultiIconButton } from '../MultiIconButton';
+
+import { ViewModeSwitcher } from './ViewModeSwitcher';
 
 const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -57,21 +48,6 @@ export const Header = () => {
   const theme = useTheme();
 
   const [isAddressAppear, setIsAddressAppear] = useState(false);
-
-  const { setPreferredView } = useSettingsContext();
-  const { capture } = useAnalyticsContext();
-  const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
-  const DockIcon = isSidePanel ? SidebarUndockIcon : SidebarDockIcon;
-
-  const onSidebarIconClick = async () => {
-    const requestedView = isSidePanel ? 'floating' : 'sidebar';
-    setPreferredView(requestedView);
-    capture('ViewModeSwitched', {
-      viewMode: requestedView,
-    });
-    window.close();
-    await switchTo[requestedView]();
-  };
 
   return (
     <>
@@ -121,14 +97,7 @@ export const Header = () => {
             <ConnectedSites activeAccount={activeAccount} />
             <MdQrCode2 size={24} />
             <MdOutlineSettings size={24} />
-
-            <MultiIconButton
-              icon={<SidebarIcon size={24} />}
-              hoverIcon={<DockIcon size={24} />}
-              size="medium"
-              onClick={onSidebarIconClick}
-              color="primary"
-            />
+            <ViewModeSwitcher />
           </Stack>
         </StackRow>
       </Stack>
