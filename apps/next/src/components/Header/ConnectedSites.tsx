@@ -23,6 +23,10 @@ import { useState } from 'react';
 import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
+interface ConnectedSitesProps {
+  activeAccount?: Account;
+}
+
 type ConnectedListType = {
   [key: string]: {
     accounts: {
@@ -48,7 +52,7 @@ const getAccountConnectedSites = ({
   );
 };
 
-export const ConnectedSites = ({ activeAccount }) => {
+export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
   const domain = useCurrentDomain();
   const { permissions, revokeAddressPermisson, isDomainConnectedToAccount } =
     usePermissionContext();
