@@ -1,17 +1,11 @@
 import { Select } from '@/components/Select';
-import { PasswordField } from '@/components/StandaloneField';
-import {
-  Button,
-  MenuItem,
-  Stack,
-  styled,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Button, MenuItem, Stack, Typography } from '@avalabs/k2-alpine';
 import { Account, AccountType, PrivateKeyChain, SecretType } from '@core/types';
 import { useKeyboardShortcuts } from '@core/ui';
 import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRevealKey } from '../hooks/useRevealKey';
+import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
 
 type Props = {
   account: Extract<
@@ -20,12 +14,6 @@ type Props = {
   >;
   onAuthenticated(key: string | null): void;
 };
-
-export const LessRoundedPasswordField = styled(PasswordField)(({ theme }) => ({
-  '& .MuiFilledInput-root': {
-    borderRadius: theme.shape.borderRadius,
-  },
-}));
 
 export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
   const { t } = useTranslation();

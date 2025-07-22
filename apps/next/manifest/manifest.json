@@ -35,6 +35,9 @@
     "default_title": "__DEFAULT_TITLE__",
     "default_popup": "popup.html"
   },
+  "side_panel": {
+    "default_path": "sidePanel.html"
+  },
   "permissions": [
     "storage",
     "unlimitedStorage",
@@ -44,7 +47,8 @@
     "scripting",
     "identity",
     "alarms",
-    "offscreen"
+    "offscreen",
+    "sidePanel"
   ],
   "host_permissions": ["file://*/*", "http://*/*", "https://*/*"],
   "oauth2": {

@@ -3,6 +3,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 import { useCallback, useEffect } from 'react';
 import {
+  CustomizeCore,
   EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
@@ -10,7 +11,7 @@ import {
 import { ConnectLedgerScreen } from './screens';
 
 const BASE_PATH = '/onboarding/import/ledger';
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export const ConnectLedgerFlow = () => {
   const history = useHistory();
@@ -41,12 +42,19 @@ export const ConnectLedgerFlow = () => {
         <ProvideWalletDetailsScreen
           step={3}
           totalSteps={TOTAL_STEPS}
+          onNext={() => history.push(`${BASE_PATH}/customize-core`)}
+        />
+      </Route>
+      <Route path={`${BASE_PATH}/customize-core`}>
+        <CustomizeCore
+          step={4}
+          totalSteps={TOTAL_STEPS}
           onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
         />
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
-          step={4}
+          step={5}
           totalSteps={TOTAL_STEPS}
           onNext={handleOnNext}
         />

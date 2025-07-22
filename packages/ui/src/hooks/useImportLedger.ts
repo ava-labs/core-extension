@@ -4,19 +4,28 @@ import {
   ImportLedgerWalletParams,
   ImportWalletResult,
   ExtensionRequest,
+  isLegacyImportLedgerWalletParams,
+  LegacyImportLedgerWalletParams,
 } from '@core/types';
 import { useConnectionContext } from '../contexts';
-import { ImportLedgerHandler } from '@core/service-worker';
+import type {
+  ImportLedgerHandler,
+  ImportLedgerHandlerNew,
+} from '@core/service-worker';
 
 type ImportWalletFn = (
   params: ImportLedgerWalletParams,
+) => Promise<ImportWalletResult>;
+
+type ImportWalletLegacyFn = (
+  params: LegacyImportLedgerWalletParams,
 ) => Promise<ImportWalletResult>;
 
 export const useImportLedger = () => {
   const { request } = useConnectionContext();
   const [isImporting, setIsImporting] = useState(false);
 
-  const importLedger: ImportWalletFn = useCallback(
+  const importLedgerLegacy: ImportWalletLegacyFn = useCallback(
     async (params) => {
       setIsImporting(true);
 
@@ -32,6 +41,28 @@ export const useImportLedger = () => {
       }
     },
     [request],
+  );
+
+  const importLedger: ImportWalletFn = useCallback(
+    async (params) => {
+      if (isLegacyImportLedgerWalletParams(params)) {
+        return importLedgerLegacy(params);
+      }
+
+      setIsImporting(true);
+
+      try {
+        const result = await request<ImportLedgerHandlerNew>({
+          method: ExtensionRequest.WALLET_IMPORT_LEDGER_NEW,
+          params: [params],
+        });
+
+        return result;
+      } finally {
+        setIsImporting(false);
+      }
+    },
+    [request, importLedgerLegacy],
   );
 
   return {

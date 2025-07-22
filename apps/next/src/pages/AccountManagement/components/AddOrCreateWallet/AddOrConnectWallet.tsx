@@ -22,15 +22,21 @@ const underDevelopmentClick = () => toast.error('Under development');
 
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+
   const { addAccount, accounts, selectAccount } = useAccountsContext();
   const { goBack, push } = useHistory();
-  const { capture } = useAnalyticsContext();
 
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
 
   const goToImportKeystoreFileScreen = useCallback(() => {
     capture('AddWalletWithKeystoreFile_Clicked');
     push('/account-management/import-keystore-file');
+  }, [push, capture]);
+
+  const goToImportPrivateKey = useCallback(() => {
+    capture('ImportPrivateKey_Clicked');
+    push('/account-management/import-private-key');
   }, [push, capture]);
 
   return (
@@ -60,7 +66,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdKey}
             primary={t('Import a private key')}
             secondary={t('Manually enter your private key to import')}
-            onClick={underDevelopmentClick}
+            onClick={goToImportPrivateKey}
           />
           <Divider />
           <AccountListItem
@@ -74,7 +80,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={LedgerIcon}
             primary={t('Import Ledger wallet')}
             secondary={t('Use Ledger to connect')}
-            onClick={underDevelopmentClick}
+            onClick={() => openFullscreenTab('import-wallet/ledger')}
           />
           <Divider />
           <AccountListItem
