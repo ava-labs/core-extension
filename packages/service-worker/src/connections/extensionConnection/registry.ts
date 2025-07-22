@@ -128,10 +128,12 @@ import { GetTokensListHandler } from '../../services/tokens/handlers/getTokenLis
 import { UnifiedBridgeEvents } from '../../services/unifiedBridge/events/unifiedBridgeEvents';
 import { UnifiedBridgeGetState } from '../../services/unifiedBridge/handlers/unifiedBridgeGetState';
 import { UnifiedBridgeTrackTransfer } from '../../services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
+import { CheckIfWalletExists } from '~/services/wallet/handlers/checkIfWalletExists';
 import { GetBtcWalletPolicyDetails } from '../../services/wallet/handlers/getBtcWalletPolicyDetails';
 import { GetUnencryptedMnemonicHandler } from '../../services/wallet/handlers/getUnencryptedMnemonic';
 import { GetWalletDetailsHandler } from '../../services/wallet/handlers/getWalletDetails';
 import { ImportLedgerHandler } from '../../services/wallet/handlers/importLedger';
+import { ImportLedgerHandlerNew } from '~/services/wallet/handlers/importLedgerNew';
 import { ImportSeedPhraseHandler } from '../../services/wallet/handlers/importSeedPhrase';
 import { StoreBtcWalletPolicyDetails } from '../../services/wallet/handlers/storeBtcWalletPolicyDetails';
 import { WalletConnectEvents } from '../../services/walletConnect/events/walletConnectEvents';
@@ -457,6 +459,8 @@ import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriv
     token: 'ExtensionRequestHandler',
     useToken: SetPreferredViewHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
+  { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
 ])
 export class ExtensionRequestHandlerRegistry {}
 

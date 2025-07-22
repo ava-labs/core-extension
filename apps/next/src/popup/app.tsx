@@ -14,11 +14,11 @@ import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { UnderConstruction } from '@/components/UnderConstruction';
 import { ViewModeSwitcher } from '@/components/ViewModeSwitcher';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
-import { ImportSeedphraseFlow } from '@/pages/Import/ImportSeedphraseFlow';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
+import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -64,6 +64,10 @@ export function App() {
                       <Route
                         path="/import-wallet/seedphrase"
                         component={ImportSeedphraseFlow}
+                      />
+                      <Route
+                        path="/import-wallet/ledger/:phase?"
+                        component={ImportLedgerFlow}
                       />
                       <Route path="/" component={UnderConstruction} />
                     </Switch>
