@@ -16,6 +16,7 @@ import { StackRow } from '../StackRow';
 import { ConnectedSites } from './ConnectedSites';
 import { AddressList } from './AddressList';
 import { ViewModeSwitcher } from './ViewModeSwitcher';
+import { useHistory } from 'react-router-dom';
 
 const rotate = keyframes`
   from { transform: rotate(360deg); }
@@ -52,8 +53,8 @@ export const Header = () => {
   const { accounts } = useAccountsContext();
   const activeAccount = accounts.active;
   const theme = useTheme();
-
   const [isAddressAppear, setIsAddressAppear] = useState(false);
+  const history = useHistory();
 
   // TODO: fix this after the transactions will be implemented
   // TODO: fix the icon in k2 dark mode.....
@@ -61,65 +62,64 @@ export const Header = () => {
   const isTransactionPending = false;
 
   return (
-    <>
-      <Stack
+    <Stack
+      sx={{
+        position: 'relative',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: theme.zIndex.appBar,
+        borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
+      }}
+    >
+      <StackRow
         sx={{
-          position: 'relative',
-          top: 0,
-          left: 0,
+          background: theme.palette.background.default,
           width: '100%',
-          zIndex: theme.zIndex.appBar,
-          borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
+          height: '56px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 1,
+          zIndex: 1,
         }}
       >
-        <StackRow
-          sx={{
-            background: theme.palette.background.default,
-            width: '100%',
-            height: '56px',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            px: 1,
-            zIndex: 1,
-          }}
+        <AccountSelectContainer
+          onMouseOver={() => setIsAddressAppear(true)}
+          onMouseLeave={() => setIsAddressAppear(false)}
+          onClick={() => history.push('/account-management')}
         >
-          <AccountSelectContainer
-            onMouseOver={() => setIsAddressAppear(true)}
-            onMouseLeave={() => setIsAddressAppear(false)}
-          >
-            <AccountInfo>
-              <PersonalAvatar
-                cached
-                sx={{ display: 'flex', marginRight: 1 }}
-                size="xsmall"
-              />
-              <Typography variant="body1">{activeAccount?.name}</Typography>
-              <MdOutlineUnfoldMore
-                size={24}
-                color={getHexAlpha(theme.palette.primary.main, 70)}
-              />
-            </AccountInfo>
-            <AddressList
-              isAddressAppear={isAddressAppear}
-              activeAccount={activeAccount}
+          <AccountInfo>
+            <PersonalAvatar
+              cached
+              sx={{ display: 'flex', marginRight: 1 }}
+              size="xsmall"
             />
-          </AccountSelectContainer>
-          <Stack sx={{ flexDirection: 'row', gap: 1 }}>
-            <ConnectedSites activeAccount={activeAccount} />
-            <MdQrCode2 size={24} />
-            <MdOutlineSettings size={24} />
-            <SyncIcon
+            <Typography variant="body1">{activeAccount?.name}</Typography>
+            <MdOutlineUnfoldMore
               size={24}
-              sx={{
-                animation: `${isTransactionPending ? rotate : 'none'} 2s linear infinite;`,
-                width: '24px',
-                height: '24px',
-              }}
+              color={getHexAlpha(theme.palette.primary.main, 70)}
             />
-            <ViewModeSwitcher />
-          </Stack>
-        </StackRow>
-      </Stack>
-    </>
+          </AccountInfo>
+          <AddressList
+            isAddressAppear={isAddressAppear}
+            activeAccount={activeAccount}
+          />
+        </AccountSelectContainer>
+        <Stack sx={{ flexDirection: 'row', gap: 1 }}>
+          <ConnectedSites activeAccount={activeAccount} />
+          <MdQrCode2 size={24} />
+          <MdOutlineSettings size={24} />
+          <SyncIcon
+            size={24}
+            sx={{
+              animation: `${isTransactionPending ? rotate : 'none'} 2s linear infinite;`,
+              width: '24px',
+              height: '24px',
+            }}
+          />
+          <ViewModeSwitcher />
+        </Stack>
+      </StackRow>
+    </Stack>
   );
 };

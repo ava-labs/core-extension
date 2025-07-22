@@ -29,6 +29,7 @@ export const ViewModeSwitcher: FC = () => {
     window.close();
     await switchTo[requestedView]();
   };
+  // TODO: fix the position of the icons
   return (
     <MultiIconButton
       icon={<SidebarIcon size={24} />}
