@@ -10,7 +10,7 @@ import {
 import { useAccountsContext } from '@core/ui';
 import { MdOutlineUnfoldMore, MdQrCode2 } from 'react-icons/md';
 import { MdOutlineSettings } from 'react-icons/md';
-import { AVATAR_OPTIONS, PersonalAvatar } from '../PersonalAvatar';
+import { PersonalAvatar } from '../PersonalAvatar';
 import { useState } from 'react';
 import { StackRow } from '../StackRow';
 import { ConnectedSites } from './ConnectedSites';
@@ -89,7 +89,7 @@ export const Header = () => {
           >
             <AccountInfo>
               <PersonalAvatar
-                name={AVATAR_OPTIONS[0]}
+                cached
                 sx={{ display: 'flex', marginRight: 1 }}
                 size="xsmall"
               />
