@@ -14,10 +14,10 @@ export const HidingMenuItem = styled(MenuItem)(({ disabled, theme }) => ({
 
 export const Select = styled(K2Select)(({ theme }) => ({
   [`&.${selectClasses.root}`]: {
-    width: 220,
+    width: 'auto',
     borderRadius: theme.shape.fullBorderRadius,
-    paddingBlock: theme.spacing(0.75),
-    paddingInline: theme.spacing(1),
+    paddingBlock: theme.spacing(0.25),
+    paddingInline: theme.spacing(1.5),
     backgroundColor:
       theme.palette.mode === 'light'
         ? theme.palette.surface.primary

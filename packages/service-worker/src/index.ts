@@ -5,6 +5,8 @@ export type {
   DeleteAccountsDisplayData,
 } from './services/accounts/handlers/avalanche_deleteAccounts';
 export type { AvalancheRenameAccountHandler } from './services/accounts/handlers/avalanche_renameAccount';
+export type { ImportLedgerHandlerNew } from './services/wallet/handlers/importLedgerNew';
+export type { CheckIfWalletExists } from './services/wallet/handlers/checkIfWalletExists';
 export type { GetAccountsHandler } from './services/accounts/handlers/getAccounts';
 export type { GetPrivateKeyHandler } from './services/accounts/handlers/getPrivateKey';
 export type { SelectAccountHandler } from './services/accounts/handlers/selectAccount';

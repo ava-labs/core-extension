@@ -11,7 +11,7 @@ import {
   ConnectSolana,
   PromptSolana,
   Troubleshooting,
-} from './components';
+} from '@/components/ConnectLedger';
 
 type ImportPhase =
   | 'connect-avax'

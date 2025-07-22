@@ -1,13 +1,15 @@
 import {
   Box,
+  Button,
   Card,
   CardContent,
   Chip,
-  IconButton,
+  QrCodeIcon,
   Stack,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { useAccountsContext } from '@core/ui';
 import { FC } from 'react';
 import { MdSwitchAccount } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
@@ -28,7 +30,6 @@ export const UnderConstruction: FC = () => {
           theme.palette.primary.main
         }08 0%, ${theme.palette.secondary.main}08 100%)`,
         position: 'relative',
-        overflow: 'hidden',
       }}
     >
       {/* Animated background elements */}
@@ -173,37 +174,45 @@ export const UnderConstruction: FC = () => {
               </Stack>
             </Stack>
 
-            {/* Action button */}
-            <Box sx={{ pt: 2 }}>
-              <IconButton
+            {/* Action buttons */}
+            <Stack sx={{ pt: 2, gap: 1 }}>
+              <Button
+                variant="contained"
                 onClick={() => history.push('/account-management')}
-                size="large"
+                size="small"
                 color="primary"
-                sx={{
-                  backgroundColor: theme.palette.primary.main,
-                  color: theme.palette.primary.contrastText,
-                  '&:hover': {
-                    backgroundColor: theme.palette.primary.dark,
-                    transform: 'scale(1.05)',
-                  },
-                  transition: 'all 0.2s ease-in-out',
-                  width: 56,
-                  height: 56,
-                }}
-              >
-                <MdSwitchAccount size={24} />
-              </IconButton>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: 'block', mt: 1 }}
+                startIcon={<MdSwitchAccount />}
               >
                 Access Account Management
-              </Typography>
-            </Box>
+              </Button>
+              <ReceiveButton />
+            </Stack>
           </Stack>
         </CardContent>
       </Card>
     </Stack>
+  );
+};
+
+const ReceiveButton = () => {
+  const history = useHistory();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
+
+  if (!active) {
+    return null;
+  }
+
+  return (
+    <Button
+      variant="contained"
+      size="small"
+      color="secondary"
+      onClick={() => history.push(`/receive?accId=${active.id}`)}
+      startIcon={<QrCodeIcon />}
+    >
+      Receive Crypto
+    </Button>
   );
 };
