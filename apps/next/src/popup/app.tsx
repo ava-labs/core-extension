@@ -26,6 +26,8 @@ import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { Receive } from '@/pages/Receive';
 import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
+import { Settings } from '@/pages/Settings';
+import { ContextContainer } from '@core/types';
 
 import { Providers } from '.';
 import { Header } from '@/components/Header';
@@ -50,7 +52,6 @@ export function App() {
     if (!supportedContexts.some(isSpecificContextContainer)) {
       return;
     }
-
     if (Object.keys(navigationHistory).length !== 0) {
       historyRef.current.push(navigationHistory.location); // go to last visited route
     }
@@ -95,6 +96,7 @@ export function App() {
         )}
         <Switch>
           <Route path="/receive" component={Receive} />
+          <Route path="/settings" component={Settings} />
           <Route path="/account-management" component={AccountManagement} />
           <Route
             path="/import-wallet/seedphrase"

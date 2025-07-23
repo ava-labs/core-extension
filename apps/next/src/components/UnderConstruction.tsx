@@ -11,6 +11,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
 import { FC } from 'react';
+import { FiSettings } from 'react-icons/fi';
 import { MdSwitchAccount } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 
@@ -186,6 +187,15 @@ export const UnderConstruction: FC = () => {
                 Access Account Management
               </Button>
               <ReceiveButton />
+              <Button
+                variant="contained"
+                onClick={() => history.push('/settings')}
+                size="small"
+                color="secondary"
+                startIcon={<FiSettings />}
+              >
+                Settings
+              </Button>
             </Stack>
           </Stack>
         </CardContent>
