@@ -32,6 +32,9 @@ export const KeystoreFileUpload = ({
 
   return (
     <Stack sx={{ px: 2, pt: 1, flexGrow: 1, gap: 1 }}>
+      <Typography variant="body2" sx={{ fontWeight: 'semibold' }}>
+        {t('Upload Keystore File')}
+      </Typography>
       <Card
         sx={{
           backgroundColor: 'grey.800',
