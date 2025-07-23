@@ -49,18 +49,17 @@ export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
       subscription.unsubscribe();
     };
   }, [events, request]);
-  if (children) {
-    return (
-      <FeatureFlagsContext
-        value={{
-          isFlagEnabled: (flagName) => featureFlags[flagName],
-          featureFlags,
-        }}
-      >
-        {children}
-      </FeatureFlagsContext>
-    );
-  }
+
+  return (
+    <FeatureFlagsContext.Provider
+      value={{
+        isFlagEnabled: (flagName) => featureFlags[flagName],
+        featureFlags,
+      }}
+    >
+      {children}
+    </FeatureFlagsContext.Provider>
+  );
 }
 
 export function useFeatureFlagContext() {
