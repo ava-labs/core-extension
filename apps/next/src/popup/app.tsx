@@ -27,7 +27,6 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { Receive } from '@/pages/Receive';
 import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
 import { Settings } from '@/pages/Settings';
-import { ContextContainer } from '@core/types';
 
 import { Providers } from '.';
 import { Header } from '@/components/Header';
