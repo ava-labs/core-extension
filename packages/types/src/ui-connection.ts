@@ -83,6 +83,7 @@ export enum ExtensionRequest {
   SETTINGS_SET_ANALYTICS_CONSENT = 'settings_set_analytics_consent',
   SETTINGS_SET_LANGUAGE = 'settings_set_language',
   SETTINGS_SET_CORE_ASSISTANT = 'settings_set_core_assistant',
+  SETTINGS_SET_PREFERRED_VIEW = 'settings_set_preferred_view',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',
@@ -164,6 +165,8 @@ export enum ExtensionRequest {
 
   WALLET_IMPORT_SEED_PHRASE = 'wallet_import_seed_phrase',
   WALLET_IMPORT_LEDGER = 'wallet_import_ledger',
+  WALLET_IMPORT_LEDGER_NEW = 'wallet_import_ledger_new',
+  WALLET_CHECK_IF_EXISTS = 'wallet_check_if_exists',
 
   BLOCKAID_DAPP_SCAN = 'blockaid_dapp_scan',
 
@@ -185,10 +188,11 @@ export enum ExtensionRequest {
 
 /* eslint-disable no-prototype-builtins */
 
-import { Runtime } from 'webextension-polyfill';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import { Runtime } from 'webextension-polyfill';
 
-import { ArrayElement } from './util-types';
+import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
+import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 import {
   DAppProviderRequest,
   DAppRequestHandler,
@@ -196,8 +200,7 @@ import {
   JsonRpcRequestPayload,
 } from './dapp-connection';
 import { ErrorData } from './error';
-import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
-import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
+import { ArrayElement } from './util-types';
 
 export type ExtensionConnectionMessage<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
