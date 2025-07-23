@@ -23,19 +23,20 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { Receive } from '@/pages/Receive';
 import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
 import { Settings } from '@/pages/Settings';
 
-import { Providers } from '.';
 import { Header } from '@/components/Header';
 import { Children, ReactElement } from 'react';
+import { Providers } from './providers';
 
-const pagesWithoutHeader = ['/account-management'];
+const pagesWithoutHeader = ['/account-management', '/settings'];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
+  const { pathname } = useLocation();
   const history = useHistory();
   const historyRef = useRef(history);
   historyRef.current = history;
@@ -64,8 +65,9 @@ export function App() {
     return <CircularProgress />;
   }
 
+  console.log('DEBUG', pathname);
   const displayHeader = !pagesWithoutHeader.some((path) =>
-    location.pathname.startsWith(path),
+    pathname.startsWith(path),
   );
 
   return (

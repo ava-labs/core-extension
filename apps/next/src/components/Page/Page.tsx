@@ -9,6 +9,7 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 
+import { ViewModeSwitcher } from '../Header/ViewModeSwitcher';
 import { useIsIntersecting } from './hooks';
 
 type PageProps = {
@@ -55,6 +56,7 @@ export const Page = ({ title, description, children }: PageProps) => {
             <Typography variant="h6">{title}</Typography>
           </Fade>
         </Stack>
+        <ViewModeSwitcher />
       </Stack>
       <NoScrollStack>
         <Stack px={1.5} pb={1.5} gap={3}>
