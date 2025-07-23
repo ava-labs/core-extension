@@ -20,7 +20,7 @@ type OnlyOne<T extends object> = {
 
 type PersonalAvatarSharedProps = {
   isGlowing?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'xsmall' | 'small' | 'medium' | 'large';
   selected?: boolean;
   dimmed?: boolean;
 } & OnlyOne<{

@@ -1,5 +1,6 @@
 import {
   Box,
+  getHexAlpha,
   ListItem,
   ListItemIcon,
   Stack,
@@ -16,6 +17,14 @@ import {
 } from 'react';
 import { IconBaseProps } from 'react-icons';
 
+export const ItemIcon = styled(ListItemIcon)(({ theme }) => ({
+  minWidth: 36,
+  svg: {
+    borderRadius: '50%',
+    boxShadow: `inset 0 0 10px ${getHexAlpha(theme.palette.primary.main, 30)}`,
+  },
+}));
+
 export type Props = {
   Icon: ComponentType<IconBaseProps> | ReactElement<IconBaseProps>;
   iconSize?: number;
@@ -24,10 +33,6 @@ export type Props = {
   subtitle?: ReactElement;
   action?: ReactElement;
 };
-
-const ItemIcon = styled(ListItemIcon)({
-  minWidth: 36,
-});
 
 export const ChainListItem: FC<Props> = ({
   Icon,

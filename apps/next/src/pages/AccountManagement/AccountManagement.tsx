@@ -23,8 +23,10 @@ import { QRCode } from './components/QRCode';
 import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
-import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
+import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
+import { StackRow } from '@/components/StackRow';
 import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
+import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -55,9 +57,15 @@ const AccountManagement: FC = () => {
             {(goBack) => (
               <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
                 <DialogTitle sx={{ padding: 1.5 }}>
-                  <IconButton onClick={goBack}>
-                    <MdArrowBack />
-                  </IconButton>
+                  <StackRow
+                    justifyContent="space-between"
+                    justifyItems="center"
+                  >
+                    <IconButton onClick={goBack}>
+                      <MdArrowBack />
+                    </IconButton>
+                    <ViewModeSwitcher />
+                  </StackRow>
                 </DialogTitle>
                 <DialogContent sx={dialogContentSx}>
                   <Switch>
