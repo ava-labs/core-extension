@@ -1,11 +1,11 @@
 import {
-  styled,
   getHexAlpha,
-  Tabs as MuiTabs,
   Tab as MuiTab,
+  Tabs as MuiTabs,
+  styled,
+  tabClasses,
   tabsClasses,
   TabsProps,
-  tabClasses,
 } from '@avalabs/k2-alpine';
 
 type TabMenuProps = TabsProps & {
@@ -44,6 +44,7 @@ export const Tab = styled(MuiTab)(({ theme }) => ({
   },
 
   '[data-size="small"] &': {
+    maxWidth: '80px',
     paddingBlock: theme.spacing(1),
     paddingInline: theme.spacing(2),
   },
