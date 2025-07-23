@@ -9,16 +9,14 @@ type Props = IconButtonProps & {
 
 export const MultiIconButton: FC<Props> = ({ icon, hoverIcon, ...props }) => {
   return (
-    <HoverableButton disableRipple size="small" {...props}>
-      <span>{icon}</span>
+    <HoverableButton size="small" {...props}>
+      {icon}
       {hoverIcon}
     </HoverableButton>
   );
 };
 
 const HoverableButton = styled(IconButton)(({ theme }) => ({
-  padding: 0,
-
   '--hover-icon-visibility': 0,
   '--icon-visibility': 1,
 
@@ -27,12 +25,12 @@ const HoverableButton = styled(IconButton)(({ theme }) => ({
     '--icon-visibility': 0,
   },
 
-  [`& > :first-child`]: {
+  [`& > :nth-child(1)`]: {
     opacity: 'var(--icon-visibility)',
     transition: theme.transitions.create('opacity'),
   },
 
-  [`& > :last-child`]: {
+  [`& > :nth-child(2)`]: {
     position: 'absolute',
     opacity: 'var(--hover-icon-visibility)',
     transition: theme.transitions.create('opacity'),

@@ -1,30 +1,17 @@
 import {
-  Stack,
-  useTheme,
   getHexAlpha,
+  Stack,
   styled,
   Typography,
-  SyncIcon,
-  keyframes,
-  IconButton,
-  QrCodeIcon,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
-import { MdOutlineUnfoldMore } from 'react-icons/md';
-import { PersonalAvatar } from '../PersonalAvatar';
 import { useState } from 'react';
-import { StackRow } from '../StackRow';
-import { ConnectedSites } from './ConnectedSites';
-import { AddressList } from './AddressList';
-import { ViewModeSwitcher } from './ViewModeSwitcher';
+import { MdOutlineUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
-import { FiSettings } from 'react-icons/fi';
-
-const rotate = keyframes`
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-`;
-
+import { PersonalAvatar } from '../PersonalAvatar';
+import { AddressList } from './AddressList';
+import { HeaderActions } from './components/HeaderActions';
 const AccountInfo = styled(Stack)`
   cursor: pointer;
   border-radius: 10px;
@@ -74,7 +61,8 @@ export const Header = () => {
         borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
       }}
     >
-      <StackRow
+      <Stack
+        direction="row"
         sx={{
           background: theme.palette.background.default,
           width: '100%',
@@ -107,29 +95,11 @@ export const Header = () => {
             activeAccount={activeAccount}
           />
         </AccountSelectContainer>
-        <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
-          <ConnectedSites activeAccount={activeAccount} />
-          <IconButton
-            disabled={!activeAccount}
-            size="small"
-            onClick={() => history.push(`/receive?accId=${activeAccount?.id}`)}
-          >
-            <QrCodeIcon fill={theme.palette.text.primary} size={24} />
-          </IconButton>
-          <IconButton onClick={() => history.push('/settings')} size="small">
-            <FiSettings size={20} />
-          </IconButton>
-          <SyncIcon
-            size={24}
-            sx={{
-              animation: `${isTransactionPending ? rotate : 'none'} 2s linear infinite;`,
-              width: '24px',
-              height: '24px',
-            }}
-          />
-          <ViewModeSwitcher />
-        </Stack>
-      </StackRow>
+        <HeaderActions
+          activeAccount={activeAccount}
+          pendingTransaction={isTransactionPending}
+        />
+      </Stack>
     </Stack>
   );
 };

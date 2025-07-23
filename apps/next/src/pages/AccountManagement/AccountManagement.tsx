@@ -1,3 +1,4 @@
+import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
 import {
   Dialog,
   DialogContent,
@@ -5,6 +6,7 @@ import {
   DialogTitle,
   IconButton,
   Slide,
+  Stack,
   SxProps,
 } from '@avalabs/k2-alpine';
 import {
@@ -18,14 +20,12 @@ import { Route, Switch } from 'react-router-dom';
 import { AccountDetails } from './components/AccountDetails';
 import { AddOrConnectWallet } from './components/AddOrCreateWallet/AddOrConnectWallet';
 import { DeleteAccount } from './components/DeleteAccount';
+import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
 import { NavigateBackProvider } from './components/NavigateBackContext';
 import { QRCode } from './components/QRCode';
 import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
-import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
-import { StackRow } from '@/components/StackRow';
-import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -56,7 +56,8 @@ const AccountManagement: FC = () => {
             {(goBack) => (
               <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
                 <DialogTitle sx={{ padding: 1.5 }}>
-                  <StackRow
+                  <Stack
+                    direction="row"
                     justifyContent="space-between"
                     justifyItems="center"
                   >
@@ -64,7 +65,7 @@ const AccountManagement: FC = () => {
                       <MdArrowBack />
                     </IconButton>
                     <ViewModeSwitcher />
-                  </StackRow>
+                  </Stack>
                 </DialogTitle>
                 <DialogContent sx={dialogContentSx}>
                   <Switch>
