@@ -89,15 +89,17 @@ export const KeystoreFilePassword = ({
         onChange={(e) => setFilePassword(e.target.value)}
         error={!!unlockError}
         helperText={unlockError}
+        fullWidth
       />
 
-      <Stack sx={{ mt: 'auto', rowGap: '10px' }}>
+      <Stack sx={{ mt: 'auto', rowGap: '10px', width: '100%' }}>
         <Button
           variant="contained"
           color="primary"
           fullWidth
           disabled={!filePassword || isImporting}
           onClick={submit}
+          size="small"
         >
           {t('Import Keystore file')}
         </Button>
@@ -107,6 +109,7 @@ export const KeystoreFilePassword = ({
           fullWidth
           onClick={onCancel}
           disabled={isImporting}
+          size="small"
         >
           {t('Cancel')}
         </Button>

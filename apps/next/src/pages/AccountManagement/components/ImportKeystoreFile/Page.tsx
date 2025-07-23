@@ -67,7 +67,7 @@ export const ImportKeystoreFile: FC = () => {
             },
           }}
         >
-          {t('Upload Keystore File')}
+          {t('Upload keystore file')}
         </Typography>
       </Stack>
       {step === Step.ChooseFile && (

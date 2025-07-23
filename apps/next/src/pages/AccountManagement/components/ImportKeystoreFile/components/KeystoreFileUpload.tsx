@@ -110,7 +110,7 @@ export const KeystoreFileUpload = ({
                 <Typography
                   variant="h6"
                   color="text.primary"
-                  sx={{ mb: '47px' }}
+                  sx={{ mb: '30px' }}
                 >
                   {file.name}
                 </Typography>
@@ -147,6 +147,7 @@ export const KeystoreFileUpload = ({
         variant="contained"
         color="primary"
         fullWidth
+        size="small"
       >
         {t('Next')}
       </Button>
