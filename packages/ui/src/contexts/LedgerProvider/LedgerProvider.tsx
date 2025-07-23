@@ -508,7 +508,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         closeCurrentApp,
       }}
     >
-      {children || null}
+      {children}
     </LedgerContext.Provider>
   );
 }
