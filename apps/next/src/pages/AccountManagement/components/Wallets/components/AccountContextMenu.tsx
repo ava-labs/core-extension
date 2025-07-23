@@ -11,7 +11,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC } from 'react';
-import { AddressItem } from '../../AddressItem';
+import { AddressItem } from '../../../../../components/Address/AddressItem';
 import * as Styled from '../../Styled';
 
 type Props = {

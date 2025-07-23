@@ -9,15 +9,16 @@ import {
 } from '@core/ui';
 
 import {
+  CustomizeCore,
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
 import { ConnectKeystoneScreen, ConnectKeystoneScreenViaQR } from './screens';
-import { Device, DerivedKeys, ConnectorCallbacks } from './types';
+import { ConnectorCallbacks, DerivedKeys, Device } from './types';
 
 const BASE_PATH = '/onboarding/import/keystone';
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 const ACCOUNTS_TO_DERIVE = [0, 1, 2];
 
 export const ConnectKeystoneFlow = () => {
@@ -116,11 +117,12 @@ export const ConnectKeystoneFlow = () => {
     setMasterFingerprint,
   ]);
 
+  let step = 2;
   return (
     <Switch>
       <Route exact path={BASE_PATH}>
         <ConnectKeystoneScreen
-          step={2}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           device={device}
           setDevice={onDeviceChange}
@@ -134,7 +136,7 @@ export const ConnectKeystoneFlow = () => {
       </Route>
       <Route path={`${BASE_PATH}/scan-qr`}>
         <ConnectKeystoneScreenViaQR
-          step={3}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           accountIndexes={ACCOUNTS_TO_DERIVE}
           onSuccess={onQRCodeScanned}
@@ -149,14 +151,21 @@ export const ConnectKeystoneFlow = () => {
       </Route>
       <Route path={`${BASE_PATH}/wallet-details`}>
         <ProvideWalletDetailsScreen
-          step={4}
+          step={step++}
+          totalSteps={TOTAL_STEPS}
+          onNext={() => history.push(`${BASE_PATH}/customize-core`)}
+        />
+      </Route>
+      <Route path={`${BASE_PATH}/customize-core`}>
+        <CustomizeCore
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
         />
       </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
-          step={5}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onAvatarSelected}
         />

@@ -15,7 +15,7 @@ import {
   ExtensionRequest,
   ExtensionRequestHandler,
   SecretsError,
-  ImportLedgerWalletParams,
+  LegacyImportLedgerWalletParams,
   ImportWalletResult,
 } from '@core/types';
 
@@ -29,7 +29,7 @@ import { isNotNullish } from '@core/common';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER,
   ImportWalletResult,
-  [ImportLedgerWalletParams]
+  [LegacyImportLedgerWalletParams]
 >;
 
 @injectable()

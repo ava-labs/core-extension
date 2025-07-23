@@ -1,10 +1,10 @@
-import { ExtensionRequest } from '@core/types';
 import {
   CaptureAnalyticsEventHandler,
   ClearAnalyticsIdsHandler,
   GetAnalyticsIdsHandler,
   InitAnalyticsIdsHandler,
 } from '@core/service-worker';
+import { AnalyticsConsent, ExtensionRequest } from '@core/types';
 import {
   createContext,
   PropsWithChildren,
@@ -16,7 +16,6 @@ import {
 import { filter, first, from, merge } from 'rxjs';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useSettingsContext } from '../SettingsProvider';
-import { AnalyticsConsent } from '@core/types';
 import { isAnalyticsStateUpdatedEvent } from './isAnalyticsStateUpdatedEvent';
 
 type CaptureFn = (
@@ -41,16 +40,16 @@ export function AnalyticsContextProvider({ children }: PropsWithChildren) {
   const { analyticsConsent } = useSettingsContext();
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const capture: CaptureFn = useCallback(
+  const capture = useCallback<CaptureFn>(
     async (
-      eventName: string,
-      properties?: Record<string, any>,
+      eventName,
+      properties,
       /**
        * Sends the request regardless of the analyticsConsent state's value
        * The service will still validate if the setting is properly enabled
        * Useful when you don't want to / can't wait for the changes to be reflected in the state (e.g: when disabling analytics)
        */
-      forceRequestAttempt?: boolean,
+      forceRequestAttempt,
       useEncryption = false,
     ) => {
       if (

@@ -95,7 +95,7 @@ export class SecretsService implements OnUnlock {
     wallets.push({
       ...secrets,
       id: walletId,
-      name: secrets.name ?? (await this.#getDefaultName(secrets)),
+      name: secrets.name || (await this.#getDefaultName(secrets)),
     });
 
     await this.storageService.save<Partial<WalletSecretInStorage>>('wallet', {
@@ -561,6 +561,14 @@ export class SecretsService implements OnUnlock {
       | SecretType.Ledger
       | SecretType.LedgerLive,
     secret: unknown,
+  ): Promise<boolean>;
+  async isKnownSecret(
+    type:
+      | SecretType.Mnemonic
+      | SecretType.PrivateKey
+      | SecretType.Ledger
+      | SecretType.LedgerLive,
+    secret: unknown,
   ): Promise<boolean> {
     const secrets = await this.#loadSecrets(false);
 
@@ -818,7 +826,7 @@ export class SecretsService implements OnUnlock {
         newPublicKeys.push(publicKeyAVM);
       }
     } else if (secrets.secretType === SecretType.Mnemonic) {
-      // For mnemonic, we can derive public keys for EVM/Bitcoin, AVM and HVM
+      // For mnemonic, we can derive public keys for EVM/Bitcoin, X/P-Chains, HyperVM and Solana
       if (!hasEVMPublicKey) {
         const publicKeyEVM = await AddressPublicKey.fromSeedphrase(
           secrets.mnemonic,

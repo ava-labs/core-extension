@@ -6,6 +6,7 @@ import type {
 } from '@avalabs/core-wallets-sdk';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import { DistributiveOmit } from '@core/common';
+import { AddressPublicKeyJson, ExtendedPublicKey } from './secrets';
 import { type FireblocksApiData, type ImportType } from './account';
 import {
   type ImportedAccountSecrets,
@@ -194,7 +195,15 @@ export type ImportSeedphraseWalletParams = {
   name?: string;
 };
 
-export type ImportLedgerWalletParams = {
+export type ImportLedgerWalletParams =
+  | {
+      addressPublicKeys: AddressPublicKeyJson[];
+      extendedPublicKeys: ExtendedPublicKey[];
+      name?: string;
+    }
+  | LegacyImportLedgerWalletParams;
+
+export type LegacyImportLedgerWalletParams = {
   xpub: string;
   xpubXP: string;
   pubKeys?: PubKeyType[];
@@ -202,6 +211,12 @@ export type ImportLedgerWalletParams = {
   name?: string;
   dryRun?: boolean;
   numberOfAccountsToCreate?: number;
+};
+
+export const isLegacyImportLedgerWalletParams = (
+  params: ImportLedgerWalletParams,
+): params is LegacyImportLedgerWalletParams => {
+  return 'xpub' in params || 'pubKeys' in params;
 };
 
 export type ImportWalletResult = {
