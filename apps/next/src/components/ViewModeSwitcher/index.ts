@@ -1,1 +1,0 @@
-export { ViewModeSwitcher } from './ViewModeSwitcher';
