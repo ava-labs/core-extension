@@ -38,14 +38,10 @@ export const KeystoreFileUpload = ({
   const handleFileUploaded = async (ev: ChangeEvent<HTMLInputElement>) => {
     const newFile = ev.target.files?.[0];
 
-    if (!newFile) {
-      onError(KeystoreError.InvalidVersion);
-      return;
-    }
-
-    if (await isValidKeystoreFile(newFile)) {
-      setFile(newFile ?? null);
+    if (newFile && (await isValidKeystoreFile(newFile))) {
+      setFile(newFile);
     } else {
+      setFile(null);
       onError(KeystoreError.InvalidVersion);
     }
   };
@@ -55,6 +51,7 @@ export const KeystoreFileUpload = ({
     setIsDraggingOver(false);
     const item = ev.dataTransfer.items[0];
     if (!item) {
+      onError(KeystoreError.InvalidVersion);
       setFile(null);
       return;
     }
@@ -73,8 +70,11 @@ export const KeystoreFileUpload = ({
         sx={{
           p: 4,
           transition: theme.transitions.create(['border', 'color']),
-          color: isDraggingOver ? theme.palette.info.light : 'initial',
-          border: `2px dashed ${theme.palette.background.switchTrackUnchecked}`,
+          border: `2px dashed ${
+            isDraggingOver
+              ? theme.palette.info.light
+              : theme.palette.background.switchTrackUnchecked
+          }`,
           borderRadius: '12px',
           flexGrow: 1,
         }}
