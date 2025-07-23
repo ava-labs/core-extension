@@ -1018,6 +1018,7 @@
   "Token Pair": "Token Pair",
   "Token Send Approval": "Token Send Approval",
   "Token Spend Approval": "Token Spend Approval",
+  "Token already exists in the wallet.": "Token already exists in the wallet.",
   "Token already exists in your wallet.": "Token already exists in your wallet.",
   "Token is required": "Token is required",
   "TokenSets": "TokenSets",
