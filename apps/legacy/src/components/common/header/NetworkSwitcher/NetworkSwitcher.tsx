@@ -160,13 +160,14 @@ export function NetworkSwitcher() {
                         >
                           <NetworkSelectronMenuItem
                             data-testid={`select-network-${networkItem.chainId}-button`}
-                            onClick={() => {
-                              if (!isSupported) {
-                                return;
-                              }
-                              setNetwork(networkItem);
-                              setIsOpen(false);
-                            }}
+                            onClick={
+                              isSupported
+                                ? () => {
+                                    setNetwork(networkItem);
+                                    setIsOpen(false);
+                                  }
+                                : undefined
+                            }
                             sx={{
                               flexDirection: 'row',
                               alignItems: 'center',
