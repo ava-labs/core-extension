@@ -29,7 +29,7 @@ export const KeystoreFileError = ({
           mt: '115px',
         }}
       >
-        <MdErrorOutline size={40} style={{ color: theme.palette.error.main }} />
+        <MdErrorOutline size={40} color={theme.palette.error.main} />
         <Stack sx={{ gap: 1, maxWidth: '180px', mt: '7px', mb: '21px' }}>
           <Typography
             sx={{

@@ -80,6 +80,7 @@ export const ImportKeystoreFile: FC = () => {
           onError={(newError) => {
             setError(newError);
             setStep(Step.Error);
+            setFile(null);
           }}
         />
       )}
