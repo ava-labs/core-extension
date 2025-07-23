@@ -60,6 +60,7 @@ export const KeystoreFileError = ({
           sx={{ marginTop: 'auto' }}
           variant="contained"
           color="primary"
+          size="small"
         >
           {t('Try again')}
         </Button>
