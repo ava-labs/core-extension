@@ -41,6 +41,8 @@ export enum SentryExceptionTypes {
   FIREBASE = 'firebase',
 
   NOTIFICATIONS = 'notifications',
+
+  ACCOUNTS = 'accounts',
 }
 
 // wrapper to make error reporting contexts unfirom accross the codebase
