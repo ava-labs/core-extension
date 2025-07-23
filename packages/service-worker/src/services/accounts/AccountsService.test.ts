@@ -11,6 +11,9 @@ import {
   Account,
   SecretType,
   AccountError,
+  Accounts,
+  MnemonicSecrets,
+  LedgerSecrets,
 } from '@core/types';
 import { WalletConnectStorage } from '../walletConnect/WalletConnectStorage';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
@@ -38,6 +41,12 @@ jest.mock('../secrets/AddressResolver');
 jest.mock('../analytics/utils/encryptAnalyticsData');
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
+  Monitoring: {
+    sentryCaptureException: jest.fn(),
+    SentryExceptionTypes: {
+      ACCOUNTS: 'accounts',
+    },
+  },
   isProductionBuild: jest.fn(),
 }));
 
@@ -201,6 +210,10 @@ describe('background/services/accounts/AccountsService', () => {
     (storageService.load as jest.Mock).mockResolvedValue(emptyAccounts);
     analyticsServicePosthog.captureEncryptedEvent = jest.fn();
     (secretsService.addAddress as jest.Mock).mockResolvedValue(undefined);
+    jest.mocked(secretsService.getSecretsById).mockResolvedValue({
+      id: walletId,
+      secretType: SecretType.Ledger,
+    } as LedgerSecrets);
     addressResolver.getAddressesForSecretId = jest.fn();
     networkService.developerModeChanged.add = jest.fn();
     networkService.developerModeChanged.remove = jest.fn();
@@ -276,6 +289,64 @@ describe('background/services/accounts/AccountsService', () => {
   });
 
   describe('onUnlock', () => {
+    it('attempts to derive missing keys', async () => {
+      const active: Account = {
+        index: 0,
+        addressC: '0x1234...',
+        addressBTC: 'btc1234...',
+        addressAVM: 'X-1234...',
+        addressPVM: 'P-1234...',
+        addressCoreEth: 'C-1234...',
+        addressHVM: 'hvm1234...',
+        addressSVM: 'svm1234...',
+        id: 'uuid1',
+        name: 'Account 1',
+        type: AccountType.PRIMARY,
+        walletId,
+      };
+      const mockedAccounts: Accounts = {
+        active,
+        imported: {},
+        primary: {
+          [walletId]: [
+            active,
+            {
+              index: 1,
+              addressC: '0x5678...',
+              addressBTC: 'btc5678...',
+              addressAVM: 'X-5678...',
+              addressPVM: 'P-5678...',
+              addressCoreEth: 'C-5678...',
+              addressHVM: 'hvm5678...',
+              addressSVM: '', // MISSING ADDRESS
+              id: 'uuid2',
+              name: 'Account 2',
+              type: AccountType.PRIMARY,
+              walletId,
+            },
+          ],
+        },
+      };
+
+      mockAddressResolution();
+
+      jest.mocked(secretsService.getSecretsById).mockResolvedValue({
+        id: walletId,
+        secretType: SecretType.Mnemonic,
+      } as MnemonicSecrets);
+
+      jest.mocked(storageService.load).mockResolvedValue(mockedAccounts);
+
+      await accountsService.onUnlock();
+
+      expect(secretsService.addAddress).toHaveBeenCalledTimes(1);
+      expect(secretsService.addAddress).toHaveBeenCalledWith(
+        expect.objectContaining({
+          index: 1,
+          walletId,
+        }),
+      );
+    });
     it('init returns with no accounts from storage', async () => {
       await accountsService.onUnlock();
 
