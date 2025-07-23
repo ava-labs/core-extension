@@ -110,7 +110,7 @@ export const KeystoreFileUpload = ({
                 <Typography
                   variant="h6"
                   color="text.primary"
-                  sx={{ mt: '11px', mb: '59px' }}
+                  sx={{ mb: '47px' }}
                 >
                   {file.name}
                 </Typography>
@@ -125,10 +125,30 @@ export const KeystoreFileUpload = ({
                   }}
                 />
                 {/*TODO: Replace with new alpine icon*/}
-                <Typography variant="h6" color="text.primary">
+                <Typography
+                  sx={{
+                    '&.MuiTypography-root': {
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      lineHeight: '21px',
+                      color: 'text.primary',
+                    },
+                  }}
+                >
                   {t('Drop your file here to upload')}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  sx={{
+                    '&.MuiTypography-root': {
+                      fontSize: '11px',
+                      fontWeight: 400,
+                      lineHeight: '14px',
+                      color: 'text.secondary',
+                      whiteSpace: 'balance',
+                    },
+                  }}
+                >
+                  {' '}
                   {t(
                     'Only Keystore files from the Avalanche Wallet are supported',
                   )}

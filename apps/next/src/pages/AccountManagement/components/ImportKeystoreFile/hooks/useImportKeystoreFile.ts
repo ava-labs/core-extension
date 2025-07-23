@@ -21,10 +21,9 @@ export const useImportKeystoreFile = () => {
       try {
         capture('KeystoreFileImportStarted');
         await importKeystoreFile(file, password);
+
         capture('KeystoreFileImportSuccess');
-
         toast.success(t('Successfully imported the keystore file.'));
-
         replace('/account-management');
       } catch (err: unknown) {
         capture('KeystoreFileImportFailure');

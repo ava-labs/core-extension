@@ -1,4 +1,4 @@
-// The svg includes the file image (32X39) plus 12px padding on each side.
+// The svg includes the file image (32pxX39px) plus 12px margin on each side.
 
 export const FileImageDark = () => {
   return (

@@ -28,7 +28,6 @@ export const KeystoreFilePassword = ({
   }, [t]);
 
   const submit = useCallback(async () => {
-    // Since the password field is required, this should not be falsy. But adding a check for safety.
     if (!filePassword) {
       setUnlockError(t('Please enter a password'));
       return;
@@ -37,7 +36,7 @@ export const KeystoreFilePassword = ({
   }, [filePassword, t, file, importFile, errorHandler]);
 
   return (
-    <Stack sx={{ flexGrow: 1 }}>
+    <Stack sx={{ flexGrow: 1, alignItems: 'center' }}>
       <Card sx={{ p: '12px' }}>
         <Stack
           sx={{

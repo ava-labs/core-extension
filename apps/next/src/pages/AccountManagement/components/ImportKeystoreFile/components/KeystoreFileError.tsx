@@ -26,13 +26,31 @@ export const KeystoreFileError = ({
           justifyContent: 'center',
           alignItems: 'center',
           textAlign: 'center',
-          gap: 3,
+          mt: '115px',
         }}
       >
-        <MdErrorOutline size={64} style={{ color: theme.palette.error.main }} />
-        <Stack sx={{ gap: 1 }}>
-          <Typography variant="h6">{title}</Typography>
-          <Typography variant="body2" color="text.secondary">
+        <MdErrorOutline size={40} style={{ color: theme.palette.error.main }} />
+        <Stack sx={{ gap: 1, maxWidth: '180px', mt: '7px', mb: '21px' }}>
+          <Typography
+            sx={{
+              '&.MuiTypography-root': {
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'error.main',
+              },
+            }}
+          >
+            {title}
+          </Typography>
+          <Typography
+            sx={{
+              '&.MuiTypography-root': {
+                fontSize: '11px',
+                fontWeight: 400,
+                color: 'error.main',
+              },
+            }}
+          >
             {hint}
           </Typography>
         </Stack>

@@ -59,7 +59,13 @@ export const ImportKeystoreFile: FC = () => {
     >
       <Stack sx={{ flexDirection: 'row', mt: 2.5, mb: '25px', pr: 1 }}>
         <Typography
-          sx={{ '&.MuiTypography-root': { fontSize: '27px', fontWeight: 700 } }}
+          sx={{
+            '&.MuiTypography-root': {
+              fontSize: '27px',
+              fontWeight: 700,
+              fontFamily: 'Aeonik',
+            },
+          }}
         >
           {t('Upload Keystore File')}
         </Typography>
