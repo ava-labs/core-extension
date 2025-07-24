@@ -1,15 +1,16 @@
 import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
-import { Balances, ExtensionRequest, TotalPriceChange } from '@core/types';
 import {
   GetBalancesHandler,
-  UpdateBalancesForNetworkHandler,
   RefreshNftMetadataHandler,
   StartBalancesPollingHandler,
   StopBalancesPollingHandler,
+  UpdateBalancesForNetworkHandler,
 } from '@core/service-worker';
+import { Balances, ExtensionRequest, TotalPriceChange } from '@core/types';
 import { merge } from 'lodash';
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -20,7 +21,6 @@ import {
 import { filter, map } from 'rxjs';
 
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import {
   calculateTotalBalance,
   getAddressForChain,
@@ -29,10 +29,11 @@ import {
   ipfsResolverWithFallback,
   isNotNullish,
 } from '@core/common';
+import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { useAccountsContext } from '../AccountsProvider';
+import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
-import { useConnectionContext } from '../ConnectionProvider';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -154,7 +155,7 @@ function balancesReducer(
   }
 }
 
-export function BalancesProvider({ children }: { children: any }) {
+export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network, favoriteNetworks, getNetwork } = useNetworkContext();
   const {
