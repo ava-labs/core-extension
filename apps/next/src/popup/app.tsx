@@ -65,7 +65,6 @@ export function App() {
     return <CircularProgress />;
   }
 
-  console.log('DEBUG', pathname);
   const displayHeader = !pagesWithoutHeader.some((path) =>
     pathname.startsWith(path),
   );
