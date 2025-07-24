@@ -53,16 +53,15 @@ export const SwitchCard = ({
   );
 };
 
+type SwitchCardStyleProps = Pick<SwitchCardProps, 'orientation'>;
+
 const StyledSwitchCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== 'orientation',
-})<{ orientation: Orientation }>(
-  ({ orientation }: { orientation: Orientation }) =>
-    ({ theme }) => ({
-      padding: theme.spacing(1.5),
-      gap: theme.spacing(2.5),
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: orientation === 'horizontal' ? 'center' : 'flex-start',
-      flexDirection: orientation === 'horizontal' ? 'row' : 'column',
-    }),
-);
+})<SwitchCardStyleProps>(({ orientation, theme }) => ({
+  padding: theme.spacing(1.5),
+  gap: theme.spacing(2.5),
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: orientation === 'horizontal' ? 'center' : 'flex-start',
+  flexDirection: orientation === 'horizontal' ? 'row' : 'column',
+}));

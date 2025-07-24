@@ -1,23 +1,16 @@
 import {
   Box,
-  Button,
   Card,
   CardContent,
   Chip,
-  QrCodeIcon,
   Stack,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
 import { FC } from 'react';
-import { FiSettings } from 'react-icons/fi';
-import { MdSwitchAccount } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
 
 export const UnderConstruction: FC = () => {
   const theme = useTheme();
-  const history = useHistory();
 
   return (
     <Stack
@@ -174,55 +167,9 @@ export const UnderConstruction: FC = () => {
                 ))}
               </Stack>
             </Stack>
-
-            {/* Action buttons */}
-            <Stack sx={{ pt: 2, gap: 1 }}>
-              <Button
-                variant="contained"
-                onClick={() => history.push('/account-management')}
-                size="small"
-                color="primary"
-                startIcon={<MdSwitchAccount />}
-              >
-                Access Account Management
-              </Button>
-              <ReceiveButton />
-              <Button
-                variant="contained"
-                onClick={() => history.push('/settings')}
-                size="small"
-                color="secondary"
-                startIcon={<FiSettings />}
-              >
-                Settings
-              </Button>
-            </Stack>
           </Stack>
         </CardContent>
       </Card>
     </Stack>
-  );
-};
-
-const ReceiveButton = () => {
-  const history = useHistory();
-  const {
-    accounts: { active },
-  } = useAccountsContext();
-
-  if (!active) {
-    return null;
-  }
-
-  return (
-    <Button
-      variant="contained"
-      size="small"
-      color="secondary"
-      onClick={() => history.push(`/receive?accId=${active.id}`)}
-      startIcon={<QrCodeIcon />}
-    >
-      Receive Crypto
-    </Button>
   );
 };

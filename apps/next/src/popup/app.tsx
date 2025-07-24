@@ -32,7 +32,7 @@ import { Header } from '@/components/Header';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
 
-const pagesWithoutHeader = ['/account-management', '/settings'];
+const pagesWithoutHeader = ['/account-management', '/settings', '/receive'];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -65,7 +65,6 @@ export function App() {
     return <CircularProgress />;
   }
 
-  console.log('DEBUG', pathname);
   const displayHeader = !pagesWithoutHeader.some((path) =>
     pathname.startsWith(path),
   );
@@ -89,7 +88,7 @@ export function App() {
         ]) as ReactElement[]
       }
     >
-      <div>
+      <>
         {displayHeader && (
           <Stack sx={{ width: 1 }}>
             <Header />
@@ -109,7 +108,7 @@ export function App() {
           />
           <Route path="/" component={UnderConstruction} />
         </Switch>
-      </div>
+      </>
     </Providers>
   );
 }
