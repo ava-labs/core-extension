@@ -6,7 +6,7 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { memoize } from 'lodash';
-import { use } from 'react';
+import { ComponentProps, use } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AVATAR_DICTIONARY, PersonalAvatarName } from './avatar-dictionary';
@@ -20,7 +20,7 @@ type OnlyOne<T extends object> = {
 
 type PersonalAvatarSharedProps = {
   isGlowing?: boolean;
-  size?: 'xsmall' | 'small' | 'medium' | 'large';
+  size?: ComponentProps<typeof AvatarHex>['size'];
   selected?: boolean;
   dimmed?: boolean;
 } & OnlyOne<{

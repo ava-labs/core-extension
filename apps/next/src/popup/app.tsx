@@ -23,18 +23,20 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { Receive } from '@/pages/Receive';
 import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
+import { Settings } from '@/pages/Settings';
 
-import { Providers } from '.';
 import { Header } from '@/components/Header';
 import { Children, ReactElement } from 'react';
+import { Providers } from './providers';
 
-const pagesWithoutHeader = ['/account-management'];
+const pagesWithoutHeader = ['/account-management', '/settings', '/receive'];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
+  const { pathname } = useLocation();
   const history = useHistory();
   const historyRef = useRef(history);
   historyRef.current = history;
@@ -50,7 +52,6 @@ export function App() {
     if (!supportedContexts.some(isSpecificContextContainer)) {
       return;
     }
-
     if (Object.keys(navigationHistory).length !== 0) {
       historyRef.current.push(navigationHistory.location); // go to last visited route
     }
@@ -65,7 +66,7 @@ export function App() {
   }
 
   const displayHeader = !pagesWithoutHeader.some((path) =>
-    location.pathname.startsWith(path),
+    pathname.startsWith(path),
   );
 
   return (
@@ -87,7 +88,7 @@ export function App() {
         ]) as ReactElement[]
       }
     >
-      <div>
+      <>
         {displayHeader && (
           <Stack sx={{ width: 1 }}>
             <Header />
@@ -95,6 +96,7 @@ export function App() {
         )}
         <Switch>
           <Route path="/receive" component={Receive} />
+          <Route path="/settings" component={Settings} />
           <Route path="/account-management" component={AccountManagement} />
           <Route
             path="/import-wallet/seedphrase"
@@ -106,7 +108,7 @@ export function App() {
           />
           <Route path="/" component={UnderConstruction} />
         </Switch>
-      </div>
+      </>
     </Providers>
   );
 }

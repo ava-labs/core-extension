@@ -3,12 +3,12 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { toast } from '@avalabs/k2-alpine';
-import { action } from 'webextension-polyfill';
 import { useCallback, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useErrorMessage, useImportSeedphrase } from '@core/ui';
 
+import { useOpenApp } from '@/hooks/useOpenApp';
 import { FullscreenModal } from '@/components/FullscreenModal';
 import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 import {
@@ -24,6 +24,7 @@ export const ImportSeedphraseFlow = () => {
   const history = useHistory();
   const gerErrorMessage = useErrorMessage();
   const { importSeedphrase, isImporting } = useImportSeedphrase();
+  const openApp = useOpenApp();
 
   const [phrase, setPhrase] = useState<string>('');
   const [isCalculatingAddresses, setIsCalculatingAddresses] = useState(false);
@@ -72,7 +73,7 @@ export const ImportSeedphraseFlow = () => {
           name,
         });
 
-        await action.openPopup();
+        openApp();
         window.close();
       } catch (error) {
         const { title, hint } = gerErrorMessage(error);
@@ -83,7 +84,7 @@ export const ImportSeedphraseFlow = () => {
         throw error;
       }
     },
-    [importSeedphrase, phrase, gerErrorMessage],
+    [importSeedphrase, phrase, gerErrorMessage, openApp],
   );
 
   return (

@@ -1,5 +1,4 @@
 import { toast } from '@avalabs/k2-alpine';
-import { action } from 'webextension-polyfill';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
@@ -15,6 +14,7 @@ import {
   Troubleshooting,
   WalletExistsError,
 } from '@/components/ConnectLedger';
+import { useOpenApp } from '@/hooks/useOpenApp';
 
 import { NameYourWalletScreen } from '../../common-screens';
 
@@ -51,6 +51,7 @@ export const ImportLedgerFlowContent = () => {
     useModalPageControl();
   const { phase = 'connect-avax' } = useParams<{ phase: ImportRoute }>();
   const { importLedger, isImporting } = useImportLedger();
+  const openApp = useOpenApp();
 
   const [publicKeys, setPublicKeys] = useState<AddressPublicKeyJson[]>([]);
   const [extPublicKeys, setExtPublicKeys] = useState<ExtendedPublicKey[]>([]);
@@ -103,14 +104,14 @@ export const ImportLedgerFlowContent = () => {
           addressPublicKeys: publicKeys,
           extendedPublicKeys: extPublicKeys,
         });
-        await action.openPopup();
+        openApp();
         window.close();
       } catch (err) {
         toast.error(t('Unknown error has occurred. Please try again later.'));
         console.error(err);
       }
     },
-    [extPublicKeys, importLedger, publicKeys, t],
+    [extPublicKeys, importLedger, publicKeys, openApp, t],
   );
 
   return (
