@@ -9,7 +9,7 @@ const Image = styled('div')(({ theme }) => ({
   '--spot-size': '40px',
   '--spot-color': isLightTheme(theme)
     ? theme.palette.common.white_30
-    : theme.palette.common.black_25,
+    : theme.palette.common.black,
 
   position: 'relative',
   width: '100%',

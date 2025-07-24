@@ -30,7 +30,7 @@ export const ListItemEndIcon = styled(ListItemIcon)({
 });
 
 export const Root = styled(Stack)(({ theme }) => ({
-  flexGrow: 1,
+  height: '100%',
   borderRadius: theme.shape.mediumBorderRadius,
   backgroundColor:
     theme.palette.mode === 'light'
