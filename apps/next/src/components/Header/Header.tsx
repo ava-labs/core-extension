@@ -6,10 +6,11 @@ import {
   Typography,
   SyncIcon,
   keyframes,
+  IconButton,
+  QrCodeIcon,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
-import { MdOutlineUnfoldMore, MdQrCode2 } from 'react-icons/md';
-import { MdOutlineSettings } from 'react-icons/md';
+import { MdOutlineUnfoldMore } from 'react-icons/md';
 import { PersonalAvatar } from '../PersonalAvatar';
 import { useState } from 'react';
 import { StackRow } from '../StackRow';
@@ -17,6 +18,7 @@ import { ConnectedSites } from './ConnectedSites';
 import { AddressList } from './AddressList';
 import { ViewModeSwitcher } from './ViewModeSwitcher';
 import { useHistory } from 'react-router-dom';
+import { FiSettings } from 'react-icons/fi';
 
 const rotate = keyframes`
   from { transform: rotate(360deg); }
@@ -105,10 +107,18 @@ export const Header = () => {
             activeAccount={activeAccount}
           />
         </AccountSelectContainer>
-        <Stack sx={{ flexDirection: 'row', gap: 1 }}>
+        <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
           <ConnectedSites activeAccount={activeAccount} />
-          <MdQrCode2 size={24} />
-          <MdOutlineSettings size={24} />
+          <IconButton
+            disabled={!activeAccount}
+            size="small"
+            onClick={() => history.push(`/receive?accId=${activeAccount?.id}`)}
+          >
+            <QrCodeIcon fill={theme.palette.text.primary} size={24} />
+          </IconButton>
+          <IconButton onClick={() => history.push('/settings')} size="small">
+            <FiSettings size={20} />
+          </IconButton>
           <SyncIcon
             size={24}
             sx={{

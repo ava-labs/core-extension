@@ -14,7 +14,15 @@ const viewInPopup = async () => {
   await browser.action.openPopup({});
 };
 
-export const switchTo: Record<ViewMode, () => Promise<void>> = {
-  sidebar: viewInSidePanel,
-  floating: viewInPopup,
+export const openView = async (mode: ViewMode) => {
+  switch (mode) {
+    case 'sidebar':
+      await viewInSidePanel();
+      break;
+    case 'floating':
+      await viewInPopup();
+      break;
+    default:
+      throw new Error(`Unsupported view mode: ${mode}`);
+  }
 };
