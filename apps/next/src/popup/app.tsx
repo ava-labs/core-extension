@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  BalancesProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -85,6 +86,7 @@ export function App() {
           <WalletContextProvider LockedComponent={LockScreen} />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
+          <BalancesProvider />,
         ]) as ReactElement[]
       }
     >

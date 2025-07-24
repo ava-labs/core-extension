@@ -1,4 +1,5 @@
 import {
+  Box,
   Stack,
   TriangleDownIcon,
   TriangleUpIcon,
@@ -28,25 +29,31 @@ export const AccountInfo: FC<Props> = ({ account }) => {
   const { sum, priceChange } = totalBalance ?? fallbackTotalBalance;
   const isLoss = priceChange.value < 0;
   const PnLIcon = isLoss ? TriangleDownIcon : TriangleUpIcon;
+  const formattedSum = currencyFormatter(sum ?? 0).replace(
+    /^(\D)0\.00$/,
+    '$1–',
+  );
+
   return (
     <Stack spacing={0.5} mt={4.5}>
       <Typography variant="h2" color="text.secondary">
-        {account.name}
+        {account?.name}
       </Typography>
-      <Stack direction="row" alignItems="baseline">
-        <Typography variant="h2">{currencyFormatter(sum ?? 0)}</Typography>
+      <Stack direction="row" alignItems="baseline" gap={0.5}>
+        <Typography variant="h2">{formattedSum}</Typography>
         <Typography variant="body1">{currency}</Typography>
       </Stack>
-      <Stack direction="row" spacing={0.5}>
+      <Stack direction="row" spacing={0.5} alignItems="center" useFlexGap>
         <Typography
           variant="body2"
           color={isLoss ? 'red.main' : 'teal.main'}
           fontWeight={600}
         >
-          {isLoss ? '-' : '+'}
-          {currencyFormatter(priceChange.value)}
-          <PnLIcon size="0.75em" />
+          {isLoss ? '-' : '+'} {currencyFormatter(priceChange.value)}
         </Typography>
+        <Box color={isLoss ? 'red.main' : 'teal.main'}>
+          <PnLIcon size={12} />
+        </Box>
         <Typography variant="body2" fontWeight={600}>
           {`${(priceChange.percentage[0] ?? 0).toFixed(1)}%`}
         </Typography>
