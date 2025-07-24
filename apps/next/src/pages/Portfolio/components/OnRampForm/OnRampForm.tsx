@@ -26,14 +26,15 @@ export const OnRampForm: FC = () => {
         direction="column"
         flexBasis="180px"
         gap={1.25}
-        pl={2}
         pr={8.25}
         alignItems="end"
       >
         <AvaGradient />
-        <Typography variant="h3">
-          {t('Get started by adding crypto to your wallet')}
-        </Typography>
+        <Box pl={2}>
+          <Typography variant="h3">
+            {t('Get started by adding crypto to your wallet')}
+          </Typography>
+        </Box>
       </Stack>
       <Box marginBlock="auto">
         <List disablePadding>
@@ -90,5 +91,3 @@ export const OnRampForm: FC = () => {
     </Styled.Root>
   );
 };
-
-export default OnRampForm;

@@ -5,17 +5,17 @@ import {
   TriangleUpIcon,
   Typography,
 } from '@avalabs/k2-alpine';
-import { Account } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
 import { FC } from 'react';
 
+type TotalBalance = ReturnType<typeof useBalancesContext>['totalBalance'];
+
 type Props = {
-  account: Account;
+  accountName: string;
+  balance: TotalBalance;
 };
 
-const fallbackTotalBalance: ReturnType<
-  typeof useBalancesContext
->['totalBalance'] = {
+const fallbackTotalBalance: TotalBalance = {
   sum: null,
   priceChange: {
     value: 0,
@@ -23,12 +23,15 @@ const fallbackTotalBalance: ReturnType<
   },
 };
 
-export const AccountInfo: FC<Props> = ({ account }) => {
+export const AccountInfo: FC<Props> = ({
+  accountName,
+  balance = fallbackTotalBalance,
+}) => {
   const { currencyFormatter, currency } = useSettingsContext();
-  const { totalBalance } = useBalancesContext();
-  const { sum, priceChange } = totalBalance ?? fallbackTotalBalance;
+  const { sum, priceChange } = balance;
   const isLoss = priceChange.value < 0;
   const PnLIcon = isLoss ? TriangleDownIcon : TriangleUpIcon;
+  const pnlColor = isLoss ? 'red.main' : 'teal.main';
   const formattedSum = currencyFormatter(sum ?? 0).replace(
     /^(\D)0\.00$/,
     '$1–',
@@ -37,21 +40,18 @@ export const AccountInfo: FC<Props> = ({ account }) => {
   return (
     <Stack spacing={0.5} mt={4.5}>
       <Typography variant="h2" color="text.secondary">
-        {account?.name}
+        {accountName}
       </Typography>
       <Stack direction="row" alignItems="baseline" gap={0.5}>
         <Typography variant="h2">{formattedSum}</Typography>
         <Typography variant="body1">{currency}</Typography>
       </Stack>
       <Stack direction="row" spacing={0.5} alignItems="center" useFlexGap>
-        <Typography
-          variant="body2"
-          color={isLoss ? 'red.main' : 'teal.main'}
-          fontWeight={600}
-        >
-          {isLoss ? '-' : '+'} {currencyFormatter(priceChange.value)}
+        <Typography variant="body2" color={pnlColor} fontWeight={600}>
+          {isLoss ? '-' : '+'}
+          {currencyFormatter(priceChange.value)}
         </Typography>
-        <Box color={isLoss ? 'red.main' : 'teal.main'}>
+        <Box color={pnlColor}>
           <PnLIcon size={12} />
         </Box>
         <Typography variant="body2" fontWeight={600}>

@@ -12,6 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { PersonalAvatar } from '../PersonalAvatar';
 import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
+
 const AccountInfo = styled(Stack)`
   cursor: pointer;
   border-radius: 10px;
@@ -21,7 +22,6 @@ const AccountInfo = styled(Stack)`
 
   flex-direction: row;
   align-items: center;
-  gap: 1;
   & > svg {
     opacity: 0;
   }
@@ -69,7 +69,7 @@ export const Header = () => {
           height: '56px',
           alignItems: 'center',
           justifyContent: 'space-between',
-          px: 1,
+          pl: 1,
           zIndex: 1,
         }}
       >
@@ -79,11 +79,7 @@ export const Header = () => {
           onClick={() => history.push('/account-management')}
         >
           <AccountInfo>
-            <PersonalAvatar
-              cached
-              sx={{ display: 'flex', marginRight: 1 }}
-              size="xsmall"
-            />
+            <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
             <Typography variant="body1">{activeAccount?.name}</Typography>
             <MdOutlineUnfoldMore
               size={24}
