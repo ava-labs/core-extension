@@ -5,6 +5,7 @@ import '@types/webextension-polyfill';
 
 declare module 'webextension-polyfill' {
   const sidePanel: typeof chrome.sidePanel;
+  const offscreen: typeof chrome.offscreen;
 
   namespace Storage {
     interface Static {

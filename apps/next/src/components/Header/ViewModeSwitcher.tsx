@@ -4,13 +4,16 @@ import {
   SidebarDockIcon,
   SidebarUndockIcon,
 } from '@avalabs/k2-alpine';
+
 import {
   isSpecificContextContainer,
   useAnalyticsContext,
   useSettingsContext,
 } from '@core/ui';
 import { ContextContainer } from '@core/types';
-import { switchTo } from './utils';
+
+import { openView } from '@/utils/openView';
+
 import { MultiIconButton } from '../MultiIconButton';
 
 export const ViewModeSwitcher: FC = () => {
@@ -27,7 +30,7 @@ export const ViewModeSwitcher: FC = () => {
       viewMode: requestedView,
     });
     window.close();
-    await switchTo[requestedView]();
+    await openView(requestedView);
   };
   // TODO: fix the position of the icons
   return (

@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonProps,
   ChevronDownIcon,
   Popover,
   PopoverContent,
@@ -9,7 +10,7 @@ import {
 import { useState } from 'react';
 import { useAnalyticsContext, useLanguage } from '@core/ui';
 
-export function LanguageSelector() {
+export function LanguageSelector(props: ButtonProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const { availableLanguages, changeLanguage, currentLanguage } = useLanguage();
@@ -43,6 +44,7 @@ export function LanguageSelector() {
             }}
           />
         }
+        {...props}
       >
         {currentLanguage?.name}
       </Button>

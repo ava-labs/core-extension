@@ -7,7 +7,6 @@ import {
   Box,
   Collapse,
   IconButton,
-  SidebarIcon,
   Stack,
   Typography,
   useTheme,
@@ -56,9 +55,6 @@ export const Receive = () => {
       <Stack direction="row" justifyContent="space-between" px={1} py={2}>
         <IconButton size="small" onClick={history.goBack}>
           <MdArrowBack size={24} />
-        </IconButton>
-        <IconButton size="small" onClick={() => alert('TODO: Open side panel')}>
-          <SidebarIcon size={24} />
         </IconButton>
       </Stack>
       <Stack px={1.5} flexGrow={1} pb={1.5}>

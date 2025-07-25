@@ -115,17 +115,34 @@ export class BackgroundRuntime {
   }
 
   async #createOffScreen() {
+    // Support starts at Chrome 109+
+    if (!browser.offscreen) {
+      return;
+    }
+
     try {
-      await chrome.offscreen.closeDocument();
+      await browser.offscreen.closeDocument();
     } catch {
       // nothing to close
     }
 
-    await chrome.offscreen.createDocument({
-      url: 'offscreen/offscreen.html',
-      reasons: ['WORKERS'],
-      justification: 'offload computation',
-    });
+    try {
+      await browser.offscreen.createDocument({
+        url: 'offscreen/offscreen.html',
+        reasons: [browser.offscreen.Reason.WORKERS],
+        justification: 'offload computation',
+      });
+    } catch (err) {
+      // We're getting error logs of Chrome 109 not liking "WORKERS" as a reason for creating the offscreen document.
+      // Maybe it was not supported back then -- either way, nothing we can do about it.
+      const canIgnore =
+        err instanceof Error &&
+        err.message.includes("Error at property 'reasons'");
+
+      if (!canIgnore) {
+        throw err;
+      }
+    }
   }
 
   private async setupSidePanel() {

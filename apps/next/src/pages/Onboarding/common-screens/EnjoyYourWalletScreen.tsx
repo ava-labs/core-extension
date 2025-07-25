@@ -7,19 +7,15 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { action, sidePanel, windows } from 'webextension-polyfill';
 
-import {
-  useKeyboardShortcuts,
-  useOnboardingContext,
-  useSettingsContext,
-} from '@core/ui';
+import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
 
 import {
   FullscreenModalActions,
   FullscreenModalContent,
   useModalPageControl,
 } from '@/components/FullscreenModal';
+import { useOpenApp } from '@/hooks/useOpenApp';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
 
 import { LoadingScreen } from '../components/LoadingScreen';
@@ -29,7 +25,7 @@ export const EnjoyYourWalletScreen: FC = () => {
   const { setCurrent, setTotal, setIsBackButtonVisible } =
     useModalPageControl();
   const { submitInProgress, submit } = useOnboardingContext();
-  const { preferredView } = useSettingsContext();
+  const openApp = useOpenApp();
 
   useEffect(() => {
     // We don't want to display any page controls on the last screen
@@ -38,15 +34,8 @@ export const EnjoyYourWalletScreen: FC = () => {
     setTotal(0);
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
-  const openWallet = async () => {
-    if (preferredView === 'floating') {
-      action.openPopup();
-    } else {
-      const window = await windows.getCurrent();
-      if (window.id) {
-        sidePanel.open({ windowId: window.id });
-      }
-    }
+  const openWallet = () => {
+    openApp();
     window.close();
   };
 
