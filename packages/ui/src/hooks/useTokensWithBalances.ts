@@ -56,10 +56,10 @@ export const useTokensWithBalances = (
   const customTokensWithZeroBalance: {
     [address: string]: TokenWithBalance;
   } = useMemo(() => {
-    if (!network?.chainId) {
+    if (!activeNetwork?.chainId) {
       return {};
     }
-    const customTokensForActiveNetwork = customTokens[network?.chainId];
+    const customTokensForActiveNetwork = customTokens[activeNetwork.chainId];
     if (!customTokensForActiveNetwork) {
       return {};
     }
@@ -77,7 +77,7 @@ export const useTokensWithBalances = (
 
       return acc;
     }, {});
-  }, [customTokens, network?.chainId]);
+  }, [activeNetwork?.chainId, customTokens]);
 
   const visibleTokens = useCallback(
     (tokens: TokenWithBalance[]) => {
