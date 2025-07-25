@@ -16,9 +16,11 @@ export const ContactList = () => {
     <Page
       title={t('Contacts')}
       description={
-        contacts.length > 0
-          ? t('{{count}} saved addresses', { count: contacts.length })
-          : ''
+        contacts.length === 1
+          ? t('1 saved address')
+          : contacts.length > 1
+            ? t('{{count}} saved addresses', { count: contacts.length })
+            : ''
       }
       withBackButton
     >
