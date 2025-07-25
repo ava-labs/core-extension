@@ -1,8 +1,10 @@
+import { CORE_WEB_BASE_URL } from '@/config/constants';
 import {
   Box,
   ChevronRightIcon,
   List,
   ListItemText,
+  ListItemTextProps,
   Stack,
   toast,
   Typography,
@@ -14,7 +16,16 @@ import { AvaGradient } from './components/AvaGradient';
 import * as Styled from './components/Styled';
 
 const navigateToBuyPage = () => {
-  window.open('https://core.app/buy', '_blank');
+  window.open(`${CORE_WEB_BASE_URL}/buy`, '_blank');
+};
+
+const optionSlotProps: ListItemTextProps['slotProps'] = {
+  primary: {
+    variant: 'subtitle2',
+  },
+  secondary: {
+    variant: 'caption',
+  },
 };
 
 export const OnRampForm: FC = () => {
@@ -47,14 +58,7 @@ export const OnRampForm: FC = () => {
               secondary={t(
                 'Buy tokens such as AVAX with a debit card or your bank account',
               )}
-              slotProps={{
-                primary: {
-                  variant: 'subtitle2',
-                },
-                secondary: {
-                  variant: 'caption',
-                },
-              }}
+              slotProps={optionSlotProps}
             />
             <Styled.ListItemEndIcon>
               <ChevronRightIcon size={22} />
@@ -70,17 +74,9 @@ export const OnRampForm: FC = () => {
               <MdSwapHoriz size={19.2} />
             </Styled.ListItemStartIcon>
             <ListItemText
-              primary="Transfer crypto"
-              secondary="Move funds from another wallet or exchange"
-              slotProps={{
-                primary: {
-                  variant: 'body2',
-                  fontWeight: 500,
-                },
-                secondary: {
-                  variant: 'caption',
-                },
-              }}
+              primary={t('Transfer crypto')}
+              secondary={t('Move funds from another wallet or exchange')}
+              slotProps={optionSlotProps}
             />
             <Styled.ListItemEndIcon>
               <ChevronRightIcon size={22} />
