@@ -1,15 +1,17 @@
-import { Box, Button, Collapse, Stack, styled } from '@avalabs/k2-alpine';
+import { Box, Collapse, Stack, styled } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
 import QRCodeSVG from 'qrcode.react';
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory } from 'react-router-dom';
-import { AddressItem } from '../AddressItem';
+import { AddressItem } from '@/components/Address/AddressItem';
+import { type History } from 'history';
 import CurrentAccount from '../CurrentAccount';
 import * as Styled from '../Styled';
-import { AddressSelector } from './components/AddressSelector';
-import { CChainDisclaimer } from './components/CChainDisclaimer';
-import { getLabelAndIcon, getSearchParams } from './utils';
+import { AddressSelector } from '../../../../components/AddressSelector';
+import { getNavigateToQRCode, getSearchParams } from './utils';
+import { AddressType } from '@core/types';
+import { getChainLabelAndIconByAddressType } from '@/utils/getChainLabelAndIconByAddressType';
+import { CChainAddressDisclaimer } from '@/components/CChainAddressDisclaimer';
 
 const QRCodeBox = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -21,9 +23,15 @@ const QRCodeBox = styled(Box)(({ theme }) => ({
       : theme.palette.background.paper,
 }));
 
+const getOnAddressChange = (replace: History['replace'], accountId: string) => {
+  const getNavigate = getNavigateToQRCode(replace, accountId);
+  return (type: AddressType) => {
+    getNavigate(type)();
+  };
+};
+
 export const QRCode: FC = () => {
-  const { t } = useTranslation();
-  const { location, goBack } = useHistory();
+  const { location, replace } = useHistory();
   const { accountId, addressType = 'C' } = getSearchParams(location.search);
 
   const { getAccountById } = useAccountsContext();
@@ -43,7 +51,11 @@ export const QRCode: FC = () => {
       <CurrentAccount />
 
       <Stack gap={1.5} alignItems="center" my="auto">
-        <AddressSelector type={addressType} account={account} />
+        <AddressSelector
+          type={addressType}
+          account={account}
+          onChange={getOnAddressChange(replace, account.id)}
+        />
         <QRCodeBox>
           <QRCodeSVG
             renderAs="svg"
@@ -54,28 +66,19 @@ export const QRCode: FC = () => {
         </QRCodeBox>
 
         <Collapse in={addressType === 'C'}>
-          <CChainDisclaimer />
+          <CChainAddressDisclaimer />
         </Collapse>
       </Stack>
 
       <Stack mt="auto" gap={1.5}>
         <Styled.Card>
           <AddressItem
-            {...getLabelAndIcon(addressType)}
+            {...getChainLabelAndIconByAddressType(addressType)}
             address={account[`address${addressType}`]}
             truncate={false}
             copyActionVisibility="always"
           />
         </Styled.Card>
-
-        <Button
-          variant="contained"
-          size="small"
-          color="secondary"
-          onClick={goBack}
-        >
-          {t('Dismiss')}
-        </Button>
       </Stack>
     </Box>
   );

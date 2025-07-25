@@ -12,11 +12,11 @@ import { useFidoErrorMessage } from '@core/ui';
 import { AuthErrorCode } from '@core/types';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 type SeedlessRegisterFidoKeyProps = {
@@ -38,15 +38,15 @@ export const SeedlessRegisterFidoKey: FC<SeedlessRegisterFidoKeyProps> = ({
   const fidoError = useFidoErrorMessage(error);
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {keyType === 'passkey' ? t(`Passkey setup`) : t(`Yubikey setup`)}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           `Follow the instructions in your browser window to add this key to your account.`,
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <Stack
           width="100%"
           height="100%"
@@ -74,12 +74,12 @@ export const SeedlessRegisterFidoKey: FC<SeedlessRegisterFidoKeyProps> = ({
             </Stack>
           )}
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton loading={isLoading} color="secondary" onClick={onCancel}>
           {t(`Cancel`)}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

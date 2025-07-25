@@ -1,5 +1,6 @@
-import { FC } from 'react';
-import { Stack, StackProps, styled } from '@avalabs/k2-alpine';
+import { PersonalAvatar } from '@/components/PersonalAvatar';
+import { Skeleton, Stack, StackProps, styled } from '@avalabs/k2-alpine';
+import { FC, Suspense } from 'react';
 
 type Props = Omit<StackProps, 'alignItems'> & OwnProps;
 
@@ -23,8 +24,18 @@ const Root = styled(Stack, {
 export const UserAvatar: FC<Props> = (props) => {
   return (
     <Root {...props} alignItems="center">
-      {/* TODO: Replace with the actual user avatar once we have one */}
-      <img src="/images/__REMOVE_ME_bear.svg" width={88} height={88} />
+      <Suspense
+        fallback={
+          <Skeleton
+            variant="circular"
+            animation="wave"
+            width={80}
+            height={80}
+          />
+        }
+      >
+        <PersonalAvatar cached size="medium" />
+      </Suspense>
     </Root>
   );
 };

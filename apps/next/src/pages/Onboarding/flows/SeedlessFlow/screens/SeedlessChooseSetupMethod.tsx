@@ -4,12 +4,12 @@ import { MdOutlinePassword } from 'react-icons/md';
 import { Divider, EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
@@ -32,15 +32,15 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t(`Add optional recovery methods`)}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           `Add optional recovery methods to securely restore access in case you lose your credentials.`,
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
           <CardMenuItem
             onClick={() => onMethodChosen('passkey')}
@@ -67,12 +67,12 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
             )}
           />
         </CardMenu>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton color="secondary" onClick={() => onMethodChosen('none')}>
           {t('Skip')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

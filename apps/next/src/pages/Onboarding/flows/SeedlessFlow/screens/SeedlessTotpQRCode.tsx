@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Stack, toast, Typography, useTheme } from '@avalabs/k2-alpine';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
-} from '@/components/OnboardingModal';
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { LoadingScreen } from '@/pages/Onboarding/components/LoadingScreen';
 
@@ -30,13 +30,13 @@ export const SeedlessTotpQRCode: FC<SeedlessTotpQRCodeProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>{t(`Scan QR code`)}</OnboardingStepTitle>
-      <OnboardingStepDescription>
+      <FullscreenModalTitle>{t(`Scan QR code`)}</FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           `Install or open your authenticator app to scan the QR code. If you prefer, you can manually copy the code by clicking the link below.`,
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
         {challengeUrl && totpSecret ? (
           <Stack
             gap={4}
@@ -76,12 +76,12 @@ export const SeedlessTotpQRCode: FC<SeedlessTotpQRCodeProps> = ({
         ) : (
           <LoadingScreen />
         )}
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton color="primary" onClick={onNext}>
           {t(`Next`)}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };

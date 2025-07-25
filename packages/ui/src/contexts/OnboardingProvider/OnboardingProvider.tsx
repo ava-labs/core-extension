@@ -1,7 +1,9 @@
 import { WalletType } from '@avalabs/types';
+import { Monitoring, signUpForNewsletter } from '@core/common';
 import type {
   GetIsOnboardedHandler,
   KeystoneOnboardingHandler,
+  KeystoneOnboardingHandlerNew,
   LedgerOnboardingHandler,
   LedgerOnboardingHandlerNew,
   MnemonicOnboardingHandler,
@@ -17,12 +19,12 @@ import {
   PubKeyType,
   SeedlessAuthProvider,
 } from '@core/types';
-import { Monitoring, signUpForNewsletter } from '@core/common';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import {
   createContext,
   Dispatch,
   PropsWithChildren,
+  ReactNode,
   SetStateAction,
   Suspense,
   useCallback,
@@ -33,10 +35,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { concat, filter, from, map } from 'rxjs';
 import browser from 'webextension-polyfill';
+import { isSpecificContextContainer } from '../../utils';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { onboardingUpdatedEventListener } from './listeners';
-import { isSpecificContextContainer } from '../../utils';
 
 const OnboardingContext = createContext<{
   onboardingState: OnboardingState;
@@ -52,8 +54,6 @@ const OnboardingContext = createContext<{
   setPassword: Dispatch<SetStateAction<string>>;
   walletName: string;
   setWalletName: Dispatch<SetStateAction<string>>;
-  avatar: string;
-  setAvatar: Dispatch<SetStateAction<string>>;
   setPasswordAndNames: (password: string, walletName: string) => void;
   submit(postSubmitHandler: () => void): void;
   setPublicKeys: Dispatch<SetStateAction<PubKeyType[] | undefined>>;
@@ -92,7 +92,7 @@ export function OnboardingContextProvider({
   OnboardingScreen,
   onError,
 }: PropsWithChildren<{
-  children: any;
+  children?: ReactNode;
   LoadingComponent: React.FC;
   OnboardingScreen: React.FC;
   onError: (message: string) => void;
@@ -104,8 +104,6 @@ export function OnboardingContextProvider({
   const [nextPhase, setNextPhase] = useState<OnboardingPhase>();
 
   const [mnemonic, setMnemonic] = useState('');
-
-  const [avatar, setAvatar] = useState<string>('');
 
   const [xpub, setXpub] = useState('');
 
@@ -179,6 +177,8 @@ export function OnboardingContextProvider({
     setIsNewsletterEnabled(false);
     setNewsletterEmail('');
     setNumberOfAccountsToCreate(0);
+    setAddressPublicKeys([]);
+    setExtendedPublicKeys([]);
   }, []);
 
   useEffect(() => {
@@ -340,6 +340,33 @@ export function OnboardingContextProvider({
     xpubXP,
   ]);
 
+  const submitKeystoneNew = useCallback(() => {
+    return request<KeystoneOnboardingHandlerNew>({
+      method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT_NEW,
+      params: [
+        {
+          masterFingerprint,
+          addressPublicKeys,
+          extendedPublicKeys,
+          password,
+          analyticsConsent: !!analyticsConsent,
+          walletName: walletName,
+        },
+      ],
+    });
+  }, [
+    analyticsConsent,
+    addressPublicKeys,
+    extendedPublicKeys,
+    masterFingerprint,
+    password,
+    request,
+    walletName,
+  ]);
+
+  /**
+   * @deprecated Try to use submitKeystoneNew() instead
+   */
   const submitKeystone = useCallback(() => {
     return request<KeystoneOnboardingHandler>({
       method: ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
@@ -384,7 +411,8 @@ export function OnboardingContextProvider({
       }
 
       if (!handler && onboardingWalletType === WalletType.Keystone) {
-        handler = submitKeystone;
+        handler =
+          addressPublicKeys.length > 0 ? submitKeystoneNew : submitKeystone;
       }
 
       if (!handler && onboardingWalletType === WalletType.Ledger) {
@@ -444,6 +472,7 @@ export function OnboardingContextProvider({
       resetStates,
       submitInProgress,
       submitKeystone,
+      submitKeystoneNew,
       submitLedger,
       submitMnemonic,
       submitSeedless,
@@ -474,8 +503,6 @@ export function OnboardingContextProvider({
         setMnemonic,
         setXpub,
         setXpubXP,
-        avatar,
-        setAvatar,
         password,
         setPassword,
         walletName,

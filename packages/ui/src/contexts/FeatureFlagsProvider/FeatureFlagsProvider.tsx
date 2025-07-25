@@ -2,7 +2,13 @@ import { DEFAULT_FLAGS } from '@core/common';
 import { GetFeatureFlagsHandler } from '@core/service-worker';
 import { ExtensionRequest, FeatureGates } from '@core/types';
 import { isEqual } from 'lodash';
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from '../ConnectionProvider';
 import { isFeatureFlagsUpdatedEvent } from './isFeatureFlagsUpdatedEvent';
@@ -14,7 +20,7 @@ const FeatureFlagsContext = createContext<{
   isFlagEnabled: () => false,
 } as any);
 
-export function FeatureFlagsContextProvider({ children }: { children: any }) {
+export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
   const { events, request } = useConnectionContext();
   const [featureFlags, setFeatureFlags] =
     useState<Record<FeatureGates, boolean>>(DEFAULT_FLAGS);

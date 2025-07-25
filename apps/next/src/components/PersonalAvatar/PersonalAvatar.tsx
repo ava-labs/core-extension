@@ -5,29 +5,31 @@ import {
   combineSx,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { use } from 'react';
 import { memoize } from 'lodash';
+import { ComponentProps, use } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AVATAR_DICTIONARY, PersonalAvatarName } from './avatar-dictionary';
+import { usePersonalAvatar } from './context';
+
+type OnlyOne<T extends object> = {
+  [K in keyof T]: Pick<T, K> & {
+    [Excluded in Exclude<keyof T, K>]?: never;
+  };
+}[keyof T];
 
 type PersonalAvatarSharedProps = {
   isGlowing?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: ComponentProps<typeof AvatarHex>['size'];
   selected?: boolean;
   dimmed?: boolean;
-};
-
-type PersonalAvatarByNameProps = PersonalAvatarSharedProps & {
+} & OnlyOne<{
+  cached?: true;
   name: PersonalAvatarName;
-};
-
-type PersonalAvatarByDataUriProps = PersonalAvatarSharedProps & {
   dataUri: string;
-};
+}>;
 
-type PersonalAvatarProps = BoxProps &
-  (PersonalAvatarByNameProps | PersonalAvatarByDataUriProps);
+type PersonalAvatarProps = BoxProps & PersonalAvatarSharedProps;
 
 const getAvatarSrc = memoize((src: string): Promise<string> => {
   if (src in AVATAR_DICTIONARY) {
@@ -44,13 +46,17 @@ export const PersonalAvatar = ({
   sx,
   onClick,
   isGlowing,
+  cached,
   ...props
 }: PersonalAvatarProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const src = use(getAvatarSrc('name' in props ? props.name : props.dataUri));
-  const alt = 'name' in props ? props.name : t('your avatar');
+  const { avatar } = usePersonalAvatar();
+  const src = use(
+    getAvatarSrc(cached ? avatar : (props.name ?? props.dataUri ?? avatar)),
+  );
+  const alt = props.name ? props.name : t('your avatar');
 
   return (
     <Box

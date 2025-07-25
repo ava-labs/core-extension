@@ -1,54 +1,7 @@
-import {
-  AvalancheColorIcon,
-  BitcoinColorIcon,
-  SolanaColorIcon,
-} from '@avalabs/k2-alpine';
-import { Account } from '@core/types';
+import { Account, AddressType } from '@core/types';
 import { History } from 'history';
 import curry from 'lodash/curry';
-import memoize from 'lodash/memoize';
-import { ComponentType } from 'react';
-import { IconBaseProps } from 'react-icons';
 import { URL_SEARCH_TOKENS } from '../../utils/searchParams';
-import { FixedXPChainIcon } from './components/AddressSelector/components/Icons';
-
-export type AddressType = keyof {
-  [AK in keyof Account as AK extends `address${infer VM}` ? VM : never]: AK;
-};
-
-type AddressLabelAndIcon = {
-  label: string;
-  Icon: ComponentType<IconBaseProps>;
-};
-
-export const getLabelAndIcon = memoize(
-  (type: AddressType): AddressLabelAndIcon => {
-    switch (type) {
-      case 'C':
-        return {
-          label: 'Avalanche C-Chain / EVM',
-          Icon: AvalancheColorIcon,
-        };
-      case 'AVM':
-        return {
-          label: 'Avalanche X/P-Chain',
-          Icon: FixedXPChainIcon,
-        };
-      case 'BTC':
-        return {
-          label: 'Bitcoin',
-          Icon: BitcoinColorIcon,
-        };
-      case 'SVM':
-        return {
-          label: 'Solana',
-          Icon: SolanaColorIcon,
-        };
-      default:
-        throw new Error(`Unsupported address type: ${type}`);
-    }
-  },
-);
 
 const SUPPORTED_ADDRESSES: string[] = [
   'C',

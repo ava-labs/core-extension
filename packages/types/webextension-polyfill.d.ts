@@ -4,6 +4,9 @@ import '@types/webextension-polyfill';
 // https://github.com/mozilla/webextension-polyfill/issues/424
 
 declare module 'webextension-polyfill' {
+  const sidePanel: typeof chrome.sidePanel;
+  const offscreen: typeof chrome.offscreen;
+
   namespace Storage {
     interface Static {
       session: StorageArea;

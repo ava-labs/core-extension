@@ -1,30 +1,30 @@
-import { useTranslation } from 'react-i18next';
-import { FC, Suspense, useCallback, useEffect, useState } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
+import { FC, Suspense, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useKeyboardShortcuts } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
-  OnboardingStepDescription,
-  OnboardingStepTitle,
+  FullscreenModalActions,
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
   useModalPageControl,
-} from '@/components/OnboardingModal';
+} from '@/components/FullscreenModal';
 import {
   AVATAR_OPTIONS,
-  getAvatarDataUri,
   PersonalAvatar,
+  usePersonalAvatar,
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
-import { AvatarGrid } from './SelectAvatarScreen/components/AvatarGrid';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { NavButton } from '../components/NavButton';
+import { AvatarGrid } from './SelectAvatarScreen/components/AvatarGrid';
 
 type SelectAvatarScreenProps = OnboardingScreenProps & {
-  onNext: (avatarUri: string) => void;
+  onNext: () => void;
 };
 
 export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
@@ -34,7 +34,7 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
 }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
-
+  const { saveAvatar } = usePersonalAvatar();
   const [selectedAvatar, setSelectedAvatar] = useState<PersonalAvatarName>(
     AVATAR_OPTIONS[0],
   );
@@ -47,8 +47,9 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
   const handleNextClick = useCallback(async () => {
     // Save avatar data URI. This way even if we accidentally remove or rename the image
     // in the repo, user won't lose their avatar.
-    onNext(await getAvatarDataUri(selectedAvatar));
-  }, [onNext, selectedAvatar]);
+    await saveAvatar(selectedAvatar);
+    onNext();
+  }, [onNext, selectedAvatar, saveAvatar]);
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: handleNextClick,
@@ -56,15 +57,15 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
 
   return (
     <>
-      <OnboardingStepTitle>
+      <FullscreenModalTitle>
         {t('Select your personal avatar')}
-      </OnboardingStepTitle>
-      <OnboardingStepDescription>
+      </FullscreenModalTitle>
+      <FullscreenModalDescription>
         {t(
           'A few more details are needed before getting any further with your wallet creation',
         )}
-      </OnboardingStepDescription>
-      <OnboardingStepContent
+      </FullscreenModalDescription>
+      <FullscreenModalContent
         sx={{ overflow: 'unset', pt: 0 }}
         {...keyboardHandlers}
       >
@@ -91,12 +92,12 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
             />
           </Suspense>
         </Stack>
-      </OnboardingStepContent>
-      <OnboardingStepActions>
+      </FullscreenModalContent>
+      <FullscreenModalActions>
         <NavButton color="primary" onClick={handleNextClick}>
           {t('Next')}
         </NavButton>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </>
   );
 };
