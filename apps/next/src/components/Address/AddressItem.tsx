@@ -44,7 +44,7 @@ export const AddressItem: FC<Props> = ({
     <ChainListItem
       Icon={Icon}
       label={label}
-      labelVariant="subtitle2"
+      labelVariant="subtitle4"
       subtitle={
         <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography
