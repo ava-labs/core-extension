@@ -1,10 +1,22 @@
-import { Button, Card, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import {
+  Button,
+  Card,
+  Stack,
+  toast,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { FileImage } from './FileImage';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 import { MdErrorOutline } from 'react-icons/md';
 import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
-import { useImportKeystoreFile } from '../hooks/useImportKeystoreFile';
+import {
+  Callbacks,
+  useImportKeystoreFile,
+} from '../hooks/useImportKeystoreFile';
+import { useAnalyticsContext } from '@core/ui';
+import { useHistory } from 'react-router-dom';
 
 type KeystoreFilePasswordProps = {
   file: File;
@@ -15,25 +27,38 @@ export const KeystoreFilePassword = ({
   file,
   onCancel,
 }: KeystoreFilePasswordProps) => {
+  const { capture } = useAnalyticsContext();
+  const { replace } = useHistory();
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { importFile, isImporting } = useImportKeystoreFile();
-
-  const [filePassword, setFilePassword] = useState('');
   const [unlockError, setUnlockError] = useState<string>();
+  const [filePassword, setFilePassword] = useState('');
 
-  const errorHandler = useCallback(() => {
-    setUnlockError(t('Failed to import the keystore file.'));
-  }, [t]);
+  const importCallbacks: Callbacks = {
+    onFailure: () => {
+      capture('KeystoreFileImportFailure');
+      setUnlockError(t('Failed to import the keystore file.'));
+    },
+    onStarted: () => {
+      capture('KeystoreFileImportStarted');
+    },
+    onSuccess: () => {
+      capture('KeystoreFileImportSuccess');
+      toast.success(t('Successfully imported the keystore file.'));
+      replace('/account-management');
+    },
+  };
+
+  const { importFile, isImporting } = useImportKeystoreFile(importCallbacks);
 
   const submit = useCallback(async () => {
     if (!filePassword) {
       setUnlockError(t('Please enter a password'));
       return;
     }
-    importFile(file, filePassword, errorHandler);
-  }, [filePassword, t, file, importFile, errorHandler]);
+    importFile(file, filePassword);
+  }, [filePassword, t, file, importFile]);
 
   return (
     <Stack sx={{ flexGrow: 1, alignItems: 'center' }}>
@@ -75,10 +100,8 @@ export const KeystoreFilePassword = ({
         }}
       >
         <MdErrorOutline size={40} style={{ color: theme.palette.error.main }} />
-        <Typography
-          color="error.main"
-          sx={{ '&.MuiTypography-root': { fontSize: '12px', fontWeight: 500 } }}
-        >
+        <Typography color="error.main" variant="subtitle2">
+          {/* TODO: need to update to subtitle3 when it is ready in k2-alpine */}
           {t(
             'This file requires a password. This password was set when the file was created.',
           )}

@@ -57,18 +57,8 @@ export const ImportKeystoreFile: FC = () => {
         height: '100%',
       }}
     >
-      <Stack sx={{ flexDirection: 'row', mt: 2.5, mb: '25px', pr: 1 }}>
-        <Typography
-          sx={{
-            '&.MuiTypography-root': {
-              fontSize: '27px',
-              fontWeight: 700,
-              fontFamily: 'Aeonik',
-            },
-          }}
-        >
-          {t('Upload keystore file')}
-        </Typography>
+      <Stack direction="row" mt={2.5} mb={3} pr={1}>
+        <Typography variant="h2">{t('Upload keystore file')}</Typography>
       </Stack>
       {step === Step.ChooseFile && (
         <KeystoreFileUpload
@@ -85,10 +75,10 @@ export const ImportKeystoreFile: FC = () => {
         />
       )}
       {step === Step.ProvidePassword && file && (
-        <KeystoreFilePassword file={file} onCancel={() => reset()} />
+        <KeystoreFilePassword file={file} onCancel={reset} />
       )}
       {step === Step.Error && error && (
-        <KeystoreFileError error={error} onTryAgain={() => reset()} />
+        <KeystoreFileError error={error} onTryAgain={reset} />
       )}
     </Stack>
   );

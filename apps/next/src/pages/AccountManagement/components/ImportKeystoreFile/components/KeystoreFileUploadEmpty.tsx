@@ -15,29 +15,10 @@ export const KeystoreFileUploadEmpty = () => {
         }}
       />
       {/*TODO: Replace with new alpine icon*/}
-      <Typography
-        sx={{
-          '&.MuiTypography-root': {
-            fontSize: '12px',
-            fontWeight: 600,
-            lineHeight: '21px',
-            color: 'text.primary',
-          },
-        }}
-      >
+      <Typography variant="body3" fontWeight={600} color="text.primary">
         {t('Drop your file here to upload')}
       </Typography>
-      <Typography
-        sx={{
-          '&.MuiTypography-root': {
-            fontSize: '11px',
-            fontWeight: 400,
-            lineHeight: '14px',
-            color: 'text.secondary',
-            whiteSpace: 'balance',
-          },
-        }}
-      >
+      <Typography variant="caption" color="text.secondary" whiteSpace="balance">
         {t('Only Keystore files from the Avalanche Wallet are supported')}
       </Typography>
     </>
