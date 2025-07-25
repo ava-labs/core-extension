@@ -80,26 +80,28 @@ export const AddContact = () => {
 
   return (
     <Page withBackButton contentProps={contentProps}>
-      <Stack width="100%" gap={3} alignItems="center">
-        {/* TODO: Choose & save the contact's avatar */}
-        <AvatarHex size="large" alt="Contact" />
-        <ContactNameField
-          name={name}
-          setName={setName}
-          isNaming={isNaming}
-          setIsNaming={setIsNaming}
-          autoFocus
-        />
+      <Stack gap={4} width="100%" flexGrow={1}>
+        <Stack width="100%" gap={3} alignItems="center">
+          {/* TODO: Choose & save the contact's avatar */}
+          <AvatarHex size="large" alt="Contact" />
+          <ContactNameField
+            name={name}
+            setName={setName}
+            isNaming={isNaming}
+            setIsNaming={setIsNaming}
+            autoFocus
+          />
+        </Stack>
+        <AddressesCard>
+          <EVMAddressField value={addressC} onChange={setAddressC} />
+          <Divider />
+          <XPAddressField value={addressXP} onChange={setAddressXP} />
+          <Divider />
+          <BTCAddressField value={addressBTC} onChange={setAddressBTC} />
+          <Divider />
+          <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
+        </AddressesCard>
       </Stack>
-      <AddressesCard>
-        <EVMAddressField value={addressC} onChange={setAddressC} />
-        <Divider />
-        <XPAddressField value={addressXP} onChange={setAddressXP} />
-        <Divider />
-        <BTCAddressField value={addressBTC} onChange={setAddressBTC} />
-        <Divider />
-        <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
-      </AddressesCard>
       <Stack width="100%" gap={1}>
         <Button
           variant="contained"
