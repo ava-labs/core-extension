@@ -48,7 +48,7 @@ export const AccountInfo: FC<Props> = ({
       </Stack>
       <Stack direction="row" spacing={0.5} alignItems="center" useFlexGap>
         <Typography variant="body2" color={pnlColor} fontWeight={600}>
-          {isLoss ? '-' : '+'}
+          {isLoss ? '' : '+'}
           {currencyFormatter(priceChange.value)}
         </Typography>
         <Box color={pnlColor}>
