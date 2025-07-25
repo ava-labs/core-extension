@@ -2,8 +2,9 @@ import type { Contact } from '@avalabs/types';
 import { isAddress } from 'ethers';
 import { isBech32Address } from '@avalabs/core-bridge-sdk';
 import { isValidSvmAddress, isValidXPAddress } from './isAddressValid';
+import { PartialBy } from '@core/types';
 
-export const isContactValid = (contact: Contact) => {
+export const isContactValid = (contact: PartialBy<Contact, 'id'>) => {
   if (
     !contact.name ||
     (!contact.address &&

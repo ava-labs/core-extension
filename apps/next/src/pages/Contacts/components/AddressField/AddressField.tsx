@@ -74,9 +74,10 @@ export const AddressField = ({
 
   return (
     <AddressFieldContainer
-      paddingBlock={theme.spacing(!isEditing && value ? 0.25 : 1)}
+      paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      sx={{ height: isEditing || value ? 48 : 36 }}
     >
       <CrossFadeIcon
         size={20}
@@ -133,7 +134,7 @@ const AddressFieldContainer = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
   alignItems: 'center',
   gap: theme.spacing(2),
-  transition: theme.transitions.create('padding-block'),
+  transition: theme.transitions.create(['padding-block', 'height']),
   height: 36,
 }));
 

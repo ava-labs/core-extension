@@ -37,7 +37,7 @@ export const ContactNameField = ({
           value={name}
           autoFocus={autoFocus}
           onBlur={(e) => setIsNaming(e.target.value.trim().length > 0)}
-          onChange={(e) => setName(e.target.value.trim())}
+          onChange={(e) => setName(e.target.value)}
         />
       </Fade>
       <Fade in={!isNaming} mountOnEnter unmountOnExit>

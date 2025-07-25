@@ -7,14 +7,17 @@ import {
   styled,
   toast,
 } from '@avalabs/k2-alpine';
+import { Contact } from '@avalabs/types';
 import { Redirect, useHistory, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
 import { useContactsContext } from '@core/ui';
+import { isContactValid, noop } from '@core/common';
 
 import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
+import { CONTACTS_QUERY_TOKENS, getContactsPath } from '@/config/routes';
 
 import {
   BTCAddressField,
@@ -23,8 +26,6 @@ import {
   XPAddressField,
   ContactNameField,
 } from './components';
-import { CONTACTS_QUERY_TOKENS, getContactsPath } from '@/config/routes';
-import { noop } from '@core/common';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -77,43 +78,34 @@ export const ContactDetails = () => {
     }
   }, [contact, removeContact, t, replace]);
 
-  const onSave = useCallback(async () => {
-    if (!contact) {
-      return;
-    }
+  const save = useCallback(
+    async (payload: Contact) => {
+      setIsSaving(true);
 
-    setIsSaving(true);
-
-    try {
-      await updateContact({
-        ...contact,
-        name,
-        address: addressC,
-        addressXP,
-        addressBTC,
-        addressSVM,
-      });
-      toast.success(t('Contact updated'));
-    } catch (error) {
-      console.error(error);
-      toast.error(t('Failed to save contact'));
-    } finally {
-      setIsSaving(false);
-    }
-  }, [
-    contact,
-    name,
-    updateContact,
-    addressC,
-    addressXP,
-    addressBTC,
-    addressSVM,
-    t,
-  ]);
+      try {
+        await updateContact(payload);
+        toast.success(t('Contact updated'));
+      } catch (error) {
+        console.error(error);
+        toast.error(t('Failed to save contact'));
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [updateContact, t],
+  );
 
   if (!contact) {
     return <Redirect to={getContactsPath('list')} />;
   }
+
+  const { valid: isValid } = isContactValid({
+    name,
+    address: addressC,
+    addressXP,
+    addressBTC,
+    addressSVM,
+  });
 
   return (
     <Page withBackButton contentProps={contentProps}>
@@ -153,9 +145,18 @@ export const ContactDetails = () => {
               color="primary"
               size="small"
               fullWidth
-              disabled={isSaving}
+              disabled={isSaving || !isValid}
               loading={isSaving}
-              onClick={onSave}
+              onClick={() =>
+                save({
+                  id: contact.id,
+                  name,
+                  address: addressC,
+                  addressXP,
+                  addressBTC,
+                  addressSVM,
+                })
+              }
             >
               {t('Save')}
             </Button>

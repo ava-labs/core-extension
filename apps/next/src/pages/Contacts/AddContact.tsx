@@ -7,14 +7,17 @@ import {
   styled,
   toast,
 } from '@avalabs/k2-alpine';
+import { Contact } from '@avalabs/types';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
+import { isContactValid } from '@core/common';
 import { useContactsContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
+import { getContactsPath } from '@/config/routes';
 
 import {
   BTCAddressField,
@@ -23,7 +26,6 @@ import {
   XPAddressField,
   ContactNameField,
 } from './components';
-import { getContactsPath } from '@/config/routes';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -47,36 +49,34 @@ export const AddContact = () => {
   const [addressBTC, setAddressBTC] = useState('');
   const [addressSVM, setAddressSVM] = useState('');
 
-  const onSave = useCallback(async () => {
-    setIsSaving(true);
-    try {
-      const id = crypto.randomUUID();
-      await createContact({
-        name,
-        id,
-        address: addressC,
-        addressXP,
-        addressBTC,
-        addressSVM,
-      });
-      toast.success(t('Contact created'));
-      replace(getContactsPath('details', { id }));
-    } catch (error) {
-      console.error(error);
-      toast.error(t('Failed to save contact'));
-    } finally {
-      setIsSaving(false);
-    }
-  }, [
-    createContact,
+  const saveContact = useCallback(
+    async (payload: Omit<Contact, 'id'>) => {
+      setIsSaving(true);
+      try {
+        const id = crypto.randomUUID();
+        await createContact({
+          id,
+          ...payload,
+        });
+        toast.success(t('Contact created'));
+        replace(getContactsPath('details', { id }));
+      } catch (error) {
+        console.error(error);
+        toast.error(t('Failed to save contact'));
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [createContact, t, replace],
+  );
+
+  const { valid: isValid } = isContactValid({
     name,
-    addressC,
+    address: addressC,
     addressXP,
     addressBTC,
     addressSVM,
-    t,
-    replace,
-  ]);
+  });
 
   return (
     <Page withBackButton contentProps={contentProps}>
@@ -106,9 +106,17 @@ export const AddContact = () => {
           color="primary"
           size="small"
           fullWidth
-          disabled={isSaving}
+          disabled={isSaving || !isValid}
           loading={isSaving}
-          onClick={onSave}
+          onClick={() =>
+            saveContact({
+              name,
+              address: addressC,
+              addressXP,
+              addressBTC,
+              addressSVM,
+            })
+          }
         >
           {t('Save')}
         </Button>
