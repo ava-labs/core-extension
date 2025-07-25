@@ -26,6 +26,7 @@ import { Wallets } from './components/Wallets';
 import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
 import { StackRow } from '@/components/StackRow';
 import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
+import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -87,6 +88,10 @@ const AccountManagement: FC = () => {
                     <Route
                       path="/account-management/import-private-key"
                       component={ImportPrivateKey}
+                    />
+                    <Route
+                      path="/account-management/import-keystore-file"
+                      component={ImportKeystoreFile}
                     />
                     <Route
                       path="/account-management/account"
