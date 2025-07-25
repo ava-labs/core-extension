@@ -6,6 +6,7 @@ import {
   Dispatch,
   SetStateAction,
   useRef,
+  useCallback,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +14,7 @@ import { FileImage } from './FileImage';
 import { useKeystoreFileImport } from '@core/ui/src/hooks/useKeystoreFileImport';
 import { KeystoreError } from '@core/types';
 import { KeystoreFileUploadEmpty } from './KeystoreFileUploadEmpty';
+import { useAnalyticsContext } from '@core/ui/src/contexts/AnalyticsProvider';
 
 type KeystoreFileUploadProps = {
   file: File | null;
@@ -29,39 +31,38 @@ export const KeystoreFileUpload = ({
 }: KeystoreFileUploadProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { isValidKeystoreFile } = useKeystoreFileImport();
 
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 
+  const checkFileAndSet = useCallback(
+    async (newFile?: File | null) => {
+      if (newFile && (await isValidKeystoreFile(newFile))) {
+        setFile(newFile);
+      } else {
+        setFile(null);
+        onError(KeystoreError.InvalidVersion);
+        capture('KeystoreFileUnsupported');
+      }
+    },
+    [capture, isValidKeystoreFile, onError, setFile],
+  );
+
   const handleFileUploaded = async (ev: ChangeEvent<HTMLInputElement>) => {
     const newFile = ev.target.files?.[0];
-
-    if (newFile && (await isValidKeystoreFile(newFile))) {
-      setFile(newFile);
-    } else {
-      setFile(null);
-      onError(KeystoreError.InvalidVersion);
-    }
+    checkFileAndSet(newFile);
   };
 
   const handleFileDropped = async (ev: DragEvent<HTMLDivElement>) => {
     ev.preventDefault();
     setIsDraggingOver(false);
     const item = ev.dataTransfer.items[0];
-    if (!item) {
-      onError(KeystoreError.InvalidVersion);
-      setFile(null);
-      return;
-    }
-    const rawFile = item.getAsFile();
-    if (rawFile && (await isValidKeystoreFile(rawFile))) {
-      setFile(rawFile);
-    } else {
-      onError(KeystoreError.InvalidVersion);
-      setFile(null);
-    }
+    const rawFile = item?.getAsFile();
+    checkFileAndSet(rawFile);
   };
 
   return (

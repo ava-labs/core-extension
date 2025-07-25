@@ -2,7 +2,6 @@ import { FC, useCallback, useState } from 'react';
 import { Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { KeystoreError } from '@core/types';
-import { useAnalyticsContext, useKeystoreFileImport } from '@core/ui';
 import { KeystoreFileUpload } from './components/KeystoreFileUpload';
 import { KeystoreFilePassword } from './components/KeystoreFilePassword';
 import { KeystoreFileError } from './components/KeystoreFileError';
@@ -16,12 +15,10 @@ enum Step {
 
 export const ImportKeystoreFile: FC = () => {
   const { t } = useTranslation();
-  const { capture } = useAnalyticsContext();
 
   const [step, setStep] = useState(Step.ChooseFile);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<KeystoreError | null>(null);
-  const { isValidKeystoreFile } = useKeystoreFileImport();
 
   const reset = useCallback(() => {
     setError(null);
@@ -29,26 +26,15 @@ export const ImportKeystoreFile: FC = () => {
     setStep(Step.ChooseFile);
   }, []);
 
-  const onFileSelected = useCallback(
-    async (rawFile: File | null) => {
-      if (!rawFile) {
-        setError(KeystoreError.InvalidVersion);
-        setStep(Step.Error);
-        return;
-      }
+  const onNextForUpload = useCallback(async () => {
+    if (!file) {
+      setError(KeystoreError.InvalidVersion);
+      setStep(Step.Error);
+      return;
+    }
 
-      setFile(rawFile);
-
-      if (await isValidKeystoreFile(rawFile)) {
-        setStep(Step.ProvidePassword);
-      } else {
-        capture('KeystoreFileUnsupported');
-        setError(KeystoreError.InvalidVersion);
-        setStep(Step.Error);
-      }
-    },
-    [capture, isValidKeystoreFile],
-  );
+    setStep(Step.ProvidePassword);
+  }, [file]);
 
   return (
     <Stack
@@ -64,9 +50,7 @@ export const ImportKeystoreFile: FC = () => {
         <KeystoreFileUpload
           file={file}
           setFile={setFile}
-          onSubmit={async (newFile) => {
-            await onFileSelected(newFile);
-          }}
+          onSubmit={onNextForUpload}
           onError={(newError) => {
             setError(newError);
             setStep(Step.Error);
