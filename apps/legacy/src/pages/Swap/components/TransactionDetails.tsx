@@ -15,6 +15,7 @@ import {
 } from '@avalabs/core-k2-components';
 import {
   isJupiterQuote,
+  isMarkrQuote,
   isParaswapQuote,
   JUPITER_PARTNER_FEE_BPS,
   PARASWAP_PARTNER_FEE_BPS,
@@ -28,9 +29,13 @@ import {
   MIN_SLIPPAGE,
 } from '../utils';
 import { FeatureGates } from '@core/types';
+import { NormalizedSwapQuoteResult } from '@core/ui/src/contexts/SwapProvider/types';
+import { SwappableToken } from '../models';
+import { SwapProviders } from './SwapProviders';
 
 interface TransactionDetailsProps {
   fromTokenSymbol: string;
+  toToken: SwappableToken;
   toTokenSymbol: string;
   rate: number;
   slippage: string;
@@ -38,6 +43,10 @@ interface TransactionDetailsProps {
   setIsOpen?: (isOpen: boolean) => void;
   isTransactionDetailsOpen?: boolean;
   quote: SwapQuote | null;
+  quotes: NormalizedSwapQuoteResult | null;
+  setQuotes: (quotes: NormalizedSwapQuoteResult | null) => void;
+  manuallySelected: boolean;
+  setManuallySelected: (manuallySelected: boolean) => void;
 }
 
 const Container = styled('div')`
@@ -62,6 +71,7 @@ const DetailsRow = styled(Stack)`
 
 export function TransactionDetails({
   fromTokenSymbol,
+  toToken,
   toTokenSymbol,
   rate,
   slippage,
@@ -69,8 +79,13 @@ export function TransactionDetails({
   setIsOpen,
   isTransactionDetailsOpen,
   quote,
+  quotes,
+  setQuotes,
+  manuallySelected,
+  setManuallySelected,
 }: TransactionDetailsProps) {
   const { t } = useTranslation();
+
   const { network } = useNetworkContext();
   const { isFlagEnabled } = useFeatureFlagContext();
   const [isDetailsOpen, setIsDetailsOpen] = useState(
@@ -115,7 +130,10 @@ export function TransactionDetails({
   }, [isFlagEnabled, network]);
 
   const showFeesAndSlippage = useMemo(() => {
-    return quote && (isJupiterQuote(quote) || isParaswapQuote(quote));
+    return (
+      quote &&
+      (isJupiterQuote(quote) || isParaswapQuote(quote) || isMarkrQuote(quote))
+    );
   }, [quote]);
 
   return (
@@ -162,6 +180,14 @@ export function TransactionDetails({
               1 {fromTokenSymbol} ≈ {rate?.toFixed(4)} {toTokenSymbol}
             </Typography>
           </DetailsRow>
+          <SwapProviders
+            quote={quote}
+            quotes={quotes}
+            setQuotes={setQuotes}
+            toToken={toToken}
+            manuallySelected={manuallySelected}
+            setManuallySelected={setManuallySelected}
+          />
           {showFeesAndSlippage && (
             <>
               <Stack>

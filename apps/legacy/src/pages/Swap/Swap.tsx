@@ -95,7 +95,11 @@ export function Swap() {
     swapWarning,
     isReversed,
     toTokenValue,
-    quote,
+    quotes,
+    setQuotes,
+    manuallySelected,
+    setManuallySelected,
+    srcAmount,
     destAmount,
     resetValues,
     slippageTolerance,
@@ -111,6 +115,8 @@ export function Swap() {
       ),
     [targetTokens, selectedFromToken?.name, selectedFromToken?.symbol],
   );
+
+  const quote = useMemo(() => quotes?.selected?.quote ?? null, [quotes]);
 
   const isFromTokenKnown = useMemo(
     () =>
@@ -152,15 +158,17 @@ export function Swap() {
 
   const fromAmount = useMemo(() => {
     const result =
-      destinationInputField === 'from' ? BigInt(destAmount) : defaultFromValue;
+      destinationInputField === 'from'
+        ? BigInt(srcAmount || '0')
+        : defaultFromValue;
 
     return result;
-  }, [defaultFromValue, destAmount, destinationInputField]);
+  }, [srcAmount, defaultFromValue, destinationInputField]);
 
   const toAmount = useMemo(() => {
     const result =
       destinationInputField === 'to'
-        ? BigInt(destAmount)
+        ? BigInt(destAmount || '0')
         : toTokenValue?.bigint;
 
     return result;
@@ -184,14 +192,25 @@ export function Swap() {
       toTokenDecimals,
       fromTokenDecimals,
     } = getSwapValues();
+    if (!amount) {
+      return;
+    }
+
+    const amountIn =
+      destinationInputField === 'from' ? srcAmount : amount.toString();
+    const amountOut =
+      destinationInputField === 'to' ? destAmount : amount.toString();
+
     if (
       !networkFee ||
       !toTokenDecimals ||
       !toTokenAddress ||
       !fromTokenAddress ||
       !fromTokenDecimals ||
-      !amount ||
-      !quote
+      !quotes ||
+      !quote ||
+      !amountIn ||
+      !amountOut
     ) {
       return;
     }
@@ -208,6 +227,9 @@ export function Swap() {
         destDecimals: toTokenDecimals,
         quote,
         slippage: parseFloat(slippage),
+        swapProvider: quotes.provider,
+        amountIn,
+        amountOut,
       }),
     );
 
@@ -424,7 +446,12 @@ export function Swap() {
           {isDetailsAvailable && (
             <TransactionDetails
               quote={quote}
+              quotes={quotes}
+              setQuotes={setQuotes}
+              manuallySelected={manuallySelected}
+              setManuallySelected={setManuallySelected}
               fromTokenSymbol={selectedFromToken?.symbol}
+              toToken={selectedToToken}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(quote, {
                 srcDecimals: selectedFromToken?.decimals,
