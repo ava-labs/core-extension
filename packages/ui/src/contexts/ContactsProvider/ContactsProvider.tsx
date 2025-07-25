@@ -9,6 +9,7 @@ import {
 } from '@core/service-worker';
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -19,6 +20,7 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { contactsUpdatedEventListener } from './contactsEventFilters';
 
 type ContactsFromProvider = ContactsState & {
+  isLoading: boolean;
   createContact(contact: Contact): Promise<any>;
   removeContact(contact: Contact): Promise<any>;
   updateContact(contact: Contact): Promise<any>;
@@ -28,22 +30,26 @@ type ContactsFromProvider = ContactsState & {
 
 const ContactsContext = createContext<ContactsFromProvider>({} as any);
 
-export function ContactsContextProvider({ children }: { children: any }) {
+export function ContactsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [contacts, setContacts] = useState<ContactsState>({
     contacts: [],
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-    request<GetContactsHandler>({ method: ExtensionRequest.CONTACTS_GET }).then(
-      (res) => {
+    setIsLoading(true);
+    request<GetContactsHandler>({ method: ExtensionRequest.CONTACTS_GET })
+      .then((res) => {
         if (!isMounted) {
           return;
         }
         setContacts(res);
-      },
-    );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
 
     const subscription = events()
       .pipe(
@@ -59,14 +65,17 @@ export function ContactsContextProvider({ children }: { children: any }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getContactById = (contactId: string) => {
-    return contacts.contacts.filter((c) => c.id === contactId)[0];
-  };
+  const getContactById = useCallback(
+    (contactId: string) => {
+      return contacts.contacts.filter((c) => c.id === contactId)[0];
+    },
+    [contacts.contacts],
+  );
 
   async function createContact(contact: Contact) {
     const contactCopy = {
       ...contact,
-      id: crypto.randomUUID(),
+      id: contact.id || crypto.randomUUID(),
     };
     await request<CreateContactHandler>({
       method: ExtensionRequest.CONTACTS_CREATE,
@@ -102,6 +111,7 @@ export function ContactsContextProvider({ children }: { children: any }) {
     <ContactsContext.Provider
       value={{
         ...contacts,
+        isLoading,
         createContact,
         removeContact,
         updateContact,
