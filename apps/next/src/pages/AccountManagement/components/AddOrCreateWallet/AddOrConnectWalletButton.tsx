@@ -18,7 +18,7 @@ export const AddOrConnectWalletButton: FC = () => {
       <Button
         variant="contained"
         color="primary"
-        size="small"
+        size="extension"
         fullWidth
         onClick={() => push('/account-management/add-wallet')}
       >

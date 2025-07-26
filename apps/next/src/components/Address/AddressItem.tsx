@@ -44,7 +44,7 @@ export const AddressItem: FC<Props> = ({
     <ChainListItem
       Icon={Icon}
       label={label}
-      labelVariant="subtitle2"
+      labelVariant="subtitle4"
       subtitle={
         <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography
@@ -60,7 +60,7 @@ export const AddressItem: FC<Props> = ({
         <CopyActionButton
           variant="contained"
           color="secondary"
-          size="small"
+          size="xsmall"
           onClick={() => {
             navigator.clipboard.writeText(address);
             toast.success(t('Address copied!'), {

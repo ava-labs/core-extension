@@ -98,7 +98,7 @@ export const ConfirmSeedphraseScreen: FC<ConfirmSeedphraseScreenProps> = ({
                         ? 'primary'
                         : 'secondary'
                     }
-                    size="small"
+                    size="extension"
                     onClick={() => {
                       setSelectedOptions((prev) => {
                         const newOptions = [...prev];
