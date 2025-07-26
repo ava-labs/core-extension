@@ -27,8 +27,10 @@ export class ContactsService {
   }
 
   async addContact(contact: Contact) {
-    if (!isContactValid(contact).valid) {
-      return;
+    const { valid, reason } = isContactValid(contact);
+
+    if (!valid) {
+      throw new Error(reason);
     }
 
     const contacts = await this.getContacts();
@@ -43,8 +45,10 @@ export class ContactsService {
   }
 
   async updateContact(contact: Contact) {
-    if (!isContactValid(contact).valid) {
-      return;
+    const { valid, reason } = isContactValid(contact);
+
+    if (!valid) {
+      throw new Error(reason);
     }
 
     const contacts = await this.getContacts();

@@ -25,5 +25,5 @@ export const useIsIntersecting = () => {
     };
   }, [checkIntersection, element]);
 
-  return { ref: setElement, isIntersecting };
+  return { ref: setElement, isIntersecting, isObserving: !!element };
 };
