@@ -1,11 +1,11 @@
 import { Select } from '@/components/Select';
+import { LessRoundedPasswordField } from '@/components/StandaloneField';
 import { Button, MenuItem, Stack, Typography } from '@avalabs/k2-alpine';
 import { Account, AccountType, PrivateKeyChain, SecretType } from '@core/types';
 import { useKeyboardShortcuts } from '@core/ui';
 import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRevealKey } from '../hooks/useRevealKey';
-import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
 
 type Props = {
   account: Extract<
