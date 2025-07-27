@@ -227,7 +227,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
       value={
         {
           ...settings,
-          nextGenTheme: 'system', // TODO: fix this
+          nextGenTheme: 'light', // TODO: fix this
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
