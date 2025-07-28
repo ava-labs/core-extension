@@ -61,12 +61,18 @@ export function AddToken() {
         address: addressInput,
       });
       history.goBack();
-    } catch (_err) {
+    } catch (_err: unknown) {
       capture('ManageTokensAddCustomToken', {
         status: 'failed',
         address: addressInput,
       });
-      toast.error(t('Failed.'), { duration: 2000 });
+      if (typeof _err === 'string' && _err.includes('already exists')) {
+        toast.error(t('Token already exists in the wallet.'), {
+          duration: 2000,
+        });
+        return;
+      }
+      toast.error(t('Adding the token failed.'), { duration: 2000 });
     }
   };
 
