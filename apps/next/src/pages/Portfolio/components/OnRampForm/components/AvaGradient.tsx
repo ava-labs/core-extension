@@ -18,15 +18,30 @@ const Image = styled('div')(({ theme }) => ({
   backgroundSize: 'auto',
   backgroundPosition: 'bottom right',
   backgroundRepeat: 'no-repeat',
-  overflow: 'hidden',
+  isolation: 'isolate',
 
-  '&:hover::before': {
+  '&::before': {
     content: '""',
+    opacity: 0,
     background: 'inherit',
     position: 'absolute',
     inset: 0,
     mask: `radial-gradient(circle var(--spot-size) at var(--x) var(--y), var(--spot-color) 0%, var(--spot-color) 30%, transparent 100%)`,
     mixBlendMode: isLightTheme(theme) ? 'difference' : 'plus-lighter',
+    transition: theme.transitions.create(['opacity'], {
+      duration: 2000,
+    }),
+  },
+
+  '&:hover::before': {
+    opacity: 1,
+    transitionDuration: `${theme.transitions.duration.short}ms`,
+  },
+
+  '&:after': {
+    content: '""',
+    position: 'absolute',
+    inset: theme.spacing(-1.5),
   },
 }));
 
