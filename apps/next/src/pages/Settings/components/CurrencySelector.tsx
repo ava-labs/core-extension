@@ -6,6 +6,7 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { currencies } from '@core/types';
+import { useAnalyticsContext } from '@core/ui/src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@core/ui/src/contexts/SettingsProvider';
 import { useTranslation } from 'react-i18next';
 import { runtime } from 'webextension-polyfill';
@@ -13,6 +14,7 @@ import { runtime } from 'webextension-polyfill';
 export const CurrencySelector = () => {
   const { updateCurrencySetting, currency } = useSettingsContext();
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   return (
     // this needs to be replaced with SelectCountry when it is ready in k2-alpine
@@ -59,12 +61,18 @@ export const CurrencySelector = () => {
         const newValue = e.target.value;
         const found = currencies.find((c) => c.symbol === newValue);
         if (found) {
-          updateCurrencySetting(found.symbol);
+          const symbol = found.symbol;
+          updateCurrencySetting(symbol);
+          capture('CurrencySettingChanged', { currency: symbol });
         }
       }}
     >
       {currencies.map((c) => (
-        <MenuItem key={c.symbol} value={c.symbol}>
+        <MenuItem
+          key={c.symbol}
+          value={c.symbol}
+          style={{ minHeight: 'unset' }}
+        >
           {`${c.label} (${c.symbol})`}
         </MenuItem>
       ))}
