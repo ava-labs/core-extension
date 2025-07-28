@@ -8,14 +8,15 @@ import {
 } from '@avalabs/k2-alpine';
 import { FileImage } from './FileImage';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { MdErrorOutline } from 'react-icons/md';
 import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
+
 import {
-  Callbacks,
-  useImportKeystoreFile,
-} from '../hooks/useImportKeystoreFile';
-import { useAnalyticsContext } from '@core/ui';
+  KeystoreFileImportCallbacks,
+  useAnalyticsContext,
+  useKeystoreFileImport,
+} from '@core/ui';
 import { useHistory } from 'react-router-dom';
 
 type KeystoreFilePasswordProps = {
@@ -35,30 +36,34 @@ export const KeystoreFilePassword = ({
   const [unlockError, setUnlockError] = useState<string>();
   const [filePassword, setFilePassword] = useState('');
 
-  const importCallbacks: Callbacks = {
-    onFailure: () => {
-      capture('KeystoreFileImportFailure');
-      setUnlockError(t('Failed to import the keystore file.'));
-    },
-    onStarted: () => {
-      capture('KeystoreFileImportStarted');
-    },
-    onSuccess: () => {
-      capture('KeystoreFileImportSuccess');
-      toast.success(t('Successfully imported the keystore file.'));
-      replace('/account-management');
-    },
-  };
+  const importCallbacks: KeystoreFileImportCallbacks = useMemo(
+    () => ({
+      onFailure: () => {
+        capture('KeystoreFileImportFailure');
+        setUnlockError(t('Failed to import the keystore file.'));
+      },
+      onStarted: () => {
+        capture('KeystoreFileImportStarted');
+      },
+      onSuccess: () => {
+        capture('KeystoreFileImportSuccess');
+        toast.success(t('Successfully imported the keystore file.'));
+        replace('/account-management');
+      },
+    }),
+    [capture, replace, t],
+  );
 
-  const { importFile, isImporting } = useImportKeystoreFile(importCallbacks);
+  const { importKeystoreFile, isImporting } =
+    useKeystoreFileImport(importCallbacks);
 
   const submit = useCallback(async () => {
     if (!filePassword) {
       setUnlockError(t('Please enter a password'));
       return;
     }
-    importFile(file, filePassword);
-  }, [filePassword, t, file, importFile]);
+    importKeystoreFile(file, filePassword);
+  }, [filePassword, t, file, importKeystoreFile]);
 
   return (
     <Stack sx={{ flexGrow: 1, alignItems: 'center' }}>

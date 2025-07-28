@@ -56,7 +56,21 @@ export function AddWalletWithKeystoreFile() {
     isImporting,
     isReading,
     isValidKeystoreFile,
-  } = useKeystoreFileImport();
+  } = useKeystoreFileImport({
+    onStarted: () => {
+      capture('KeystoreFileImportStarted');
+    },
+    onSuccess: () => {
+      capture('KeystoreFileImportSuccess');
+      toast.success(t('Successfully imported the keystore file.'));
+      history.replace('/accounts');
+    },
+    onFailure: (err: any) => {
+      capture('KeystoreFileImportFailure');
+      setError(err);
+      setStep(Step.Error);
+    },
+  });
 
   const { title: errorMessage } = getTranslatedError(error);
 

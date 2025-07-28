@@ -35,7 +35,7 @@ export const KeystoreFileUpload = ({
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { isValidKeystoreFile } = useKeystoreFileImport();
+  const { isValidKeystoreFile } = useKeystoreFileImport({});
 
   const [isDraggingOver, setIsDraggingOver] = useState(false);
 

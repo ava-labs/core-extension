@@ -6,34 +6,29 @@ import { KeystoreFileUpload } from './components/KeystoreFileUpload';
 import { KeystoreFilePassword } from './components/KeystoreFilePassword';
 import { KeystoreFileError } from './components/KeystoreFileError';
 
-enum Step {
-  ChooseFile,
-  ProvidePassword,
-  ConfirmData,
-  Error,
-}
+type Step = 'ChooseFile' | 'ProvidePassword' | 'ConfirmData' | 'Error';
 
 export const ImportKeystoreFile: FC = () => {
   const { t } = useTranslation();
 
-  const [step, setStep] = useState(Step.ChooseFile);
+  const [step, setStep] = useState<Step>('ChooseFile');
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<KeystoreError | null>(null);
 
   const reset = useCallback(() => {
     setError(null);
     setFile(null);
-    setStep(Step.ChooseFile);
+    setStep('ChooseFile');
   }, []);
 
   const onNextForUpload = useCallback(async () => {
     if (!file) {
       setError(KeystoreError.InvalidVersion);
-      setStep(Step.Error);
+      setStep('Error');
       return;
     }
 
-    setStep(Step.ProvidePassword);
+    setStep('ProvidePassword');
   }, [file]);
 
   return (
@@ -46,22 +41,22 @@ export const ImportKeystoreFile: FC = () => {
       <Stack direction="row" mt={2.5} mb={3} pr={1}>
         <Typography variant="h2">{t('Upload keystore file')}</Typography>
       </Stack>
-      {step === Step.ChooseFile && (
+      {step === 'ChooseFile' && (
         <KeystoreFileUpload
           file={file}
           setFile={setFile}
           onSubmit={onNextForUpload}
           onError={(newError) => {
             setError(newError);
-            setStep(Step.Error);
+            setStep('Error');
             setFile(null);
           }}
         />
       )}
-      {step === Step.ProvidePassword && file && (
+      {step === 'ProvidePassword' && file && (
         <KeystoreFilePassword file={file} onCancel={reset} />
       )}
-      {step === Step.Error && error && (
+      {step === 'Error' && error && (
         <KeystoreFileError error={error} onTryAgain={reset} />
       )}
     </Stack>
