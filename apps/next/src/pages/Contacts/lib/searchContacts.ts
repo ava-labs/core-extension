@@ -6,7 +6,7 @@ const QUERYABLE_FIELDS = [
   'addressXP',
   'addressBTC',
   'addressSVM',
-] as const;
+] as const satisfies (keyof Contact)[];
 
 export const searchContacts = (contacts: Contact[], query: string) => {
   return contacts.filter((contact) =>

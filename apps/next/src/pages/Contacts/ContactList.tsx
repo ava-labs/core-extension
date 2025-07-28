@@ -6,8 +6,9 @@ import {
   styled,
   Typography,
 } from '@avalabs/k2-alpine';
+import debounce from 'lodash.debounce';
 import { Contact } from '@avalabs/types';
-import { useCallback, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -48,8 +49,11 @@ export const ContactList = () => {
 };
 
 type SortMode = 'asc' | 'desc';
+type ListProps = {
+  contacts: Contact[];
+};
 
-const List = ({ contacts }: { contacts: Contact[] }) => {
+const List: FC<ListProps> = ({ contacts }) => {
   const { t } = useTranslation();
   const { search } = useLocation();
   const { push, replace } = useHistory();
@@ -75,20 +79,24 @@ const List = ({ contacts }: { contacts: Contact[] }) => {
     [sortedContacts, query],
   );
 
-  const updateQueryParam = useCallback(
-    (
-      current: URLSearchParams,
-      key: keyof ContactQueryTokens,
-      value: string,
-    ) => {
-      const updated = new URLSearchParams(current);
-      updated.set(CONTACTS_QUERY_TOKENS[key], value);
+  const updateQueryParam = useMemo(
+    () =>
+      debounce(
+        (
+          current: URLSearchParams,
+          key: keyof ContactQueryTokens,
+          value: string,
+        ) => {
+          const updated = new URLSearchParams(current);
+          updated.set(CONTACTS_QUERY_TOKENS[key], value);
 
-      replace({
-        pathname: getContactsPath('list'),
-        search: updated.toString(),
-      });
-    },
+          replace({
+            pathname: getContactsPath('list'),
+            search: updated.toString(),
+          });
+        },
+        250,
+      ),
     [replace],
   );
 
