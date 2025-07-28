@@ -106,7 +106,7 @@ const List: FC<ListProps> = ({ contacts }) => {
         autoFocus
         placeholder={t('Search')}
         size="small"
-        value={query}
+        defaultValue={query}
         onChange={(e) =>
           updateQueryParam(searchParams, 'search', e.target.value.trim())
         }
