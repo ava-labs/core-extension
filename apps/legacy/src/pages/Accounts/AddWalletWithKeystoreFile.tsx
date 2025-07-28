@@ -126,29 +126,8 @@ export function AddWalletWithKeystoreFile() {
       return;
     }
 
-    try {
-      capture('KeystoreFileImportStarted');
-      await importKeystoreFile(file, filePassword);
-      capture('KeystoreFileImportSuccess');
-
-      toast.success(t('Successfully imported the keystore file.'));
-
-      history.replace('/accounts');
-    } catch (err: any) {
-      capture('KeystoreFileImportFailure');
-      setError(err);
-      setStep(Step.Error);
-    }
-  }, [
-    capture,
-    file,
-    filePassword,
-    history,
-    importKeystoreFile,
-    isImporting,
-    isReading,
-    t,
-  ]);
+    await importKeystoreFile(file, filePassword);
+  }, [file, filePassword, importKeystoreFile, isImporting, isReading]);
 
   const readKeystoreFile = useCallback(async () => {
     if (!file || isReading || isImporting) {
