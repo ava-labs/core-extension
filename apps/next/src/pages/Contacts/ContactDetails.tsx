@@ -36,12 +36,12 @@ const contentProps: StackProps = {
 
 export const ContactDetails = () => {
   const { t } = useTranslation();
-  const { goBack, replace } = useHistory();
+  const { goBack, push } = useHistory();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const id = searchParams.get(CONTACTS_QUERY_TOKENS.id);
 
-  const { getContactById, updateContact, removeContact } = useContactsContext();
+  const { getContactById, updateContact } = useContactsContext();
 
   const contact = id ? getContactById(id) : undefined;
 
@@ -59,24 +59,6 @@ export const ContactDetails = () => {
     addressXP !== contact?.addressXP ||
     addressBTC !== contact?.addressBTC ||
     addressSVM !== contact?.addressSVM;
-
-  const onDelete = useCallback(async () => {
-    if (!contact) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      await removeContact(contact);
-      toast.success(t('Contact deleted'));
-      replace(getContactsPath('list'));
-    } catch (error) {
-      console.error(error);
-      toast.error(t('Failed to delete contact'));
-    } finally {
-      setIsSaving(false);
-    }
-  }, [contact, removeContact, t, replace]);
 
   const save = useCallback(
     async (payload: Contact) => {
@@ -180,7 +162,7 @@ export const ContactDetails = () => {
             fullWidth
             disabled={isSaving}
             loading={isSaving}
-            onClick={onDelete}
+            onClick={() => push(getContactsPath('remove', { id: contact.id }))}
           >
             {t('Delete')}
           </Button>
