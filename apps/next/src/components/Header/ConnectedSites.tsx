@@ -2,12 +2,19 @@ import {
   Button,
   Divider,
   getHexAlpha,
+  IconButton,
   Popover,
   Stack,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { StackRow } from '../StackRow';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { getAllAddressesForAccount } from '@core/common';
+import { Account } from '@core/types';
+import { usePermissionContext } from '@core/ui';
+import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   MdCheckCircle,
   MdChevronRight,
@@ -15,13 +22,7 @@ import {
   MdOutlineRemoveModerator,
   MdOutlineUnpublished,
 } from 'react-icons/md';
-import { usePermissionContext } from '@core/ui';
-import { getAllAddressesForAccount } from '@core/common';
-import { Account } from '@core/types';
-import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { StackRow } from '../StackRow';
 
 interface ConnectedSitesProps {
   activeAccount?: Account;
@@ -93,24 +94,16 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
   const isDomainMalicious = false;
 
   return (
-    <Stack sx={{ cursor: 'pointer' }}>
-      {isConnected && !isDomainMalicious && (
-        <MdCheckCircle
-          size={24}
-          color={theme.palette.success.main}
-          onClick={handleConnectedSitesClick}
-        />
-      )}
-      {!isConnected && (
-        <MdOutlineUnpublished size={24} onClick={handleConnectedSitesClick} />
-      )}
-      {isConnected && isDomainMalicious && (
-        <MdError
-          size={24}
-          color={theme.palette.error.main}
-          onClick={handleConnectedSitesClick}
-        />
-      )}
+    <Stack>
+      <IconButton size="small" onClick={handleConnectedSitesClick}>
+        {isConnected && !isDomainMalicious && (
+          <MdCheckCircle size={24} color={theme.palette.success.main} />
+        )}
+        {!isConnected && <MdOutlineUnpublished size={24} />}
+        {isConnected && isDomainMalicious && (
+          <MdError size={24} color={theme.palette.error.main} />
+        )}
+      </IconButton>
       <Popover
         open={connectedSitesPopoverOpen}
         anchorEl={connectedSitesAnchorEl}

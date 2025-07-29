@@ -1,3 +1,4 @@
+import { LessRoundedPasswordField } from '@/components/StandaloneField';
 import {
   Box,
   Button,
@@ -6,6 +7,13 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-alpine';
+import { Account } from '@core/types';
+import {
+  useAnalyticsContext,
+  useBalancesContext,
+  useBalanceTotalInCurrency,
+  useSettingsContext,
+} from '@core/ui';
 import {
   ChangeEvent,
   Dispatch,
@@ -15,17 +23,9 @@ import {
   useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
 import { DerivedAddresses } from '../types';
 import { DerivedAddressList } from './DerivedAddressList';
-import { Account } from '@core/types';
-import {
-  useAnalyticsContext,
-  useBalancesContext,
-  useSettingsContext,
-  useBalanceTotalInCurrency,
-} from '@core/ui';
-import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
-import { LessRoundedPasswordField } from '@/components/StandaloneField/PasswordField/LessRoundedPasswordField';
 
 interface ImportPrivateKeyFormProps {
   handleImport: () => void;
