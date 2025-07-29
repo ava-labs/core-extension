@@ -5,36 +5,47 @@ import { IconBaseProps } from 'react-icons';
 type Props = IconButtonProps & {
   icon: ReactElement<IconBaseProps>;
   hoverIcon: ReactElement<IconBaseProps>;
+  /**
+   * Provide a class name on which the transition from the first to second icon should be toggled.
+   * If not provided, the transition will happen on hover.
+   */
+  toggleClassName?: string;
 };
 
 export const MultiIconButton: FC<Props> = ({ icon, hoverIcon, ...props }) => {
   return (
-    <HoverableButton disableRipple size="small" {...props}>
-      <span>{icon}</span>
+    <CrossFadeIconButton disableRipple size="small" {...props}>
+      {icon}
       {hoverIcon}
-    </HoverableButton>
+    </CrossFadeIconButton>
   );
 };
 
-const HoverableButton = styled(IconButton)(({ theme }) => ({
-  padding: 0,
+type CrossFadeIconButtonProps = IconButtonProps & {
+  toggleClassName?: string;
+};
 
-  '--hover-icon-visibility': 0,
-  '--icon-visibility': 1,
+const CrossFadeIconButton = styled(IconButton)<CrossFadeIconButtonProps>(
+  ({ theme, toggleClassName }) => ({
+    padding: 0,
 
-  '&:hover': {
-    '--hover-icon-visibility': 1,
-    '--icon-visibility': 0,
-  },
+    '--hover-icon-visibility': 0,
+    '--icon-visibility': 1,
 
-  [`& > :first-child`]: {
-    opacity: 'var(--icon-visibility)',
-    transition: theme.transitions.create('opacity'),
-  },
+    [toggleClassName ? `&.${toggleClassName}` : '&:hover']: {
+      '--hover-icon-visibility': 1,
+      '--icon-visibility': 0,
+    },
 
-  [`& > :last-child`]: {
-    position: 'absolute',
-    opacity: 'var(--hover-icon-visibility)',
-    transition: theme.transitions.create('opacity'),
-  },
-}));
+    [`& > :first-child`]: {
+      opacity: 'var(--icon-visibility)',
+      transition: theme.transitions.create('opacity'),
+    },
+
+    [`& > :last-child`]: {
+      position: 'absolute',
+      opacity: 'var(--hover-icon-visibility)',
+      transition: theme.transitions.create('opacity'),
+    },
+  }),
+);

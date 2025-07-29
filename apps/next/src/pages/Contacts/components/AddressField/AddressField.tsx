@@ -3,18 +3,19 @@ import {
   Collapse,
   Fade,
   Grow,
-  IconButton,
   Stack,
   styled,
   Typography,
   TypographyProps,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { delay } from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MdAddCircle, MdRemoveCircle } from 'react-icons/md';
 
-import { CrossFadeIcon } from '../CrossFadeIcon';
+import { MultiIconButton } from '@/components/MultiIconButton';
+
 import { InvisibleAddressInput } from '../InvisibleInput';
 
 type AddressFieldProps = {
@@ -43,26 +44,6 @@ export const AddressField = ({
 
   const [isHovered, setIsHovered] = useState(false);
 
-  const iconSlots = useMemo(
-    () => ({
-      add: (
-        <IconButton
-          onClick={() => setIsEditing(true)}
-          size="small"
-          sx={{ p: 0 }}
-        >
-          <MdAddCircle size={20} fill={theme.palette.success.main} />
-        </IconButton>
-      ),
-      remove: (
-        <IconButton onClick={() => onChange('')} size="small" sx={{ p: 0 }}>
-          <MdRemoveCircle size={20} fill={theme.palette.error.main} />
-        </IconButton>
-      ),
-    }),
-    [onChange, theme.palette.error.main, theme.palette.success.main],
-  );
-
   useEffect(() => {
     if (isEditing && ref.current) {
       ref.current.focus();
@@ -72,6 +53,17 @@ export const AddressField = ({
   const showCopyButton =
     allowCopy && !error && !!value && !isEditing && isHovered;
 
+  const showRemoveIcon = Boolean(value || isEditing);
+
+  const onActionClick = useCallback(() => {
+    if (showRemoveIcon) {
+      setIsEditing(false);
+      onChange('');
+    } else {
+      setIsEditing(true);
+    }
+  }, [showRemoveIcon, onChange]);
+
   return (
     <AddressFieldContainer
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
@@ -79,10 +71,12 @@ export const AddressField = ({
       onMouseLeave={() => setIsHovered(false)}
       sx={{ height: isEditing || value ? 48 : 36 }}
     >
-      <CrossFadeIcon
-        size={20}
-        slots={iconSlots}
-        active={isEditing || value ? 'remove' : 'add'}
+      <MultiIconButton
+        icon={<MdAddCircle size={20} fill={theme.palette.success.main} />}
+        hoverIcon={<MdRemoveCircle size={20} fill={theme.palette.error.main} />}
+        onClick={onActionClick}
+        toggleClassName="has-value"
+        className={showRemoveIcon ? 'has-value' : ''}
       />
 
       <AddressInputContainer>
@@ -98,7 +92,7 @@ export const AddressField = ({
               value={value}
               placeholder={placeholder}
               onChange={(e) => onChange(e.target.value)}
-              onBlur={() => setIsEditing(false)}
+              onBlur={() => delay(() => setIsEditing(false), 100)}
             />
             <Collapse in={!isEditing} orientation="vertical">
               <Typography
