@@ -67,7 +67,7 @@ export function ContactsContextProvider({ children }: PropsWithChildren) {
 
   const getContactById = useCallback(
     (contactId: string) => {
-      return contacts.contacts.filter((c) => c.id === contactId)[0];
+      return contacts.contacts.find((c) => c.id === contactId);
     },
     [contacts.contacts],
   );
