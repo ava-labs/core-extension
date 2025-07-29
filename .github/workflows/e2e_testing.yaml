@@ -93,8 +93,11 @@ jobs:
 
           echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
 
-          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >>
-          .env.production
+          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
+
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
+
+          echo 'ID_SERVICE_API_KEY="${{ secrets.ID_SERVICE_API_KEY }}"' >> .env.production
 
           echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
       - name: Install dependencies
