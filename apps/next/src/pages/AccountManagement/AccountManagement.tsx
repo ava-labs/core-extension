@@ -1,3 +1,4 @@
+import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
 import {
   Dialog,
   DialogContent,
@@ -5,6 +6,7 @@ import {
   DialogTitle,
   IconButton,
   Slide,
+  Stack,
   SxProps,
 } from '@avalabs/k2-alpine';
 import {
@@ -14,18 +16,16 @@ import {
 } from '@core/ui';
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import { AccountDetails } from './components/AccountDetails';
 import { AddOrConnectWallet } from './components/AddOrCreateWallet/AddOrConnectWallet';
 import { DeleteAccount } from './components/DeleteAccount';
+import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
 import { NavigateBackProvider } from './components/NavigateBackContext';
 import { QRCode } from './components/QRCode';
 import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
-import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
-import { StackRow } from '@/components/StackRow';
-import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
 import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
@@ -49,6 +49,7 @@ const dialogContentSx: SxProps = {
 };
 
 const AccountManagement: FC = () => {
+  const { path } = useRouteMatch();
   return (
     <BalancesProvider>
       <WalletTotalBalanceProvider>
@@ -57,7 +58,8 @@ const AccountManagement: FC = () => {
             {(goBack) => (
               <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
                 <DialogTitle sx={{ padding: 1.5 }}>
-                  <StackRow
+                  <Stack
+                    direction="row"
                     justifyContent="space-between"
                     justifyItems="center"
                   >
@@ -65,43 +67,37 @@ const AccountManagement: FC = () => {
                       <MdArrowBack />
                     </IconButton>
                     <ViewModeSwitcher />
-                  </StackRow>
+                  </Stack>
                 </DialogTitle>
                 <DialogContent sx={dialogContentSx}>
                   <Switch>
+                    <Route path={`${path}/rename`} component={RenamePage} />
                     <Route
-                      path="/account-management/rename"
-                      component={RenamePage}
-                    />
-                    <Route
-                      path="/account-management/delete-account"
+                      path={`${path}/delete-account`}
                       component={DeleteAccount}
                     />
+                    <Route path={`${path}/qr-code`} component={QRCode} />
                     <Route
-                      path="/account-management/qr-code"
-                      component={QRCode}
-                    />
-                    <Route
-                      path="/account-management/add-wallet"
+                      path={`${path}/add-wallet`}
                       component={AddOrConnectWallet}
                     />
                     <Route
-                      path="/account-management/import-private-key"
+                      path={`${path}/import-private-key`}
                       component={ImportPrivateKey}
                     />
                     <Route
-                      path="/account-management/import-keystore-file"
+                      path={`${path}/import-keystore-file`}
                       component={ImportKeystoreFile}
                     />
                     <Route
-                      path="/account-management/account"
+                      path={`${path}/account`}
                       component={AccountDetails}
                     />
                     <Route
-                      path="/account-management/show-private-key"
+                      path={`${path}/show-private-key`}
                       component={ShowPrivateKey}
                     />
-                    <Route path="/account-management" component={Wallets} />
+                    <Route path={path} component={Wallets} />
                   </Switch>
                 </DialogContent>
               </Dialog>
