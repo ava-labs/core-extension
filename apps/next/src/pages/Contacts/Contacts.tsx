@@ -5,6 +5,7 @@ import { AddContact } from './AddContact';
 import { ContactDetails } from './ContactDetails';
 import { useContactsContext } from '@core/ui';
 import { CircularProgress, Stack } from '@avalabs/k2-alpine';
+import { RemoveContact } from './RemoveContact';
 
 const BASE_PATHS = [getContactsPath(), getContactsPath('list')];
 
@@ -29,6 +30,7 @@ export const Contacts = () => {
       <Route exact path={BASE_PATHS} component={ContactList} />
       <Route path={getContactsPath('add')} component={AddContact} />
       <Route path={getContactsPath('details')} component={ContactDetails} />
+      <Route path={getContactsPath('remove')} component={RemoveContact} />
     </Switch>
   );
 };
