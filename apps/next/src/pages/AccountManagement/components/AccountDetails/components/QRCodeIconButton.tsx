@@ -9,6 +9,6 @@ type Props = IconButtonProps & {
 
 export const QRCodeIconButton: FC<Props> = ({ children, ...props }) => {
   return (
-    <MultiIconButton icon={children} hoverIcon={<QrCodeIcon />} {...props} />
+    <MultiIconButton {...props} icon={children} hoverIcon={<QrCodeIcon />} />
   );
 };

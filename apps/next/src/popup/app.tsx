@@ -7,6 +7,7 @@ import {
 import {
   AccountsContextProvider,
   ContactsContextProvider,
+  BalancesProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -18,19 +19,19 @@ import {
 } from '@core/ui';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
-import { UnderConstruction } from '@/components/UnderConstruction';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
+import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
+import { Receive } from '@/pages/Receive';
+import { Settings } from '@/pages/Settings';
 import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
-import { Receive } from '@/pages/Receive';
-import { ImportSeedphraseFlow, ImportLedgerFlow } from '@/pages/Import';
-import { Settings } from '@/pages/Settings';
 import { Contacts } from '@/pages/Contacts';
 
 import { Header } from '@/components/Header';
+import { Portfolio } from '@/pages/Portfolio';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
 import { getContactsPath } from '@/config/routes';
@@ -94,6 +95,7 @@ export function App() {
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <ContactsContextProvider />,
+          <BalancesProvider />,
         ]) as ReactElement[]
       }
     >
@@ -116,7 +118,7 @@ export function App() {
             path="/import-wallet/ledger/:phase?"
             component={ImportLedgerFlow}
           />
-          <Route path="/" component={UnderConstruction} />
+          <Route path="/" component={Portfolio} />
         </Switch>
       </>
     </Providers>

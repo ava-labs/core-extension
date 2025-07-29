@@ -37,12 +37,12 @@ const CrossFadeIconButton = styled(IconButton)<CrossFadeIconButtonProps>(
       '--icon-visibility': 0,
     },
 
-    [`& > :first-child`]: {
+    [`& > :nth-child(1)`]: {
       opacity: 'var(--icon-visibility)',
       transition: theme.transitions.create('opacity'),
     },
 
-    [`& > :last-child`]: {
+    [`& > :nth-child(2)`]: {
       position: 'absolute',
       opacity: 'var(--hover-icon-visibility)',
       transition: theme.transitions.create('opacity'),
