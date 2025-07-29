@@ -17,7 +17,6 @@ export const CurrencySelector = () => {
   const { capture } = useAnalyticsContext();
 
   return (
-    // this needs to be replaced with SelectCountry when it is ready in k2-alpine
     <Select
       label={t('Currency')}
       value={currency}

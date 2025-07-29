@@ -12,7 +12,6 @@ import {
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   SettingsEvents,
   SettingsState,
-  ThemeVariant,
   TokensVisibility,
 } from '@core/types';
 import { changeLanguage } from 'i18next';
@@ -66,7 +65,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     currency: 'EUR',
     customTokens: {},
     showTokensWithoutBalances: true,
-    theme: ThemeVariant.DARK,
+    theme: 'DARK',
     tokensVisibility: {},
     collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Denied,
@@ -78,7 +77,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     currency: 'USD',
     customTokens: {},
     showTokensWithoutBalances: false,
-    theme: ThemeVariant.DARK,
+    theme: 'DARK',
     tokensVisibility: {},
     collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Approved,
@@ -316,17 +315,17 @@ describe('background/services/settings/SettingsService.ts', () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-        await service.setTheme(ThemeVariant.LIGHT);
+        await service.setTheme('LIGHT');
 
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
-          theme: ThemeVariant.LIGHT,
+          theme: 'LIGHT',
         });
       });
 
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
-          await service.setTheme(ThemeVariant.LIGHT);
+          await service.setTheme('LIGHT');
         });
       });
     });

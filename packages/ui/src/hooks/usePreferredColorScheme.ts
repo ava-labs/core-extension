@@ -1,19 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useSettingsContext } from '../contexts';
 
-type ColorScheme = 'dark' | 'light' | 'testnet';
+type ColorScheme = 'dark' | 'light' | 'testnet' | 'system';
 
 export const usePreferredColorScheme = () => {
-  const { nextGenTheme: theme } = useSettingsContext();
+  const { theme } = useSettingsContext();
 
   const [preferredColorScheme, setPreferredColorScheme] =
     useState<ColorScheme>('light');
 
   useEffect(() => {
-    if (theme !== 'system') {
+    console.log({ theme });
+    if (theme === 'DARK') {
+      setPreferredColorScheme('dark');
       return;
     }
 
+    if (theme === 'LIGHT') {
+      setPreferredColorScheme('light');
+      return;
+    }
+
+    // Handling 'SYSTEM'
     const isDark = window.matchMedia('(prefers-color-scheme: dark)');
     const isLight = window.matchMedia('(prefers-color-scheme: light)');
 

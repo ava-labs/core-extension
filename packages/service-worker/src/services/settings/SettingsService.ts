@@ -2,13 +2,13 @@ import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   AnalyticsConsent,
   CollectiblesVisibility,
+  ColorScheme,
   EnsureDefined,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   SettingsEvents,
   SettingsState,
-  ThemeVariant,
   TokensVisibility,
   ViewMode,
 } from '@core/types';
@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
   customTokens: {},
   showTokensWithoutBalances: false,
-  theme: ThemeVariant.DARK,
+  theme: 'DARK',
   tokensVisibility: {},
   collectiblesVisibility: {},
   analyticsConsent: AnalyticsConsent.Approved,
@@ -168,7 +168,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setTheme(theme: ThemeVariant) {
+  async setTheme(theme: ColorScheme) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,

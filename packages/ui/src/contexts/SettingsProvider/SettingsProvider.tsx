@@ -18,10 +18,10 @@ import type {
   UpdateTokensVisiblityHandler,
 } from '@core/service-worker';
 import {
+  ColorScheme,
   ExtensionRequest,
   Languages,
   SettingsState,
-  ThemeVariant,
   ViewMode,
 } from '@core/types';
 import { changeLanguage } from 'i18next';
@@ -53,7 +53,7 @@ type SettingsFromProvider = SettingsState & {
     token: NftTokenWithBalance,
   ): Promise<true | undefined>;
   getCollectibleVisibility(token: NftTokenWithBalance): boolean;
-  updateTheme(theme: ThemeVariant): Promise<boolean>;
+  updateTheme(theme: ColorScheme): Promise<boolean>;
   currencyFormatter(value: number): string;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
@@ -184,7 +184,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [settings?.collectiblesVisibility],
   );
 
-  function updateTheme(theme: ThemeVariant) {
+  function updateTheme(theme: ColorScheme) {
     return request<UpdateThemeHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
       params: [theme],
@@ -227,7 +227,6 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
       value={
         {
           ...settings,
-          nextGenTheme: 'system', // TODO: fix this
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,

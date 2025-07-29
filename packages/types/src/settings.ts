@@ -1,10 +1,14 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { EnsureDefined } from './util-types';
 
+// This is used in old migration. Now we use ColorScheme type
 export enum ThemeVariant {
   LIGHT = 'LIGHT',
   DARK = 'DARK',
+  SYSTEM = 'SYSTEM',
 }
+
+export type ColorScheme = 'DARK' | 'LIGHT' | 'SYSTEM';
 
 export enum Languages {
   EN = 'en',
@@ -58,7 +62,7 @@ export interface SettingsState {
   currency: string;
   customTokens: CustomTokens;
   showTokensWithoutBalances: boolean;
-  theme: ThemeVariant;
+  theme: ColorScheme;
   tokensVisibility: TokensVisibility;
   collectiblesVisibility: CollectiblesVisibility;
   analyticsConsent: AnalyticsConsent;

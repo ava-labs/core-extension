@@ -20,6 +20,7 @@ import {
   Footer,
 } from './components';
 import { CurrencySelector } from './components/CurrencySelector';
+import { ThemeSelector } from './components/ThemeSelector';
 
 export const Settings = () => {
   const { t } = useTranslation();
@@ -82,7 +83,11 @@ export const Settings = () => {
             />
           }
         />
-        <SettingsNavItem label={t('Theme')} divider />
+        <SettingsNavItem
+          label={t('Theme')}
+          divider
+          secondaryAction={<ThemeSelector />}
+        />
         <SettingsNavItem label={t('View preference')} />
       </SettingsCard>
       <SwitchCard
