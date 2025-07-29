@@ -3,16 +3,15 @@ import { generatePath } from 'react-router-dom';
 /**
  * Contacts
  **/
-type ContactView = 'list' | 'details' | 'remove' | 'add';
-type ContactQueryToken = 'id' | 'search';
-
-export const CONTACTS_QUERY_TOKENS: Record<ContactQueryToken, string> = {
+export const CONTACTS_QUERY_TOKENS = {
   id: 'id',
-  search: 'search',
+  search: 'q',
+  sort: 's',
 };
+export type ContactQueryTokens = typeof CONTACTS_QUERY_TOKENS;
 export const getContactsPath = (
-  view?: ContactView,
-  query?: Partial<Record<ContactQueryToken, string>>,
+  view?: 'list' | 'details' | 'remove' | 'add',
+  query?: Partial<ContactQueryTokens>,
 ) => {
   const pathname = generatePath('/contacts/:view?', { view });
   const search = new URLSearchParams(query);
