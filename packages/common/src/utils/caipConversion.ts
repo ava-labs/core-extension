@@ -127,7 +127,12 @@ export const caipToChainId = (identifier: string): number => {
 };
 
 export const chainIdToCaip = (chainId: number): string => {
-  return BitcoinCaipId[chainId] ?? AvaxCaipId[chainId] ?? `eip155:${chainId}`;
+  return (
+    BitcoinCaipId[chainId] ??
+    AvaxCaipId[chainId] ??
+    SolanaCaipId[chainId] ??
+    `eip155:${chainId}`
+  );
 };
 
 export const decorateWithCaipId = (
