@@ -32,8 +32,8 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
       </Typography>
       {isTokensCached && (
         <StaleBalanceContainer>
-          <MdError size={14} />
-          <Typography variant="h6" color="error">
+          <MdError size={16} />
+          <Typography variant="subtitle1" color="error">
             {t('Unable to load balances')}
           </Typography>
           <EndAction
@@ -53,7 +53,7 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
 const StaleBalanceContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: theme.spacing(1),
+  gap: theme.spacing(0.5),
   color: theme.palette.error.main,
 }));
 

@@ -1,7 +1,7 @@
 import {
   Box,
   getHexAlpha,
-  ListItem,
+  ListItem as K2ListItem,
   ListItemIcon,
   Stack,
   styled,
@@ -23,6 +23,11 @@ export const ItemIcon = styled(ListItemIcon)(({ theme }) => ({
     borderRadius: '50%',
     boxShadow: `inset 0 0 10px ${getHexAlpha(theme.palette.primary.main, 30)}`,
   },
+}));
+
+const ListItem = styled(K2ListItem)(({ theme }) => ({
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1.5),
 }));
 
 export type Props = {

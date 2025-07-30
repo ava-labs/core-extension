@@ -59,7 +59,7 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
             size="small"
             onClick={() => {
               navigator.clipboard.writeText(generatedSeedphrase);
-              toast.success(t('Copied!'), {
+              toast.success(t('Phrase copied'), {
                 duration: 2000,
               });
             }}

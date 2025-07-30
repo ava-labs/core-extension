@@ -68,7 +68,7 @@ export const WalletCard: FC<WalletCardProps> = ({
               <>
                 <Styled.ErrorIcon size={16} />
                 <Typography
-                  variant="subtitle1"
+                  variant="subtitle3"
                   color="error"
                   component={Styled.Shrinkable}
                   whiteSpace="nowrap"
