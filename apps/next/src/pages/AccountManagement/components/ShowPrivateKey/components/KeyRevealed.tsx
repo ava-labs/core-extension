@@ -20,8 +20,8 @@ type Props = {
 
 const StyledInput = styled(OutlinedInput)(({ theme }) => ({
   backgroundColor: theme.palette.surface.primary,
-  fontSize: '10px !important',
-
+  ...theme.typography.mono2,
+  fontSize: '11px !important',
   [`& .${outlinedInputClasses.notchedOutline}`]: {
     border: 'none',
   },
@@ -37,15 +37,15 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
         {t('Here’s the private key for this account')}
       </Typography>
 
-      <Typography variant="body1">
+      <Typography variant="caption">
         {t('This key gives access to your account’s addresses')}
       </Typography>
 
       <Stack gap={1} direction="row" color="error.main" py={2}>
-        <Box flexShrink={0}>
+        <Box marginBlock="auto" flexShrink={0}>
           <MdErrorOutline size={24} />
         </Box>
-        <Typography variant="subtitle1" flexShrink={1}>
+        <Typography variant="subtitle3" flexShrink={1}>
           {t(
             'Anyone with this private key can access the account(s) associated with it',
           )}
@@ -87,7 +87,7 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
         <Button
           variant="contained"
           color="secondary"
-          size="small"
+          size="extension"
           fullWidth
           onClick={goBack}
         >

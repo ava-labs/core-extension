@@ -19,7 +19,7 @@ export type Props = {
   address: string | undefined;
   onClick?: VoidFunction;
   copyActionVisibility?: 'always' | 'hover';
-  truncate?: boolean;
+  truncate?: boolean | number;
 };
 
 export const AddressItem: FC<Props> = ({
@@ -44,15 +44,20 @@ export const AddressItem: FC<Props> = ({
     <ChainListItem
       Icon={Icon}
       label={label}
-      labelVariant="subtitle4"
+      labelVariant="subtitle3"
       subtitle={
         <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography
-            variant="mono"
+            variant="mono2"
             color="text.secondary"
             sx={truncate ? undefined : { lineBreak: 'anywhere' }}
           >
-            {truncate ? truncateAddress(strippedAddress) : strippedAddress}
+            {truncate
+              ? truncateAddress(
+                  strippedAddress,
+                  typeof truncate === 'number' ? truncate : undefined,
+                )
+              : strippedAddress}
           </Typography>
         </Tooltip>
       }

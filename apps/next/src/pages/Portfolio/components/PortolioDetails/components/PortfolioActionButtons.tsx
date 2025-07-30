@@ -25,7 +25,6 @@ export const PortfolioActionButtons = () => {
   return (
     <Stack direction="row" gap={1}>
       <SquareButton
-        // @ts-expect-error TODO: remove this once K2 Alpine adds the variant prop
         variant="extension"
         icon={<SendIcon size={ICON_SIZE} />}
         label="Send"
@@ -33,21 +32,18 @@ export const PortfolioActionButtons = () => {
       />
 
       <SquareButton
-        // @ts-expect-error TODO: remove this once K2 Alpine adds the variant prop
         variant="extension"
         icon={<SwapIcon size={ICON_SIZE} />}
         label="Swap"
         onClick={onNotImplementedClick}
       />
       <SquareButton
-        // @ts-expect-error TODO: remove this once K2 Alpine adds the variant prop
         variant="extension"
         icon={<MdAdd size={ICON_SIZE} />}
         label="Buy"
         onClick={onNotImplementedClick}
       />
       <SquareButton
-        // @ts-expect-error TODO: remove this once K2 Alpine adds the variant prop
         variant="extension"
         icon={<BridgeIcon size={ICON_SIZE} />}
         label="Bridge"
