@@ -38,6 +38,7 @@ export const WalletCard: FC<WalletCardProps> = ({
         onChange={(_, expanded) => setIsExpanded(expanded)}
       >
         <Styled.AccordionSummary
+          component="div"
           icon={cloneElement(icon, { expanded: isExpanded })}
         >
           <Stack
@@ -51,7 +52,7 @@ export const WalletCard: FC<WalletCardProps> = ({
               type="wallet"
               tokenId={id}
               width={1}
-              variant="subtitle1"
+              variant="subtitle3"
               whiteSpace="nowrap"
               overflow="hidden"
               textOverflow="ellipsis"
@@ -60,7 +61,7 @@ export const WalletCard: FC<WalletCardProps> = ({
             </Title>
             {isLoading && <CircularProgress size={14} />}
             {!isLoading && !hasErrorOccurred && (
-              <Typography variant="body1" color="text.disabled">
+              <Typography variant="body3" color="text.disabled">
                 {currencyFormatter(totalBalanceInCurrency ?? 0)}
               </Typography>
             )}

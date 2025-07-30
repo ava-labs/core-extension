@@ -36,11 +36,11 @@ export const ContactListItem = ({
         maxWidth="calc(100% - 88px)"
         sx={{ cursor: 'pointer' }}
       >
-        <Typography variant="subtitle1" color="text.primary">
+        <Typography variant="subtitle3" color="text.primary">
           {contact.name}
         </Typography>
         <Typography
-          variant="mono"
+          variant="mono2"
           color="text.secondary"
           whiteSpace="nowrap"
           textOverflow="ellipsis"

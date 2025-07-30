@@ -44,7 +44,7 @@ export const ContactNameField = ({
         <StyledNameButton
           variant="contained"
           color="secondary"
-          size="small"
+          size="extension"
           onClick={() => setIsNaming(true)}
         >
           {t('Name this contact')}
@@ -55,8 +55,6 @@ export const ContactNameField = ({
 };
 
 const StyledNameButton = styled(Button)({
-  // TODO: Replace with regular extension-sized-button-variant instead of setting height manually
-  height: NAME_INPUT_HEIGHT,
   position: 'absolute',
   left: '50%',
   transform: 'translateX(-50%)',

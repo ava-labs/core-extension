@@ -141,7 +141,7 @@ const AddressInputContainer = styled(Stack)({
 });
 
 const AddAddressPrompt = styled((props: TypographyProps) => (
-  <Typography {...props} variant="subtitle1" role="button" />
+  <Typography {...props} variant="subtitle3" role="button" />
 ))(({ theme }) => ({
   position: 'absolute',
   cursor: 'pointer',
