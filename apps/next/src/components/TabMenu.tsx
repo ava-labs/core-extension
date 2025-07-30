@@ -22,6 +22,7 @@ export const TabMenu = styled(({ size = 'large', ...props }: TabMenuProps) => (
   [`& .${tabsClasses.indicator}`]: {
     height: '100%',
     borderRadius: '21px',
+    transitionTimingFunction: 'cubic-bezier(0, 0, 0, 1.5)',
   },
 
   [`& .${tabsClasses.list}`]: {
