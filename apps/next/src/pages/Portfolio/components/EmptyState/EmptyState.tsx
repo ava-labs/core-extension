@@ -28,7 +28,7 @@ const optionSlotProps: ListItemTextProps['slotProps'] = {
   },
 };
 
-export const OnRampForm: FC = () => {
+export const EmptyState: FC = () => {
   const { t } = useTranslation();
 
   return (
