@@ -51,9 +51,6 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
         slotProps={{
           primary: {
             variant: 'subtitle3',
-            // TODO: remove typography override once we have a proper typography component
-            fontSize: '12px !important',
-            fontWeight: '500 !important',
           },
           secondary: {
             variant: 'caption',
