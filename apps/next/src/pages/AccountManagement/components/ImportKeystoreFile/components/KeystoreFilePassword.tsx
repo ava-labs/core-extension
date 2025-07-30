@@ -69,12 +69,10 @@ export const KeystoreFilePassword = ({
     <Stack sx={{ flexGrow: 1, alignItems: 'center' }}>
       <Card sx={{ p: '12px' }}>
         <Stack
-          sx={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            columnGap: '11px',
-          }}
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          columnGap={1.25}
         >
           <FileImage />
 
