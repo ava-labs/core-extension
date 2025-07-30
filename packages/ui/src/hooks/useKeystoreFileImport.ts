@@ -19,7 +19,17 @@ import { useImportSeedphrase } from './useImportSeedphrase';
 import { useJsonFileReader } from './useJsonFileReader';
 import { usePrivateKeyImport } from './usePrivateKeyImport';
 
-export const useKeystoreFileImport = () => {
+export type KeystoreFileImportCallbacks = {
+  onStarted?: VoidFunction;
+  onSuccess?: VoidFunction;
+  onFailure?: (error: any) => void;
+};
+
+export const useKeystoreFileImport = ({
+  onStarted,
+  onSuccess,
+  onFailure,
+}: KeystoreFileImportCallbacks) => {
   const { capture } = useAnalyticsContext();
 
   const { isReading, read } = useJsonFileReader<AllKeyFileTypes>();
@@ -45,47 +55,62 @@ export const useKeystoreFileImport = () => {
 
   const importKeystoreFile = useCallback(
     async (file: File, password: string) => {
-      const keys = await extractKeys(file, password);
+      onStarted?.();
+      try {
+        const keys = await extractKeys(file, password);
 
-      // We need to import all keys one by one.
-      for (let i = 0; i < keys.length; i++) {
-        const keyData = keys[i];
+        // We need to import all keys one by one.
+        for (let i = 0; i < keys.length; i++) {
+          const keyData = keys[i];
 
-        if (!keyData) {
-          continue;
-        }
+          if (!keyData) {
+            continue;
+          }
 
-        const { key, type } = keyData;
+          const { key, type } = keyData;
 
-        if (type === 'singleton') {
-          // Keystore files have the private keys base58check-encoded, but
-          // we need them in hex format.
-          const privateKey = Buffer.from(
-            utils.base58check.decode(key.replace('PrivateKey-', '')),
-          ).toString('hex');
+          if (type === 'singleton') {
+            // Keystore files have the private keys base58check-encoded, but
+            // we need them in hex format.
+            const privateKey = Buffer.from(
+              utils.base58check.decode(key.replace('PrivateKey-', '')),
+            ).toString('hex');
 
-          const accountId = await importPrivateKey(privateKey);
-          await selectAccount(accountId);
-        } else if (type === 'mnemonic') {
-          try {
-            await importSeedphrase({
-              mnemonic: key,
-            });
-          } catch (err) {
-            if (
-              isWrappedError(err) &&
-              err.data.reason === SeedphraseImportError.ExistingSeedphrase
-            ) {
-              // If the seedphrase was already imported, just ignore the error.
-              continue;
+            const accountId = await importPrivateKey(privateKey);
+            await selectAccount(accountId);
+          } else if (type === 'mnemonic') {
+            try {
+              await importSeedphrase({
+                mnemonic: key,
+              });
+            } catch (err) {
+              if (
+                isWrappedError(err) &&
+                err.data.reason === SeedphraseImportError.ExistingSeedphrase
+              ) {
+                // If the seedphrase was already imported, just ignore the error.
+                continue;
+              }
+
+              throw err;
             }
-
-            throw err;
           }
         }
+      } catch (err) {
+        onFailure?.(err);
+        return;
       }
+      onSuccess?.();
     },
-    [extractKeys, importPrivateKey, importSeedphrase, selectAccount],
+    [
+      extractKeys,
+      importPrivateKey,
+      importSeedphrase,
+      onStarted,
+      onSuccess,
+      onFailure,
+      selectAccount,
+    ],
   );
 
   const getKeyCounts = useCallback(
