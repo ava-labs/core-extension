@@ -38,6 +38,7 @@ export const WalletCard: FC<WalletCardProps> = ({
         onChange={(_, expanded) => setIsExpanded(expanded)}
       >
         <Styled.AccordionSummary
+          component="div"
           icon={cloneElement(icon, { expanded: isExpanded })}
         >
           <Stack

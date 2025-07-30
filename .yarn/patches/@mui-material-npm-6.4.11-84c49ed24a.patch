@@ -7,7 +7,7 @@ index 155988969c4947d85fcde9cb1b55faa266cb12f7..5945487cdd9e7218c36dfe52f7e5daff
      Object.keys(muiTheme.components).forEach(component => {
        const styleOverrides = muiTheme.components[component].styleOverrides;
 -      if (styleOverrides && component.startsWith('Mui')) {
-+      if (styleOverrides && typeof styleOverrides !== 'string' &&component.startsWith('Mui')) {
++      if (styleOverrides && typeof styleOverrides !== 'string' && component.startsWith('Mui')) {
          traverse(styleOverrides, component);
        }
      });

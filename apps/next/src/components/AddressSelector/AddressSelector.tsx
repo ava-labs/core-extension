@@ -28,7 +28,7 @@ export const AddressSelector: FC<Props> = ({ type, account, onChange }) => {
         const { label } = getChainLabelAndIconByAddressType(
           value as AddressType,
         );
-        return <Typography variant="subtitle1">{label}</Typography>;
+        return <Typography variant="subtitle3">{label}</Typography>;
       }}
     >
       {OPTIONS.map((item) => {
@@ -40,7 +40,7 @@ export const AddressSelector: FC<Props> = ({ type, account, onChange }) => {
             disabled={!account[`address${item}`]}
           >
             <Icon size={ICON_SIZE} />
-            <Typography variant="subtitle1">{label}</Typography>
+            <Typography variant="subtitle3">{label}</Typography>
           </Styled.HidingMenuItem>
         );
       })}
