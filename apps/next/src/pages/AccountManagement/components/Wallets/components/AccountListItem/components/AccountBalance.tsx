@@ -30,7 +30,7 @@ export const AccountBalance: FC<Props> = ({ account, selected }) => {
         </Tooltip>
       )}
       <Typography
-        variant="body1"
+        variant="body3"
         component="span"
         color={selected ? 'text.primary' : 'text.disabled'}
       >

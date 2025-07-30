@@ -33,7 +33,7 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
       {isTokensCached && (
         <StaleBalanceContainer>
           <MdError size={16} />
-          <Typography variant="subtitle1" color="error">
+          <Typography variant="subtitle3" color="error">
             {t('Unable to load balances')}
           </Typography>
           <EndAction

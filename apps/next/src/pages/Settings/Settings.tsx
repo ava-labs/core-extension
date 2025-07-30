@@ -134,7 +134,7 @@ export const Settings = () => {
           href={getContactsPath('list')}
           secondaryAction={
             <Stack direction="row" gap={0.5} alignItems="center">
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body3" color="text.secondary">
                 {contacts.length}
               </Typography>
               <ChevronRightIcon size={20} />

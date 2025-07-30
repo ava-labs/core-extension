@@ -149,7 +149,7 @@ export const ImportPrivateKeyForm = ({
                 <Typography sx={{ fontWeight: 'fontWeightMedium' }}>
                   {t('Total balance')}
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="caption">
                   {isBalanceLoading ? (
                     <CircularProgress size={16} />
                   ) : balance !== null && balance?.sum ? (
