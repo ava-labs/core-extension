@@ -12,15 +12,16 @@ export const Portfolio: FC = () => {
   const { totalBalance } = useBalancesContext();
   const isLoading = !totalBalance;
   const isAccountEmpty = !isLoading && totalBalance.sum === 0;
-  const PortfolioPage = isAccountEmpty ? EmptyState : PortfolioDetails;
+  const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
+
   return (
     <Stack height={1} px={1.5} pb={1.5} gap={2.5}>
       <AccountInfo
         accountName={accounts.active?.name ?? ''}
         balance={totalBalance}
       />
-      <Stack flexGrow={1}>
-        {isLoading ? <CenteredSpinner /> : <PortfolioPage tab={activeTab} />}
+      <Stack flexGrow={1} gap={2.5}>
+        {isLoading ? <CenteredSpinner /> : <PortfolioContent tab={activeTab} />}
       </Stack>
       <NavigationBar active={activeTab} onChange={setActiveTab} />
     </Stack>
