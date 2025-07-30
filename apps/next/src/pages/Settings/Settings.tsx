@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, Switch } from '@avalabs/k2-alpine';
-import { useSettingsContext } from '@core/ui';
+import {
+  Button,
+  ChevronRightIcon,
+  Stack,
+  Switch,
+  Typography,
+} from '@avalabs/k2-alpine';
+import { useContactsContext, useSettingsContext } from '@core/ui';
 import {
   BUG_BOUNTIES_URL,
   CORE_FEATURE_REQUEST_URL,
@@ -21,10 +27,12 @@ import {
 } from './components';
 import { CurrencySelector } from './components/CurrencySelector';
 import { ThemeSelector } from './components/ThemeSelector';
+import { getContactsPath } from '@/config/routes';
 
 export const Settings = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
+  const { contacts } = useContactsContext();
 
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
@@ -125,7 +133,18 @@ export const Settings = () => {
         />
       </SettingsCard>
       <SettingsCard title={t('Contacts')}>
-        <SettingsNavItem label={t('Saved addresses')} />
+        <SettingsNavItem
+          label={t('Saved addresses')}
+          href={getContactsPath('list')}
+          secondaryAction={
+            <Stack direction="row" gap={0.5} alignItems="center">
+              <Typography variant="body1" color="text.secondary">
+                {contacts.length}
+              </Typography>
+              <ChevronRightIcon size={20} />
+            </Stack>
+          }
+        />
       </SettingsCard>
       <SettingsCard title={t('About & support')}>
         <SettingsNavItem

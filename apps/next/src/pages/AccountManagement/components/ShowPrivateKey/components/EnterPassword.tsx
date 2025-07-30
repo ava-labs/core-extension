@@ -63,7 +63,7 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
         ref={revealButtonRef}
         variant="contained"
         color="primary"
-        size="small"
+        size="extension"
         fullWidth
         loading={isLoading}
         disabled={!password || isLoading}
