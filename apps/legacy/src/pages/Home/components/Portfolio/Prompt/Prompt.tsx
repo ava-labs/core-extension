@@ -250,16 +250,23 @@ export function Prompt() {
             toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
           destDecimals: toToken.decimals,
           srcAmount: amountBigInt.toString(),
+          slippageTolerance: '0.15',
+          onUpdate: () => {},
         });
         if (
           isAPIError(result) ||
           !result ||
-          !result.destAmount ||
-          !result.quote
+          !result.quotes ||
+          !result.selected ||
+          !result.selected.quote
         ) {
-          throw new Error(
-            `Error while getting swap rate. ${isAPIError(result) ? result.error?.message : ''}`,
-          );
+          throw new Error(`An unknown error occurred`);
+        }
+        const selected = result.selected;
+        const amountOut = selected.metadata.amountOut;
+
+        if (!amountOut) {
+          throw new Error('No rate found');
         }
 
         await swap({
@@ -271,13 +278,15 @@ export function Prompt() {
             toToken.type === TokenType.ERC20 ? toToken.address : toToken.symbol,
           srcDecimals: srcToken.decimals,
           destDecimals: toToken.decimals,
-          quote: result.quote,
-
+          quote: selected.quote,
+          swapProvider: result.provider,
+          amountIn: amount.toString(),
+          amountOut,
           slippage: 0.15,
         });
 
         return {
-          content: `Swap initiated ${amount}${srcToken.symbol} to ${result.destAmount}${toToken.symbol}.`,
+          content: `Swap initiated ${amount}${srcToken.symbol} to ${amountOut}${toToken.symbol}.`,
         };
       },
       bridge: async ({
