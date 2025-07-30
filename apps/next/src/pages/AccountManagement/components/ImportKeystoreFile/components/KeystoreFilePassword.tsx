@@ -103,8 +103,7 @@ export const KeystoreFilePassword = ({
         }}
       >
         <MdErrorOutline size={40} style={{ color: theme.palette.error.main }} />
-        <Typography color="error.main" variant="subtitle2">
-          {/* TODO: need to update to subtitle3 when it is ready in k2-alpine */}
+        <Typography color="error.main" variant="subtitle3">
           {t(
             'This file requires a password. This password was set when the file was created.',
           )}

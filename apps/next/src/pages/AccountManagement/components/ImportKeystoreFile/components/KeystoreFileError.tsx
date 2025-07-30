@@ -31,11 +31,7 @@ export const KeystoreFileError = ({
       >
         <MdErrorOutline size={40} color={theme.palette.error.main} />
         <Stack sx={{ gap: 1, maxWidth: '180px', mt: '7px', mb: '21px' }}>
-          <Typography
-            color="error.main"
-            variant="subtitle2"
-            // TODO Need to update to subtitle3 when it is ready in k2-alpine
-          >
+          <Typography color="error.main" variant="subtitle3">
             {title}
           </Typography>
           <Typography color="error.main" variant="caption">
