@@ -27,15 +27,9 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   const hasLink = !!href;
   const isOutbound = hasLink && href.startsWith('https://');
 
-  const endIcon = hasLink ? (
-    isOutbound ? (
-      <OutboundIcon />
-    ) : (
-      <ChevronRightIcon />
-    )
-  ) : (
-    secondaryAction
-  );
+  const endIcon =
+    secondaryAction ??
+    (hasLink ? isOutbound ? <OutboundIcon /> : <ChevronRightIcon /> : null);
 
   return (
     <StyledListItem

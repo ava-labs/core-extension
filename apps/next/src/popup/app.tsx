@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  ContactsContextProvider,
   BalancesProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
@@ -27,13 +28,20 @@ import { Settings } from '@/pages/Settings';
 import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { Contacts } from '@/pages/Contacts';
 
 import { Header } from '@/components/Header';
 import { Portfolio } from '@/pages/Portfolio';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { getContactsPath } from '@/config/routes';
 
-const pagesWithoutHeader = ['/account-management', '/settings', '/receive'];
+const pagesWithoutHeader = [
+  '/account-management',
+  '/settings',
+  '/receive',
+  getContactsPath(),
+];
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -86,6 +94,7 @@ export function App() {
           <WalletContextProvider LockedComponent={LockScreen} />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
+          <ContactsContextProvider />,
           <BalancesProvider />,
         ]) as ReactElement[]
       }
@@ -99,6 +108,7 @@ export function App() {
         <Switch>
           <Route path="/receive" component={Receive} />
           <Route path="/settings" component={Settings} />
+          <Route path={getContactsPath()} component={Contacts} />
           <Route path="/account-management" component={AccountManagement} />
           <Route
             path="/import-wallet/seedphrase"
