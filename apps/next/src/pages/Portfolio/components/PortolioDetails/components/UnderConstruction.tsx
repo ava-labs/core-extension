@@ -45,7 +45,7 @@ export const UnderConstruction: FC<Props> = ({ title, description, icon }) => {
         </Typography>
 
         <Typography
-          variant="body1"
+          variant="body3"
           color="text.secondary"
           sx={{ lineHeight: 1.6 }}
         >

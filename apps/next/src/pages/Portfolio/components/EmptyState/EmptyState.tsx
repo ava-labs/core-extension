@@ -21,7 +21,7 @@ const navigateToBuyPage = () => {
 
 const optionSlotProps: ListItemTextProps['slotProps'] = {
   primary: {
-    variant: 'subtitle2',
+    variant: 'subtitle4',
   },
   secondary: {
     variant: 'caption',

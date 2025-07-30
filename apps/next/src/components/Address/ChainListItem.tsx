@@ -43,7 +43,7 @@ export const ChainListItem: FC<Props> = ({
   Icon,
   iconSize,
   label,
-  labelVariant = 'subtitle1',
+  labelVariant = 'subtitle3',
   subtitle,
   action,
 }) => {
