@@ -26,6 +26,7 @@ import { QRCode } from './components/QRCode';
 import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
+import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
@@ -83,6 +84,10 @@ const AccountManagement: FC = () => {
                     <Route
                       path={`${path}/import-private-key`}
                       component={ImportPrivateKey}
+                    />
+                    <Route
+                      path={`${path}/import-keystore-file`}
+                      component={ImportKeystoreFile}
                     />
                     <Route
                       path={`${path}/account`}
