@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   ChevronRightIcon,
@@ -7,9 +5,14 @@ import {
   Switch,
   Typography,
 } from '@avalabs/k2-alpine';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useContactsContext, useSettingsContext } from '@core/ui';
 
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { Page } from '@/components/Page';
+import { SwitchCard } from '@/components/SwitchCard';
 import {
   BUG_BOUNTIES_URL,
   CORE_FEATURE_REQUEST_URL,
@@ -17,17 +20,14 @@ import {
   CORE_SUPPORT_URL,
   CORE_WEB_BASE_URL,
 } from '@/config';
-import { Page } from '@/components/Page';
-import { SwitchCard } from '@/components/SwitchCard';
-import { LanguageSelector } from '@/components/LanguageSelector';
 
+import { getContactsPath } from '@/config/routes';
 import {
   AvatarButton,
-  SettingsNavItem,
-  SettingsCard,
   Footer,
+  SettingsCard,
+  SettingsNavItem,
 } from './components';
-import { getContactsPath } from '@/config/routes';
 
 export const Settings = () => {
   const { t } = useTranslation();
