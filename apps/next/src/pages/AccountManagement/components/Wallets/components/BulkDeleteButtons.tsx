@@ -19,7 +19,7 @@ export const BulkDeleteButtons: FC = () => {
         <Box mx="auto">
           <Button
             variant="contained"
-            size="small"
+            size="xsmall"
             color="secondary"
             onClick={() => {
               toggleManageMode();
@@ -41,7 +41,7 @@ export const BulkDeleteButtons: FC = () => {
           <Button
             variant="contained"
             color="primary"
-            size="small"
+            size="extension"
             fullWidth
             disabled={selectedAccounts.length === 0}
             onClick={() =>
@@ -64,7 +64,7 @@ export const BulkDeleteButtons: FC = () => {
           <Button
             variant="contained"
             color="secondary"
-            size="small"
+            size="extension"
             fullWidth
             onClick={() => setShowButtons(false)}
           >
