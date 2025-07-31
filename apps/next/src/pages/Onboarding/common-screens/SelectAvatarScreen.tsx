@@ -69,7 +69,7 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
         sx={{ overflow: 'unset', pt: 0 }}
         {...keyboardHandlers}
       >
-        <Stack>
+        <Stack sx={{ alignItems: 'center' }}>
           <Suspense fallback={<LoadingScreen />}>
             <Stack
               sx={{
@@ -85,7 +85,12 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
               <PersonalAvatar name={selectedAvatar} size="large" isGlowing />
             </Stack>
             <AvatarGrid
-              sx={{ height: '250px' }}
+              sx={{
+                height: '250px',
+                alignSelf: 'center',
+                width: 'fit-content',
+                maxWidth: '100%',
+              }}
               avatars={AVATAR_OPTIONS}
               selected={selectedAvatar as PersonalAvatarName}
               onSelect={(a) => setSelectedAvatar(a)}
