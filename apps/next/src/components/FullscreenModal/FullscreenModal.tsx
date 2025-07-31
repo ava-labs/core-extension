@@ -44,7 +44,7 @@ export const FullscreenModal: FC<FullscreenModalProps> = ({
       )}
       {withLanguageSelector && (
         <Box position="fixed" top={32} right={32}>
-          <LanguageSelector />
+          <LanguageSelector isOnboarding />
         </Box>
       )}
       <FullscreenModalContentRoot>
