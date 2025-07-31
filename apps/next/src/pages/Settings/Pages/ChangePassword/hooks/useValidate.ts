@@ -1,18 +1,17 @@
+import { useFormFieldTouched } from '@/hooks/useFormFieldTouched';
 import {
   PasswordValidationResult,
   validatePasswordStrength,
 } from '@/lib/passwordValidation';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFormFieldTouched } from './useFormFieldTouched';
+import { MIN_PASSWORD_LENGTH } from '../constants';
 
-export type PasswordForm = Partial<{
+type PasswordForm = Partial<{
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
 }>;
-
-const MIN_PASSWORD_LENGTH = 8;
 
 const INITIAL_ERRORS: PasswordForm = {};
 
@@ -36,9 +35,8 @@ export function useValidate() {
         {},
         {
           set(target, prop, value) {
-            target[prop] = value;
             hasError = true;
-            return true;
+            return (target[prop] = value);
           },
         },
       );
@@ -51,7 +49,12 @@ export function useValidate() {
 
       if (isTouched('newPassword')) {
         if (!newPassword || newPassword.length < MIN_PASSWORD_LENGTH) {
-          newErrors.newPassword = t('Password must be at least 8 characters');
+          newErrors.newPassword = t(
+            'Password must be at least {{min}} characters',
+            {
+              min: MIN_PASSWORD_LENGTH,
+            },
+          );
         } else if (currentPassword && currentPassword === newPassword) {
           newErrors.newPassword = t(
             'New password must be different from current one',

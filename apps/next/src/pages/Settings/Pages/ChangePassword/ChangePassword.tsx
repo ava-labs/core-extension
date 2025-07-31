@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page/Page';
 import { LessRoundedPasswordField as PasswordField } from '@/components/StandaloneField/PasswordField';
 import { useKeyboardShortcuts } from '@core/ui';
+import { MIN_PASSWORD_LENGTH } from './constants';
 import { useChangePassword } from './hooks/useChangePassword';
 import { useValidate } from './hooks/useValidate';
 
@@ -96,7 +97,9 @@ export const ChangePassword: FC = () => {
           formErrors.newPassword ||
           (passwordStrength
             ? passwordStrength.message
-            : t('Password must be at least 8 characters'))
+            : t('Password must be at least {{min}} characters', {
+                min: MIN_PASSWORD_LENGTH,
+              }))
         }
         fullWidth
         slotProps={{
