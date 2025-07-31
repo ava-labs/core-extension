@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import { ChangePassword } from './pages/ChangePassword';
-import { SettingsHomePage } from './pages/Home';
+import { ChangePassword } from './components/ChangePassword';
+import { SettingsHomePage } from './components/Home';
 
 export const Settings: FC = () => {
   const { path } = useRouteMatch();

@@ -8,8 +8,8 @@ import {
 import { FC, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Page } from '@/components/Page/Page';
-import { LessRoundedPasswordField as PasswordField } from '@/components/StandaloneField/PasswordField';
+import { Page } from '@/components/Page';
+import { LessRoundedPasswordField as PasswordField } from '@/components/StandaloneField';
 import { useKeyboardShortcuts } from '@core/ui';
 import { MIN_PASSWORD_LENGTH } from './constants';
 import { useChangePassword } from './hooks/useChangePassword';
