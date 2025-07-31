@@ -7,6 +7,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRouteMatch } from 'react-router-dom';
 
 import { useContactsContext, useSettingsContext } from '@core/ui';
 
@@ -29,10 +30,11 @@ import {
   SettingsNavItem,
 } from './components';
 
-export const Settings = () => {
+export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { contacts } = useContactsContext();
+  const { path } = useRouteMatch();
 
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
@@ -116,7 +118,11 @@ export const Settings = () => {
         )}
       >
         <SettingsNavItem label={t('Connected sites')} divider />
-        <SettingsNavItem label={t('Change password')} divider />
+        <SettingsNavItem
+          label={t('Change password')}
+          divider
+          href={`${path}/change-password`}
+        />
         <SettingsNavItem label={t('Show recovery phrase')} divider />
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
         <SettingsNavItem label={t('Recovery methods')} divider />
