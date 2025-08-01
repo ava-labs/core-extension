@@ -123,7 +123,11 @@ export const SettingsHomePage = () => {
           divider
           href={`${path}/change-password`}
         />
-        <SettingsNavItem label={t('Show recovery phrase')} divider />
+        <SettingsNavItem
+          label={t('Show recovery phrase')}
+          href={`${path}/recovery-phrase/show-phrase`}
+          divider
+        />
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
         <SettingsNavItem label={t('Recovery methods')} divider />
         <SettingsNavItem
