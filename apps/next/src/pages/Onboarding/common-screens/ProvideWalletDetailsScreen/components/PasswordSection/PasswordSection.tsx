@@ -1,17 +1,17 @@
+import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 
 import { useOnboardingContext } from '@core/ui';
 
+import { BorderlessTextField } from '@/components/BorderlessTextField';
 import {
   Section,
   SectionLabel,
   SectionRow,
 } from '@/pages/Onboarding/components/Section';
-import { BorderlessTextField } from '@/components/BorderlessTextField';
 
-import { validatePasswords } from './lib/passwordValidation';
+import { validatePasswords } from '@/lib/passwordValidation';
 
 type Props = StackProps & {
   onValidityChange: (isValid: boolean) => void;

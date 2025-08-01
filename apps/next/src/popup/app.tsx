@@ -6,8 +6,8 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
-  ContactsContextProvider,
   BalancesProvider,
+  ContactsContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -20,6 +20,7 @@ import {
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
+import { Contacts } from '@/pages/Contacts';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
@@ -28,13 +29,12 @@ import { Settings } from '@/pages/Settings';
 import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
-import { Contacts } from '@/pages/Contacts';
 
 import { Header } from '@/components/Header';
+import { getContactsPath } from '@/config/routes';
 import { Portfolio } from '@/pages/Portfolio';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { getContactsPath } from '@/config/routes';
 
 const pagesWithoutHeader = [
   '/account-management',
