@@ -14,5 +14,5 @@ export const ShowPhrase: FC = () => {
     return <SeedlessFlow />;
   }
 
-  throw new Error('Unsupported wallet type');
+  return null;
 };
