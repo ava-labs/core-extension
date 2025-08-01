@@ -6,7 +6,7 @@ import {
   PersonalAvatarName,
   usePersonalAvatar,
 } from '@/components/PersonalAvatar';
-import { Box, getHexAlpha, useTheme } from '@avalabs/k2-alpine';
+import { Box, getHexAlpha, Stack, useTheme } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -35,11 +35,19 @@ export const AvatarSelector = () => {
       withBackButton
       contentProps={{
         flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'stretch',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        display: 'flex',
       }}
     >
-      <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
+      <Stack
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        flex={1}
+      >
+        <PersonalAvatar cached size="medium" sx={{ mr: 1 }} />
+      </Stack>
 
       <Box
         sx={{
@@ -50,9 +58,7 @@ export const AvatarSelector = () => {
           '&::-webkit-scrollbar': {
             display: 'none',
           },
-          border: 1,
-          borderLeft: 0,
-          borderRight: 0,
+
           borderColor: getHexAlpha(theme.palette.primary.main, 10),
           scrollBehavior: 'smooth',
           '& > *': {

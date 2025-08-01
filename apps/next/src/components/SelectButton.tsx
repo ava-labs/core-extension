@@ -75,6 +75,7 @@ export const SelectButton = <T,>({
           {renderValue}
         </Button>
         <Popper
+          // TODO: Replace this with Popover when color is fixed
           open={open}
           anchorEl={anchorEl}
           placement="bottom-end"
