@@ -7,6 +7,9 @@ import {
   toast,
 } from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
+
+import { getSendPath } from '@/config/routes';
 
 const onNotImplementedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
@@ -22,13 +25,14 @@ const onNotImplementedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 const ICON_SIZE = 19.2;
 
 export const PortfolioActionButtons = () => {
+  const { push } = useHistory();
   return (
     <Stack direction="row" gap={1}>
       <SquareButton
         variant="extension"
         icon={<SendIcon size={ICON_SIZE} />}
         label="Send"
-        onClick={onNotImplementedClick}
+        onClick={() => push(getSendPath())}
       />
 
       <SquareButton
