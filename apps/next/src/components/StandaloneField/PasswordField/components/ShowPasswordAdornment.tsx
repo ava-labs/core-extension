@@ -1,7 +1,7 @@
 import {
   HideIcon,
-  InputAdornment,
   IconButton,
+  InputAdornment,
   SxProps,
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,7 @@ export const ShowPasswordAdornment: React.FC<Props> = ({
         onMouseUp={onHide}
         onMouseDown={onShow}
         disableRipple
+        tabIndex={-1}
       >
         <HideIcon
           size={24}
