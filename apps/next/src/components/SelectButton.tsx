@@ -2,9 +2,8 @@ import {
   Button,
   ButtonProps,
   ClickAwayListener,
+  Popover,
   PopoverItem,
-  Popper,
-  Stack,
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
@@ -74,32 +73,38 @@ export const SelectButton = <T,>({
         >
           {renderValue}
         </Button>
-        <Popper
-          // TODO: Replace this with Popover when color is fixed
+        <Popover
           open={open}
           anchorEl={anchorEl}
-          placement="bottom-end"
-          sx={{ padding: '10px 0' }}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+          slotProps={{
+            paper: {
+              sx: {
+                padding: '10px',
+              },
+            },
+          }}
         >
-          <Stack>
-            {options.map((option) => (
-              <PopoverItem
-                key={option.key}
-                label={option.label}
-                onClick={() => {
-                  clickHandler(option.selectValue);
-                }}
-                data-testid={option.dataTestId}
-                selected={option.selected}
-                sx={{
-                  '&.Mui-selected': {
-                    backgroundColor: 'transparent',
-                  },
-                }}
-              />
-            ))}
-          </Stack>
-        </Popper>
+          {options.map((option) => (
+            <PopoverItem
+              key={option.key}
+              label={option.label}
+              onClick={() => {
+                clickHandler(option.selectValue);
+              }}
+              data-testid={option.dataTestId}
+              selected={option.selected}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: 'transparent',
+                },
+              }}
+            />
+          ))}
+        </Popover>
       </div>
     </ClickAwayListener>
   );

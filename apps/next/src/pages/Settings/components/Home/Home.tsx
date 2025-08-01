@@ -31,6 +31,7 @@ import {
 } from './components';
 import { CurrencySelector } from '../CurrencySelector';
 import { ThemeSelector } from '../ThemeSelector';
+import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
@@ -109,7 +110,14 @@ export const SettingsHomePage = () => {
             />
           }
         />
-        <SettingsNavItem label={t('View preference')} />
+        <SettingsNavItem
+          label={t('View preference')}
+          secondaryAction={
+            <ViewPreferenceSelector
+              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+            />
+          }
+        />
       </SettingsCard>
       <SwitchCard
         title={t('Core Concierge')}
