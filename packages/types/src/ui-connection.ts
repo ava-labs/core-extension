@@ -333,11 +333,11 @@ export const CORE_DOMAINS = [
   '127.0.0.1',
   'core-web.pages.dev',
   'core.app',
-  'test.core.app',
+  'staging.core.app',
+  'develop.core.app',
   'ava-labs.github.io', // playground
   'avacloud.io',
   'avacloud-app.pages.dev',
-  'redesign-aa3.pages.dev',
   'launch-4zn.pages.dev',
   'launchpad.avacloud.io ',
 ];
