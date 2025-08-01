@@ -27,10 +27,6 @@ const SelectWithProperStyling = styled(K2Select)(({ theme }) => ({
     height: 40,
     paddingInline: theme.spacing(1.75),
     borderRadius: theme.shape.borderRadius,
-    backgroundColor:
-      theme.palette.mode === 'light'
-        ? theme.palette.surface.primary
-        : theme.palette.background.paper,
   },
   [`& .${selectClasses.select}`]: {
     textAlign: 'end',
