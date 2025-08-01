@@ -94,7 +94,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
           secondary={
             <Tooltip title={account.addressC} enterDelay={1000}>
               <Typography
-                variant="mono"
+                variant="mono2"
                 color="text.secondary"
                 component="span"
               >

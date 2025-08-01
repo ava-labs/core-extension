@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   ChevronRightIcon,
@@ -7,7 +5,15 @@ import {
   Switch,
   Typography,
 } from '@avalabs/k2-alpine';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory, useRouteMatch } from 'react-router-dom';
+
 import { useContactsContext, useSettingsContext } from '@core/ui';
+
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { Page } from '@/components/Page';
+import { SwitchCard } from '@/components/SwitchCard';
 import {
   BUG_BOUNTIES_URL,
   CORE_FEATURE_REQUEST_URL,
@@ -15,23 +21,22 @@ import {
   CORE_SUPPORT_URL,
   CORE_WEB_BASE_URL,
 } from '@/config';
-import { Page } from '@/components/Page';
-import { SwitchCard } from '@/components/SwitchCard';
-import { LanguageSelector } from '@/components/LanguageSelector';
 
 import { getContactsPath } from '@/config/routes';
-import { SettingsCard } from './SettingsCard';
-import { SettingsNavItem } from './SettingsNavItem';
-import { AvatarButton } from './AvatarButton';
-import { CurrencySelector } from './CurrencySelector';
-import { ThemeSelector } from './ThemeSelector';
-import { Footer } from './Footer';
-import { useHistory } from 'react-router-dom';
+import {
+  AvatarButton,
+  Footer,
+  SettingsCard,
+  SettingsNavItem,
+} from './components';
+import { CurrencySelector } from '../CurrencySelector';
+import { ThemeSelector } from '../ThemeSelector';
 
-export const MainSettingPage = () => {
+export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { contacts } = useContactsContext();
+  const { path } = useRouteMatch();
   const { replace } = useHistory();
 
   const [isTestnetMode, setIsTestnetMode] = useState(false);
@@ -128,7 +133,11 @@ export const MainSettingPage = () => {
         )}
       >
         <SettingsNavItem label={t('Connected sites')} divider />
-        <SettingsNavItem label={t('Change password')} divider />
+        <SettingsNavItem
+          label={t('Change password')}
+          divider
+          href={`${path}/change-password`}
+        />
         <SettingsNavItem label={t('Show recovery phrase')} divider />
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
         <SettingsNavItem label={t('Recovery methods')} divider />
@@ -146,7 +155,7 @@ export const MainSettingPage = () => {
           href={getContactsPath('list')}
           secondaryAction={
             <Stack direction="row" gap={0.5} alignItems="center">
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body3" color="text.secondary">
                 {contacts.length}
               </Typography>
               <ChevronRightIcon size={20} />

@@ -28,6 +28,8 @@
     "@core/types": "workspace:*",
     "@core/ui": "workspace:*",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.0",
     "@keystonehq/animated-qr": "0.5.2",
     "@keystonehq/bc-ur-registry-eth": "0.15.2",
     "@keystonehq/hw-app-avalanche": "0.0.2",
@@ -124,11 +126,6 @@
     "ts-loader": "9.2.6",
     "typescript": "5.8.2",
     "webextension-polyfill": "0.10.0"
-  },
-  "resolutions": {
-    "@avalabs/k2-alpine/@mui/material": "6.4.10",
-    "@avalabs/k2-alpine/@mui/system": "6.4.10",
-    "@avalabs/k2-alpine/@mui/lab": "6.0.1-beta.33"
   },
   "private": true
 }

@@ -64,7 +64,6 @@ type SettingsFromProvider = SettingsState & {
     activePage: SettingsPages,
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
-  nextGenTheme: 'system' | 'testnet' | 'dark' | 'light';
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
 };
 

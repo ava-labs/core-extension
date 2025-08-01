@@ -16,7 +16,8 @@ import * as Styled from './Styled';
 
 const listItemTextProps: ListItemTextProps['slotProps'] = {
   primary: {
-    variant: 'subtitle1',
+    variant: 'subtitle3',
+    fontFamily: 'Inter', // TODO: remove this after this is released: https://github.com/ava-labs/core-web/pull/885
   },
   secondary: {
     variant: 'caption',

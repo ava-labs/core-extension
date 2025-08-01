@@ -80,7 +80,7 @@ export const Header = () => {
         >
           <AccountInfo>
             <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
-            <Typography variant="body1">{activeAccount?.name}</Typography>
+            <Typography variant="body3">{activeAccount?.name}</Typography>
             <MdOutlineUnfoldMore
               size={24}
               color={getHexAlpha(theme.palette.primary.main, 70)}

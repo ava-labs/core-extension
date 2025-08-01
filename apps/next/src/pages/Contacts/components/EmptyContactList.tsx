@@ -18,8 +18,8 @@ export const EmptyContactList = () => {
       textAlign="center"
     >
       <span style={{ fontSize: 48, lineHeight: 1 }}>📒</span>
-      <Typography variant="subtitle1">{t('No saved addresses')}</Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="subtitle3">{t('No saved addresses')}</Typography>
+      <Typography variant="caption" color="text.secondary">
         {t('Save addresses for quick access in future transactions.')}
       </Typography>
       <Button

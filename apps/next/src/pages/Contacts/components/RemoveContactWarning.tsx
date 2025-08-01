@@ -12,7 +12,7 @@ export const RemoveContactWarning: FC = () => {
       <Box sx={{ width: 24, height: 24 }}>
         <FiAlertCircle size={24} />
       </Box>
-      <Typography variant="body1">
+      <Typography variant="body3">
         {t("This action can't be undone")}
       </Typography>
     </StyledStack>

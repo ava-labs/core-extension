@@ -1,13 +1,13 @@
-import zxcvbn from 'zxcvbn';
 import type { TFunction } from 'i18next';
+import zxcvbn from 'zxcvbn';
 
-type PasswordValidationResult = {
+export type PasswordValidationResult = {
   isValid: boolean;
   colorKey: string;
   message: string;
 };
 
-const validatePasswordStrength = (
+export const validatePasswordStrength = (
   password: string,
   t: TFunction,
 ): PasswordValidationResult => {

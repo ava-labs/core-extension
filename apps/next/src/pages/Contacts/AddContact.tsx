@@ -106,7 +106,7 @@ export const AddContact = () => {
         <Button
           variant="contained"
           color="primary"
-          size="small"
+          size="extension"
           fullWidth
           disabled={isSaving || !isValid}
           loading={isSaving}
@@ -125,7 +125,7 @@ export const AddContact = () => {
         <Button
           variant="contained"
           color="secondary"
-          size="small"
+          size="extension"
           fullWidth
           disabled={isSaving}
           onClick={goBack}
