@@ -1,55 +1,18 @@
-import { Page } from '@/components/Page';
-import { LessRoundedPasswordField } from '@/components/StandaloneField';
-import { WarningMessage } from '@/components/WarningMessage';
-import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
-import { Button } from '@avalabs/k2-alpine';
-import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { SeedlessFlow } from '@/pages/Onboarding/flows/SeedlessFlow';
+import { useWalletContext } from '@core/ui';
+import { FC } from 'react';
+import { MnemonicFlow } from './components/MnemonicFlow';
 
 export const ShowPhrase: FC = () => {
-  const { t } = useTranslation();
-  const [password, setPassword] = useState('');
+  const { walletDetails } = useWalletContext();
 
-  const handleShowRecoveryPhrase = () => {
-    // TODO: Implement recovery phrase display logic
-    console.log('Show recovery phrase with password:', password);
-  };
+  if (walletDetails?.type === 'mnemonic') {
+    return <MnemonicFlow />;
+  }
 
-  return (
-    <Page
-      title={t('Recovery phrase')}
-      description={t(
-        'This phrase is your access key to your wallet. Carefully write it down and store it in a safe location',
-      )}
-      contentProps={{
-        gap: 2,
-        width: 1,
-        justifyContent: undefined,
-        alignItems: undefined,
-      }}
-    >
-      <WarningMessage>
-        {t('Losing this phrase will result in lost funds')}
-      </WarningMessage>
+  if (walletDetails?.type === 'seedless') {
+    return <SeedlessFlow />;
+  }
 
-      <LessRoundedPasswordField
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder={t('Enter password')}
-        helperText={t('Enter your password to view your recovery phrase')}
-        fullWidth
-      />
-
-      <Button
-        variant="contained"
-        size="extension"
-        fullWidth
-        disabled={!password || password.length < MIN_PASSWORD_LENGTH}
-        onClick={handleShowRecoveryPhrase}
-        sx={{ mt: 'auto' }}
-      >
-        {t('Show recovery phrase')}
-      </Button>
-    </Page>
-  );
+  throw new Error('Unsupported wallet type');
 };
