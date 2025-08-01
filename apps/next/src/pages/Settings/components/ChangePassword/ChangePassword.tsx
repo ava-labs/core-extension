@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
 
 import { Page } from '@/components/Page';
 import { LessRoundedPasswordField as PasswordField } from '@/components/StandaloneField';
+import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
 import { useKeyboardShortcuts } from '@core/ui';
-import { MIN_PASSWORD_LENGTH } from './constants';
 import { useChangePassword } from './hooks/useChangePassword';
 import { useValidate } from './hooks/useValidate';
 
