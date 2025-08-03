@@ -208,24 +208,11 @@ export const MarkrProvider: SwapProvider = {
     const sourceAmount = amountIn;
     const destinationAmount = minAmount;
 
-    const tx: MarkrTransaction = await MarkrService.buildSwapTransaction({
-      quote,
-      tokenIn: isSrcTokenNative
-        ? MARKR_EVM_NATIVE_TOKEN_ADDRESS
-        : srcTokenAddress,
-      tokenOut: isDestTokenNative
-        ? MARKR_EVM_NATIVE_TOKEN_ADDRESS
-        : destTokenAddress,
-      amountIn: sourceAmount,
-      minAmountOut: destinationAmount,
-      appId: MARKR_EVM_PARTNER_ID,
-      network,
-      from: userAddress,
-    });
-
     // no need to approve native token
     if (!isSrcTokenNative) {
-      const spenderAddress: string = tx.to;
+      const spenderAddress: string = await MarkrService.getSpenderAddress({
+        chainId: network.chainId,
+      });
 
       const approvalTxHash = await ensureAllowance({
         amount: BigInt(sourceAmount),
@@ -249,6 +236,21 @@ export const MarkrProvider: SwapProvider = {
         }
       }
     }
+
+    const tx: MarkrTransaction = await MarkrService.buildSwapTransaction({
+      quote,
+      tokenIn: isSrcTokenNative
+        ? MARKR_EVM_NATIVE_TOKEN_ADDRESS
+        : srcTokenAddress,
+      tokenOut: isDestTokenNative
+        ? MARKR_EVM_NATIVE_TOKEN_ADDRESS
+        : destTokenAddress,
+      amountIn: sourceAmount,
+      minAmountOut: destinationAmount,
+      appId: MARKR_EVM_PARTNER_ID,
+      network,
+      from: userAddress,
+    });
 
     const props = {
       from: userAddress,
