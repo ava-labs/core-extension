@@ -28,7 +28,7 @@ const ActionButton: FC<ActionButtonProps> = ({
 }) => {
   const isPanicLabel = !props.disabled && panic;
   return (
-    <Button variant="contained" size="small" color={color} {...props}>
+    <Button variant="contained" size="extension" color={color} {...props}>
       {isPanicLabel ? <PanicButtonText>{label}</PanicButtonText> : label}
     </Button>
   );

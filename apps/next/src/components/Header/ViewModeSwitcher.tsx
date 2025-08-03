@@ -1,16 +1,16 @@
-import { FC } from 'react';
 import {
-  SidebarIcon,
   SidebarDockIcon,
+  SidebarIcon,
   SidebarUndockIcon,
 } from '@avalabs/k2-alpine';
+import { FC } from 'react';
 
+import { ContextContainer } from '@core/types';
 import {
   isSpecificContextContainer,
   useAnalyticsContext,
   useSettingsContext,
 } from '@core/ui';
-import { ContextContainer } from '@core/types';
 
 import { openView } from '@/utils/openView';
 
@@ -32,12 +32,12 @@ export const ViewModeSwitcher: FC = () => {
     window.close();
     await openView(requestedView);
   };
-  // TODO: fix the position of the icons
+
   return (
     <MultiIconButton
       icon={<SidebarIcon size={24} />}
       hoverIcon={<DockIcon size={24} />}
-      size="medium"
+      size="small"
       onClick={onSidebarIconClick}
       color="primary"
     />

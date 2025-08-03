@@ -83,9 +83,10 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
         <ListItemText
           primary={
             <RenamableTitle
-              variant="subtitle1"
+              variant="subtitle3"
               type="account"
               tokenId={account.id}
+              component="span"
             >
               {account.name}
             </RenamableTitle>
@@ -93,8 +94,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
           secondary={
             <Tooltip title={account.addressC} enterDelay={1000}>
               <Typography
-                fontFamily=""
-                variant="caption"
+                variant="mono2"
                 color="text.secondary"
                 component="span"
               >
@@ -109,7 +109,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
             <>
               {isHovered ? (
                 <Button
-                  size="small"
+                  size="xsmall"
                   color="secondary"
                   variant="contained"
                   onClick={navigateToAccount}

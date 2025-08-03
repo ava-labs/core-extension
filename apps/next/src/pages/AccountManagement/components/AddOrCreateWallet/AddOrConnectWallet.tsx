@@ -29,6 +29,11 @@ export const AddOrConnectWallet: FC = () => {
 
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
 
+  const goToImportKeystoreFileScreen = useCallback(() => {
+    capture('AddWalletWithKeystoreFile_Clicked');
+    push('/account-management/import-keystore-file');
+  }, [push, capture]);
+
   const goToImportPrivateKey = useCallback(() => {
     capture('ImportPrivateKey_Clicked');
     push('/account-management/import-private-key');
@@ -89,7 +94,7 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdTopic}
             primary={t('Import a keystore file')}
             secondary={t('Upload a JSON file to import')}
-            onClick={underDevelopmentClick}
+            onClick={goToImportKeystoreFileScreen}
           />
           <Divider />
           <AccountListItem

@@ -1,12 +1,12 @@
-import { FC } from 'react';
 import {
+  ChevronRightIcon,
   ListItem,
-  ListItemText,
   ListItemProps,
+  ListItemText,
   OutboundIcon,
   styled,
-  ChevronRightIcon,
 } from '@avalabs/k2-alpine';
+import { FC } from 'react';
 
 import { openNewTab } from '@core/common';
 import { useHistory } from 'react-router-dom';
@@ -27,15 +27,15 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   const hasLink = !!href;
   const isOutbound = hasLink && href.startsWith('https://');
 
-  const endIcon = hasLink ? (
-    isOutbound ? (
-      <OutboundIcon />
-    ) : (
-      <ChevronRightIcon />
-    )
-  ) : (
-    secondaryAction
-  );
+  const endIcon =
+    secondaryAction ??
+    (hasLink ? (
+      isOutbound ? (
+        <OutboundIcon size={16} />
+      ) : (
+        <ChevronRightIcon size={16} />
+      )
+    ) : null);
 
   return (
     <StyledListItem
@@ -56,10 +56,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
       <ListItemText
         slotProps={{
           primary: {
-            variant: 'subtitle1',
-            // TODO: remove typography override once we have a proper typography component
-            fontSize: '12px !important',
-            fontWeight: '500 !important',
+            variant: 'subtitle3',
           },
           secondary: {
             variant: 'caption',

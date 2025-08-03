@@ -1,7 +1,7 @@
 import {
   Box,
   getHexAlpha,
-  ListItem,
+  ListItem as K2ListItem,
   ListItemIcon,
   Stack,
   styled,
@@ -25,6 +25,11 @@ export const ItemIcon = styled(ListItemIcon)(({ theme }) => ({
   },
 }));
 
+const ListItem = styled(K2ListItem)(({ theme }) => ({
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1.5),
+}));
+
 export type Props = {
   Icon: ComponentType<IconBaseProps> | ReactElement<IconBaseProps>;
   iconSize?: number;
@@ -38,7 +43,7 @@ export const ChainListItem: FC<Props> = ({
   Icon,
   iconSize,
   label,
-  labelVariant = 'subtitle1',
+  labelVariant = 'subtitle3',
   subtitle,
   action,
 }) => {

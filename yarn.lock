@@ -560,24 +560,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/k2-alpine@npm:1.209.1-alpha.0":
-  version: 1.209.1-alpha.0
-  resolution: "@avalabs/k2-alpine@npm:1.209.1-alpha.0"
+"@avalabs/k2-alpine@npm:1.222.0-alpha.5":
+  version: 1.222.0-alpha.5
+  resolution: "@avalabs/k2-alpine@npm:1.222.0-alpha.5"
   dependencies:
-    "@emotion/react": "npm:^11.14.0"
-    "@emotion/styled": "npm:^11.14.0"
+    "@emotion/react": "npm:11.14.0"
+    "@emotion/styled": "npm:11.14.0"
     "@mui/lab": "npm:6.0.1-beta.33"
-    "@mui/material": "npm:^6.4.10"
-    dayjs: "npm:^1.11.13"
-    lodash-es: "npm:^4.17.21"
-    react-day-picker: "npm:^9.7.0"
-    sonner: "npm:^2.0.3"
+    "@mui/material": "npm:6.4.10"
+    dayjs: "npm:1.11.13"
+    lodash-es: "npm:4.17.21"
+    react-country-flag: "npm:3.1.0"
+    react-day-picker: "npm:9.7.0"
+    sonner: "npm:2.0.3"
   peerDependencies:
-    motion: ^12.5.0
-    react: ^19.0.0
-    react-dom: ^19.0.0
-    react-icons: ^5.4.0
-  checksum: 10c0/e019cbbe51f80f0b52a18d9962310fa46273a7ff45648e6341cdf9212108c1705f97ab8062aede4a2b9897231f700ff811fd1a26a27e92e154447d1a77435ed4
+    motion: 12.5.0
+    react: 19.0.0
+    react-dom: 19.0.0
+    react-icons: 5.4.0
+  checksum: 10c0/b76c57511c2ab5d077eeccce7e3e02341a19b6ef1c0fd0731ec9ea5afde4bfec783a1b0e3d30aa3707d11a2274fa4fc95fe4bf506d2f1f8614727ce32e1e412a
   languageName: node
   linkType: hard
 
@@ -4144,7 +4145,7 @@ __metadata:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.59"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.59"
-    "@avalabs/k2-alpine": "npm:1.209.1-alpha.0"
+    "@avalabs/k2-alpine": "npm:1.222.0-alpha.5"
     "@avalabs/types": "npm:3.1.0-alpha.59"
     "@avalabs/vm-module-types": "npm:1.9.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
@@ -4161,6 +4162,8 @@ __metadata:
     "@core/types": "workspace:*"
     "@core/ui": "workspace:*"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
+    "@emotion/react": "npm:11.14.0"
+    "@emotion/styled": "npm:11.14.0"
     "@eslint/compat": "npm:1.2.4"
     "@eslint/eslintrc": "npm:3.2.0"
     "@eslint/js": "npm:9.16.0"
@@ -5053,7 +5056,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/react@npm:^11.14.0":
+"@emotion/react@npm:11.14.0":
   version: 11.14.0
   resolution: "@emotion/react@npm:11.14.0"
   dependencies:
@@ -5134,7 +5137,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/styled@npm:^11.14.0":
+"@emotion/styled@npm:11.14.0":
   version: 11.14.0
   resolution: "@emotion/styled@npm:11.14.0"
   dependencies:
@@ -8320,10 +8323,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/core-downloads-tracker@npm:^6.4.11":
-  version: 6.4.11
-  resolution: "@mui/core-downloads-tracker@npm:6.4.11"
-  checksum: 10c0/6875a06188119320083566bbe000369a838ea4badbae81fb36fcc750103f3c9ec15fac3407c1efd7f3596889f30732780c58842434d0d48f997219192f7fc3d1
+"@mui/core-downloads-tracker@npm:^6.4.10":
+  version: 6.5.0
+  resolution: "@mui/core-downloads-tracker@npm:6.5.0"
+  checksum: 10c0/dea763c8d4b4f9415d6c6ac3a04115d04c249461ce5635f0012a75b91c38f43c0d0411201664a77c7ff10ff11ea12a0bfeea6562ec22ceec6bac82478b6384c3
   languageName: node
   linkType: hard
 
@@ -8421,13 +8424,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/material@npm:6.4.11":
-  version: 6.4.11
-  resolution: "@mui/material@npm:6.4.11"
+"@mui/material@npm:6.4.10":
+  version: 6.4.10
+  resolution: "@mui/material@npm:6.4.10"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
-    "@mui/core-downloads-tracker": "npm:^6.4.11"
-    "@mui/system": "npm:^6.4.11"
+    "@mui/core-downloads-tracker": "npm:^6.4.10"
+    "@mui/system": "npm:^6.4.10"
     "@mui/types": "npm:~7.2.24"
     "@mui/utils": "npm:^6.4.9"
     "@popperjs/core": "npm:^2.11.8"
@@ -8440,7 +8443,7 @@ __metadata:
   peerDependencies:
     "@emotion/react": ^11.5.0
     "@emotion/styled": ^11.3.0
-    "@mui/material-pigment-css": ^6.4.11
+    "@mui/material-pigment-css": ^6.4.10
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
     react: ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -8453,17 +8456,17 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10c0/49640579e299ef650e6efe25ceb479fe2df8636ebebd00a9d1e7dd32d2cd3c81a99f093f4fb6de58a6463f2be4f5c93fb6331ded6085f0ebeea3a30629fe8ecb
+  checksum: 10c0/17e79cc4b255a8df683bb66964d1270872fa8358591ffee6396cfaa357f107ad6399a25dcac6df929cd3df51ee14ac140335aa119e5b1544ee92745da77f7fcf
   languageName: node
   linkType: hard
 
-"@mui/material@patch:@mui/material@npm%3A6.4.11#~/.yarn/patches/@mui-material-npm-6.4.11-84c49ed24a.patch":
-  version: 6.4.11
-  resolution: "@mui/material@patch:@mui/material@npm%3A6.4.11#~/.yarn/patches/@mui-material-npm-6.4.11-84c49ed24a.patch::version=6.4.11&hash=d61908"
+"@mui/material@patch:@mui/material@npm%3A6.4.10#~/.yarn/patches/@mui-material-npm-6.4.10-51975882a1.patch":
+  version: 6.4.10
+  resolution: "@mui/material@patch:@mui/material@npm%3A6.4.10#~/.yarn/patches/@mui-material-npm-6.4.10-51975882a1.patch::version=6.4.10&hash=1be050"
   dependencies:
     "@babel/runtime": "npm:^7.26.0"
-    "@mui/core-downloads-tracker": "npm:^6.4.11"
-    "@mui/system": "npm:^6.4.11"
+    "@mui/core-downloads-tracker": "npm:^6.4.10"
+    "@mui/system": "npm:^6.4.10"
     "@mui/types": "npm:~7.2.24"
     "@mui/utils": "npm:^6.4.9"
     "@popperjs/core": "npm:^2.11.8"
@@ -8476,7 +8479,7 @@ __metadata:
   peerDependencies:
     "@emotion/react": ^11.5.0
     "@emotion/styled": ^11.3.0
-    "@mui/material-pigment-css": ^6.4.11
+    "@mui/material-pigment-css": ^6.4.10
     "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
     react: ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -8489,7 +8492,7 @@ __metadata:
       optional: true
     "@types/react":
       optional: true
-  checksum: 10c0/dc6f68f3d69b763a57bec45752f3757733074610e4b18ad33569931ce2aeb8350c6803d00a936e0fa2543f3d2cd5c00f8917cb895893f6807b3a2da2c873dda8
+  checksum: 10c0/8ad1c8b27b6e03068fdd09354fe992740547c7dfc1678be4a48ada8faf61d6ca5902e33967a37e6f71e1c4dd88ebb00efe38aad2b2531ed15348ca331cb42d9c
   languageName: node
   linkType: hard
 
@@ -8627,7 +8630,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mui/system@npm:^6.4.10, @mui/system@npm:^6.4.11":
+"@mui/system@npm:^6.4.10":
   version: 6.4.11
   resolution: "@mui/system@npm:6.4.11"
   dependencies:
@@ -17596,7 +17599,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:1.11.13, dayjs@npm:^1.11.13":
+"dayjs@npm:1.11.13":
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: 10c0/a3caf6ac8363c7dade9d1ee797848ddcf25c1ace68d9fe8678ecf8ba0675825430de5d793672ec87b24a69bf04a1544b176547b2539982275d5542a7955f35b7
@@ -25511,7 +25514,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:^4.17.21":
+"lodash-es@npm:4.17.21":
   version: 4.17.21
   resolution: "lodash-es@npm:4.17.21"
   checksum: 10c0/fb407355f7e6cd523a9383e76e6b455321f0f153a6c9625e21a8827d10c54c2a2341bd2ae8d034358b60e07325e1330c14c224ff582d04612a46a4f0479ff2f2
@@ -30155,6 +30158,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-country-flag@npm:3.1.0":
+  version: 3.1.0
+  resolution: "react-country-flag@npm:3.1.0"
+  peerDependencies:
+    react: ">=16"
+  checksum: 10c0/6271cde6cf355c66e2b669c74e98596d771534154210bbb84cd84788f46710c7ee14671229cb92203d09aeb4c30206bb882b73d63d95a73f96cdaca09ed2bd0d
+  languageName: node
+  linkType: hard
+
 "react-custom-scrollbars-2@npm:4.4.0":
   version: 4.4.0
   resolution: "react-custom-scrollbars-2@npm:4.4.0"
@@ -30183,7 +30195,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:^9.7.0":
+"react-day-picker@npm:9.7.0":
   version: 9.7.0
   resolution: "react-day-picker@npm:9.7.0"
   dependencies:
@@ -32385,7 +32397,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sonner@npm:^2.0.3":
+"sonner@npm:2.0.3":
   version: 2.0.3
   resolution: "sonner@npm:2.0.3"
   peerDependencies:

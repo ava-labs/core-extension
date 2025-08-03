@@ -29,7 +29,7 @@ export const DeleteAccountForm: FC<Props> = ({
         <Box flexShrink={0}>
           <MdErrorOutline size={24} />
         </Box>
-        <Typography variant="subtitle1">{message}</Typography>
+        <Typography variant="subtitle3">{message}</Typography>
       </Stack>
       <ActionButtons
         top={{
