@@ -149,6 +149,10 @@ const GetSwapTransactionResponseSchema = z.object({
   value: z.string(),
 });
 
+const GetSpenderAddressResponseSchema = z.object({
+  address: z.string(),
+});
+
 class MarkrService {
   async getSwapRateStream({
     fromTokenAddress,
@@ -282,6 +286,29 @@ class MarkrService {
     }
 
     return response;
+  }
+
+  async getSpenderAddress({ chainId }: { chainId: number }): Promise<string> {
+    const [response, error] = await resolve(
+      fetchAndVerify(
+        [
+          `${ORCHESTRATOR_URL}/spender-address?chainId=${chainId}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        ],
+        GetSpenderAddressResponseSchema,
+      ),
+    );
+
+    if (!response || error) {
+      throw swapError(SwapErrorCode.CannotBuildTx, error);
+    }
+
+    return response.address;
   }
 }
 
