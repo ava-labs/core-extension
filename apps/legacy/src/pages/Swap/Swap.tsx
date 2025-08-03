@@ -29,8 +29,8 @@ import {
 } from '@avalabs/core-k2-components';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import {
+  isGasEstimationError,
   isSolanaNetwork,
-  isSwapExecutionError,
   isSwapTxBuildError,
   isUserRejectionError,
   Monitoring,
@@ -260,7 +260,7 @@ export function Swap() {
 
     if (
       !manuallySelected &&
-      (isSwapTxBuildError(error) || isSwapExecutionError(error))
+      (isSwapTxBuildError(error) || isGasEstimationError(error))
     ) {
       // Check if there are more quotes available to try
       if (quotes.quotes.length > 1) {

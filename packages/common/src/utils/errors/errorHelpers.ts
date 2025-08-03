@@ -69,16 +69,13 @@ export const isSwapTxBuildError = (err: unknown) => {
   return false;
 };
 
-export const isSwapExecutionError = (err: unknown) => {
+export const isGasEstimationError = (err: unknown) => {
   if (!err) {
     return false;
   }
 
   if (isWrappedError(err)) {
-    return (
-      err.data.reason === CommonError.UnableToEstimateGas ||
-      err.data.reason === CommonError.UnableToSign
-    );
+    return err.data.reason === CommonError.UnableToEstimateGas;
   }
 
   return false;
