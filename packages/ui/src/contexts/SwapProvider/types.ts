@@ -46,7 +46,7 @@ export type NormalizedSwapQuote = {
 };
 
 export type NormalizedSwapQuoteResult = {
-  provider: string;
+  provider: SwapProviders;
   quotes: NormalizedSwapQuote[];
   selected: NormalizedSwapQuote;
 };
@@ -100,6 +100,7 @@ export type PerformSwapParams = {
   isSwapFeesEnabled: boolean;
   feeAccount?: string;
   isOneClickSwapEnabled: boolean;
+  markrSwapGasBuffer?: number;
 };
 
 export function isEvmWrapQuote(quote: SwapQuote): quote is EvmWrapQuote {
@@ -111,7 +112,7 @@ export function isEvmUnwrapQuote(quote: SwapQuote): quote is EvmUnwrapQuote {
 }
 
 export interface SwapProvider {
-  name: string;
+  name: SwapProviders;
   getQuote: (
     params: GetQuoteParams & SwapWalletState,
     abortSignal?: AbortSignal,

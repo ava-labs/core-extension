@@ -1,6 +1,6 @@
 import { DEFAULT_FLAGS } from '@core/common';
 import { GetFeatureFlagsHandler } from '@core/service-worker';
-import { ExtensionRequest, FeatureGates } from '@core/types';
+import { ExtensionRequest, FeatureFlags } from '@core/types';
 import { isEqual } from 'lodash';
 import {
   createContext,
@@ -14,16 +14,16 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { isFeatureFlagsUpdatedEvent } from './isFeatureFlagsUpdatedEvent';
 
 const FeatureFlagsContext = createContext<{
-  featureFlags: Record<FeatureGates, boolean>;
+  featureFlags: FeatureFlags;
   isFlagEnabled: (flagName: string) => boolean;
+  selectFeatureFlag: (flagName: string) => string;
 }>({
   isFlagEnabled: () => false,
 } as any);
 
 export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
   const { events, request } = useConnectionContext();
-  const [featureFlags, setFeatureFlags] =
-    useState<Record<FeatureGates, boolean>>(DEFAULT_FLAGS);
+  const [featureFlags, setFeatureFlags] = useState<FeatureFlags>(DEFAULT_FLAGS);
 
   useEffect(() => {
     request<GetFeatureFlagsHandler>({
@@ -54,6 +54,7 @@ export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
     <FeatureFlagsContext.Provider
       value={{
         isFlagEnabled: (flagName) => featureFlags[flagName],
+        selectFeatureFlag: (flagName) => featureFlags[flagName] as string,
         featureFlags,
       }}
     >

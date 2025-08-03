@@ -2,7 +2,12 @@ import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
 import { PageTitle } from '@/components/common/PageTitle';
 import { TokenSelect } from '@/components/common/TokenSelect';
-import { isJupiterQuote, isParaswapQuote, useAccountsContext } from '@core/ui';
+import {
+  isJupiterQuote,
+  isParaswapQuote,
+  SwapQuote,
+  useAccountsContext,
+} from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
 import { useNetworkFeeContext } from '@core/ui';
 import { useNetworkContext } from '@core/ui';
@@ -25,6 +30,8 @@ import {
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import {
   isSolanaNetwork,
+  isSwapExecutionError,
+  isSwapTxBuildError,
   isUserRejectionError,
   Monitoring,
   resolve,
@@ -39,6 +46,7 @@ import { calculateRate, isSlippageValid } from './utils';
 import { useHistory } from 'react-router-dom';
 import { useSwappableTokens } from './hooks/useSwapTokens';
 import { SwapEngineNotice } from './components/SwapEngineNotice';
+import { SwapProviders } from '@core/ui/src/contexts/SwapProvider/types';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -184,7 +192,10 @@ export function Swap() {
     [selectedToToken?.name, selectedToToken?.symbol, sourceTokens],
   );
 
-  async function performSwap() {
+  async function performSwap(
+    specificProvider?: SwapProviders,
+    specificQuote?: SwapQuote,
+  ) {
     const {
       amount,
       fromTokenAddress,
@@ -215,6 +226,9 @@ export function Swap() {
       return;
     }
 
+    const quoteToUse = specificQuote ?? quote;
+    const providerToUse = specificProvider ?? quotes.provider;
+
     setIsConfirming(true);
 
     const slippage = slippageTolerance || '0';
@@ -225,9 +239,9 @@ export function Swap() {
         destToken: toTokenAddress,
         srcDecimals: fromTokenDecimals,
         destDecimals: toTokenDecimals,
-        quote,
+        quote: quoteToUse,
         slippage: parseFloat(slippage),
-        swapProvider: quotes.provider,
+        swapProvider: providerToUse,
         amountIn,
         amountOut,
       }),
@@ -242,6 +256,35 @@ export function Swap() {
         address: activeAddress,
         chainId: network?.chainId,
       });
+    }
+
+    if (
+      !manuallySelected &&
+      (isSwapTxBuildError(error) || isSwapExecutionError(error))
+    ) {
+      // Check if there are more quotes available to try
+      if (quotes.quotes.length > 1) {
+        const currentQuoteIndex = quotes.quotes.findIndex(
+          (q) => q.quote === quoteToUse,
+        );
+        const nextQuoteIndex = currentQuoteIndex + 1;
+
+        if (nextQuoteIndex < quotes.quotes.length) {
+          // Try the next quote automatically
+          const nextQuote = quotes.quotes[nextQuoteIndex];
+          const swapProvider = quotes.provider;
+          if (nextQuote) {
+            setQuotes({
+              ...quotes,
+              selected: nextQuote,
+            });
+
+            // Retry swap with next quote without showing error
+            performSwap(swapProvider, nextQuote.quote);
+            return; // Don't handle error since we're retrying
+          }
+        }
+      }
     }
 
     if (error && !isUserRejectionError(error)) {

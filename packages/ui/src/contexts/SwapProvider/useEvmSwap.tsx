@@ -4,6 +4,7 @@ import { assert, assertPresent, getProviderForNetwork } from '@core/common';
 import {
   CommonError,
   FeatureGates,
+  FeatureVars,
   SecretType,
   SwapErrorCode,
 } from '@core/types';
@@ -44,7 +45,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
   { onTransactionReceipt, showPendingToast },
 ) => {
   const { request } = useConnectionContext();
-  const { isFlagEnabled } = useFeatureFlagContext();
+  const { isFlagEnabled, selectFeatureFlag } = useFeatureFlagContext();
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
@@ -214,6 +215,9 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         userAddress,
         isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
         isOneClickSwapEnabled: isOneClickSwapEnabled && isOneClickSwapSupported,
+        markrSwapGasBuffer: parseFloat(
+          selectFeatureFlag(FeatureVars.MARKR_SWAP_GAS_BUFFER),
+        ),
       });
 
       const pendingToastId = showPendingToast();
@@ -243,6 +247,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       showPendingToast,
       onTransactionReceipt,
       isFlagEnabled,
+      selectFeatureFlag,
       walletDetails?.type,
     ],
   );

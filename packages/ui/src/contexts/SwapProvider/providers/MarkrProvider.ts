@@ -139,6 +139,7 @@ export const MarkrProvider: SwapProvider = {
     userAddress,
     signAndSend,
     isOneClickSwapEnabled,
+    markrSwapGasBuffer,
   }: PerformSwapParams & SwapWalletState) {
     if (!srcTokenAddress)
       throw swapError(
@@ -175,6 +176,12 @@ export const MarkrProvider: SwapProvider = {
       throw swapError(
         CommonError.UnknownNetwork,
         new Error('Network is not supported'),
+      );
+
+    if (!markrSwapGasBuffer)
+      throw swapError(
+        SwapErrorCode.MissingParams,
+        new Error('Missing parameter: markrSwapGasBuffer'),
       );
 
     if (!isMarkrQuote(quote)) {
@@ -243,13 +250,28 @@ export const MarkrProvider: SwapProvider = {
       }
     }
 
+    const props = {
+      from: userAddress,
+      to: tx.to,
+      gas: undefined,
+      data: tx.data,
+      value: isSrcTokenNative ? bigIntToHex(BigInt(sourceAmount)) : undefined,
+    };
+
+    const [swapGasLimit, swapGasLimitError] = await resolve(
+      provider.estimateGas(props),
+    );
+
+    if (swapGasLimitError || !swapGasLimit) {
+      throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);
+    }
+
+    const gas = bigIntToHex((swapGasLimit * BigInt(markrSwapGasBuffer)) / 100n);
+
     const txParams: [TransactionParams] = [
       {
-        from: userAddress,
-        to: tx.to,
-        gas: undefined,
-        data: tx.data,
-        value: isSrcTokenNative ? bigIntToHex(BigInt(sourceAmount)) : undefined, // AVAX value needs to be sent with the transaction
+        ...props,
+        gas: gas,
       },
     ];
 

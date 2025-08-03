@@ -1,11 +1,11 @@
 import {
   ExtensionConnectionEvent,
   FeatureFlagEvents,
-  FeatureGates,
+  FeatureFlags,
 } from '@core/types';
 
 export function isFeatureFlagsUpdatedEvent(
   evt: ExtensionConnectionEvent,
-): evt is ExtensionConnectionEvent<Record<FeatureGates, boolean>> {
+): evt is ExtensionConnectionEvent<FeatureFlags> {
   return evt.name === FeatureFlagEvents.FEATURE_FLAG_UPDATED;
 }

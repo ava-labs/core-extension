@@ -43,7 +43,7 @@ import {
   isMarkrSwapParams,
   isEvmUnwrapSwapParams,
 } from './models';
-import { swapError } from './swap-utils';
+import { applyFeeDeduction, swapError } from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
 import { NormalizedSwapQuoteResult } from './types';
@@ -259,6 +259,34 @@ export function SwapContextProvider({
     [t],
   );
 
+  const setAmounts = useCallback(
+    (
+      metadata: NormalizedSwapQuoteResult['selected']['metadata'],
+      swapSide: SwapSide,
+      slippage: number,
+    ) => {
+      // Set amountOut for sell side
+      const amountOut = metadata.amountOut;
+      if (
+        swapSide === SwapSide.SELL &&
+        amountOut &&
+        typeof amountOut === 'string'
+      ) {
+        setDestAmount(applyFeeDeduction(amountOut, swapSide, slippage));
+      }
+      // Set amountIn for buy side
+      const amountIn = metadata.amountIn;
+      if (
+        swapSide === SwapSide.BUY &&
+        amountIn &&
+        typeof amountIn === 'string'
+      ) {
+        setSrcAmount(applyFeeDeduction(amountIn, swapSide, slippage));
+      }
+    },
+    [setDestAmount, setSrcAmount],
+  );
+
   const fetchQuotes = useCallback(
     async ({
       amount,
@@ -313,51 +341,20 @@ export function SwapContextProvider({
             setManuallySelected(false);
             setQuotes(update);
             const selected = update.selected;
-            // Set amountOut for sell side
-            const amountOut = selected.metadata.amountOut;
-            if (
-              swapSide === SwapSide.SELL &&
-              amountOut &&
-              typeof amountOut === 'string'
-            ) {
-              setDestAmount(amountOut);
-            }
-            // Set amountIn for buy side
-            const amountIn = selected.metadata.amountIn;
-            if (
-              swapSide === SwapSide.BUY &&
-              amountIn &&
-              typeof amountIn === 'string'
-            ) {
-              setSrcAmount(amountIn);
-            }
+            // Set amounts based on the swap side
+            setAmounts(selected.metadata, swapSide, Number(slippageTolerance));
           },
         })
           .then((result) => {
             if (result) {
               setManuallySelected(false);
               setQuotes(result);
-              const selected = result.selected;
-              // Set amountOut for sell side
-              const amountOut = selected.metadata.amountOut;
-              if (
-                swapSide === SwapSide.SELL &&
-                amountOut &&
-                typeof amountOut === 'string'
-              ) {
-                setDestAmount(amountOut);
-              }
-              // Set amountIn for buy side
-              const amountIn = selected.metadata.amountIn;
-              if (
-                swapSide === SwapSide.BUY &&
-                amountIn &&
-                typeof amountIn === 'string'
-              ) {
-                setSrcAmount(amountIn);
-              }
+              const metadata = result.selected.metadata;
+              // Set amounts based on the swap side
+              setAmounts(metadata, swapSide, Number(slippageTolerance));
               // Check balance here
               if (fromTokenBalance && swapSide === SwapSide.BUY) {
+                const amountIn = metadata.amountIn;
                 checkUserBalance(fromTokenBalance, amountIn);
               }
             }
@@ -381,7 +378,7 @@ export function SwapContextProvider({
         setQuotes(null);
       }
     },
-    [getRate, t, checkUserBalance],
+    [getRate, t, checkUserBalance, setAmounts],
   );
 
   useEffect(() => {
