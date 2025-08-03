@@ -79,9 +79,10 @@ export const SeedlessMfaManagementProvider = ({
 }: SeedlessMfaManagementContextProps) => {
   const { events, request } = useConnectionContext();
   const { walletDetails } = useWalletContext();
-  const { featureFlags } = useFeatureFlagContext();
-  const areMfaSettingsAvailable =
-    featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
+  const { isFlagEnabled } = useFeatureFlagContext();
+  const areMfaSettingsAvailable = isFlagEnabled(
+    FeatureGates.SEEEDLESS_MFA_SETTINGS,
+  );
 
   const [isLoadingRecoveryMethods, setIsLoadingRecoveryMethods] =
     useState(false);

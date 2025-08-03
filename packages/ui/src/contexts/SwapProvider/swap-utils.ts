@@ -16,7 +16,7 @@ import { isJupiterQuote, SwapError } from './models';
 import { isWrappedError, WrappedError } from '@core/common';
 import { CommonError, SwapErrorCode } from '@core/types';
 
-import { FetcherError, TransactionParams } from '@paraswap/sdk';
+import { FetcherError, SwapSide, TransactionParams } from '@paraswap/sdk';
 import {
   JUPITER_PARTNER_ADDRESS,
   PARASWAP_PARTNER_ADDRESS,
@@ -32,6 +32,7 @@ import {
   SwapParams,
 } from './models';
 import { JupiterQuote } from './schemas';
+import Big from 'big.js';
 
 export function validateJupiterParams(
   params: Partial<SwapParams<JupiterQuote>>,
@@ -432,4 +433,22 @@ export async function buildUnwrapTx({
     data,
     from: userAddress,
   };
+}
+
+export function applyFeeDeduction(
+  amount: string,
+  direction: SwapSide,
+  slippage: number,
+): string {
+  const slippagePercent = slippage / 100;
+  const feePercent = PARASWAP_PARTNER_FEE_BPS / 10_000;
+  const totalPercent = slippagePercent + feePercent;
+
+  if (direction === SwapSide.SELL) {
+    const minAmountOut = new Big(amount).times(1 - totalPercent).toFixed(0);
+    return minAmountOut;
+  } else {
+    const maxAmountIn = new Big(amount).times(1 + totalPercent).toFixed(0);
+    return maxAmountIn;
+  }
 }

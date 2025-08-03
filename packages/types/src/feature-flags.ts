@@ -59,8 +59,12 @@ export enum FeatureGates {
   SWAP_USE_MARKR = 'swap-use-markr',
 }
 
+export enum FeatureVars {
+  MARKR_SWAP_GAS_BUFFER = 'markr-swap-gas-buffer',
+}
+
 export enum FeatureFlagEvents {
   FEATURE_FLAG_UPDATED = 'FeatureFlagEvents: FEATURE_FLAG_UPDATED',
 }
 
-export type FeatureFlags = Record<FeatureGates, boolean>;
+export type FeatureFlags = Record<FeatureGates | FeatureVars, boolean | string>;

@@ -1,5 +1,5 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
-import { CommonError, ErrorCode } from '@core/types';
+import { CommonError, ErrorCode, SwapErrorCode } from '@core/types';
 
 export type ErrorData = {
   reason: ErrorCode;
@@ -52,6 +52,33 @@ export const isUserRejectionError = (err: any) => {
 
   if (typeof err === 'object') {
     return err.message?.startsWith('User rejected') || err.code === 4001;
+  }
+
+  return false;
+};
+
+export const isSwapTxBuildError = (err: unknown) => {
+  if (!err) {
+    return false;
+  }
+
+  if (isWrappedError(err)) {
+    return err.data.reason === SwapErrorCode.CannotBuildTx;
+  }
+
+  return false;
+};
+
+export const isSwapExecutionError = (err: unknown) => {
+  if (!err) {
+    return false;
+  }
+
+  if (isWrappedError(err)) {
+    return (
+      err.data.reason === CommonError.UnableToEstimateGas ||
+      err.data.reason === CommonError.UnableToSign
+    );
   }
 
   return false;
