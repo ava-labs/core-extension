@@ -67,4 +67,7 @@ export enum FeatureFlagEvents {
   FEATURE_FLAG_UPDATED = 'FeatureFlagEvents: FEATURE_FLAG_UPDATED',
 }
 
-export type FeatureFlags = Record<FeatureGates | FeatureVars, boolean | string>;
+export type FeatureFlags = Record<FeatureGates, boolean> &
+  Record<FeatureVars, string>;
+
+export type FeatureFlagPayloads = Record<FeatureGates | FeatureVars, string>;

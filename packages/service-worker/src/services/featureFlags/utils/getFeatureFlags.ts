@@ -1,4 +1,4 @@
-import { FeatureGates, FeatureVars } from '@core/types';
+import { FeatureFlags, FeatureFlagPayloads } from '@core/types';
 import { DISABLED_FLAG_VALUES } from '@core/common';
 export async function getFeatureFlags(
   token?: string,
@@ -29,10 +29,8 @@ export async function getFeatureFlags(
   const fetchWithPosthogFallback = async () => {
     const fetcher = async (url: string) => {
       const response: {
-        featureFlags: { [key in FeatureGates | FeatureVars]: boolean | string };
-        featureFlagPayloads: Partial<
-          Record<FeatureGates | FeatureVars, string>
-        >;
+        featureFlags: FeatureFlags;
+        featureFlagPayloads: Partial<FeatureFlagPayloads>;
       } = await (
         await fetch(`${url}/decide?${params}`, {
           method: 'POST',
