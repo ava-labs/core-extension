@@ -1,4 +1,4 @@
-import { FeatureFlags, FeatureGates } from '@core/types';
+import { FeatureFlags, FeatureGates, FeatureVars } from '@core/types';
 
 // Posthog API does not return disabled flags on their `/decide` api endpoint
 // Define disabled state values for the flags
@@ -60,6 +60,8 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.GASLESS]: false,
   [FeatureGates.SOLANA_SUPPORT]: false,
   [FeatureGates.CORE_ASSISTANT]: false,
+  [FeatureGates.SWAP_USE_MARKR]: false,
+  [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '100',
 };
 
 // Default flags are used when posthog is not available
@@ -121,6 +123,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.GASLESS]: true,
   [FeatureGates.SOLANA_SUPPORT]: true,
   [FeatureGates.CORE_ASSISTANT]: true,
+  [FeatureGates.SWAP_USE_MARKR]: true,
+  [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '120',
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

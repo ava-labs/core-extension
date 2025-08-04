@@ -56,10 +56,18 @@ export enum FeatureGates {
   GASLESS = 'gasless',
   SOLANA_SUPPORT = 'solana-support',
   CORE_ASSISTANT = 'core-assistant',
+  SWAP_USE_MARKR = 'swap-use-markr',
+}
+
+export enum FeatureVars {
+  MARKR_SWAP_GAS_BUFFER = 'markr-swap-gas-buffer',
 }
 
 export enum FeatureFlagEvents {
   FEATURE_FLAG_UPDATED = 'FeatureFlagEvents: FEATURE_FLAG_UPDATED',
 }
 
-export type FeatureFlags = Record<FeatureGates, boolean>;
+export type FeatureFlags = Record<FeatureGates, boolean> &
+  Record<FeatureVars, string>;
+
+export type FeatureFlagPayloads = Record<FeatureGates | FeatureVars, string>;

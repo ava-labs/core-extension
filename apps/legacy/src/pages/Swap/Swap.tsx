@@ -2,7 +2,12 @@ import { FunctionIsOffline } from '@/components/common/FunctionIsOffline';
 import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable';
 import { PageTitle } from '@/components/common/PageTitle';
 import { TokenSelect } from '@/components/common/TokenSelect';
-import { isJupiterQuote, isParaswapQuote, useAccountsContext } from '@core/ui';
+import {
+  isJupiterQuote,
+  isParaswapQuote,
+  SwapQuote,
+  useAccountsContext,
+} from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
 import { useNetworkFeeContext } from '@core/ui';
 import { useNetworkContext } from '@core/ui';
@@ -24,7 +29,9 @@ import {
 } from '@avalabs/core-k2-components';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import {
+  isGasEstimationError,
   isSolanaNetwork,
+  isSwapTxBuildError,
   isUserRejectionError,
   Monitoring,
   resolve,
@@ -39,6 +46,7 @@ import { calculateRate, isSlippageValid } from './utils';
 import { useHistory } from 'react-router-dom';
 import { useSwappableTokens } from './hooks/useSwapTokens';
 import { SwapEngineNotice } from './components/SwapEngineNotice';
+import { SwapProviders } from '@core/ui/src/contexts/SwapProvider/types';
 
 const ReviewOrderButtonContainer = styled('div')<{
   isTransactionDetailsOpen: boolean;
@@ -95,7 +103,11 @@ export function Swap() {
     swapWarning,
     isReversed,
     toTokenValue,
-    quote,
+    quotes,
+    setQuotes,
+    manuallySelected,
+    setManuallySelected,
+    srcAmount,
     destAmount,
     resetValues,
     slippageTolerance,
@@ -111,6 +123,8 @@ export function Swap() {
       ),
     [targetTokens, selectedFromToken?.name, selectedFromToken?.symbol],
   );
+
+  const quote = useMemo(() => quotes?.selected?.quote ?? null, [quotes]);
 
   const isFromTokenKnown = useMemo(
     () =>
@@ -152,15 +166,17 @@ export function Swap() {
 
   const fromAmount = useMemo(() => {
     const result =
-      destinationInputField === 'from' ? BigInt(destAmount) : defaultFromValue;
+      destinationInputField === 'from'
+        ? BigInt(srcAmount || '0')
+        : defaultFromValue;
 
     return result;
-  }, [defaultFromValue, destAmount, destinationInputField]);
+  }, [srcAmount, defaultFromValue, destinationInputField]);
 
   const toAmount = useMemo(() => {
     const result =
       destinationInputField === 'to'
-        ? BigInt(destAmount)
+        ? BigInt(destAmount || '0')
         : toTokenValue?.bigint;
 
     return result;
@@ -176,7 +192,10 @@ export function Swap() {
     [selectedToToken?.name, selectedToToken?.symbol, sourceTokens],
   );
 
-  async function performSwap() {
+  async function performSwap(
+    specificProvider?: SwapProviders,
+    specificQuote?: SwapQuote,
+  ) {
     const {
       amount,
       fromTokenAddress,
@@ -184,17 +203,31 @@ export function Swap() {
       toTokenDecimals,
       fromTokenDecimals,
     } = getSwapValues();
+    if (!amount) {
+      return;
+    }
+
+    const amountIn =
+      destinationInputField === 'from' ? srcAmount : amount.toString();
+    const amountOut =
+      destinationInputField === 'to' ? destAmount : amount.toString();
+
     if (
       !networkFee ||
       !toTokenDecimals ||
       !toTokenAddress ||
       !fromTokenAddress ||
       !fromTokenDecimals ||
-      !amount ||
-      !quote
+      !quotes ||
+      !quote ||
+      !amountIn ||
+      !amountOut
     ) {
       return;
     }
+
+    const quoteToUse = specificQuote ?? quote;
+    const providerToUse = specificProvider ?? quotes.provider;
 
     setIsConfirming(true);
 
@@ -206,8 +239,11 @@ export function Swap() {
         destToken: toTokenAddress,
         srcDecimals: fromTokenDecimals,
         destDecimals: toTokenDecimals,
-        quote,
+        quote: quoteToUse,
         slippage: parseFloat(slippage),
+        swapProvider: providerToUse,
+        amountIn,
+        amountOut,
       }),
     );
 
@@ -220,6 +256,35 @@ export function Swap() {
         address: activeAddress,
         chainId: network?.chainId,
       });
+    }
+
+    if (
+      !manuallySelected &&
+      (isSwapTxBuildError(error) || isGasEstimationError(error))
+    ) {
+      // Check if there are more quotes available to try
+      if (quotes.quotes.length > 1) {
+        const currentQuoteIndex = quotes.quotes.findIndex(
+          (q) => q.quote === quoteToUse,
+        );
+        const nextQuoteIndex = currentQuoteIndex + 1;
+
+        if (nextQuoteIndex < quotes.quotes.length) {
+          // Try the next quote automatically
+          const nextQuote = quotes.quotes[nextQuoteIndex];
+          const swapProvider = quotes.provider;
+          if (nextQuote) {
+            setQuotes({
+              ...quotes,
+              selected: nextQuote,
+            });
+
+            // Retry swap with next quote without showing error
+            performSwap(swapProvider, nextQuote.quote);
+            return; // Don't handle error since we're retrying
+          }
+        }
+      }
     }
 
     if (error && !isUserRejectionError(error)) {
@@ -424,7 +489,12 @@ export function Swap() {
           {isDetailsAvailable && (
             <TransactionDetails
               quote={quote}
+              quotes={quotes}
+              setQuotes={setQuotes}
+              manuallySelected={manuallySelected}
+              setManuallySelected={setManuallySelected}
               fromTokenSymbol={selectedFromToken?.symbol}
+              toToken={selectedToToken}
               toTokenSymbol={selectedToToken?.symbol}
               rate={calculateRate(quote, {
                 srcDecimals: selectedFromToken?.decimals,
