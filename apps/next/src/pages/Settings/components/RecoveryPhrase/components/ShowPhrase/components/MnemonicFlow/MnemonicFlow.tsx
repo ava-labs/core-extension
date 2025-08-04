@@ -30,9 +30,6 @@ export const MnemonicFlow: FC = () => {
     useShowPhrase(password);
 
   const invalidPassword = error === 'Password invalid';
-  const errorMessage = invalidPassword
-    ? t('Please enter a valid password')
-    : t('Unknown error. Please try again');
 
   return (
     <Page
@@ -53,7 +50,11 @@ export const MnemonicFlow: FC = () => {
         placeholder={t('Enter password')}
         error={!!error}
         helperText={
-          errorMessage || t('Enter your password to view your recovery phrase')
+          error
+            ? invalidPassword
+              ? t('Please enter a valid password')
+              : t('Unknown error. Please try again')
+            : t('Enter your password to view your recovery phrase')
         }
         fullWidth
       />
