@@ -1,11 +1,13 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { EnsureDefined } from './util-types';
 
-// This is used in old migration. Now we use ColorScheme type
+/**
+ * @deprecated Use ColorScheme instead
+ * This is used in an old migration.
+ */
 export enum ThemeVariant {
   LIGHT = 'LIGHT',
   DARK = 'DARK',
-  SYSTEM = 'SYSTEM',
 }
 
 export type ColorScheme = 'DARK' | 'LIGHT' | 'SYSTEM';

@@ -9,7 +9,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
-import { useContactsContext, useSettingsContext } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useContactsContext,
+  useSettingsContext,
+} from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { Page } from '@/components/Page';
@@ -39,6 +43,7 @@ export const SettingsHomePage = () => {
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { replace } = useHistory();
+  const { capture } = useAnalyticsContext();
 
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
@@ -128,7 +133,13 @@ export const SettingsHomePage = () => {
             <Switch
               size="small"
               checked={showTrendingTokens}
-              onChange={() => setShowTrendingTokens(!showTrendingTokens)}
+              onChange={() => {
+                const newValue = !showTrendingTokens;
+                setShowTrendingTokens(newValue);
+                capture('ShowTrendingTokensSettingChanged', {
+                  showTrendingTokens: newValue,
+                });
+              }}
             />
           }
         />

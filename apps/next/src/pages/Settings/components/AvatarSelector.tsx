@@ -7,12 +7,16 @@ import {
   usePersonalAvatar,
 } from '@/components/PersonalAvatar';
 import { Box, getHexAlpha, Stack, useTheme } from '@avalabs/k2-alpine';
+import { useAnalyticsContext } from '@core/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
 export const AvatarSelector = () => {
   const { t } = useTranslation();
   const { saveAvatar, selected } = usePersonalAvatar();
+  const { replace } = useHistory();
+  const { capture } = useAnalyticsContext();
   const { name: selectedAvatarName } = selected;
 
   const theme = useTheme();
@@ -23,6 +27,8 @@ export const AvatarSelector = () => {
   const handleSelectAvatar = (newSelected: PersonalAvatarName) => {
     setSelectedAvatar(newSelected);
     saveAvatar(newSelected);
+    capture('AvatarSettingChanged');
+    replace('/settings');
   };
 
   const row1 = AVATAR_OPTIONS.filter((_, index) => index % 2 === 0);
