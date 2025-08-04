@@ -11,6 +11,7 @@ import type {
   SetCoreAssistantHandler,
   SetLanguageHandler,
   SetPreferredViewHandler,
+  SetShowTrendingTokensHandler,
   UpdateCollectiblesVisibilityHandler,
   UpdateCurrencyHandler,
   UpdateShowNoBalanceHandler,
@@ -65,6 +66,7 @@ type SettingsFromProvider = SettingsState & {
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
+  setShowTrendingTokens: (show: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -221,6 +223,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setShowTrendingTokens = useCallback(
+    (show: boolean) => {
+      return request<SetShowTrendingTokensHandler>({
+        method: ExtensionRequest.SETTINGS_SET_SHOW_TRENDING_TOKENS,
+        params: [show],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -243,6 +255,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setSettingsActivePage,
           setCoreAssistant,
           setPreferredView,
+          setShowTrendingTokens,
         } as SettingsFromProvider
       }
     >

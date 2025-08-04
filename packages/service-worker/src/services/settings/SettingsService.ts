@@ -31,6 +31,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   language: Languages.EN,
   coreAssistant: true,
   preferredView: 'floating',
+  showTrendingTokens: false,
 };
 
 @singleton()
@@ -215,6 +216,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       preferredView: viewMode,
+    });
+  }
+
+  async setShowTrendingTokens(show: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      showTrendingTokens: show,
     });
   }
 

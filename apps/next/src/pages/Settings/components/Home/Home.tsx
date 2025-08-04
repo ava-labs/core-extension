@@ -43,6 +43,7 @@ export const SettingsHomePage = () => {
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
+  const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
 
   return (
     <Page
@@ -115,6 +116,19 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <ViewPreferenceSelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+            />
+          }
+        />
+        <SettingsNavItem
+          label={t('Show me Trending Tokens')}
+          description={t(
+            'Display the shortcut to tokens that are trending in the last 24 hours',
+          )}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={showTrendingTokens}
+              onChange={() => setShowTrendingTokens(!showTrendingTokens)}
             />
           }
         />

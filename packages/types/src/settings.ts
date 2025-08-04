@@ -69,6 +69,7 @@ export interface SettingsState {
   language: Languages;
   coreAssistant: boolean;
   preferredView: ViewMode;
+  showTrendingTokens: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';
