@@ -1,9 +1,9 @@
-import { SeedlessFlow } from '@/pages/Onboarding/flows/SeedlessFlow';
 import { SecretType } from '@core/types';
 import { useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { Redirect } from 'react-router-dom';
 import { MnemonicFlow } from './components/MnemonicFlow';
+import { SeedlessFlow } from './components/SeedlessFlow';
 
 export const ShowPhrase: FC = () => {
   const { walletDetails } = useWalletContext();

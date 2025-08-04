@@ -1,9 +1,9 @@
+import { ActionButtons } from '@/components/ActionButtons';
 import { Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { Account, SecretType } from '@core/types';
 import { useAccountManager, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActionButtons } from '../../ActionButtons';
 import { AddressesCard } from './AddressesCard';
 import { AccountDetailsHeader } from './Header';
 import { MoreDetailsCard } from './MoreDetailsCard';
