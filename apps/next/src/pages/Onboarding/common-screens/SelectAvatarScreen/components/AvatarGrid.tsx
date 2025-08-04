@@ -1,4 +1,3 @@
-import { FC } from 'react';
 import {
   getHexAlpha,
   Stack,
@@ -7,13 +6,14 @@ import {
   useMediaQuery,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { FC } from 'react';
 
 import {
   PersonalAvatar,
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
 
-type AvatarGridProps = StackProps & {
+type AvatarGridProps = Omit<StackProps, 'onSelect'> & {
   avatars: readonly PersonalAvatarName[];
   selected?: PersonalAvatarName;
   onSelect: (avatar: PersonalAvatarName) => void;

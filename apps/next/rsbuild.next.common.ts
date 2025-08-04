@@ -1,9 +1,9 @@
 import { defineConfig } from '@rsbuild/core';
-import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
-import path from 'path';
 import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
-import { CopyRspackPlugin } from '@rspack/core';
 import { pluginReact } from '@rsbuild/plugin-react';
+import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
+import { CopyRspackPlugin } from '@rspack/core';
+import path from 'path';
 
 export default defineConfig(() => ({
   environments: {
@@ -22,6 +22,7 @@ export default defineConfig(() => ({
           home: path.join(__dirname, 'src/popup/index.tsx'),
           fullscreen: path.join(__dirname, 'src/popup/index.tsx'),
           confirm: path.join(__dirname, 'src/popup/index.tsx'),
+          sidePanel: path.join(__dirname, 'src/popup/index.tsx'),
         },
       },
       output: {
@@ -66,9 +67,6 @@ export default defineConfig(() => ({
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
       react: path.resolve('./node_modules/react'),
-      '@emotion/cache': path.resolve(
-        './node_modules/@emotion/cache/dist/emotion-cache.esm.js',
-      ),
       'react-dom': path.resolve('./node_modules/react-dom'),
       path: require.resolve('path-browserify'),
     },

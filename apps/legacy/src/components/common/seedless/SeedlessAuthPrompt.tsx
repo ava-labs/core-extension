@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 
-import { useWalletContext } from '@core/ui';
+import { useDeriveMissingKeysForSeedless, useWalletContext } from '@core/ui';
 import { openExtensionNewWindow } from '@core/common';
 import { useSeedlessAuthPromptState } from '@core/ui';
 import { SecretType } from '@core/types';
@@ -19,6 +19,8 @@ export const SeedlessAuthPrompt = () => {
   const { walletDetails } = useWalletContext();
   const { isAuthPromptVisible } = useSeedlessAuthPromptState();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  useDeriveMissingKeysForSeedless();
 
   const handleLogin = useCallback(async () => {
     const popup = await openExtensionNewWindow('seedless-auth');

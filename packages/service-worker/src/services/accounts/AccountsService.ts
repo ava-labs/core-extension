@@ -21,11 +21,13 @@ import {
   assertPresent,
   assertPropDefined,
   getAllAddressesForAccount,
+  isMissingAnyAddress,
   isPrimaryAccount,
   isProductionBuild,
   mapAddressesToVMs,
   mapVMAddresses,
   ReadWriteLock,
+  Monitoring,
 } from '@core/common';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
@@ -38,6 +40,7 @@ import { AddressResolver } from '../secrets/AddressResolver';
 import { SecretsService } from '../secrets/SecretsService';
 import { StorageService } from '../storage/StorageService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { uniq } from 'lodash';
 
 type AddAccountParams = {
   walletId: string;
@@ -181,6 +184,8 @@ export class AccountsService implements OnLock, OnUnlock {
         return;
       }
 
+      const hasMissingAddresses = await this.#tryToDeriveMissingKeys(accounts);
+
       const refreshAccount = async <T extends Account>(
         account: T,
       ): Promise<T> => {
@@ -192,7 +197,7 @@ export class AccountsService implements OnLock, OnUnlock {
           account.addressPVM &&
           account.addressCoreEth;
 
-        if (isUpdated) {
+        if (isUpdated && !hasMissingAddresses) {
           return account;
         }
 
@@ -331,6 +336,52 @@ export class AccountsService implements OnLock, OnUnlock {
         imported: {},
       }
     );
+  }
+
+  async #tryToDeriveMissingKeys(accounts: Accounts): Promise<boolean> {
+    const primaryWalletIds = uniq(Object.keys(accounts.primary));
+
+    let accountsWithMissingAddresses = 0;
+
+    try {
+      for (const walletId of primaryWalletIds) {
+        const secrets = await this.secretsService.getSecretsById(walletId);
+
+        if (secrets.secretType !== SecretType.Mnemonic) {
+          continue;
+        }
+
+        const accountsForSecret = accounts.primary[walletId]!;
+
+        for (const account of accountsForSecret) {
+          if (!isMissingAnyAddress(account)) {
+            continue;
+          }
+
+          accountsWithMissingAddresses += 1;
+
+          await this.secretsService.addAddress({
+            index: account.index,
+            walletId,
+            ledgerService: this.ledgerService,
+            addressResolver: this.addressResolver,
+          });
+        }
+      }
+
+      return accountsWithMissingAddresses > 0;
+    } catch (error) {
+      // Never fail, but also log the error.
+      console.error(error);
+      if (error instanceof Error) {
+        Monitoring.sentryCaptureException(
+          error,
+          Monitoring.SentryExceptionTypes.ACCOUNTS,
+        );
+      }
+
+      return accountsWithMissingAddresses > 0;
+    }
   }
 
   private async saveAccounts(accounts: Accounts) {

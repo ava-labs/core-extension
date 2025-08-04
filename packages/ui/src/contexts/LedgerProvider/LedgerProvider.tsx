@@ -9,6 +9,7 @@ import {
 } from 'ledger-bitcoin';
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -99,7 +100,7 @@ const LedgerContext = createContext<{
   closeCurrentApp: () => Promise<void>;
 }>({} as any);
 
-export function LedgerContextProvider({ children }: { children: any }) {
+export function LedgerContextProvider({ children }: PropsWithChildren) {
   const [initialized, setInialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [app, setApp] = useState<Btc | AppAvalanche | Eth | AppSolana>();

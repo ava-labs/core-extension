@@ -976,6 +976,10 @@ export class WalletService implements OnUnlock {
       return wallet.signMessage(messageType, action.displayData?.messageParams);
     }
 
+    if (wallet instanceof KeystoneWallet) {
+      return wallet.signMessage(messageType, action.displayData?.messageParams);
+    }
+
     if (wallet instanceof LedgerSigner) {
       if (
         [

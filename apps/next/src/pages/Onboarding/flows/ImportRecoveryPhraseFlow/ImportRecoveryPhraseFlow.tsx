@@ -1,28 +1,24 @@
-import { useCallback, useEffect } from 'react';
 import { WalletType } from '@avalabs/types';
+import { useCallback, useEffect } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import {
+  CustomizeCore,
+  EnjoyYourWalletScreen,
   ProvideWalletDetailsScreen,
   SelectAvatarScreen,
-  EnjoyYourWalletScreen,
 } from '../../common-screens';
 import { EnterRecoveryPhraseScreen } from './screens';
 
 const BASE_PATH = '/onboarding/import/recovery-phrase';
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export const ImportRecoveryPhraseFlow = () => {
   const history = useHistory();
-  const {
-    setAvatar,
-    setOnboardingWalletType,
-    mnemonic,
-    setMnemonic,
-    onboardingState,
-  } = useOnboardingContext();
+  const { setOnboardingWalletType, mnemonic, setMnemonic, onboardingState } =
+    useOnboardingContext();
   const { capture } = useAnalyticsContext();
 
   useEffect(() => {
@@ -47,37 +43,41 @@ export const ImportRecoveryPhraseFlow = () => {
   );
 
   const onDetailsProvided = useCallback(() => {
-    history.push(`${BASE_PATH}/select-avatar`);
+    history.push(`${BASE_PATH}/customize-core`);
   }, [history]);
 
-  const onAvatarSelected = useCallback(
-    (avatarUri: string) => {
-      setAvatar(avatarUri);
-      capture('OnboardingAvatarSelected');
-      history.push(`${BASE_PATH}/enjoy-your-wallet`);
-    },
-    [capture, setAvatar, history],
-  );
+  const onAvatarSelected = useCallback(() => {
+    capture('OnboardingAvatarSelected');
+    history.push(`${BASE_PATH}/enjoy-your-wallet`);
+  }, [capture, history]);
 
+  let step = 2;
   return (
     <Switch>
       <Route exact path={BASE_PATH}>
         <EnterRecoveryPhraseScreen
-          step={2}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onMnemonicImported}
         />
       </Route>
       <Route path={`${BASE_PATH}/wallet-details`}>
         <ProvideWalletDetailsScreen
-          step={3}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onDetailsProvided}
         />
       </Route>
+      <Route path={`${BASE_PATH}/customize-core`}>
+        <CustomizeCore
+          step={step++}
+          totalSteps={TOTAL_STEPS}
+          onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
+        />
+      </Route>
       <Route path={`${BASE_PATH}/select-avatar`}>
         <SelectAvatarScreen
-          step={4}
+          step={step++}
           totalSteps={TOTAL_STEPS}
           onNext={onAvatarSelected}
         />

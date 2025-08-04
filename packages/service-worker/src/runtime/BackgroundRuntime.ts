@@ -1,15 +1,16 @@
-import { ContextContainer } from '@core/types';
+import { ContextContainer, SettingsEvents, SettingsState } from '@core/types';
+import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 import { ConnectionService } from '../connections/ConnectionService';
-import { singleton } from 'tsyringe';
-import { LockService } from '../services/lock/LockService';
-import { OnboardingService } from '../services/onboarding/OnboardingService';
-import { ModuleManager } from '../vmModules/ModuleManager';
-import { BridgeService } from '../services/bridge/BridgeService';
-import { AddressResolver } from '../services/secrets/AddressResolver';
 import { AppCheckService } from '../services/appcheck/AppCheckService';
+import { BridgeService } from '../services/bridge/BridgeService';
 import { GasStationService } from '../services/gasless/GasStationService';
+import { LockService } from '../services/lock/LockService';
 import { NotificationsService } from '../services/notifications/NotificationsService';
+import { OnboardingService } from '../services/onboarding/OnboardingService';
+import { AddressResolver } from '../services/secrets/AddressResolver';
+import { SettingsService } from '../services/settings/SettingsService';
+import { ModuleManager } from '../vmModules/ModuleManager';
 
 @singleton()
 export class BackgroundRuntime {
@@ -24,12 +25,14 @@ export class BackgroundRuntime {
     private appCheckService: AppCheckService,
     private gasStationService: GasStationService,
     private notificationsService: NotificationsService,
+    private settingsService: SettingsService,
   ) {}
 
-  activate() {
+  async activate() {
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
+    await this.setupSidePanel();
 
     // Activate services which need to run all the or are required for bootstraping the wallet state
     this.connectionService.activate();
@@ -112,16 +115,62 @@ export class BackgroundRuntime {
   }
 
   async #createOffScreen() {
+    // Support starts at Chrome 109+
+    if (!browser.offscreen) {
+      return;
+    }
+
     try {
-      await chrome.offscreen.closeDocument();
+      await browser.offscreen.closeDocument();
     } catch {
       // nothing to close
     }
 
-    await chrome.offscreen.createDocument({
-      url: 'offscreen/offscreen.html',
-      reasons: ['WORKERS'],
-      justification: 'offload computation',
+    try {
+      await browser.offscreen.createDocument({
+        url: 'offscreen/offscreen.html',
+        reasons: [browser.offscreen.Reason.WORKERS],
+        justification: 'offload computation',
+      });
+    } catch (err) {
+      // We're getting error logs of Chrome 109 not liking "WORKERS" as a reason for creating the offscreen document.
+      // Maybe it was not supported back then -- either way, nothing we can do about it.
+      const canIgnore =
+        err instanceof Error &&
+        err.message.includes("Error at property 'reasons'");
+
+      if (!canIgnore) {
+        throw err;
+      }
+    }
+  }
+
+  private async setupSidePanel() {
+    const hasSidePanelPermission = await browser.permissions.contains({
+      permissions: ['sidePanel'],
     });
+
+    if (!hasSidePanelPermission) {
+      return;
+    }
+
+    const setSidePanelBehavior = (settings: SettingsState) => {
+      const { preferredView } = settings;
+
+      if (!preferredView) {
+        return;
+      }
+
+      browser.sidePanel.setPanelBehavior({
+        openPanelOnActionClick: preferredView === 'sidebar',
+      });
+    };
+
+    setSidePanelBehavior(await this.settingsService.getSettings());
+
+    this.settingsService.addListener(
+      SettingsEvents.SETTINGS_UPDATED,
+      setSidePanelBehavior,
+    );
   }
 }

@@ -7,7 +7,7 @@ import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { useOnboardingContext, useSeedlessAuth, AuthStep } from '@core/ui';
 
 import { LoadingScreen } from '@/pages/Onboarding/components/LoadingScreen';
-import { useModalPageControl } from '@/components/OnboardingModal';
+import { useModalPageControl } from '@/components/FullscreenModal';
 
 import {
   SeedlessChooseAuthMethod,

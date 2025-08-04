@@ -1,5 +1,3 @@
-import { FC, Suspense, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   CircularProgress,
@@ -7,16 +5,18 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-alpine';
-import { action } from 'webextension-polyfill';
+import { FC, Suspense, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
 
 import {
-  OnboardingStepActions,
-  OnboardingStepContent,
+  FullscreenModalActions,
+  FullscreenModalContent,
   useModalPageControl,
-} from '@/components/OnboardingModal';
-import { AVATAR_OPTIONS, PersonalAvatar } from '@/components/PersonalAvatar';
+} from '@/components/FullscreenModal';
+import { useOpenApp } from '@/hooks/useOpenApp';
+import { PersonalAvatar } from '@/components/PersonalAvatar';
 
 import { LoadingScreen } from '../components/LoadingScreen';
 
@@ -24,11 +24,8 @@ export const EnjoyYourWalletScreen: FC = () => {
   const { t } = useTranslation();
   const { setCurrent, setTotal, setIsBackButtonVisible } =
     useModalPageControl();
-  const {
-    avatar: avatarDataUri,
-    submitInProgress,
-    submit,
-  } = useOnboardingContext();
+  const { submitInProgress, submit } = useOnboardingContext();
+  const openApp = useOpenApp();
 
   useEffect(() => {
     // We don't want to display any page controls on the last screen
@@ -38,18 +35,13 @@ export const EnjoyYourWalletScreen: FC = () => {
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
   const openWallet = () => {
-    action.openPopup();
+    openApp();
     window.close();
   };
 
   const keyboardHandlers = useKeyboardShortcuts({
     Enter: openWallet,
   });
-
-  // If for whatever reason we did not save the avatar, use a fallback
-  const avatarProps = avatarDataUri
-    ? { dataUri: avatarDataUri }
-    : { name: AVATAR_OPTIONS[0] };
 
   useEffect(() => {
     if (!submitInProgress) {
@@ -59,7 +51,7 @@ export const EnjoyYourWalletScreen: FC = () => {
 
   return (
     <Stack {...keyboardHandlers} sx={{ px: 11, flexGrow: 1 }}>
-      <OnboardingStepContent sx={{ overflow: 'unset', pt: 0 }}>
+      <FullscreenModalContent sx={{ overflow: 'unset', pt: 0 }}>
         <Stack
           sx={{
             flexDirection: 'row',
@@ -72,7 +64,7 @@ export const EnjoyYourWalletScreen: FC = () => {
           }}
         >
           <Suspense fallback={<LoadingScreen />}>
-            <PersonalAvatar {...avatarProps} size="large" isGlowing />
+            <PersonalAvatar cached size="large" isGlowing />
           </Suspense>
         </Stack>
         {submitInProgress ? (
@@ -92,8 +84,8 @@ export const EnjoyYourWalletScreen: FC = () => {
             </Typography>
           </Stack>
         )}
-      </OnboardingStepContent>
-      <OnboardingStepActions sx={{ justifyContent: 'center', pb: 6 }}>
+      </FullscreenModalContent>
+      <FullscreenModalActions sx={{ justifyContent: 'center', pb: 6 }}>
         <Fade in={!submitInProgress}>
           <Button
             fullWidth
@@ -105,7 +97,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             {t("Let's go!")}
           </Button>
         </Fade>
-      </OnboardingStepActions>
+      </FullscreenModalActions>
     </Stack>
   );
 };

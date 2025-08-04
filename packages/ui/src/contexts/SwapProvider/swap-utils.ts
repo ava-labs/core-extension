@@ -2,8 +2,6 @@ import {
   JsonRpcBatchInternal,
   SolanaProvider,
 } from '@avalabs/core-wallets-sdk';
-import { RpcMethod } from '@avalabs/vm-module-types';
-import ERC20 from '@openzeppelin/contracts/build/contracts/ERC20.json';
 import type { BuildTxInputBase } from '@paraswap/sdk/dist/methods/swap/transaction';
 import {
   findAssociatedTokenPda,
@@ -14,16 +12,11 @@ import { ethErrors } from 'eth-rpc-errors';
 import { Contract } from 'ethers';
 import { t } from 'i18next';
 
-import { isJupiterQuote, JupiterQuote, SwapError } from './models';
-import {
-  isUserRejectionError,
-  isWrappedError,
-  resolve,
-  WrappedError,
-} from '@core/common';
-import { CommonError, RequestHandlerType, SwapErrorCode } from '@core/types';
+import { isJupiterQuote, SwapError } from './models';
+import { isWrappedError, WrappedError } from '@core/common';
+import { CommonError, SwapErrorCode } from '@core/types';
 
-import { FetcherError, OptimalRate, TransactionParams } from '@paraswap/sdk';
+import { FetcherError, SwapSide, TransactionParams } from '@paraswap/sdk';
 import {
   JUPITER_PARTNER_ADDRESS,
   PARASWAP_PARTNER_ADDRESS,
@@ -38,84 +31,8 @@ import {
   ParaswapPricesResponse,
   SwapParams,
 } from './models';
-
-export function validateParaswapParams(
-  params: Partial<SwapParams<OptimalRate>>,
-):
-  | Required<
-      SwapParams<OptimalRate> & { srcAmount: string; destAmount: string }
-    >
-  | never {
-  const { srcToken, destToken, srcDecimals, destDecimals, quote, slippage } =
-    params;
-
-  if (!quote) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: quote'),
-    );
-  }
-
-  if (!srcToken) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: srcToken'),
-    );
-  }
-
-  if (!destToken) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: destToken'),
-    );
-  }
-
-  if (!quote.srcAmount) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: srcAmount'),
-    );
-  }
-
-  if (!srcDecimals) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: srcDecimals'),
-    );
-  }
-
-  if (!destDecimals) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: destDecimals'),
-    );
-  }
-
-  if (!quote.destAmount) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: destAmount'),
-    );
-  }
-
-  if (!slippage) {
-    throw swapError(
-      SwapErrorCode.MissingParams,
-      new Error('Missing parameter: slippage'),
-    );
-  }
-
-  return {
-    srcToken,
-    srcAmount: quote.srcAmount,
-    destToken,
-    destAmount: quote.destAmount,
-    srcDecimals,
-    destDecimals,
-    quote,
-    slippage,
-  };
-}
+import { JupiterQuote } from './schemas';
+import Big from 'big.js';
 
 export function validateJupiterParams(
   params: Partial<SwapParams<JupiterQuote>>,
@@ -124,8 +41,17 @@ export function validateJupiterParams(
       SwapParams<JupiterQuote> & { srcAmount: string; destAmount: string }
     >
   | never {
-  const { srcToken, destToken, srcDecimals, destDecimals, quote, slippage } =
-    params;
+  const {
+    srcToken,
+    destToken,
+    srcDecimals,
+    destDecimals,
+    quote,
+    slippage,
+    swapProvider,
+    amountIn,
+    amountOut,
+  } = params;
 
   if (!quote) {
     throw swapError(
@@ -176,6 +102,27 @@ export function validateJupiterParams(
     );
   }
 
+  if (!swapProvider) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: swapProvider'),
+    );
+  }
+
+  if (!amountIn) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: amountIn'),
+    );
+  }
+
+  if (!amountOut) {
+    throw swapError(
+      SwapErrorCode.MissingParams,
+      new Error('Missing parameter: amountOut'),
+    );
+  }
+
   const isSelling = quote.swapMode === 'ExactIn';
 
   return {
@@ -187,129 +134,10 @@ export function validateJupiterParams(
     destDecimals,
     quote,
     slippage,
+    swapProvider,
+    amountIn,
+    amountOut,
   };
-}
-
-export async function buildApprovalTx({
-  userAddress,
-  spenderAddress,
-  tokenAddress,
-  amount,
-  provider,
-}: {
-  userAddress: string;
-  spenderAddress: string;
-  tokenAddress: string;
-  amount: bigint;
-  provider: JsonRpcBatchInternal;
-}) {
-  const contract = new Contract(tokenAddress, ERC20.abi, provider);
-  const { data } = await contract.approve!.populateTransaction(
-    spenderAddress,
-    amount,
-  );
-
-  const chainId = `0x${provider._network.chainId.toString(16)}`;
-  const tx = {
-    from: userAddress,
-    to: tokenAddress,
-    chainId,
-    data,
-  };
-  const [approvalGasLimit, approvalGasLimitError] = await resolve(
-    provider.estimateGas(tx),
-  );
-
-  if (approvalGasLimitError) {
-    throw swapError(CommonError.UnableToEstimateGas, approvalGasLimitError);
-  }
-
-  return {
-    ...tx,
-    gas: `0x${approvalGasLimit.toString(16)}`,
-  };
-}
-
-export async function hasEnoughAllowance({
-  tokenAddress,
-  provider,
-  userAddress,
-  spenderAddress,
-  requiredAmount,
-}: {
-  tokenAddress: string;
-  provider: JsonRpcBatchInternal;
-  userAddress: string;
-  spenderAddress: string;
-  requiredAmount: bigint;
-}) {
-  const contract = new Contract(tokenAddress, ERC20.abi, provider);
-
-  if (!contract.allowance) {
-    throw swapError(
-      SwapErrorCode.MissingContractMethod,
-      new Error(`Contract Error: allowance method is not available`),
-    );
-  }
-
-  const [allowance, allowanceError] = await resolve(
-    contract.allowance(userAddress, spenderAddress),
-  );
-
-  if (allowanceError) {
-    throw swapError(SwapErrorCode.CannotFetchAllowance, allowanceError);
-  }
-
-  return allowance >= requiredAmount;
-}
-
-export async function ensureAllowance({
-  provider,
-  tokenAddress,
-  userAddress,
-  spenderAddress,
-  amount,
-  request,
-}: {
-  provider: JsonRpcBatchInternal;
-  userAddress: string;
-  spenderAddress: string;
-  tokenAddress: string;
-  amount: bigint;
-  request: RequestHandlerType;
-}) {
-  const allowanceCoversAmount = await hasEnoughAllowance({
-    tokenAddress,
-    provider,
-    userAddress,
-    spenderAddress,
-    requiredAmount: amount,
-  });
-
-  if (allowanceCoversAmount) {
-    return;
-  }
-
-  const tx = await buildApprovalTx({
-    amount,
-    provider,
-    spenderAddress,
-    tokenAddress,
-    userAddress,
-  });
-
-  const [, signError] = await resolve(
-    request({
-      method: RpcMethod.ETH_SEND_TRANSACTION,
-      params: [tx],
-    }),
-  );
-
-  if (isUserRejectionError(signError)) {
-    throw signError;
-  } else if (signError) {
-    throw swapError(CommonError.UnableToSign, signError);
-  }
 }
 
 const normalizeError = (err: unknown) => {
@@ -605,4 +433,22 @@ export async function buildUnwrapTx({
     data,
     from: userAddress,
   };
+}
+
+export function applyFeeDeduction(
+  amount: string,
+  direction: SwapSide,
+  slippage: number,
+): string {
+  const slippagePercent = slippage / 100;
+  const feePercent = PARASWAP_PARTNER_FEE_BPS / 10_000;
+  const totalPercent = slippagePercent + feePercent;
+
+  if (direction === SwapSide.SELL) {
+    const minAmountOut = new Big(amount).times(1 - totalPercent).toFixed(0);
+    return minAmountOut;
+  } else {
+    const maxAmountIn = new Big(amount).times(1 + totalPercent).toFixed(0);
+    return maxAmountIn;
+  }
 }

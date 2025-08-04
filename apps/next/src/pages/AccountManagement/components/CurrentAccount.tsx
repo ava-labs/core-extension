@@ -40,14 +40,14 @@ const CurrentAccount: FC<Props> = ({ className }) => {
 
   return (
     <Root className={className}>
-      <Typography variant="body2" color="text.disabled">
+      <Typography variant="caption" color="text.disabled">
         {t('Currently using {{name}}', { name: walletDetails?.name })}
       </Typography>
-      <Typography variant="body2" textAlign="end" color="text.disabled">
+      <Typography variant="caption" textAlign="end" color="text.disabled">
         {currencyFormatter(totalBalanceInCurrency)}
       </Typography>
-      <Typography variant="subtitle1">{accounts.active?.name}</Typography>
-      <Typography variant="subtitle1" textAlign="end">
+      <Typography variant="subtitle3">{accounts.active?.name}</Typography>
+      <Typography variant="subtitle3" textAlign="end">
         {currencyFormatter(accountBalance?.sum ?? 0)}
       </Typography>
     </Root>

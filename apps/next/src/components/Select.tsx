@@ -49,7 +49,7 @@ const SelectWithProperStyling = styled(K2Select)(({ theme }) => ({
 
     '& > span': {
       all: 'unset',
-      ...theme.typography.subtitle1,
+      ...theme.typography.subtitle3,
     },
   },
 }));
