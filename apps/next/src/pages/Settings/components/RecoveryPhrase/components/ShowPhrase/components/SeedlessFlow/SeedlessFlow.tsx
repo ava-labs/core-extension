@@ -1,27 +1,21 @@
-import { Page } from '@/components/Page';
-import { StackProps } from '@avalabs/k2-alpine';
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
+import { stages } from './routes';
 
-const contentProps: StackProps = {
-  gap: 2,
-  width: 1,
-  justifyContent: undefined,
-  alignItems: undefined,
-};
+const [initialStage] = stages;
 
 export const SeedlessFlow: FC = () => {
-  const { t } = useTranslation();
-
+  const { path } = useRouteMatch();
   return (
-    <Page
-      title={t('Recovery phrase')}
-      description={t(
-        'This phrase is your access key to your wallet. Carefully write it down and store it in a safe location',
-      )}
-      contentProps={contentProps}
-    >
-      Under construction
-    </Page>
+    <Switch>
+      {stages.map((stage) => (
+        <Route
+          key={stage.path}
+          path={`${path}${stage.path}`}
+          component={stage.Component}
+        />
+      ))}
+      <Redirect from={path} to={`${path}${initialStage.path}`} />
+    </Switch>
   );
 };

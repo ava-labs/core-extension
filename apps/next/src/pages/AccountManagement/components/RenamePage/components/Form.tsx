@@ -1,9 +1,9 @@
+import { ActionButtons } from '@/components/ActionButtons';
 import { StandaloneField } from '@/components/StandaloneField';
 import { Typography } from '@avalabs/k2-alpine';
 import { useKeyboardShortcuts } from '@core/ui';
 import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActionButtons } from '../../ActionButtons';
 import { ViewHost } from '../../ViewHost';
 import { validateName } from '../utils/validateName';
 

@@ -10,10 +10,9 @@ import {
   Stack,
   StackProps,
 } from '@avalabs/k2-alpine';
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRevealPhrase } from '../../hooks/useRevealPhrase';
-import { PhraseCard } from './components/PhraseCard';
+import { useFlowNavigation } from '../useFlowNavigation';
 
 const contentProps: StackProps = {
   gap: 2,
@@ -22,14 +21,26 @@ const contentProps: StackProps = {
   alignItems: undefined,
 };
 
-export const MnemonicFlow: FC = () => {
+export const AuthorizeAccess = () => {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  const { onPhraseReveal, recoveryPhrase, isAuthorized, error, isFetching } =
-    useRevealPhrase(password);
+  const { navigateToNextStage } = useFlowNavigation();
 
-  const invalidPassword = error === 'Password invalid';
+  const isFetching = false;
+  const error = undefined;
+  const invalidPassword = false;
+
+  const authorizeAccess = () => {
+    console.log('authorizeAccess');
+    setIsAuthorized(true);
+  };
+
+  if (isAuthorized) {
+    navigateToNextStage();
+    return null;
+  }
 
   return (
     <Page
@@ -65,10 +76,6 @@ export const MnemonicFlow: FC = () => {
         </Stack>
       </Fade>
 
-      <Collapse in={isAuthorized}>
-        {recoveryPhrase && <PhraseCard phrase={recoveryPhrase} />}
-      </Collapse>
-
       <Collapse in={!isAuthorized && !isFetching} sx={{ mt: 'auto' }}>
         <Button
           variant="contained"
@@ -77,7 +84,7 @@ export const MnemonicFlow: FC = () => {
           disabled={
             !password || password.length < MIN_PASSWORD_LENGTH || isFetching
           }
-          onClick={onPhraseReveal}
+          onClick={isAuthorized ? navigateToNextStage : authorizeAccess}
         >
           {t('Show recovery phrase')}
         </Button>
