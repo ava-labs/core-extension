@@ -18,7 +18,6 @@ export function useRevealPhrase(password: string) {
     setIsFetching(true);
     setPasswordError(undefined);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       const phrase = await getUnencryptedMnemonic(password);
       setUnencryptedPhrase(phrase);
     } catch (error: unknown) {

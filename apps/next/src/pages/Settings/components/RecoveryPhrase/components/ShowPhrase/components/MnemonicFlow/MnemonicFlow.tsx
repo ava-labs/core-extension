@@ -12,7 +12,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRevealPhrase as useShowPhrase } from '../../hooks/useRevealPhrase';
+import { useRevealPhrase } from '../../hooks/useRevealPhrase';
 import { PhraseCard } from './components/PhraseCard';
 
 const contentProps: StackProps = {
@@ -27,7 +27,7 @@ export const MnemonicFlow: FC = () => {
   const [password, setPassword] = useState('');
 
   const { onPhraseReveal, recoveryPhrase, isAuthorized, error, isFetching } =
-    useShowPhrase(password);
+    useRevealPhrase(password);
 
   const invalidPassword = error === 'Password invalid';
 
