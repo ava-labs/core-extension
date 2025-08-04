@@ -1,27 +1,37 @@
-import { Page } from '@/components/Page';
-import { StackProps } from '@avalabs/k2-alpine';
+import { ExportState, useSeedlessMnemonicExport } from '@core/ui';
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-
-const contentProps: StackProps = {
-  gap: 2,
-  width: 1,
-  justifyContent: undefined,
-  alignItems: undefined,
-};
+import {
+  Redirect,
+  Route,
+  Switch,
+  useLocation,
+  useRouteMatch,
+} from 'react-router-dom';
+import { stages } from './routes';
 
 export const SeedlessFlow: FC = () => {
-  const { t } = useTranslation();
+  const { path } = useRouteMatch();
+  const { pathname } = useLocation();
+  const { state } = useSeedlessMnemonicExport();
+  const flatStages = Object.values(stages).flat(1);
+  const currentStage = flatStages.find((stage) =>
+    (stage.exportState as ExportState[]).includes(state),
+  )!;
+
+  if (!pathname.endsWith(currentStage.path)) {
+    return <Redirect to={`${path}${currentStage.path}`} />;
+  }
 
   return (
-    <Page
-      title={t('Recovery phrase')}
-      description={t(
-        'This phrase is your access key to your wallet. Carefully write it down and store it in a safe location',
-      )}
-      contentProps={contentProps}
-    >
-      Under construction
-    </Page>
+    <Switch>
+      {flatStages.map((stage) => (
+        <Route
+          key={stage.path}
+          path={`${path}${stage.path}`}
+          component={stage.Component}
+        />
+      ))}
+      <Redirect from={path} to={`${path}${currentStage.path}`} />
+    </Switch>
   );
 };
