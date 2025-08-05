@@ -431,10 +431,12 @@ describe('background/services/settings/SettingsService.ts', () => {
       it('should save the new value for show trending tokens properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
         await service.setShowTrendingTokens(true);
+
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
-          collectiblesVisibility: true,
+          showTrendingTokens: true,
         });
       });
 
