@@ -16,8 +16,8 @@ export const SettingsCard: FC<SettingsCardProps> = ({
   return (
     <StyledCard {...cardProps}>
       <Stack gap={0.5}>
-        {/* TODO: unify typography, remove fontSize & fontWeight */}
-        <Typography variant="h3" fontSize={18} fontWeight="700 !important">
+        {/* TODO: find a common ground with UX team so we don't have to override the fontWeight*/}
+        <Typography variant="h5" fontWeight="700 !important">
           {title}
         </Typography>
         {description && (

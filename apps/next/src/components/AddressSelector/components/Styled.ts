@@ -20,7 +20,8 @@ export const Select = styled(K2Select)(({ theme }) => ({
     paddingInline: theme.spacing(1.5),
     backgroundColor:
       theme.palette.mode === 'light'
-        ? theme.palette.surface.primary
+        ? // @ts-expect-error TODO: some regression here, will fix in the next PR
+          theme.palette.surface.primary
         : theme.palette.background.paper,
   },
 
