@@ -72,15 +72,13 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
         <Stack sx={{ alignItems: 'center' }}>
           <Suspense fallback={<LoadingScreen />}>
             <Stack
-              sx={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                flexGrow: 1,
-                alignItems: 'center',
-                pt: 6,
-                pb: 2,
-                overflow: 'hidden',
-              }}
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              flexGrow={1}
+              pt={6}
+              pb={2}
+              overflow="hidden"
             >
               <PersonalAvatar name={selectedAvatar} size="large" isGlowing />
             </Stack>

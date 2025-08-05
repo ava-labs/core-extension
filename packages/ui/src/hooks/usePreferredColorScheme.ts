@@ -10,7 +10,6 @@ export const usePreferredColorScheme = () => {
     useState<ColorScheme>('light');
 
   useEffect(() => {
-    console.log({ theme });
     if (theme === 'DARK') {
       setPreferredColorScheme('dark');
       return;

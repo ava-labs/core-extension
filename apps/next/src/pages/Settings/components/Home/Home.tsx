@@ -42,7 +42,7 @@ export const SettingsHomePage = () => {
   const { lockWallet } = useSettingsContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
-  const { replace } = useHistory();
+  const { push } = useHistory();
   const { capture } = useAnalyticsContext();
 
   const [isTestnetMode, setIsTestnetMode] = useState(false);
@@ -85,7 +85,7 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           label={t('My avatar')}
           secondaryAction={
-            <AvatarButton onClick={() => replace('/settings/avatar')} />
+            <AvatarButton onClick={() => push('/settings/avatar')} />
           }
           divider
         />
