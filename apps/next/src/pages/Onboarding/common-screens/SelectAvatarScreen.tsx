@@ -69,7 +69,7 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
         sx={{ overflow: 'unset', pt: 0 }}
         {...keyboardHandlers}
       >
-        <Stack sx={{ alignItems: 'center' }}>
+        <Stack alignItems="center">
           <Suspense fallback={<LoadingScreen />}>
             <Stack
               direction="row"
