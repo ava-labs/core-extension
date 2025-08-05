@@ -28,6 +28,7 @@ export const CurrencySelector = (props: ButtonProps) => {
             gap={1}
             p={0}
           >
+            {/* TODO: use CountryFlag component from k2 once it is available */}
             <Avatar
               sx={{
                 width: '16px',
