@@ -72,6 +72,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     language: Languages.DE,
     coreAssistant: true,
     preferredView: 'floating',
+    showTrendingTokens: false,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -84,6 +85,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     language: Languages.DE,
     coreAssistant: false,
     preferredView: 'floating',
+    showTrendingTokens: false,
   };
 
   const customToken: NetworkContractToken = {
@@ -421,6 +423,24 @@ describe('background/services/settings/SettingsService.ts', () => {
       it('should emit only the core concierge if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setCoreAssistant(true);
+        });
+      });
+    });
+
+    describe('setShowTrendingTokens', () => {
+      it('should save the new value for show trending tokens properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+        await service.setShowTrendingTokens(true);
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          collectiblesVisibility: true,
+        });
+      });
+
+      it('should emit only the language if it fails to save', async () => {
+        await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
+          await service.setShowTrendingTokens(true);
         });
       });
     });

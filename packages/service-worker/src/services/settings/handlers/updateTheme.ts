@@ -1,5 +1,5 @@
 import {
-  ColorScheme,
+  ColorTheme,
   ExtensionRequest,
   ExtensionRequestHandler,
 } from '@core/types';
@@ -9,7 +9,7 @@ import { SettingsService } from '../SettingsService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_THEME,
   true,
-  [theme: ColorScheme]
+  [theme: ColorTheme]
 >;
 
 @injectable()

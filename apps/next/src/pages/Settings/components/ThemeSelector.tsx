@@ -1,17 +1,17 @@
 import { ButtonProps, Typography } from '@avalabs/k2-alpine';
-import { ColorScheme } from '@core/types';
+import { ColorTheme } from '@core/types';
 import { useAnalyticsContext, useSettingsContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { SelectButton } from '../../../components/SelectButton';
 
-const colorSchemeOptions: ColorScheme[] = ['LIGHT', 'DARK', 'SYSTEM'];
+const colorSchemeOptions: ColorTheme[] = ['LIGHT', 'DARK', 'SYSTEM'];
 
 export const ThemeSelector = (props: ButtonProps) => {
   const { theme: selectedColorScheme, updateTheme } = useSettingsContext();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
 
-  const getThemeLabel = (scheme: ColorScheme) => {
+  const getThemeLabel = (scheme: ColorTheme) => {
     switch (scheme) {
       case 'LIGHT':
         return t('Light');
@@ -22,7 +22,7 @@ export const ThemeSelector = (props: ButtonProps) => {
     }
   };
 
-  const clickHandler = async (scheme: ColorScheme) => {
+  const clickHandler = async (scheme: ColorTheme) => {
     await updateTheme(scheme);
     capture(`ThemeSettingChanged`, {
       theme: scheme,

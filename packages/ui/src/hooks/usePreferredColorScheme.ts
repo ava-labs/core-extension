@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSettingsContext } from '../contexts';
 
-type ColorScheme = 'dark' | 'light' | 'testnet' | 'system';
+type ColorScheme = 'dark' | 'light' | 'testnet';
 
 export const usePreferredColorScheme = () => {
   const { theme } = useSettingsContext();

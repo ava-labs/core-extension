@@ -5,6 +5,7 @@ import {
   listItemIconClasses,
   selectClasses,
   styled,
+  Theme,
 } from '@avalabs/k2-alpine';
 
 export const HidingMenuItem = styled(MenuItem)(({ disabled, theme }) => ({
@@ -12,7 +13,7 @@ export const HidingMenuItem = styled(MenuItem)(({ disabled, theme }) => ({
   gap: theme.spacing(1.25),
 }));
 
-export const Select = styled(K2Select)(({ theme }) => ({
+export const Select = styled(K2Select)(({ theme }: { theme: Theme }) => ({
   [`&.${selectClasses.root}`]: {
     width: 'auto',
     borderRadius: theme.shape.fullBorderRadius,

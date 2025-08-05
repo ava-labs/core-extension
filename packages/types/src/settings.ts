@@ -10,7 +10,7 @@ export enum ThemeVariant {
   DARK = 'DARK',
 }
 
-export type ColorScheme = 'DARK' | 'LIGHT' | 'SYSTEM';
+export type ColorTheme = 'DARK' | 'LIGHT' | 'SYSTEM';
 
 export enum Languages {
   EN = 'en',
@@ -64,7 +64,7 @@ export interface SettingsState {
   currency: string;
   customTokens: CustomTokens;
   showTokensWithoutBalances: boolean;
-  theme: ColorScheme;
+  theme: ColorTheme;
   tokensVisibility: TokensVisibility;
   collectiblesVisibility: CollectiblesVisibility;
   analyticsConsent: AnalyticsConsent;

@@ -2,7 +2,7 @@ import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   AnalyticsConsent,
   CollectiblesVisibility,
-  ColorScheme,
+  ColorTheme,
   EnsureDefined,
   Languages,
   SETTINGS_STORAGE_KEY,
@@ -169,7 +169,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setTheme(theme: ColorScheme) {
+  async setTheme(theme: ColorTheme) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,

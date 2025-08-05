@@ -19,7 +19,7 @@ import type {
   UpdateTokensVisiblityHandler,
 } from '@core/service-worker';
 import {
-  ColorScheme,
+  ColorTheme,
   ExtensionRequest,
   Languages,
   SettingsState,
@@ -54,7 +54,7 @@ type SettingsFromProvider = SettingsState & {
     token: NftTokenWithBalance,
   ): Promise<true | undefined>;
   getCollectibleVisibility(token: NftTokenWithBalance): boolean;
-  updateTheme(theme: ColorScheme): Promise<boolean>;
+  updateTheme(theme: ColorTheme): Promise<boolean>;
   currencyFormatter(value: number): string;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
@@ -185,7 +185,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [settings?.collectiblesVisibility],
   );
 
-  function updateTheme(theme: ColorScheme) {
+  function updateTheme(theme: ColorTheme) {
     return request<UpdateThemeHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
       params: [theme],
