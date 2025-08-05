@@ -1,6 +1,7 @@
 import { Page } from '@/components/Page';
 import { LessRoundedPasswordField } from '@/components/StandaloneField';
 import { WarningMessage } from '@/components/WarningMessage';
+import { useSubmitButton } from '@/hooks/useSubmitButton';
 import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
 import {
   Button,
@@ -25,6 +26,7 @@ const contentProps: StackProps = {
 export const MnemonicFlow: FC = () => {
   const { t } = useTranslation();
   const [password, setPassword] = useState('');
+  const [submitButtonRef, shortcuts] = useSubmitButton();
 
   const { onPhraseReveal, recoveryPhrase, isAuthorized, error, isFetching } =
     useRevealPhrase(password);
@@ -57,6 +59,7 @@ export const MnemonicFlow: FC = () => {
             : t('Enter your password to view your recovery phrase')
         }
         fullWidth
+        {...shortcuts}
       />
 
       <Fade in={isFetching} mountOnEnter unmountOnExit>
@@ -78,6 +81,7 @@ export const MnemonicFlow: FC = () => {
             !password || password.length < MIN_PASSWORD_LENGTH || isFetching
           }
           onClick={onPhraseReveal}
+          ref={submitButtonRef}
         >
           {t('Show recovery phrase')}
         </Button>

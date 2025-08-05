@@ -1,4 +1,5 @@
 import { SeedlessFlow } from '@/pages/Onboarding/flows/SeedlessFlow';
+import { SecretType } from '@core/types';
 import { useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { Redirect } from 'react-router-dom';
@@ -9,13 +10,13 @@ export const ShowPhrase: FC = () => {
 
   const walletType = walletDetails?.type;
 
-  if (!walletType) {
-    return <Redirect to="/settings" />;
+  if (walletType === SecretType.Mnemonic) {
+    return <MnemonicFlow />;
   }
 
-  if (walletType === 'seedless') {
+  if (walletType === SecretType.Seedless) {
     return <SeedlessFlow />;
   }
 
-  return <MnemonicFlow />;
+  return <Redirect to="/settings" />;
 };

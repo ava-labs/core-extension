@@ -1,5 +1,3 @@
-import { MdArrowBack } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
 import {
   Fade,
   IconButton,
@@ -9,6 +7,8 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { MdArrowBack } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
 
 import { ViewModeSwitcher } from '../Header/ViewModeSwitcher';
 import { useIsIntersecting } from './hooks';
@@ -35,6 +35,7 @@ export const Page = ({
   description,
   children,
   contentProps,
+  ...htmlProps
 }: PageProps) => {
   const theme = useTheme();
   const history = useHistory();
@@ -46,6 +47,7 @@ export const Page = ({
       width={1}
       bgcolor="background.backdrop"
       overflow="hidden"
+      {...htmlProps}
     >
       <Stack
         direction="row"

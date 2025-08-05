@@ -5,13 +5,13 @@ import {
   TextFieldProps,
   Typography,
 } from '@avalabs/k2-alpine';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Page } from '@/components/Page';
 import { LessRoundedPasswordField as PasswordField } from '@/components/StandaloneField';
+import { useSubmitButton } from '@/hooks/useSubmitButton';
 import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
-import { useKeyboardShortcuts } from '@core/ui';
 import { useChangePassword } from './hooks/useChangePassword';
 import { useValidate } from './hooks/useValidate';
 
@@ -37,7 +37,7 @@ export const ChangePassword: FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const submitRef = useRef<HTMLButtonElement>(null);
+  const [submitRef, shortcuts] = useSubmitButton();
 
   const {
     validateForm,
@@ -56,10 +56,6 @@ export const ChangePassword: FC = () => {
     validateForm(currentPassword, newPassword, confirmPassword);
   }, [currentPassword, newPassword, confirmPassword, validateForm]);
 
-  useKeyboardShortcuts({
-    Enter: () => submitRef.current?.click(),
-  });
-
   const errors = { ...formErrors, ...submitErrors };
 
   return (
@@ -67,6 +63,7 @@ export const ChangePassword: FC = () => {
       title={t('Change password')}
       withBackButton
       contentProps={contentProps}
+      {...shortcuts}
     >
       <PasswordField
         ref={getFieldRef('currentPassword')}

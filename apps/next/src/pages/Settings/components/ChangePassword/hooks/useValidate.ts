@@ -73,7 +73,13 @@ export function useValidate() {
       const strength = isTouched('newPassword')
         ? validatePasswordStrength(newPassword, t)
         : undefined;
-      const result = !hasError && Boolean(strength?.isValid);
+      const result = Boolean(
+        currentPassword &&
+          newPassword &&
+          confirmedPassword &&
+          !hasError &&
+          strength?.isValid,
+      );
 
       setErrors(newErrors);
       setIsFormValid(result);
