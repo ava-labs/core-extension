@@ -51,7 +51,7 @@ export function Onboarding() {
         position="relative"
       >
         <Box position="fixed" top={32} right={32}>
-          <LanguageSelector />
+          <LanguageSelector isOnboarding />
         </Box>
         <Column>
           <Stack direction="row" justifyContent="center" alignItems="center">
