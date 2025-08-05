@@ -7,13 +7,7 @@ export function useSubmitButton() {
   return [
     submitButtonRef,
     useKeyboardShortcuts({
-      Enter: () => {
-        console.log(
-          'Enter pressed. Shortcuts executed',
-          submitButtonRef.current,
-        );
-        submitButtonRef.current?.click();
-      },
+      Enter: () => submitButtonRef.current?.click(),
     }),
   ] as const;
 }
