@@ -1,14 +1,3 @@
-import { FC, useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
-import {
-  useAnalyticsContext,
-  useKeyboardShortcuts,
-  useSettingsContext,
-} from '@core/ui';
-
-import { OnboardingScreenProps } from '@/pages/Onboarding/types';
-
 import {
   FullscreenModalActions,
   FullscreenModalContent,
@@ -16,7 +5,12 @@ import {
   FullscreenModalTitle,
   useModalPageControl,
 } from '@/components/FullscreenModal';
+import { useSubmitButton } from '@/hooks/useSubmitButton';
+import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import { ViewMode } from '@core/types';
+import { useAnalyticsContext, useSettingsContext } from '@core/ui';
+import { FC, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavButton } from '../../components/NavButton';
 import * as Styled from './components/Styled';
 import { ViewModeOption } from './components/ViewModeOption';
@@ -46,9 +40,7 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
     onNext();
   }, [capture, onNext, selectedViewMode, setPreferredView]);
 
-  const keyboardHandlers = useKeyboardShortcuts({
-    Enter: handleNextClick,
-  });
+  const [nextButtonRef, shortcuts] = useSubmitButton();
 
   return (
     <>
@@ -60,7 +52,7 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
           'Decide what default view works best for you, either a floating interface or a sidebar docked to the side to show more content',
         )}
       </FullscreenModalDescription>
-      <FullscreenModalContent {...keyboardHandlers} pt={6}>
+      <FullscreenModalContent {...shortcuts} pt={6}>
         <Styled.ToggleButtonGroup
           value={selectedViewMode}
           onChange={(_, value) => setSelectedViewMode((prev) => value ?? prev)}
@@ -75,7 +67,11 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
         </Styled.ToggleButtonGroup>
       </FullscreenModalContent>
       <FullscreenModalActions>
-        <NavButton color="primary" onClick={handleNextClick}>
+        <NavButton
+          color="primary"
+          onClick={handleNextClick}
+          ref={nextButtonRef}
+        >
           {t('Next')}
         </NavButton>
       </FullscreenModalActions>
