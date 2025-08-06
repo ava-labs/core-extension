@@ -1,9 +1,6 @@
 import { Contact } from '@avalabs/types';
 import {
-  BURN_ADDRESS,
   ETHEREUM_ADDRESS,
-  ETHER_ADDRESS,
-  VELORA_ADDRESS,
   isBitcoinNetwork,
   isNonXPHistoryItem,
   isPchainNetwork,
@@ -19,6 +16,13 @@ import {
 import { useEffect, useState } from 'react';
 import { useIdentifyAddress } from './useIdentifyAddress';
 import { indexOf } from 'lodash';
+
+//Some known addresses that are not contacts
+export const BURN_ADDRESS = '0x000000000000000000000000000000000000dEaD';
+export const ETHER_ADDRESS =
+  '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
+export const VELORA_ADDRESS =
+  '0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57' as const;
 
 export const useRecentRecipients = () => {
   const { network } = useNetworkContext();
