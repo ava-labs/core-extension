@@ -1,5 +1,5 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { OptimalRate, SwapSide } from '@paraswap/sdk';
+import { SwapSide } from '@paraswap/sdk';
 import Big from 'big.js';
 import {
   createContext,
@@ -31,7 +31,6 @@ import { SwapErrorCode } from '@core/types';
 import {
   DISALLOWED_SWAP_ASSETS,
   GetRateParams,
-  JupiterQuote,
   OnTransactionReceiptCallback,
   SwapContextAPI,
   SwapError,
@@ -40,14 +39,15 @@ import {
   isJupiterSwapParams,
   isParaswapSwapParams,
   SwapQuote,
-  isUnwrapOperationParams,
-  isWrapOperationParams,
-  UnwrapOperation,
-  WrapOperation,
+  isEvmWrapSwapParams,
+  isMarkrSwapParams,
+  isEvmUnwrapSwapParams,
 } from './models';
-import { swapError } from './swap-utils';
+import { applyFeeDeduction, swapError } from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
+import { NormalizedSwapQuoteResult } from './types';
+import { SWAP_REFRESH_INTERVAL } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -81,9 +81,11 @@ export function SwapContextProvider({
     disallowedAssets: DISALLOWED_SWAP_ASSETS,
   });
 
-  const [quote, setQuote] = useState<SwapQuote | null>(null);
+  const [quotes, setQuotes] = useState<NormalizedSwapQuoteResult | null>(null);
+  const [manuallySelected, setManuallySelected] = useState<boolean>(false);
   const [error, setError] = useState<SwapError>({ message: '' });
-  const [destAmount, setDestAmount] = useState('');
+  const [destAmount, setDestAmount] = useState<string | undefined>(undefined);
+  const [srcAmount, setSrcAmount] = useState<string | undefined>(undefined);
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
 
   const findSymbol = useCallback(
@@ -112,7 +114,7 @@ export function SwapContextProvider({
       userAddress,
       srcToken,
       destToken,
-      srcAmount,
+      srcAmount: resultSrcAmount,
       destAmount: resultDestAmount,
       srcDecimals,
       destDecimals,
@@ -125,7 +127,7 @@ export function SwapContextProvider({
 
       const srcAsset = findSymbol(srcToken);
       const destAsset = findSymbol(destToken);
-      const srcAssetAmount = new Big(srcAmount)
+      const srcAssetAmount = new Big(resultSrcAmount)
         .div(10 ** srcDecimals)
         .toString();
       const destAssetAmount = new Big(resultDestAmount)
@@ -211,13 +213,7 @@ export function SwapContextProvider({
   );
 
   const swap = useCallback(
-    async (
-      params:
-        | SwapParams<OptimalRate>
-        | SwapParams<WrapOperation>
-        | SwapParams<UnwrapOperation>
-        | SwapParams<JupiterQuote>,
-    ) => {
+    async (params: SwapParams<SwapQuote>) => {
       if (isSolanaNetwork(activeNetwork)) {
         if (!isJupiterSwapParams(params)) {
           throw swapError(SwapErrorCode.InvalidParams);
@@ -228,8 +224,9 @@ export function SwapContextProvider({
 
       if (
         !isParaswapSwapParams(params) &&
-        !isWrapOperationParams(params) &&
-        !isUnwrapOperationParams(params)
+        !isEvmWrapSwapParams(params) &&
+        !isEvmUnwrapSwapParams(params) &&
+        !isMarkrSwapParams(params)
       ) {
         throw swapError(SwapErrorCode.InvalidParams);
       }
@@ -250,87 +247,168 @@ export function SwapContextProvider({
     [activeNetwork, getEvmRate, getSvmRate],
   );
 
-  useEffect(() => {
-    const subscription = swapFormValuesStream
-      .pipe(debounceTime(500))
-      .subscribe(
-        ({
-          amount,
-          toTokenAddress,
-          fromTokenAddress,
-          toTokenDecimals,
-          fromTokenDecimals,
-          destinationInputField,
+  const checkUserBalance = useCallback(
+    (balance: bigint, amount: string | undefined) => {
+      if (balance && amount) {
+        const hasEnough = balance >= BigInt(amount);
+        if (!hasEnough) {
+          setError({ message: t('Insufficient balance.') });
+        }
+      }
+    },
+    [t],
+  );
+
+  const setAmounts = useCallback(
+    (
+      metadata: NormalizedSwapQuoteResult['selected']['metadata'],
+      swapSide: SwapSide,
+      slippage: number,
+    ) => {
+      // Set amountOut for sell side
+      const amountOut = metadata.amountOut;
+      if (
+        swapSide === SwapSide.SELL &&
+        amountOut &&
+        typeof amountOut === 'string'
+      ) {
+        setDestAmount(applyFeeDeduction(amountOut, swapSide, slippage));
+      }
+      // Set amountIn for buy side
+      const amountIn = metadata.amountIn;
+      if (
+        swapSide === SwapSide.BUY &&
+        amountIn &&
+        typeof amountIn === 'string'
+      ) {
+        setSrcAmount(applyFeeDeduction(amountIn, swapSide, slippage));
+      }
+    },
+    [setDestAmount, setSrcAmount],
+  );
+
+  const fetchQuotes = useCallback(
+    async ({
+      amount,
+      toTokenAddress,
+      fromTokenAddress,
+      toTokenDecimals,
+      fromTokenDecimals,
+      destinationInputField,
+      fromTokenBalance,
+      slippageTolerance,
+    }: SwapFormValues) => {
+      if (
+        amount &&
+        toTokenAddress &&
+        fromTokenAddress &&
+        fromTokenDecimals &&
+        toTokenDecimals
+      ) {
+        // Reset state
+        setError({ message: '' });
+        setManuallySelected(false);
+        setQuotes(null);
+
+        const amountString = amount.toString();
+
+        if (amountString === '0') {
+          setQuotes(null);
+          setError({ message: t('Please enter an amount') });
+          setSrcAmount(undefined);
+          setDestAmount(undefined);
+          setIsSwapLoading(false);
+          return;
+        }
+
+        const swapSide =
+          destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
+        if (fromTokenBalance && swapSide === SwapSide.SELL) {
+          // TODO: Should we return here? or should we continue with getting the quote?
+          checkUserBalance(fromTokenBalance, amountString);
+        }
+        setIsSwapLoading(true);
+        getRate({
+          srcToken: fromTokenAddress,
+          srcDecimals: fromTokenDecimals,
+          destToken: toTokenAddress,
+          destDecimals: toTokenDecimals,
+          srcAmount: amountString,
+          swapSide,
           fromTokenBalance,
           slippageTolerance,
-        }) => {
-          if (
-            amount &&
-            toTokenAddress &&
-            fromTokenAddress &&
-            fromTokenDecimals &&
-            toTokenDecimals
-          ) {
-            const amountString = amount.toString();
-
-            if (amountString === '0') {
-              setQuote(null);
-              setError({ message: t('Please enter an amount') });
-              setDestAmount('');
-              setIsSwapLoading(false);
-              return;
+          onUpdate: (update: NormalizedSwapQuoteResult) => {
+            setManuallySelected(false);
+            setQuotes(update);
+            const selected = update.selected;
+            // Set amounts based on the swap side
+            setAmounts(selected.metadata, swapSide, Number(slippageTolerance));
+          },
+        })
+          .then((result) => {
+            if (result) {
+              setManuallySelected(false);
+              setQuotes(result);
+              const metadata = result.selected.metadata;
+              // Set amounts based on the swap side
+              setAmounts(metadata, swapSide, Number(slippageTolerance));
+              // Check balance here
+              if (fromTokenBalance && swapSide === SwapSide.BUY) {
+                const amountIn = metadata.amountIn;
+                checkUserBalance(fromTokenBalance, amountIn);
+              }
             }
+          })
+          .catch((err) => {
+            // If somehow the error was not caught by the adapter,
+            // log the error & show a generic error message.
+            Monitoring.sentryCaptureException(
+              err as Error,
+              Monitoring.SentryExceptionTypes.SWAP,
+            );
+            setQuotes(null);
+            setError({ message: t('An unknown error occurred') });
+          })
+          .finally(() => {
+            setIsSwapLoading(false);
+          });
+      } else {
+        setSrcAmount(undefined);
+        setDestAmount(undefined);
+        setQuotes(null);
+      }
+    },
+    [getRate, t, checkUserBalance, setAmounts],
+  );
 
-            const swapSide =
-              destinationInputField === 'to' ? SwapSide.SELL : SwapSide.BUY;
-            setIsSwapLoading(true);
-            getRate({
-              srcToken: fromTokenAddress,
-              srcDecimals: fromTokenDecimals,
-              destToken: toTokenAddress,
-              destDecimals: toTokenDecimals,
-              srcAmount: amountString,
-              swapSide,
-              fromTokenBalance,
-              slippageTolerance,
-            })
-              .then((result) => {
-                if (result.error) {
-                  setError(result.error);
-                  setQuote(null);
-                } else {
-                  setQuote(result.quote);
-                  setError({ message: '' });
-                }
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
 
-                if (typeof result.destAmount === 'string') {
-                  setDestAmount(result.destAmount);
-                }
-              })
-              .catch((err) => {
-                // If somehow the error was not caught by the adapter,
-                // log the error & show a generic error message.
-                Monitoring.sentryCaptureException(
-                  err as Error,
-                  Monitoring.SentryExceptionTypes.SWAP,
-                );
-                setQuote(null);
-                setError({ message: t('An unknown error occurred') });
-              })
-              .finally(() => {
-                setIsSwapLoading(false);
-              });
-          } else {
-            setDestAmount('');
-            setQuote(null);
-          }
-        },
-      );
+    const subscription = swapFormValuesStream
+      .pipe(debounceTime(500))
+      .subscribe((formValues) => {
+        // Clear previous interval if exists
+        if (intervalId) {
+          clearInterval(intervalId);
+          intervalId = null;
+        }
+
+        // Initial fetch
+        fetchQuotes(formValues);
+
+        // Set up 30-second interval for automatic refresh
+        intervalId = setInterval(() => {
+          fetchQuotes(formValues);
+        }, SWAP_REFRESH_INTERVAL);
+      });
 
     return () => {
       subscription.unsubscribe();
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
     };
-  }, [getRate, swapFormValuesStream, setIsSwapLoading, setError, t]);
+  }, [swapFormValuesStream, fetchQuotes]);
 
   return (
     <SwapContext.Provider
@@ -341,11 +419,15 @@ export function SwapContextProvider({
         setError,
         isSwapLoading,
         setIsSwapLoading,
-        quote,
-        setQuote,
+        quotes,
+        setQuotes,
+        manuallySelected,
+        setManuallySelected,
         swapFormValuesStream,
         destAmount,
         setDestAmount,
+        srcAmount,
+        setSrcAmount,
       }}
     >
       {children}

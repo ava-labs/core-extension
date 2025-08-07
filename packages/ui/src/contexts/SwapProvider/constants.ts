@@ -40,3 +40,20 @@ export const JUPITER_PARTNER_FEE_BPS = 85 as const satisfies number;
 
 export const WAVAX_ADDRESS = '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7';
 export const WETH_ADDRESS = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2';
+
+/**
+ * The address Markr uses for EVM native tokens.
+ */
+export const MARKR_EVM_NATIVE_TOKEN_ADDRESS =
+  '0x0000000000000000000000000000000000000000';
+
+/**
+ * The partner ID Markr uses for EVM swaps.
+ */
+export const MARKR_EVM_PARTNER_ID =
+  '0x1c8f2aada1d99f5ac6e1011ce002fc53a6e36ab104e30f11a13053734edec239';
+
+/**
+ * The interval in milliseconds at which to refresh quotes.
+ */
+export const SWAP_REFRESH_INTERVAL = 30000;

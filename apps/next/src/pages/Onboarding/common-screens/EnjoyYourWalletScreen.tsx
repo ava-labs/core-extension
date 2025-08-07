@@ -8,16 +8,17 @@ import {
 import { FC, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useKeyboardShortcuts, useOnboardingContext } from '@core/ui';
+import { useOnboardingContext } from '@core/ui';
 
 import {
   FullscreenModalActions,
   FullscreenModalContent,
   useModalPageControl,
 } from '@/components/FullscreenModal';
-import { useOpenApp } from '@/hooks/useOpenApp';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
+import { useOpenApp } from '@/hooks/useOpenApp';
 
+import { useSubmitButton } from '@/hooks/useSubmitButton';
 import { LoadingScreen } from '../components/LoadingScreen';
 
 export const EnjoyYourWalletScreen: FC = () => {
@@ -39,9 +40,7 @@ export const EnjoyYourWalletScreen: FC = () => {
     window.close();
   };
 
-  const keyboardHandlers = useKeyboardShortcuts({
-    Enter: openWallet,
-  });
+  const [openWalletButtonRef, keyboardHandlers] = useSubmitButton();
 
   useEffect(() => {
     if (!submitInProgress) {
@@ -88,6 +87,7 @@ export const EnjoyYourWalletScreen: FC = () => {
       <FullscreenModalActions sx={{ justifyContent: 'center', pb: 6 }}>
         <Fade in={!submitInProgress}>
           <Button
+            ref={openWalletButtonRef}
             fullWidth
             size="large"
             variant="contained"

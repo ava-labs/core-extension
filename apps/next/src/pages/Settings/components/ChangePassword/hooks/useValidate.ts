@@ -3,9 +3,9 @@ import {
   PasswordValidationResult,
   validatePasswordStrength,
 } from '@/lib/passwordValidation';
+import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MIN_PASSWORD_LENGTH } from '../constants';
 
 type PasswordForm = Partial<{
   currentPassword: string;
@@ -73,7 +73,13 @@ export function useValidate() {
       const strength = isTouched('newPassword')
         ? validatePasswordStrength(newPassword, t)
         : undefined;
-      const result = !hasError && Boolean(strength?.isValid);
+      const result = Boolean(
+        currentPassword &&
+          newPassword &&
+          confirmedPassword &&
+          !hasError &&
+          strength?.isValid,
+      );
 
       setErrors(newErrors);
       setIsFormValid(result);

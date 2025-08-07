@@ -6,6 +6,13 @@ import { WalletDetails } from '@core/types';
 import { NetworkWithCaipId } from '@core/types';
 
 import type { JupiterQuote } from './schemas';
+import {
+  EvmUnwrapQuote,
+  EvmWrapQuote,
+  isEvmUnwrapQuote,
+  isEvmWrapQuote,
+  NormalizedSwapQuoteResult,
+} from './types';
 
 /**
  * Paraswap may return both data and an error sometimes.
@@ -43,12 +50,13 @@ export const hasParaswapError = (
   return typeof response.error === 'string';
 };
 
-export type EvmSwapQuote = OptimalRate | WrapOperation | UnwrapOperation;
-export type SwapQuote =
+export type EvmSwapQuote =
   | OptimalRate
-  | WrapOperation
-  | UnwrapOperation
-  | JupiterQuote;
+  | EvmWrapQuote
+  | EvmUnwrapQuote
+  | MarkrQuote;
+export type SvmSwapQuote = JupiterQuote;
+export type SwapQuote = EvmSwapQuote | SvmSwapQuote;
 
 export const isJupiterSwapParams = (
   swapParams: SwapParams<SwapQuote>,
@@ -60,6 +68,24 @@ export const isParaswapSwapParams = (
   swapParams: SwapParams<SwapQuote>,
 ): swapParams is SwapParams<OptimalRate> => {
   return isParaswapQuote(swapParams.quote);
+};
+
+export const isEvmWrapSwapParams = (
+  swapParams: SwapParams<SwapQuote>,
+): swapParams is SwapParams<EvmWrapQuote> => {
+  return isEvmWrapQuote(swapParams.quote);
+};
+
+export const isEvmUnwrapSwapParams = (
+  swapParams: SwapParams<SwapQuote>,
+): swapParams is SwapParams<EvmUnwrapQuote> => {
+  return isEvmUnwrapQuote(swapParams.quote);
+};
+
+export const isMarkrSwapParams = (
+  swapParams: SwapParams<SwapQuote>,
+): swapParams is SwapParams<MarkrQuote> => {
+  return isMarkrQuote(swapParams.quote);
 };
 
 export const isJupiterQuote = (quote: SwapQuote): quote is JupiterQuote => {
@@ -75,6 +101,17 @@ export const isParaswapQuote = (quote: SwapQuote): quote is OptimalRate => {
   );
 };
 
+export const isMarkrQuote = (quote: SwapQuote): quote is MarkrQuote => {
+  return (
+    'uuid' in quote &&
+    'aggregator' in quote &&
+    'amountIn' in quote &&
+    'tokenIn' in quote &&
+    'amountOut' in quote &&
+    'tokenOut' in quote
+  );
+};
+
 export function isAPIError(rate: any): rate is WrappedError {
   return typeof rate.message === 'string';
 }
@@ -84,7 +121,10 @@ export type SwapParams<T extends SwapQuote> = {
   destToken: string;
   srcDecimals: number;
   destDecimals: number;
+  swapProvider: string;
   quote: T;
+  amountIn: string;
+  amountOut: string;
   slippage: number;
 };
 
@@ -97,6 +137,7 @@ export type GetRateParams = {
   swapSide?: SwapSide;
   fromTokenBalance?: bigint;
   slippageTolerance?: string;
+  onUpdate?: (update: NormalizedSwapQuoteResult) => void;
 };
 
 export type SwapFormValues = {
@@ -110,30 +151,24 @@ export type SwapFormValues = {
   slippageTolerance?: string;
 };
 
-type GetRateResult<T extends SwapQuote> =
-  | {
-      error: SwapError;
-      quote: null;
-      destAmount?: string;
-    }
-  | {
-      error: undefined;
-      quote: T;
-      destAmount: string;
-    };
-
 export type SwapContextAPI = {
-  getRate(params: GetRateParams): Promise<GetRateResult<SwapQuote>>;
+  getRate(
+    params: GetRateParams,
+  ): Promise<NormalizedSwapQuoteResult | undefined>;
   swap(params: SwapParams<SwapQuote>): Promise<void>;
   error: SwapError;
   setError(error: SwapError): void;
   isSwapLoading: boolean;
   setIsSwapLoading(isSwapLoading: boolean): void;
-  quote: SwapQuote | null;
-  setQuote(quote: SwapQuote | null): void;
+  quotes: NormalizedSwapQuoteResult | null;
+  setQuotes(quotes: NormalizedSwapQuoteResult | null): void;
+  manuallySelected: boolean;
+  setManuallySelected(manuallySelected: boolean): void;
   swapFormValuesStream: BehaviorSubject<SwapFormValues>;
-  destAmount: string;
-  setDestAmount(destAmount: string): void;
+  destAmount: string | undefined;
+  setDestAmount(destAmount: string | undefined): void;
+  srcAmount: string | undefined;
+  setSrcAmount(srcAmount: string | undefined): void;
 };
 
 export const DISALLOWED_SWAP_ASSETS: string[] = [
@@ -142,14 +177,19 @@ export const DISALLOWED_SWAP_ASSETS: string[] = [
 ];
 
 export type BuildTxParams = {
-  network: string;
+  network: NetworkWithCaipId;
   srcToken: Address;
   destToken: Address;
   srcAmount: PriceString;
   destAmount: PriceString;
   priceRoute: OptimalRate;
   userAddress: Address;
-  isNativeTokenSwap: boolean;
+  partner?: string;
+
+  partnerAddress?: string;
+  partnerFeeBps?: number;
+  isDirectFeeTransfer?: boolean;
+
   srcDecimals?: number;
   destDecimals?: number;
   ignoreChecks?: boolean; // Use it when executing transactions as a batch (approval + transfer)
@@ -204,52 +244,40 @@ export type OnTransactionReceiptCallback = (params: {
   destDecimals: number;
 }) => void;
 
+export type MarkrQuote = {
+  uuid: string;
+  aggregator: {
+    id: string;
+    name: string;
+  };
+  tokenIn: string;
+  tokenInDecimals: number;
+  amountIn: string;
+  tokenOut: string;
+  tokenOutDecimals: number;
+  amountOut: string;
+  done?: boolean;
+};
+
+export type MarkrTransaction = {
+  to: string;
+  value: string;
+  data: string;
+};
+
 export type SwapAdapterMethods = {
   onTransactionReceipt: OnTransactionReceiptCallback;
   showPendingToast: () => string;
 };
 
-export type SwapAdapter<
-  T extends SwapQuote,
-  U extends SwapParams<SwapQuote>,
-> = (
+export type SwapAdapter<T extends SwapQuote> = (
   walletState: SwapWalletState,
   methods: SwapAdapterMethods,
 ) => {
-  getRate: (params: GetRateParams) => Promise<GetRateResult<T>>;
-  swap: (params: U) => Promise<void>;
+  getRate: (
+    params: GetRateParams,
+  ) => Promise<NormalizedSwapQuoteResult | undefined>;
+  swap: (params: SwapParams<T>) => Promise<void>;
 };
 
 export type { JupiterQuote };
-
-export type WrapOperation = {
-  type: 'WRAP';
-  target: string;
-  amount: string;
-};
-
-export type UnwrapOperation = {
-  type: 'UNWRAP';
-  source: string;
-  amount: string;
-};
-
-export function isWrapOperation(quote: SwapQuote): quote is WrapOperation {
-  return 'type' in quote && quote.type === 'WRAP';
-}
-
-export function isUnwrapOperation(quote: SwapQuote): quote is UnwrapOperation {
-  return 'type' in quote && quote.type === 'UNWRAP';
-}
-
-export function isWrapOperationParams(
-  params: SwapParams<SwapQuote>,
-): params is SwapParams<WrapOperation> {
-  return isWrapOperation(params.quote);
-}
-
-export function isUnwrapOperationParams(
-  params: SwapParams<SwapQuote>,
-): params is SwapParams<UnwrapOperation> {
-  return isUnwrapOperation(params.quote);
-}
