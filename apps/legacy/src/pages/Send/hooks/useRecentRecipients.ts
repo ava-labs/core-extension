@@ -1,13 +1,5 @@
 import { Contact } from '@avalabs/types';
-import {
-  ETHEREUM_ADDRESS,
-  isBitcoinNetwork,
-  isNonXPHistoryItem,
-  isPchainNetwork,
-  isSolanaNetwork,
-  isXchainNetwork,
-  stripAddressPrefix,
-} from '@core/common';
+import { ETHEREUM_ADDRESS, isNonXPHistoryItem } from '@core/common';
 import {
   useAccountsContext,
   useNetworkContext,
@@ -15,14 +7,19 @@ import {
 } from '@core/ui';
 import { useEffect, useState } from 'react';
 import { useIdentifyAddress } from './useIdentifyAddress';
-import { indexOf } from 'lodash';
+import { getAddressForNetwork } from '../utils/getAddressForNetwork';
 
 //Some known addresses that are not contacts
-export const BURN_ADDRESS = '0x000000000000000000000000000000000000dEaD';
-export const ETHER_ADDRESS =
-  '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
-export const VELORA_ADDRESS =
-  '0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57' as const;
+const BURN_ADDRESS = '0x000000000000000000000000000000000000dEaD';
+const ETHER_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' as const;
+const VELORA_ADDRESS = '0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57' as const;
+
+const addressesToFilter = [
+  ETHEREUM_ADDRESS,
+  BURN_ADDRESS,
+  ETHER_ADDRESS,
+  VELORA_ADDRESS,
+];
 
 export const useRecentRecipients = () => {
   const { network } = useNetworkContext();
@@ -48,10 +45,7 @@ export const useRecentRecipients = () => {
         // filter out dupe to addresses
         return (
           index === self.findIndex((temp) => temp.to === tx.to) &&
-          tx.to !== ETHEREUM_ADDRESS &&
-          tx.to !== BURN_ADDRESS &&
-          tx.to !== ETHER_ADDRESS &&
-          tx.to !== VELORA_ADDRESS
+          !addressesToFilter.includes(tx.to)
         );
       });
 
@@ -59,36 +53,16 @@ export const useRecentRecipients = () => {
         const addressIdentities = [identifyAddress(tx.to)];
 
         addressIdentities.forEach((identity) => {
-          const addressToCheck = isBitcoinNetwork(network)
-            ? identity.addressBTC
-            : isPchainNetwork(network) || isXchainNetwork(network)
-              ? identity.addressXP
-                ? isSolanaNetwork(network)
-                : identity.addressSVM
-              : identity.address;
+          const addressToCheck = getAddressForNetwork(network, identity);
 
-          const userAddress = isBitcoinNetwork(network)
-            ? activeAccount?.addressBTC
-            : isPchainNetwork(network)
-              ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
-              : isXchainNetwork(network)
-                ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
-                : isSolanaNetwork(network)
-                  ? activeAccount?.addressSVM
-                  : activeAccount?.addressC;
+          const userAddress = getAddressForNetwork(network, activeAccount);
 
           const addressesInList = acc.map((value) =>
-            isBitcoinNetwork(network)
-              ? value.addressBTC
-              : isPchainNetwork(network) || isXchainNetwork(network)
-                ? value.addressXP
-                : isSolanaNetwork(network)
-                  ? value.addressSVM
-                  : value.address,
+            getAddressForNetwork(network, value),
           );
           if (
-            indexOf(addressesInList, addressToCheck) === -1 &&
-            userAddress !== addressToCheck
+            userAddress !== addressToCheck &&
+            !addressesInList.includes(addressToCheck)
           ) {
             acc.push(identity);
           }
