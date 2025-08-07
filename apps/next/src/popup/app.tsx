@@ -31,16 +31,18 @@ import { useEffect, useRef } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
-import { getContactsPath } from '@/config/routes';
 import { Portfolio } from '@/pages/Portfolio';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { getContactsPath, getSendPath } from '@/config/routes';
+import { Send } from '@/pages/Send';
 
 const pagesWithoutHeader = [
   '/account-management',
   '/settings',
   '/receive',
   getContactsPath(),
+  getSendPath(),
 ];
 
 export function App() {
@@ -118,6 +120,7 @@ export function App() {
             path="/import-wallet/ledger/:phase?"
             component={ImportLedgerFlow}
           />
+          <Route path={getSendPath()} component={Send} />
           <Route path="/" component={Portfolio} />
         </Switch>
       </>
