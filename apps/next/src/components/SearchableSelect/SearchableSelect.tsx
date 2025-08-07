@@ -1,106 +1,140 @@
 import {
-  Divider,
-  MenuProps,
-  SearchInput,
-  SearchInputProps,
-  SelectProps,
-  Stack,
-  Typography,
-} from '@avalabs/k2-alpine';
-import { FiAlertCircle } from 'react-icons/fi';
-import { useTranslation } from 'react-i18next';
-import { Children, FC, PropsWithChildren, useState } from 'react';
+  ComponentProps,
+  JSXElementConstructor,
+  ReactNode,
+  useRef,
+  useState,
+} from 'react';
+import { Divider, SearchInput } from '@avalabs/k2-alpine';
 
-import { EnsureDefined } from '@core/types';
+import { Card } from '../Card';
 
-import { Select } from '@/components/Select';
+import type {
+  Group,
+  UseSearchableSelectProps,
+  UseSearchableSelectReturnValues,
+} from './types';
+import {
+  GroupAccordion as DefaultGroupAccordion,
+  SearchableSelectTrigger as DefaultSearchableSelectTrigger,
+  NoScrollPopoverContent,
+  SearchableSelectListBox,
+  SearchableSelectMenuRoot,
+  SearchableSelectPopover,
+} from './components';
+import { useSearchableSelect } from './hooks';
 
-import { useKeyboardNavigation } from './hooks';
-
-const defaultMenuProps: Partial<MenuProps> = {
-  anchorOrigin: {
-    horizontal: 'left',
-    vertical: 'top',
-  },
-  transformOrigin: {
-    horizontal: 'center',
-    vertical: 'center',
-  },
-  slotProps: {
-    paper: {
-      sx: {
-        // TODO: remove this once we have a proper scrollbar solution
-        '&::-webkit-scrollbar': {
-          display: 'none',
-        },
-      },
-    },
-  },
-  sx: {
-    '& .MuiMenu-list': {
-      py: 0,
-    },
-  },
+type SearchableSelectOwnProps<T> = {
+  label: string;
+  getGroupLabel: (group: Group<T>) => string;
+  renderValue: (value?: T) => ReactNode;
+  renderOption: (
+    option: T,
+    getOptionProps: UseSearchableSelectReturnValues<T>['getOptionProps'],
+  ) => ReactNode;
 };
+interface SearchableSelectSlots<T> {
+  groupAccordion?: JSXElementConstructor<
+    ComponentProps<typeof DefaultGroupAccordion>
+  >;
+  trigger?: JSXElementConstructor<
+    ComponentProps<typeof DefaultSearchableSelectTrigger<T>>
+  >;
+}
 
-type SearchableSelectProps = PropsWithChildren<{
-  selectProps: EnsureDefined<SelectProps, 'renderValue'>;
-  searchInputId: string;
-  withSearchInput?: boolean;
-  searchInputProps?: SearchInputProps;
-  focusableItemIds?: string[];
-}>;
+type SearchableSelectProps<T> = SearchableSelectOwnProps<T> &
+  Omit<UseSearchableSelectProps<T>, 'setIsOpen'> & {
+    slots?: SearchableSelectSlots<T>;
+  };
 
-export const SearchableSelect: FC<SearchableSelectProps> = ({
-  selectProps,
-  searchInputId,
-  searchInputProps,
-  focusableItemIds,
-  children,
-}) => {
-  const { t } = useTranslation();
-  const { MenuProps: menuProps, ...restSelectProps } = selectProps ?? {};
+export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
+  const {
+    label,
+    value,
+    getGroupLabel,
+    renderValue,
+    renderOption,
+    slots,
+    ...hookProps
+  } = props;
 
-  const [menuElement, setMenuElement] = useState<HTMLDivElement | null>(null);
-  const keyboardShortcuts = useKeyboardNavigation(
-    menuElement,
-    focusableItemIds ?? [],
-    searchInputId,
-  );
+  const [isOpen, setIsOpen] = useState(false);
+  const triggerElement = useRef<HTMLDivElement | null>(null);
+
+  const {
+    setRoot,
+    groupedOptions,
+    getGroupHeaderProps,
+    getOptionProps,
+    getRootProps,
+    getSearchInputProps,
+    isListNarrowedDown,
+  } = useSearchableSelect({
+    ...hookProps,
+    value,
+    setIsOpen,
+  });
+
+  const {
+    groupAccordion: GroupAccordion,
+    trigger: SearchableSelectTrigger,
+  }: SearchableSelectSlots<T> = {
+    groupAccordion: DefaultGroupAccordion,
+    trigger: DefaultSearchableSelectTrigger,
+    ...props.slots,
+  };
 
   return (
-    <Select
-      fullWidth
-      size="medium"
-      MenuProps={{
-        ...defaultMenuProps,
-        ...menuProps,
-        ...keyboardShortcuts,
-        ref: setMenuElement,
-      }}
-      {...restSelectProps}
-    >
-      <Stack pt={0.5}>
-        <SearchInput
-          autoFocus
-          onClick={(e) => e.stopPropagation()}
-          {...searchInputProps}
-        />
-        <Divider sx={{ my: 0 }} />
-        {children}
-        {Children.count(children) === 0 && (
-          <Stack
-            direction="row"
-            p={2}
-            alignItems="center"
-            gap={1}
-            color="error.light"
-          >
-            <FiAlertCircle size={20} />
-            <Typography variant="body2">{t('No results found')}</Typography>
-          </Stack>
-        )}
-      </Stack>
-    </Select>
+    <Card>
+      <SearchableSelectTrigger
+        ref={triggerElement}
+        label={label}
+        value={value}
+        renderValue={renderValue}
+        onClick={() => setIsOpen((o) => !o)}
+      />
+      <SearchableSelectPopover
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        anchorEl={triggerElement.current}
+      >
+        <NoScrollPopoverContent>
+          <SearchableSelectMenuRoot ref={setRoot} {...getRootProps()}>
+            <SearchInput
+              autoFocus
+              slotProps={{ htmlInput: getSearchInputProps() }}
+            />
+            <Divider />
+            <SearchableSelectListBox>
+              {groupedOptions.map((group, index, { length }) => {
+                // If there is only one group and it's not narrowed down via search,
+                // render a flat list of options.
+                if (!isListNarrowedDown && index === 0 && length === 1) {
+                  return (
+                    <>
+                      {group.options.map((option) =>
+                        renderOption(option, getOptionProps),
+                      )}
+                    </>
+                  );
+                }
+
+                return (
+                  <GroupAccordion
+                    key={group.id}
+                    label={getGroupLabel(group)}
+                    headerProps={getGroupHeaderProps(group)}
+                  >
+                    {group.options.map((option) =>
+                      renderOption(option, getOptionProps),
+                    )}
+                  </GroupAccordion>
+                );
+              })}
+            </SearchableSelectListBox>
+          </SearchableSelectMenuRoot>
+        </NoScrollPopoverContent>
+      </SearchableSelectPopover>
+    </Card>
   );
-};
+}

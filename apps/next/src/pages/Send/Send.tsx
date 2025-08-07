@@ -19,11 +19,11 @@ export const Send = () => {
   const { replace } = useHistory();
 
   const {
-    accounts: { active },
+    selectAccount,
+    accounts: { active: activeAccount },
   } = useAccountsContext();
 
   const searchParams = new URLSearchParams(search);
-  const from = searchParams.get(SEND_QUERY_TOKENS.from) ?? active?.id;
   const fromQuery = searchParams.get(SEND_QUERY_TOKENS.fromQuery) ?? '';
 
   const updateQueryParam = useMemo(
@@ -56,11 +56,9 @@ export const Send = () => {
       <Stack width="100%" gap={2}>
         <AccountSelect
           addressType="C" // TODO: fixed to EVM for now
-          value={from ?? ''}
+          value={activeAccount}
           query={fromQuery}
-          onValueChange={(value) =>
-            updateQueryParam(searchParams, 'from', value)
-          }
+          onValueChange={(newAccount) => selectAccount(newAccount.id)}
           onQueryChange={(value) =>
             updateQueryParam(searchParams, 'fromQuery', value)
           }

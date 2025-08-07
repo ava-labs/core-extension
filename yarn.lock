@@ -560,9 +560,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/k2-alpine@npm:1.227.0":
-  version: 1.227.0
-  resolution: "@avalabs/k2-alpine@npm:1.227.0"
+"@avalabs/k2-alpine@npm:1.228.0":
+  version: 1.228.0
+  resolution: "@avalabs/k2-alpine@npm:1.228.0"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
@@ -578,7 +578,7 @@ __metadata:
     react: ^19.0.0
     react-dom: ^19.0.0
     react-icons: ^5.4.0
-  checksum: 10c0/8b2312d64cb7b79773a254e01355c00d0a33b0dda01ff592901fdb9b7484978ee571186f940564c2fa2972d302fccd73da4af769cfe173de3aed1bc272962c5a
+  checksum: 10c0/d94fb2b34cb02bea78831ed09a35ffacd04075cf3dd29f6fa85e96bddd5f92c287b8148f9901c357f1ef27222e18e2140d2ed8f00084cf7473d07103bc556a9d
   languageName: node
   linkType: hard
 
@@ -4145,7 +4145,7 @@ __metadata:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.59"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.59"
-    "@avalabs/k2-alpine": "npm:1.227.0"
+    "@avalabs/k2-alpine": "npm:1.228.0"
     "@avalabs/types": "npm:3.1.0-alpha.59"
     "@avalabs/vm-module-types": "npm:1.9.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"

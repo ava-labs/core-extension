@@ -1,32 +1,26 @@
-import { Divider } from '@avalabs/k2-alpine';
+import { FC } from 'react';
+import { Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { FC, useCallback, useState } from 'react';
 
-import { AddressType } from '@core/types';
+import { Account, AddressType } from '@core/types';
+import { useAccountsContext, useWalletContext } from '@core/ui';
 
-import { Card } from '@/components/Card';
 import { SearchableSelect } from '@/components/SearchableSelect';
 
-import { AccountGroup } from './components/AccountGroup';
-import { SelectedAccount } from './components/SelectedAccount';
-import { AccountGroup as AccountGroupT } from './types';
-import { useFocusableItemIds, useGroupedAccounts } from './hooks';
+import { AccountItem, SelectedAccount } from './components';
+import {
+  compareAccounts,
+  getWalletName,
+  groupByWallet,
+  searchAccounts,
+} from './lib/utils';
 
 type AccountSelectProps = {
   addressType: AddressType;
-  value: string;
-  onValueChange: (accountId: string) => void;
-  query: string;
+  value?: Account;
+  onValueChange: (account: Account) => void;
+  query?: string;
   onQueryChange: (query: string) => void;
-};
-
-const SEARCH_INPUT_ID = 'from-address-search-input';
-const SEARCH_INPUT_PROPS = {
-  slotProps: {
-    htmlInput: {
-      'data-item-id': SEARCH_INPUT_ID,
-    },
-  },
 };
 
 export const AccountSelect: FC<AccountSelectProps> = ({
@@ -37,57 +31,38 @@ export const AccountSelect: FC<AccountSelectProps> = ({
   onQueryChange,
 }) => {
   const { t } = useTranslation();
-
-  const groupedAccounts = useGroupedAccounts(addressType, query);
-  const focusableItemIds = useFocusableItemIds(
-    groupedAccounts,
-    SEARCH_INPUT_ID,
-  );
-
-  const [open, setOpen] = useState(false);
-
-  const onItemChosen = useCallback(
-    (accountId: string) => {
-      setOpen(false);
-      onValueChange(accountId);
-    },
-    [onValueChange],
-  );
+  const { allAccounts } = useAccountsContext();
+  const { getWallet } = useWalletContext();
 
   return (
-    <Card>
-      <SearchableSelect
-        selectProps={{
-          open,
-          value,
-          label: t('Account'),
-          onOpen: () => setOpen(true),
-          onClose: () => setOpen(false),
-          // FIXME: For some reason without the `onClick` here, the menu does not
-          // close after the first click on the backdrop, but only after a 2nd click.
-          onClick: () => setOpen(false),
-          renderValue: (val) => <SelectedAccount accountId={val as string} />,
-        }}
-        withSearchInput
-        searchInputId={SEARCH_INPUT_ID}
-        searchInputProps={{
-          ...SEARCH_INPUT_PROPS,
-          defaultValue: query,
-          onChange: (ev) => onQueryChange(ev.target.value),
-        }}
-        focusableItemIds={focusableItemIds}
-      >
-        {groupedAccounts.map((group, index, { length }) => [
-          <AccountGroup
-            group={group as AccountGroupT}
-            key={group.id}
-            addressType={addressType}
-            selectedAccountId={value}
-            onAccountClick={onItemChosen}
-          />,
-          index !== length - 1 ? <Divider /> : null,
-        ])}
-      </SearchableSelect>
-    </Card>
+    <SearchableSelect<Account>
+      id="account-select"
+      options={allAccounts}
+      getOptionId={(account) => account.id}
+      groupBy={groupByWallet}
+      getGroupLabel={getWalletName(getWallet)}
+      isOptionEqualToValue={compareAccounts}
+      searchFn={searchAccounts(addressType)}
+      query={query}
+      onQueryChange={onQueryChange}
+      value={value}
+      onValueChange={onValueChange}
+      label={t('Account')}
+      renderValue={(val) =>
+        val ? (
+          <SelectedAccount accountId={val.id} />
+        ) : (
+          <Typography variant="caption">{t('Choose')}</Typography>
+        )
+      }
+      renderOption={(option, getOptionProps) => (
+        <AccountItem
+          {...getOptionProps(option)}
+          key={option.id}
+          account={option}
+          addressType={addressType}
+        />
+      )}
+    />
   );
 };

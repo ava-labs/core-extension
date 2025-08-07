@@ -28,7 +28,6 @@ export const getContactsPath = (
  * Send
  **/
 export const SEND_QUERY_TOKENS = {
-  from: 'from',
   fromQuery: 'fromQ',
   to: 'to',
   toQuery: 'toQ',

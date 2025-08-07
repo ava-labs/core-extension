@@ -13,7 +13,7 @@ export const SelectedAccount = ({ accountId }: { accountId: string }) => {
     getAccountById(accountId),
   );
   return (
-    <Stack>
+    <Stack textAlign="end">
       <Typography
         variant="body3"
         color="text.primary"

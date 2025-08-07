@@ -22,14 +22,15 @@ type AccountItemProps = {
   account: PrimaryAccount | ImportedAccount;
   addressType: AddressType;
   isSelected: boolean;
-  onClick: (accountId: string) => void;
+  // onClick: (accountId: string) => void;
 };
 
 export const AccountItem: FC<AccountItemProps> = ({
   account,
   addressType,
   isSelected,
-  onClick,
+  // onClick,
+  ...rest
 }) => {
   const [showBalance, setShowBalance] = useState(false);
   const { getAccountById } = useAccountsContext();
@@ -40,13 +41,12 @@ export const AccountItem: FC<AccountItemProps> = ({
 
   return (
     <StyledMenuItem
-      data-item-id={account.id}
       onMouseEnter={() => setShowBalance(true)}
       onMouseLeave={() => setShowBalance(false)}
       onFocus={() => setShowBalance(true)}
       onBlur={() => setShowBalance(false)}
-      onClick={() => onClick(account.id)}
       value={account.id}
+      {...rest}
     >
       <Stack
         width="100%"
@@ -89,9 +89,9 @@ export const AccountItem: FC<AccountItemProps> = ({
 };
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
-  mx: theme.spacing(1.25),
-  borderRadius: theme.shape.fullBorderRadius,
-  px: theme.spacing(1.5),
+  marginInline: theme.spacing(1.25),
+  borderRadius: theme.shape.borderRadius,
+  paddingInline: theme.spacing(1.5),
   minHeight: 'unset',
   width: 'auto',
 }));
