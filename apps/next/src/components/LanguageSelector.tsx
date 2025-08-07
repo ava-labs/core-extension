@@ -3,11 +3,13 @@ import { useAnalyticsContext, useLanguage } from '@core/ui';
 import { SelectButton } from './SelectButton';
 
 type LanguageSelectorProps = ButtonProps & {
-  isOnboarding?: boolean;
+  dataTestId: string;
+  onSelectEventName: string;
 };
 
 export function LanguageSelector({
-  isOnboarding = false,
+  dataTestId,
+  onSelectEventName,
   ...props
 }: LanguageSelectorProps) {
   const { capture } = useAnalyticsContext();
@@ -30,18 +32,11 @@ export function LanguageSelector({
       }))}
       onOptionSelect={async (langCode) => {
         await changeLanguage(langCode);
-        const eventName = isOnboarding
-          ? 'OnboardingLanguageChanged'
-          : 'AppLanguageChanged';
-        capture(eventName, {
+        capture(onSelectEventName, {
           language: langCode,
         });
       }}
-      dataTestId={
-        isOnboarding
-          ? 'onboarding-language-selector'
-          : 'settings-language-selector'
-      }
+      dataTestId={dataTestId}
       {...props}
     />
   );

@@ -1,10 +1,10 @@
 import { Avatar, ButtonProps, Stack, Typography } from '@avalabs/k2-alpine';
-import { currencies } from '@core/types';
 import { useAnalyticsContext } from '@core/ui/src/contexts/AnalyticsProvider';
 import { useSettingsContext } from '@core/ui/src/contexts/SettingsProvider';
 import { useTranslation } from 'react-i18next';
 import { runtime } from 'webextension-polyfill';
 import { SelectButton } from '../../../components/SelectButton';
+import { currencies } from '../constants';
 
 export const CurrencySelector = (props: ButtonProps) => {
   const { updateCurrencySetting, currency } = useSettingsContext();

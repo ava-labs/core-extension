@@ -106,6 +106,8 @@ export const SettingsHomePage = () => {
           label={t('Language')}
           secondaryAction={
             <LanguageSelector
+              dataTestId="settings-language-selector"
+              onSelectEventName="AppLanguageChanged"
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
             />
           }

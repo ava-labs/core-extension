@@ -12,6 +12,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
+const row1 = AVATAR_OPTIONS.filter((_, index) => index % 2 === 0);
+const row2 = AVATAR_OPTIONS.filter((_, index) => index % 2 !== 0);
+const rows = [row1, row2];
+
 export const AvatarSelector = () => {
   const { t } = useTranslation();
   const { saveAvatar, selected } = usePersonalAvatar();
@@ -30,10 +34,6 @@ export const AvatarSelector = () => {
     capture('AvatarSettingChanged');
     replace('/settings');
   };
-
-  const row1 = AVATAR_OPTIONS.filter((_, index) => index % 2 === 0);
-  const row2 = AVATAR_OPTIONS.filter((_, index) => index % 2 !== 0);
-  const rows = [row1, row2];
 
   return (
     <Page
