@@ -12,9 +12,13 @@ export const NETWORK_LIST_STORAGE_KEY = 'NETWORK_LIST_STORAGE_KEY';
 export const NETWORK_OVERRIDES_STORAGE_KEY = 'NETWORK_OVERRIDES_STORAGE_KEY';
 
 export interface NetworkStorage {
-  favoriteNetworks: number[];
+  favoriteNetworks: number[]; //Legacy
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
+  enabledNetworks: {
+    default: number[];
+    optional: number[];
+  };
 }
 
 export interface AddEthereumChainParameter {
