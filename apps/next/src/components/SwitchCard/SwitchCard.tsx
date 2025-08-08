@@ -3,26 +3,23 @@ import {
   styled,
   Switch,
   Typography,
-  TypographyProps,
+  TypographyVariant,
 } from '@avalabs/k2-alpine';
 
 import { Card } from '../Card';
+import { useTheme } from '@emotion/react';
 
 type Orientation = 'horizontal' | 'vertical';
 
 interface SwitchCardProps {
   title: string;
-  titleProps?: TypographyProps;
   description: string;
   orientation?: Orientation;
   checked: boolean;
   disabled?: boolean;
   onChange: () => void;
+  titleSize: 'small' | 'large';
 }
-
-const defaultTitleProps: TypographyProps = {
-  variant: 'h6',
-};
 
 export const SwitchCard = ({
   title,
@@ -31,12 +28,31 @@ export const SwitchCard = ({
   checked,
   disabled,
   onChange,
-  titleProps = defaultTitleProps,
+  titleSize = 'small',
 }: SwitchCardProps) => {
+  const theme = useTheme();
+  const titleStyles = {
+    small: {
+      variant: 'subtitle3' as TypographyVariant,
+      // TODO: fix it after a proper k2 release
+      fontWeight: 600,
+    },
+    large: {
+      variant: 'h5' as TypographyVariant,
+      fontWeight: theme.typography.fontWeightBold,
+    },
+  };
+  console.log('theme: ', theme);
   return (
     <StyledSwitchCard orientation={orientation}>
-      <Stack gap={1}>
-        <Typography {...titleProps}>{title}</Typography>
+      <Stack gap={0.5}>
+        <Typography
+          variant={titleStyles[titleSize].variant}
+          component="h3"
+          fontWeight={titleStyles[titleSize].fontWeight}
+        >
+          {title}
+        </Typography>
         <Typography variant="caption" color="text.secondary">
           {description}
         </Typography>
@@ -47,7 +63,7 @@ export const SwitchCard = ({
         disabled={disabled}
         onChange={onChange}
         aria-label={description}
-        size="medium"
+        size="small"
       />
     </StyledSwitchCard>
   );

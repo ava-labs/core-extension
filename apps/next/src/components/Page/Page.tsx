@@ -1,17 +1,6 @@
-import { MdArrowBack } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
-import {
-  Fade,
-  IconButton,
-  Stack,
-  StackProps,
-  styled,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
-
-import { ViewModeSwitcher } from '../Header/ViewModeSwitcher';
+import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
 import { useIsIntersecting } from './hooks';
+import { PageTopBar } from '../PageTopBar';
 
 type PageProps = {
   title?: string;
@@ -36,8 +25,6 @@ export const Page = ({
   children,
   contentProps,
 }: PageProps) => {
-  const theme = useTheme();
-  const history = useHistory();
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
 
   return (
@@ -47,36 +34,23 @@ export const Page = ({
       bgcolor="background.backdrop"
       overflow="hidden"
     >
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        px={1}
-        py={1.5}
-        borderBottom={
-          !isObserving || isIntersecting
-            ? 'none'
-            : `1px solid ${theme.palette.divider}`
-        }
-      >
-        <Stack direction="row" gap={1} alignItems="center">
-          <IconButton size="small" onClick={history.goBack}>
-            <MdArrowBack size={24} />
-          </IconButton>
-          <Fade in={isObserving && !isIntersecting}>
-            <Typography variant="h6">{title}</Typography>
-          </Fade>
-        </Stack>
-        <ViewModeSwitcher />
-      </Stack>
+      <PageTopBar
+        showBack
+        isObserving={isObserving}
+        isIntersecting={isIntersecting}
+        title={title}
+      />
       <NoScrollStack>
         <Stack px={1.5} pb={1.5} gap={3} flexGrow={1}>
           {title && (
             <Stack gap={1}>
-              <Typography variant="h2" ref={ref}>
+              <Typography variant="h2" ref={ref} component="h1">
                 {title}
               </Typography>
               {description && (
-                <Typography variant="caption">{description}</Typography>
+                <Typography variant="caption" sx={{ width: '60%' }}>
+                  {description}
+                </Typography>
               )}
             </Stack>
           )}
