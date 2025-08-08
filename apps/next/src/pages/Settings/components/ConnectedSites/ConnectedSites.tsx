@@ -1,7 +1,6 @@
 import { Stack, toast } from '@avalabs/k2-alpine';
 import { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as Styled from './components/Styled';
 
 import { AccountSelect } from '@/components/AccountSelect';
 import { Card } from '@/components/Card';
@@ -9,8 +8,7 @@ import { Page } from '@/components/Page';
 import { useConnectedSites } from '@/hooks/useConnectedSites';
 import { useUrlPersistedQuery } from '@/hooks/useUrlPersistedQuery';
 import { Account } from '@core/types';
-import { ConnectedSiteItem } from './components/ConnectedSiteItem';
-import { EmptyConnectedSites } from './components/EmptyConnectedSites';
+import { ConnectedSiteItem, EmptyConnectedSites, Styled } from './components';
 
 export const ConnectedSites: FC = () => {
   const { t } = useTranslation();

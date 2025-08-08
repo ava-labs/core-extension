@@ -8,26 +8,28 @@ import {
 } from '@avalabs/core-k2-components';
 import { useTranslation } from 'react-i18next';
 
-import { SettingsMenu } from '@/components/settings/SettingsMenu';
-import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
-import { SettingsPages, usePermissionContext } from '@core/ui';
-import { useAccountsContext } from '@core/ui';
-import { useNetworkContext } from '@core/ui';
 import { SimpleAddress } from '@/components/common/SimpleAddress';
-import { useSettingsContext } from '@core/ui';
+import { SettingsMenu } from '@/components/settings/SettingsMenu';
+import {
+  SettingsPages,
+  useAccountsContext,
+  useNetworkContext,
+  usePermissionContext,
+  useSettingsContext,
+} from '@core/ui';
+import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 
-import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
-import { NetworkSwitcher } from './NetworkSwitcher';
-import { AccountSelectorButton } from '../account/AccountSelectorButton';
-import { useWalletContext } from '@core/ui';
+import { getAddressForChain, getAllAddressesForAccount } from '@core/common';
 import { AccountType } from '@core/types';
+import { useWalletContext } from '@core/ui';
+import { AccountSelectorButton } from '../account/AccountSelectorButton';
+import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
 import { WalletChip } from '../WalletChip';
-import { getAddressForChain } from '@core/common';
-import { getAllAddressesForAccount } from '@core/common';
+import { NetworkSwitcher } from './NetworkSwitcher';
 
 export function Header() {
   const domain = useCurrentDomain();
-  const { revokeAddressPermisson, isDomainConnectedToAccount } =
+  const { revokeAddressPermission, isDomainConnectedToAccount } =
     usePermissionContext();
   const {
     accounts: { active: activeAccount },
@@ -102,7 +104,7 @@ export function Header() {
                       }}
                       onClick={() => {
                         if (domain && activeAccount) {
-                          revokeAddressPermisson(
+                          revokeAddressPermission(
                             domain,
                             getAllAddressesForAccount(activeAccount),
                           );
