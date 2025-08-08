@@ -51,7 +51,10 @@ export function Onboarding() {
         position="relative"
       >
         <Box position="fixed" top={32} right={32}>
-          <LanguageSelector />
+          <LanguageSelector
+            dataTestId="onboarding-language-selector"
+            onSelectEventName="OnboardingLanguageChanged"
+          />
         </Box>
         <Column>
           <Stack direction="row" justifyContent="center" alignItems="center">

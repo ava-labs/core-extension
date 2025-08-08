@@ -52,7 +52,10 @@ export const PersonalAvatar = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const { avatar } = usePersonalAvatar();
+  const {
+    selected: { dataUri: avatar },
+  } = usePersonalAvatar();
+
   const src = use(
     getAvatarSrc(cached ? avatar : (props.name ?? props.dataUri ?? avatar)),
   );

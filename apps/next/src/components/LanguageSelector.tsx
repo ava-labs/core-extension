@@ -1,81 +1,43 @@
-import {
-  Button,
-  ButtonProps,
-  ChevronDownIcon,
-  Popover,
-  PopoverContent,
-  PopoverItem,
-  useTheme,
-} from '@avalabs/k2-alpine';
-import { useState } from 'react';
+import { ButtonProps, Typography } from '@avalabs/k2-alpine';
 import { useAnalyticsContext, useLanguage } from '@core/ui';
+import { SelectButton } from './SelectButton';
 
-export function LanguageSelector(props: ButtonProps) {
-  const theme = useTheme();
+type LanguageSelectorProps = ButtonProps & {
+  dataTestId: string;
+  onSelectEventName: string;
+};
+
+export function LanguageSelector({
+  dataTestId,
+  onSelectEventName,
+  ...props
+}: LanguageSelectorProps) {
   const { capture } = useAnalyticsContext();
   const { availableLanguages, changeLanguage, currentLanguage } = useLanguage();
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
-    <>
-      <Button
-        variant="text"
-        size="small"
-        color="primary"
-        onClick={handleClick}
-        data-testid="onboarding-language-selector"
-        endIcon={
-          <ChevronDownIcon
-            size={16}
-            sx={{
-              color: 'text.secondary',
-              transition: theme.transitions.create('transform'),
-              transform: open ? 'rotateX(180deg)' : 'none',
-            }}
-          />
-        }
-        {...props}
-      >
-        {currentLanguage?.name}
-      </Button>
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContent>
-          {availableLanguages.map((lang) => (
-            <PopoverItem
-              key={lang.code}
-              onClick={() => {
-                changeLanguage(lang.code);
-                capture('OnboardingLanguageChanged', {
-                  language: lang.code,
-                });
-                handleClose();
-              }}
-              data-testid={`onboarding-language-selector-menu-item-${lang.code}`}
-              selected={lang.code === currentLanguage?.code}
-            >
-              {lang.name} ({lang.originalName})
-            </PopoverItem>
-          ))}
-        </PopoverContent>
-      </Popover>
-    </>
+    <SelectButton
+      renderValue={
+        <Typography variant="subtitle2" color="text.secondary">
+          {currentLanguage?.name}
+        </Typography>
+      }
+      options={availableLanguages.map((lang) => ({
+        key: lang.code,
+        label: `${lang.name} (${lang.originalName})`,
+        value: lang.code,
+        dataTestId: `language-selector-menu-item-${lang.code}`,
+        selected: lang.code === currentLanguage?.code,
+        selectValue: lang.code,
+      }))}
+      onOptionSelect={async (langCode) => {
+        await changeLanguage(langCode);
+        capture(onSelectEventName, {
+          language: langCode,
+        });
+      }}
+      dataTestId={dataTestId}
+      {...props}
+    />
   );
 }

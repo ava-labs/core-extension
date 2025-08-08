@@ -4,16 +4,23 @@ import { useSettingsContext } from '../contexts';
 type ColorScheme = 'dark' | 'light' | 'testnet';
 
 export const usePreferredColorScheme = () => {
-  const { nextGenTheme: theme } = useSettingsContext();
+  const { theme } = useSettingsContext();
 
   const [preferredColorScheme, setPreferredColorScheme] =
     useState<ColorScheme>('light');
 
   useEffect(() => {
-    if (theme !== 'system') {
+    if (theme === 'DARK') {
+      setPreferredColorScheme('dark');
       return;
     }
 
+    if (theme === 'LIGHT') {
+      setPreferredColorScheme('light');
+      return;
+    }
+
+    // Handling 'SYSTEM'
     const isDark = window.matchMedia('(prefers-color-scheme: dark)');
     const isLight = window.matchMedia('(prefers-color-scheme: light)');
 

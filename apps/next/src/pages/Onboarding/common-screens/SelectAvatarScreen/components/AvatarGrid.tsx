@@ -2,16 +2,13 @@ import {
   getHexAlpha,
   Stack,
   StackProps,
-  styled,
   useMediaQuery,
   useTheme,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
-import {
-  PersonalAvatar,
-  type PersonalAvatarName,
-} from '@/components/PersonalAvatar';
+import { type PersonalAvatarName } from '@/components/PersonalAvatar';
+import { AvatarRows } from '@/components/Avatar/AvatarRows';
 
 type AvatarGridProps = Omit<StackProps, 'onSelect'> & {
   avatars: readonly PersonalAvatarName[];
@@ -50,48 +47,14 @@ export const AvatarGrid: FC<AvatarGridProps> = ({
       }}
       {...props}
     >
-      {avatarRows.map((row, index) => (
-        <AvatarGridRow key={index}>
-          {row.map((avatar) => (
-            <PersonalAvatar
-              tabIndex={0}
-              key={avatar}
-              name={avatar}
-              dimmed
-              size="medium"
-              selected={avatar === selected}
-              onClick={() => onSelect(avatar)}
-              onKeyDown={(ev) => {
-                // On space, select the avatar
-                if (ev.key === ' ') {
-                  ev.preventDefault();
-                  onSelect(avatar);
-                } else if (ev.key === 'Enter') {
-                  // On enter, select the avatar if it's not already selected.
-                  // Otherwise let the event bubble up to the parent, which will
-                  // navigate to the next screen.
-                  if (avatar !== selected) {
-                    ev.stopPropagation();
-                    onSelect(avatar);
-                  }
-                }
-              }}
-            />
-          ))}
-        </AvatarGridRow>
-      ))}
+      <AvatarRows
+        avatarRows={avatarRows}
+        selected={selected}
+        onSelect={onSelect}
+      />
     </Stack>
   );
 };
-
-const AvatarGridRow = styled(Stack)(({ theme }) => ({
-  flexDirection: 'row',
-  justifyContent: 'center',
-  gap: theme.spacing(0.5),
-  '&:nth-of-type(n+2)': {
-    marginTop: theme.spacing(-1.5),
-  },
-}));
 
 function chunkIntoAlternatingSizes<T>(
   arr: readonly T[],

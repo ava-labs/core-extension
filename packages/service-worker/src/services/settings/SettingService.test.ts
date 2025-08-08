@@ -12,7 +12,6 @@ import {
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   SettingsEvents,
   SettingsState,
-  ThemeVariant,
   TokensVisibility,
 } from '@core/types';
 import { changeLanguage } from 'i18next';
@@ -66,25 +65,27 @@ describe('background/services/settings/SettingsService.ts', () => {
     currency: 'EUR',
     customTokens: {},
     showTokensWithoutBalances: true,
-    theme: ThemeVariant.DARK,
+    theme: 'DARK',
     tokensVisibility: {},
     collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Denied,
     language: Languages.DE,
     coreAssistant: true,
     preferredView: 'floating',
+    showTrendingTokens: false,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
     customTokens: {},
     showTokensWithoutBalances: false,
-    theme: ThemeVariant.DARK,
+    theme: 'DARK',
     tokensVisibility: {},
     collectiblesVisibility: {},
     analyticsConsent: AnalyticsConsent.Approved,
     language: Languages.DE,
     coreAssistant: false,
     preferredView: 'floating',
+    showTrendingTokens: false,
   };
 
   const customToken: NetworkContractToken = {
@@ -316,17 +317,17 @@ describe('background/services/settings/SettingsService.ts', () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-        await service.setTheme(ThemeVariant.LIGHT);
+        await service.setTheme('LIGHT');
 
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
-          theme: ThemeVariant.LIGHT,
+          theme: 'LIGHT',
         });
       });
 
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
-          await service.setTheme(ThemeVariant.LIGHT);
+          await service.setTheme('LIGHT');
         });
       });
     });
@@ -422,6 +423,26 @@ describe('background/services/settings/SettingsService.ts', () => {
       it('should emit only the core concierge if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setCoreAssistant(true);
+        });
+      });
+    });
+
+    describe('setShowTrendingTokens', () => {
+      it('should save the new value for show trending tokens properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+        await service.setShowTrendingTokens(true);
+
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          showTrendingTokens: true,
+        });
+      });
+
+      it('should emit only the language if it fails to save', async () => {
+        await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
+          await service.setShowTrendingTokens(true);
         });
       });
     });

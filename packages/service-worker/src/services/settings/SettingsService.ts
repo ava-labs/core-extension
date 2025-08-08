@@ -2,13 +2,13 @@ import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import {
   AnalyticsConsent,
   CollectiblesVisibility,
+  ColorTheme,
   EnsureDefined,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   SettingsEvents,
   SettingsState,
-  ThemeVariant,
   TokensVisibility,
   ViewMode,
 } from '@core/types';
@@ -24,13 +24,14 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
   customTokens: {},
   showTokensWithoutBalances: false,
-  theme: ThemeVariant.DARK,
+  theme: 'DARK',
   tokensVisibility: {},
   collectiblesVisibility: {},
   analyticsConsent: AnalyticsConsent.Approved,
   language: Languages.EN,
   coreAssistant: true,
   preferredView: 'floating',
+  showTrendingTokens: false,
 };
 
 @singleton()
@@ -168,7 +169,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setTheme(theme: ThemeVariant) {
+  async setTheme(theme: ColorTheme) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,
@@ -215,6 +216,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       preferredView: viewMode,
+    });
+  }
+
+  async setShowTrendingTokens(show: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      showTrendingTokens: show,
     });
   }
 

@@ -1,10 +1,16 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
 import { EnsureDefined } from './util-types';
 
+/**
+ * @deprecated Use ColorScheme instead
+ * This is used in an old migration.
+ */
 export enum ThemeVariant {
   LIGHT = 'LIGHT',
   DARK = 'DARK',
 }
+
+export type ColorTheme = 'DARK' | 'LIGHT' | 'SYSTEM';
 
 export enum Languages {
   EN = 'en',
@@ -58,13 +64,14 @@ export interface SettingsState {
   currency: string;
   customTokens: CustomTokens;
   showTokensWithoutBalances: boolean;
-  theme: ThemeVariant;
+  theme: ColorTheme;
   tokensVisibility: TokensVisibility;
   collectiblesVisibility: CollectiblesVisibility;
   analyticsConsent: AnalyticsConsent;
   language: Languages;
   coreAssistant: boolean;
   preferredView: ViewMode;
+  showTrendingTokens: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';
