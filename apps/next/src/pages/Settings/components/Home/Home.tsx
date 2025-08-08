@@ -9,7 +9,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRouteMatch } from 'react-router-dom';
 
-import { useContactsContext, useSettingsContext } from '@core/ui';
+import {
+  useContactsContext,
+  useSettingsContext,
+  useWalletContext,
+} from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { Page } from '@/components/Page';
@@ -23,6 +27,7 @@ import {
 } from '@/config';
 
 import { getContactsPath } from '@/config/routes';
+import { SecretType } from '@core/types';
 import {
   AvatarButton,
   Footer,
@@ -33,6 +38,7 @@ import {
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
+  const { walletDetails } = useWalletContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
 
@@ -120,7 +126,14 @@ export const SettingsHomePage = () => {
           divider
           href={`${path}/change-password`}
         />
-        <SettingsNavItem label={t('Show recovery phrase')} divider />
+        {(walletDetails?.type === SecretType.Mnemonic ||
+          walletDetails?.type === SecretType.Seedless) && (
+          <SettingsNavItem
+            label={t('Show recovery phrase')}
+            href={`${path}/recovery-phrase/show-phrase`}
+            divider
+          />
+        )}
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
         <SettingsNavItem label={t('Recovery methods')} divider />
         <SettingsNavItem

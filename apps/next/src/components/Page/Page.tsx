@@ -24,6 +24,7 @@ export const Page = ({
   description,
   children,
   contentProps,
+  ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
 
@@ -33,6 +34,7 @@ export const Page = ({
       width={1}
       bgcolor="background.backdrop"
       overflow="hidden"
+      {...htmlProps}
     >
       <PageTopBar
         showBack
