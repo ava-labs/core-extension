@@ -1,6 +1,13 @@
 import Joi from 'joi';
-import { ChainId, Network } from '@avalabs/core-chains-sdk';
+import { Network } from '@avalabs/core-chains-sdk';
+import { defaultEnabledNetworks } from '~/services/network/consts';
 const VERSION = 3;
+
+const defaultEnableNetworksDeletable = [
+  42161, //Arbitrum One Mainnet
+  10, //Optimism Mainnet
+  8453, //Base Mainnet
+];
 
 type PreviousSchema = {
   favoriteNetworks: number[];
@@ -12,29 +19,17 @@ const previousSchema = Joi.object();
 const up = async (networkStorage: PreviousSchema) => {
   const { favoriteNetworks } = networkStorage;
 
-  const defaultNetworks = [
-    ChainId.AVALANCHE_MAINNET_ID,
-    ChainId.AVALANCHE_TESTNET_ID,
-    ChainId.AVALANCHE_P,
-    ChainId.AVALANCHE_TEST_P,
-    ChainId.BITCOIN,
-    ChainId.BITCOIN_TESTNET,
-    ChainId.ETHEREUM_HOMESTEAD,
-    ChainId.ETHEREUM_TEST_SEPOLIA,
-    ChainId.SOLANA_MAINNET_ID,
-    ChainId.SOLANA_DEVNET_ID,
-  ];
-
-  const optionalNetworks = favoriteNetworks.filter(
-    (network) => !defaultNetworks.includes(network),
-  );
+  const optionalNetworks = favoriteNetworks
+    .filter(
+      (network) =>
+        !defaultEnabledNetworks.includes(network) &&
+        !defaultEnableNetworksDeletable.includes(network),
+    )
+    .concat(defaultEnableNetworksDeletable);
 
   return {
     ...networkStorage,
-    enabledNetworks: {
-      default: defaultNetworks,
-      optional: optionalNetworks,
-    },
+    enabledNetworks: optionalNetworks,
     version: VERSION,
   };
 };

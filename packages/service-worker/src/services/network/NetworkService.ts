@@ -56,6 +56,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
   private _chainListFetched = new Signal<ChainList>();
+  private _enabledNetworks: number[] = [];
 
   private _fetchedChainListSignal = this._chainListFetched
     .cache(new ValueCache())
@@ -318,6 +319,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       dappScopes: this.#dappScopes,
       customNetworks: this._customNetworks,
       favoriteNetworks: this._favoriteNetworks,
+      enabledNetworks: this._enabledNetworks,
     });
   }
 

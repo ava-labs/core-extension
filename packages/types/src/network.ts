@@ -15,10 +15,7 @@ export interface NetworkStorage {
   favoriteNetworks: number[]; //Legacy
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
-  enabledNetworks: {
-    default: number[];
-    optional: number[];
-  };
+  enabledNetworks: number[]; //NextGen
 }
 
 export interface AddEthereumChainParameter {
