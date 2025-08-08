@@ -1,6 +1,6 @@
 import { KeyboardEventHandler, useCallback, useRef } from 'react';
 
-type KeyNames = 'Enter' | 'Escape';
+type KeyNames = 'Enter' | 'Escape' | 'ArrowUp' | 'ArrowDown';
 type KeyboardShortcuts = Partial<Record<KeyNames, KeyboardEventHandler>>;
 
 export const useKeyboardShortcuts = (shortcuts: KeyboardShortcuts) => {

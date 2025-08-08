@@ -1,8 +1,7 @@
 import { FC } from 'react';
-import { Box, Stack } from '@avalabs/k2-alpine';
+import { Box, Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { FiAlertCircle } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
-import { styled, Typography } from '@mui/material';
 
 export const LostPhraseLostFundsWarning: FC = () => {
   const { t } = useTranslation();

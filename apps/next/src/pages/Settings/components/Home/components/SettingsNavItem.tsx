@@ -56,7 +56,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
       <ListItemText
         slotProps={{
           primary: {
-            variant: 'subtitle3',
+            variant: 'subtitle1',
           },
           secondary: {
             variant: 'caption',
