@@ -49,6 +49,7 @@ import {
   isSyncDomain,
 } from '@core/common';
 import { isSolanaNetwork } from '@core/common';
+import { defaultEnabledNetworks } from './consts';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -65,6 +66,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   public uiActiveNetworkChanged = new Signal<Network | undefined>();
   public developerModeChanged = new Signal<boolean | undefined>();
   public favoriteNetworksUpdated = new Signal<number[]>();
+  public enabledNetworksUpdated = new Signal<number[]>();
   public dappScopeChanged = new Signal<{ domain: string; scope: string }>();
 
   // Provides a way to read the most recently dispatched _allNetworks
@@ -227,6 +229,11 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworksUpdated.dispatch(networkIds);
   }
 
+  private set enabledNetworks(networkIds: number[]) {
+    this._enabledNetworks = networkIds;
+    this.enabledNetworksUpdated.dispatch(networkIds);
+  }
+
   async getFavoriteNetworks() {
     const allNetworks = await this.allNetworks.promisify();
     const isMainnet = this.isMainnet();
@@ -239,6 +246,25 @@ export class NetworkService implements OnLock, OnStorageReady {
       return false;
     });
     return filteredFavoriteNetworks;
+  }
+
+  async getEnabledNetworks() {
+    const allNetworks = await this.allNetworks.promisify();
+    const isMainnet = this.isMainnet();
+    // Adding defaultEnabledNetwork to ensure that all of the default networks are enabled
+    const enabledNetworks = this._enabledNetworks.concat(
+      defaultEnabledNetworks,
+    );
+    const uniqueEnabledNetworks = [...new Set(enabledNetworks)];
+    const filteredEnabledNetworks = uniqueEnabledNetworks.filter((id) => {
+      if (allNetworks) {
+        return isMainnet
+          ? !allNetworks[id]?.isTestnet
+          : allNetworks[id]?.isTestnet;
+      }
+      return false;
+    });
+    return filteredEnabledNetworks;
   }
 
   public get customNetworks() {
@@ -260,6 +286,20 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._favoriteNetworks;
   }
 
+  async addEnabledNetwork(chainId: number) {
+    if (
+      this._enabledNetworks.includes(chainId) ||
+      defaultEnabledNetworks.includes(chainId)
+    ) {
+      return this._enabledNetworks;
+    }
+
+    const storedEnabledNetworks = this._enabledNetworks;
+    this.enabledNetworks = [...storedEnabledNetworks, chainId];
+    this.updateNetworkState();
+    return this._enabledNetworks;
+  }
+
   async removeFavoriteNetwork(chainId: number) {
     const storedFavoriteNetworks = this._favoriteNetworks;
     this.favoriteNetworks = storedFavoriteNetworks.filter(
@@ -270,10 +310,20 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._favoriteNetworks;
   }
 
+  async removeEnabledNetwork(chainId: number) {
+    const storedEnabledNetworks = this._enabledNetworks;
+    this.enabledNetworks = storedEnabledNetworks.filter(
+      (storedEnabledNetworkChainId) => storedEnabledNetworkChainId !== chainId,
+    );
+    this.updateNetworkState();
+    return this._enabledNetworks;
+  }
+
   async onLock(): Promise<void> {
     this.uiActiveNetwork = undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
+    this._enabledNetworks = [];
     this.#dappScopes = {};
   }
 
@@ -362,6 +412,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworks = storedState?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
     ];
+    this.enabledNetworks = storedState?.enabledNetworks ?? [];
   }
 
   private async _getCachedChainList(): Promise<ChainList | undefined> {
