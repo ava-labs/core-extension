@@ -8,7 +8,7 @@ import { CoreSplash } from '@/components/CoreSplash';
 import { WarningMessage } from '@/components/WarningMessage';
 
 import { ForgotPassword } from './components/ForgotPassword';
-import { NavigationBar } from './components/NavigationBar';
+import { PageTopBar } from '../../components/PageTopBar';
 import { Unlock } from './components/Unlock';
 import { UserAvatar } from './components/UserAvatar';
 
@@ -45,10 +45,7 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
 
   return (
     <Root>
-      <NavigationBar
-        showBack={showForgotPassword}
-        onBackClicked={hideForgotPasswordModal}
-      />
+      <PageTopBar onBackClicked={hideForgotPasswordModal} />
       <CenteredCoreSplash onGifEnd={() => setShowUnlockForm(true)} />
       <UserAvatar faded={!isOnline} suppressMargin={isUIReady} />
 

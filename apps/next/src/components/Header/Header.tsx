@@ -19,7 +19,6 @@ const AccountInfo = styled(Stack)`
   padding: ${({ theme }) => theme.spacing(0.5)};
   transition: ${({ theme }) =>
     theme.transitions.create(['background', 'opacity'])};
-
   flex-direction: row;
   align-items: center;
   & > svg {
@@ -69,7 +68,7 @@ export const Header = () => {
           height: '56px',
           alignItems: 'center',
           justifyContent: 'space-between',
-          pl: 1,
+          px: 1,
           zIndex: 1,
         }}
       >
@@ -80,7 +79,7 @@ export const Header = () => {
         >
           <AccountInfo>
             <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
-            <Typography variant="body3">{activeAccount?.name}</Typography>
+            <Typography variant="body2">{activeAccount?.name}</Typography>
             <MdOutlineUnfoldMore
               size={24}
               color={getHexAlpha(theme.palette.primary.main, 70)}

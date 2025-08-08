@@ -1,5 +1,6 @@
 import { Card } from '@/components/Card';
 import { CardProps, List, Stack, styled, Typography } from '@avalabs/k2-alpine';
+import { useTheme } from '@emotion/react';
 import { FC } from 'react';
 
 type SettingsCardProps = CardProps & {
@@ -13,11 +14,11 @@ export const SettingsCard: FC<SettingsCardProps> = ({
   description,
   ...cardProps
 }) => {
+  const theme = useTheme();
   return (
     <StyledCard {...cardProps}>
       <Stack gap={0.5}>
-        {/* TODO: find a common ground with UX team so we don't have to override the fontWeight*/}
-        <Typography variant="h5" fontWeight="700 !important">
+        <Typography variant="h5" fontWeight={theme.typography.fontWeightBold}>
           {title}
         </Typography>
         {description && (
