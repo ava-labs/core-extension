@@ -3,7 +3,7 @@ import { getAllAddressesForAccount } from '@core/common';
 import { Account } from '@core/types';
 import { useAccountsContext, usePermissionContext } from '@core/ui';
 import { useCallback, useMemo } from 'react';
-import { getFaviconUrl } from '../utils/favicon';
+import { getFaviconUrl } from '../pages/Settings/components/ConnectedSites/utils/favicon';
 
 export interface ConnectedSite {
   domain: string;
@@ -13,7 +13,8 @@ export interface ConnectedSite {
 
 export const useConnectedSites = () => {
   const { accounts, selectAccount, allAccounts } = useAccountsContext();
-  const { permissions, revokeAddressPermission } = usePermissionContext();
+  const { permissions, revokeAddressPermission, isDomainConnectedToAccount } =
+    usePermissionContext();
 
   const selectedAccount = accounts.active;
 
@@ -61,8 +62,8 @@ export const useConnectedSites = () => {
     selectedAccount,
     accounts: allAccounts,
     connectedSites,
-    isLoading: false, // TODO: Implement loading state if needed
     selectAccount,
     disconnectSite,
+    isDomainConnectedToAccount,
   };
 };

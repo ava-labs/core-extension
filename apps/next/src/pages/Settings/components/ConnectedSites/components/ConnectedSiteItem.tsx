@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@avalabs/k2-alpine';
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ConnectedSite } from '../hooks/useConnectedSites';
+import { ConnectedSite } from '../../../../../hooks/useConnectedSites';
 import { isFaviconExists } from '../utils/favicon';
 import * as Styled from './Styled';
 
