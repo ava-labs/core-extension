@@ -23,3 +23,26 @@ export const getContactsPath = (
 
   return `${pathname}?${searchString}`;
 };
+
+/**
+ * Send
+ **/
+export const SEND_QUERY_TOKENS = {
+  fromQuery: 'fromQ',
+  to: 'to',
+  toQuery: 'toQ',
+  token: 'token',
+  amount: 'amount',
+};
+export type SendQueryTokens = typeof SEND_QUERY_TOKENS;
+export const getSendPath = (query?: Partial<SendQueryTokens>) => {
+  const pathname = generatePath('/send');
+  const search = new URLSearchParams(query);
+  const searchString = search.toString();
+
+  if (!searchString) {
+    return pathname;
+  }
+
+  return `${pathname}?${searchString}`;
+};
