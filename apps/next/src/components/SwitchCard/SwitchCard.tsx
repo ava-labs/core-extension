@@ -42,7 +42,6 @@ export const SwitchCard = ({
       fontWeight: theme.typography.fontWeightBold,
     },
   };
-  console.log('theme: ', theme);
   return (
     <StyledSwitchCard orientation={orientation}>
       <Stack gap={0.5}>
