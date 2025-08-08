@@ -1,13 +1,14 @@
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { getAllAddressesForAccount } from '@core/common';
 import { Account } from '@core/types';
 import { useAccountsContext, usePermissionContext } from '@core/ui';
 import { useCallback, useMemo } from 'react';
+import { getFaviconUrl } from '../utils/favicon';
 
-interface ConnectedSite {
+export interface ConnectedSite {
   domain: string;
-  name?: string;
-  icon?: string;
-  accounts: { [address: string]: any };
+  favicon: string;
+  accounts: Record<string, NetworkVMType>;
 }
 
 export const useConnectedSites = () => {
@@ -41,9 +42,8 @@ export const useConnectedSites = () => {
       })
       .map(([domain, dappPermissions]) => ({
         domain,
-        name: dappPermissions.siteName || undefined,
-        icon: dappPermissions.siteIcon || undefined,
         accounts: dappPermissions.accounts,
+        favicon: getFaviconUrl(domain),
       }));
   }, [permissions, selectedAccount]);
 

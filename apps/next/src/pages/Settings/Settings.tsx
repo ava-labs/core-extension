@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import { ChangePassword } from './components/ChangePassword';
-import { ConnectedSites } from './components/ChangePassword/ConnectedSites';
+import { ConnectedSites } from './components/ConnectedSites';
 import { SettingsHomePage } from './components/Home';
 import { RecoveryPhrase } from './components/RecoveryPhrase';
 

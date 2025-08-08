@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,19 +15,22 @@ export const EmptyConnectedSites: FC<EmptyConnectedSitesProps> = ({
     <Stack
       alignItems="center"
       justifyContent="center"
-      py={6}
-      px={2}
+      py={9.75}
+      px={8.5}
       textAlign="center"
     >
-      <Typography variant="h6" color="text.secondary" mb={1}>
+      <Box mx="auto" fontSize={32} pb={2.5}>
+        {hasSearchQuery ? '🕵️‍♂️' : '🚀'}
+      </Box>
+      <Typography variant="subtitle3" color="text.primary" lineHeight="21px">
         {hasSearchQuery
           ? t('No matching sites found')
           : t('No connected sites')}
       </Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="caption" color="text.secondary">
         {hasSearchQuery
           ? t('Try adjusting your search terms')
-          : t('Connect to dApps to see them listed here')}
+          : t('When you connect to a dApp, it will appear here')}
       </Typography>
     </Stack>
   );

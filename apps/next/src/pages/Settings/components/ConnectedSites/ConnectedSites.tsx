@@ -1,26 +1,23 @@
-import { Divider, Stack, toast } from '@avalabs/k2-alpine';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { Stack, toast } from '@avalabs/k2-alpine';
+import { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import * as Styled from './components/Styled';
 
+import { AccountSelect } from '@/components/AccountSelect';
 import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';
-import { AccountSelector } from './components/AccountSelector';
+import { useUrlPersistedQuery } from '@/hooks/useUrlPersistedQuery';
+import { Account } from '@core/types';
 import { ConnectedSiteItem } from './components/ConnectedSiteItem';
 import { EmptyConnectedSites } from './components/EmptyConnectedSites';
-import { SearchField } from './components/SearchField';
 import { useConnectedSites } from './hooks/useConnectedSites';
 
 export const ConnectedSites: FC = () => {
   const { t } = useTranslation();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useUrlPersistedQuery('search');
 
-  const {
-    selectedAccount,
-    accounts,
-    connectedSites,
-    selectAccount,
-    disconnectSite,
-  } = useConnectedSites();
+  const { selectedAccount, connectedSites, selectAccount, disconnectSite } =
+    useConnectedSites();
 
   const filteredSites = useMemo(() => {
     if (!searchQuery?.trim()) {
@@ -28,20 +25,16 @@ export const ConnectedSites: FC = () => {
     }
 
     const query = searchQuery.toLowerCase();
-    return connectedSites.filter(
-      (site) =>
-        site.domain.toLowerCase().includes(query) ||
-        site.name?.toLowerCase().includes(query),
+    return connectedSites.filter((site) =>
+      site.domain.toLowerCase().includes(query),
     );
   }, [connectedSites, searchQuery]);
 
   const handleAccountChange = useCallback(
-    async (accountId: string) => {
+    async (account: Account) => {
       try {
-        await selectAccount(accountId);
-        toast.success(t('Active account changed'));
-      } catch (error) {
-        console.error('Failed to change account:', error);
+        await selectAccount(account.id);
+      } catch (_error) {
         toast.error(t('Failed to change account'));
       }
     },
@@ -64,7 +57,13 @@ export const ConnectedSites: FC = () => {
   const connectedSitesCount = connectedSites.length;
   return (
     <Page
-      title={`${connectedSitesCount} ${t('Connected sites')}`}
+      title={
+        connectedSitesCount > 0
+          ? t('{{sitesCount}} Connected sites', {
+              sitesCount: connectedSitesCount,
+            })
+          : t('Connected sites')
+      }
       withBackButton
       contentProps={{
         gap: 2,
@@ -74,35 +73,34 @@ export const ConnectedSites: FC = () => {
         alignItems: undefined,
       }}
     >
-      {/* Account selector */}
-      <AccountSelector
-        selectedAccount={selectedAccount}
-        accounts={accounts}
-        onChange={handleAccountChange}
+      <AccountSelect
+        addressType="C" // TODO: fixed to EVM for now
+        value={selectedAccount}
+        onValueChange={handleAccountChange}
+        query={searchQuery}
+        onQueryChange={setSearchQuery}
       />
 
-      {/* Search field */}
-      <SearchField
+      <Styled.SearchField
         placeholder={t('Search')}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         size="small"
         autoFocus
+        disabled={connectedSitesCount === 0}
       />
 
-      {/* Connected sites list */}
       {filteredSites.length > 0 ? (
-        <Card>
-          <Stack divider={<Divider />}>
-            {filteredSites.map((site) => (
+        <Stack gap={1}>
+          {filteredSites.map((site) => (
+            <Card key={site.domain}>
               <ConnectedSiteItem
-                key={site.domain}
                 site={site}
                 onDisconnect={() => handleDisconnect(site.domain)}
               />
-            ))}
-          </Stack>
-        </Card>
+            </Card>
+          ))}
+        </Stack>
       ) : (
         <EmptyConnectedSites hasSearchQuery={!!searchQuery?.trim()} />
       )}
