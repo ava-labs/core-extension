@@ -1,26 +1,28 @@
 import {
-  Stack,
-  Scrollbars,
-  Typography,
-  ListItem,
+  Avatar,
+  EmptySitesIcon,
+  IconButton,
   List,
+  ListItem,
   ListItemIcon,
   ListItemText,
-  Avatar,
-  XIcon,
-  IconButton,
-  EmptySitesIcon,
+  Scrollbars,
+  Stack,
   Tooltip,
+  Typography,
+  XIcon,
 } from '@avalabs/core-k2-components';
-import { useAccountsContext } from '@core/ui';
-import { usePermissionContext } from '@core/ui';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { getAllAddressesForAccount } from '@core/common';
+import { Account } from '@core/types';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  usePermissionContext,
+} from '@core/ui';
+import { Trans, useTranslation } from 'react-i18next';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { useTranslation, Trans } from 'react-i18next';
-import { Account } from '@core/types';
-import { useAnalyticsContext } from '@core/ui';
-import { getAllAddressesForAccount } from '@core/common';
-import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type ConnectedListType = {
   [key: string]: {
@@ -53,7 +55,7 @@ export function ConnectedSites({
   width,
 }: SettingsPageProps) {
   const { t } = useTranslation();
-  const { revokeAddressPermisson, permissions } = usePermissionContext();
+  const { revokeAddressPermission, permissions } = usePermissionContext();
   const { capture } = useAnalyticsContext();
   const {
     accounts: { active: activeAccount },
@@ -115,7 +117,7 @@ export function ConnectedSites({
                       onClick={() => {
                         if (activeAccount) {
                           capture('ConnectedSiteRemoved');
-                          revokeAddressPermisson(
+                          revokeAddressPermission(
                             site.domain,
                             getAllAddressesForAccount(activeAccount),
                           );
