@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, SxProps } from '@avalabs/k2-alpine';
+import { DialogContent, SxProps } from '@avalabs/k2-alpine';
 import {
   AccountManagerProvider,
   BalancesProvider,
@@ -17,7 +17,7 @@ import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
 import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
 import { PageTopBar } from '../../components/PageTopBar';
-import { dialogSlots } from './components/Dialog';
+import { SlideUpDialog } from '../../components/Dialog';
 
 const dialogContentSx: SxProps = {
   container: 'account-management / size',
@@ -32,7 +32,7 @@ const AccountManagement: FC = () => {
     <BalancesProvider>
       <WalletTotalBalanceProvider>
         <AccountManagerProvider>
-          <Dialog {...dialogSlots} open onClose={goBack} fullScreen>
+          <SlideUpDialog open>
             <PageTopBar showBack onBackClicked={goBack} />
             <DialogContent sx={dialogContentSx}>
               <Switch>
@@ -62,7 +62,7 @@ const AccountManagement: FC = () => {
                 <Route path={path} component={Wallets} />
               </Switch>
             </DialogContent>
-          </Dialog>
+          </SlideUpDialog>
         </AccountManagerProvider>
       </WalletTotalBalanceProvider>
     </BalancesProvider>

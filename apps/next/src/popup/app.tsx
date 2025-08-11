@@ -73,7 +73,11 @@ export function App() {
   }, [navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
-    return <CircularProgress />;
+    return (
+      <Stack justifyContent="center" alignItems="center" height="100%">
+        <CircularProgress />
+      </Stack>
+    );
   }
 
   const displayHeader = !pagesWithoutHeader.some((path) =>

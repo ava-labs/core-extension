@@ -2,7 +2,6 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
-  Dialog,
   DialogContent,
   Stack,
   SxProps,
@@ -10,13 +9,13 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 
-import { useConnectionContext, useGoBack } from '@core/ui';
+import { useConnectionContext } from '@core/ui';
 import { ExtensionRequest } from '@core/types';
 import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExtensionState';
 
 import { WarningMessage } from '@/components/WarningMessage';
 import { PageTopBar } from '@/components/PageTopBar';
-import { dialogSlots } from '@/pages/AccountManagement/components/Dialog';
+import { SlideUpDialog } from '@/components/Dialog';
 
 type Props = {
   open: boolean;
@@ -31,7 +30,6 @@ const smallButtonFixSx: SxProps = {
 export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
-  const goBack = useGoBack();
   const theme = useTheme();
 
   const onConfirmClick = async () => {
@@ -43,7 +41,7 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
   };
 
   return (
-    <Dialog {...dialogSlots} open={open} onClose={goBack} fullScreen>
+    <SlideUpDialog open={open}>
       <PageTopBar onBackClicked={onCancel} showBack />
       <DialogContent
         sx={{
@@ -87,6 +85,6 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
           </Button>
         </Stack>
       </DialogContent>
-    </Dialog>
+    </SlideUpDialog>
   );
 };
