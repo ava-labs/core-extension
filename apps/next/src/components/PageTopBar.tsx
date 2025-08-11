@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { MdArrowBack } from 'react-icons/md';
-import { Fade, Typography } from '@avalabs/k2-alpine';
-import { useTheme } from '@emotion/react';
+import { Fade, Typography, useTheme } from '@avalabs/k2-alpine';
 import { useGoBack } from '@core/ui';
 import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
 import { StackRow } from './StackRow';
