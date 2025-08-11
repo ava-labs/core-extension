@@ -1,10 +1,4 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogProps,
-  Slide,
-  SxProps,
-} from '@avalabs/k2-alpine';
+import { Dialog, DialogContent, SxProps } from '@avalabs/k2-alpine';
 import {
   AccountManagerProvider,
   BalancesProvider,
@@ -23,22 +17,9 @@ import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
 import { Wallets } from './components/Wallets';
 import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
 import { PageTopBar } from '../../components/PageTopBar';
+import { dialogSlots } from './components/Dialog';
 
-export const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
-  slots: {
-    transition: Slide,
-  },
-  slotProps: {
-    transition: {
-      direction: 'up',
-    },
-    paper: {
-      sx: { borderRadius: 0 },
-    },
-  },
-};
-
-export const dialogContentSx: SxProps = {
+const dialogContentSx: SxProps = {
   container: 'account-management / size',
   padding: 1.5,
   overflow: 'hidden',

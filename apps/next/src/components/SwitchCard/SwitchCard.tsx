@@ -7,7 +7,6 @@ import {
 } from '@avalabs/k2-alpine';
 
 import { Card } from '../Card';
-import { useTheme } from '@emotion/react';
 
 type Orientation = 'horizontal' | 'vertical';
 
@@ -20,6 +19,17 @@ interface SwitchCardProps {
   onChange: () => void;
   titleSize: 'small' | 'large';
 }
+const titleStyles = {
+  small: {
+    variant: 'subtitle3' as TypographyVariant,
+    // TODO: fix it after a proper k2 release
+    fontWeight: 600,
+  },
+  large: {
+    variant: 'h5' as TypographyVariant,
+    fontWeight: 'fontWeightBold',
+  },
+};
 
 export const SwitchCard = ({
   title,
@@ -30,28 +40,10 @@ export const SwitchCard = ({
   onChange,
   titleSize = 'small',
 }: SwitchCardProps) => {
-  const theme = useTheme();
-  const titleStyles = {
-    small: {
-      variant: 'subtitle3' as TypographyVariant,
-      // TODO: fix it after a proper k2 release
-      fontWeight: 600,
-    },
-    large: {
-      variant: 'h5' as TypographyVariant,
-      fontWeight: theme.typography.fontWeightBold,
-    },
-  };
   return (
     <StyledSwitchCard orientation={orientation}>
       <Stack gap={0.5}>
-        <Typography
-          variant={titleStyles[titleSize].variant}
-          component="h3"
-          fontWeight={titleStyles[titleSize].fontWeight}
-        >
-          {title}
-        </Typography>
+        <Typography {...titleStyles[titleSize]}>{title}</Typography>
         <Typography variant="caption" color="text.secondary">
           {description}
         </Typography>

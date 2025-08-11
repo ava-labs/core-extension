@@ -16,7 +16,7 @@ import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExt
 
 import { WarningMessage } from '@/components/WarningMessage';
 import { PageTopBar } from '@/components/PageTopBar';
-import { dialogSlots } from '@/pages/AccountManagement';
+import { dialogSlots } from '@/pages/AccountManagement/components/Dialog';
 
 type Props = {
   open: boolean;
