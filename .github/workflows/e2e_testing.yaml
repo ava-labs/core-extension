@@ -84,6 +84,7 @@ jobs:
       APITOKEN_ETHERSCAN: '${{secrets.APITOKEN_ETHERSCAN}}'
       APITOKEN_CRYPTOAPIS: '${{secrets.APITOKEN_CRYPTOAPIS}}'
       APITOKEN_SNOWTRACE: '${{secrets.APITOKEN_SNOWTRACE}}'
+      BROWSER_VERSION: ${{ github.event.inputs.browser_version == '' && '128.0' || github.event.inputs.browser_version }}
     steps:
       - name: Use Node.js
         uses: actions/setup-node@v4
