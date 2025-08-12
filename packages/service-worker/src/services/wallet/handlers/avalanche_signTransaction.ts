@@ -65,8 +65,6 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     let parsedTxInstance: UnsignedTx | EVMUnsignedTx;
     const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
 
-    console.log({ tx });
-
     if (evmSerial.isExportTx(tx)) {
       const spenderAddress = tx.ins[0]?.address.toHex();
 
