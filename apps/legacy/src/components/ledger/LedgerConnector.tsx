@@ -102,7 +102,9 @@ export function LedgerConnector({
     ) => {
       const address = getAddressFromXPub(xpubValue, accountIndex);
 
-      const { balance } = await getAvaxBalance(address);
+      const { balance } = await getAvaxBalance(address).catch(() => ({
+        balance: { balanceDisplayValue: '?' },
+      }));
 
       const newAddresses = [
         ...addressList,
