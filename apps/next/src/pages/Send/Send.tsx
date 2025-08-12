@@ -110,18 +110,14 @@ export const Send = () => {
             }
           />
         </Card>
-        <Card>
-          <RecipientSelect
-            addressType={recipientAddressType}
-            value={recipient}
-            onQueryChange={(q) =>
-              updateQueryParam(searchParams, { toQuery: q })
-            }
-            onValueChange={(r) => updateQueryParam(searchParams, { to: r.id })}
-            recipients={recipients}
-            query={recipientQuery}
-          />
-        </Card>
+        <RecipientSelect
+          addressType={recipientAddressType}
+          value={recipient}
+          onQueryChange={(q) => updateQueryParam(searchParams, { toQuery: q })}
+          onValueChange={(r) => updateQueryParam(searchParams, { to: r.id })}
+          recipients={recipients}
+          query={recipientQuery}
+        />
       </Stack>
       <Stack width="100%">
         <Button

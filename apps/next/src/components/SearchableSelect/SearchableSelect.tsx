@@ -5,7 +5,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Divider, SearchInput, Stack } from '@avalabs/k2-alpine';
+import { Divider, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
+import { useTranslation } from 'react-i18next';
 
 import type {
   Group,
@@ -21,6 +22,7 @@ import {
   SearchableSelectPopover,
 } from './components';
 import { useSearchableSelect } from './hooks';
+import { FiAlertCircle } from 'react-icons/fi';
 
 type SearchableSelectOwnProps<T> = {
   label: string;
@@ -56,6 +58,7 @@ type SearchableSelectProps<T> = SearchableSelectOwnProps<T> &
   };
 
 export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
+  const { t } = useTranslation();
   const {
     label,
     value,
@@ -119,6 +122,22 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
               {...searchInputProps}
             />
             <Divider />
+            {groupedOptions.length === 0 && (
+              <Stack
+                direction="row"
+                px={2}
+                py={1.5}
+                alignItems="center"
+                gap={1}
+                width="100%"
+                color="error.main"
+              >
+                <FiAlertCircle size={20} />
+                <Typography variant="body2">
+                  {t('No matching results')}
+                </Typography>
+              </Stack>
+            )}
             <SearchableSelectListBox>
               {groupedOptions.map((group, index, { length }) => {
                 // If there is only one group and it's not narrowed down via search,

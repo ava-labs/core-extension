@@ -1,10 +1,14 @@
 import { FC } from 'react';
 import { FaCheck } from 'react-icons/fa6';
-import { Fade, Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import {
+  AvatarHex,
+  Fade,
+  Stack,
+  truncateAddress,
+  Typography,
+} from '@avalabs/k2-alpine';
 
 import { AddressType } from '@core/types';
-
-import { HexagonalIcon } from '@/components/HexagonalIcon';
 
 import { ContactRecipient } from '../../types';
 import { getContactAddressByType } from '../../lib/getContactAddressByType';
@@ -32,7 +36,7 @@ export const ContactRecipientItem: FC<ContactRecipientItemProps> = ({
         justifyContent="space-between"
       >
         {/* TODO: add avatar */}
-        <HexagonalIcon size={32} />
+        <AvatarHex size="xsmall" alt="Contact" />
         <Stack gap={0.25} flexGrow={1}>
           <Typography variant="body2" fontWeight="fontWeightMedium">
             {recipient.contact.name}

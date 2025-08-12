@@ -59,7 +59,7 @@ export const SelectedRecipient = ({
         );
       }
       case 'contact':
-        return <AvatarHex size="medium" alt={recipient.contact.name} />;
+        return <AvatarHex size="xsmall" alt={recipient.contact.name} />;
       default:
         return (
           <HexagonalIcon size={36}>
