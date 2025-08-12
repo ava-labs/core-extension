@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
-import { Stack } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { useAccountsContext } from '@core/ui';
+import { AddressType, getUniqueTokenId } from '@core/types';
 
 import {
   getSendPath,
@@ -15,6 +16,9 @@ import { Page } from '@/components/Page';
 import { AccountSelect } from '@/components/AccountSelect';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 import { useTokensForAccount } from '@/components/TokenSelect';
+import { RecipientSelect, useRecipients } from '@/components/RecipientSelect';
+
+import { getAddressTypeForToken } from './lib/getAddressTypeForToken';
 
 export const Send = () => {
   const { t } = useTranslation();
@@ -31,6 +35,8 @@ export const Send = () => {
   const tokenId = searchParams.get(SEND_QUERY_TOKENS.token) ?? '';
   const tokenQuery = searchParams.get(SEND_QUERY_TOKENS.tokenQuery) ?? '';
   const amount = searchParams.get(SEND_QUERY_TOKENS.amount) ?? '';
+  const recipientId = searchParams.get(SEND_QUERY_TOKENS.to) ?? '';
+  const recipientQuery = searchParams.get(SEND_QUERY_TOKENS.toQuery) ?? '';
 
   const updateQueryParam = useCallback(
     (
@@ -53,13 +59,24 @@ export const Send = () => {
 
   const tokensForAccount = useTokensForAccount(activeAccount);
 
+  // Allows us to show only those recipients that are compatible with the selected token
+  const selectedToken = tokensForAccount.find(
+    (tok) => getUniqueTokenId(tok) === tokenId,
+  );
+  const recipientAddressType: AddressType = selectedToken
+    ? getAddressTypeForToken(selectedToken)
+    : 'C';
+
+  const recipients = useRecipients(recipientAddressType, recipientQuery);
+  const recipient = recipients.find((r) => r.id === recipientId);
+
   return (
     <Page
       title={t('Send')}
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
     >
-      <Stack width="100%" gap={2}>
+      <Stack width="100%" gap={2} flexGrow={1}>
         <AccountSelect
           addressType="C"
           value={activeAccount}
@@ -93,6 +110,29 @@ export const Send = () => {
             }
           />
         </Card>
+        <Card>
+          <RecipientSelect
+            addressType={recipientAddressType}
+            value={recipient}
+            onQueryChange={(q) =>
+              updateQueryParam(searchParams, { toQuery: q })
+            }
+            onValueChange={(r) => updateQueryParam(searchParams, { to: r.id })}
+            recipients={recipients}
+            query={recipientQuery}
+          />
+        </Card>
+      </Stack>
+      <Stack width="100%">
+        <Button
+          variant="contained"
+          color="primary"
+          size="extension"
+          fullWidth
+          disabled={!selectedToken || !recipient || !amount}
+        >
+          {t('Send')}
+        </Button>
       </Stack>
     </Page>
   );

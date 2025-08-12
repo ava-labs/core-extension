@@ -30,7 +30,16 @@ type SearchableSelectOwnProps<T> = {
     option: T,
     getOptionProps: UseSearchableSelectReturnValues<T>['getOptionProps'],
   ) => ReactNode;
+  /**
+   * When set to true, the component will not flatten the options into a single
+   * list when there is only one group.
+   */
+  suppressFlattening?: boolean;
+  /**
+   * When set to true, the component will not group the options at all.
+   */
   skipGroupingEntirely?: boolean;
+  searchInputProps?: Omit<ComponentProps<typeof SearchInput>, 'slotProps'>;
 };
 interface SearchableSelectSlots<T> {
   groupAccordion?: JSXElementConstructor<
@@ -54,10 +63,13 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
     renderValue,
     renderOption,
     slots,
+    suppressFlattening,
     skipGroupingEntirely,
+    searchInputProps,
     ...hookProps
   } = props;
 
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const triggerElement = useRef<HTMLDivElement | null>(null);
 
@@ -102,7 +114,9 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
           <SearchableSelectMenuRoot ref={setRoot} {...getRootProps()}>
             <SearchInput
               autoFocus
+              ref={searchInputRef}
               slotProps={{ htmlInput: getSearchInputProps() }}
+              {...searchInputProps}
             />
             <Divider />
             <SearchableSelectListBox>
@@ -110,8 +124,9 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
                 // If there is only one group and it's not narrowed down via search,
                 // render a flat list of options.
                 if (
-                  skipGroupingEntirely ||
-                  (!isListNarrowedDown && index === 0 && length === 1)
+                  !suppressFlattening &&
+                  (skipGroupingEntirely ||
+                    (!isListNarrowedDown && index === 0 && length === 1))
                 ) {
                   return (
                     <Stack key="sole-item" pt={1}>
