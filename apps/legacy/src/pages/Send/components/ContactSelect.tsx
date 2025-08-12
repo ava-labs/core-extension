@@ -8,29 +8,24 @@ import {
   Typography,
 } from '@avalabs/core-k2-components';
 import type { Contact } from '@avalabs/types';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAccountsContext } from '@core/ui';
 import { useContactsContext } from '@core/ui';
 import { useNetworkContext } from '@core/ui';
-import { useWalletContext } from '@core/ui';
 import {
-  ETHEREUM_ADDRESS,
-  isBitcoinNetwork,
-  isNonXPHistoryItem,
   isPchainNetwork,
   isSolanaNetwork,
   isXchainNetwork,
   stripAddressPrefix,
 } from '@core/common';
-import { indexOf } from 'lodash';
-import { useIdentifyAddress } from '../hooks/useIdentifyAddress';
 import { AddressDropdownList } from './AddressDropdownList';
 import {
   AddressDropdownListMyAccounts,
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
+import { useRecentRecipients } from '../hooks/useRecentRecipients';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -59,89 +54,13 @@ export const ContactSelect = ({
   selectedContact,
 }: ContactSelectProps) => {
   const { t } = useTranslation();
-  const identifyAddress = useIdentifyAddress();
-  const { getTransactionHistory } = useWalletContext();
   const {
-    accounts: {
-      imported: importedAccounts,
-      primary: primaryAccounts,
-      active: activeAccount,
-    },
+    accounts: { imported: importedAccounts, primary: primaryAccounts },
   } = useAccountsContext();
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState(TabId.ADDRESS_BOOK);
-  const [historyContacts, setHistoryContacts] = useState<Contact[]>([]);
-
-  useEffect(() => {
-    if (!network) {
-      return;
-    }
-    getTransactionHistory().then((history) => {
-      const filteredHistory = history.filter((tx, index, self) => {
-        if (!tx.isSender || (isNonXPHistoryItem(tx) && tx.isContractCall)) {
-          return false;
-        }
-        // filter out dupe to addresses
-        return (
-          index === self.findIndex((temp) => temp.to === tx.to) &&
-          tx.to !== ETHEREUM_ADDRESS
-        );
-      });
-
-      const contactHistory = filteredHistory.reduce((acc, tx) => {
-        const addressIdentities = [identifyAddress(tx.to)];
-
-        addressIdentities.forEach((identity) => {
-          const addressToCheck = isBitcoinNetwork(network)
-            ? identity.addressBTC
-            : isPchainNetwork(network) || isXchainNetwork(network)
-              ? identity.addressXP
-                ? isSolanaNetwork(network)
-                : identity.addressSVM
-              : identity.address;
-
-          const userAddress = isBitcoinNetwork(network)
-            ? activeAccount?.addressBTC
-            : isPchainNetwork(network)
-              ? stripAddressPrefix(activeAccount?.addressPVM ?? '')
-              : isXchainNetwork(network)
-                ? stripAddressPrefix(activeAccount?.addressAVM ?? '')
-                : isSolanaNetwork(network)
-                  ? activeAccount?.addressSVM
-                  : activeAccount?.addressC;
-
-          const addressesInList = acc.map((value) =>
-            isBitcoinNetwork(network)
-              ? value.addressBTC
-              : isPchainNetwork(network) || isXchainNetwork(network)
-                ? value.addressXP
-                : isSolanaNetwork(network)
-                  ? value.addressSVM
-                  : value.address,
-          );
-          if (
-            indexOf(addressesInList, addressToCheck) === -1 &&
-            userAddress !== addressToCheck
-          ) {
-            acc.push(identity);
-          }
-        });
-
-        return acc;
-      }, [] as Contact[]);
-      setHistoryContacts(contactHistory);
-    });
-  }, [
-    activeAccount?.addressAVM,
-    activeAccount?.addressBTC,
-    activeAccount?.addressC,
-    activeAccount?.addressPVM,
-    activeAccount?.addressSVM,
-    getTransactionHistory,
-    identifyAddress,
-    network,
-  ]);
+  const { recentRecipients } = useRecentRecipients();
 
   const formattedAccounts = useMemo(() => {
     const formattedPrimary: MyAccountContacts = {};
@@ -309,9 +228,9 @@ export const ContactSelect = ({
             height: selectedTab === TabId.RECENT_ADDRESSES ? '100%' : 0,
           }}
         >
-          {historyContacts.length > 0 ? (
+          {recentRecipients.length > 0 ? (
             <AddressDropdownList
-              contacts={historyContacts}
+              contacts={recentRecipients}
               selectedContact={selectedContact}
               onChange={(contact) => onChange(contact, 'recents')}
             />
