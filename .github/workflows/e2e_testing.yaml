@@ -15,7 +15,6 @@ jobs:
   build:
     runs-on: ubuntu-latest-16-cores-extension
     if: '${{ !github.event.pull_request.draft }}'
-    environment: alpha
     steps:
       - name: Setup Node.js
         uses: actions/setup-node@v4
