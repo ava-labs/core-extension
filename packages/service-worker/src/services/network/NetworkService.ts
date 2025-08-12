@@ -283,6 +283,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
     this.favoriteNetworks = [...storedFavoriteNetworks, chainId];
     this.updateNetworkState();
+
+    // This keeps the favorite and enabled networks in sync
+    await this.addEnabledNetwork(chainId);
+
     return this._favoriteNetworks;
   }
 
@@ -307,6 +311,10 @@ export class NetworkService implements OnLock, OnStorageReady {
         storedFavoriteNetworkChainId !== chainId,
     );
     this.updateNetworkState();
+
+    // This keeps the favorite and enabled networks in sync
+    await this.removeEnabledNetwork(chainId);
+
     return this._favoriteNetworks;
   }
 
