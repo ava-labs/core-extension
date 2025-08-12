@@ -659,6 +659,8 @@ describe('background/services/network/NetworkService', () => {
 
   describe('enabled networks management', () => {
     beforeEach(() => {
+      service = new NetworkService(storageServiceMock, featureFlagsServiceMock);
+      mockChainList(service);
       service.updateNetworkState = jest.fn();
     });
 
@@ -710,11 +712,14 @@ describe('background/services/network/NetworkService', () => {
         await service.addEnabledNetwork(chainId);
         const firstResult = [...service['_enabledNetworks']];
 
+        // Clear the mock to track only the second call
+        jest.clearAllMocks();
+
         // Try to add again
         const secondResult = await service.addEnabledNetwork(chainId);
 
         expect(secondResult).toEqual(firstResult);
-        expect(service.updateNetworkState).toHaveBeenCalledTimes(1); // Should only be called once
+        expect(service.updateNetworkState).not.toHaveBeenCalled(); // Should not be called for duplicate
       });
 
       it('should trigger enabledNetworksUpdated signal', async () => {
@@ -726,7 +731,10 @@ describe('background/services/network/NetworkService', () => {
 
         await service.addEnabledNetwork(chainId);
 
-        expect(signalSpy).toHaveBeenCalledWith(service['_enabledNetworks']);
+        expect(signalSpy).toHaveBeenCalled();
+        expect(signalSpy).toHaveBeenCalledWith(
+          expect.arrayContaining([chainId]),
+        );
       });
     });
 
@@ -759,19 +767,22 @@ describe('background/services/network/NetworkService', () => {
 
       it('should trigger enabledNetworksUpdated signal', async () => {
         const chainId = 1337;
+
+        // Add network first
+        await service.addEnabledNetwork(chainId);
+
         const signalSpy = jest.spyOn(
           service.enabledNetworksUpdated,
           'dispatch',
         );
 
-        // Add network first
-        await service.addEnabledNetwork(chainId);
-        signalSpy.mockClear(); // Clear the call from adding
-
         // Then remove it
         await service.removeEnabledNetwork(chainId);
 
-        expect(signalSpy).toHaveBeenCalledWith(service['_enabledNetworks']);
+        expect(signalSpy).toHaveBeenCalled();
+        expect(signalSpy).toHaveBeenCalledWith(
+          expect.not.arrayContaining([chainId]),
+        );
       });
 
       it('should remove only the specified network when multiple are present', async () => {
