@@ -5,9 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Divider, SearchInput } from '@avalabs/k2-alpine';
-
-import { Card } from '../Card';
+import { Divider, SearchInput, Stack } from '@avalabs/k2-alpine';
 
 import type {
   Group,
@@ -32,6 +30,7 @@ type SearchableSelectOwnProps<T> = {
     option: T,
     getOptionProps: UseSearchableSelectReturnValues<T>['getOptionProps'],
   ) => ReactNode;
+  skipGroupingEntirely?: boolean;
 };
 interface SearchableSelectSlots<T> {
   groupAccordion?: JSXElementConstructor<
@@ -55,6 +54,7 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
     renderValue,
     renderOption,
     slots,
+    skipGroupingEntirely,
     ...hookProps
   } = props;
 
@@ -85,7 +85,7 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
   };
 
   return (
-    <Card>
+    <>
       <SearchableSelectTrigger
         ref={triggerElement}
         label={label}
@@ -109,13 +109,16 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
               {groupedOptions.map((group, index, { length }) => {
                 // If there is only one group and it's not narrowed down via search,
                 // render a flat list of options.
-                if (!isListNarrowedDown && index === 0 && length === 1) {
+                if (
+                  skipGroupingEntirely ||
+                  (!isListNarrowedDown && index === 0 && length === 1)
+                ) {
                   return (
-                    <>
+                    <Stack key="sole-item" pt={1}>
                       {group.options.map((option) =>
                         renderOption(option, getOptionProps),
                       )}
-                    </>
+                    </Stack>
                   );
                 }
 
@@ -135,6 +138,6 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
           </SearchableSelectMenuRoot>
         </NoScrollPopoverContent>
       </SearchableSelectPopover>
-    </Card>
+    </>
   );
 }

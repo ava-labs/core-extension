@@ -8,6 +8,7 @@ import {
   AccountsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
+  CurrenciesContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -98,6 +99,7 @@ export function App() {
           <KeystoneContextProvider />,
           <ContactsContextProvider />,
           <BalancesProvider />,
+          <CurrenciesContextProvider />,
         ]) as ReactElement[]
       }
     >

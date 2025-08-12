@@ -1,6 +1,8 @@
 import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 
-export function isPchainNetwork(network?: Network) {
+export function isPchainNetwork(
+  network?: Network,
+): network is Network & { vmName: NetworkVMType.PVM } {
   if (!network) {
     return false;
   }
