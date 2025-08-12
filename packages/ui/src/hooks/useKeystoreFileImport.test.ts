@@ -53,7 +53,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
 
   describe('isValidKeystoreFile()', () => {
     it('returns true for valid Keystore files', async () => {
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() => useKeystoreFileImport({}));
 
       const file = getFile(KeystoreFixtures.KEYSTORE_V2.file);
 
@@ -66,7 +66,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
     });
 
     it('returns false for JSON files with invalid schema', async () => {
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() => useKeystoreFileImport({}));
 
       const file = getFile({
         dummy: 'json',
@@ -82,7 +82,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
     });
 
     it('returns false for non-JSON files', async () => {
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() => useKeystoreFileImport({}));
 
       const file = new File(['hm'], 'image.png', { type: 'image/png' });
 
@@ -96,6 +96,10 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
   });
 
   describe('importKeystoreFile()', () => {
+    const onSuccess = jest.fn();
+    const onFailure = jest.fn();
+    const onStarted = jest.fn();
+
     it('imports seed phrases from the file', async () => {
       const importSeedphrase = jest.fn();
 
@@ -104,7 +108,13 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
         importSeedphrase,
       });
 
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() =>
+        useKeystoreFileImport({
+          onStarted,
+          onSuccess,
+          onFailure,
+        }),
+      );
 
       const file = getFile(KeystoreFixtures.KEYSTORE_V2.file);
 
@@ -123,6 +133,9 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       expect(importSeedphrase).toHaveBeenNthCalledWith(2, {
         mnemonic: KeystoreFixtures.KEYSTORE_V2.expectedPhrases[1].key,
       });
+      expect(onStarted).toHaveBeenCalledTimes(1);
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+      expect(onFailure).not.toHaveBeenCalled();
     });
 
     it('imports private keys from the file', async () => {
@@ -133,7 +146,13 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
         importPrivateKey,
       });
 
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() =>
+        useKeystoreFileImport({
+          onStarted,
+          onSuccess,
+          onFailure,
+        }),
+      );
 
       const file = getFile(KeystoreFixtures.KEYSTORE_V6_PKEY.file);
 
@@ -152,6 +171,9 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
 
       expect(importPrivateKey).toHaveBeenCalledTimes(1);
       expect(importPrivateKey).toHaveBeenNthCalledWith(1, expectedKey);
+      expect(onStarted).toHaveBeenCalledTimes(1);
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+      expect(onFailure).not.toHaveBeenCalled();
     });
 
     it('continues upon receiving "ExistingSeedphrase" error', async () => {
@@ -168,7 +190,13 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
         importSeedphrase,
       });
 
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() =>
+        useKeystoreFileImport({
+          onStarted,
+          onSuccess,
+          onFailure,
+        }),
+      );
 
       const file = getFile(KeystoreFixtures.KEYSTORE_V2.file);
 
@@ -189,6 +217,41 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
       expect(importSeedphrase).toHaveBeenNthCalledWith(2, {
         mnemonic: KeystoreFixtures.KEYSTORE_V2.expectedPhrases[1].key,
       });
+      expect(onStarted).toHaveBeenCalledTimes(1);
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+      expect(onFailure).not.toHaveBeenCalled();
+    });
+
+    it('calls onFailure when the import fails', async () => {
+      const importSeedphrase = jest.fn().mockRejectedValueOnce({});
+
+      jest.mocked(useImportSeedphrase).mockReturnValue({
+        isImporting: false,
+        importSeedphrase,
+      });
+
+      const { result: hook } = renderHook(() =>
+        useKeystoreFileImport({
+          onStarted,
+          onSuccess,
+          onFailure,
+        }),
+      );
+      const file = getFile(KeystoreFixtures.KEYSTORE_V2.file);
+
+      await act(
+        async () =>
+          await expect(
+            hook.current.importKeystoreFile(
+              file,
+              KeystoreFixtures.KEYSTORE_V2.password,
+            ),
+          ).resolves.not.toThrow(),
+      );
+
+      expect(onStarted).toHaveBeenCalledTimes(1);
+      expect(onSuccess).not.toHaveBeenCalled();
+      expect(onFailure).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -199,7 +262,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
         capture: captureMock,
       } as any);
 
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() => useKeystoreFileImport({}));
 
       const fileV2 = getFile(KeystoreFixtures.KEYSTORE_V2.file);
 
@@ -229,7 +292,7 @@ describe('src/pages/Accounts/hooks/useKeystoreFileImport', () => {
     });
 
     it('extracts the number of keys in the file', async () => {
-      const { result: hook } = renderHook(() => useKeystoreFileImport());
+      const { result: hook } = renderHook(() => useKeystoreFileImport({}));
 
       await act(
         async () =>

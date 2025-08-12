@@ -31,6 +31,7 @@ import { AccountsDropdown } from './components/AccountsDropdown';
 import { AlertBox } from './components/AlertBox';
 import { AlertDialog } from './components/AlertDialog';
 import { WarningBox } from './components/WarningBox';
+import { SetupMayBeRequired } from './components/SetupMayBeRequired';
 
 export function PermissionsPage() {
   const { t } = useTranslation();
@@ -135,11 +136,21 @@ export function PermissionsPage() {
   if (
     !permissions ||
     !action ||
-    allAccountsForRequestedVM.length === 0 ||
     !activeAccount ||
     (isAccountPermissionGranted && !isWalletRequestPermissions)
   ) {
     return <LoadingDots size={20} />;
+  }
+
+  // Accounts are loaded, but we still don't see any accounts
+  // capable of dealing with the requested VM.
+  if (activeAccount && allAccountsForRequestedVM.length === 0) {
+    return (
+      <SetupMayBeRequired
+        requestedVM={action?.displayData?.addressVM}
+        cancelHandler={cancelHandler}
+      />
+    );
   }
 
   const isMaliciousDApp = dAppScanningResult && dAppScanningResult.isMalicious;

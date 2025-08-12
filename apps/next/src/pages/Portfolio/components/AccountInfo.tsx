@@ -44,17 +44,17 @@ export const AccountInfo: FC<Props> = ({
       </Typography>
       <Stack direction="row" alignItems="baseline" gap={0.5}>
         <Typography variant="h2">{formattedSum}</Typography>
-        <Typography variant="body1">{currency}</Typography>
+        <Typography variant="body3">{currency}</Typography>
       </Stack>
       <Stack direction="row" spacing={0.5} alignItems="center" useFlexGap>
-        <Typography variant="body2" color={pnlColor} fontWeight={600}>
+        <Typography variant="caption" color={pnlColor} fontWeight={600}>
           {isLoss ? '' : '+'}
           {currencyFormatter(priceChange.value)}
         </Typography>
         <Box color={pnlColor}>
           <PnLIcon size={12} />
         </Box>
-        <Typography variant="body2" fontWeight={600}>
+        <Typography variant="caption" fontWeight={600}>
           {`${(priceChange.percentage[0] ?? 0).toFixed(1)}%`}
         </Typography>
       </Stack>

@@ -1,6 +1,6 @@
 import { StandaloneField } from '@/components/StandaloneField';
+import { useSubmitButton } from '@/hooks/useSubmitButton';
 import { Typography } from '@avalabs/k2-alpine';
-import { useKeyboardShortcuts } from '@core/ui';
 import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActionButtons } from '../../ActionButtons';
@@ -24,11 +24,7 @@ export const RenameForm: FC<Props> = ({
   const [name, setName] = useState('');
   const touchedRef = useRef(false);
   const validation = validateName(name, currentName, t);
-  const saveButtonRef = useRef<HTMLButtonElement>(null);
-
-  const shortcuts = useKeyboardShortcuts({
-    Enter: () => saveButtonRef.current?.click(),
-  });
+  const [saveButtonRef, shortcuts] = useSubmitButton();
 
   const isError = touchedRef.current && !validation.success;
 

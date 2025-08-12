@@ -32,6 +32,7 @@ export * from './getNftMetadata';
 export * from './constants';
 export * from './keystore';
 export * from './getAddressForChain';
+export * from './getContactAddressForChain';
 export * from './bridgeTransactionUtils';
 export * from './seedless/getCubeSigner';
 export * from './seedless/authenticateWithApple';

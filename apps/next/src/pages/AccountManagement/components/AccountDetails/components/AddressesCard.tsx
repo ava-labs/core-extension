@@ -18,13 +18,15 @@ type Props = {
   account: Account;
 };
 
+const TRUNCATE_LENGTH = 21;
+
 export const AddressesCard: FC<Props> = ({ account }) => {
   const history = useHistory();
   const getNavigate = getNavigateToQRCode(history.push, account.id);
   return (
     <Styled.Card>
       <Styled.CardContent>
-        <List>
+        <List disablePadding>
           <AddressItem
             label="Avalanche C-Chain"
             Icon={
@@ -34,6 +36,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressC}
             copyActionVisibility="always"
+            truncate={TRUNCATE_LENGTH}
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -45,6 +48,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressAVM}
             copyActionVisibility="always"
+            truncate={TRUNCATE_LENGTH}
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -56,6 +60,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressBTC}
             copyActionVisibility="always"
+            truncate={TRUNCATE_LENGTH}
           />
           <Styled.Divider variant="inset" component="li" />
           <AddressItem
@@ -78,6 +83,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             }
             address={account.addressSVM}
             copyActionVisibility="always"
+            truncate={TRUNCATE_LENGTH}
           />
         </List>
       </Styled.CardContent>

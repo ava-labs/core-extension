@@ -6,6 +6,7 @@ import {
   AnalyticsEvents,
   FeatureFlagEvents,
   FeatureFlags,
+  FeatureFlagPayloads,
   FeatureGates,
 } from '@core/types';
 import { formatAndLog, isProductionBuild } from '@core/common';
@@ -46,7 +47,7 @@ export class FeatureFlagService {
 
   #evaluateFeatureFlags(
     rawFlags: FeatureFlags,
-    payloads?: Partial<Record<FeatureGates, string>>,
+    payloads?: Partial<FeatureFlagPayloads>,
   ): FeatureFlags {
     // If there are no flag payloads to evaluate, just return the bare flags.
     if (!payloads) {

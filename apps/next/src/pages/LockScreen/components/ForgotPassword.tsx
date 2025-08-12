@@ -51,7 +51,7 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
           <Button
             sx={smallButtonFixSx}
             variant="contained"
-            size="small"
+            size="extension"
             onClick={onConfirmClick}
           >
             {t('Confirm')}
@@ -59,7 +59,7 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
           <Button
             sx={smallButtonFixSx}
             variant="contained"
-            size="small"
+            size="extension"
             color="secondary"
             onClick={onCancel}
           >

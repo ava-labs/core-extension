@@ -29,8 +29,8 @@ export const AddressCopyBox = ({ address, addressType }: Props) => {
       <Stack direction="row" alignItems="center" gap={1.5} py={1} px={1.5}>
         <ChainIcon size={32} />
         <Stack gap={0.5}>
-          <Typography variant="subtitle1">{chainLabel}</Typography>
-          <Typography variant="mono" sx={{ wordBreak: 'break-all' }}>
+          <Typography variant="subtitle3">{chainLabel}</Typography>
+          <Typography variant="mono2" sx={{ wordBreak: 'break-all' }}>
             {address}
           </Typography>
         </Stack>

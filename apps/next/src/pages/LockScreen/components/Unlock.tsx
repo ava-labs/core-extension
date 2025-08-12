@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PasswordField } from '@/components/StandaloneField';
-import { useKeyboardShortcuts } from '@core/ui';
+import { useSubmitButton } from '@/hooks/useSubmitButton';
 
 type Props = {
   onUnlock: (password: string) => Promise<true>;
@@ -40,25 +40,24 @@ export const Unlock: React.FC<Props> = ({
     }
   };
 
-  const handleKeyboard = useKeyboardShortcuts({
-    Enter: handleSubmit,
-  });
+  const [submitButtonRef, shortcuts] = useSubmitButton();
 
   return (
     <Stack direction="column" width="100cqw" px="20px" mt={8}>
       <PasswordField
         onChange={(e) => setPassword(e.target.value)}
-        onKeyDown={handleKeyboard.onKeyDown}
+        onKeyDown={shortcuts.onKeyDown}
         error={!!error}
         helperText={error}
       />
       <Button
+        ref={submitButtonRef}
         disabled={isPasswordMissing}
         variant="contained"
-        size="small"
+        size="extension"
         onClick={handleSubmit}
         loading={isLoading}
-        sx={{ mt: 1.5, height: '32px' }}
+        sx={{ mt: 1.5 }}
       >
         {t('Login')}
       </Button>

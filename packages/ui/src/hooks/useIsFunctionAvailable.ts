@@ -191,7 +191,7 @@ export const useIsFunctionAvailable = (
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
-  const { featureFlags } = useFeatureFlagContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const {
     accounts: { active },
@@ -203,7 +203,7 @@ export const useIsFunctionAvailable = (
     if (
       isUsingSeedlessAccount &&
       functionRequireSigning.includes(functionToCheck) &&
-      !featureFlags[FeatureGates.SEEDLESS_SIGNING]
+      !isFlagEnabled(FeatureGates.SEEDLESS_SIGNING)
     ) {
       return false;
     }
@@ -211,35 +211,35 @@ export const useIsFunctionAvailable = (
       if (isPchainNetwork(network)) {
         return Boolean(
           !!active?.addressPVM &&
-            featureFlags[FeatureGates.SEND] &&
-            featureFlags[FeatureGates.SEND_P_CHAIN],
+            isFlagEnabled(FeatureGates.SEND) &&
+            isFlagEnabled(FeatureGates.SEND_P_CHAIN),
         );
       } else if (isXchainNetwork(network)) {
         return Boolean(
           !!active?.addressAVM &&
-            featureFlags[FeatureGates.SEND] &&
-            featureFlags[FeatureGates.SEND_X_CHAIN],
+            isFlagEnabled(FeatureGates.SEND) &&
+            isFlagEnabled(FeatureGates.SEND_X_CHAIN),
         );
       }
     }
 
     if (functionToCheck === FunctionNames.SWAP) {
-      if (!network || !featureFlags[FeatureGates.SWAP]) {
+      if (!network || !isFlagEnabled(FeatureGates.SWAP)) {
         return false;
       }
 
       return isEthereumNetwork(network)
-        ? featureFlags[FeatureGates.SWAP_ETHEREUM]
+        ? isFlagEnabled(FeatureGates.SWAP_ETHEREUM)
         : isAvalancheNetwork(network)
-          ? featureFlags[FeatureGates.SWAP_C_CHAIN]
+          ? isFlagEnabled(FeatureGates.SWAP_C_CHAIN)
           : isSolanaNetwork(network)
-            ? featureFlags[FeatureGates.SWAP_SOLANA]
+            ? isFlagEnabled(FeatureGates.SWAP_SOLANA)
             : false;
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];
 
-    return featureFlagToCheck ? featureFlags[featureFlagToCheck] : true;
+    return featureFlagToCheck ? isFlagEnabled(featureFlagToCheck) : true;
   };
 
   const checkIsFunctionSupported = (name: FunctionNames) => {
