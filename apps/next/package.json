@@ -19,7 +19,7 @@
     "@avalabs/avalanchejs": "5.1.0-alpha.2",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.59",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.59",
-    "@avalabs/k2-alpine": "1.228.0",
+    "@avalabs/k2-alpine": "1.229.1-alpha.3.f032d4884",
     "@avalabs/types": "3.1.0-alpha.59",
     "@avalabs/vm-module-types": "1.9.4",
     "@core/common": "workspace:*",
