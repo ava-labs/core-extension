@@ -1,7 +1,6 @@
 import {
   Button,
   ButtonProps,
-  ClickAwayListener,
   Popover,
   PopoverItem,
   useTheme,
@@ -49,63 +48,59 @@ export const SelectButton = <T,>({
   };
 
   return (
-    <ClickAwayListener onClickAway={handleClose}>
-      <div>
-        <Button
-          variant="text"
-          size="small"
-          color="primary"
-          onClick={handleClick}
-          data-testid={dataTestId}
-          endIcon={
-            <MdOutlineUnfoldMore
-              size={16}
-              color={theme.palette.text.secondary}
-            />
-          }
-          {...props}
-          sx={{
-            ...props.sx,
-            '& .MuiButton-endIcon': {
-              marginLeft: 0,
+    <>
+      <Button
+        variant="text"
+        size="small"
+        color="primary"
+        onClick={handleClick}
+        data-testid={dataTestId}
+        endIcon={
+          <MdOutlineUnfoldMore size={16} color={theme.palette.text.secondary} />
+        }
+        {...props}
+        sx={{
+          ...props.sx,
+          '& .MuiButton-endIcon': {
+            marginLeft: 0,
+          },
+        }}
+      >
+        {renderValue}
+      </Button>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        slotProps={{
+          paper: {
+            sx: {
+              padding: '10px',
             },
-          }}
-        >
-          {renderValue}
-        </Button>
-        <Popover
-          open={open}
-          anchorEl={anchorEl}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          slotProps={{
-            paper: {
-              sx: {
-                padding: '10px',
+          },
+        }}
+      >
+        {options.map((option) => (
+          <PopoverItem
+            key={option.key}
+            label={option.label}
+            onClick={() => {
+              clickHandler(option.selectValue);
+            }}
+            data-testid={option.dataTestId}
+            selected={option.selected}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
               },
-            },
-          }}
-        >
-          {options.map((option) => (
-            <PopoverItem
-              key={option.key}
-              label={option.label}
-              onClick={() => {
-                clickHandler(option.selectValue);
-              }}
-              data-testid={option.dataTestId}
-              selected={option.selected}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: 'transparent',
-                },
-              }}
-            />
-          ))}
-        </Popover>
-      </div>
-    </ClickAwayListener>
+            }}
+          />
+        ))}
+      </Popover>
+    </>
   );
 };
