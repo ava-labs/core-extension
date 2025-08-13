@@ -19,7 +19,7 @@ const previousSchema = Joi.object();
 const up = async (networkStorage: PreviousSchema) => {
   const { favoriteNetworks } = networkStorage;
 
-  const optionalNetworks = favoriteNetworks
+  const enabledNetworks = favoriteNetworks
     .filter(
       (network) =>
         !defaultEnabledNetworks.includes(network) &&
@@ -27,9 +27,18 @@ const up = async (networkStorage: PreviousSchema) => {
     )
     .concat(defaultEnableNetworksDeletable);
 
+  const networkAvailability = enabledNetworks.reduce((accumulator, network) => {
+    return {
+      ...accumulator,
+      [network]: {
+        isEnabled: true,
+      },
+    };
+  }, {}); // Initialize accumulator as an empty object
+
   return {
     ...networkStorage,
-    enabledNetworks: optionalNetworks,
+    networkAvailability: networkAvailability,
     version: VERSION,
   };
 };

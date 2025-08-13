@@ -608,6 +608,7 @@ export class AccountsService implements OnLock, OnUnlock {
       ...this.#accounts,
       active: accountToActivate,
     });
+    this.networkService.getUnknownUsedNetwork(accountToActivate);
   }
 
   async deleteAccounts(ids: string[]) {

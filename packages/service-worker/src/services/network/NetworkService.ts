@@ -16,6 +16,8 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
+  PrimaryAccount,
+  ImportedAccount,
 } from '@core/types';
 import {
   AVALANCHE_XP_NETWORK,
@@ -50,6 +52,7 @@ import {
 } from '@core/common';
 import { isSolanaNetwork } from '@core/common';
 import { defaultEnabledNetworks } from './consts';
+import { GlacierService } from '../glacier/GlacierService';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -57,7 +60,10 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
   private _chainListFetched = new Signal<ChainList>();
+  private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
+  private _storedEnabledNetworks: number[] = [];
   private _enabledNetworks: number[] = [];
+  private _unknownUsedNetworks: number[] = [];
 
   private _fetchedChainListSignal = this._chainListFetched
     .cache(new ValueCache())
@@ -116,6 +122,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   constructor(
     private storageService: StorageService,
     private featureFlagService: FeatureFlagService,
+    private glacierService: GlacierService,
   ) {
     this._initChainList();
 
@@ -229,11 +236,36 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworksUpdated.dispatch(networkIds);
   }
 
-  private set enabledNetworks(networkIds: number[]) {
-    this._enabledNetworks = networkIds;
-    this.enabledNetworksUpdated.dispatch(networkIds);
+  private set storedEnabledNetworks(networkIds: number[]) {
+    this._storedEnabledNetworks = networkIds;
+    const uniqueCombinedNetworks = this.#getUniqueCombinedNetworks({
+      stored: networkIds,
+    });
+
+    this._enabledNetworks = uniqueCombinedNetworks;
+    this.enabledNetworksUpdated.dispatch(uniqueCombinedNetworks);
   }
 
+  private set networkAvailability(
+    networkAvailability: Record<number, { isEnabled: boolean }>,
+  ) {
+    this._networkAvailability = networkAvailability;
+
+    const currentEnabledNetworks = Object.entries(networkAvailability)
+      .filter(([, network]) => network.isEnabled)
+      .map(([chainId]) => Number(chainId));
+    this.storedEnabledNetworks = currentEnabledNetworks;
+  }
+
+  private set unknownUsedNetworks(networkIds: number[]) {
+    this._unknownUsedNetworks = networkIds;
+    const uniqueCombinedNetworks = this.#getUniqueCombinedNetworks({
+      unknownUsed: networkIds,
+    });
+    this._enabledNetworks = uniqueCombinedNetworks;
+    this.enabledNetworksUpdated.dispatch(uniqueCombinedNetworks);
+    console.log({ uniqueCombinedNetworks });
+  }
   async getFavoriteNetworks() {
     const allNetworks = await this.allNetworks.promisify();
     const isMainnet = this.isMainnet();
@@ -251,12 +283,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getEnabledNetworks() {
     const allNetworks = await this.allNetworks.promisify();
     const isMainnet = this.isMainnet();
-    // Adding defaultEnabledNetwork to ensure that all of the default networks are enabled
-    const enabledNetworks = this._enabledNetworks.concat(
-      defaultEnabledNetworks,
-    );
-    const uniqueEnabledNetworks = [...new Set(enabledNetworks)];
-    const filteredEnabledNetworks = uniqueEnabledNetworks.filter((id) => {
+
+    const filteredEnabledNetworks = this._enabledNetworks.filter((id) => {
       if (allNetworks) {
         return isMainnet
           ? !allNetworks[id]?.isTestnet
@@ -292,14 +320,14 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async addEnabledNetwork(chainId: number) {
     if (
-      this._enabledNetworks.includes(chainId) ||
+      this._storedEnabledNetworks.includes(chainId) ||
       defaultEnabledNetworks.includes(chainId)
     ) {
-      return this._enabledNetworks;
+      return this._storedEnabledNetworks;
     }
 
-    const storedEnabledNetworks = this._enabledNetworks;
-    this.enabledNetworks = [...storedEnabledNetworks, chainId];
+    const storedEnabledNetworks = this._storedEnabledNetworks;
+    this.storedEnabledNetworks = [...storedEnabledNetworks, chainId];
     this.updateNetworkState();
     return this._enabledNetworks;
   }
@@ -319,8 +347,8 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async removeEnabledNetwork(chainId: number) {
-    const storedEnabledNetworks = this._enabledNetworks;
-    this.enabledNetworks = storedEnabledNetworks.filter(
+    const storedEnabledNetworks = this._storedEnabledNetworks;
+    this.storedEnabledNetworks = storedEnabledNetworks.filter(
       (storedEnabledNetworkChainId) => storedEnabledNetworkChainId !== chainId,
     );
     this.updateNetworkState();
@@ -331,7 +359,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.uiActiveNetwork = undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
-    this._enabledNetworks = [];
+    this._storedEnabledNetworks = [];
     this.#dappScopes = {};
   }
 
@@ -377,7 +405,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       dappScopes: this.#dappScopes,
       customNetworks: this._customNetworks,
       favoriteNetworks: this._favoriteNetworks,
-      enabledNetworks: this._enabledNetworks,
+      networkAvailability: this._networkAvailability,
     });
   }
 
@@ -420,7 +448,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworks = storedState?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
     ];
-    this.enabledNetworks = storedState?.enabledNetworks ?? [];
+    this.networkAvailability = storedState?.networkAvailability ?? {};
   }
 
   private async _getCachedChainList(): Promise<ChainList | undefined> {
@@ -760,6 +788,32 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.updateNetworkState();
   }
 
+  async getUnknownUsedNetwork(account: ImportedAccount | PrimaryAccount) {
+    const chainsForAddress = await this.glacierService.getEvmChainsForAddress(
+      account.addressC,
+    );
+    console.log({ chainsForAddress });
+
+    const usedIndexedChains =
+      chainsForAddress.indexedChains?.map((chainInfo) => chainInfo.chainId) ||
+      [];
+    const usedUnindexedChains = chainsForAddress.unindexedChains || [];
+
+    const allUsedChains = [...usedIndexedChains, ...usedUnindexedChains];
+
+    console.log({ usedIndexedChains, usedUnindexedChains, allUsedChains });
+
+    const unknownChains = allUsedChains
+      .filter(
+        (chainId) =>
+          this._networkAvailability[chainId] === undefined &&
+          !defaultEnabledNetworks.includes(Number(chainId)),
+      )
+      .map(Number);
+    console.log({ unknownChains });
+    this.unknownUsedNetworks = unknownChains;
+  }
+
   /**
    * Basically if in testnet mode we only want to return the testnet
    * networks. Otherwise we want only mainnet networks.
@@ -854,5 +908,21 @@ export class NetworkService implements OnLock, OnStorageReady {
         decorateWithCaipId(network),
       ]),
     );
+  };
+
+  #getUniqueCombinedNetworks = ({
+    stored,
+    unknownUsed,
+  }: {
+    stored?: number[];
+    unknownUsed?: number[];
+  }) => {
+    return [
+      ...new Set(
+        defaultEnabledNetworks
+          .concat(stored ?? this._storedEnabledNetworks)
+          .concat(unknownUsed ?? this._unknownUsedNetworks),
+      ),
+    ];
   };
 }
