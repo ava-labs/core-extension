@@ -13,9 +13,9 @@ name: E2E Testing
       - ready_for_review
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-16-cores-core-extension
     if: '${{ !github.event.pull_request.draft }}'
-    environment: alpha
+    environment: dev
     steps:
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,6 +33,7 @@ jobs:
       - name: Create env file
         run: |
           touch .env.production
+          echo 'RELEASE=dev' >> .env.production
           echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
           echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
           echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
