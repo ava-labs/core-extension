@@ -323,11 +323,15 @@ export class NetworkService implements OnLock, OnStorageReady {
       this._storedEnabledNetworks.includes(chainId) ||
       defaultEnabledNetworks.includes(chainId)
     ) {
-      return this._storedEnabledNetworks;
+      return this._enabledNetworks;
     }
 
-    const storedEnabledNetworks = this._storedEnabledNetworks;
-    this.storedEnabledNetworks = [...storedEnabledNetworks, chainId];
+    this.networkAvailability = {
+      ...this._networkAvailability,
+      [chainId]: {
+        isEnabled: true,
+      },
+    };
     this.updateNetworkState();
     return this._enabledNetworks;
   }
@@ -347,10 +351,12 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   async removeEnabledNetwork(chainId: number) {
-    const storedEnabledNetworks = this._storedEnabledNetworks;
-    this.storedEnabledNetworks = storedEnabledNetworks.filter(
-      (storedEnabledNetworkChainId) => storedEnabledNetworkChainId !== chainId,
-    );
+    this.networkAvailability = {
+      ...this._networkAvailability,
+      [chainId]: {
+        isEnabled: false,
+      },
+    };
     this.updateNetworkState();
     return this._enabledNetworks;
   }
