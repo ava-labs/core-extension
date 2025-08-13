@@ -1,3 +1,4 @@
+import { useConnectedSites } from '@/hooks/useConnectedSites';
 import {
   Button,
   Divider,
@@ -8,10 +9,8 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { NetworkVMType } from '@avalabs/vm-module-types';
 import { getAllAddressesForAccount } from '@core/common';
 import { Account } from '@core/types';
-import { usePermissionContext } from '@core/ui';
 import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -22,52 +21,28 @@ import {
   MdOutlineRemoveModerator,
   MdOutlineUnpublished,
 } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
 import { StackRow } from '../StackRow';
 
 interface ConnectedSitesProps {
   activeAccount?: Account;
 }
 
-type ConnectedListType = {
-  [key: string]: {
-    accounts: {
-      [key: string]: NetworkVMType;
-    };
-  };
-};
-
-const getAccountConnectedSites = ({
-  list,
-  account,
-}: {
-  list: ConnectedListType;
-  account?: Account;
-}) => {
-  if (!account || !list) {
-    return [];
-  }
-  return Object.values(list).filter((listItem) =>
-    Object.keys(listItem?.accounts).some((address) =>
-      getAllAddressesForAccount(account).includes(address),
-    ),
-  );
-};
-
 export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
+  const { push } = useHistory();
   const domain = useCurrentDomain();
-  const { permissions, revokeAddressPermisson, isDomainConnectedToAccount } =
-    usePermissionContext();
-  const connectedSitesList = getAccountConnectedSites({
-    list: permissions,
-    account: activeAccount,
-  });
+  const { disconnectSite, connectedSites, isDomainConnectedToAccount } =
+    useConnectedSites();
+
   const theme = useTheme();
   const { t } = useTranslation();
   const isConnected =
-    isDomainConnectedToAccount?.(
+    domain &&
+    activeAccount &&
+    isDomainConnectedToAccount(
       domain,
-      getAllAddressesForAccount(activeAccount ?? {}),
-    ) ?? false;
+      getAllAddressesForAccount(activeAccount),
+    );
 
   const handleConnectedSitesClose = () => {
     setConnectedSitesAnchorEl(null);
@@ -126,11 +101,7 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
           },
         }}
       >
-        <Stack
-          sx={{
-            width: '100%',
-          }}
-        >
+        <Stack width={1}>
           {isConnected && isDomainMalicious && (
             <StackRow
               sx={{
@@ -168,13 +139,7 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
               </Stack>
               <Button
                 onClick={() => {
-                  // TODO: implement after the function works
-                  if (domain && activeAccount) {
-                    revokeAddressPermisson(
-                      domain,
-                      getAllAddressesForAccount(activeAccount),
-                    );
-                  }
+                  disconnectSite(domain!, activeAccount);
                 }}
                 sx={{
                   '&.MuiButton-root.MuiButton-text': {
@@ -215,7 +180,9 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
             sx={{ borderColor: getHexAlpha(theme.palette.primary.main, 10) }}
           />
           <StackRow
-            // TODO: add redirect to the settings connected sites when it's ready
+            onClick={() => push('/settings/connected-sites')}
+            role="button"
+            tabIndex={0}
             sx={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -233,7 +200,7 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
                 alignItems: 'center',
               }}
             >
-              <Typography>{connectedSitesList.length}</Typography>
+              <Typography>{connectedSites.length}</Typography>
               <MdChevronRight size={20} />
             </StackRow>
           </StackRow>
