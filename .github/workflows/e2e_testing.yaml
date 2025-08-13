@@ -15,11 +15,13 @@ jobs:
   build:
     runs-on: ubuntu-latest-16-cores-core-extension
     if: '${{ !github.event.pull_request.draft }}'
+    environment: dev
     steps:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.3
+          check-latest: true
       - name: enable corepack
         run: |
           corepack enable
