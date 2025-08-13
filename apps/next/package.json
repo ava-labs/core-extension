@@ -18,6 +18,7 @@
   "dependencies": {
     "@avalabs/avalanchejs": "5.1.0-alpha.2",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.59",
+    "@avalabs/core-utils-sdk": "3.1.0-alpha.59",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.59",
     "@avalabs/k2-alpine": "1.228.0",
     "@avalabs/types": "3.1.0-alpha.59",

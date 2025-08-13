@@ -1,5 +1,6 @@
 import {
   NftTokenWithBalance,
+  TokenType,
   TokenWithBalance,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
@@ -103,4 +104,15 @@ export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {
 export type TotalBalanceForWallet = {
   totalBalanceInCurrency?: number;
   hasBalanceOnUnderivedAccounts: boolean;
+};
+
+export type FungibleTokenBalance = Exclude<
+  TokenWithBalance,
+  NftTokenWithBalance
+> & {
+  coreChainId: number;
+};
+
+export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
+  return `${token.type}:${token.symbol}:${token.type === TokenType.NATIVE ? '-' : token.address}:${token.coreChainId}`;
 };
