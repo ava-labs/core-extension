@@ -16,7 +16,7 @@
     "build:next:alpha": "yarn build:packages:next && yarn workspace @core-ext/next run build:alpha",
     "build": "yarn build:legacy",
     "build:alpha": "yarn build:legacy:alpha",
-    "build:alpha:no-source-maps": "NO_SOURCE_MAPS=true yarn build:alpha",
+    "build:alpha:no-source-maps": "NO_SOURCE_MAPS=true yarn build:legacy:alpha",
     "lint": "yarn workspaces foreach -Ap --exclude @core-ext/next run lint",
     "lint:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run lint",
     "postinstall": "husky install",
