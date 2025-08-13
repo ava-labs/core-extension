@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest-16-cores-core-extension
     if: '${{ !github.event.pull_request.draft }}'
-    environment: dev
+    environment: alpha
     steps:
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,7 +33,7 @@ jobs:
       - name: Create env file
         run: |
           touch .env.production
-          echo 'RELEASE=dev' >> .env.production
+          echo 'RELEASE=alpha' >> .env.production
           echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
           echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
           echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
@@ -47,7 +47,7 @@ jobs:
           echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
           echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
           echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
-          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY_E2E }}"' >> .env.production
           echo 'ID_SERVICE_API_KEY="${{ secrets.ID_SERVICE_API_KEY }}"' >> .env.production
           echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
       - name: Install dependencies
