@@ -7,9 +7,10 @@ import {
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouteMatch } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 
 import {
+  useAnalyticsContext,
   useContactsContext,
   useSettingsContext,
   useWalletContext,
@@ -34,6 +35,9 @@ import {
   SettingsCard,
   SettingsNavItem,
 } from './components';
+import { CurrencySelector } from '../CurrencySelector';
+import { ThemeSelector } from '../ThemeSelector';
+import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
@@ -41,10 +45,13 @@ export const SettingsHomePage = () => {
   const { walletDetails } = useWalletContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
+  const { push } = useHistory();
+  const { capture } = useAnalyticsContext();
 
   const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
+  const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
 
   return (
     <Page
@@ -81,26 +88,66 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           label={t('My avatar')}
           secondaryAction={
-            <AvatarButton onClick={() => alert('Implement avatar selection')} />
+            <AvatarButton onClick={() => push('/settings/avatar')} />
           }
           divider
         />
         <SettingsNavItem
           divider
           label={t('Currency')}
-          secondaryAction={<ChevronRightIcon size={16} />}
+          secondaryAction={
+            <CurrencySelector
+              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+            />
+          }
         />
         <SettingsNavItem
           divider
           label={t('Language')}
           secondaryAction={
             <LanguageSelector
+              dataTestId="settings-language-selector"
+              onSelectEventName="AppLanguageChanged"
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
             />
           }
         />
-        <SettingsNavItem label={t('Theme')} divider />
-        <SettingsNavItem label={t('View preference')} />
+        <SettingsNavItem
+          label={t('Theme')}
+          divider
+          secondaryAction={
+            <ThemeSelector
+              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+            />
+          }
+        />
+        <SettingsNavItem
+          label={t('View preference')}
+          secondaryAction={
+            <ViewPreferenceSelector
+              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+            />
+          }
+        />
+        <SettingsNavItem
+          label={t('Show me Trending Tokens')}
+          description={t(
+            'Display the shortcut to tokens that are trending in the last 24 hours',
+          )}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={showTrendingTokens}
+              onChange={() => {
+                const newValue = !showTrendingTokens;
+                setShowTrendingTokens(newValue);
+                capture('ShowTrendingTokensSettingChanged', {
+                  showTrendingTokens: newValue,
+                });
+              }}
+            />
+          }
+        />
       </SettingsCard>
       <SwitchCard
         title={t('Core Concierge')}
@@ -123,7 +170,11 @@ export const SettingsHomePage = () => {
           'Protect your data and ensure the highest level of security for your Core wallet.',
         )}
       >
-        <SettingsNavItem label={t('Connected sites')} divider />
+        <SettingsNavItem
+          label={t('Connected sites')}
+          href={`${path}/connected-sites`}
+          divider
+        />
         <SettingsNavItem
           label={t('Change password')}
           divider

@@ -11,6 +11,7 @@ import type {
   SetCoreAssistantHandler,
   SetLanguageHandler,
   SetPreferredViewHandler,
+  SetShowTrendingTokensHandler,
   UpdateCollectiblesVisibilityHandler,
   UpdateCurrencyHandler,
   UpdateShowNoBalanceHandler,
@@ -18,10 +19,10 @@ import type {
   UpdateTokensVisiblityHandler,
 } from '@core/service-worker';
 import {
+  ColorTheme,
   ExtensionRequest,
   Languages,
   SettingsState,
-  ThemeVariant,
   ViewMode,
 } from '@core/types';
 import { changeLanguage } from 'i18next';
@@ -53,7 +54,7 @@ type SettingsFromProvider = SettingsState & {
     token: NftTokenWithBalance,
   ): Promise<true | undefined>;
   getCollectibleVisibility(token: NftTokenWithBalance): boolean;
-  updateTheme(theme: ThemeVariant): Promise<boolean>;
+  updateTheme(theme: ColorTheme): Promise<boolean>;
   currencyFormatter(value: number): string;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
@@ -64,8 +65,8 @@ type SettingsFromProvider = SettingsState & {
     activePage: SettingsPages,
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
-  nextGenTheme: 'system' | 'testnet' | 'dark' | 'light';
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
+  setShowTrendingTokens: (show: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -184,7 +185,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [settings?.collectiblesVisibility],
   );
 
-  function updateTheme(theme: ThemeVariant) {
+  function updateTheme(theme: ColorTheme) {
     return request<UpdateThemeHandler>({
       method: ExtensionRequest.SETTINGS_UPDATE_THEME,
       params: [theme],
@@ -222,12 +223,21 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setShowTrendingTokens = useCallback(
+    (show: boolean) => {
+      return request<SetShowTrendingTokensHandler>({
+        method: ExtensionRequest.SETTINGS_SET_SHOW_TRENDING_TOKENS,
+        params: [show],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
         {
           ...settings,
-          nextGenTheme: 'system', // TODO: fix this
           lockWallet,
           updateCurrencySetting,
           toggleShowTokensWithoutBalanceSetting,
@@ -245,6 +255,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setSettingsActivePage,
           setCoreAssistant,
           setPreferredView,
+          setShowTrendingTokens,
         } as SettingsFromProvider
       }
     >

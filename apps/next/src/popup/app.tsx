@@ -14,6 +14,7 @@ import {
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
+  PermissionContextProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -100,6 +101,7 @@ export function App() {
           <ContactsContextProvider />,
           <BalancesProvider />,
           <CurrenciesContextProvider />,
+          <PermissionContextProvider />,
         ]) as ReactElement[]
       }
     >
