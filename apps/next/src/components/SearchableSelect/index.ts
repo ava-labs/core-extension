@@ -1,2 +1,6 @@
 export * from './SearchableSelect';
-export { type Group } from './types';
+export {
+  type Group,
+  type OptionProps,
+  type SearchableSelectTriggerProps,
+} from './types';

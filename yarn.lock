@@ -4144,6 +4144,7 @@ __metadata:
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.59"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.59"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.59"
     "@avalabs/k2-alpine": "npm:1.228.0"
     "@avalabs/types": "npm:3.1.0-alpha.59"

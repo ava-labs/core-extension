@@ -8,11 +8,13 @@ import {
   AccountsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
+  CurrenciesContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
   NetworkContextProvider,
   OnboardingContextProvider,
+  PermissionContextProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -98,6 +100,8 @@ export function App() {
           <KeystoneContextProvider />,
           <ContactsContextProvider />,
           <BalancesProvider />,
+          <CurrenciesContextProvider />,
+          <PermissionContextProvider />,
         ]) as ReactElement[]
       }
     >
