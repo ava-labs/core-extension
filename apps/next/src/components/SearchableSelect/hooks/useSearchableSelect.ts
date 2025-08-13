@@ -28,12 +28,10 @@ export function useSearchableSelect<T>({
   const selectOption = useCallback(
     (option: T) => {
       onValueChange(option);
-      // Clear the search box
-      onQueryChange('');
       // Close the menu
       setIsOpen(false);
     },
-    [onValueChange, onQueryChange, setIsOpen],
+    [onValueChange, setIsOpen],
   );
 
   const getGroupHeaderProps = useCallback((group: Group<T>) => {

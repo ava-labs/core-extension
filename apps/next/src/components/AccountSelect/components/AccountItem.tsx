@@ -22,14 +22,12 @@ type AccountItemProps = {
   account: PrimaryAccount | ImportedAccount;
   addressType: AddressType;
   isSelected: boolean;
-  // onClick: (accountId: string) => void;
 };
 
 export const AccountItem: FC<AccountItemProps> = ({
   account,
   addressType,
   isSelected,
-  // onClick,
   ...rest
 }) => {
   const [showBalance, setShowBalance] = useState(false);

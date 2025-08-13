@@ -1,4 +1,5 @@
 import {
+  Box,
   ChevronRightIcon,
   Stack,
   StackProps,
@@ -6,13 +7,9 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 
-type SearchableSelectTriggerProps<T> = {
-  ref: React.RefObject<HTMLDivElement | null>;
-  label: string;
-  value?: T;
-  renderValue: (value?: T) => React.ReactNode;
-  onClick: () => void;
-};
+import { Card } from '@/components/Card';
+
+import { SearchableSelectTriggerProps } from '../types';
 
 export function SearchableSelectTrigger<T>({
   ref,
@@ -22,13 +19,17 @@ export function SearchableSelectTrigger<T>({
   onClick,
 }: SearchableSelectTriggerProps<T>) {
   return (
-    <Container ref={ref} onClick={onClick}>
-      <LabelAndValueWrapper>
-        <Typography variant="subtitle3">{label}</Typography>
-        {renderValue(value)}
-      </LabelAndValueWrapper>
-      <ChevronRightIcon size={16} />
-    </Container>
+    <Card>
+      <Container ref={ref} onClick={onClick}>
+        <LabelAndValueWrapper>
+          <Typography variant="subtitle3">{label}</Typography>
+          {renderValue(value)}
+        </LabelAndValueWrapper>
+        <Box flexShrink={0}>
+          <ChevronRightIcon size={16} />
+        </Box>
+      </Container>
+    </Card>
   );
 }
 
@@ -37,7 +38,7 @@ const Container = styled((props: StackProps) => (
 ))(({ theme }) => ({
   flexDirection: 'row',
   paddingInline: theme.spacing(1.5),
-  paddingBlock: theme.spacing(1),
+  paddingBlock: theme.spacing(0.5),
   alignItems: 'center',
   gap: theme.spacing(1.5),
   cursor: 'pointer',

@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
+import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { debounce, Stack } from '@avalabs/k2-alpine';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { useAccountsContext } from '@core/ui';
@@ -10,8 +10,11 @@ import {
   SEND_QUERY_TOKENS,
   SendQueryTokens,
 } from '@/config/routes';
+import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';
 import { AccountSelect } from '@/components/AccountSelect';
+import { TokenAmountInput } from '@/components/TokenAmountInput';
+import { useTokensForAccount } from '@/components/TokenSelect';
 
 export const Send = () => {
   const { t } = useTranslation();
@@ -25,27 +28,30 @@ export const Send = () => {
 
   const searchParams = new URLSearchParams(search);
   const fromQuery = searchParams.get(SEND_QUERY_TOKENS.fromQuery) ?? '';
+  const tokenId = searchParams.get(SEND_QUERY_TOKENS.token) ?? '';
+  const tokenQuery = searchParams.get(SEND_QUERY_TOKENS.tokenQuery) ?? '';
+  const amount = searchParams.get(SEND_QUERY_TOKENS.amount) ?? '';
 
-  const updateQueryParam = useMemo(
-    () =>
-      debounce(
-        (
-          current: URLSearchParams,
-          key: keyof SendQueryTokens,
-          value: string,
-        ) => {
-          const updated = new URLSearchParams(current);
-          updated.set(SEND_QUERY_TOKENS[key], value);
+  const updateQueryParam = useCallback(
+    (
+      current: URLSearchParams,
+      payload: Partial<Record<keyof SendQueryTokens, string>>,
+    ) => {
+      const updated = new URLSearchParams(current);
 
-          replace({
-            pathname: getSendPath(),
-            search: updated.toString(),
-          });
-        },
-        50,
-      ),
+      for (const [k, v] of Object.entries(payload)) {
+        updated.set(SEND_QUERY_TOKENS[k], v);
+      }
+
+      replace({
+        pathname: getSendPath(),
+        search: updated.toString(),
+      });
+    },
     [replace],
   );
+
+  const tokensForAccount = useTokensForAccount(activeAccount);
 
   return (
     <Page
@@ -55,14 +61,38 @@ export const Send = () => {
     >
       <Stack width="100%" gap={2}>
         <AccountSelect
-          addressType="C" // TODO: fixed to EVM for now
+          addressType="C"
           value={activeAccount}
           query={fromQuery}
-          onValueChange={(newAccount) => selectAccount(newAccount.id)}
-          onQueryChange={(value) =>
-            updateQueryParam(searchParams, 'fromQuery', value)
+          onValueChange={(newAccount) => {
+            selectAccount(newAccount.id);
+            // Clear the query after selecting account
+            updateQueryParam(searchParams, { fromQuery: '' });
+          }}
+          onQueryChange={(q) =>
+            updateQueryParam(searchParams, { fromQuery: q })
           }
         />
+        <Card>
+          <TokenAmountInput
+            id="send-token-amount"
+            tokenId={tokenId}
+            tokensForAccount={tokensForAccount}
+            onTokenChange={(value) => {
+              updateQueryParam(searchParams, { token: value });
+            }}
+            tokenQuery={tokenQuery}
+            onQueryChange={(q) =>
+              updateQueryParam(searchParams, { tokenQuery: q })
+            }
+            amount={amount}
+            onAmountChange={(value) =>
+              updateQueryParam(searchParams, {
+                amount: value,
+              })
+            }
+          />
+        </Card>
       </Stack>
     </Page>
   );
