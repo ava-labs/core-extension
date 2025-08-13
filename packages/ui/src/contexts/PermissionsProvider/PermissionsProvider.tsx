@@ -1,11 +1,12 @@
-import { ExtensionRequest, Permissions } from '@core/types';
 import {
   GetAllPermissionsHandler,
   RevokeAddressPermissionsForDomainHandler,
 } from '@core/service-worker';
+import { ExtensionRequest, Permissions } from '@core/types';
 import { toLower } from 'lodash';
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -17,7 +18,7 @@ import { permissionsUpdatedEventListener } from './permissionsEventFilters';
 
 const PermissionContext = createContext<{
   permissions: Permissions;
-  revokeAddressPermisson: (
+  revokeAddressPermission: (
     domain: string,
     addresses: string[],
   ) => Promise<true>;
@@ -27,14 +28,14 @@ const PermissionContext = createContext<{
   ) => boolean;
 }>({} as any);
 
-export function PermissionContextProvider({ children }: { children: any }) {
+export function PermissionContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
 
   const [permissionState, setPermissionState] = useState<Permissions>(
     {} as Permissions,
   );
 
-  const revokeAddressPermisson = useCallback(
+  const revokeAddressPermission = useCallback(
     (domain: string, addresses: string[]) =>
       request<RevokeAddressPermissionsForDomainHandler>({
         method: ExtensionRequest.PERMISSIONS_REVOKE_ADDRESS_ACCESS_FOR_DOMAIN,
@@ -96,7 +97,7 @@ export function PermissionContextProvider({ children }: { children: any }) {
     <PermissionContext.Provider
       value={{
         permissions: permissionState,
-        revokeAddressPermisson,
+        revokeAddressPermission,
         isDomainConnectedToAccount,
       }}
     >

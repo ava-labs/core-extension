@@ -170,7 +170,11 @@ export const SettingsHomePage = () => {
           'Protect your data and ensure the highest level of security for your Core wallet.',
         )}
       >
-        <SettingsNavItem label={t('Connected sites')} divider />
+        <SettingsNavItem
+          label={t('Connected sites')}
+          href={`${path}/connected-sites`}
+          divider
+        />
         <SettingsNavItem
           label={t('Change password')}
           divider
