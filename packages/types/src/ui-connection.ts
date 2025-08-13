@@ -84,6 +84,7 @@ export enum ExtensionRequest {
   SETTINGS_SET_LANGUAGE = 'settings_set_language',
   SETTINGS_SET_CORE_ASSISTANT = 'settings_set_core_assistant',
   SETTINGS_SET_PREFERRED_VIEW = 'settings_set_preferred_view',
+  SETTINGS_SET_SHOW_TRENDING_TOKENS = 'settings_set_show_trending_tokens',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',
@@ -333,11 +334,11 @@ export const CORE_DOMAINS = [
   '127.0.0.1',
   'core-web.pages.dev',
   'core.app',
-  'test.core.app',
+  'staging.core.app',
+  'develop.core.app',
   'ava-labs.github.io', // playground
   'avacloud.io',
   'avacloud-app.pages.dev',
-  'redesign-aa3.pages.dev',
   'launch-4zn.pages.dev',
   'launchpad.avacloud.io ',
 ];

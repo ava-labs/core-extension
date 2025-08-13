@@ -16,6 +16,7 @@ import {
 } from '../../common-screens';
 import { ConnectKeystoneScreen, ConnectKeystoneScreenViaQR } from './screens';
 import { ConnectorCallbacks, DerivedKeys, Device } from './types';
+import { FeatureGates } from '@core/types';
 
 const BASE_PATH = '/onboarding/import/keystone';
 const TOTAL_STEPS = 7;
@@ -35,7 +36,7 @@ export const ConnectKeystoneFlow = () => {
   const { capture } = useAnalyticsContext();
   const { isFlagEnabled } = useFeatureFlagContext();
 
-  const isKeystoneUsbSupported = isFlagEnabled('keystone3-onboarding');
+  const isKeystoneUsbSupported = isFlagEnabled(FeatureGates.KEYSTONE_3);
   const [device, setDevice] = useState<Device>(
     isKeystoneUsbSupported ? 'keystone-usb' : 'keystone-qr',
   );

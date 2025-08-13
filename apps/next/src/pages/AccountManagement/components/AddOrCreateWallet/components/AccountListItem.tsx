@@ -16,7 +16,7 @@ import * as Styled from './Styled';
 
 const listItemTextProps: ListItemTextProps['slotProps'] = {
   primary: {
-    variant: 'subtitle1',
+    variant: 'subtitle3',
   },
   secondary: {
     variant: 'caption',

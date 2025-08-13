@@ -12,10 +12,10 @@ export const textProps: ListItemTextProps = {
       },
     },
     primary: {
-      variant: 'subtitle1',
+      variant: 'subtitle3',
     },
     secondary: {
-      variant: 'body1',
+      variant: 'body3',
       textAlign: 'end',
     },
   },

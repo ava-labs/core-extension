@@ -1,16 +1,16 @@
-import { CallbackManager } from '../../runtime/CallbackManager';
-import EventEmitter from 'events';
-import { singleton } from 'tsyringe';
-import { StorageService } from '../storage/StorageService';
 import {
+  AlarmsEvents,
+  LOCK_TIMEOUT,
   LockEvents,
   LockStateChangedEventPayload,
-  LOCK_TIMEOUT,
-  SessionAuthData,
   SESSION_AUTH_DATA_KEY,
-  AlarmsEvents,
+  SessionAuthData,
 } from '@core/types';
+import EventEmitter from 'events';
+import { singleton } from 'tsyringe';
+import { CallbackManager } from '../../runtime/CallbackManager';
 import { OnAllExtensionClosed } from '../../runtime/lifecycleCallbacks';
+import { StorageService } from '../storage/StorageService';
 
 @singleton()
 export class LockService implements OnAllExtensionClosed {
@@ -94,6 +94,10 @@ export class LockService implements OnAllExtensionClosed {
       throw new Error('wrong password');
     }
     await this.storageService.changePassword(oldPassword, newPassword);
+    await this.storageService.saveToSessionStorage(SESSION_AUTH_DATA_KEY, {
+      password: newPassword,
+      loginTime: Date.now(),
+    });
   }
 
   async verifyPassword(password: string): Promise<boolean> {

@@ -168,6 +168,26 @@ export const useErrorMessage = () => {
         title: t('This transaction would likely fail'),
         hint: t('Please try again later or choose a different token pair.'),
       },
+      [SwapErrorCode.IncorrectTokenAddress]: {
+        title: t('Incorrect token address'),
+        hint: t('Please try again later or choose a different token pair.'),
+      },
+      [SwapErrorCode.WrongQuoteProvider]: {
+        title: t('Wrong quote provider'),
+      },
+      [SwapErrorCode.CannotFetchSpender]: {
+        title: t('There was an error fetching your spend approvals.'),
+        hint: t('Try swapping a different token or try again later.'),
+      },
+      [SwapErrorCode.ApprovalTxFailed]: {
+        title: t('Approval transaction failed'),
+      },
+      [SwapErrorCode.InvalidSlippageTolerance]: {
+        title: t('Invalid slippage tolerance'),
+      },
+      [SwapErrorCode.InsufficientBalance]: {
+        title: t('Insufficient balance'),
+      },
     }),
     [t],
   );
