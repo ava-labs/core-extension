@@ -1,7 +1,7 @@
 import {
+  ColorTheme,
   ExtensionRequest,
   ExtensionRequestHandler,
-  ThemeVariant,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
@@ -9,7 +9,7 @@ import { SettingsService } from '../SettingsService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_UPDATE_THEME,
   true,
-  [theme: ThemeVariant]
+  [theme: ColorTheme]
 >;
 
 @injectable()
@@ -19,7 +19,7 @@ export class UpdateThemeHandler implements HandlerType {
   constructor(private settingsService: SettingsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [theme] = request.params || [ThemeVariant.DARK];
+    const [theme] = request.params || ['dark'];
 
     await this.settingsService.setTheme(theme);
 

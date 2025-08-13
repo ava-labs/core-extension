@@ -1,6 +1,8 @@
 import { ChainId, Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 
-export function isXchainNetwork(network?: Network) {
+export function isXchainNetwork(
+  network?: Network,
+): network is Network & { vmName: NetworkVMType.AVM } {
   if (!network) {
     return false;
   }

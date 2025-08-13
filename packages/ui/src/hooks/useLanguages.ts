@@ -47,7 +47,7 @@ export function useLanguage() {
     {
       code: Languages.JA,
       name: t('Japanese'),
-      originalName: '日本',
+      originalName: '日本語',
       linkCode: LanguageLinks.JA,
     },
     {
