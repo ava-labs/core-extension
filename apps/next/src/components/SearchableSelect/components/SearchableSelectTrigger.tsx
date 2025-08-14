@@ -25,8 +25,8 @@ export function SearchableSelectTrigger<T>({
           <Typography variant="subtitle3">{label}</Typography>
           {renderValue(value)}
         </LabelAndValueWrapper>
-        <Box flexShrink={0}>
-          <ChevronRightIcon size={16} />
+        <Box display="flex" flexShrink={0} lineHeight={1}>
+          <ChevronRightIcon size={20} />
         </Box>
       </Container>
     </Card>
@@ -40,7 +40,7 @@ const Container = styled((props: StackProps) => (
   paddingInline: theme.spacing(1.5),
   paddingBlock: theme.spacing(0.5),
   alignItems: 'center',
-  gap: theme.spacing(1.5),
+  gap: theme.spacing(0.5),
   cursor: 'pointer',
 }));
 

@@ -85,7 +85,7 @@ export const TokenAmountInput = ({
         id={id}
         display="grid"
         gridTemplateColumns={token ? 'auto minmax(50%, 1fr)' : '1fr'}
-        gap={1}
+        gap={2}
         width="100%"
       >
         <TokenSelect

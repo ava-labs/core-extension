@@ -4,7 +4,7 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountListItem } from './AccountListItem';
 import { WalletCard } from './WalletCard';
-import { WalletIcon } from './WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon';
 
 export const WalletList: FC = () => {
   const { t } = useTranslation();

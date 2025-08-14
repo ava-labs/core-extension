@@ -8,6 +8,7 @@ export type Group<T> = {
 export type RootProps = HTMLAttributes<HTMLElement>;
 export type SearchInputProps = HTMLAttributes<HTMLInputElement>;
 export type GroupHeaderProps = HTMLAttributes<HTMLElement> & {
+  skipHeader: boolean;
   'data-group-id': string;
 };
 export type OptionProps = HTMLAttributes<HTMLElement> & {
@@ -27,6 +28,11 @@ export type UseSearchableSelectProps<T> = {
   onValueChange: (value: T) => void;
   searchFn: (option: T, query?: string) => boolean;
   groupBy?: (option: T) => string;
+  /**
+   * When set, the component will instruct the appropriate `GroupAccordion`
+   * slots to not render the header.
+   */
+  skipHeaderForGroups?: string[];
 };
 
 export type UseSearchableSelectReturnValues<T> = {

@@ -203,11 +203,13 @@ describe('contexts/BridgeProvider', () => {
             ],
           },
           {
-            customApprovalScreenTitle: 'Confirm Bridge',
-            alert: {
-              type: 'info',
-              title: 'This operation requires {{total}} approvals.',
-              notice: 'You will be prompted {{remaining}} more time(s).',
+            context: {
+              customApprovalScreenTitle: 'Confirm Bridge',
+              alert: {
+                type: 'info',
+                title: 'This operation requires {{total}} approvals.',
+                notice: 'You will be prompted {{remaining}} more time(s).',
+              },
             },
           },
         );
@@ -230,7 +232,9 @@ describe('contexts/BridgeProvider', () => {
             ],
           },
           {
-            customApprovalScreenTitle: 'Confirm Bridge',
+            context: {
+              customApprovalScreenTitle: 'Confirm Bridge',
+            },
           },
         );
       });
