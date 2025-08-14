@@ -63,6 +63,7 @@ export const SettingsHomePage = () => {
     >
       <Stack direction="row" justifyContent="space-between" gap={1.5}>
         <SwitchCard
+          titleSize="small"
           checked={isTestnetMode}
           onChange={() => setIsTestnetMode((is) => !is)}
           title={t('Testnet mode')}
@@ -71,6 +72,7 @@ export const SettingsHomePage = () => {
           )}
         />
         <SwitchCard
+          titleSize="small"
           checked={isPrivacyMode}
           onChange={() => setIsPrivacyMode((is) => !is)}
           title={t('Privacy mode')}
@@ -151,12 +153,7 @@ export const SettingsHomePage = () => {
       </SettingsCard>
       <SwitchCard
         title={t('Core Concierge')}
-        // TODO: unify typography, remove fontSize & fontWeight
-        titleProps={{
-          variant: 'h3',
-          fontSize: 18,
-          fontWeight: '700 !important',
-        }}
+        titleSize="large"
         orientation="horizontal"
         description={t(
           'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
