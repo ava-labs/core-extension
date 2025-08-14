@@ -1,6 +1,8 @@
 import {
   Account,
   FungibleTokenBalance,
+  isBtcCapableAccount,
+  isBtcToken,
   isErc20Token,
   isEvmNativeToken,
   NetworkWithCaipId,
@@ -15,6 +17,7 @@ import {
   EvmErc20SendBody,
   EvmNativeSendBody,
 } from './components';
+import { BtcSendBody } from './components/BtcSendBody';
 
 type SendBodyProps = Partial<{
   account: Account;
@@ -64,6 +67,18 @@ export const SendBody = ({
     return (
       <EvmErc20SendBody
         from={account.addressC}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
+  if (isBtcToken(token) && isBtcCapableAccount(account)) {
+    return (
+      <BtcSendBody
+        from={account.addressBTC}
         token={token}
         recipient={recipient}
         amount={amount}

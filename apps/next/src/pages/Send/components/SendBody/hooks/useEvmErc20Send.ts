@@ -34,7 +34,7 @@ export const useEvmErc20Send = ({
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
 
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(token);
+  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
   const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
 
   const [error, setError] = useState('');
