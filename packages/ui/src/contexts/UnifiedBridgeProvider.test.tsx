@@ -305,12 +305,14 @@ describe('contexts/UnifiedBridgeProvider', () => {
             params: isBtc ? tx : [{ ...tx, value: '0x5dc' }],
           },
           {
-            alert: {
-              notice: 'You will be prompted {{remaining}} more time(s).',
-              title: 'This operation requires {{total}} approvals.',
-              type: 'info',
+            context: {
+              alert: {
+                notice: 'You will be prompted {{remaining}} more time(s).',
+                title: 'This operation requires {{total}} approvals.',
+                type: 'info',
+              },
+              customApprovalScreenTitle: 'Confirm Bridge',
             },
-            customApprovalScreenTitle: 'Confirm Bridge',
           },
         );
       }
