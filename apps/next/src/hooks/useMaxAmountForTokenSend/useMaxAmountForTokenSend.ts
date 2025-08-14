@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import { useNetworkFeeContext } from '@core/ui';
-import { FungibleTokenBalance, isEvmNativeToken } from '@core/types';
+import {
+  FungibleTokenBalance,
+  isErc20Token,
+  isEvmNativeToken,
+} from '@core/types';
 
 import { getEvmMaxAmount } from './lib';
 
@@ -31,7 +35,7 @@ export const useMaxAmountForTokenSend = (
           return;
         }
 
-        if (isEvmNativeToken(token)) {
+        if (isEvmNativeToken(token) || isErc20Token(token)) {
           setResult(getEvmMaxAmount(networkFee, token));
         }
       })
