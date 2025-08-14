@@ -18,36 +18,19 @@ export const RecipientItem: FC<RecipientItemProps> = ({
   isSelected,
   ...rest
 }) => {
-  switch (recipient.type) {
-    case 'account': {
-      return (
-        <AccountRecipientItem
-          recipient={recipient}
-          addressType={addressType}
-          isSelected={isSelected}
-          {...rest}
-        />
-      );
-    }
-    case 'contact': {
-      return (
-        <ContactRecipientItem
-          recipient={recipient}
-          addressType={addressType}
-          isSelected={isSelected}
-          {...rest}
-        />
-      );
-    }
-    case 'unknown': {
-      return (
-        <UnknownRecipientItem
-          recipient={recipient}
-          addressType={addressType}
-          isSelected={isSelected}
-          {...rest}
-        />
-      );
-    }
-  }
+  const ItemComponent = {
+    account: AccountRecipientItem,
+    contact: ContactRecipientItem,
+    recent: (_props) => null, // TODO
+    unknown: UnknownRecipientItem,
+  }[recipient.type];
+
+  return (
+    <ItemComponent
+      recipient={recipient}
+      addressType={addressType}
+      isSelected={isSelected}
+      {...rest}
+    />
+  );
 };

@@ -1,23 +1,11 @@
-import { useMemo } from 'react';
-import {
-  AvatarHex,
-  Box,
-  Stack,
-  truncateAddress,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Box, Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
 
-import { useWalletContext } from '@core/ui';
-import { isPrimaryAccount } from '@core/common';
-import { AddressType, SecretType } from '@core/types';
-
-import { WalletIcon } from '@/components/WalletIcon';
-import { HexagonalIcon } from '@/components/HexagonalIcon';
+import { AddressType } from '@core/types';
 
 import { Recipient } from '../types';
 import { useRecipientName } from '../hooks/useRecipientName';
 import { getRecipientAddressByType } from '../lib/getRecipientAddressByType';
-import { FaQuestion } from 'react-icons/fa6';
+import { RecipientIcon } from './RecipientIcon';
 
 type SelectedRecipientProps = {
   recipient: Recipient;
@@ -28,48 +16,11 @@ export const SelectedRecipient = ({
   recipient,
   addressType,
 }: SelectedRecipientProps) => {
-  const { getWallet } = useWalletContext();
-
   const getRecipientName = useRecipientName();
 
-  const name = useMemo(
-    () => getRecipientName(recipient),
-    [recipient, getRecipientName],
-  );
+  const name = getRecipientName(recipient);
 
-  const address = useMemo(
-    () => getRecipientAddressByType(recipient, addressType),
-    [recipient, addressType],
-  );
-
-  const icon = useMemo(() => {
-    switch (recipient.type) {
-      case 'account': {
-        const wallet = isPrimaryAccount(recipient.account)
-          ? getWallet(recipient.account.walletId)
-          : null;
-
-        return (
-          <HexagonalIcon size={36}>
-            <WalletIcon
-              type={wallet?.type ?? SecretType.PrivateKey}
-              authProvider={wallet?.authProvider}
-            />
-          </HexagonalIcon>
-        );
-      }
-      case 'contact':
-        return <AvatarHex size="xsmall" alt={recipient.contact.name} />;
-      default:
-        return (
-          <HexagonalIcon size={36}>
-            <Box display="flex" color="text.secondary">
-              <FaQuestion />
-            </Box>
-          </HexagonalIcon>
-        );
-    }
-  }, [recipient, getWallet]);
+  const address = getRecipientAddressByType(recipient, addressType);
 
   return (
     <Stack direction="row" gap={1} alignItems="center">
@@ -86,7 +37,7 @@ export const SelectedRecipient = ({
         </Typography>
       </Stack>
       <Box display="flex" flex={1}>
-        {icon}
+        <RecipientIcon recipient={recipient} />
       </Box>
     </Stack>
   );

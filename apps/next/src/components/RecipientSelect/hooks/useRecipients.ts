@@ -1,13 +1,4 @@
-import { useAccountsContext, useContactsContext } from '@core/ui';
-import { Recipient } from '../types';
-import {
-  buildAccountRecipient,
-  buildContactRecipient,
-  buildUnknownRecipient,
-} from '../lib/buildRecipient';
 import { AddressType } from '@core/types';
-import { getAddressByType } from '@/utils/getAddressByType';
-import { getContactAddressByType } from '../lib/getContactAddressByType';
 import {
   isValidAddress,
   isValidPvmAddress,
@@ -15,6 +6,13 @@ import {
   isValidBtcAddress,
   isValidSvmAddress,
 } from '@core/common';
+import { useAccountsContext, useContactsContext } from '@core/ui';
+
+import { getAddressByType } from '@/utils/getAddressByType';
+
+import { Recipient } from '../types';
+import { buildRecipient } from '../lib/buildRecipient';
+import { getContactAddressByType } from '../lib/getContactAddressByType';
 
 export const useRecipients = (
   addressType: AddressType,
@@ -26,16 +24,16 @@ export const useRecipients = (
   // TODO: add recent recipients
   const unknownRecipient =
     unknownAddress && isValidAddressForType(unknownAddress, addressType)
-      ? buildUnknownRecipient(unknownAddress)
+      ? buildRecipient('unknown', unknownAddress)
       : undefined;
   return [
     ...(unknownRecipient ? [unknownRecipient] : []),
     ...allAccounts
       .filter((acc) => getAddressByType(acc, addressType))
-      .map((account) => buildAccountRecipient(account)),
+      .map((account) => buildRecipient('account', account)),
     ...contacts
       .filter((con) => getContactAddressByType(con, addressType))
-      .map((contact) => buildContactRecipient(contact)),
+      .map((contact) => buildRecipient('contact', contact)),
   ] as const;
 };
 
