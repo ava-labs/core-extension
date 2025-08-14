@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Dialog } from '@avalabs/k2-alpine';
+import { Dialog, Slide } from '@avalabs/k2-alpine';
 import { type Location } from 'history';
 
 import { useApprovalsContext } from '@core/ui';
@@ -32,7 +32,13 @@ export const InAppApprovalOverlay = () => {
   return (
     <Dialog
       open={Boolean(approval)}
+      slots={{
+        transition: Slide,
+      }}
       slotProps={{
+        transition: {
+          direction: 'up',
+        },
         paper: {
           sx: {
             maxHeight: 'unset',
