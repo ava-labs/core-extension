@@ -126,6 +126,22 @@ export type FungibleTokenBalance = Exclude<
   assetType: FungibleAssetType;
 };
 
+export type NativeTokenBalance = Extract<
+  FungibleTokenBalance,
+  { type: TokenType.NATIVE }
+>;
+
+export type EvmNativeTokenBalance = NativeTokenBalance & {
+  assetType: 'evm_native';
+};
+
+export type Erc20TokenBalance = Extract<
+  FungibleTokenBalance,
+  { type: TokenType.ERC20 }
+> & {
+  assetType: 'evm_erc20';
+};
+
 export type NonFungibleTokenBalance = NftTokenWithBalance & {
   coreChainId: number;
   assetType: NonFungibleAssetType;
@@ -135,7 +151,15 @@ export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
   return `${token.type}:${token.symbol}:${token.type === TokenType.NATIVE ? '-' : token.address}:${token.coreChainId}`;
 };
 
+export const isNativeToken = (
+  token: FungibleTokenBalance,
+): token is NativeTokenBalance | Erc20TokenBalance =>
+  token.type === TokenType.NATIVE;
+
 export const isEvmNativeToken = (
   token: FungibleTokenBalance,
-): token is FungibleTokenBalance & { assetType: 'evm_native' } =>
-  token.assetType === 'evm_native';
+): token is EvmNativeTokenBalance => token.assetType === 'evm_native';
+
+export const isErc20Token = (
+  token: FungibleTokenBalance,
+): token is Erc20TokenBalance => token.type === TokenType.ERC20;

@@ -5,7 +5,11 @@ import { Collapse, Grow, Stack } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import { useConvertedCurrencyFormatter } from '@core/ui';
-import { getUniqueTokenId, FungibleTokenBalance } from '@core/types';
+import {
+  getUniqueTokenId,
+  FungibleTokenBalance,
+  isNativeToken,
+} from '@core/types';
 
 import { TokenSelect } from '@/components/TokenSelect';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
@@ -61,10 +65,14 @@ export const TokenAmountInput = ({
         token.symbol,
       );
 
+      // If sending the max. amount of a native token, we need to subtract the estimated fee.
+      const amountToSubtract =
+        percentage === 100 && isNativeToken(token) ? estimatedFee : 0n;
+
       onAmountChange(
         tokenUnit
           .div(100 / percentage)
-          .sub(new TokenUnit(estimatedFee, token.decimals, token.symbol))
+          .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol))
           .toString(),
       );
     },

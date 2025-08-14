@@ -1,6 +1,7 @@
 import {
   Account,
   FungibleTokenBalance,
+  isErc20Token,
   isEvmNativeToken,
   NetworkWithCaipId,
 } from '@core/types';
@@ -9,7 +10,11 @@ import { useTranslation } from 'react-i18next';
 
 import { Recipient } from '@/components/RecipientSelect';
 
-import { DisabledSendBody, EvmNativeSendBody } from './components';
+import {
+  DisabledSendBody,
+  EvmErc20SendBody,
+  EvmNativeSendBody,
+} from './components';
 
 type SendBodyProps = Partial<{
   account: Account;
@@ -46,6 +51,18 @@ export const SendBody = ({
   if (isEvmNativeToken(token)) {
     return (
       <EvmNativeSendBody
+        from={account.addressC}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
+  if (isErc20Token(token)) {
+    return (
+      <EvmErc20SendBody
         from={account.addressC}
         token={token}
         recipient={recipient}
