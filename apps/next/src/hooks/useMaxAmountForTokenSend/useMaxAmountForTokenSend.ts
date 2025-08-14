@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 
-import { useNetworkFeeContext } from '@core/ui';
+import { useNetworkContext, useNetworkFeeContext } from '@core/ui';
 import {
   FungibleTokenBalance,
+  isBtcToken,
   isErc20Token,
   isEvmNativeToken,
 } from '@core/types';
 
 import { getEvmMaxAmount } from './lib';
+import { getBtcMaxAmount } from './lib/getBtcMaxAmount';
 
 type MaxAmountInfo = {
   maxAmount: bigint;
@@ -15,8 +17,11 @@ type MaxAmountInfo = {
 };
 
 export const useMaxAmountForTokenSend = (
+  from: string,
   token?: FungibleTokenBalance,
+  to?: string,
 ): MaxAmountInfo => {
+  const { getNetwork } = useNetworkContext();
   const { getNetworkFee } = useNetworkFeeContext();
 
   const [result, setResult] = useState<MaxAmountInfo>({
@@ -37,6 +42,14 @@ export const useMaxAmountForTokenSend = (
 
         if (isEvmNativeToken(token) || isErc20Token(token)) {
           setResult(getEvmMaxAmount(networkFee, token));
+        } else if (to && isBtcToken(token)) {
+          getBtcMaxAmount(
+            networkFee,
+            token,
+            from,
+            to,
+            getNetwork(token.coreChainId),
+          ).then((res) => isMounted && setResult(res));
         }
       })
       .catch((error) => {
@@ -50,7 +63,7 @@ export const useMaxAmountForTokenSend = (
     return () => {
       isMounted = false;
     };
-  }, [token, getNetworkFee]);
+  }, [token, getNetworkFee, from, to, getNetwork]);
 
   return result;
 };

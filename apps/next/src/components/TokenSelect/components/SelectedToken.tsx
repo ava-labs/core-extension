@@ -3,6 +3,7 @@ import {
   Box,
   ChevronDownIcon,
   Stack,
+  Tooltip,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
@@ -10,6 +11,7 @@ import {
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { FungibleTokenBalance } from '@core/types';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 type SelectedTokenProps = {
   token: FungibleTokenBalance;
@@ -43,13 +45,21 @@ export const SelectedToken: FC<SelectedTokenProps> = ({ token }) => {
             <ChevronDownIcon size={16} />
           </Box>
         </Stack>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          whiteSpace="nowrap"
+        <Tooltip
+          title={new TokenUnit(
+            token.balance,
+            token.decimals,
+            token.symbol,
+          ).toString()}
         >
-          {token.balanceDisplayValue} {token.symbol}
-        </Typography>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            whiteSpace="nowrap"
+          >
+            {token.balanceDisplayValue} {token.symbol}
+          </Typography>
+        </Tooltip>
       </Stack>
     </>
   );

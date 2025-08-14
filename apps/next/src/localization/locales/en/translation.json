@@ -302,6 +302,7 @@
   "Please enter a valid password": "Please enter a valid password",
   "Please enter an amount": "Please enter an amount",
   "Please enter the private key.": "Please enter the private key.",
+  "Please provide a valid Bitcoin address as the recipient.": "Please provide a valid Bitcoin address as the recipient.",
   "Please provide all the required information to send.": "Please provide all the required information to send.",
   "Please refer to Active Transfers list in your Fireblocks Console for a detailed explanation.": "Please refer to Active Transfers list in your Fireblocks Console for a detailed explanation.",
   "Please try again": "Please try again",

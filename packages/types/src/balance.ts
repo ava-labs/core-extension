@@ -142,6 +142,14 @@ export type Erc20TokenBalance = Extract<
   assetType: 'evm_erc20';
 };
 
+export type BtcTokenBalance = Extract<
+  FungibleTokenBalance,
+  // TODO: fix this reliance on "unconfirmedBalance" to recognize BTC token
+  { unconfirmedBalance?: bigint }
+> & {
+  assetType: 'btc_native';
+};
+
 export type NonFungibleTokenBalance = NftTokenWithBalance & {
   coreChainId: number;
   assetType: NonFungibleAssetType;
@@ -163,3 +171,8 @@ export const isEvmNativeToken = (
 export const isErc20Token = (
   token: FungibleTokenBalance,
 ): token is Erc20TokenBalance => token.type === TokenType.ERC20;
+
+export const isBtcToken = (
+  token: FungibleTokenBalance,
+): token is BtcTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'btc_native';
