@@ -9,6 +9,7 @@ import {
   AnalyticsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
+  CurrenciesContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -75,7 +76,11 @@ export function App() {
   }, [navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
-    return <CircularProgress />;
+    return (
+      <Stack justifyContent="center" alignItems="center" height="100%">
+        <CircularProgress />
+      </Stack>
+    );
   }
 
   const displayHeader = !pagesWithoutHeader.some((path) =>
@@ -97,6 +102,7 @@ export function App() {
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
+          <CurrenciesContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={CircularProgress}

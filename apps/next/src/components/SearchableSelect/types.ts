@@ -38,3 +38,11 @@ export type UseSearchableSelectReturnValues<T> = {
   getRootProps: () => RootProps;
   getSearchInputProps: () => SearchInputProps;
 };
+
+export type SearchableSelectTriggerProps<T> = {
+  ref: React.RefObject<HTMLDivElement | null>;
+  label: string;
+  value?: T;
+  renderValue: (value?: T) => React.ReactNode;
+  onClick: () => void;
+};
