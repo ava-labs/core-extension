@@ -10,11 +10,10 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { Account } from '@core/types';
+import { Account, isVMCapableAccount } from '@core/types';
 import { getAddressByVMType, truncateAddress } from '@core/common';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isVMCapableAccount } from '@/pages/Send/hooks/useSend';
 
 const renderValue = (account: Account, vmType: NetworkVMType) => (
   <Typography

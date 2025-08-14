@@ -16,13 +16,17 @@ import {
 
 import {
   NetworkTokenWithBalance,
-  NetworkVMType,
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalancePVM,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { Account, EnsureDefined, SendErrorMessage } from '@core/types';
+import {
+  AvmCapableAccount,
+  PvmCapableAccount,
+  SendErrorMessage,
+  SvmCapableAccount,
+} from '@core/types';
 
 type CommonAdapterOptions<Provider, Token> = {
   from: string;
@@ -41,86 +45,6 @@ export type AdapterOptionsBTC = {
 
 export type AdapterOptionsSVM = {
   account: SvmCapableAccount;
-};
-
-export type AvmCapableAccount = EnsureDefined<
-  Account,
-  'addressAVM' | 'addressCoreEth'
->;
-
-export const isAvmCapableAccount = (
-  account?: Account,
-): account is AvmCapableAccount =>
-  Boolean(account && account.addressAVM && account.addressCoreEth);
-
-export type PvmCapableAccount = EnsureDefined<
-  Account,
-  'addressPVM' | 'addressCoreEth'
->;
-
-export type SvmCapableAccount = EnsureDefined<Account, 'addressSVM'>;
-
-export type BtcCapableAccount = EnsureDefined<Account, 'addressBTC'>;
-
-export type EvmCapableAccount = EnsureDefined<Account, 'addressC'>;
-
-export type HvmCapableAccount = EnsureDefined<Account, 'addressHVM'>;
-
-export type CoreEthCapableAccount = EnsureDefined<Account, 'addressCoreEth'>;
-
-// Type mapping for VM types to their corresponding account types
-type VMAccountTypeMap = {
-  [NetworkVMType.EVM]: EvmCapableAccount;
-  [NetworkVMType.SVM]: SvmCapableAccount;
-  [NetworkVMType.AVM]: AvmCapableAccount;
-  [NetworkVMType.PVM]: PvmCapableAccount;
-  [NetworkVMType.HVM]: HvmCapableAccount;
-  [NetworkVMType.BITCOIN]: BtcCapableAccount;
-  [NetworkVMType.CoreEth]: CoreEthCapableAccount;
-};
-
-export const isPvmCapableAccount = (
-  account?: Account,
-): account is PvmCapableAccount =>
-  Boolean(account && account.addressPVM && account.addressCoreEth);
-
-export const isSvmCapableAccount = (
-  account?: Account,
-): account is SvmCapableAccount => Boolean(account && account.addressSVM);
-
-export const isBtcCapableAccount = (
-  account?: Account,
-): account is BtcCapableAccount => Boolean(account && account.addressBTC);
-
-export const isHvmCapableAccount = (
-  account?: Account,
-): account is HvmCapableAccount => Boolean(account && account.addressHVM);
-
-export const isCoreEthCapableAccount = (
-  account?: Account,
-): account is CoreEthCapableAccount =>
-  Boolean(account && account.addressCoreEth);
-
-export const isVMCapableAccount = <V extends NetworkVMType>(
-  vm: V,
-  account?: Account,
-): account is VMAccountTypeMap[V] => {
-  switch (vm) {
-    case NetworkVMType.AVM:
-      return isAvmCapableAccount(account);
-    case NetworkVMType.PVM:
-      return isPvmCapableAccount(account);
-    case NetworkVMType.SVM:
-      return isSvmCapableAccount(account);
-    case NetworkVMType.BITCOIN:
-      return isBtcCapableAccount(account);
-    case NetworkVMType.HVM:
-      return isHvmCapableAccount(account);
-    case NetworkVMType.CoreEth:
-      return isCoreEthCapableAccount(account);
-    default:
-      return true;
-  }
 };
 
 export type AdapterOptionsP = {
