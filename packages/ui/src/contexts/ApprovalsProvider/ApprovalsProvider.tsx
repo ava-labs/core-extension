@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { filter } from 'rxjs';
 
 import { ApprovalRequest } from '@core/types';
@@ -13,7 +19,7 @@ export const ApprovalsContext = createContext<{
   approval: undefined,
 });
 
-export function ApprovalsContextProvider({ children }: { children: any }) {
+export function ApprovalsContextProvider({ children }: PropsWithChildren) {
   const { events, tabId } = useConnectionContext();
   const [approval, setApproval] = useState<ApprovalRequest>();
 

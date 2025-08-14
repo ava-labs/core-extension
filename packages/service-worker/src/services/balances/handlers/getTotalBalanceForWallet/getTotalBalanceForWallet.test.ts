@@ -289,7 +289,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
     networkService.getFavoriteNetworks.mockResolvedValue(FAVORITE_NETWORKS);
     networkService.getNetwork.mockImplementation(
-      (chainId: number) => MAINNETS[chainId] ?? TESTNETS[chainId],
+      (chainId) => MAINNETS[chainId] ?? TESTNETS[chainId],
     );
     networkService.getAvalanceProviderXP.mockResolvedValue(PROVIDER_XP);
   });
