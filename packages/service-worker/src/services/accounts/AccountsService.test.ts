@@ -56,7 +56,9 @@ describe('background/services/accounts/AccountsService', () => {
   const networkService = new NetworkService(
     {} as any,
     { addListener: jest.fn() } as any,
+    {} as any,
   );
+  networkService.getUnknownUsedNetwork = jest.fn();
   const storageService = new StorageService({} as any);
   const ledgerService = new LedgerService();
   const walletConnectService = new WalletConnectService(
@@ -1241,6 +1243,55 @@ describe('background/services/accounts/AccountsService', () => {
       const accounts = await accountsService.getAccounts();
       const primaryAccounts = accounts.primary[walletId];
       expect(primaryAccounts && primaryAccounts.length).toBe(1);
+    });
+  });
+
+  describe('#setAccounts', () => {
+    beforeEach(() => {
+      mockAddressResolution();
+    });
+
+    it('should call networkService.getUnknownUsedNetwork when active account changes', async () => {
+      const mockedAccounts = mockAccounts(true);
+      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
+
+      const getUnknownUsedNetworkSpy = jest.spyOn(
+        networkService,
+        'getUnknownUsedNetwork',
+      );
+
+      await accountsService.onUnlock();
+
+      // Clear any previous calls during initialization
+      getUnknownUsedNetworkSpy.mockClear();
+
+      // Change active account to trigger the call
+      await accountsService.activateAccount('uuid2');
+
+      expect(getUnknownUsedNetworkSpy).toHaveBeenCalledTimes(1);
+      expect(getUnknownUsedNetworkSpy).toHaveBeenCalledWith(
+        mockedAccounts.primary[walletId][1], // The account with id 'uuid2'
+      );
+    });
+
+    it('should not call networkService.getUnknownUsedNetwork when active account remains the same', async () => {
+      const mockedAccounts = mockAccounts(true);
+      (storageService.load as jest.Mock).mockResolvedValue(mockedAccounts);
+
+      const getUnknownUsedNetworkSpy = jest.spyOn(
+        networkService,
+        'getUnknownUsedNetwork',
+      );
+
+      await accountsService.onUnlock();
+
+      // Clear any previous calls during initialization
+      getUnknownUsedNetworkSpy.mockClear();
+
+      // Activate the same account that's already active
+      await accountsService.activateAccount('uuid1'); // This is already the active account
+
+      expect(getUnknownUsedNetworkSpy).not.toHaveBeenCalled();
     });
   });
 });

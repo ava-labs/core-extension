@@ -62,7 +62,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _chainListFetched = new Signal<ChainList>();
 
   // Complete list of enabled networks ID
-  private _enabledNetworks: number[] = [];
+  private _enabledNetworks: number[] = [...defaultEnabledNetworks];
   // Network data that is stored in storage
   private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
   // List of enabled network ID based on networkAvailability
@@ -271,7 +271,6 @@ export class NetworkService implements OnLock, OnStorageReady {
       unknownUsed: networkIds,
     });
     this.enabledNetworks = uniqueCombinedNetworks;
-    console.log({ uniqueCombinedNetworks });
   }
   async getFavoriteNetworks() {
     return this.#filterByEnvironment(this._favoriteNetworks);
@@ -780,21 +779,21 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.updateNetworkState();
   }
 
-  async getUnknownUsedNetwork(account: ImportedAccount | PrimaryAccount) {
+  async getUnknownUsedNetwork(account?: ImportedAccount | PrimaryAccount) {
+    if (!account) {
+      this.unknownUsedNetworks = [];
+      return;
+    }
+
     const chainsForAddress = await this.glacierService.getEvmChainsForAddress(
       account.addressC,
     );
-    console.log({ chainsForAddress });
 
     const usedIndexedChains =
       chainsForAddress.indexedChains?.map((chainInfo) => chainInfo.chainId) ||
       [];
     const usedUnindexedChains = chainsForAddress.unindexedChains || [];
-
     const allUsedChains = [...usedIndexedChains, ...usedUnindexedChains];
-
-    console.log({ usedIndexedChains, usedUnindexedChains, allUsedChains });
-
     const unknownChains = allUsedChains
       .filter(
         (chainId) =>
@@ -802,7 +801,6 @@ export class NetworkService implements OnLock, OnStorageReady {
           !defaultEnabledNetworks.includes(Number(chainId)),
       )
       .map(Number);
-    console.log({ unknownChains });
     this.unknownUsedNetworks = unknownChains;
   }
 

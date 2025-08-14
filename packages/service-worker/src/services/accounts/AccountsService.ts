@@ -133,6 +133,10 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.#rwLock.acquireReadLock();
 
     try {
+      if (accounts.active !== this.#accounts.active) {
+        this.networkService.getUnknownUsedNetwork(accounts.active);
+      }
+
       this.#accounts = accounts;
     } finally {
       await this.#rwLock.releaseReadLock();
@@ -608,7 +612,6 @@ export class AccountsService implements OnLock, OnUnlock {
       ...this.#accounts,
       active: accountToActivate,
     });
-    this.networkService.getUnknownUsedNetwork(accountToActivate);
   }
 
   async deleteAccounts(ids: string[]) {

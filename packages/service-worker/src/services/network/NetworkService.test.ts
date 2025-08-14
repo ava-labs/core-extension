@@ -689,6 +689,9 @@ describe('background/services/network/NetworkService', () => {
         expect(service['_enabledNetworks']).toContain(chainId);
         expect(result).toEqual(service['_enabledNetworks']);
         expect(service.updateNetworkState).toHaveBeenCalled();
+        expect(service['_networkAvailability'][chainId]).toEqual({
+          isEnabled: true,
+        });
       });
 
       it('should not add duplicate networks to enabled networks', async () => {
@@ -701,9 +704,16 @@ describe('background/services/network/NetworkService', () => {
         const secondAddResult = [...service['_enabledNetworks']];
 
         expect(firstAddResult).toEqual(secondAddResult);
-        expect(
-          service['_enabledNetworks'].filter((id) => id === chainId),
-        ).toHaveLength(1);
+        expect(service['_networkAvailability'][chainId]).toEqual({
+          isEnabled: true,
+        });
+        // Should contain the added network (and default networks)
+        expect(service['_enabledNetworks']).toContain(chainId);
+        // Should not have duplicates of the added network
+        const occurrences = service['_enabledNetworks'].filter(
+          (id) => id === chainId,
+        ).length;
+        expect(occurrences).toBe(1);
       });
 
       it('should not add networks that are already in defaultEnabledNetworks', async () => {
@@ -716,9 +726,14 @@ describe('background/services/network/NetworkService', () => {
         const initialLength = service['_enabledNetworks'].length;
         const result = await service.addEnabledNetwork(defaultChainId);
 
+        // Should not change the length since the network is already enabled by default
         expect(service['_enabledNetworks']).toHaveLength(initialLength);
         expect(result).toEqual(service['_enabledNetworks']);
-        expect(service['_enabledNetworks']).not.toContain(defaultChainId);
+        // Should contain the default chain ID since it's enabled by default
+        expect(service['_enabledNetworks']).toContain(defaultChainId);
+        expect(service['_networkAvailability'][defaultChainId]).toEqual(
+          undefined,
+        );
       });
 
       it('should return current enabled networks if network is already enabled', async () => {
@@ -736,6 +751,9 @@ describe('background/services/network/NetworkService', () => {
 
         expect(secondResult).toEqual(firstResult);
         expect(service.updateNetworkState).not.toHaveBeenCalled(); // Should not be called for duplicate
+        expect(service['_networkAvailability'][chainId]).toEqual({
+          isEnabled: true,
+        });
       });
 
       it('should trigger enabledNetworksUpdated signal', async () => {
@@ -768,10 +786,13 @@ describe('background/services/network/NetworkService', () => {
         expect(service['_enabledNetworks']).not.toContain(chainId);
         expect(result).toEqual(service['_enabledNetworks']);
         expect(service.updateNetworkState).toHaveBeenCalled();
+        expect(service['_networkAvailability'][chainId]).toEqual({
+          isEnabled: false,
+        });
       });
 
-      it('should handle removing non-existent network gracefully', async () => {
-        const chainId = 9999;
+      it('should handle removing unknown network gracefully', async () => {
+        const chainId = 9999; // This chain ID is not in default enabled networks or networkAvailability in storage
         const initialEnabledNetworks = [...service['_enabledNetworks']];
 
         const result = await service.removeEnabledNetwork(chainId);
@@ -779,6 +800,9 @@ describe('background/services/network/NetworkService', () => {
         expect(service['_enabledNetworks']).toEqual(initialEnabledNetworks);
         expect(result).toEqual(service['_enabledNetworks']);
         expect(service.updateNetworkState).toHaveBeenCalled();
+        expect(service['_networkAvailability'][chainId]).toEqual({
+          isEnabled: false,
+        });
       });
 
       it('should trigger enabledNetworksUpdated signal', async () => {
@@ -799,6 +823,9 @@ describe('background/services/network/NetworkService', () => {
         expect(signalSpy).toHaveBeenCalledWith(
           expect.not.arrayContaining([chainId]),
         );
+        expect(service['_networkAvailability'][chainId]).toEqual({
+          isEnabled: false,
+        });
       });
 
       it('should remove only the specified network when multiple are present', async () => {
@@ -817,6 +844,12 @@ describe('background/services/network/NetworkService', () => {
 
         expect(service['_enabledNetworks']).not.toContain(chainId1);
         expect(service['_enabledNetworks']).toContain(chainId2);
+        expect(service['_networkAvailability'][chainId1]).toEqual({
+          isEnabled: false,
+        });
+        expect(service['_networkAvailability'][chainId2]).toEqual({
+          isEnabled: true,
+        });
       });
     });
 
