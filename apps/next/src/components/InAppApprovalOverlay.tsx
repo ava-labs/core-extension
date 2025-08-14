@@ -1,10 +1,31 @@
 import { useMemo } from 'react';
-import { Dialog, Slide } from '@avalabs/k2-alpine';
+import { Dialog, DialogProps, Slide } from '@avalabs/k2-alpine';
 import { type Location } from 'history';
 
 import { useApprovalsContext } from '@core/ui';
 
 import { ApprovalRoutes } from '@/routing';
+
+const dialogProps: Omit<DialogProps, 'open'> = {
+  slots: {
+    transition: Slide,
+  },
+  slotProps: {
+    transition: {
+      direction: 'up',
+    },
+    paper: {
+      sx: {
+        maxHeight: 'unset',
+        height: '100vh',
+        width: '100vw',
+        m: 0,
+        p: 0,
+        borderRadius: 0,
+      },
+    },
+  },
+};
 
 export const InAppApprovalOverlay = () => {
   const { approval } = useApprovalsContext();
@@ -30,27 +51,7 @@ export const InAppApprovalOverlay = () => {
   }, [approval]);
 
   return (
-    <Dialog
-      open={Boolean(approval)}
-      slots={{
-        transition: Slide,
-      }}
-      slotProps={{
-        transition: {
-          direction: 'up',
-        },
-        paper: {
-          sx: {
-            maxHeight: 'unset',
-            height: '100vh',
-            width: '100vw',
-            m: 0,
-            p: 0,
-            borderRadius: 0,
-          },
-        },
-      }}
-    >
+    <Dialog {...dialogProps} open={Boolean(approval)}>
       <ApprovalRoutes location={fakeLocation} />
     </Dialog>
   );

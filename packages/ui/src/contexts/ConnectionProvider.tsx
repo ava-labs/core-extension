@@ -67,14 +67,14 @@ export function ConnectionContextProvider({
       // TODO: the fallback needs to stay for the legacy app, but later we need to make `scope`
       // mandatory for all requests that need it (legacy app defaults to the active network's CAIP-2 id,
       // but the new app won't have the concept of "active" network any more.
-      const finalScope = scope || (await networkChanges.promisify());
+      const finalScope = (scope || (await networkChanges.promisify())) ?? '';
 
       return activeEngine(
         {
           ...message,
           tabId,
         },
-        finalScope ?? '',
+        finalScope,
         {
           ...context,
           tabId,
