@@ -17,7 +17,11 @@ const config = {
 
 export const InvisibleAmountInput = styled(
   ({ slotProps, value, ...props }: TextFieldProps) => {
-    const { input: inputProps, ...slotPropsRest } = slotProps ?? {};
+    const {
+      input: inputProps,
+      htmlInput: htmlInputProps,
+      ...slotPropsRest
+    } = slotProps ?? {};
     const inputRef = useRef<HTMLInputElement>(null);
 
     const { fontSize, measureElement } = useDynamicFontSize({
@@ -38,6 +42,10 @@ export const InvisibleAmountInput = styled(
           }}
           value={value}
           slotProps={{
+            htmlInput: {
+              min: 0,
+              ...htmlInputProps,
+            },
             input: {
               ...inputProps,
               ref: inputRef,
