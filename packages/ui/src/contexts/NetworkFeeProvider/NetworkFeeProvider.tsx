@@ -1,6 +1,7 @@
 import {
   createContext,
   Dispatch,
+  PropsWithChildren,
   SetStateAction,
   useCallback,
   useContext,
@@ -29,7 +30,7 @@ import { useConnectionContext } from '../ConnectionProvider';
 
 const NetworkFeeContext = createContext<{
   networkFee: NetworkFee | null;
-  getNetworkFee: (caipId: string) => Promise<NetworkFee | null>;
+  getNetworkFee: (networkId: string | number) => Promise<NetworkFee | null>;
   fetchAndSolveGaslessChallange: () => Promise<any | null>;
   gaslessFundTx: (signingData?: SigningData) => Promise<string | undefined>;
   isGaslessOn: boolean;
@@ -73,7 +74,7 @@ const NetworkFeeContext = createContext<{
   isGaslessEligible: false,
 });
 
-export function NetworkFeeContextProvider({ children }: { children: any }) {
+export function NetworkFeeContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network } = useNetworkContext();
   const [fee, setFee] = useState<NetworkFee | null>(null);
@@ -89,10 +90,10 @@ export function NetworkFeeContextProvider({ children }: { children: any }) {
   const [isGaslessEligible, setIsGaslessEligible] = useState(false);
 
   const getNetworkFee = useCallback(
-    async (caipId: string) =>
+    async (networkId: string | number) =>
       request<GetNetworkFeeHandler>({
         method: ExtensionRequest.NETWORK_FEE_GET,
-        params: [caipId],
+        params: [networkId],
       }),
     [request],
   );
