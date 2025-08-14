@@ -69,15 +69,18 @@ export class ApprovalController implements BatchApprovalController {
     this.#networkService = networkService;
   }
 
-  onTransactionPending = () => {
+  onTransactionPending = (...args) => {
+    console.log('DEBUG pending', ...args);
     // Transaction Pending. Show a toast? Trigger browser notification?',
   };
 
-  onTransactionConfirmed = () => {
+  onTransactionConfirmed = (...args) => {
+    console.log('DEBUG confirmed', ...args);
     // Transaction Confirmed. Show a toast? Trigger browser notification?',
   };
 
-  onTransactionReverted = () => {
+  onTransactionReverted = (...args) => {
+    console.log('DEBUG reverted', ...args);
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 

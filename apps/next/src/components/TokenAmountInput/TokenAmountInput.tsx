@@ -8,6 +8,7 @@ import { useConvertedCurrencyFormatter } from '@core/ui';
 import { getUniqueTokenId, FungibleTokenBalance } from '@core/types';
 
 import { TokenSelect } from '@/components/TokenSelect';
+import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
 
@@ -40,16 +41,15 @@ export const TokenAmountInput = ({
     [tokensForAccount, tokenId],
   );
 
+  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(token);
+
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
     Number.isFinite(parseFloat(amount)) && parseFloat(amount) !== 0;
   const amountBigInt =
     token && amountHasValue ? stringToBigint(amount, token.decimals) : 0n;
 
-  // TODO: Figure out how to expose the error state to the parent component,
-  // so it can render the message wherever it wants to.
-  // TODO: Take transaction fees into account when calculating if the amount is too big.
-  const isAmountTooBig = token ? amountBigInt > token.balance : false;
+  const isAmountTooBig = token ? amountBigInt > maxAmount : false;
 
   const handlePresetClick = useCallback(
     (percentage: number) => {
@@ -61,10 +61,14 @@ export const TokenAmountInput = ({
         token.symbol,
       );
 
-      // TODO: Take transaction fees into account when calculating the max amount.
-      onAmountChange(tokenUnit.div(100 / percentage).toString());
+      onAmountChange(
+        tokenUnit
+          .div(100 / percentage)
+          .sub(new TokenUnit(estimatedFee, token.decimals, token.symbol))
+          .toString(),
+      );
     },
-    [onAmountChange, token],
+    [onAmountChange, estimatedFee, token],
   );
 
   const usdValue =
@@ -101,7 +105,7 @@ export const TokenAmountInput = ({
             autoFocus
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange(ev.target.value)}
-            error={Boolean(isAmountTooBig)}
+            error={Boolean(isAmountTooBig) || amountBigInt < 0n}
             helperText={currencyValue || '-'} // Prevents the helper text from disappearing completely
             value={amount}
           />
