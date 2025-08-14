@@ -60,9 +60,14 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _customNetworks: Record<number, Network> = {};
   private _favoriteNetworks: number[] = [];
   private _chainListFetched = new Signal<ChainList>();
-  private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
-  private _storedEnabledNetworks: number[] = [];
+
+  // Complete list of enabled networks ID
   private _enabledNetworks: number[] = [];
+  // Network data that is stored in storage
+  private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
+  // List of enabled network ID based on networkAvailability
+  private _storedEnabledNetworks: number[] = [];
+  // List of network ID that the active account has interacted with but are not in networkAvailability
   private _unknownUsedNetworks: number[] = [];
 
   private _fetchedChainListSignal = this._chainListFetched
@@ -236,63 +241,44 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworksUpdated.dispatch(networkIds);
   }
 
+  private set enabledNetworks(networkIds: number[]) {
+    this._enabledNetworks = networkIds;
+    this.enabledNetworksUpdated.dispatch(networkIds);
+  }
+
   private set storedEnabledNetworks(networkIds: number[]) {
     this._storedEnabledNetworks = networkIds;
+    // Since storedEnabledNetwork changed, enabledNetworks needs to be updated
     const uniqueCombinedNetworks = this.#getUniqueCombinedNetworks({
       stored: networkIds,
     });
-
-    this._enabledNetworks = uniqueCombinedNetworks;
-    this.enabledNetworksUpdated.dispatch(uniqueCombinedNetworks);
+    this.enabledNetworks = uniqueCombinedNetworks;
   }
 
   private set networkAvailability(
     networkAvailability: Record<number, { isEnabled: boolean }>,
   ) {
     this._networkAvailability = networkAvailability;
-
-    const currentEnabledNetworks = Object.entries(networkAvailability)
-      .filter(([, network]) => network.isEnabled)
-      .map(([chainId]) => Number(chainId));
-    this.storedEnabledNetworks = currentEnabledNetworks;
+    // Since networkAvailability changed, storedEnabledNetworks needs to be updated
+    this.storedEnabledNetworks =
+      this.#convertNetworkAvailabilityToEnabledNetworks(networkAvailability);
   }
 
   private set unknownUsedNetworks(networkIds: number[]) {
     this._unknownUsedNetworks = networkIds;
+    // Since unknownUsedNetworks changed, enabledNetworks needs to be updated
     const uniqueCombinedNetworks = this.#getUniqueCombinedNetworks({
       unknownUsed: networkIds,
     });
-    this._enabledNetworks = uniqueCombinedNetworks;
-    this.enabledNetworksUpdated.dispatch(uniqueCombinedNetworks);
+    this.enabledNetworks = uniqueCombinedNetworks;
     console.log({ uniqueCombinedNetworks });
   }
   async getFavoriteNetworks() {
-    const allNetworks = await this.allNetworks.promisify();
-    const isMainnet = this.isMainnet();
-    const filteredFavoriteNetworks = this._favoriteNetworks.filter((id) => {
-      if (allNetworks) {
-        return isMainnet
-          ? !allNetworks[id]?.isTestnet
-          : allNetworks[id]?.isTestnet;
-      }
-      return false;
-    });
-    return filteredFavoriteNetworks;
+    return this.#filterByEnvironment(this._favoriteNetworks);
   }
 
   async getEnabledNetworks() {
-    const allNetworks = await this.allNetworks.promisify();
-    const isMainnet = this.isMainnet();
-
-    const filteredEnabledNetworks = this._enabledNetworks.filter((id) => {
-      if (allNetworks) {
-        return isMainnet
-          ? !allNetworks[id]?.isTestnet
-          : allNetworks[id]?.isTestnet;
-      }
-      return false;
-    });
-    return filteredEnabledNetworks;
+    return this.#filterByEnvironment(this._enabledNetworks);
   }
 
   public get customNetworks() {
@@ -930,5 +916,27 @@ export class NetworkService implements OnLock, OnStorageReady {
           .concat(unknownUsed ?? this._unknownUsedNetworks),
       ),
     ];
+  };
+
+  #convertNetworkAvailabilityToEnabledNetworks = (
+    networkAvailability: Record<number, { isEnabled: boolean }>,
+  ) => {
+    return Object.entries(networkAvailability)
+      .filter(([, network]) => network.isEnabled)
+      .map(([chainId]) => Number(chainId));
+  };
+
+  #filterByEnvironment = async (networkIds: number[]) => {
+    const allNetworks = await this.allNetworks.promisify();
+    const isMainnet = this.isMainnet();
+    const filteredFavoriteNetworks = networkIds.filter((id) => {
+      if (allNetworks) {
+        return isMainnet
+          ? !allNetworks[id]?.isTestnet
+          : allNetworks[id]?.isTestnet;
+      }
+      return false;
+    });
+    return filteredFavoriteNetworks;
   };
 }

@@ -17,6 +17,7 @@ import {
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { runtime } from 'webextension-polyfill';
 import { decorateWithCaipId } from '@core/common';
+import { GlacierService } from '../glacier/GlacierService';
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const BitcoinProviderMock = jest.fn();
@@ -98,7 +99,15 @@ describe('background/services/network/NetworkService', () => {
     addListener: jest.fn(),
   } as any);
 
-  let service = new NetworkService(storageServiceMock, featureFlagsServiceMock);
+  const glacierServiceMock = jest.mocked<GlacierService>({
+    getEvmChainsForAddress: jest.fn(),
+  } as any);
+
+  let service = new NetworkService(
+    storageServiceMock,
+    featureFlagsServiceMock,
+    glacierServiceMock,
+  );
 
   const ethMainnet = mockNetwork(NetworkVMType.EVM, false, { chainId: 1 });
   const avaxMainnet = mockNetwork(NetworkVMType.EVM, false, {
@@ -307,6 +316,7 @@ describe('background/services/network/NetworkService', () => {
         service = new NetworkService(
           storageServiceMock,
           featureFlagsServiceMock,
+          glacierServiceMock,
         );
         mockChainList(service);
         // Set Ethereum Mainnet directly for the frontend
@@ -426,6 +436,7 @@ describe('background/services/network/NetworkService', () => {
       const networkService = new NetworkService(
         storageServiceMock,
         featureFlagsServiceMock,
+        glacierServiceMock,
       );
 
       await networkService.updateNetworkOverrides(overrides);
@@ -453,6 +464,7 @@ describe('background/services/network/NetworkService', () => {
       const networkService = new NetworkService(
         storageServiceMock,
         featureFlagsServiceMock,
+        glacierServiceMock,
       );
 
       // eslint-disable-next-line
@@ -659,7 +671,11 @@ describe('background/services/network/NetworkService', () => {
 
   describe('enabled networks management', () => {
     beforeEach(() => {
-      service = new NetworkService(storageServiceMock, featureFlagsServiceMock);
+      service = new NetworkService(
+        storageServiceMock,
+        featureFlagsServiceMock,
+        glacierServiceMock,
+      );
       mockChainList(service);
       service.updateNetworkState = jest.fn();
     });
@@ -885,6 +901,7 @@ describe('background/services/network/NetworkService', () => {
       const networkService = new NetworkService(
         storageServiceMock,
         featureFlagsServiceMock,
+        glacierServiceMock,
       );
 
       // eslint-disable-next-line
@@ -906,6 +923,7 @@ describe('background/services/network/NetworkService', () => {
       const networkService = new NetworkService(
         storageServiceMock,
         featureFlagsServiceMock,
+        glacierServiceMock,
       );
 
       // eslint-disable-next-line
@@ -928,6 +946,7 @@ describe('background/services/network/NetworkService', () => {
     const networkService = new NetworkService(
       storageServiceMock,
       featureFlagsServiceMock,
+      glacierServiceMock,
     );
 
     jest
@@ -1001,6 +1020,7 @@ describe('background/services/network/NetworkService', () => {
     const networkService = new NetworkService(
       storageServiceMock,
       featureFlagsServiceMock,
+      glacierServiceMock,
     );
 
     jest
