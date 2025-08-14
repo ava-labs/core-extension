@@ -12,12 +12,13 @@ import {
 } from '@core/types';
 
 import { TokenSelect } from '@/components/TokenSelect';
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
+  maxAmount: bigint;
+  estimatedFee: bigint;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
   onTokenChange: (token: string) => void;
@@ -29,6 +30,8 @@ type TokenAmountInputProps = {
 
 export const TokenAmountInput = ({
   id,
+  maxAmount,
+  estimatedFee,
   tokenId,
   tokensForAccount,
   onTokenChange,
@@ -44,8 +47,6 @@ export const TokenAmountInput = ({
     () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
     [tokensForAccount, tokenId],
   );
-
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(token);
 
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =

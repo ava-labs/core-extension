@@ -1,9 +1,12 @@
-import { Account, Network, NetworkFee } from '@core/types';
 import {
+  Account,
   AvmCapableAccount,
+  Network,
+  NetworkFee,
   PvmCapableAccount,
   SvmCapableAccount,
-} from './hooks/useSend/models';
+} from '@core/types';
+
 import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
