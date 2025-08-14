@@ -1,12 +1,21 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Modal, Stack, SxProps, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  DialogContent,
+  Stack,
+  SxProps,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 
 import { useConnectionContext } from '@core/ui';
 import { ExtensionRequest } from '@core/types';
 import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExtensionState';
 
 import { WarningMessage } from '@/components/WarningMessage';
+import { PageTopBar } from '@/components/PageTopBar';
+import { SlideUpDialog } from '@/components/Dialog';
 
 type Props = {
   open: boolean;
@@ -21,6 +30,7 @@ const smallButtonFixSx: SxProps = {
 export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
+  const theme = useTheme();
 
   const onConfirmClick = async () => {
     await request<ResetExtensionStateHandler>({
@@ -31,23 +41,31 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
   };
 
   return (
-    <Modal open={open} disablePortal closeAfterTransition>
-      <Stack
-        direction="column"
-        rowGap={3}
-        height={1}
-        paddingBlock="85px 22px"
-        paddingInline="14px 30px"
+    <SlideUpDialog open={open}>
+      <PageTopBar onBackClicked={onCancel} showBack />
+      <DialogContent
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          px: theme.spacing(1.5),
+        }}
       >
-        <Typography variant="h2">
-          {t(`You're about to terminate this session`)}
-        </Typography>
-        <WarningMessage>
-          {t(
-            'Make sure you have written down your recovery phrase. Without it you will not be able to access the current wallet and could result in lost funds',
-          )}
-        </WarningMessage>
-        <Stack direction="column" rowGap="10px" mt="auto">
+        <Stack
+          direction="column"
+          rowGap={3}
+          paddingBlock="28px 22px"
+          paddingInline="0px 30px"
+        >
+          <Typography variant="h2">
+            {t(`You're about to terminate this session`)}
+          </Typography>
+          <WarningMessage>
+            {t(
+              'Make sure you have written down your recovery phrase. Without it you will not be able to access the current wallet and could result in lost funds',
+            )}
+          </WarningMessage>
+        </Stack>
+        <Stack rowGap="10px" mt="auto" px={1}>
           <Button
             sx={smallButtonFixSx}
             variant="contained"
@@ -66,7 +84,7 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
             {t('Cancel')}
           </Button>
         </Stack>
-      </Stack>
-    </Modal>
+      </DialogContent>
+    </SlideUpDialog>
   );
 };
