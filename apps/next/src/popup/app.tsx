@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  AnalyticsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
   CurrenciesContextProvider,
@@ -90,22 +91,23 @@ export function App() {
     <Providers
       providers={
         Children.toArray([
-          <PersonalAvatarProvider />,
           <ThemeProvider theme={preferredColorScheme} />,
+          <AnalyticsContextProvider />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
+          <PersonalAvatarProvider />,
+          <WalletContextProvider LockedComponent={LockScreen} />,
+          <ContactsContextProvider />,
+          <BalancesProvider />,
+          <PermissionContextProvider />,
+          <CurrenciesContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
-          <ContactsContextProvider />,
-          <BalancesProvider />,
-          <CurrenciesContextProvider />,
-          <PermissionContextProvider />,
         ]) as ReactElement[]
       }
     >
