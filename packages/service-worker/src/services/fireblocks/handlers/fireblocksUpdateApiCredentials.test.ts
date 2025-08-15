@@ -27,7 +27,11 @@ jest.mock('~/services/secrets/SecretsService');
 jest.mock('jose');
 
 describe('src/background/services/fireblocks/handlers/fireblocksUpdateApiCredentials.ts', () => {
-  const networkServiceMock = new NetworkService({} as any, {} as any);
+  const networkServiceMock = new NetworkService(
+    {} as any,
+    {} as any,
+    {} as any,
+  );
   const secretsServiceMock = new SecretsService({} as any);
   const accountServiceMock = new AccountsService(
     {} as any,

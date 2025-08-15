@@ -66,7 +66,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     new SeedlessTokenStorage({} as any),
   );
   const networkService = jest.mocked<NetworkService>(
-    new NetworkService({} as any, {} as any),
+    new NetworkService({} as any, {} as any, {} as any),
   );
   const sessionManager = jest.mocked<SeedlessSessionManager>({
     notifyTokenExpired: jest.fn(),

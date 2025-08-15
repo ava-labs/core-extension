@@ -11,10 +11,17 @@ export const NETWORK_STORAGE_KEY = 'NETWORK_STORAGE_KEY';
 export const NETWORK_LIST_STORAGE_KEY = 'NETWORK_LIST_STORAGE_KEY';
 export const NETWORK_OVERRIDES_STORAGE_KEY = 'NETWORK_OVERRIDES_STORAGE_KEY';
 
+export interface NetworkAvailability {
+  [chainId: number]: {
+    isEnabled: boolean;
+  };
+}
+
 export interface NetworkStorage {
-  favoriteNetworks: number[];
+  favoriteNetworks: number[]; //Legacy
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
+  networkAvailability: NetworkAvailability; // NextGen
 }
 
 export interface AddEthereumChainParameter {
