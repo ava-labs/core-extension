@@ -168,9 +168,12 @@ export class SeedlessMfaService implements OnUnlock, OnLock {
   async initAuthenticatorChange(tabId?: number): Promise<TotpResetChallenge> {
     const session = await this.#getSession();
     const response = await session.resetTotpStart(TOTP_ISSUER);
+    console.log('response: ', response);
+    console.log('response.requiresMfa(): ', response.requiresMfa());
 
     if (response.requiresMfa()) {
       const methods = await this.getRecoveryMethods();
+      console.log('methods: ', methods);
       const method =
         methods.length === 1
           ? methods[0]

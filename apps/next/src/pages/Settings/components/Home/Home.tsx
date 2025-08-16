@@ -186,7 +186,11 @@ export const SettingsHomePage = () => {
           />
         )}
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
-        <SettingsNavItem label={t('Recovery methods')} divider />
+        <SettingsNavItem
+          label={t('Recovery methods')}
+          divider
+          href={`${path}/recovery-methods`}
+        />
         <SettingsNavItem
           label={t('Participate in Core Analytics')}
           description={t(

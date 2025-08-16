@@ -15,6 +15,7 @@ import {
   NetworkContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SeedlessMfaManagementProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -94,6 +95,7 @@ export function App() {
           <ThemeProvider theme={preferredColorScheme} />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
+          <SeedlessMfaManagementProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={CircularProgress}
