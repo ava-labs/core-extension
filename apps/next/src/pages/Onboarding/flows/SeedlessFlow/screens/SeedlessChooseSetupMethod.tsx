@@ -15,6 +15,8 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 
 import { NewMfaMethod } from '../types';
+import { useSeedlessActions } from '@core/ui';
+import { SEEDLESS_ACTIONS_OPTIONS } from '@/pages/Onboarding/config';
 
 type SeedlessChooseSetupMethodProps = StackProps & {
   onMethodChosen: (method: NewMfaMethod) => void;
@@ -25,6 +27,7 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
 }) => {
   const { t } = useTranslation();
   const { setTotal } = useModalPageControl();
+  const { loginWithoutMFA } = useSeedlessActions(SEEDLESS_ACTIONS_OPTIONS);
 
   useEffect(() => {
     setTotal(0);
@@ -69,7 +72,13 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
         </CardMenu>
       </FullscreenModalContent>
       <FullscreenModalActions>
-        <NavButton color="secondary" onClick={() => onMethodChosen('none')}>
+        <NavButton
+          color="secondary"
+          onClick={() => {
+            loginWithoutMFA();
+            onMethodChosen('none');
+          }}
+        >
           {t('Skip')}
         </NavButton>
       </FullscreenModalActions>

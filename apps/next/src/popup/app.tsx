@@ -98,7 +98,6 @@ export function App() {
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <PersonalAvatarProvider />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
@@ -108,6 +107,7 @@ export function App() {
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           />,
+          <WalletContextProvider LockedComponent={LockScreen} />,
         ]) as ReactElement[]
       }
     >
