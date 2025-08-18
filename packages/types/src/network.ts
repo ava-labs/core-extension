@@ -18,10 +18,13 @@ export interface NetworkAvailability {
 }
 
 export interface NetworkStorage {
-  favoriteNetworks: number[]; //Legacy
+  /**
+   * @deprecated For Legacy app only. For NextGen app please use "networkAvailability" field
+   */
+  favoriteNetworks: number[];
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
-  networkAvailability: NetworkAvailability; // NextGen
+  networkAvailability: NetworkAvailability;
 }
 
 export interface AddEthereumChainParameter {
