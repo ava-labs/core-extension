@@ -1,14 +1,6 @@
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useState } from 'react';
-import {
-  Button,
-  Checkbox,
-  Paper,
-  Stack,
-  toast,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Button, Divider, Stack, toast } from '@avalabs/k2-alpine';
 
 import { createNewMnemonic } from '@core/common';
 
@@ -23,6 +15,7 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { SeedphraseGrid } from './components/SeedphraseGrid';
+import { TermsAgreementSection } from './components/term';
 
 type NewSeedphraseScreenProps = OnboardingScreenProps & {
   onNext: (phrase: string) => void;
@@ -33,7 +26,6 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
   totalSteps,
   onNext,
 }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
   const [generatedSeedphrase] = useState<string>(createNewMnemonic());
@@ -73,25 +65,11 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
             {t('Copy phrase')}
           </Button>
         </Stack>
-        <Paper
-          sx={{
-            mt: 5,
-            borderRadius: theme.shape.mediumBorderRadius,
-            p: 1.75,
-          }}
-        >
-          <Stack direction="row" columnGap={1}>
-            <Checkbox
-              checked={isTermsAccepted}
-              onChange={(e) => {
-                setIsTermsAccepted(e.target.checked);
-              }}
-            />
-            <Typography variant="body2" minHeight={24}>
-              <Trans i18nKey="I understand losing this phrase will result in lost funds.<br/>I have stored it in a secure place" />
-            </Typography>
-          </Stack>
-        </Paper>
+        <Divider sx={{ mt: 3.5, mb: 1.5 }} />
+        <TermsAgreementSection
+          isTermsAccepted={isTermsAccepted}
+          onChange={setIsTermsAccepted}
+        />
       </FullscreenModalContent>
       <FullscreenModalActions gap={6} pt={2}>
         <NavButton
