@@ -4,6 +4,8 @@ import {
   Credential,
   UnsignedTx,
   avaxSerial,
+  evmSerial,
+  EVM,
 } from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import { ethErrors } from 'eth-rpc-errors';
@@ -39,6 +41,7 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     },
   };
   const activeAccountMock = {
+    addressC: '0x123',
     addressAVM: 'X-fuji1',
     addressCoreEth: 'C-fuji1',
     addressPVM: 'C-fuji1',
@@ -409,6 +412,97 @@ describe('src/background/services/wallet/handlers/avalanche_signTransaction', ()
     });
 
     describe('approval window and deferred response', () => {
+      it('works with EVM export transactions', async () => {
+        const requestMock = {
+          id: '123',
+          method: DAppProviderRequest.AVALANCHE_SIGN_TRANSACTION,
+          params: { transactionHex: '0x00001', chainAlias: 'C' },
+          site: {
+            tabId: 1,
+          } as any,
+        };
+
+        const evmExportTxMock = {
+          ins: [{ address: { toHex: () => '0x123' } }],
+        };
+
+        jest
+          .mocked(utils.unpackWithManager)
+          .mockReturnValueOnce(evmExportTxMock as any);
+
+        jest.mocked(evmSerial.isExportTx).mockReturnValueOnce(true);
+        (getProvidedUtxos as jest.Mock).mockReturnValue([]);
+
+        (Avalanche.getVmByChainAlias as jest.Mock).mockReturnValueOnce(EVM);
+        (Avalanche.getUtxosByTxFromGlacier as jest.Mock).mockReturnValueOnce(
+          [],
+        );
+        (Avalanche.createAvalancheEvmUnsignedTx as jest.Mock).mockReturnValue(
+          unsignedTxMock,
+        );
+
+        unsignedTxMock.getSigIndices.mockReturnValueOnce([[0, 0]]);
+        unsignedTxMock.getSigIndicesForAddress.mockReturnValueOnce([[0, 0]]);
+
+        (Avalanche.parseAvalancheTx as jest.Mock).mockReturnValueOnce({
+          type: 'export',
+        });
+
+        const handler = new AvalancheSignTransactionHandler(
+          walletServiceMock as any,
+          networkServiceMock as any,
+          accountsServiceMock as any,
+        );
+
+        const result = await handler.handleAuthenticated(
+          buildRpcCall(requestMock),
+        );
+
+        expect(result).toEqual({
+          ...requestMock,
+          result: DEFERRED_RESPONSE,
+        });
+        expect(Avalanche.getVmByChainAlias).toHaveBeenCalledWith(
+          requestMock.params.chainAlias,
+        );
+        expect(utils.hexToBuffer).toHaveBeenCalledWith(
+          requestMock.params.transactionHex,
+        );
+        expect(Avalanche.createAvalancheEvmUnsignedTx).toHaveBeenCalledWith({
+          txBytes,
+          vm: EVM,
+          utxos: [],
+          fromAddress: activeAccountMock.addressCoreEth,
+        });
+        expect(utils.parse).toHaveBeenCalledWith(
+          activeAccountMock.addressCoreEth,
+        );
+        expect(unsignedTxMock.getSigIndicesForAddress).toHaveBeenCalledWith(
+          signerAddressMock,
+        );
+        expect(unsignedTxMock.getSigIndices).toHaveBeenCalled();
+        expect(Avalanche.parseAvalancheTx).toHaveBeenCalledWith(
+          unsignedTxMock,
+          providerMock,
+          activeAccountMock.addressCoreEth,
+        );
+
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            ...requestMock,
+            displayData: {
+              unsignedTxJson: JSON.stringify(unsignedTxJson),
+              txData: {
+                type: 'export',
+              },
+              ownSignatureIndices: [[0, 0]],
+              vm: EVM,
+            },
+          }),
+          'approve/avalancheSignTx',
+        );
+      });
+
       describe('unsinged tx', () => {
         const checkExpected = (req, result) => {
           expect(result).toEqual({

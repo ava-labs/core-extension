@@ -80,7 +80,11 @@ export function App() {
   }, [navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
-    return <CircularProgress />;
+    return (
+      <Stack justifyContent="center" alignItems="center" height="100%">
+        <CircularProgress />
+      </Stack>
+    );
   }
 
   const displayHeader = !pagesWithoutHeader.some((path) =>
@@ -91,22 +95,22 @@ export function App() {
     <Providers
       providers={
         Children.toArray([
-          <PersonalAvatarProvider />,
           <ThemeProvider theme={preferredColorScheme} />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
+          <PersonalAvatarProvider />,
+          <ContactsContextProvider />,
+          <BalancesProvider />,
+          <PermissionContextProvider />,
+          <CurrenciesContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           />,
           <WalletContextProvider LockedComponent={LockScreen} />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
-          <ContactsContextProvider />,
-          <BalancesProvider />,
-          <CurrenciesContextProvider />,
-          <PermissionContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
         ]) as ReactElement[]
