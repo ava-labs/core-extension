@@ -1,4 +1,5 @@
 import {
+  KeystoneIcon,
   LedgerIcon,
   WalletClosedIcon,
   WalletOpenIcon,
@@ -28,6 +29,10 @@ export const WalletIcon: FC<WalletIconProps> = ({
     if (authProvider === SeedlessAuthProvider.Apple) {
       return <FaApple size={16} />;
     }
+  }
+
+  if (type === SecretType.Keystone || type === SecretType.Keystone3Pro) {
+    return <KeystoneIcon size={14} />;
   }
 
   const MnemonicIcon = expanded ? WalletOpenIcon : WalletClosedIcon;
