@@ -1262,16 +1262,29 @@ describe('background/services/accounts/AccountsService', () => {
 
       await accountsService.onUnlock();
 
-      // Clear any previous calls during initialization
+      // Make uuid2 have a different EVM address
+      jest
+        .mocked(addressResolver.getAddressesForSecretId)
+        .mockReset()
+        .mockResolvedValueOnce({
+          [NetworkVMType.EVM]: otherEvmAddress,
+          [NetworkVMType.BITCOIN]: otherBtcAddress,
+          [NetworkVMType.AVM]: avmAddress,
+          [NetworkVMType.PVM]: pvmAddress,
+          [NetworkVMType.CoreEth]: coreEthAddress,
+          [NetworkVMType.HVM]: otherEvmAddress,
+          [NetworkVMType.SVM]: '',
+        } as any);
+      await accountsService.refreshAddressesForAccount('uuid2');
+
+      // Clear any previous calls during initialization or refresh
       getUnknownUsedNetworkSpy.mockClear();
 
       // Change active account to trigger the call
       await accountsService.activateAccount('uuid2');
 
       expect(getUnknownUsedNetworkSpy).toHaveBeenCalledTimes(1);
-      expect(getUnknownUsedNetworkSpy).toHaveBeenCalledWith(
-        mockedAccounts.primary[walletId][1], // The account with id 'uuid2'
-      );
+      expect(getUnknownUsedNetworkSpy).toHaveBeenCalledWith(otherEvmAddress);
     });
 
     it('should not call networkService.getUnknownUsedNetwork when active account remains the same', async () => {
@@ -1290,7 +1303,6 @@ describe('background/services/accounts/AccountsService', () => {
 
       // Activate the same account that's already active
       await accountsService.activateAccount('uuid1'); // This is already the active account
-
       expect(getUnknownUsedNetworkSpy).not.toHaveBeenCalled();
     });
   });
