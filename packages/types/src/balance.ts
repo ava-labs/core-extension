@@ -150,6 +150,13 @@ export type BtcTokenBalance = Extract<
   assetType: 'btc_native';
 };
 
+export type XChainTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalanceAVM
+> & {
+  assetType: 'avm_native';
+};
+
 export type NonFungibleTokenBalance = NftTokenWithBalance & {
   coreChainId: number;
   assetType: NonFungibleAssetType;
@@ -176,3 +183,8 @@ export const isBtcToken = (
   token: FungibleTokenBalance,
 ): token is BtcTokenBalance =>
   token.type === TokenType.NATIVE && token.assetType === 'btc_native';
+
+export const isXChainToken = (
+  token: FungibleTokenBalance,
+): token is XChainTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'avm_native';

@@ -3,30 +3,29 @@ import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import {
-  BtcCapableAccount,
-  BtcTokenBalance,
-  NetworkFee,
+  AvmCapableAccount,
   NetworkWithCaipId,
+  XChainTokenBalance,
 } from '@core/types';
-import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
-import { isBtcAddressInNetwork, isValidBtcAddress } from '@core/common';
+import { useConnectionContext, useWalletContext } from '@core/ui';
+import { isValidAvmAddress } from '@core/common';
 
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
+import { buildXChainSendTx } from '../lib/buildXChainSendTx';
 
 type UseBtcSendArgs = {
-  token: BtcTokenBalance;
+  token: XChainTokenBalance;
   amount: bigint;
-  from: BtcCapableAccount;
+  from: AvmCapableAccount;
   to?: string;
   network: NetworkWithCaipId;
 };
 
-export const useBtcSend = ({
+export const useXChainSend = ({
   token,
   amount,
   from,
@@ -35,25 +34,18 @@ export const useBtcSend = ({
 }: UseBtcSendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
-  const { getNetworkFee } = useNetworkFeeContext();
+  const { isLedgerWallet } = useWalletContext();
 
   const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
-  const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
   const [error, setError] = useState('');
-
-  const maxInitialFee = networkFee?.low.maxFeePerGas;
-
-  useEffect(() => {
-    getNetworkFee(network.caipId).then(setNetworkFee);
-  }, [getNetworkFee, network.caipId]);
 
   useEffect(() => {
     setError('');
 
-    if (!to) {
+    if (!to || !isValidAvmAddress(to)) {
       return setError(t('Selected recipient is not a valid EVM address.'));
     }
 
@@ -74,11 +66,7 @@ export const useBtcSend = ({
   }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount]);
 
   const send = useCallback(async () => {
-    if (
-      !to ||
-      !isValidBtcAddress(to) ||
-      !isBtcAddressInNetwork(to, !network.isTestnet)
-    ) {
+    if (!to || !isValidAvmAddress(to)) {
       toast.error(
         t('Please provide a valid Bitcoin address as the recipient.'),
       );
@@ -88,15 +76,17 @@ export const useBtcSend = ({
     setIsSending(true);
 
     try {
-      const hash = await request<BitcoinSendTransactionParams>(
+      const params = await buildXChainSendTx({
+        isLedgerWallet,
+        account: from,
+        amount,
+        to,
+        network,
+      });
+      const hash = await request(
         {
-          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-          params: {
-            from: from.addressBTC,
-            to,
-            amount: Number(amount),
-            feeRate: Number(maxInitialFee),
-          },
+          method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
+          params,
         },
         {
           scope: network.caipId,
@@ -111,16 +101,15 @@ export const useBtcSend = ({
       setIsSending(false);
     }
   }, [
-    from.addressBTC,
-    maxInitialFee,
     to,
-    amount,
     request,
     t,
     onSendSuccess,
     onSendFailure,
-    network.isTestnet,
-    network.caipId,
+    isLedgerWallet,
+    from,
+    amount,
+    network,
   ]);
 
   return {

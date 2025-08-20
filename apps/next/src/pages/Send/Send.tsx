@@ -84,7 +84,7 @@ export const Send = () => {
   const recipient = recipients.find((r) => r.id === recipientId);
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(
-    sourceAddress,
+    activeAccount,
     selectedToken,
     recipient
       ? getRecipientAddressByType(recipient, addressType)
@@ -142,9 +142,13 @@ export const Send = () => {
           addressType={addressType}
           value={recipient}
           onQueryChange={(q) => updateQueryParam(searchParams, { toQuery: q })}
-          onValueChange={(r) =>
-            updateQueryParam(searchParams, { toQuery: '', to: r.id })
-          }
+          onValueChange={(r) => {
+            updateQueryParam(searchParams, {
+              // Do not clear the query if user manually provided the recipient's address.
+              toQuery: r.type === 'unknown' ? recipientQuery : '',
+              to: r.id,
+            });
+          }}
           recipients={recipients}
           query={recipientQuery}
         />

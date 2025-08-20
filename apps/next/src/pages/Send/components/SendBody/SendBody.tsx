@@ -1,10 +1,12 @@
 import {
   Account,
   FungibleTokenBalance,
+  isAvmCapableAccount,
   isBtcCapableAccount,
   isBtcToken,
   isErc20Token,
   isEvmNativeToken,
+  isXChainToken,
   NetworkWithCaipId,
 } from '@core/types';
 import { isNil } from 'lodash';
@@ -16,8 +18,9 @@ import {
   DisabledSendBody,
   EvmErc20SendBody,
   EvmNativeSendBody,
+  BtcSendBody,
+  XChainSendBody,
 } from './components';
-import { BtcSendBody } from './components/BtcSendBody';
 
 type SendBodyProps = Partial<{
   account: Account;
@@ -87,6 +90,17 @@ export const SendBody = ({
     );
   }
 
+  if (isXChainToken(token) && isAvmCapableAccount(account)) {
+    return (
+      <XChainSendBody
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
   return (
     <DisabledSendBody reason={t('Sending this token is not supported yet.')} />
   );

@@ -6,7 +6,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import { useCallback, useEffect, useState } from 'react';
 
 import { chainIdToCaip } from '@core/common';
-import { Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
+import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
 import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
 import { getEvmProvider } from '@/lib/getEvmProvider';
@@ -18,7 +18,7 @@ import { useTransactionCallbacks } from './useTransactionCallbacks';
 type UseEvmErc20SendArgs = {
   token: Erc20TokenBalance;
   amount: bigint;
-  from: string;
+  from: Account;
   to?: string;
   network: NetworkWithCaipId;
 };
@@ -58,7 +58,7 @@ export const useEvmErc20Send = ({
         return;
       }
 
-      const tx = await buildErc20SendTx(from, provider, networkFee, {
+      const tx = await buildErc20SendTx(from.addressC, provider, networkFee, {
         address: to,
         amount,
         token,
