@@ -1,37 +1,58 @@
-import { ExportState, useSeedlessMnemonicExport } from '@core/ui';
-import { FC } from 'react';
+import { ContextContainer } from '@core/types';
 import {
-  Redirect,
-  Route,
-  Switch,
-  useLocation,
-  useRouteMatch,
-} from 'react-router-dom';
-import { stages } from './routes';
+  ExportErrorCode,
+  ExportState,
+  isSpecificContextContainer,
+  useSeedlessMnemonicExport,
+} from '@core/ui';
+import { createElement, FC } from 'react';
+import { ExportInfo } from './components/ExportInfo';
+import { LoadingState } from './components/Loading';
+import { MFA } from './components/MFA';
+import { WaitingLounge } from './components/WaitingLounge/WaitingLounge';
+import { StageProps } from './types';
+
+const stages: Record<number, FC<StageProps>> = {
+  [ExportState.Loading]: LoadingState,
+  [ExportState.NotInitiated]: ExportInfo,
+  [ExportState.Initiating]: MFA,
+  [ExportState.Pending]: WaitingLounge,
+  [ExportState.Cancelling]: WaitingLounge,
+  [ExportState.ReadyToExport]: (props) => {
+    const { completeExport, cancelExport } = props;
+
+    return (
+      <div>
+        <button onClick={completeExport}>Complete Export</button>
+        <button onClick={cancelExport}>Cancel Export</button>
+      </div>
+    );
+  },
+  [ExportState.Exported]: () =>
+    createElement('div', null, 'Exported State Placeholder 2'),
+  [ExportState.Exporting]: ({ completeExport, cancelExport }) => {
+    return (
+      <div>
+        <button onClick={completeExport}>Complete Export</button>
+        <button onClick={cancelExport}>Cancel Export</button>
+      </div>
+    );
+  },
+  [ExportState.Error]: ({ error }) => (
+    <div>Dupson: {error ? ExportErrorCode[error] : 'No error'} </div>
+  ),
+};
 
 export const SeedlessFlow: FC = () => {
-  const { path } = useRouteMatch();
-  const { pathname } = useLocation();
-  const { state } = useSeedlessMnemonicExport();
-  const flatStages = Object.values(stages).flat(1);
-  const currentStage = flatStages.find((stage) =>
-    (stage.exportState as ExportState[]).includes(state),
-  )!;
-
-  if (!pathname.endsWith(currentStage.path)) {
-    return <Redirect to={`${path}${currentStage.path}`} />;
-  }
+  const exportState = useSeedlessMnemonicExport();
+  const isFullscreen = isSpecificContextContainer(ContextContainer.FULLSCREEN);
+  const Component = stages[exportState.state] ?? stages[ExportState.Loading]!;
 
   return (
-    <Switch>
-      {flatStages.map((stage) => (
-        <Route
-          key={stage.path}
-          path={`${path}${stage.path}`}
-          component={stage.Component}
-        />
-      ))}
-      <Redirect from={path} to={`${path}${currentStage.path}`} />
-    </Switch>
+    <Component
+      key={exportState.state}
+      {...exportState}
+      fullscreen={isFullscreen}
+    />
   );
 };
