@@ -16,8 +16,6 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
-  PrimaryAccount,
-  ImportedAccount,
 } from '@core/types';
 import {
   AVALANCHE_XP_NETWORK,
@@ -65,10 +63,6 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _enabledNetworks: number[] = [...defaultEnabledNetworks];
   // Network data that is stored in storage
   private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
-  // List of enabled network ID based on networkAvailability
-  private _storedEnabledNetworks: number[] = [];
-  // List of network ID that the active account has interacted with but are not in networkAvailability
-  private _unknownUsedNetworks: number[] = [];
 
   private _fetchedChainListSignal = this._chainListFetched
     .cache(new ValueCache())
@@ -242,36 +236,21 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   private set enabledNetworks(networkIds: number[]) {
-    this._enabledNetworks = networkIds;
+    const uniqueNetworkIds = [
+      ...new Set([...defaultEnabledNetworks, ...networkIds]),
+    ];
+    this._enabledNetworks = uniqueNetworkIds;
     this.enabledNetworksUpdated.dispatch(networkIds);
-  }
-
-  private set storedEnabledNetworks(networkIds: number[]) {
-    this._storedEnabledNetworks = networkIds;
-    // Since storedEnabledNetwork changed, enabledNetworks needs to be updated
-    const uniqueCombinedNetworks = this.#getUniqueCombinedNetworks({
-      stored: networkIds,
-    });
-    this.enabledNetworks = uniqueCombinedNetworks;
   }
 
   private set networkAvailability(
     networkAvailability: Record<number, { isEnabled: boolean }>,
   ) {
     this._networkAvailability = networkAvailability;
-    // Since networkAvailability changed, storedEnabledNetworks needs to be updated
-    this.storedEnabledNetworks =
+    this.enabledNetworks =
       this.#convertNetworkAvailabilityToEnabledNetworks(networkAvailability);
   }
 
-  private set unknownUsedNetworks(networkIds: number[]) {
-    this._unknownUsedNetworks = networkIds;
-    // Since unknownUsedNetworks changed, enabledNetworks needs to be updated
-    const uniqueCombinedNetworks = this.#getUniqueCombinedNetworks({
-      unknownUsed: networkIds,
-    });
-    this.enabledNetworks = uniqueCombinedNetworks;
-  }
   async getFavoriteNetworks() {
     return this.#filterByEnvironment(this._favoriteNetworks);
   }
@@ -305,7 +284,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   async addEnabledNetwork(chainId: number) {
     if (
-      this._storedEnabledNetworks.includes(chainId) ||
+      this._enabledNetworks.includes(chainId) ||
       defaultEnabledNetworks.includes(chainId)
     ) {
       return this._enabledNetworks;
@@ -350,7 +329,8 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.uiActiveNetwork = undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
-    this._storedEnabledNetworks = [];
+    this._enabledNetworks = [];
+    this._networkAvailability = {};
     this.#dappScopes = {};
   }
 
@@ -779,15 +759,9 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.updateNetworkState();
   }
 
-  async getUnknownUsedNetwork(account?: ImportedAccount | PrimaryAccount) {
-    if (!account) {
-      this.unknownUsedNetworks = [];
-      return;
-    }
-
-    const chainsForAddress = await this.glacierService.getEvmChainsForAddress(
-      account.addressC,
-    );
+  async getUnknownUsedNetwork(addressC: string) {
+    const chainsForAddress =
+      await this.glacierService.getEvmChainsForAddress(addressC);
 
     const usedIndexedChains =
       chainsForAddress.indexedChains?.map((chainInfo) => chainInfo.chainId) ||
@@ -801,7 +775,9 @@ export class NetworkService implements OnLock, OnStorageReady {
           !defaultEnabledNetworks.includes(Number(chainId)),
       )
       .map(Number);
-    this.unknownUsedNetworks = unknownChains;
+    unknownChains.forEach((chainId) => {
+      this.addEnabledNetwork(chainId);
+    });
   }
 
   /**
@@ -898,22 +874,6 @@ export class NetworkService implements OnLock, OnStorageReady {
         decorateWithCaipId(network),
       ]),
     );
-  };
-
-  #getUniqueCombinedNetworks = ({
-    stored,
-    unknownUsed,
-  }: {
-    stored?: number[];
-    unknownUsed?: number[];
-  }) => {
-    return [
-      ...new Set(
-        defaultEnabledNetworks
-          .concat(stored ?? this._storedEnabledNetworks)
-          .concat(unknownUsed ?? this._unknownUsedNetworks),
-      ),
-    ];
   };
 
   #convertNetworkAvailabilityToEnabledNetworks = (

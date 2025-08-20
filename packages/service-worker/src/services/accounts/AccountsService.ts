@@ -133,8 +133,9 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.#rwLock.acquireReadLock();
 
     try {
-      if (accounts.active !== this.#accounts.active) {
-        this.networkService.getUnknownUsedNetwork(accounts.active);
+      const addressC = accounts.active?.addressC;
+      if (addressC && addressC !== this.#accounts.active?.addressC) {
+        this.networkService.getUnknownUsedNetwork(addressC);
       }
 
       this.#accounts = accounts;

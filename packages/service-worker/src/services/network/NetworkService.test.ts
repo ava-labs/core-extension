@@ -586,17 +586,23 @@ describe('background/services/network/NetworkService', () => {
   });
 
   it('should return without the (filtered out testnet) favorite networks', async () => {
-    const mockEVMNetwork = mockNetwork(NetworkVMType.EVM);
+    const mainnetNetwork = mockNetwork(NetworkVMType.EVM, false, {
+      chainId: 2,
+    });
+    const testnetNetwork = mockNetwork(NetworkVMType.EVM, true, {
+      chainId: 123,
+    });
     service.allNetworks = {
       promisify: () =>
         Promise.resolve({
-          [mockEVMNetwork.chainId]: { ...mockEVMNetwork },
+          [mainnetNetwork.chainId]: { ...mainnetNetwork },
+          [testnetNetwork.chainId]: { ...testnetNetwork },
         }),
     } as any;
-    await service.addFavoriteNetwork(123);
-    await service.addFavoriteNetwork(2);
+    await service.addFavoriteNetwork(testnetNetwork.chainId);
+    await service.addFavoriteNetwork(mainnetNetwork.chainId);
     const favoriteNetworks = await service.getFavoriteNetworks();
-    expect(favoriteNetworks).toEqual([2]);
+    expect(favoriteNetworks).toEqual([mainnetNetwork.chainId]);
   });
 
   describe('favorite and enabled networks synchronization', () => {

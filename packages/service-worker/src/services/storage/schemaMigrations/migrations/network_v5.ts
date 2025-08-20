@@ -1,7 +1,7 @@
 import Joi from 'joi';
 import { Network } from '@avalabs/core-chains-sdk';
 import { defaultEnabledNetworks } from '~/services/network/consts';
-const VERSION = 3;
+const VERSION = 5;
 
 const defaultEnableNetworksDeletable = [
   42161, //Arbitrum One Mainnet
