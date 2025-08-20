@@ -23,20 +23,16 @@ export const getBtcMaxAmount = async (
     };
   }
 
-  const provider = getBtcProvider(network);
-  const utxos = await getBtcInputUtxos(
-    provider,
-    token,
-    Number(networkFee.low.maxFeePerGas),
-  );
   const feeRate = Number(networkFee.low.maxFeePerGas);
+  const provider = getBtcProvider(network);
+  const utxos = await getBtcInputUtxos(provider, token, feeRate);
   const maxTransferAmount = getMaxTransferAmount(utxos, to, from, feeRate);
 
   const { fee } = createTransferTx(
     to,
     from,
     maxTransferAmount,
-    Number(feeRate),
+    feeRate,
     token.utxos as BitcoinInputUTXO[],
     provider.getNetwork(),
   );
