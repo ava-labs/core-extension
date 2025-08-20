@@ -17,7 +17,7 @@ import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 import { buildXChainSendTx } from '../lib/buildXChainSendTx';
 
-type UseBtcSendArgs = {
+type UseXChainSendArgs = {
   token: XChainTokenBalance;
   amount: bigint;
   from: AvmCapableAccount;
@@ -31,7 +31,7 @@ export const useXChainSend = ({
   from,
   to,
   network,
-}: UseBtcSendArgs) => {
+}: UseXChainSendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();

@@ -57,7 +57,7 @@ export const SendBody = ({
   if (isEvmNativeToken(token)) {
     return (
       <EvmNativeSendBody
-        from={account.addressC}
+        from={account}
         token={token}
         recipient={recipient}
         amount={amount}
@@ -69,7 +69,7 @@ export const SendBody = ({
   if (isErc20Token(token)) {
     return (
       <EvmErc20SendBody
-        from={account.addressC}
+        from={account}
         token={token}
         recipient={recipient}
         amount={amount}
@@ -81,7 +81,7 @@ export const SendBody = ({
   if (isBtcToken(token) && isBtcCapableAccount(account)) {
     return (
       <BtcSendBody
-        from={account.addressBTC}
+        from={account}
         token={token}
         recipient={recipient}
         amount={amount}

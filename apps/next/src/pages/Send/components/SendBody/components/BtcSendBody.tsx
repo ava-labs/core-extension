@@ -2,7 +2,11 @@ import { useTranslation } from 'react-i18next';
 import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
-import { BtcTokenBalance, NetworkWithCaipId } from '@core/types';
+import {
+  BtcCapableAccount,
+  BtcTokenBalance,
+  NetworkWithCaipId,
+} from '@core/types';
 
 import {
   type Recipient,
@@ -12,7 +16,7 @@ import {
 import { useBtcSend } from '../hooks/useBtcSend';
 
 type BtcSendBodyProps = {
-  from: string;
+  from: BtcCapableAccount;
   token: BtcTokenBalance;
   network: NetworkWithCaipId;
   amount: string;
