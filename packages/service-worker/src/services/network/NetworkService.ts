@@ -239,6 +239,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     const uniqueNetworkIds = [
       ...new Set([...defaultEnabledNetworks, ...networkIds]),
     ];
+
     this._enabledNetworks = uniqueNetworkIds;
     this.enabledNetworksUpdated.dispatch(networkIds);
   }
