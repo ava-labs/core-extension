@@ -13,7 +13,7 @@ import { Route, Switch, useHistory } from 'react-router-dom';
 import { FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import { CoreSplash } from '@/components/CoreSplash';
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -31,6 +31,7 @@ export function Onboarding() {
   const theme = useTheme();
   const history = useHistory();
   const { capture, initAnalyticsIds } = useAnalyticsContext();
+  const { resetStates } = useOnboardingContext();
 
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
 
@@ -38,6 +39,20 @@ export function Onboarding() {
     initAnalyticsIds(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const maybeReset = () => {
+      console.log(window.location.hash);
+      if (window.location.hash === '#/onboarding') {
+        resetStates();
+      }
+    };
+
+    window.addEventListener('hashchange', maybeReset);
+    // Run on mount as well
+    maybeReset();
+    return () => window.removeEventListener('hashchange', maybeReset);
+  }, [resetStates]);
 
   return (
     <>
