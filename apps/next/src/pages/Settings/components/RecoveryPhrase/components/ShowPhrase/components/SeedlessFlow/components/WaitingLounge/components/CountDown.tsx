@@ -38,9 +38,10 @@ export const CountDown: FC<Props> = ({ progress, timeLeft, onCancel }) => {
             color="text.primary"
             textAlign="center"
           >
-            {timeLeft.replace(/hours?/, 'hr').replace(/minutes?/, 'mn') || (
-              <CircularProgress size="1em" />
-            )}
+            {timeLeft
+              .replace(/hours?/, 'hr')
+              .replace(/minutes?/, 'mn')
+              .replace('less than a', '< 1') || <CircularProgress size="1em" />}
           </Typography>
         </Box>
       </Stack>
