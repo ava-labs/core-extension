@@ -59,7 +59,7 @@ export const SeedlessFlow = () => {
           <ProvideWalletDetailsScreen
             step={3}
             totalSteps={TOTAL_STEPS}
-            onNext={() => history.push(`${BASE_PATH}/select-avatar`)}
+            onNext={() => history.push(`${BASE_PATH}/customize-core`)}
           />
         </Route>
         <Route path={`${BASE_PATH}/customize-core`}>
