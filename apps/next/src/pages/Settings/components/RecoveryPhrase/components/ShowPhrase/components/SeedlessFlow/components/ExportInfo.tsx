@@ -2,8 +2,11 @@ import { ActionButtons } from '@/components/ActionButtons';
 import { Page } from '@/components/Page';
 import { WarningMessage } from '@/components/WarningMessage';
 import { StackProps } from '@avalabs/k2-alpine';
+import { openFullscreenTab } from '@core/common';
+import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFlowNavigation } from '../useFlowNavigation';
+import { useHistory } from 'react-router-dom';
+import { StageProps } from '../types';
 
 const contentProps: StackProps = {
   gap: 2,
@@ -12,9 +15,25 @@ const contentProps: StackProps = {
   alignItems: undefined,
 };
 
-export const ExportInfo = () => {
+export const ExportInfo: FC<StageProps> = ({
+  initExport,
+  fullscreen: isFullscreen,
+}) => {
   const { t } = useTranslation();
-  const { navigateToNextStage, leave } = useFlowNavigation();
+  const {
+    push,
+    location: { pathname },
+  } = useHistory();
+  useEffect(() => {
+    if (isFullscreen) {
+      initExport();
+    }
+  }, [initExport, isFullscreen]);
+
+  const goToSettings = () => {
+    push('/settings');
+  };
+
   return (
     <Page
       title={t('There is a waiting period to view your recovery phrase')}
@@ -31,12 +50,16 @@ export const ExportInfo = () => {
       <ActionButtons
         top={{
           label: t('Next'),
-          onClick: navigateToNextStage,
+          onClick: async () => {
+            if (!isFullscreen) {
+              openFullscreenTab(pathname.slice(1));
+            }
+          },
           color: 'primary',
         }}
         bottom={{
           label: t('Cancel'),
-          onClick: leave,
+          onClick: goToSettings,
           color: 'secondary',
         }}
       />

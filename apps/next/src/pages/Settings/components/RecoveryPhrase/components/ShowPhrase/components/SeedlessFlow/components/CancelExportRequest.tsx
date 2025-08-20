@@ -1,14 +1,18 @@
 import { ActionButtons } from '@/components/ActionButtons';
 import { Page } from '@/components/Page';
 import { WarningMessage } from '@/components/WarningMessage';
-import { useSeedlessMnemonicExport } from '@core/ui';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFlowNavigation } from '../useFlowNavigation';
+import { useHistory } from 'react-router-dom';
+import { StageProps } from '../types';
 
-export const RequestExport = () => {
+export const RequestExport: FC<StageProps> = ({ cancelExport }) => {
   const { t } = useTranslation();
-  const { goBack, leave } = useFlowNavigation();
-  const { cancelExport } = useSeedlessMnemonicExport();
+  const { push } = useHistory();
+
+  const goToSettings = () => {
+    push('/settings');
+  };
 
   return (
     <Page
@@ -26,13 +30,13 @@ export const RequestExport = () => {
           label: t('Approve'),
           onClick: () => {
             cancelExport();
-            leave();
+            goToSettings();
           },
           color: 'primary',
         }}
         bottom={{
           label: t('Cancel'),
-          onClick: goBack,
+          onClick: goToSettings,
           color: 'secondary',
         }}
       />

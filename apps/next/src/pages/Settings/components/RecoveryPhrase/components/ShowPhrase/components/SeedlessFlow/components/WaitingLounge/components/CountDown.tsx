@@ -1,31 +1,34 @@
 import { ArcProgress } from '@/components/ArcProgress';
-import { Page } from '@/components/Page';
-import { Box, Button, Stack, StackProps, Typography } from '@avalabs/k2-alpine';
-import { useSeedlessMnemonicExport } from '@core/ui';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@avalabs/k2-alpine';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useFlowNavigation } from '../useFlowNavigation';
 
-const contentProps: StackProps = {
-  gap: 2,
-  width: 1,
-  justifyContent: undefined,
-  alignItems: undefined,
+type Props = {
+  progress: number;
+  timeLeft: string;
+  onCancel: () => void;
 };
 
-export const WaitingLounge = () => {
+export const CountDown: FC<Props> = ({ progress, timeLeft, onCancel }) => {
   const { t } = useTranslation();
-  const { leave } = useFlowNavigation();
-  const { timeLeft, cancelExport } = useSeedlessMnemonicExport();
+
   return (
-    <Page title={t('Show recovery phrase')} contentProps={contentProps}>
+    <>
       <Stack
         position="relative"
         my="auto"
+        mx="auto"
         alignItems="center"
         justifyContent="center"
       >
-        <ArcProgress size={190} value={25} color="success" />
-        <Box position="absolute" bottom={2} textAlign="center" width={1}>
+        <ArcProgress size={190} value={progress} color="success" />
+        <Box position="absolute" bottom={2} textAlign="center" width={1} px={3}>
           <Typography variant="caption" color="text.primary">
             {t("Your wallet's recovery phrase will be visible in")}
           </Typography>
@@ -35,7 +38,9 @@ export const WaitingLounge = () => {
             color="text.primary"
             textAlign="center"
           >
-            {timeLeft}
+            {timeLeft.replace(/hours?/, 'hr').replace(/minutes?/, 'mn') || (
+              <CircularProgress size="1em" />
+            )}
           </Typography>
         </Box>
       </Stack>
@@ -44,13 +49,10 @@ export const WaitingLounge = () => {
         size="extension"
         fullWidth
         color="secondary"
-        onClick={() => {
-          cancelExport();
-          leave();
-        }}
+        onClick={onCancel}
       >
         {t('Cancel request')}
       </Button>
-    </Page>
+    </>
   );
 };
