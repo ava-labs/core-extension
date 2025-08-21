@@ -15,8 +15,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "0.0.0-fix-eth-send-tx-pass-fee-props-20250813065759",
-    "@avalabs/svm-module": "0.0.0-fix-eth-send-tx-pass-fee-props-20250813065759",
+    "@avalabs/evm-module": "1.9.10",
+    "@avalabs/svm-module": "1.9.10",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",

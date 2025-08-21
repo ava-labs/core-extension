@@ -3,7 +3,7 @@ import {
   styled,
   Switch,
   Typography,
-  TypographyProps,
+  TypographyVariant,
 } from '@avalabs/k2-alpine';
 
 import { Card } from '../Card';
@@ -12,16 +12,23 @@ type Orientation = 'horizontal' | 'vertical';
 
 interface SwitchCardProps {
   title: string;
-  titleProps?: TypographyProps;
   description: string;
   orientation?: Orientation;
   checked: boolean;
   disabled?: boolean;
   onChange: () => void;
+  titleSize: 'small' | 'large';
 }
-
-const defaultTitleProps: TypographyProps = {
-  variant: 'h6',
+const titleStyles = {
+  small: {
+    variant: 'subtitle3' as TypographyVariant,
+    // TODO: fix it after a proper k2 release
+    fontWeight: 600,
+  },
+  large: {
+    variant: 'h5' as TypographyVariant,
+    fontWeight: 'fontWeightBold',
+  },
 };
 
 export const SwitchCard = ({
@@ -31,12 +38,12 @@ export const SwitchCard = ({
   checked,
   disabled,
   onChange,
-  titleProps = defaultTitleProps,
+  titleSize = 'small',
 }: SwitchCardProps) => {
   return (
     <StyledSwitchCard orientation={orientation}>
-      <Stack gap={1}>
-        <Typography {...titleProps}>{title}</Typography>
+      <Stack gap={0.5}>
+        <Typography {...titleStyles[titleSize]}>{title}</Typography>
         <Typography variant="caption" color="text.secondary">
           {description}
         </Typography>
@@ -47,7 +54,7 @@ export const SwitchCard = ({
         disabled={disabled}
         onChange={onChange}
         aria-label={description}
-        size="medium"
+        size="small"
       />
     </StyledSwitchCard>
   );

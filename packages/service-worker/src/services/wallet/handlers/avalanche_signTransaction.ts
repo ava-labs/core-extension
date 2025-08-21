@@ -13,6 +13,10 @@ import {
   UnsignedTx,
   Credential,
   avaxSerial,
+  EVMUnsignedTx,
+  VM,
+  Utxo,
+  evmSerial,
 } from '@avalabs/avalanchejs';
 import { NetworkService } from '../../network/NetworkService';
 import { ethErrors } from 'eth-rpc-errors';
@@ -26,7 +30,7 @@ import { HEADERS } from '../../glacier/glacierConfig';
 
 type TxParams = {
   transactionHex: string;
-  chainAlias: 'X' | 'P';
+  chainAlias: 'X' | 'P' | 'C';
   utxos?: string[];
 };
 
@@ -42,11 +46,92 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     super();
   }
 
+  #getUnsignedOrPartiallySignedTx = async ({
+    vm,
+    txBytes,
+    utxos,
+    currentAddress,
+    currentEvmAddress,
+    provider,
+  }: {
+    txBytes: Uint8Array<ArrayBufferLike>;
+    vm: VM;
+    utxos: Utxo[];
+    currentAddress: string;
+    currentEvmAddress: string;
+    provider: Avalanche.JsonRpcProvider;
+  }) => {
+    let credentials: Credential[] | undefined = undefined;
+    let parsedTxInstance: UnsignedTx | EVMUnsignedTx;
+    const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
+
+    if (evmSerial.isExportTx(tx)) {
+      const spenderAddress = tx.ins[0]?.address.toHex();
+
+      if (spenderAddress?.toLowerCase() !== currentEvmAddress.toLowerCase()) {
+        throw new Error('This account has nothing to sign');
+      }
+
+      return Avalanche.createAvalancheEvmUnsignedTx({
+        txBytes,
+        vm,
+        utxos,
+        fromAddress: currentAddress,
+      });
+    }
+
+    try {
+      const codecManager = utils.getManagerForVM(vm);
+      const signedTx = codecManager.unpack(txBytes, avaxSerial.SignedTx);
+
+      if (evmSerial.isImportTx(tx)) {
+        parsedTxInstance = await Avalanche.createAvalancheEvmUnsignedTx({
+          txBytes,
+          vm,
+          utxos,
+          fromAddress: currentAddress,
+        });
+      } else {
+        parsedTxInstance = await Avalanche.createAvalancheUnsignedTx({
+          tx,
+          provider,
+          credentials: signedTx.getCredentials(),
+          utxos,
+        });
+      }
+
+      // transaction has been already (partially) signed, but it may have gaps in its signatures arrays
+      // so we fill these gaps with placeholder signatures if needed
+      credentials = tx.getSigIndices().map(
+        (sigIndices, credentialIndex) =>
+          new Credential(
+            Avalanche.populateCredential(sigIndices, {
+              unsignedTx: parsedTxInstance,
+              credentialIndex,
+            }),
+          ),
+      );
+    } catch (_err) {
+      // transaction hasn't been signed yet thus we continue with a custom list of empty credentials
+      // to ensure it contains a signature slot for all signature indices from the inputs
+      credentials = tx
+        .getSigIndices()
+        .map(
+          (indicies) => new Credential(Avalanche.populateCredential(indicies)),
+        );
+    }
+
+    return Avalanche.createAvalancheUnsignedTx({
+      tx,
+      provider,
+      credentials,
+      utxos,
+    });
+  };
+
   handleAuthenticated = async (
     rpcCall: JsonRpcRequestParams<DAppProviderRequest, TxParams>,
   ) => {
-    let credentials: Credential[] | undefined = undefined;
-
     const { request, scope } = rpcCall;
     const {
       transactionHex,
@@ -68,8 +153,10 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     const provider = await this.networkService.getAvalanceProviderXP();
     const activeAccount = await this.accountsService.getActiveAccount();
     const currentAddress = getAddressByVM(vm, activeAccount);
+    const currentEvmAddress = activeAccount?.addressC;
+    const network = await this.networkService.getAvalancheNetworkXP();
 
-    if (!currentAddress) {
+    if (!currentAddress || !currentEvmAddress) {
       return {
         ...request,
         error: ethErrors.rpc.invalidRequest({
@@ -78,9 +165,6 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       };
     }
 
-    const tx = utils.unpackWithManager(vm, txBytes) as avaxSerial.AvaxTx;
-
-    const network = await this.networkService.getAvalancheNetworkXP();
     const providedUtxos = getProvidedUtxos({
       utxoHexes: providedUtxoHexes,
       vm,
@@ -96,43 +180,15 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
           headers: HEADERS,
         });
 
-    try {
-      const codecManager = utils.getManagerForVM(vm);
-      const signedTx = codecManager.unpack(txBytes, avaxSerial.SignedTx);
-      const unsignedTx = await Avalanche.createAvalancheUnsignedTx({
-        tx,
-        provider,
-        credentials: signedTx.getCredentials(),
+    const unsignedOrPartiallySignedTx =
+      await this.#getUnsignedOrPartiallySignedTx({
+        txBytes,
+        vm,
         utxos,
+        currentAddress,
+        currentEvmAddress,
+        provider,
       });
-
-      // transaction has been already (partially) signed, but it may have gaps in its signatures arrays
-      // so we fill these gaps with placeholder signatures if needed
-      credentials = tx.getSigIndices().map(
-        (sigIndices, credentialIndex) =>
-          new Credential(
-            Avalanche.populateCredential(sigIndices, {
-              unsignedTx,
-              credentialIndex,
-            }),
-          ),
-      );
-    } catch (_err) {
-      // transaction hasn't been signed yet thus we continue with a custom list of empty credentials
-      // to ensure it contains a signature slot for all signature indices from the inputs
-      credentials = tx
-        .getSigIndices()
-        .map(
-          (indicies) => new Credential(Avalanche.populateCredential(indicies)),
-        );
-    }
-
-    const unsignedTx = await Avalanche.createAvalancheUnsignedTx({
-      tx,
-      provider,
-      credentials,
-      utxos,
-    });
 
     // check if the current account's signature is needed
     const signerAddress = utils.addressesFromBytes([
@@ -149,7 +205,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     }
 
     const ownSignatureIndices =
-      unsignedTx.getSigIndicesForAddress(signerAddress);
+      unsignedOrPartiallySignedTx.getSigIndicesForAddress(signerAddress);
 
     if (!ownSignatureIndices) {
       return {
@@ -160,7 +216,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
       };
     }
 
-    const sigIndices = unsignedTx.getSigIndices();
+    const sigIndices = unsignedOrPartiallySignedTx.getSigIndices();
     const needsToSign = ownSignatureIndices.some(([inputIndex, sigIndex]) =>
       sigIndices[inputIndex]?.includes(sigIndex),
     );
@@ -176,7 +232,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
 
     // get display data for the UI
     const txData = await Avalanche.parseAvalancheTx(
-      unsignedTx,
+      unsignedOrPartiallySignedTx,
       provider,
       currentAddress,
     );
@@ -193,7 +249,7 @@ export class AvalancheSignTransactionHandler extends DAppRequestHandler<TxParams
     const actionData = buildActionForRequest(request, {
       scope,
       displayData: {
-        unsignedTxJson: JSON.stringify(unsignedTx.toJSON()),
+        unsignedTxJson: JSON.stringify(unsignedOrPartiallySignedTx.toJSON()),
         txData,
         vm,
         ownSignatureIndices,

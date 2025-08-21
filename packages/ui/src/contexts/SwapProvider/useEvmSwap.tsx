@@ -1,6 +1,13 @@
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { assert, assertPresent, getProviderForNetwork } from '@core/common';
+import { TransactionReceipt } from 'ethers';
+import {
+  assert,
+  assertPresent,
+  getProviderForNetwork,
+  retry,
+  RetryBackoffPolicy,
+} from '@core/common';
 import {
   CommonError,
   FeatureGates,
@@ -222,7 +229,12 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
 
       const pendingToastId = showPendingToast();
 
-      rpcProvider.waitForTransaction(txHash).then((receipt) => {
+      retry<TransactionReceipt | null>({
+        operation: async () => rpcProvider.getTransactionReceipt(txHash),
+        isSuccess: (r): r is TransactionReceipt => !!r, // success when receipt is present (>= 1 confirmation)
+        backoffPolicy: RetryBackoffPolicy.linearThenExponential(4, 1000),
+        maxRetries: 20,
+      }).then((receipt) => {
         const isSuccessful = Boolean(receipt?.status === 1);
         onTransactionReceipt({
           isSuccessful,
