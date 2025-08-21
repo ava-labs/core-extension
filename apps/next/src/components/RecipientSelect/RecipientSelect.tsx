@@ -16,7 +16,7 @@ type RecipientSelectProps = {
   addressType: AddressType;
   recipients: Recipient[];
   value?: Recipient;
-  onValueChange: (account: Recipient) => void;
+  onValueChange: (recipient: Recipient) => void;
   query?: string;
   onQueryChange: (query: string) => void;
 };

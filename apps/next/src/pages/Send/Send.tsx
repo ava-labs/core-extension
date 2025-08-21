@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 
-import { useAccountsContext } from '@core/ui';
+import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { AddressType, getUniqueTokenId } from '@core/types';
 
 import {
@@ -18,12 +18,14 @@ import { TokenAmountInput } from '@/components/TokenAmountInput';
 import { useTokensForAccount } from '@/components/TokenSelect';
 import { RecipientSelect, useRecipients } from '@/components/RecipientSelect';
 
+import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from './lib/getAddressTypeForToken';
 
 export const Send = () => {
   const { t } = useTranslation();
   const { search } = useLocation();
   const { replace } = useHistory();
+  const { getNetwork } = useNetworkContext();
 
   const {
     selectAccount,
@@ -96,7 +98,10 @@ export const Send = () => {
             tokenId={tokenId}
             tokensForAccount={tokensForAccount}
             onTokenChange={(value) => {
-              updateQueryParam(searchParams, { token: value });
+              updateQueryParam(searchParams, {
+                token: value,
+                tokenQuery: '',
+              });
             }}
             tokenQuery={tokenQuery}
             onQueryChange={(q) =>
@@ -114,22 +119,23 @@ export const Send = () => {
           addressType={recipientAddressType}
           value={recipient}
           onQueryChange={(q) => updateQueryParam(searchParams, { toQuery: q })}
-          onValueChange={(r) => updateQueryParam(searchParams, { to: r.id })}
+          onValueChange={(r) =>
+            updateQueryParam(searchParams, { toQuery: '', to: r.id })
+          }
           recipients={recipients}
           query={recipientQuery}
         />
       </Stack>
-      <Stack width="100%">
-        <Button
-          variant="contained"
-          color="primary"
-          size="extension"
-          fullWidth
-          disabled={!selectedToken || !recipient || !amount}
-        >
-          {t('Send')}
-        </Button>
-      </Stack>
+
+      <SendBody
+        account={activeAccount}
+        network={
+          selectedToken ? getNetwork(selectedToken.coreChainId) : undefined
+        }
+        token={selectedToken}
+        amount={amount}
+        recipient={recipient}
+      />
     </Page>
   );
 };

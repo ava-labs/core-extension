@@ -4050,6 +4050,7 @@ __metadata:
     eslint-plugin-prettier: "npm:5.2.1"
     eslint-plugin-react: "npm:7.37.2"
     eslint-plugin-react-hooks: "npm:5.1.0"
+    ethers: "npm:6.13.5"
     file-loader: "npm:6.2.0"
     fs: "npm:0.0.1-security"
     globals: "npm:15.13.0"
