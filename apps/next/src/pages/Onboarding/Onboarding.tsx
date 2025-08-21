@@ -8,7 +8,7 @@ import {
   styled,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { matchPath, Route, Switch, useHistory } from 'react-router-dom';
 
 import { FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
@@ -41,16 +41,20 @@ export function Onboarding() {
   }, []);
 
   useEffect(() => {
-    const maybeReset = () => {
-      console.log(window.location.hash);
-      if (window.location.hash === '#/onboarding') {
+    const maybeReset = (e: HashChangeEvent) => {
+      const [, hash] = e.newURL.split('#');
+      const isHomePage =
+        hash &&
+        (matchPath(hash, { path: '/onboarding', exact: true }) ||
+          matchPath(hash, { path: '/', exact: true }));
+      if (isHomePage) {
         resetStates();
       }
     };
 
     window.addEventListener('hashchange', maybeReset);
-    // Run on mount as well
-    maybeReset();
+    // Reset on mount as well
+    resetStates();
     return () => window.removeEventListener('hashchange', maybeReset);
   }, [resetStates]);
 
