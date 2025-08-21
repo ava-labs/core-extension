@@ -108,7 +108,7 @@ export const Send = () => {
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
     >
-      <Stack width="100%" gap={2} flexGrow={1}>
+      <Stack width="100%" gap={2}>
         <AccountSelect
           addressType="C"
           value={activeAccount}

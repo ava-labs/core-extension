@@ -16,12 +16,16 @@ import {
   isXChainToken,
   isPvmCapableAccount,
   isPChainToken,
+  isSvmCapableAccount,
+  isSolanaNativeToken,
+  isSolanaSplToken,
 } from '@core/types';
 
 import { getEvmMaxAmount } from './lib';
 import { getBtcMaxAmount } from './lib/getBtcMaxAmount';
 import { getXChainMaxAmount } from './lib/getXChainMaxAmount';
 import { getPChainMaxAmount } from './lib/getPChainMaxAmount';
+import { getSolanaMaxAmount } from './lib/getSolanaMaxAmount';
 
 type MaxAmountInfo = {
   maxAmount: bigint;
@@ -75,6 +79,16 @@ export const useMaxAmountForTokenSend = (
             isLedgerWallet,
             getNetwork(token.coreChainId),
           ).then((res) => isMounted && setResult(res));
+        } else if (
+          isSvmCapableAccount(from) &&
+          (isSolanaNativeToken(token) || isSolanaSplToken(token))
+        ) {
+          setResult(getSolanaMaxAmount(token));
+        } else {
+          setResult({
+            maxAmount: 0n,
+            estimatedFee: 0n,
+          });
         }
       })
       .catch((error) => {
