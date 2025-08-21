@@ -5,6 +5,7 @@ import { FungibleTokenBalance } from '@core/types';
 
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { OptionProps } from '@/components/SearchableSelect';
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 type TokenMenuItemProps = OptionProps & {
   token: FungibleTokenBalance;
@@ -15,6 +16,8 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
   isSelected,
   ...rest
 }) => {
+  const balanceDisplay = getAvailableBalance(token, true);
+
   return (
     <StyledMenuItem {...rest} selected={isSelected}>
       <Stack width="100%" direction="row" alignItems="center" gap={1.5}>
@@ -22,7 +25,7 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
         <Stack>
           <Typography variant="body3">{token.name}</Typography>
           <Typography variant="caption" color="text.secondary">
-            {token.balanceDisplayValue} {token.symbol}
+            {balanceDisplay} {token.symbol}
           </Typography>
         </Stack>
       </Stack>

@@ -157,6 +157,13 @@ export type XChainTokenBalance = Extract<
   assetType: 'avm_native';
 };
 
+export type PChainTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalancePVM
+> & {
+  assetType: 'pvm_native';
+};
+
 export type NonFungibleTokenBalance = NftTokenWithBalance & {
   coreChainId: number;
   assetType: NonFungibleAssetType;
@@ -188,3 +195,8 @@ export const isXChainToken = (
   token: FungibleTokenBalance,
 ): token is XChainTokenBalance =>
   token.type === TokenType.NATIVE && token.assetType === 'avm_native';
+
+export const isPChainToken = (
+  token: FungibleTokenBalance,
+): token is PChainTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'pvm_native';

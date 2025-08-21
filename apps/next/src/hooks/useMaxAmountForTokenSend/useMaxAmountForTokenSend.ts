@@ -14,11 +14,14 @@ import {
   isEvmNativeToken,
   isAvmCapableAccount,
   isXChainToken,
+  isPvmCapableAccount,
+  isPChainToken,
 } from '@core/types';
 
 import { getEvmMaxAmount } from './lib';
 import { getBtcMaxAmount } from './lib/getBtcMaxAmount';
 import { getXChainMaxAmount } from './lib/getXChainMaxAmount';
+import { getPChainMaxAmount } from './lib/getPChainMaxAmount';
 
 type MaxAmountInfo = {
   maxAmount: bigint;
@@ -40,7 +43,7 @@ export const useMaxAmountForTokenSend = (
   });
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !from) return;
 
     let isMounted = true;
 
@@ -62,6 +65,12 @@ export const useMaxAmountForTokenSend = (
           ).then((res) => isMounted && setResult(res));
         } else if (isAvmCapableAccount(from) && isXChainToken(token)) {
           getXChainMaxAmount(
+            from,
+            isLedgerWallet,
+            getNetwork(token.coreChainId),
+          ).then((res) => isMounted && setResult(res));
+        } else if (isPvmCapableAccount(from) && isPChainToken(token)) {
+          getPChainMaxAmount(
             from,
             isLedgerWallet,
             getNetwork(token.coreChainId),

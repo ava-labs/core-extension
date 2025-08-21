@@ -12,6 +12,7 @@ import { TokenAvatar } from '@/components/TokenAvatar';
 import { FungibleTokenBalance } from '@core/types';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 type SelectedTokenProps = {
   token: FungibleTokenBalance;
@@ -19,6 +20,9 @@ type SelectedTokenProps = {
 
 export const SelectedToken: FC<SelectedTokenProps> = ({ token }) => {
   const theme = useTheme();
+
+  const balance = getAvailableBalance(token, false);
+  const balanceDisplay = getAvailableBalance(token, true);
 
   return (
     <>
@@ -47,7 +51,7 @@ export const SelectedToken: FC<SelectedTokenProps> = ({ token }) => {
         </Stack>
         <Tooltip
           title={new TokenUnit(
-            token.balance,
+            balance,
             token.decimals,
             token.symbol,
           ).toString()}
@@ -57,7 +61,7 @@ export const SelectedToken: FC<SelectedTokenProps> = ({ token }) => {
             color="text.secondary"
             whiteSpace="nowrap"
           >
-            {token.balanceDisplayValue} {token.symbol}
+            {balanceDisplay} {token.symbol}
           </Typography>
         </Tooltip>
       </Stack>

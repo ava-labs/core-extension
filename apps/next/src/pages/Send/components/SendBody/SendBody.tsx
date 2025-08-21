@@ -6,6 +6,8 @@ import {
   isBtcToken,
   isErc20Token,
   isEvmNativeToken,
+  isPChainToken,
+  isPvmCapableAccount,
   isXChainToken,
   NetworkWithCaipId,
 } from '@core/types';
@@ -20,6 +22,7 @@ import {
   EvmNativeSendBody,
   BtcSendBody,
   XChainSendBody,
+  PChainSendBody,
 } from './components';
 
 type SendBodyProps = Partial<{
@@ -101,6 +104,19 @@ export const SendBody = ({
       />
     );
   }
+
+  if (isPChainToken(token) && isPvmCapableAccount(account)) {
+    return (
+      <PChainSendBody
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
   return (
     <DisabledSendBody reason={t('Sending this token is not supported yet.')} />
   );
