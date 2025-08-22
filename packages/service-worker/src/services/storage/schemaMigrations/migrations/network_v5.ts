@@ -3,7 +3,7 @@ import { Network } from '@avalabs/core-chains-sdk';
 import { defaultEnabledNetworks } from '~/services/network/consts';
 const VERSION = 5;
 
-const defaultEnableNetworksDeletable = [
+export const defaultEnableNetworksDeletable = [
   42161, //Arbitrum One Mainnet
   10, //Optimism Mainnet
   8453, //Base Mainnet
@@ -28,17 +28,13 @@ const up = async (networkStorage: PreviousSchema) => {
     .concat(defaultEnableNetworksDeletable);
 
   const networkAvailability = enabledNetworks.reduce((accumulator, network) => {
-    return {
-      ...accumulator,
-      [network]: {
-        isEnabled: true,
-      },
-    };
+    accumulator[network] = { isEnabled: true };
+    return accumulator;
   }, {}); // Initialize accumulator as an empty object
 
   return {
     ...networkStorage,
-    networkAvailability: networkAvailability,
+    networkAvailability,
     version: VERSION,
   };
 };
