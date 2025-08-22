@@ -67,6 +67,8 @@ export type { AddFavoriteNetworkHandler } from './services/network/handlers/addF
 export type { GetNetworksStateHandler } from './services/network/handlers/getNetworkState';
 export type { RemoveCustomNetworkHandler } from './services/network/handlers/removeCustomNetwork';
 export type { RemoveFavoriteNetworkHandler } from './services/network/handlers/removeFavoriteNetwork';
+export type { AddEnabledNetworkHandler } from './services/network/handlers/addEnabledNetwork';
+export type { RemoveEnabledNetworkHandler } from './services/network/handlers/removeEnabledNetwork';
 export type { SaveCustomNetworkHandler } from './services/network/handlers/saveCustomNetwork';
 export type { SetActiveNetworkHandler } from './services/network/handlers/setActiveNetwork';
 export type { SetDevelopermodeNetworkHandler } from './services/network/handlers/setDeveloperMode';

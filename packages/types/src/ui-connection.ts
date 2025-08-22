@@ -17,6 +17,8 @@ export enum ExtensionRequest {
   NETWORK_REMOVE_CUSTOM = 'network_removeCustomNetwork',
   NETWORKS_GET_STATE = 'networks_get_state',
   NETWORK_UPDATE_DEFAULT = 'network_update_default',
+  NETWORK_ADD_ENABLED_NETWORK = 'network_add_enabled_network',
+  NETWORK_REMOVE_ENABLED_NETWORK = 'network_remove_enabled_network',
 
   ACCOUNT_GET_ACCOUNTS = 'account_get',
   ACCOUNT_SELECT = 'account_select',

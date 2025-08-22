@@ -132,6 +132,15 @@ export const SettingsHomePage = () => {
           }
         />
         <SettingsNavItem
+          label={t('Networks')}
+          secondaryAction={
+            <AvatarButton
+              onClick={() => push('/settings/network-management')}
+            />
+          }
+          divider
+        />
+        <SettingsNavItem
           label={t('Show me Trending Tokens')}
           description={t(
             'Display the shortcut to tokens that are trending in the last 24 hours',
