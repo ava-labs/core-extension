@@ -106,13 +106,36 @@ export type TotalBalanceForWallet = {
   hasBalanceOnUnderivedAccounts: boolean;
 };
 
+export type NonFungibleAssetType = 'evm_erc721' | 'evm_erc1155';
+
+export type FungibleAssetType =
+  | 'evm_native'
+  | 'evm_erc20'
+  | 'btc_native'
+  | 'pvm_native'
+  | 'avm_native'
+  | 'svm_native'
+  | 'svm_spl'
+  | 'unknown';
+
 export type FungibleTokenBalance = Exclude<
   TokenWithBalance,
   NftTokenWithBalance
 > & {
   coreChainId: number;
+  assetType: FungibleAssetType;
+};
+
+export type NonFungibleTokenBalance = NftTokenWithBalance & {
+  coreChainId: number;
+  assetType: NonFungibleAssetType;
 };
 
 export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
   return `${token.type}:${token.symbol}:${token.type === TokenType.NATIVE ? '-' : token.address}:${token.coreChainId}`;
 };
+
+export const isEvmNativeToken = (
+  token: FungibleTokenBalance,
+): token is FungibleTokenBalance & { assetType: 'evm_native' } =>
+  token.assetType === 'evm_native';

@@ -11,7 +11,7 @@ export const SeedphraseGrid: FC<SeedphraseGridProps> = ({ phrase }) => {
   const words = phrase.split(/\s+/);
 
   return (
-    <Paper sx={{ px: 3, py: 2, borderRadius: theme.shape.mediumBorderRadius }}>
+    <Paper sx={{ px: 3, borderRadius: theme.shape.mediumBorderRadius }}>
       <Grid2 container spacing={1.5} component="ol">
         {Array.from({ length: words.length }, (_, i) => {
           const isFakeBeforeReal = Math.random() < 0.5;
