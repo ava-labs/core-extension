@@ -1,56 +1,30 @@
 import { FullscreenModal } from '@/components/FullscreenModal';
 import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
-import {
-  AuthErrorCode,
-  ExtensionRequest,
-  MfaRequestType,
-  RecoveryMethod,
-} from '@core/types';
-import { useConnectionContext } from '@core/ui';
-import { FC, useCallback, useRef, useState } from 'react';
+import { AuthErrorCode, MfaRequestType } from '@core/types';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChooseMfaMethodHandler } from '~/services/seedless/handlers/chooseMfaMethod';
 import { StageProps } from '../../types';
 import { FIDOChallenge } from './components/FIDOChallenge';
 import { MfaChoicePrompt } from './components/MfaChoicePrompt';
 import { TOTPChallenge } from './components/TOTPChallenge';
 import { useMFAChoice } from './hooks/useMFAChoice';
 import { useMFAEvents } from './hooks/useMFAEvent';
+import { useSelectMFAMethod } from './hooks/useSelectMFAMethod';
 
 export const MFA: FC<StageProps> = () => {
   const [error, setError] = useState<AuthErrorCode>();
   const mfaChoice = useMFAChoice();
   const mfaChallenge = useMFAEvents(setError);
-  const { request } = useConnectionContext();
   const [showChoicePrompt, setShowChoicePrompt] = useState(true);
   const [mfaDeviceName, setMfaDeviceName] = useState('');
   const { t } = useTranslation();
-  const mfaChoiceRef = useRef(mfaChoice);
-  mfaChoiceRef.current = mfaChoice;
-  const chooseMfaMethod = useCallback(
-    (method: RecoveryMethod) => {
-      const choice = mfaChoiceRef.current.choice;
-      if (!choice) {
-        return;
-      }
 
-      if (method.type === MfaRequestType.Fido) {
-        setMfaDeviceName(method.name);
-      }
-
-      setShowChoicePrompt(false);
-      request<ChooseMfaMethodHandler>({
-        method: ExtensionRequest.SEEDLESS_CHOOSE_MFA_METHOD,
-        params: [
-          {
-            mfaId: choice.mfaId,
-            chosenMethod: method,
-          },
-        ],
-      });
-    },
-    [request],
-  );
+  const selectMfaMethod = useSelectMFAMethod(mfaChoice.choice, (method) => {
+    setShowChoicePrompt(false);
+    if (method.type === MfaRequestType.Fido) {
+      setMfaDeviceName(method.name);
+    }
+  });
 
   return (
     <FullscreenModal open withCoreLogo withAppInfo>
@@ -92,7 +66,7 @@ export const MFA: FC<StageProps> = () => {
       {showChoicePrompt && mfaChoice.choice && (
         <MfaChoicePrompt
           mfaChoice={mfaChoice.choice}
-          onChosen={chooseMfaMethod}
+          onChosen={selectMfaMethod}
         />
       )}
     </FullscreenModal>
