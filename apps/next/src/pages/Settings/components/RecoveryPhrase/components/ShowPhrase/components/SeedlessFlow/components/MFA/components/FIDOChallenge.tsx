@@ -36,15 +36,7 @@ export const FIDOChallenge: FC<Props> = ({
   const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
-    if (!challenge || (isVerifying && !force)) {
-      return;
-    }
-
-    if (
-      challenge.type !== MfaRequestType.Fido &&
-      challenge.type !== MfaRequestType.FidoRegister
-    ) {
-      onError(AuthErrorCode.WrongMfaResponseAttempt);
+    if (isVerifying && !force) {
       return;
     }
 
@@ -53,29 +45,30 @@ export const FIDOChallenge: FC<Props> = ({
     onError(undefined);
 
     try {
-      launchFidoFlow(
-        challenge.type === MfaRequestType.Fido
-          ? FIDOApiEndpoint.Authenticate
-          : FIDOApiEndpoint.Register,
-        challenge.options,
-        challenge.type === MfaRequestType.FidoRegister
-          ? challenge.keyType
-          : undefined,
-      ).then((answer) => {
-        request<SubmitMfaResponseHandler>({
-          method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
-          params: [
-            {
-              mfaId: challenge?.mfaId,
-              answer,
-            },
-          ],
-        });
-      });
+      launchFidoFlow(FIDOApiEndpoint.Authenticate, challenge.options).then(
+        (answer) => {
+          request<SubmitMfaResponseHandler>({
+            method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
+            params: [
+              {
+                mfaId: challenge?.mfaId,
+                answer,
+              },
+            ],
+          });
+        },
+      );
     } catch (_err) {
       onError(AuthErrorCode.FidoChallengeFailed);
     }
-  }, [challenge, force, onError, request, isVerifying]);
+  }, [
+    onError,
+    request,
+    isVerifying,
+    challenge.mfaId,
+    force,
+    challenge.options,
+  ]);
 
   return (
     <DialogContent>

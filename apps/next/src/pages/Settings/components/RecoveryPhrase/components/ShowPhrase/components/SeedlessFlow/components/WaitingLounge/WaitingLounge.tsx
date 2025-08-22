@@ -1,9 +1,11 @@
+import { toast } from '@avalabs/k2-alpine';
+import { ExportState } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { StageProps } from '../../types';
+import { OmniViewPage } from '../OmniViewPage';
 import { CancellationScreen } from './components/CancellationScreen';
-import { Container } from './components/Container';
 import { CountDown } from './components/CountDown';
 
 export const WaitingLounge: FC<StageProps> = ({
@@ -11,39 +13,56 @@ export const WaitingLounge: FC<StageProps> = ({
   cancelExport,
   progress,
   timeLeft,
+  state,
 }) => {
   const { t } = useTranslation();
-  const { push } = useHistory();
+  const { replace } = useHistory();
+
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+  const showCountDown =
+    !showCancelConfirmation &&
+    (state === ExportState.Pending || state === ExportState.Cancelling);
 
   return (
-    <Container
+    <OmniViewPage
       fullscreen={fullscreen}
       title={
+        showCancelConfirmation ? t('Cancel Export') : t('Show recovery phrase')
+      }
+      description={
         showCancelConfirmation
           ? t('Are you sure that you want to cancel this request?')
-          : t('Show recovery phrase')
+          : undefined
       }
     >
-      {showCancelConfirmation ? (
+      {showCancelConfirmation && state === ExportState.Pending && (
         <CancellationScreen
-          onApprove={() => {
-            cancelExport();
-            push('/settings');
+          onApprove={async () => {
+            setShowCancelConfirmation(false);
+            await cancelExport();
+            toast.error(t('Export Cancelled'));
+            if (fullscreen) {
+              window.close();
+            } else {
+              replace('/settings');
+            }
           }}
           onCancel={() => {
             setShowCancelConfirmation(false);
           }}
         />
-      ) : (
+      )}
+      {showCountDown && (
         <CountDown
+          state={state}
           progress={progress}
           timeLeft={timeLeft}
+          fullScreen={fullscreen}
           onCancel={() => {
             setShowCancelConfirmation(true);
           }}
         />
       )}
-    </Container>
+    </OmniViewPage>
   );
 };

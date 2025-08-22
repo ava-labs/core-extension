@@ -6,6 +6,7 @@ import {
   Stack,
   Typography,
 } from '@avalabs/k2-alpine';
+import { ExportState } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,11 +14,19 @@ type Props = {
   progress: number;
   timeLeft: string;
   onCancel: () => void;
+  fullScreen: boolean;
+  state: Extract<ExportState, ExportState.Pending | ExportState.Cancelling>;
 };
 
-export const CountDown: FC<Props> = ({ progress, timeLeft, onCancel }) => {
+export const CountDown: FC<Props> = ({
+  progress,
+  timeLeft,
+  onCancel,
+  fullScreen,
+  state,
+}) => {
   const { t } = useTranslation();
-
+  const isCancelling = state === ExportState.Cancelling;
   return (
     <>
       <Stack
@@ -27,10 +36,25 @@ export const CountDown: FC<Props> = ({ progress, timeLeft, onCancel }) => {
         alignItems="center"
         justifyContent="center"
       >
-        <ArcProgress size={190} value={progress} color="success" />
-        <Box position="absolute" bottom={2} textAlign="center" width={1} px={3}>
-          <Typography variant="caption" color="text.primary">
-            {t("Your wallet's recovery phrase will be visible in")}
+        <ArcProgress
+          size={190 * (fullScreen ? 1.5 : 1)}
+          value={progress}
+          color="success"
+        />
+        <Box
+          position="absolute"
+          bottom={fullScreen ? 12 : 2}
+          textAlign="center"
+          width={1}
+          px={fullScreen ? 5 : 3}
+        >
+          <Typography
+            variant={fullScreen ? 'h5' : 'caption'}
+            color="text.primary"
+          >
+            {state === ExportState.Cancelling
+              ? t('Your request has been cancelled')
+              : t("Your wallet's recovery phrase will be visible in")}
           </Typography>
           <Typography
             variant="h2"
@@ -47,12 +71,14 @@ export const CountDown: FC<Props> = ({ progress, timeLeft, onCancel }) => {
       </Stack>
       <Button
         variant="contained"
-        size="extension"
+        size={fullScreen ? 'large' : 'extension'}
         fullWidth
         color="secondary"
         onClick={onCancel}
+        disabled={isCancelling}
+        loading={isCancelling}
       >
-        {t('Cancel request')}
+        {isCancelling ? t('Cancelling...') : t('Cancel request')}
       </Button>
     </>
   );
