@@ -9,6 +9,5 @@ export type ChallengeComponentProps<MRT extends MfaRequestType> = {
   challenge: Extract<MfaRequestData, { type: MRT }>;
   error?: AuthErrorCode;
   onError: (error: AuthErrorCode | undefined) => void;
-  force?: boolean;
   name?: string;
 };

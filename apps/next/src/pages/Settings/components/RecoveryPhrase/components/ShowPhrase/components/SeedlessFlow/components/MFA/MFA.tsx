@@ -1,4 +1,5 @@
 import { FullscreenModal } from '@/components/FullscreenModal';
+import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
 import {
   AuthErrorCode,
   ExtensionRequest,
@@ -7,7 +8,7 @@ import {
 } from '@core/types';
 import { useConnectionContext } from '@core/ui';
 import { FC, useCallback, useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChooseMfaMethodHandler } from '~/services/seedless/handlers/chooseMfaMethod';
 import { StageProps } from '../../types';
 import { FIDOChallenge } from './components/FIDOChallenge';
@@ -21,9 +22,9 @@ export const MFA: FC<StageProps> = () => {
   const mfaChoice = useMFAChoice();
   const mfaChallenge = useMFAEvents(setError);
   const { request } = useConnectionContext();
-  const history = useHistory();
   const [showChoicePrompt, setShowChoicePrompt] = useState(true);
-
+  const [mfaDeviceName, setMfaDeviceName] = useState('');
+  const { t } = useTranslation();
   const mfaChoiceRef = useRef(mfaChoice);
   mfaChoiceRef.current = mfaChoice;
   const chooseMfaMethod = useCallback(
@@ -31,6 +32,10 @@ export const MFA: FC<StageProps> = () => {
       const choice = mfaChoiceRef.current.choice;
       if (!choice) {
         return;
+      }
+
+      if (method.type === MfaRequestType.Fido) {
+        setMfaDeviceName(method.name);
       }
 
       setShowChoicePrompt(false);
@@ -47,22 +52,8 @@ export const MFA: FC<StageProps> = () => {
     [request],
   );
 
-  const onBackHandler = mfaChallenge.challenge
-    ? () => {
-        mfaChallenge.clear();
-        setShowChoicePrompt(true);
-      }
-    : history.goBack;
-
-  console.log({
-    mfaChoice,
-    mfaChallenge,
-    showChoicePrompt,
-    error,
-  });
-
   return (
-    <FullscreenModal open withCoreLogo withAppInfo onBack={onBackHandler}>
+    <FullscreenModal open withCoreLogo withAppInfo>
       {mfaChallenge.challenge?.type === MfaRequestType.Totp && (
         <TOTPChallenge
           error={error}
@@ -74,10 +65,28 @@ export const MFA: FC<StageProps> = () => {
         mfaChallenge.challenge?.type === MfaRequestType.FidoRegister) && (
         <FIDOChallenge
           challenge={mfaChallenge.challenge}
-          name={mfaChallenge.challenge.options}
+          name={mfaDeviceName}
           onError={setError}
           error={error}
         />
+      )}
+
+      {!mfaChoice.choice && (
+        <Stack width={1} height={1} justifyContent="center" alignItems="center">
+          <CircularProgress />
+          <Typography variant="body1">
+            {t('Fetching available authentication methods...')}
+          </Typography>
+        </Stack>
+      )}
+
+      {!mfaChoice && (
+        <Stack width={1} height={1} justifyContent="center" alignItems="center">
+          <CircularProgress />
+          <Typography variant="body1">
+            {t('Fetching available authentication methods...')}
+          </Typography>
+        </Stack>
       )}
 
       {showChoicePrompt && mfaChoice.choice && (

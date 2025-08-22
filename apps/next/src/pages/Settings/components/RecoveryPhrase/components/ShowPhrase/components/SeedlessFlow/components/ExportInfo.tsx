@@ -5,6 +5,7 @@ import { StackProps } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FiExternalLink } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import { StageProps } from '../types';
 
@@ -24,6 +25,7 @@ export const ExportInfo: FC<StageProps> = ({
     push,
     location: { pathname },
   } = useHistory();
+
   useEffect(() => {
     if (isFullscreen) {
       initExport();
@@ -50,6 +52,7 @@ export const ExportInfo: FC<StageProps> = ({
       <ActionButtons
         top={{
           label: t('Next'),
+          endIcon: <FiExternalLink />,
           onClick: async () => {
             if (!isFullscreen) {
               openFullscreenTab(pathname.slice(1));

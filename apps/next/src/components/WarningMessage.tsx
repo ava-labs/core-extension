@@ -1,4 +1,6 @@
 import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
+import { ContextContainer } from '@core/types';
+import { isSpecificContextContainer } from '@core/ui';
 import { FC, PropsWithChildren } from 'react';
 import { MdOutlineErrorOutline } from 'react-icons/md';
 
@@ -10,6 +12,7 @@ export const WarningMessage: FC<PropsWithChildren<StackProps>> = ({
   children,
   ...props
 }) => {
+  const isFullscreen = isSpecificContextContainer(ContextContainer.FULLSCREEN);
   return (
     <Stack
       {...props}
@@ -19,7 +22,9 @@ export const WarningMessage: FC<PropsWithChildren<StackProps>> = ({
       columnGap={1}
     >
       <UnshrinkableIcon size={24} />
-      <Typography variant="caption">{children}</Typography>
+      <Typography variant={isFullscreen ? 'body2' : 'caption'}>
+        {children}
+      </Typography>
     </Stack>
   );
 };
