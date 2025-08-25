@@ -2,36 +2,36 @@ import { useTranslation } from 'react-i18next';
 import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
-import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
 
 import {
   type Recipient,
   getRecipientAddressByType,
 } from '@/components/RecipientSelect';
 
-import { useEvmNativeSend } from '../hooks/useEvmNativeSend';
+import { useEvmErc20Send } from '../hooks';
 
-type EvmNativeSendBodyProps = {
+type EvmErc20SendBodyProps = {
   from: Account;
-  token: FungibleTokenBalance;
+  token: Erc20TokenBalance;
   network: NetworkWithCaipId;
   amount: string;
   recipient: Recipient;
 };
 
-export const EvmNativeSendBody = ({
+export const EvmErc20SendBody = ({
   from,
   token,
   amount,
   recipient,
   network,
-}: EvmNativeSendBodyProps) => {
+}: EvmErc20SendBodyProps) => {
   const { t } = useTranslation();
 
   const to = getRecipientAddressByType(recipient, 'C');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
-  const { isSending, isValid, error, send } = useEvmNativeSend({
+  const { isSending, isValid, error, send } = useEvmErc20Send({
     token,
     amount: amountBigInt,
     from,

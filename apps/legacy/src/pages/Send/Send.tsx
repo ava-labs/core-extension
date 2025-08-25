@@ -27,7 +27,12 @@ import {
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { Network } from '@core/types';
+import {
+  isAvmCapableAccount,
+  isPvmCapableAccount,
+  isSvmCapableAccount,
+  Network,
+} from '@core/types';
 import {
   SupportedProvider,
   getAddressForChain,
@@ -43,11 +48,6 @@ import { SendBTC } from './components/SendBTC';
 import { SendEVM } from './components/SendEVM';
 import { SendPVM } from './components/SendPVM';
 import { SendSVM } from './components/SendSVM';
-import {
-  isAvmCapableAccount,
-  isPvmCapableAccount,
-  isSvmCapableAccount,
-} from './hooks/useSend/models';
 import { toastCardWithLink } from '@/components/common/toastCardWithLink';
 
 export function SendPage() {

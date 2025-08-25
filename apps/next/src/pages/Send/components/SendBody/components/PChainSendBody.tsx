@@ -2,36 +2,40 @@ import { useTranslation } from 'react-i18next';
 import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
-import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import {
+  NetworkWithCaipId,
+  PChainTokenBalance,
+  PvmCapableAccount,
+} from '@core/types';
 
 import {
   type Recipient,
   getRecipientAddressByType,
 } from '@/components/RecipientSelect';
 
-import { useEvmNativeSend } from '../hooks/useEvmNativeSend';
+import { usePChainSend } from '../hooks/usePChainSend';
 
-type EvmNativeSendBodyProps = {
-  from: Account;
-  token: FungibleTokenBalance;
+type PChainSendBodyProps = {
+  from: PvmCapableAccount;
+  token: PChainTokenBalance;
   network: NetworkWithCaipId;
   amount: string;
   recipient: Recipient;
 };
 
-export const EvmNativeSendBody = ({
+export const PChainSendBody = ({
   from,
   token,
   amount,
   recipient,
   network,
-}: EvmNativeSendBodyProps) => {
+}: PChainSendBodyProps) => {
   const { t } = useTranslation();
 
-  const to = getRecipientAddressByType(recipient, 'C');
+  const to = getRecipientAddressByType(recipient, 'PVM');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
-  const { isSending, isValid, error, send } = useEvmNativeSend({
+  const { isSending, isValid, error, send } = usePChainSend({
     token,
     amount: amountBigInt,
     from,

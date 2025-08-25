@@ -1,32 +1,35 @@
+import { isAddress } from 'ethers';
+import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { useCallback, useEffect, useState } from 'react';
 
 import { chainIdToCaip } from '@core/common';
-import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
 import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
+import { getEvmProvider } from '@/lib/getEvmProvider';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
-import { asHex } from '../lib/asHex';
+import { buildErc20SendTx } from '../lib/buildErc20SendTx';
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 
-type UseEvmNativeSendArgs = {
-  token: FungibleTokenBalance;
+type UseEvmErc20SendArgs = {
+  token: Erc20TokenBalance;
   amount: bigint;
   from: Account;
   to?: string;
   network: NetworkWithCaipId;
 };
 
-export const useEvmNativeSend = ({
+export const useEvmErc20Send = ({
   token,
   amount,
   from,
   to,
   network,
-}: UseEvmNativeSendArgs) => {
+}: UseEvmErc20SendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
@@ -37,32 +40,34 @@ export const useEvmNativeSend = ({
   const [error, setError] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  const provider = getEvmProvider(network);
+
   const send = useCallback(async () => {
     try {
       setIsSending(true);
 
+      if (!to) {
+        toast.error(t('Please enter a recipient address.'));
+        return;
+      }
+
       const networkFee = await getNetworkFee(token.coreChainId);
 
       if (!networkFee) {
-        throw new Error('Network fee not found');
+        toast.error(t('Unable to estimate the network fee.'));
+        return;
       }
+
+      const tx = await buildErc20SendTx(from.addressC, provider, networkFee, {
+        address: to,
+        amount,
+        token,
+      });
 
       const hash = await request(
         {
           method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            {
-              from: from.addressC,
-              to,
-              gas: asHex(23000),
-              value: asHex(amount),
-              chainId: asHex(token.coreChainId),
-              maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
-              maxPriorityFeePerGas: asHex(
-                networkFee.high.maxPriorityFeePerGas ?? 1n,
-              ),
-            },
-          ],
+          params: [tx],
         },
         {
           scope: chainIdToCaip(token.coreChainId),
@@ -82,17 +87,19 @@ export const useEvmNativeSend = ({
     request,
     onSendSuccess,
     onSendFailure,
-    token.coreChainId,
-    from.addressC,
+    from,
     to,
-    amount,
     getNetworkFee,
+    token,
+    t,
+    amount,
+    provider,
   ]);
 
   useEffect(() => {
     setError('');
 
-    if (!to) {
+    if (!isAddress(to)) {
       return setError(t('Selected recipient is not a valid EVM address.'));
     }
 
