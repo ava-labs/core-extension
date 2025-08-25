@@ -44,6 +44,7 @@ export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { walletDetails } = useWalletContext();
+  console.log('SettingsHomePage walletDetails: ', walletDetails);
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();

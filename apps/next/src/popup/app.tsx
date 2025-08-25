@@ -99,7 +99,6 @@ export function App() {
           <ThemeProvider theme={preferredColorScheme} />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
-          <SeedlessMfaManagementProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <PersonalAvatarProvider />,
@@ -113,6 +112,7 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <WalletContextProvider LockedComponent={LockScreen} />,
+          <SeedlessMfaManagementProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
         ]) as ReactElement[]
