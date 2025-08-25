@@ -12,6 +12,7 @@ import {
 } from '@core/types';
 
 import { TokenSelect } from '@/components/TokenSelect';
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
 
@@ -61,7 +62,7 @@ export const TokenAmountInput = ({
       if (!token) return;
 
       const tokenUnit = new TokenUnit(
-        token.balance,
+        getAvailableBalance(token, false),
         token.decimals,
         token.symbol,
       );
@@ -70,11 +71,13 @@ export const TokenAmountInput = ({
       const amountToSubtract =
         percentage === 100 && isNativeToken(token) ? estimatedFee : 0n;
 
+      const calculatedMaxAmount = tokenUnit
+        .div(100 / percentage)
+        .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol));
+
+      // Make sure we never seem silly by telling the user to send a negative amount.
       onAmountChange(
-        tokenUnit
-          .div(100 / percentage)
-          .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol))
-          .toString(),
+        calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
     [onAmountChange, estimatedFee, token],

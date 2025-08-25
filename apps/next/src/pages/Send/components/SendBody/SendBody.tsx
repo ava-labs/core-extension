@@ -6,6 +6,11 @@ import {
   isBtcToken,
   isErc20Token,
   isEvmNativeToken,
+  isPChainToken,
+  isPvmCapableAccount,
+  isSolanaNativeToken,
+  isSolanaSplToken,
+  isSvmCapableAccount,
   isXChainToken,
   NetworkWithCaipId,
 } from '@core/types';
@@ -20,6 +25,8 @@ import {
   EvmNativeSendBody,
   BtcSendBody,
   XChainSendBody,
+  PChainSendBody,
+  SolanaSendBody,
 } from './components';
 
 type SendBodyProps = Partial<{
@@ -101,6 +108,34 @@ export const SendBody = ({
       />
     );
   }
+
+  if (isPChainToken(token) && isPvmCapableAccount(account)) {
+    return (
+      <PChainSendBody
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
+  if (
+    (isSolanaNativeToken(token) || isSolanaSplToken(token)) &&
+    isSvmCapableAccount(account)
+  ) {
+    return (
+      <SolanaSendBody
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
   return (
     <DisabledSendBody reason={t('Sending this token is not supported yet.')} />
   );

@@ -46,7 +46,7 @@ export const useXChainSend = ({
     setError('');
 
     if (!to || !isValidAvmAddress(to)) {
-      return setError(t('Selected recipient is not a valid EVM address.'));
+      return setError(t('Selected recipient is not a valid X-Chain address.'));
     }
 
     // Network fee data not loaded yet, we'll validate the amount when it does load.
@@ -68,7 +68,7 @@ export const useXChainSend = ({
   const send = useCallback(async () => {
     if (!to || !isValidAvmAddress(to)) {
       toast.error(
-        t('Please provide a valid Bitcoin address as the recipient.'),
+        t('Please provide a valid X-Chain address as the recipient.'),
       );
       return;
     }

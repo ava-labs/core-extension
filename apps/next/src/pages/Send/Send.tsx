@@ -2,8 +2,13 @@ import { useCallback } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
+import { TokenType } from '@avalabs/vm-module-types';
 
-import { useAccountsContext, useNetworkContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useLiveBalance,
+  useNetworkContext,
+} from '@core/ui';
 import { getUniqueTokenId } from '@core/types';
 
 import {
@@ -27,7 +32,11 @@ import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from './lib/getAddressTypeForToken';
 
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+
 export const Send = () => {
+  useLiveBalance(POLLED_BALANCES);
+
   const { t } = useTranslation();
   const { search } = useLocation();
   const { replace } = useHistory();
@@ -99,7 +108,7 @@ export const Send = () => {
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
     >
-      <Stack width="100%" gap={2} flexGrow={1}>
+      <Stack width="100%" gap={2}>
         <AccountSelect
           addressType="C"
           value={activeAccount}

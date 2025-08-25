@@ -14,11 +14,18 @@ import {
   isEvmNativeToken,
   isAvmCapableAccount,
   isXChainToken,
+  isPvmCapableAccount,
+  isPChainToken,
+  isSvmCapableAccount,
+  isSolanaNativeToken,
+  isSolanaSplToken,
 } from '@core/types';
 
 import { getEvmMaxAmount } from './lib';
 import { getBtcMaxAmount } from './lib/getBtcMaxAmount';
 import { getXChainMaxAmount } from './lib/getXChainMaxAmount';
+import { getPChainMaxAmount } from './lib/getPChainMaxAmount';
+import { getSolanaMaxAmount } from './lib/getSolanaMaxAmount';
 
 type MaxAmountInfo = {
   maxAmount: bigint;
@@ -40,7 +47,7 @@ export const useMaxAmountForTokenSend = (
   });
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || !from) return;
 
     let isMounted = true;
 
@@ -66,6 +73,22 @@ export const useMaxAmountForTokenSend = (
             isLedgerWallet,
             getNetwork(token.coreChainId),
           ).then((res) => isMounted && setResult(res));
+        } else if (isPvmCapableAccount(from) && isPChainToken(token)) {
+          getPChainMaxAmount(
+            from,
+            isLedgerWallet,
+            getNetwork(token.coreChainId),
+          ).then((res) => isMounted && setResult(res));
+        } else if (
+          isSvmCapableAccount(from) &&
+          (isSolanaNativeToken(token) || isSolanaSplToken(token))
+        ) {
+          setResult(getSolanaMaxAmount(token));
+        } else {
+          setResult({
+            maxAmount: 0n,
+            estimatedFee: 0n,
+          });
         }
       })
       .catch((error) => {
