@@ -5,6 +5,8 @@ import {
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalancePVM,
+  TokenWithBalanceSPL,
+  TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
 
 import { EnsureDefined } from './util-types';
@@ -164,6 +166,20 @@ export type PChainTokenBalance = Extract<
   assetType: 'pvm_native';
 };
 
+export type SolanaNativeTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalanceSVM
+> & {
+  assetType: 'svm_native';
+};
+
+export type SolanaSplTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalanceSPL
+> & {
+  assetType: 'svm_spl';
+};
+
 export type NonFungibleTokenBalance = NftTokenWithBalance & {
   coreChainId: number;
   assetType: NonFungibleAssetType;
@@ -200,3 +216,13 @@ export const isPChainToken = (
   token: FungibleTokenBalance,
 ): token is PChainTokenBalance =>
   token.type === TokenType.NATIVE && token.assetType === 'pvm_native';
+
+export const isSolanaNativeToken = (
+  token: FungibleTokenBalance,
+): token is SolanaNativeTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'svm_native';
+
+export const isSolanaSplToken = (
+  token: FungibleTokenBalance,
+): token is SolanaSplTokenBalance =>
+  token.type === TokenType.SPL && token.assetType === 'svm_spl';
