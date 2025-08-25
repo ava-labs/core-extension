@@ -1,8 +1,8 @@
 import { FullscreenModal } from '@/components/FullscreenModal';
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { InProgress } from '../../../InProgress';
 import { StageProps } from '../../types';
 import { FIDOChallenge } from './components/FIDOChallenge';
 import { MfaChoicePrompt } from './components/MfaChoicePrompt';
@@ -46,21 +46,9 @@ export const MFA: FC<StageProps> = () => {
       )}
 
       {!mfaChoice.choice && (
-        <Stack width={1} height={1} justifyContent="center" alignItems="center">
-          <CircularProgress />
-          <Typography variant="body1">
-            {t('Fetching available authentication methods...')}
-          </Typography>
-        </Stack>
-      )}
-
-      {!mfaChoice && (
-        <Stack width={1} height={1} justifyContent="center" alignItems="center">
-          <CircularProgress />
-          <Typography variant="body1">
-            {t('Fetching available authentication methods...')}
-          </Typography>
-        </Stack>
+        <InProgress textSize="body1">
+          {t('Fetching available authentication methods...')}
+        </InProgress>
       )}
 
       {showChoicePrompt && mfaChoice.choice && (

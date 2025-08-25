@@ -1,10 +1,9 @@
 import {
-  Button,
-  CircularProgress,
-  DialogContent,
-  Stack,
-  Typography,
-} from '@avalabs/k2-alpine';
+  FullscreenModalContent,
+  FullscreenModalDescription,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
+import { Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { launchFidoFlow } from '@core/common';
 import {
   AuthErrorCode,
@@ -17,6 +16,7 @@ import { FC, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
+import { InProgress } from '../../../../InProgress';
 import { ChallengeComponentProps } from '../../../types';
 
 type Props = ChallengeComponentProps<
@@ -24,7 +24,7 @@ type Props = ChallengeComponentProps<
 >;
 
 export const FIDOChallenge: FC<Props> = ({
-  name,
+  name: deviceName,
   error,
   onError,
   challenge,
@@ -44,23 +44,19 @@ export const FIDOChallenge: FC<Props> = ({
     setForce(false);
     onError(undefined);
 
-    try {
-      launchFidoFlow(FIDOApiEndpoint.Authenticate, challenge.options).then(
-        (answer) => {
-          request<SubmitMfaResponseHandler>({
-            method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
-            params: [
-              {
-                mfaId: challenge?.mfaId,
-                answer,
-              },
-            ],
-          });
-        },
-      );
-    } catch (_err) {
-      onError(AuthErrorCode.FidoChallengeFailed);
-    }
+    launchFidoFlow(FIDOApiEndpoint.Authenticate, challenge.options)
+      .then((answer) => {
+        request<SubmitMfaResponseHandler>({
+          method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
+          params: [
+            {
+              mfaId: challenge?.mfaId,
+              answer,
+            },
+          ],
+        });
+      })
+      .catch(() => onError(AuthErrorCode.FidoChallengeFailed));
   }, [
     onError,
     request,
@@ -71,44 +67,48 @@ export const FIDOChallenge: FC<Props> = ({
   ]);
 
   return (
-    <DialogContent>
-      <Stack
-        sx={{
-          gap: 3,
-          textAlign: 'center',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: 200,
-        }}
-      >
-        {!errorMessage && isVerifying && (
-          <>
-            <CircularProgress size={48} />
-            <Typography variant="body1">
-              {name ? (
-                <Trans
-                  i18nKey="Please use your FIDO device (<b>{{deviceName}}</b>) to continue."
-                  components={{ b: <strong /> }}
-                  values={{ deviceName: name }}
-                />
-              ) : (
-                t('Please use your FIDO device to continue.')
-              )}
-            </Typography>
-          </>
+    <>
+      <FullscreenModalTitle>{t('Verify via FIDO')}</FullscreenModalTitle>
+      <FullscreenModalDescription>
+        {deviceName ? (
+          <Trans
+            i18nKey="Please use (<b>{{deviceName}}</b>) FIDO device to continue."
+            components={{ b: <strong /> }}
+            values={{ deviceName }}
+          />
+        ) : (
+          t('Please use selected FIDO device to continue.')
         )}
-        {errorMessage && (
-          <>
-            <MdErrorOutline size={40} />
-            <Typography variant="body2" color="text.secondary">
-              {errorMessage}
-            </Typography>
-            <Button size="large" onClick={() => setForce(true)}>
-              {t('Try again')}
-            </Button>
-          </>
-        )}
-      </Stack>
-    </DialogContent>
+      </FullscreenModalDescription>
+      <FullscreenModalContent>
+        <Stack
+          gap={3}
+          textAlign="center"
+          justifyContent="center"
+          alignItems="center"
+          minHeight={200}
+        >
+          {!errorMessage && isVerifying && (
+            <InProgress textSize="body1">{t('Verifying...')}</InProgress>
+          )}
+          {errorMessage && (
+            <>
+              <MdErrorOutline size={40} />
+              <Typography variant="body2" color="text.secondary">
+                {errorMessage}
+              </Typography>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={() => setForce(true)}
+              >
+                {t('Try again')}
+              </Button>
+            </>
+          )}
+        </Stack>
+      </FullscreenModalContent>
+    </>
   );
 };
