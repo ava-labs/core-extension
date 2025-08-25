@@ -14,6 +14,7 @@ import {
   useContactsContext,
   useSettingsContext,
   useWalletContext,
+  useSeedlessMfaManager,
 } from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -52,6 +53,8 @@ export const SettingsHomePage = () => {
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
   const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
+  const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
+  console.log('isMfaSetupPromptVisible: ', isMfaSetupPromptVisible);
 
   return (
     <Page
@@ -80,6 +83,14 @@ export const SettingsHomePage = () => {
             'Hide your wallet balance on the portfolio screen for added privacy',
           )}
         />
+      </Stack>
+      <Stack>
+        {isMfaSetupPromptVisible && (
+          <SettingsNavItem
+            label={t('Finish setting up recovery methods')}
+            href={`${path}/recovery-methods`}
+          />
+        )}
       </Stack>
       <SettingsCard
         title={t('General')}

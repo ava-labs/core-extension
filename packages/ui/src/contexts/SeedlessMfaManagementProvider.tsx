@@ -79,6 +79,8 @@ export const SeedlessMfaManagementProvider = ({
 }: SeedlessMfaManagementContextProps) => {
   const { events, request } = useConnectionContext();
   const { walletDetails } = useWalletContext();
+  // TODO: FIX has no walletDetails
+  console.log('walletDetails: ', walletDetails);
   const { isFlagEnabled } = useFeatureFlagContext();
   const areMfaSettingsAvailable = isFlagEnabled(
     FeatureGates.SEEEDLESS_MFA_SETTINGS,
@@ -93,6 +95,11 @@ export const SeedlessMfaManagementProvider = ({
   const [recoveryMethods, setRecoveryMethods] = useState<RecoveryMethod[]>([]);
 
   const isMfaSetupPromptVisible = useMemo(() => {
+    // TODO: FIX the values
+    console.log('areMfaSettingsAvailable: ', areMfaSettingsAvailable);
+    console.log('hasLoadedRecoveryMethods: ', hasLoadedRecoveryMethods);
+    console.log(' walletDetails?.type: ', walletDetails?.type);
+    console.log('recoveryMethods: ', recoveryMethods);
     return (
       areMfaSettingsAvailable &&
       hasLoadedRecoveryMethods &&
@@ -110,6 +117,7 @@ export const SeedlessMfaManagementProvider = ({
     setIsLoadingRecoveryMethods(true);
 
     try {
+      console.log('try: ');
       const methods = await incrementalPromiseResolve(
         () =>
           request<GetRecoveryMethodsHandler>({
@@ -121,12 +129,15 @@ export const SeedlessMfaManagementProvider = ({
         (err) => err === 'Forbidden',
       );
 
+      console.log('methods: ', methods);
       setRecoveryMethods(methods);
       setHasLoadedRecoveryMethods(true);
-    } catch {
+    } catch (e) {
+      console.log('e: ', e);
       setRecoveryMethods([]);
       setHasLoadedRecoveryMethods(false);
     } finally {
+      console.log('finally: ');
       setIsLoadingRecoveryMethods(false);
     }
   }, [request]);

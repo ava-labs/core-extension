@@ -1,7 +1,13 @@
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
-import { Divider, EncryptedIcon, Stack, StackProps } from '@avalabs/k2-alpine';
+import {
+  Divider,
+  EncryptedIcon,
+  SecurityKeyIcon,
+  Stack,
+  StackProps,
+} from '@avalabs/k2-alpine';
 
 import {
   FullscreenModalActions,
@@ -63,7 +69,7 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
           />
           <CardMenuItem
             onClick={() => onMethodChosen('yubikey')}
-            icon={<MdOutlinePassword size={24} />} // TODO: replace with YubiKey icon
+            icon={<SecurityKeyIcon size={24} />}
             text={t('Yubikey')}
             description={t(
               `Use a YubiKey for physical, hardware-based protection and strong authentication.`,

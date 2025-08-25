@@ -1,4 +1,5 @@
 import { Page } from '@/components/Page';
+import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 import {
   Box,
   ChevronRightIcon,
@@ -13,6 +14,7 @@ import {
 import { useAnalyticsContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MdOutlinePassword } from 'react-icons/md';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
 export const RecoveryMethods: FC = () => {
@@ -64,58 +66,23 @@ export const RecoveryMethods: FC = () => {
           borderRadius: 2,
         }}
       >
-        {cards.map((card, idx) => {
-          console.log('card: ', card);
-          return (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                p: 2,
-                position: 'relative',
-                cursor: 'pointer',
-                '&:hover': { backgroundColor: 'action.hover' },
-              }}
-              onClick={() => {
-                capture(card.analyticsKey);
-                history.push(card.to);
-              }}
-              key={card.title}
-            >
-              <Box
-                sx={{
-                  mr: 2,
-                  color: 'primary.main',
-                  display: 'flex',
-                  alignItems: 'center',
+        <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
+          {cards.map((card, idx) => {
+            console.log('card: ', card);
+            return (
+              <CardMenuItem
+                onClick={() => {
+                  capture(card.analyticsKey);
+                  history.push(card.to);
                 }}
-              >
-                {card.icon}
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" fontWeight={600}>
-                  {card.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {card.description}
-                </Typography>
-              </Box>
-              <IconButton edge="end" size="large" sx={{ ml: 1 }}>
-                <ChevronRightIcon />
-              </IconButton>
-              {idx < cards.length - 1 && (
-                <Divider
-                  sx={{
-                    position: 'absolute',
-                    left: 64,
-                    right: 0,
-                    bottom: 0,
-                  }}
-                />
-              )}
-            </Box>
-          );
-        })}
+                icon={card.icon}
+                text={card.title}
+                description={card.description}
+                key={idx}
+              />
+            );
+          })}
+        </CardMenu>
       </Paper>
     </Page>
   );
