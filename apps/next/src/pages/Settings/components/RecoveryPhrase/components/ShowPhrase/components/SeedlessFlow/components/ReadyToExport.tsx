@@ -31,7 +31,7 @@ export const ReadyToExport: FC<StageProps> = ({
         <Button
           size={fullscreen ? 'large' : 'extension'}
           variant="contained"
-          color="primary"
+          color="secondary"
           onClick={completeExport}
           fullWidth
           sx={{ mt: 'auto' }}

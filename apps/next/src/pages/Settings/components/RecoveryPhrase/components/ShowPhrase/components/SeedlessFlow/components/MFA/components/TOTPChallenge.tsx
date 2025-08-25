@@ -64,7 +64,7 @@ export const TOTPChallenge: FC<Props> = ({ error, challenge, onError }) => {
       </FullscreenModalDescription>
       <FullscreenModalContent
         {...keyboardShortcuts}
-        sx={{ overflow: 'visible' }} // do not cut off the field when shaking
+        sx={{ overflow: 'visible' }}
       >
         <TotpCodeField
           error={isSubmitted && !!totpError}
@@ -88,6 +88,7 @@ export const TOTPChallenge: FC<Props> = ({ error, challenge, onError }) => {
               isVerifying,
             });
           }}
+          loading={isVerifying}
           disabled={!code || code.length < 6 || isVerifying}
           fullWidth
         >

@@ -1,4 +1,3 @@
-import { openView } from '@/utils/openView';
 import { Slide } from '@avalabs/k2-alpine';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,12 +11,11 @@ import { ExportedMnemonic } from './components/ExportedMnemonic';
 export const Exported: FC<StageProps> = ({ mnemonic, fullscreen }) => {
   useOpenFullscreen();
   const { t } = useTranslation();
-  const { push } = useHistory();
+  const { replace } = useHistory();
   const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
   const goToSettings = async () => {
-    push('/settings');
-    await openView('floating');
+    replace('/settings');
     window.close();
   };
 

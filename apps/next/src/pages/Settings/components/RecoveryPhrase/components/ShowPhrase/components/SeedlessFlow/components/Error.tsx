@@ -62,10 +62,10 @@ const getErrorContent = (
 
 export const Error: FC<StageProps> = ({ error, initExport, fullscreen }) => {
   const { t } = useTranslation();
-  const { push } = useHistory();
+  const { replace } = useHistory();
 
   const goToSettings = () => {
-    push('/settings');
+    replace('/settings');
     window.close();
   };
 
