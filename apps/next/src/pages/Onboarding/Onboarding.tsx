@@ -8,12 +8,12 @@ import {
   styled,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { matchPath, Route, Switch, useHistory } from 'react-router-dom';
 
 import { FaApple } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import { CoreSplash } from '@/components/CoreSplash';
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -31,6 +31,7 @@ export function Onboarding() {
   const theme = useTheme();
   const history = useHistory();
   const { capture, initAnalyticsIds } = useAnalyticsContext();
+  const { resetStates } = useOnboardingContext();
 
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
 
@@ -38,6 +39,24 @@ export function Onboarding() {
     initAnalyticsIds(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const maybeReset = (e: HashChangeEvent) => {
+      const [, hash] = e.newURL.split('#');
+      const isHomePage =
+        hash &&
+        (matchPath(hash, { path: '/onboarding', exact: true }) ||
+          matchPath(hash, { path: '/', exact: true }));
+      if (isHomePage) {
+        resetStates();
+      }
+    };
+
+    window.addEventListener('hashchange', maybeReset);
+    // Reset on mount as well
+    resetStates();
+    return () => window.removeEventListener('hashchange', maybeReset);
+  }, [resetStates]);
 
   return (
     <>

@@ -44,6 +44,9 @@ export const InvisibleAmountInput = styled(
           slotProps={{
             htmlInput: {
               min: 0,
+              step: 'any',
+              inputMode: 'decimal',
+              formNoValidate: true,
               ...htmlInputProps,
             },
             input: {

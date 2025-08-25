@@ -1,4 +1,4 @@
-import { Network as _Network } from '@avalabs/core-chains-sdk';
+import { Network as _Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { EnsureDefined, PartialBy } from './util-types';
 
 export enum NetworkEvents {
@@ -73,3 +73,9 @@ export type AddEthereumChainDisplayData = {
 };
 
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };
+
+export type EvmNetwork = NetworkWithCaipId & { vmName: NetworkVMType.EVM };
+
+export const isEvmNetwork = (
+  network: NetworkWithCaipId,
+): network is EvmNetwork => network.vmName === NetworkVMType.EVM;

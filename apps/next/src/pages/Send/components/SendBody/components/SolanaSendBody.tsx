@@ -2,36 +2,41 @@ import { useTranslation } from 'react-i18next';
 import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
-import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import {
+  NetworkWithCaipId,
+  SvmCapableAccount,
+  SolanaNativeTokenBalance,
+  SolanaSplTokenBalance,
+} from '@core/types';
 
 import {
   type Recipient,
   getRecipientAddressByType,
 } from '@/components/RecipientSelect';
 
-import { useEvmNativeSend } from '../hooks/useEvmNativeSend';
+import { useSolanaSend } from '../hooks/useSolanaSend';
 
-type EvmNativeSendBodyProps = {
-  from: Account;
-  token: FungibleTokenBalance;
+type SolanaSendBodyProps = {
+  from: SvmCapableAccount;
+  token: SolanaNativeTokenBalance | SolanaSplTokenBalance;
   network: NetworkWithCaipId;
   amount: string;
   recipient: Recipient;
 };
 
-export const EvmNativeSendBody = ({
+export const SolanaSendBody = ({
   from,
   token,
   amount,
   recipient,
   network,
-}: EvmNativeSendBodyProps) => {
+}: SolanaSendBodyProps) => {
   const { t } = useTranslation();
 
-  const to = getRecipientAddressByType(recipient, 'C');
+  const to = getRecipientAddressByType(recipient, 'SVM');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
-  const { isSending, isValid, error, send } = useEvmNativeSend({
+  const { isSending, isValid, error, send } = useSolanaSend({
     token,
     amount: amountBigInt,
     from,
