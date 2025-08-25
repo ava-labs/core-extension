@@ -6,7 +6,12 @@ import {
 } from '@/components/FullscreenModal';
 import { TotpCodeField } from '@/components/TotpCodeField';
 import { Button } from '@avalabs/k2-alpine';
-import { AuthErrorCode, ExtensionRequest, MfaRequestType } from '@core/types';
+import {
+  AuthErrorCode,
+  ExtensionRequest,
+  MfaRequestType,
+  MfaResponseData,
+} from '@core/types';
 import {
   useConnectionContext,
   useKeyboardShortcuts,
@@ -33,19 +38,14 @@ export const TOTPChallenge: FC<Props> = ({ error, challenge, onError }) => {
   });
 
   const submit = useCallback(
-    (params: { mfaId: string; code: string; isVerifying: boolean }) => {
+    (params: MfaResponseData) => {
       setIsVerifying(true);
       onError(undefined);
 
       try {
         request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
-          params: [
-            {
-              mfaId: params.mfaId,
-              code: params.code,
-            },
-          ],
+          params: [params],
         });
       } catch {
         onError(AuthErrorCode.TotpVerificationError);
@@ -77,6 +77,7 @@ export const TOTPChallenge: FC<Props> = ({ error, challenge, onError }) => {
       <FullscreenModalActions>
         <Button
           ref={submitButtonRef}
+          variant="contained"
           color="secondary"
           size="large"
           onClick={() => {
@@ -85,11 +86,10 @@ export const TOTPChallenge: FC<Props> = ({ error, challenge, onError }) => {
             submit({
               mfaId: challenge.mfaId,
               code,
-              isVerifying,
             });
           }}
           loading={isVerifying}
-          disabled={!code || code.length < 6 || isVerifying}
+          disabled={!code || isVerifying}
           fullWidth
         >
           {isVerifying ? t('Verifying...') : t('Verify')}

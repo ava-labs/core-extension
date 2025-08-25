@@ -1,4 +1,5 @@
 import { Card } from '@/components/Card';
+import { FakeWord } from '@/components/FakeWord';
 import {
   Button,
   Grid2,
@@ -44,6 +45,7 @@ const PhraseCard: FC<Props> = ({ phrase, hidden }) => {
                 color="text.secondary"
                 textAlign="center"
                 width={20}
+                sx={{ userSelect: 'none' }}
               >
                 {index + 1}
               </Typography>
@@ -54,7 +56,11 @@ const PhraseCard: FC<Props> = ({ phrase, hidden }) => {
                   height="1em"
                 />
               ) : (
-                <Typography variant="subtitle4">{word}</Typography>
+                <>
+                  {Math.random() < 0.5 && <FakeWord />}
+                  <Typography variant="subtitle4">{word}</Typography>
+                  {Math.random() < 0.5 && <FakeWord />}
+                </>
               )}
             </Grid2>
           ))}

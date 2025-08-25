@@ -60,6 +60,7 @@ export const ExportEntryPoint: FC<StageProps> = ({
           onClick: async () => {
             if (!isFullscreen) {
               openFullscreenTab(pathname.slice(1));
+              window.close();
             }
           },
           color: 'primary',
