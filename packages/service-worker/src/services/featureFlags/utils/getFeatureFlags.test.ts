@@ -112,7 +112,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       );
     });
 
-    it('properly calls posthog api', async () => {
+    it('properly calls posthog api with userID', async () => {
       jest.spyOn(Date, 'now').mockReturnValue(1234);
 
       await getFeatureFlags('token', 'userID', 'https://example.com');
@@ -132,6 +132,32 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
         `https://example.com/decide?ip=0&_=1234&v=3&ver=1.20.0`,
         {
           body: 'data=eyJ0b2tlbiI6InRva2VuIiwiZGlzdGluY3RfaWQiOiJ1c2VySUQiLCJncm91cHMiOnt9fQ%3D%3D',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          method: 'POST',
+        },
+      );
+    });
+
+    it('properly calls posthog api with no userID', async () => {
+      jest.spyOn(Date, 'now').mockReturnValue(1234);
+
+      await getFeatureFlags('token', '', 'https://example.com');
+
+      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch).toHaveBeenNthCalledWith(
+        1,
+        `${process.env.PROXY_URL}/proxy/posthog/decide?ip=0&_=1234&v=3&ver=1.20.0`,
+        {
+          body: 'data=eyJ0b2tlbiI6InRva2VuIiwiZGlzdGluY3RfaWQiOiJjb3JlLWV4dGVuc2lvbiIsImdyb3VwcyI6e319',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          method: 'POST',
+        },
+      );
+      expect(fetch).toHaveBeenNthCalledWith(
+        2,
+        `https://example.com/decide?ip=0&_=1234&v=3&ver=1.20.0`,
+        {
+          body: 'data=eyJ0b2tlbiI6InRva2VuIiwiZGlzdGluY3RfaWQiOiJjb3JlLWV4dGVuc2lvbiIsImdyb3VwcyI6e319',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           method: 'POST',
         },
