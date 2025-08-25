@@ -2,9 +2,14 @@ import { useCallback } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
+import { TokenType } from '@avalabs/vm-module-types';
 
-import { useAccountsContext, useNetworkContext } from '@core/ui';
-import { AddressType, getUniqueTokenId } from '@core/types';
+import {
+  useAccountsContext,
+  useLiveBalance,
+  useNetworkContext,
+} from '@core/ui';
+import { getUniqueTokenId } from '@core/types';
 
 import {
   getSendPath,
@@ -16,12 +21,22 @@ import { Page } from '@/components/Page';
 import { AccountSelect } from '@/components/AccountSelect';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 import { useTokensForAccount } from '@/components/TokenSelect';
-import { RecipientSelect, useRecipients } from '@/components/RecipientSelect';
+import {
+  getRecipientAddressByType,
+  RecipientSelect,
+  useRecipients,
+} from '@/components/RecipientSelect';
+import { getAddressByType } from '@/utils/getAddressByType';
+import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from './lib/getAddressTypeForToken';
 
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+
 export const Send = () => {
+  useLiveBalance(POLLED_BALANCES);
+
   const { t } = useTranslation();
   const { search } = useLocation();
   const { replace } = useHistory();
@@ -65,12 +80,27 @@ export const Send = () => {
   const selectedToken = tokensForAccount.find(
     (tok) => getUniqueTokenId(tok) === tokenId,
   );
-  const recipientAddressType: AddressType = selectedToken
+
+  const addressType = selectedToken
     ? getAddressTypeForToken(selectedToken)
     : 'C';
 
-  const recipients = useRecipients(recipientAddressType, recipientQuery);
+  const sourceAddress = activeAccount
+    ? (getAddressByType(activeAccount, addressType) ?? '')
+    : '';
+
+  const recipients = useRecipients(addressType, recipientQuery);
   const recipient = recipients.find((r) => r.id === recipientId);
+
+  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(
+    activeAccount,
+    selectedToken,
+    recipient
+      ? getRecipientAddressByType(recipient, addressType)
+      : // With BTC, we have a chicken-egg problem, where we need to know the recipient address to get the max amount.
+        // This helps us to at least roughly estimate the max amount before the recipient is selected.
+        sourceAddress,
+  );
 
   return (
     <Page
@@ -78,7 +108,7 @@ export const Send = () => {
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
     >
-      <Stack width="100%" gap={2} flexGrow={1}>
+      <Stack width="100%" gap={2}>
         <AccountSelect
           addressType="C"
           value={activeAccount}
@@ -96,6 +126,8 @@ export const Send = () => {
           <TokenAmountInput
             id="send-token-amount"
             tokenId={tokenId}
+            maxAmount={maxAmount}
+            estimatedFee={estimatedFee}
             tokensForAccount={tokensForAccount}
             onTokenChange={(value) => {
               updateQueryParam(searchParams, {
@@ -116,12 +148,16 @@ export const Send = () => {
           />
         </Card>
         <RecipientSelect
-          addressType={recipientAddressType}
+          addressType={addressType}
           value={recipient}
           onQueryChange={(q) => updateQueryParam(searchParams, { toQuery: q })}
-          onValueChange={(r) =>
-            updateQueryParam(searchParams, { toQuery: '', to: r.id })
-          }
+          onValueChange={(r) => {
+            updateQueryParam(searchParams, {
+              // Do not clear the query if user manually provided the recipient's address.
+              toQuery: r.type === 'unknown' ? recipientQuery : '',
+              to: r.id,
+            });
+          }}
           recipients={recipients}
           query={recipientQuery}
         />

@@ -12,12 +12,14 @@ import {
 } from '@core/types';
 
 import { TokenSelect } from '@/components/TokenSelect';
-import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
+  maxAmount: bigint;
+  estimatedFee: bigint;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
   onTokenChange: (token: string) => void;
@@ -29,6 +31,8 @@ type TokenAmountInputProps = {
 
 export const TokenAmountInput = ({
   id,
+  maxAmount,
+  estimatedFee,
   tokenId,
   tokensForAccount,
   onTokenChange,
@@ -45,8 +49,6 @@ export const TokenAmountInput = ({
     [tokensForAccount, tokenId],
   );
 
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(token);
-
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
     Number.isFinite(parseFloat(amount)) && parseFloat(amount) !== 0;
@@ -60,7 +62,7 @@ export const TokenAmountInput = ({
       if (!token) return;
 
       const tokenUnit = new TokenUnit(
-        token.balance,
+        getAvailableBalance(token, false),
         token.decimals,
         token.symbol,
       );
@@ -69,11 +71,13 @@ export const TokenAmountInput = ({
       const amountToSubtract =
         percentage === 100 && isNativeToken(token) ? estimatedFee : 0n;
 
+      const calculatedMaxAmount = tokenUnit
+        .div(100 / percentage)
+        .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol));
+
+      // Make sure we never seem silly by telling the user to send a negative amount.
       onAmountChange(
-        tokenUnit
-          .div(100 / percentage)
-          .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol))
-          .toString(),
+        calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
     [onAmountChange, estimatedFee, token],
