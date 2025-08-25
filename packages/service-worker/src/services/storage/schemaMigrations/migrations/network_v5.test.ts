@@ -1,0 +1,144 @@
+import { ChainId } from '@avalabs/core-chains-sdk';
+import network_v5, { defaultEnableNetworksDeletable } from './network_v5';
+import { defaultEnabledNetworks } from '~/services/network/consts';
+
+describe('background/services/storage/schemaMigrations/migrations/network_v5', () => {
+  const baseNetworkStorage = {
+    favoriteNetworks: [],
+    customNetworks: {},
+    dappScopes: {},
+  };
+
+  describe('basic migration', () => {
+    it('should add version 5 and networkAvailability object', async () => {
+      const result = await network_v5.up(baseNetworkStorage);
+
+      expect(result.version).toBe(5);
+      expect(result.networkAvailability).toBeDefined();
+      expect(typeof result.networkAvailability).toBe('object');
+    });
+  });
+
+  describe('networkAvailability creation', () => {
+    it('should include defaultEnableNetworksDeletable in networkAvailability when not in favoriteNetworks', async () => {
+      const result = await network_v5.up(baseNetworkStorage);
+      expect(Object.keys(result.networkAvailability)).toHaveLength(
+        defaultEnableNetworksDeletable.length,
+      );
+      defaultEnableNetworksDeletable.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toEqual({
+          isEnabled: true,
+        });
+      });
+    });
+
+    it('should include custom networks from favoriteNetworks that are not in default lists', async () => {
+      const customNetworkIds = [9999, 8888];
+      const input = {
+        ...baseNetworkStorage,
+        favoriteNetworks: [...customNetworkIds, ...defaultEnabledNetworks],
+      };
+
+      const result = await network_v5.up(input);
+
+      expect(Object.keys(result.networkAvailability)).toHaveLength(
+        customNetworkIds.length + defaultEnableNetworksDeletable.length,
+      );
+
+      customNetworkIds.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toEqual({
+          isEnabled: true,
+        });
+      });
+    });
+
+    it('should filter out defaultEnabledNetworks from favoriteNetworks but include defaultEnableNetworksDeletable', async () => {
+      const customNetworkIds = [9999, 8888];
+      const input = {
+        ...baseNetworkStorage,
+        favoriteNetworks: [
+          ...customNetworkIds,
+          ...defaultEnabledNetworks,
+          ...defaultEnableNetworksDeletable,
+        ],
+      };
+
+      const result = await network_v5.up(input);
+
+      // Should include custom networks
+      customNetworkIds.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toEqual({
+          isEnabled: true,
+        });
+      });
+
+      // Should include defaultEnableNetworksDeletable
+      defaultEnableNetworksDeletable.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toEqual({
+          isEnabled: true,
+        });
+      });
+
+      // Should NOT include defaultEnabledNetworks
+      defaultEnabledNetworks.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toBeUndefined();
+      });
+    });
+  });
+
+  describe('favoriteNetworks handling', () => {
+    it('should preserve favoriteNetworks array unchanged', async () => {
+      const favoriteNetworks = [9999, 8888, ChainId.ETHEREUM_HOMESTEAD, 42161];
+      const input = {
+        ...baseNetworkStorage,
+        favoriteNetworks,
+      };
+
+      const result = await network_v5.up(input);
+
+      expect(result.favoriteNetworks).toEqual(favoriteNetworks);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle favoriteNetworks with only defaultEnabledNetworks', async () => {
+      const input = {
+        ...baseNetworkStorage,
+        favoriteNetworks: [...defaultEnabledNetworks],
+      };
+
+      const result = await network_v5.up(input);
+
+      // Should only have defaultEnableNetworksDeletable in networkAvailability
+      expect(Object.keys(result.networkAvailability)).toHaveLength(
+        defaultEnableNetworksDeletable.length,
+      );
+
+      defaultEnableNetworksDeletable.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toEqual({
+          isEnabled: true,
+        });
+      });
+    });
+
+    it('should handle favoriteNetworks with only defaultEnableNetworksDeletable', async () => {
+      const input = {
+        ...baseNetworkStorage,
+        favoriteNetworks: [...defaultEnableNetworksDeletable],
+      };
+
+      const result = await network_v5.up(input);
+
+      // Should have defaultEnableNetworksDeletable in networkAvailability
+      expect(Object.keys(result.networkAvailability)).toHaveLength(
+        defaultEnableNetworksDeletable.length,
+      );
+
+      defaultEnableNetworksDeletable.forEach((networkId) => {
+        expect(result.networkAvailability[networkId]).toEqual({
+          isEnabled: true,
+        });
+      });
+    });
+  });
+});

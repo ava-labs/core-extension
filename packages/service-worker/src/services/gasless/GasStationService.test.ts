@@ -25,7 +25,7 @@ describe('src/background/services/gasless/GasStationService', () => {
     getAppcheckToken: jest.fn().mockResolvedValue({ token: 'appCheckToken' }),
   } as any);
 
-  const networkService = new NetworkService({} as any, {} as any);
+  const networkService = new NetworkService({} as any, {} as any, {} as any);
   const networkFeeService = new NetworkFeeService({} as any);
 
   const gasStationUrl = 'https://core-gas-station.avax-test.network';
