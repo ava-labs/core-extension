@@ -6,7 +6,7 @@ export const AmountPresetButton: FC<ButtonProps> = ({ sx, ...props }) => (
     variant="contained"
     color="secondary"
     size="xsmall"
-    sx={combineSx({ minWidth: 'unset' }, sx)}
+    sx={combineSx({ minWidth: 'unset', gap: 0 }, sx)}
     {...props}
   />
 );

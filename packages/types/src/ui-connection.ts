@@ -306,7 +306,7 @@ export type RequestHandlerType = <
   Params = ExtractHandlerTypes<HandlerOrKnownParams>['Params'],
 >(
   message: Omit<JsonRpcRequestPayload<Method, Params>, 'id'>,
-  context?: Record<string, unknown>,
+  options?: { scope?: string; context?: Record<string, unknown> },
 ) => Promise<Result>;
 
 interface ConnectionEventEmitter {

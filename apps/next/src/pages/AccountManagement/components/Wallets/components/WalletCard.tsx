@@ -5,7 +5,7 @@ import { cloneElement, FC, ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RenamableTitle } from '../../RenamableTitle';
 import * as Styled from './Styled';
-import { WalletIconProps } from './WalletIcon';
+import { WalletIconProps } from '@/components/WalletIcon';
 interface WalletCardProps {
   id: WalletDetails['id'];
   name: WalletDetails['name'];

@@ -462,6 +462,9 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getNetwork(chainId: number): Promise<NetworkWithCaipId | undefined>;
   async getNetwork(
     scopeOrChainId: string | number,
+  ): Promise<NetworkWithCaipId | undefined>;
+  async getNetwork(
+    scopeOrChainId: string | number,
   ): Promise<NetworkWithCaipId | undefined> {
     const chainId =
       typeof scopeOrChainId === 'string'

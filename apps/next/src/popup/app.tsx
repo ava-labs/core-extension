@@ -6,7 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
-  AnalyticsContextProvider,
+  ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
   CurrenciesContextProvider,
@@ -14,6 +14,7 @@ import {
   KeystoneContextProvider,
   LedgerContextProvider,
   NetworkContextProvider,
+  NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
@@ -23,28 +24,24 @@ import {
 } from '@core/ui';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
-import AccountManagement from '@/pages/AccountManagement/AccountManagement';
-import { Contacts } from '@/pages/Contacts';
-import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
-import { Receive } from '@/pages/Receive';
-import { Settings } from '@/pages/Settings';
 import { ContextContainer } from '@core/types';
 import { useEffect, useRef } from 'react';
-import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
-import { Portfolio } from '@/pages/Portfolio';
+import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
 import { getContactsPath, getSendPath } from '@/config/routes';
-import { Send } from '@/pages/Send';
+import { ApprovalRoutes, AppRoutes } from '@/routing';
 
 const pagesWithoutHeader = [
   '/account-management',
   '/settings',
   '/receive',
+  '/approve',
   getContactsPath(),
   getSendPath(),
 ];
@@ -57,6 +54,13 @@ export function App() {
   historyRef.current = history;
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
+
+  const isApprovalContext = isSpecificContextContainer(
+    ContextContainer.CONFIRM,
+  );
+  const isAppContext =
+    isSpecificContextContainer(ContextContainer.POPUP) ||
+    isSpecificContextContainer(ContextContainer.SIDE_PANEL);
 
   useEffect(() => {
     /* The list of contexts that should support navigation history */
@@ -93,7 +97,6 @@ export function App() {
       providers={
         Children.toArray([
           <ThemeProvider theme={preferredColorScheme} />,
-          <AnalyticsContextProvider />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
           <SeedlessMfaManagementProvider />,
@@ -110,6 +113,8 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <WalletContextProvider LockedComponent={LockScreen} />,
+          <NetworkFeeContextProvider />,
+          <ApprovalsContextProvider />,
         ]) as ReactElement[]
       }
     >
@@ -119,22 +124,8 @@ export function App() {
             <Header />
           </Stack>
         )}
-        <Switch>
-          <Route path="/receive" component={Receive} />
-          <Route path="/settings" component={Settings} />
-          <Route path={getContactsPath()} component={Contacts} />
-          <Route path="/account-management" component={AccountManagement} />
-          <Route
-            path="/import-wallet/seedphrase"
-            component={ImportSeedphraseFlow}
-          />
-          <Route
-            path="/import-wallet/ledger/:phase?"
-            component={ImportLedgerFlow}
-          />
-          <Route path={getSendPath()} component={Send} />
-          <Route path="/" component={Portfolio} />
-        </Switch>
+        {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
+        {isAppContext && <InAppApprovalOverlay />}
       </>
     </Providers>
   );
