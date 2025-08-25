@@ -1,7 +1,7 @@
 import { ActionButtons } from '@/components/ActionButtons';
 import { Page } from '@/components/Page';
 import { WarningMessage } from '@/components/WarningMessage';
-import { StackProps } from '@avalabs/k2-alpine';
+import { StackProps, styled } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,10 @@ const contentProps: StackProps = {
   justifyContent: undefined,
   alignItems: undefined,
 };
+
+const ExternalLinkIcon = styled(FiExternalLink)(({ theme }) => ({
+  marginLeft: theme.spacing(-1.5),
+}));
 
 export const ExportEntryPoint: FC<StageProps> = ({
   initExport,
@@ -52,7 +56,7 @@ export const ExportEntryPoint: FC<StageProps> = ({
       <ActionButtons
         top={{
           label: t('Next'),
-          endIcon: <FiExternalLink />,
+          endIcon: <ExternalLinkIcon />,
           onClick: async () => {
             if (!isFullscreen) {
               openFullscreenTab(pathname.slice(1));
