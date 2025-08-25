@@ -11,6 +11,7 @@ export function useOpenFullscreen() {
   useEffect(() => {
     if (!isFullscreen) {
       openFullscreenTab(pathname.slice(1));
+      window.close();
     }
   }, [isFullscreen, pathname]);
 }
