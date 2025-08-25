@@ -112,7 +112,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       );
     });
 
-    it('properly calls posthog api', async () => {
+    it('properly calls posthog api with userID', async () => {
       jest.spyOn(Date, 'now').mockReturnValue(1234);
 
       await getFeatureFlags('token', 'userID', 'https://example.com');
@@ -141,7 +141,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
     it('properly calls posthog api with no userID', async () => {
       jest.spyOn(Date, 'now').mockReturnValue(1234);
 
-      await getFeatureFlags('token', undefined, 'https://example.com');
+      await getFeatureFlags('token', '', 'https://example.com');
 
       expect(fetch).toHaveBeenCalledTimes(2);
       expect(fetch).toHaveBeenNthCalledWith(
