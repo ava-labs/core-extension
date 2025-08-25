@@ -134,7 +134,8 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           label={t('Networks')}
           secondaryAction={
-            <AvatarButton
+            <ChevronRightIcon
+              size={16}
               onClick={() => push('/settings/network-management')}
             />
           }

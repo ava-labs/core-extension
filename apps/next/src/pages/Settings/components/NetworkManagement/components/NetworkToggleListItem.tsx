@@ -26,7 +26,12 @@ export const NetworkToggleListItem = ({
         <NetworkAvatar network={network} />
       </ListItemIcon>
       <ListItemText primary={network.chainName} />
-      <Switch checked={isEnabled} disabled={isDefault} onChange={onToggle} />
+      <Switch
+        size="small"
+        checked={isEnabled}
+        disabled={isDefault}
+        onChange={onToggle}
+      />
     </ListItem>
   );
 };

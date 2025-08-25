@@ -1,16 +1,16 @@
 import { FC } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
-import { AllNetworks } from './components/AllNetworks';
-import { CustomNetworks } from './components/CustomNetworks';
-
-// const tabs = ['all', 'custom', 'add'];
+import { NetworksHome } from './components/NetworksHome';
+import { AddNetwork } from './components/AddNetwork';
+import { NetworkDetails } from './components/NetworkDetails';
 
 export const NetworkManagement: FC = () => {
   const { path } = useRouteMatch();
   return (
     <Switch>
-      <Route exact path={`${path}`} component={AllNetworks} />
-      <Route path={`${path}/custom`} component={CustomNetworks} />
+      <Route exact path={`${path}`} component={NetworksHome} />
+      <Route path={`${path}/details/:chainId`} component={NetworkDetails} />
+      <Route path={`${path}/add`} component={AddNetwork} />
     </Switch>
   );
 };
