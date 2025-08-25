@@ -5,18 +5,18 @@ import {
   useSeedlessMnemonicExport,
 } from '@core/ui';
 import { FC } from 'react';
-import { Error } from './components/Error';
-import { Exported } from './components/Exported';
-import { ExportInfo } from './components/ExportInfo';
-import { LoadingState } from './components/Loading';
-import { MFA } from './components/MFA';
-import { ReadyToExport } from './components/ReadyToExport';
-import { WaitingLounge } from './components/WaitingLounge/WaitingLounge';
+import { Error } from './pages/Error';
+import { Exported } from './pages/Exported';
+import { ExportEntryPoint } from './pages/ExportEntryPoint';
+import { LoadingState } from './pages/Loading';
+import { MFA } from './pages/MFA';
+import { ReadyToExport } from './pages/ReadyToExport';
+import { WaitingLounge } from './pages/WaitingLounge/WaitingLounge';
 import { StageProps } from './types';
 
 const stages: Record<ExportState, FC<StageProps>> = {
   [ExportState.Loading]: LoadingState,
-  [ExportState.NotInitiated]: ExportInfo,
+  [ExportState.NotInitiated]: ExportEntryPoint,
   [ExportState.Initiating]: MFA,
   [ExportState.Pending]: WaitingLounge,
   [ExportState.Cancelling]: WaitingLounge,
