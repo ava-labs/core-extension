@@ -1,60 +1,53 @@
 import { toast } from '@avalabs/k2-alpine';
+import { utils } from '@avalabs/avalanchejs';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import {
-  BtcCapableAccount,
-  BtcTokenBalance,
-  NetworkFee,
   NetworkWithCaipId,
+  PChainTokenBalance,
+  PvmCapableAccount,
 } from '@core/types';
-import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
-import { isBtcAddressInNetwork, isValidBtcAddress } from '@core/common';
+import { useConnectionContext, useWalletContext } from '@core/ui';
+import { isValidPvmAddress } from '@core/common';
 
+import { buildPChainSendTx } from '@/lib/buildPChainSendTx';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 
-type UseBtcSendArgs = {
-  token: BtcTokenBalance;
+type UsePChainSendArgs = {
+  token: PChainTokenBalance;
   amount: bigint;
-  from: BtcCapableAccount;
+  from: PvmCapableAccount;
   to?: string;
   network: NetworkWithCaipId;
 };
 
-export const useBtcSend = ({
+export const usePChainSend = ({
   token,
   amount,
   from,
   to,
   network,
-}: UseBtcSendArgs) => {
+}: UsePChainSendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
-  const { getNetworkFee } = useNetworkFeeContext();
+  const { isLedgerWallet } = useWalletContext();
 
   const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
-  const [networkFee, setNetworkFee] = useState<NetworkFee | null>(null);
   const [error, setError] = useState('');
-
-  const maxInitialFee = networkFee?.low.maxFeePerGas;
-
-  useEffect(() => {
-    getNetworkFee(network.caipId).then(setNetworkFee);
-  }, [getNetworkFee, network.caipId]);
 
   useEffect(() => {
     setError('');
 
-    if (!to || !isValidBtcAddress(to)) {
-      return setError(t('Selected recipient is not a valid Bitcoin address.'));
+    if (!to || !isValidPvmAddress(to)) {
+      return setError(t('Selected recipient is not a valid P-Chain address.'));
     }
 
     // Network fee data not loaded yet, we'll validate the amount when it does load.
@@ -74,13 +67,9 @@ export const useBtcSend = ({
   }, [maxAmount, token.decimals, token.symbol, t, to, estimatedFee, amount]);
 
   const send = useCallback(async () => {
-    if (
-      !to ||
-      !isValidBtcAddress(to) ||
-      !isBtcAddressInNetwork(to, !network.isTestnet)
-    ) {
+    if (!to || !isValidPvmAddress(to)) {
       toast.error(
-        t('Please provide a valid Bitcoin address as the recipient.'),
+        t('Please provide a valid P-Chain address as the recipient.'),
       );
       return;
     }
@@ -88,15 +77,27 @@ export const useBtcSend = ({
     setIsSending(true);
 
     try {
-      const hash = await request<BitcoinSendTransactionParams>(
+      const unsignedTx = await buildPChainSendTx({
+        isLedgerWallet,
+        account: from,
+        amount,
+        to,
+        network,
+      });
+      const manager = utils.getManagerForVM(unsignedTx.getVM());
+      const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
+      const params = {
+        transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
+        chainAlias: 'P',
+        utxos: unsignedTx.utxos.map((utxo) =>
+          utils.bufferToHex(utxo.toBytes(codec)),
+        ),
+      };
+
+      const hash = await request(
         {
-          method: RpcMethod.BITCOIN_SEND_TRANSACTION,
-          params: {
-            from: from.addressBTC,
-            to,
-            amount: Number(amount),
-            feeRate: Number(maxInitialFee),
-          },
+          method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
+          params,
         },
         {
           scope: network.caipId,
@@ -111,16 +112,15 @@ export const useBtcSend = ({
       setIsSending(false);
     }
   }, [
-    from.addressBTC,
-    maxInitialFee,
     to,
-    amount,
     request,
     t,
     onSendSuccess,
     onSendFailure,
-    network.isTestnet,
-    network.caipId,
+    isLedgerWallet,
+    from,
+    amount,
+    network,
   ]);
 
   return {

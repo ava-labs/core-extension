@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
-import { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 
 import {
   type Recipient,
@@ -12,7 +12,7 @@ import {
 import { useEvmNativeSend } from '../hooks/useEvmNativeSend';
 
 type EvmNativeSendBodyProps = {
-  from: string;
+  from: Account;
   token: FungibleTokenBalance;
   network: NetworkWithCaipId;
   amount: string;

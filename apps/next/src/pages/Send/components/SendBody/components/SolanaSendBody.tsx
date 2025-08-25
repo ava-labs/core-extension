@@ -3,9 +3,10 @@ import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import {
-  BtcCapableAccount,
-  BtcTokenBalance,
   NetworkWithCaipId,
+  SvmCapableAccount,
+  SolanaNativeTokenBalance,
+  SolanaSplTokenBalance,
 } from '@core/types';
 
 import {
@@ -13,29 +14,29 @@ import {
   getRecipientAddressByType,
 } from '@/components/RecipientSelect';
 
-import { useBtcSend } from '../hooks/useBtcSend';
+import { useSolanaSend } from '../hooks/useSolanaSend';
 
-type BtcSendBodyProps = {
-  from: BtcCapableAccount;
-  token: BtcTokenBalance;
+type SolanaSendBodyProps = {
+  from: SvmCapableAccount;
+  token: SolanaNativeTokenBalance | SolanaSplTokenBalance;
   network: NetworkWithCaipId;
   amount: string;
   recipient: Recipient;
 };
 
-export const BtcSendBody = ({
+export const SolanaSendBody = ({
   from,
   token,
   amount,
   recipient,
   network,
-}: BtcSendBodyProps) => {
+}: SolanaSendBodyProps) => {
   const { t } = useTranslation();
 
-  const to = getRecipientAddressByType(recipient, 'BTC');
+  const to = getRecipientAddressByType(recipient, 'SVM');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
-  const { isSending, isValid, error, send } = useBtcSend({
+  const { isSending, isValid, error, send } = useSolanaSend({
     token,
     amount: amountBigInt,
     from,
