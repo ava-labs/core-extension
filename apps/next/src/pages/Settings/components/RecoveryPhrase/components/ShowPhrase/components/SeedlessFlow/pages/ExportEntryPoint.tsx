@@ -16,7 +16,7 @@ const contentProps: StackProps = {
   alignItems: undefined,
 };
 
-export const ExportInfo: FC<StageProps> = ({
+export const ExportEntryPoint: FC<StageProps> = ({
   initExport,
   fullscreen: isFullscreen,
 }) => {
