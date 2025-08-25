@@ -58,7 +58,7 @@ export const PageTopBar: FC<Props> = ({
           {title}
         </OverflowingTypography>
       </Fade>
-      <Box sx={{ ml: 'auto' }}>
+      <Box ml="auto">
         <ViewModeSwitcher />
       </Box>
     </Stack>
