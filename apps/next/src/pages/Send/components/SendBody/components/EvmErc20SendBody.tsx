@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
-import { Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
+import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
 
 import {
   type Recipient,
@@ -12,7 +12,7 @@ import {
 import { useEvmErc20Send } from '../hooks';
 
 type EvmErc20SendBodyProps = {
-  from: string;
+  from: Account;
   token: Erc20TokenBalance;
   network: NetworkWithCaipId;
   amount: string;

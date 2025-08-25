@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  AnalyticsContextProvider,
   ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
@@ -40,7 +41,6 @@ const pagesWithoutHeader = [
   '/account-management',
   '/settings',
   '/receive',
-  '/approve',
   getContactsPath(),
   getSendPath(),
 ];
@@ -96,11 +96,13 @@ export function App() {
       providers={
         Children.toArray([
           <ThemeProvider theme={preferredColorScheme} />,
+          <AnalyticsContextProvider />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <PersonalAvatarProvider />,
+          <WalletContextProvider LockedComponent={LockScreen} />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
@@ -110,7 +112,6 @@ export function App() {
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
         ]) as ReactElement[]

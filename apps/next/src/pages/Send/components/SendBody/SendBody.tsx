@@ -1,10 +1,17 @@
 import {
   Account,
   FungibleTokenBalance,
+  isAvmCapableAccount,
   isBtcCapableAccount,
   isBtcToken,
   isErc20Token,
   isEvmNativeToken,
+  isPChainToken,
+  isPvmCapableAccount,
+  isSolanaNativeToken,
+  isSolanaSplToken,
+  isSvmCapableAccount,
+  isXChainToken,
   NetworkWithCaipId,
 } from '@core/types';
 import { isNil } from 'lodash';
@@ -16,8 +23,11 @@ import {
   DisabledSendBody,
   EvmErc20SendBody,
   EvmNativeSendBody,
+  BtcSendBody,
+  XChainSendBody,
+  PChainSendBody,
+  SolanaSendBody,
 } from './components';
-import { BtcSendBody } from './components/BtcSendBody';
 
 type SendBodyProps = Partial<{
   account: Account;
@@ -54,7 +64,7 @@ export const SendBody = ({
   if (isEvmNativeToken(token)) {
     return (
       <EvmNativeSendBody
-        from={account.addressC}
+        from={account}
         token={token}
         recipient={recipient}
         amount={amount}
@@ -66,7 +76,7 @@ export const SendBody = ({
   if (isErc20Token(token)) {
     return (
       <EvmErc20SendBody
-        from={account.addressC}
+        from={account}
         token={token}
         recipient={recipient}
         amount={amount}
@@ -78,7 +88,46 @@ export const SendBody = ({
   if (isBtcToken(token) && isBtcCapableAccount(account)) {
     return (
       <BtcSendBody
-        from={account.addressBTC}
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
+  if (isXChainToken(token) && isAvmCapableAccount(account)) {
+    return (
+      <XChainSendBody
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
+  if (isPChainToken(token) && isPvmCapableAccount(account)) {
+    return (
+      <PChainSendBody
+        from={account}
+        token={token}
+        recipient={recipient}
+        amount={amount}
+        network={network}
+      />
+    );
+  }
+
+  if (
+    (isSolanaNativeToken(token) || isSolanaSplToken(token)) &&
+    isSvmCapableAccount(account)
+  ) {
+    return (
+      <SolanaSendBody
+        from={account}
         token={token}
         recipient={recipient}
         amount={amount}

@@ -2,8 +2,13 @@ import { useCallback } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
+import { TokenType } from '@avalabs/vm-module-types';
 
-import { useAccountsContext, useNetworkContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useLiveBalance,
+  useNetworkContext,
+} from '@core/ui';
 import { getUniqueTokenId } from '@core/types';
 
 import {
@@ -27,7 +32,11 @@ import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from './lib/getAddressTypeForToken';
 
+const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
+
 export const Send = () => {
+  useLiveBalance(POLLED_BALANCES);
+
   const { t } = useTranslation();
   const { search } = useLocation();
   const { replace } = useHistory();
@@ -84,7 +93,7 @@ export const Send = () => {
   const recipient = recipients.find((r) => r.id === recipientId);
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(
-    sourceAddress,
+    activeAccount,
     selectedToken,
     recipient
       ? getRecipientAddressByType(recipient, addressType)
@@ -99,7 +108,7 @@ export const Send = () => {
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
     >
-      <Stack width="100%" gap={2} flexGrow={1}>
+      <Stack width="100%" gap={2}>
         <AccountSelect
           addressType="C"
           value={activeAccount}
@@ -142,9 +151,13 @@ export const Send = () => {
           addressType={addressType}
           value={recipient}
           onQueryChange={(q) => updateQueryParam(searchParams, { toQuery: q })}
-          onValueChange={(r) =>
-            updateQueryParam(searchParams, { toQuery: '', to: r.id })
-          }
+          onValueChange={(r) => {
+            updateQueryParam(searchParams, {
+              // Do not clear the query if user manually provided the recipient's address.
+              toQuery: r.type === 'unknown' ? recipientQuery : '',
+              to: r.id,
+            });
+          }}
           recipients={recipients}
           query={recipientQuery}
         />

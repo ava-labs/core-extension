@@ -3,9 +3,9 @@ import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import {
-  BtcCapableAccount,
-  BtcTokenBalance,
   NetworkWithCaipId,
+  PChainTokenBalance,
+  PvmCapableAccount,
 } from '@core/types';
 
 import {
@@ -13,29 +13,29 @@ import {
   getRecipientAddressByType,
 } from '@/components/RecipientSelect';
 
-import { useBtcSend } from '../hooks/useBtcSend';
+import { usePChainSend } from '../hooks/usePChainSend';
 
-type BtcSendBodyProps = {
-  from: BtcCapableAccount;
-  token: BtcTokenBalance;
+type PChainSendBodyProps = {
+  from: PvmCapableAccount;
+  token: PChainTokenBalance;
   network: NetworkWithCaipId;
   amount: string;
   recipient: Recipient;
 };
 
-export const BtcSendBody = ({
+export const PChainSendBody = ({
   from,
   token,
   amount,
   recipient,
   network,
-}: BtcSendBodyProps) => {
+}: PChainSendBodyProps) => {
   const { t } = useTranslation();
 
-  const to = getRecipientAddressByType(recipient, 'BTC');
+  const to = getRecipientAddressByType(recipient, 'PVM');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
 
-  const { isSending, isValid, error, send } = useBtcSend({
+  const { isSending, isValid, error, send } = usePChainSend({
     token,
     amount: amountBigInt,
     from,
