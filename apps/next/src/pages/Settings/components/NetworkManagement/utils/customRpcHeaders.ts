@@ -3,23 +3,17 @@ import { CustomRpcHeaders } from '@core/types';
 const EMPTY_KEY_VALUE_HEADER: KeyValueHeader = {
   key: '',
   value: '',
-  isNew: true,
-  isDirty: false,
 };
 
 export type KeyValueHeader = {
   key: string;
   value: string;
-  isNew: boolean;
-  isDirty: boolean;
 };
 
 const convertToKeyValue = (headers: CustomRpcHeaders) => {
   return Object.entries(headers).map(([key, value]) => ({
     key,
     value,
-    isNew: false,
-    isDirty: false,
   }));
 };
 
@@ -38,11 +32,48 @@ export const updateKeyValueList = (
 ) => {
   const newList = [...original];
 
-  newList[index] = newKeyValue;
+  if (newKeyValue.key === '' && newKeyValue.value === '') {
+    // Both empty means deleting
+    newList.splice(index, 1);
+  } else {
+    newList[index] = newKeyValue;
+  }
 
   if (newList[newList.length - 1]?.key !== '') {
     newList.push(EMPTY_KEY_VALUE_HEADER);
   }
 
   return newList;
+};
+
+export const prepToStoreCustomRpcHeaders = (
+  headers: KeyValueHeader[],
+): CustomRpcHeaders => {
+  return headers.reduce((acc, { key, value }) => {
+    if (key !== '' || value !== '') {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as CustomRpcHeaders);
+};
+
+const hasDuplicatesKey = (headers: KeyValueHeader[]) => {
+  const keys = Object.keys(headers);
+  return new Set(keys).size !== keys.length;
+};
+
+export const isReadyToStore = (headers: KeyValueHeader[]) => {
+  const headerToValidate = [...headers];
+  console.log({ headerToValidate });
+  const lastItem = headerToValidate[headerToValidate.length - 1];
+
+  if (lastItem && lastItem.key === '' && lastItem.value === '') {
+    //Removing the empty new field
+    headerToValidate.pop();
+  }
+
+  return (
+    headerToValidate.every(({ key, value }) => key !== '' && value !== '') &&
+    !hasDuplicatesKey(headerToValidate)
+  );
 };

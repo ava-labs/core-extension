@@ -1,9 +1,9 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isNetworkValid } from '@core/common';
-import { Network } from '@core/types';
+import { AdvancedNetworkConfig, Network } from '@core/types';
 import { useState } from 'react';
 
-const defaultNetworkValues: Network = {
+const defaultNetworkValues: Network & AdvancedNetworkConfig = {
   chainName: '',
   chainId: 0,
   vmName: NetworkVMType.EVM,
@@ -17,10 +17,13 @@ const defaultNetworkValues: Network = {
   },
   logoUri: '',
   explorerUrl: '',
+  customRpcHeaders: undefined,
 };
 
 export const useAddNetwork = () => {
-  const [network, setNetwork] = useState<Network>(defaultNetworkValues);
+  const [network, setNetwork] = useState<Network & AdvancedNetworkConfig>(
+    defaultNetworkValues,
+  );
 
   const { valid: isValid } = isNetworkValid(network);
 

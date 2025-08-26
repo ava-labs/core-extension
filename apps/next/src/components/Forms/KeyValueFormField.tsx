@@ -87,7 +87,7 @@ export const KeyValueFormField = ({
       />
 
       <InputContainer>
-        <Fade in={isEditing || !!value} mountOnEnter unmountOnExit>
+        <Fade in={isEditing || !!key || !!value} mountOnEnter unmountOnExit>
           <Stack
             position="absolute"
             width="100%"
@@ -131,7 +131,7 @@ export const KeyValueFormField = ({
             </Collapse>
           </Stack>
         </Fade>
-        <Fade in={!isEditing && !value} mountOnEnter unmountOnExit>
+        <Fade in={!isEditing && !key && !value} mountOnEnter unmountOnExit>
           <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
         </Fade>
       </InputContainer>

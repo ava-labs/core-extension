@@ -18,16 +18,19 @@ import {
 import { Network } from '@avalabs/core-chains-sdk';
 import { ContactNameField } from '@/pages/Contacts/components/ContactNameField';
 import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
 
 type NetworkFormProps = {
   network: Network;
   setNetwork: (network: Network) => void;
+  setTab: (tab: 'add' | 'rpc-headers') => void;
 };
 
-export const NetworkForm = ({ network, setNetwork }: NetworkFormProps) => {
+export const NetworkForm = ({
+  network,
+  setNetwork,
+  setTab,
+}: NetworkFormProps) => {
   const { t } = useTranslation();
-  const history = useHistory();
   const [isNaming, setIsNaming] = useState(false);
 
   const convertChainIdToString = (chainId: number) => {
@@ -90,11 +93,7 @@ export const NetworkForm = ({ network, setNetwork }: NetworkFormProps) => {
           direction="row"
           spacing={2}
           justifyContent="space-between"
-          onClick={() =>
-            history.push('/settings/network-management/add/rpc-headers', {
-              fromAddNetwork: true,
-            })
-          }
+          onClick={() => setTab('rpc-headers')}
         >
           <Typography>{t('Custom RPC Headers')}</Typography>
           <ChevronRightIcon size={16} />

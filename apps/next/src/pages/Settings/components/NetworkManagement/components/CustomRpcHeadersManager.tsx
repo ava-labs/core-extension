@@ -1,31 +1,37 @@
 import { useTranslation } from 'react-i18next';
 import { Button, Stack } from '@avalabs/k2-alpine';
-import { useAddNetwork } from '../hooks/useAddNetwork';
-import { useHistory } from 'react-router-dom';
+
 import { useIsIntersecting } from '@/components/Page/hooks/useIsIntersecting';
 import { PageTopBar } from '@/components/PageTopBar';
 import { Network } from '@core/types';
 import { useMemo, useState } from 'react';
-import { useNetworkContext } from '@core/ui';
+import { useAnalyticsContext } from '@core/ui';
 import { KeyValueFormField } from '@/components/Forms/KeyValueFormField';
 import {
   getKeyValueHeaderList,
+  isReadyToStore,
   KeyValueHeader,
+  prepToStoreCustomRpcHeaders,
   updateKeyValueList,
 } from '../utils/customRpcHeaders';
 
-export const CustomRpcHeadersManager = () => {
+type CustomRpcHeadersManagerProps = {
+  setTab: (tab: 'add' | 'rpc-headers') => void;
+  setNetwork: (network: Network) => void;
+  network: Network;
+};
+
+export const CustomRpcHeadersManager = ({
+  setTab,
+  setNetwork,
+  network,
+}: CustomRpcHeadersManagerProps) => {
+  const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
-  const history = useHistory();
-  const isAddNetworkFlow = history.location.pathname.includes('add');
-  const { network: newNetwork } = useAddNetwork();
-  const { networks } = useNetworkContext();
   const { isIntersecting, isObserving } = useIsIntersecting();
-  const network: Network | undefined = isAddNetworkFlow
-    ? newNetwork
-    : networks[0]; // TODO fix network selection
 
   const rpcHeaders = useMemo(() => {
+    console.log('network', network);
     return network?.customRpcHeaders ?? {};
   }, [network]);
 
@@ -33,16 +39,32 @@ export const CustomRpcHeadersManager = () => {
     getKeyValueHeaderList(rpcHeaders),
   );
 
-  const { isValid } = useAddNetwork();
+  const isValid = isReadyToStore(headerList);
 
   const handleBack = () => {
-    history.push('/settings/network-management/add', {
-      fromCustomRpcHeaders: true,
-    });
+    setTab('add');
   };
 
   const handleCancel = () => {
     handleBack();
+  };
+
+  const save = () => {
+    if (!network) return;
+    const headersToStore = prepToStoreCustomRpcHeaders(headerList);
+
+    const updatedNetwork = {
+      ...network,
+      customRpcHeaders: headersToStore,
+    };
+    console.log('CustomRpcHeadersManager: Setting network with headers:', {
+      originalNetwork: network,
+      headersToStore,
+      updatedNetwork,
+    });
+    setNetwork(updatedNetwork);
+    capture('CustomNetworkEdited');
+    return handleBack();
   };
 
   return (
@@ -87,10 +109,8 @@ export const CustomRpcHeadersManager = () => {
                 updateKeyValueList(
                   headerList,
                   {
-                    ...listItem,
                     key: newKeyValue.key,
                     value: newKeyValue.value,
-                    isDirty: true,
                   },
                   index,
                 ),
@@ -101,7 +121,9 @@ export const CustomRpcHeadersManager = () => {
       </Stack>
 
       <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
-        <Button disabled={!isValid}>{t('Save')}</Button>
+        <Button disabled={!isValid} onClick={save}>
+          {t('Save')}
+        </Button>
         <Button onClick={handleCancel}>{t('Cancel')}</Button>
       </Stack>
     </Stack>
