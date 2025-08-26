@@ -10,14 +10,14 @@ import { useTranslation } from 'react-i18next';
 import {
   ChainIdField,
   ExplorerUrlField,
-  NameField,
+  LogoUrlField,
   RpcUrlField,
   TokenNameField,
   TokenSymbolField,
 } from './NetworkFormField';
-import { Network } from '@avalabs/core-chains-sdk';
-import { ContactNameField } from '@/pages/Contacts/components/ContactNameField';
 import { useState } from 'react';
+import { Network } from '@core/types';
+import { NetworkNameField } from './NetworkNameField';
 
 type NetworkFormProps = {
   network: Network;
@@ -39,7 +39,7 @@ export const NetworkForm = ({
 
   return (
     <Stack width="100%" sx={{ flex: 1 }}>
-      <ContactNameField
+      <NetworkNameField
         name={network.chainName}
         setName={(name) => setNetwork({ ...network, chainName: name })}
         isNaming={isNaming}
@@ -50,11 +50,6 @@ export const NetworkForm = ({
         <RpcUrlField
           value={network.rpcUrl}
           onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
-        />
-        <Divider />
-        <NameField
-          value={network.chainName}
-          onChange={(chainName) => setNetwork({ ...network, chainName })}
         />
         <Divider />
         <ChainIdField
@@ -87,6 +82,11 @@ export const NetworkForm = ({
         <ExplorerUrlField
           value={network.explorerUrl}
           onChange={(explorerUrl) => setNetwork({ ...network, explorerUrl })}
+        />
+        <Divider />
+        <LogoUrlField
+          value={network.logoUri}
+          onChange={(logoUri) => setNetwork({ ...network, logoUri })}
         />
         <Divider />
         <Stack

@@ -23,21 +23,6 @@ export const RpcUrlField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
   );
 };
 
-export const NameField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
-  const { t } = useTranslation();
-
-  return (
-    <FormField
-      value={value}
-      label={t('Network name')}
-      placeholder={t('Type in or paste network name')}
-      prompt={t('Add network name')}
-      error={value ? undefined : t('Network Name is required')}
-      onChange={onChange}
-    />
-  );
-};
-
 export const ChainIdField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
   const { t } = useTranslation();
 
@@ -100,6 +85,21 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
       label={t('Explorer URL')}
       placeholder={t('Type in or paste explorer URL')}
       prompt={t('Add explorer URL')}
+      error={undefined}
+      onChange={onChange}
+    />
+  );
+};
+
+export const LogoUrlField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
+  const { t } = useTranslation();
+
+  return (
+    <FormField
+      value={value}
+      label={t('Logo URL')}
+      placeholder={t('Type in or paste logo URL')}
+      prompt={t('Add logo URL')}
       error={undefined}
       onChange={onChange}
     />

@@ -31,7 +31,6 @@ export const CustomRpcHeadersManager = ({
   const { isIntersecting, isObserving } = useIsIntersecting();
 
   const rpcHeaders = useMemo(() => {
-    console.log('network', network);
     return network?.customRpcHeaders ?? {};
   }, [network]);
 

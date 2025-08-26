@@ -6,13 +6,14 @@ import { useAddNetwork } from '../hooks/useAddNetwork';
 import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { CustomRpcHeadersManager } from './CustomRpcHeadersManager';
+import { useNetworkContext } from '@core/ui';
 
 type tabs = 'add' | 'rpc-headers';
 
 export const AddNetwork = () => {
   const { t } = useTranslation();
   const history = useHistory();
-
+  const { saveCustomNetwork } = useNetworkContext();
   const { network, isValid, setNetwork, reset } = useAddNetwork();
   const [ranReset, setRanReset] = useState<boolean>(false);
 
@@ -25,6 +26,11 @@ export const AddNetwork = () => {
       setRanReset(true);
     }
   }, [reset, ranReset, history.location.search]);
+
+  const submit = () => {
+    console.log('submitting');
+    saveCustomNetwork(network);
+  };
 
   return (
     <>
@@ -47,7 +53,9 @@ export const AddNetwork = () => {
           />
 
           <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
-            <Button disabled={!isValid}>{t('Save')}</Button>
+            <Button disabled={!isValid} onClick={submit}>
+              {t('Save')}
+            </Button>
             <Button>{t('Cancel')}</Button>
           </Stack>
         </Page>

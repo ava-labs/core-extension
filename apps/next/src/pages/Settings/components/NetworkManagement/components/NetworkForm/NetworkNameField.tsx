@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { NameField } from '@/components/Forms/NameField';
 
-type ContactNameFieldProps = {
+type NetworkNameFieldProps = {
   name: string;
   setName: (name: string) => void;
   isNaming: boolean;
@@ -9,13 +9,13 @@ type ContactNameFieldProps = {
   autoFocus: boolean;
 };
 
-export const ContactNameField = ({
+export const NetworkNameField = ({
   name,
   setName,
   isNaming,
   setIsNaming,
   autoFocus,
-}: ContactNameFieldProps) => {
+}: NetworkNameFieldProps) => {
   const { t } = useTranslation();
 
   return (
@@ -25,7 +25,7 @@ export const ContactNameField = ({
       isNaming={isNaming}
       setIsNaming={setIsNaming}
       autoFocus={autoFocus}
-      prompt={t('Name this contact')}
+      prompt={t('Name this network')}
     />
   );
 };
