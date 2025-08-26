@@ -2,7 +2,7 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 import { TextItem } from '@avalabs/vm-module-types';
 
 import { TxDetailsRow } from './DetailRow';
-import { NoScrollStack } from '../../../Styled';
+import { NoScrollStack } from '../../../../Styled';
 
 type TextItemProps = {
   item: TextItem;
