@@ -41,6 +41,8 @@ const pagesWithoutHeader = [
   '/account-management',
   '/settings',
   '/receive',
+  '/approve',
+  '/permissions',
   getContactsPath(),
   getSendPath(),
 ];
@@ -97,21 +99,21 @@ export function App() {
         Children.toArray([
           <ThemeProvider theme={preferredColorScheme} />,
           <AnalyticsContextProvider />,
-          <AccountsContextProvider />,
-          <NetworkContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
           <PersonalAvatarProvider />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
-          <ContactsContextProvider />,
-          <BalancesProvider />,
-          <PermissionContextProvider />,
-          <CurrenciesContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           />,
+          <AccountsContextProvider />,
+          <NetworkContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
+          <WalletContextProvider LockedComponent={LockScreen} />,
+          <ContactsContextProvider />,
+          <BalancesProvider />,
+          <PermissionContextProvider />,
+          <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
         ]) as ReactElement[]

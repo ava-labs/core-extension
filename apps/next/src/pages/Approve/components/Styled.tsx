@@ -3,7 +3,7 @@ import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
 export const ApprovalScreenPage = styled(Stack)(({ theme }) => ({
   height: '100vh',
   width: '100vw',
-  bgcolor: 'alphaMatch.backdropSolid',
+  backgroundColor: theme.palette.alphaMatch.backdropSolid,
   overflow: 'hidden',
   paddingTop: theme.spacing(3),
 }));
