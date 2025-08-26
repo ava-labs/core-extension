@@ -1,11 +1,13 @@
-import { Avatar, type SxProps } from '@avalabs/k2-alpine';
+import { Avatar, useTheme, type SxProps } from '@avalabs/k2-alpine';
 import { isPchainNetwork, isXchainNetwork } from '@core/common';
-import { NetworkWithCaipId } from '@core/types';
+import { Network } from '@core/types';
 import { memo, useMemo } from 'react';
 import { NetworkBadgedAvatar } from './NetworkBadgedAvatar';
+import brokenNetworkLogoLight from './assets/brokenNetworkLogoLight.svg';
+import brokenNetworkLogoDark from './assets/brokenNetworkLogoDark.svg';
 
 type ChainAvatarProps = {
-  network: NetworkWithCaipId;
+  network: Network;
   sx?: SxProps;
   avatarSx?: SxProps;
   badgeSx?: SxProps;
@@ -28,8 +30,38 @@ export const NetworkAvatar = memo(function NetworkAvatar({
   network,
   sx,
 }: ChainAvatarProps) {
+  const theme = useTheme();
+
   const isX = useMemo(() => isXchainNetwork(network), [network]);
   const isP = useMemo(() => isPchainNetwork(network), [network]);
+  const fallbackLogo = useMemo(() => {
+    const isLightMode = theme.palette.mode === 'light';
+
+    if (isLightMode) {
+      return (
+        <img
+          src={brokenNetworkLogoLight}
+          alt="Broken Network Logo"
+          style={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: theme.palette.neutral['850_10'],
+          }}
+        />
+      );
+    }
+    return (
+      <img
+        src={brokenNetworkLogoDark}
+        alt="Broken Network Logo"
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: theme.palette.common.white_10,
+        }}
+      />
+    );
+  }, [theme]);
 
   if (!network) {
     return null;
@@ -58,7 +90,10 @@ export const NetworkAvatar = memo(function NetworkAvatar({
       alt={network.chainName}
       sx={{
         ...sx,
+        backgroundColor: theme.palette.datePicker.hover,
       }}
-    />
+    >
+      {fallbackLogo}
+    </Avatar>
   );
 });

@@ -18,6 +18,7 @@ import {
 import { useState } from 'react';
 import { Network } from '@core/types';
 import { NetworkNameField } from './NetworkNameField';
+import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
 
 type NetworkFormProps = {
   network: Network;
@@ -38,7 +39,8 @@ export const NetworkForm = ({
   };
 
   return (
-    <Stack width="100%" sx={{ flex: 1 }}>
+    <Stack width="100%" alignItems="center" sx={{ flex: 1 }}>
+      <NetworkAvatar network={network} />
       <NetworkNameField
         name={network.chainName}
         setName={(name) => setNetwork({ ...network, chainName: name })}

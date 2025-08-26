@@ -1,6 +1,6 @@
 import { AvatarProps, Theme } from '@avalabs/k2-alpine';
 import { isPchainNetwork, isXchainNetwork } from '@core/common';
-import { NetworkWithCaipId } from '@core/types';
+import { Network } from '@core/types';
 import pChainLightMode from '../assets/pChainLight.svg';
 import pChainDarkMode from '../assets/pChainDark.svg';
 import xChainLightMode from '../assets/xChainLight.svg';
@@ -10,7 +10,7 @@ import { i18n } from 'webextension-polyfill';
 type GetBadgeProps = {
   badge?: AvatarProps;
   override?: {
-    network?: NetworkWithCaipId;
+    network?: Network;
   };
   theme: Theme;
 };

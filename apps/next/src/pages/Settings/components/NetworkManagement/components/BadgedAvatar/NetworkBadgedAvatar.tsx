@@ -7,7 +7,7 @@ import {
 import type { BadgeProps, SxProps, Theme } from '@avalabs/k2-alpine';
 import { useMemo } from 'react';
 import { BadgedAvatar } from './BadgedAvatar';
-import { NetworkWithCaipId } from '@core/types';
+import { Network } from '@core/types';
 import { getBadgeProps } from './utils/getBadgeProps';
 
 // The default reverseColor is false. It should be set to be true when the avatars are used in dropdowns since they have reversed color there
@@ -15,7 +15,7 @@ import { getBadgeProps } from './utils/getBadgeProps';
 type NetworkBadgedAvatarProps = BadgeProps & {
   avatar?: AvatarProps;
   badge?: AvatarProps;
-  network: NetworkWithCaipId;
+  network: Network;
   reverseColor?: boolean;
   isToken?: boolean;
 };
