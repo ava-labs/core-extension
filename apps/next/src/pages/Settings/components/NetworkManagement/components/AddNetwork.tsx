@@ -42,7 +42,7 @@ export const AddNetwork = () => {
             sx: {
               display: 'flex',
               flexDirection: 'column',
-              height: '100%',
+              width: '100%',
             },
           }}
         >
@@ -52,11 +52,25 @@ export const AddNetwork = () => {
             setTab={setTab}
           />
 
-          <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
-            <Button disabled={!isValid} onClick={submit}>
+          <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              fullWidth
+              disabled={!isValid}
+              onClick={submit}
+            >
               {t('Save')}
             </Button>
-            <Button>{t('Cancel')}</Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              fullWidth
+            >
+              {t('Cancel')}
+            </Button>
           </Stack>
         </Page>
       )}

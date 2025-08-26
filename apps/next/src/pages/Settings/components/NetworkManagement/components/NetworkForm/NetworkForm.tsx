@@ -40,7 +40,10 @@ export const NetworkForm = ({
 
   return (
     <Stack width="100%" alignItems="center" sx={{ flex: 1 }}>
-      <NetworkAvatar network={network} />
+      <NetworkAvatar
+        network={network}
+        sx={{ width: '80px', height: '80px', mb: 2.75 }}
+      />
       <NetworkNameField
         name={network.chainName}
         setName={(name) => setNetwork({ ...network, chainName: name })}
@@ -48,7 +51,7 @@ export const NetworkForm = ({
         setIsNaming={setIsNaming}
         autoFocus
       />
-      <NetworkDetailsCard>
+      <NetworkDetailsCard sx={{ mt: 6 }}>
         <RpcUrlField
           value={network.rpcUrl}
           onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
@@ -96,6 +99,7 @@ export const NetworkForm = ({
           spacing={2}
           justifyContent="space-between"
           onClick={() => setTab('rpc-headers')}
+          py={1.5}
         >
           <Typography>{t('Custom RPC Headers')}</Typography>
           <ChevronRightIcon size={16} />
