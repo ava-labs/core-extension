@@ -10,9 +10,8 @@ import {
   FullscreenModalDescription,
   FullscreenModalTitle,
 } from '@/components/FullscreenModal';
+import { TotpCodeField } from '@/components/TotpCodeField';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
-
-import { TotpCodeField } from './components/TotpCodeField';
 
 type SeedlessVerifyWithTotpProps = {
   onSubmit: (code: string) => void;

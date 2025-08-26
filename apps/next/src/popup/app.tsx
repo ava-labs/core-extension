@@ -32,10 +32,10 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { getContactsPath, getSendPath } from '@/config/routes';
+import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { getContactsPath, getSendPath } from '@/config/routes';
-import { ApprovalRoutes, AppRoutes } from '@/routing';
 
 const pagesWithoutHeader = [
   '/account-management',
