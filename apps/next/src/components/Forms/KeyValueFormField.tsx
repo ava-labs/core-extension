@@ -1,6 +1,7 @@
 import {
   Button,
   Collapse,
+  Divider,
   Fade,
   Grow,
   Stack,
@@ -15,27 +16,33 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MdAddCircle, MdRemoveCircle } from 'react-icons/md';
 
 import { MultiIconButton } from '@/components/MultiIconButton';
-import { InvisibleFieldInput } from '@/components/Forms/InvisibleInput';
+import { InvisibleFieldInput } from './InvisibleInput';
 
-type AddressFieldProps = {
+type KeyValue = {
+  key: string;
   value: string;
+};
+
+type FormFieldProps = {
+  value: KeyValue;
   label: string;
   placeholder: string;
   prompt: string;
   error?: string;
-  onChange: (value: string) => void;
+  onChange: (value: KeyValue) => void;
   allowCopy?: boolean;
 };
 
-export const AddressField = ({
-  value,
+export const KeyValueFormField = ({
+  value: values,
   label,
   placeholder,
   prompt,
   error,
   onChange,
   allowCopy = false,
-}: AddressFieldProps) => {
+}: FormFieldProps) => {
+  const { key, value } = values;
   const theme = useTheme();
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
@@ -57,14 +64,14 @@ export const AddressField = ({
   const onActionClick = useCallback(() => {
     if (showRemoveIcon) {
       setIsEditing(false);
-      onChange('');
+      onChange({ key: '', value: '' });
     } else {
       setIsEditing(true);
     }
   }, [showRemoveIcon, onChange]);
 
   return (
-    <AddressFieldContainer
+    <FieldContainer
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -78,7 +85,7 @@ export const AddressField = ({
         className={showRemoveIcon ? 'has-value' : ''}
       />
 
-      <AddressInputContainer>
+      <InputContainer>
         <Fade in={isEditing || !!value} mountOnEnter unmountOnExit>
           <Stack
             position="absolute"
@@ -88,9 +95,17 @@ export const AddressField = ({
           >
             <InvisibleFieldInput
               ref={ref}
+              value={key}
+              placeholder={placeholder}
+              onChange={(e) => onChange({ ...values, key: e.target.value })}
+              onBlur={() => delay(() => setIsEditing(false), 100)}
+            />
+            <Divider />
+            <InvisibleFieldInput
+              ref={ref}
               value={value}
               placeholder={placeholder}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => onChange({ ...values, value: e.target.value })}
               onBlur={() => delay(() => setIsEditing(false), 100)}
             />
             <Collapse in={!isEditing} orientation="vertical">
@@ -104,11 +119,9 @@ export const AddressField = ({
           </Stack>
         </Fade>
         <Fade in={!isEditing && !value} mountOnEnter unmountOnExit>
-          <AddAddressPrompt onClick={() => setIsEditing(true)}>
-            {prompt}
-          </AddAddressPrompt>
+          <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
         </Fade>
-      </AddressInputContainer>
+      </InputContainer>
       <Grow in={showCopyButton} mountOnEnter unmountOnExit>
         <Button
           variant="contained"
@@ -119,11 +132,11 @@ export const AddressField = ({
           {t('Copy')}
         </Button>
       </Grow>
-    </AddressFieldContainer>
+    </FieldContainer>
   );
 };
 
-const AddressFieldContainer = styled(Stack)(({ theme }) => ({
+const FieldContainer = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
   alignItems: 'center',
   gap: theme.spacing(2),
@@ -131,7 +144,7 @@ const AddressFieldContainer = styled(Stack)(({ theme }) => ({
   height: 36,
 }));
 
-const AddressInputContainer = styled(Stack)({
+const InputContainer = styled(Stack)({
   flexGrow: 1,
   position: 'relative',
   height: '100%',
@@ -139,7 +152,7 @@ const AddressInputContainer = styled(Stack)({
   alignItems: 'center',
 });
 
-const AddAddressPrompt = styled((props: TypographyProps) => (
+const AddPrompt = styled((props: TypographyProps) => (
   <Typography {...props} variant="subtitle3" role="button" />
 ))(({ theme }) => ({
   position: 'absolute',

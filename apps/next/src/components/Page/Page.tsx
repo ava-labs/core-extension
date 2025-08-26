@@ -21,6 +21,7 @@ const NoScrollStack = styled(Stack)`
 
 export const Page = ({
   title,
+  withBackButton = false,
   description,
   children,
   contentProps,
@@ -37,7 +38,7 @@ export const Page = ({
       {...htmlProps}
     >
       <PageTopBar
-        showBack
+        showBack={withBackButton}
         isObserving={isObserving}
         isIntersecting={isIntersecting}
         title={title}

@@ -22,6 +22,7 @@ export * from './object';
 export * from './hasAccountBalances';
 export * from './isAddressValid';
 export * from './isContactValid';
+export * from './isNetworkValid';
 export * from './isChainSupportedByAccount';
 export * from './logging';
 export * from './history';

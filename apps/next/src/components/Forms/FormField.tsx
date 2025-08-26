@@ -15,9 +15,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MdAddCircle, MdRemoveCircle } from 'react-icons/md';
 
 import { MultiIconButton } from '@/components/MultiIconButton';
-import { InvisibleFieldInput } from '@/components/Forms/InvisibleInput';
+import { InvisibleFieldInput } from './InvisibleInput';
 
-type AddressFieldProps = {
+type FormFieldProps = {
   value: string;
   label: string;
   placeholder: string;
@@ -27,7 +27,7 @@ type AddressFieldProps = {
   allowCopy?: boolean;
 };
 
-export const AddressField = ({
+export const FormField = ({
   value,
   label,
   placeholder,
@@ -35,7 +35,7 @@ export const AddressField = ({
   error,
   onChange,
   allowCopy = false,
-}: AddressFieldProps) => {
+}: FormFieldProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
@@ -64,7 +64,7 @@ export const AddressField = ({
   }, [showRemoveIcon, onChange]);
 
   return (
-    <AddressFieldContainer
+    <FieldContainer
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -78,7 +78,7 @@ export const AddressField = ({
         className={showRemoveIcon ? 'has-value' : ''}
       />
 
-      <AddressInputContainer>
+      <InputContainer>
         <Fade in={isEditing || !!value} mountOnEnter unmountOnExit>
           <Stack
             position="absolute"
@@ -104,11 +104,9 @@ export const AddressField = ({
           </Stack>
         </Fade>
         <Fade in={!isEditing && !value} mountOnEnter unmountOnExit>
-          <AddAddressPrompt onClick={() => setIsEditing(true)}>
-            {prompt}
-          </AddAddressPrompt>
+          <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
         </Fade>
-      </AddressInputContainer>
+      </InputContainer>
       <Grow in={showCopyButton} mountOnEnter unmountOnExit>
         <Button
           variant="contained"
@@ -119,11 +117,11 @@ export const AddressField = ({
           {t('Copy')}
         </Button>
       </Grow>
-    </AddressFieldContainer>
+    </FieldContainer>
   );
 };
 
-const AddressFieldContainer = styled(Stack)(({ theme }) => ({
+const FieldContainer = styled(Stack)(({ theme }) => ({
   flexDirection: 'row',
   alignItems: 'center',
   gap: theme.spacing(2),
@@ -131,7 +129,7 @@ const AddressFieldContainer = styled(Stack)(({ theme }) => ({
   height: 36,
 }));
 
-const AddressInputContainer = styled(Stack)({
+const InputContainer = styled(Stack)({
   flexGrow: 1,
   position: 'relative',
   height: '100%',
@@ -139,7 +137,7 @@ const AddressInputContainer = styled(Stack)({
   alignItems: 'center',
 });
 
-const AddAddressPrompt = styled((props: TypographyProps) => (
+const AddPrompt = styled((props: TypographyProps) => (
   <Typography {...props} variant="subtitle3" role="button" />
 ))(({ theme }) => ({
   position: 'absolute',
