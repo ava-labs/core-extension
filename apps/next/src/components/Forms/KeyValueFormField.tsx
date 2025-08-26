@@ -18,15 +18,15 @@ import { MdAddCircle, MdRemoveCircle } from 'react-icons/md';
 import { MultiIconButton } from '@/components/MultiIconButton';
 import { InvisibleFieldInput } from './InvisibleInput';
 
-type KeyValue = {
+export type KeyValue = {
   key: string;
   value: string;
 };
 
 type FormFieldProps = {
-  value: KeyValue;
-  label: string;
-  placeholder: string;
+  values: KeyValue;
+  labels: KeyValue;
+  placeholders: KeyValue;
   prompt: string;
   error?: string;
   onChange: (value: KeyValue) => void;
@@ -34,9 +34,9 @@ type FormFieldProps = {
 };
 
 export const KeyValueFormField = ({
-  value: values,
-  label,
-  placeholder,
+  values,
+  labels,
+  placeholders,
   prompt,
   error,
   onChange,
@@ -46,20 +46,21 @@ export const KeyValueFormField = ({
   const theme = useTheme();
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
+  const refKey = useRef<HTMLInputElement>(null);
+  const refValue = useRef<HTMLInputElement>(null);
 
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (isEditing && ref.current) {
-      ref.current.focus();
+    if (isEditing && refKey.current) {
+      refKey.current.focus();
     }
   }, [isEditing]);
 
   const showCopyButton =
     allowCopy && !error && !!value && !isEditing && isHovered;
 
-  const showRemoveIcon = Boolean(value || isEditing);
+  const showRemoveIcon = Boolean(key || value || isEditing);
 
   const onActionClick = useCallback(() => {
     if (showRemoveIcon) {
@@ -92,28 +93,40 @@ export const KeyValueFormField = ({
             width="100%"
             component="label"
             onClick={() => setIsEditing(true)}
+            onBlur={(e) => {
+              // Only exit editing mode if focus is moving outside this form field
+              if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                delay(() => setIsEditing(false), 100);
+              }
+            }}
           >
             <InvisibleFieldInput
-              ref={ref}
+              ref={refKey}
               value={key}
-              placeholder={placeholder}
+              placeholder={placeholders.key}
               onChange={(e) => onChange({ ...values, key: e.target.value })}
-              onBlur={() => delay(() => setIsEditing(false), 100)}
-            />
-            <Divider />
-            <InvisibleFieldInput
-              ref={ref}
-              value={value}
-              placeholder={placeholder}
-              onChange={(e) => onChange({ ...values, value: e.target.value })}
-              onBlur={() => delay(() => setIsEditing(false), 100)}
             />
             <Collapse in={!isEditing} orientation="vertical">
               <Typography
                 variant="caption"
                 color={error ? 'error.light' : 'text.secondary'}
               >
-                {error || label}
+                {error || labels.key}
+              </Typography>
+            </Collapse>
+            <Divider />
+            <InvisibleFieldInput
+              ref={refValue}
+              value={value}
+              placeholder={placeholders.value}
+              onChange={(e) => onChange({ ...values, value: e.target.value })}
+            />
+            <Collapse in={!isEditing} orientation="vertical">
+              <Typography
+                variant="caption"
+                color={error ? 'error.light' : 'text.secondary'}
+              >
+                {error || labels.value}
               </Typography>
             </Collapse>
           </Stack>

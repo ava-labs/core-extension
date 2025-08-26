@@ -4,14 +4,15 @@ import { useAddNetwork } from '../hooks/useAddNetwork';
 import { useHistory } from 'react-router-dom';
 import { useIsIntersecting } from '@/components/Page/hooks/useIsIntersecting';
 import { PageTopBar } from '@/components/PageTopBar';
-import {
-  CustomRpcHeaders,
-  Network,
-  PLACEHOLDER_RPC_HEADERS,
-} from '@core/types';
+import { Network } from '@core/types';
 import { useMemo, useState } from 'react';
 import { useNetworkContext } from '@core/ui';
 import { KeyValueFormField } from '@/components/Forms/KeyValueFormField';
+import {
+  getKeyValueHeaderList,
+  KeyValueHeader,
+  updateKeyValueList,
+} from '../utils/customRpcHeaders';
 
 export const CustomRpcHeadersManager = () => {
   const { t } = useTranslation();
@@ -28,17 +29,9 @@ export const CustomRpcHeadersManager = () => {
     return network?.customRpcHeaders ?? {};
   }, [network]);
 
-  const [newRpcHeaders, setNewRpcHeaders] = useState<CustomRpcHeaders>(
-    PLACEHOLDER_RPC_HEADERS,
+  const [headerList, setHeaderList] = useState<KeyValueHeader[]>(
+    getKeyValueHeaderList(rpcHeaders),
   );
-
-  const setNewHeaders = (newHeader: CustomRpcHeaders) => {
-    setNewRpcHeaders({
-      ...newRpcHeaders,
-      ...newHeader,
-      ...PLACEHOLDER_RPC_HEADERS,
-    });
-  };
 
   const { isValid } = useAddNetwork();
 
@@ -73,41 +66,40 @@ export const CustomRpcHeadersManager = () => {
       />
 
       <Stack>
-        {Object.entries(rpcHeaders).map(([key, value]) => (
+        {headerList.map((listItem, index) => (
           <KeyValueFormField
-            key={key}
-            label={t('Enter header name')}
-            placeholder={t('Enter header name')}
-            prompt={t('Enter header name')}
-            value={{
-              key,
-              value,
+            key={`existing-${index}`}
+            labels={{
+              key: t('Header name'),
+              value: t('Value'),
+            }}
+            placeholders={{
+              key: t('Enter header name'),
+              value: t('Enter a value'),
+            }}
+            prompt={t('Add next')}
+            values={{
+              key: listItem.key,
+              value: listItem.value,
             }}
             onChange={(newKeyValue) =>
-              setNewHeaders({
-                [newKeyValue.key]: newKeyValue.value,
-              })
-            }
-          />
-        ))}
-        {Object.entries(newRpcHeaders).map(([key, value]) => (
-          <KeyValueFormField
-            key={key}
-            label={t('Enter header name')}
-            placeholder={t('Enter header name')}
-            prompt={t('Enter header name')}
-            value={{
-              key,
-              value,
-            }}
-            onChange={(newKeyValue) =>
-              setNewHeaders({
-                [newKeyValue.key]: newKeyValue.value,
-              })
+              setHeaderList(
+                updateKeyValueList(
+                  headerList,
+                  {
+                    ...listItem,
+                    key: newKeyValue.key,
+                    value: newKeyValue.value,
+                    isDirty: true,
+                  },
+                  index,
+                ),
+              )
             }
           />
         ))}
       </Stack>
+
       <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
         <Button disabled={!isValid}>{t('Save')}</Button>
         <Button onClick={handleCancel}>{t('Cancel')}</Button>
