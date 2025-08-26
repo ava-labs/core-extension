@@ -1,3 +1,4 @@
+import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 import { ContextContainer } from '@core/types';
 import {
   ExportState,
@@ -31,5 +32,10 @@ export const SeedlessFlow: FC = () => {
   const isFullscreen = isSpecificContextContainer(ContextContainer.FULLSCREEN);
   const Component = stages[exportState.state] ?? stages[ExportState.Loading];
 
-  return <Component {...exportState} fullscreen={isFullscreen} />;
+  return (
+    <>
+      {isFullscreen && <FullscreenAnimatedBackground />}
+      <Component {...exportState} fullscreen={isFullscreen} />
+    </>
+  );
 };
