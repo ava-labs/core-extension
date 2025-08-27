@@ -1,51 +1,28 @@
 import { Page } from '@/components/Page';
-import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
-import {
-  Box,
-  Button,
-  ChevronRightIcon,
-  Divider,
-  EncryptedIcon,
-  IconButton,
-  Paper,
-  PasswordIcon,
-  SecurityKeyIcon,
-  Skeleton,
-  Typography,
-} from '@avalabs/k2-alpine';
-import { FeatureGates } from '@core/types';
-import {
-  useAnalyticsContext,
-  useFeatureFlagContext,
-  useSeedlessMfaManager,
-} from '@core/ui';
+import { Button, Paper, Skeleton } from '@avalabs/k2-alpine';
+import { RecoveryMethod as RecoveryMethodType } from '@core/types';
+import { useAnalyticsContext, useSeedlessMfaManager } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdOutlinePassword } from 'react-icons/md';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 import { RecoveryMethodList } from './RecoveryMethodList';
 import { RecoveryMethodCard } from './RecoveryMethodCard';
 import { RecoveryMethod } from './RecoveryMethod';
 
 export const RecoveryMethods: FC = () => {
   const { t } = useTranslation();
-  const history = useHistory();
   const { capture } = useAnalyticsContext();
   const { path } = useRouteMatch();
   console.log('path: ', path);
-  const [selectedMethod, setSelectedMethod] = useState(null);
+  const [selectedMethod, setSelectedMethod] =
+    useState<RecoveryMethodType | null>(null);
   const {
     isLoadingRecoveryMethods,
     recoveryMethods,
-    hasFidoConfigured,
+    // hasFidoConfigured,
     hasMfaConfigured,
-    hasTotpConfigured,
+    // hasTotpConfigured,
   } = useSeedlessMfaManager();
-  // console.log('isLoadingRecoveryMethods: ', isLoadingRecoveryMethods);
-  // console.log('recoveryMethods: ', recoveryMethods);
-  // console.log('hasFidoConfigured: ', hasFidoConfigured);
-  // console.log('hasMfaConfigured: ', hasMfaConfigured);
-  // console.log('hasTotpConfigured: ', hasTotpConfigured);
 
   console.log('selectedMethod: ', selectedMethod);
   if (selectedMethod) {
@@ -80,11 +57,9 @@ export const RecoveryMethods: FC = () => {
                   method={method}
                   key="totp"
                   methodName={t('Authenticator')}
-                  // methodName={t('Authenticator')}
                   onClick={() => {
                     capture('ConfigureTotpClicked');
                     setSelectedMethod(method);
-                    // setScreen(RecoveryMethodScreen.Authenticator);
                   }}
                 />
               );
@@ -94,33 +69,26 @@ export const RecoveryMethods: FC = () => {
               <RecoveryMethodCard
                 method={method}
                 key={method.id}
-                // methodName={method.name}
+                methodName={method.name}
                 onClick={() => {
                   capture('ConfigureFidoClicked');
                   console.log('method clicked: ', method);
                   setSelectedMethod(method);
-                  // history.push(`${path}/recovery-method`);
-                  // setFidoDetails(method);
-                  // setScreen(RecoveryMethodScreen.FidoDetails);
                 }}
               />
             );
           })
         )}
-        <Button
-          // ref={submitRef}
-          variant="contained"
-          color="primary"
-          size="extension"
-          fullWidth
-          // disabled={!isFormValid || isSubmitting}
-          // loading={isSubmitting}
-          // onClick={isFormValid ? handleSubmit : undefined}
-          sx={{ mt: 'auto' }}
-        >
-          {t('Add recovery method')}
-        </Button>
       </Paper>
+      <Button
+        variant="contained"
+        color="primary"
+        size="extension"
+        fullWidth
+        sx={{ mt: 'auto' }}
+      >
+        {t('Add recovery method')}
+      </Button>
     </Page>
   );
 };

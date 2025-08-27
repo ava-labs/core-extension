@@ -6,9 +6,14 @@ import {
   SecurityKeyIcon,
 } from '@avalabs/k2-alpine';
 import { useAnalyticsContext } from '@core/ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useRouteMatch } from 'react-router-dom';
+
+export const MethodIcons = {
+  passkey: <PasswordIcon fontSize="large" />,
+  authenticator: <EncryptedIcon fontSize="large" />,
+  yubikey: <SecurityKeyIcon fontSize="large" />,
+};
 
 export const RecoveryMethodList = () => {
   const { t } = useTranslation();
@@ -18,7 +23,7 @@ export const RecoveryMethodList = () => {
 
   const recoveryMethodCards = [
     {
-      icon: <PasswordIcon fontSize="large" />,
+      icon: MethodIcons.passkey,
       title: t('Passkey'),
       description: t(
         'Passkeys are used for quick, password-free recovery and enhanced security.',
@@ -27,7 +32,7 @@ export const RecoveryMethodList = () => {
       analyticsKey: 'AddPasskeyClicked',
     },
     {
-      icon: <EncryptedIcon fontSize="large" />,
+      icon: MethodIcons.authenticator,
       title: t('Authenticator app'),
       description: t(
         'Authenticator apps generate secure, time-based codes for wallet recovery.',
@@ -36,7 +41,7 @@ export const RecoveryMethodList = () => {
       analyticsKey: 'AddAuthenticatorClicked',
     },
     {
-      icon: <SecurityKeyIcon fontSize="large" />,
+      icon: MethodIcons.yubikey,
       title: t('Yubikey'),
       description: t(
         'YubiKeys are physical, hardware-based protection and strong authentication.',

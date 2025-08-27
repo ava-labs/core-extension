@@ -1,14 +1,13 @@
-import { Page } from '@/components/Page';
-import { Button } from '@avalabs/k2-alpine';
-import { useTranslation } from 'react-i18next';
+import { getIconForMethod } from '../RecoveryMethodCard';
+import { CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 
-export const AuthenticatorDetails = ({ method }) => {
-  const { t } = useTranslation();
+export const AuthenticatorDetails = ({ method, methodName }) => {
   return (
-    <>
-      <div>AuthenticatorDetails</div>
-      <Button>{t('Change Authenticator App')}</Button>
-      <Button>{t('Removes')}</Button>
-    </>
+    <CardMenuItem
+      onClick={() => {}}
+      icon={getIconForMethod(method)}
+      text={methodName}
+      key={method.toString()}
+    />
   );
 };

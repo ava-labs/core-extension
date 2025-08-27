@@ -4,21 +4,23 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const AuthenticatorVerifyScreen = ({ totpChallenge }) => {
-	const theme = useTheme();
-	const { t } = useTranslation();
-	
-	return (
-		<div>
-			<QRCode
-				renderAs="svg"
-				fgColor={theme.palette.common.black}
-				bgColor={theme.palette.common.white}
-				value={totpChallenge.totpUrl}
-				level="H"
-				size={188}
-			/>
-			<Button type='secondary' size='small'>{t('Enter code manually')}</Button>
-			{/* <Stack maxWidth={300} textAlign="center" gap={1}>
+  const theme = useTheme();
+  const { t } = useTranslation();
+
+  return (
+    <div>
+      <QRCode
+        renderAs="svg"
+        fgColor={theme.palette.common.black}
+        bgColor={theme.palette.common.white}
+        value={totpChallenge.totpUrl}
+        level="H"
+        size={188}
+      />
+      <Button type="secondary" size="small">
+        {t('Enter code manually')}
+      </Button>
+      {/* <Stack maxWidth={300} textAlign="center" gap={1}>
 				<Typography variant="subtitle1" color="text.secondary">
 					{t(
 						'Alternatively, open any authenticator app and enter this code:',
@@ -37,6 +39,6 @@ export const AuthenticatorVerifyScreen = ({ totpChallenge }) => {
 					{totpSecret}
 				</Typography>
 			</Stack> */}
-		</div>
-	);
+    </div>
+  );
 };
