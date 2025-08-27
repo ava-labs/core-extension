@@ -1,27 +1,41 @@
-import { Page } from '@/components/Page';
-import { StackProps } from '@avalabs/k2-alpine';
+import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
+import { ContextContainer } from '@core/types';
+import {
+  ExportState,
+  isSpecificContextContainer,
+  useSeedlessMnemonicExport,
+} from '@core/ui';
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Error } from './pages/Error';
+import { Exported } from './pages/Exported';
+import { ExportEntryPoint } from './pages/ExportEntryPoint';
+import { LoadingState } from './pages/Loading';
+import { MFA } from './pages/MFA';
+import { ReadyToExport } from './pages/ReadyToExport';
+import { WaitingLounge } from './pages/WaitingLounge/WaitingLounge';
+import { StageProps } from './types';
 
-const contentProps: StackProps = {
-  gap: 2,
-  width: 1,
-  justifyContent: undefined,
-  alignItems: undefined,
+const stages: Record<ExportState, FC<StageProps>> = {
+  [ExportState.Loading]: LoadingState,
+  [ExportState.NotInitiated]: ExportEntryPoint,
+  [ExportState.Initiating]: MFA,
+  [ExportState.Pending]: WaitingLounge,
+  [ExportState.Cancelling]: WaitingLounge,
+  [ExportState.ReadyToExport]: ReadyToExport,
+  [ExportState.Exporting]: MFA,
+  [ExportState.Exported]: Exported,
+  [ExportState.Error]: Error,
 };
 
 export const SeedlessFlow: FC = () => {
-  const { t } = useTranslation();
+  const exportState = useSeedlessMnemonicExport();
+  const isFullscreen = isSpecificContextContainer(ContextContainer.FULLSCREEN);
+  const Component = stages[exportState.state] ?? stages[ExportState.Loading];
 
   return (
-    <Page
-      title={t('Recovery phrase')}
-      description={t(
-        'This phrase is your access key to your wallet. Carefully write it down and store it in a safe location',
-      )}
-      contentProps={contentProps}
-    >
-      Under construction
-    </Page>
+    <>
+      {isFullscreen && <FullscreenAnimatedBackground />}
+      <Component {...exportState} fullscreen={isFullscreen} />
+    </>
   );
 };

@@ -1,4 +1,4 @@
-import { Network as _Network } from '@avalabs/core-chains-sdk';
+import { Network as _Network, NetworkVMType } from '@avalabs/core-chains-sdk';
 import { EnsureDefined, PartialBy } from './util-types';
 
 export enum NetworkEvents {
@@ -11,10 +11,20 @@ export const NETWORK_STORAGE_KEY = 'NETWORK_STORAGE_KEY';
 export const NETWORK_LIST_STORAGE_KEY = 'NETWORK_LIST_STORAGE_KEY';
 export const NETWORK_OVERRIDES_STORAGE_KEY = 'NETWORK_OVERRIDES_STORAGE_KEY';
 
+export interface NetworkAvailability {
+  [chainId: number]: {
+    isEnabled: boolean;
+  };
+}
+
 export interface NetworkStorage {
+  /**
+   * @deprecated For Legacy app only. For NextGen app please use "networkAvailability" field
+   */
   favoriteNetworks: number[];
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
+  networkAvailability: NetworkAvailability;
 }
 
 export interface AddEthereumChainParameter {
@@ -63,3 +73,9 @@ export type AddEthereumChainDisplayData = {
 };
 
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };
+
+export type EvmNetwork = NetworkWithCaipId & { vmName: NetworkVMType.EVM };
+
+export const isEvmNetwork = (
+  network: NetworkWithCaipId,
+): network is EvmNetwork => network.vmName === NetworkVMType.EVM;

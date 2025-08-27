@@ -10,7 +10,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { Account } from '@core/types';
+import { Account, isVMCapableAccount } from '@core/types';
 import { getAddressByVMType, truncateAddress } from '@core/common';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,7 +46,10 @@ export const AccountsDropdown = ({
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [selectedAccount, setSelectedAccount] = useState(activeAccount);
+  const defaultAccount = isVMCapableAccount(addressVM, activeAccount)
+    ? activeAccount
+    : allAccountsForRequestedVM[0];
+  const [selectedAccount, setSelectedAccount] = useState(defaultAccount);
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const { updateBalanceOnNetworks } = useBalancesContext();
   const { currency, currencyFormatter } = useSettingsContext();
@@ -88,7 +91,7 @@ export const AccountsDropdown = ({
           // <Select /> expects reference equality and `activeAccount` is a different object
           // than the one in `accounts` array.
           defaultValue: allAccountsForRequestedVM.find(
-            (acc) => acc.id === activeAccount?.id,
+            (acc) => acc.id === defaultAccount?.id,
           ),
           onChange: (ev) => setSelectedAccount(ev.target.value),
           renderValue: (value) => renderValue(value as Account, addressVM),

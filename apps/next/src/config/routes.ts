@@ -32,6 +32,7 @@ export const SEND_QUERY_TOKENS = {
   to: 'to',
   toQuery: 'toQ',
   token: 'token',
+  tokenQuery: 'tokenQ',
   amount: 'amount',
 };
 export type SendQueryTokens = typeof SEND_QUERY_TOKENS;

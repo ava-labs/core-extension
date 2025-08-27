@@ -149,6 +149,7 @@ import { SubscribeToNotification } from '../../services/notifications/handlers/s
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
+import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -458,6 +459,10 @@ import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriv
   {
     token: 'ExtensionRequestHandler',
     useToken: SetPreferredViewHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetShowTrendingTokensHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },

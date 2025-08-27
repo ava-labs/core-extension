@@ -125,6 +125,7 @@ export type RecoveryMethodFido = {
   id: string;
   name: string;
   type: MfaRequestType.Fido;
+  aaguid?: string; // Available for passkeys only
 };
 
 export type GetRecoveryMethodsOptions = {

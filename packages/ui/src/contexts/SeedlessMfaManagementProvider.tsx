@@ -8,6 +8,10 @@ import {
 } from 'react';
 import { filter } from 'rxjs';
 
+import {
+  incrementalPromiseResolve,
+  isSeedlessMfaMethodsUpdatedEvent,
+} from '@core/common';
 import type {
   AddFidoDeviceHandler,
   CompleteAuthenticatorChangeHandler,
@@ -18,16 +22,12 @@ import type {
 import {
   ExtensionRequest,
   FeatureGates,
+  KeyType,
   MfaRequestType,
   RecoveryMethod,
   SecretType,
   TotpResetChallenge,
-  KeyType,
 } from '@core/types';
-import {
-  incrementalPromiseResolve,
-  isSeedlessMfaMethodsUpdatedEvent,
-} from '@core/common';
 
 import { RemoveTotpHandler } from '@core/service-worker';
 import { useConnectionContext } from './ConnectionProvider';
@@ -38,41 +38,22 @@ interface SeedlessMfaManagementContextProps {
   children?: React.ReactNode;
 }
 
-export const SeedlessMfaManagementContext = createContext<{
-  initAuthenticatorChange(): Promise<TotpResetChallenge>;
-  completeAuthenticatorChange(totpId: string, code: string): Promise<void>;
-  addFidoDevice(name: string, keyType: KeyType): Promise<void>;
-  removeFidoDevice(id: string): Promise<void>;
-  removeTotp(): Promise<void>;
-  isLoadingRecoveryMethods: boolean;
-  recoveryMethods: RecoveryMethod[];
-  isMfaSetupPromptVisible: boolean;
-  hasMfaConfigured: boolean;
-  hasTotpConfigured: boolean;
-  hasFidoConfigured: boolean;
-}>({
-  initAuthenticatorChange() {
-    throw 'Not ready';
-  },
-  completeAuthenticatorChange() {
-    throw 'Not ready';
-  },
-  addFidoDevice() {
-    throw 'Not ready';
-  },
-  removeFidoDevice() {
-    throw 'Not ready';
-  },
-  removeTotp() {
-    throw 'Not ready';
-  },
-  isLoadingRecoveryMethods: false,
-  recoveryMethods: [],
-  isMfaSetupPromptVisible: false,
-  hasMfaConfigured: false,
-  hasTotpConfigured: false,
-  hasFidoConfigured: false,
-});
+export const SeedlessMfaManagementContext = createContext<
+  | {
+      initAuthenticatorChange(): Promise<TotpResetChallenge>;
+      completeAuthenticatorChange(totpId: string, code: string): Promise<void>;
+      addFidoDevice(name: string, keyType: KeyType): Promise<void>;
+      removeFidoDevice(id: string): Promise<void>;
+      removeTotp(): Promise<void>;
+      isLoadingRecoveryMethods: boolean;
+      recoveryMethods: RecoveryMethod[];
+      isMfaSetupPromptVisible: boolean;
+      hasMfaConfigured: boolean;
+      hasTotpConfigured: boolean;
+      hasFidoConfigured: boolean;
+    }
+  | undefined
+>(undefined);
 
 export const SeedlessMfaManagementProvider = ({
   children,
@@ -218,5 +199,13 @@ export const SeedlessMfaManagementProvider = ({
 };
 
 export function useSeedlessMfaManager() {
-  return useContext(SeedlessMfaManagementContext);
+  const context = useContext(SeedlessMfaManagementContext);
+
+  if (!context) {
+    throw new Error(
+      'useSeedlessMfaManager must be used within a SeedlessMfaManagementProvider',
+    );
+  }
+
+  return context;
 }

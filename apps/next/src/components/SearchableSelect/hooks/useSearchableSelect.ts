@@ -21,6 +21,7 @@ export function useSearchableSelect<T>({
   onValueChange,
   groupBy,
   setIsOpen,
+  skipHeaderForGroups = [],
 }: UseSearchableSelectProps<T>): UseSearchableSelectReturnValues<T> {
   const [root, setRoot] = useState<HTMLElement | null>(null);
   const highlightedId = useRef<string | null>(null);
@@ -28,21 +29,23 @@ export function useSearchableSelect<T>({
   const selectOption = useCallback(
     (option: T) => {
       onValueChange(option);
-      // Clear the search box
-      onQueryChange('');
       // Close the menu
       setIsOpen(false);
     },
-    [onValueChange, onQueryChange, setIsOpen],
+    [onValueChange, setIsOpen],
   );
 
-  const getGroupHeaderProps = useCallback((group: Group<T>) => {
-    return {
-      role: 'group',
-      tabIndex: -1,
-      'data-group-id': group.id,
-    };
-  }, []);
+  const getGroupHeaderProps = useCallback(
+    (group: Group<T>) => {
+      return {
+        role: 'group',
+        tabIndex: -1,
+        skipHeader: skipHeaderForGroups.includes(group.id),
+        'data-group-id': group.id,
+      };
+    },
+    [skipHeaderForGroups],
+  );
 
   const getOptionProps = useCallback(
     (option: T) => {
@@ -187,8 +190,15 @@ export function useSearchableSelect<T>({
     return {
       defaultValue: query,
       onChange: (ev) => onQueryChange(ev.target.value),
+      onKeyDown: (ev) => {
+        if (ev.key === 'Enter' && filteredOptions.length === 1) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          selectOption(filteredOptions[0]!);
+        }
+      },
     };
-  }, [query, onQueryChange]);
+  }, [query, onQueryChange, filteredOptions, selectOption]);
 
   return {
     setRoot,

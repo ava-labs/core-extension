@@ -23,37 +23,41 @@ export const GroupAccordion = ({
 }: GroupAccordionProps) => {
   const [isGroupOpen, setIsGroupOpen] = useState(true);
 
+  const { skipHeader, ...restHeaderProps } = headerProps;
+
   return (
     <ListItem disablePadding>
       <Stack width="100%">
-        <ListItemButton
-          sx={{ height: '40px' }}
-          onClick={(ev) => {
-            ev.stopPropagation();
-            setIsGroupOpen((prev) => !prev);
-          }}
-          onKeyDown={(ev) => {
-            if (ev.key === 'Enter') {
+        {!skipHeader && (
+          <ListItemButton
+            sx={{ height: '40px' }}
+            onClick={(ev) => {
+              ev.stopPropagation();
               setIsGroupOpen((prev) => !prev);
-            }
-          }}
-          {...headerProps}
-        >
-          <Stack
-            direction="row"
-            width="100%"
-            alignItems="center"
-            gap={1}
-            justifyContent="space-between"
-            sx={{ background: 'transparent' }}
+            }}
+            onKeyDown={(ev) => {
+              if (ev.key === 'Enter') {
+                setIsGroupOpen((prev) => !prev);
+              }
+            }}
+            {...restHeaderProps}
           >
-            <Typography variant="subtitle3" fontWeight="fontWeightSemibold">
-              {label}
-            </Typography>
-            {isGroupOpen ? <FaChevronUp /> : <FaChevronDown />}
-          </Stack>
-        </ListItemButton>
-        <Collapse in={isGroupOpen} mountOnEnter unmountOnExit>
+            <Stack
+              direction="row"
+              width="100%"
+              alignItems="center"
+              gap={1}
+              justifyContent="space-between"
+              sx={{ background: 'transparent' }}
+            >
+              <Typography variant="subtitle3" fontWeight="fontWeightSemibold">
+                {label}
+              </Typography>
+              {isGroupOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </Stack>
+          </ListItemButton>
+        )}
+        <Collapse in={isGroupOpen || skipHeader} mountOnEnter unmountOnExit>
           <Stack py={0.5} component="ul">
             {children}
           </Stack>
