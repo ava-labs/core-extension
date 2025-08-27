@@ -47,6 +47,7 @@
   "Anyone with this private key can access the account(s) associated with it": "Anyone with this private key can access the account(s) associated with it",
   "Approval transaction failed": "Approval transaction failed",
   "Approve": "Approve",
+  "Approving will give this dApp access to your active account.": "Approving will give this dApp access to your active account.",
   "Are you sure that you want to cancel this request?": "Are you sure that you want to cancel this request?",
   "Are you sure you want to delete selected accounts?": "Are you sure you want to delete selected accounts?",
   "Are you sure you want to delete this contact?": "Are you sure you want to delete this contact?",
@@ -109,7 +110,9 @@
   "Continue": "Continue",
   "Continue with Apple": "Continue with Apple",
   "Continue with Google": "Continue with Google",
+  "Copied to clipboard": "Copied to clipboard",
   "Copy": "Copy",
+  "Copy data": "Copy data",
   "Copy key": "Copy key",
   "Copy phrase": "Copy phrase",
   "Core Analytics will collect anonymous interaction data. Core is committed to protecting your privacy. We will never sell or share your data.": "Core Analytics will collect anonymous interaction data. Core is committed to protecting your privacy. We will never sell or share your data.",
@@ -573,5 +576,6 @@
   "{{count}} saved addresses_plural": "{{count}} saved addresses",
   "{{length}}-word phrase": "{{length}}-word phrase",
   "{{sitesCount}} Connected sites": "{{sitesCount}} Connected sites",
-  "© 2025 Ava Labs All rights reserved. {{version}}": "© 2025 Ava Labs All rights reserved. {{version}}"
+  "© 2025 Ava Labs All rights reserved. {{version}}": "© 2025 Ava Labs All rights reserved. {{version}}",
+  "🚧 Placeholder - needs implementation 🚧": "🚧 Placeholder - needs implementation 🚧"
 }

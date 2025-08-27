@@ -11,6 +11,7 @@ type Props = {
   title?: string;
   isObserving?: boolean;
   isIntersecting?: boolean;
+  showViewSwitcher?: boolean;
 };
 
 export const PageTopBar: FC<Props> = ({
@@ -19,6 +20,7 @@ export const PageTopBar: FC<Props> = ({
   isObserving,
   isIntersecting,
   title,
+  showViewSwitcher = true,
 }) => {
   const theme = useTheme();
   const goBack = useGoBack();
@@ -58,9 +60,11 @@ export const PageTopBar: FC<Props> = ({
           {title}
         </OverflowingTypography>
       </Fade>
-      <Box ml="auto">
-        <ViewModeSwitcher />
-      </Box>
+      {showViewSwitcher && (
+        <Box ml="auto">
+          <ViewModeSwitcher />
+        </Box>
+      )}
     </Stack>
   );
 };
