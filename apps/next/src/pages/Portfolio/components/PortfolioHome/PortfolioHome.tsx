@@ -6,7 +6,7 @@ import { EmptyState } from './components/EmptyState';
 import NavigationBar, { TabName } from './components/NavigationBar';
 import { PortfolioDetails } from './components/PortolioDetails';
 
-export const Portfolio: FC = () => {
+export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const [activeTab, setActiveTab] = useState<TabName>('assets');
   const { totalBalance } = useBalancesContext();

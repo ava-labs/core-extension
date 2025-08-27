@@ -1,12 +1,12 @@
 import { Route, Switch } from 'react-router-dom';
 
-import { Send } from '@/pages/Send';
-import { Receive } from '@/pages/Receive';
-import { Settings } from '@/pages/Settings';
+import AccountManagement from '@/pages/AccountManagement';
 import { Contacts } from '@/pages/Contacts';
-import { Portfolio } from '@/pages/Portfolio';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
-import AccountManagement from '@/pages/AccountManagement/AccountManagement';
+import { Portfolio } from '@/pages/Portfolio';
+import { Receive } from '@/pages/Receive';
+import { Send } from '@/pages/Send';
+import { Settings } from '@/pages/Settings';
 
 import { getContactsPath, getSendPath } from '@/config/routes';
 

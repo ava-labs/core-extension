@@ -20,7 +20,7 @@ export const AssetsTab: FC = () => {
           endIcon={<MdKeyboardArrowDown />}
           onClick={() => toast.info('Coming soon')}
         >
-          {t('filter')}
+          {t('Filter')}
         </Button>
         <Button
           variant="outlined"
@@ -28,11 +28,15 @@ export const AssetsTab: FC = () => {
           endIcon={<MdKeyboardArrowDown />}
           onClick={() => toast.info('Coming soon')}
         >
-          {t('sort')}
+          {t('Sort')}
         </Button>
         <Box ml="auto">
-          <Button variant="outlined" size="small">
-            {t('manage')}
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => push('/manage-tokens')}
+          >
+            {t('Manage')}
           </Button>
         </Box>
       </Stack>
