@@ -10,6 +10,7 @@ import { Authenticator } from './components/RecoveryMethods/Authenticator';
 
 export const Settings: FC = () => {
   const { path } = useRouteMatch();
+  console.log('path: ', path);
   return (
     <Switch>
       <Route path={`${path}/avatar`} component={AvatarSelector} />
@@ -19,8 +20,13 @@ export const Settings: FC = () => {
       <Route
         path={`${path}/recovery-methods/authenticator`}
         component={Authenticator}
+        exact
       />
-      <Route path={`${path}/recovery-methods`} component={RecoveryMethods} />
+      <Route
+        path={`${path}/recovery-methods`}
+        component={RecoveryMethods}
+        exact
+      />
       <Route path={path} component={SettingsHomePage} />
     </Switch>
   );

@@ -2,6 +2,7 @@ import { Page } from '@/components/Page';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 import {
   Box,
+  Button,
   ChevronRightIcon,
   Divider,
   EncryptedIcon,
@@ -9,13 +10,22 @@ import {
   Paper,
   PasswordIcon,
   SecurityKeyIcon,
+  Skeleton,
   Typography,
 } from '@avalabs/k2-alpine';
-import { useAnalyticsContext } from '@core/ui';
-import { FC } from 'react';
+import { FeatureGates } from '@core/types';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useSeedlessMfaManager,
+} from '@core/ui';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
 import { useHistory, useRouteMatch } from 'react-router-dom';
+import { RecoveryMethodList } from './RecoveryMethodList';
+import { RecoveryMethodCard } from './RecoveryMethodCard';
+import { RecoveryMethod } from './RecoveryMethod';
 
 export const RecoveryMethods: FC = () => {
   const { t } = useTranslation();
@@ -23,36 +33,24 @@ export const RecoveryMethods: FC = () => {
   const { capture } = useAnalyticsContext();
   const { path } = useRouteMatch();
   console.log('path: ', path);
+  const [selectedMethod, setSelectedMethod] = useState(null);
+  const {
+    isLoadingRecoveryMethods,
+    recoveryMethods,
+    hasFidoConfigured,
+    hasMfaConfigured,
+    hasTotpConfigured,
+  } = useSeedlessMfaManager();
+  // console.log('isLoadingRecoveryMethods: ', isLoadingRecoveryMethods);
+  // console.log('recoveryMethods: ', recoveryMethods);
+  // console.log('hasFidoConfigured: ', hasFidoConfigured);
+  // console.log('hasMfaConfigured: ', hasMfaConfigured);
+  // console.log('hasTotpConfigured: ', hasTotpConfigured);
 
-  const cards = [
-    {
-      icon: <PasswordIcon fontSize="large" />,
-      title: t('Passkey'),
-      description: t(
-        'Passkeys are used for quick, password-free recovery and enhanced security.',
-      ),
-      to: '/onboarding/import',
-      analyticsKey: 'AddPasskeyClicked',
-    },
-    {
-      icon: <EncryptedIcon fontSize="large" />,
-      title: t('Authenticator app'),
-      description: t(
-        'Authenticator apps generate secure, time-based codes for wallet recovery.',
-      ),
-      to: `${path}/authenticator`,
-      analyticsKey: 'AddAuthenticatorClicked',
-    },
-    {
-      icon: <SecurityKeyIcon fontSize="large" />,
-      title: t('Yubikey'),
-      description: t(
-        'YubiKeys are physical, hardware-based protection and strong authentication.',
-      ),
-      to: '/onboarding/import',
-      analyticsKey: 'AddYubikeyClicked',
-    },
-  ];
+  console.log('selectedMethod: ', selectedMethod);
+  if (selectedMethod) {
+    return <RecoveryMethod method={selectedMethod} />;
+  }
 
   return (
     <Page
@@ -64,25 +62,64 @@ export const RecoveryMethods: FC = () => {
         elevation={1}
         sx={{
           borderRadius: 2,
+          overflow: 'hidden',
         }}
       >
-        <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
-          {cards.map((card, idx) => {
-            console.log('card: ', card);
+        {isLoadingRecoveryMethods && (
+          <>
+            <Skeleton variant="rectangular" sx={{ width: 297, height: 220 }} />
+          </>
+        )}
+        {!isLoadingRecoveryMethods && !hasMfaConfigured ? (
+          <RecoveryMethodList />
+        ) : (
+          recoveryMethods.map((method) => {
+            if (method.type === 'totp') {
+              return (
+                <RecoveryMethodCard
+                  method={method}
+                  key="totp"
+                  methodName={t('Authenticator')}
+                  // methodName={t('Authenticator')}
+                  onClick={() => {
+                    capture('ConfigureTotpClicked');
+                    setSelectedMethod(method);
+                    // setScreen(RecoveryMethodScreen.Authenticator);
+                  }}
+                />
+              );
+            }
+
             return (
-              <CardMenuItem
+              <RecoveryMethodCard
+                method={method}
+                key={method.id}
+                // methodName={method.name}
                 onClick={() => {
-                  capture(card.analyticsKey);
-                  history.push(card.to);
+                  capture('ConfigureFidoClicked');
+                  console.log('method clicked: ', method);
+                  setSelectedMethod(method);
+                  // history.push(`${path}/recovery-method`);
+                  // setFidoDetails(method);
+                  // setScreen(RecoveryMethodScreen.FidoDetails);
                 }}
-                icon={card.icon}
-                text={card.title}
-                description={card.description}
-                key={idx}
               />
             );
-          })}
-        </CardMenu>
+          })
+        )}
+        <Button
+          // ref={submitRef}
+          variant="contained"
+          color="primary"
+          size="extension"
+          fullWidth
+          // disabled={!isFormValid || isSubmitting}
+          // loading={isSubmitting}
+          // onClick={isFormValid ? handleSubmit : undefined}
+          sx={{ mt: 'auto' }}
+        >
+          {t('Add recovery method')}
+        </Button>
       </Paper>
     </Page>
   );

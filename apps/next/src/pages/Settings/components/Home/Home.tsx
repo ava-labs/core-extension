@@ -15,6 +15,7 @@ import {
   useSettingsContext,
   useWalletContext,
   useSeedlessMfaManager,
+  useFeatureFlagContext,
 } from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -29,7 +30,7 @@ import {
 } from '@/config';
 
 import { getContactsPath } from '@/config/routes';
-import { SecretType } from '@core/types';
+import { FeatureGates, SecretType } from '@core/types';
 import {
   AvatarButton,
   Footer,
@@ -55,6 +56,9 @@ export const SettingsHomePage = () => {
   const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
   const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
+  const { featureFlags } = useFeatureFlagContext();
+  const areMfaSettingsAvailable =
+    featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
   console.log('isMfaSetupPromptVisible: ', isMfaSetupPromptVisible);
 
   return (
@@ -85,6 +89,7 @@ export const SettingsHomePage = () => {
           )}
         />
       </Stack>
+
       <Stack>
         {isMfaSetupPromptVisible && (
           <SettingsNavItem
@@ -93,6 +98,7 @@ export const SettingsHomePage = () => {
           />
         )}
       </Stack>
+
       <SettingsCard
         title={t('General')}
         description={t(
@@ -198,11 +204,16 @@ export const SettingsHomePage = () => {
           />
         )}
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
-        <SettingsNavItem
-          label={t('Recovery methods')}
-          divider
-          href={`${path}/recovery-methods`}
-        />
+
+        {walletDetails?.type === SecretType.Seedless &&
+          areMfaSettingsAvailable && (
+            <SettingsNavItem
+              label={t('Recovery methods')}
+              divider
+              href={`${path}/recovery-methods`}
+            />
+          )}
+
         <SettingsNavItem
           label={t('Participate in Core Analytics')}
           description={t(

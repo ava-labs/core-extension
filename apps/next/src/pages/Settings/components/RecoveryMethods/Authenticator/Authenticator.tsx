@@ -1,12 +1,14 @@
 import { Page } from '@/components/Page';
 import { Stack, Typography } from '@avalabs/k2-alpine';
-import { FC, useCallback, useEffect } from 'react';
+import { FC, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TotpResetChallenge } from '@core/types';
 import { useState } from 'react';
 import { useGoBack, useSeedlessMfaManager } from '@core/ui';
 import browser from 'webextension-polyfill';
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
+import { SeedlessTotpQRCode } from '@/pages/Onboarding/flows/SeedlessFlow/screens';
+import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
 
 export const Authenticator: FC = () => {
   const { t } = useTranslation();
@@ -17,6 +19,7 @@ export const Authenticator: FC = () => {
     hasTotpConfigured,
   } = useSeedlessMfaManager();
   const [totpChallenge, setTotpChallenge] = useState<TotpResetChallenge>();
+  const [showSecret, setShowSecret] = useState(false);
   console.log('totpChallenge: ', totpChallenge);
   const goBack = useGoBack();
 
@@ -44,9 +47,16 @@ export const Authenticator: FC = () => {
   }, [initAuthenticatorChange]);
 
   useEffect(() => {
-    console.log('init');
     initChange();
   }, [initChange]);
+
+  const totpSecret = useMemo(() => {
+    if (!totpChallenge) {
+      return '';
+    }
+
+    return new URL(totpChallenge.totpUrl).searchParams.get('secret') ?? '';
+  }, [totpChallenge]);
 
   return (
     <Page
@@ -59,11 +69,20 @@ export const Authenticator: FC = () => {
           'Open any authenticator app and scan the QR code below or enter the code manually',
         )}
       </Typography>
-      {/* <AuthenticatorVerifyScreen
-        onBackClick={goBack}
-        totpChallenge={totpChallenge}
-        onNextClick={() => console.log('Next clicked')}
-      /> */}
+      {totpChallenge && (
+        <AuthenticatorVerifyScreen
+          onBackClick={() => console.log('Back clicked')}
+          totpChallenge={totpChallenge}
+          onNextClick={() => console.log('Next clicked')}
+          onShowSecret={() => setShowSecret(true)}
+        />
+      )}
+      {showSecret && <AuthenticatorVerifyCode totpSecret={totpSecret} />}
+
+      {/* <SeedlessTotpQRCode
+				challengeUrl={totpChallenge?.totpUrl ?? ''}
+				onNext={() => console.log('next')}
+			/> */}
     </Page>
   );
 };
