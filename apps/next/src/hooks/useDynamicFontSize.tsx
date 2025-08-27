@@ -54,8 +54,11 @@ const MeasureElement = styled('div')({
   userSelect: 'none',
   pointerEvents: 'none',
   position: 'absolute',
-  inset: 0,
-  padding: 0,
   visibility: 'hidden',
+  bottom: 0,
+  right: 0,
+  top: 'unset',
+  left: 'unset',
+  padding: 0,
   // background: 'rgba(255, 0, 0, 0.3)', // Uncomment for easier debugging
 });
