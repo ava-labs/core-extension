@@ -11,7 +11,12 @@ import {
 import { ActionStatus, DAppProviderRequest } from '@core/types';
 import { mapAddressesToVMs } from '@core/common';
 
-import { ActionDrawer, LoadingScreen, Styled } from './components';
+import {
+  ActionDrawer,
+  ApprovalScreenTitle,
+  LoadingScreen,
+  Styled,
+} from './components';
 
 export const ApproveDappConnection: FC = () => {
   const { t } = useTranslation();
@@ -89,7 +94,7 @@ export const ApproveDappConnection: FC = () => {
 
   return (
     <Styled.ApprovalScreenPage>
-      <Styled.ApprovalScreenTitle title={action.displayData.title} />
+      <ApprovalScreenTitle title={action.displayData.title} />
 
       <Styled.NoScrollStack>
         <Stack flexGrow={1} px={2}>

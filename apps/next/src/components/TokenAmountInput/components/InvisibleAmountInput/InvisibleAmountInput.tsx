@@ -8,7 +8,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { useRef } from 'react';
 
-import { useDynamicFontSize } from './hooks/useDynamicFontSize';
+import { useDynamicFontSize } from '@/hooks/useDynamicFontSize';
 
 const config = {
   minFontSize: 16,

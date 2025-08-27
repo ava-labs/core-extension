@@ -13,6 +13,7 @@ import {
 import {
   ActionDetails,
   ActionDrawer,
+  ApprovalScreenTitle,
   LoadingScreen,
   Styled,
   UnsupportedNetworkScreen,
@@ -24,7 +25,7 @@ export const GenericApprovalScreen = () => {
   useLiveBalance(POLLED_BALANCES);
 
   const requestId = useGetRequestId();
-  const { getNetwork } = useNetworkContext();
+  const { getNetwork, networks } = useNetworkContext();
   const { action, updateAction, cancelHandler, error } =
     useApproveAction<DisplayData>(requestId);
 
@@ -41,10 +42,12 @@ export const GenericApprovalScreen = () => {
 
   const network = action ? getNetwork(action.scope) : undefined;
 
-  if (!action) {
+  // `!networks.length` prevents a flash of <UnsupportedNetworkScreen /> while the networks are loading.
+  if (!action || !networks.length) {
     return <LoadingScreen />;
   }
 
+  // At this point, all networks should be loaded.
   if (!network) {
     // This is very unlikely, but technically possible if, for example,
     // the environment changes from mainnet to testnet (or vice versa)
@@ -59,9 +62,8 @@ export const GenericApprovalScreen = () => {
 
   return (
     <Styled.ApprovalScreenPage>
-      <Styled.ApprovalScreenTitle title={action.displayData.title} />
-
       <Styled.NoScrollStack>
+        <ApprovalScreenTitle title={action.displayData.title} />
         <Stack flexGrow={1} px={2}>
           <ActionDetails
             network={network}
