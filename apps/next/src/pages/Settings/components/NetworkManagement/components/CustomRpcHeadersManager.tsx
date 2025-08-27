@@ -1,7 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { Button, Stack } from '@avalabs/k2-alpine';
-
-import { useIsIntersecting } from '@/components/Page/hooks/useIsIntersecting';
+import { Trans, useTranslation } from 'react-i18next';
+import { Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { PageTopBar } from '@/components/PageTopBar';
 import { Network } from '@core/types';
 import { useMemo, useState } from 'react';
@@ -13,10 +11,12 @@ import {
   KeyValueHeader,
   prepToStoreCustomRpcHeaders,
   updateKeyValueList,
-} from '../utils/customRpcHeaders';
+} from './NetworkForm/utils/customRpcHeaders';
+import { NetworkDetailsCard } from './NetworkDetailsCard';
+import { NetworkFormTab } from './NetworkForm/types';
 
 type CustomRpcHeadersManagerProps = {
-  setTab: (tab: 'add' | 'rpc-headers') => void;
+  setTab: (tab: NetworkFormTab) => void;
   setNetwork: (network: Network) => void;
   network: Network;
 };
@@ -28,7 +28,6 @@ export const CustomRpcHeadersManager = ({
 }: CustomRpcHeadersManagerProps) => {
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
-  const { isIntersecting, isObserving } = useIsIntersecting();
 
   const rpcHeaders = useMemo(() => {
     return network?.customRpcHeaders ?? {};
@@ -41,7 +40,7 @@ export const CustomRpcHeadersManager = ({
   const isValid = isReadyToStore(headerList);
 
   const handleBack = () => {
-    setTab('add');
+    setTab('details');
   };
 
   const handleCancel = () => {
@@ -76,54 +75,68 @@ export const CustomRpcHeadersManager = ({
         display: 'flex',
         flexDirection: 'column',
         gap: 2,
+        px: 1.5,
       }}
     >
-      <PageTopBar
-        showBack
-        onBackClicked={handleBack}
-        isObserving={isObserving}
-        isIntersecting={isIntersecting}
-        title={t('Define custom RPC headers')}
-      />
+      <PageTopBar showBack onBackClicked={handleBack} />
+      <Typography variant="h2">
+        <Trans i18nKey="Define custom<br />RPC headers" />
+      </Typography>
 
-      <Stack>
+      <Stack rowGap={1}>
         {headerList.map((listItem, index) => (
-          <KeyValueFormField
-            key={`existing-${index}`}
-            labels={{
-              key: t('Header name'),
-              value: t('Value'),
-            }}
-            placeholders={{
-              key: t('Enter header name'),
-              value: t('Enter a value'),
-            }}
-            prompt={t('Add next')}
-            values={{
-              key: listItem.key,
-              value: listItem.value,
-            }}
-            onChange={(newKeyValue) =>
-              setHeaderList(
-                updateKeyValueList(
-                  headerList,
-                  {
-                    key: newKeyValue.key,
-                    value: newKeyValue.value,
-                  },
-                  index,
-                ),
-              )
-            }
-          />
+          <NetworkDetailsCard key={`existing-${index}`} sx={{ py: 1 }}>
+            <KeyValueFormField
+              labels={{
+                key: t('Header name'),
+                value: t('Value'),
+              }}
+              placeholders={{
+                key: t('Enter header name'),
+                value: t('Enter a value'),
+              }}
+              prompt={t('Add next')}
+              values={{
+                key: listItem.key,
+                value: listItem.value,
+              }}
+              onChange={(newKeyValue) =>
+                setHeaderList(
+                  updateKeyValueList(
+                    headerList,
+                    {
+                      key: newKeyValue.key,
+                      value: newKeyValue.value,
+                    },
+                    index,
+                  ),
+                )
+              }
+            />
+          </NetworkDetailsCard>
         ))}
       </Stack>
 
-      <Stack direction="row" spacing={2} sx={{ mt: 'auto' }}>
-        <Button disabled={!isValid} onClick={save}>
+      <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
+          fullWidth
+          disabled={!isValid}
+          onClick={save}
+        >
           {t('Save')}
         </Button>
-        <Button onClick={handleCancel}>{t('Cancel')}</Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          size="small"
+          fullWidth
+          onClick={handleCancel}
+        >
+          {t('Cancel')}
+        </Button>
       </Stack>
     </Stack>
   );

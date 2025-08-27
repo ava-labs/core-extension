@@ -12,6 +12,7 @@ type NetworkToggleListItemProps = {
   isEnabled: boolean;
   isDefault: boolean;
   onToggle: () => void;
+  onClick: () => void;
 };
 
 export const NetworkToggleListItem = ({
@@ -19,9 +20,10 @@ export const NetworkToggleListItem = ({
   isEnabled,
   isDefault,
   onToggle,
+  onClick,
 }: NetworkToggleListItemProps) => {
   return (
-    <ListItem sx={{ px: 0 }}>
+    <ListItem sx={{ px: 0 }} onClick={onClick}>
       <ListItemIcon>
         <NetworkAvatar network={network} />
       </ListItemIcon>
@@ -31,6 +33,7 @@ export const NetworkToggleListItem = ({
         checked={isEnabled}
         disabled={isDefault}
         onChange={onToggle}
+        onClick={(e) => e.stopPropagation()}
       />
     </ListItem>
   );

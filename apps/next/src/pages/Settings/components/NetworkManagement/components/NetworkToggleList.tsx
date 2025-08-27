@@ -3,6 +3,7 @@ import { NetworkToggleListItem } from './NetworkToggleListItem';
 import { useNetworkContext } from '@core/ui';
 import { NetworkWithCaipId } from '@core/types';
 import { defaultEnabledNetworks } from '~/services/network/consts';
+import { useHistory } from 'react-router-dom';
 
 type NetworkToggleListProps = {
   networks: NetworkWithCaipId[];
@@ -11,6 +12,7 @@ type NetworkToggleListProps = {
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   const { enabledNetworks, addEnabledNetwork, removeEnabledNetwork } =
     useNetworkContext();
+  const history = useHistory();
 
   return (
     <Stack
@@ -45,6 +47,11 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
             } else {
               addEnabledNetwork(network.chainId);
             }
+          }}
+          onClick={() => {
+            history.push(
+              `/settings/network-management/details/${network.chainId}`,
+            );
           }}
         />
       ))}

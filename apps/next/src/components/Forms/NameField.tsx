@@ -22,6 +22,7 @@ export const NameField = ({
   autoFocus,
   prompt,
 }: NameFieldProps) => {
+  const showPrompt = !isNaming && name.trim().length === 0;
   return (
     <Stack
       width="100%"
@@ -29,7 +30,7 @@ export const NameField = ({
       overflow="hidden"
       height={NAME_INPUT_HEIGHT}
     >
-      <Fade in={isNaming} mountOnEnter unmountOnExit>
+      <Fade in={!showPrompt} mountOnEnter unmountOnExit>
         <InvisibleNameInput
           sx={{
             position: 'absolute',
@@ -42,7 +43,7 @@ export const NameField = ({
           onChange={(e) => setName(e.target.value)}
         />
       </Fade>
-      <Fade in={!isNaming} mountOnEnter unmountOnExit>
+      <Fade in={showPrompt} mountOnEnter unmountOnExit>
         <StyledNameButton
           variant="contained"
           color="secondary"

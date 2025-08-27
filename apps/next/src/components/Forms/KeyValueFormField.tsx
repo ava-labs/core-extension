@@ -76,7 +76,7 @@ export const KeyValueFormField = ({
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      sx={{ height: isEditing || value ? 48 : 36 }}
+      sx={{ height: isEditing || value ? 80 : 48 }}
     >
       <MultiIconButton
         icon={<MdAddCircle size={20} fill={theme.palette.success.main} />}
@@ -99,36 +99,45 @@ export const KeyValueFormField = ({
                 delay(() => setIsEditing(false), 100);
               }
             }}
+            rowGap={1}
           >
-            <InvisibleFieldInput
-              ref={refKey}
-              value={key}
-              placeholder={placeholders.key}
-              onChange={(e) => onChange({ ...values, key: e.target.value })}
-            />
-            <Collapse in={!isEditing} orientation="vertical">
-              <Typography
-                variant="caption"
-                color={error ? 'error.light' : 'text.secondary'}
-              >
-                {error || labels.key}
-              </Typography>
-            </Collapse>
+            {/* Key */}
+            <Stack>
+              <InvisibleFieldInput
+                ref={refKey}
+                value={key}
+                placeholder={placeholders.key}
+                onChange={(e) => onChange({ ...values, key: e.target.value })}
+              />
+              <Collapse in={!isEditing} orientation="vertical">
+                <Typography
+                  variant="caption"
+                  color={error ? 'error.light' : 'text.secondary'}
+                >
+                  {error || labels.key}
+                </Typography>
+              </Collapse>
+            </Stack>
+
             <Divider />
-            <InvisibleFieldInput
-              ref={refValue}
-              value={value}
-              placeholder={placeholders.value}
-              onChange={(e) => onChange({ ...values, value: e.target.value })}
-            />
-            <Collapse in={!isEditing} orientation="vertical">
-              <Typography
-                variant="caption"
-                color={error ? 'error.light' : 'text.secondary'}
-              >
-                {error || labels.value}
-              </Typography>
-            </Collapse>
+
+            {/* Value */}
+            <Stack>
+              <InvisibleFieldInput
+                ref={refValue}
+                value={value}
+                placeholder={placeholders.value}
+                onChange={(e) => onChange({ ...values, value: e.target.value })}
+              />
+              <Collapse in={!isEditing} orientation="vertical">
+                <Typography
+                  variant="caption"
+                  color={error ? 'error.light' : 'text.secondary'}
+                >
+                  {error || labels.value}
+                </Typography>
+              </Collapse>
+            </Stack>
           </Stack>
         </Fade>
         <Fade in={!isEditing && !key && !value} mountOnEnter unmountOnExit>
