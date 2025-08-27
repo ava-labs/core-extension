@@ -26,7 +26,12 @@ export const LinkDetail = ({ item }: LinkDetailProps) => {
             backgroundSize: 'contain',
           }}
         />
-        <Link href={item.value.url} overflow="hidden">
+        <Link
+          href={item.value.url}
+          overflow="hidden"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <OverflowingTypography variant="body3" color="text.primary">
             {getWebsiteDomain(item.value.url)}
           </OverflowingTypography>

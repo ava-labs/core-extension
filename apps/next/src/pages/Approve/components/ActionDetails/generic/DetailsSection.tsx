@@ -5,7 +5,7 @@ import { Card } from '@/components/Card';
 
 export const DetailsSection = ({ children }: PropsWithChildren) => {
   return (
-    <Card>
+    <Card sx={{ overflow: 'visible' }}>
       <Stack divider={<StyledDivider />}>{children}</Stack>
     </Card>
   );

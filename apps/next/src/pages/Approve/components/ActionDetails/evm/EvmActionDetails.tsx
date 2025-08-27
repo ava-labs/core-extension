@@ -5,6 +5,7 @@ import { EvmNetwork } from '@core/types';
 import { ActionDetailsProps } from '../../../types';
 import { DetailsSection } from '../generic/DetailsSection';
 import { DetailsItem } from '../generic/DetailsItem';
+import { TransactionBalanceChange } from '../generic/TransactionBalanceChange/TransactionBalanceChange';
 
 type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: EvmNetwork;
@@ -13,6 +14,13 @@ type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
 export const EvmActionDetails = ({ action }: EvmActionDetailsProps) => {
   return (
     <Stack gap={1}>
+      {action.displayData.balanceChange && (
+        <TransactionBalanceChange
+          ins={action.displayData.balanceChange.ins}
+          outs={action.displayData.balanceChange.outs}
+          isSimulationSuccessful={action.displayData.isSimulationSuccessful}
+        />
+      )}
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, index) => (
