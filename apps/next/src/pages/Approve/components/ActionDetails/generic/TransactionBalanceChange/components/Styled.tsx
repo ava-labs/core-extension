@@ -1,5 +1,6 @@
 import { FC, memo, useState } from 'react';
 import {
+  Box,
   Stack,
   StackProps,
   styled,
@@ -22,7 +23,7 @@ export const ResponsiveTokenAmount: FC<{ amount: string; negate: boolean }> =
     });
 
     return (
-      <div style={{ position: 'relative' }} ref={setContainer}>
+      <Box position="relative" ref={setContainer}>
         {measureElement()}
         <CollapsedTokenAmount
           regularProps={{
@@ -30,7 +31,7 @@ export const ResponsiveTokenAmount: FC<{ amount: string; negate: boolean }> =
           }}
           amount={negate ? `-${amount}` : `+${amount}`}
         />
-      </div>
+      </Box>
     );
   });
 
