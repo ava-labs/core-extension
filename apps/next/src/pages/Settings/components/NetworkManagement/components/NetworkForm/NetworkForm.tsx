@@ -15,18 +15,20 @@ import {
 } from './NetworkFormField';
 import { Network } from '@core/types';
 import { NetworkDetailsCard } from '../NetworkDetailsCard';
-import { NetworkFormTab } from './types';
+import { NetworkFormErrors, NetworkFormTab } from './types';
 
 type NetworkFormProps = {
   network: Network;
   setNetwork: (network: Network) => void;
   setTab: (tab: NetworkFormTab) => void;
+  errors: NetworkFormErrors;
 };
 
 export const NetworkForm = ({
   network,
   setNetwork,
   setTab,
+  errors,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
 
@@ -39,6 +41,7 @@ export const NetworkForm = ({
       <RpcUrlField
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
+        error={errors.rpcUrl}
       />
       <Divider />
       <ChainIdField
@@ -46,6 +49,7 @@ export const NetworkForm = ({
         onChange={(chainId) =>
           setNetwork({ ...network, chainId: Number(chainId) })
         }
+        error={errors.chainId}
       />
       <Divider />
       <TokenSymbolField
@@ -56,6 +60,7 @@ export const NetworkForm = ({
             networkToken: { ...network.networkToken, symbol: tokenSymbol },
           })
         }
+        error={errors.tokenSymbol}
       />
       <Divider />
       <TokenNameField
@@ -66,16 +71,19 @@ export const NetworkForm = ({
             networkToken: { ...network.networkToken, name: tokenName },
           })
         }
+        error={errors.tokenName}
       />
       <Divider />
       <ExplorerUrlField
         value={network.explorerUrl}
         onChange={(explorerUrl) => setNetwork({ ...network, explorerUrl })}
+        error={errors.explorerUrl}
       />
       <Divider />
       <LogoUrlField
         value={network.logoUri}
         onChange={(logoUri) => setNetwork({ ...network, logoUri })}
+        error={errors.logoUrl}
       />
       <Divider />
       <Stack

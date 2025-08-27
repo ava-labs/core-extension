@@ -73,3 +73,17 @@ export type AddEthereumChainDisplayData = {
 };
 
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };
+
+export type NetworkFormFields =
+  | 'rpcUrl'
+  | 'chainName'
+  | 'chainId'
+  | 'tokenSymbol'
+  | 'tokenName'
+  | 'rpcHeaders'
+  | 'explorerUrl'
+  | 'logoUrl';
+
+export type NetworkFormErrors = {
+  [key in NetworkFormFields]?: string;
+};

@@ -46,7 +46,7 @@ describe('isNetworkValid', () => {
 
       expect(result).toEqual({
         valid: true,
-        reason: '',
+        errors: {},
       });
     });
 
@@ -73,7 +73,7 @@ describe('isNetworkValid', () => {
 
       expect(result).toEqual({
         valid: true,
-        reason: '',
+        errors: {},
       });
     });
   });
@@ -343,7 +343,7 @@ describe('isNetworkValid', () => {
 
       expect(result).toEqual({
         valid: true,
-        reason: '',
+        errors: {},
       });
     });
 

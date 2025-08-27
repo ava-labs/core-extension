@@ -6,9 +6,15 @@ import { FormField } from '@/components/Forms/FormField';
 type FlavouredFieldProps = Pick<
   ComponentProps<typeof FormField>,
   'value' | 'onChange' | 'allowCopy'
->;
+> & {
+  error?: string;
+};
 
-export const RpcUrlField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
+export const RpcUrlField: FC<FlavouredFieldProps> = ({
+  value,
+  onChange,
+  error,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -17,13 +23,17 @@ export const RpcUrlField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
       label={t('Network RPC URL')}
       placeholder={t('Type in or paste RPC URL')}
       prompt={t('Add RPC URL')}
-      error={value ? undefined : t('RPC required')}
+      error={error}
       onChange={onChange}
     />
   );
 };
 
-export const ChainIdField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
+export const ChainIdField: FC<FlavouredFieldProps> = ({
+  value,
+  onChange,
+  error,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -32,7 +42,7 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
       label={t('Chain ID')}
       placeholder={t('Type in or paste chain ID')}
       prompt={t('Add chain ID')}
-      error={!value || value === '0' ? t('Chain ID is required') : undefined}
+      error={error}
       onChange={onChange}
     />
   );
@@ -41,6 +51,7 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
 export const TokenSymbolField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
+  error,
 }) => {
   const { t } = useTranslation();
 
@@ -50,7 +61,7 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
       label={t('Token symbol')}
       placeholder={t('Type in or paste token symbol')}
       prompt={t('Add token symbol')}
-      error={value ? undefined : t('Token symbol is required')}
+      error={error}
       onChange={onChange}
     />
   );
@@ -59,6 +70,7 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
 export const TokenNameField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
+  error,
 }) => {
   const { t } = useTranslation();
 
@@ -68,7 +80,7 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
       label={t('Token name')}
       placeholder={t('Type in or paste token name')}
       prompt={t('Add token name')}
-      error={value ? undefined : t('Token name is required')}
+      error={error}
       onChange={onChange}
     />
   );
@@ -76,6 +88,7 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
 export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
+  error,
 }) => {
   const { t } = useTranslation();
 
@@ -85,13 +98,17 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
       label={t('Explorer URL')}
       placeholder={t('Type in or paste explorer URL')}
       prompt={t('Add explorer URL')}
-      error={undefined}
+      error={error}
       onChange={onChange}
     />
   );
 };
 
-export const LogoUrlField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
+export const LogoUrlField: FC<FlavouredFieldProps> = ({
+  value,
+  onChange,
+  error,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -100,7 +117,7 @@ export const LogoUrlField: FC<FlavouredFieldProps> = ({ value, onChange }) => {
       label={t('Logo URL')}
       placeholder={t('Type in or paste logo URL')}
       prompt={t('Add logo URL')}
-      error={undefined}
+      error={error}
       onChange={onChange}
     />
   );

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Button, Stack } from '@avalabs/k2-alpine';
 
-import { Network } from '@core/types';
+import { Network, NetworkFormErrors } from '@core/types';
 import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkNameField';
 import { useState } from 'react';
@@ -14,6 +14,7 @@ type AddNetworkProps = {
   setNetwork: (network: Network) => void;
   network: Network;
   isValid: boolean;
+  errors: NetworkFormErrors;
   submit: () => void;
   cancel: () => void;
 };
@@ -23,6 +24,7 @@ export const NetworkEditor = ({
   setNetwork,
   network,
   isValid,
+  errors,
   submit,
   cancel,
 }: AddNetworkProps) => {
@@ -50,6 +52,7 @@ export const NetworkEditor = ({
           isNaming={isNaming}
           setIsNaming={setIsNaming}
           autoFocus={false}
+          error={errors.chainName}
         />
       </Stack>
 
@@ -65,6 +68,7 @@ export const NetworkEditor = ({
           network={network}
           setNetwork={setNetwork}
           setTab={setTab}
+          errors={errors}
         />
       </div>
 

@@ -12,7 +12,7 @@ type EditNetworkProps = {
 
 export const EditNetwork = ({ selectedNetwork, setTab }: EditNetworkProps) => {
   const history = useHistory();
-  const { network, isValid, setNetwork, reset } = useEditNetwork({
+  const { network, isValid, errors, setNetwork, reset } = useEditNetwork({
     selectedNetwork,
   });
   const { updateDefaultNetwork } = useNetworkContext();
@@ -35,6 +35,7 @@ export const EditNetwork = ({ selectedNetwork, setTab }: EditNetworkProps) => {
       submit={submit}
       cancel={cancel}
       isValid={isValid}
+      errors={errors}
     />
   );
 };

@@ -1,7 +1,7 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import { isNetworkValid } from '@core/common';
+import { isNetworkValid } from '../components/NetworkForm/utils/isNetworkValid';
 import { AdvancedNetworkConfig, Network } from '@core/types';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const defaultNetworkValues: Network & AdvancedNetworkConfig = {
   chainName: '',
@@ -25,11 +25,14 @@ export const useAddNetwork = () => {
     defaultNetworkValues,
   );
 
-  const { valid: isValid } = isNetworkValid(network);
+  const { isValid, errors } = useMemo(() => {
+    console.log('running validation');
+    return isNetworkValid(network, defaultNetworkValues);
+  }, [network]);
 
   const reset = () => {
     setNetwork(defaultNetworkValues);
   };
 
-  return { network, isValid, setNetwork, reset };
+  return { network, isValid, errors, setNetwork, reset };
 };

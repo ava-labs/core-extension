@@ -5,7 +5,7 @@ import { AddNetwork } from './AddNetwork';
 import { NetworkFormTab } from './NetworkForm/types';
 
 export const AddNetworkFlow = () => {
-  const { network, setNetwork, reset, isValid } = useAddNetwork();
+  const { network, setNetwork, reset, isValid, errors } = useAddNetwork();
   const [ranReset, setRanReset] = useState<boolean>(false);
 
   const [tab, setTab] = useState<NetworkFormTab>('details');
@@ -27,6 +27,7 @@ export const AddNetworkFlow = () => {
           isValid={isValid}
           setTab={setTab}
           reset={reset}
+          errors={errors}
         />
       )}
       {tab === 'rpc-headers' && (

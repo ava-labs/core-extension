@@ -1,6 +1,6 @@
-import { isNetworkValid } from '@core/common';
+import { isNetworkValid } from '../components/NetworkForm/utils/isNetworkValid';
 import { AdvancedNetworkConfig, Network } from '@core/types';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type UseEditNetworkProps = {
   selectedNetwork: Network & AdvancedNetworkConfig;
@@ -12,7 +12,7 @@ export const useEditNetwork = ({ selectedNetwork }: UseEditNetworkProps) => {
     selectedNetwork,
   );
 
-  const { valid: isValid } = isNetworkValid(network);
+  const { isValid, errors } = useMemo(() => isNetworkValid(network), [network]);
 
   const reset = () => {
     setNetwork(original);
@@ -21,5 +21,5 @@ export const useEditNetwork = ({ selectedNetwork }: UseEditNetworkProps) => {
     console.log('submit', network);
   };
 
-  return { network, isValid, setNetwork, reset, submit };
+  return { network, isValid, errors, setNetwork, reset, submit };
 };
