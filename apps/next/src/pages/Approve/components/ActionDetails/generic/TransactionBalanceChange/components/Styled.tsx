@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, memo, useState } from 'react';
 import {
   Stack,
   StackProps,
@@ -10,38 +10,31 @@ import {
 import { useDynamicFontSize } from '@/hooks/useDynamicFontSize';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
-export const ResponsiveTokenAmount: FC<{ amount: string; negate: boolean }> = ({
-  amount,
-  negate,
-}) => {
-  const [container, setContainer] = useState<HTMLSpanElement | null>(null);
-  // We need to memoize the hook options to not look for the perfect font-size on every render.
-  // Re-renders will happen multiple times due to fluctuations in the token pricing.
-  const width = useMemo(() => container?.clientWidth ?? Infinity, [container]);
-  const options = useMemo(
-    () => ({
+export const ResponsiveTokenAmount: FC<{ amount: string; negate: boolean }> =
+  memo(({ amount, negate }) => {
+    const [container, setContainer] = useState<HTMLSpanElement | null>(null);
+
+    const { fontSize, measureElement } = useDynamicFontSize({
       minFontSize: 18,
       maxFontSize: 27,
-      maxWidth: width,
+      maxWidth: container?.clientWidth ?? Infinity,
       text: negate ? `-${amount}` : amount,
-    }),
-    [amount, negate, width],
-  );
+    });
 
-  const { fontSize, measureElement } = useDynamicFontSize(options);
+    return (
+      <div style={{ position: 'relative' }} ref={setContainer}>
+        {measureElement()}
+        <CollapsedTokenAmount
+          regularProps={{
+            fontSize: fontSize,
+          }}
+          amount={negate ? `-${amount}` : `+${amount}`}
+        />
+      </div>
+    );
+  });
 
-  return (
-    <div style={{ position: 'relative' }} ref={setContainer}>
-      {measureElement()}
-      <CollapsedTokenAmount
-        regularProps={{
-          fontSize: fontSize,
-        }}
-        amount={negate ? `-${amount}` : `+${amount}`}
-      />
-    </div>
-  );
-};
+ResponsiveTokenAmount.displayName = 'ResponsiveTokenAmount';
 
 export const TokenSymbol = styled((props: TypographyProps) => (
   <Typography {...props} variant="h7" color="text.primary" />

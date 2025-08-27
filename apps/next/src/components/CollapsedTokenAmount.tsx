@@ -1,14 +1,22 @@
-import { Stack, Typography, TypographyProps } from '@avalabs/k2-alpine';
+import {
+  Stack,
+  StackProps,
+  Typography,
+  TypographyProps,
+} from '@avalabs/k2-alpine';
 
 type CollapsedTokenAmountProps = {
   amount: string;
   overlineProps?: TypographyProps;
   regularProps?: TypographyProps;
+  stackProps?: StackProps;
 };
 
 const defaultOverlineProps: TypographyProps = {
   variant: 'subtitle3',
-  marginTop: '20%',
+  sx: {
+    transform: 'translateY(40%)',
+  },
 } as const;
 
 const defaultRegularProps: TypographyProps = {
@@ -34,6 +42,7 @@ export const CollapsedTokenAmount = ({
   amount,
   overlineProps,
   regularProps,
+  stackProps,
 }: CollapsedTokenAmountProps) => {
   const finalOverlineProps = { ...defaultOverlineProps, ...overlineProps };
   const finalRegularProps = { ...defaultRegularProps, ...regularProps };
@@ -57,7 +66,12 @@ export const CollapsedTokenAmount = ({
 
   if (fraction && indexOfNonZero) {
     return (
-      <Stack direction="row">
+      <Stack
+        direction="row"
+        width="100%"
+        justifyContent="flex-end"
+        {...stackProps}
+      >
         <Typography {...finalRegularProps}>{integer}.0</Typography>
         <Typography {...finalOverlineProps}>{zeroCount}</Typography>
         <Typography {...finalRegularProps}>

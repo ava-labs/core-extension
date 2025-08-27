@@ -34,6 +34,7 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
         textAlign="end"
         color={direction === 'loss' ? 'error.main' : 'text.primary'}
         overflow="hidden"
+        flexGrow={1}
       >
         <Styled.ResponsiveTokenAmount
           amount={item.displayValue}
