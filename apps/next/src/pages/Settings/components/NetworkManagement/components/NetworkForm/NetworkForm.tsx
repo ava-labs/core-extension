@@ -15,22 +15,22 @@ import {
 } from './NetworkFormField';
 import { Network } from '@core/types';
 import { NetworkDetailsCard } from '../NetworkDetailsCard';
-import { NetworkFormErrors, NetworkFormFields, NetworkFormTab } from './types';
+import { FieldInfo, NetworkFormFields, NetworkFormTab } from './types';
 
 type NetworkFormProps = {
   network: Network;
   setNetwork: (network: Network) => void;
   setTab: (tab: NetworkFormTab) => void;
-  errors: NetworkFormErrors;
-  required: { [key in NetworkFormFields]?: boolean };
+  canResetRpcUrl: boolean;
+  fieldInfo: { [key in NetworkFormFields]?: FieldInfo };
 };
 
 export const NetworkForm = ({
   network,
   setNetwork,
   setTab,
-  errors,
-  required,
+  canResetRpcUrl,
+  fieldInfo,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
 
@@ -43,8 +43,10 @@ export const NetworkForm = ({
       <RpcUrlField
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
-        error={errors.rpcUrl}
-        required={required.rpcUrl}
+        error={fieldInfo.rpcUrl?.error}
+        required={fieldInfo.rpcUrl?.required}
+        canResetRpcUrl={canResetRpcUrl}
+        resetAction={fieldInfo.rpcUrl?.resetAction ?? (() => {})}
       />
       <Divider />
       <ChainIdField
@@ -52,8 +54,8 @@ export const NetworkForm = ({
         onChange={(chainId) =>
           setNetwork({ ...network, chainId: Number(chainId) })
         }
-        error={errors.chainId}
-        required={required.chainId}
+        error={fieldInfo.chainId?.error}
+        required={fieldInfo.chainId?.required}
       />
       <Divider />
       <TokenSymbolField
@@ -64,8 +66,8 @@ export const NetworkForm = ({
             networkToken: { ...network.networkToken, symbol: tokenSymbol },
           })
         }
-        error={errors.tokenSymbol}
-        required={required.tokenSymbol}
+        error={fieldInfo.tokenSymbol?.error}
+        required={fieldInfo.tokenSymbol?.required}
       />
       <Divider />
       <TokenNameField
@@ -76,22 +78,22 @@ export const NetworkForm = ({
             networkToken: { ...network.networkToken, name: tokenName },
           })
         }
-        error={errors.tokenName}
-        required={required.tokenName}
+        error={fieldInfo.tokenName?.error}
+        required={fieldInfo.tokenName?.required}
       />
       <Divider />
       <ExplorerUrlField
         value={network.explorerUrl}
         onChange={(explorerUrl) => setNetwork({ ...network, explorerUrl })}
-        error={errors.explorerUrl}
-        required={required.explorerUrl}
+        error={fieldInfo.explorerUrl?.error}
+        required={fieldInfo.explorerUrl?.required}
       />
       <Divider />
       <LogoUrlField
         value={network.logoUri}
         onChange={(logoUri) => setNetwork({ ...network, logoUri })}
-        error={errors.logoUrl}
-        required={required.logoUrl}
+        error={fieldInfo.logoUrl?.error}
+        required={fieldInfo.logoUrl?.required}
       />
       <Divider />
       <Stack

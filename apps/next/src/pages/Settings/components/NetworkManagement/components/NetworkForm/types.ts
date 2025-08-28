@@ -1,4 +1,4 @@
-export type NetworkFormTab = 'details' | 'rpc-headers';
+export type NetworkFormTab = 'details' | 'rpc-headers' | 'rpc-url-reset';
 
 export type NetworkFormFields =
   | 'rpcUrl'
@@ -13,3 +13,12 @@ export type NetworkFormFields =
 export type NetworkFormErrors = {
   [key in NetworkFormFields]?: string;
 };
+
+export type FieldInfo = {
+  required: boolean;
+  canReset: boolean;
+  error?: string;
+  resetAction?: () => void;
+};
+
+export type NetworkFormFieldInfo = { [key in NetworkFormFields]?: FieldInfo };

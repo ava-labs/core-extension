@@ -1,19 +1,18 @@
 import { useAddNetwork } from '../hooks/useAddNetwork';
 import { useEffect, useState } from 'react';
 import { CustomRpcHeadersManager } from './CustomRpcHeadersManager';
-import { AddNetwork } from './AddNetwork';
 import { NetworkFormTab } from './NetworkForm/types';
+import { useHistory } from 'react-router-dom';
+import { NetworkEditor } from './NetworkForm/NetworkEditor';
 
 export const AddNetworkFlow = () => {
-  const { network, setNetwork, reset, isValid, errors } = useAddNetwork();
+  const history = useHistory();
+  const { network, setNetwork, reset, isValid, submit, fieldInfo } =
+    useAddNetwork();
   const [ranReset, setRanReset] = useState<boolean>(false);
 
   const [tab, setTab] = useState<NetworkFormTab>('details');
 
-  useEffect(() => {
-    console.log('isValid', isValid);
-    console.log('errors', errors);
-  }, [isValid, errors]);
   useEffect(() => {
     if (!ranReset) {
       console.log('resetting');
@@ -22,16 +21,28 @@ export const AddNetworkFlow = () => {
     }
   }, [reset, ranReset]);
 
+  const submitHandler = () => {
+    submit();
+    history.goBack();
+  };
+
+  const cancel = () => {
+    reset();
+    history.goBack();
+  };
+
   return (
     <>
       {tab === 'details' && (
-        <AddNetwork
-          setNetwork={setNetwork}
+        <NetworkEditor
           network={network}
-          isValid={isValid}
+          setNetwork={setNetwork}
           setTab={setTab}
-          reset={reset}
-          errors={errors}
+          submit={submitHandler}
+          cancel={cancel}
+          isValid={isValid}
+          fieldInfo={fieldInfo}
+          canResetRpcUrl={false}
         />
       )}
       {tab === 'rpc-headers' && (

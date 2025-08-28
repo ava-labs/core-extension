@@ -5,20 +5,24 @@ import { Network } from '@core/types';
 import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkNameField';
 import { useState } from 'react';
-import { NetworkFormErrors, NetworkFormFields, NetworkFormTab } from './types';
+import {
+  NetworkFormFieldInfo,
+  NetworkFormFields,
+  NetworkFormTab,
+} from './types';
 import { NetworkForm } from './NetworkForm';
 import { PageTopBar } from '@/components/PageTopBar';
 import { MdInfoOutline } from 'react-icons/md';
 
-type AddNetworkProps = {
+type NetworkEditorProps = {
   setTab: (tab: NetworkFormTab) => void;
   setNetwork: (network: Network) => void;
   network: Network;
   isValid: boolean;
-  errors: NetworkFormErrors;
-  required: { [key in NetworkFormFields]?: boolean };
+  fieldInfo: NetworkFormFieldInfo;
   submit: () => void;
   cancel: () => void;
+  canResetRpcUrl: boolean;
 };
 
 export const NetworkEditor = ({
@@ -26,18 +30,20 @@ export const NetworkEditor = ({
   setNetwork,
   network,
   isValid,
-  errors,
-  required,
+  fieldInfo,
   submit,
   cancel,
-}: AddNetworkProps) => {
+  canResetRpcUrl,
+}: NetworkEditorProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const [isNaming, setIsNaming] = useState(false);
 
-  const fieldsWithErrors = Object.keys(errors).filter(
-    (key) => errors[key as NetworkFormFields] !== undefined,
-  );
+  const fieldsWithErrors = Object.keys(fieldInfo).filter((key) => {
+    const field = fieldInfo[key as NetworkFormFields];
+    if (!field) return false;
+    return field.error !== undefined;
+  });
 
   const showMissingNetworkNameWarning =
     !network.chainName &&
@@ -65,8 +71,8 @@ export const NetworkEditor = ({
           isNaming={isNaming}
           setIsNaming={setIsNaming}
           autoFocus={false}
-          error={errors.chainName}
-          required={!!required.chainName}
+          error={fieldInfo.chainName?.error}
+          required={!!fieldInfo.chainName?.required}
         />
       </Stack>
 
@@ -82,8 +88,8 @@ export const NetworkEditor = ({
           network={network}
           setNetwork={setNetwork}
           setTab={setTab}
-          errors={errors}
-          required={required}
+          fieldInfo={fieldInfo}
+          canResetRpcUrl={canResetRpcUrl}
         />
       </div>
 

@@ -1,7 +1,15 @@
-import type { FC, ComponentProps } from 'react';
+import { type FC, type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FormField } from '@/components/Forms/FormField';
+import {
+  Dialog,
+  IconButton,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
+import { UndoIcon } from './assets/undo';
 
 type FlavouredFieldProps = Pick<
   ComponentProps<typeof FormField>,
@@ -11,24 +19,41 @@ type FlavouredFieldProps = Pick<
   required?: boolean;
 };
 
-export const RpcUrlField: FC<FlavouredFieldProps> = ({
-  value,
-  onChange,
-  error,
-  required,
-}) => {
+export const RpcUrlField: FC<
+  FlavouredFieldProps & {
+    canResetRpcUrl: boolean;
+    resetAction: () => void;
+  }
+> = ({ value, onChange, error, required, canResetRpcUrl, resetAction }) => {
+  const theme = useTheme();
   const { t } = useTranslation();
+  const [showResetDialog, setShowResetDialog] = useState(false);
 
   return (
-    <FormField
-      value={value}
-      label={t('Network RPC URL')}
-      placeholder={t('Type in or paste RPC URL')}
-      prompt={t('Add RPC URL')}
-      error={error}
-      onChange={onChange}
-      required={required}
-    />
+    <>
+      <FormField
+        value={value}
+        label={t('Network RPC URL')}
+        placeholder={t('Type in or paste RPC URL')}
+        prompt={t('Add RPC URL')}
+        error={error}
+        onChange={onChange}
+        required={required}
+        endAdornment={
+          canResetRpcUrl ? (
+            <IconButton onClick={resetAction}>
+              <UndoIcon height="21px" color={theme.palette.text.primary} />
+            </IconButton>
+          ) : null
+        }
+      />
+
+      <Dialog open={showResetDialog} onClose={() => setShowResetDialog(false)}>
+        <Stack>
+          <Typography variant="h6">{t('Reset RPC URL')}</Typography>
+        </Stack>
+      </Dialog>
+    </>
   );
 };
 

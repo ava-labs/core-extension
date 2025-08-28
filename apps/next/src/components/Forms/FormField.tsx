@@ -26,6 +26,7 @@ type FormFieldProps = {
   onChange: (value: string) => void;
   allowCopy?: boolean;
   required?: boolean;
+  endAdornment?: React.ReactNode;
 };
 
 export const FormField = ({
@@ -37,6 +38,7 @@ export const FormField = ({
   onChange,
   allowCopy = false,
   required = false,
+  endAdornment,
 }: FormFieldProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -83,26 +85,30 @@ export const FormField = ({
       <InputContainer>
         <Fade in={showRemoveIcon} mountOnEnter unmountOnExit>
           <Stack
-            position="absolute"
+            direction="row"
+            alignItems="center"
             width="100%"
-            component="label"
-            onClick={() => setIsEditing(true)}
+            justifyContent="space-between"
           >
-            <InvisibleFieldInput
-              ref={ref}
-              value={value}
-              placeholder={placeholder}
-              onChange={(e) => onChange(e.target.value)}
-              onBlur={() => delay(() => setIsEditing(false), 100)}
-            />
-            <Collapse in={!isEditing} orientation="vertical">
-              <Typography
-                variant="caption"
-                color={error ? 'error.light' : 'text.secondary'}
-              >
-                {error || label}
-              </Typography>
-            </Collapse>
+            <Stack component="label" onClick={() => setIsEditing(true)}>
+              <InvisibleFieldInput
+                ref={ref}
+                value={value}
+                placeholder={placeholder}
+                onChange={(e) => onChange(e.target.value)}
+                onBlur={() => delay(() => setIsEditing(false), 100)}
+              />
+
+              <Collapse in={!isEditing} orientation="vertical">
+                <Typography
+                  variant="caption"
+                  color={error ? 'error.light' : 'text.secondary'}
+                >
+                  {error || label}
+                </Typography>
+              </Collapse>
+            </Stack>
+            {!!endAdornment && endAdornment}
           </Stack>
         </Fade>
         <Fade in={!showRemoveIcon} mountOnEnter unmountOnExit>
