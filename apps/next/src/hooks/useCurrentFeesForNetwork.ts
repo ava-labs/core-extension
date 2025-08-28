@@ -9,17 +9,7 @@ export const useCurrentFeesForNetwork = (network: NetworkWithCaipId) => {
   const [networkFee, setNetworkFee] = useState<NetworkFee | null>();
 
   useEffect(() => {
-    let isMounted = true;
-
-    getNetworkFee(network.caipId).then((newFee) => {
-      if (isMounted) {
-        setNetworkFee(newFee);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    getNetworkFee(network.caipId).then(setNetworkFee);
   }, [getNetworkFee, network]);
 
   return networkFee;
