@@ -54,7 +54,6 @@ export const useEvmNativeSend = ({
             {
               from: from.addressC,
               to,
-              gas: asHex(23000),
               value: asHex(amount),
               chainId: asHex(token.coreChainId),
               maxFeePerGas: asHex(networkFee.high.maxFeePerGas),

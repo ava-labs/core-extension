@@ -10,7 +10,7 @@ const NAME_INPUT_STYLES = {
   textAlign: 'center',
 } as const;
 
-const InvisibileInput = styled('input')(({ theme }) => ({
+export const InvisibileInput = styled('input')(({ theme }) => ({
   background: 'transparent',
   border: 0,
   paddingInline: theme.spacing(2),
@@ -18,6 +18,13 @@ const InvisibileInput = styled('input')(({ theme }) => ({
   outline: 'none',
   color: theme.palette.text.primary,
   textOverflow: 'ellipsis',
+  '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
+  'input[type=number]': {
+    '-moz-appearance': 'textfield',
+  },
 }));
 
 export const InvisibleNameInput = styled(InvisibileInput)(NAME_INPUT_STYLES);
