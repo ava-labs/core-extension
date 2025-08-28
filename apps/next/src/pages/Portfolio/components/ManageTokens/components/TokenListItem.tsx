@@ -1,18 +1,19 @@
+import { TokenAvatar } from '@/components/TokenAvatar';
 import {
-  Avatar,
-  AvatarProps,
-  Badge,
+  Box,
   ListItem,
   ListItemIcon,
   ListItemText,
   Switch,
 } from '@avalabs/k2-alpine';
-import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { TokenWithBalance } from '@avalabs/vm-module-types';
+import { isTokenMalicious } from '@core/common';
+import { FungibleTokenBalance } from '@core/types';
 import { useSettingsContext } from '@core/ui';
 import { FC, ReactElement } from 'react';
 
 interface Props {
-  token: TokenWithBalance;
+  token: FungibleTokenBalance;
 }
 
 export const TokenListItem: FC<Props> = ({ token }) => {
@@ -32,9 +33,9 @@ export const TokenListItem: FC<Props> = ({ token }) => {
       disableGutters
     >
       <ListItemIcon>
-        <NetworkBadge token={token}>
-          <Avatar src={token.logoUri} alt={token.name} />
-        </NetworkBadge>
+        <MaliciousOverlay token={token}>
+          <TokenAvatar token={token} size={36} badgeSize={16} />
+        </MaliciousOverlay>
       </ListItemIcon>
       <ListItemText
         primary={token.name}
@@ -44,32 +45,41 @@ export const TokenListItem: FC<Props> = ({ token }) => {
   );
 };
 
-const NetworkBadge: FC<{
+const MaliciousOverlay: FC<{
+  children: ReactElement;
   token: TokenWithBalance;
-  children: ReactElement<AvatarProps>;
 }> = ({ children, token }) => {
-  if (token.type === TokenType.NATIVE) {
-    return children;
+  if (isTokenMalicious(token)) {
+    return (
+      <Box
+        sx={(theme) => ({
+          position: 'relative',
+          isolation: 'isolate',
+          '&:before': {
+            content: '"!"',
+            position: 'absolute',
+            inset: 0,
+            textAlign: 'center',
+            color: theme.palette.error.main,
+            zIndex: 1,
+            fontSize: theme.typography.h2.fontSize,
+            fontWeight: theme.typography.h2.fontWeight,
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: theme.shape.fullBorderRadius,
+            backdropFilter: 'blur(8px) brightness(0.1) contrast(1)',
+          },
+        })}
+      >
+        {children}
+      </Box>
+    );
   }
-
-  return (
-    <Badge
-      variant="dot"
-      color="primary"
-      overlap="circular"
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      badgeContent={
-        <Avatar
-          alt={token.type === TokenType.ERC20 ? 'EVM' : 'Solana'}
-          src={
-            token.type === TokenType.ERC20
-              ? '/static/images/avatar/1.jpg'
-              : '/static/images/avatar/2.jpg'
-          }
-        />
-      }
-    >
-      {children}
-    </Badge>
-  );
+  return children;
 };

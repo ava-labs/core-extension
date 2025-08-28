@@ -1,7 +1,7 @@
+import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { Box } from '@avalabs/k2-alpine';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@core/common';
-import { useTokensWithBalances } from '@core/ui/src/hooks';
+import { FungibleTokenBalance } from '@core/types';
 import { FC, useMemo } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { useContainerHeight } from '../hooks/useContainerHeight';
@@ -15,10 +15,7 @@ interface Props {
 
 export const TokenSwitchList: FC<Props> = ({ filter, spam }) => {
   const [height, containerRef] = useContainerHeight<HTMLDivElement>(400);
-  const tokensWithBalances = useTokensWithBalances({
-    forceShowTokensWithoutBalances: true,
-    forceHiddenTokens: true,
-  });
+  const tokensWithBalances = useAllTokensFromEnabledNetworks();
 
   const spamless = useMemo(
     () =>
@@ -55,7 +52,7 @@ export const TokenSwitchList: FC<Props> = ({ filter, spam }) => {
   );
 };
 
-const RowRenderer: FC<ListChildComponentProps<TokenWithBalance[]>> = ({
+const RowRenderer: FC<ListChildComponentProps<FungibleTokenBalance[]>> = ({
   index,
   data,
   style,

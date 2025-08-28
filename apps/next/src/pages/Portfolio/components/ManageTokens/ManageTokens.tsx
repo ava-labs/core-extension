@@ -1,8 +1,16 @@
 import { Page } from '@/components/Page';
-import { Stack, StackProps, Switch, Typography } from '@avalabs/k2-alpine';
+import {
+  IconButton,
+  Stack,
+  StackProps,
+  Switch,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { MdAdd } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
 import * as Styled from './Styled';
 import { TokenSwitchList } from './components/TokenSwitchList';
 
@@ -15,10 +23,23 @@ const contentProps: StackProps = {
 
 export const ManageTokens: FC = () => {
   const { t } = useTranslation();
+  const { push } = useHistory();
   const [hideSpamTokens, setHideSpamTokens] = useState(false);
   const [query, setQuery] = useState('');
   return (
-    <Page title={t('Manage Tokens')} contentProps={contentProps}>
+    <Page
+      title={t('Manage Tokens')}
+      titleAction={
+        <IconButton
+          size="medium"
+          sx={{ padding: 0 }}
+          onClick={() => push('/manage-tokens/add-custom')}
+        >
+          <MdAdd size={24} />
+        </IconButton>
+      }
+      contentProps={contentProps}
+    >
       <Styled.SearchInput
         placeholder={t('Search')}
         size="small"
