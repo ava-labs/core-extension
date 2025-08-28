@@ -4,6 +4,7 @@ import { NetworkFormTab } from './NetworkForm/types';
 import { NetworkEditor } from './NetworkForm/NetworkEditor';
 import { useHistory } from 'react-router-dom';
 import { useNetworkContext } from '@core/ui';
+import { required } from './NetworkForm/const';
 
 type EditNetworkProps = {
   selectedNetwork: Network & AdvancedNetworkConfig;
@@ -36,6 +37,7 @@ export const EditNetwork = ({ selectedNetwork, setTab }: EditNetworkProps) => {
       cancel={cancel}
       isValid={isValid}
       errors={errors}
+      required={required}
     />
   );
 };

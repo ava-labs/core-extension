@@ -27,7 +27,7 @@ export const useAddNetwork = () => {
 
   const { isValid, errors } = useMemo(() => {
     console.log('running validation');
-    return isNetworkValid(network, defaultNetworkValues);
+    return isNetworkValid(network);
   }, [network]);
 
   const reset = () => {

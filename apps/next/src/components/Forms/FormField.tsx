@@ -25,6 +25,7 @@ type FormFieldProps = {
   error?: string;
   onChange: (value: string) => void;
   allowCopy?: boolean;
+  required?: boolean;
 };
 
 export const FormField = ({
@@ -35,6 +36,7 @@ export const FormField = ({
   error,
   onChange,
   allowCopy = false,
+  required = false,
 }: FormFieldProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -52,7 +54,7 @@ export const FormField = ({
   const showCopyButton =
     allowCopy && !error && !!value && !isEditing && isHovered;
 
-  const showRemoveIcon = Boolean(value || isEditing);
+  const showRemoveIcon = Boolean(value || isEditing || required);
 
   const onActionClick = useCallback(() => {
     if (showRemoveIcon) {
@@ -79,7 +81,7 @@ export const FormField = ({
       />
 
       <InputContainer>
-        <Fade in={isEditing || !!value} mountOnEnter unmountOnExit>
+        <Fade in={showRemoveIcon} mountOnEnter unmountOnExit>
           <Stack
             position="absolute"
             width="100%"
@@ -103,7 +105,7 @@ export const FormField = ({
             </Collapse>
           </Stack>
         </Fade>
-        <Fade in={!isEditing && !value} mountOnEnter unmountOnExit>
+        <Fade in={!showRemoveIcon} mountOnEnter unmountOnExit>
           <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
         </Fade>
       </InputContainer>

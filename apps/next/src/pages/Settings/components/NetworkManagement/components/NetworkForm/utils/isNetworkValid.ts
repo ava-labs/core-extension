@@ -1,7 +1,6 @@
 import { Network } from '@avalabs/core-chains-sdk';
 import { t as translate } from 'i18next';
-import { NetworkFormErrors } from '@core/types';
-import { isEqual } from 'lodash';
+import { NetworkFormErrors } from '../types';
 
 const isValidURL = (text: string) => {
   let url;
@@ -58,11 +57,7 @@ const checkTokenName = (value: string) => {
   return undefined;
 };
 
-export const isNetworkValid = (network: Network, original: Network) => {
-  //Checking if the form is dirty
-  if (isEqual(network, original)) {
-    return { isValid: false, errors: {} };
-  }
+export const isNetworkValid = (network: Network) => {
   const errors: NetworkFormErrors = {
     rpcUrl: checkRpcUrl(network.rpcUrl),
     chainName: checkChainName(network.chainName),

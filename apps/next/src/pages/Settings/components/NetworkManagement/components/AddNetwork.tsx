@@ -1,8 +1,9 @@
 import { useHistory } from 'react-router-dom';
 import { useNetworkContext } from '@core/ui';
-import { Network, NetworkFormErrors } from '@core/types';
-import { NetworkFormTab } from './NetworkForm/types';
+import { Network } from '@core/types';
+import { NetworkFormErrors, NetworkFormTab } from './NetworkForm/types';
 import { NetworkEditor } from './NetworkForm/NetworkEditor';
+import { required } from './NetworkForm/const';
 
 type AddNetworkProps = {
   setTab: (tab: NetworkFormTab) => void;
@@ -43,6 +44,7 @@ export const AddNetwork = ({
       cancel={cancel}
       isValid={isValid}
       errors={errors}
+      required={required}
     />
   );
 };

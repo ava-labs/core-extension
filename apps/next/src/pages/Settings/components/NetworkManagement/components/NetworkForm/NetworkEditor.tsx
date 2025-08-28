@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 
-import { Network, NetworkFormErrors } from '@core/types';
+import { Network } from '@core/types';
 import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkNameField';
 import { useState } from 'react';
-import { NetworkFormTab } from './types';
+import { NetworkFormErrors, NetworkFormFields, NetworkFormTab } from './types';
 import { NetworkForm } from './NetworkForm';
 import { PageTopBar } from '@/components/PageTopBar';
+import { MdInfoOutline } from 'react-icons/md';
 
 type AddNetworkProps = {
   setTab: (tab: NetworkFormTab) => void;
@@ -15,6 +16,7 @@ type AddNetworkProps = {
   network: Network;
   isValid: boolean;
   errors: NetworkFormErrors;
+  required: { [key in NetworkFormFields]?: boolean };
   submit: () => void;
   cancel: () => void;
 };
@@ -25,11 +27,22 @@ export const NetworkEditor = ({
   network,
   isValid,
   errors,
+  required,
   submit,
   cancel,
 }: AddNetworkProps) => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const [isNaming, setIsNaming] = useState(false);
+
+  const fieldsWithErrors = Object.keys(errors).filter(
+    (key) => errors[key as NetworkFormFields] !== undefined,
+  );
+
+  const showMissingNetworkNameWarning =
+    !network.chainName &&
+    fieldsWithErrors.length == 1 &&
+    fieldsWithErrors.includes('chainName');
 
   return (
     <Stack
@@ -53,6 +66,7 @@ export const NetworkEditor = ({
           setIsNaming={setIsNaming}
           autoFocus={false}
           error={errors.chainName}
+          required={!!required.chainName}
         />
       </Stack>
 
@@ -69,6 +83,7 @@ export const NetworkEditor = ({
           setNetwork={setNetwork}
           setTab={setTab}
           errors={errors}
+          required={required}
         />
       </div>
 
@@ -82,6 +97,14 @@ export const NetworkEditor = ({
           pb: 2,
         }}
       >
+        {showMissingNetworkNameWarning && (
+          <Stack direction="row" alignItems="center" gap={1}>
+            <MdInfoOutline color={theme.palette.error.main} />
+            <Typography variant="body2" color="error">
+              {t('Network name is required')}
+            </Typography>
+          </Stack>
+        )}
         <Button
           variant="contained"
           color="primary"

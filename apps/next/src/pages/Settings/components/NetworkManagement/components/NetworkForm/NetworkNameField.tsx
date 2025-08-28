@@ -8,6 +8,7 @@ type NetworkNameFieldProps = {
   setIsNaming: (isNaming: boolean) => void;
   autoFocus: boolean;
   error: string | undefined;
+  required: boolean;
 };
 
 export const NetworkNameField = ({
@@ -17,6 +18,7 @@ export const NetworkNameField = ({
   setIsNaming,
   autoFocus,
   error,
+  required,
 }: NetworkNameFieldProps) => {
   const { t } = useTranslation();
 
@@ -29,6 +31,7 @@ export const NetworkNameField = ({
       autoFocus={autoFocus}
       prompt={t('Name this network')}
       error={error}
+      required={required}
     />
   );
 };

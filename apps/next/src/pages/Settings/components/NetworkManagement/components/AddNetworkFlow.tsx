@@ -11,6 +11,10 @@ export const AddNetworkFlow = () => {
   const [tab, setTab] = useState<NetworkFormTab>('details');
 
   useEffect(() => {
+    console.log('isValid', isValid);
+    console.log('errors', errors);
+  }, [isValid, errors]);
+  useEffect(() => {
     if (!ranReset) {
       console.log('resetting');
       reset();

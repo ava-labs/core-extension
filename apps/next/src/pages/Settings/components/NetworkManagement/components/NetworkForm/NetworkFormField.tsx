@@ -8,12 +8,14 @@ type FlavouredFieldProps = Pick<
   'value' | 'onChange' | 'allowCopy'
 > & {
   error?: string;
+  required?: boolean;
 };
 
 export const RpcUrlField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
   error,
+  required,
 }) => {
   const { t } = useTranslation();
 
@@ -25,6 +27,7 @@ export const RpcUrlField: FC<FlavouredFieldProps> = ({
       prompt={t('Add RPC URL')}
       error={error}
       onChange={onChange}
+      required={required}
     />
   );
 };
@@ -33,6 +36,7 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
   error,
+  required,
 }) => {
   const { t } = useTranslation();
 
@@ -44,6 +48,7 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({
       prompt={t('Add chain ID')}
       error={error}
       onChange={onChange}
+      required={required}
     />
   );
 };
@@ -52,6 +57,7 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
   error,
+  required,
 }) => {
   const { t } = useTranslation();
 
@@ -63,6 +69,7 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
       prompt={t('Add token symbol')}
       error={error}
       onChange={onChange}
+      required={required}
     />
   );
 };
@@ -71,6 +78,7 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
   error,
+  required,
 }) => {
   const { t } = useTranslation();
 
@@ -82,6 +90,7 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
       prompt={t('Add token name')}
       error={error}
       onChange={onChange}
+      required={required}
     />
   );
 };
@@ -89,6 +98,7 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
   error,
+  required,
 }) => {
   const { t } = useTranslation();
 
@@ -100,6 +110,7 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
       prompt={t('Add explorer URL')}
       error={error}
       onChange={onChange}
+      required={required}
     />
   );
 };
@@ -108,6 +119,7 @@ export const LogoUrlField: FC<FlavouredFieldProps> = ({
   value,
   onChange,
   error,
+  required,
 }) => {
   const { t } = useTranslation();
 
@@ -119,6 +131,7 @@ export const LogoUrlField: FC<FlavouredFieldProps> = ({
       prompt={t('Add logo URL')}
       error={error}
       onChange={onChange}
+      required={required}
     />
   );
 };

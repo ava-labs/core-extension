@@ -15,13 +15,14 @@ import {
 } from './NetworkFormField';
 import { Network } from '@core/types';
 import { NetworkDetailsCard } from '../NetworkDetailsCard';
-import { NetworkFormErrors, NetworkFormTab } from './types';
+import { NetworkFormErrors, NetworkFormFields, NetworkFormTab } from './types';
 
 type NetworkFormProps = {
   network: Network;
   setNetwork: (network: Network) => void;
   setTab: (tab: NetworkFormTab) => void;
   errors: NetworkFormErrors;
+  required: { [key in NetworkFormFields]?: boolean };
 };
 
 export const NetworkForm = ({
@@ -29,6 +30,7 @@ export const NetworkForm = ({
   setNetwork,
   setTab,
   errors,
+  required,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
 
@@ -42,6 +44,7 @@ export const NetworkForm = ({
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
         error={errors.rpcUrl}
+        required={required.rpcUrl}
       />
       <Divider />
       <ChainIdField
@@ -50,6 +53,7 @@ export const NetworkForm = ({
           setNetwork({ ...network, chainId: Number(chainId) })
         }
         error={errors.chainId}
+        required={required.chainId}
       />
       <Divider />
       <TokenSymbolField
@@ -61,6 +65,7 @@ export const NetworkForm = ({
           })
         }
         error={errors.tokenSymbol}
+        required={required.tokenSymbol}
       />
       <Divider />
       <TokenNameField
@@ -72,18 +77,21 @@ export const NetworkForm = ({
           })
         }
         error={errors.tokenName}
+        required={required.tokenName}
       />
       <Divider />
       <ExplorerUrlField
         value={network.explorerUrl}
         onChange={(explorerUrl) => setNetwork({ ...network, explorerUrl })}
         error={errors.explorerUrl}
+        required={required.explorerUrl}
       />
       <Divider />
       <LogoUrlField
         value={network.logoUri}
         onChange={(logoUri) => setNetwork({ ...network, logoUri })}
         error={errors.logoUrl}
+        required={required.logoUrl}
       />
       <Divider />
       <Stack
