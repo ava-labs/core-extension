@@ -6,12 +6,16 @@ import { ActionDetailsProps } from '../../../types';
 import { DetailsSection } from '../generic/DetailsSection';
 import { DetailsItem } from '../generic/DetailsItem';
 import { TransactionBalanceChange } from '../generic/TransactionBalanceChange/TransactionBalanceChange';
+import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget/EvmNetworkFeeWidget';
 
 type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: EvmNetwork;
 };
 
-export const EvmActionDetails = ({ action }: EvmActionDetailsProps) => {
+export const EvmActionDetails = ({
+  action,
+  network,
+}: EvmActionDetailsProps) => {
   return (
     <Stack gap={1}>
       {action.displayData.balanceChange && (
@@ -28,6 +32,9 @@ export const EvmActionDetails = ({ action }: EvmActionDetailsProps) => {
           ))}
         </DetailsSection>
       ))}
+      {action.displayData.networkFeeSelector && (
+        <EvmNetworkFeeWidget action={action} network={network} />
+      )}
     </Stack>
   );
 };

@@ -1,11 +1,16 @@
-import { PropsWithChildren } from 'react';
-import { Divider, Stack, styled } from '@avalabs/k2-alpine';
+import {
+  CardProps,
+  combineSx,
+  Divider,
+  Stack,
+  styled,
+} from '@avalabs/k2-alpine';
 
 import { Card } from '@/components/Card';
 
-export const DetailsSection = ({ children }: PropsWithChildren) => {
+export const DetailsSection = ({ children, sx, ...props }: CardProps) => {
   return (
-    <Card sx={{ overflow: 'visible' }}>
+    <Card sx={combineSx({ overflow: 'visible' }, sx)} {...props}>
       <Stack divider={<StyledDivider />}>{children}</Stack>
     </Card>
   );
