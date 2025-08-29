@@ -17,13 +17,15 @@ import {
   LoadingScreen,
   Styled,
   UnsupportedNetworkScreen,
+  MaliciousTxOverlay,
+  NoteWarning,
 } from './components';
+import { hasNoteWarning, hasOverlayWarning } from './lib';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20]; // Approval screen should always have the latest balance
 
 export const GenericApprovalScreen = () => {
   useLiveBalance(POLLED_BALANCES);
-
   const requestId = useGetRequestId();
   const { getNetwork, networks } = useNetworkContext();
   const { action, updateAction, cancelHandler, error } =
@@ -64,6 +66,9 @@ export const GenericApprovalScreen = () => {
     <Styled.ApprovalScreenPage>
       <Styled.NoScrollStack>
         <ApprovalScreenTitle title={action.displayData.title} />
+        {hasNoteWarning(action) && (
+          <NoteWarning alert={action.displayData.alert} />
+        )}
         <Stack flexGrow={1} px={2}>
           <ActionDetails
             network={network}
@@ -79,6 +84,13 @@ export const GenericApprovalScreen = () => {
           action={action}
         />
       </Styled.NoScrollStack>
+      {hasOverlayWarning(action) && (
+        <MaliciousTxOverlay
+          open={hasOverlayWarning(action)}
+          cancelHandler={cancelHandler}
+          alert={action.displayData.alert}
+        />
+      )}
     </Styled.ApprovalScreenPage>
   );
 };
