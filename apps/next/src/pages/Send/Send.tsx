@@ -1,33 +1,33 @@
-import { useCallback } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
+import { TokenType } from '@avalabs/vm-module-types';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
-import { TokenType } from '@avalabs/vm-module-types';
 
+import { getUniqueTokenId } from '@core/types';
 import {
   useAccountsContext,
   useLiveBalance,
   useNetworkContext,
 } from '@core/ui';
-import { getUniqueTokenId } from '@core/types';
 
-import {
-  getSendPath,
-  SEND_QUERY_TOKENS,
-  SendQueryTokens,
-} from '@/config/routes';
+import { AccountSelect } from '@/components/AccountSelect';
 import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';
-import { AccountSelect } from '@/components/AccountSelect';
-import { TokenAmountInput } from '@/components/TokenAmountInput';
-import { useTokensForAccount } from '@/components/TokenSelect';
 import {
   getRecipientAddressByType,
   RecipientSelect,
   useRecipients,
 } from '@/components/RecipientSelect';
-import { getAddressByType } from '@/utils/getAddressByType';
+import { TokenAmountInput } from '@/components/TokenAmountInput';
+import {
+  getSendPath,
+  SEND_QUERY_TOKENS,
+  SendQueryTokens,
+} from '@/config/routes';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
+import { getAddressByType } from '@/utils/getAddressByType';
 
 import { SendBody } from './components/SendBody';
 import { getAddressTypeForToken } from './lib/getAddressTypeForToken';

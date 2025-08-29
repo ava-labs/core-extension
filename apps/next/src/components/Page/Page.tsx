@@ -1,9 +1,10 @@
-import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
 import { useIsIntersecting } from '@/hooks/useIsIntersecting';
+import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
 import { PageTopBar } from '../PageTopBar';
 
 type PageProps = {
   title?: string;
+  titleAction?: React.ReactElement;
   description?: string;
   children: React.ReactNode;
   withBackButton?: boolean;
@@ -25,6 +26,7 @@ const NoScrollStack = styled(Stack)`
 export const Page = ({
   title,
   description,
+  titleAction,
   children,
   contentProps,
   onBack,
@@ -55,9 +57,12 @@ export const Page = ({
         <Stack px={1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
-              <Typography variant="h2" ref={ref} component="h1">
-                {title}
-              </Typography>
+              <Stack direction="row" gap={1} justifyContent="space-between">
+                <Typography variant="h2" ref={ref} component="h1">
+                  {title}
+                </Typography>
+                {titleAction}
+              </Stack>
               {description && (
                 <Typography variant="caption" sx={{ width: '60%' }}>
                   {description}

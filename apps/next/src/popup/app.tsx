@@ -43,6 +43,7 @@ const pagesWithoutHeader = [
   '/receive',
   '/approve',
   '/permissions',
+  '/manage-tokens',
   getContactsPath(),
   getSendPath(),
 ];
