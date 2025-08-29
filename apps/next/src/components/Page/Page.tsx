@@ -7,6 +7,7 @@ type PageProps = {
   description?: string;
   children: React.ReactNode;
   withBackButton?: boolean;
+  onBackClicked?: () => void;
   contentProps?: StackProps;
 };
 
@@ -24,6 +25,7 @@ export const Page = ({
   description,
   children,
   contentProps,
+  onBackClicked,
   ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
@@ -41,6 +43,7 @@ export const Page = ({
         isObserving={isObserving}
         isIntersecting={isIntersecting}
         title={title}
+        onBackClicked={onBackClicked}
       />
       <NoScrollStack>
         <Stack px={1.5} pb={1.5} gap={3} flexGrow={1}>

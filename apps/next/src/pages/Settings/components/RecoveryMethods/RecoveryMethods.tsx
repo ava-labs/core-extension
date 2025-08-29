@@ -4,7 +4,6 @@ import { RecoveryMethod as RecoveryMethodType } from '@core/types';
 import { useAnalyticsContext, useSeedlessMfaManager } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useRouteMatch } from 'react-router-dom';
 import { RecoveryMethodList } from './RecoveryMethodList';
 import { RecoveryMethodCard } from './RecoveryMethodCard';
 import { RecoveryMethod } from './RecoveryMethod';
@@ -12,8 +11,6 @@ import { RecoveryMethod } from './RecoveryMethod';
 export const RecoveryMethods: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { path } = useRouteMatch();
-  console.log('path: ', path);
   const [selectedMethod, setSelectedMethod] =
     useState<RecoveryMethodType | null>(null);
   const {
@@ -26,7 +23,12 @@ export const RecoveryMethods: FC = () => {
 
   console.log('selectedMethod: ', selectedMethod);
   if (selectedMethod) {
-    return <RecoveryMethod method={selectedMethod} />;
+    return (
+      <RecoveryMethod
+        method={selectedMethod}
+        onBackClicked={() => setSelectedMethod(null)}
+      />
+    );
   }
 
   return (
