@@ -51,7 +51,7 @@ export const useAllTokensFromEnabledNetworks = () => {
     });
   }, [favoriteNetworks, request]);
 
-  const tokensForAccount = useTokensForAccount(active);
+  const tokensForAccount = useTokensForAccount(active, false);
 
   return useMemo<FungibleTokenBalance[]>(
     () => [

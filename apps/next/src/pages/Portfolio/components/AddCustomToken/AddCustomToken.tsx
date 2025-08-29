@@ -32,10 +32,12 @@ const contentProps: StackProps = {
 
 export const AddCustomToken: FC = () => {
   const { t } = useTranslation();
-  const { networks } = useNetworkContext();
+  const { networks, isDeveloperMode } = useNetworkContext();
   const { goBack } = useHistory();
   const [tokenAddress, setTokenAddress] = useState<string>('');
-  const [chainId, setChainId] = useState<NetworkWithCaipId['caipId']>();
+  const [chainId, setChainId] = useState<NetworkWithCaipId['caipId']>(
+    isDeveloperMode ? 'eip155:43113' : 'eip155:43114',
+  ); // AVAX C-Chain
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 

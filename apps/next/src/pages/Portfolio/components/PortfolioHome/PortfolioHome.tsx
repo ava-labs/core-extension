@@ -1,5 +1,10 @@
 import { CircularProgress, Stack, styled } from '@avalabs/k2-alpine';
-import { useAccountsContext, useBalancesContext } from '@core/ui';
+import { hasAccountBalances } from '@core/common';
+import {
+  useAccountsContext,
+  useBalancesContext,
+  useNetworkContext,
+} from '@core/ui';
 import { FC, useState } from 'react';
 import AccountInfo from './components/AccountInfo';
 import { EmptyState } from './components/EmptyState';
@@ -9,9 +14,16 @@ import { PortfolioDetails } from './components/PortolioDetails';
 export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const [activeTab, setActiveTab] = useState<TabName>('assets');
-  const { totalBalance } = useBalancesContext();
+  const { networks } = useNetworkContext();
+  const { totalBalance, balances } = useBalancesContext();
   const isLoading = !totalBalance;
-  const isAccountEmpty = !isLoading && totalBalance.sum === 0;
+  const isAccountEmpty =
+    !hasAccountBalances(
+      balances.tokens ?? {},
+      accounts.active ?? {},
+      networks.map((n) => n.chainId),
+    ) && !isLoading;
+
   const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
 
   return (

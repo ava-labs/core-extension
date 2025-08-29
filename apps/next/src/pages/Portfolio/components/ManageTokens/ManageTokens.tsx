@@ -24,7 +24,7 @@ const contentProps: StackProps = {
 export const ManageTokens: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
-  const [hideSpamTokens, setHideSpamTokens] = useState(false);
+  const [hideSpamTokens, setHideSpamTokens] = useState(true);
   const [query, setQuery] = useState('');
   return (
     <Page
