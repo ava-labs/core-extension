@@ -10,8 +10,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { getNetworkTokens } from './lib/getNetworkTokens';
 import { getTokenMapper } from './lib/getTokenMapper';
 
-// TODO: Make me prettier
-// TODO2: Currently the hook is using favoriteNetwork. It should be changed to enabledNetworks once added.
+// TODO: Currently the hook is using favoriteNetwork. It should be changed to enabledNetworks once added.
 export const useAllTokensFromEnabledNetworks = () => {
   const {
     accounts: { active },
