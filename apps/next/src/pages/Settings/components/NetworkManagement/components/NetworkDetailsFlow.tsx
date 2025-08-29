@@ -1,5 +1,4 @@
-import { useNetworkContext } from '@core/ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { CustomRpcHeadersManager } from './CustomRpcHeadersManager';
 import { NetworkEditor } from './NetworkForm/NetworkEditor';
@@ -18,13 +17,8 @@ type NetworkDetailsParams = {
 export const NetworkDetailsFlow = () => {
   const { t } = useTranslation();
   const { networkId } = useParams<NetworkDetailsParams>();
-  const { networks } = useNetworkContext();
 
   const [tab, setTab] = useState<EditNetworkFormTab>('details');
-
-  const selectedNetwork = useMemo(() => {
-    return networks.find((n) => n.chainId === Number(networkId));
-  }, [networks, networkId]);
 
   const {
     network,
@@ -36,12 +30,16 @@ export const NetworkDetailsFlow = () => {
     resetRpcUrl,
     submit,
   } = useEditNetwork({
-    selectedNetwork,
+    networkId: Number(networkId),
     rpcUrlResetButtonAction: () => {
       console.log('rpcUrlResetAction');
       setTab('rpc-url-reset');
     },
   });
+
+  useEffect(() => {
+    console.log({ network });
+  }, [network]);
 
   const resetRpcUrlHandler = () => {
     try {

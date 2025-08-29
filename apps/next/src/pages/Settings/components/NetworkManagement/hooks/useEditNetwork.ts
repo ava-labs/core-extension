@@ -1,26 +1,37 @@
 import { isNetworkValid } from '../components/NetworkForm/utils/isNetworkValid';
 import { AdvancedNetworkConfig, Network } from '@core/types';
 import { useNetworkContext } from '@core/ui';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NetworkFormFieldInfo } from '../components/NetworkForm/types';
 import { DynamicFields, mergeDynamicFields } from './utils/fieldInfo';
 
 type UseEditNetworkProps = {
-  selectedNetwork?: Network & AdvancedNetworkConfig;
+  networkId: number;
   rpcUrlResetButtonAction?: () => void;
 };
 
 export const useEditNetwork = ({
-  selectedNetwork,
+  networkId,
   rpcUrlResetButtonAction: rpcUrlResetAction,
 }: UseEditNetworkProps) => {
+  const { networks } = useNetworkContext();
+
+  const original = useMemo(() => {
+    return networks.find((n) => n.chainId === Number(networkId));
+  }, [networks, networkId]);
+
   const { isCustomNetwork, saveCustomNetwork, updateDefaultNetwork } =
     useNetworkContext();
-  const original = selectedNetwork ? { ...selectedNetwork } : undefined;
 
   const [network, setNetwork] = useState<
     (Network & AdvancedNetworkConfig) | undefined
-  >(selectedNetwork);
+  >(original);
+
+  useEffect(() => {
+    // When original changes, set the editable network to the original
+    setNetwork(original);
+  }, [original]);
+
   const isCustom = useMemo(() => {
     if (!network) return false;
     return isCustomNetwork(network.chainId);
