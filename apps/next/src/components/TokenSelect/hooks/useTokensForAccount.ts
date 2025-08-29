@@ -33,6 +33,13 @@ export const useTokensForAccount = (account?: Account) => {
     for (const [coreChainId, chainBalances] of Object.entries(
       tokensByChain ?? {},
     )) {
+      const network = getNetwork(Number(coreChainId));
+
+      if (!network) {
+        // If we don't know the network for the token, we can't use it anyway.
+        continue;
+      }
+
       for (const [address, addressBalances] of Object.entries(
         chainBalances ?? {},
       )) {
@@ -45,13 +52,6 @@ export const useTokensForAccount = (account?: Account) => {
           .filter(isFungibleToken);
 
         for (const balance of nonMaliciousTokens) {
-          const network = getNetwork(Number(coreChainId));
-
-          if (!network) {
-            // If we don't know the network for the token, we can't use it anyway.
-            continue;
-          }
-
           tokens.push(decorateWithAssetTypeAndChainId(balance, network));
         }
       }

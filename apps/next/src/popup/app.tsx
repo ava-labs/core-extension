@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  AnalyticsContextProvider,
   ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
@@ -32,16 +33,17 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { getContactsPath, getSendPath } from '@/config/routes';
+import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { getContactsPath, getSendPath } from '@/config/routes';
-import { ApprovalRoutes, AppRoutes } from '@/routing';
 
 const pagesWithoutHeader = [
   '/account-management',
   '/settings',
   '/receive',
   '/approve',
+  '/permissions',
   getContactsPath(),
   getSendPath(),
 ];
@@ -97,22 +99,23 @@ export function App() {
       providers={
         Children.toArray([
           <ThemeProvider theme={preferredColorScheme} />,
-          <AccountsContextProvider />,
-          <NetworkContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
+          <AnalyticsContextProvider />,
           <PersonalAvatarProvider />,
-          <ContactsContextProvider />,
-          <BalancesProvider />,
-          <PermissionContextProvider />,
-          <CurrenciesContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={CircularProgress}
             OnboardingScreen={Onboarding}
           />,
+          <AccountsContextProvider />,
+          <NetworkContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
           <WalletContextProvider LockedComponent={LockScreen} />,
           <SeedlessMfaManagementProvider />,
+          <ContactsContextProvider />,
+          <BalancesProvider />,
+          <PermissionContextProvider />,
+          <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
         ]) as ReactElement[]

@@ -1,5 +1,5 @@
 import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
-import { useIsIntersecting } from './hooks';
+import { useIsIntersecting } from '@/hooks/useIsIntersecting';
 import { PageTopBar } from '../PageTopBar';
 
 type PageProps = {
@@ -7,8 +7,10 @@ type PageProps = {
   description?: string;
   children: React.ReactNode;
   withBackButton?: boolean;
-  onBackClicked?: () => void;
+  onBack?: () => void;
   contentProps?: StackProps;
+  containerProps?: StackProps;
+  withViewSwitcher?: boolean;
 };
 
 // TODO: remove this once we have a proper scrollable component
@@ -25,7 +27,10 @@ export const Page = ({
   description,
   children,
   contentProps,
-  onBackClicked,
+  onBack,
+  withBackButton = true,
+  withViewSwitcher = true,
+  containerProps,
   ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
@@ -39,14 +44,15 @@ export const Page = ({
       {...htmlProps}
     >
       <PageTopBar
-        showBack
+        showBack={withBackButton}
+        showViewSwitcher={withViewSwitcher}
+        onBackClicked={onBack}
         isObserving={isObserving}
         isIntersecting={isIntersecting}
         title={title}
-        onBackClicked={onBackClicked}
       />
       <NoScrollStack>
-        <Stack px={1.5} pb={1.5} gap={3} flexGrow={1}>
+        <Stack px={1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
               <Typography variant="h2" ref={ref} component="h1">

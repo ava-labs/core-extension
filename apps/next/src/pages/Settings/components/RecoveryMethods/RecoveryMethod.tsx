@@ -30,7 +30,7 @@ export const RecoveryMethod = ({
       title={t('Recovery Method Details')}
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
-      onBackClicked={onBackClicked}
+      onBack={onBackClicked}
     >
       {method.type === 'totp' && (
         <AuthenticatorDetails method={method} methodName={t('Authenticator')} />

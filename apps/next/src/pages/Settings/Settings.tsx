@@ -1,6 +1,6 @@
+import { FC } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import { AvatarSelector } from './components/AvatarSelector';
-import { FC } from 'react';
 import { ChangePassword } from './components/ChangePassword';
 import { ConnectedSites } from './components/ConnectedSites';
 import { SettingsHomePage } from './components/Home';

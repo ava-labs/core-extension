@@ -23,6 +23,7 @@ import balances_v3 from './migrations/balances_v3';
 import wallet_v5 from './migrations/wallet_v5/wallet_v5';
 import permissions_v2 from './migrations/permissions_v2';
 import wallet_v6 from './migrations/wallet_v6/wallet_v6';
+import network_v5 from './migrations/network_v5';
 
 export const SCHEMA_MAP = {
   ['accounts']: {
@@ -64,7 +65,7 @@ export const SCHEMA_MAP = {
     ],
   },
   ['NETWORK_STORAGE_KEY']: {
-    latestVersion: 4,
+    latestVersion: 5,
     migrations: [
       {
         version: 2,
@@ -77,6 +78,10 @@ export const SCHEMA_MAP = {
       {
         version: 4,
         migration: network_v4,
+      },
+      {
+        version: 5,
+        migration: network_v5,
       },
     ],
   },

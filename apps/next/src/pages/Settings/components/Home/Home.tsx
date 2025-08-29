@@ -12,6 +12,7 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import {
   useAnalyticsContext,
   useContactsContext,
+  useNetworkContext,
   useSettingsContext,
   useWalletContext,
   useSeedlessMfaManager,
@@ -44,6 +45,7 @@ import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
+  const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
   const { walletDetails } = useWalletContext();
   console.log('SettingsHomePage walletDetails: ', walletDetails);
   const { contacts } = useContactsContext();
@@ -51,7 +53,6 @@ export const SettingsHomePage = () => {
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
 
-  const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
   const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
@@ -72,8 +73,8 @@ export const SettingsHomePage = () => {
       <Stack direction="row" justifyContent="space-between" gap={1.5}>
         <SwitchCard
           titleSize="small"
-          checked={isTestnetMode}
-          onChange={() => setIsTestnetMode((is) => !is)}
+          checked={isDeveloperMode}
+          onChange={() => setDeveloperMode(!isDeveloperMode)}
           title={t('Testnet mode')}
           description={t(
             'Enable a sandbox environment for testing without using real funds',
