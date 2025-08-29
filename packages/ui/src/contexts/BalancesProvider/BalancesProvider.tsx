@@ -347,7 +347,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
 
       const token =
         balances.tokens?.[tokenNetwork.chainId]?.[addressForChain]?.[
-          addressOrSymbol
+          addressOrSymbol.toLowerCase()
         ];
 
       return token?.priceInCurrency;

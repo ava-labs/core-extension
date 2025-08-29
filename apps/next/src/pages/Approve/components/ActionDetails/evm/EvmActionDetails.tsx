@@ -1,12 +1,15 @@
 import { Stack } from '@avalabs/k2-alpine';
+import { DisplayData } from '@avalabs/vm-module-types';
 
-import { EvmNetwork } from '@core/types';
+import { Action, EnsureDefined, EvmNetwork } from '@core/types';
 
 import { ActionDetailsProps } from '../../../types';
-import { DetailsSection } from '../generic/DetailsSection';
 import { DetailsItem } from '../generic/DetailsItem';
-import { TransactionBalanceChange } from '../generic/TransactionBalanceChange/TransactionBalanceChange';
-import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget/EvmNetworkFeeWidget';
+import { DetailsSection } from '../generic/DetailsSection';
+import { TransactionBalanceChange } from '../generic/TransactionBalanceChange';
+
+import { EvmTokenApprovals } from './EvmTokenApprovals';
+import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget';
 
 type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: EvmNetwork;
@@ -25,6 +28,7 @@ export const EvmActionDetails = ({
           isSimulationSuccessful={action.displayData.isSimulationSuccessful}
         />
       )}
+      {hasTokenApprovals(action) && <EvmTokenApprovals action={action} />}
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, index) => (
@@ -37,4 +41,10 @@ export const EvmActionDetails = ({
       )}
     </Stack>
   );
+};
+
+const hasTokenApprovals = (
+  action: Action<DisplayData>,
+): action is Action<EnsureDefined<DisplayData, 'tokenApprovals'>> => {
+  return action.displayData.tokenApprovals !== undefined;
 };

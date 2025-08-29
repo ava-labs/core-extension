@@ -10,7 +10,7 @@ import { Card } from '@/components/Card';
 
 export const DetailsSection = ({ children, sx, ...props }: CardProps) => {
   return (
-    <Card sx={combineSx({ overflow: 'visible' }, sx)} {...props}>
+    <Card sx={combineSx({ overflow: 'visible', width: '100%' }, sx)} {...props}>
       <Stack divider={<StyledDivider />}>{children}</Stack>
     </Card>
   );

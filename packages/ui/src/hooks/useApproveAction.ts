@@ -8,11 +8,13 @@ import {
   isBatchApprovalAction,
   ContextContainer,
 } from '@core/types';
+import { filter } from 'rxjs';
 import { GetActionHandler, UpdateActionHandler } from '@core/service-worker';
 import { isSpecificContextContainer } from '../utils/isSpecificContextContainer';
 import { useCallback, useEffect, useState } from 'react';
 import { getUpdatedSigningData } from '@core/common';
 import { useWindowGetsClosedOrHidden } from './useWindowGetsClosedOrHidden';
+import { isActionsUpdate } from '../contexts/ApprovalsProvider/isActionsUpdate';
 
 type ActionType<IsBatchApproval> = IsBatchApproval extends true
   ? MultiTxAction
@@ -44,7 +46,7 @@ export function useApproveAction<DisplayData = any>(
   actionId: string,
   isBatchApproval: boolean = false,
 ): HookResult<Action<DisplayData> | MultiTxAction | undefined> {
-  const { request } = useConnectionContext();
+  const { request, events } = useConnectionContext();
   const isConfirmPopup = isSpecificContextContainer(ContextContainer.CONFIRM);
   const { approval } = useApprovalsContext();
   const [action, setAction] = useState<ActionType<typeof isBatchApproval>>();
@@ -124,6 +126,22 @@ export function useApproveAction<DisplayData = any>(
       setAction(approval.action as ActionType<typeof isBatchApproval>);
     }
   }, [actionId, request, approval, isConfirmPopup, isBatchApproval]);
+
+  useEffect(() => {
+    const actionsUpdates = events()
+      .pipe(filter(isActionsUpdate))
+      .subscribe(async (event) => {
+        setAction((prev) => {
+          const actionFromEvent = event.value[actionId];
+
+          return actionFromEvent ?? prev;
+        });
+      });
+
+    return () => {
+      actionsUpdates.unsubscribe();
+    };
+  });
 
   useWindowGetsClosedOrHidden(cancelHandler);
 
