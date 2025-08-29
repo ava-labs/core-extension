@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useConnectionContext } from '@core/ui';
 import { ExtensionRequest, FeeRate } from '@core/types';
@@ -10,7 +10,7 @@ import { useUpdateAccountBalance } from '@/hooks/useUpdateAccountBalance';
 import { useCurrentFeesForNetwork } from '@/hooks/useCurrentFeesForNetwork';
 
 import { EvmFeePreset } from '../../types';
-import { getFeeInfo, hasEnoughForFee } from './lib';
+import { getFeeInfo, getInitialFeeRate, hasEnoughForFee } from './lib';
 import { EvmTxSigningData, UseEvmTransactionFee } from './types';
 
 export const useEvmTransactionFee: UseEvmTransactionFee = ({
@@ -102,6 +102,17 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
     },
     [networkFee, updateFee],
   );
+
+  const initialFeeRate = useRef<bigint | undefined>(
+    getInitialFeeRate(signingData),
+  );
+
+  useEffect(() => {
+    // If the dapp did not vie us any fee rate, we must initialize it ourselves.
+    if (!initialFeeRate.current) {
+      choosePreset('fast');
+    }
+  }, [networkFee, choosePreset]);
 
   if (!networkFee || !nativeToken || !signingData || !customPreset) {
     return {

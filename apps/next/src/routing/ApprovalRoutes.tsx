@@ -4,6 +4,7 @@ import { Route, Switch, SwitchProps } from 'react-router-dom';
 
 import { GenericApprovalScreen } from '@/pages/Approve/GenericApprovalScreen';
 import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection';
+import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionApprovalScreen';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -19,6 +20,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
     }
   >
     <Switch {...props}>
+      <Route path={['/network/switch', '/sign']}>
+        <ExtensionActionApprovalScreen />
+      </Route>
       <Route
         path={[
           '/approve/generic',
