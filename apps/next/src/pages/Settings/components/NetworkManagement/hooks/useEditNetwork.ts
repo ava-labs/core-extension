@@ -3,15 +3,16 @@ import { AdvancedNetworkConfig, Network } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { useMemo, useState } from 'react';
 import { NetworkFormFieldInfo } from '../components/NetworkForm/types';
+import { DynamicFields, mergeDynamicFields } from './utils/fieldInfo';
 
 type UseEditNetworkProps = {
   selectedNetwork?: Network & AdvancedNetworkConfig;
-  rpcUrlResetAction?: () => void;
+  rpcUrlResetButtonAction?: () => void;
 };
 
 export const useEditNetwork = ({
   selectedNetwork,
-  rpcUrlResetAction,
+  rpcUrlResetButtonAction: rpcUrlResetAction,
 }: UseEditNetworkProps) => {
   const { isCustomNetwork, saveCustomNetwork, updateDefaultNetwork } =
     useNetworkContext();
@@ -49,49 +50,34 @@ export const useEditNetwork = ({
   };
 
   const fieldInfo: NetworkFormFieldInfo = useMemo(() => {
-    return {
+    const dynamicFields: DynamicFields = {
       rpcUrl: {
-        required: true,
         error: errors.rpcUrl,
-        canReset: true,
         resetAction: rpcUrlResetAction,
       },
       chainName: {
-        required: true,
         error: errors.chainName,
-        canReset: false,
       },
       chainId: {
-        required: true,
         error: errors.chainId,
-        canReset: false,
       },
       tokenSymbol: {
-        required: true,
         error: errors.tokenSymbol,
-        canReset: false,
       },
       tokenName: {
-        required: true,
         error: errors.tokenName,
-        canReset: false,
       },
       explorerUrl: {
-        required: false,
         error: errors.explorerUrl,
-        canReset: false,
       },
       logoUrl: {
-        required: false,
         error: errors.logoUrl,
-        canReset: false,
       },
       rpcHeaders: {
-        required: false,
         error: errors.rpcHeaders,
-        canReset: false,
       },
     };
+    return mergeDynamicFields(dynamicFields);
   }, [errors, rpcUrlResetAction]);
 
   return {

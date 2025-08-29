@@ -1,11 +1,36 @@
-import { NetworkFormFields } from './types';
+import { NetworkFormFieldInfo } from './types';
 
-export const required: { [key in NetworkFormFields]?: boolean } = {
-  rpcUrl: true,
-  chainId: true,
-  tokenSymbol: true,
-  tokenName: true,
-  explorerUrl: false,
-  logoUrl: false,
-  rpcHeaders: false,
+export const DEFAULT_NETWORK_FORM_FIELDS: NetworkFormFieldInfo = {
+  rpcUrl: {
+    required: true,
+    canReset: true,
+  },
+  chainName: {
+    required: true,
+    canReset: false,
+  },
+  chainId: {
+    required: true,
+    canReset: false,
+  },
+  tokenSymbol: {
+    required: true,
+    canReset: false,
+  },
+  tokenName: {
+    required: true,
+    canReset: false,
+  },
+  explorerUrl: {
+    required: false,
+    canReset: false,
+  },
+  logoUrl: {
+    required: false,
+    canReset: false,
+  },
+  rpcHeaders: {
+    required: false,
+    canReset: false,
+  },
 };

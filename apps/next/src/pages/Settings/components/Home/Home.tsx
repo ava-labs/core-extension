@@ -4,6 +4,7 @@ import {
   Stack,
   Switch,
   Typography,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +42,7 @@ import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { lockWallet } = useSettingsContext();
   const { walletDetails } = useWalletContext();
   const { contacts } = useContactsContext();
@@ -137,6 +139,7 @@ export const SettingsHomePage = () => {
             <ChevronRightIcon
               size={16}
               onClick={() => push('/settings/network-management')}
+              color={theme.palette.text.secondary}
             />
           }
           divider

@@ -12,11 +12,11 @@ import {
   prepToStoreCustomRpcHeaders,
   updateKeyValueList,
 } from './NetworkForm/utils/customRpcHeaders';
-import { NetworkDetailsCard } from './NetworkDetailsCard';
-import { NetworkFormTab } from './NetworkForm/types';
+import { EditNetworkFormTab } from './NetworkForm/types';
+import { Card } from '@/components/Card';
 
 type CustomRpcHeadersManagerProps = {
-  setTab: (tab: NetworkFormTab) => void;
+  setTab: (tab: EditNetworkFormTab) => void;
   setNetwork: (network: Network) => void;
   network: Network;
 };
@@ -85,7 +85,7 @@ export const CustomRpcHeadersManager = ({
 
       <Stack rowGap={1}>
         {headerList.map((listItem, index) => (
-          <NetworkDetailsCard key={`existing-${index}`} sx={{ py: 1 }}>
+          <Card key={`existing-${index}`} sx={{ px: 1 }}>
             <KeyValueFormField
               labels={{
                 key: t('Header name'),
@@ -113,7 +113,7 @@ export const CustomRpcHeadersManager = ({
                 )
               }
             />
-          </NetworkDetailsCard>
+          </Card>
         ))}
       </Stack>
 

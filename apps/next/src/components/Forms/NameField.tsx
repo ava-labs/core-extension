@@ -12,8 +12,6 @@ type NameFieldProps = {
   setIsNaming: (isNaming: boolean) => void;
   autoFocus: boolean;
   prompt: string;
-  error: string | undefined;
-  required: boolean;
 };
 
 export const NameField = ({
@@ -23,8 +21,6 @@ export const NameField = ({
   setIsNaming,
   autoFocus,
   prompt,
-  // error,
-  // required,
 }: NameFieldProps) => {
   const showPrompt = !isNaming && name.trim().length === 0;
   return (

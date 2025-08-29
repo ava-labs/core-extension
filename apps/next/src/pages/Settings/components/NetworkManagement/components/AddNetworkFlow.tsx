@@ -1,34 +1,38 @@
 import { useAddNetwork } from '../hooks/useAddNetwork';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CustomRpcHeadersManager } from './CustomRpcHeadersManager';
-import { NetworkFormTab } from './NetworkForm/types';
 import { useHistory } from 'react-router-dom';
 import { NetworkEditor } from './NetworkForm/NetworkEditor';
+import { toast } from '@avalabs/k2-alpine';
+import { useTranslation } from 'react-i18next';
+import { AddNetworkFormTab } from './NetworkForm/types';
 
 export const AddNetworkFlow = () => {
   const history = useHistory();
+  const { t } = useTranslation();
   const { network, setNetwork, reset, isValid, submit, fieldInfo } =
     useAddNetwork();
-  const [ranReset, setRanReset] = useState<boolean>(false);
 
-  const [tab, setTab] = useState<NetworkFormTab>('details');
+  const [tab, setTab] = useState<AddNetworkFormTab>('details');
 
-  useEffect(() => {
-    if (!ranReset) {
-      console.log('resetting');
-      reset();
-      setRanReset(true);
-    }
-  }, [reset, ranReset]);
+  const goBackToNetworks = () => {
+    reset();
+    history.replace('/settings/networks');
+  };
 
   const submitHandler = () => {
-    submit();
-    history.goBack();
+    try {
+      submit();
+      toast.success(t('Network added'));
+      goBackToNetworks();
+    } catch (error) {
+      console.error(error);
+      toast.error(t('Failed to add network'));
+    }
   };
 
   const cancel = () => {
-    reset();
-    history.goBack();
+    goBackToNetworks();
   };
 
   return (
@@ -37,17 +41,26 @@ export const AddNetworkFlow = () => {
         <NetworkEditor
           network={network}
           setNetwork={setNetwork}
-          setTab={setTab}
+          setTab={(newTab) => {
+            if (newTab === 'details' || newTab === 'rpc-headers') {
+              setTab(newTab);
+            }
+          }}
           submit={submitHandler}
           cancel={cancel}
           isValid={isValid}
           fieldInfo={fieldInfo}
           canResetRpcUrl={false}
+          autoFocus={true}
         />
       )}
       {tab === 'rpc-headers' && (
         <CustomRpcHeadersManager
-          setTab={setTab}
+          setTab={(newTab) => {
+            if (newTab === 'details' || newTab === 'rpc-headers') {
+              setTab(newTab);
+            }
+          }}
           setNetwork={setNetwork}
           network={network}
         />

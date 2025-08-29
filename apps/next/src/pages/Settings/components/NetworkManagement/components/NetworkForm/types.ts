@@ -1,5 +1,3 @@
-export type NetworkFormTab = 'details' | 'rpc-headers' | 'rpc-url-reset';
-
 export type NetworkFormFields =
   | 'rpcUrl'
   | 'chainName'
@@ -21,4 +19,7 @@ export type FieldInfo = {
   resetAction?: () => void;
 };
 
-export type NetworkFormFieldInfo = { [key in NetworkFormFields]?: FieldInfo };
+export type NetworkFormFieldInfo = { [key in NetworkFormFields]: FieldInfo };
+
+export type AddNetworkFormTab = 'details' | 'rpc-headers';
+export type EditNetworkFormTab = AddNetworkFormTab | 'rpc-url-reset' | 'save';

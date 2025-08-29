@@ -4,6 +4,7 @@ import { AdvancedNetworkConfig, Network } from '@core/types';
 import { useMemo, useState } from 'react';
 import { useNetworkContext } from '@core/ui';
 import { NetworkFormFieldInfo } from '../components/NetworkForm/types';
+import { DynamicFields, mergeDynamicFields } from './utils/fieldInfo';
 
 const defaultNetworkValues: Network & AdvancedNetworkConfig = {
   chainName: '',
@@ -40,48 +41,33 @@ export const useAddNetwork = () => {
   };
 
   const fieldInfo: NetworkFormFieldInfo = useMemo(() => {
-    return {
+    const dynamicFields: DynamicFields = {
       rpcUrl: {
-        required: true,
         error: errors.rpcUrl,
-        canReset: false,
       },
       chainName: {
-        required: true,
         error: errors.chainName,
-        canReset: false,
       },
       chainId: {
-        required: true,
         error: errors.chainId,
-        canReset: false,
       },
       tokenSymbol: {
-        required: true,
         error: errors.tokenSymbol,
-        canReset: false,
       },
       tokenName: {
-        required: true,
         error: errors.tokenName,
-        canReset: false,
       },
       explorerUrl: {
-        required: false,
         error: errors.explorerUrl,
-        canReset: false,
       },
       logoUrl: {
-        required: false,
         error: errors.logoUrl,
-        canReset: false,
       },
       rpcHeaders: {
-        required: false,
         error: errors.rpcHeaders,
-        canReset: false,
       },
     };
+    return mergeDynamicFields(dynamicFields);
   }, [errors]);
 
   return { network, isValid, errors, setNetwork, reset, submit, fieldInfo };

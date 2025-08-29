@@ -3,15 +3,15 @@ import { Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { PageTopBar } from '@/components/PageTopBar';
 import { MdInfoOutline } from 'react-icons/md';
 
-type RpcUrlResetConfirmationProps = {
+type NetworkUpdateConfirmationProps = {
   onBack: () => void;
   onSubmit: () => void;
 };
 
-export const RpcUrlResetConfirmation = ({
+export const NetworkUpdateConfirmation = ({
   onBack,
   onSubmit,
-}: RpcUrlResetConfirmationProps) => {
+}: NetworkUpdateConfirmationProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -25,14 +25,12 @@ export const RpcUrlResetConfirmation = ({
       <PageTopBar showBack={true} onBackClicked={onBack} />
 
       <Stack px={1.5} pb={1.5} gap={3} flexGrow={1}>
-        <Typography variant="h2">
-          {t('Are you sure you want to reset the RPC URL?')}
-        </Typography>
+        <Typography variant="h2">{t('Do you really want to save?')}</Typography>
 
         <Stack direction="row" gap={1} alignItems="center">
           <MdInfoOutline color={theme.palette.error.main} />
           <Typography variant="caption" sx={{ color: 'error.main' }}>
-            {t('Resetting the RPC URL will set it back to its default URL')}
+            {t('Core functionality may be unstable with custom RPC URLs')}
           </Typography>
         </Stack>
       </Stack>

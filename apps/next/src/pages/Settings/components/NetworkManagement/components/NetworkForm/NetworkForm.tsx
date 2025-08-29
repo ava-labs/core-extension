@@ -14,13 +14,13 @@ import {
   TokenSymbolField,
 } from './NetworkFormField';
 import { Network } from '@core/types';
-import { NetworkDetailsCard } from '../NetworkDetailsCard';
-import { FieldInfo, NetworkFormFields, NetworkFormTab } from './types';
+import { FieldInfo, NetworkFormFields, EditNetworkFormTab } from './types';
+import { Card } from '@/components/Card';
 
 type NetworkFormProps = {
   network: Network;
   setNetwork: (network: Network) => void;
-  setTab: (tab: NetworkFormTab) => void;
+  setTab: (tab: EditNetworkFormTab) => void;
   canResetRpcUrl: boolean;
   fieldInfo: { [key in NetworkFormFields]?: FieldInfo };
 };
@@ -39,7 +39,7 @@ export const NetworkForm = ({
   };
 
   return (
-    <NetworkDetailsCard>
+    <Card sx={{ px: 2 }}>
       <RpcUrlField
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
@@ -106,6 +106,6 @@ export const NetworkForm = ({
         <Typography>{t('Custom RPC Headers')}</Typography>
         <ChevronRightIcon size={16} />
       </Stack>
-    </NetworkDetailsCard>
+    </Card>
   );
 };

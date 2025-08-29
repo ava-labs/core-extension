@@ -1,4 +1,4 @@
-import { Avatar, useTheme, type SxProps } from '@avalabs/k2-alpine';
+import { Avatar, Box, useTheme, type SxProps } from '@avalabs/k2-alpine';
 import { isPchainNetwork, isXchainNetwork } from '@core/common';
 import { Network } from '@core/types';
 import { memo, useMemo } from 'react';
@@ -45,7 +45,6 @@ export const NetworkAvatar = memo(function NetworkAvatar({
           style={{
             width: '100%',
             height: '100%',
-            backgroundColor: theme.palette.neutral['850_10'],
           }}
         />
       );
@@ -57,7 +56,6 @@ export const NetworkAvatar = memo(function NetworkAvatar({
         style={{
           width: '100%',
           height: '100%',
-          backgroundColor: theme.palette.common.white_10,
         }}
       />
     );
@@ -84,16 +82,32 @@ export const NetworkAvatar = memo(function NetworkAvatar({
     );
   }
 
+  // Check if we have a valid logo URL
+  if (network.logoUri) {
+    return (
+      <Avatar
+        src={network.logoUri}
+        alt={network.chainName}
+        sx={{
+          ...sx,
+          backgroundColor: theme.palette.datePicker.hover,
+        }}
+      />
+    );
+  }
+
+  // No logo fallback
   return (
-    <Avatar
-      src={network.logoUri}
-      alt={network.chainName}
+    <Box
       sx={{
         ...sx,
-        backgroundColor: theme.palette.datePicker.hover,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
       }}
     >
       {fallbackLogo}
-    </Avatar>
+    </Box>
   );
 });

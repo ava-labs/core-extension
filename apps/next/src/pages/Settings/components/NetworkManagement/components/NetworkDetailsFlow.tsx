@@ -1,21 +1,26 @@
 import { useNetworkContext } from '@core/ui';
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { NetworkFormTab } from './NetworkForm/types';
 import { CustomRpcHeadersManager } from './CustomRpcHeadersManager';
 import { NetworkEditor } from './NetworkForm/NetworkEditor';
 import { useEditNetwork } from '../hooks/useEditNetwork';
 import { RpcUrlResetConfirmation } from './RpcUrlResetConfirmation';
+import { NetworkNotFound } from './NetworkNotFound';
+import { toast } from '@avalabs/k2-alpine';
+import { useTranslation } from 'react-i18next';
+import { NetworkUpdateConfirmation } from './NetworkUpdateConfirmation';
+import { EditNetworkFormTab } from './NetworkForm/types';
 
 type NetworkDetailsParams = {
   networkId: string;
 };
 
 export const NetworkDetailsFlow = () => {
+  const { t } = useTranslation();
   const { networkId } = useParams<NetworkDetailsParams>();
   const { networks } = useNetworkContext();
 
-  const [tab, setTab] = useState<NetworkFormTab>('details');
+  const [tab, setTab] = useState<EditNetworkFormTab>('details');
 
   const selectedNetwork = useMemo(() => {
     return networks.find((n) => n.chainId === Number(networkId));
@@ -32,24 +37,47 @@ export const NetworkDetailsFlow = () => {
     submit,
   } = useEditNetwork({
     selectedNetwork,
-    rpcUrlResetAction: () => {
+    rpcUrlResetButtonAction: () => {
       console.log('rpcUrlResetAction');
       setTab('rpc-url-reset');
     },
   });
 
+  const resetRpcUrlHandler = () => {
+    try {
+      resetRpcUrl();
+      toast.success(t('RPC URL reset successfully'));
+      setTab('details');
+    } catch (error) {
+      console.error(error);
+      toast.error(t('Failed to reset RPC URL'));
+    }
+  };
+
+  const saveHandler = () => {
+    try {
+      submit();
+      toast.success(t('Network updated'));
+      setTab('details');
+    } catch (error) {
+      console.error(error);
+      toast.error(t('Failed to save network'));
+    }
+  };
+
   return !network ? (
-    <div>Network not found</div>
+    <NetworkNotFound />
   ) : tab === 'details' ? (
     <NetworkEditor
       network={network}
       setNetwork={setNetwork}
       setTab={setTab}
-      submit={submit}
+      submit={() => setTab('save')}
       cancel={reset}
       isValid={isValid}
       fieldInfo={fieldInfo}
       canResetRpcUrl={!isCustom}
+      autoFocus={false}
     />
   ) : tab === 'rpc-headers' ? (
     <CustomRpcHeadersManager
@@ -57,10 +85,15 @@ export const NetworkDetailsFlow = () => {
       setTab={setTab}
       setNetwork={setNetwork}
     />
-  ) : (
+  ) : tab === 'rpc-url-reset' ? (
     <RpcUrlResetConfirmation
       onBack={() => setTab('details')}
-      onSubmit={resetRpcUrl}
+      onSubmit={resetRpcUrlHandler}
+    />
+  ) : (
+    <NetworkUpdateConfirmation
+      onBack={() => setTab('details')}
+      onSubmit={saveHandler}
     />
   );
 };

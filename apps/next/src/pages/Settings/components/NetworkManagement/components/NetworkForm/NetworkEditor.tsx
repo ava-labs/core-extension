@@ -6,16 +6,16 @@ import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkNameField';
 import { useState } from 'react';
 import {
+  EditNetworkFormTab,
   NetworkFormFieldInfo,
   NetworkFormFields,
-  NetworkFormTab,
 } from './types';
 import { NetworkForm } from './NetworkForm';
 import { PageTopBar } from '@/components/PageTopBar';
 import { MdInfoOutline } from 'react-icons/md';
 
 type NetworkEditorProps = {
-  setTab: (tab: NetworkFormTab) => void;
+  setTab: (tab: EditNetworkFormTab) => void;
   setNetwork: (network: Network) => void;
   network: Network;
   isValid: boolean;
@@ -23,6 +23,7 @@ type NetworkEditorProps = {
   submit: () => void;
   cancel: () => void;
   canResetRpcUrl: boolean;
+  autoFocus: boolean;
 };
 
 export const NetworkEditor = ({
@@ -34,6 +35,7 @@ export const NetworkEditor = ({
   submit,
   cancel,
   canResetRpcUrl,
+  autoFocus,
 }: NetworkEditorProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -70,7 +72,7 @@ export const NetworkEditor = ({
           setName={(name) => setNetwork({ ...network, chainName: name })}
           isNaming={isNaming}
           setIsNaming={setIsNaming}
-          autoFocus={false}
+          autoFocus={autoFocus}
           error={fieldInfo.chainName?.error}
           required={!!fieldInfo.chainName?.required}
         />
