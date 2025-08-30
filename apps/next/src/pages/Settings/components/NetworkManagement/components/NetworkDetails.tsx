@@ -2,41 +2,52 @@ import { useTranslation } from 'react-i18next';
 import { Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 
 import { Network } from '@core/types';
-import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
-import { NetworkNameField } from './NetworkNameField';
+
 import { useState } from 'react';
+
+import { PageTopBar } from '@/components/PageTopBar';
+import { MdInfoOutline } from 'react-icons/md';
+
+import { NetworkAvatar } from './BadgedAvatar/NetworkAvatar';
+import { NetworkNameField } from './NetworkForm/NetworkNameField';
+import { NetworkForm } from './NetworkForm/NetworkForm';
 import {
   EditNetworkFormTab,
   NetworkFormFieldInfo,
   NetworkFormFields,
-} from './types';
-import { NetworkForm } from './NetworkForm';
-import { PageTopBar } from '@/components/PageTopBar';
-import { MdInfoOutline } from 'react-icons/md';
+} from './NetworkForm/types';
 
-type NetworkEditorProps = {
+type NetworkDetailsProps = {
   setTab: (tab: EditNetworkFormTab) => void;
   setNetwork: (network: Network) => void;
   network: Network;
+  isEditing: boolean;
+  setIsEditing: (isEditing: boolean) => void;
   isValid: boolean;
   fieldInfo: NetworkFormFieldInfo;
-  submit: () => void;
-  cancel: () => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  onDelete: () => void;
   canResetRpcUrl: boolean;
   autoFocus: boolean;
+  isCustom: boolean;
 };
 
-export const NetworkEditor = ({
+export const NetworkDetails = ({
   setTab,
   setNetwork,
   network,
+  isEditing,
+  setIsEditing,
   isValid,
   fieldInfo,
-  submit,
-  cancel,
+  onSubmit,
+  onCancel,
+  onDelete,
   canResetRpcUrl,
   autoFocus,
-}: NetworkEditorProps) => {
+  isCustom,
+}: NetworkDetailsProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const [isNaming, setIsNaming] = useState(false);
@@ -75,6 +86,7 @@ export const NetworkEditor = ({
           autoFocus={autoFocus}
           error={fieldInfo.chainName?.error}
           required={!!fieldInfo.chainName?.required}
+          readOnly={!isEditing}
         />
       </Stack>
 
@@ -92,6 +104,7 @@ export const NetworkEditor = ({
           setTab={setTab}
           fieldInfo={fieldInfo}
           canResetRpcUrl={canResetRpcUrl}
+          readOnly={!isEditing}
         />
       </div>
 
@@ -113,25 +126,56 @@ export const NetworkEditor = ({
             </Typography>
           </Stack>
         )}
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          fullWidth
-          disabled={!isValid}
-          onClick={submit}
-        >
-          {t('Save')}
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="small"
-          fullWidth
-          onClick={cancel}
-        >
-          {t('Cancel')}
-        </Button>
+
+        {isEditing ? (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              fullWidth
+              disabled={!isValid}
+              onClick={onSubmit}
+            >
+              {t('Save')}
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              size="small"
+              fullWidth
+              onClick={() => {
+                setIsEditing(false);
+                onCancel();
+              }}
+            >
+              {t('Cancel')}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              fullWidth
+              onClick={() => setIsEditing(true)}
+            >
+              {t('Edit')}
+            </Button>
+            {isCustom && (
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                fullWidth
+                onClick={onDelete}
+              >
+                {t('Delete')}
+              </Button>
+            )}
+          </>
+        )}
       </Stack>
     </Stack>
   );

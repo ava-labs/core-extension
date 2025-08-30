@@ -11,20 +11,22 @@ import {
   KeyValueHeader,
   prepToStoreCustomRpcHeaders,
   updateKeyValueList,
-} from './NetworkForm/utils/customRpcHeaders';
-import { EditNetworkFormTab } from './NetworkForm/types';
+} from './utils/customRpcHeaders';
+import { EditNetworkFormTab } from './types';
 import { Card } from '@/components/Card';
 
 type CustomRpcHeadersManagerProps = {
   setTab: (tab: EditNetworkFormTab) => void;
   setNetwork: (network: Network) => void;
   network: Network;
+  readonly: boolean;
 };
 
 export const CustomRpcHeadersManager = ({
   setTab,
   setNetwork,
   network,
+  readonly,
 }: CustomRpcHeadersManagerProps) => {
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
@@ -84,60 +86,70 @@ export const CustomRpcHeadersManager = ({
       </Typography>
 
       <Stack rowGap={1}>
-        {headerList.map((listItem, index) => (
-          <Card key={`existing-${index}`} sx={{ px: 1 }}>
-            <KeyValueFormField
-              labels={{
-                key: t('Header name'),
-                value: t('Value'),
-              }}
-              placeholders={{
-                key: t('Enter header name'),
-                value: t('Enter a value'),
-              }}
-              prompt={t('Add next')}
-              values={{
-                key: listItem.key,
-                value: listItem.value,
-              }}
-              onChange={(newKeyValue) =>
-                setHeaderList(
-                  updateKeyValueList(
-                    headerList,
-                    {
-                      key: newKeyValue.key,
-                      value: newKeyValue.value,
-                    },
-                    index,
-                  ),
-                )
-              }
-            />
-          </Card>
-        ))}
+        {readonly && headerList.length === 1 ? (
+          <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
+            <Typography variant="body1">
+              {t('No custom headers are configured.')}
+            </Typography>
+          </Stack>
+        ) : (
+          headerList.map((listItem, index) => (
+            <Card key={`keyValueFormField-${index}`} sx={{ px: 1 }}>
+              <KeyValueFormField
+                labels={{
+                  key: t('Header name'),
+                  value: t('Value'),
+                }}
+                placeholders={{
+                  key: t('Enter header name'),
+                  value: t('Enter a value'),
+                }}
+                prompt={t('Add next')}
+                values={{
+                  key: listItem.key,
+                  value: listItem.value,
+                }}
+                onChange={(newKeyValue) =>
+                  setHeaderList(
+                    updateKeyValueList(
+                      headerList,
+                      {
+                        key: newKeyValue.key,
+                        value: newKeyValue.value,
+                      },
+                      index,
+                    ),
+                  )
+                }
+                readonly={readonly}
+              />
+            </Card>
+          ))
+        )}
       </Stack>
-
-      <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          fullWidth
-          disabled={!isValid}
-          onClick={save}
-        >
-          {t('Save')}
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="small"
-          fullWidth
-          onClick={handleCancel}
-        >
-          {t('Cancel')}
-        </Button>
-      </Stack>
+      {!readonly && (
+        <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            fullWidth
+            disabled={!isValid}
+            onClick={save}
+          >
+            {t('Save')}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            fullWidth
+            onClick={handleCancel}
+          >
+            {t('Cancel')}
+          </Button>
+        </Stack>
+      )}
     </Stack>
   );
 };

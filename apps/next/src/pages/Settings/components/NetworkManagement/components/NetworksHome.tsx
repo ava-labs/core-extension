@@ -6,7 +6,7 @@ import { PageTopBar } from '@/components/PageTopBar';
 import { useIsIntersecting } from '@/components/Page/hooks/useIsIntersecting';
 import { MdAdd } from 'react-icons/md';
 import { useNetworkContext } from '@core/ui';
-import { NetworkToggleList } from './NetworkToggleList';
+import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
 import { useHistory } from 'react-router-dom';
 
 type Tab = 'all' | 'custom';

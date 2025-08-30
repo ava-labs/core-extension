@@ -17,6 +17,7 @@ type FlavouredFieldProps = Pick<
 > & {
   error?: string;
   required?: boolean;
+  readOnly?: boolean;
 };
 
 export const RpcUrlField: FC<
@@ -24,7 +25,15 @@ export const RpcUrlField: FC<
     canResetRpcUrl: boolean;
     resetAction: () => void;
   }
-> = ({ value, onChange, error, required, canResetRpcUrl, resetAction }) => {
+> = ({
+  value,
+  onChange,
+  error,
+  required,
+  canResetRpcUrl,
+  resetAction,
+  readOnly,
+}) => {
   const theme = useTheme();
   const { t } = useTranslation();
   const [showResetDialog, setShowResetDialog] = useState(false);
@@ -39,6 +48,7 @@ export const RpcUrlField: FC<
         error={error}
         onChange={onChange}
         required={required}
+        readOnly={readOnly}
         endAdornment={
           canResetRpcUrl ? (
             <IconButton onClick={resetAction}>
@@ -62,6 +72,7 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({
   onChange,
   error,
   required,
+  readOnly,
 }) => {
   const { t } = useTranslation();
 
@@ -74,6 +85,7 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({
       error={error}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}
     />
   );
 };
@@ -83,6 +95,7 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
   onChange,
   error,
   required,
+  readOnly,
 }) => {
   const { t } = useTranslation();
 
@@ -95,6 +108,7 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
       error={error}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}
     />
   );
 };
@@ -104,6 +118,7 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
   onChange,
   error,
   required,
+  readOnly,
 }) => {
   const { t } = useTranslation();
 
@@ -116,6 +131,7 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
       error={error}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}
     />
   );
 };
@@ -124,6 +140,7 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
   onChange,
   error,
   required,
+  readOnly,
 }) => {
   const { t } = useTranslation();
 
@@ -136,6 +153,7 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
       error={error}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}
     />
   );
 };
@@ -145,6 +163,7 @@ export const LogoUrlField: FC<FlavouredFieldProps> = ({
   onChange,
   error,
   required,
+  readOnly,
 }) => {
   const { t } = useTranslation();
 
@@ -157,6 +176,7 @@ export const LogoUrlField: FC<FlavouredFieldProps> = ({
       error={error}
       onChange={onChange}
       required={required}
+      readOnly={readOnly}
     />
   );
 };

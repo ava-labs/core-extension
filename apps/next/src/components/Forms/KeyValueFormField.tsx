@@ -31,6 +31,7 @@ type FormFieldProps = {
   error?: string;
   onChange: (value: KeyValue) => void;
   allowCopy?: boolean;
+  readonly?: boolean;
 };
 
 export const KeyValueFormField = ({
@@ -41,6 +42,7 @@ export const KeyValueFormField = ({
   error,
   onChange,
   allowCopy = false,
+  readonly = false,
 }: FormFieldProps) => {
   const { key, value } = values;
   const theme = useTheme();
@@ -61,6 +63,8 @@ export const KeyValueFormField = ({
     allowCopy && !error && !!value && !isEditing && isHovered;
 
   const showRemoveIcon = Boolean(key || value || isEditing);
+
+  const showPrompt = !isEditing && !key && !value;
 
   const onActionClick = useCallback(() => {
     if (showRemoveIcon) {
@@ -87,7 +91,7 @@ export const KeyValueFormField = ({
       />
 
       <InputContainer>
-        <Fade in={isEditing || !!key || !!value} mountOnEnter unmountOnExit>
+        <Fade in={!showPrompt} mountOnEnter unmountOnExit>
           <Stack
             position="absolute"
             width="100%"
@@ -108,6 +112,7 @@ export const KeyValueFormField = ({
                 value={key}
                 placeholder={placeholders.key}
                 onChange={(e) => onChange({ ...values, key: e.target.value })}
+                readOnly={readonly}
               />
               <Collapse in={!isEditing} orientation="vertical">
                 <Typography
@@ -128,6 +133,7 @@ export const KeyValueFormField = ({
                 value={value}
                 placeholder={placeholders.value}
                 onChange={(e) => onChange({ ...values, value: e.target.value })}
+                readOnly={readonly}
               />
               <Collapse in={!isEditing} orientation="vertical">
                 <Typography
@@ -140,7 +146,7 @@ export const KeyValueFormField = ({
             </Stack>
           </Stack>
         </Fade>
-        <Fade in={!isEditing && !key && !value} mountOnEnter unmountOnExit>
+        <Fade in={showPrompt} mountOnEnter unmountOnExit>
           <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
         </Fade>
       </InputContainer>

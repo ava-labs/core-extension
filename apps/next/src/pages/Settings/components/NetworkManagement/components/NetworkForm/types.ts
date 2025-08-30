@@ -22,4 +22,8 @@ export type FieldInfo = {
 export type NetworkFormFieldInfo = { [key in NetworkFormFields]: FieldInfo };
 
 export type AddNetworkFormTab = 'details' | 'rpc-headers';
-export type EditNetworkFormTab = AddNetworkFormTab | 'rpc-url-reset' | 'save';
+export type EditNetworkFormTab =
+  | AddNetworkFormTab
+  | 'rpc-url-reset'
+  | 'save'
+  | 'delete';

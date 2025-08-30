@@ -14,6 +14,8 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
     useNetworkContext();
   const history = useHistory();
 
+  const enabledNetworksArray = enabledNetworks || [];
+
   return (
     <Stack
       sx={{
@@ -39,10 +41,10 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
         <NetworkToggleListItem
           key={network.chainId}
           network={network}
-          isEnabled={enabledNetworks.includes(network.chainId)}
+          isEnabled={enabledNetworksArray.includes(network.chainId)}
           isDefault={defaultEnabledNetworks.includes(network.chainId)}
           onToggle={() => {
-            if (enabledNetworks.includes(network.chainId)) {
+            if (enabledNetworksArray.includes(network.chainId)) {
               removeEnabledNetwork(network.chainId);
             } else {
               addEnabledNetwork(network.chainId);

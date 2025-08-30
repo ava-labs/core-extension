@@ -12,6 +12,7 @@ type NameFieldProps = {
   setIsNaming: (isNaming: boolean) => void;
   autoFocus: boolean;
   prompt: string;
+  readOnly: boolean;
 };
 
 export const NameField = ({
@@ -21,6 +22,7 @@ export const NameField = ({
   setIsNaming,
   autoFocus,
   prompt,
+  readOnly,
 }: NameFieldProps) => {
   const showPrompt = !isNaming && name.trim().length === 0;
   return (
@@ -41,6 +43,7 @@ export const NameField = ({
           autoFocus={autoFocus}
           onBlur={(e) => setIsNaming(e.target.value.trim().length > 0)}
           onChange={(e) => setName(e.target.value)}
+          readOnly={readOnly}
         />
       </Fade>
       <Fade in={showPrompt} mountOnEnter unmountOnExit>

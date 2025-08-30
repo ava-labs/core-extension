@@ -9,6 +9,7 @@ type NetworkNameFieldProps = {
   autoFocus: boolean;
   error: string | undefined;
   required: boolean;
+  readOnly: boolean;
 };
 
 export const NetworkNameField = ({
@@ -17,6 +18,7 @@ export const NetworkNameField = ({
   isNaming,
   setIsNaming,
   autoFocus,
+  readOnly,
 }: NetworkNameFieldProps) => {
   const { t } = useTranslation();
 
@@ -28,6 +30,7 @@ export const NetworkNameField = ({
       setIsNaming={setIsNaming}
       autoFocus={autoFocus}
       prompt={t('Name this network')}
+      readOnly={readOnly}
     />
   );
 };

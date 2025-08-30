@@ -27,6 +27,7 @@ type FormFieldProps = {
   allowCopy?: boolean;
   required?: boolean;
   endAdornment?: React.ReactNode;
+  readOnly?: boolean;
 };
 
 export const FormField = ({
@@ -39,6 +40,7 @@ export const FormField = ({
   allowCopy = false,
   required = false,
   endAdornment,
+  readOnly = false,
 }: FormFieldProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -97,6 +99,7 @@ export const FormField = ({
                 placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}
                 onBlur={() => delay(() => setIsEditing(false), 100)}
+                readOnly={readOnly}
               />
 
               <Collapse in={!isEditing} orientation="vertical">

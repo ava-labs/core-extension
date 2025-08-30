@@ -1,11 +1,11 @@
 import { useAddNetwork } from '../hooks/useAddNetwork';
 import { useState } from 'react';
-import { CustomRpcHeadersManager } from './CustomRpcHeadersManager';
+import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
 import { useHistory } from 'react-router-dom';
-import { NetworkEditor } from './NetworkForm/NetworkEditor';
 import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { AddNetworkFormTab } from './NetworkForm/types';
+import { NetworkDetails } from './NetworkDetails';
 
 export const AddNetworkFlow = () => {
   const history = useHistory();
@@ -38,7 +38,7 @@ export const AddNetworkFlow = () => {
   return (
     <>
       {tab === 'details' && (
-        <NetworkEditor
+        <NetworkDetails
           network={network}
           setNetwork={setNetwork}
           setTab={(newTab) => {
@@ -46,12 +46,16 @@ export const AddNetworkFlow = () => {
               setTab(newTab);
             }
           }}
-          submit={submitHandler}
-          cancel={cancel}
+          onSubmit={submitHandler}
+          onCancel={cancel}
           isValid={isValid}
           fieldInfo={fieldInfo}
           canResetRpcUrl={false}
           autoFocus={true}
+          isEditing={true}
+          setIsEditing={() => {}}
+          onDelete={() => {}}
+          isCustom={true}
         />
       )}
       {tab === 'rpc-headers' && (
@@ -63,6 +67,7 @@ export const AddNetworkFlow = () => {
           }}
           setNetwork={setNetwork}
           network={network}
+          readonly={false}
         />
       )}
     </>

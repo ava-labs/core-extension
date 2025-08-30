@@ -23,6 +23,7 @@ type NetworkFormProps = {
   setTab: (tab: EditNetworkFormTab) => void;
   canResetRpcUrl: boolean;
   fieldInfo: { [key in NetworkFormFields]?: FieldInfo };
+  readOnly: boolean;
 };
 
 export const NetworkForm = ({
@@ -31,6 +32,7 @@ export const NetworkForm = ({
   setTab,
   canResetRpcUrl,
   fieldInfo,
+  readOnly,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
 
@@ -47,6 +49,7 @@ export const NetworkForm = ({
         required={fieldInfo.rpcUrl?.required}
         canResetRpcUrl={canResetRpcUrl}
         resetAction={fieldInfo.rpcUrl?.resetAction ?? (() => {})}
+        readOnly={readOnly}
       />
       <Divider />
       <ChainIdField
@@ -56,6 +59,7 @@ export const NetworkForm = ({
         }
         error={fieldInfo.chainId?.error}
         required={fieldInfo.chainId?.required}
+        readOnly={readOnly}
       />
       <Divider />
       <TokenSymbolField
@@ -68,6 +72,7 @@ export const NetworkForm = ({
         }
         error={fieldInfo.tokenSymbol?.error}
         required={fieldInfo.tokenSymbol?.required}
+        readOnly={readOnly}
       />
       <Divider />
       <TokenNameField
@@ -80,6 +85,7 @@ export const NetworkForm = ({
         }
         error={fieldInfo.tokenName?.error}
         required={fieldInfo.tokenName?.required}
+        readOnly={readOnly}
       />
       <Divider />
       <ExplorerUrlField
@@ -87,6 +93,7 @@ export const NetworkForm = ({
         onChange={(explorerUrl) => setNetwork({ ...network, explorerUrl })}
         error={fieldInfo.explorerUrl?.error}
         required={fieldInfo.explorerUrl?.required}
+        readOnly={readOnly}
       />
       <Divider />
       <LogoUrlField
@@ -94,6 +101,7 @@ export const NetworkForm = ({
         onChange={(logoUri) => setNetwork({ ...network, logoUri })}
         error={fieldInfo.logoUrl?.error}
         required={fieldInfo.logoUrl?.required}
+        readOnly={readOnly}
       />
       <Divider />
       <Stack

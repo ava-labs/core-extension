@@ -5,7 +5,7 @@ import {
   ListItemText,
   Switch,
 } from '@avalabs/k2-alpine';
-import { NetworkAvatar } from './BadgedAvatar/NetworkAvatar';
+import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
 
 type NetworkToggleListItemProps = {
   network: NetworkWithCaipId;
@@ -25,7 +25,10 @@ export const NetworkToggleListItem = ({
   return (
     <ListItem sx={{ px: 0 }} onClick={onClick}>
       <ListItemIcon>
-        <NetworkAvatar network={network} />
+        <NetworkAvatar
+          network={network}
+          sx={{ width: '40px', height: '40px' }}
+        />
       </ListItemIcon>
       <ListItemText primary={network.chainName} />
       <Switch

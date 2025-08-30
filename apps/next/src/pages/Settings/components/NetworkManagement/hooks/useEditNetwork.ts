@@ -14,7 +14,9 @@ export const useEditNetwork = ({
   networkId,
   rpcUrlResetButtonAction: rpcUrlResetAction,
 }: UseEditNetworkProps) => {
-  const { networks } = useNetworkContext();
+  const { networks, removeCustomNetwork } = useNetworkContext();
+
+  const [isEditing, setIsEditing] = useState(false);
 
   const original = useMemo(() => {
     return networks.find((n) => n.chainId === Number(networkId));
@@ -100,5 +102,8 @@ export const useEditNetwork = ({
     reset,
     resetRpcUrl,
     submit,
+    isEditing,
+    setIsEditing,
+    removeCustomNetwork,
   };
 };
