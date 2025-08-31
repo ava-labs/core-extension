@@ -97,6 +97,7 @@ export const NetworkDetailsFlow = () => {
       setIsEditing={setIsEditing}
       onDelete={() => setTab('delete')}
       isCustom={isCustom}
+      pageType={'edit'}
     />
   ) : tab === 'rpc-headers' ? (
     <CustomRpcHeadersManager

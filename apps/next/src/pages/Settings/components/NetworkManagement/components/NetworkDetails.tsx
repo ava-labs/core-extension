@@ -31,6 +31,7 @@ type NetworkDetailsProps = {
   canResetRpcUrl: boolean;
   autoFocus: boolean;
   isCustom: boolean;
+  pageType: 'add' | 'edit';
 };
 
 export const NetworkDetails = ({
@@ -47,6 +48,7 @@ export const NetworkDetails = ({
   canResetRpcUrl,
   autoFocus,
   isCustom,
+  pageType,
 }: NetworkDetailsProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -105,6 +107,7 @@ export const NetworkDetails = ({
           fieldInfo={fieldInfo}
           canResetRpcUrl={canResetRpcUrl}
           readOnly={!isEditing}
+          pageType={pageType}
         />
       </div>
 

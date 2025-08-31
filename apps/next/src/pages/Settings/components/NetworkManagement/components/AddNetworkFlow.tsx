@@ -56,6 +56,7 @@ export const AddNetworkFlow = () => {
           setIsEditing={() => {}}
           onDelete={() => {}}
           isCustom={true}
+          pageType={'add'}
         />
       )}
       {tab === 'rpc-headers' && (

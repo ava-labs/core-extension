@@ -101,7 +101,7 @@ export const NetworksHome: FC = () => {
       {/* Sticky Bottom Tab Menu */}
       <Stack sx={{ flexShrink: 0 }}>
         <TabMenu
-          size="mini"
+          size="small"
           value={activeTab}
           onChange={(_, value) => setActiveTab(value)}
         >

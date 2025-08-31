@@ -24,6 +24,7 @@ type NetworkFormProps = {
   canResetRpcUrl: boolean;
   fieldInfo: { [key in NetworkFormFields]?: FieldInfo };
   readOnly: boolean;
+  pageType: 'add' | 'edit';
 };
 
 export const NetworkForm = ({
@@ -33,6 +34,7 @@ export const NetworkForm = ({
   canResetRpcUrl,
   fieldInfo,
   readOnly,
+  pageType,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
 
@@ -59,7 +61,7 @@ export const NetworkForm = ({
         }
         error={fieldInfo.chainId?.error}
         required={fieldInfo.chainId?.required}
-        readOnly={readOnly}
+        readOnly={pageType === 'add' ? false : true}
       />
       <Divider />
       <TokenSymbolField
