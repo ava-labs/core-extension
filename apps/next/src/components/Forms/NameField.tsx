@@ -29,6 +29,7 @@ export const NameField = ({
 }: NameFieldProps) => {
   const theme = useTheme();
   const showPrompt = !isNaming && name.trim().length === 0;
+  const showIcon = showEditIcon && !readOnly && !isNaming;
 
   return (
     <Stack
@@ -42,30 +43,24 @@ export const NameField = ({
           direction="row"
           alignItems="center"
           justifyContent="center"
-          gap={1}
           position="absolute"
           paddingInline={0}
           width="100%"
+          columnGap={0.75}
         >
           <InvisibleNameInput
             value={name}
             autoFocus={autoFocus}
-            onBlur={(e) => setIsNaming(e.target.value.trim().length > 0)}
+            onClick={() => setIsNaming(true)}
+            onBlur={() => setIsNaming(false)}
             onChange={(e) => setName(e.target.value)}
             readOnly={readOnly}
+            style={{
+              width: showIcon ? 'calc(100% - 8px)' : '100%',
+            }}
           />
-          {showEditIcon && !readOnly && (
-            <EditIcon
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-              }}
-              height="16"
-              color={theme.palette.text.secondary}
-            />
+          {showIcon && (
+            <EditIcon height="21px" color={theme.palette.text.secondary} />
           )}
         </Stack>
       </Fade>
