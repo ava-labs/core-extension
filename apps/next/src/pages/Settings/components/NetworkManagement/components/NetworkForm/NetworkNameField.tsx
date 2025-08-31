@@ -31,6 +31,7 @@ export const NetworkNameField = ({
       autoFocus={autoFocus}
       prompt={t('Name this network')}
       readOnly={readOnly}
+      showEditIcon={true}
     />
   );
 };
