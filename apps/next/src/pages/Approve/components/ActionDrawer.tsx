@@ -10,10 +10,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DisplayData } from '@avalabs/vm-module-types';
 
-import { Action, ActionStatus } from '@core/types';
+import { Action, ActionStatus, GaslessPhase } from '@core/types';
 
 import { hasOverlayWarning } from '../lib';
 import { InDrawerAlert } from './warnings/InDrawerAlert';
+import { useGasless } from '../hooks';
 
 type ActionDrawerProps = StackProps & {
   open: boolean;
@@ -31,10 +32,14 @@ export const ActionDrawer = ({
 }: ActionDrawerProps) => {
   const { t } = useTranslation();
 
+  const { gaslessPhase } = useGasless({ action });
+
   const isMalicious = hasOverlayWarning(action);
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
 
-  const isProcessing = action.status === ActionStatus.SUBMITTING;
+  const isProcessing =
+    action.status === ActionStatus.SUBMITTING ||
+    gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS;
 
   return (
     <Slide in={open} direction="up" mountOnEnter unmountOnExit>
@@ -65,7 +70,6 @@ export const ActionDrawer = ({
               size="extension"
               onClick={reject}
               disabled={isProcessing}
-              loading={isProcessing}
             >
               {t('Reject')}
             </Button>
