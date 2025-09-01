@@ -4032,6 +4032,7 @@ __metadata:
     "@types/react-test-renderer": "npm:17.0.2"
     "@types/react-transition-group": "npm:4.4.4"
     "@types/react-virtualized": "npm:9.21.21"
+    "@types/react-window": "npm:1.8.8"
     "@types/styled-components": "npm:5.1.21"
     "@types/web3": "npm:1.2.2"
     "@types/webextension-polyfill": "npm:0.10.0"
@@ -12266,6 +12267,15 @@ __metadata:
     "@types/prop-types": "npm:*"
     "@types/react": "npm:^17"
   checksum: 10c0/eee986fede0e932a539cdc2eadaf03279861fc2107f5d0283c69b348c2b21ed59edf496c9864d665095a65cdde0f3bebc7b2bbbe2277e85c7f8a71e2e4f9b1d0
+  languageName: node
+  linkType: hard
+
+"@types/react-window@npm:1.8.8":
+  version: 1.8.8
+  resolution: "@types/react-window@npm:1.8.8"
+  dependencies:
+    "@types/react": "npm:*"
+  checksum: 10c0/2170a3957752603e8b994840c5d31b72ddf94c427c0f42b0175b343cc54f50fe66161d8871e11786ec7a59906bd33861945579a3a8f745455a3744268ec1069f
   languageName: node
   linkType: hard
 
