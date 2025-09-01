@@ -21,13 +21,11 @@ export const EvmActionDetails = ({
 }: EvmActionDetailsProps) => {
   return (
     <Stack gap={1}>
-      {action.displayData.balanceChange && (
-        <TransactionBalanceChange
-          ins={action.displayData.balanceChange.ins}
-          outs={action.displayData.balanceChange.outs}
-          isSimulationSuccessful={action.displayData.isSimulationSuccessful}
-        />
-      )}
+      <TransactionBalanceChange
+        ins={action.displayData.balanceChange?.ins ?? []}
+        outs={action.displayData.balanceChange?.outs ?? []}
+        isSimulationSuccessful={action.displayData.isSimulationSuccessful}
+      />
       {hasTokenApprovals(action) && <EvmTokenApprovals action={action} />}
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
