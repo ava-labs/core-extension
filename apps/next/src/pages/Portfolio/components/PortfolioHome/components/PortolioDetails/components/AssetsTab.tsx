@@ -1,4 +1,11 @@
-import { Box, Button, Stack, toast } from '@avalabs/k2-alpine';
+import {
+  Box,
+  Button,
+  ButtonProps,
+  Stack,
+  styled,
+  toast,
+} from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdCurrencyBitcoin, MdKeyboardArrowDown } from 'react-icons/md';
@@ -14,30 +21,22 @@ export const AssetsTab: FC = () => {
         Trending tokens placeholder
       </Box>
       <Stack direction="row" gap={1.25}>
-        <Button
-          variant="outlined"
-          size="small"
-          endIcon={<MdKeyboardArrowDown />}
+        <StyledButton
+          endIcon={<MdKeyboardArrowDown size={20} />}
           onClick={() => toast.info('Coming soon')}
         >
           {t('Filter')}
-        </Button>
-        <Button
-          variant="outlined"
-          size="small"
-          endIcon={<MdKeyboardArrowDown />}
+        </StyledButton>
+        <StyledButton
+          endIcon={<MdKeyboardArrowDown size={20} />}
           onClick={() => toast.info('Coming soon')}
         >
           {t('Sort')}
-        </Button>
+        </StyledButton>
         <Box ml="auto">
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => push('/manage-tokens')}
-          >
+          <StyledButton onClick={() => push('/manage-tokens')}>
             {t('Manage')}
-          </Button>
+          </StyledButton>
         </Box>
       </Stack>
       <UnderConstruction
@@ -48,3 +47,14 @@ export const AssetsTab: FC = () => {
     </Stack>
   );
 };
+
+const StyledButton = styled((buttonProps: ButtonProps) => (
+  <Button
+    variant="contained"
+    color="secondary"
+    size="xsmall"
+    {...buttonProps}
+  />
+))(({ theme }) => ({
+  paddingInline: theme.spacing(1.5),
+}));

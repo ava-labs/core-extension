@@ -3,7 +3,9 @@ import {
   Box,
   ListItem,
   ListItemIcon,
+  ListItemProps,
   ListItemText,
+  ListItemTextProps,
   Switch,
 } from '@avalabs/k2-alpine';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
@@ -15,6 +17,24 @@ import { FC, ReactElement } from 'react';
 interface Props {
   token: FungibleTokenBalance;
 }
+
+const listItemProps: ListItemProps = {
+  disablePadding: true,
+  disableGutters: true,
+  sx: {
+    pr: 5,
+  },
+};
+
+const listItemTextProps: ListItemTextProps = {
+  slotProps: {
+    primary: {
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+    },
+  },
+};
 
 export const TokenListItem: FC<Props> = ({ token }) => {
   const { getTokenVisibility, toggleTokenVisibility } = useSettingsContext();
@@ -29,8 +49,7 @@ export const TokenListItem: FC<Props> = ({ token }) => {
           size="small"
         />
       }
-      disablePadding
-      disableGutters
+      {...listItemProps}
     >
       <ListItemIcon>
         <MaliciousOverlay token={token}>
@@ -38,6 +57,7 @@ export const TokenListItem: FC<Props> = ({ token }) => {
         </MaliciousOverlay>
       </ListItemIcon>
       <ListItemText
+        {...listItemTextProps}
         primary={token.name}
         secondary={token.balanceDisplayValue}
       />
