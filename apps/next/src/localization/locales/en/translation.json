@@ -509,7 +509,7 @@
   "Transaction has been cancelled": "Transaction has been cancelled",
   "Transaction has been rejected": "Transaction has been rejected",
   "Transaction has failed": "Transaction has failed",
-  "Transaction pre-exution is unavailable.": "Transaction pre-exution is unavailable.",
+  "Transaction pre-execution is unavailable.": "Transaction pre-execution is unavailable.",
   "Transaction rejected": "Transaction rejected",
   "Transaction successful": "Transaction successful",
   "Transaction timed out": "Transaction timed out",

@@ -85,7 +85,7 @@ export const TransactionBalanceChange: FC<TransactionBalanceChangeProps> = ({
       {showNoPreExecWarning && (
         <SimulationAlertBox
           textLines={[
-            t('Transaction pre-exution is unavailable.'),
+            t('Transaction pre-execution is unavailable.'),
             t('The displayed token list might be incomplete.'),
           ]}
         />
