@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { PageTopBar } from '@/components/PageTopBar';
 import { MdInfoOutline } from 'react-icons/md';
 
-import { NetworkAvatar } from './BadgedAvatar/NetworkAvatar';
+import { NetworkAvatar } from './NetworkAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkForm/NetworkNameField';
 import { NetworkForm } from './NetworkForm/NetworkForm';
 import {

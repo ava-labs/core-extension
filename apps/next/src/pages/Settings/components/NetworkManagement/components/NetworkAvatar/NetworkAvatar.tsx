@@ -1,10 +1,9 @@
-import { Avatar, Box, useTheme, type SxProps } from '@avalabs/k2-alpine';
-import { isPchainNetwork, isXchainNetwork } from '@core/common';
+import { Avatar, useTheme, type SxProps } from '@avalabs/k2-alpine';
 import { Network } from '@core/types';
 import { memo, useMemo } from 'react';
-import { NetworkBadgedAvatar } from './NetworkBadgedAvatar';
 import brokenNetworkLogoLight from './assets/brokenNetworkLogoLight.svg';
 import brokenNetworkLogoDark from './assets/brokenNetworkLogoDark.svg';
+import { useTranslation } from 'react-i18next';
 
 type ChainAvatarProps = {
   network: Network;
@@ -25,15 +24,12 @@ type ChainAvatarProps = {
  * @returns JSX element or null if no chain is provided
  */
 export const NetworkAvatar = memo(function NetworkAvatar({
-  avatarSx,
-  badgeSx,
   network,
   sx,
 }: ChainAvatarProps) {
   const theme = useTheme();
+  const { t } = useTranslation();
 
-  const isX = useMemo(() => isXchainNetwork(network), [network]);
-  const isP = useMemo(() => isPchainNetwork(network), [network]);
   const fallbackLogo = useMemo(() => {
     const isLightMode = theme.palette.mode === 'light';
 
@@ -41,7 +37,7 @@ export const NetworkAvatar = memo(function NetworkAvatar({
       return (
         <img
           src={brokenNetworkLogoLight}
-          alt="Broken Network Logo"
+          alt={t('Broken Network Logo')}
           style={{
             width: '100%',
             height: '100%',
@@ -52,62 +48,31 @@ export const NetworkAvatar = memo(function NetworkAvatar({
     return (
       <img
         src={brokenNetworkLogoDark}
-        alt="Broken Network Logo"
+        alt={t('Broken Network Logo')}
         style={{
           width: '100%',
           height: '100%',
         }}
       />
     );
-  }, [theme]);
+  }, [theme, t]);
 
   if (!network) {
-    return null;
-  }
-
-  if (isX || isP) {
-    return (
-      <NetworkBadgedAvatar
-        network={network}
-        badge={{ src: network.logoUri, alt: network.chainName, sx: badgeSx }}
-        avatar={{
-          src: network.networkToken.logoUri,
-          alt: network.networkToken.symbol,
-          sx: avatarSx,
-        }}
-        sx={{
-          ...sx,
-        }}
-      />
-    );
+    return fallbackLogo;
   }
 
   // Check if we have a valid logo URL
-  if (network.logoUri) {
-    return (
-      <Avatar
-        src={network.logoUri}
-        alt={network.chainName}
-        sx={{
-          ...sx,
-          backgroundColor: theme.palette.datePicker.hover,
-        }}
-      />
-    );
-  }
 
-  // No logo fallback
   return (
-    <Box
+    <Avatar
+      src={network.logoUri}
+      alt={network.chainName}
       sx={{
         ...sx,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'transparent',
+        backgroundColor: theme.palette.datePicker.hover,
       }}
     >
       {fallbackLogo}
-    </Box>
+    </Avatar>
   );
 });

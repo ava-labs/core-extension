@@ -5,7 +5,7 @@ import {
   ListItemText,
   Switch,
 } from '@avalabs/k2-alpine';
-import { NetworkAvatar } from '../BadgedAvatar/NetworkAvatar';
+import { NetworkAvatar } from '../NetworkAvatar/NetworkAvatar';
 
 type NetworkToggleListItemProps = {
   network: NetworkWithCaipId;

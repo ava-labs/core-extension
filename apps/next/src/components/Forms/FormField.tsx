@@ -58,16 +58,16 @@ export const FormField = ({
   const showCopyButton =
     allowCopy && !error && !!value && !isEditing && isHovered;
 
-  const showRemoveIcon = Boolean(value || isEditing || required);
+  const showPrompt = Boolean(value || isEditing || required);
 
   const onActionClick = useCallback(() => {
-    if (showRemoveIcon) {
+    if (showPrompt) {
       setIsEditing(false);
       onChange('');
     } else {
       setIsEditing(true);
     }
-  }, [showRemoveIcon, onChange]);
+  }, [showPrompt, onChange]);
 
   return (
     <FieldContainer
@@ -76,16 +76,20 @@ export const FormField = ({
       onMouseLeave={() => setIsHovered(false)}
       sx={{ height: isEditing || value ? 48 : 36 }}
     >
-      <MultiIconButton
-        icon={<MdAddCircle size={20} fill={theme.palette.success.main} />}
-        hoverIcon={<MdRemoveCircle size={20} fill={theme.palette.error.main} />}
-        onClick={onActionClick}
-        toggleClassName="has-value"
-        className={showRemoveIcon ? 'has-value' : ''}
-      />
+      {!readOnly && (
+        <MultiIconButton
+          icon={<MdAddCircle size={20} fill={theme.palette.success.main} />}
+          hoverIcon={
+            <MdRemoveCircle size={20} fill={theme.palette.error.main} />
+          }
+          onClick={onActionClick}
+          toggleClassName="has-value"
+          className={showPrompt ? 'has-value' : ''}
+        />
+      )}
 
       <InputContainer>
-        <Fade in={showRemoveIcon} mountOnEnter unmountOnExit>
+        <Fade in={showPrompt} mountOnEnter unmountOnExit>
           <Stack
             direction="row"
             alignItems="center"
@@ -114,7 +118,7 @@ export const FormField = ({
             {!!endAdornment && endAdornment}
           </Stack>
         </Fade>
-        <Fade in={!showRemoveIcon} mountOnEnter unmountOnExit>
+        <Fade in={!showPrompt} mountOnEnter unmountOnExit>
           <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
         </Fade>
       </InputContainer>
