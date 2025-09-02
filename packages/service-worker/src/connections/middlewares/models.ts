@@ -11,6 +11,8 @@ export type Context<RequestType, ResponseType> = {
   request: RequestType;
   domainMetadata?: DomainMetadata;
   network?: NetworkWithCaipId;
+  currentAddress?: string;
+  xpubXP?: string;
   authenticated: boolean;
   response?: ResponseType | typeof DEFERRED_RESPONSE;
 };

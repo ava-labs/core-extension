@@ -80,6 +80,10 @@ export type SolanaNetwork = NetworkWithCaipId & {
   vmName: NetworkVMType.SVM;
 };
 
+export type AvalancheNetwork = NetworkWithCaipId & {
+  vmName: NetworkVMType.AVM | NetworkVMType.PVM | NetworkVMType.CoreEth;
+};
+
 export const isEvmNetwork = (
   network: NetworkWithCaipId,
 ): network is EvmNetwork => network.vmName === NetworkVMType.EVM;
@@ -91,3 +95,10 @@ export const isBtcNetwork = (
 export const isSolanaNetwork = (
   network: NetworkWithCaipId,
 ): network is SolanaNetwork => network.vmName === NetworkVMType.SVM;
+
+export const isAvalancheNetwork = (
+  network: NetworkWithCaipId,
+): network is AvalancheNetwork =>
+  network.vmName === NetworkVMType.AVM ||
+  network.vmName === NetworkVMType.PVM ||
+  network.vmName === NetworkVMType.CoreEth;
