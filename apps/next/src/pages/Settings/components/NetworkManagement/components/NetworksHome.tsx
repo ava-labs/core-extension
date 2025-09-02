@@ -105,20 +105,8 @@ export const NetworksHome: FC = () => {
           value={activeTab}
           onChange={(_, value) => setActiveTab(value)}
         >
-          <Tab
-            label={t('All networks')}
-            value={'all' satisfies Tab}
-            sx={{
-              py: 0,
-            }}
-          />
-          <Tab
-            label="Custom"
-            value={'custom' satisfies Tab}
-            sx={{
-              py: 0,
-            }}
-          />
+          <Tab label={t('All networks')} value={'all' satisfies Tab} />
+          <Tab label="Custom" value={'custom' satisfies Tab} />
         </TabMenu>
       </Stack>
     </Stack>

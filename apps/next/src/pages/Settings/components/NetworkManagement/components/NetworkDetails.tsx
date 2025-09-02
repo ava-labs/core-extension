@@ -65,12 +65,15 @@ export const NetworkDetails = ({
     fieldsWithErrors.length == 1 &&
     fieldsWithErrors.includes('chainName');
 
+  const hasMultipleButtons = isEditing || (isCustom && !isEditing);
+
   return (
     <Stack
       height="100cqh"
       width={1}
       bgcolor="background.backdrop"
       overflow="hidden"
+      sx={{ position: 'relative' }}
     >
       <PageTopBar showBack={true} />
 
@@ -78,7 +81,7 @@ export const NetworkDetails = ({
       <Stack width="100%" alignItems="center" sx={{ px: 1.5, pb: 2 }}>
         <NetworkAvatar
           network={network}
-          sx={{ width: '80px', height: '80px', mb: 2.75 }}
+          sx={{ width: '80px', height: '80px', mb: 2 }}
         />
         <NetworkNameField
           name={network.chainName}
@@ -98,6 +101,7 @@ export const NetworkDetails = ({
           flex: 1,
           overflow: 'auto',
           padding: '0 12px',
+          maxHeight: '350px',
         }}
       >
         <NetworkForm
@@ -109,16 +113,43 @@ export const NetworkDetails = ({
           readOnly={!isEditing}
           pageType={pageType}
         />
+        {hasMultipleButtons && (
+          // This let the user to scroll enough to interact with the fields at the bottom of the form when editing
+          <div style={{ height: '48px' }} />
+        )}
       </div>
+
+      {/* Gradient overlay behind buttons */}
+      {hasMultipleButtons && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '48px', // To make the gradient start from the top of the buttons
+            left: 0,
+            right: 0,
+            height: '36px', // To make the gradient end before the bottom of the top button
+            background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%, ${theme.palette.background.backdrop} 90%,${theme.palette.background.backdrop} 100%, ${theme.palette.background.backdrop} 100%)`,
+            pointerEvents: 'none',
+            zIndex: 5,
+          }}
+        />
+      )}
 
       {/* Bottom Buttons */}
       <Stack
         width="100%"
         gap={1}
         sx={{
-          pt: 2,
-          px: 1.5,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          pt: 0,
+          px: 2.5,
           pb: 2,
+          backgroundColor: 'transparent',
+          background: 'none',
+          zIndex: 10,
         }}
       >
         {showMissingNetworkNameWarning && (
