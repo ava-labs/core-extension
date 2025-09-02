@@ -1,10 +1,11 @@
-import { isBtcNetwork, isEvmNetwork } from '@core/types';
+import { isAvalancheNetwork, isBtcNetwork, isEvmNetwork } from '@core/types';
 
 import { ActionDetailsProps } from '../../types';
 
 import { EvmActionDetails } from './evm/EvmActionDetails';
 import { UnknownActionDetails } from './UnknownActionDetails';
 import { BtcActionDetails } from './btc';
+import { AvalancheTransactionDetails } from './avalanche';
 
 export const ActionDetails = ({
   network,
@@ -26,6 +27,17 @@ export const ActionDetails = ({
   if (isBtcNetwork(network)) {
     return (
       <BtcActionDetails
+        network={network}
+        action={action}
+        updateAction={updateAction}
+        error={error}
+      />
+    );
+  }
+
+  if (isAvalancheNetwork(network)) {
+    return (
+      <AvalancheTransactionDetails
         network={network}
         action={action}
         updateAction={updateAction}

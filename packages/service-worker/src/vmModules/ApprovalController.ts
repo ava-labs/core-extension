@@ -172,7 +172,9 @@ export class ApprovalController implements BatchApprovalController {
           network,
         );
 
-        if (approvalResult.signedTx) {
+        if (typeof approvalResult === 'string') {
+          resolve({ signedData: approvalResult });
+        } else if (approvalResult.signedTx) {
           resolve({ signedData: approvalResult.signedTx });
         } else if (approvalResult.txHash) {
           resolve({ txHash: approvalResult.txHash });
@@ -348,6 +350,14 @@ export class ApprovalController implements BatchApprovalController {
       case RpcMethod.HVM_SIGN_TRANSACTION:
         return await this.#walletService.sign(
           signingData.data,
+          network,
+          action.tabId,
+        );
+
+      case RpcMethod.AVALANCHE_SIGN_TRANSACTION:
+      case RpcMethod.AVALANCHE_SEND_TRANSACTION:
+        return await this.#walletService.sign(
+          signingData,
           network,
           action.tabId,
         );
