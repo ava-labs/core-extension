@@ -36,7 +36,24 @@ export type SignTransactionRequest =
   | BtcTransactionRequest
   | AvalancheTransactionRequest
   | HVMTransactionRequest
-  | SolanaSigningRequest;
+  | SolanaSigningRequest
+  | AvalancheNewTransactionRequest;
+
+export type AvalancheNewTransactionRequest = Extract<
+  SigningData,
+  {
+    type:
+      | RpcMethod.AVALANCHE_SIGN_TRANSACTION
+      | RpcMethod.AVALANCHE_SEND_TRANSACTION;
+  }
+>;
+
+export const isAvalancheModuleTransactionRequest = (
+  sigReq: SignTransactionRequest,
+): sigReq is AvalancheNewTransactionRequest =>
+  'type' in sigReq &&
+  (sigReq.type === RpcMethod.AVALANCHE_SIGN_TRANSACTION ||
+    sigReq.type === RpcMethod.AVALANCHE_SEND_TRANSACTION);
 
 export const isSolanaRequest = (
   sigReq: SignTransactionRequest,

@@ -52,6 +52,22 @@ export function ActiveNetworkMiddleware(
         error(err);
         return;
       }
+    } else if (
+      // These requests are still coming through the EVM injected provider
+      // with scope set to "eip155:43114" / "eip155:43113". Since those are
+      // valid CAIP-2 identifiers, we can't force-map them to the `avax:...`
+      // namespace directly in the ChainAgnosticProvider (like we do for Bitcoin
+      // or Solana, for example).
+      //
+      // The perfect solution would be if Core Web used the ChainAgnosticProvider
+      // for non-EVM requests, or at least supplied the fake X/P chain id -- then
+      // those would be recognized and remapped by the ChainAgnosticProvider, and
+      // this clause would not be required. For now though, this works.
+      method === RpcMethod.AVALANCHE_SEND_TRANSACTION ||
+      method === RpcMethod.AVALANCHE_SIGN_TRANSACTION ||
+      method === RpcMethod.AVALANCHE_SIGN_MESSAGE
+    ) {
+      network = await networkService.getAvalancheNetworkXP();
     } else {
       network = await networkService.getNetwork(scope);
     }

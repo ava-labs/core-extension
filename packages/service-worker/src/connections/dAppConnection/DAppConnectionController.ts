@@ -36,6 +36,8 @@ import {
 import { Monitoring } from '@core/common';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
+import { AvalancheTxContextMiddleware } from '../middlewares/AvalancheTxContextMiddleware';
+import { SecretsService } from '~/services/secrets/SecretsService';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -55,6 +57,7 @@ export class DAppConnectionController implements ConnectionController {
     private permissionsService: PermissionsService,
     private accountsService: AccountsService,
     private networkService: NetworkService,
+    private secretsService: SecretsService,
     private lockService: LockService,
     private moduleManager: ModuleManager,
   ) {
@@ -80,6 +83,7 @@ export class DAppConnectionController implements ConnectionController {
         this.lockService,
       ),
       ActiveNetworkMiddleware(this.networkService),
+      AvalancheTxContextMiddleware(this.accountsService, this.secretsService),
       DAppRequestHandlerMiddleware(this.handlers, this.moduleManager),
       LoggerMiddleware(SideToLog.RESPONSE),
     );
