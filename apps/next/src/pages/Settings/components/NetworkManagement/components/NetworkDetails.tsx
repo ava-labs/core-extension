@@ -102,7 +102,7 @@ export const NetworkDetails = ({
           overflow: 'auto',
           padding: '0 12px',
           marginTop: '36px',
-          maxHeight: hasMultipleButtons ? '290px' : '350px',
+          maxHeight: hasMultipleButtons ? '300px' : '350px',
         }}
       >
         <NetworkForm
@@ -127,12 +127,11 @@ export const NetworkDetails = ({
           left: 0,
           right: 0,
           height: '48px', // To make the gradient end before the bottom of the top button , ${theme.palette.background.backdrop}
-          background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%, ${theme.palette.background.backdrop} 90%, ${theme.palette.background.backdrop} 100%)`,
+          background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%,  ${theme.palette.background.backdrop} 95%,   ${theme.palette.background.backdrop} 100%)`,
           pointerEvents: 'none',
           zIndex: 5,
         }}
       />
-      {/* )} */}
 
       {/* Bottom Buttons */}
       <Stack

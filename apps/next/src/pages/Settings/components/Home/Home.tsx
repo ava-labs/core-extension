@@ -1,6 +1,7 @@
 import {
   Button,
   ChevronRightIcon,
+  IconButton,
   Stack,
   Switch,
   Typography,
@@ -127,6 +128,7 @@ export const SettingsHomePage = () => {
         />
         <SettingsNavItem
           label={t('View preference')}
+          divider
           secondaryAction={
             <ViewPreferenceSelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
@@ -136,11 +138,15 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           label={t('Networks')}
           secondaryAction={
-            <ChevronRightIcon
-              size={16}
+            <IconButton
               onClick={() => push('/settings/network-management')}
-              color={theme.palette.text.secondary}
-            />
+              sx={{ mr: -0.5 }}
+            >
+              <ChevronRightIcon
+                size={16}
+                color={theme.palette.text.secondary}
+              />
+            </IconButton>
           }
           divider
         />
