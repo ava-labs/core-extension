@@ -1,7 +1,7 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabMenu } from '@/components/TabMenu';
-import { IconButton, Stack, Typography } from '@avalabs/k2-alpine';
+import { IconButton, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { PageTopBar } from '@/components/PageTopBar';
 import { MdAdd } from 'react-icons/md';
 import { useNetworkContext } from '@core/ui';
@@ -14,6 +14,7 @@ type Tab = 'all' | 'custom';
 
 export const NetworksHome: FC = () => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const history = useHistory();
   const { isIntersecting, isObserving } = useIsIntersecting();
   const { networks, customNetworks } = useNetworkContext();
@@ -81,15 +82,13 @@ export const NetworksHome: FC = () => {
       </Stack>
 
       {/* Content Area */}
-      <Stack
-        px={1.5}
-        pb={1.5}
-        mt={2.5}
-        sx={{
+      <div
+        style={{
           flex: 1,
-          overflow: 'hidden',
-          minHeight: 0,
-          height: '100%',
+          overflow: 'auto',
+          padding: '0 12px',
+          marginTop: '36px',
+          maxHeight: '360px',
         }}
       >
         <NetworkToggleList
@@ -97,14 +96,51 @@ export const NetworksHome: FC = () => {
             activeTab === 'all' ? filteredNetworks : filteredCustomNetworks
           }
         />
-      </Stack>
+        <div style={{ height: '32px' }} />
+      </div>
+
+      {/* Gradient overlay behind buttons */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '30px', // To make the gradient start from the top of the buttons
+          left: 0,
+          right: 0,
+          height: '40px', // To make the gradient end before the bottom of the top button , ${theme.palette.background.backdrop}
+          background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%, ${theme.palette.background.backdrop} 95%, ${theme.palette.background.backdrop} 100%)`,
+          pointerEvents: 'none',
+          zIndex: 5,
+        }}
+      />
 
       {/* Sticky Bottom Tab Menu */}
-      <Stack px={1.5} pb={1.5} sx={{ flexShrink: 0 }}>
+      <Stack
+        width="100%"
+        gap={1}
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          pt: 0,
+          px: 2.5,
+          pb: 2,
+          backgroundColor: 'transparent',
+          background: 'none',
+          zIndex: 10,
+        }}
+      >
         <TabMenu
           size="small"
           value={activeTab}
           onChange={(_, value) => setActiveTab(value)}
+          slotProps={{
+            root: {
+              style: {
+                backgroundColor: 'transparent',
+              },
+            },
+          }}
         >
           <Tab label={t('All networks')} value={'all' satisfies Tab} />
           <Tab label="Custom" value={'custom' satisfies Tab} />
