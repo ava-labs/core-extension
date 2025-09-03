@@ -64,9 +64,11 @@ export type { GetNavigationHistoryDataHandler } from './services/navigationHisto
 export type { SetNavigationHistoryHandler } from './services/navigationHistory/handlers/setNavigationHistory';
 export type { SetNavigationHistoryDataHandler } from './services/navigationHistory/handlers/setNavigationHistoryData';
 export type { AddFavoriteNetworkHandler } from './services/network/handlers/addFavoriteNetwork';
+export type { AddEnabledNetworkHandler } from './services/network/handlers/addEnabledNetwork';
 export type { GetNetworksStateHandler } from './services/network/handlers/getNetworkState';
 export type { RemoveCustomNetworkHandler } from './services/network/handlers/removeCustomNetwork';
 export type { RemoveFavoriteNetworkHandler } from './services/network/handlers/removeFavoriteNetwork';
+export type { RemoveEnabledNetworkHandler } from './services/network/handlers/removeEnabledNetwork';
 export type { SaveCustomNetworkHandler } from './services/network/handlers/saveCustomNetwork';
 export type { SetActiveNetworkHandler } from './services/network/handlers/setActiveNetwork';
 export type { SetDevelopermodeNetworkHandler } from './services/network/handlers/setDeveloperMode';

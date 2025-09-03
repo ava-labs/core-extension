@@ -150,6 +150,8 @@ import { UnsubscribeFromNotification } from '../../services/notifications/handle
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
+import { AddEnabledNetworkHandler } from '~/services/network/handlers/addEnabledNetwork';
+import { RemoveEnabledNetworkHandler } from '~/services/network/handlers/removeEnabledNetwork';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -222,6 +224,15 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
     token: 'ExtensionRequestHandler',
     useToken: RemoveFavoriteNetworkHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: AddEnabledNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: RemoveEnabledNetworkHandler,
+  },
+
   {
     token: 'ExtensionRequestHandler',
     useToken: SetActiveNetworkHandler,
