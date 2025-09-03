@@ -36,8 +36,8 @@ export const Confirmation = ({
         </Typography>
 
         <Stack direction="row" gap={1} alignItems="center">
-          <MdInfoOutline color={theme.palette.error.main} />
-          <Typography variant="caption" sx={{ color: 'error.main' }}>
+          <MdInfoOutline color={theme.palette.error.main} size={24} />
+          <Typography variant="body3" sx={{ color: 'error.main' }}>
             {warningText}
           </Typography>
         </Stack>
