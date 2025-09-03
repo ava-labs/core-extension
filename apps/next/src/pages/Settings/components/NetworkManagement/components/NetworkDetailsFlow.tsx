@@ -46,9 +46,9 @@ export const NetworkDetailsFlow = () => {
     console.log({ network });
   }, [network]);
 
-  const resetRpcUrlHandler = () => {
+  const resetRpcUrlHandler = async () => {
     try {
-      resetRpcUrl();
+      await resetRpcUrl();
       toast.success(t('RPC URL reset successfully'));
       setTab('details');
     } catch (error) {
@@ -57,9 +57,9 @@ export const NetworkDetailsFlow = () => {
     }
   };
 
-  const saveHandler = () => {
+  const saveHandler = async () => {
     try {
-      submit();
+      await submit();
       toast.success(t('Network updated'));
       setTab('details');
     } catch (error) {
@@ -68,9 +68,9 @@ export const NetworkDetailsFlow = () => {
     }
   };
 
-  const deleteHandler = () => {
+  const deleteHandler = async () => {
     try {
-      removeCustomNetwork(Number(networkId));
+      await removeCustomNetwork(Number(networkId));
       toast.success(t('Network deleted'));
       history.goBack();
     } catch (error) {

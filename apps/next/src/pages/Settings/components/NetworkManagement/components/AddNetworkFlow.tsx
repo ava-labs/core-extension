@@ -20,9 +20,9 @@ export const AddNetworkFlow = () => {
     history.replace('/settings/networks');
   };
 
-  const submitHandler = () => {
+  const submitHandler = async () => {
     try {
-      submit();
+      await submit();
       toast.success(t('Network added'));
       goBackToNetworks();
     } catch (error) {

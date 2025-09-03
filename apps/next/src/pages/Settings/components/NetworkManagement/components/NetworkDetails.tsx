@@ -101,6 +101,7 @@ export const NetworkDetails = ({
           flex: 1,
           overflow: 'auto',
           padding: '0 12px',
+          marginTop: '41px',
           maxHeight: '350px',
         }}
       >
@@ -113,27 +114,25 @@ export const NetworkDetails = ({
           readOnly={!isEditing}
           pageType={pageType}
         />
-        {hasMultipleButtons && (
-          // This let the user to scroll enough to interact with the fields at the bottom of the form when editing
-          <div style={{ height: '48px' }} />
-        )}
+        {/* This empty div lets the user to scroll enough to interact with the fields at the
+        bottom of the form when editing */}
+        <div style={{ height: hasMultipleButtons ? '80px' : '48px' }} />
       </div>
 
       {/* Gradient overlay behind buttons */}
-      {hasMultipleButtons && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '48px', // To make the gradient start from the top of the buttons
-            left: 0,
-            right: 0,
-            height: '36px', // To make the gradient end before the bottom of the top button
-            background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%, ${theme.palette.background.backdrop} 90%,${theme.palette.background.backdrop} 100%, ${theme.palette.background.backdrop} 100%)`,
-            pointerEvents: 'none',
-            zIndex: 5,
-          }}
-        />
-      )}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '10px', // To make the gradient start from the top of the buttons
+          left: 0,
+          right: 0,
+          height: hasMultipleButtons ? '80px' : '36px', // To make the gradient end before the bottom of the top button
+          background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%, ${theme.palette.background.backdrop} 90%,${theme.palette.background.backdrop} 100%, ${theme.palette.background.backdrop} 100%)`,
+          pointerEvents: 'none',
+          zIndex: 5,
+        }}
+      />
+      {/* )} */}
 
       {/* Bottom Buttons */}
       <Stack

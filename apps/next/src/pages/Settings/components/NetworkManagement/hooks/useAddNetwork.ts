@@ -1,8 +1,8 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { isNetworkValid } from '../components/NetworkForm/utils/isNetworkValid';
 import { AdvancedNetworkConfig, Network } from '@core/types';
-import { useMemo, useState } from 'react';
-import { useNetworkContext } from '@core/ui';
+import { useCallback, useMemo, useState } from 'react';
+import { useAnalyticsContext, useNetworkContext } from '@core/ui';
 import { NetworkFormFieldInfo } from '../components/NetworkForm/types';
 import { DynamicFields, mergeDynamicFields } from './utils/fieldInfo';
 
@@ -25,20 +25,22 @@ const defaultNetworkValues: Network & AdvancedNetworkConfig = {
 
 export const useAddNetwork = () => {
   const { saveCustomNetwork } = useNetworkContext();
+  const { capture } = useAnalyticsContext();
+
   const [network, setNetwork] = useState<Network & AdvancedNetworkConfig>(
     defaultNetworkValues,
   );
   const { isValid, errors } = useMemo(() => {
-    console.log('running validation');
     return isNetworkValid(network);
   }, [network]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setNetwork(defaultNetworkValues);
-  };
-  const submit = () => {
-    saveCustomNetwork(network);
-  };
+  }, [setNetwork]);
+  const submit = useCallback(async () => {
+    await saveCustomNetwork(network);
+    capture('CustomNetworkAdded');
+  }, [network, saveCustomNetwork, capture]);
 
   const fieldInfo: NetworkFormFieldInfo = useMemo(() => {
     const dynamicFields: DynamicFields = {

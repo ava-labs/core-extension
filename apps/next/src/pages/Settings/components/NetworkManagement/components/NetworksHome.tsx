@@ -1,13 +1,14 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabMenu } from '@/components/TabMenu';
-import { IconButton, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
+import { IconButton, Stack, Typography } from '@avalabs/k2-alpine';
 import { PageTopBar } from '@/components/PageTopBar';
 import { useIsIntersecting } from '@/components/Page/hooks/useIsIntersecting';
 import { MdAdd } from 'react-icons/md';
 import { useNetworkContext } from '@core/ui';
 import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
 import { useHistory } from 'react-router-dom';
+import { SearchInput } from './SearchInput';
 
 type Tab = 'all' | 'custom';
 
@@ -40,9 +41,6 @@ export const NetworksHome: FC = () => {
 
   return (
     <Stack
-      px={1.5}
-      pb={1.5}
-      gap={3}
       sx={{
         height: '100vh',
         display: 'flex',
@@ -60,12 +58,16 @@ export const NetworksHome: FC = () => {
         <Stack
           direction="row"
           justifyContent="space-between"
+          px={1.5}
+          pb={1.5}
+          mt={2.5}
           sx={{ flexShrink: 0 }}
         >
           <Typography variant="h2" component="h1">
             {t('Networks')}
           </Typography>
           <IconButton
+            sx={{ mr: -1 }}
             onClick={() => {
               history.push(`/settings/network-management/add`);
             }}
@@ -73,17 +75,16 @@ export const NetworksHome: FC = () => {
             <MdAdd size={24} />
           </IconButton>
         </Stack>
-        <Stack sx={{ flexShrink: 0 }}>
-          <SearchInput
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder={t('Search')}
-          />
+        <Stack sx={{ flexShrink: 0 }} px={1.5}>
+          <SearchInput filter={filter} setFilter={setFilter} />
         </Stack>
       </Stack>
 
       {/* Content Area */}
       <Stack
+        px={1.5}
+        pb={1.5}
+        mt={2.5}
         sx={{
           flex: 1,
           overflow: 'hidden',
@@ -99,7 +100,7 @@ export const NetworksHome: FC = () => {
       </Stack>
 
       {/* Sticky Bottom Tab Menu */}
-      <Stack sx={{ flexShrink: 0 }}>
+      <Stack px={1.5} pb={1.5} sx={{ flexShrink: 0 }}>
         <TabMenu
           size="small"
           value={activeTab}

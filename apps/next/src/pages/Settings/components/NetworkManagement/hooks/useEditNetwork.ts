@@ -1,7 +1,7 @@
 import { isNetworkValid } from '../components/NetworkForm/utils/isNetworkValid';
 import { AdvancedNetworkConfig, Network } from '@core/types';
-import { useNetworkContext } from '@core/ui';
-import { useEffect, useMemo, useState } from 'react';
+import { useAnalyticsContext, useNetworkContext } from '@core/ui';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { NetworkFormFieldInfo } from '../components/NetworkForm/types';
 import { DynamicFields, mergeDynamicFields } from './utils/fieldInfo';
 
@@ -15,6 +15,7 @@ export const useEditNetwork = ({
   rpcUrlResetButtonAction: rpcUrlResetAction,
 }: UseEditNetworkProps) => {
   const { networks, removeCustomNetwork } = useNetworkContext();
+  const { capture } = useAnalyticsContext();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -44,23 +45,31 @@ export const useEditNetwork = ({
     return isNetworkValid(network);
   }, [network]);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setNetwork(original);
-  };
-  const submit = () => {
-    if (!network) return;
-    if (isCustom) {
-      saveCustomNetwork(network);
-    } else {
-      updateDefaultNetwork(network);
-    }
-  };
+  }, [original, setNetwork]);
 
-  const resetRpcUrl = () => {
+  const submit = useCallback(async () => {
+    if (!network) {
+      return;
+    }
+
+    if (isCustom) {
+      await saveCustomNetwork(network);
+      capture('CustomNetworkEdited');
+      return;
+    }
+
+    await updateDefaultNetwork(network);
+    capture('DefaultNetworkRPCEdited');
+  }, [capture, isCustom, network, saveCustomNetwork, updateDefaultNetwork]);
+
+  const resetRpcUrl = useCallback(async () => {
     if (!network) return;
     const { rpcUrl, ...networkToSubmit } = network;
-    updateDefaultNetwork(networkToSubmit);
-  };
+    await updateDefaultNetwork(networkToSubmit);
+    capture('DefaultNetworkRPCReset');
+  }, [capture, network, updateDefaultNetwork]);
 
   const fieldInfo: NetworkFormFieldInfo = useMemo(() => {
     const dynamicFields: DynamicFields = {
