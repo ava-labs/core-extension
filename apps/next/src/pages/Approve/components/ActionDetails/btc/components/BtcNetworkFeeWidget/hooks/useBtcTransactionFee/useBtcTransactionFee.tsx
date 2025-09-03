@@ -25,7 +25,7 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
   const nativeToken = useNativeToken({ network });
   const signingData = action.signingData as BtcTxSigningData;
 
-  const [feePreset, setFeePreset] = useState<BtcFeePreset>('slow');
+  const [feePreset, setFeePreset] = useState<BtcFeePreset>('low');
 
   const fee = calculateGasAndFees({
     maxFeePerGas: getFeeInfo(signingData).feeRate,
@@ -56,17 +56,7 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
 
       setFeePreset(preset);
 
-      switch (preset) {
-        case 'slow':
-          await updateFee(networkFee.low.maxFeePerGas);
-          break;
-        case 'normal':
-          await updateFee(networkFee.medium.maxFeePerGas);
-          break;
-        case 'fast':
-          await updateFee(networkFee.high.maxFeePerGas);
-          break;
-      }
+      await updateFee(networkFee[preset].maxFeePerGas);
     },
     [networkFee, updateFee],
   );
@@ -78,7 +68,7 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
   useEffect(() => {
     // If the dapp did not provide us any fee rate, we must initialize it ourselves.
     if (!initialFeeRate.current) {
-      choosePreset('slow');
+      choosePreset('low');
     }
   }, [networkFee, choosePreset]);
 

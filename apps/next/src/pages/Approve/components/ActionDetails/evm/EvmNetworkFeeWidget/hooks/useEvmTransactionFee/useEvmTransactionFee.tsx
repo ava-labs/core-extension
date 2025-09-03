@@ -28,7 +28,7 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
   const [customPreset, setCustomPreset] = useState(networkFee?.high);
 
   const [feePreset, setFeePreset] = useState<EvmFeePreset>(
-    isAvalancheNetwork(network) ? 'fast' : 'slow',
+    isAvalancheNetwork(network) ? 'high' : 'low',
   );
 
   const fee = calculateGasAndFees({
@@ -79,26 +79,10 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
 
       setFeePreset(preset);
 
-      switch (preset) {
-        case 'slow':
-          await updateFee(
-            networkFee.low.maxFeePerGas,
-            networkFee.low.maxPriorityFeePerGas,
-          );
-          break;
-        case 'normal':
-          await updateFee(
-            networkFee.medium.maxFeePerGas,
-            networkFee.medium.maxPriorityFeePerGas,
-          );
-          break;
-        case 'fast':
-          await updateFee(
-            networkFee.high.maxFeePerGas,
-            networkFee.high.maxPriorityFeePerGas,
-          );
-          break;
-      }
+      await updateFee(
+        networkFee[preset].maxFeePerGas,
+        networkFee[preset].maxPriorityFeePerGas,
+      );
     },
     [networkFee, updateFee],
   );
@@ -108,9 +92,9 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
   );
 
   useEffect(() => {
-    // If the dapp did not vie us any fee rate, we must initialize it ourselves.
+    // If the dapp did not give us any fee rate, we must initialize it ourselves.
     if (!initialFeeRate.current) {
-      choosePreset('fast');
+      choosePreset('high');
     }
   }, [networkFee, choosePreset]);
 
@@ -126,9 +110,9 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
     feeDecimals: networkFee.displayDecimals,
     feePreset,
     presets: {
-      slow: networkFee.low,
-      normal: networkFee.medium,
-      fast: networkFee.high,
+      low: networkFee.low,
+      medium: networkFee.medium,
+      high: networkFee.high,
       custom: customPreset,
     },
     gasLimit: Number(signingData.data.gasLimit ?? 0),

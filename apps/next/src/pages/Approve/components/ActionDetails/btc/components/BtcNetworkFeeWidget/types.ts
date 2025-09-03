@@ -1,1 +1,3 @@
-export type BtcFeePreset = 'slow' | 'normal' | 'fast';
+import { TransactionPriority } from '@core/types';
+
+export type BtcFeePreset = TransactionPriority;
