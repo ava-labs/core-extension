@@ -18,6 +18,8 @@ import { MultiIconButton } from '@/components/MultiIconButton';
 import { InvisibleFieldInput } from './InvisibleInput';
 
 type FormFieldProps = {
+  type?: 'text' | 'number';
+  pattern?: string;
   value: string;
   label: string;
   placeholder: string;
@@ -31,6 +33,8 @@ type FormFieldProps = {
 };
 
 export const FormField = ({
+  type = 'text',
+  pattern,
   value,
   label,
   placeholder,
@@ -98,12 +102,14 @@ export const FormField = ({
           >
             <Stack component="label" onClick={() => setIsEditing(true)}>
               <InvisibleFieldInput
+                type={type}
                 ref={ref}
                 value={value}
                 placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}
                 onBlur={() => delay(() => setIsEditing(false), 100)}
                 readOnly={readOnly}
+                pattern={pattern}
               />
 
               <Collapse in={!isEditing} orientation="vertical">
