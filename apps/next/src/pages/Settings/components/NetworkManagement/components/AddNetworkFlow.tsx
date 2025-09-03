@@ -5,7 +5,7 @@ import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { AddNetworkFormTab } from './NetworkForm/types';
 import { NetworkDetails } from './NetworkDetails';
-import { useAddNetwork } from '../hooks/useAddNetworks';
+import { useAddNetwork } from '../hooks/useAddNetwork';
 
 export const AddNetworkFlow = () => {
   const history = useHistory();
