@@ -3,6 +3,7 @@ import { CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { Route, Switch, SwitchProps } from 'react-router-dom';
 
 import { GenericApprovalScreen } from '@/pages/Approve/GenericApprovalScreen';
+import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -29,6 +30,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
         ]}
       >
         <GenericApprovalScreen />
+      </Route>
+      <Route path="/permissions">
+        <ApproveDappConnection />
       </Route>
     </Switch>
   </Suspense>

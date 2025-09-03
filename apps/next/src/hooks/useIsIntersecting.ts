@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState } from 'react';
 
-export const useIsIntersecting = () => {
+export const useIsIntersecting = (options?: IntersectionObserverInit) => {
   const [element, setElement] = useState<HTMLElement | null>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
 
@@ -17,13 +17,13 @@ export const useIsIntersecting = () => {
       return;
     }
 
-    const observer = new IntersectionObserver(checkIntersection);
+    const observer = new IntersectionObserver(checkIntersection, options);
     observer.observe(element);
 
     return () => {
       observer.disconnect();
     };
-  }, [checkIntersection, element]);
+  }, [checkIntersection, element, options]);
 
   return { ref: setElement, isIntersecting, isObserving: !!element };
 };
