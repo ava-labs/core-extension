@@ -109,7 +109,7 @@ export const ApproveDappConnection: FC = () => {
           open
           approve={onApproveClicked}
           reject={cancelHandler}
-          action={action}
+          isProcessing={action.status === ActionStatus.SUBMITTING}
         />
       </Styled.NoScrollStack>
     </Styled.ApprovalScreenPage>

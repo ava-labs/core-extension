@@ -591,8 +591,20 @@ export class SeedlessWallet {
   }
 
   async signMessage(
+    messageType: MessageType.AVALANCHE_SIGN,
+    messageParams: Pick<MessageParams, 'data'>,
+  ): Promise<Buffer>;
+  async signMessage(
+    messageType: Exclude<MessageType, MessageType.AVALANCHE_SIGN>,
+    messageParams: Pick<MessageParams, 'data'>,
+  ): Promise<string>;
+  async signMessage(
     messageType: MessageType,
-    messageParams: MessageParams,
+    messageParams: Pick<MessageParams, 'data'>,
+  ): Promise<string | Buffer>;
+  async signMessage(
+    messageType: MessageType,
+    messageParams: Pick<MessageParams, 'data'>,
   ): Promise<string | Buffer> {
     assertPresent(this.#networkService, CommonError.UnknownNetwork); // TODO: is networkService actually needed? why is #network not enough?
     if (!this.#addressPublicKey) {

@@ -29,8 +29,7 @@ export const TransactionBalanceChange: FC<TransactionBalanceChangeProps> = ({
     ins.filter(({ items }) => items.length > 0).length > 0;
   const hasSomeBalanceChangeInfo = hasSentItems || hasReceivedItems;
   const showNoPreExecWarning = isSimulationSuccessful === false; // may be undefined
-  const showNoDataWarning =
-    !hasSomeBalanceChangeInfo && !isSimulationSuccessful;
+  const showNoDataWarning = hasSomeBalanceChangeInfo && !isSimulationSuccessful;
 
   return (
     <>
