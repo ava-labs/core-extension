@@ -58,13 +58,12 @@ export const prepToStoreCustomRpcHeaders = (
 };
 
 const hasDuplicatesKey = (headers: KeyValueHeader[]) => {
-  const keys = Object.keys(headers);
+  const keys = headers.map((header) => header.key).filter((key) => key !== '');
   return new Set(keys).size !== keys.length;
 };
 
 export const isReadyToStore = (headers: KeyValueHeader[]) => {
   const headerToValidate = [...headers];
-  console.log({ headerToValidate });
   const lastItem = headerToValidate[headerToValidate.length - 1];
 
   if (lastItem && lastItem.key === '' && lastItem.value === '') {

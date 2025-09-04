@@ -43,7 +43,7 @@ export const NetworkForm = ({
   };
 
   return (
-    <Card sx={{ width: '100%' }}>
+    <Card sx={{ width: '100%', px: 2 }}>
       <RpcUrlField
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
@@ -111,7 +111,7 @@ export const NetworkForm = ({
         spacing={2}
         justifyContent="space-between"
         onClick={() => setTab('rpc-headers')}
-        py={1.5}
+        p={1.5}
       >
         <Typography>{t('Custom RPC Headers')}</Typography>
         <ChevronRightIcon size={16} />

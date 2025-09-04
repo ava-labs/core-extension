@@ -247,11 +247,9 @@ describe('isNetworkValid', () => {
         ...createValidNetwork(),
         chainName: 'A'.repeat(1000),
         networkToken: {
+          ...createValidNetwork().networkToken,
           symbol: 'B'.repeat(100),
           name: 'C'.repeat(1000),
-          decimals: 18,
-          logoUri: '',
-          description: '',
         },
       };
 
