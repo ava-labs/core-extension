@@ -151,7 +151,6 @@ export const CustomRpcHeadersManager = ({
           </Button>
         </Stack>
       )}
-      {/* </Stack> */}
     </Page>
   );
 };
