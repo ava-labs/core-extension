@@ -611,7 +611,7 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('should call addEnabledNetwork when addFavoriteNetwork is called', async () => {
-      const addEnabledNetworkSpy = jest.spyOn(service, 'addEnabledNetwork');
+      const addEnabledNetworkSpy = jest.spyOn(service, 'enableNetwork');
       const chainId = 1337;
 
       await service.addFavoriteNetwork(chainId);
@@ -620,10 +620,7 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('should call removeEnabledNetwork when removeFavoriteNetwork is called', async () => {
-      const removeEnabledNetworkSpy = jest.spyOn(
-        service,
-        'removeEnabledNetwork',
-      );
+      const removeEnabledNetworkSpy = jest.spyOn(service, 'disableNetwork');
       const chainId = 1337;
 
       // First add the network to favorites
@@ -663,10 +660,7 @@ describe('background/services/network/NetworkService', () => {
 
     it('should handle removing non-existent favorite network gracefully', async () => {
       const chainId = 9999;
-      const removeEnabledNetworkSpy = jest.spyOn(
-        service,
-        'removeEnabledNetwork',
-      );
+      const removeEnabledNetworkSpy = jest.spyOn(service, 'disableNetwork');
 
       await service.removeFavoriteNetwork(chainId);
 
@@ -686,7 +680,7 @@ describe('background/services/network/NetworkService', () => {
       service.updateNetworkState = jest.fn();
     });
 
-    describe('addEnabledNetwork', () => {
+    describe('enableNetwork', () => {
       it('should add a new network to enabled networks', async () => {
         const chainId = 1337;
 
@@ -778,7 +772,7 @@ describe('background/services/network/NetworkService', () => {
       });
     });
 
-    describe('removeEnabledNetwork', () => {
+    describe('disableNetwork', () => {
       it('should remove a network from enabled networks', async () => {
         const chainId = 1337;
 
