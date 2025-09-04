@@ -71,7 +71,7 @@ export const NetworksHome: FC = () => {
         bottom={0}
         pt={3}
         pb={2}
-        px={4} // Since we increased the width, we need to bump the padding too.
+        px={2} // Since we increased the width, we need to bump the padding too.
         sx={{
           background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.alphaMatch.backdropSolid, 0)} 0%, ${theme.palette.alphaMatch.backdropSolid} 32.5%)`,
         }}
