@@ -7,11 +7,10 @@ import {
   isValidSvmAddress,
   isValidXPAddress,
 } from '@core/common';
-
-import { AddressField } from './AddressField';
+import { FormField } from '@/components/Forms/FormField';
 
 type FlavouredAddressFieldProps = Pick<
-  ComponentProps<typeof AddressField>,
+  ComponentProps<typeof FormField>,
   'value' | 'onChange' | 'allowCopy'
 >;
 
@@ -23,7 +22,7 @@ export const EVMAddressField: FC<FlavouredAddressFieldProps> = ({
   const { t } = useTranslation();
 
   return (
-    <AddressField
+    <FormField
       value={value}
       label={t('Avalanche C-Chain')}
       placeholder={t('Type in or paste address')}
@@ -47,7 +46,7 @@ export const BTCAddressField: FC<FlavouredAddressFieldProps> = ({
   const { t } = useTranslation();
 
   return (
-    <AddressField
+    <FormField
       value={value}
       label={t('Bitcoin')}
       placeholder={t('Type in or paste address')}
@@ -69,7 +68,7 @@ export const XPAddressField: FC<FlavouredAddressFieldProps> = ({
   const { t } = useTranslation();
 
   return (
-    <AddressField
+    <FormField
       value={value}
       label={t('Avalanche X/P-Chain')}
       placeholder={t('Type in or paste address')}
@@ -93,7 +92,7 @@ export const SVMAddressField: FC<FlavouredAddressFieldProps> = ({
   const { t } = useTranslation();
 
   return (
-    <AddressField
+    <FormField
       value={value}
       label={t('Solana')}
       placeholder={t('Type in or paste address')}
