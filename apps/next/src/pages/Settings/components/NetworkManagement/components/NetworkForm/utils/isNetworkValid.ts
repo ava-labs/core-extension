@@ -70,6 +70,5 @@ export const isNetworkValid = (network: Network) => {
   };
 
   const isValid = Object.values(errors).every((error) => error === undefined);
-  console.log({ isValid, errors });
   return { isValid, errors };
 };

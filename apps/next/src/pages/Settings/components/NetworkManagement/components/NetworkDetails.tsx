@@ -7,7 +7,7 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { Network } from '@core/types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { MdInfoOutline } from 'react-icons/md';
 import { NetworkAvatar } from './NetworkAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkForm/NetworkNameField';
@@ -61,10 +61,6 @@ export const NetworkDetails = ({
     if (!field) return false;
     return field.error !== undefined;
   });
-
-  useEffect(() => {
-    console.log({ fieldsWithErrors });
-  }, [fieldsWithErrors]);
 
   const showMissingNetworkNameWarning =
     !network.chainName &&

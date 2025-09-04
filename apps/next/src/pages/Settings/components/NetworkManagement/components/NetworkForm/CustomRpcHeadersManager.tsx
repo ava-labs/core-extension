@@ -63,11 +63,7 @@ export const CustomRpcHeadersManager = ({
       ...network,
       customRpcHeaders: headersToStore,
     };
-    console.log('CustomRpcHeadersManager: Setting network with headers:', {
-      originalNetwork: network,
-      headersToStore,
-      updatedNetwork,
-    });
+
     setNetwork(updatedNetwork);
     capture('CustomNetworkEdited');
     return handleBack();
