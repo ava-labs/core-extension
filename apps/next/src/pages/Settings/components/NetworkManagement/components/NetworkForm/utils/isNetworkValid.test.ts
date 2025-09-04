@@ -350,11 +350,11 @@ describe('isNetworkValid', () => {
     it('should validate different chainId types', () => {
       const network1 = createValidNetwork();
       network1.chainId = 1;
-      expect(isNetworkValid(network1).valid).toBe(true);
+      expect(isNetworkValid(network1).isValid).toBe(true);
 
       const network2 = createValidNetwork();
       network2.chainId = 43114; // Avalanche C-Chain
-      expect(isNetworkValid(network2).valid).toBe(true);
+      expect(isNetworkValid(network2).isValid).toBe(true);
     });
   });
 });
