@@ -43,7 +43,7 @@ export const NetworkForm = ({
   };
 
   return (
-    <Card sx={{ px: 2 }}>
+    <Card sx={{ width: '100%' }}>
       <RpcUrlField
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}

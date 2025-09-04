@@ -1,13 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-
+import {
+  Button,
+  getHexAlpha,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { Network } from '@core/types';
-
 import { useEffect, useState } from 'react';
-
-import { PageTopBar } from '@/components/PageTopBar';
 import { MdInfoOutline } from 'react-icons/md';
-
 import { NetworkAvatar } from './NetworkAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkForm/NetworkNameField';
 import { NetworkForm } from './NetworkForm/NetworkForm';
@@ -16,6 +17,7 @@ import {
   NetworkFormFieldInfo,
   NetworkFormFields,
 } from './NetworkForm/types';
+import { Page } from '@/components/Page';
 
 type NetworkDetailsProps = {
   setTab: (tab: EditNetworkFormTab) => void;
@@ -69,20 +71,17 @@ export const NetworkDetails = ({
     fieldsWithErrors.length == 1 &&
     fieldsWithErrors.includes('chainName');
 
-  const hasMultipleButtons = isEditing || (isCustom && !isEditing);
-
   return (
-    <Stack
-      height="100cqh"
-      width={1}
-      bgcolor="background.backdrop"
-      overflow="hidden"
-      sx={{ position: 'relative' }}
+    <Page
+      contentProps={{
+        px: 0,
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+      }}
+      containerProps={{ pb: 0 }}
     >
-      <PageTopBar showBack={true} />
-
       {/* Header - Avatar and Name */}
-      <Stack width="100%" alignItems="center" sx={{ px: 1.5, pb: 2 }}>
+      <Stack width="100%" alignItems="center" sx={{ pb: 4.5 }}>
         <NetworkAvatar
           network={network}
           sx={{ width: '80px', height: '80px', mb: 2 }}
@@ -99,62 +98,26 @@ export const NetworkDetails = ({
         />
       </Stack>
 
-      {/* Scrollable Details */}
-      <div
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '0 12px',
-          marginTop: '36px',
-          maxHeight: hasMultipleButtons ? '285px' : '350px',
-        }}
-      >
-        <NetworkForm
-          network={network}
-          setNetwork={setNetwork}
-          setTab={setTab}
-          fieldInfo={fieldInfo}
-          canResetRpcUrl={canResetRpcUrl}
-          readOnly={!isEditing}
-          pageType={pageType}
-        />
-        {/* This empty div lets the user to scroll enough to interact with the fields at the
-        bottom of the form when editing */}
-        <div style={{ height: hasMultipleButtons ? '24px' : '48px' }} />
-      </div>
-
-      {/* Gradient overlay behind buttons */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: hasMultipleButtons ? '56px' : '10px', // To make the gradient start from the top of the buttons
-          left: 0,
-          right: 0,
-          height:
-            showMissingNetworkNameWarning && hasMultipleButtons
-              ? '72px'
-              : '48px', // To make the gradient end before the bottom of the top button ,${gradientColor}
-          background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%,${theme.palette.background.backdrop} 100%,${theme.palette.background.backdrop} 100%)`,
-          pointerEvents: 'none',
-          zIndex: 5,
-        }}
+      <NetworkForm
+        network={network}
+        setNetwork={setNetwork}
+        setTab={setTab}
+        fieldInfo={fieldInfo}
+        canResetRpcUrl={canResetRpcUrl}
+        readOnly={!isEditing}
+        pageType={pageType}
       />
 
       {/* Bottom Buttons */}
       <Stack
-        width="100%"
+        width="100%" // Compensate for container padding which we don't want applied here.
         gap={1}
+        position="sticky"
+        bottom={0}
+        pt={3}
+        pb={2}
         sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          pt: 0,
-          px: 2.5,
-          pb: 2,
-          backgroundColor: 'transparent',
-          background: 'none',
-          zIndex: 10,
+          background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.alphaMatch.backdropSolid, 0)} 0%, ${theme.palette.alphaMatch.backdropSolid} 32.5%)`,
         }}
       >
         {showMissingNetworkNameWarning && (
@@ -216,6 +179,6 @@ export const NetworkDetails = ({
           </>
         )}
       </Stack>
-    </Stack>
+    </Page>
   );
 };

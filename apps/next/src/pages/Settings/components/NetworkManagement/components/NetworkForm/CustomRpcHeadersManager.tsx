@@ -1,6 +1,11 @@
-import { Trans, useTranslation } from 'react-i18next';
-import { Button, Stack, Typography } from '@avalabs/k2-alpine';
-import { PageTopBar } from '@/components/PageTopBar';
+import { useTranslation } from 'react-i18next';
+import {
+  Button,
+  getHexAlpha,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { Network } from '@core/types';
 import { useMemo, useState } from 'react';
 import { useAnalyticsContext } from '@core/ui';
@@ -14,6 +19,7 @@ import {
 } from './utils/customRpcHeaders';
 import { EditNetworkFormTab } from './types';
 import { Card } from '@/components/Card';
+import { Page } from '@/components/Page';
 
 type CustomRpcHeadersManagerProps = {
   setTab: (tab: EditNetworkFormTab) => void;
@@ -30,7 +36,7 @@ export const CustomRpcHeadersManager = ({
 }: CustomRpcHeadersManagerProps) => {
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
-
+  const theme = useTheme();
   const rpcHeaders = useMemo(() => {
     return network?.customRpcHeaders ?? {};
   }, [network]);
@@ -68,24 +74,13 @@ export const CustomRpcHeadersManager = ({
   };
 
   return (
-    <Stack
-      sx={{
-        height: '100cqh',
-        width: 1,
-        bgcolor: 'background.backdrop',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        px: 1.5,
-      }}
+    <Page
+      contentProps={{ px: 0 }}
+      containerProps={{ pb: 0 }}
+      onBack={handleBack}
+      title={t('Define custom RPC headers')}
     >
-      <PageTopBar showBack onBackClicked={handleBack} />
-      <Typography variant="h2">
-        <Trans i18nKey="Define custom<br />RPC headers" />
-      </Typography>
-
-      <Stack rowGap={1}>
+      <Stack rowGap={1} sx={{ flex: 1, px: 1.5, width: '100%' }}>
         {readonly && headerList.length === 1 ? (
           <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
             <Typography variant="body1">
@@ -128,7 +123,17 @@ export const CustomRpcHeadersManager = ({
         )}
       </Stack>
       {!readonly && (
-        <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
+        <Stack
+          width="100%"
+          gap={1}
+          position="sticky"
+          bottom={12}
+          pt={3}
+          pb={2}
+          sx={{
+            background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.alphaMatch.backdropSolid, 0)} 0%, ${theme.palette.alphaMatch.backdropSolid} 32.5%)`,
+          }}
+        >
           <Button
             variant="contained"
             color="primary"
@@ -150,6 +155,7 @@ export const CustomRpcHeadersManager = ({
           </Button>
         </Stack>
       )}
-    </Stack>
+      {/* </Stack> */}
+    </Page>
   );
 };
