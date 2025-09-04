@@ -5,6 +5,7 @@ import { useConnectionContext } from '@core/ui';
 import { calculateGasAndFees } from '@core/common';
 import { type UpdateActionTxDataHandler } from '@core/service-worker';
 
+import { DEFAULT_FEE_PRESET } from '@/config';
 import { useNativeToken } from '@/hooks/useNativeToken';
 import { useUpdateAccountBalance } from '@/hooks/useUpdateAccountBalance';
 import { useCurrentFeesForNetwork } from '@/hooks/useCurrentFeesForNetwork';
@@ -25,7 +26,7 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
   const nativeToken = useNativeToken({ network });
   const signingData = action.signingData as BtcTxSigningData;
 
-  const [feePreset, setFeePreset] = useState<BtcFeePreset>('low');
+  const [feePreset, setFeePreset] = useState<BtcFeePreset>(DEFAULT_FEE_PRESET);
 
   const fee = calculateGasAndFees({
     maxFeePerGas: getFeeInfo(signingData).feeRate,
@@ -68,7 +69,7 @@ export const useBtcTransactionFee: UseBtcTransactionFee = ({
   useEffect(() => {
     // If the dapp did not provide us any fee rate, we must initialize it ourselves.
     if (!initialFeeRate.current) {
-      choosePreset('low');
+      choosePreset(DEFAULT_FEE_PRESET);
     }
   }, [networkFee, choosePreset]);
 
