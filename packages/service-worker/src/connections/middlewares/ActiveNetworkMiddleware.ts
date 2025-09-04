@@ -67,7 +67,12 @@ export function ActiveNetworkMiddleware(
       method === RpcMethod.AVALANCHE_SIGN_TRANSACTION ||
       method === RpcMethod.AVALANCHE_SIGN_MESSAGE
     ) {
-      network = await networkService.getAvalancheNetworkXP();
+      // We actually DO get the scope in some cases, like when signing a message.
+      // So let's try to get it from the request payload and if not possible,
+      // default to the XP chain.
+      network = scope.startsWith('avax:')
+        ? await networkService.getNetwork(scope)
+        : await networkService.getAvalancheNetworkXP();
     } else {
       network = await networkService.getNetwork(scope);
     }

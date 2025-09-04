@@ -156,7 +156,10 @@ export function Popup() {
                 }
               >
                 <NetworkFeeContextProvider>
-                  <WalletContextProvider LockedComponent={WalletLocked}>
+                  <WalletContextProvider
+                    LockedComponent={WalletLocked}
+                    LoadingComponent={LoadingContent}
+                  >
                     <NotificationsContextProvider>
                       <CurrenciesContextProvider>
                         <BalancesProvider>
