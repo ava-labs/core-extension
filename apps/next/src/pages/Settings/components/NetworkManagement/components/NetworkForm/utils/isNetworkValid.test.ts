@@ -1,360 +1,262 @@
 import { Network, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { i18n } from 'webextension-polyfill';
 import { isNetworkValid } from './isNetworkValid';
 
-// Mock webextension-polyfill i18n
-jest.mock('webextension-polyfill', () => ({
-  i18n: {
-    getMessage: jest.fn(),
-  },
+// Mock i18next
+jest.mock('i18next', () => ({
+  t: (key: string) => key, // Return the key as the translation for testing
 }));
 
-const mockGetMessage = i18n.getMessage as jest.MockedFunction<
-  typeof i18n.getMessage
->;
-
 describe('isNetworkValid', () => {
-  beforeEach(() => {
-    mockGetMessage.mockClear();
-    // Set up default mock return values
-    mockGetMessage.mockImplementation((key: string) => key);
-  });
-
   const createValidNetwork = (): Network => ({
     chainId: 1,
-    chainName: 'Ethereum',
-    vmName: NetworkVMType.EVM,
-    rpcUrl: 'https://mainnet.infura.io/v3/your-project-id',
-    explorerUrl: 'https://etherscan.io',
+    chainName: 'Ethereum Mainnet',
+    rpcUrl: 'https://eth-mainnet.public.blastapi.io',
     networkToken: {
-      name: 'Ethereum',
       symbol: 'ETH',
-      description: 'Ethereum native token',
+      name: 'Ethereum',
       decimals: 18,
       logoUri: 'https://example.com/eth-logo.png',
+      description: 'Ethereum',
     },
-    logoUri: 'https://example.com/ethereum-logo.png',
-    primaryColor: '#627EEA',
-    isTestnet: false,
+    explorerUrl: 'https://etherscan.io',
+    logoUri: 'https://example.com/eth-logo.png',
+    vmName: NetworkVMType.EVM,
   });
 
-  describe('valid networks', () => {
-    it('should return valid for a complete network', () => {
+  describe('Valid networks', () => {
+    it('should return valid for a complete valid network', () => {
       const network = createValidNetwork();
-
       const result = isNetworkValid(network);
 
-      expect(result).toEqual({
-        isValid: true,
-        errors: {},
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toEqual({
+        rpcUrl: undefined,
+        chainName: undefined,
+        chainId: undefined,
+        tokenSymbol: undefined,
+        tokenName: undefined,
+        explorerUrl: undefined,
+        logoUrl: undefined,
+        rpcHeaders: undefined,
       });
     });
 
-    it('should return valid for a network with minimal required fields', () => {
+    it('should return valid with minimal required fields', () => {
       const network: Network = {
-        chainId: 1,
+        chainId: 42,
         chainName: 'Test Network',
-        vmName: NetworkVMType.EVM,
-        rpcUrl: 'https://rpc.test.com',
-        explorerUrl: 'https://explorer.test.com',
+        rpcUrl: 'http://localhost:8545',
         networkToken: {
-          name: 'Test Token',
           symbol: 'TEST',
-          description: '',
+          name: 'Test Token',
           decimals: 18,
           logoUri: '',
+          description: '',
         },
+        explorerUrl: '',
         logoUri: '',
-        primaryColor: '',
-        isTestnet: true,
+        vmName: NetworkVMType.EVM,
+      };
+
+      const result = isNetworkValid(network);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('should accept different valid RPC URL protocols', () => {
+      const protocols = [
+        'https://example.com',
+        'http://localhost:8545',
+        'ipfs://example',
+      ];
+
+      protocols.forEach((rpcUrl) => {
+        const network = { ...createValidNetwork(), rpcUrl };
+        const result = isNetworkValid(network);
+        expect(result.isValid).toBe(true);
+        expect(result.errors.rpcUrl).toBeUndefined();
+      });
+    });
+  });
+
+  describe('Invalid RPC URLs', () => {
+    it('should return error for empty RPC URL', () => {
+      const network = { ...createValidNetwork(), rpcUrl: '' };
+      const result = isNetworkValid(network);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors.rpcUrl).toBe('RPC URL is required');
+    });
+
+    it('should return error for invalid RPC URL protocol', () => {
+      const invalidUrls = [
+        'ftp://example.com',
+        'ws://example.com',
+        'invalid-url',
+        'just-text',
+        'mailto:test@example.com',
+      ];
+
+      invalidUrls.forEach((rpcUrl) => {
+        const network = { ...createValidNetwork(), rpcUrl };
+        const result = isNetworkValid(network);
+        expect(result.isValid).toBe(false);
+        expect(result.errors.rpcUrl).toBe('RPC URL must start with http');
+      });
+    });
+
+    it('should return error for malformed URLs', () => {
+      const malformedUrls = ['http://', 'https://', 'not-a-url-at-all'];
+
+      malformedUrls.forEach((rpcUrl) => {
+        const network = { ...createValidNetwork(), rpcUrl };
+        const result = isNetworkValid(network);
+        expect(result.isValid).toBe(false);
+        expect(result.errors.rpcUrl).toBe('RPC URL must start with http');
+      });
+    });
+  });
+
+  describe('Invalid chain names', () => {
+    it('should return error for empty chain name', () => {
+      const network = { ...createValidNetwork(), chainName: '' };
+      const result = isNetworkValid(network);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors.chainName).toBe('Chain name is required');
+    });
+  });
+
+  describe('Invalid chain IDs', () => {
+    it('should return error for zero chain ID', () => {
+      const network = { ...createValidNetwork(), chainId: 0 };
+      const result = isNetworkValid(network);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors.chainId).toBe('Chain ID is required');
+    });
+
+    it('should accept positive chain IDs', () => {
+      const validChainIds = [1, 42, 137, 43114, 250];
+
+      validChainIds.forEach((chainId) => {
+        const network = { ...createValidNetwork(), chainId };
+        const result = isNetworkValid(network);
+        expect(result.isValid).toBe(true);
+        expect(result.errors.chainId).toBeUndefined();
+      });
+    });
+  });
+
+  describe('Invalid token symbols', () => {
+    it('should return error for empty token symbol', () => {
+      const network = {
+        ...createValidNetwork(),
+        networkToken: {
+          ...createValidNetwork().networkToken,
+          symbol: '',
+        },
+      };
+      const result = isNetworkValid(network);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors.tokenSymbol).toBe('Token symbol is required');
+    });
+  });
+
+  describe('Invalid token names', () => {
+    it('should return error for empty token name', () => {
+      const network = {
+        ...createValidNetwork(),
+        networkToken: {
+          ...createValidNetwork().networkToken,
+          name: '',
+        },
+      };
+      const result = isNetworkValid(network);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors.tokenName).toBe('Token name is required');
+    });
+  });
+
+  describe('Multiple validation errors', () => {
+    it('should return all validation errors when multiple fields are invalid', () => {
+      const network: Network = {
+        chainId: 0,
+        chainName: '',
+        rpcUrl: '',
+        networkToken: {
+          symbol: '',
+          name: '',
+          decimals: 18,
+          logoUri: '',
+          description: '',
+        },
+        explorerUrl: '',
+        logoUri: '',
+        vmName: NetworkVMType.EVM,
       };
 
       const result = isNetworkValid(network);
 
-      expect(result).toEqual({
-        isValid: true,
-        errors: {},
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toEqual({
+        rpcUrl: 'RPC URL is required',
+        chainName: 'Chain name is required',
+        chainId: 'Chain ID is required',
+        tokenSymbol: 'Token symbol is required',
+        tokenName: 'Token name is required',
+        explorerUrl: undefined,
+        logoUrl: undefined,
+        rpcHeaders: undefined,
       });
+    });
+
+    it('should return false when at least one field is invalid', () => {
+      const network = {
+        ...createValidNetwork(),
+        rpcUrl: '', // Only RPC URL is invalid
+      };
+
+      const result = isNetworkValid(network);
+      expect(result.isValid).toBe(false);
     });
   });
 
-  describe('missing rpcUrl', () => {
-    it('should return invalid when rpcUrl is missing', () => {
-      const network = createValidNetwork();
-      delete (network as any).rpcUrl;
+  describe('Optional fields', () => {
+    it('should not validate optional fields (explorerUrl, logoUrl, rpcHeaders)', () => {
+      const network = {
+        ...createValidNetwork(),
+        explorerUrl: '', // Optional field
+        logoUri: '', // Optional field
+        customRpcHeaders: {}, // Optional field
+      };
 
       const result = isNetworkValid(network);
 
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'RPC URL is required',
-      });
-      expect(mockGetMessage).toHaveBeenCalledWith('RPC URL is required');
-    });
-
-    it('should return invalid when rpcUrl is empty string', () => {
-      const network = createValidNetwork();
-      network.rpcUrl = '';
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'RPC URL is required',
-      });
-    });
-
-    it('should return invalid when rpcUrl is null', () => {
-      const network = createValidNetwork();
-      (network as any).rpcUrl = null;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'RPC URL is required',
-      });
+      expect(result.isValid).toBe(true);
+      expect(result.errors.explorerUrl).toBeUndefined();
+      expect(result.errors.logoUrl).toBeUndefined();
+      expect(result.errors.rpcHeaders).toBeUndefined();
     });
   });
 
-  describe('missing chainName', () => {
-    it('should return invalid when chainName is missing', () => {
-      const network = createValidNetwork();
-      delete (network as any).chainName;
+  describe('Edge cases', () => {
+    it('should handle very long valid values', () => {
+      const longButValidNetwork = {
+        ...createValidNetwork(),
+        chainName: 'A'.repeat(1000),
+        networkToken: {
+          symbol: 'B'.repeat(100),
+          name: 'C'.repeat(1000),
+          decimals: 18,
+          logoUri: '',
+          description: '',
+        },
+      };
 
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain name is required',
-      });
-      expect(mockGetMessage).toHaveBeenCalledWith('Chain name is required');
-    });
-
-    it('should return invalid when chainName is empty string', () => {
-      const network = createValidNetwork();
-      network.chainName = '';
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain name is required',
-      });
-    });
-
-    it('should return invalid when chainName is null', () => {
-      const network = createValidNetwork();
-      (network as any).chainName = null;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain name is required',
-      });
-    });
-  });
-
-  describe('missing chainId', () => {
-    it('should return invalid when chainId is missing', () => {
-      const network = createValidNetwork();
-      delete (network as any).chainId;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain ID is required',
-      });
-      expect(mockGetMessage).toHaveBeenCalledWith('Chain ID is required');
-    });
-
-    it('should return invalid when chainId is 0', () => {
-      const network = createValidNetwork();
-      network.chainId = 0;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain ID is required',
-      });
-    });
-
-    it('should return invalid when chainId is null', () => {
-      const network = createValidNetwork();
-      (network as any).chainId = null;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain ID is required',
-      });
-    });
-  });
-
-  describe('missing networkToken.symbol', () => {
-    it('should return invalid when networkToken.symbol is missing', () => {
-      const network = createValidNetwork();
-      (network.networkToken as any).symbol = undefined;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Token symbol is required',
-      });
-      expect(mockGetMessage).toHaveBeenCalledWith('Token symbol is required');
-    });
-
-    it('should return invalid when networkToken.symbol is empty string', () => {
-      const network = createValidNetwork();
-      network.networkToken.symbol = '';
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Token symbol is required',
-      });
-    });
-
-    it('should return invalid when networkToken.symbol is null', () => {
-      const network = createValidNetwork();
-      (network.networkToken as any).symbol = null;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Token symbol is required',
-      });
-    });
-  });
-
-  describe('missing networkToken.name', () => {
-    it('should return invalid when networkToken.name is missing', () => {
-      const network = createValidNetwork();
-      (network.networkToken as any).name = undefined;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Token name is required',
-      });
-      expect(mockGetMessage).toHaveBeenCalledWith('Token name is required');
-    });
-
-    it('should return invalid when networkToken.name is empty string', () => {
-      const network = createValidNetwork();
-      network.networkToken.name = '';
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Token name is required',
-      });
-    });
-
-    it('should return invalid when networkToken.name is null', () => {
-      const network = createValidNetwork();
-      (network.networkToken as any).name = null;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Token name is required',
-      });
-    });
-  });
-
-  describe('missing networkToken object', () => {
-    it('should throw error when networkToken is missing entirely', () => {
-      const network = createValidNetwork();
-      delete (network as any).networkToken;
-
-      expect(() => isNetworkValid(network)).toThrow(
-        "Cannot read properties of undefined (reading 'symbol')",
-      );
-    });
-
-    it('should throw error when networkToken is null', () => {
-      const network = createValidNetwork();
-      (network as any).networkToken = null;
-
-      expect(() => isNetworkValid(network)).toThrow(
-        "Cannot read properties of null (reading 'symbol')",
-      );
-    });
-  });
-
-  describe('validation order', () => {
-    it('should return rpcUrl error first when multiple fields are missing', () => {
-      const network = createValidNetwork();
-      delete (network as any).rpcUrl;
-      delete (network as any).chainName;
-      delete (network as any).chainId;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'RPC URL is required',
-      });
-    });
-
-    it('should return chainName error when rpcUrl is present but chainName is missing', () => {
-      const network = createValidNetwork();
-      delete (network as any).chainName;
-      delete (network as any).chainId;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain name is required',
-      });
-    });
-
-    it('should return chainId error when rpcUrl and chainName are present but chainId is missing', () => {
-      const network = createValidNetwork();
-      delete (network as any).chainId;
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: false,
-        reason: 'Chain ID is required',
-      });
-    });
-  });
-
-  describe('edge cases', () => {
-    it('should handle whitespace-only strings as valid (current behavior)', () => {
-      const network = createValidNetwork();
-      network.rpcUrl = '   ';
-
-      const result = isNetworkValid(network);
-
-      expect(result).toEqual({
-        isValid: true,
-        errors: {},
-      });
-    });
-
-    it('should validate different chainId types', () => {
-      const network1 = createValidNetwork();
-      network1.chainId = 1;
-      expect(isNetworkValid(network1).isValid).toBe(true);
-
-      const network2 = createValidNetwork();
-      network2.chainId = 43114; // Avalanche C-Chain
-      expect(isNetworkValid(network2).isValid).toBe(true);
+      const result = isNetworkValid(longButValidNetwork);
+      expect(result.isValid).toBe(true);
     });
   });
 });
