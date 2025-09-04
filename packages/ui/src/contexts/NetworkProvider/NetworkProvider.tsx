@@ -61,8 +61,8 @@ const NetworkContext = createContext<{
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
-  addEnabledNetwork(chainId: number): void;
-  removeEnabledNetwork(chainId: number): void;
+  enableNetwork(chainId: number): void;
+  disableNetwork(chainId: number): void;
   customNetworks: NetworkWithCaipId[];
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
@@ -85,8 +85,8 @@ const NetworkContext = createContext<{
   addFavoriteNetwork() {},
   removeFavoriteNetwork() {},
   isFavoriteNetwork: () => false,
-  addEnabledNetwork() {},
-  removeEnabledNetwork() {},
+  enableNetwork() {},
+  disableNetwork() {},
   customNetworks: [],
   isCustomNetwork: () => false,
   isChainIdExist: () => false,
@@ -287,20 +287,20 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     };
   }, [events, getNetworkState]);
 
-  const addEnabledNetwork = useCallback(
+  const enableNetwork = useCallback(
     (chainId: number) => {
       request<AddEnabledNetworkHandler>({
-        method: ExtensionRequest.NETWORK_ADD_ENABLED_NETWORK,
+        method: ExtensionRequest.ENABLE_NETWORK,
         params: chainId,
       }).then(setEnabledNetworks);
     },
     [request],
   );
 
-  const removeEnabledNetwork = useCallback(
+  const disableNetwork = useCallback(
     (chainId: number) => {
       request<RemoveEnabledNetworkHandler>({
-        method: ExtensionRequest.NETWORK_REMOVE_ENABLED_NETWORK,
+        method: ExtensionRequest.DISABLE_NETWORK,
         params: chainId,
       }).then(setEnabledNetworks);
     },
@@ -354,8 +354,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         },
         isFavoriteNetwork: (chainId: number) =>
           favoriteNetworks.includes(chainId),
-        addEnabledNetwork,
-        removeEnabledNetwork,
+        enableNetwork,
+        disableNetwork,
         customNetworks: getCustomNetworks,
         isCustomNetwork,
         isChainIdExist,

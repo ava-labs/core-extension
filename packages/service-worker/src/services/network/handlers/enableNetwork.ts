@@ -4,14 +4,14 @@ import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.NETWORK_ADD_ENABLED_NETWORK,
+  ExtensionRequest.ENABLE_NETWORK,
   number[],
   number
 >;
 
 @injectable()
-export class AddEnabledNetworkHandler implements HandlerType {
-  method = ExtensionRequest.NETWORK_ADD_ENABLED_NETWORK as const;
+export class EnableNetworkHandler implements HandlerType {
+  method = ExtensionRequest.ENABLE_NETWORK as const;
 
   constructor(private networkService: NetworkService) {}
   handle: HandlerType['handle'] = async ({ request }) => {
@@ -25,7 +25,7 @@ export class AddEnabledNetworkHandler implements HandlerType {
     }
 
     const [enabledNetworks, err] = await resolve(
-      this.networkService.addEnabledNetwork(params),
+      this.networkService.enableNetwork(params),
     );
 
     if (err) {

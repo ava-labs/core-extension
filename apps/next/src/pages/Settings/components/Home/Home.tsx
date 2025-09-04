@@ -1,11 +1,9 @@
 import {
   Button,
   ChevronRightIcon,
-  IconButton,
   Stack,
   Switch,
   Typography,
-  useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +42,6 @@ import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { lockWallet } = useSettingsContext();
   const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
   const { walletDetails } = useWalletContext();
@@ -138,17 +135,7 @@ export const SettingsHomePage = () => {
         />
         <SettingsNavItem
           label={t('Networks')}
-          secondaryAction={
-            <IconButton
-              onClick={() => push('/settings/network-management')}
-              sx={{ mr: -0.5 }}
-            >
-              <ChevronRightIcon
-                size={16}
-                color={theme.palette.text.secondary}
-              />
-            </IconButton>
-          }
+          href={`${path}/network-management`}
           divider
         />
         <SettingsNavItem

@@ -1,14 +1,13 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabMenu } from '@/components/TabMenu';
-import { IconButton, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { PageTopBar } from '@/components/PageTopBar';
+import { getHexAlpha, IconButton, Stack, useTheme } from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
 import { useNetworkContext } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { SearchInput } from './SearchInput';
-import { useIsIntersecting } from '@/hooks/useIsIntersecting';
 import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
+import { Page } from '@/components/Page';
 
 type Tab = 'all' | 'custom';
 
@@ -16,7 +15,6 @@ export const NetworksHome: FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const history = useHistory();
-  const { isIntersecting, isObserving } = useIsIntersecting();
   const { networks, customNetworks } = useNetworkContext();
   const [activeTab, setActiveTab] = useState<Tab>('all');
 
@@ -41,93 +39,41 @@ export const NetworksHome: FC = () => {
   }, [customNetworks, filter]);
 
   return (
-    <Stack
-      sx={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Sticky Top Bar */}
-      <Stack sx={{ flexShrink: 0 }}>
-        <PageTopBar
-          showBack
-          isObserving={isObserving}
-          isIntersecting={isIntersecting}
-        />
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          px={1.5}
-          pb={1.5}
-          mt={2.5}
-          sx={{ flexShrink: 0 }}
+    <Page
+      title={t('Networks')}
+      titleAction={
+        <IconButton
+          onClick={() => {
+            history.push(`/settings/network-management/add`);
+          }}
         >
-          <Typography variant="h2" component="h1">
-            {t('Networks')}
-          </Typography>
-          <IconButton
-            sx={{ mr: -1 }}
-            onClick={() => {
-              history.push(`/settings/network-management/add`);
-            }}
-          >
-            <MdAdd size={24} />
-          </IconButton>
-        </Stack>
-        <Stack sx={{ flexShrink: 0 }} px={1.5}>
-          <SearchInput filter={filter} setFilter={setFilter} />
-        </Stack>
+          <MdAdd size={24} />
+        </IconButton>
+      }
+      contentProps={{ px: 0 }}
+      containerProps={{ pb: 0 }}
+    >
+      <Stack width="100%">
+        <SearchInput filter={filter} setFilter={setFilter} />
       </Stack>
 
       {/* Content Area */}
-      <div
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          padding: '0 12px',
-          marginTop: '36px',
-          maxHeight: '360px',
-        }}
-      >
-        <NetworkToggleList
-          networks={
-            activeTab === 'all' ? filteredNetworks : filteredCustomNetworks
-          }
-        />
-        <div style={{ height: '32px' }} />
-      </div>
-
-      {/* Gradient overlay behind buttons */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '30px', // To make the gradient start from the top of the buttons
-          left: 0,
-          right: 0,
-          height: '40px', // To make the gradient end before the bottom of the top button , ${theme.palette.background.backdrop}
-          background: `linear-gradient(180deg,	rgba(0,0,0,0) 0%, ${theme.palette.background.backdrop} 95%, ${theme.palette.background.backdrop} 100%)`,
-          pointerEvents: 'none',
-          zIndex: 5,
-        }}
+      <NetworkToggleList
+        networks={
+          activeTab === 'all' ? filteredNetworks : filteredCustomNetworks
+        }
       />
-
       {/* Sticky Bottom Tab Menu */}
       <Stack
-        width="100%"
+        width="calc(100% + 32px)" // Compensate for container padding which we don't want applied here.
         gap={1}
+        position="sticky"
+        bottom={0}
+        pt={3}
+        pb={2}
+        px={4} // Since we increased the width, we need to bump the padding too.
         sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          pt: 0,
-          px: 2.5,
-          pb: 2,
-          backgroundColor: 'transparent',
-          background: 'none',
-          zIndex: 10,
+          background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.alphaMatch.backdropSolid, 0)} 0%, ${theme.palette.alphaMatch.backdropSolid} 32.5%)`,
         }}
       >
         <TabMenu
@@ -146,6 +92,6 @@ export const NetworksHome: FC = () => {
           <Tab label="Custom" value={'custom' satisfies Tab} />
         </TabMenu>
       </Stack>
-    </Stack>
+    </Page>
   );
 };

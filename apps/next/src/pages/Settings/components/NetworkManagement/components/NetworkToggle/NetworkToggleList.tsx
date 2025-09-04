@@ -10,7 +10,7 @@ type NetworkToggleListProps = {
 };
 
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
-  const { enabledNetworks, addEnabledNetwork, removeEnabledNetwork } =
+  const { enabledNetworks, enableNetwork, disableNetwork } =
     useNetworkContext();
   const history = useHistory();
 
@@ -26,14 +26,7 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
         maxHeight: '100%',
         gap: 1,
         '&::-webkit-scrollbar': {
-          width: '4px',
-        },
-        '&::-webkit-scrollbar-track': {
-          background: 'transparent',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          background: 'rgba(0,0,0,0.2)',
-          borderRadius: '2px',
+          display: 'none',
         },
       }}
     >
@@ -45,9 +38,9 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
           isDefault={defaultEnabledNetworks.includes(network.chainId)}
           onToggle={() => {
             if (enabledNetworksArray.includes(network.chainId)) {
-              removeEnabledNetwork(network.chainId);
+              disableNetwork(network.chainId);
             } else {
-              addEnabledNetwork(network.chainId);
+              enableNetwork(network.chainId);
             }
           }}
           onClick={() => {

@@ -95,8 +95,8 @@ export enum ExtensionRequest {
   FAVORITES_REMOVE = 'favorites_remove',
   FAVORITES_GET = 'favorites_get',
 
-  NETWORK_ADD_ENABLED_NETWORK = 'network_add_enabled_network',
-  NETWORK_REMOVE_ENABLED_NETWORK = 'network_remove_enabled_network',
+  ENABLE_NETWORK = 'enable_network',
+  DISABLE_NETWORK = 'disable_network',
 
   SWAP_GET_RATE = 'swap_get_rate',
   SWAP_PERFORM = 'swap_perform',
