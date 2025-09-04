@@ -24,7 +24,8 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
         overflowX: 'hidden',
         minHeight: 0,
         maxHeight: '100%',
-        gap: 1,
+        width: '100%',
+        rowGap: 1,
         '&::-webkit-scrollbar': {
           display: 'none',
         },
