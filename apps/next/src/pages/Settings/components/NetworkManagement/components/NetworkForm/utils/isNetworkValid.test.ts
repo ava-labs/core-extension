@@ -45,7 +45,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: true,
+        isValid: true,
         errors: {},
       });
     });
@@ -72,7 +72,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: true,
+        isValid: true,
         errors: {},
       });
     });
@@ -86,7 +86,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'RPC URL is required',
       });
       expect(mockGetMessage).toHaveBeenCalledWith('RPC URL is required');
@@ -99,7 +99,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'RPC URL is required',
       });
     });
@@ -111,7 +111,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'RPC URL is required',
       });
     });
@@ -125,7 +125,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain name is required',
       });
       expect(mockGetMessage).toHaveBeenCalledWith('Chain name is required');
@@ -138,7 +138,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain name is required',
       });
     });
@@ -150,7 +150,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain name is required',
       });
     });
@@ -164,7 +164,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain ID is required',
       });
       expect(mockGetMessage).toHaveBeenCalledWith('Chain ID is required');
@@ -177,7 +177,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain ID is required',
       });
     });
@@ -189,7 +189,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain ID is required',
       });
     });
@@ -203,7 +203,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Token symbol is required',
       });
       expect(mockGetMessage).toHaveBeenCalledWith('Token symbol is required');
@@ -216,7 +216,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Token symbol is required',
       });
     });
@@ -228,7 +228,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Token symbol is required',
       });
     });
@@ -242,7 +242,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Token name is required',
       });
       expect(mockGetMessage).toHaveBeenCalledWith('Token name is required');
@@ -255,7 +255,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Token name is required',
       });
     });
@@ -267,7 +267,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Token name is required',
       });
     });
@@ -303,7 +303,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'RPC URL is required',
       });
     });
@@ -316,7 +316,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain name is required',
       });
     });
@@ -328,7 +328,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: false,
+        isValid: false,
         reason: 'Chain ID is required',
       });
     });
@@ -342,7 +342,7 @@ describe('isNetworkValid', () => {
       const result = isNetworkValid(network);
 
       expect(result).toEqual({
-        valid: true,
+        isValid: true,
         errors: {},
       });
     });
