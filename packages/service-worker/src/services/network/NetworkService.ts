@@ -278,12 +278,12 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.updateNetworkState();
 
     // This keeps the favorite and enabled networks in sync
-    await this.addEnabledNetwork(chainId);
+    await this.enableNetwork(chainId);
 
     return this._favoriteNetworks;
   }
 
-  async addEnabledNetwork(chainId: number) {
+  async enableNetwork(chainId: number) {
     if (
       this._enabledNetworks.includes(chainId) ||
       defaultEnabledNetworks.includes(chainId)
@@ -310,12 +310,12 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.updateNetworkState();
 
     // This keeps the favorite and enabled networks in sync
-    await this.removeEnabledNetwork(chainId);
+    await this.disableNetwork(chainId);
 
     return this._favoriteNetworks;
   }
 
-  async removeEnabledNetwork(chainId: number) {
+  async disableNetwork(chainId: number) {
     this.networkAvailability = {
       ...this._networkAvailability,
       [chainId]: {
@@ -783,7 +783,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       )
       .map(Number);
     unknownChains.forEach((chainId) => {
-      this.addEnabledNetwork(chainId);
+      this.enableNetwork(chainId);
     });
   }
 

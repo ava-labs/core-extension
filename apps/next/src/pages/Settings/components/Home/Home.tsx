@@ -126,11 +126,17 @@ export const SettingsHomePage = () => {
         />
         <SettingsNavItem
           label={t('View preference')}
+          divider
           secondaryAction={
             <ViewPreferenceSelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
             />
           }
+        />
+        <SettingsNavItem
+          label={t('Networks')}
+          href={`${path}/network-management`}
+          divider
         />
         <SettingsNavItem
           label={t('Show me Trending Tokens')}

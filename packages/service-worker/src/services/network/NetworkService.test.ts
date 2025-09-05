@@ -611,7 +611,7 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('should call addEnabledNetwork when addFavoriteNetwork is called', async () => {
-      const addEnabledNetworkSpy = jest.spyOn(service, 'addEnabledNetwork');
+      const addEnabledNetworkSpy = jest.spyOn(service, 'enableNetwork');
       const chainId = 1337;
 
       await service.addFavoriteNetwork(chainId);
@@ -620,10 +620,7 @@ describe('background/services/network/NetworkService', () => {
     });
 
     it('should call removeEnabledNetwork when removeFavoriteNetwork is called', async () => {
-      const removeEnabledNetworkSpy = jest.spyOn(
-        service,
-        'removeEnabledNetwork',
-      );
+      const removeEnabledNetworkSpy = jest.spyOn(service, 'disableNetwork');
       const chainId = 1337;
 
       // First add the network to favorites
@@ -663,10 +660,7 @@ describe('background/services/network/NetworkService', () => {
 
     it('should handle removing non-existent favorite network gracefully', async () => {
       const chainId = 9999;
-      const removeEnabledNetworkSpy = jest.spyOn(
-        service,
-        'removeEnabledNetwork',
-      );
+      const removeEnabledNetworkSpy = jest.spyOn(service, 'disableNetwork');
 
       await service.removeFavoriteNetwork(chainId);
 
@@ -686,11 +680,11 @@ describe('background/services/network/NetworkService', () => {
       service.updateNetworkState = jest.fn();
     });
 
-    describe('addEnabledNetwork', () => {
+    describe('enableNetwork', () => {
       it('should add a new network to enabled networks', async () => {
         const chainId = 1337;
 
-        const result = await service.addEnabledNetwork(chainId);
+        const result = await service.enableNetwork(chainId);
 
         expect(service['_enabledNetworks']).toContain(chainId);
         expect(result).toEqual(service['_enabledNetworks']);
@@ -703,10 +697,10 @@ describe('background/services/network/NetworkService', () => {
       it('should not add duplicate networks to enabled networks', async () => {
         const chainId = 1337;
 
-        await service.addEnabledNetwork(chainId);
+        await service.enableNetwork(chainId);
         const firstAddResult = [...service['_enabledNetworks']];
 
-        await service.addEnabledNetwork(chainId); // Try to add again
+        await service.enableNetwork(chainId); // Try to add again
         const secondAddResult = [...service['_enabledNetworks']];
 
         expect(firstAddResult).toEqual(secondAddResult);
@@ -730,7 +724,7 @@ describe('background/services/network/NetworkService', () => {
         }));
 
         const initialLength = service['_enabledNetworks'].length;
-        const result = await service.addEnabledNetwork(defaultChainId);
+        const result = await service.enableNetwork(defaultChainId);
 
         // Should not change the length since the network is already enabled by default
         expect(service['_enabledNetworks']).toHaveLength(initialLength);
@@ -746,14 +740,14 @@ describe('background/services/network/NetworkService', () => {
         const chainId = 1337;
 
         // First add
-        await service.addEnabledNetwork(chainId);
+        await service.enableNetwork(chainId);
         const firstResult = [...service['_enabledNetworks']];
 
         // Clear the mock to track only the second call
         jest.clearAllMocks();
 
         // Try to add again
-        const secondResult = await service.addEnabledNetwork(chainId);
+        const secondResult = await service.enableNetwork(chainId);
 
         expect(secondResult).toEqual(firstResult);
         expect(service.updateNetworkState).not.toHaveBeenCalled(); // Should not be called for duplicate
@@ -769,7 +763,7 @@ describe('background/services/network/NetworkService', () => {
           'dispatch',
         );
 
-        await service.addEnabledNetwork(chainId);
+        await service.enableNetwork(chainId);
 
         expect(signalSpy).toHaveBeenCalled();
         expect(signalSpy).toHaveBeenCalledWith(
@@ -778,16 +772,16 @@ describe('background/services/network/NetworkService', () => {
       });
     });
 
-    describe('removeEnabledNetwork', () => {
+    describe('disableNetwork', () => {
       it('should remove a network from enabled networks', async () => {
         const chainId = 1337;
 
         // First add the network
-        await service.addEnabledNetwork(chainId);
+        await service.enableNetwork(chainId);
         expect(service['_enabledNetworks']).toContain(chainId);
 
         // Then remove it
-        const result = await service.removeEnabledNetwork(chainId);
+        const result = await service.disableNetwork(chainId);
 
         expect(service['_enabledNetworks']).not.toContain(chainId);
         expect(result).toEqual(service['_enabledNetworks']);
@@ -801,7 +795,7 @@ describe('background/services/network/NetworkService', () => {
         const chainId = 9999; // This chain ID is not in default enabled networks or networkAvailability in storage
         const initialEnabledNetworks = [...service['_enabledNetworks']];
 
-        const result = await service.removeEnabledNetwork(chainId);
+        const result = await service.disableNetwork(chainId);
 
         expect(service['_enabledNetworks']).toEqual(initialEnabledNetworks);
         expect(result).toEqual(service['_enabledNetworks']);
@@ -815,7 +809,7 @@ describe('background/services/network/NetworkService', () => {
         const chainId = 1337;
 
         // Add network first
-        await service.addEnabledNetwork(chainId);
+        await service.enableNetwork(chainId);
 
         const signalSpy = jest.spyOn(
           service.enabledNetworksUpdated,
@@ -823,7 +817,7 @@ describe('background/services/network/NetworkService', () => {
         );
 
         // Then remove it
-        await service.removeEnabledNetwork(chainId);
+        await service.disableNetwork(chainId);
 
         expect(signalSpy).toHaveBeenCalled();
         expect(signalSpy).toHaveBeenCalledWith(
@@ -839,14 +833,14 @@ describe('background/services/network/NetworkService', () => {
         const chainId2 = 1338;
 
         // Add both networks
-        await service.addEnabledNetwork(chainId1);
-        await service.addEnabledNetwork(chainId2);
+        await service.enableNetwork(chainId1);
+        await service.enableNetwork(chainId2);
 
         expect(service['_enabledNetworks']).toContain(chainId1);
         expect(service['_enabledNetworks']).toContain(chainId2);
 
         // Remove only one
-        await service.removeEnabledNetwork(chainId1);
+        await service.disableNetwork(chainId1);
 
         expect(service['_enabledNetworks']).not.toContain(chainId1);
         expect(service['_enabledNetworks']).toContain(chainId2);
@@ -875,8 +869,8 @@ describe('background/services/network/NetworkService', () => {
         // Set service to mainnet mode
         jest.spyOn(service, 'isMainnet').mockReturnValue(true);
 
-        await service.addEnabledNetwork(1337); // mainnet
-        await service.addEnabledNetwork(1338); // testnet
+        await service.enableNetwork(1337); // mainnet
+        await service.enableNetwork(1338); // testnet
 
         const enabledNetworks = await service.getEnabledNetworks();
 
@@ -899,7 +893,7 @@ describe('background/services/network/NetworkService', () => {
         const defaultChainId = 43114; // Assuming this is in defaultEnabledNetworks
         jest.spyOn(service, 'isMainnet').mockReturnValue(true);
 
-        await service.addEnabledNetwork(defaultChainId);
+        await service.enableNetwork(defaultChainId);
 
         const enabledNetworks = await service.getEnabledNetworks();
         const duplicateCount = enabledNetworks.filter(
