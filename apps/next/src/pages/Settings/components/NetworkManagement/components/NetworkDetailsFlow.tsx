@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
 import { RpcUrlResetConfirmation } from './Confirmations/RpcUrlResetConfirmation';
@@ -37,14 +37,9 @@ export const NetworkDetailsFlow = () => {
   } = useEditNetwork({
     networkId: Number(networkId),
     rpcUrlResetButtonAction: () => {
-      console.log('rpcUrlResetAction');
       setTab('rpc-url-reset');
     },
   });
-
-  useEffect(() => {
-    console.log({ network });
-  }, [network]);
 
   const resetRpcUrlHandler = async () => {
     try {
