@@ -172,16 +172,20 @@ export class PermissionsService implements OnLock {
       );
       const currentPermissions = await this.getPermissions();
       const newPermissions: Permissions = SYNCED_DOMAINS.reduce(
-        (perms, domain) => ({
-          ...perms,
-          [domain]: {
-            domain,
-            accounts: {
-              ...perms[domain]?.accounts,
-              ...domainAccounts,
+        (perms, domain) => {
+          const domainKey = domain.toString();
+
+          return {
+            ...perms,
+            [domainKey]: {
+              domain: domainKey,
+              accounts: {
+                ...perms[domainKey]?.accounts,
+                ...domainAccounts,
+              },
             },
-          },
-        }),
+          };
+        },
         currentPermissions,
       );
       this.permissions = newPermissions;

@@ -3,11 +3,15 @@ import { SYNCED_DOMAINS } from '../constants';
 
 export const isSyncDomain = (
   domain: string,
-  exposedDomainList: string[] = [],
+  exposedDomainList: (string | RegExp)[] = [],
 ) => {
   return [runtime.id, ...SYNCED_DOMAINS, ...exposedDomainList].some(
     (syncDomain) => {
-      // Match exact domains, but also allow subdomains (i.e. develop.core-web.pages.dev)
+      if (syncDomain instanceof RegExp) {
+        return syncDomain.test(domain);
+      }
+
+      // Match exact domains, but also allow subdomains
       return syncDomain === domain || domain.endsWith(`.${syncDomain}`);
     },
   );
