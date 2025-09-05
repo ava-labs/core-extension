@@ -47,7 +47,7 @@ export const EvmNetworkFeeWidget = ({
       if (gaslessPhase === GaslessPhase.ERROR) {
         return;
       }
-      choosePreset?.('fast');
+      choosePreset?.('high');
       setIsGaslessOn(checked);
     },
     [choosePreset, setIsGaslessOn, gaslessPhase],

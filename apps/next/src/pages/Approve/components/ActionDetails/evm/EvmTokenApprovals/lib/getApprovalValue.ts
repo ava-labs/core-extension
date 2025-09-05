@@ -10,7 +10,9 @@ export const getApprovalValue = (
     return null;
   }
 
-  const isNFT = approval.token.type !== TokenType.ERC20;
+  const isNFT =
+    approval.token.type === TokenType.ERC721 ||
+    approval.token.type === TokenType.ERC1155;
   const tokenAmount = new TokenUnit(
     typeof approval.value === 'string'
       ? BigInt(approval.value)
