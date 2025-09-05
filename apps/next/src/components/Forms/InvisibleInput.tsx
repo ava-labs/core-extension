@@ -1,4 +1,4 @@
-import { styled } from '@avalabs/k2-alpine';
+import { Button, styled } from '@avalabs/k2-alpine';
 
 export const NAME_INPUT_HEIGHT = 32;
 
@@ -29,7 +29,7 @@ export const InvisibileInput = styled('input')(({ theme }) => ({
 
 export const InvisibleNameInput = styled(InvisibileInput)(NAME_INPUT_STYLES);
 
-export const InvisibleAddressInput = styled(InvisibileInput)(({ theme }) => ({
+export const InvisibleFieldInput = styled(InvisibileInput)(({ theme }) => ({
   fontSize: 12,
   paddingInline: 0,
   fontFamily: theme.typography.fontFamilyMonospace,
@@ -41,3 +41,9 @@ export const InvisibleAddressInput = styled(InvisibileInput)(({ theme }) => ({
     fontFamily: theme.typography.fontFamily,
   },
 }));
+
+export const StyledNameButton = styled(Button)({
+  position: 'absolute',
+  left: '50%',
+  transform: 'translateX(-50%)',
+});

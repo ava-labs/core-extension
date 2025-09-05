@@ -1,12 +1,11 @@
-import { orderBy } from 'lodash';
 import {
   NetworkVMType,
   NftTokenWithBalance,
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { orderBy } from 'lodash';
 
-import { useBalancesContext, useNetworkContext } from '@core/ui';
 import { getAllAddressesForAccount } from '@core/common';
 import {
   Account,
@@ -14,9 +13,13 @@ import {
   FungibleTokenBalance,
   NetworkWithCaipId,
 } from '@core/types';
+import { useBalancesContext, useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
 
-export const useTokensForAccount = (account?: Account) => {
+export const useTokensForAccount = (
+  account?: Account,
+  hideMalicious: boolean = true,
+) => {
   const {
     balances: { tokens: tokensByChain },
   } = useBalancesContext();
@@ -48,7 +51,7 @@ export const useTokensForAccount = (account?: Account) => {
         }
 
         const nonMaliciousTokens = Object.values(addressBalances)
-          .filter(isNotKnownMalicious)
+          .filter(hideMalicious ? isNotKnownMalicious : () => true)
           .filter(isFungibleToken);
 
         for (const balance of nonMaliciousTokens) {
@@ -58,7 +61,7 @@ export const useTokensForAccount = (account?: Account) => {
     }
 
     return sortTokens(tokens);
-  }, [account, tokensByChain, getNetwork]);
+  }, [account, tokensByChain, getNetwork, hideMalicious]);
 };
 
 const decorateWithAssetTypeAndChainId = (
