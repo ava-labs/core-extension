@@ -1,17 +1,18 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useConnectionContext } from '@core/ui';
 import { ExtensionRequest, FeeRate } from '@core/types';
 import { type UpdateActionTxDataHandler } from '@core/service-worker';
-import { calculateGasAndFees, isAvalancheNetwork } from '@core/common';
+import { calculateGasAndFees } from '@core/common';
 
 import { useNativeToken } from '@/hooks/useNativeToken';
 import { useUpdateAccountBalance } from '@/hooks/useUpdateAccountBalance';
 import { useCurrentFeesForNetwork } from '@/hooks/useCurrentFeesForNetwork';
 
 import { EvmFeePreset } from '../../types';
-import { getFeeInfo, hasEnoughForFee } from './lib';
+import { getFeeInfo, getInitialFeeRate, hasEnoughForFee } from './lib';
 import { EvmTxSigningData, UseEvmTransactionFee } from './types';
+import { getDefaultFeePreset } from '@/utils/getDefaultFeePreset';
 
 export const useEvmTransactionFee: UseEvmTransactionFee = ({
   action,
@@ -28,7 +29,7 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
   const [customPreset, setCustomPreset] = useState(networkFee?.high);
 
   const [feePreset, setFeePreset] = useState<EvmFeePreset>(
-    isAvalancheNetwork(network) ? 'fast' : 'slow',
+    getDefaultFeePreset(network),
   );
 
   const fee = calculateGasAndFees({
@@ -79,29 +80,24 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
 
       setFeePreset(preset);
 
-      switch (preset) {
-        case 'slow':
-          await updateFee(
-            networkFee.low.maxFeePerGas,
-            networkFee.low.maxPriorityFeePerGas,
-          );
-          break;
-        case 'normal':
-          await updateFee(
-            networkFee.medium.maxFeePerGas,
-            networkFee.medium.maxPriorityFeePerGas,
-          );
-          break;
-        case 'fast':
-          await updateFee(
-            networkFee.high.maxFeePerGas,
-            networkFee.high.maxPriorityFeePerGas,
-          );
-          break;
-      }
+      await updateFee(
+        networkFee[preset].maxFeePerGas,
+        networkFee[preset].maxPriorityFeePerGas,
+      );
     },
     [networkFee, updateFee],
   );
+
+  const initialFeeRate = useRef<bigint | undefined>(
+    getInitialFeeRate(signingData),
+  );
+
+  useEffect(() => {
+    // If the dapp did not give us any fee rate, we must initialize it ourselves.
+    if (!initialFeeRate.current) {
+      choosePreset(getDefaultFeePreset(network));
+    }
+  }, [networkFee, choosePreset, network]);
 
   if (!networkFee || !nativeToken || !signingData || !customPreset) {
     return {
@@ -115,9 +111,9 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
     feeDecimals: networkFee.displayDecimals,
     feePreset,
     presets: {
-      slow: networkFee.low,
-      normal: networkFee.medium,
-      fast: networkFee.high,
+      low: networkFee.low,
+      medium: networkFee.medium,
+      high: networkFee.high,
       custom: customPreset,
     },
     gasLimit: Number(signingData.data.gasLimit ?? 0),
