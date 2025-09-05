@@ -5,7 +5,7 @@ import { isActiveTab } from './isActiveTab';
 
 type SkipApprovalOptions = {
   allowInactiveTabs?: boolean;
-  domainWhitelist?: string[];
+  domainWhitelist?: (string | RegExp)[];
 };
 
 export const canSkipApproval = async (

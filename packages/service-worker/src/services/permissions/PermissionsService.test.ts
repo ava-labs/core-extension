@@ -494,17 +494,21 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       // Ensure new data is added and existing data is preserved
       expect(permissionService.permissions).toEqual(
         SYNCED_DOMAINS.reduce(
-          (perms, domain) => ({
-            ...perms,
-            [domain]: {
-              domain,
-              accounts: {
-                ...perms[domain]?.accounts,
-                '0x000000': NetworkVMType.EVM,
-                jklghbcda: NetworkVMType.SVM,
+          (perms, domain) => {
+            const domainKey = domain.toString();
+
+            return {
+              ...perms,
+              [domainKey]: {
+                domain: domainKey,
+                accounts: {
+                  ...perms[domainKey]?.accounts,
+                  '0x000000': NetworkVMType.EVM,
+                  jklghbcda: NetworkVMType.SVM,
+                },
               },
-            },
-          }),
+            };
+          },
           { ...mockPermissionData.permissions },
         ),
       );
