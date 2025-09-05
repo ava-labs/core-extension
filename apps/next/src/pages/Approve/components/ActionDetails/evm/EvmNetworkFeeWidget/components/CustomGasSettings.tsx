@@ -8,10 +8,10 @@ import { FeeRate, NativeTokenBalance } from '@core/types';
 import { useKeyboardShortcuts, useSettingsContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
-import { InvisibileInput } from '@/pages/Contacts/components';
 
 import { DetailsSection } from '../../../generic/DetailsSection';
 import { TxDetailsRow } from '../../../generic/DetailsItem/items/DetailRow';
+import { InvisibileInput } from '@/components/Forms/InvisibleInput';
 
 type CustomGasSettingsProps = {
   onBack: () => void;
