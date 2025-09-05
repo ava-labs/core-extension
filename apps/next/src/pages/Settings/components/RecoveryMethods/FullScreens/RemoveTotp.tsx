@@ -4,11 +4,17 @@ import {
   AlertCircleIcon,
   Button,
   CheckCircleIcon,
+  CircularProgress,
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
 
 import { useSeedlessMfaManager } from '@core/ui';
+import { AuthErrorCode, MfaRequestType } from '@core/types';
+import { useMFAChoice } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAChoice';
+import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
+import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { FIDOChallenge } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/FIDOChallenge';
 
 enum RemoveTotpState {
   Loading = 'loading',
@@ -23,9 +29,16 @@ export const RemoveTotp = () => {
   const { t } = useTranslation();
   const { removeTotp } = useSeedlessMfaManager();
   const [state, setState] = useState(RemoveTotpState.Loading);
+  const [error, setError] = useState<AuthErrorCode>();
+  console.log('error: ', error);
+  const mfaChoice = useMFAChoice();
+  console.log('mfaChoice: ', mfaChoice);
+  const mfaChallenge = useMFAEvents(setError);
+  console.log('mfaChallenge: ', mfaChallenge);
 
   const remove = useCallback(async () => {
     try {
+      console.log('remove called: ', remove);
       await removeTotp();
       setState(RemoveTotpState.Success);
     } catch {
@@ -38,16 +51,7 @@ export const RemoveTotp = () => {
   }, [remove]);
 
   return (
-    <Stack
-      sx={{
-        width: 375,
-        height: 600,
-        px: 2,
-        alignSelf: 'center',
-        borderRadius: 1,
-        backgroundColor: 'background.paper',
-      }}
-    >
+    <Stack>
       {state === RemoveTotpState.Failure && (
         <Stack
           sx={{
@@ -118,7 +122,25 @@ export const RemoveTotp = () => {
       )}
       {state === RemoveTotpState.Loading && (
         <>
-          <>Loading</>
+          <CircularProgress />
+          {/* Remove REFISGTER */}
+          {(mfaChallenge.challenge?.type === MfaRequestType.Fido ||
+            mfaChallenge.challenge?.type === MfaRequestType.FidoRegister) && (
+            <FIDOChallenge
+              challenge={mfaChallenge.challenge}
+              // name={mfaDeviceName}
+              onError={setError}
+              error={error}
+            />
+          )}
+          {/* {mfaChallenge.challenge?.type === MfaRequestType.Totp && (
+            <TOTPChallenge
+              onSubmit={submitTotp}
+              isLoading={isVerifying}
+              error={error}
+            />
+          )} */}
+
           {/* {renderMfaPrompt()} */}
         </>
       )}

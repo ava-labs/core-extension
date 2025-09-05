@@ -7,6 +7,7 @@ import { SettingsHomePage } from './components/Home';
 import { RecoveryPhrase } from './components/RecoveryPhrase';
 import { RecoveryMethods } from './components/RecoveryMethods';
 import { Authenticator } from './components/RecoveryMethods/Authenticator';
+import { FIDO } from './components/RecoveryMethods/FIDO/FIDO';
 
 export const Settings: FC = () => {
   const { path } = useRouteMatch();
@@ -18,10 +19,11 @@ export const Settings: FC = () => {
       <Route path={`${path}/connected-sites`} component={ConnectedSites} />
       <Route path={`${path}/recovery-phrase`} component={RecoveryPhrase} />
       <Route
-        path={`${path}/recovery-methods/authenticator`}
+        path={`${path}/recovery-method/authenticator`}
         component={Authenticator}
         exact
       />
+      <Route path={`${path}/recovery-method/fido/:id`} component={FIDO} exact />
       <Route
         path={`${path}/recovery-methods`}
         component={RecoveryMethods}

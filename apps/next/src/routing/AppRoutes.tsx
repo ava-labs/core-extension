@@ -9,7 +9,7 @@ import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import AccountManagement from '@/pages/AccountManagement/AccountManagement';
 
 import { getContactsPath, getSendPath } from '@/config/routes';
-import { FullScreenRecoveryMethods } from '@/pages/Settings/components/RecoveryMethods/FullScreens/FullScreenRecoveryMethods';
+import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 
 export const AppRoutes = () => (
   <Switch>
@@ -20,7 +20,10 @@ export const AppRoutes = () => (
     <Route path="/import-wallet/seedphrase" component={ImportSeedphraseFlow} />
     <Route path="/import-wallet/ledger/:phase?" component={ImportLedgerFlow} />
     <Route path={getSendPath()} component={Send} />
-    <Route path="/remove-totp" component={FullScreenRecoveryMethods} />
+    <Route
+      path="/update-recovery-method/:mfaType?/:action?/:keyType?"
+      component={RecoveryMethodsFullScreen}
+    />
     <Route path="/" component={Portfolio} />
   </Switch>
 );

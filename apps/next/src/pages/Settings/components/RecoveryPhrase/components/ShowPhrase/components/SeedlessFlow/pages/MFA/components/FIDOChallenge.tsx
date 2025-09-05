@@ -18,6 +18,8 @@ import { MdErrorOutline } from 'react-icons/md';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
 import { InProgress } from '../../../../InProgress';
 import { ChallengeComponentProps } from '../../../types';
+import { useParams } from 'react-router-dom';
+import { RecoveryMethodsFullScreenParams } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 
 type Props = ChallengeComponentProps<
   MfaRequestType.Fido | MfaRequestType.FidoRegister
@@ -34,6 +36,7 @@ export const FIDOChallenge: FC<Props> = ({
   const { request } = useConnectionContext();
   const [force, setForce] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const { keyType } = useParams<RecoveryMethodsFullScreenParams>();
 
   useEffect(() => {
     if (isVerifying && !force) {
@@ -44,8 +47,15 @@ export const FIDOChallenge: FC<Props> = ({
     setForce(false);
     onError(undefined);
 
-    launchFidoFlow(FIDOApiEndpoint.Authenticate, challenge.options)
+    launchFidoFlow(
+      challenge.type === MfaRequestType.Fido
+        ? FIDOApiEndpoint.Authenticate
+        : FIDOApiEndpoint.Register,
+      challenge.options,
+      challenge.type === MfaRequestType.FidoRegister ? keyType : undefined,
+    )
       .then((answer) => {
+        console.log('answer: ', answer);
         request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
           params: [
@@ -61,9 +71,11 @@ export const FIDOChallenge: FC<Props> = ({
     onError,
     request,
     isVerifying,
-    challenge.mfaId,
+    challenge?.mfaId,
     force,
     challenge.options,
+    challenge.type,
+    keyType,
   ]);
 
   return (

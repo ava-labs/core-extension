@@ -1,5 +1,5 @@
 import { Page } from '@/components/Page';
-import { Button } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 import { useSeedlessMfaManager } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { AuthenticatorDetails } from './Authenticator/AuthenticatorDetails';
@@ -7,6 +7,7 @@ import { FIDODetails } from './FIDO/FIDODetails';
 import { RecoveryMethod as RecoveryMethodType } from '@core/types';
 import { useCallback } from 'react';
 import { openFullscreenTab } from '@core/common';
+import { useHistory } from 'react-router-dom';
 
 interface RecoveryMethodProps {
   method: RecoveryMethodType;
@@ -20,18 +21,23 @@ export const RecoveryMethod = ({
   console.log('RecoveryMethod: ', method);
   const { t } = useTranslation();
   const { hasTotpConfigured } = useSeedlessMfaManager();
+  const history = useHistory();
 
   const openRemoveTotpPopup = useCallback(async () => {
-    openFullscreenTab('remove-totp');
+    openFullscreenTab('update-recovery-method/totp/remove');
+  }, []);
+  const openAddTotpPopup = useCallback(async () => {
+    openFullscreenTab('update-recovery-method/totp/add');
   }, []);
 
   return (
-    <Page
-      title={t('Recovery Method Details')}
-      withBackButton
-      contentProps={{ justifyContent: 'flex-start' }}
-      onBack={onBackClicked}
-    >
+    // <Page
+    //   title={t('Recovery Method Details')}
+    //   withBackButton
+    //   contentProps={{ justifyContent: 'flex-start' }}
+    //   onBack={onBackClicked}
+    // >
+    <Stack>
       {method.type === 'totp' && (
         <AuthenticatorDetails method={method} methodName={t('Authenticator')} />
       )}
@@ -45,7 +51,9 @@ export const RecoveryMethod = ({
           fullWidth
           // disabled={!isFormValid || isSubmitting}
           // loading={isSubmitting}
-          // onClick={isFormValid ? handleSubmit : undefined}
+          onClick={() => {
+            openAddTotpPopup();
+          }}
           sx={{ mt: 'auto' }}
           disabled={!hasTotpConfigured}
         >
@@ -64,11 +72,14 @@ export const RecoveryMethod = ({
         sx={{ mt: 'auto' }}
         disabled={!hasTotpConfigured}
         onClick={() => {
-          openRemoveTotpPopup();
+          return method.type === 'totp'
+            ? openRemoveTotpPopup()
+            : history.push(`/settings/recovery-method/fido/${method.id}`);
         }}
       >
         {t('Remove recovery method')}
       </Button>
-    </Page>
+    </Stack>
+    // </Page>
   );
 };

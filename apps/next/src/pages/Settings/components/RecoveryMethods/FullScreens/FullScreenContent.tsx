@@ -1,7 +1,59 @@
 import { useSeedlessAuth } from '@core/ui';
 import { RemoveTotp } from './RemoveTotp';
+import {
+  FullscreenModalActions,
+  FullscreenModalTitle,
+} from '@/components/FullscreenModal';
+import { useTranslation } from 'react-i18next';
+import { MfaChoicePrompt } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/MfaChoicePrompt';
+import { RecoveryMethodsFullScreenParams } from './RecoveryMethodsFullScreen';
+import { useMemo } from 'react';
+import { AddTotp } from './AddTotp';
+import { Button } from '@avalabs/k2-alpine';
+import { AddFIDO } from './AddFIDO';
 
-export const FullScreenContent = () => {
+export type RecoveryMethodPages = 'removeTOTP' | 'addTOTP' | 'addFIDO'; // | 'addAuthenticator';
+export type FullScreenContentProps = {
+  [page in RecoveryMethodPages]: React.ReactNode;
+};
+
+export const FullScreenContent = ({
+  mfaType,
+  action,
+  keyType,
+}: RecoveryMethodsFullScreenParams) => {
+  const { t } = useTranslation();
+
+  const getPage = useMemo(() => {
+    if (mfaType === 'totp' && action === 'remove') {
+      return 'removeTOTP';
+    }
+    if (mfaType === 'totp' && action === 'add') {
+      return 'addTOTP';
+    }
+    if (mfaType === 'fido' && action === 'add') {
+      return 'addFIDO';
+    }
+  }, [action, mfaType]);
+
+  const page = getPage;
+
+  const headline = {
+    removeTOTP: t('Authenticator removal'),
+    addTOTP: t('Add Authenticator'),
+    addFIDO: t('Add FIDO Device'),
+  };
+  const content: FullScreenContentProps = {
+    removeTOTP: <RemoveTotp />,
+    addTOTP: <AddTotp />,
+    addFIDO: <AddFIDO keyType={keyType} />,
+    // MFAChoicePrompt: (
+    //   <MfaChoicePrompt
+    //     mfaChoice={mfaChoice.choice}
+    //     onChosen={selectMfaMethod}
+    //   />
+    // ),
+  };
   // const {
   //   authenticate,
   //   step,
@@ -17,7 +69,14 @@ export const FullScreenContent = () => {
   //   onSignerTokenObtained: onAuthSuccess,
   // });
 
-  return <RemoveTotp />;
+  return (
+    <>
+      <FullscreenModalTitle>{headline[page]}</FullscreenModalTitle>
+      {mfaType === 'totp' && action === 'remove' && content[page]}
+      {mfaType === 'totp' && action === 'add' && content[page]}
+      {mfaType === 'fido' && action === 'add' && content[page]}
+    </>
+  );
   // const history = useHistory();
   // const { t } = useTranslation();
   // const { capture } = useAnalyticsContext();
