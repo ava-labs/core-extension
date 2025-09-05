@@ -1,21 +1,22 @@
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
-import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
+import {
+  FungibleTokenBalance,
+  getUniqueTokenId,
+  NetworkWithCaipId,
+} from '@core/types';
 import {
   useAccountsContext,
   useConnectionContext,
-  useNetworkContext,
   useSettingsContext,
-} from '@core/ui/src/contexts';
+} from '@core/ui';
 import { useEffect, useMemo, useState } from 'react';
 import { getNetworkTokens } from './lib/getNetworkTokens';
 import { getTokenMapper } from './lib/getTokenMapper';
 
-// TODO: Currently the hook is using favoriteNetwork. It should be changed to enabledNetworks once added.
-export const useAllTokensFromEnabledNetworks = () => {
+export const useAllTokens = (networks: NetworkWithCaipId[]) => {
   const {
     accounts: { active },
   } = useAccountsContext();
-  const { favoriteNetworks } = useNetworkContext();
   const { request } = useConnectionContext();
 
   const [placeholderTokens, setPlaceholderTokens] = useState<
@@ -26,7 +27,7 @@ export const useAllTokensFromEnabledNetworks = () => {
 
   useEffect(() => {
     Promise.allSettled(
-      Object.values(favoriteNetworks).map((network) =>
+      Object.values(networks).map((network) =>
         getNetworkTokens({ request, network }),
       ),
     ).then((settledResults) => {
@@ -36,7 +37,7 @@ export const useAllTokensFromEnabledNetworks = () => {
           .flatMap((res) => res.value),
       );
     });
-  }, [favoriteNetworks, request]);
+  }, [networks, request]);
 
   const tokensForAccount = useTokensForAccount(active, false);
 
