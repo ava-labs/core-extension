@@ -1,6 +1,7 @@
 import {
   Stack,
   StackProps,
+  Tooltip,
   Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
@@ -66,21 +67,23 @@ export const CollapsedTokenAmount = ({
 
   if (fraction && indexOfNonZero) {
     return (
-      <Stack
-        direction="row"
-        width="100%"
-        justifyContent="flex-end"
-        {...stackProps}
-      >
-        <Typography {...finalRegularProps}>{integer}.0</Typography>
-        <Typography {...finalOverlineProps}>{zeroCount}</Typography>
-        <Typography {...finalRegularProps}>
-          {fraction.slice(
-            indexOfNonZero,
-            indexOfNonZero + MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES,
-          )}
-        </Typography>
-      </Stack>
+      <Tooltip title={amount}>
+        <Stack
+          direction="row"
+          width="100%"
+          justifyContent="flex-end"
+          {...stackProps}
+        >
+          <Typography {...finalRegularProps}>{integer}.0</Typography>
+          <Typography {...finalOverlineProps}>{zeroCount}</Typography>
+          <Typography {...finalRegularProps}>
+            {fraction.slice(
+              indexOfNonZero,
+              indexOfNonZero + MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES,
+            )}
+          </Typography>
+        </Stack>
+      </Tooltip>
     );
   }
   return <Typography {...finalRegularProps}>{amount}</Typography>;
