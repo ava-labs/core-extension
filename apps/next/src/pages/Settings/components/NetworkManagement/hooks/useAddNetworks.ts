@@ -30,9 +30,7 @@ export const useAddNetwork = () => {
   const [network, setNetwork] = useState<Network & AdvancedNetworkConfig>(
     defaultNetworkValues,
   );
-  const { isValid, errors } = useMemo(() => {
-    return isNetworkValid(network);
-  }, [network]);
+  const { isValid, errors } = isNetworkValid(network);
 
   const reset = useCallback(() => {
     setNetwork(defaultNetworkValues);

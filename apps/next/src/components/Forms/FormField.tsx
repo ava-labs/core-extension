@@ -52,6 +52,16 @@ export const FormField = ({
   const ref = useRef<HTMLInputElement>(null);
 
   const [isHovered, setIsHovered] = useState(false);
+  const [wasTouched, setWasTouched] = useState(false);
+
+  const showPrompt = Boolean(value || isEditing || (wasTouched && required));
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setWasTouched(true);
+      onChange(e.target.value);
+    },
+    [onChange],
+  );
 
   useEffect(() => {
     if (isEditing && ref.current) {
@@ -61,8 +71,6 @@ export const FormField = ({
 
   const showCopyButton =
     allowCopy && !error && !!value && !isEditing && isHovered;
-
-  const showPrompt = Boolean(value || isEditing || required);
 
   const onActionClick = useCallback(() => {
     if (showPrompt) {
@@ -106,7 +114,7 @@ export const FormField = ({
                 ref={ref}
                 value={value}
                 placeholder={placeholder}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={handleChange}
                 onBlur={() => delay(() => setIsEditing(false), 100)}
                 readOnly={readOnly}
                 pattern={pattern}
