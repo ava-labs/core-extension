@@ -1,1 +1,3 @@
-export type EvmFeePreset = 'slow' | 'normal' | 'fast' | 'custom';
+import { TransactionPriority } from '@core/types';
+
+export type EvmFeePreset = TransactionPriority | 'custom';

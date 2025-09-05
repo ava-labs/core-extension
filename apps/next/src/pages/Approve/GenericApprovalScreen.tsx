@@ -17,28 +17,41 @@ import {
   LoadingScreen,
   Styled,
   UnsupportedNetworkScreen,
+  MaliciousTxOverlay,
+  NoteWarning,
 } from './components';
+import { hasNoteWarning, hasOverlayWarning } from './lib';
+import { useGasless } from './hooks';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20]; // Approval screen should always have the latest balance
 
 export const GenericApprovalScreen = () => {
   useLiveBalance(POLLED_BALANCES);
-
   const requestId = useGetRequestId();
   const { getNetwork, networks } = useNetworkContext();
+
   const { action, updateAction, cancelHandler, error } =
     useApproveAction<DisplayData>(requestId);
 
-  // TODO: handle gasless
+  const { tryFunding, setGaslessDefaultValues } = useGasless({ action });
+
   const approve = useCallback(async () => {
-    updateAction(
-      {
-        status: ActionStatus.SUBMITTING,
-        id: requestId,
-      },
-      false, // TODO: handle hardware wallets
-    );
-  }, [updateAction, requestId]);
+    tryFunding(() => {
+      updateAction(
+        {
+          status: ActionStatus.SUBMITTING,
+          id: requestId,
+        },
+        false, // TODO: handle hardware wallets
+      );
+    });
+  }, [updateAction, requestId, tryFunding]);
+
+  const cancel = useCallback(() => {
+    // Reset the gasless state
+    setGaslessDefaultValues();
+    cancelHandler();
+  }, [cancelHandler, setGaslessDefaultValues]);
 
   const network = action ? getNetwork(action.scope) : undefined;
 
@@ -55,7 +68,7 @@ export const GenericApprovalScreen = () => {
     // TODO: Should we still allow approvals?
     return (
       <UnsupportedNetworkScreen>
-        <ActionDrawer open reject={cancelHandler} action={action} />
+        <ActionDrawer open reject={cancel} action={action} />
       </UnsupportedNetworkScreen>
     );
   }
@@ -64,6 +77,9 @@ export const GenericApprovalScreen = () => {
     <Styled.ApprovalScreenPage>
       <Styled.NoScrollStack>
         <ApprovalScreenTitle title={action.displayData.title} />
+        {hasNoteWarning(action) && (
+          <NoteWarning alert={action.displayData.alert} />
+        )}
         <Stack flexGrow={1} px={2}>
           <ActionDetails
             network={network}
@@ -72,13 +88,15 @@ export const GenericApprovalScreen = () => {
             error={error}
           />
         </Stack>
-        <ActionDrawer
-          open
-          approve={approve}
-          reject={cancelHandler}
-          action={action}
-        />
+        <ActionDrawer open approve={approve} reject={cancel} action={action} />
       </Styled.NoScrollStack>
+      {hasOverlayWarning(action) && (
+        <MaliciousTxOverlay
+          open={hasOverlayWarning(action)}
+          cancelHandler={cancelHandler}
+          alert={action.displayData.alert}
+        />
+      )}
     </Styled.ApprovalScreenPage>
   );
 };
