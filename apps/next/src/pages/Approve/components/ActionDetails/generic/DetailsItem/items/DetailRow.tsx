@@ -8,7 +8,7 @@ import {
 import { MdInfoOutline } from 'react-icons/md';
 
 type TxDetailsRowProps = StackProps & {
-  label: string;
+  label: React.ReactNode | string;
   tooltip?: string;
 };
 
@@ -29,9 +29,13 @@ export const TxDetailsRow = ({
     {...rest}
   >
     <Stack direction="row" alignItems="center" gap={0.5}>
-      <Typography variant="body3" sx={{ whiteSpace: 'nowrap' }}>
-        {label}
-      </Typography>
+      {typeof label === 'string' ? (
+        <Typography variant="body3" sx={{ whiteSpace: 'nowrap' }}>
+          {label}
+        </Typography>
+      ) : (
+        label
+      )}
       {tooltip && (
         <Tooltip title={tooltip}>
           <Box flexShrink={0} lineHeight={1} color="text.secondary">

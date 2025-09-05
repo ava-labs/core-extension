@@ -1,7 +1,26 @@
 import { useTranslation } from 'react-i18next';
-import { Stack, Switch, Tooltip, Typography } from '@avalabs/k2-alpine';
+import { FC } from 'react';
+import {
+  Stack,
+  Switch,
+  SwitchProps,
+  Tooltip,
+  Typography,
+} from '@avalabs/k2-alpine';
 
-export const GaslessSwitchRow = () => {
+type GaslessSwitchRowProps = Pick<
+  SwitchProps,
+  'checked' | 'onChange' | 'disabled'
+> & {
+  tooltip: string;
+};
+
+export const GaslessSwitchRow: FC<GaslessSwitchRowProps> = ({
+  checked,
+  onChange,
+  disabled,
+  tooltip,
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -20,8 +39,16 @@ export const GaslessSwitchRow = () => {
           {t('Gas fees paid by Core')}
         </Typography>
       </Stack>
-      <Tooltip title={t('Coming soon!')}>
-        <Switch size="small" checked={false} />
+      <Tooltip title={tooltip}>
+        {/* Gotta wrap in div because the "disabled" prop is preventing a tooltip from popping up*/}
+        <div>
+          <Switch
+            size="small"
+            checked={checked}
+            onChange={onChange}
+            disabled={disabled}
+          />
+        </div>
       </Tooltip>
     </Stack>
   );

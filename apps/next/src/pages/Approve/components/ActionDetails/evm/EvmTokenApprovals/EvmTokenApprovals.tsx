@@ -22,10 +22,10 @@ export const EvmTokenApprovals: FC<EvmTokenApprovalsProps> = ({ action }) => {
   const hasOnlyOneEditableApproval =
     tokenApprovals.approvals.length === 1 && tokenApprovals.isEditable;
 
-  const currentApprovalValue = getApprovalValue(
-    tokenApprovals.approvals[0]!,
-    getTokenPrice,
-  );
+  const firstApproval = tokenApprovals.approvals[0];
+  const currentApprovalValue = firstApproval
+    ? getApprovalValue(firstApproval, getTokenPrice)
+    : null;
   const requestedApproval = requestedApprovalRef.current;
 
   if (!currentApprovalValue || !requestedApproval) {
@@ -52,11 +52,11 @@ export const EvmTokenApprovals: FC<EvmTokenApprovalsProps> = ({ action }) => {
           />
         ))}
       </DetailsSection>
-      {hasOnlyOneEditableApproval && requestedApproval && (
+      {hasOnlyOneEditableApproval && firstApproval && requestedApproval && (
         <CustomApprovalLimit
           action={action}
           requestedValue={requestedApprovalValue}
-          approval={tokenApprovals.approvals[0]!}
+          approval={firstApproval}
           approvalValue={currentApprovalValue}
           isUnlimitedRequested={isUnlimitedApproval(requestedApproval)}
         />

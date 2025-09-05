@@ -46,20 +46,20 @@ export const FeePresetSelector: FC<FeePresetSelectorProps> = ({
       px={2}
     >
       <FeePresetButton
-        color={feePreset === 'slow' ? 'primary' : 'secondary'}
-        onClick={() => choosePreset('slow')}
+        color={feePreset === 'low' ? 'primary' : 'secondary'}
+        onClick={() => choosePreset('low')}
       >
         {t('Slow')}
       </FeePresetButton>
       <FeePresetButton
-        color={feePreset === 'normal' ? 'primary' : 'secondary'}
-        onClick={() => choosePreset('normal')}
+        color={feePreset === 'medium' ? 'primary' : 'secondary'}
+        onClick={() => choosePreset('medium')}
       >
         {t('Normal')}
       </FeePresetButton>
       <FeePresetButton
-        color={feePreset === 'fast' ? 'primary' : 'secondary'}
-        onClick={() => choosePreset('fast')}
+        color={feePreset === 'high' ? 'primary' : 'secondary'}
+        onClick={() => choosePreset('high')}
       >
         {t('Fast')}
       </FeePresetButton>
