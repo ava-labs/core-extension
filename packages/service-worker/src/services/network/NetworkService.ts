@@ -496,18 +496,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
       if (result) {
         chainlist = {
-          ...Object.fromEntries(
-            Object.entries(result).map(([chainId, network]) => [
-              chainId,
-              {
-                ...network,
-                rpcUrl: `${network.rpcUrl.replace(
-                  'https://proxy-api.avax',
-                  'https://proxy-api-dev.avax',
-                )}?token=168c78bce92d16e603fc8c04545916ea57cfa492f1e6bc7df573381af343de37&rltoken=168c78bce92d16e603fc8c04545916ea57cfa492f1e6bc7df573381af343de37`,
-              },
-            ]),
-          ),
+          ...result,
           [BITCOIN_NETWORK.chainId]: BITCOIN_NETWORK,
           [BITCOIN_TEST_NETWORK.chainId]: BITCOIN_TEST_NETWORK,
           [ChainId.AVALANCHE_TEST_P]: this._getPchainNetwork(true),
