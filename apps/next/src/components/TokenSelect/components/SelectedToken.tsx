@@ -16,9 +16,10 @@ import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 type SelectedTokenProps = {
   token: FungibleTokenBalance;
+  hint?: string;
 };
 
-export const SelectedToken: FC<SelectedTokenProps> = ({ token }) => {
+export const SelectedToken: FC<SelectedTokenProps> = ({ token, hint }) => {
   const theme = useTheme();
 
   const balance = getAvailableBalance(token, false);
@@ -41,6 +42,11 @@ export const SelectedToken: FC<SelectedTokenProps> = ({ token }) => {
         }}
       />
       <Stack overflow="hidden">
+        {hint && (
+          <Typography variant="caption" color="text.secondary">
+            {hint}
+          </Typography>
+        )}
         <Stack direction="row" alignItems="center" gap={0.5} overflow="hidden">
           <OverflowingTypography variant="subtitle3" color="text.primary">
             {token.name}

@@ -13,7 +13,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { getNetworkTokens } from './lib/getNetworkTokens';
 import { getTokenMapper } from './lib/getTokenMapper';
 
-export const useAllTokens = (networks: NetworkWithCaipId[]) => {
+export const useAllTokens = (
+  networks: NetworkWithCaipId[],
+  hideMalicious = true,
+) => {
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -39,7 +42,10 @@ export const useAllTokens = (networks: NetworkWithCaipId[]) => {
     });
   }, [networks, request]);
 
-  const tokensForAccount = useTokensForAccount(active, false);
+  const tokensForAccount = useTokensForAccount(active, {
+    networks,
+    hideMalicious,
+  });
 
   return useMemo<FungibleTokenBalance[]>(
     () => [
