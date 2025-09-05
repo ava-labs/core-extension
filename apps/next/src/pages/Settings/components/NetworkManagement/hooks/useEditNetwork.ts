@@ -19,9 +19,7 @@ export const useEditNetwork = ({
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const original = useMemo(() => {
-    return networks.find((n) => n.chainId === Number(networkId));
-  }, [networks, networkId]);
+  const original = networks.find((n) => n.chainId === Number(networkId));
 
   const { isCustomNetwork, saveCustomNetwork, updateDefaultNetwork } =
     useNetworkContext();
@@ -35,15 +33,11 @@ export const useEditNetwork = ({
     setNetwork(original);
   }, [original]);
 
-  const isCustom = useMemo(() => {
-    if (!network) return false;
-    return isCustomNetwork(network.chainId);
-  }, [isCustomNetwork, network]);
+  const isCustom = network ? isCustomNetwork(network.chainId) : false;
 
-  const { isValid, errors } = useMemo(() => {
-    if (!network) return { isValid: false, errors: {} };
-    return isNetworkValid(network);
-  }, [network]);
+  const { isValid, errors } = network
+    ? isNetworkValid(network)
+    : { isValid: false, errors: {} };
 
   const reset = useCallback(() => {
     setNetwork(original);

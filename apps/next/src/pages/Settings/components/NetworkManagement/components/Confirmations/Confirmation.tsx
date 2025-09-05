@@ -52,6 +52,8 @@ export const Confirmation = ({
           px: 1.5,
           pb: 2,
         }}
+        position="sticky"
+        bottom={0}
       >
         <Button
           variant="contained"
