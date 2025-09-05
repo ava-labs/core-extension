@@ -42,7 +42,7 @@ export const TxBalanceChange = ({
         tooltip={
           showNoPreExecWarning
             ? t(
-                'Transaction pre-exution is unavailable. The displayed token list might be incomplete.',
+                'Transaction pre-execution is unavailable. The displayed token list might be incomplete.',
               )
             : ''
         }
