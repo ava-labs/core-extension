@@ -1046,7 +1046,7 @@
   "Transaction has been cancelled": "Transaction has been cancelled",
   "Transaction has been rejected": "Transaction has been rejected",
   "Transaction has failed": "Transaction has failed",
-  "Transaction pre-exution is unavailable. The displayed token list might be incomplete.": "Transaction pre-exution is unavailable. The displayed token list might be incomplete.",
+  "Transaction pre-execution is unavailable. The displayed token list might be incomplete.": "Transaction pre-execution is unavailable. The displayed token list might be incomplete.",
   "Transaction rejected": "Transaction rejected",
   "Transaction timed out": "Transaction timed out",
   "Transfer": "Transfer",

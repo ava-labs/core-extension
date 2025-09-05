@@ -55,6 +55,6 @@ const Wrapper = styled(Stack)(({ theme }) => ({
   borderTop: `1px solid ${theme.palette.divider}`,
   background:
     theme.palette.mode === 'light'
-      ? '#FFF'
+      ? theme.palette.common.white
       : theme.palette.alphaMatch.backdropSolid,
 }));
