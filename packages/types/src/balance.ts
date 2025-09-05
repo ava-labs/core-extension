@@ -128,6 +128,11 @@ export type FungibleTokenBalance = Exclude<
   assetType: FungibleAssetType;
 };
 
+export type NonNativeFungibleTokenBalance = Exclude<
+  FungibleTokenBalance,
+  { type: TokenType.NATIVE }
+>;
+
 export type NativeTokenBalance = Extract<
   FungibleTokenBalance,
   { type: TokenType.NATIVE }
@@ -193,6 +198,11 @@ export const isNativeToken = (
   token: FungibleTokenBalance,
 ): token is NativeTokenBalance | Erc20TokenBalance =>
   token.type === TokenType.NATIVE;
+
+export const isEvmFungibleToken = (
+  token: FungibleTokenBalance,
+): token is Erc20TokenBalance | EvmNativeTokenBalance =>
+  token.assetType === 'evm_erc20' || token.assetType === 'evm_native';
 
 export const isEvmNativeToken = (
   token: FungibleTokenBalance,

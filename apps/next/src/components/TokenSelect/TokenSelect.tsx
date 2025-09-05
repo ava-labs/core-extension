@@ -19,6 +19,7 @@ type TokenSelectProps = {
   onValueChange: (tokenId: string) => void;
   query: string;
   onQueryChange: (query: string) => void;
+  hint?: string;
 };
 
 function TokenSelectRaw({
@@ -28,6 +29,7 @@ function TokenSelectRaw({
   onValueChange,
   query,
   onQueryChange,
+  hint,
 }: TokenSelectProps) {
   const { t } = useTranslation();
 
@@ -54,7 +56,11 @@ function TokenSelectRaw({
         trigger: TokenSelectTrigger,
       }}
       renderValue={(token) =>
-        token ? <SelectedToken token={token} /> : <TokenSelectPrompt />
+        token ? (
+          <SelectedToken token={token} hint={hint} />
+        ) : (
+          <TokenSelectPrompt />
+        )
       }
       renderOption={(token, getOptionProps) => (
         <TokenMenuItem
