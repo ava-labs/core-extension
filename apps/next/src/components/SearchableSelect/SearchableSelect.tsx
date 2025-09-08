@@ -185,9 +185,6 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
                       >
                         {RowRenderer}
                       </FixedSizeList>
-                      {/* {group.options.map((option) =>
-                        renderOption(option, getOptionProps),
-                      )} */}
                     </Stack>
                   );
                 }
