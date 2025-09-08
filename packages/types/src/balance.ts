@@ -196,8 +196,7 @@ export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
 
 export const isNativeToken = (
   token: FungibleTokenBalance,
-): token is NativeTokenBalance | Erc20TokenBalance =>
-  token.type === TokenType.NATIVE;
+): token is NativeTokenBalance => token.type === TokenType.NATIVE;
 
 export const isEvmFungibleToken = (
   token: FungibleTokenBalance,

@@ -169,6 +169,7 @@ export type SwapContextAPI = {
   setDestAmount(destAmount: string | undefined): void;
   srcAmount: string | undefined;
   setSrcAmount(srcAmount: string | undefined): void;
+  setSwapNetwork(swapNetwork: NetworkWithCaipId | undefined): void;
 };
 
 export const DISALLOWED_SWAP_ASSETS: string[] = [

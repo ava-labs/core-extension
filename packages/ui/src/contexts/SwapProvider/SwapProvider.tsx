@@ -46,7 +46,7 @@ import {
 import { applyFeeDeduction, swapError } from './swap-utils';
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
-import { NormalizedSwapQuoteResult } from './types';
+import { NormalizedSwapQuoteResult, SwapProviders } from './types';
 import { SWAP_REFRESH_INTERVAL } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
@@ -87,6 +87,15 @@ export function SwapContextProvider({
   const [destAmount, setDestAmount] = useState<string | undefined>(undefined);
   const [srcAmount, setSrcAmount] = useState<string | undefined>(undefined);
   const [isSwapLoading, setIsSwapLoading] = useState<boolean>(false);
+  const [swapNetwork, setSwapNetwork] = useState<NetworkWithCaipId | undefined>(
+    activeNetwork,
+  );
+
+  useEffect(() => {
+    // If no network is set, use the active network.
+    // TODO: Cleanup once legacy app is gone -- new app uses setSwapNetwork() explicitly.
+    setSwapNetwork((prev) => prev ?? activeNetwork);
+  }, [activeNetwork]);
 
   const findSymbol = useCallback(
     (symbolOrAddress: string) => {
@@ -144,7 +153,7 @@ export function SwapContextProvider({
         showToastWithLink({
           title: notificationText,
           url: getExplorerAddressByNetwork(
-            activeNetwork as NetworkWithCaipId,
+            swapNetwork as NetworkWithCaipId,
             txHash,
           ),
           label: t('View in Explorer'),
@@ -180,7 +189,7 @@ export function SwapContextProvider({
       });
     },
     [
-      activeNetwork,
+      swapNetwork,
       captureEncrypted,
       findSymbol,
       t,
@@ -193,7 +202,7 @@ export function SwapContextProvider({
   const { getRate: getEvmRate, swap: evmSwap } = useEvmSwap(
     {
       account: activeAccount,
-      network: activeNetwork,
+      network: swapNetwork,
       walletDetails: walletDetails,
     },
     {
@@ -203,7 +212,7 @@ export function SwapContextProvider({
   );
   const { getRate: getSvmRate, swap: svmSwap } = useSolanaSwap(
     {
-      network: activeNetwork,
+      network: swapNetwork,
       account: activeAccount,
     },
     {
@@ -214,7 +223,7 @@ export function SwapContextProvider({
 
   const swap = useCallback(
     async (params: SwapParams<SwapQuote>) => {
-      if (isSolanaNetwork(activeNetwork)) {
+      if (isSolanaNetwork(swapNetwork)) {
         if (!isJupiterSwapParams(params)) {
           throw swapError(SwapErrorCode.InvalidParams);
         }
@@ -233,18 +242,18 @@ export function SwapContextProvider({
 
       return evmSwap(params);
     },
-    [activeNetwork, evmSwap, svmSwap],
+    [swapNetwork, evmSwap, svmSwap],
   );
 
   const getRate = useCallback(
     async (params: GetRateParams) => {
-      if (isSolanaNetwork(activeNetwork)) {
+      if (isSolanaNetwork(swapNetwork)) {
         return getSvmRate(params);
       }
 
       return getEvmRate(params);
     },
-    [activeNetwork, getEvmRate, getSvmRate],
+    [swapNetwork, getEvmRate, getSvmRate],
   );
 
   const checkUserBalance = useCallback(
@@ -264,6 +273,7 @@ export function SwapContextProvider({
       metadata: NormalizedSwapQuoteResult['selected']['metadata'],
       swapSide: SwapSide,
       slippage: number,
+      skipFeeDeduction = false,
     ) => {
       // Set amountOut for sell side
       const amountOut = metadata.amountOut;
@@ -272,7 +282,11 @@ export function SwapContextProvider({
         amountOut &&
         typeof amountOut === 'string'
       ) {
-        setDestAmount(applyFeeDeduction(amountOut, swapSide, slippage));
+        setDestAmount(
+          skipFeeDeduction
+            ? amountOut
+            : applyFeeDeduction(amountOut, swapSide, slippage),
+        );
       }
       // Set amountIn for buy side
       const amountIn = metadata.amountIn;
@@ -281,7 +295,11 @@ export function SwapContextProvider({
         amountIn &&
         typeof amountIn === 'string'
       ) {
-        setSrcAmount(applyFeeDeduction(amountIn, swapSide, slippage));
+        setSrcAmount(
+          skipFeeDeduction
+            ? amountIn
+            : applyFeeDeduction(amountIn, swapSide, slippage),
+        );
       }
     },
     [setDestAmount, setSrcAmount],
@@ -351,7 +369,12 @@ export function SwapContextProvider({
               setQuotes(result);
               const metadata = result.selected.metadata;
               // Set amounts based on the swap side
-              setAmounts(metadata, swapSide, Number(slippageTolerance));
+              setAmounts(
+                metadata,
+                swapSide,
+                Number(slippageTolerance),
+                result.provider === SwapProviders.WNATIVE,
+              );
               // Check balance here
               if (fromTokenBalance && swapSide === SwapSide.BUY) {
                 const amountIn = metadata.amountIn;
@@ -428,6 +451,7 @@ export function SwapContextProvider({
         setDestAmount,
         srcAmount,
         setSrcAmount,
+        setSwapNetwork,
       }}
     >
       {children}

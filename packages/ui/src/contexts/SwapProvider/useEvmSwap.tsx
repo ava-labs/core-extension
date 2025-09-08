@@ -120,7 +120,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
             toTokenDecimals: isDestTokenNative ? 18 : destDecimals,
             account,
             network,
-            slippage: Number(slippageTolerance),
+            slippage: 0,
           },
           undefined,
         );

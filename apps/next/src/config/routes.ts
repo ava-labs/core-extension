@@ -56,7 +56,7 @@ export const SWAP_QUERY_TOKENS = {
   fromQuery: 'fromQ',
   to: 'to',
   toQuery: 'toQ',
-  srcAmount: 'srcAmount',
+  userAmount: 'userAmount',
   side: 'side',
 };
 export type SwapQueryTokens = typeof SWAP_QUERY_TOKENS;

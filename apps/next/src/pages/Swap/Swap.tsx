@@ -8,7 +8,10 @@ import { Page } from '@/components/Page';
 import { AccountSelect } from '@/components/AccountSelect';
 
 import { SwapPair, SwapBody } from './components';
-import { SwapStateContextProvider } from './contexts/SwapStateContext';
+import {
+  SwapStateContextProvider,
+  useSwapState,
+} from './contexts/SwapStateContext';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -20,6 +23,8 @@ const SwapPage = () => {
     accounts: { active },
     selectAccount,
   } = useAccountsContext();
+
+  const { updateQuery } = useSwapState();
 
   const [accountQuery, setAccountQuery] = useState('');
 
@@ -34,7 +39,13 @@ const SwapPage = () => {
           addressType="C"
           value={active}
           query={accountQuery}
-          onValueChange={(newAccount) => selectAccount(newAccount.id)}
+          onValueChange={(newAccount) => {
+            selectAccount(newAccount.id);
+            updateQuery({
+              userAmount: '',
+              side: 'sell',
+            });
+          }}
           onQueryChange={(q) => setAccountQuery(q)}
         />
         <SwapPair />

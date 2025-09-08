@@ -30,6 +30,7 @@ type TokenAmountInputProps = {
   withPresetButtons?: boolean;
   tokenHint?: string;
   autoFocus?: boolean;
+  isLoading?: boolean;
 };
 
 export const TokenAmountInput = ({
@@ -46,6 +47,7 @@ export const TokenAmountInput = ({
   withPresetButtons = true,
   tokenHint,
   autoFocus = true,
+  isLoading = false,
 }: TokenAmountInputProps) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
@@ -127,6 +129,7 @@ export const TokenAmountInput = ({
             error={Boolean(isAmountTooBig) || amountBigInt < 0n}
             helperText={currencyValue || '-'} // Prevents the helper text from disappearing completely
             value={amount}
+            isLoading={isLoading}
           />
         </Grow>
       </Stack>

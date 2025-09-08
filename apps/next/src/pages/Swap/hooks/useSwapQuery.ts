@@ -13,7 +13,7 @@ type SwapQuery = {
   fromQuery: string;
   toId: string;
   toQuery: string;
-  srcAmount: string;
+  userAmount: string;
   side: Side;
 };
 
@@ -34,7 +34,7 @@ export const useSwapQuery: UseSwapQuery = () => {
   const fromQuery = searchParams.get(SWAP_QUERY_TOKENS.fromQuery) ?? '';
   const toId = searchParams.get(SWAP_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(SWAP_QUERY_TOKENS.toQuery) ?? '';
-  const srcAmount = searchParams.get(SWAP_QUERY_TOKENS.srcAmount) ?? '';
+  const userAmount = searchParams.get(SWAP_QUERY_TOKENS.userAmount) ?? '';
   const side: Side =
     (searchParams.get(SWAP_QUERY_TOKENS.side) as Side | null) ?? 'sell';
 
@@ -60,7 +60,7 @@ export const useSwapQuery: UseSwapQuery = () => {
     fromQuery,
     toId,
     toQuery,
-    srcAmount,
+    userAmount,
     side,
   };
 };
