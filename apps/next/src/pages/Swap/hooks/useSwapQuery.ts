@@ -7,7 +7,24 @@ import {
   SwapQueryTokens,
 } from '@/config/routes';
 
-export const useSwapQuery = () => {
+type Side = 'sell' | 'buy';
+type SwapQuery = {
+  fromId: string;
+  fromQuery: string;
+  toId: string;
+  toQuery: string;
+  srcAmount: string;
+  side: Side;
+};
+
+type UpdatePayload = Partial<
+  Record<keyof SwapQueryTokens, string> & { side?: Side }
+>;
+type UseSwapQuery = () => SwapQuery & {
+  update: (payload: UpdatePayload) => void;
+};
+
+export const useSwapQuery: UseSwapQuery = () => {
   const { replace } = useHistory();
 
   const { search } = useLocation();
@@ -18,9 +35,11 @@ export const useSwapQuery = () => {
   const toId = searchParams.get(SWAP_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(SWAP_QUERY_TOKENS.toQuery) ?? '';
   const srcAmount = searchParams.get(SWAP_QUERY_TOKENS.srcAmount) ?? '';
+  const side: Side =
+    (searchParams.get(SWAP_QUERY_TOKENS.side) as Side | null) ?? 'sell';
 
   const update = useCallback(
-    (payload: Partial<Record<keyof SwapQueryTokens, string>>) => {
+    (payload: UpdatePayload) => {
       const updated = new URLSearchParams(search);
 
       for (const [k, v] of Object.entries(payload)) {
@@ -42,5 +61,6 @@ export const useSwapQuery = () => {
     toId,
     toQuery,
     srcAmount,
+    side,
   };
 };

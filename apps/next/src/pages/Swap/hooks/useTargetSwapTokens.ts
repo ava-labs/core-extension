@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { useNetworkContext } from '@core/ui';
-import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
+import { getUniqueTokenId } from '@core/types';
 
 import { useAllTokens } from '@/hooks/useAllTokens';
 
@@ -9,7 +9,7 @@ import { SwappableToken } from '../types';
 
 export const useTargetSwapTokens = (
   fromToken?: SwappableToken,
-): FungibleTokenBalance[] => {
+): SwappableToken[] => {
   const { getNetwork } = useNetworkContext();
   const networks = useMemo(() => {
     const network = fromToken?.coreChainId
@@ -23,9 +23,9 @@ export const useTargetSwapTokens = (
 
   return useMemo(() => {
     return fromToken
-      ? matchingNetworkTokens.filter(
+      ? (matchingNetworkTokens.filter(
           (token) => getUniqueTokenId(token) !== getUniqueTokenId(fromToken),
-        )
+        ) as SwappableToken[])
       : [];
   }, [matchingNetworkTokens, fromToken]);
 };

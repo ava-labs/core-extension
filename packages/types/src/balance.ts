@@ -236,3 +236,8 @@ export const isSolanaSplToken = (
   token: FungibleTokenBalance,
 ): token is SolanaSplTokenBalance =>
   token.type === TokenType.SPL && token.assetType === 'svm_spl';
+
+export const isSolanaFungibleToken = (
+  token: FungibleTokenBalance,
+): token is SolanaSplTokenBalance | SolanaNativeTokenBalance =>
+  token.assetType === 'svm_spl' || token.assetType === 'svm_native';

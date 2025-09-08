@@ -1,7 +1,6 @@
 import { TokenType } from '@avalabs/vm-module-types';
 
 import {
-  Account,
   FungibleTokenBalance,
   getUniqueTokenId,
   isErc20Token,
@@ -12,6 +11,7 @@ import { SwappableToken } from '../types';
 import { DEFAULT_SOURCE_TOKENS, DEFAULT_TARGET_TOKENS } from '../swap-config';
 import { useTargetSwapTokens } from './useTargetSwapTokens';
 import { useSwappableTokensForAccount } from './useSwappableTokensForAccount';
+import { useAccountsContext } from '@core/ui';
 
 /**
  * Based on the provided account, it returns the possible source tokens.
@@ -24,11 +24,13 @@ import { useSwappableTokensForAccount } from './useSwappableTokensForAccount';
  * it returns the default target token based on the DEFAULT_TARGET_TOKENS config.
  */
 export function useSwapTokens(
-  activeAccount?: Account,
   selectedFromTokenId?: string,
   selectedToTokenId?: string,
 ) {
-  const sourceTokens = useSwappableTokensForAccount(activeAccount);
+  const {
+    accounts: { active },
+  } = useAccountsContext();
+  const sourceTokens = useSwappableTokensForAccount(active);
   // `sourceTokens` are already filtered to only include tokens with balances.
   const potentialSourceTokens = sourceTokens.filter(
     (token) =>

@@ -140,6 +140,11 @@ const isNativeToken = (
 ): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
   token.type === TokenType.NATIVE;
 
+const isAvaxToken = (
+  token: FungibleTokenBalance,
+): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
+  token.type === TokenType.NATIVE && token.symbol === 'AVAX';
+
 /**
  * Native tokens first, then tokens sorted by balance in currency, then tokens sorted by balance, then tokens sorted by symbol
  */
@@ -147,11 +152,12 @@ const sortTokens = (tokens: FungibleTokenBalance[]): FungibleTokenBalance[] =>
   orderBy(
     tokens,
     [
+      isAvaxToken,
       isNativeToken,
       hasCurrencyValue,
       'token.balanceInCurrency',
       'token.balance',
       'token.name',
     ],
-    ['desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
+    ['desc', 'desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
   );

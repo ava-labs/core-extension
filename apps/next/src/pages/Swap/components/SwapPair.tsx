@@ -2,35 +2,29 @@ import { Stack } from '@avalabs/k2-alpine';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useAccountsContext } from '@core/ui';
 import { getUniqueTokenId } from '@core/types';
 
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 
-import { useSwapQuery, useSwapTokens } from '../hooks';
+import { useSwapState } from '../contexts/SwapStateContext';
 import { PairFlipper } from './PairFlipper';
 
 export const SwapPair = () => {
   const { t } = useTranslation();
-  const {
-    accounts: { active: activeAccount },
-  } = useAccountsContext();
-
   const {
     fromId: queryFromId,
     fromQuery,
     toId: queryToId,
     toQuery,
     srcAmount,
-    update: updateQuery,
-  } = useSwapQuery();
-
-  const { sourceTokens, targetTokens, fromToken, toToken } = useSwapTokens(
-    activeAccount,
-    queryFromId,
-    queryToId,
-  );
+    side,
+    updateQuery,
+    sourceTokens,
+    targetTokens,
+    fromToken,
+    toToken,
+  } = useSwapState();
 
   const fromTokenId = fromToken ? getUniqueTokenId(fromToken) : queryFromId;
   const toTokenId = toToken ? getUniqueTokenId(toToken) : queryToId;
@@ -57,6 +51,10 @@ export const SwapPair = () => {
     [updateQuery, fromTokenId, toTokenId],
   );
 
+  // TODO: calculate the other amount based on the received quotes.
+  const fromAmount = side === 'sell' ? srcAmount : '0';
+  const toAmount = side === 'sell' ? '0' : srcAmount;
+
   return (
     <Card>
       <Stack gap={1}>
@@ -69,8 +67,10 @@ export const SwapPair = () => {
           onTokenChange={(value) => updateQuery({ from: value, fromQuery: '' })}
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          amount={srcAmount}
-          onAmountChange={(value) => updateQuery({ srcAmount: value })}
+          amount={fromAmount}
+          onAmountChange={(value) => {
+            updateQuery({ srcAmount: value, side: 'sell' });
+          }}
           tokenHint={fromToken ? t('You pay') : undefined}
         />
         <PairFlipper disabled={!canFlip} onClick={handleFlip} />
@@ -82,8 +82,10 @@ export const SwapPair = () => {
           onTokenChange={(value) => updateQuery({ to: value, toQuery: '' })}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
-          amount="0"
-          onAmountChange={() => {}}
+          amount={toAmount}
+          onAmountChange={(value) => {
+            updateQuery({ srcAmount: value, side: 'buy' });
+          }}
           withPresetButtons={false}
           tokenHint={fromToken ? t('You receive') : undefined}
         />

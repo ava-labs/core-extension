@@ -18,6 +18,7 @@ import {
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SwapContextProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -119,6 +120,12 @@ export function App() {
           <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
+          <SwapContextProvider
+            removeToast={() => alert('TODO: dismiss toasts')}
+            showErrorToast={() => alert('TODO: oopsie error')}
+            showPendingToast={() => String(alert('TODO: swap pending...'))}
+            showToastWithLink={() => alert('TODO: swap toast with link')}
+          />,
         ]) as ReactElement[]
       }
     >

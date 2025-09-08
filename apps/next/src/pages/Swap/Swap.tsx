@@ -7,17 +7,18 @@ import { useAccountsContext, useLiveBalance } from '@core/ui';
 import { Page } from '@/components/Page';
 import { AccountSelect } from '@/components/AccountSelect';
 
-import { SwapPair } from './components/SwapPair';
+import { SwapPair, SwapBody } from './components';
+import { SwapStateContextProvider } from './contexts/SwapStateContext';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
-export const Swap = () => {
+const SwapPage = () => {
   useLiveBalance(POLLED_BALANCES);
 
   const { t } = useTranslation();
   const {
+    accounts: { active },
     selectAccount,
-    accounts: { active: activeAccount },
   } = useAccountsContext();
 
   const [accountQuery, setAccountQuery] = useState('');
@@ -31,13 +32,22 @@ export const Swap = () => {
       <Stack width="100%" gap={2}>
         <AccountSelect
           addressType="C"
-          value={activeAccount}
+          value={active}
           query={accountQuery}
           onValueChange={(newAccount) => selectAccount(newAccount.id)}
           onQueryChange={(q) => setAccountQuery(q)}
         />
         <SwapPair />
       </Stack>
+      <SwapBody />
     </Page>
+  );
+};
+
+export const Swap = () => {
+  return (
+    <SwapStateContextProvider>
+      <SwapPage />
+    </SwapStateContextProvider>
   );
 };
