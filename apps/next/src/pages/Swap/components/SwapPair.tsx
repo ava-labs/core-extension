@@ -22,7 +22,7 @@ export const SwapPair = () => {
     fromQuery,
     toId: queryToId,
     toQuery,
-    amount,
+    srcAmount,
     update: updateQuery,
   } = useSwapQuery();
 
@@ -69,8 +69,8 @@ export const SwapPair = () => {
           onTokenChange={(value) => updateQuery({ from: value, fromQuery: '' })}
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          amount={amount}
-          onAmountChange={(value) => updateQuery({ amount: value })}
+          amount={srcAmount}
+          onAmountChange={(value) => updateQuery({ srcAmount: value })}
           tokenHint={fromToken ? t('You pay') : undefined}
         />
         <PairFlipper disabled={!canFlip} onClick={handleFlip} />

@@ -17,7 +17,7 @@ export const useSwapQuery = () => {
   const fromQuery = searchParams.get(SWAP_QUERY_TOKENS.fromQuery) ?? '';
   const toId = searchParams.get(SWAP_QUERY_TOKENS.to) ?? '';
   const toQuery = searchParams.get(SWAP_QUERY_TOKENS.toQuery) ?? '';
-  const amount = searchParams.get(SWAP_QUERY_TOKENS.amount) ?? '';
+  const srcAmount = searchParams.get(SWAP_QUERY_TOKENS.srcAmount) ?? '';
 
   const update = useCallback(
     (payload: Partial<Record<keyof SwapQueryTokens, string>>) => {
@@ -41,6 +41,6 @@ export const useSwapQuery = () => {
     fromQuery,
     toId,
     toQuery,
-    amount,
+    srcAmount,
   };
 };
