@@ -13,14 +13,14 @@ import { NetworkAvatar } from './NetworkAvatar/NetworkAvatar';
 import { NetworkNameField } from './NetworkForm/NetworkNameField';
 import { NetworkForm } from './NetworkForm/NetworkForm';
 import {
-  EditNetworkFormTab,
+  EditNetworkFormView,
   NetworkFormFieldInfo,
   NetworkFormFields,
 } from './NetworkForm/types';
 import { Page } from '@/components/Page';
 
 type NetworkDetailsProps = {
-  setTab: (tab: EditNetworkFormTab) => void;
+  setView: (view: EditNetworkFormView) => void;
   setNetwork: (network: Network) => void;
   network: Network;
   isEditing: boolean;
@@ -37,7 +37,7 @@ type NetworkDetailsProps = {
 };
 
 export const NetworkDetails = ({
-  setTab,
+  setView,
   setNetwork,
   network,
   isEditing,
@@ -97,7 +97,7 @@ export const NetworkDetails = ({
       <NetworkForm
         network={network}
         setNetwork={setNetwork}
-        setTab={setTab}
+        setView={setView}
         fieldInfo={fieldInfo}
         canResetRpcUrl={canResetRpcUrl}
         readOnly={!isEditing}

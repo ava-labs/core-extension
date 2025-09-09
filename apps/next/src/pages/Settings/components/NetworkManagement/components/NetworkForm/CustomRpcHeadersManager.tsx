@@ -17,19 +17,19 @@ import {
   prepToStoreCustomRpcHeaders,
   updateKeyValueList,
 } from './utils/customRpcHeaders';
-import { EditNetworkFormTab } from './types';
+import { EditNetworkFormView } from './types';
 import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';
 
 type CustomRpcHeadersManagerProps = {
-  setTab: (tab: EditNetworkFormTab) => void;
+  setView: (view: EditNetworkFormView) => void;
   setNetwork: (network: Network) => void;
   network: Network;
   readonly: boolean;
 };
 
 export const CustomRpcHeadersManager = ({
-  setTab,
+  setView,
   setNetwork,
   network,
   readonly,
@@ -48,7 +48,7 @@ export const CustomRpcHeadersManager = ({
   const isValid = isReadyToStore(headerList);
 
   const handleBack = () => {
-    setTab('details');
+    setView('details');
   };
 
   const handleCancel = () => {

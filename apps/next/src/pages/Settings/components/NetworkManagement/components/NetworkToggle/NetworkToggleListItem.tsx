@@ -23,7 +23,7 @@ export const NetworkToggleListItem = ({
   onClick,
 }: NetworkToggleListItemProps) => {
   return (
-    <ListItem sx={{ px: 0 }} onClick={onClick}>
+    <ListItem sx={{ px: 0 }} onClick={onClick} style={{ cursor: 'pointer' }}>
       <ListItemIcon>
         <NetworkAvatar
           network={network}
