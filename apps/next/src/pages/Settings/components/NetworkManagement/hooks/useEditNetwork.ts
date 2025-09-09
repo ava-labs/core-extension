@@ -14,12 +14,12 @@ export const useEditNetwork = ({
   networkId,
   rpcUrlResetButtonAction: rpcUrlResetAction,
 }: UseEditNetworkProps) => {
-  const { networks, removeCustomNetwork } = useNetworkContext();
+  const { removeCustomNetwork, getNetwork } = useNetworkContext();
   const { capture } = useAnalyticsContext();
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const original = networks.find((n) => n.chainId === Number(networkId));
+  const original = getNetwork(networkId);
 
   const { isCustomNetwork, saveCustomNetwork, updateDefaultNetwork } =
     useNetworkContext();

@@ -5,7 +5,7 @@ import { RpcUrlResetConfirmation } from './Confirmations/RpcUrlResetConfirmation
 import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { NetworkUpdateConfirmation } from './Confirmations/NetworkUpdateConfirmation';
-import { EditNetworkFormTab } from './NetworkForm/types';
+import { EditNetworkFormView } from './NetworkForm/types';
 import { NetworkDetails } from './NetworkDetails';
 import { NetworkDeleteConfirmation } from './Confirmations/NetworkDeleteConfirmation';
 import { NetworkNotFound } from './NetworkNotFound';
@@ -20,7 +20,7 @@ export const NetworkDetailsFlow = () => {
   const { t } = useTranslation();
   const { networkId } = useParams<NetworkDetailsParams>();
 
-  const [tab, setTab] = useState<EditNetworkFormTab>('details');
+  const [view, setView] = useState<EditNetworkFormView>('details');
 
   const {
     network,
@@ -37,7 +37,7 @@ export const NetworkDetailsFlow = () => {
   } = useEditNetwork({
     networkId: Number(networkId),
     rpcUrlResetButtonAction: () => {
-      setTab('rpc-url-reset');
+      setView('rpc-url-reset');
     },
   });
 
@@ -45,7 +45,7 @@ export const NetworkDetailsFlow = () => {
     try {
       await resetRpcUrl();
       toast.success(t('RPC URL reset successfully'));
-      setTab('details');
+      setView('details');
     } catch (error) {
       console.error(error);
       toast.error(t('Failed to reset RPC URL'));
@@ -56,7 +56,7 @@ export const NetworkDetailsFlow = () => {
     try {
       await submit();
       toast.success(t('Network updated'));
-      setTab('details');
+      setView('details');
     } catch (error) {
       console.error(error);
       toast.error(t('Failed to save network'));
@@ -71,50 +71,65 @@ export const NetworkDetailsFlow = () => {
     } catch (error) {
       console.error(error);
       toast.error(t('Failed to delete network'));
-      setTab('details');
+      setView('details');
     }
   };
 
-  return !network ? (
-    <NetworkNotFound />
-  ) : tab === 'details' ? (
-    <NetworkDetails
-      network={network}
-      setNetwork={setNetwork}
-      setTab={setTab}
-      onSubmit={() => setTab('save')}
-      onCancel={reset}
-      isValid={isValid}
-      fieldInfo={fieldInfo}
-      canResetRpcUrl={!isCustom}
-      autoFocus={false}
-      isEditing={isEditing}
-      setIsEditing={setIsEditing}
-      onDelete={() => setTab('delete')}
-      isCustom={isCustom}
-      pageType={'edit'}
-    />
-  ) : tab === 'rpc-headers' ? (
-    <CustomRpcHeadersManager
-      network={network}
-      setTab={setTab}
-      setNetwork={setNetwork}
-      readonly={!isEditing}
-    />
-  ) : tab === 'rpc-url-reset' ? (
-    <RpcUrlResetConfirmation
-      onBack={() => setTab('details')}
-      onSubmit={resetRpcUrlHandler}
-    />
-  ) : tab === 'save' ? (
-    <NetworkUpdateConfirmation
-      onBack={() => setTab('details')}
-      onSubmit={saveHandler}
-    />
-  ) : tab === 'delete' ? (
-    <NetworkDeleteConfirmation
-      onBack={() => setTab('details')}
-      onSubmit={deleteHandler}
-    />
-  ) : null;
+  if (!network) {
+    return <NetworkNotFound />;
+  }
+
+  switch (view) {
+    case 'details':
+      return (
+        <NetworkDetails
+          network={network}
+          setNetwork={setNetwork}
+          setView={setView}
+          onSubmit={() => setView('save')}
+          onCancel={reset}
+          isValid={isValid}
+          fieldInfo={fieldInfo}
+          canResetRpcUrl={!isCustom}
+          autoFocus={false}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          onDelete={() => setView('delete')}
+          isCustom={isCustom}
+          pageType={'edit'}
+        />
+      );
+    case 'rpc-headers':
+      return (
+        <CustomRpcHeadersManager
+          network={network}
+          setView={setView}
+          setNetwork={setNetwork}
+          readonly={!isEditing}
+        />
+      );
+    case 'rpc-url-reset':
+      return (
+        <RpcUrlResetConfirmation
+          onBack={() => setView('details')}
+          onSubmit={resetRpcUrlHandler}
+        />
+      );
+    case 'save':
+      return (
+        <NetworkUpdateConfirmation
+          onBack={() => setView('details')}
+          onSubmit={saveHandler}
+        />
+      );
+    case 'delete':
+      return (
+        <NetworkDeleteConfirmation
+          onBack={() => setView('details')}
+          onSubmit={deleteHandler}
+        />
+      );
+    default:
+      return null;
+  }
 };

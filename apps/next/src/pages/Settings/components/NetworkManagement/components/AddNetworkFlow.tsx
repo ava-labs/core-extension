@@ -3,7 +3,7 @@ import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
 import { useHistory } from 'react-router-dom';
 import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { AddNetworkFormTab } from './NetworkForm/types';
+import { AddNetworkFormView } from './NetworkForm/types';
 import { NetworkDetails } from './NetworkDetails';
 import { useAddNetwork } from '../hooks/useAddNetwork';
 
@@ -13,7 +13,7 @@ export const AddNetworkFlow = () => {
   const { network, setNetwork, reset, isValid, submit, fieldInfo } =
     useAddNetwork();
 
-  const [tab, setTab] = useState<AddNetworkFormTab>('details');
+  const [view, setView] = useState<AddNetworkFormView>('details');
 
   const goBackToNetworks = () => {
     reset();
@@ -37,13 +37,13 @@ export const AddNetworkFlow = () => {
 
   return (
     <>
-      {tab === 'details' && (
+      {view === 'details' && (
         <NetworkDetails
           network={network}
           setNetwork={setNetwork}
-          setTab={(newTab) => {
-            if (newTab === 'details' || newTab === 'rpc-headers') {
-              setTab(newTab);
+          setView={(newView) => {
+            if (newView === 'details' || newView === 'rpc-headers') {
+              setView(newView);
             }
           }}
           onSubmit={submitHandler}
@@ -59,11 +59,11 @@ export const AddNetworkFlow = () => {
           pageType={'add'}
         />
       )}
-      {tab === 'rpc-headers' && (
+      {view === 'rpc-headers' && (
         <CustomRpcHeadersManager
-          setTab={(newTab) => {
-            if (newTab === 'details' || newTab === 'rpc-headers') {
-              setTab(newTab);
+          setView={(newView) => {
+            if (newView === 'details' || newView === 'rpc-headers') {
+              setView(newView);
             }
           }}
           setNetwork={setNetwork}

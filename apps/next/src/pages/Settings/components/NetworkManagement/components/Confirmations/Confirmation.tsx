@@ -1,6 +1,7 @@
 import { Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { PageTopBar } from '@/components/PageTopBar';
 import { MdInfoOutline } from 'react-icons/md';
+import { SlideUpDialog } from '@/components/Dialog';
+import { Page } from '@/components/Page';
 
 type ConfirmationProps = {
   onBack: () => void;
@@ -22,58 +23,116 @@ export const Confirmation = ({
   const theme = useTheme();
 
   return (
-    <Stack
-      height="100cqh"
-      width={1}
-      bgcolor="background.backdrop"
-      overflow="hidden"
-    >
-      <PageTopBar showBack={true} onBackClicked={onBack} />
-
-      <Stack px={1.5} pb={1.5} gap={3} flexGrow={1}>
-        <Typography variant="h2" sx={{ width: '90%' }}>
-          {title}
-        </Typography>
-
-        <Stack direction="row" gap={1} alignItems="center">
+    <SlideUpDialog open={true} onClose={onBack}>
+      <Page
+        title={title}
+        onBack={onBack}
+        contentProps={{
+          mt: -1.5,
+          px: 0,
+          alignItems: 'stretch',
+          justifyContent: 'space-between',
+          height: '100%',
+        }}
+        containerProps={{
+          pb: 0,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
           <MdInfoOutline color={theme.palette.error.main} size={24} />
           <Typography variant="body3" sx={{ color: 'error.main' }}>
             {warningText}
           </Typography>
         </Stack>
-      </Stack>
 
-      {/* Bottom Buttons */}
-      <Stack
-        width="100%"
-        gap={1}
-        sx={{
-          pt: 2,
-          px: 1.5,
-          pb: 2,
-        }}
-        position="sticky"
-        bottom={0}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          fullWidth
-          onClick={onSubmit}
+        <Stack
+          width="100%"
+          gap={1}
+          position="sticky"
+          bottom={0}
+          pt={3}
+          pb={2}
+          flexShrink={0}
         >
-          {primaryButtonText}
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="small"
-          fullWidth
-          onClick={onBack}
-        >
-          {secondaryButtonText}
-        </Button>
-      </Stack>
-    </Stack>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            fullWidth
+            onClick={onSubmit}
+          >
+            {primaryButtonText}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            fullWidth
+            onClick={onBack}
+          >
+            {secondaryButtonText}
+          </Button>
+        </Stack>
+      </Page>
+    </SlideUpDialog>
   );
+
+  // return (
+  //   <Stack
+  //     height="100cqh"
+  //     width={1}
+  //     bgcolor="background.backdrop"
+  //     overflow="hidden"
+  //   >
+  //     <PageTopBar showBack={true} onBackClicked={onBack} />
+
+  //     <Stack px={1.5} pb={1.5} gap={3} flexGrow={1}>
+  //       <Typography variant="h2" sx={{ width: '90%' }}>
+  //         {title}
+  //       </Typography>
+
+  //       <Stack direction="row" gap={1} alignItems="center">
+  //         <MdInfoOutline color={theme.palette.error.main} size={24} />
+  //         <Typography variant="body3" sx={{ color: 'error.main' }}>
+  //           {warningText}
+  //         </Typography>
+  //       </Stack>
+  //     </Stack>
+
+  //     {/* Bottom Buttons */}
+  //     <Stack
+  //       width="100%"
+  //       gap={1}
+  //       sx={{
+  //         pt: 2,
+  //         px: 1.5,
+  //         pb: 2,
+  //       }}
+  //       position="sticky"
+  //       bottom={0}
+  //     >
+  //       <Button
+  //         variant="contained"
+  //         color="primary"
+  //         size="small"
+  //         fullWidth
+  //         onClick={onSubmit}
+  //       >
+  //         {primaryButtonText}
+  //       </Button>
+  //       <Button
+  //         variant="contained"
+  //         color="secondary"
+  //         size="small"
+  //         fullWidth
+  //         onClick={onBack}
+  //       >
+  //         {secondaryButtonText}
+  //       </Button>
+  //     </Stack>
+  //   </Stack>
+  // );
 };

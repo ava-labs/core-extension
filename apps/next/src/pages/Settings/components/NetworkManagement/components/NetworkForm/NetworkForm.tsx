@@ -14,13 +14,13 @@ import {
   TokenSymbolField,
 } from './NetworkFormField';
 import { Network } from '@core/types';
-import { FieldInfo, NetworkFormFields, EditNetworkFormTab } from './types';
+import { FieldInfo, NetworkFormFields, EditNetworkFormView } from './types';
 import { Card } from '@/components/Card';
 
 type NetworkFormProps = {
   network: Network;
   setNetwork: (network: Network) => void;
-  setTab: (tab: EditNetworkFormTab) => void;
+  setView: (view: EditNetworkFormView) => void;
   canResetRpcUrl: boolean;
   fieldInfo: { [key in NetworkFormFields]?: FieldInfo };
   readOnly: boolean;
@@ -30,7 +30,7 @@ type NetworkFormProps = {
 export const NetworkForm = ({
   network,
   setNetwork,
-  setTab,
+  setView,
   canResetRpcUrl,
   fieldInfo,
   readOnly,
@@ -110,7 +110,7 @@ export const NetworkForm = ({
         direction="row"
         spacing={2}
         justifyContent="space-between"
-        onClick={() => setTab('rpc-headers')}
+        onClick={() => setView('rpc-headers')}
         p={1.5}
       >
         <Typography>{t('Custom RPC Headers')}</Typography>
