@@ -152,6 +152,7 @@ import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriv
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
+import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -477,6 +478,7 @@ import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwor
   },
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
+  { token: 'ExtensionRequestHandler', useToken: GetTrendingTokensHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
