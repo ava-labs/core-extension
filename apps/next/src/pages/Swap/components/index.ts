@@ -1,2 +1,5 @@
 export * from './SwapPair';
-export * from './SwapBody';
+export * from './SwapSettings';
+export * from './SwapErrorMessage';
+export * from './CoreFeeNotice';
+export * from './SwapProviderNotice';

@@ -36,3 +36,6 @@ export const DEFAULT_TARGET_TOKENS: Record<
   ETH: USDC_ADDRESS_ETHEREUM,
   SOL: USDC_ADDRESS_SOLANA,
 };
+
+export const MIN_SLIPPAGE = 0.1;
+export const DEFAULT_SLIPPAGE = 1;

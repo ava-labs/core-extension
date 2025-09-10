@@ -1,23 +1,40 @@
 import {
   createContext,
+  Dispatch,
   FC,
+  SetStateAction,
+  useCallback,
   useContext,
   useEffect,
+  useState,
   type ReactNode,
 } from 'react';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import { Account, isNativeToken } from '@core/types';
 import {
   useAccountsContext,
   useNetworkContext,
   useSwapContext,
-  NormalizedSwapQuoteResult,
   SwapProviders,
+  SwapQuote,
+  SwapContextAPI,
+  useAnalyticsContext,
+  useErrorMessage,
 } from '@core/ui';
+import {
+  getAddressForChain,
+  isGasEstimationError,
+  isSwapTxBuildError,
+  isUserRejectionError,
+  Monitoring,
+  stringToBigint,
+} from '@core/common';
 
 import { useSwapQuery, useSwapTokens } from '../hooks';
-import { stringToBigint } from '@core/common';
-import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { toast } from '@avalabs/k2-alpine';
+import { DEFAULT_SLIPPAGE } from '../swap-config';
+import { useHistory } from 'react-router-dom';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
@@ -29,8 +46,17 @@ type SwapState = QueryState &
     account?: Account;
     fromAmount?: string;
     toAmount?: string;
+    isConfirming: boolean;
     isAmountLoading?: boolean;
-    quotes?: NormalizedSwapQuoteResult | null;
+    quote?: SwapQuote;
+    quotes?: SwapContextAPI['quotes'];
+    setQuotes: SwapContextAPI['setQuotes'];
+    manuallySelected: SwapContextAPI['manuallySelected'];
+    setManuallySelected: SwapContextAPI['setManuallySelected'];
+    swapError?: SwapContextAPI['error'];
+    performSwap: () => Promise<void>;
+    slippage: number;
+    setSlippage: Dispatch<SetStateAction<number>>;
   };
 
 const SwapStateContext = createContext<SwapState | undefined>(undefined);
@@ -38,7 +64,9 @@ const SwapStateContext = createContext<SwapState | undefined>(undefined);
 export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const { replace } = useHistory();
   const { getNetwork } = useNetworkContext();
+  const { captureEncrypted } = useAnalyticsContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -49,7 +77,14 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
     isSwapLoading,
     setSwapNetwork,
     quotes,
+    setQuotes,
+    error,
+    swap,
+    manuallySelected,
+    setManuallySelected,
   } = useSwapContext();
+
+  const getTranslatedError = useErrorMessage();
 
   const {
     update: updateQuery,
@@ -60,10 +95,14 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
     fromQuery,
     toQuery,
   } = useSwapQuery();
+
   const { sourceTokens, targetTokens, fromToken, toToken } = useSwapTokens(
     fromId,
     toId,
   );
+
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
 
   const fromTokenAddress = fromToken
     ? isNativeToken(fromToken)
@@ -80,7 +119,6 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       : toToken.address
     : undefined;
 
-  // TODO: calculate the other amount based on the received quotes.
   const fromAmount =
     side === 'sell'
       ? userAmount
@@ -93,6 +131,119 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
         ? bigIntToString(BigInt(destAmount), toTokenDecimals)
         : ''
       : userAmount;
+
+  const performSwap = useCallback(
+    async (specificProvider?: SwapProviders, specificQuote?: SwapQuote) => {
+      if (
+        !fromToken?.coreChainId ||
+        !fromTokenAddress ||
+        !toTokenAddress ||
+        !fromTokenDecimals ||
+        !toTokenDecimals ||
+        !fromAmount ||
+        !toAmount ||
+        !quotes
+      ) {
+        return;
+      }
+
+      setIsConfirming(true);
+
+      const network = getNetwork(fromToken?.coreChainId);
+      const address = getAddressForChain(network, activeAccount);
+
+      const quoteToUse = specificQuote ?? quotes.selected.quote;
+      const providerToUse = specificProvider ?? quotes.provider;
+
+      try {
+        await swap({
+          srcToken: fromTokenAddress,
+          destToken: toTokenAddress,
+          srcDecimals: fromTokenDecimals,
+          destDecimals: toTokenDecimals,
+          quote: quoteToUse,
+          slippage,
+          swapProvider: providerToUse,
+          amountIn: fromAmount,
+          amountOut: toAmount,
+        });
+        captureEncrypted('SwapConfirmed', {
+          address,
+          chainId: network?.chainId,
+        });
+        replace('/');
+      } catch (err) {
+        if (isUserRejectionError(err)) return;
+
+        if (
+          !manuallySelected &&
+          (isSwapTxBuildError(err) || isGasEstimationError(err))
+        ) {
+          // Check if there are more quotes available to try
+          if (quotes.quotes.length > 1) {
+            const currentQuoteIndex = quotes.quotes.findIndex(
+              (q) => q.quote === quoteToUse,
+            );
+            const nextQuoteIndex = currentQuoteIndex + 1;
+
+            if (nextQuoteIndex < quotes.quotes.length) {
+              // Try the next quote automatically
+              const nextQuote = quotes.quotes[nextQuoteIndex];
+              const swapProvider = quotes.provider;
+              if (nextQuote) {
+                setQuotes({
+                  ...quotes,
+                  selected: nextQuote,
+                });
+
+                // Retry swap with next quote without showing error
+                performSwap(swapProvider, nextQuote.quote);
+                return; // Don't handle error since we're retrying
+              }
+            }
+          }
+        }
+
+        console.error(err);
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.SWAP,
+        );
+
+        const { title, hint } = getTranslatedError(err);
+
+        toast.error(title, {
+          description: hint,
+        });
+
+        captureEncrypted('SwapFailed', {
+          address,
+          chainId: network?.chainId,
+        });
+      } finally {
+        setIsConfirming(false);
+      }
+    },
+    [
+      swap,
+      fromToken?.coreChainId,
+      fromTokenAddress,
+      toTokenAddress,
+      fromTokenDecimals,
+      toTokenDecimals,
+      fromAmount,
+      toAmount,
+      quotes,
+      captureEncrypted,
+      getTranslatedError,
+      getNetwork,
+      activeAccount,
+      manuallySelected,
+      setQuotes,
+      slippage,
+      replace,
+    ],
+  );
 
   useEffect(() => {
     if (
@@ -115,7 +266,7 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
         fromTokenDecimals,
         toTokenAddress,
         toTokenDecimals,
-        slippageTolerance: '1', // TODO: allow customization
+        slippageTolerance: slippage.toString(),
       });
     }
   }, [
@@ -128,6 +279,7 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
     swapFormValuesStream,
     side,
     userAmount,
+    slippage,
   ]);
 
   useEffect(() => {
@@ -155,7 +307,16 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
         fromAmount,
         toAmount,
         isAmountLoading: isSwapLoading,
+        isConfirming,
         quotes,
+        setQuotes,
+        manuallySelected,
+        setManuallySelected,
+        quote: quotes?.selected?.quote,
+        swapError: error,
+        performSwap,
+        slippage,
+        setSlippage,
       }}
     >
       {children}
