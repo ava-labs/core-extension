@@ -26,9 +26,9 @@ export default defineConfig((...args) =>
                 to: './',
                 force: true,
                 transform: transformManifestFiles({
-                  name: 'Core | Crypto Wallet & NFT Extension',
+                  name: 'Core Wallet: Crypto Made Easy',
                   shortName: 'Core',
-                  actionDefaultTitle: 'Core | Crypto Wallet & NFT Extension',
+                  actionDefaultTitle: 'Core Wallet: Crypto Made Easy',
                   oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
                   publicKey: process.env.EXTENSION_PUBLIC_KEY,
                 }),
