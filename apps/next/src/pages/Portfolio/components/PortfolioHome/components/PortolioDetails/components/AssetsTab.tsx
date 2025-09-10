@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { MdCurrencyBitcoin, MdKeyboardArrowDown } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { UnderConstruction } from './UnderConstruction';
+import { TrendingTokenBanner } from '@/pages/Portfolio/components/Trending/components/banner/TrendingTokenBanner';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
@@ -18,7 +19,7 @@ export const AssetsTab: FC = () => {
   return (
     <Stack direction="column" gap={1.25} height={1}>
       <Box height={40} bgcolor="background.paper" borderRadius={2} px={2}>
-        Trending tokens placeholder
+        <TrendingTokenBanner />
       </Box>
       <Stack direction="row" gap={1.25}>
         <StyledButton
