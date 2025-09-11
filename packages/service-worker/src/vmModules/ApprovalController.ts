@@ -1,39 +1,40 @@
-import { singleton } from 'tsyringe';
 import {
   ApprovalParams,
   ApprovalResponse,
-  BtcTxUpdateFn,
-  DisplayData,
-  EvmTxUpdateFn,
   BatchApprovalController,
-  RpcMethod,
-  SigningData,
   BatchApprovalParams,
   BatchApprovalResponse,
+  BtcTxUpdateFn,
+  DisplayData,
   EvmTxBatchUpdateFn,
-  SigningRequest,
-  SigningData_EthSendTx,
+  EvmTxUpdateFn,
   RequestPublicKeyParams,
+  RpcMethod,
+  SigningData,
+  SigningData_EthSendTx,
+  SigningRequest,
 } from '@avalabs/vm-module-types';
-import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
+import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
+import { singleton } from 'tsyringe';
 
-import { WalletService } from '../services/wallet/WalletService';
 import {
+  ACTION_HANDLED_BY_MODULE,
   Action,
   ActionStatus,
   ActionType,
   MultiTxAction,
+  NetworkWithCaipId,
   isBatchApprovalAction,
 } from '@core/types';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { NetworkService } from '../services/network/NetworkService';
-import { NetworkWithCaipId, ACTION_HANDLED_BY_MODULE } from '@core/types';
+import { WalletService } from '../services/wallet/WalletService';
 
+import { SecretsService } from '../services/secrets/SecretsService';
 import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';
-import { SecretsService } from '../services/secrets/SecretsService';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -69,18 +70,15 @@ export class ApprovalController implements BatchApprovalController {
     this.#networkService = networkService;
   }
 
-  onTransactionPending = (...args) => {
-    console.log('DEBUG pending', ...args);
+  onTransactionPending = () => {
     // Transaction Pending. Show a toast? Trigger browser notification?',
   };
 
-  onTransactionConfirmed = (...args) => {
-    console.log('DEBUG confirmed', ...args);
+  onTransactionConfirmed = () => {
     // Transaction Confirmed. Show a toast? Trigger browser notification?',
   };
 
-  onTransactionReverted = (...args) => {
-    console.log('DEBUG reverted', ...args);
+  onTransactionReverted = () => {
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 

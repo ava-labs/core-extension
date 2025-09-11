@@ -75,7 +75,12 @@ export type AddEthereumChainDisplayData = {
 export const PLACEHOLDER_RPC_HEADERS = { '': '' };
 
 export type EvmNetwork = NetworkWithCaipId & { vmName: NetworkVMType.EVM };
+export type BtcNetwork = NetworkWithCaipId & { vmName: NetworkVMType.BITCOIN };
 
 export const isEvmNetwork = (
   network: NetworkWithCaipId,
 ): network is EvmNetwork => network.vmName === NetworkVMType.EVM;
+
+export const isBtcNetwork = (
+  network: NetworkWithCaipId,
+): network is BtcNetwork => network.vmName === NetworkVMType.BITCOIN;

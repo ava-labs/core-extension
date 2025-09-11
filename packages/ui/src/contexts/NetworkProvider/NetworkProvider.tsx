@@ -13,9 +13,11 @@ import {
 } from '@core/types';
 
 import {
+  AddEnabledNetworkHandler,
   AddFavoriteNetworkHandler,
   GetNetworksStateHandler,
   RemoveCustomNetworkHandler,
+  RemoveEnabledNetworkHandler,
   RemoveFavoriteNetworkHandler,
   SaveCustomNetworkHandler,
   SetActiveNetworkHandler,
@@ -55,9 +57,12 @@ const NetworkContext = createContext<{
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
   favoriteNetworks: NetworkWithCaipId[];
+  enabledNetworks: number[];
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
+  enableNetwork(chainId: number): void;
+  disableNetwork(chainId: number): void;
   customNetworks: NetworkWithCaipId[];
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
@@ -76,9 +81,12 @@ const NetworkContext = createContext<{
   async removeCustomNetwork() {},
   isDeveloperMode: false,
   favoriteNetworks: [],
+  enabledNetworks: [],
   addFavoriteNetwork() {},
   removeFavoriteNetwork() {},
   isFavoriteNetwork: () => false,
+  enableNetwork() {},
+  disableNetwork() {},
   customNetworks: [],
   isCustomNetwork: () => false,
   isChainIdExist: () => false,
@@ -98,6 +106,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
+  const [enabledNetworks, setEnabledNetworks] = useState<number[]>([]);
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
 
@@ -209,6 +218,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
       updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
+      updateIfDifferent(setEnabledNetworks, result.enabledNetworks);
       updateIfDifferent(setCustomNetworks, result.customNetworks);
     });
   }, [request]);
@@ -221,10 +231,22 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   };
 
   const saveCustomNetwork = async (customNetwork: CustomNetworkPayload) => {
-    return request<SaveCustomNetworkHandler>({
+    const result = await request<SaveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_SAVE_CUSTOM,
       params: [customNetwork],
     }).then(getNetworkState);
+
+    const chainId =
+      typeof customNetwork.chainId === 'string'
+        ? parseInt(customNetwork.chainId, 16)
+        : customNetwork.chainId;
+
+    capture('NetworkFavoriteAdded', {
+      networkChainId: chainId,
+      isCustom: true,
+    });
+
+    return result;
   };
 
   const updateDefaultNetwork = async (networkOverrides: NetworkOverrides) => {
@@ -259,6 +281,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       .subscribe(async (result) => {
         updateIfDifferent(setNetworks, result.networks);
         updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
+        updateIfDifferent(setEnabledNetworks, result.enabledNetworks);
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
           networkChanged.dispatch(newNetwork?.caipId);
@@ -275,6 +298,26 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       networksSubscription.unsubscribe();
     };
   }, [events, getNetworkState]);
+
+  const enableNetwork = useCallback(
+    (chainId: number) => {
+      request<AddEnabledNetworkHandler>({
+        method: ExtensionRequest.ENABLE_NETWORK,
+        params: chainId,
+      }).then(setEnabledNetworks);
+    },
+    [request],
+  );
+
+  const disableNetwork = useCallback(
+    (chainId: number) => {
+      request<RemoveEnabledNetworkHandler>({
+        method: ExtensionRequest.DISABLE_NETWORK,
+        params: chainId,
+      }).then(setEnabledNetworks);
+    },
+    [request],
+  );
 
   return (
     <NetworkContext.Provider
@@ -296,6 +339,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
         favoriteNetworks: getFavoriteNetworks,
+        enabledNetworks: enabledNetworks,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
@@ -322,6 +366,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         },
         isFavoriteNetwork: (chainId: number) =>
           favoriteNetworks.includes(chainId),
+        enableNetwork,
+        disableNetwork,
         customNetworks: getCustomNetworks,
         isCustomNetwork,
         isChainIdExist,

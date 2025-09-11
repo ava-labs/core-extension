@@ -1,15 +1,15 @@
 import { Route, Switch } from 'react-router-dom';
 
-import { Send } from '@/pages/Send';
-import { Receive } from '@/pages/Receive';
-import { Settings } from '@/pages/Settings';
+import AccountManagement from '@/pages/AccountManagement';
 import { Contacts } from '@/pages/Contacts';
-import { Portfolio } from '@/pages/Portfolio';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
-import AccountManagement from '@/pages/AccountManagement/AccountManagement';
-
-import { getContactsPath, getSendPath } from '@/config/routes';
+import { Portfolio } from '@/pages/Portfolio';
+import { Receive } from '@/pages/Receive';
+import { Swap } from '@/pages/Swap';
+import { Send } from '@/pages/Send';
+import { Settings } from '@/pages/Settings';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
+import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 
 export const AppRoutes = () => (
   <Switch>
@@ -24,6 +24,7 @@ export const AppRoutes = () => (
       path="/update-recovery-method/:mfaType?/:action?/:keyType?"
       component={RecoveryMethodsFullScreen}
     />
+    <Route path={getSwapPath()} component={Swap} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );

@@ -13,6 +13,7 @@ import {
   isEvmWrapQuote,
   NormalizedSwapQuoteResult,
 } from './types';
+import { Dispatch, SetStateAction } from 'react';
 
 /**
  * Paraswap may return both data and an error sometimes.
@@ -161,7 +162,7 @@ export type SwapContextAPI = {
   isSwapLoading: boolean;
   setIsSwapLoading(isSwapLoading: boolean): void;
   quotes: NormalizedSwapQuoteResult | null;
-  setQuotes(quotes: NormalizedSwapQuoteResult | null): void;
+  setQuotes: Dispatch<SetStateAction<NormalizedSwapQuoteResult | null>>;
   manuallySelected: boolean;
   setManuallySelected(manuallySelected: boolean): void;
   swapFormValuesStream: BehaviorSubject<SwapFormValues>;
@@ -169,6 +170,8 @@ export type SwapContextAPI = {
   setDestAmount(destAmount: string | undefined): void;
   srcAmount: string | undefined;
   setSrcAmount(srcAmount: string | undefined): void;
+  swapNetwork?: NetworkWithCaipId | undefined;
+  setSwapNetwork: Dispatch<SetStateAction<NetworkWithCaipId | undefined>>;
 };
 
 export const DISALLOWED_SWAP_ASSETS: string[] = [

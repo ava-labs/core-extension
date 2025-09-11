@@ -15,8 +15,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MdAddCircle, MdRemoveCircle } from 'react-icons/md';
 
 import { MultiIconButton } from '@/components/MultiIconButton';
-
-import { InvisibleAddressInput } from '../InvisibleInput';
+import { InvisibleFieldInput } from '@/components/Forms/InvisibleInput';
 
 type AddressFieldProps = {
   value: string;
@@ -87,7 +86,7 @@ export const AddressField = ({
             component="label"
             onClick={() => setIsEditing(true)}
           >
-            <InvisibleAddressInput
+            <InvisibleFieldInput
               ref={ref}
               value={value}
               placeholder={placeholder}

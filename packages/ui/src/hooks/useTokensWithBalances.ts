@@ -59,7 +59,7 @@ export const useTokensWithBalances = (
     if (!activeNetwork?.chainId) {
       return {};
     }
-    const customTokensForActiveNetwork = customTokens[activeNetwork.chainId];
+    const customTokensForActiveNetwork = customTokens?.[activeNetwork.chainId];
     if (!customTokensForActiveNetwork) {
       return {};
     }

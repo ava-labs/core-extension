@@ -46,4 +46,5 @@ export const SearchableSelectListBox = styled((props: StackProps) => (
 ))(({ theme }) => ({
   width: '100%',
   paddingBottom: theme.spacing(1),
+  flexGrow: 1,
 }));

@@ -54,7 +54,7 @@ export const FIDOChallenge: FC<Props> = ({
         : FIDOApiEndpoint.Register,
       challenge.options,
       challenge.type === MfaRequestType.FidoRegister && keyType
-        ? KeyType[keyType]
+        ? (keyType as KeyType)
         : undefined,
     )
       .then((answer) => {

@@ -83,6 +83,26 @@ jest.mock('@avalabs/hvm-module', () => {
     }),
   };
 });
+jest.mock('@avalabs/svm-module', () => {
+  return {
+    SvmModule: jest.fn().mockImplementation(() => {
+      return {
+        getManifest: jest.fn().mockReturnValue({
+          name: 'svm',
+          network: {
+            chainIds: [],
+            namespaces: ['solana'],
+          },
+          permissions: {
+            rpc: {
+              methods: ['solana_*'],
+            },
+          },
+        }),
+      };
+    }),
+  };
+});
 
 describe('ModuleManager', () => {
   let manager: ModuleManager;
@@ -135,6 +155,11 @@ describe('ModuleManager', () => {
           chainId: 'hvm:1123',
           method: 'hvm_signTransaction',
           name: NetworkVMType.HVM,
+        },
+        {
+          chainId: 'solana:mainnet',
+          method: 'solana_signTransaction',
+          name: NetworkVMType.SVM,
         },
       ];
 
