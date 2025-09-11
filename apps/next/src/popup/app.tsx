@@ -36,6 +36,7 @@ import { getContactsPath, getSendPath } from '@/config/routes';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -104,14 +105,17 @@ export function App() {
           <PersonalAvatarProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
+            LoadingComponent={LoadingScreen}
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
+          <WalletContextProvider
+            LockedComponent={LockScreen}
+            LoadingComponent={LoadingScreen}
+          />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,

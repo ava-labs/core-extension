@@ -68,8 +68,17 @@ export function ActiveNetworkMiddleware(
       method === RpcMethod.AVALANCHE_SIGN_TRANSACTION ||
       method === RpcMethod.AVALANCHE_SIGN_MESSAGE
     ) {
-      // If we know the chain alias, we can get the appropriate network
-      if (params && typeof params === 'object' && 'chainAlias' in params) {
+      // We actually DO get the scope in some cases, like when signing a message.
+      // So let's try to get it from the request payload and if not possible,
+      // look at the request params.
+      if (scope.startsWith('avax:')) {
+        network = await networkService.getNetwork(scope);
+        // If we know the chain alias, we can get the appropriate network
+      } else if (
+        params &&
+        typeof params === 'object' &&
+        'chainAlias' in params
+      ) {
         const alias = params.chainAlias as 'C' | 'P' | 'X';
 
         if (alias === 'C') {

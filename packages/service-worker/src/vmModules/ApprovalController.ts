@@ -361,6 +361,19 @@ export class ApprovalController implements BatchApprovalController {
           network,
           action.tabId,
         );
+
+      case RpcMethod.SIGN_TYPED_DATA:
+      case RpcMethod.SIGN_TYPED_DATA_V1:
+      case RpcMethod.SIGN_TYPED_DATA_V3:
+      case RpcMethod.SIGN_TYPED_DATA_V4:
+      case RpcMethod.ETH_SIGN:
+      case RpcMethod.PERSONAL_SIGN:
+      case RpcMethod.AVALANCHE_SIGN_MESSAGE:
+        return await this.#walletService.signGenericMessage(
+          signingData,
+          network,
+          action.tabId,
+        );
       case RpcMethod.SOLANA_SIGN_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
       case RpcMethod.SOLANA_SIGN_MESSAGE:

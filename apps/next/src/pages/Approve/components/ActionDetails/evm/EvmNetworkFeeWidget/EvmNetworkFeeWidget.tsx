@@ -91,7 +91,11 @@ export const EvmNetworkFeeWidget = ({
           </Stack>
         </Collapse>
       </DetailsSection>
-      <Fade in={!isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee}>
+      <Fade
+        in={!isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee}
+        mountOnEnter
+        unmountOnExit
+      >
         <Stack textAlign="center">
           <Typography variant="caption" color="error.main">
             {t('Insufficient balance for fee')}

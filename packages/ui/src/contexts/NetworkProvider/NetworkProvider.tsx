@@ -93,6 +93,7 @@ const NetworkContext = createContext<{
   isChainIdExist: () => false,
   getNetwork: () => undefined,
   avaxProviderC: undefined,
+
   ethereumProvider: undefined,
   bitcoinProvider: undefined,
 });
