@@ -17,13 +17,15 @@ export const SwapPair = () => {
     fromQuery,
     toId: queryToId,
     toQuery,
-    srcAmount,
-    side,
     updateQuery,
     sourceTokens,
     targetTokens,
     fromToken,
     toToken,
+    fromAmount,
+    toAmount,
+    side,
+    isAmountLoading,
   } = useSwapState();
 
   const fromTokenId = fromToken ? getUniqueTokenId(fromToken) : queryFromId;
@@ -47,13 +49,10 @@ export const SwapPair = () => {
         fromQuery: '',
         to: fromTokenId,
         toQuery: '',
+        userAmount: '',
       }),
     [updateQuery, fromTokenId, toTokenId],
   );
-
-  // TODO: calculate the other amount based on the received quotes.
-  const fromAmount = side === 'sell' ? srcAmount : '0';
-  const toAmount = side === 'sell' ? '0' : srcAmount;
 
   return (
     <Card>
@@ -67,11 +66,12 @@ export const SwapPair = () => {
           onTokenChange={(value) => updateQuery({ from: value, fromQuery: '' })}
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          amount={fromAmount}
+          amount={fromAmount ?? ''}
           onAmountChange={(value) => {
-            updateQuery({ srcAmount: value, side: 'sell' });
+            updateQuery({ userAmount: value, side: 'sell' });
           }}
           tokenHint={fromToken ? t('You pay') : undefined}
+          isLoading={side === 'buy' && isAmountLoading}
         />
         <PairFlipper disabled={!canFlip} onClick={handleFlip} />
         <TokenAmountInput
@@ -82,12 +82,13 @@ export const SwapPair = () => {
           onTokenChange={(value) => updateQuery({ to: value, toQuery: '' })}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
-          amount={toAmount}
+          amount={toAmount ?? ''}
           onAmountChange={(value) => {
-            updateQuery({ srcAmount: value, side: 'buy' });
+            updateQuery({ userAmount: value, side: 'buy' });
           }}
           withPresetButtons={false}
           tokenHint={fromToken ? t('You receive') : undefined}
+          isLoading={side === 'sell' && isAmountLoading}
         />
       </Stack>
     </Card>
