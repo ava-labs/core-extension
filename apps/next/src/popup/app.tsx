@@ -18,6 +18,7 @@ import {
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SwapContextProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -32,10 +33,11 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
-import { getContactsPath, getSendPath } from '@/config/routes';
+import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { useSwapCallbacks } from '@/pages/Swap';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -47,6 +49,7 @@ const pagesWithoutHeader = [
   '/manage-tokens',
   getContactsPath(),
   getSendPath(),
+  getSwapPath(),
 ];
 
 export function App() {
@@ -64,6 +67,8 @@ export function App() {
   const isAppContext =
     isSpecificContextContainer(ContextContainer.POPUP) ||
     isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+
+  const swapToastCallbacks = useSwapCallbacks();
 
   useEffect(() => {
     /* The list of contexts that should support navigation history */
@@ -118,6 +123,7 @@ export function App() {
           <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
+          <SwapContextProvider {...swapToastCallbacks} />,
         ]) as ReactElement[]
       }
     >

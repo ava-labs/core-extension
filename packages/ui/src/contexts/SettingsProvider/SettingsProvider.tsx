@@ -55,7 +55,7 @@ type SettingsFromProvider = SettingsState & {
   ): Promise<true | undefined>;
   getCollectibleVisibility(token: NftTokenWithBalance): boolean;
   updateTheme(theme: ColorTheme): Promise<boolean>;
-  currencyFormatter(value: number): string;
+  currencyFormatter(value: number, withRounding?: boolean): string;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
   isSettingsOpen: boolean;

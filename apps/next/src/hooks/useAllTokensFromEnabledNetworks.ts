@@ -5,5 +5,5 @@ import { useAllTokens } from './useAllTokens';
 export const useAllTokensFromEnabledNetworks = () => {
   const { favoriteNetworks } = useNetworkContext();
 
-  return useAllTokens(favoriteNetworks);
+  return useAllTokens(favoriteNetworks, false);
 };
