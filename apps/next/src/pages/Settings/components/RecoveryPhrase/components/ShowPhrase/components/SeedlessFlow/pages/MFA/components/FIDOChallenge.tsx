@@ -52,10 +52,11 @@ export const FIDOChallenge: FC<Props> = ({
         ? FIDOApiEndpoint.Authenticate
         : FIDOApiEndpoint.Register,
       challenge.options,
-      challenge.type === MfaRequestType.FidoRegister ? keyType : undefined,
+      challenge.type === MfaRequestType.FidoRegister && keyType
+        ? keyType
+        : undefined,
     )
       .then((answer) => {
-        console.log('answer: ', answer);
         request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
           params: [

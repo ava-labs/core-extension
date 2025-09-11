@@ -11,7 +11,13 @@ import { FC } from 'react';
 import { openNewTab } from '@core/common';
 import { useHistory } from 'react-router-dom';
 
-type OwnProps = { href?: string; label: string; description?: string };
+type OwnProps = {
+  href?: string;
+  label: string;
+  description?: string;
+  labelTpyographyVariant?: 'subtitle3';
+  descriptionTpyographyVariant?: 'caption2';
+};
 type SettingsNavItemProps = Omit<ListItemProps, 'onClick'> & OwnProps;
 
 export const SettingsNavItem: FC<SettingsNavItemProps> = ({
@@ -20,6 +26,8 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   children,
   href,
   secondaryAction,
+  labelTpyographyVariant, // --- IGNORE ---
+  descriptionTpyographyVariant, // --- IGNORE ---
   ...props
 }) => {
   const history = useHistory();
@@ -56,10 +64,10 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
       <ListItemText
         slotProps={{
           primary: {
-            variant: 'subtitle1',
+            variant: labelTpyographyVariant || 'subtitle1',
           },
           secondary: {
-            variant: 'caption',
+            variant: descriptionTpyographyVariant || 'caption',
             marginTop: 0.5,
           },
         }}

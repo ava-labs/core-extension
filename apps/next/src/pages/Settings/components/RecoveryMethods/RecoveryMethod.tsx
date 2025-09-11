@@ -1,5 +1,4 @@
-import { Page } from '@/components/Page';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Button, Paper, Stack } from '@avalabs/k2-alpine';
 import { useSeedlessMfaManager } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { AuthenticatorDetails } from './Authenticator/AuthenticatorDetails';
@@ -11,18 +10,17 @@ import { useHistory } from 'react-router-dom';
 
 interface RecoveryMethodProps {
   method: RecoveryMethodType;
-  onBackClicked: () => void;
 }
 
-export const RecoveryMethod = ({
-  method,
-  onBackClicked,
-}: RecoveryMethodProps) => {
-  console.log('RecoveryMethod: ', method);
+export const RecoveryMethod = ({ method }: RecoveryMethodProps) => {
   const { t } = useTranslation();
-  const { hasTotpConfigured } = useSeedlessMfaManager();
+  const { hasTotpConfigured, hasFidoConfigured, recoveryMethods } =
+    useSeedlessMfaManager();
+  console.log('recoveryMethods: ', recoveryMethods);
   const history = useHistory();
 
+  const isRemovable =
+    recoveryMethods.length > 1 && hasFidoConfigured && hasTotpConfigured;
   const openRemoveTotpPopup = useCallback(async () => {
     openFullscreenTab('update-recovery-method/totp/remove');
   }, []);
@@ -31,55 +29,56 @@ export const RecoveryMethod = ({
   }, []);
 
   return (
-    // <Page
-    //   title={t('Recovery Method Details')}
-    //   withBackButton
-    //   contentProps={{ justifyContent: 'flex-start' }}
-    //   onBack={onBackClicked}
-    // >
-    <Stack>
-      {method.type === 'totp' && (
-        <AuthenticatorDetails method={method} methodName={t('Authenticator')} />
-      )}
-      {method.type === 'fido' && <FIDODetails method={method} />}
-      {method.type === 'totp' && (
+    <>
+      <Paper
+        elevation={1}
+        sx={{
+          borderRadius: 2,
+          overflow: 'hidden',
+          width: '100%',
+        }}
+      >
+        <Stack>
+          {method.type === 'totp' && (
+            <AuthenticatorDetails
+              method={method}
+              methodName={t('Authenticator')}
+            />
+          )}
+          {method.type === 'fido' && <FIDODetails method={method} />}
+        </Stack>
+      </Paper>
+      <Stack sx={{ width: '100%', marginTop: 'auto' }}>
+        {method.type === 'totp' && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="extension"
+            fullWidth
+            onClick={() => {
+              openAddTotpPopup();
+            }}
+            disabled={!hasTotpConfigured}
+            sx={{ mb: 1.5 }}
+          >
+            {t('Change Authenticator App')}
+          </Button>
+        )}
         <Button
-          // ref={submitRef}
           variant="contained"
           color="primary"
           size="extension"
           fullWidth
-          // disabled={!isFormValid || isSubmitting}
-          // loading={isSubmitting}
+          disabled={!isRemovable}
           onClick={() => {
-            openAddTotpPopup();
+            return method.type === 'totp'
+              ? openRemoveTotpPopup()
+              : history.push(`/settings/recovery-method/fido/${method.id}`);
           }}
-          sx={{ mt: 'auto' }}
-          disabled={!hasTotpConfigured}
         >
-          {t('Change Authenticator App')}
+          {t('Remove recovery method')}
         </Button>
-      )}
-      <Button
-        // ref={submitRef}
-        variant="contained"
-        color="primary"
-        size="extension"
-        fullWidth
-        // disabled={!isFormValid || isSubmitting}
-        // loading={isSubmitting}
-        // onClick={isFormValid ? handleSubmit : undefined}
-        sx={{ mt: 'auto' }}
-        disabled={!hasTotpConfigured}
-        onClick={() => {
-          return method.type === 'totp'
-            ? openRemoveTotpPopup()
-            : history.push(`/settings/recovery-method/fido/${method.id}`);
-        }}
-      >
-        {t('Remove recovery method')}
-      </Button>
-    </Stack>
-    // </Page>
+      </Stack>
+    </>
   );
 };

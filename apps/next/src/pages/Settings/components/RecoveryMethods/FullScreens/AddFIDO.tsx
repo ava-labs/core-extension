@@ -1,93 +1,67 @@
-import {
-  AuthErrorCode,
-  ExtensionRequest,
-  MfaResponseData,
-  RecoveryMethodTypes,
-  TotpResetChallenge,
-} from '@core/types';
-import {
-  useConnectionContext,
-  useSeedlessActions,
-  useSeedlessMfaManager,
-} from '@core/ui';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
-import { useMFAChoice } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAChoice';
-import { MfaChoicePrompt } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/MfaChoicePrompt';
-import { useSelectMFAMethod } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useSelectMFAMethod';
+import { useSeedlessMfaManager } from '@core/ui';
+import { useCallback, useState } from 'react';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
-import { AuthenticatorVerifyScreen } from '../Authenticator/AuthenticatorVerifyScreen';
-import { Button, Stack } from '@avalabs/k2-alpine';
-import { AuthenticatorVerifyTotp } from '../Authenticator/AuthenticatorVerifyTotp';
-import { AuthenticatorState } from '../Authenticator/AuthenticatorDetails';
-import { SEEDLESS_ACTIONS_OPTIONS } from '@/pages/Onboarding/config';
-import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { Stack, toast, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { FullscreenModalActions } from '@/components/FullscreenModal';
-import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
-import { CompleteAuthenticatorChangeHandler } from '~/index';
 import { SeedlessNameFidoKey } from '@/pages/Onboarding/flows/SeedlessFlow/screens';
 import { KeyType } from '@core/types';
+import { useHistory } from 'react-router-dom';
+
+export enum AddFIDOState {
+  Initial = 'initial',
+  Initiated = 'initiated',
+  Pending = 'pending',
+  Failure = 'failure',
+  Success = 'success',
+}
 
 export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
-  const { request } = useConnectionContext();
-  const [error, setError] = useState<AuthErrorCode>();
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
-  const { initAuthenticatorChange, addFidoDevice } = useSeedlessMfaManager();
-  const [step, setStep] = useState<'name' | 'register' | 'verify'>('name');
-  const [name, setName] = useState('');
+  const { addFidoDevice } = useSeedlessMfaManager();
+  const history = useHistory();
 
-  const [totpChallenge, setTotpChallenge] = useState<TotpResetChallenge>();
-  const mfaChallenge = useMFAEvents(setError);
-  console.log('mfaChallenge: ', mfaChallenge);
-  const [screenState, setScreenState] = useState<AuthenticatorState>(
-    AuthenticatorState.Initiated,
+  const [screenState, setScreenState] = useState<AddFIDOState>(
+    AddFIDOState.Initial,
   );
 
-  // const [name, setName] = useState('');
-
-  const [code, setCode] = useState('');
-  const submitButtonRef = useRef<HTMLButtonElement>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-
-  const registerFidoKey = useCallback(async () => {
-    try {
-      console.log('registerFidoKey name: ', name);
-      const result = await addFidoDevice(name, keyType);
-      console.log('result: ', result);
-      // const challenge = await initAuthenticatorChange();
-      // setTotpChallenge(challenge);
-      // setScreenState(AuthenticatorState.Pending);
-    } catch (e) {
-      console.log('e: ', e);
-      // setTotpChallenge(undefined);
-      setScreenState(AuthenticatorState.Failure);
-    }
-  }, [addFidoDevice, keyType, name]);
-
-  useEffect(() => {
-    registerFidoKey(name);
-  }, [name, registerFidoKey]);
+  const registerFidoKey = useCallback(
+    async (deviceName: string) => {
+      try {
+        await addFidoDevice(deviceName, keyType);
+        toast.success(t(`${deviceName} (${keyType}) added!`), {
+          duration: Infinity,
+        });
+        history.push('/update-recovery-method');
+        return;
+      } catch (e) {
+        console.log('e: ', e);
+        setScreenState(AddFIDOState.Failure);
+      }
+    },
+    [addFidoDevice, history, keyType, t],
+  );
 
   return (
-    <Stack>
-      {isLoading && <InProgress textSize="body1" />}
-      {!name && (
+    <Stack sx={{ height: '100%' }}>
+      {/* <InProgress textSize="body1" /> */}
+      {screenState === AddFIDOState.Initial && (
         <SeedlessNameFidoKey
+          required
           keyType={keyType}
-          onNext={(preferredName) => {
-            setStep('register');
-            setName(preferredName);
-            // registerFidoKey();
+          onNext={(deviceName) => {
+            setScreenState(AddFIDOState.Initiated);
+            registerFidoKey(deviceName);
           }}
         />
       )}
-      {step === 'register' && <MFA fullscreen />}
+      {screenState === AddFIDOState.Initiated && <MFA fullscreen />}
 
-      {screenState === AuthenticatorState.Failure && (
-        <div>Error occurred. Please try again.</div>
+      {screenState === AddFIDOState.Failure && (
+        <Stack>
+          <Typography variant="body1" color="error">
+            {t('Error occurred. Please try again.')}
+          </Typography>
+        </Stack>
       )}
     </Stack>
   );

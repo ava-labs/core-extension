@@ -1,57 +1,74 @@
 import { Page } from '@/components/Page';
-import { Button, Typography } from '@avalabs/k2-alpine';
-import { useConnectionContext, useSeedlessMfaManager } from '@core/ui';
-import { useCallback, useEffect, useState } from 'react';
+import { Button, Stack, toast, Typography } from '@avalabs/k2-alpine';
+import {
+  useConnectionContext,
+  useKeyboardShortcuts,
+  useSeedlessMfaManager,
+  useTotpErrorMessage,
+} from '@core/ui';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useParams } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
 import { AuthErrorCode, ExtensionRequest, MfaResponseData } from '@core/types';
 import { TotpCodeField } from '@/components/TotpCodeField';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
 
 export const FIDO = () => {
+  const history = useHistory();
   const { removeFidoDevice } = useSeedlessMfaManager();
   const { t } = useTranslation();
   const [error, setError] = useState<AuthErrorCode>();
-  const [code, setCode] = useState();
+  const totpError = useTotpErrorMessage(error);
+  const [code, setCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+
   const { request } = useConnectionContext();
-  console.log('code: ', code);
-  console.log('FIDO error: ', error);
+
   const mfaEvents = useMFAEvents(setError);
-  console.log('mfaEvents: ', mfaEvents);
+
   const { id } = useParams<{ id: string }>();
   const { hash } = useLocation();
-  console.log('hash: ', hash);
+
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const keyboardShortcuts = useKeyboardShortcuts({
+    Enter: () => submitButtonRef.current?.click(),
+  });
+
   const deviceId = `${id}${hash}`;
-  // const id =
-  //   'FidoKey#CWEYvVBjNFJSVB_Qjr3dcIs0mw6T6IcTASzEke_lbclVGTb-FRP5ZpUOXNMsRwBz7ZajS3NFeQH8pCa3h3mbJeUPWT8ocGMsdhF14ob2MB4dNBsGAfkchwRQTb1Vkv-B-t4KbPHtVD-dxncLdk6iwI6XVlXd2HAnekp_SB9fI-0=';
-  console.log('deviceId: ', deviceId);
+
+  const remove = useCallback(async () => {
+    try {
+      await removeFidoDevice(deviceId);
+      toast.success(t('FIDO device removed!'));
+      history.push('/settings/recovery-methods');
+    } catch {
+      toast.error(t('Error occurred. Please try again.'));
+      history.push('/settings/recovery-methods');
+    }
+  }, [deviceId, history, removeFidoDevice, t]);
 
   useEffect(() => {
-    removeFidoDevice(deviceId).then((result) => {
-      console.log('result: ', result);
-    });
-  }, [deviceId, removeFidoDevice]);
+    remove();
+  }, [deviceId, remove, removeFidoDevice]);
 
-  const submit = useCallback(
-    (params: MfaResponseData) => {
-      // setIsVerifying(true);
-      // onError(undefined);
+  const submitCode = useCallback(
+    async (params: MfaResponseData) => {
+      setIsVerifying(true);
 
       try {
-        request<SubmitMfaResponseHandler>({
+        await request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
           params: [params],
         });
       } catch {
-        // onError(AuthErrorCode.TotpVerificationError);
+        setError(AuthErrorCode.TotpVerificationError);
       } finally {
-        // setIsVerifying(false);
+        setIsVerifying(false);
       }
     },
     [request],
   );
-
   return (
     <Page
       title={t('Remove FIDO Device')}
@@ -64,25 +81,39 @@ export const FIDO = () => {
         )}
       </Typography>
       {mfaEvents.challenge && mfaEvents.challenge.type === 'totp' && (
-        <>
+        <Stack
+          sx={{ height: '100%', justifyContent: 'space-between' }}
+          {...keyboardShortcuts}
+        >
           <TotpCodeField
+            error={!!totpError}
+            helperText={totpError}
             onChange={(e) => {
               setCode(e.target.value);
+              setError(undefined);
             }}
           />
           <Button
+            ref={submitButtonRef}
+            variant="contained"
+            color="primary"
+            size="large"
             onClick={() => {
-              // setIsSubmitted(true);
-              // setIsVerifying(true);
-              submit({
+              if (!mfaEvents.challenge) {
+                return;
+              }
+              submitCode({
                 mfaId: mfaEvents.challenge.mfaId,
                 code,
               });
             }}
+            loading={isVerifying}
+            disabled={!code || isVerifying}
+            fullWidth
           >
             {t('Verify')}
           </Button>
-        </>
+        </Stack>
       )}
     </Page>
   );

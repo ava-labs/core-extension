@@ -4,6 +4,7 @@ import {
   Stack,
   Switch,
   Typography,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,8 +42,10 @@ import {
 import { CurrencySelector } from '../CurrencySelector';
 import { ThemeSelector } from '../ThemeSelector';
 import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
+import { Card } from '@/components/Card';
 
 export const SettingsHomePage = () => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
@@ -91,14 +94,31 @@ export const SettingsHomePage = () => {
         />
       </Stack>
 
-      <Stack>
-        {isMfaSetupPromptVisible && (
+      {isMfaSetupPromptVisible && (
+        <Card
+          sx={{
+            width: '100%',
+            px: theme.spacing(1.5),
+            py: theme.spacing(0.75),
+            gap: theme.spacing(1.5),
+          }}
+        >
           <SettingsNavItem
-            label={t('Finish setting up recovery methods')}
+            label={t('No recovery methods set up')}
             href={`${path}/recovery-methods`}
+            description={t('Finish setting up recovery methods')}
+            divider
+            secondaryAction={
+              <Button size="small" variant="contained" color="secondary">
+                {t('Set up ')}
+              </Button>
+            }
+            labelTpyographyVariant="subtitle3"
+            descriptionTpyographyVariant="caption2"
+            sx={{ borderBottom: 'none' }}
           />
-        )}
-      </Stack>
+        </Card>
+      )}
 
       <SettingsCard
         title={t('General')}
@@ -196,14 +216,15 @@ export const SettingsHomePage = () => {
           divider
           href={`${path}/change-password`}
         />
-        {(walletDetails?.type === SecretType.Mnemonic ||
-          walletDetails?.type === SecretType.Seedless) && (
-          <SettingsNavItem
-            label={t('Show recovery phrase')}
-            href={`${path}/recovery-phrase/show-phrase`}
-            divider
-          />
-        )}
+        {!isMfaSetupPromptVisible &&
+          (walletDetails?.type === SecretType.Mnemonic ||
+            walletDetails?.type === SecretType.Seedless) && (
+            <SettingsNavItem
+              label={t('Show recovery phrase')}
+              href={`${path}/recovery-phrase/show-phrase`}
+              divider
+            />
+          )}
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
 
         {walletDetails?.type === SecretType.Seedless &&

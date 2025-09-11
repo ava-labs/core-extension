@@ -45,7 +45,7 @@ export const MFA: FC<StageProps> = () => {
         />
       )}
 
-      {!mfaChoice.choice && (
+      {!mfaChoice.choice && !mfaChallenge && (
         <InProgress textSize="body1">
           {t('Fetching available authentication methods...')}
         </InProgress>

@@ -4,8 +4,8 @@ import {
   AlertCircleIcon,
   Button,
   CheckCircleIcon,
-  CircularProgress,
   Stack,
+  toast,
   Typography,
 } from '@avalabs/core-k2-components';
 
@@ -13,8 +13,8 @@ import { useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { useMFAChoice } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAChoice';
 import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
-import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
 import { FIDOChallenge } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/FIDOChallenge';
+import { useHistory } from 'react-router-dom';
 
 enum RemoveTotpState {
   Loading = 'loading',
@@ -26,6 +26,7 @@ enum RemoveTotpState {
 }
 
 export const RemoveTotp = () => {
+  const history = useHistory();
   const { t } = useTranslation();
   const { removeTotp } = useSeedlessMfaManager();
   const [state, setState] = useState(RemoveTotpState.Loading);
@@ -39,12 +40,15 @@ export const RemoveTotp = () => {
   const remove = useCallback(async () => {
     try {
       console.log('remove called: ', remove);
+      // throw new Error('Test error');
       await removeTotp();
       setState(RemoveTotpState.Success);
+      toast.success('Recovery method removed!', { duration: 20000 });
+      history.push('update-recovery-method');
     } catch {
       setState(RemoveTotpState.Failure);
     }
-  }, [removeTotp]);
+  }, [history, removeTotp]);
 
   useEffect(() => {
     remove();
@@ -122,26 +126,13 @@ export const RemoveTotp = () => {
       )}
       {state === RemoveTotpState.Loading && (
         <>
-          <CircularProgress />
-          {/* Remove REFISGTER */}
-          {(mfaChallenge.challenge?.type === MfaRequestType.Fido ||
-            mfaChallenge.challenge?.type === MfaRequestType.FidoRegister) && (
+          {mfaChallenge.challenge?.type === MfaRequestType.Fido && (
             <FIDOChallenge
               challenge={mfaChallenge.challenge}
-              // name={mfaDeviceName}
               onError={setError}
               error={error}
             />
           )}
-          {/* {mfaChallenge.challenge?.type === MfaRequestType.Totp && (
-            <TOTPChallenge
-              onSubmit={submitTotp}
-              isLoading={isVerifying}
-              error={error}
-            />
-          )} */}
-
-          {/* {renderMfaPrompt()} */}
         </>
       )}
     </Stack>

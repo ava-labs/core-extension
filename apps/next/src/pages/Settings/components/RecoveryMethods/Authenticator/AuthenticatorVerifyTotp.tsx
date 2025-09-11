@@ -1,25 +1,51 @@
 import { TotpCodeField } from '@/components/TotpCodeField';
+import { Button, Stack } from '@avalabs/k2-alpine';
+import { AuthErrorCode } from '@core/types';
 import { useKeyboardShortcuts, useTotpErrorMessage } from '@core/ui';
-import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-export const AuthenticatorVerifyTotp = ({ onChange, isLoading, error }) => {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+interface AuthenticatorVerifyTotpProps {
+  onChange: (code: string) => void;
+  error?: AuthErrorCode;
+  onSubmit?: () => void;
+  isSubmitted?: boolean;
+}
+export const AuthenticatorVerifyTotp = ({
+  onChange,
+  error,
+  onSubmit,
+  isSubmitted,
+}: AuthenticatorVerifyTotpProps) => {
+  console.log('error: ', error);
   const totpError = useTotpErrorMessage(error);
-  // const keyboardShortcuts = useKeyboardShortcuts({
-  //   Enter: () => onSubmit(code),
-  // });
+  console.log('totpError: ', totpError);
+  const keyboardShortcuts = useKeyboardShortcuts({
+    Enter: () => onSubmit && onSubmit(),
+  });
+  const { t } = useTranslation();
 
   return (
-    <TotpCodeField
-      error={isSubmitted && !!totpError}
-      helperText={isSubmitted && totpError}
-      onChange={(e) => {
-        onChange(e.target.value);
-        if (error && !isLoading) {
-          setIsSubmitted(false);
-        }
-      }}
-      // {...keyboardShortcuts}
-    />
+    <Stack mt={4} justifyContent="space-between" height="100%">
+      <TotpCodeField
+        error={!!totpError}
+        helperText={totpError}
+        onChange={(e) => {
+          onChange(e.target.value);
+        }}
+        {...keyboardShortcuts}
+      />
+      {onSubmit && (
+        <Button
+          onClick={onSubmit}
+          color="primary"
+          variant="contained"
+          fullWidth
+          loading={isSubmitted}
+          disabled={isSubmitted}
+        >
+          {t('Next')}
+        </Button>
+      )}
+    </Stack>
   );
 };

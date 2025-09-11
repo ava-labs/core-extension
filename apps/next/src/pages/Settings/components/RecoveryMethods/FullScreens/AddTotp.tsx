@@ -1,36 +1,23 @@
-import {
-  AuthErrorCode,
-  ExtensionRequest,
-  MfaResponseData,
-  TotpResetChallenge,
-} from '@core/types';
-import {
-  useConnectionContext,
-  useSeedlessActions,
-  useSeedlessMfaManager,
-} from '@core/ui';
+import { AuthErrorCode, TotpResetChallenge } from '@core/types';
+import { useSeedlessMfaManager } from '@core/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
-import { useMFAChoice } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAChoice';
-import { MfaChoicePrompt } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/MfaChoicePrompt';
-import { useSelectMFAMethod } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useSelectMFAMethod';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
-import { AuthenticatorVerifyScreen } from '../Authenticator/AuthenticatorVerifyScreen';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack, toast } from '@avalabs/k2-alpine';
 import { AuthenticatorVerifyTotp } from '../Authenticator/AuthenticatorVerifyTotp';
 import { AuthenticatorState } from '../Authenticator/AuthenticatorDetails';
-import { SEEDLESS_ACTIONS_OPTIONS } from '@/pages/Onboarding/config';
 import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
 import { useTranslation } from 'react-i18next';
 import { FullscreenModalActions } from '@/components/FullscreenModal';
-import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
-import { CompleteAuthenticatorChangeHandler } from '~/index';
+import { SeedlessTotpQRCode } from '@/pages/Onboarding/flows/SeedlessFlow/screens';
+import { RecoveryMethodFailure } from '../components/RecoveryMethodFailure';
+import { useHistory } from 'react-router-dom';
 
 export const AddTotp = () => {
-  const { request } = useConnectionContext();
   const [error, setError] = useState<AuthErrorCode>();
+  const history = useHistory();
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { initAuthenticatorChange, completeAuthenticatorChange } =
     useSeedlessMfaManager();
 
@@ -45,55 +32,71 @@ export const AddTotp = () => {
   const [code, setCode] = useState('');
   console.log('code: ', code);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
 
   const initChange = useCallback(async () => {
     try {
       const challenge = await initAuthenticatorChange();
-
       setTotpChallenge(challenge);
       setScreenState(AuthenticatorState.Pending);
-    } catch (e) {
+    } catch {
       setTotpChallenge(undefined);
       setScreenState(AuthenticatorState.Failure);
     }
   }, [initAuthenticatorChange]);
 
+  const onVerify = useCallback(async () => {
+    console.log('totpChallenge: ', totpChallenge);
+    if (!totpChallenge) {
+      return;
+    }
+    try {
+      setIsVerifying(true);
+      await completeAuthenticatorChange(totpChallenge.totpId, code);
+      toast.success(t('Authenticator added!'), {
+        duration: Infinity,
+      });
+      history.push('update-recovery-method');
+    } catch (e) {
+      setError(e as AuthErrorCode);
+    } finally {
+      setIsVerifying(false);
+    }
+  }, [code, completeAuthenticatorChange, history, t, totpChallenge]);
+
   useEffect(() => {
     initChange();
+    setIsLoading(false);
   }, [initChange]);
 
   return (
-    <Stack>
+    <Stack sx={{ height: '100%' }}>
       {isLoading && <InProgress textSize="body1" />}
       {!totpChallenge && <MFA fullscreen />}
       {screenState === AuthenticatorState.Pending && totpChallenge && (
-        <AuthenticatorVerifyScreen
-          totpChallenge={totpChallenge}
+        <SeedlessTotpQRCode
+          challengeUrl={totpChallenge?.totpUrl ?? ''}
           onNext={() => setScreenState(AuthenticatorState.VerifyCode)}
         />
       )}
-      {screenState === AuthenticatorState.VerifyCode && (
+      {screenState === AuthenticatorState.VerifyCode && totpChallenge && (
         <>
           <AuthenticatorVerifyTotp
-            onChange={(c) => setCode(c)}
-            isLoading={isLoading}
+            onChange={(c) => {
+              setCode(c);
+              setError(undefined);
+            }}
             error={error}
           />
           <FullscreenModalActions>
             <Button
               ref={submitButtonRef}
               variant="contained"
-              color="secondary"
+              color="primary"
               size="large"
-              onClick={() => {
-                setIsSubmitted(true);
-                setIsVerifying(true);
-                completeAuthenticatorChange(totpChallenge?.totpId, code);
-              }}
+              onClick={onVerify}
               loading={isVerifying}
-              // disabled={!code || isVerifying}
+              disabled={!code || isVerifying}
               fullWidth
             >
               {isVerifying ? t('Verifying...') : t('Verify')}
@@ -101,9 +104,7 @@ export const AddTotp = () => {
           </FullscreenModalActions>
         </>
       )}
-      {screenState === AuthenticatorState.Failure && (
-        <div>Error occurred. Please try again.</div>
-      )}
+      {screenState === AuthenticatorState.Failure && <RecoveryMethodFailure />}
     </Stack>
   );
 };

@@ -29,6 +29,7 @@ export const RecoveryMethodCard = ({
       icon={getIconForMethod(method)}
       text={methodName || method.type}
       key={method.toString()}
+      size="small"
     />
   );
 };

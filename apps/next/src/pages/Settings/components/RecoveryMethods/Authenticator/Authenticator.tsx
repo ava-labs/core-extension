@@ -1,48 +1,43 @@
 import { Page } from '@/components/Page';
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { toast, Typography } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TotpResetChallenge } from '@core/types';
+import { AuthErrorCode, TotpResetChallenge } from '@core/types';
 import { useState } from 'react';
 import { useGoBack, useSeedlessMfaManager } from '@core/ui';
-import browser from 'webextension-polyfill';
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
-import { SeedlessTotpQRCode } from '@/pages/Onboarding/flows/SeedlessFlow/screens';
 import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
+import { AuthenticatorState } from './AuthenticatorDetails';
+import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { RecoveryMethodFailure } from '../components/RecoveryMethodFailure';
+import { AuthenticatorVerifyTotp } from './AuthenticatorVerifyTotp';
+import { useHistory } from 'react-router-dom';
 
 export const Authenticator: FC = () => {
   const { t } = useTranslation();
-  const {
-    initAuthenticatorChange,
-    completeAuthenticatorChange,
-    hasFidoConfigured,
-    hasTotpConfigured,
-  } = useSeedlessMfaManager();
+  const history = useHistory();
+  const { initAuthenticatorChange, completeAuthenticatorChange } =
+    useSeedlessMfaManager();
   const [totpChallenge, setTotpChallenge] = useState<TotpResetChallenge>();
   const [showSecret, setShowSecret] = useState(false);
-  console.log('totpChallenge: ', totpChallenge);
+  const [screenState, setScreenState] = useState<AuthenticatorState>(
+    AuthenticatorState.Initial,
+  );
+  const [code, setCode] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<AuthErrorCode>();
+
   const goBack = useGoBack();
 
   const initChange = useCallback(async () => {
-    console.log('initChange: ');
-    // if (hasFidoConfigured) {
-    //   browser.tabs.create({
-    //     url: `${ContextContainer.FULLSCREEN}#/update-recovery-methods`,
-    //   });
-    //   return;
-    // }
-
-    // setState(State.Initiated);
     try {
-      console.log('try: ');
       const challenge = await initAuthenticatorChange();
-      console.log('challenge: ', challenge);
+
       setTotpChallenge(challenge);
-      // setState(State.Pending);
-    } catch (e) {
-      console.log('catch: ', e);
+      setScreenState(AuthenticatorState.Initiated);
+    } catch {
       setTotpChallenge(undefined);
-      // setState(State.Failure);
+      setScreenState(AuthenticatorState.Failure);
     }
   }, [initAuthenticatorChange]);
 
@@ -58,31 +53,82 @@ export const Authenticator: FC = () => {
     return new URL(totpChallenge.totpUrl).searchParams.get('secret') ?? '';
   }, [totpChallenge]);
 
+  const headline = {
+    [AuthenticatorState.Initial]: t('Scan QR code'),
+    [AuthenticatorState.Initiated]: t('Scan QR code'),
+    [AuthenticatorState.VerifyCode]: t('Verify code'),
+    [AuthenticatorState.Failure]: t('Something went wrong'),
+  };
+
+  const description = {
+    [AuthenticatorState.Initial]: t('Setting up your authenticator app.'),
+    [AuthenticatorState.Initiated]: t(
+      'Open any authenticator app and scan the QR code below or enter the code manually',
+    ),
+    [AuthenticatorState.VerifyCode]: t(
+      'Enter the code generated from the authenticator app',
+    ),
+  };
+
+  const onBack = useCallback(() => {
+    goBack();
+  }, [goBack]);
+
+  const onCodeSubmit = useCallback(async () => {
+    setIsSubmitted(true);
+    if (!totpChallenge) {
+      setScreenState(AuthenticatorState.Failure);
+      return;
+    }
+    try {
+      await completeAuthenticatorChange(totpChallenge.totpId, code);
+      toast.success(t('Authenticator added!'));
+      history.push('/settings/recovery-methods');
+    } catch (e) {
+      setError(e as AuthErrorCode);
+    } finally {
+      setIsSubmitted(false);
+    }
+  }, [code, completeAuthenticatorChange, history, t, totpChallenge]);
+
   return (
     <Page
-      title={t('Scan QR code')}
+      title={headline[screenState]}
       withBackButton
-      contentProps={{ justifyContent: 'flex-start' }}
+      contentProps={{ justifyContent: 'flex-start', alignItems: 'start' }}
+      onBack={onBack}
     >
-      <Typography variant="caption">
-        {t(
-          'Open any authenticator app and scan the QR code below or enter the code manually',
+      <Typography variant="caption">{description[screenState]}</Typography>
+      {screenState === AuthenticatorState.Initial && (
+        <InProgress textSize="body1" />
+      )}
+      {screenState === AuthenticatorState.Initiated &&
+        !showSecret &&
+        totpChallenge && (
+          <AuthenticatorVerifyScreen
+            totpChallenge={totpChallenge}
+            onNext={() => setScreenState(AuthenticatorState.VerifyCode)}
+            onShowSecret={() => setShowSecret(true)}
+          />
         )}
-      </Typography>
-      {totpChallenge && (
-        <AuthenticatorVerifyScreen
-          onBackClick={() => console.log('Back clicked')}
-          totpChallenge={totpChallenge}
-          onNextClick={() => console.log('Next clicked')}
-          onShowSecret={() => setShowSecret(true)}
+      {screenState === AuthenticatorState.Initiated && showSecret && (
+        <AuthenticatorVerifyCode
+          totpSecret={totpSecret}
+          onNext={() => setScreenState(AuthenticatorState.VerifyCode)}
         />
       )}
-      {showSecret && <AuthenticatorVerifyCode totpSecret={totpSecret} />}
-
-      {/* <SeedlessTotpQRCode
-				challengeUrl={totpChallenge?.totpUrl ?? ''}
-				onNext={() => console.log('next')}
-			/> */}
+      {totpChallenge && screenState === AuthenticatorState.VerifyCode && (
+        <AuthenticatorVerifyTotp
+          onChange={(c) => {
+            setCode(c);
+            setError(undefined);
+          }}
+          error={error}
+          onSubmit={onCodeSubmit}
+          isSubmitted={isSubmitted}
+        />
+      )}
+      {screenState === AuthenticatorState.Failure && <RecoveryMethodFailure />}
     </Page>
   );
 };

@@ -2,12 +2,12 @@ import { Page } from '@/components/Page';
 import { Button, Paper, Skeleton } from '@avalabs/k2-alpine';
 import { RecoveryMethod as RecoveryMethodType } from '@core/types';
 import { useAnalyticsContext, useSeedlessMfaManager } from '@core/ui';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RecoveryMethodList } from './RecoveryMethodList';
-import { RecoveryMethodCard } from './RecoveryMethodCard';
 import { RecoveryMethod } from './RecoveryMethod';
 import { ConfiguredMethodList } from './ConfiguredMethodList';
+import { useHistory } from 'react-router-dom';
 
 export enum RecoveryMethodScreen {
   ConfiguredList = 'configured-list',
@@ -21,9 +21,9 @@ export enum RecoveryMethodScreen {
 export const RecoveryMethods: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const history = useHistory();
   const [selectedMethod, setSelectedMethod] =
     useState<RecoveryMethodType | null>(null);
-  console.log('selectedMethod: ', selectedMethod);
   const {
     isLoadingRecoveryMethods,
     recoveryMethods: existingRecoveryMethods,
@@ -31,33 +31,66 @@ export const RecoveryMethods: FC = () => {
     hasMfaConfigured,
     hasTotpConfigured,
   } = useSeedlessMfaManager();
+  console.log('hasMfaConfigured: ', hasMfaConfigured);
 
-  const [screen, setScreen] = useState(RecoveryMethodScreen.ConfiguredList);
+  const [screen, setScreen] = useState<RecoveryMethodScreen>();
+  console.log('screen: ', screen);
+
+  useEffect(() => {
+    if (isLoadingRecoveryMethods) {
+      return;
+    }
+    if (!hasMfaConfigured) {
+      setScreen(RecoveryMethodScreen.NewList);
+    }
+    if (hasMfaConfigured) {
+      setScreen(RecoveryMethodScreen.ConfiguredList);
+    }
+  }, [hasMfaConfigured, isLoadingRecoveryMethods]);
 
   return (
     <Page
       title={t('Recovery methods')}
       withBackButton
       contentProps={{ justifyContent: 'flex-start' }}
+      onBack={() => {
+        if (screen !== RecoveryMethodScreen.Method) {
+          history.push('/settings');
+          return;
+        }
+        if (hasMfaConfigured) {
+          setScreen(RecoveryMethodScreen.ConfiguredList);
+          return;
+        }
+        setScreen(RecoveryMethodScreen.NewList);
+      }}
     >
-      <Paper
-        elevation={1}
-        sx={{
-          borderRadius: 2,
-          overflow: 'hidden',
-        }}
-      >
-        {isLoadingRecoveryMethods && (
-          <>
-            <Skeleton variant="rectangular" sx={{ width: 297, height: 220 }} />
-          </>
-        )}
+      {isLoadingRecoveryMethods && (
+        <Paper
+          elevation={1}
+          sx={{
+            borderRadius: 2,
+            overflow: 'hidden',
+            width: '100%',
+          }}
+        >
+          <Skeleton variant="rectangular" sx={{ width: 297, height: 220 }} />
+        </Paper>
+      )}
 
-        {screen === RecoveryMethodScreen.NewList && (
-          <RecoveryMethodList hasTotpConfigured={hasTotpConfigured} />
-        )}
+      {!isLoadingRecoveryMethods && screen === RecoveryMethodScreen.NewList && (
+        <RecoveryMethodList
+          hasTotpConfigured={hasTotpConfigured}
+          hasMFAConfigured={hasMfaConfigured}
+          onNext={() => {
+            capture('AddRecoveryMethodClicked');
+            setScreen(RecoveryMethodScreen.NewList);
+          }}
+        />
+      )}
 
-        {screen === RecoveryMethodScreen.ConfiguredList && (
+      {!isLoadingRecoveryMethods &&
+        screen === RecoveryMethodScreen.ConfiguredList && (
           <ConfiguredMethodList
             existingRecoveryMethods={existingRecoveryMethods}
             setSelectedMethod={setSelectedMethod}
@@ -65,13 +98,9 @@ export const RecoveryMethods: FC = () => {
           />
         )}
 
-        {screen === RecoveryMethodScreen.Method && selectedMethod && (
-          <RecoveryMethod
-            method={selectedMethod}
-            onBackClicked={() => setSelectedMethod(null)}
-          />
-        )}
-      </Paper>
+      {!isLoadingRecoveryMethods &&
+        screen === RecoveryMethodScreen.Method &&
+        selectedMethod && <RecoveryMethod method={selectedMethod} />}
       {screen === RecoveryMethodScreen.ConfiguredList && (
         <Button
           variant="contained"
@@ -87,81 +116,6 @@ export const RecoveryMethods: FC = () => {
           {t('Add recovery method')}
         </Button>
       )}
-    </Page>
-  );
-  console.log('selectedMethod: ', selectedMethod);
-  if (selectedMethod) {
-    return (
-      <RecoveryMethod
-        method={selectedMethod}
-        onBackClicked={() => setSelectedMethod(null)}
-      />
-    );
-  }
-
-  return (
-    <Page
-      title={t('Recovery methods')}
-      withBackButton
-      contentProps={{ justifyContent: 'flex-start' }}
-    >
-      <Paper
-        elevation={1}
-        sx={{
-          borderRadius: 2,
-          overflow: 'hidden',
-        }}
-      >
-        {isLoadingRecoveryMethods && (
-          <>
-            <Skeleton variant="rectangular" sx={{ width: 297, height: 220 }} />
-          </>
-        )}
-        {!isLoadingRecoveryMethods && !hasMfaConfigured ? (
-          <RecoveryMethodList hasTotpConfigured={hasTotpConfigured} />
-        ) : (
-          existingRecoveryMethods.map((method) => {
-            if (method.type === 'totp') {
-              return (
-                <RecoveryMethodCard
-                  method={method}
-                  key="totp"
-                  methodName={t('Authenticator')}
-                  onClick={() => {
-                    capture('ConfigureTotpClicked');
-                    setSelectedMethod(method);
-                  }}
-                />
-              );
-            }
-
-            return (
-              <RecoveryMethodCard
-                method={method}
-                key={method.id}
-                methodName={method.name}
-                onClick={() => {
-                  capture('ConfigureFidoClicked');
-                  console.log('method clicked: ', method);
-                  setSelectedMethod(method);
-                }}
-              />
-            );
-          })
-        )}
-      </Paper>
-      <Button
-        variant="contained"
-        color="primary"
-        size="extension"
-        fullWidth
-        sx={{ mt: 'auto' }}
-        onClick={() => {
-          capture('AddRecoveryMethodClicked');
-        }}
-      >
-        {t('Add recovery method')}
-      </Button>
     </Page>
   );
 };
