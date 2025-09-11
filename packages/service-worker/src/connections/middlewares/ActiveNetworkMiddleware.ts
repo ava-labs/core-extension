@@ -5,6 +5,7 @@ import {
   JsonRpcResponse,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
+  NetworkWithCaipId,
 } from '@core/types';
 
 import { Middleware } from './models';
@@ -43,7 +44,7 @@ export function ActiveNetworkMiddleware(
     const isEthSendTx = method === RpcMethod.ETH_SEND_TRANSACTION;
     const hasParams = Array.isArray(params) && typeof params[0] === 'object';
 
-    let network;
+    let network: NetworkWithCaipId | undefined;
 
     if (isEthSendTx && hasParams) {
       try {
@@ -67,7 +68,16 @@ export function ActiveNetworkMiddleware(
       method === RpcMethod.AVALANCHE_SIGN_TRANSACTION ||
       method === RpcMethod.AVALANCHE_SIGN_MESSAGE
     ) {
-      network = await networkService.getAvalancheNetworkXP();
+      // If we know the chain alias, we can get the appropriate network
+      if (params && typeof params === 'object' && 'chainAlias' in params) {
+        const alias = params.chainAlias as 'C' | 'P' | 'X';
+
+        if (alias === 'C') {
+          network = await networkService.getCoreEthNetwork();
+        } else {
+          network = await networkService.getAvalancheNetworkXP();
+        }
+      }
     } else {
       network = await networkService.getNetwork(scope);
     }

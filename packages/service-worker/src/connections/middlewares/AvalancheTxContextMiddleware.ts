@@ -57,6 +57,7 @@ export function AvalancheTxContextMiddleware(
       await secretsService.getPrimaryAccountSecrets(activeAccount);
 
     context.currentAddress = currentAddress;
+    context.currentEvmAddress = activeAccount.addressC;
     context.xpubXP = secrets ? findXpubXP(secrets) : undefined;
 
     next();
@@ -64,7 +65,9 @@ export function AvalancheTxContextMiddleware(
 }
 
 const getRequiredAddressVM = (method: string, params: unknown) => {
-  const isAvalancheSendTx = method === RpcMethod.AVALANCHE_SEND_TRANSACTION;
+  const isAvalancheSendTx =
+    method === RpcMethod.AVALANCHE_SEND_TRANSACTION ||
+    method === RpcMethod.AVALANCHE_SIGN_TRANSACTION;
   const hasChainAlias =
     params && typeof params === 'object' && 'chainAlias' in params;
 

@@ -1,4 +1,4 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
+import { AvalancheCaip2ChainId, ChainId } from '@avalabs/core-chains-sdk';
 import {
   Avalanche,
   BitcoinProvider,
@@ -25,6 +25,7 @@ import {
   UpdateDefaultNetworkHandler,
 } from '@core/service-worker';
 import {
+  buildCoreEth,
   getNetworkCaipId,
   getProviderForNetwork,
   updateIfDifferent,
@@ -144,6 +145,15 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
 
   const getNetwork = useCallback(
     (lookupChainId: number | string) => {
+      // If Core Eth is requested, we need to build it (it is not present on the network list).
+      if (
+        lookupChainId === AvalancheCaip2ChainId.C ||
+        lookupChainId === AvalancheCaip2ChainId.C_TESTNET
+      ) {
+        const cChain = getNetwork(lookupChainId);
+        return buildCoreEth(cChain);
+      }
+
       return networks.find(
         ({ chainId, caipId }) =>
           chainId === lookupChainId || caipId === lookupChainId,

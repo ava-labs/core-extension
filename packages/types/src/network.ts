@@ -79,6 +79,9 @@ export type BtcNetwork = NetworkWithCaipId & { vmName: NetworkVMType.BITCOIN };
 export type AvalancheNetwork = NetworkWithCaipId & {
   vmName: NetworkVMType.AVM | NetworkVMType.PVM | NetworkVMType.CoreEth;
 };
+export type CoreEthNetwork = NetworkWithCaipId & {
+  vmName: NetworkVMType.CoreEth;
+};
 
 export const isEvmNetwork = (
   network: NetworkWithCaipId,
@@ -87,6 +90,10 @@ export const isEvmNetwork = (
 export const isBtcNetwork = (
   network: NetworkWithCaipId,
 ): network is BtcNetwork => network.vmName === NetworkVMType.BITCOIN;
+
+export const isCoreEthNetwork = (
+  network: NetworkWithCaipId,
+): network is CoreEthNetwork => network.vmName === NetworkVMType.CoreEth;
 
 export const isAvalancheNetwork = (
   network: NetworkWithCaipId,

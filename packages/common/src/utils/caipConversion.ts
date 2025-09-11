@@ -38,6 +38,8 @@ export const AvaxCaipId = {
   [ChainId.AVALANCHE_X]: AvalancheCaip2ChainId.X,
   [ChainId.AVALANCHE_TEST_P]: AvalancheCaip2ChainId.P_TESTNET,
   [ChainId.AVALANCHE_TEST_X]: AvalancheCaip2ChainId.X_TESTNET,
+  [ChainId.AVALANCHE_MAINNET_ID]: AvalancheCaip2ChainId.C,
+  [ChainId.AVALANCHE_TESTNET_ID]: AvalancheCaip2ChainId.C_TESTNET,
 } as const;
 
 export const getNetworkCaipId = (network: PartialBy<Network, 'caipId'>) => {
