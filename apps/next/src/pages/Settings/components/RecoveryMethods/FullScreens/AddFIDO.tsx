@@ -10,9 +10,7 @@ import { useHistory } from 'react-router-dom';
 export enum AddFIDOState {
   Initial = 'initial',
   Initiated = 'initiated',
-  Pending = 'pending',
   Failure = 'failure',
-  Success = 'success',
 }
 
 export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
@@ -33,8 +31,7 @@ export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
         });
         history.push('/update-recovery-method');
         return;
-      } catch (e) {
-        console.log('e: ', e);
+      } catch {
         setScreenState(AddFIDOState.Failure);
       }
     },
@@ -43,7 +40,6 @@ export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
 
   return (
     <Stack sx={{ height: '100%' }}>
-      {/* <InProgress textSize="body1" /> */}
       {screenState === AddFIDOState.Initial && (
         <SeedlessNameFidoKey
           required
@@ -54,7 +50,7 @@ export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
           }}
         />
       )}
-      {screenState === AddFIDOState.Initiated && <MFA fullscreen />}
+      {screenState === AddFIDOState.Initiated && <MFA />}
 
       {screenState === AddFIDOState.Failure && (
         <Stack>

@@ -13,10 +13,9 @@ export interface RecoveryMethodsFullScreenParams {
 
 export const RecoveryMethodsFullScreen = () => {
   const history = useHistory();
+
   const { mfaType, action, keyType } =
     useParams<RecoveryMethodsFullScreenParams>();
-  console.log('mfaType: ', mfaType);
-  console.log('action: ', action);
 
   return (
     <>

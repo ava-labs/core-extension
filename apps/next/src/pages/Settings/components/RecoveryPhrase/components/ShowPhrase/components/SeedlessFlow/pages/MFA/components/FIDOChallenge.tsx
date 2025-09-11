@@ -9,6 +9,7 @@ import {
   AuthErrorCode,
   ExtensionRequest,
   FIDOApiEndpoint,
+  KeyType,
   MfaRequestType,
 } from '@core/types';
 import { useConnectionContext, useFidoErrorMessage } from '@core/ui';
@@ -53,7 +54,7 @@ export const FIDOChallenge: FC<Props> = ({
         : FIDOApiEndpoint.Register,
       challenge.options,
       challenge.type === MfaRequestType.FidoRegister && keyType
-        ? keyType
+        ? KeyType[keyType]
         : undefined,
     )
       .then((answer) => {

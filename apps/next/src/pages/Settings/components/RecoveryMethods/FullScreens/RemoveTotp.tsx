@@ -11,7 +11,6 @@ import {
 
 import { useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
-import { useMFAChoice } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAChoice';
 import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
 import { FIDOChallenge } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/FIDOChallenge';
 import { useHistory } from 'react-router-dom';
@@ -31,16 +30,10 @@ export const RemoveTotp = () => {
   const { removeTotp } = useSeedlessMfaManager();
   const [state, setState] = useState(RemoveTotpState.Loading);
   const [error, setError] = useState<AuthErrorCode>();
-  console.log('error: ', error);
-  const mfaChoice = useMFAChoice();
-  console.log('mfaChoice: ', mfaChoice);
   const mfaChallenge = useMFAEvents(setError);
-  console.log('mfaChallenge: ', mfaChallenge);
 
   const remove = useCallback(async () => {
     try {
-      console.log('remove called: ', remove);
-      // throw new Error('Test error');
       await removeTotp();
       setState(RemoveTotpState.Success);
       toast.success('Recovery method removed!', { duration: 20000 });

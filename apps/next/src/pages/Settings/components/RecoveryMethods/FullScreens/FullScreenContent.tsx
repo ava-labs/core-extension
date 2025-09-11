@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { AddTotp } from './AddTotp';
 import { AddFIDO } from './AddFIDO';
 import { DefaultContent } from './DefaultContent';
+import { KeyType } from '@core/types';
 
 export type RecoveryMethodPages =
   | 'defaultContent'
@@ -21,8 +22,6 @@ export const FullScreenContent = ({
   action,
   keyType,
 }: RecoveryMethodsFullScreenParams) => {
-  console.log('mfaType: ', mfaType);
-  console.log('action: ', action);
   const getPage = useMemo(() => {
     if (mfaType === 'totp' && action === 'remove') {
       return 'removeTOTP';
@@ -42,7 +41,11 @@ export const FullScreenContent = ({
   const content: FullScreenContentProps = {
     removeTOTP: <RemoveTotp />,
     addTOTP: <AddTotp />,
-    addFIDO: <AddFIDO keyType={keyType} />,
+    addFIDO: keyType ? (
+      <AddFIDO keyType={keyType as KeyType} />
+    ) : (
+      <DefaultContent />
+    ),
     defaultContent: <DefaultContent />,
   };
 

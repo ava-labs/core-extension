@@ -1,9 +1,8 @@
 import { FullscreenModal } from '@/components/FullscreenModal';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InProgress } from '../../../InProgress';
-import { StageProps } from '../../types';
 import { FIDOChallenge } from './components/FIDOChallenge';
 import { MfaChoicePrompt } from './components/MfaChoicePrompt';
 import { TOTPChallenge } from './components/TOTPChallenge';
@@ -11,7 +10,7 @@ import { useMFAChoice } from './hooks/useMFAChoice';
 import { useMFAEvents } from './hooks/useMFAEvent';
 import { useSelectMFAMethod } from './hooks/useSelectMFAMethod';
 
-export const MFA: FC<StageProps> = () => {
+export const MFA = () => {
   const [error, setError] = useState<AuthErrorCode>();
   const mfaChoice = useMFAChoice();
   const mfaChallenge = useMFAEvents(setError);
