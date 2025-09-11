@@ -48,6 +48,7 @@ export const TrendingTokenBanner = () => {
           <Typography
             variant="subtitle3"
             width="165px"
+            py={0.5}
             ml={2}
             sx={{ fontWeight: 400 }}
           >

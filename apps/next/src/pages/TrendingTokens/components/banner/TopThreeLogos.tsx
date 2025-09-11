@@ -27,7 +27,7 @@ export const TopThreeLogos = ({ first, second, third }: Props) => {
           position: 'absolute',
           right: 0,
           top: '50%',
-          transform: 'translateY(calc(-50% +32px))',
+          transform: 'translateY(calc(-50% + 16px))',
           zIndex: 3,
           // clipPath: 'inset(0 0 29% 0)', // Cut off bottom portion
         }}

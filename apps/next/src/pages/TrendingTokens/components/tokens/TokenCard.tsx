@@ -51,10 +51,10 @@ export const TokenCard = ({ token, last }: TokenCardProps) => {
       direction="row"
       alignItems="center"
       justifyContent="space-between"
-      pt={2}
+      pt={1}
     >
       {/* Left side - Avatar */}
-      <Box position="relative" sx={{ transform: 'translateY(-12px)' }}>
+      <Box position="relative" sx={{ transform: 'translateY(-2px)' }}>
         <Avatar
           alt={token.symbol}
           src={token.logoURI || undefined}
@@ -84,11 +84,11 @@ export const TokenCard = ({ token, last }: TokenCardProps) => {
         gap={2}
         flexGrow={1}
         ml={2}
-        pb={2}
+        pb={1}
         borderBottom={last ? undefined : '1px solid'}
         borderColor={last ? undefined : 'divider'}
       >
-        {/* Middle - Token info and price */}
+        {/* Middle left side - Token info */}
         <Stack>
           <Typography>
             {rank}. {token.name}
@@ -103,6 +103,7 @@ export const TokenCard = ({ token, last }: TokenCardProps) => {
           direction="row"
           columnGap={1.5}
         >
+          {/* Middle right side - Price and percent change */}
           <Stack alignItems="flex-end" ml="auto">
             <Typography color="text.secondary">{formattedPrice}</Typography>
             <Stack direction="row" gap={1}>
