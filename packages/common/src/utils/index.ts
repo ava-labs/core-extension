@@ -12,6 +12,7 @@ export * from './network/isEthereumNetwork';
 export * from './network/isBitcoinNetwork';
 export * from './network/isSolanaNetwork';
 export * from './network/isValidHttpHeader';
+export * from './network/buildCoreEth';
 export * from './getSyncDomain';
 export * from './createMnemonicPhrase';
 export * from './errors';
