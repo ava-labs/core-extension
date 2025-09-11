@@ -5,5 +5,7 @@ type PlainTextDetailProps = {
 };
 
 export const PlainTextDetail = ({ item }: PlainTextDetailProps) => (
-  <Typography variant="subtitle3">{item}</Typography>
+  <Typography variant="subtitle3" px={2}>
+    {item}
+  </Typography>
 );

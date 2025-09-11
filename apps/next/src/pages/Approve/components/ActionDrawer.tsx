@@ -8,43 +8,33 @@ import {
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DisplayData } from '@avalabs/vm-module-types';
 
-import { Action, ActionStatus, GaslessPhase } from '@core/types';
-
-import { hasOverlayWarning } from '../lib';
 import { InDrawerAlert } from './warnings/InDrawerAlert';
-import { useGasless } from '../hooks';
 
 type ActionDrawerProps = StackProps & {
   open: boolean;
   approve?: () => void;
   reject?: () => void;
-  action: Action<DisplayData>;
+  withConfirmationSwitch?: boolean;
+  isProcessing: boolean;
 };
 
 export const ActionDrawer = ({
   open,
   approve,
   reject,
-  action,
+  withConfirmationSwitch,
+  isProcessing,
   ...props
 }: ActionDrawerProps) => {
   const { t } = useTranslation();
 
-  const { gaslessPhase } = useGasless({ action });
-
-  const isMalicious = hasOverlayWarning(action);
   const [userHasConfirmed, setUserHasConfirmed] = useState(false);
-
-  const isProcessing =
-    action.status === ActionStatus.SUBMITTING ||
-    gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS;
 
   return (
     <Slide in={open} direction="up" mountOnEnter unmountOnExit>
       <Drawer {...props}>
-        {isMalicious && (
+        {withConfirmationSwitch && (
           <InDrawerAlert
             isConfirmed={userHasConfirmed}
             setIsConfirmed={setUserHasConfirmed}
@@ -57,7 +47,9 @@ export const ActionDrawer = ({
               color="primary"
               size="extension"
               onClick={approve}
-              disabled={isProcessing || (isMalicious && !userHasConfirmed)}
+              disabled={
+                isProcessing || (withConfirmationSwitch && !userHasConfirmed)
+              }
               loading={isProcessing}
             >
               {t('Approve')}
