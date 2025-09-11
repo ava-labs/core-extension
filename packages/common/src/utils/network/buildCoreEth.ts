@@ -3,7 +3,11 @@ import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { CoreEthNetwork, NetworkWithCaipId } from '@core/types';
 
-export const buildCoreEth = (cChain: NetworkWithCaipId): CoreEthNetwork => {
+export const buildCoreEth = (
+  cChain?: NetworkWithCaipId,
+): CoreEthNetwork | undefined => {
+  if (!cChain) return;
+
   return {
     ...cChain,
     caipId: cChain.isTestnet

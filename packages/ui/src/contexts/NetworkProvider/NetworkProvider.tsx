@@ -146,12 +146,10 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const getNetwork = useCallback(
     (lookupChainId: number | string) => {
       // If Core Eth is requested, we need to build it (it is not present on the network list).
-      if (
-        lookupChainId === AvalancheCaip2ChainId.C ||
-        lookupChainId === AvalancheCaip2ChainId.C_TESTNET
-      ) {
-        const cChain = getNetwork(lookupChainId);
-        return buildCoreEth(cChain);
+      if (lookupChainId === AvalancheCaip2ChainId.C) {
+        return buildCoreEth(getNetwork(ChainId.AVALANCHE_MAINNET_ID));
+      } else if (lookupChainId === AvalancheCaip2ChainId.C_TESTNET) {
+        return buildCoreEth(getNetwork(ChainId.AVALANCHE_TESTNET_ID));
       }
 
       return networks.find(
