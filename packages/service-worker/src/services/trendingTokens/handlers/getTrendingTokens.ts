@@ -1,4 +1,8 @@
-import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
+import {
+  ExtensionRequest,
+  ExtensionRequestHandler,
+  TrendingTokensNetwork,
+} from '@core/types';
 import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
 import { TrendingTokenService } from '../TrendingTokensService';
@@ -6,7 +10,8 @@ import { TrendingToken } from '@core/types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GET_TRENDING_TOKENS,
-  { tokens: TrendingToken[] }
+  { tokens: TrendingToken[] },
+  [network: TrendingTokensNetwork]
 >;
 
 @injectable()
@@ -16,8 +21,9 @@ export class GetTrendingTokensHandler implements HandlerType {
   constructor(private trendingTokenService: TrendingTokenService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
+    const [network] = request.params;
     const [tokens, err] = await resolve<TrendingToken[]>(
-      this.trendingTokenService.getTrendingTokens(),
+      this.trendingTokenService.getTrendingTokens(network),
     );
 
     if (err) {

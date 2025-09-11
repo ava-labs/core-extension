@@ -9,7 +9,14 @@ type Props = {
 
 export const TopThreeLogos = ({ first, second, third }: Props) => {
   return (
-    <Box position="relative" width="65px" height="40px">
+    <Box
+      position="relative"
+      width="65px"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="40px"
+    >
       {/* First token - biggest, center-right */}
       <Avatar
         src={first.logoURI || undefined}
@@ -19,9 +26,10 @@ export const TopThreeLogos = ({ first, second, third }: Props) => {
           height: 38,
           position: 'absolute',
           right: 0,
-          top: 17,
+          top: '50%',
+          transform: 'translateY(calc(-50% +32px))',
           zIndex: 3,
-          clipPath: 'inset(0 0 29% 0)', // Cut off bottom portion
+          // clipPath: 'inset(0 0 29% 0)', // Cut off bottom portion
         }}
       />
 
@@ -34,7 +42,8 @@ export const TopThreeLogos = ({ first, second, third }: Props) => {
           height: 24,
           position: 'absolute',
           left: 0,
-          bottom: 13,
+          top: '50%',
+          transform: 'translateY(calc(-50% - 4px))',
           zIndex: 2,
         }}
       />
@@ -48,8 +57,9 @@ export const TopThreeLogos = ({ first, second, third }: Props) => {
           height: 32,
           position: 'absolute',
           right: 5,
-          top: -20,
-          clipPath: 'inset(62.5% 0 0 0)', // Show only bottom half
+          top: '50%',
+          transform: 'translateY(calc(-50% - 24px))',
+          // clipPath: 'inset(62.5% 0 0 0)', // Show only bottom half
         }}
       />
     </Box>

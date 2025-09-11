@@ -32,3 +32,5 @@ const trendingTokenSchema = z.object({
 export const trendingTokensSchema = z.array(trendingTokenSchema);
 
 export type TrendingToken = z.infer<typeof trendingTokenSchema>;
+
+export type TrendingTokensNetwork = 'avalanche' | 'solana';

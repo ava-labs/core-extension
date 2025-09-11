@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Trans } from 'react-i18next';
 import { useTrendingTokens } from '../../hooks/useTrendingTokens';
 import { useSettingsContext } from '@core/ui';
@@ -10,36 +10,28 @@ import { TopThreeLogos } from './TopThreeLogos';
 export const TrendingTokenBanner = () => {
   const { push } = useHistory();
 
-  const { getTrendingTokens, trendingTokens } = useTrendingTokens();
+  const { updateTrendingTokens, trendingTokens } = useTrendingTokens();
   const { showTrendingTokens } = useSettingsContext();
-  const firstToken = trendingTokens?.[0];
-  const secondToken = trendingTokens?.[1];
-  const thirdToken = trendingTokens?.[2];
 
-  getTrendingTokens();
+  const avalancheTrendingTokens = trendingTokens.avalanche;
+  const firstToken = avalancheTrendingTokens?.find((token) => token.rank === 1);
+  const secondToken = avalancheTrendingTokens?.find(
+    (token) => token.rank === 2,
+  );
+  const thirdToken = avalancheTrendingTokens?.find((token) => token.rank === 3);
 
-  // const trendingTokens = useMemo(async () => {
-  //   return await getTrendingTokens();
-  // }, [getTrendingTokens]);
+  updateTrendingTokens(`avalanche`);
 
   const top3Tokens = useMemo(() => {
-    return !trendingTokens ? [] : trendingTokens.slice(0, 3);
-  }, [trendingTokens]);
-
-  useEffect(() => {
-    console.log(top3Tokens);
-  }, [top3Tokens]);
-
-  useEffect(() => {
-    console.log(trendingTokens);
-  }, [trendingTokens]);
+    return !avalancheTrendingTokens ? [] : avalancheTrendingTokens.slice(0, 3);
+  }, [avalancheTrendingTokens]);
 
   return (
     firstToken &&
     secondToken &&
     thirdToken &&
     showTrendingTokens && (
-      <Card onClick={() => push(`/trending`)} sx={{ py: 0, height: '40px' }}>
+      <Card onClick={() => push(`/trending`)} sx={{ py: 0 }}>
         <Stack
           alignItems="center"
           justifyContent="space-between"
