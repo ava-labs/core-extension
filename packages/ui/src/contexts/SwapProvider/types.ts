@@ -1,5 +1,5 @@
 import { SwapSide } from '@paraswap/sdk';
-import { SwapQuote, SwapWalletState } from './models';
+import { isMarkrQuote, MarkrQuote, SwapQuote, SwapWalletState } from './models';
 import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import type WAVAX_ABI from './ABI_WAVAX.json';
 import type WETH_ABI from './ABI_WETH.json';
@@ -45,10 +45,21 @@ export type NormalizedSwapQuote = {
   } & Record<string, unknown>;
 };
 
+export type MarkrNormalizedQuote = Omit<NormalizedSwapQuote, 'quote'> & {
+  quote: MarkrQuote;
+};
+
 export type NormalizedSwapQuoteResult = {
   provider: SwapProviders;
   quotes: NormalizedSwapQuote[];
   selected: NormalizedSwapQuote;
+};
+
+export type MarkrNormalizedQuoteResult = Omit<
+  NormalizedSwapQuoteResult,
+  'quotes'
+> & {
+  quotes: MarkrNormalizedQuote[];
 };
 
 export type GetQuoteParams = {
@@ -109,6 +120,18 @@ export function isEvmWrapQuote(quote: SwapQuote): quote is EvmWrapQuote {
 
 export function isEvmUnwrapQuote(quote: SwapQuote): quote is EvmUnwrapQuote {
   return 'operation' in quote && quote.operation === EvmSwapOperation.UNWRAP;
+}
+
+export function isMarkrNormalizedQuote(
+  normalizedQuote: NormalizedSwapQuote,
+): normalizedQuote is MarkrNormalizedQuote {
+  return isMarkrQuote(normalizedQuote.quote);
+}
+
+export function isMarkrNormalizedQuoteResult(
+  normalizedQuote: NormalizedSwapQuoteResult,
+): normalizedQuote is MarkrNormalizedQuoteResult {
+  return normalizedQuote.quotes.every(isMarkrNormalizedQuote);
 }
 
 export interface SwapProvider {

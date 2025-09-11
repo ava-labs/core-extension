@@ -37,6 +37,7 @@ import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { useSwapCallbacks } from '@/pages/Swap';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -66,6 +67,8 @@ export function App() {
   const isAppContext =
     isSpecificContextContainer(ContextContainer.POPUP) ||
     isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+
+  const swapToastCallbacks = useSwapCallbacks();
 
   useEffect(() => {
     /* The list of contexts that should support navigation history */
@@ -120,12 +123,7 @@ export function App() {
           <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
-          <SwapContextProvider
-            removeToast={() => alert('TODO: dismiss toasts')}
-            showErrorToast={() => alert('TODO: oopsie error')}
-            showPendingToast={() => String(alert('TODO: swap pending...'))}
-            showToastWithLink={() => alert('TODO: swap toast with link')}
-          />,
+          <SwapContextProvider {...swapToastCallbacks} />,
         ]) as ReactElement[]
       }
     >

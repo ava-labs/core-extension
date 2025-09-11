@@ -261,7 +261,7 @@ export function SwapContextProvider({
       if (balance && amount) {
         const hasEnough = balance >= BigInt(amount);
         if (!hasEnough) {
-          setError({ message: t('Insufficient balance.') });
+          setError({ message: t('Amount exceeds available balance.') });
         }
       }
     },
@@ -451,6 +451,7 @@ export function SwapContextProvider({
         setDestAmount,
         srcAmount,
         setSrcAmount,
+        swapNetwork,
         setSwapNetwork,
       }}
     >

@@ -1,7 +1,7 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo } from 'react';
-import { Collapse, Grow, Stack } from '@avalabs/k2-alpine';
+import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import { useConvertedCurrencyFormatter } from '@core/ui';
@@ -127,9 +127,15 @@ export const TokenAmountInput = ({
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange(ev.target.value)}
             error={Boolean(isAmountTooBig) || amountBigInt < 0n}
-            helperText={currencyValue || '-'} // Prevents the helper text from disappearing completely
+            helperText={
+              isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
+            }
+            slotProps={{
+              input: {
+                readOnly: isLoading,
+              },
+            }}
             value={amount}
-            isLoading={isLoading}
           />
         </Grow>
       </Stack>

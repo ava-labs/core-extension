@@ -15,12 +15,8 @@ const config = {
   maxFontSize: 24,
 } as const;
 
-type InvisibleAmountInputProps = TextFieldProps & {
-  isLoading?: boolean;
-};
-
 export const InvisibleAmountInput = styled(
-  ({ slotProps, value, ...props }: InvisibleAmountInputProps) => {
+  ({ slotProps, value, ...props }: TextFieldProps) => {
     const {
       input: inputProps,
       htmlInput: htmlInputProps,
@@ -66,22 +62,13 @@ export const InvisibleAmountInput = styled(
       </div>
     );
   },
-)(({ theme, isLoading }) => ({
+)(({ theme }) => ({
   width: '100%',
 
   [`.${inputBaseClasses.input}`]: {
     textAlign: 'right', // Aligns the cursor and text to the right
-    transition: theme.transitions.create(['color', 'filter']),
+    transition: theme.transitions.create('color'),
     height: 'auto',
-
-    '@property --blurSize': {
-      syntax: '<length>',
-      initialValue: '0px',
-      inherits: false,
-    },
-
-    '--blurSize': isLoading ? '2px' : '0px',
-    filter: 'blur(var(--blurSize))',
   },
 
   [`.${inputBaseClasses.root}.${inputBaseClasses.error}`]: {
