@@ -1,12 +1,12 @@
 import { styled } from '@avalabs/k2-alpine';
 
-type CrosshairProps = {
+type VideoFeedCrosshairProps = {
   color: string;
   size?: number;
   thickness?: number;
 };
 
-export const Crosshair = styled((props) => (
+export const VideoFeedCrosshair = styled((props) => (
   <svg
     viewBox="0 0 216 216"
     fill="none"
@@ -18,7 +18,7 @@ export const Crosshair = styled((props) => (
     <path d="M153 3H195C204.941 3 213 11.0589 213 21V63" />
     <path d="M153 213H195C204.941 213 213 204.941 213 195V153" />
   </svg>
-))<CrosshairProps>(({ theme, size = 216, thickness = 6, color }) => ({
+))<VideoFeedCrosshairProps>(({ theme, size = 216, thickness = 6, color }) => ({
   position: 'absolute',
   width: size,
   height: size,
