@@ -5,6 +5,8 @@ import { TokenType } from '@avalabs/vm-module-types';
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
 import { useLiveBalance } from '@core/ui';
 
+import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
+
 import {
   ActionDetails,
   ActionDrawer,
@@ -12,9 +14,10 @@ import {
   Styled,
   MaliciousTxOverlay,
   NoteWarning,
+  HardwareApprovalOverlay,
 } from './components';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
-import { useGasless } from './hooks';
+import { useGasless, useApprovalHelpers } from './hooks';
 import {
   ActionError,
   CancelActionFn,
@@ -41,6 +44,8 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
 }) => {
   useLiveBalance(POLLED_BALANCES);
 
+  const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+
   const { tryFunding, setGaslessDefaultValues, gaslessPhase } = useGasless({
     action,
   });
@@ -52,16 +57,24 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
           status: ActionStatus.SUBMITTING,
           id: action.actionId,
         },
-        false, // TODO: handle hardware wallets
+        isUsingHardwareWallet,
       );
     });
-  }, [updateAction, action.actionId, tryFunding]);
+  }, [updateAction, action.actionId, tryFunding, isUsingHardwareWallet]);
 
   const cancel = useCallback(() => {
     // Reset the gasless state
     setGaslessDefaultValues();
     cancelHandler();
   }, [cancelHandler, setGaslessDefaultValues]);
+
+  const { isApprovalOverlayVisible, handleApproval, handleRejection } =
+    useApprovalHelpers({
+      isUsingHardwareWallet,
+      deviceType,
+      onApprove: approve,
+      onReject: cancel,
+    });
 
   const isProcessing =
     action.status === ActionStatus.SUBMITTING ||
@@ -84,8 +97,8 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
         </Stack>
         <ActionDrawer
           open
-          approve={approve}
-          reject={cancel}
+          approve={handleApproval}
+          reject={handleRejection}
           isProcessing={isProcessing}
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
@@ -95,6 +108,15 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
           open={hasOverlayWarning(action)}
           cancelHandler={cancelHandler}
           alert={action.displayData.alert}
+        />
+      )}
+      {isUsingHardwareWallet && isApprovalOverlayVisible && deviceType && (
+        <HardwareApprovalOverlay
+          deviceType={deviceType}
+          action={action}
+          network={network}
+          approve={approve}
+          reject={cancel}
         />
       )}
     </Styled.ApprovalScreenPage>
