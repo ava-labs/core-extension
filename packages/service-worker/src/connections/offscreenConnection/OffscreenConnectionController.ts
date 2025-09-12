@@ -22,8 +22,6 @@ import {
 import './registry';
 
 import { resolve } from '@avalabs/core-utils-sdk';
-import '../extensionConnection/registry';
-import '../dAppConnection/registry';
 import { serializeToJSON, deserializeFromJSON } from '@core/messaging';
 import { Monitoring } from '@core/common';
 import { ModuleManager } from '../../vmModules/ModuleManager';
