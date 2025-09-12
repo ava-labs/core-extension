@@ -108,6 +108,7 @@ export function App() {
           <ThemeProvider theme={preferredColorScheme} />,
           <AnalyticsContextProvider />,
           <PersonalAvatarProvider />,
+          <LedgerContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={LoadingScreen}
@@ -115,7 +116,6 @@ export function App() {
           />,
           <AccountsContextProvider />,
           <NetworkContextProvider />,
-          <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}

@@ -272,3 +272,5 @@ export const isMessageSigningMethod = (
     (MESSAGE_SIGNING_METHODS as RpcMethod[]).includes(method as RpcMethod)
   );
 };
+
+export type ExternaSignerType = 'ledger' | 'keystone-qr' | 'keystone-usb';
