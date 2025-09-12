@@ -2,7 +2,7 @@ import { WarningMessage } from '@/components/WarningMessage';
 import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
-export const RecoveryMethodFailure = () => {
+export const RecoveryMethodFailure = ({ text }: { text: string }) => {
   const { t } = useTranslation();
   return (
     <Stack
@@ -11,7 +11,9 @@ export const RecoveryMethodFailure = () => {
       paddingBlock="28px 22px"
       paddingInline="0px 30px"
     >
-      <WarningMessage>{t('Error occurred. Please try again.')}</WarningMessage>
+      <WarningMessage>
+        {text || t('Error occurred. Please try again.')}
+      </WarningMessage>
     </Stack>
   );
 };
