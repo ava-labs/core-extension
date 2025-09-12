@@ -5,11 +5,12 @@ import { Contacts } from '@/pages/Contacts';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import { Portfolio } from '@/pages/Portfolio';
 import { Receive } from '@/pages/Receive';
+import { Swap } from '@/pages/Swap';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
 
-import { getContactsPath, getSendPath } from '@/config/routes';
 import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
+import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 
 export const AppRoutes = () => (
   <Switch>
@@ -21,6 +22,7 @@ export const AppRoutes = () => (
     <Route path="/import-wallet/ledger/:phase?" component={ImportLedgerFlow} />
     <Route path={getSendPath()} component={Send} />
     <Route path="/trending" component={TrendingTokens} />
+    <Route path={getSwapPath()} component={Swap} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );

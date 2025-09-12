@@ -127,5 +127,3 @@ export const isSwappableToken = (
 
   return token.type === TokenType.ERC20 || token.type === TokenType.NATIVE;
 };
-
-export { calculateRate } from './calculateRate';
