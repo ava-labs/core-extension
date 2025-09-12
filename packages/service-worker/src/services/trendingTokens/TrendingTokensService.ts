@@ -78,8 +78,8 @@ export class TrendingTokenService {
   private shouldFetchTrendingTokens(network: TrendingTokensNetwork) {
     return (
       this.lastFetched[network] === null ||
-      this.fetching[network] ||
-      this.lastFetched[network].getTime() + 1000 * 60 * 10 < Date.now() // 10 minutes
+      (!this.fetching[network] &&
+        this.lastFetched[network].getTime() + 1000 * 60 * 10 < Date.now()) // 10 minutes
     );
   }
 
