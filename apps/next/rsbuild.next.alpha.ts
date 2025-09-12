@@ -20,9 +20,10 @@ export default defineConfig((...args) =>
                 from: '**/*.json',
                 to: './',
                 transform: transformManifestFiles({
-                  name: '[alpha] Core NextGen',
+                  name: '[alpha] Core Wallet: Crypto Made Easy NextGen DEVELOPMENT BUILD',
                   shortName: '[alpha] Core NextGen',
-                  actionDefaultTitle: '[alpha] Core NextGen Browser Extension',
+                  actionDefaultTitle:
+                    '[alpha] Core Wallet: Crypto Made Easy NextGen DEVELOPMENT BUILD',
                   oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
                   publicKey: process.env.NEXT_GEN_EXTENSION_PUBLIC_KEY,
                 }),

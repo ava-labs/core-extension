@@ -5,7 +5,7 @@
   "key": "__EXTENSION_PUBLIC_KEY__",
   "manifest_version": 3,
   "author": "AvaLabs",
-  "description": "Your home for Avalanche (AVAX) and beyond.",
+  "description": "Earn, trade, explore, and manage your crypto easily with Core’s all-in-one wallet",
   "default_locale": "en",
   "commands": {
     "_execute_action": {
