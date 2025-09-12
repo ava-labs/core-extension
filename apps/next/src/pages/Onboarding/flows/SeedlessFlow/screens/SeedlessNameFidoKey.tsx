@@ -15,11 +15,13 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 type SeedlessNameFidoKeyProps = {
   keyType: 'passkey' | 'yubikey';
   onNext: (name: string) => void;
+  required?: boolean;
 };
 
 export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
   keyType,
   onNext,
+  required,
 }) => {
   const { t } = useTranslation();
   const [name, setName] = useState('');
@@ -50,9 +52,11 @@ export const SeedlessNameFidoKey: FC<SeedlessNameFidoKeyProps> = ({
         </Stack>
       </FullscreenModalContent>
       <FullscreenModalActions>
-        <NavButton variant="text" onClick={() => onNext('')}>
-          {t(`Skip`)}
-        </NavButton>
+        {!required && (
+          <NavButton variant="text" onClick={() => onNext('')}>
+            {t(`Skip`)}
+          </NavButton>
+        )}
         <NavButton
           disabled={!name}
           color="primary"

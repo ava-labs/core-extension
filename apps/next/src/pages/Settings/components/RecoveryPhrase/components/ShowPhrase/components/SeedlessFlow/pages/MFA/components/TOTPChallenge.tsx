@@ -78,7 +78,7 @@ export const TOTPChallenge: FC<Props> = ({ error, challenge, onError }) => {
         <Button
           ref={submitButtonRef}
           variant="contained"
-          color="secondary"
+          color="primary"
           size="large"
           onClick={() => {
             setIsSubmitted(true);

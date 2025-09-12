@@ -8,7 +8,7 @@ import { Receive } from '@/pages/Receive';
 import { Swap } from '@/pages/Swap';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
-
+import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 
 export const AppRoutes = () => (
@@ -20,6 +20,10 @@ export const AppRoutes = () => (
     <Route path="/import-wallet/seedphrase" component={ImportSeedphraseFlow} />
     <Route path="/import-wallet/ledger/:phase?" component={ImportLedgerFlow} />
     <Route path={getSendPath()} component={Send} />
+    <Route
+      path="/update-recovery-method/:mfaType?/:action?/:keyType?"
+      component={RecoveryMethodsFullScreen}
+    />
     <Route path={getSwapPath()} component={Swap} />
     <Route path="/" component={Portfolio} />
   </Switch>

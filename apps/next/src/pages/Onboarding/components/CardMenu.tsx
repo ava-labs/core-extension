@@ -7,6 +7,7 @@ import {
   StackProps,
   styled,
   Typography,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { FC, ReactNode, type ReactElement } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -26,6 +27,8 @@ type CardMenuItemProps = {
   icon: ReactElement;
   text: string;
   description?: string;
+  size?: string;
+  itemGap?: string;
 } & (
   | {
       link: string;
@@ -39,22 +42,32 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
   icon,
   text,
   description,
+  size,
   ...props
 }) => {
   const history = useHistory();
+  const theme = useTheme();
 
   const onClick =
     'onClick' in props ? props.onClick : () => history.push(props.link);
 
   return (
-    <CardMenuItemContainer onClick={onClick}>
+    <CardMenuItemContainer
+      onClick={onClick}
+      sx={{
+        gap: size === 'small' ? theme.spacing(1.5) : theme.spacing(3),
+        paddingX: size === 'small' ? theme.spacing(1.5) : theme.spacing(2.5),
+      }}
+    >
       {icon}
       <Stack className="CardLikeMenuItem-text-wrapper">
         <Stack gap={0.5}>
-          <Typography variant="button">{text}</Typography>
+          <Typography variant={size === 'small' ? 'subtitle3' : 'button'}>
+            {text}
+          </Typography>
           {description && (
             <Typography
-              variant="subtitle1"
+              variant={size === 'small' ? 'caption2' : 'subtitle1'}
               color="text.secondary"
               whiteSpace="normal"
             >
@@ -78,10 +91,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
 const CardMenuItemContainer = styled(MenuItem)(({ theme }) => ({
   flexDirection: 'row',
   justifyContent: 'space-between',
-  gap: theme.spacing(3),
   color: theme.palette.text.primary,
-  paddingLeft: theme.spacing(2.5),
-  paddingRight: theme.spacing(2.5),
   transition: 'background-color .15s ease-in-out',
 
   '& .CardLikeMenuItem-chevron': {
