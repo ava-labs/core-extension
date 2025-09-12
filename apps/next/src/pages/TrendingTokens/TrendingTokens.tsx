@@ -1,5 +1,5 @@
 import { Page } from '@/components/Page';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Button, Stack, useTheme } from '@avalabs/k2-alpine';
 import { useTrendingTokens } from './hooks/useTrendingTokens';
 import { TokenCard } from './components/tokens/TokenCard';
 import { TrendingTokensNetwork } from '@core/types';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 export const TrendingTokens = () => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { updateTrendingTokens, trendingTokens } = useTrendingTokens();
   const [network, setNetwork] = useState<TrendingTokensNetwork>('avalanche');
   useEffect(() => {
@@ -38,12 +39,12 @@ export const TrendingTokens = () => {
         position="sticky"
         top={0}
         zIndex={1000}
-        bgcolor="background.backdrop"
-        py={1}
-        mb={2}
+        pt={1}
+        pb={3}
+        bgcolor={theme.palette.background.backdrop}
       >
         <Button
-          size="small"
+          size="xsmall"
           variant="contained"
           color={network == 'avalanche' ? 'primary' : 'secondary'}
           onClick={() => handleNetworkChange('avalanche')}
@@ -51,7 +52,7 @@ export const TrendingTokens = () => {
           {t('Avalanche')}
         </Button>
         <Button
-          size="small"
+          size="xsmall"
           variant="contained"
           color={network == 'solana' ? 'primary' : 'secondary'}
           onClick={() => handleNetworkChange('solana')}

@@ -80,7 +80,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       pt={1}
     >
       {/* Left side - Avatar */}
-      <Box position="relative" sx={{ transform: 'translateY(-2px)' }}>
+      <Box position="relative" sx={{ transform: 'translateY(-4px)' }}>
         <Avatar
           alt={token.symbol}
           src={token.logoURI || undefined}
@@ -116,10 +116,12 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       >
         {/* Middle left side - Token info */}
         <Stack>
-          <Typography>
+          <Typography variant="body3">
             {rank}. {token.name}
           </Typography>
-          <Typography color="text.secondary">{token.symbol}</Typography>
+          <Typography color="text.secondary" variant="body3">
+            {token.symbol}
+          </Typography>
         </Stack>
 
         <Stack
@@ -131,16 +133,20 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
         >
           {/* Middle right side - Price and percent change */}
           <Stack alignItems="flex-end" ml="auto">
-            <Typography color="text.secondary">{formattedPrice}</Typography>
+            <Typography color="text.primary" variant="body3">
+              {formattedPrice}
+            </Typography>
             <Stack direction="row" gap={1}>
               <img src={percentChangeIcon} alt="percent change" />
-              <Typography color="text.secondary">{formattedPercent}</Typography>
+              <Typography color="text.secondary" variant="body3">
+                {formattedPercent}
+              </Typography>
             </Stack>
           </Stack>
 
           {/* Right side - Buy button */}
           <Button
-            size="small"
+            size="xsmall"
             variant="contained"
             color="secondary"
             onClick={() =>
