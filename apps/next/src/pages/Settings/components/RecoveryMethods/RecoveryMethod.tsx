@@ -16,7 +16,6 @@ export const RecoveryMethod = ({ method }: RecoveryMethodProps) => {
   const { t } = useTranslation();
   const { hasTotpConfigured, hasFidoConfigured, recoveryMethods } =
     useSeedlessMfaManager();
-  console.log('recoveryMethods: ', recoveryMethods);
   const history = useHistory();
 
   const isRemovable =

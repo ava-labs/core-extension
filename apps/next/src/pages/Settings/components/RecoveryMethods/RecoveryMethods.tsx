@@ -13,9 +13,6 @@ export enum RecoveryMethodScreen {
   ConfiguredList = 'configured-list',
   NewList = 'new-list',
   Method = 'method',
-  // AddNew = 'add-new',
-  // Authenticator = 'authenticator',
-  // FidoDetails = 'fido-details',
 }
 
 export const RecoveryMethods: FC = () => {
@@ -27,14 +24,11 @@ export const RecoveryMethods: FC = () => {
   const {
     isLoadingRecoveryMethods,
     recoveryMethods: existingRecoveryMethods,
-    // hasFidoConfigured,
     hasMfaConfigured,
     hasTotpConfigured,
   } = useSeedlessMfaManager();
-  console.log('hasMfaConfigured: ', hasMfaConfigured);
 
   const [screen, setScreen] = useState<RecoveryMethodScreen>();
-  console.log('screen: ', screen);
 
   useEffect(() => {
     if (isLoadingRecoveryMethods) {

@@ -50,7 +50,6 @@ export const SettingsHomePage = () => {
   const { lockWallet } = useSettingsContext();
   const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
   const { walletDetails } = useWalletContext();
-  console.log('SettingsHomePage walletDetails: ', walletDetails);
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
@@ -63,7 +62,6 @@ export const SettingsHomePage = () => {
   const { featureFlags } = useFeatureFlagContext();
   const areMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
-  console.log('isMfaSetupPromptVisible: ', isMfaSetupPromptVisible);
 
   return (
     <Page

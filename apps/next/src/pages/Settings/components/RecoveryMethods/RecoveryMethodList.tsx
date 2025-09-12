@@ -27,7 +27,6 @@ export const RecoveryMethodList = ({
   hasMFAConfigured: boolean;
   onNext: () => void;
 }) => {
-  console.log('hasTotpConfigured: ', hasTotpConfigured);
   const { t } = useTranslation();
   const history = useHistory();
   const { capture } = useAnalyticsContext();
@@ -81,7 +80,6 @@ export const RecoveryMethodList = ({
       >
         <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
           {recoveryMethodCards.map((card, idx) => {
-            console.log('card: ', card);
             // Hide Authenticator option if TOTP is already configured
             if (card.method === 'authenticator' && hasTotpConfigured) {
               return null;
@@ -91,7 +89,6 @@ export const RecoveryMethodList = ({
               <CardMenuItem
                 onClick={() => {
                   capture(card.analyticsKey);
-                  console.log('card.to: ', card.to);
                   if (card.newTab === false) {
                     history.push(card.to);
                     return;

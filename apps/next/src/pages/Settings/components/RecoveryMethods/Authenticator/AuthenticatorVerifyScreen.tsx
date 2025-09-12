@@ -7,7 +7,6 @@ export const AuthenticatorVerifyScreen = ({
   onShowSecret,
   onNext,
 }) => {
-  console.log('AuthenticatorVerifyScreen: ', totpChallenge);
   const theme = useTheme();
   const { t } = useTranslation();
 

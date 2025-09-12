@@ -12,7 +12,6 @@ import { NetworkManagement } from './components/NetworkManagement';
 
 export const Settings: FC = () => {
   const { path } = useRouteMatch();
-  console.log('path: ', path);
   return (
     <Switch>
       <Route path={`${path}/avatar`} component={AvatarSelector} />

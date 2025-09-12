@@ -16,9 +16,7 @@ export const AuthenticatorVerifyTotp = ({
   onSubmit,
   isSubmitted,
 }: AuthenticatorVerifyTotpProps) => {
-  console.log('error: ', error);
   const totpError = useTotpErrorMessage(error);
-  console.log('totpError: ', totpError);
   const keyboardShortcuts = useKeyboardShortcuts({
     Enter: () => onSubmit && onSubmit(),
   });
