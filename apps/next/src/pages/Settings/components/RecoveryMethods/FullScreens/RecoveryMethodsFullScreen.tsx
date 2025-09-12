@@ -18,7 +18,6 @@ export const RecoveryMethodsFullScreen = () => {
   const homeURL = '/update-recovery-method';
   const location = useLocation();
   const openApp = useOpenApp();
-  console.log('location: ', location);
 
   const { mfaType, action, keyType } =
     useParams<RecoveryMethodsFullScreenParams>();
