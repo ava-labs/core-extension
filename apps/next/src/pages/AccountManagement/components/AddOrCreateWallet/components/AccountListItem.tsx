@@ -4,6 +4,8 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemTextProps,
+  Tooltip,
+  buttonClasses,
 } from '@avalabs/k2-alpine';
 import {
   ComponentType,
@@ -30,6 +32,8 @@ type Props = {
   onClick:
     | MouseEventHandler<HTMLButtonElement>
     | ((event: MouseEvent<HTMLButtonElement>) => Promise<void>);
+  tooltip?: string;
+  disabled?: boolean;
 };
 
 export const AccountListItem: FC<Props> = ({
@@ -37,6 +41,8 @@ export const AccountListItem: FC<Props> = ({
   primary,
   secondary,
   onClick,
+  tooltip,
+  disabled,
 }) => {
   const [isPending, setPending] = useState(false);
   const handleClick = async (event: MouseEvent<HTMLButtonElement>) => {
@@ -50,23 +56,31 @@ export const AccountListItem: FC<Props> = ({
 
   return (
     <Styled.ListItem disablePadding>
-      <ListItemButton
-        component="button"
-        onClick={handleClick}
-        disabled={isPending}
-      >
-        <ListItemIcon>
-          <Icon size={20} />
-        </ListItemIcon>
-        <ListItemText
-          primary={primary}
-          secondary={secondary}
-          slotProps={listItemTextProps}
-        />
-        <ListItemIcon>
-          <ChevronRightIcon size={24} />
-        </ListItemIcon>
-      </ListItemButton>
+      <Tooltip title={tooltip}>
+        <ListItemButton
+          component="button"
+          onClick={handleClick}
+          disabled={isPending || disabled}
+          sx={{
+            [`&.${buttonClasses.disabled}`]: {
+              // Keeps the tooltip working even when the button is disabled
+              pointerEvents: 'auto',
+            },
+          }}
+        >
+          <ListItemIcon>
+            <Icon size={20} />
+          </ListItemIcon>
+          <ListItemText
+            primary={primary}
+            secondary={secondary}
+            slotProps={listItemTextProps}
+          />
+          <ListItemIcon>
+            <ChevronRightIcon size={24} />
+          </ListItemIcon>
+        </ListItemButton>
+      </Tooltip>
     </Styled.ListItem>
   );
 };
