@@ -55,7 +55,7 @@ export const PortfolioHome: FC = () => {
   const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
 
   return (
-    <Stack height={1} px={1.5} pb={1.5} gap={2.5}>
+    <Stack height={1} px={1.5} gap={2}>
       <AccountInfo
         accountName={accounts.active?.name ?? ''}
         balance={totalBalance}

@@ -31,7 +31,15 @@ export const HardwareApprovalOverlay = ({
       />
     );
   } else if (deviceType === 'keystone-qr') {
-    return <KeystoneQRApprovalOverlay />;
+    return (
+      <KeystoneQRApprovalOverlay
+        deviceType={deviceType}
+        action={action}
+        network={network}
+        approve={approve}
+        reject={reject}
+      />
+    );
   } else if (deviceType === 'keystone-usb') {
     return <KeystoneUSBApprovalOverlay />;
   }
