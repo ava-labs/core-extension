@@ -13,6 +13,7 @@ import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/compone
 import { AuthErrorCode, ExtensionRequest, MfaResponseData } from '@core/types';
 import { TotpCodeField } from '@/components/TotpCodeField';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
+import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
 
 export const FIDO = () => {
   const history = useHistory();
@@ -80,6 +81,7 @@ export const FIDO = () => {
           'Open any authenticator app and scan the QR code below or enter the code manually',
         )}
       </Typography>
+      {(!mfaEvents || !mfaEvents.challenge) && <InProgress textSize="body1" />}
       {mfaEvents.challenge && mfaEvents.challenge.type === 'totp' && (
         <Stack
           sx={{ height: '100%', justifyContent: 'space-between' }}

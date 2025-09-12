@@ -14,6 +14,7 @@ import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
 import { FIDOChallenge } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/FIDOChallenge';
 import { useHistory } from 'react-router-dom';
+import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
 
 enum RemoveTotpState {
   Loading = 'loading',
@@ -48,7 +49,22 @@ export const RemoveTotp = () => {
   }, [remove]);
 
   return (
-    <Stack>
+    <Stack sx={{ height: '100%' }}>
+      {(!mfaChallenge || !mfaChallenge.challenge) && (
+        <Stack
+          sx={{
+            width: 1,
+            height: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 2,
+            px: 2,
+            textAlign: 'center',
+          }}
+        >
+          <InProgress textSize="body1" />
+        </Stack>
+      )}
       {state === RemoveTotpState.Failure && (
         <Stack
           sx={{
