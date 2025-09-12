@@ -665,7 +665,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this._customNetworks = {
       ...this._customNetworks,
-      [chainId]: omit(customNetwork, 'customRpcHeaders') as NetworkWithCaipId, // should be saved in overrides
+      [chainId]: customNetwork,
     };
 
     this._allNetworks.dispatch({
