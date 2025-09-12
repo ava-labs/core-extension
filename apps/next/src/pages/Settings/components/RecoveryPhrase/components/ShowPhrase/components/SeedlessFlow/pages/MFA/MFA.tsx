@@ -44,7 +44,7 @@ export const MFA = () => {
         />
       )}
 
-      {(!mfaChoice.choice || !mfaChallenge) && (
+      {!mfaChoice.choice && !mfaChallenge && (
         <InProgress textSize="body1">
           {t('Fetching available authentication methods...')}
         </InProgress>
