@@ -114,7 +114,7 @@ export const TokenCard = ({ token, last }: TokenCardProps) => {
 
           {/* Right side - Buy button */}
           <Button size="small" variant="contained" color="secondary">
-            {t('Buy')}
+            {t('Buy')} {/* TODO: add buy button logic */}
           </Button>
         </Stack>
       </Stack>
