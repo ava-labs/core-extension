@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Trans } from 'react-i18next';
 import { useTrendingTokens } from '../../hooks/useTrendingTokens';
 import { useSettingsContext } from '@core/ui';
@@ -20,7 +20,12 @@ export const TrendingTokenBanner = () => {
   );
   const thirdToken = avalancheTrendingTokens?.find((token) => token.rank === 3);
 
-  updateTrendingTokens(`avalanche`);
+  useEffect(() => {
+    // Just run it once for the initial render
+    updateTrendingTokens(`avalanche`);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const top3Tokens = useMemo(() => {
     return !avalancheTrendingTokens ? [] : avalancheTrendingTokens.slice(0, 3);
@@ -31,7 +36,7 @@ export const TrendingTokenBanner = () => {
     secondToken &&
     thirdToken &&
     showTrendingTokens && (
-      <Card onClick={() => push(`/trending`)} sx={{ py: 0 }}>
+      <Card onClick={() => push(`/trending`)} sx={{ py: 0, cursor: 'pointer' }}>
         <Stack
           alignItems="center"
           justifyContent="space-between"

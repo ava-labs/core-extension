@@ -3,14 +3,18 @@ import { Button, Stack } from '@avalabs/k2-alpine';
 import { useTrendingTokens } from './hooks/useTrendingTokens';
 import { TokenCard } from './components/tokens/TokenCard';
 import { TrendingTokensNetwork } from '@core/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const TrendingTokens = () => {
   const { t } = useTranslation();
   const { updateTrendingTokens, trendingTokens } = useTrendingTokens();
   const [network, setNetwork] = useState<TrendingTokensNetwork>('avalanche');
-  updateTrendingTokens(network);
+  useEffect(() => {
+    // Just run it once for the initial render
+    updateTrendingTokens(network);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleNetworkChange = (newNetwork: TrendingTokensNetwork) => {
     setNetwork(newNetwork);
@@ -62,6 +66,7 @@ export const TrendingTokens = () => {
             key={token.address}
             token={token}
             last={index === trendingTokens[network].length - 1}
+            network={network}
           />
         ))}
       </Stack>

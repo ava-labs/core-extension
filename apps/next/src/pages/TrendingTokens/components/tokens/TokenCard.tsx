@@ -1,4 +1,8 @@
-import { TrendingToken } from '@core/types';
+import {
+  getUniqueTokenIdGeneric,
+  TrendingToken,
+  TrendingTokensNetwork,
+} from '@core/types';
 import { Avatar, Box, Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
@@ -6,17 +10,31 @@ import { useSettingsContext } from '@core/ui';
 import { formatCurrency } from '../../utils/formatAmount';
 import upIcon from '../../assets/up.svg';
 import downIcon from '../../assets/down.svg';
+import { useHistory } from 'react-router-dom';
+import { getSwapPath } from '@/config/routes';
+import { TokenType } from '@avalabs/vm-module-types';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 type TokenCardProps = {
   token: TrendingToken;
   last: boolean;
+  network: TrendingTokensNetwork;
 };
 const UNKNOWN_AMOUNT = '-';
 
-export const TokenCard = ({ token, last }: TokenCardProps) => {
+const getCoreChainId = (network: TrendingTokensNetwork) => {
+  if (network === 'avalanche') {
+    return ChainId.AVALANCHE_MAINNET_ID;
+  } else {
+    return ChainId.SOLANA_MAINNET_ID;
+  }
+};
+
+export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const rank = token.rank;
   const { currency } = useSettingsContext();
   const { t } = useTranslation();
+  const { push } = useHistory();
 
   const formattedPercent = useMemo(
     () =>
@@ -45,6 +63,14 @@ export const TokenCard = ({ token, last }: TokenCardProps) => {
     return downIcon;
   }, [token.price24hChangePercent]);
 
+  const uniqueTokenId = useMemo(() => {
+    return getUniqueTokenIdGeneric({
+      type: token.isNative ? TokenType.NATIVE : TokenType.ERC20,
+      symbol: token.symbol,
+      address: token.isNative ? undefined : token.address,
+      coreChainId: getCoreChainId(network),
+    });
+  }, [token, network]);
   return (
     <Stack
       width="100%"
@@ -113,8 +139,19 @@ export const TokenCard = ({ token, last }: TokenCardProps) => {
           </Stack>
 
           {/* Right side - Buy button */}
-          <Button size="small" variant="contained" color="secondary">
-            {t('Buy')} {/* TODO: add buy button logic */}
+          <Button
+            size="small"
+            variant="contained"
+            color="secondary"
+            onClick={() =>
+              push(
+                getSwapPath({
+                  to: uniqueTokenId,
+                }),
+              )
+            }
+          >
+            {t('Buy')}
           </Button>
         </Stack>
       </Stack>
