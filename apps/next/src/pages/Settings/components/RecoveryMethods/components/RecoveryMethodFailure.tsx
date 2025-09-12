@@ -2,7 +2,7 @@ import { WarningMessage } from '@/components/WarningMessage';
 import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
-export const RecoveryMethodFailure = ({ text }: { text: string }) => {
+export const RecoveryMethodFailure = ({ text }: { text?: string }) => {
   const { t } = useTranslation();
   return (
     <Stack
