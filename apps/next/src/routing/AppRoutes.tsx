@@ -9,6 +9,7 @@ import { Swap } from '@/pages/Swap';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
 
+import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 
 export const AppRoutes = () => (
@@ -20,6 +21,7 @@ export const AppRoutes = () => (
     <Route path="/import-wallet/seedphrase" component={ImportSeedphraseFlow} />
     <Route path="/import-wallet/ledger/:phase?" component={ImportLedgerFlow} />
     <Route path={getSendPath()} component={Send} />
+    <Route path="/trending" component={TrendingTokens} />
     <Route path={getSwapPath()} component={Swap} />
     <Route path="/" component={Portfolio} />
   </Switch>

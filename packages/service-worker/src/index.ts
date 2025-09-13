@@ -130,3 +130,4 @@ export type { ImportSeedPhraseHandler } from './services/wallet/handlers/importS
 export type { StoreBtcWalletPolicyDetails } from './services/wallet/handlers/storeBtcWalletPolicyDetails';
 export type { EstablishRequiredSession } from './services/walletConnect/handlers/establishRequiredSession';
 export type { WalletConnectImportAccount } from './services/walletConnect/handlers/walletConnectImportAccount';
+export type { GetTrendingTokensHandler } from './services/trendingTokens/handlers/getTrendingTokens';
