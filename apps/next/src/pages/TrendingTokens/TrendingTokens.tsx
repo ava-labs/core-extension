@@ -24,7 +24,7 @@ export const TrendingTokens = () => {
 
   return (
     <Page
-      title="Trending Tokens"
+      title="Trending tokens"
       contentProps={{
         alignItems: 'stretch',
         justifyContent: 'flex-start',

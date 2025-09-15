@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 import { Avatar, Box, Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
+import { useMemo, useState, useRef, useLayoutEffect } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { formatCurrency } from '../../utils/formatAmount';
 import upIcon from '../../assets/up.svg';
@@ -35,6 +35,13 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const { currency } = useSettingsContext();
   const { t } = useTranslation();
   const { push } = useHistory();
+
+  const [showBuyButton, setShowBuyButton] = useState(false);
+
+  // For the buy button and price info to be aligned to avoid the card layout shifting when the buy button is shown or hidden
+  const [fixedWidth, setFixedWidth] = useState<number | undefined>(undefined);
+  const buyButtonRef = useRef<HTMLDivElement>(null);
+  const priceInfoRef = useRef<HTMLDivElement>(null);
 
   const formattedPercent = useMemo(
     () =>
@@ -71,6 +78,16 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       coreChainId: getCoreChainId(network),
     });
   }, [token, network]);
+
+  useLayoutEffect(() => {
+    if (buyButtonRef.current && priceInfoRef.current) {
+      const buyButtonWidth = buyButtonRef.current.offsetWidth;
+      const priceInfoWidth = priceInfoRef.current.offsetWidth;
+      const maxWidth = Math.max(buyButtonWidth, priceInfoWidth);
+      setFixedWidth(maxWidth);
+    }
+  }, [formattedPrice, formattedPercent]);
+
   return (
     <Stack
       width="100%"
@@ -78,6 +95,8 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       alignItems="center"
       justifyContent="space-between"
       pt={1}
+      onMouseEnter={() => setShowBuyButton(true)}
+      onMouseLeave={() => setShowBuyButton(false)}
     >
       {/* Left side - Avatar */}
       <Box position="relative" sx={{ transform: 'translateY(-4px)' }}>
@@ -131,34 +150,49 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
           direction="row"
           columnGap={1.5}
         >
-          {/* Middle right side - Price and percent change */}
-          <Stack alignItems="flex-end" ml="auto">
-            <Typography color="text.primary" variant="body3">
-              {formattedPrice}
-            </Typography>
-            <Stack direction="row" gap={1}>
-              <img src={percentChangeIcon} alt="percent change" />
-              <Typography color="text.secondary" variant="body3">
-                {formattedPercent}
-              </Typography>
-            </Stack>
-          </Stack>
-
-          {/* Right side - Buy button */}
-          <Button
-            size="xsmall"
-            variant="contained"
-            color="secondary"
-            onClick={() =>
-              push(
-                getSwapPath({
-                  to: uniqueTokenId,
-                }),
-              )
-            }
+          <Box
+            alignItems="flex-end"
+            ml="auto"
+            width={fixedWidth}
+            display="flex"
+            justifyContent="flex-end"
           >
-            {t('Buy')}
-          </Button>
+            <Box
+              ref={buyButtonRef}
+              display={showBuyButton ? 'block' : 'none'}
+              alignItems="flex-end"
+            >
+              <Button
+                size="xsmall"
+                variant="contained"
+                color="secondary"
+                onClick={() =>
+                  push(
+                    getSwapPath({
+                      to: uniqueTokenId,
+                    }),
+                  )
+                }
+              >
+                {t('Buy')}
+              </Button>
+            </Box>
+            <Stack
+              ref={priceInfoRef}
+              alignItems="flex-end"
+              display={showBuyButton ? 'none' : 'flex'}
+            >
+              <Typography color="text.primary" variant="body3">
+                {formattedPrice}
+              </Typography>
+              <Stack direction="row" gap={1}>
+                <img src={percentChangeIcon} alt="percent change" />
+                <Typography color="text.secondary" variant="body3">
+                  {formattedPercent}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Box>
         </Stack>
       </Stack>
     </Stack>
