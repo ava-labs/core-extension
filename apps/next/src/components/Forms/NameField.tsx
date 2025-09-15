@@ -43,22 +43,43 @@ export const NameField = ({
           direction="row"
           alignItems="center"
           justifyContent="center"
-          position="absolute"
-          paddingInline={0}
-          width="100%"
-          columnGap={0.75}
+          columnGap={1}
         >
-          <InvisibleNameInput
-            value={name}
-            autoFocus={autoFocus}
-            onClick={() => setIsNaming(true)}
-            onBlur={() => setIsNaming(false)}
-            onChange={(e) => setName(e.target.value)}
-            readOnly={readOnly}
-            style={{
-              width: showIcon ? 'calc(100% - 8px)' : '100%',
-            }}
-          />
+          <Stack
+            direction="row"
+            display="inline-grid"
+            alignItems="center"
+            maxWidth="calc(100% - 32px)"
+            gap={1.5}
+          >
+            <InvisibleNameInput
+              value={name}
+              autoFocus={autoFocus}
+              onClick={() => setIsNaming(true)}
+              onBlur={() => setIsNaming(false)}
+              onChange={(e) => setName(e.target.value)}
+              readOnly={readOnly}
+              style={{
+                gridArea: '1 / 1',
+                padding: 0,
+              }}
+              size={1} // Start with the text field of minimum size
+            />
+            <span
+              style={{
+                visibility: 'hidden',
+                whiteSpace: 'pre-wrap',
+                height: 0,
+                width: 'fit-content',
+                fontSize: 27,
+                fontWeight: 700,
+                fontFamily: 'Aeonik',
+                textAlign: 'center',
+              }}
+            >
+              {name}
+            </span>
+          </Stack>
           {showIcon && (
             <EditIcon height="21px" color={theme.palette.text.secondary} />
           )}
