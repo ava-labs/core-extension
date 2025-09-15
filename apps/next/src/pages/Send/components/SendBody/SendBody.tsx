@@ -45,6 +45,7 @@ export const SendBody = ({
   recipient,
 }: SendBodyProps) => {
   const { t } = useTranslation();
+  console.log('token: ', token);
 
   // If any of the parameters is not ready, we just show a disabled Send button.
   if (
@@ -61,6 +62,7 @@ export const SendBody = ({
     );
   }
 
+  console.log('isEvmNativeToken(token): ', isEvmNativeToken(token));
   if (isEvmNativeToken(token)) {
     return (
       <EvmNativeSendBody
@@ -73,6 +75,7 @@ export const SendBody = ({
     );
   }
 
+  console.log('isErc20Token(token): ', isErc20Token(token));
   if (isErc20Token(token)) {
     return (
       <EvmErc20SendBody
@@ -85,6 +88,10 @@ export const SendBody = ({
     );
   }
 
+  console.log(
+    'isBtcToken(token) && isBtcCapableAccount(account): ',
+    isBtcToken(token) && isBtcCapableAccount(account),
+  );
   if (isBtcToken(token) && isBtcCapableAccount(account)) {
     return (
       <BtcSendBody
@@ -97,6 +104,10 @@ export const SendBody = ({
     );
   }
 
+  console.log(
+    'isXChainToken(token) && isAvmCapableAccount(account): ',
+    isXChainToken(token) && isAvmCapableAccount(account),
+  );
   if (isXChainToken(token) && isAvmCapableAccount(account)) {
     return (
       <XChainSendBody
@@ -109,6 +120,10 @@ export const SendBody = ({
     );
   }
 
+  console.log(
+    'isPChainToken(token) && isPvmCapableAccount(account): ',
+    isPChainToken(token) && isPvmCapableAccount(account),
+  );
   if (isPChainToken(token) && isPvmCapableAccount(account)) {
     return (
       <PChainSendBody
