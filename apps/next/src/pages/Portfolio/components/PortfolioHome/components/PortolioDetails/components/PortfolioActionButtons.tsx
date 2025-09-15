@@ -9,7 +9,7 @@ import {
 import { MdAdd } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 
-import { getSendPath } from '@/config/routes';
+import { getSendPath, getSwapPath } from '@/config/routes';
 
 const onNotImplementedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
@@ -39,7 +39,7 @@ export const PortfolioActionButtons = () => {
         variant="extension"
         icon={<SwapIcon size={ICON_SIZE} />}
         label="Swap"
-        onClick={onNotImplementedClick}
+        onClick={() => push(getSwapPath())}
       />
       <SquareButton
         variant="extension"

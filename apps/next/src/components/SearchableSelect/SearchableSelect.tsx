@@ -1,12 +1,15 @@
 import {
   ComponentProps,
+  FC,
   JSXElementConstructor,
+  memo,
   ReactNode,
   useRef,
   useState,
 } from 'react';
 import { Divider, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 import type {
   Group,
@@ -57,7 +60,14 @@ type SearchableSelectProps<T> = SearchableSelectOwnProps<T> &
     slots?: SearchableSelectSlots<T>;
   };
 
-export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
+const DEFAULT_VIRTUALIZED_LIST_HEIGHT = 400;
+
+// Type-wrapper around React.memo, as using it directly loses the generic type association.
+const genericMemo: <T>(component: T) => T = memo;
+
+export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
+  props: SearchableSelectProps<T>,
+) {
   const { t } = useTranslation();
   const {
     label,
@@ -75,6 +85,7 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const triggerElement = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const {
     setRoot,
@@ -99,6 +110,12 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
     ...props.slots,
   };
 
+  const RowRenderer: FC<ListChildComponentProps<T[]>> = ({
+    index,
+    data,
+    style,
+  }) => <div style={style}>{renderOption(data[index]!, getOptionProps)}</div>;
+
   return (
     <>
       <SearchableSelectTrigger
@@ -106,7 +123,7 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
         label={label}
         value={value}
         renderValue={renderValue}
-        onClick={() => setIsOpen((o) => !o)}
+        onClick={() => hookProps.options.length > 0 && setIsOpen((o) => !o)}
       />
       <SearchableSelectPopover
         open={isOpen}
@@ -148,10 +165,26 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
                     (!isListNarrowedDown && index === 0 && length === 1))
                 ) {
                   return (
-                    <Stack key="sole-item" pt={1}>
-                      {group.options.map((option) =>
-                        renderOption(option, getOptionProps),
-                      )}
+                    <Stack
+                      key="sole-item"
+                      pt={1}
+                      ref={containerRef}
+                      flexGrow={1}
+                    >
+                      <FixedSizeList
+                        height={
+                          containerRef.current?.clientHeight ??
+                          DEFAULT_VIRTUALIZED_LIST_HEIGHT
+                        }
+                        itemData={group.options}
+                        itemCount={group.options.length}
+                        itemSize={44}
+                        overscanCount={5}
+                        style={{ overflow: 'auto', scrollbarWidth: 'none' }}
+                        width="100%"
+                      >
+                        {RowRenderer}
+                      </FixedSizeList>
                     </Stack>
                   );
                 }
@@ -174,4 +207,4 @@ export function SearchableSelect<T>(props: SearchableSelectProps<T>) {
       </SearchableSelectPopover>
     </>
   );
-}
+});

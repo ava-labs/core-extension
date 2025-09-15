@@ -120,7 +120,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
             toTokenDecimals: isDestTokenNative ? 18 : destDecimals,
             account,
             network,
-            slippage: Number(slippageTolerance),
+            slippage: 0,
           },
           undefined,
         );
@@ -193,10 +193,15 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         method: RpcMethod,
         txParams: [NormalizedTransactionParams],
       ): Promise<string> =>
-        request({
-          method,
-          params: txParams,
-        });
+        request(
+          {
+            method,
+            params: txParams,
+          },
+          {
+            scope: network.caipId,
+          },
+        );
 
       // getting the swap provider by name because there is chance that
       // the markr can be blocked after the quote is fetched

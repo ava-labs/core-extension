@@ -16,9 +16,21 @@ import {
 import { useBalancesContext, useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
 
+type UseTokensForAccountOptions = {
+  // If set to true, malicious tokens will not be listed.
+  hideMalicious?: boolean;
+  // If omitted, all networks will be used.
+  networks?: NetworkWithCaipId[];
+};
+
+const DEFAULT_OPTIONS: UseTokensForAccountOptions = {
+  hideMalicious: true,
+  networks: [],
+};
+
 export const useTokensForAccount = (
   account?: Account,
-  hideMalicious: boolean = true,
+  options: UseTokensForAccountOptions = DEFAULT_OPTIONS,
 ) => {
   const {
     balances: { tokens: tokensByChain },
@@ -36,6 +48,10 @@ export const useTokensForAccount = (
     for (const [coreChainId, chainBalances] of Object.entries(
       tokensByChain ?? {},
     )) {
+      if (!isChainIdRequested(coreChainId, options.networks ?? [])) {
+        continue;
+      }
+
       const network = getNetwork(Number(coreChainId));
 
       if (!network) {
@@ -51,7 +67,7 @@ export const useTokensForAccount = (
         }
 
         const nonMaliciousTokens = Object.values(addressBalances)
-          .filter(hideMalicious ? isNotKnownMalicious : () => true)
+          .filter(options.hideMalicious ? isNotKnownMalicious : () => true)
           .filter(isFungibleToken);
 
         for (const balance of nonMaliciousTokens) {
@@ -61,7 +77,20 @@ export const useTokensForAccount = (
     }
 
     return sortTokens(tokens);
-  }, [account, tokensByChain, getNetwork, hideMalicious]);
+  }, [
+    account,
+    tokensByChain,
+    getNetwork,
+    options.networks,
+    options.hideMalicious,
+  ]);
+};
+
+const isChainIdRequested = (chainId: string, networks: NetworkWithCaipId[]) => {
+  return (
+    networks.length === 0 ||
+    networks.some((network) => network.chainId === Number(chainId))
+  );
 };
 
 const decorateWithAssetTypeAndChainId = (
@@ -111,6 +140,11 @@ const isNativeToken = (
 ): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
   token.type === TokenType.NATIVE;
 
+const isAvaxToken = (
+  token: FungibleTokenBalance,
+): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
+  token.type === TokenType.NATIVE && token.symbol === 'AVAX';
+
 /**
  * Native tokens first, then tokens sorted by balance in currency, then tokens sorted by balance, then tokens sorted by symbol
  */
@@ -118,11 +152,12 @@ const sortTokens = (tokens: FungibleTokenBalance[]): FungibleTokenBalance[] =>
   orderBy(
     tokens,
     [
+      isAvaxToken,
       isNativeToken,
       hasCurrencyValue,
       'token.balanceInCurrency',
       'token.balance',
       'token.name',
     ],
-    ['desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
+    ['desc', 'desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
   );
