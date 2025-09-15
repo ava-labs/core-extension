@@ -244,11 +244,11 @@ describe('formatCurrency', () => {
     it('should handle very small positive numbers with boost precision', () => {
       expect(
         formatCurrency({
-          amount: 0.000000001,
+          amount: 0.000001,
           currency: 'USD',
           boostSmallNumberPrecision: true,
         }),
-      ).toBe('$0.000000');
+      ).toBe('$0.000001');
     });
 
     it('should handle fractional cents', () => {

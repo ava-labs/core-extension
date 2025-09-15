@@ -113,6 +113,7 @@ const getCompactFormat = memoize(
   (currency: string) =>
     new Intl.NumberFormat('en-US', {
       ...commonNumberFormat(currency),
+      minimumFractionDigits: 0,
       maximumFractionDigits: 2,
       notation: 'compact',
     }),
