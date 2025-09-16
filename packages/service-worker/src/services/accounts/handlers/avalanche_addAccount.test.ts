@@ -124,7 +124,7 @@ describe('background/services/accounts/handlers/avalanche_addAccount.ts', () => 
       expect(addPrimaryAccountMock).not.toHaveBeenCalled();
       expect(result).toEqual({
         ...request,
-        error: 'Error: No active account',
+        error: 'Error: There is no wallet id for the new primary account',
       });
     });
 
