@@ -495,6 +495,111 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     setLedgerVersionWarningClosed(result);
   }, [request]);
 
+  useEffect(() => {
+    console.log({ hasLedgerTransport: !!app });
+  }, [app]);
+
+  // Ledger Stax getting locked when connected via USB needs to be detected and the transport needs to be cleared
+  // Heartbeat mechanism is being used to detect device lock
+  useEffect(() => {
+    // Keep monitoring even if app is cleared, but only if transport exists
+    if (!transportRef.current) {
+      return;
+    }
+
+    let isCheckingHeartbeat = false;
+
+    const performHeartbeat = async () => {
+      if (isCheckingHeartbeat || !transportRef.current) {
+        return;
+      }
+
+      isCheckingHeartbeat = true;
+
+      try {
+        if (!app) {
+          // No app instance - try to re-establish connection
+          console.log('Attempting to re-establish Ledger connection...');
+          const newApp = await initLedgerApp(transportRef.current);
+          if (newApp) {
+            console.log('Ledger connection re-established');
+            console.log({ hasLedgerTransport: true });
+          }
+        } else {
+          // Send a low-level transport command that should fail when device is locked
+          // Use a direct APDU command rather than high-level app methods
+          console.log(
+            'Testing device responsiveness with direct transport command...',
+          );
+
+          // Send a simple GET_VERSION command which should always require device interaction
+          await transportRef.current.send(
+            0xe0, // CLA - Generic command class
+            0x01, // INS - Get version instruction
+            0x00, // P1
+            0x00, // P2
+            Buffer.alloc(0), // Data
+            [0x9000], // Expected status code for success
+          );
+
+          console.log(
+            'Ledger heartbeat: device responsive (direct transport test passed)',
+          );
+        }
+      } catch (error: any) {
+        console.log('Ledger heartbeat failed - device may be locked:', {
+          error: error.message,
+          statusCode: error.statusCode,
+          name: error.name,
+        });
+
+        // Check if this looks like a device lock error
+        const isLockError =
+          error?.statusCode === 0x6985 || // Conditions not satisfied
+          error?.statusCode === 0x6e00 || // CLA not supported
+          error?.statusCode === 0x6d00 || // INS not supported
+          error?.statusCode === 0x5515 || // Device locked
+          error?.statusCode === 0x6700 || // Wrong length
+          error?.statusCode === 0x6f00 || // Technical problem
+          error?.statusCode === 0x6faa || // Halted execution
+          error?.message?.includes('UNKNOWN_ERROR') ||
+          error?.message?.includes('Device locked') ||
+          error?.message?.includes('PIN') ||
+          error?.message?.includes('timeout') ||
+          error?.message?.includes('TIMEOUT') ||
+          error?.message?.includes('Invalid status') ||
+          error?.name === 'TransportStatusError' ||
+          error?.name === 'TimeoutError' ||
+          // Catch any communication errors that might indicate lock
+          (error?.statusCode && error?.statusCode !== 0x9000);
+
+        if (isLockError && app) {
+          // Device appears to be locked, clearing transport but keeping heartbeat running
+          console.log(
+            'Device appears to be locked, clearing app but continuing to monitor',
+          );
+          setApp(undefined);
+          setAppType(LedgerAppType.UNKNOWN);
+          console.log({ hasLedgerTransport: false });
+        }
+      } finally {
+        isCheckingHeartbeat = false;
+      }
+    };
+
+    // Start heartbeat every 5 seconds
+    const heartbeatInterval = setInterval(performHeartbeat, 5000);
+
+    // Perform initial heartbeat after a short delay
+    setTimeout(performHeartbeat, 2000);
+
+    return () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+      }
+    };
+  }, [app, initLedgerApp]);
+
   return (
     <LedgerContext.Provider
       value={{
