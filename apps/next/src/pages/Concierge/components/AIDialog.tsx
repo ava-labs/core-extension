@@ -2,6 +2,7 @@ import {
   AvatarHex,
   Box,
   Stack,
+  styled,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
@@ -9,6 +10,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Typewriter } from './Typewriter';
 import { PromptItem } from '@core/ui';
 import ReactMarkdown from 'react-markdown';
+
+export const AIBox = styled(Box)(({ theme }) => ({
+  a: {
+    color: theme.palette.text.primary,
+    textDecoration: 'underline',
+  },
+}));
 
 export const AIDialog = ({
   message,
@@ -57,11 +65,7 @@ export const AIDialog = ({
       }}
     >
       <AvatarHex size="small" alt="Consierge" />
-      {/* <Avatar>
-        <img src="images/ai-avatar.svg" />
-        <img src="images/ai-avatar-text.svg" className="text" />
-      </Avatar> */}
-      <Box
+      <AIBox
         sx={{
           backgroundColor: theme.palette.grey[800],
           py: 1,
@@ -92,7 +96,7 @@ export const AIDialog = ({
             <ReactMarkdown>{message.content}</ReactMarkdown>
           </Typography>
         )}
-      </Box>
+      </AIBox>
     </Stack>
   );
 };

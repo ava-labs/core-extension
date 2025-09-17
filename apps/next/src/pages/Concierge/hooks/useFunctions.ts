@@ -8,20 +8,11 @@ import {
   useFirebaseContext,
   useLiveBalance,
   useNetworkContext,
+  useNetworkFeeContext,
   useSwapContext,
   useTokensWithBalances,
 } from '@core/ui';
-import {
-  isAvmCapableAccount,
-  isBtcCapableAccount,
-  isBtcToken,
-  isEvmNativeToken,
-  isPvmCapableAccount,
-  isSolanaNativeToken,
-  isSolanaSplToken,
-  isSvmCapableAccount,
-  isErc20Token,
-} from '@core/types';
+import { isEvmNativeToken, isErc20Token } from '@core/types';
 import { useCallback, useMemo, useRef } from 'react';
 import { functionDeclarations, systemPromptTemplate } from '../model';
 import {
@@ -31,18 +22,22 @@ import {
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
 import {
+  chainIdToCaip,
   findMatchingBridgeAsset,
+  getExplorerAddressByNetwork,
   getProviderForNetwork,
+  isUserRejectionError,
   Monitoring,
   stringToBigint,
 } from '@core/common';
-import { JsonRpcBatchInternal } from '@avalabs/core-wallets-sdk';
 import { useTranslation } from 'react-i18next';
 import { errorValues } from 'eth-rpc-errors/dist/error-constants';
 import { toast } from '@avalabs/k2-alpine';
 import browser from 'webextension-polyfill';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
-import { useEvmNativeSend } from '@/pages/Send/components/SendBody/hooks';
+import { asHex } from '@/pages/Send/components/SendBody/lib/asHex';
+import { buildErc20SendTx } from '@/pages/Send/components/SendBody/lib/buildErc20SendTx';
+import { getEvmProvider } from '@/lib/getEvmProvider';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -57,33 +52,31 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   const { swap, getRate } = useSwapContext();
   // const [isTyping, setIsTyping] = useState(false);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
-  console.log('prompts: ', prompts);
   const isModelReady = useRef(false);
   const { targetChain, transferableAssets, transfer } = useBridge();
   const { captureEncrypted } = useAnalyticsContext();
   const tokens = useTokensWithBalances();
-  console.log('tokens: ', tokens);
   const allAvailableTokens = useTokensWithBalances({
     forceShowTokensWithoutBalances: true,
   });
   const tokensForAccount = useTokensForAccount(accounts.active);
-  console.log('tokensForAccount: ', tokensForAccount);
+  const { getNetworkFee } = useNetworkFeeContext();
 
-  const { isSending, isValid, error, send } = useEvmNativeSend({
-    token,
-    amount: amountBigInt,
-    from,
-    to,
-    network,
-  });
+  // const { isSending, isValid, error, send } = useEvmNativeSend({
+  //   token,
+  //   amount: amountBigInt,
+  //   from,
+  //   to,
+  //   network,
+  // });
 
-  const { isSending, isValid, error, send } = useEvmErc20Send({
-    token,
-    amount: amountBigInt,
-    from,
-    to,
-    network,
-  });
+  // const { isSending, isValid, error, send } = useEvmErc20Send({
+  //   token,
+  //   amount: amountBigInt,
+  //   from,
+  //   to,
+  //   network,
+  // });
 
   const userMessages = useMemo(
     () =>
@@ -114,61 +107,111 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         const tokenToSend = tokensForAccount.find(
           (item) => item.symbol === token,
         );
+
         if (!tokenToSend) {
           throw new Error(`Cannot find token`);
         }
-        console.log('tokenToSend: ', tokenToSend);
-        const account = accounts.active;
-        console.log('account: ', account);
-        const isNativeToken = isEvmNativeToken(tokenToSend);
-        console.log('isNativeToken: ', isNativeToken);
-        const isErc20 = isErc20Token(tokenToSend);
-        console.log('isErc20: ', isErc20);
-        // const isBTCToken = isBtcToken(token) && isBtcCapableAccount(account);
-        // const isXChain = isXChainToken(token) && isAvmCapableAccount(account);
-        // const isPChain = isPChainToken(token) && isPvmCapableAccount(account);
-        // const isSolanaToken =
-        //   (isSolanaNativeToken(token) || isSolanaSplToken(token)) &&
-        //   isSvmCapableAccount(account);
-        return {
-          account,
-          isNativeToken,
-          isErc20,
-        };
-
-        const tx = await buildTx(
-          accounts.active.addressC,
-          provider as JsonRpcBatchInternal,
-          {
-            amount: amount.toString(),
-            address: recipient,
-            token: tokenToSend,
-          },
+        const amountBigInt = stringToBigint(
+          amount || '0',
+          tokenToSend.decimals,
         );
+        const account = accounts.active;
 
-        const hash = await request({
-          method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            {
-              ...tx,
-              chainId: network.chainId,
-            },
-          ],
-        });
-        // toastCardWithLink({
-        //   title: t('Send Successful'),
-        //   url: getExplorerAddressByNetwork(network, hash),
-        //   label: t('View in Explorer'),
-        // });
+        const isNativeToken = isEvmNativeToken(tokenToSend);
 
-        // TODO: fix the toast
-        toast.success(t('Transaction sent successfully'));
-        return {
-          recipient,
-          token,
-          amount,
-          content: `Transaction successful. Tx hash: ${hash}`,
-        };
+        const isErc20 = isErc20Token(tokenToSend);
+
+        if (isNativeToken) {
+          const networkFee = await getNetworkFee(token.coreChainId);
+
+          console.log(
+            'chainIdToCaip(tokenToSend.coreChainId): ',
+            chainIdToCaip(tokenToSend.coreChainId),
+          );
+          if (!networkFee) {
+            throw new Error('Network fee not found');
+          }
+          try {
+            const hash = await request(
+              {
+                method: RpcMethod.ETH_SEND_TRANSACTION,
+                params: [
+                  {
+                    from: account.addressC,
+                    to: recipient,
+                    value: asHex(amountBigInt),
+                    chainId: asHex(tokenToSend.coreChainId),
+                    maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
+                    maxPriorityFeePerGas: asHex(
+                      networkFee.high.maxPriorityFeePerGas ?? 1n,
+                    ),
+                  },
+                ],
+              },
+              {
+                scope: chainIdToCaip(tokenToSend.coreChainId),
+              },
+            );
+            return {
+              recipient,
+              token: tokenToSend,
+              amount,
+              content: `Transaction successful. Tx hash: ${hash}`,
+              link: getExplorerAddressByNetwork(network, hash),
+            };
+          } catch (e) {
+            if (isUserRejectionError(e)) {
+              throw new Error('User rejected the transaction');
+            }
+            throw new Error('Transaction failed');
+          }
+        }
+
+        if (isErc20) {
+          const evmProvider = getEvmProvider(network);
+          const networkFee = await getNetworkFee(token.coreChainId);
+
+          if (!networkFee) {
+            toast.error(t('Unable to estimate the network fee.'));
+            return;
+          }
+          try {
+            const tx = await buildErc20SendTx(
+              account.addressC,
+              evmProvider,
+              networkFee,
+              {
+                address: recipient,
+                amount: amountBigInt,
+                token: tokenToSend,
+              },
+            );
+
+            const hash = await request(
+              {
+                method: RpcMethod.ETH_SEND_TRANSACTION,
+                params: [tx],
+              },
+              {
+                scope: chainIdToCaip(tokenToSend.coreChainId),
+              },
+            );
+            return {
+              recipient,
+              token: tokenToSend,
+              amount,
+              content: `Transaction successful. Tx hash: ${hash}`,
+              link: getExplorerAddressByNetwork(network, hash),
+            };
+          } catch (e) {
+            if (isUserRejectionError(e)) {
+              throw new Error('User rejected the transaction');
+            }
+            throw new Error('Transaction failed');
+          }
+        }
+
+        throw new Error('You can only send native tokens or ERC20 tokens');
       },
       switchAccount: async ({ accountId }: { accountId: string }) => {
         await selectAccount(accountId);
@@ -383,6 +426,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       allAvailableTokens,
       createContact,
       getNetwork,
+      getNetworkFee,
       getRate,
       network,
       request,
@@ -392,6 +436,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       t,
       targetChain?.caipId,
       tokens,
+      tokensForAccount,
       transfer,
       transferableAssets,
     ],

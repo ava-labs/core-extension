@@ -4,13 +4,13 @@ import { FunctionDeclaration } from 'firebase/vertexai';
 export const functionDeclarations: FunctionDeclaration[] = [
   {
     name: 'send',
-    description: `Send the specified amount of a token to the recipient address on the current network. If the user wants to initiate a send meanwhile the active network is not an EVM type network or the target network is not an EVM type network do not let it happen and warn the user about the feature is not available for now.`,
+    description: `Send the specified amount of a token to the recipient address on the current network. If the user wants to initiate a send meanwhile the active network is not an EVM type network or the target network is not an EVM type network do not let it happen and warn the user about the feature is not available for now. When the transaction is succeeded message the user with the transaction hash and create an external link to the transaction on the block explorer make the message bold. The link is in the returned object under the 'link' property.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
         amount: {
-          type: SchemaType.NUMBER,
-          description: `The amount of tokens to send. The amount cannot be more than the token's balance.`,
+          type: SchemaType.STRING,
+          description: `The amount of tokens to send. The amount cannot be more than the token's balance. The amount must be positive.`,
         },
         recipient: {
           type: SchemaType.STRING,
