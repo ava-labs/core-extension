@@ -1,4 +1,10 @@
-import { InputAdornment, styled, TextField } from '@avalabs/k2-alpine';
+import {
+  getHexAlpha,
+  InputAdornment,
+  styled,
+  TextField,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdSend } from 'react-icons/md';
@@ -24,6 +30,7 @@ export const UserInput = ({
   setPrompt,
   userMessages,
 }: UserInputProps) => {
+  const theme = useTheme();
   const [userMessageHistoryIndex, setUserMessageHistoryIndex] =
     useState<number>();
   const { t } = useTranslation();
@@ -35,7 +42,7 @@ export const UserInput = ({
       size="medium"
       sx={{
         color: 'grey.400',
-        backgroundColor: 'grey.800',
+        backgroundColor: getHexAlpha(theme.palette.grey[800], 60),
         borderRadius: 1,
       }}
       focused

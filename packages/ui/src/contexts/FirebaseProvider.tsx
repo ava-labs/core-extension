@@ -56,7 +56,7 @@ export function FirebaseContextProvider({ children }: PropsWithChildren) {
     },
     {
       role: 'model',
-      content: `Core Concierge does not provide financial advice or any other recommendations. Core Concierge can make mistakes. Please review all transactions before signing.`,
+      content: `Core Concierge does not provide financial advice or any other recommendations. Core Concierge can make mistakes. **Please review all transactions before signing.**`,
     },
   ]);
 
