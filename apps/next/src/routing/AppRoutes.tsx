@@ -8,6 +8,7 @@ import { Receive } from '@/pages/Receive';
 import { Swap } from '@/pages/Swap';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
+import { Concierge } from '@/pages/Concierge';
 
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 
@@ -21,6 +22,7 @@ export const AppRoutes = () => (
     <Route path="/import-wallet/ledger/:phase?" component={ImportLedgerFlow} />
     <Route path={getSendPath()} component={Send} />
     <Route path={getSwapPath()} component={Swap} />
+    <Route path={'/concierge'} component={Concierge} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );
