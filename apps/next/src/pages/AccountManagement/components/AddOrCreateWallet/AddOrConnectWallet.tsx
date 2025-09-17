@@ -42,7 +42,7 @@ export const AddOrConnectWallet: FC = () => {
   return (
     <Stack gap={2} height={1}>
       <Typography variant="h2" paddingInlineEnd={12} paddingBlockEnd={0.5}>
-        {t('Add or connect a wallet')}
+        {t('Add an account or connect a wallet')}
       </Typography>
       <Card>
         <List disablePadding dense>
