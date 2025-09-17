@@ -98,7 +98,8 @@ export const useGasless: UseGasless = ({ action }) => {
 const getEligibilityParams = (
   action: Action<DisplayData>,
 ): GaslessEligibilityParams | null => {
-  if (!action) return null;
+  if (!action || !action.scope || !action.scope.startsWith('eip155:'))
+    return null;
 
   const { signingData } = action;
   const evmChainId = caipToChainId(action.scope);
