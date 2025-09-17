@@ -1,5 +1,6 @@
 import { AccountsChangedEvents } from '../../services/accounts/events/accountsChangedEvent';
 import { AvalancheGetAccountsHandler } from '../../services/accounts/handlers/avalanche_getAccounts';
+import { AvalancheAddAccountHandler } from '../../services/accounts/handlers/avalanche_addAccount';
 import { AvalancheSelectAccountHandler } from '../../services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '../../services/accounts/handlers/eth_accounts';
 import { ActionEvents } from '../../services/actions/events/actionEvents';
@@ -42,6 +43,7 @@ import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wa
  */
 @registry([
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountsHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheAddAccountHandler },
   { token: 'DAppRequestHandler', useToken: EthAccountsHandler },
   {
     token: 'DAppRequestHandler',
