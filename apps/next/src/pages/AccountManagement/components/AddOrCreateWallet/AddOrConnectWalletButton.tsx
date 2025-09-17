@@ -22,7 +22,7 @@ export const AddOrConnectWalletButton: FC = () => {
         fullWidth
         onClick={() => push('/account-management/add-wallet')}
       >
-        {t('Add or connect a wallet')}
+        {t('Add an account or connect a wallet')}
       </Button>
     </Box>
   );
