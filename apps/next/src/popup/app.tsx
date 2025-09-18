@@ -109,14 +109,14 @@ export function App() {
           <AnalyticsContextProvider />,
           <PersonalAvatarProvider />,
           <LedgerContextProvider />,
+          <NetworkContextProvider />,
+          <KeystoneContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
             LoadingComponent={LoadingScreen}
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
-          <NetworkContextProvider />,
-          <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}
             LoadingComponent={LoadingScreen}
