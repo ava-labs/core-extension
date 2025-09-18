@@ -115,6 +115,7 @@ const CORE_METHODS = Object.freeze([
   'avalanche_setDeveloperMode',
   DAppProviderRequest.ACCOUNT_RENAME,
   DAppProviderRequest.ACCOUNTS_DELETE,
+  DAppProviderRequest.AVALANCHE_ADD_ACCOUNT,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
   DAppProviderRequest.WALLET_RENAME,
 ]);

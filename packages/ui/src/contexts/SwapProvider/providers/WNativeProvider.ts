@@ -28,6 +28,7 @@ const getWrapOperation = (
       amount: amount,
     },
     metadata: {
+      amountIn: amount,
       amountOut: amount,
     },
   };
@@ -44,6 +45,7 @@ const getUnwrapOperation = (
       amount: amount,
     },
     metadata: {
+      amountIn: amount,
       amountOut: amount,
     },
   };

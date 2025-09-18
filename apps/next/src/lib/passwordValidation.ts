@@ -1,3 +1,4 @@
+import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
 import type { TFunction } from 'i18next';
 import zxcvbn from 'zxcvbn';
 
@@ -74,6 +75,16 @@ export const validatePasswords = ({
   // If no values are provided, we show no messages
   if (!password && !confirmPassword) {
     return null;
+  }
+
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return {
+      isValid: false,
+      colorKey: 'error.main',
+      message: t('Password must be at least {{min}} characters', {
+        min: MIN_PASSWORD_LENGTH,
+      }),
+    };
   }
 
   const strength = validatePasswordStrength(password || confirmPassword, t);

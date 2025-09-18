@@ -128,6 +128,11 @@ export type FungibleTokenBalance = Exclude<
   assetType: FungibleAssetType;
 };
 
+export type NonNativeFungibleTokenBalance = Exclude<
+  FungibleTokenBalance,
+  { type: TokenType.NATIVE }
+>;
+
 export type NativeTokenBalance = Extract<
   FungibleTokenBalance,
   { type: TokenType.NATIVE }
@@ -191,8 +196,12 @@ export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
 
 export const isNativeToken = (
   token: FungibleTokenBalance,
-): token is NativeTokenBalance | Erc20TokenBalance =>
-  token.type === TokenType.NATIVE;
+): token is NativeTokenBalance => token.type === TokenType.NATIVE;
+
+export const isEvmFungibleToken = (
+  token: FungibleTokenBalance,
+): token is Erc20TokenBalance | EvmNativeTokenBalance =>
+  token.assetType === 'evm_erc20' || token.assetType === 'evm_native';
 
 export const isEvmNativeToken = (
   token: FungibleTokenBalance,
@@ -226,3 +235,8 @@ export const isSolanaSplToken = (
   token: FungibleTokenBalance,
 ): token is SolanaSplTokenBalance =>
   token.type === TokenType.SPL && token.assetType === 'svm_spl';
+
+export const isSolanaFungibleToken = (
+  token: FungibleTokenBalance,
+): token is SolanaSplTokenBalance | SolanaNativeTokenBalance =>
+  token.assetType === 'svm_spl' || token.assetType === 'svm_native';

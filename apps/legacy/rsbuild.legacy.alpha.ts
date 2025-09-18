@@ -25,10 +25,10 @@ export default defineConfig((...args) =>
                 from: '**/*.json',
                 to: './',
                 transform: transformManifestFiles({
-                  name: 'Core Beta DEVELOPMENT BUILD',
+                  name: 'Core Wallet: Crypto Made Easy Beta DEVELOPMENT BUILD',
                   shortName: 'Core Beta',
                   actionDefaultTitle:
-                    'Core Beta Browser Extension DEVELOPMENT BUILD',
+                    'Core Wallet: Crypto Made Easy Beta DEVELOPMENT BUILD',
                   oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
                   publicKey: process.env.EXTENSION_PUBLIC_KEY,
                 }),

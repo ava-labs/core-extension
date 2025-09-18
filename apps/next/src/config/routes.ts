@@ -47,3 +47,27 @@ export const getSendPath = (query?: Partial<SendQueryTokens>) => {
 
   return `${pathname}?${searchString}`;
 };
+
+/**
+ * Swap
+ **/
+export const SWAP_QUERY_TOKENS = {
+  from: 'from',
+  fromQuery: 'fromQ',
+  to: 'to',
+  toQuery: 'toQ',
+  userAmount: 'userAmount',
+  side: 'side',
+};
+export type SwapQueryTokens = typeof SWAP_QUERY_TOKENS;
+export const getSwapPath = (query?: Partial<SwapQueryTokens>) => {
+  const pathname = generatePath('/swap');
+  const search = new URLSearchParams(query);
+  const searchString = search.toString();
+
+  if (!searchString) {
+    return pathname;
+  }
+
+  return `${pathname}?${searchString}`;
+};
