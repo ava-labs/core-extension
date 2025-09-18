@@ -15,8 +15,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "0.0.0-feat-cchain-atomic-tx-20250911115612",
-    "@avalabs/svm-module": "0.0.0-feat-cchain-atomic-tx-20250911115612",
+    "@avalabs/evm-module": "1.10.0",
+    "@avalabs/svm-module": "1.10.0",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
