@@ -13,6 +13,7 @@ import {
   MaliciousTxOverlay,
   NoteWarning,
   ApprovalScreenTitle,
+  HardwareApprovalOverlay,
 } from './components';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
 import {
@@ -26,6 +27,8 @@ import { DetailsSection } from './components/ActionDetails/generic/DetailsSectio
 import { NetworkDetail } from './components/ActionDetails/generic/DetailsItem/items/NetworkDetail';
 import { AddressDetail } from './components/ActionDetails/generic/DetailsItem/items/AddressDetail';
 import { getAddressByVMType } from '@core/common';
+import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
+import { useApprovalHelpers } from './hooks';
 
 type MessageApprovalScreenProps = {
   action: MessageSigningRequest;
@@ -47,6 +50,9 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
     getAccountByIndex,
     accounts: { active: activeAccount },
   } = useAccountsContext();
+
+  const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
+
   const approve = useCallback(
     async () =>
       updateAction(
@@ -54,10 +60,18 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
           status: ActionStatus.SUBMITTING,
           id: action.actionId,
         },
-        false, // TODO: handle hardware wallets
+        isUsingHardwareWallet,
       ),
-    [updateAction, action.actionId],
+    [updateAction, action.actionId, isUsingHardwareWallet],
   );
+
+  const { handleApproval, handleRejection, isApprovalOverlayVisible } =
+    useApprovalHelpers({
+      onApprove: approve,
+      onReject: cancelHandler,
+      isUsingHardwareWallet,
+      deviceType,
+    });
 
   const address = useMemo(() => {
     if (action.displayData.account) {
@@ -154,8 +168,8 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
         </Stack>
         <ActionDrawer
           open
-          approve={approve}
-          reject={cancelHandler}
+          approve={handleApproval}
+          reject={handleRejection}
           isProcessing={action.status === ActionStatus.SUBMITTING}
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
@@ -165,6 +179,15 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
           open={hasOverlayWarning(action)}
           cancelHandler={cancelHandler}
           alert={action.displayData.alert}
+        />
+      )}
+      {isUsingHardwareWallet && isApprovalOverlayVisible && deviceType && (
+        <HardwareApprovalOverlay
+          deviceType={deviceType}
+          action={action}
+          network={network}
+          approve={approve}
+          reject={cancelHandler}
         />
       )}
     </Styled.ApprovalScreenPage>
