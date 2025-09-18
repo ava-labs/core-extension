@@ -30,7 +30,10 @@ import { DappHandlerToExtensionHandlerTransformer } from './DappHandlerToExtensi
 import { NetworkService } from '../../services/network/NetworkService';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
+import { AvalancheTxContextMiddleware } from '../middlewares/AvalancheTxContextMiddleware';
 import { Pipeline } from '../middlewares/models';
+import { AccountsService } from '~/services/accounts/AccountsService';
+import { SecretsService } from '~/services/secrets/SecretsService';
 
 @injectable()
 export class ExtensionConnectionController implements ConnectionController {
@@ -52,6 +55,8 @@ export class ExtensionConnectionController implements ConnectionController {
     private dappHandlers: ExtensionRequestHandler<any, any>[],
     @injectAll('DAppEventEmitter') private dappEmitters: DAppEventEmitter[],
     private networkService: NetworkService,
+    private accountsService: AccountsService,
+    private secretsService: SecretsService,
     private moduleManager: ModuleManager,
   ) {
     this.onMessage = this.onMessage.bind(this);
@@ -64,6 +69,7 @@ export class ExtensionConnectionController implements ConnectionController {
 
     this.pipeline = RequestProcessorPipeline(
       ActiveNetworkMiddleware(this.networkService),
+      AvalancheTxContextMiddleware(this.accountsService, this.secretsService),
       ExtensionRequestHandlerMiddleware(
         [...this.handlers, ...this.dappHandlers],
         this.moduleManager,

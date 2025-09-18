@@ -45,7 +45,7 @@ export const ExtensionActionApprovalScreen = () => {
         open
         approve={approve}
         reject={cancelHandler}
-        action={action}
+        isProcessing={action.status === ActionStatus.SUBMITTING}
       />
     </Styled.ApprovalScreenPage>
   );
