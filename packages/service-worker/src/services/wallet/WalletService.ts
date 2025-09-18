@@ -1,4 +1,4 @@
-import { UnsignedTx, utils } from '@avalabs/avalanchejs';
+import { EVM, EVMUnsignedTx, UnsignedTx, utils } from '@avalabs/avalanchejs';
 import { strip0x } from '@avalabs/core-utils-sdk';
 import {
   Avalanche,
@@ -15,7 +15,7 @@ import {
   SolanaProvider,
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkVMType, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
   getProviderForNetwork,
@@ -31,6 +31,7 @@ import {
   AddPrimaryWalletSecrets,
   CommonError,
   FIREBLOCKS_REQUEST_EXPIRY,
+  isAvalancheModuleTransactionRequest,
   isSolanaMsgRequest,
   isSolanaRequest,
   LedgerError,
@@ -755,6 +756,83 @@ export class WalletService implements OnUnlock {
       return this.#normalizeSigningResult(result);
     }
 
+    // Handle Avalanche transaction requests coming from the Avalanche Module
+    if (isAvalancheModuleTransactionRequest(tx)) {
+      if (
+        !(wallet instanceof Avalanche.SimpleSigner) &&
+        !(wallet instanceof Avalanche.StaticSigner) &&
+        !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
+        !(wallet instanceof Avalanche.LedgerSigner) &&
+        !(wallet instanceof KeystoneWallet) &&
+        !(wallet instanceof WalletConnectSigner) &&
+        !(wallet instanceof SeedlessWallet)
+      ) {
+        throw new Error('Signing error, wrong network');
+      }
+
+      const Tx = tx.vm === EVM ? EVMUnsignedTx : UnsignedTx;
+      const unsignedTx = Tx.fromJSON(tx.unsignedTxJson);
+
+      const externalIndices =
+        tx.type === RpcMethod.AVALANCHE_SEND_TRANSACTION
+          ? (tx.externalIndices ?? [])
+          : [];
+      const internalIndices =
+        tx.type === RpcMethod.AVALANCHE_SEND_TRANSACTION
+          ? (tx.internalIndices ?? [])
+          : [];
+
+      const hasMultipleAddresses =
+        unsignedTx.addressMaps.getAddresses().length > 1;
+
+      if (
+        hasMultipleAddresses &&
+        !externalIndices.length &&
+        !internalIndices.length
+      ) {
+        throw new Error(
+          'Transaction contains multiple addresses, but indices were not provided',
+        );
+      }
+
+      const signRequest = {
+        tx: unsignedTx,
+        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
+          wallet instanceof Avalanche.LedgerSigner) && {
+          transport: this.ledgerService.recentTransport,
+        }),
+        externalIndices,
+        internalIndices,
+      };
+
+      const signingResult =
+        wallet instanceof SeedlessWallet
+          ? await wallet.signAvalancheTx(signRequest)
+          : await wallet.signTx(signRequest, originalRequestMethod);
+
+      // WalletConnectSigner returns a txHash.
+      if ('txHash' in signingResult) {
+        return signingResult;
+      }
+
+      // Avalanche Module expexts a signed transaction hex, while our signers either
+      // return a Tx directly, or its JSON representation -- we need to convert those.
+      const signedTx =
+        signingResult instanceof UnsignedTx
+          ? signingResult
+          : Tx.fromJSON(signingResult.signedTx);
+
+      if (!signedTx.hasAllSignatures()) {
+        throw new Error('Signing error, missing signatures.');
+      }
+
+      const signedTransactionHex = Avalanche.signedTxToHex(
+        signedTx.getSignedTx(),
+      );
+
+      return this.#normalizeSigningResult(signedTransactionHex);
+    }
+
     // Handle Avalanche signing, X/P/CoreEth
     if ('tx' in tx) {
       if (
@@ -768,6 +846,7 @@ export class WalletService implements OnUnlock {
       ) {
         throw new Error('Signing error, wrong network');
       }
+
       const txToSign = {
         tx: tx.tx,
         ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
