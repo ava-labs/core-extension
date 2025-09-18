@@ -15,11 +15,12 @@ import {
   SolanaProvider,
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType, RpcMethod } from '@avalabs/vm-module-types';
+import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
   getProviderForNetwork,
   isPchainNetwork,
+  isPrimaryAccount,
   isSolanaNetwork,
   isXchainNetwork,
   omitUndefined,
@@ -36,8 +37,10 @@ import {
   isSolanaRequest,
   LedgerError,
   MessageParams,
+  MessageSigningData,
   MessageType,
   Network,
+  NetworkWithCaipId,
   PubKeyType,
   SecretsError,
   SecretType,
@@ -89,6 +92,9 @@ import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { HVMWallet } from './HVMWallet';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
+import { isTypedData } from '@avalabs/evm-module';
+import { isPersonalSign } from './utils/isPersonalSignRequest';
+import { rpcMethodToMessageType } from './utils/rpcMethodToMessageType';
 @singleton()
 export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
@@ -986,17 +992,125 @@ export class WalletService implements OnUnlock {
     });
   }
 
+  async signGenericMessage(
+    data: Exclude<MessageSigningData, { type: RpcMethod.SOLANA_SIGN_MESSAGE }>,
+    network: NetworkWithCaipId,
+    tabId?: number,
+  ): Promise<string> {
+    if (data.type === RpcMethod.AVALANCHE_SIGN_MESSAGE) {
+      const signed = await this.signMessageAvalanche({
+        data: data.data,
+        accountIndex: data.accountIndex,
+      });
+
+      // Ensure we return a base58check-encoded string;
+      return utils.base58check.encode(new Uint8Array(signed));
+    }
+
+    const account =
+      await this.accountsService.getAccountFromActiveWalletByAddress(
+        data.account,
+      );
+
+    const wallet = await this.getWallet({
+      accountIndex: isPrimaryAccount(account) ? account.index : undefined,
+      network,
+      tabId,
+    });
+
+    const messageType = rpcMethodToMessageType(data.type);
+
+    if (wallet instanceof WalletConnectSigner) {
+      return await wallet.signMessage(messageType, data.data);
+    }
+
+    if (wallet instanceof SeedlessWallet) {
+      const signed = await wallet.signMessage(messageType, { data: data.data });
+      return typeof signed === 'string'
+        ? signed
+        : utils.base58check.encode(new Uint8Array(signed));
+    }
+
+    if (wallet instanceof KeystoneWallet) {
+      return wallet.signMessage(messageType, {
+        data: data.data,
+        from: data.account,
+      });
+    }
+
+    if (wallet instanceof LedgerSigner) {
+      if (isTypedData(data.data)) {
+        return wallet.signTypedData(
+          data.data.domain,
+          data.data.types,
+          data.data.message,
+        );
+      } else if (isPersonalSign(data)) {
+        const dataToSign = isHexString(data.data)
+          ? utils.hexToBuffer(data.data)
+          : data.data;
+
+        return wallet.signMessage(dataToSign);
+      } else {
+        throw new Error(`this function is not supported on your wallet`);
+      }
+    }
+
+    if (!(wallet instanceof BaseWallet)) {
+      throw new Error('This function is not supported by your wallet');
+    }
+
+    const privateKey = strip0x(wallet.privateKey);
+    const key = Buffer.from(privateKey, 'hex');
+
+    try {
+      switch (data.type) {
+        case RpcMethod.ETH_SIGN:
+        case RpcMethod.PERSONAL_SIGN:
+          return personalSign({ privateKey: key, data: data.data });
+
+        case RpcMethod.SIGN_TYPED_DATA:
+        case RpcMethod.SIGN_TYPED_DATA_V1:
+        case RpcMethod.SIGN_TYPED_DATA_V3:
+        case RpcMethod.SIGN_TYPED_DATA_V4: {
+          const version =
+            data.type === RpcMethod.SIGN_TYPED_DATA_V3
+              ? SignTypedDataVersion.V3
+              : data.type === RpcMethod.SIGN_TYPED_DATA_V4
+                ? SignTypedDataVersion.V4
+                : isTypedData(data.data)
+                  ? SignTypedDataVersion.V4
+                  : SignTypedDataVersion.V1;
+
+          return signTypedData({
+            privateKey: key,
+            data: data.data,
+            version,
+          });
+        }
+
+        default:
+          throw new Error('unknown method');
+      }
+    } finally {
+      key.fill(0);
+    }
+  }
   /**
    * Signs the given message
    * @param data Message in hex format. Will be parsed as UTF8.
    */
-  private async signMessageAvalanche(params: MessageParams) {
+  private async signMessageAvalanche(params: PartialBy<MessageParams, 'from'>) {
     const message = toUtf8(params.data);
     const xpNetwork = this.networkService.getAvalancheNetworkXP();
     const wallet = await this.getWallet({
       network: xpNetwork,
       accountIndex: params.accountIndex,
     });
+
+    if (wallet instanceof SeedlessWallet) {
+      return wallet.signMessage(MessageType.AVALANCHE_SIGN, params);
+    }
 
     //TODO: Need support for WalletConnectSigner when mobile is ready
     if (
@@ -1028,6 +1142,7 @@ export class WalletService implements OnUnlock {
   }
   /**
    * Sign EVM messages
+   * @deprecated Use signGenericMessage instead
    * @param messageType
    * @param data
    */

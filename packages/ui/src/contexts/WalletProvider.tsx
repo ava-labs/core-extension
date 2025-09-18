@@ -56,6 +56,7 @@ const WalletContext = createContext<WalletStateAndMethods>({
 } as any);
 
 export type WalletContextProviderProps = PropsWithChildren<{
+  LoadingComponent: React.FC;
   LockedComponent: React.FC<{
     unlockWallet: (password: string) => Promise<true>;
   }>;
@@ -64,6 +65,7 @@ export type WalletContextProviderProps = PropsWithChildren<{
 export function WalletContextProvider({
   children,
   LockedComponent,
+  LoadingComponent,
 }: WalletContextProviderProps) {
   const { initLedgerTransport } = useLedgerContext();
   const { request, events } = useConnectionContext();
@@ -204,7 +206,11 @@ export function WalletContextProvider({
   const routeMatch = useRouteMatch('/approve/select-wallet');
   const allowWalletSelection = routeMatch?.isExact;
 
-  if (!isWalletLoading && isWalletLocked && !allowWalletSelection) {
+  if (isWalletLoading) {
+    return <LoadingComponent />;
+  }
+
+  if (isWalletLocked && !allowWalletSelection) {
     return <LockedComponent unlockWallet={unlockWallet} />;
   }
 

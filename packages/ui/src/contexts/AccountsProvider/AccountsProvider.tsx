@@ -23,7 +23,11 @@ import {
   AvalancheDeleteAccountsHandler,
 } from '@core/service-worker';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType, getAllAddressesForAccount } from '@core/common';
+import {
+  getAddressByVMType,
+  getAllAddressesForAccount,
+  isPrimaryAccount,
+} from '@core/common';
 import { isAccountsUpdatedEvent } from './isAccountsUpdatedEvent';
 import { useConnectionContext } from '../ConnectionProvider';
 
@@ -39,6 +43,7 @@ const AccountsContext = createContext<
       deleteAccounts(ids: string[]): Promise<any>;
       getAccount(address: string): Account | undefined;
       getAccountById(id: string): Account | undefined;
+      getAccountByIndex(index: number): Account | undefined;
     }
   | undefined
 >(undefined);
@@ -156,12 +161,28 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
     [accounts],
   );
 
+  const getAccountByIndex = useCallback(
+    (index: number) => {
+      if (!accounts.active) {
+        return undefined;
+      }
+
+      if (!isPrimaryAccount(accounts.active)) {
+        return accounts.active;
+      }
+
+      return accounts.primary[accounts.active.walletId]?.[index];
+    },
+    [accounts.active, accounts.primary],
+  );
+
   return (
     <AccountsContext.Provider
       value={{
         accounts,
         getAccount,
         getAccountById,
+        getAccountByIndex,
         allAccounts,
         getAllAccountsForVM,
         isActiveAccount,
