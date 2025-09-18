@@ -30,6 +30,8 @@ import { LockEvents } from '@core/types';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import Eth from '@ledgerhq/hw-app-eth';
 import Solana from '@ledgerhq/hw-app-solana';
+import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 
 jest.mock('../ConnectionProvider', () => {
   const connectionFunctions = {
@@ -47,7 +49,9 @@ jest.mock('@ledgerhq/hw-app-eth');
 jest.mock('@ledgerhq/hw-app-solana');
 jest.mock('ledger-bitcoin');
 jest.mock('@ledgerhq/hw-transport-webusb');
+jest.mock('@ledgerhq/hw-transport-webhid');
 jest.mock('../utils/getLedgerTransport');
+jest.mock('../utils/shouldUseWebHID');
 
 const TestComponent = ({ methodParams }) => {
   const {
@@ -139,6 +143,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
     const connectionMocks = useConnectionContext();
     (connectionMocks.request as jest.Mock).mockResolvedValue(undefined);
     (connectionMocks.events as jest.Mock).mockReturnValue(new Subject());
+    jest.mocked(shouldUseWebHID).mockResolvedValue(false);
 
     jest.spyOn(React, 'useRef').mockReturnValue({
       current: refMock,
@@ -959,6 +964,19 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(TransportWebUSB.request).toHaveBeenCalled();
+        expect(screen.getByTestId('result').textContent).toBe('true');
+      });
+    });
+
+    it('pops up hid device selection properly', async () => {
+      jest.mocked(shouldUseWebHID).mockResolvedValue(true);
+      (TransportWebHID.request as jest.Mock).mockResolvedValueOnce({});
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+
+      await waitFor(() => {
+        expect(TransportWebHID.request).toHaveBeenCalled();
         expect(screen.getByTestId('result').textContent).toBe('true');
       });
     });
