@@ -1,0 +1,15 @@
+diff --git a/lib-es/TransportWebHID.js b/lib-es/TransportWebHID.js
+index da9a591e0079e659bc3202d1ccd3422626c551c6..6b6addd7451fcc2260e35504abb37ee1564a20b6 100644
+--- a/lib-es/TransportWebHID.js
++++ b/lib-es/TransportWebHID.js
+@@ -135,7 +135,9 @@ export default class TransportWebHID extends Transport {
+      * Create a Ledger transport with a HIDDevice
+      */
+     static async open(device) {
+-        await device.open();
++        if (!device.opened) {
++            await device.open();
++        }
+         const transport = new TransportWebHID(device);
+         const onDisconnect = e => {
+             if (device === e.device) {

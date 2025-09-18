@@ -129,20 +129,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-bridge-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-bridge-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-bridge-sdk@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-bridge-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
   peerDependencies:
     big.js: ^6.2.1
     bitcoinjs-lib: ^5.2.0
     coinselect: ^3.1.12
     ethers: ^6.7.1
     react: ^17.0.2
-  checksum: 10c0/b5a81e3d83a9b9d2a6ed21b08988d5d169317d0d0d3b0322029ce258eec3c971439812cbebb17febc930f6690a480f3b4de3bcaac8662a37af533bd7dfb8d0c7
+  checksum: 10c0/0f3edd2a6dd5247c91a938dbcff6d9d04896f115b6b694bd9e680e42cea5ddc37216cba0f026d893284b0e18198dfe8cfda4360aaadc4e2de99564ad128809dd
   languageName: node
   linkType: hard
 
@@ -155,12 +155,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-chains-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-chains-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-chains-sdk@npm:3.1.0-canary.fbefa73.0, @avalabs/core-chains-sdk@npm:3.1.0-canary.fbefa73.0+fbefa73":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-chains-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-  checksum: 10c0/7ff5bcf37d211d0c56ea8409fd6e0246f1e7022c3d9b9b2098f602761dd091d47622bee19d13605977dcf84462c0ba55577cb66c3675752ae9196d4425e2a080
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+  checksum: 10c0/dbeb962c352d711bca212eb57fcd6d4567f8b38574a504379fff24c822e4ef7a3ae78f3249a931f0b0601835e34f036aa692f440f40558c54e8ef95fff945d3b
   languageName: node
   linkType: hard
 
@@ -173,21 +173,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-coingecko-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-coingecko-sdk@npm:3.1.0-canary.fbefa73.0, @avalabs/core-coingecko-sdk@npm:3.1.0-canary.fbefa73.0+fbefa73":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-  checksum: 10c0/1781a13d0144925b84d8ee2fffdc8fac3874ffe983d338660060e2b36fda293b162ec07ebf9ebb25b5220c394eb5d2d8d8d9a3329e9530d56d5a7f6507fdeb0d
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+  checksum: 10c0/08ffe754aa8f20698f38de00216e35086845b28a31f9cec38da36dbc7a7f31981d05eb7473c0d1dd065d5aee0b7c832a1d125710a0e16384225a5648f6e918e4
   languageName: node
   linkType: hard
 
-"@avalabs/core-covalent-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-covalent-sdk@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-  checksum: 10c0/07b3159b81ac0b34994bc39c24d6477c3630035374d03a0ea2d793be86ef154e63408d59d5132c6725ab11d321dec63e6747b72a3872aed2f920a6edf4f47b39
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+  checksum: 10c0/aa393f6dd35058fce84ef3a03ee5cfd8e1014c1a64f32b132ea5e422f2957e3365f4f98517aeea28bcb6a5540f85fb873e0294e56f1e8fd458befbfebb29b341
   languageName: node
   linkType: hard
 
@@ -200,22 +200,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-etherscan-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-etherscan-sdk@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-  checksum: 10c0/a9dec744e01a755b131806ff130c5c0af9cb4094dfb2caa6fb24ec25143e23ee607fd2f822c6052de142634db6a84b564495b0180322ea8e67eacb6a97767e05
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+  checksum: 10c0/957079dd428910425bc68395f5585e7d57fcfcbc86f4d1e780a6e4c1a30c979db198675a24016a7744d48dc978cda1e70ce0fa72d9f00f391559088476796ff1
   languageName: node
   linkType: hard
 
-"@avalabs/core-gasless-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-gasless-sdk@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
     "@noble/hashes": "npm:1.7.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/27c491b3a7f2df206a5b5b6919130cda7f5c222cdc909b2e7d3cc3f83aebd5c9a44ba39b25307abebeb612dd28174501233f380c723279e35230025448c91220
+  checksum: 10c0/2bac368666cf7850a3e279648a3635e3d806c3d2207f97ba7aa5e1e7d3e2798eafba354cdad4cc75d9a90986536053a9b145f8517add76996db6b48e89e08e12
   languageName: node
   linkType: hard
 
@@ -248,22 +248,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-snowtrace-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-  checksum: 10c0/a12612e6d2e13e97facf9f0cdd39d92df2b54bdff81866544718e25717a7b1f18afd92ac6ba764efed507f4a81b308594a2a8ddebe700f8940b9aa14ab2375b7
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+  checksum: 10c0/1cf1f66fe36a953cadc303a30e0909283f5a412a886bd6864098db6a5183fd88fbb5b552a039165de8608fdf3373c87f73ad597f322cc751a53939d794563af5
   languageName: node
   linkType: hard
 
-"@avalabs/core-token-prices-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-token-prices-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-token-prices-sdk@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-token-prices-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-  checksum: 10c0/c6a76121a2d747eaef315b9eaaf16472711924fd608046f75e4c47991e38139e3f8b1825cc34b8382b2771c28b7cbc7e6c1c01b7dd18d571fd7b9907a998883b
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+  checksum: 10c0/d379088ef51ac76e3713e0bf9ab0502831339c8b8e9973b09794390ff0b966822828680134b08e50b2abfc36ed228c0459518333279ec9f035c5cc5a3d0bf20a
   languageName: node
   linkType: hard
 
@@ -281,9 +281,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-utils-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-utils-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-utils-sdk@npm:3.1.0-canary.fbefa73.0, @avalabs/core-utils-sdk@npm:3.1.0-canary.fbefa73.0+fbefa73":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-utils-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
     "@hpke/core": "npm:1.2.5"
     is-ipfs: "npm:6.0.2"
@@ -291,7 +291,7 @@ __metadata:
     big.js: ^6.2.1
     bn.js: ^5.2.1
     ethers: ^6.7.1
-  checksum: 10c0/dd6bb1b6974b7e5374683bae2ce21b574756a23213f5d68155fb1fb2c16322b9c0618049c0026c524b2588c2fe23eea1a915798540d69e575d954df0a2c3bd38
+  checksum: 10c0/cb6ef925cba389aab7f29604b354b32b87b802eda859ba2c832a5b94178a4dfb26c6ef01eff8b8a3f19a528f0bcad07976827f7688f3c1f6af483561cadb17d1
   languageName: node
   linkType: hard
 
@@ -331,19 +331,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-wallets-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/core-wallets-sdk@npm:3.1.0-alpha.60"
+"@avalabs/core-wallets-sdk@npm:3.1.0-canary.fbefa73.0, @avalabs/core-wallets-sdk@npm:3.1.0-canary.fbefa73.0+fbefa73":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/core-wallets-sdk@npm:3.1.0-canary.fbefa73.0"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/glacier-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/hw-app-avalanche": "npm:0.14.1"
-    "@ledgerhq/hw-app-btc": "npm:10.2.4"
-    "@ledgerhq/hw-app-eth": "npm:6.36.1"
-    "@ledgerhq/hw-app-solana": "npm:7.2.4"
-    "@ledgerhq/hw-transport": "npm:6.30.6"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.fbefa73.0+fbefa73"
+    "@avalabs/hw-app-avalanche": "npm:1.1.0"
+    "@ledgerhq/hw-app-btc": "npm:10.11.0"
+    "@ledgerhq/hw-app-eth": "npm:6.45.18"
+    "@ledgerhq/hw-app-solana": "npm:7.5.3"
+    "@ledgerhq/hw-transport": "npm:6.31.10"
     "@metamask/eth-sig-util": "npm:7.0.2"
     "@noble/curves": "npm:1.6.0"
     "@noble/hashes": "npm:1.7.1"
@@ -363,7 +363,7 @@ __metadata:
     xss: "npm:1.0.14"
   peerDependencies:
     ethers: ^6.7.1
-  checksum: 10c0/6bf71e4fc4113d3d3ac0111dcab641173c6cd3a78ecc7cf8bc4505e40ce7495e4cdf917647b814da6409a35dfffc148b2991de30f1559fd5a62919e0525f990e
+  checksum: 10c0/ebb48300647924bc39f35bdbd26783c088b432b699223a7b9afecefae3fc1f1d714d76e50110a4e1fb9d41c3c38b03288e95180e7dcc13ca9e1d86dc313f1399
   languageName: node
   linkType: hard
 
@@ -399,10 +399,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/glacier-sdk@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/glacier-sdk@npm:3.1.0-alpha.60"
-  checksum: 10c0/63ae7c9fce44e2646481f2f7132ec86d3acfcae8b31fd4b1fafbce77a89f5b6635a385ca40a8b6e385aee34ddfa0e43912165bd20d6facb306430dd8c757b1b6
+"@avalabs/glacier-sdk@npm:3.1.0-canary.fbefa73.0, @avalabs/glacier-sdk@npm:3.1.0-canary.fbefa73.0+fbefa73":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/glacier-sdk@npm:3.1.0-canary.fbefa73.0"
+  checksum: 10c0/a2071042a1a12cc39327b764f41dce82fea894f2235ccd755376794389f07c9c8fbaf3fb85f288f381e30b15d98b7fe9f9119dc7546c41a44205c9d94dadbb87
   languageName: node
   linkType: hard
 
@@ -431,6 +431,18 @@ __metadata:
     ledger-bitcoin: "npm:^0.2.1"
     sha3: "npm:2.1.4"
   checksum: 10c0/07214b519fbcd67ab241a8d9262c9a1807ca72e4fbf67346e077d2f42098f874d4425a827b9942ed80f19d704231fc04b65f8f3d979eae1cfdfdf7b7e10242b0
+  languageName: node
+  linkType: hard
+
+"@avalabs/hw-app-avalanche@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@avalabs/hw-app-avalanche@npm:1.1.0"
+  dependencies:
+    "@ledgerhq/hw-app-eth": "npm:6.45.16"
+    "@ledgerhq/hw-transport": "npm:6.31.9"
+    "@ledgerhq/types-live": "npm:6.82.0"
+    bs58: "npm:6.0.0"
+  checksum: 10c0/5f4e3f1492c5bb039b79e0d52cdf7d368ad616cab97f0379fb9fbe7ffffc3568263d490a3e730b17ad99177570a3c450dc50576e06490567ce26b442941492ae
   languageName: node
   linkType: hard
 
@@ -486,10 +498,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/types@npm:3.1.0-alpha.60":
-  version: 3.1.0-alpha.60
-  resolution: "@avalabs/types@npm:3.1.0-alpha.60"
-  checksum: 10c0/61b0c996088cb9348d3addf1937aa555d0bc13a5a402e667ee0852669b154d69c8177ad72f09a96c189bfe41ef49d7dd583737bb46ee1a17f7d6b8f85ff35857
+"@avalabs/types@npm:3.1.0-canary.fbefa73.0":
+  version: 3.1.0-canary.fbefa73.0
+  resolution: "@avalabs/types@npm:3.1.0-canary.fbefa73.0"
+  checksum: 10c0/6cc524120c77ccd0846c9e88ab959cd2faf1b1d2f5c6bed545e8298ea177c48fbc060783d580f16ade34fd69e9f3ff83c927ac2319b3536e02e3c728fe8d8529
   languageName: node
   linkType: hard
 
@@ -3771,23 +3783,23 @@ __metadata:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:1.9.12"
     "@avalabs/bridge-unified": "npm:4.0.3"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/core-k2-components": "npm:4.18.0-alpha.53"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/evm-module": "npm:1.9.12"
-    "@avalabs/glacier-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/hvm-module": "npm:1.9.12"
     "@avalabs/hw-app-avalanche": "npm:0.14.1"
     "@avalabs/svm-module": "npm:1.9.12"
-    "@avalabs/types": "npm:3.1.0-alpha.60"
+    "@avalabs/types": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/vm-module-types": "npm:1.9.12"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -3904,7 +3916,7 @@ __metadata:
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
     json-rpc-engine: "npm:6.1.0"
-    ledger-bitcoin: "npm:0.2.3"
+    ledger-bitcoin: "patch:ledger-bitcoin@npm%3A0.2.3#~/.yarn/patches/ledger-bitcoin-npm-0.2.3-79aa86de8b.patch"
     lint-staged: "npm:12.3.1"
     lodash: "npm:4.17.21"
     lru-cache: "npm:7.10.1"
@@ -3954,11 +3966,11 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/k2-alpine": "npm:1.235.0"
-    "@avalabs/types": "npm:3.1.0-alpha.60"
+    "@avalabs/types": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/vm-module-types": "npm:1.9.12"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -4185,7 +4197,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/offscreen@workspace:packages/offscreen"
   dependencies:
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@core/common": "workspace:*"
     "@core/messaging": "workspace:*"
     "@core/types": "workspace:*"
@@ -4207,22 +4219,22 @@ __metadata:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:1.9.12"
     "@avalabs/bridge-unified": "npm:4.0.3"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/evm-module": "npm:1.9.12"
-    "@avalabs/glacier-sdk": "npm:3.1.0-alpha.60"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/hvm-module": "npm:1.9.12"
     "@avalabs/hw-app-avalanche": "npm:0.14.1"
     "@avalabs/svm-module": "npm:1.9.12"
-    "@avalabs/types": "npm:3.1.0-alpha.60"
+    "@avalabs/types": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/vm-module-types": "npm:1.9.12"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -4323,7 +4335,7 @@ __metadata:
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
     json-rpc-engine: "npm:6.1.0"
-    ledger-bitcoin: "npm:0.2.3"
+    ledger-bitcoin: "patch:ledger-bitcoin@npm%3A0.2.3#~/.yarn/patches/ledger-bitcoin-npm-0.2.3-79aa86de8b.patch"
     lint-staged: "npm:12.3.1"
     lodash: "npm:4.17.21"
     lru-cache: "npm:7.10.1"
@@ -4372,19 +4384,19 @@ __metadata:
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bridge-unified": "npm:4.0.3"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/glacier-sdk": "npm:3.1.0-alpha.60"
-    "@avalabs/hw-app-avalanche": "npm:0.14.1"
-    "@avalabs/types": "npm:3.1.0-alpha.60"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.fbefa73.0"
+    "@avalabs/hw-app-avalanche": "npm:1.1.0"
+    "@avalabs/types": "npm:3.1.0-canary.fbefa73.0"
     "@avalabs/vm-module-types": "npm:1.9.12"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
@@ -4404,10 +4416,10 @@ __metadata:
     "@keystonehq/ur-decoder": "npm:0.9.2"
     "@lavamoat/allow-scripts": "npm:2.0.0"
     "@lavamoat/preinstall-always-fail": "npm:1.0.0"
-    "@ledgerhq/hw-app-btc": "npm:10.2.4"
-    "@ledgerhq/hw-app-eth": "npm:6.36.1"
-    "@ledgerhq/hw-app-solana": "npm:7.2.4"
-    "@ledgerhq/hw-transport-webhid": "npm:6.30.6"
+    "@ledgerhq/hw-app-btc": "npm:10.11.0"
+    "@ledgerhq/hw-app-eth": "npm:6.45.18"
+    "@ledgerhq/hw-app-solana": "npm:7.5.3"
+    "@ledgerhq/hw-transport-webhid": "patch:@ledgerhq/hw-transport-webhid@npm%3A6.30.6#~/.yarn/patches/@ledgerhq-hw-transport-webhid-npm-6.30.6-fe45318f22.patch"
     "@ledgerhq/hw-transport-webusb": "npm:6.29.10"
     "@metamask/eth-sig-util": "npm:4.0.1"
     "@metamask/rpc-errors": "npm:6.3.0"
@@ -4481,7 +4493,7 @@ __metadata:
     identity-obj-proxy: "npm:3.0.0"
     jest: "npm:29.7.0"
     jest-environment-jsdom: "npm:29.3.1"
-    ledger-bitcoin: "npm:0.2.3"
+    ledger-bitcoin: "patch:ledger-bitcoin@npm%3A0.2.3#~/.yarn/patches/ledger-bitcoin-npm-0.2.3-79aa86de8b.patch"
     lint-staged: "npm:12.3.1"
     lodash: "npm:4.17.21"
     lru-cache: "npm:7.10.1"
@@ -7473,6 +7485,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/cryptoassets-evm-signatures@npm:^13.6.0, @ledgerhq/cryptoassets-evm-signatures@npm:^13.6.2":
+  version: 13.6.2
+  resolution: "@ledgerhq/cryptoassets-evm-signatures@npm:13.6.2"
+  dependencies:
+    "@ledgerhq/live-env": "npm:^2.16.0"
+    axios: "npm:1.11.0"
+  checksum: 10c0/c825727af4a1891c2105ec88199ebfe743282c47d12478d84a988bba135b23c82d56f4f16747527b8ed591bb3566fcd18f584f65d003c6a14e9f8d563f309da9
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/cryptoassets@npm:^13.0.0":
   version: 13.0.0
   resolution: "@ledgerhq/cryptoassets@npm:13.0.0"
@@ -7490,6 +7512,18 @@ __metadata:
   dependencies:
     invariant: "npm:2"
   checksum: 10c0/46f5a1b023195e01d03711fffecaf77712c421d68cd6f52daf8aa50bdbd98bfed3550a021418a02878770bda40a17a85c7d78f7fae1f38d834fbe1f1c5506baa
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/devices@npm:8.5.0":
+  version: 8.5.0
+  resolution: "@ledgerhq/devices@npm:8.5.0"
+  dependencies:
+    "@ledgerhq/errors": "npm:^6.24.0"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    rxjs: "npm:^7.8.1"
+    semver: "npm:^7.3.5"
+  checksum: 10c0/c28d4513ee6e6f28ca268beeb0e6fcdb64b10483ed59b25d5eea97d96039c7645dc08d9155fe2cd24026207d13fd135678f52437ec7ba3686dea306ad4f99291
   languageName: node
   linkType: hard
 
@@ -7559,6 +7593,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/domain-service@npm:^1.2.41, @ledgerhq/domain-service@npm:^1.2.43":
+  version: 1.2.43
+  resolution: "@ledgerhq/domain-service@npm:1.2.43"
+  dependencies:
+    "@ledgerhq/errors": "npm:^6.25.0"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    "@ledgerhq/types-live": "npm:^6.84.0"
+    axios: "npm:1.11.0"
+    eip55: "npm:^2.1.1"
+    react: "npm:^18.2.0"
+    react-dom: "npm:^18.2.0"
+  checksum: 10c0/61207da0a0ff175e1c5aeccc1113c965da3e63b31505a57e32f4d586da5545acd726b762bd2c184d06afcf01f7602f93ec73a75cacecb69c7d1dbe29c9b56e6c
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/errors@npm:^6.14.0, @ledgerhq/errors@npm:^6.19.1":
   version: 6.19.1
   resolution: "@ledgerhq/errors@npm:6.19.1"
@@ -7573,7 +7622,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/errors@npm:^6.25.0":
+"@ledgerhq/errors@npm:^6.24.0, @ledgerhq/errors@npm:^6.25.0":
   version: 6.25.0
   resolution: "@ledgerhq/errors@npm:6.25.0"
   checksum: 10c0/f322c78cae6021d83dd7af6b67486bc08a95d644d7f0e613cc3b91c0ff7ad2788aafee0d7af2562728e9a8342d70f6e0d97d95f5a6638800adb7718e6f2b630d
@@ -7604,6 +7653,40 @@ __metadata:
     axios: "npm:1.7.7"
     crypto-js: "npm:4.2.0"
   checksum: 10c0/44a85a9706a7c4d49cc899678737a4acb8513628090b28b269721a15a65fd016962ec3845c2233ef21027e39aeb4359dd23ba56ea94416d8cefc1198f67dd699
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/evm-tools@npm:^1.7.4, @ledgerhq/evm-tools@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@ledgerhq/evm-tools@npm:1.7.6"
+  dependencies:
+    "@ethersproject/constants": "npm:^5.7.0"
+    "@ethersproject/hash": "npm:^5.7.0"
+    "@ledgerhq/cryptoassets-evm-signatures": "npm:^13.6.2"
+    "@ledgerhq/live-env": "npm:^2.16.0"
+    axios: "npm:1.11.0"
+    crypto-js: "npm:4.2.0"
+  checksum: 10c0/9b72d3e924ab4de02d58679531494fde64602bef899caae48d146a24c626d71fa07fe2e10ab8075d6fa40416722e3e99d4b560472d7f4797d581f1adb897e798
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-app-btc@npm:10.11.0":
+  version: 10.11.0
+  resolution: "@ledgerhq/hw-app-btc@npm:10.11.0"
+  dependencies:
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    "@noble/curves": "npm:1.9.7"
+    bip32-path: "npm:^0.4.2"
+    bitcoinjs-lib: "npm:^5.2.0"
+    bs58: "npm:^4.0.1"
+    bs58check: "npm:^2.1.2"
+    invariant: "npm:^2.2.4"
+    ripemd160: "npm:2"
+    semver: "npm:^7.3.5"
+    sha.js: "npm:2"
+    varuint-bitcoin: "npm:1.1.2"
+  checksum: 10c0/f2e32debb863ae88ed06556bf9fe0acbfef4f3664f9c8702e9be2ff375971a59f14d925a194041e710046999cf854a59cd9d8c86aca477af9ab2980032988f2f
   languageName: node
   linkType: hard
 
@@ -7667,6 +7750,50 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-app-eth@npm:6.45.16":
+  version: 6.45.16
+  resolution: "@ledgerhq/hw-app-eth@npm:6.45.16"
+  dependencies:
+    "@ethersproject/abi": "npm:^5.7.0"
+    "@ethersproject/rlp": "npm:^5.7.0"
+    "@ethersproject/transactions": "npm:^5.7.0"
+    "@ledgerhq/cryptoassets-evm-signatures": "npm:^13.6.0"
+    "@ledgerhq/domain-service": "npm:^1.2.41"
+    "@ledgerhq/errors": "npm:^6.24.0"
+    "@ledgerhq/evm-tools": "npm:^1.7.4"
+    "@ledgerhq/hw-transport": "npm:^6.31.9"
+    "@ledgerhq/hw-transport-mocker": "npm:^6.29.9"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    "@ledgerhq/types-live": "npm:^6.82.0"
+    axios: "npm:1.7.7"
+    bignumber.js: "npm:^9.1.2"
+    semver: "npm:^7.3.5"
+  checksum: 10c0/1dfe143ecf6a0cff20e7c5de5325c7ad98b34a55d10f1e24b830f076c52b6eb6dfaf6d72005f3dc36988b5efe5d12d01e7c05ec2eb26db9eab8e443c03e2cb32
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-app-eth@npm:6.45.18":
+  version: 6.45.18
+  resolution: "@ledgerhq/hw-app-eth@npm:6.45.18"
+  dependencies:
+    "@ethersproject/abi": "npm:^5.7.0"
+    "@ethersproject/rlp": "npm:^5.7.0"
+    "@ethersproject/transactions": "npm:^5.7.0"
+    "@ledgerhq/cryptoassets-evm-signatures": "npm:^13.6.2"
+    "@ledgerhq/domain-service": "npm:^1.2.43"
+    "@ledgerhq/errors": "npm:^6.25.0"
+    "@ledgerhq/evm-tools": "npm:^1.7.6"
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
+    "@ledgerhq/hw-transport-mocker": "npm:^6.29.10"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    "@ledgerhq/types-live": "npm:^6.84.0"
+    axios: "npm:1.11.0"
+    bignumber.js: "npm:^9.1.2"
+    semver: "npm:^7.3.5"
+  checksum: 10c0/9c4cba969964b0222305da47156a6c9b0c64af61bf8d391c84b018d0b9fd78505ca07683435966e663b723e75bb1e0fdf2930bb89603bd9f0cee1afc8f473d19
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/hw-app-solana@npm:7.2.4":
   version: 7.2.4
   resolution: "@ledgerhq/hw-app-solana@npm:7.2.4"
@@ -7675,6 +7802,17 @@ __metadata:
     "@ledgerhq/hw-transport": "npm:^6.31.4"
     bip32-path: "npm:^0.4.2"
   checksum: 10c0/b91ff3598c1375721f63f7cce333d9ca7a5354637c04f6775a47776945bfe79a82d945ce52191b5848159dad50a7477c709ddfec7974a5365742b15749e9f467
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-app-solana@npm:7.5.3":
+  version: 7.5.3
+  resolution: "@ledgerhq/hw-app-solana@npm:7.5.3"
+  dependencies:
+    "@ledgerhq/errors": "npm:^6.25.0"
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
+    bip32-path: "npm:^0.4.2"
+  checksum: 10c0/16991eb38d23f89b5ebc014883082b36baf73747215a29f0f3502a684d42ab3de27ee01da2f3441281e7c6365c5bbe758586e1c872fa4a25b551278046f3ff44
   languageName: node
   linkType: hard
 
@@ -7700,6 +7838,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-transport-mocker@npm:^6.29.10, @ledgerhq/hw-transport-mocker@npm:^6.29.9":
+  version: 6.29.10
+  resolution: "@ledgerhq/hw-transport-mocker@npm:6.29.10"
+  dependencies:
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    rxjs: "npm:^7.8.1"
+  checksum: 10c0/ac40089272722657b793b93652378c11dab3a1b737276e984dda93df475b1094d328782eae2504e04d96bedd3c67ff2f57fbed3e08b1f850f1e85372e5daf896
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/hw-transport-webhid@npm:6.30.6":
   version: 6.30.6
   resolution: "@ledgerhq/hw-transport-webhid@npm:6.30.6"
@@ -7709,6 +7858,18 @@ __metadata:
     "@ledgerhq/hw-transport": "npm:^6.31.10"
     "@ledgerhq/logs": "npm:^6.13.0"
   checksum: 10c0/f2559d430f0c252909c70a89611aab6b5116639a2c7c62ff7b0717c3124d798dab26e9fcb9251fc5e68becea564d696a29ef00e5c59244e24afdbf6a6048905e
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-transport-webhid@patch:@ledgerhq/hw-transport-webhid@npm%3A6.30.6#~/.yarn/patches/@ledgerhq-hw-transport-webhid-npm-6.30.6-fe45318f22.patch":
+  version: 6.30.6
+  resolution: "@ledgerhq/hw-transport-webhid@patch:@ledgerhq/hw-transport-webhid@npm%3A6.30.6#~/.yarn/patches/@ledgerhq-hw-transport-webhid-npm-6.30.6-fe45318f22.patch::version=6.30.6&hash=476f41"
+  dependencies:
+    "@ledgerhq/devices": "npm:8.5.1"
+    "@ledgerhq/errors": "npm:^6.25.0"
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
+    "@ledgerhq/logs": "npm:^6.13.0"
+  checksum: 10c0/583e96f560bd2f012a844287882deb7b1ab1dafdebdc9bf569e2abb85027189ca2b66df1255f572ca5433197ea1fea205d85506d3ee7013d4d6c3981ff4ea6cd
   languageName: node
   linkType: hard
 
@@ -7759,19 +7920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport@npm:^6.20.0, @ledgerhq/hw-transport@npm:^6.28.8, @ledgerhq/hw-transport@npm:^6.30.6, @ledgerhq/hw-transport@npm:^6.31.4":
-  version: 6.31.4
-  resolution: "@ledgerhq/hw-transport@npm:6.31.4"
-  dependencies:
-    "@ledgerhq/devices": "npm:^8.4.4"
-    "@ledgerhq/errors": "npm:^6.19.1"
-    "@ledgerhq/logs": "npm:^6.12.0"
-    events: "npm:^3.3.0"
-  checksum: 10c0/033acb802d991788efcda9223356528d0987a268e94c34cbafde499541722363e7cfa6e2734365ef3282c0a80a69f4964a6d728690ff7494662a650516530b02
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/hw-transport@npm:^6.31.10":
+"@ledgerhq/hw-transport@npm:6.31.10, @ledgerhq/hw-transport@npm:^6.31.10, @ledgerhq/hw-transport@npm:^6.31.9":
   version: 6.31.10
   resolution: "@ledgerhq/hw-transport@npm:6.31.10"
   dependencies:
@@ -7783,6 +7932,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-transport@npm:6.31.9":
+  version: 6.31.9
+  resolution: "@ledgerhq/hw-transport@npm:6.31.9"
+  dependencies:
+    "@ledgerhq/devices": "npm:8.5.0"
+    "@ledgerhq/errors": "npm:^6.24.0"
+    "@ledgerhq/logs": "npm:^6.13.0"
+    events: "npm:^3.3.0"
+  checksum: 10c0/0c925980afcfe3f772bd5a2df5c25e3108cb1655769709b0c08eb68b6794d556afd9b5ec6f6439336d7a351e0860496020f177c6a56eec0fd68c6654ba9848cd
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-transport@npm:^6.28.8, @ledgerhq/hw-transport@npm:^6.30.6, @ledgerhq/hw-transport@npm:^6.31.4":
+  version: 6.31.4
+  resolution: "@ledgerhq/hw-transport@npm:6.31.4"
+  dependencies:
+    "@ledgerhq/devices": "npm:^8.4.4"
+    "@ledgerhq/errors": "npm:^6.19.1"
+    "@ledgerhq/logs": "npm:^6.12.0"
+    events: "npm:^3.3.0"
+  checksum: 10c0/033acb802d991788efcda9223356528d0987a268e94c34cbafde499541722363e7cfa6e2734365ef3282c0a80a69f4964a6d728690ff7494662a650516530b02
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/live-env@npm:^2.0.2":
   version: 2.0.2
   resolution: "@ledgerhq/live-env@npm:2.0.2"
@@ -7790,6 +7963,16 @@ __metadata:
     rxjs: "npm:^7.8.1"
     utility-types: "npm:^3.10.0"
   checksum: 10c0/23740a92ce49e3106b3b8ef26dd0f0785b9507822bfe2667d35ec2f393c53abc76271337688019179afa88874afd4764c5fa7e5145accc3c1d791a6b351b2808
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/live-env@npm:^2.16.0":
+  version: 2.16.0
+  resolution: "@ledgerhq/live-env@npm:2.16.0"
+  dependencies:
+    rxjs: "npm:^7.8.1"
+    utility-types: "npm:^3.10.0"
+  checksum: 10c0/b7a93830a12d217eaf757686054c57fe7f7ccf7809f7f95ff179260b5ce03bc1e65a09c83bf11585a15bad20c5f3d8fda585bd8a760066cf0b86df052e95b0dd
   languageName: node
   linkType: hard
 
@@ -7817,6 +8000,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/types-live@npm:6.82.0":
+  version: 6.82.0
+  resolution: "@ledgerhq/types-live@npm:6.82.0"
+  dependencies:
+    bignumber.js: "npm:^9.1.2"
+    rxjs: "npm:^7.8.1"
+  checksum: 10c0/858f288eac3c3af318800fedf23f65a3962093dc8cf50f24321a4778aa8ab2eec0cff734c9385a4d34f2252e731be210072c324f2343f69b20d813b81d291152
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/types-live@npm:^6.38.1, @ledgerhq/types-live@npm:^6.65.0":
   version: 6.65.0
   resolution: "@ledgerhq/types-live@npm:6.65.0"
@@ -7834,6 +8027,16 @@ __metadata:
     bignumber.js: "npm:^9.1.2"
     rxjs: "npm:^7.8.1"
   checksum: 10c0/994688427b4acb497b4b613b7fc031814e20b226d28e30948cb89f7bd18720963096efdb066e7ae1896c6033114bcbfdc5e2b51dddc9183881038f3fb7033e51
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/types-live@npm:^6.82.0, @ledgerhq/types-live@npm:^6.84.0":
+  version: 6.84.0
+  resolution: "@ledgerhq/types-live@npm:6.84.0"
+  dependencies:
+    bignumber.js: "npm:^9.1.2"
+    rxjs: "npm:^7.8.1"
+  checksum: 10c0/4188b169d58b10a2bb5edb598df0c04d58a06ccee4f6b48ed8be966e31e93bcbb1613f5b757677e358040bfdaa469db6b8c2290788eaf75fb39f4840c006fa9f
   languageName: node
   linkType: hard
 
@@ -8787,6 +8990,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/curves@npm:1.9.7":
+  version: 1.9.7
+  resolution: "@noble/curves@npm:1.9.7"
+  dependencies:
+    "@noble/hashes": "npm:1.8.0"
+  checksum: 10c0/150014751ebe8ca06a8654ca2525108452ea9ee0be23430332769f06808cddabfe84f248b6dbf836916bc869c27c2092957eec62c7506d68a1ed0a624017c2a3
+  languageName: node
+  linkType: hard
+
 "@noble/curves@npm:^1.6.0":
   version: 1.7.0
   resolution: "@noble/curves@npm:1.7.0"
@@ -8851,6 +9063,13 @@ __metadata:
   version: 1.7.1
   resolution: "@noble/hashes@npm:1.7.1"
   checksum: 10c0/2f8ec0338ccc92b576a0f5c16ab9c017a3a494062f1fbb569ae641c5e7eab32072f9081acaa96b5048c0898f972916c818ea63cbedda707886a4b5ffcfbf94e3
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:1.8.0":
+  version: 1.8.0
+  resolution: "@noble/hashes@npm:1.8.0"
+  checksum: 10c0/06a0b52c81a6fa7f04d67762e08b2c476a00285858150caeaaff4037356dd5e119f45b2a530f638b77a5eeca013168ec1b655db41bae3236cb2e9d511484fc77
   languageName: node
   linkType: hard
 
@@ -14366,6 +14585,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:1.11.0":
+  version: 1.11.0
+  resolution: "axios@npm:1.11.0"
+  dependencies:
+    follow-redirects: "npm:^1.15.6"
+    form-data: "npm:^4.0.4"
+    proxy-from-env: "npm:^1.1.0"
+  checksum: 10c0/5de273d33d43058610e4d252f0963cc4f10714da0bfe872e8ef2cbc23c2c999acc300fd357b6bce0fc84a2ca9bd45740fa6bb28199ce2c1266c8b1a393f2b36e
+  languageName: node
+  linkType: hard
+
 "axios@npm:1.7.7":
   version: 1.7.7
   resolution: "axios@npm:1.7.7"
@@ -14752,6 +14982,13 @@ __metadata:
   version: 4.0.0
   resolution: "base-x@npm:4.0.0"
   checksum: 10c0/0cb47c94535144ab138f70bb5aa7e6e03049ead88615316b62457f110fc204f2c3baff5c64a1c1b33aeb068d79a68092c08a765c7ccfa133eee1e70e4c6eb903
+  languageName: node
+  linkType: hard
+
+"base-x@npm:^5.0.0":
+  version: 5.0.1
+  resolution: "base-x@npm:5.0.1"
+  checksum: 10c0/4ab6b02262b4fd499b147656f63ce7328bd5f895450401ce58a2f9e87828aea507cf0c320a6d8725389f86e8a48397562661c0bca28ef3276a22821b30f7a713
   languageName: node
   linkType: hard
 
@@ -15372,6 +15609,15 @@ __metadata:
   dependencies:
     base-x: "npm:^4.0.0"
   checksum: 10c0/0d1b05630b11db48039421b5975cb2636ae0a42c62f770eec257b2e5c7d94cb5f015f440785f3ec50870a6e9b1132b35bd0a17c7223655b22229f24b2a3491d1
+  languageName: node
+  linkType: hard
+
+"bs58@npm:6.0.0":
+  version: 6.0.0
+  resolution: "bs58@npm:6.0.0"
+  dependencies:
+    base-x: "npm:^5.0.0"
+  checksum: 10c0/61910839746625ee4f69369f80e2634e2123726caaa1da6b3bcefcf7efcd9bdca86603360fed9664ffdabe0038c51e542c02581c72ca8d44f60329fe1a6bc8f4
   languageName: node
   linkType: hard
 
@@ -18925,6 +19171,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"es-set-tostringtag@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "es-set-tostringtag@npm:2.1.0"
+  dependencies:
+    es-errors: "npm:^1.3.0"
+    get-intrinsic: "npm:^1.2.6"
+    has-tostringtag: "npm:^1.0.2"
+    hasown: "npm:^2.0.2"
+  checksum: 10c0/ef2ca9ce49afe3931cb32e35da4dcb6d86ab02592cfc2ce3e49ced199d9d0bb5085fc7e73e06312213765f5efa47cc1df553a6a5154584b21448e9fb8355b1af
+  languageName: node
+  linkType: hard
+
 "es-shim-unscopables@npm:^1.0.0":
   version: 1.0.0
   resolution: "es-shim-unscopables@npm:1.0.0"
@@ -20604,6 +20862,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"form-data@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "form-data@npm:4.0.4"
+  dependencies:
+    asynckit: "npm:^0.4.0"
+    combined-stream: "npm:^1.0.8"
+    es-set-tostringtag: "npm:^2.1.0"
+    hasown: "npm:^2.0.2"
+    mime-types: "npm:^2.1.12"
+  checksum: 10c0/373525a9a034b9d57073e55eab79e501a714ffac02e7a9b01be1c820780652b16e4101819785e1e18f8d98f0aee866cc654d660a435c378e16a72f2e7cac9695
+  languageName: node
+  linkType: hard
+
 "form-data@npm:~2.3.2":
   version: 2.3.3
   resolution: "form-data@npm:2.3.3"
@@ -20983,7 +21254,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-intrinsic@npm:^1.2.5, get-intrinsic@npm:^1.3.0":
+"get-intrinsic@npm:^1.2.5, get-intrinsic@npm:^1.2.6, get-intrinsic@npm:^1.3.0":
   version: 1.3.0
   resolution: "get-intrinsic@npm:1.3.0"
   dependencies:
@@ -25064,16 +25335,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ledger-bitcoin@npm:0.2.3, ledger-bitcoin@npm:^0.2.1":
+"ledger-bitcoin@npm:0.2.3":
   version: 0.2.3
   resolution: "ledger-bitcoin@npm:0.2.3"
   dependencies:
     "@bitcoinerlab/descriptors": "npm:^1.0.2"
     "@bitcoinerlab/secp256k1": "npm:^1.0.5"
-    "@ledgerhq/hw-transport": "npm:^6.20.0"
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
     bip32-path: "npm:^0.4.2"
     bitcoinjs-lib: "npm:^6.1.3"
   checksum: 10c0/2460efea56f10fe7c19ef8b68792105cc791c3a715c09b8254cb9e5cecae6ec9203240b58f95dc86aaf7ac20a23e710524ce1f994f4e9c609aa09db1052d470a
+  languageName: node
+  linkType: hard
+
+"ledger-bitcoin@patch:ledger-bitcoin@npm%3A0.2.3#~/.yarn/patches/ledger-bitcoin-npm-0.2.3-79aa86de8b.patch":
+  version: 0.2.3
+  resolution: "ledger-bitcoin@patch:ledger-bitcoin@npm%3A0.2.3#~/.yarn/patches/ledger-bitcoin-npm-0.2.3-79aa86de8b.patch::version=0.2.3&hash=27859e"
+  dependencies:
+    "@bitcoinerlab/descriptors": "npm:^1.0.2"
+    "@bitcoinerlab/secp256k1": "npm:^1.0.5"
+    "@ledgerhq/hw-transport": "npm:^6.31.10"
+    bip32-path: "npm:^0.4.2"
+    bitcoinjs-lib: "npm:^6.1.3"
+  checksum: 10c0/a4496a7832f93a69adec5b221362b4eca787cbe14131b9df2f7c4cc6bf53d52b3214be27b99802b25a2d8ae79d9b942152cfdde919c8a0f3ce14cc5b9a2037b0
   languageName: node
   linkType: hard
 

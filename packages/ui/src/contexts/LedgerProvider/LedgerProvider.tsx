@@ -54,6 +54,8 @@ import {
 } from './listeners';
 import { useConnectionContext } from '../ConnectionProvider';
 import { getLedgerTransport } from '../utils/getLedgerTransport';
+import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -363,8 +365,14 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     if (app) {
       return true;
     }
-    const [usbTransport] = await resolve(TransportWebUSB.request());
-    if (usbTransport) {
+
+    const useWebHID = await shouldUseWebHID();
+
+    const [deviceTransport] = await resolve<Transport>(
+      useWebHID ? TransportWebHID.request() : TransportWebUSB.request(),
+    );
+
+    if (deviceTransport) {
       return true;
     }
 

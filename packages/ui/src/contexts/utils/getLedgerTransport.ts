@@ -3,16 +3,15 @@ import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { resolve } from '@core/common';
 import Transport from '@ledgerhq/hw-transport';
 import { Monitoring } from '@core/common';
-import browser from 'webextension-polyfill';
+import { shouldUseWebHID } from './shouldUseWebHID';
 
 export async function getLedgerTransport(): Promise<Transport | null> {
-  const platformInfo = await browser.runtime.getPlatformInfo();
-  const isWebHIDSupported = await TransportWebHID.isSupported();
+  const useWebHID = await shouldUseWebHID();
 
   const [transport, error] = await resolve<
     TransportWebUSB | TransportWebHID | null
   >(
-    platformInfo.os === 'win' && isWebHIDSupported
+    useWebHID
       ? TransportWebHID.openConnected()
       : TransportWebUSB.openConnected(),
   );
