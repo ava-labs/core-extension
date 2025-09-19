@@ -43,32 +43,22 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const buyButtonRef = useRef<HTMLDivElement>(null);
   const priceInfoRef = useRef<HTMLDivElement>(null);
 
-  const formattedPercent = useMemo(
-    () =>
-      token.price24hChangePercent
-        ? Math.abs(token.price24hChangePercent)?.toFixed(2).toString() + '%'
-        : undefined,
-    [token.price24hChangePercent],
-  );
+  const formattedPercent = token.price24hChangePercent
+    ? Math.abs(token.price24hChangePercent)?.toFixed(2).toString() + '%'
+    : undefined;
 
-  const formattedPrice = useMemo(
-    () =>
-      token.price
-        ? formatCurrency({
-            amount: token.price,
-            currency,
-            boostSmallNumberPrecision: true,
-          })
-        : UNKNOWN_AMOUNT,
-    [currency, token.price],
-  );
+  const formattedPrice = token.price
+    ? formatCurrency({
+        amount: token.price,
+        currency,
+        boostSmallNumberPrecision: true,
+      })
+    : UNKNOWN_AMOUNT;
 
-  const percentChangeIcon = useMemo(() => {
-    if (token.price24hChangePercent && token.price24hChangePercent > 0) {
-      return upIcon;
-    }
-    return downIcon;
-  }, [token.price24hChangePercent]);
+  const percentChangeIcon =
+    token.price24hChangePercent && token.price24hChangePercent > 0
+      ? upIcon
+      : downIcon;
 
   const uniqueTokenId = useMemo(() => {
     return getUniqueTokenIdGeneric({

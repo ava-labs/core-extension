@@ -41,10 +41,10 @@ export function formatCurrency({
   }
 
   // Check if the currency appears after a sign (e.g., "-CHF 10")
-  const signMatch = formatted.match(/^([-+])\s*([A-Z]{3})\s*(.*)/);
-  if (signMatch && signMatch[2] === currency) {
-    const sign = signMatch[1];
-    const number = signMatch[3] ?? '';
+  const [, sign, currencyMatch, number] = formatted.match(
+    /^([-+])\s*([A-Z]{3})\s*(.*)/,
+  ) ?? [undefined, undefined, undefined, ''];
+  if (currencyMatch && currencyMatch === currency) {
     return `${sign}${number.trim()} ${currency}`;
   }
 

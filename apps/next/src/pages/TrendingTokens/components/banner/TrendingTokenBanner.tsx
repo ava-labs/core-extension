@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { Trans } from 'react-i18next';
 import { useTrendingTokens } from '../../hooks/useTrendingTokens';
 import { useSettingsContext } from '@core/ui';
@@ -6,6 +6,7 @@ import { ArrowRightIcon, Stack, Typography } from '@avalabs/k2-alpine';
 import { Card } from '@/components/Card';
 import { useHistory } from 'react-router-dom';
 import { TopThreeLogos } from './TopThreeLogos';
+import { orderBy } from 'lodash';
 
 export const TrendingTokenBanner = () => {
   const { push } = useHistory();
@@ -14,22 +15,18 @@ export const TrendingTokenBanner = () => {
   const { showTrendingTokens } = useSettingsContext();
 
   const avalancheTrendingTokens = trendingTokens.avalanche;
-  const firstToken = avalancheTrendingTokens?.find((token) => token.rank === 1);
-  const secondToken = avalancheTrendingTokens?.find(
-    (token) => token.rank === 2,
+  const [firstToken, secondToken, thirdToken] = orderBy(
+    avalancheTrendingTokens,
+    (token) => token.rank,
   );
-  const thirdToken = avalancheTrendingTokens?.find((token) => token.rank === 3);
+
+  const updateRef = useRef(updateTrendingTokens);
+  updateRef.current = updateTrendingTokens;
 
   useEffect(() => {
     // Just run it once for the initial render
-    updateTrendingTokens(`avalanche`);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    updateRef.current(`avalanche`);
   }, []);
-
-  const top3Tokens = useMemo(() => {
-    return !avalancheTrendingTokens ? [] : avalancheTrendingTokens.slice(0, 3);
-  }, [avalancheTrendingTokens]);
 
   return (
     firstToken &&
@@ -60,9 +57,9 @@ export const TrendingTokenBanner = () => {
             <Trans
               i18nKey="<Bold>{{firstToken}}</Bold>, <Bold>{{secondToken}}</Bold>, <Bold>{{thirdToken}}</Bold> are trending today"
               values={{
-                firstToken: top3Tokens[0]?.name,
-                secondToken: top3Tokens[1]?.name,
-                thirdToken: top3Tokens[2]?.name,
+                firstToken: firstToken.name,
+                secondToken: secondToken.name,
+                thirdToken: thirdToken.name,
               }}
               components={{
                 Bold: <span style={{ fontWeight: 600 }} />,

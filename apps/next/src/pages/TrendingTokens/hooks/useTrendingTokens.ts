@@ -12,11 +12,14 @@ type TrendingTokensState = {
   solana: TrendingToken[];
 };
 
+const emptyTrendingTokens: TrendingTokensState = {
+  avalanche: [],
+  solana: [],
+};
+
 export const useTrendingTokens = () => {
-  const [trendingTokens, setTrendingTokens] = useState<TrendingTokensState>({
-    avalanche: [],
-    solana: [],
-  });
+  const [trendingTokens, setTrendingTokens] =
+    useState<TrendingTokensState>(emptyTrendingTokens);
   const { request } = useConnectionContext();
 
   const fetchTrendingTokens = useCallback(
@@ -25,31 +28,30 @@ export const useTrendingTokens = () => {
         method: ExtensionRequest.GET_TRENDING_TOKENS,
         params: [nwk],
       });
-      setTrendingTokens({
-        ...trendingTokens,
-        [nwk]: response.tokens,
+      let newTrendingTokens = emptyTrendingTokens;
+
+      setTrendingTokens((prev) => {
+        newTrendingTokens = {
+          ...prev,
+          [nwk]: response.tokens,
+        };
+        return newTrendingTokens;
       });
+
+      return newTrendingTokens;
     },
-    [request, trendingTokens],
+    [request],
   );
 
   const getTrendingTokens = useCallback(
     async (nwk: TrendingTokensNetwork) => {
-      await fetchTrendingTokens(nwk);
-      return trendingTokens;
+      const newTrendingTokens = await fetchTrendingTokens(nwk);
+      return newTrendingTokens;
     },
-    [trendingTokens, fetchTrendingTokens],
+    [fetchTrendingTokens],
   );
-
-  const updateTrendingTokens = useCallback(
-    (nwk: TrendingTokensNetwork) => {
-      getTrendingTokens(nwk);
-    },
-    [getTrendingTokens],
-  );
-
   return {
     trendingTokens,
-    updateTrendingTokens,
+    updateTrendingTokens: getTrendingTokens,
   };
 };
