@@ -1,13 +1,23 @@
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
+import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { resolve } from '@core/common';
 import Transport from '@ledgerhq/hw-transport';
 import { Monitoring } from '@core/common';
+import { shouldUseWebHID } from './shouldUseWebHID';
 
 export async function getLedgerTransport(): Promise<Transport | null> {
-  const [usbTransport, error] = await resolve(TransportWebUSB.openConnected());
+  const useWebHID = await shouldUseWebHID();
 
-  if (usbTransport) {
-    return usbTransport;
+  const [transport, error] = await resolve<
+    TransportWebUSB | TransportWebHID | null
+  >(
+    useWebHID
+      ? TransportWebHID.openConnected()
+      : TransportWebUSB.openConnected(),
+  );
+
+  if (transport) {
+    return transport;
   }
 
   if (error) {
