@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 import { Avatar, Box, Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { useMemo, useState, useRef, useLayoutEffect } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { formatCurrency } from '../../utils/formatAmount';
 import upIcon from '../../assets/up.svg';
@@ -38,8 +38,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
 
   const [showBuyButton, setShowBuyButton] = useState(false);
 
-  // For the buy button and price info to be aligned to avoid the card layout shifting when the buy button is shown or hidden
-  const [fixedWidth, setFixedWidth] = useState<number>(120); // Default reasonable width
   const buyButtonRef = useRef<HTMLDivElement>(null);
   const priceInfoRef = useRef<HTMLDivElement>(null);
 
@@ -68,15 +66,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       coreChainId: getCoreChainId(network),
     });
   }, [token, network]);
-
-  useLayoutEffect(() => {
-    if (buyButtonRef.current && priceInfoRef.current) {
-      const buyButtonWidth = buyButtonRef.current.offsetWidth;
-      const priceInfoWidth = priceInfoRef.current.offsetWidth;
-      const maxWidth = Math.max(buyButtonWidth, priceInfoWidth);
-      setFixedWidth(maxWidth);
-    }
-  }, [formattedPrice, formattedPercent]);
 
   return (
     <Stack
@@ -125,9 +114,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
         width={`calc(100% - 52px)`} // 36px (avatar) + 16px (gaps)
       >
         {/* Middle left side - Token info */}
-        <Stack width={`calc(100% - ${fixedWidth}px)`} minWidth={0}>
-          {/* Setting the width to force the truncate to happen when the name is too
-          long */}
+        <Stack flexGrow={1} minWidth={0}>
           <Typography variant="body3" noWrap>
             {rank}. {token.name}
           </Typography>
@@ -146,7 +133,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
           <Box
             alignItems="flex-end"
             ml="auto"
-            width={fixedWidth}
             display="flex"
             justifyContent="flex-end"
           >
