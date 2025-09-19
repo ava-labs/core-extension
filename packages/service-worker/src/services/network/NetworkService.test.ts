@@ -550,6 +550,92 @@ describe('background/services/network/NetworkService', () => {
       await service.saveCustomNetwork(customNetwork);
       expect(service.updateNetworkState).toHaveBeenCalled();
     });
+
+    it('should preserve customRpcHeaders when saving a network', async () => {
+      const customHeaders = {
+        Authorization: 'Bearer token123',
+        'X-Custom-Header': 'custom-value',
+      };
+      const networkWithHeaders = {
+        ...customNetwork,
+        customRpcHeaders: customHeaders,
+      };
+
+      const savedNetwork = await service.saveCustomNetwork(networkWithHeaders);
+      const storedNetwork = service.customNetworks[customNetwork.chainId];
+
+      expect((savedNetwork as any).customRpcHeaders).toEqual(customHeaders);
+      expect(storedNetwork).toBeDefined();
+      expect((storedNetwork! as any).customRpcHeaders).toEqual(customHeaders);
+    });
+
+    it('should preserve customRpcHeaders when updating an existing network', async () => {
+      const initialHeaders = {
+        Authorization: 'Bearer initial-token',
+      };
+      const updatedHeaders = {
+        Authorization: 'Bearer updated-token',
+        'Content-Type': 'application/json',
+      };
+
+      // Save network with initial headers
+      const networkWithInitialHeaders = {
+        ...customNetwork,
+        customRpcHeaders: initialHeaders,
+      };
+      await service.saveCustomNetwork(networkWithInitialHeaders);
+
+      // Update network with new headers
+      const networkWithUpdatedHeaders = {
+        ...customNetwork,
+        customRpcHeaders: updatedHeaders,
+        rpcUrl: 'https://updated.rpc.url',
+      };
+      const updatedNetwork = await service.saveCustomNetwork(
+        networkWithUpdatedHeaders,
+      );
+      const storedNetwork = service.customNetworks[customNetwork.chainId];
+
+      expect((updatedNetwork as any).customRpcHeaders).toEqual(updatedHeaders);
+      expect((storedNetwork as any)?.customRpcHeaders).toEqual(updatedHeaders);
+      expect(storedNetwork?.rpcUrl).toBe('https://updated.rpc.url');
+    });
+
+    it('should handle networks with empty customRpcHeaders', async () => {
+      const networkWithEmptyHeaders = {
+        ...customNetwork,
+        customRpcHeaders: {},
+      };
+
+      const savedNetwork = await service.saveCustomNetwork(
+        networkWithEmptyHeaders,
+      );
+      const storedNetwork = service.customNetworks[customNetwork.chainId];
+
+      expect((savedNetwork as any).customRpcHeaders).toEqual({});
+      expect(storedNetwork).toBeDefined();
+      expect((storedNetwork! as any).customRpcHeaders).toEqual({});
+    });
+
+    it('should handle networks without customRpcHeaders property', async () => {
+      // Network without customRpcHeaders property (like legacy networks)
+      const networkWithoutHeaders = { ...customNetwork };
+      delete networkWithoutHeaders.customRpcHeaders;
+
+      const savedNetwork = await service.saveCustomNetwork(
+        networkWithoutHeaders,
+      );
+      const storedNetwork = service.customNetworks[customNetwork.chainId];
+
+      // Should not have customRpcHeaders property if it wasn't provided
+      expect('customRpcHeaders' in savedNetwork).toBe(
+        'customRpcHeaders' in networkWithoutHeaders,
+      );
+      expect(storedNetwork).toBeDefined();
+      expect('customRpcHeaders' in storedNetwork!).toBe(
+        'customRpcHeaders' in networkWithoutHeaders,
+      );
+    });
   });
   describe('when chain list is not available through Glacier', () => {
     beforeEach(() => {

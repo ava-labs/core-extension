@@ -156,7 +156,7 @@ export const AccountsActionButton = ({
           }}
           ref={toggleButtonRef}
         >
-          {t('Add or Connect Wallet')}
+          {t('Add Account or Connect Wallet')}
         </Button>
 
         <Popper

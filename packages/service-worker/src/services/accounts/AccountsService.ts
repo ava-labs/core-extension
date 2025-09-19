@@ -28,6 +28,7 @@ import {
   mapVMAddresses,
   ReadWriteLock,
   Monitoring,
+  isImportedAccount,
 } from '@core/common';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
@@ -112,6 +113,23 @@ export class AccountsService implements OnLock, OnUnlock {
     // refresh addresses so in case the user switches to testnet mode,
     // as the BTC address needs to be updated
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
+  }
+
+  async getAccountFromActiveWalletByAddress(address: string) {
+    const activeAccount = await this.getActiveAccount();
+    if (!activeAccount) {
+      return;
+    }
+
+    if (isImportedAccount(activeAccount)) {
+      return activeAccount;
+    }
+
+    const accounts = this.#accounts.primary[activeAccount.walletId] ?? [];
+
+    return accounts.find((account) =>
+      getAllAddressesForAccount(account).includes(address),
+    );
   }
 
   async getActiveAccount() {

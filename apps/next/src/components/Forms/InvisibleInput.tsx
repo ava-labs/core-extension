@@ -40,6 +40,14 @@ export const InvisibleFieldInput = styled(InvisibileInput)(({ theme }) => ({
   '::placeholder': {
     fontFamily: theme.typography.fontFamily,
   },
+  // Hide number input spin buttons
+  '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
+  '&[type=number]': {
+    '-moz-appearance': 'textfield',
+  },
 }));
 
 export const StyledNameButton = styled(Button)({

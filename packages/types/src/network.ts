@@ -76,6 +76,16 @@ export const PLACEHOLDER_RPC_HEADERS = { '': '' };
 
 export type EvmNetwork = NetworkWithCaipId & { vmName: NetworkVMType.EVM };
 export type BtcNetwork = NetworkWithCaipId & { vmName: NetworkVMType.BITCOIN };
+export type SolanaNetwork = NetworkWithCaipId & {
+  vmName: NetworkVMType.SVM;
+};
+
+export type AvalancheNetwork = NetworkWithCaipId & {
+  vmName: NetworkVMType.AVM | NetworkVMType.PVM | NetworkVMType.CoreEth;
+};
+export type CoreEthNetwork = NetworkWithCaipId & {
+  vmName: NetworkVMType.CoreEth;
+};
 
 export const isEvmNetwork = (
   network: NetworkWithCaipId,
@@ -84,3 +94,18 @@ export const isEvmNetwork = (
 export const isBtcNetwork = (
   network: NetworkWithCaipId,
 ): network is BtcNetwork => network.vmName === NetworkVMType.BITCOIN;
+
+export const isSolanaNetwork = (
+  network: NetworkWithCaipId,
+): network is SolanaNetwork => network.vmName === NetworkVMType.SVM;
+
+export const isCoreEthNetwork = (
+  network: NetworkWithCaipId,
+): network is CoreEthNetwork => network.vmName === NetworkVMType.CoreEth;
+
+export const isAvalancheNetwork = (
+  network: NetworkWithCaipId,
+): network is AvalancheNetwork =>
+  network.vmName === NetworkVMType.AVM ||
+  network.vmName === NetworkVMType.PVM ||
+  network.vmName === NetworkVMType.CoreEth;

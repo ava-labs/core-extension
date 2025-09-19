@@ -1,12 +1,12 @@
+import { toast } from '@avalabs/k2-alpine';
 import { DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import { caipToChainId } from '@core/common';
 import { Action, GaslessPhase } from '@core/types';
 import { useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
-import { GaslessEligibilityParams, UseGasless } from './types';
 import { isUndefined } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
-import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { GaslessEligibilityParams, UseGasless } from './types';
 
 export const useGasless: UseGasless = ({ action }) => {
   const { t } = useTranslation();
@@ -24,7 +24,7 @@ export const useGasless: UseGasless = ({ action }) => {
   const { captureEncrypted } = useAnalyticsContext();
 
   const eligibilityParams = useMemo(
-    () => getEligibilityParams(action),
+    () => (action ? getEligibilityParams(action) : null),
     [action],
   );
 
@@ -98,7 +98,14 @@ export const useGasless: UseGasless = ({ action }) => {
 const getEligibilityParams = (
   action: Action<DisplayData>,
 ): GaslessEligibilityParams | null => {
-  if (!action) return null;
+  if (
+    !action ||
+    !action.scope ||
+    !action.scope.startsWith('eip155:') ||
+    !action.signingData
+  ) {
+    return null;
+  }
 
   const { signingData } = action;
   const evmChainId = caipToChainId(action.scope);

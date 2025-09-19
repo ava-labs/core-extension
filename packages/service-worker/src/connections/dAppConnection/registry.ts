@@ -1,5 +1,8 @@
+import { runtime } from 'webextension-polyfill';
+
 import { AccountsChangedEvents } from '../../services/accounts/events/accountsChangedEvent';
 import { AvalancheGetAccountsHandler } from '../../services/accounts/handlers/avalanche_getAccounts';
+import { AvalancheAddAccountHandler } from '../../services/accounts/handlers/avalanche_addAccount';
 import { AvalancheSelectAccountHandler } from '../../services/accounts/handlers/avalanche_selectAccount';
 import { EthAccountsHandler } from '../../services/accounts/handlers/eth_accounts';
 import { ActionEvents } from '../../services/actions/events/actionEvents';
@@ -40,8 +43,10 @@ import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wa
  * There is no automativ module discovery in ts like available in java,
  * if a module is not imported ever, the DI will never know about it
  */
-@registry([
+
+const SHARED_HANDLERS = [
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountsHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheAddAccountHandler },
   { token: 'DAppRequestHandler', useToken: EthAccountsHandler },
   {
     token: 'DAppRequestHandler',
@@ -54,9 +59,6 @@ import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wa
   { token: 'DAppRequestHandler', useToken: AvalancheSelectWalletHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheSelectAccountHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheGetAccountPubKeyHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSignMessageHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheRenameAccountHandler },
   { token: 'DAppRequestHandler', useToken: AvalancheDeleteAccountsHandler },
   {
@@ -64,7 +66,6 @@ import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wa
     useToken: AvalancheGetAddressesInRangeHandler,
   },
   { token: 'DAppRequestHandler', useToken: PersonalEcRecoverHandler },
-  { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
   { token: 'DAppRequestHandler', useToken: WalletAddEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletSwitchEthereumChainHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetEthereumChainHandler },
@@ -81,7 +82,32 @@ import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wa
     token: 'DAppRequestHandler',
     useToken: AvalancheSendDomainMetadataHandler,
   },
-])
+];
+
+const LEGACY_REQUEST_HANDLERS = [
+  { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
+  { token: 'DAppRequestHandler', useToken: AvalancheSignMessageHandler },
+  { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
+];
+
+// In order to only switch the NextGen app to use the VM Modules for
+// the remaining request types, we recognize if we're in the NextGen app
+// and only add the local request handlers if we're not.
+
+const NEXT_GEN_LOCAL_ID = 'kgoihbeifdgeehmjjapgdgdlghbajemb';
+const NEXT_GEN_BLUE_ID = 'eacmbmdlcjonknhdlboigobpcjaojfgn';
+const useLocalRequestHandlers =
+  runtime.id !== NEXT_GEN_LOCAL_ID && runtime.id !== NEXT_GEN_BLUE_ID;
+
+const ALL_REQUEST_HANDLERS = [
+  ...SHARED_HANDLERS,
+  // TODO: This check should be completely removed and the ${LEGACY_REQUEST_HANDLERS}
+  // should no longer be used when we release the NextGen app.
+  ...(useLocalRequestHandlers ? LEGACY_REQUEST_HANDLERS : []),
+];
+
+@registry(ALL_REQUEST_HANDLERS)
 export class DappRequestHandlerRegistry {}
 
 /**

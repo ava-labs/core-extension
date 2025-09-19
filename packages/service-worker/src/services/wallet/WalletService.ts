@@ -1,4 +1,4 @@
-import { UnsignedTx, utils } from '@avalabs/avalanchejs';
+import { EVM, EVMUnsignedTx, UnsignedTx, utils } from '@avalabs/avalanchejs';
 import { strip0x } from '@avalabs/core-utils-sdk';
 import {
   Avalanche,
@@ -15,11 +15,12 @@ import {
   SolanaProvider,
   SolanaSigner,
 } from '@avalabs/core-wallets-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
   getProviderForNetwork,
   isPchainNetwork,
+  isPrimaryAccount,
   isSolanaNetwork,
   isXchainNetwork,
   omitUndefined,
@@ -31,12 +32,15 @@ import {
   AddPrimaryWalletSecrets,
   CommonError,
   FIREBLOCKS_REQUEST_EXPIRY,
+  isAvalancheModuleTransactionRequest,
   isSolanaMsgRequest,
   isSolanaRequest,
   LedgerError,
   MessageParams,
+  MessageSigningData,
   MessageType,
   Network,
+  NetworkWithCaipId,
   PubKeyType,
   SecretsError,
   SecretType,
@@ -88,6 +92,9 @@ import { WalletConnectSigner } from '../walletConnect/WalletConnectSigner';
 import { HVMWallet } from './HVMWallet';
 import ensureMessageIsValid from './utils/ensureMessageFormatIsValid';
 import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
+import { isTypedData } from '@avalabs/evm-module';
+import { isPersonalSign } from './utils/isPersonalSignRequest';
+import { rpcMethodToMessageType } from './utils/rpcMethodToMessageType';
 @singleton()
 export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
@@ -755,6 +762,83 @@ export class WalletService implements OnUnlock {
       return this.#normalizeSigningResult(result);
     }
 
+    // Handle Avalanche transaction requests coming from the Avalanche Module
+    if (isAvalancheModuleTransactionRequest(tx)) {
+      if (
+        !(wallet instanceof Avalanche.SimpleSigner) &&
+        !(wallet instanceof Avalanche.StaticSigner) &&
+        !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
+        !(wallet instanceof Avalanche.LedgerSigner) &&
+        !(wallet instanceof KeystoneWallet) &&
+        !(wallet instanceof WalletConnectSigner) &&
+        !(wallet instanceof SeedlessWallet)
+      ) {
+        throw new Error('Signing error, wrong network');
+      }
+
+      const Tx = tx.vm === EVM ? EVMUnsignedTx : UnsignedTx;
+      const unsignedTx = Tx.fromJSON(tx.unsignedTxJson);
+
+      const externalIndices =
+        tx.type === RpcMethod.AVALANCHE_SEND_TRANSACTION
+          ? (tx.externalIndices ?? [])
+          : [];
+      const internalIndices =
+        tx.type === RpcMethod.AVALANCHE_SEND_TRANSACTION
+          ? (tx.internalIndices ?? [])
+          : [];
+
+      const hasMultipleAddresses =
+        unsignedTx.addressMaps.getAddresses().length > 1;
+
+      if (
+        hasMultipleAddresses &&
+        !externalIndices.length &&
+        !internalIndices.length
+      ) {
+        throw new Error(
+          'Transaction contains multiple addresses, but indices were not provided',
+        );
+      }
+
+      const signRequest = {
+        tx: unsignedTx,
+        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
+          wallet instanceof Avalanche.LedgerSigner) && {
+          transport: this.ledgerService.recentTransport,
+        }),
+        externalIndices,
+        internalIndices,
+      };
+
+      const signingResult =
+        wallet instanceof SeedlessWallet
+          ? await wallet.signAvalancheTx(signRequest)
+          : await wallet.signTx(signRequest, originalRequestMethod);
+
+      // WalletConnectSigner returns a txHash.
+      if ('txHash' in signingResult) {
+        return signingResult;
+      }
+
+      // Avalanche Module expexts a signed transaction hex, while our signers either
+      // return a Tx directly, or its JSON representation -- we need to convert those.
+      const signedTx =
+        signingResult instanceof UnsignedTx
+          ? signingResult
+          : Tx.fromJSON(signingResult.signedTx);
+
+      if (!signedTx.hasAllSignatures()) {
+        throw new Error('Signing error, missing signatures.');
+      }
+
+      const signedTransactionHex = Avalanche.signedTxToHex(
+        signedTx.getSignedTx(),
+      );
+
+      return this.#normalizeSigningResult(signedTransactionHex);
+    }
+
     // Handle Avalanche signing, X/P/CoreEth
     if ('tx' in tx) {
       if (
@@ -768,6 +852,7 @@ export class WalletService implements OnUnlock {
       ) {
         throw new Error('Signing error, wrong network');
       }
+
       const txToSign = {
         tx: tx.tx,
         ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
@@ -907,17 +992,125 @@ export class WalletService implements OnUnlock {
     });
   }
 
+  async signGenericMessage(
+    data: Exclude<MessageSigningData, { type: RpcMethod.SOLANA_SIGN_MESSAGE }>,
+    network: NetworkWithCaipId,
+    tabId?: number,
+  ): Promise<string> {
+    if (data.type === RpcMethod.AVALANCHE_SIGN_MESSAGE) {
+      const signed = await this.signMessageAvalanche({
+        data: data.data,
+        accountIndex: data.accountIndex,
+      });
+
+      // Ensure we return a base58check-encoded string;
+      return utils.base58check.encode(new Uint8Array(signed));
+    }
+
+    const account =
+      await this.accountsService.getAccountFromActiveWalletByAddress(
+        data.account,
+      );
+
+    const wallet = await this.getWallet({
+      accountIndex: isPrimaryAccount(account) ? account.index : undefined,
+      network,
+      tabId,
+    });
+
+    const messageType = rpcMethodToMessageType(data.type);
+
+    if (wallet instanceof WalletConnectSigner) {
+      return await wallet.signMessage(messageType, data.data);
+    }
+
+    if (wallet instanceof SeedlessWallet) {
+      const signed = await wallet.signMessage(messageType, { data: data.data });
+      return typeof signed === 'string'
+        ? signed
+        : utils.base58check.encode(new Uint8Array(signed));
+    }
+
+    if (wallet instanceof KeystoneWallet) {
+      return wallet.signMessage(messageType, {
+        data: data.data,
+        from: data.account,
+      });
+    }
+
+    if (wallet instanceof LedgerSigner) {
+      if (isTypedData(data.data)) {
+        return wallet.signTypedData(
+          data.data.domain,
+          data.data.types,
+          data.data.message,
+        );
+      } else if (isPersonalSign(data)) {
+        const dataToSign = isHexString(data.data)
+          ? utils.hexToBuffer(data.data)
+          : data.data;
+
+        return wallet.signMessage(dataToSign);
+      } else {
+        throw new Error(`this function is not supported on your wallet`);
+      }
+    }
+
+    if (!(wallet instanceof BaseWallet)) {
+      throw new Error('This function is not supported by your wallet');
+    }
+
+    const privateKey = strip0x(wallet.privateKey);
+    const key = Buffer.from(privateKey, 'hex');
+
+    try {
+      switch (data.type) {
+        case RpcMethod.ETH_SIGN:
+        case RpcMethod.PERSONAL_SIGN:
+          return personalSign({ privateKey: key, data: data.data });
+
+        case RpcMethod.SIGN_TYPED_DATA:
+        case RpcMethod.SIGN_TYPED_DATA_V1:
+        case RpcMethod.SIGN_TYPED_DATA_V3:
+        case RpcMethod.SIGN_TYPED_DATA_V4: {
+          const version =
+            data.type === RpcMethod.SIGN_TYPED_DATA_V3
+              ? SignTypedDataVersion.V3
+              : data.type === RpcMethod.SIGN_TYPED_DATA_V4
+                ? SignTypedDataVersion.V4
+                : isTypedData(data.data)
+                  ? SignTypedDataVersion.V4
+                  : SignTypedDataVersion.V1;
+
+          return signTypedData({
+            privateKey: key,
+            data: data.data,
+            version,
+          });
+        }
+
+        default:
+          throw new Error('unknown method');
+      }
+    } finally {
+      key.fill(0);
+    }
+  }
   /**
    * Signs the given message
    * @param data Message in hex format. Will be parsed as UTF8.
    */
-  private async signMessageAvalanche(params: MessageParams) {
+  private async signMessageAvalanche(params: PartialBy<MessageParams, 'from'>) {
     const message = toUtf8(params.data);
     const xpNetwork = this.networkService.getAvalancheNetworkXP();
     const wallet = await this.getWallet({
       network: xpNetwork,
       accountIndex: params.accountIndex,
     });
+
+    if (wallet instanceof SeedlessWallet) {
+      return wallet.signMessage(MessageType.AVALANCHE_SIGN, params);
+    }
 
     //TODO: Need support for WalletConnectSigner when mobile is ready
     if (
@@ -949,6 +1142,7 @@ export class WalletService implements OnUnlock {
   }
   /**
    * Sign EVM messages
+   * @deprecated Use signGenericMessage instead
    * @param messageType
    * @param data
    */

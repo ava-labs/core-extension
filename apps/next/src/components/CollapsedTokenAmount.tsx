@@ -25,7 +25,8 @@ const defaultRegularProps: TypographyProps = {
   fontWeight: 500,
 } as const;
 
-const CONSECUTIVE_ZEROES_THRESHOLD = 5;
+const CONSECUTIVE_ZEROES_THRESHOLD = 4;
+const MAX_FRACTION_SIZE = 5;
 const MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES = 2;
 
 /**
@@ -50,10 +51,7 @@ export const CollapsedTokenAmount = ({
 
   const [integer, fraction] = amount.split('.');
 
-  if (
-    !fraction ||
-    (fraction && fraction.length <= CONSECUTIVE_ZEROES_THRESHOLD)
-  ) {
+  if (!fraction || (fraction && fraction.length <= MAX_FRACTION_SIZE)) {
     return <Typography {...finalRegularProps}>{amount}</Typography>;
   }
 
@@ -65,7 +63,7 @@ export const CollapsedTokenAmount = ({
 
   const zeroCount = fraction.slice(0, indexOfNonZero).length;
 
-  if (fraction && indexOfNonZero) {
+  if (fraction && indexOfNonZero >= CONSECUTIVE_ZEROES_THRESHOLD) {
     return (
       <Tooltip title={amount}>
         <Stack

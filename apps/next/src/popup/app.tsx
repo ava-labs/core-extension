@@ -33,11 +33,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { LoadingScreen } from '@/components/LoadingScreen';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { useSwapCallbacks } from '@/pages/Swap';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -108,16 +109,19 @@ export function App() {
           <ThemeProvider theme={preferredColorScheme} />,
           <AnalyticsContextProvider />,
           <PersonalAvatarProvider />,
+          <LedgerContextProvider />,
+          <NetworkContextProvider />,
+          <KeystoneContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
+            LoadingComponent={LoadingScreen}
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
-          <NetworkContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
+          <WalletContextProvider
+            LockedComponent={LockScreen}
+            LoadingComponent={LoadingScreen}
+          />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
