@@ -272,7 +272,6 @@ export function SwapContextProvider({
     (
       metadata: NormalizedSwapQuoteResult['selected']['metadata'],
       swapSide: SwapSide,
-      slippage: number,
       skipFeeDeduction = false,
     ) => {
       // Set amountOut for sell side
@@ -283,9 +282,7 @@ export function SwapContextProvider({
         typeof amountOut === 'string'
       ) {
         setDestAmount(
-          skipFeeDeduction
-            ? amountOut
-            : applyFeeDeduction(amountOut, swapSide, slippage),
+          skipFeeDeduction ? amountOut : applyFeeDeduction(amountOut, swapSide),
         );
       }
       // Set amountIn for buy side
@@ -296,9 +293,7 @@ export function SwapContextProvider({
         typeof amountIn === 'string'
       ) {
         setSrcAmount(
-          skipFeeDeduction
-            ? amountIn
-            : applyFeeDeduction(amountIn, swapSide, slippage),
+          skipFeeDeduction ? amountIn : applyFeeDeduction(amountIn, swapSide),
         );
       }
     },
@@ -360,7 +355,7 @@ export function SwapContextProvider({
             setQuotes(update);
             const selected = update.selected;
             // Set amounts based on the swap side
-            setAmounts(selected.metadata, swapSide, Number(slippageTolerance));
+            setAmounts(selected.metadata, swapSide);
           },
         })
           .then((result) => {
@@ -372,7 +367,6 @@ export function SwapContextProvider({
               setAmounts(
                 metadata,
                 swapSide,
-                Number(slippageTolerance),
                 result.provider === SwapProviders.WNATIVE,
               );
               // Check balance here
