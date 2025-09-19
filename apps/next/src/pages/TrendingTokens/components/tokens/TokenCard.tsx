@@ -39,7 +39,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const [showBuyButton, setShowBuyButton] = useState(false);
 
   // For the buy button and price info to be aligned to avoid the card layout shifting when the buy button is shown or hidden
-  const [fixedWidth, setFixedWidth] = useState<number | undefined>(undefined);
+  const [fixedWidth, setFixedWidth] = useState<number>(120); // Default reasonable width
   const buyButtonRef = useRef<HTMLDivElement>(null);
   const priceInfoRef = useRef<HTMLDivElement>(null);
 
@@ -122,13 +122,16 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
         pb={1}
         borderBottom={last ? undefined : '1px solid'}
         borderColor={last ? undefined : 'divider'}
+        width={`calc(100% - 52px)`} // 36px (avatar) + 16px (gaps)
       >
         {/* Middle left side - Token info */}
-        <Stack>
-          <Typography variant="body3">
+        <Stack width={`calc(100% - ${fixedWidth}px)`} minWidth={0}>
+          {/* Setting the width to force the truncate to happen when the name is too
+          long */}
+          <Typography variant="body3" noWrap>
             {rank}. {token.name}
           </Typography>
-          <Typography color="text.secondary" variant="body3">
+          <Typography color="text.secondary" variant="body3" noWrap>
             {token.symbol}
           </Typography>
         </Stack>
