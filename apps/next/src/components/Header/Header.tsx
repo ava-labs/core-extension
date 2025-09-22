@@ -141,6 +141,14 @@ export const Header = () => {
                   display: 'block',
                   opacity: 1,
                 },
+                '.overlay-exit.prompt-background': {
+                  display: 'block',
+                  opacity: 1,
+                },
+                '.overlay-exit-done.prompt-background': {
+                  display: 'block',
+                  opacity: 0,
+                },
               }}
             >
               <PromptButtonBackground
