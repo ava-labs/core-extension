@@ -92,7 +92,6 @@ export function SwapContextProvider({
   );
 
   useEffect(() => {
-    // If no network is set, use the active network.
     // TODO: Cleanup once legacy app is gone -- new app uses setSwapNetwork() explicitly.
     setSwapNetwork(activeNetwork);
   }, [activeNetwork]);
