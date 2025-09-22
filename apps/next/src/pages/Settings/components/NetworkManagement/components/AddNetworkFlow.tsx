@@ -1,17 +1,76 @@
-import { PageTopBar } from '@/components/PageTopBar';
-import { Stack } from '@avalabs/k2-alpine';
+import { useState } from 'react';
+import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
+import { useHistory } from 'react-router-dom';
+import { toast } from '@avalabs/k2-alpine';
+import { useTranslation } from 'react-i18next';
+import { AddNetworkFormView } from './NetworkForm/types';
+import { NetworkDetails } from './NetworkDetails';
+import { useAddNetwork } from '../hooks/useAddNetwork';
 
 export const AddNetworkFlow = () => {
+  const history = useHistory();
+  const { t } = useTranslation();
+  const { network, setNetwork, reset, isValid, submit, fieldInfo } =
+    useAddNetwork();
+
+  const [view, setView] = useState<AddNetworkFormView>('details');
+
+  const goBackToNetworks = () => {
+    reset();
+    history.replace('/settings/networks');
+  };
+
+  const submitHandler = async () => {
+    try {
+      await submit();
+      toast.success(t('Network added'));
+      goBackToNetworks();
+    } catch (error) {
+      console.error(error);
+      toast.error(t('Failed to add network'));
+    }
+  };
+
+  const cancel = () => {
+    goBackToNetworks();
+  };
+
   return (
-    <Stack
-      height="100cqh"
-      width={1}
-      bgcolor="background.backdrop"
-      overflow="hidden"
-      sx={{ position: 'relative' }}
-    >
-      <PageTopBar showBack={true} />
-      <div>AddNetworkFlow</div>;
-    </Stack>
+    <>
+      {view === 'details' && (
+        <NetworkDetails
+          network={network}
+          setNetwork={setNetwork}
+          setView={(newView) => {
+            if (newView === 'details' || newView === 'rpc-headers') {
+              setView(newView);
+            }
+          }}
+          onSubmit={submitHandler}
+          onCancel={cancel}
+          isValid={isValid}
+          fieldInfo={fieldInfo}
+          canResetRpcUrl={false}
+          autoFocus={true}
+          isEditing={true}
+          setIsEditing={() => {}}
+          onDelete={() => {}}
+          isCustom={true}
+          pageType={'add'}
+        />
+      )}
+      {view === 'rpc-headers' && (
+        <CustomRpcHeadersManager
+          setView={(newView) => {
+            if (newView === 'details' || newView === 'rpc-headers') {
+              setView(newView);
+            }
+          }}
+          setNetwork={setNetwork}
+          network={network}
+          readonly={false}
+        />
+      )}
+    </>
   );
 };

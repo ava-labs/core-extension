@@ -9,7 +9,13 @@ import {
 } from '@avalabs/k2-alpine';
 import { AccountType } from '@core/types';
 import { openFullscreenTab } from '@core/common';
-import { useAccountsContext, useAnalyticsContext } from '@core/ui';
+import {
+  LedgerAppType,
+  useAccountsContext,
+  useAnalyticsContext,
+  useLedgerContext,
+  useWalletContext,
+} from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaSquareCaretUp } from 'react-icons/fa6';
@@ -23,11 +29,17 @@ const underDevelopmentClick = () => toast.error('Under development');
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const { isLedgerWallet } = useWalletContext();
+  const { hasLedgerTransport, appType } = useLedgerContext();
 
   const { addAccount, accounts, selectAccount } = useAccountsContext();
   const { goBack, push } = useHistory();
 
   const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
+
+  const canAddNewAccount =
+    !isLedgerWallet ||
+    (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
 
   const goToImportKeystoreFileScreen = useCallback(() => {
     capture('AddWalletWithKeystoreFile_Clicked');
@@ -42,12 +54,18 @@ export const AddOrConnectWallet: FC = () => {
   return (
     <Stack gap={2} height={1}>
       <Typography variant="h2" paddingInlineEnd={12} paddingBlockEnd={0.5}>
-        {t('Add or connect a wallet')}
+        {t('Add an account or connect a wallet')}
       </Typography>
       <Card>
         <List disablePadding dense>
           {isPrimaryAccount && (
             <AccountListItem
+              tooltip={
+                canAddNewAccount
+                  ? ''
+                  : t('Connect your Ledger device and open the Avalanche app')
+              }
+              disabled={!canAddNewAccount}
               Icon={MdAdd}
               primary={t('Create new account')}
               secondary={t('Generate a new account in your active wallet')}
@@ -57,6 +75,10 @@ export const AddOrConnectWallet: FC = () => {
                   .then(goBack)
                   .then(() => {
                     toast.success(t('Account created successfully'));
+                  })
+                  .catch((error) => {
+                    toast.error(t('Account creation failed'));
+                    console.error(error);
                   })
               }
             />

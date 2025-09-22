@@ -1,57 +1,23 @@
-import { useCallback } from 'react';
-import { Stack } from '@avalabs/k2-alpine';
-import { DisplayData, TokenType } from '@avalabs/vm-module-types';
+import { DisplayData } from '@avalabs/vm-module-types';
 
 import { ActionStatus } from '@core/types';
-import {
-  useApproveAction,
-  useGetRequestId,
-  useLiveBalance,
-  useNetworkContext,
-} from '@core/ui';
+import { useApproveAction, useGetRequestId, useNetworkContext } from '@core/ui';
 
 import {
-  ActionDetails,
   ActionDrawer,
-  ApprovalScreenTitle,
   LoadingScreen,
-  Styled,
   UnsupportedNetworkScreen,
-  MaliciousTxOverlay,
-  NoteWarning,
 } from './components';
-import { hasNoteWarning, hasOverlayWarning } from './lib';
-import { useGasless } from './hooks';
-
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20]; // Approval screen should always have the latest balance
+import { isMessageApproval, isTransactionApproval } from './types';
+import { TransactionApprovalScreen } from './TransactionApprovalScreen';
+import { MessageApprovalScreen } from './MessageApprovalScreen';
 
 export const GenericApprovalScreen = () => {
-  useLiveBalance(POLLED_BALANCES);
   const requestId = useGetRequestId();
   const { getNetwork, networks } = useNetworkContext();
 
   const { action, updateAction, cancelHandler, error } =
     useApproveAction<DisplayData>(requestId);
-
-  const { tryFunding, setGaslessDefaultValues } = useGasless({ action });
-
-  const approve = useCallback(async () => {
-    tryFunding(() => {
-      updateAction(
-        {
-          status: ActionStatus.SUBMITTING,
-          id: requestId,
-        },
-        false, // TODO: handle hardware wallets
-      );
-    });
-  }, [updateAction, requestId, tryFunding]);
-
-  const cancel = useCallback(() => {
-    // Reset the gasless state
-    setGaslessDefaultValues();
-    cancelHandler();
-  }, [cancelHandler, setGaslessDefaultValues]);
 
   const network = action ? getNetwork(action.scope) : undefined;
 
@@ -68,35 +34,39 @@ export const GenericApprovalScreen = () => {
     // TODO: Should we still allow approvals?
     return (
       <UnsupportedNetworkScreen>
-        <ActionDrawer open reject={cancel} action={action} />
+        <ActionDrawer
+          open
+          reject={cancelHandler}
+          isProcessing={action.status === ActionStatus.SUBMITTING}
+        />
       </UnsupportedNetworkScreen>
     );
   }
 
-  return (
-    <Styled.ApprovalScreenPage>
-      <Styled.NoScrollStack>
-        <ApprovalScreenTitle title={action.displayData.title} />
-        {hasNoteWarning(action) && (
-          <NoteWarning alert={action.displayData.alert} />
-        )}
-        <Stack flexGrow={1} px={2}>
-          <ActionDetails
-            network={network}
-            action={action}
-            updateAction={updateAction}
-            error={error}
-          />
-        </Stack>
-        <ActionDrawer open approve={approve} reject={cancel} action={action} />
-      </Styled.NoScrollStack>
-      {hasOverlayWarning(action) && (
-        <MaliciousTxOverlay
-          open={hasOverlayWarning(action)}
-          cancelHandler={cancelHandler}
-          alert={action.displayData.alert}
-        />
-      )}
-    </Styled.ApprovalScreenPage>
-  );
+  if (isTransactionApproval(action)) {
+    return (
+      <TransactionApprovalScreen
+        action={action}
+        network={network}
+        updateAction={updateAction}
+        cancelHandler={cancelHandler}
+        error={error}
+      />
+    );
+  }
+
+  if (isMessageApproval(action)) {
+    return (
+      <MessageApprovalScreen
+        action={action}
+        network={network}
+        updateAction={updateAction}
+        cancelHandler={cancelHandler}
+        error={error}
+      />
+    );
+  }
+
+  // TODO: Neither transaction nor a message approval. How did we get here? What do we do?
+  return null;
 };

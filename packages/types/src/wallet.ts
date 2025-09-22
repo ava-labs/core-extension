@@ -36,7 +36,24 @@ export type SignTransactionRequest =
   | BtcTransactionRequest
   | AvalancheTransactionRequest
   | HVMTransactionRequest
-  | SolanaSigningRequest;
+  | SolanaSigningRequest
+  | AvalancheNewTransactionRequest;
+
+export type AvalancheNewTransactionRequest = Extract<
+  SigningData,
+  {
+    type:
+      | RpcMethod.AVALANCHE_SIGN_TRANSACTION
+      | RpcMethod.AVALANCHE_SEND_TRANSACTION;
+  }
+>;
+
+export const isAvalancheModuleTransactionRequest = (
+  sigReq: SignTransactionRequest,
+): sigReq is AvalancheNewTransactionRequest =>
+  'type' in sigReq &&
+  (sigReq.type === RpcMethod.AVALANCHE_SIGN_TRANSACTION ||
+    sigReq.type === RpcMethod.AVALANCHE_SEND_TRANSACTION);
 
 export const isSolanaRequest = (
   sigReq: SignTransactionRequest,
@@ -224,3 +241,36 @@ export type ImportWalletResult = {
   name?: string;
   id: string;
 };
+
+export const MESSAGE_SIGNING_METHODS = [
+  RpcMethod.SOLANA_SIGN_MESSAGE,
+  RpcMethod.AVALANCHE_SIGN_MESSAGE,
+  RpcMethod.SIGN_TYPED_DATA_V3,
+  RpcMethod.SIGN_TYPED_DATA_V4,
+  RpcMethod.SIGN_TYPED_DATA_V1,
+  RpcMethod.SIGN_TYPED_DATA,
+  RpcMethod.PERSONAL_SIGN,
+  RpcMethod.ETH_SIGN,
+] satisfies RpcMethod[];
+
+export type MessageSigningMethod = (typeof MESSAGE_SIGNING_METHODS)[number];
+
+export type TransactionSigningMethod = Exclude<RpcMethod, MessageSigningMethod>;
+
+export type ExtractSigningData<T extends RpcMethod> = Extract<
+  SigningData,
+  { type: T }
+>;
+
+export type MessageSigningData = ExtractSigningData<MessageSigningMethod>;
+
+export const isMessageSigningMethod = (
+  method: unknown,
+): method is MessageSigningMethod => {
+  return (
+    typeof method === 'string' &&
+    (MESSAGE_SIGNING_METHODS as RpcMethod[]).includes(method as RpcMethod)
+  );
+};
+
+export type ExternaSignerType = 'ledger' | 'keystone-qr' | 'keystone-usb';

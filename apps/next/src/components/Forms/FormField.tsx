@@ -18,6 +18,8 @@ import { MultiIconButton } from '@/components/MultiIconButton';
 import { InvisibleFieldInput } from './InvisibleInput';
 
 type FormFieldProps = {
+  type?: 'text' | 'number';
+  pattern?: string;
   value: string;
   label: string;
   placeholder: string;
@@ -31,6 +33,8 @@ type FormFieldProps = {
 };
 
 export const FormField = ({
+  type = 'text',
+  pattern,
   value,
   label,
   placeholder,
@@ -48,6 +52,16 @@ export const FormField = ({
   const ref = useRef<HTMLInputElement>(null);
 
   const [isHovered, setIsHovered] = useState(false);
+  const [wasTouched, setWasTouched] = useState(false);
+
+  const showPrompt = Boolean(value || isEditing || (wasTouched && required));
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setWasTouched(true);
+      onChange(e.target.value);
+    },
+    [onChange],
+  );
 
   useEffect(() => {
     if (isEditing && ref.current) {
@@ -57,8 +71,6 @@ export const FormField = ({
 
   const showCopyButton =
     allowCopy && !error && !!value && !isEditing && isHovered;
-
-  const showPrompt = Boolean(value || isEditing || required);
 
   const onActionClick = useCallback(() => {
     if (showPrompt) {
@@ -98,12 +110,14 @@ export const FormField = ({
           >
             <Stack component="label" onClick={() => setIsEditing(true)}>
               <InvisibleFieldInput
+                type={type}
                 ref={ref}
                 value={value}
                 placeholder={placeholder}
-                onChange={(e) => onChange(e.target.value)}
+                onChange={handleChange}
                 onBlur={() => delay(() => setIsEditing(false), 100)}
                 readOnly={readOnly}
+                pattern={pattern}
               />
 
               <Collapse in={!isEditing} orientation="vertical">
