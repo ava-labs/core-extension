@@ -85,6 +85,7 @@ export const AIDialog = ({
             wordWrap: 'break-word',
             height: '100%',
             overflow: 'hidden',
+            wordBreak: 'break-word',
           }}
         >
           {lastMessage && !isTextTyped && (

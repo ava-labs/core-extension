@@ -44,7 +44,6 @@ export const Concierge = () => {
             left: '-150px',
             width: '600px',
             height: '600px',
-            // opacity: 0.05,
             animation: `15s ${promptBackgroundAnimation} ease-in infinite`,
           }}
         />
@@ -53,7 +52,6 @@ export const Concierge = () => {
             sx={{
               height: '100%',
               width: '100%',
-              // position: 'relative',
             }}
           >
             <Scrollbars
@@ -62,9 +60,6 @@ export const Concierge = () => {
             >
               <Stack sx={{ p: 1.5, flexGrow: 1 }}>
                 {prompts.map((message, i) => {
-                  console.log('message: ', message);
-                  console.log('index: ', i);
-                  console.log('prompts.length: ', prompts.length);
                   if (message.role === 'model') {
                     return (
                       <AIDialog
