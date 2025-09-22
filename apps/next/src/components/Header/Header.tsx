@@ -1,15 +1,12 @@
 import {
   Box,
-  Button,
   getHexAlpha,
-  keyframes,
   Stack,
-  styled,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { MdOutlineUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { PersonalAvatar } from '../PersonalAvatar';
@@ -17,145 +14,13 @@ import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
 import { useTranslation } from 'react-i18next';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-
-CSS.registerProperty({
-  name: '--angle',
-  syntax: '<angle>',
-  inherits: false,
-  initialValue: '0deg',
-});
-
-const AccountInfo = styled(Stack)`
-  cursor: pointer;
-  border-radius: 10px;
-  padding: ${({ theme }) => theme.spacing(0.5)};
-  transition: ${({ theme }) =>
-    theme.transitions.create(['background', 'opacity'])};
-  flex-direction: row;
-  align-items: center;
-  & > svg {
-    opacity: 0;
-  }
-`;
-
-const AccountSelectContainer = styled(Stack)`
-  cursor: pointer;
-  position: relative;
-  &:hover > div:first-of-type {
-    background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
-    & > svg {
-      opacity: 1;
-    }
-  }
-`;
-
-const promptTextAnimation = keyframes`
-  0% {
-    opacity: 0;
-    transform: translate3d(25%, 0px, 0px);
-  }
-  20% {
-    opacity: 1;
-    transform: translate3d(0px, 0px, 0px);
-  }
-  80% {
-    opacity: 1;
-    transform: translate3d(0px, 0px, 0px);
-  }
-  100% {
-    opacity: 0;
-    transform: translate3d(25%, 0px, 0px);
-  }
-`;
-const TextAnimation = styled('span')`
-  animation: 6000ms ease 0s infinite normal none running ${promptTextAnimation};
-`;
-
-const promptBackgroundAnimation = keyframes`
-  to {
-	  --angle: 360deg;
-	}
-`;
-
-const AnimatedButton = styled(Button)(({ theme }) => ({
-  width: '90px',
-  height: '3px',
-  top: '7px',
-  left: '50%',
-  padding: 0,
-  transform: 'translateX(-50%)',
-  transition: `width 500ms linear,
-			top 500ms linear,
-			left 500ms linear,
-      opacity 1000ms ease-in-out,
-      height 500ms ease-in-out,
-      transform 5550ms ease-in-out`,
-  zIndex: theme.zIndex.appBar + 1,
-  [`${Box}`]: {
-    display: 'none',
-  },
-  span: {
-    display: 'none',
-    opacity: '0',
-    transition: `opacity 400ms linear, transform 600ms ease-in-out`,
-    transform: 'scale(0)',
-    h6: {
-      transition: `opacity 1000ms linear, transform 600ms ease-in-out`,
-      opacity: '0',
-      transform: 'scale(0)',
-    },
-  },
-  '&.button-enter': {
-    span: {
-      display: 'inline',
-    },
-  },
-  '&.button-enter-active': {
-    span: {
-      // opacity: '1',
-      // h6: {
-      //   transition: `opacity 11000ms linear`,
-      // },
-    },
-  },
-  '&.button-enter-done': {
-    height: '42px',
-    width: '100%',
-    span: {
-      opacity: '1',
-      display: 'inline',
-      transform: 'scale(1)',
-      h6: {
-        opacity: '1',
-        transform: 'scale(1)',
-      },
-    },
-  },
-}));
-
-export const PromptButtonBackground = styled(Stack)(({ theme }) => ({
-  // display: isHidden ? 'none' : 'flex',
-  background: `conic-gradient(
-      from var(--angle),
-      rgba(255, 255, 255, 0) 0deg,
-      #B0FF18 30deg,
-      #A1FF68 60deg,
-      #26F2FF 120deg,
-      #7748FF 180deg,
-      #FF048C 260deg,
-      rgba(255, 255, 255, 0) 330deg
-    )`,
-  animation: `10s ${promptBackgroundAnimation} linear infinite`,
-  borderRadius: 999,
-  filter: `blur(50px)`,
-  position: 'absolute',
-  top: -100,
-  left: 0,
-  height: '200px',
-  width: '345px',
-  zIndex: theme.zIndex.appBar,
-  pointerEvents: 'none',
-}));
+import {
+  AccountInfo,
+  AccountSelectContainer,
+  AnimatedButton,
+  PromptButtonBackground,
+  TextAnimation,
+} from './components/styledComponents';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
@@ -167,28 +32,17 @@ export const Header = () => {
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
   const [isHoverAreaHidden, setIsHoverAreaHidden] = useState(false);
 
-  const [index, setIndex] = useState(0);
-  const buttonLabels = useMemo(() => {
-    return [
-      t('Ask Core Concierge to send crypto'),
-      t('Ask Core Concierge to swap tokens'),
-      t('Ask Core Concierge to bridge tokens'),
-      t('Ask Core Concierge to transfer for you'),
-      t('Ask Core Concierge to manage accounts'),
-    ].sort(() => 0.5 - Math.random());
-  }, [t]);
+  const buttonLabels = [
+    t('Ask Core Concierge to send crypto'),
+    t('Ask Core Concierge to swap tokens'),
+    t('Ask Core Concierge to bridge tokens'),
+    t('Ask Core Concierge to transfer for you'),
+    t('Ask Core Concierge to manage accounts'),
+  ];
 
-  useEffect(() => {
-    const getNextLabel = () =>
-      setIndex((i) => {
-        if (i >= buttonLabels.length - 1) {
-          return 0;
-        }
-        return i + 1;
-      });
-    const id = setInterval(getNextLabel, 6000);
-    return () => clearInterval(id);
-  }, [buttonLabels.length]);
+  const getRandomButtonLabel = () => {
+    return buttonLabels[Math.floor(Math.random() * buttonLabels.length)];
+  };
 
   const nodeRef = useRef(null);
   const nodeRef2 = useRef(null);
@@ -256,9 +110,7 @@ export const Header = () => {
           height: '60px',
           position: 'absolute',
           top: '56px',
-          // background: 'red',
           zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip + 1,
-          // pointerEvents: isAIBackdropOpen ? 'none' : 'all',
         }}
         onMouseEnter={() => {
           setIsAIBackdropOpen(true);
@@ -273,7 +125,6 @@ export const Header = () => {
             appear
             exit
             in={isAIBackdropOpen}
-            // in
             nodeRef={nodeRef2}
           >
             <Stack
@@ -284,9 +135,7 @@ export const Header = () => {
                   transition: `opacity 400ms linear`,
                 },
                 '.overlay-enter.prompt-background': {
-                  // '.prompt-background': {
                   display: 'block',
-                  // },
                 },
                 '.overlay-enter-done.prompt-background': {
                   display: 'block',
@@ -384,7 +233,7 @@ export const Header = () => {
                 </Box>
                 <TextAnimation>
                   <Typography variant="subtitle3">
-                    {buttonLabels[index]}
+                    {isAIBackdropOpen && getRandomButtonLabel()}
                   </Typography>
                 </TextAnimation>
               </AnimatedButton>

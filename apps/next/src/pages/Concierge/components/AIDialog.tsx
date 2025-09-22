@@ -83,7 +83,6 @@ export const AIDialog = ({
             borderTopLeftRadius: '3px',
             justifySelf: 'flex-start',
             wordWrap: 'break-word',
-            // marginLeft: -1,
             height: '100%',
             overflow: 'hidden',
           }}
