@@ -5,7 +5,7 @@ import {
 } from '@core/types';
 import { Avatar, Box, Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { formatCurrency } from '../../utils/formatAmount';
 import upIcon from '../../assets/up.svg';
@@ -37,9 +37,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const { push } = useHistory();
 
   const [showBuyButton, setShowBuyButton] = useState(false);
-
-  const buyButtonRef = useRef<HTMLDivElement>(null);
-  const priceInfoRef = useRef<HTMLDivElement>(null);
 
   const formattedPercent = token.price24hChangePercent
     ? Math.abs(token.price24hChangePercent)?.toFixed(2).toString() + '%'
@@ -137,7 +134,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
             justifyContent="flex-end"
           >
             <Box
-              ref={buyButtonRef}
               display={showBuyButton ? 'block' : 'none'}
               alignItems="flex-end"
             >
@@ -157,7 +153,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
               </Button>
             </Box>
             <Stack
-              ref={priceInfoRef}
               alignItems="flex-end"
               display={showBuyButton ? 'none' : 'flex'}
             >
