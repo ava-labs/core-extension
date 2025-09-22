@@ -20,6 +20,7 @@ import {
 import {
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
+  AvalancheCaip2ChainId,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
@@ -35,7 +36,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import { isPchainNetwork } from '@core/common';
+import { buildCoreEth, isPchainNetwork } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from '@core/common';
 import { runtime } from 'webextension-polyfill';
@@ -527,6 +528,12 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getNetwork(
     scopeOrChainId: string | number,
   ): Promise<NetworkWithCaipId | undefined> {
+    if (
+      scopeOrChainId === AvalancheCaip2ChainId.C ||
+      scopeOrChainId === AvalancheCaip2ChainId.C_TESTNET
+    ) {
+      return this.getCoreEthNetwork();
+    }
     const chainId =
       typeof scopeOrChainId === 'string'
         ? scopeOrChainId.startsWith('0x')
@@ -554,6 +561,12 @@ export class NetworkService implements OnLock, OnStorageReady {
       throw new Error('Avalanche network not found');
     }
     return network;
+  }
+
+  // We don't want to list CoreEth network, so we have a dedicated method to get it
+  // for signing things
+  async getCoreEthNetwork() {
+    return buildCoreEth(await this.getAvalancheNetwork());
   }
 
   /**
@@ -665,7 +678,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this._customNetworks = {
       ...this._customNetworks,
-      [chainId]: omit(customNetwork, 'customRpcHeaders') as NetworkWithCaipId, // should be saved in overrides
+      [chainId]: customNetwork,
     };
 
     this._allNetworks.dispatch({

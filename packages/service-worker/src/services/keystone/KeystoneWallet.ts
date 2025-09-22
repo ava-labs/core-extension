@@ -237,7 +237,7 @@ export class KeystoneWallet {
   async signMessage(
     messageType: MessageType,
     messageParams: MessageParams,
-  ): Promise<string | Buffer> {
+  ): Promise<string> {
     switch (messageType) {
       case MessageType.AVALANCHE_SIGN: {
         throw new Error('AVALANCHE_SIGN not supported');

@@ -1,5 +1,10 @@
 import Joi from 'joi';
-import { MessageType } from '@core/types';
+import {
+  isMessageSigningMethod,
+  MessageSigningMethod,
+  MessageType,
+} from '@core/types';
+import { rpcMethodToMessageType } from './rpcMethodToMessageType';
 
 type TypedMessage = {
   types: {
@@ -29,13 +34,16 @@ const TYPED_MESSAGE_SCHEMA = Joi.object<TypedMessage>({
 }).required();
 
 const ensureMessageFormatIsValid = (
-  messageType: MessageType,
+  messageType: MessageType | MessageSigningMethod,
   data: Record<string, unknown>,
   activeChainId: number,
 ) => {
+  const normalized = isMessageSigningMethod(messageType)
+    ? rpcMethodToMessageType(messageType)
+    : messageType;
   if (
-    messageType === MessageType.SIGN_TYPED_DATA_V3 ||
-    messageType === MessageType.SIGN_TYPED_DATA_V4
+    normalized === MessageType.SIGN_TYPED_DATA_V3 ||
+    normalized === MessageType.SIGN_TYPED_DATA_V4
   ) {
     const validationResult = TYPED_MESSAGE_SCHEMA.validate(data);
 

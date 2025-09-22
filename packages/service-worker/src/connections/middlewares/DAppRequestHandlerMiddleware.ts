@@ -49,9 +49,8 @@ export function DAppRequestHandlerMiddleware(
         ? handler.handleAuthenticated(params)
         : handler.handleUnauthenticated(params);
     } else {
-      const [module] = await resolve(
-        moduleManager.loadModule(context.request.params.scope, method),
-      );
+      const scope = context.network?.caipId || context.request.params.scope;
+      const [module] = await resolve(moduleManager.loadModule(scope, method));
 
       if (!context.network) {
         promise = Promise.reject(ethErrors.provider.disconnected());
@@ -60,6 +59,7 @@ export function DAppRequestHandlerMiddleware(
           e.handle<unknown, unknown>({
             ...context.request.params.request,
             id: crypto.randomUUID(),
+
             jsonrpc: '2.0',
           }),
         );
@@ -83,7 +83,11 @@ export function DAppRequestHandlerMiddleware(
             params: context.request.params.request.params,
             // Do not pass context from unknown sources.
             // This field is for our internal use only (only used with extension's direct connection)
-            context: undefined,
+            context: {
+              currentAddress: context.currentAddress,
+              currentEvmAddress: context.currentEvmAddress,
+              xpubXP: context.xpubXP,
+            },
           },
           context.network,
         );

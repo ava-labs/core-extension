@@ -29,6 +29,7 @@ export enum DAppProviderRequest {
   AVALANCHE_UPDATE_CONTACT = 'avalanche_updateContact',
   AVALANCHE_REMOVE_CONTACT = 'avalanche_removeContact',
   AVALANCHE_GET_ACCOUNTS = 'avalanche_getAccounts',
+  AVALANCHE_ADD_ACCOUNT = 'avalanche_addAccount',
   AVALANCHE_GET_ADDRESSES_IN_RANGE = 'avalanche_getAddressesInRange',
   AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
