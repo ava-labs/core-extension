@@ -34,7 +34,7 @@ type CardMenuItemProps = {
       link: string;
     }
   | {
-      onClick: () => void;
+      onClick?: () => void;
     }
 );
 
@@ -49,14 +49,18 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
   const theme = useTheme();
 
   const onClick =
-    'onClick' in props ? props.onClick : () => history.push(props.link);
+    'onClick' in props
+      ? props.onClick
+      : 'link' in props
+        ? () => history.push(props.link)
+        : undefined;
 
   return (
     <CardMenuItemContainer
       onClick={onClick}
       sx={{
-        gap: size === 'small' ? theme.spacing(1.5) : theme.spacing(3),
-        paddingX: size === 'small' ? theme.spacing(1.5) : theme.spacing(2.5),
+        gap: theme.spacing(size === 'small' ? 1.5 : 3),
+        paddingX: theme.spacing(size === 'small' ? 1.5 : 2.5),
       }}
     >
       {icon}

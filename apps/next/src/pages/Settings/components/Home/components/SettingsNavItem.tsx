@@ -15,8 +15,8 @@ type OwnProps = {
   href?: string;
   label: string;
   description?: string;
-  labelTpyographyVariant?: 'subtitle3';
-  descriptionTpyographyVariant?: 'caption2';
+  labelVariant?: 'subtitle3';
+  descriptionVariant?: 'caption2';
 };
 type SettingsNavItemProps = Omit<ListItemProps, 'onClick'> & OwnProps;
 
@@ -26,8 +26,8 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   children,
   href,
   secondaryAction,
-  labelTpyographyVariant, // --- IGNORE ---
-  descriptionTpyographyVariant, // --- IGNORE ---
+  labelVariant,
+  descriptionVariant,
   ...props
 }) => {
   const history = useHistory();
@@ -64,10 +64,10 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
       <ListItemText
         slotProps={{
           primary: {
-            variant: labelTpyographyVariant || 'subtitle1',
+            variant: labelVariant || 'subtitle1',
           },
           secondary: {
-            variant: descriptionTpyographyVariant || 'caption',
+            variant: descriptionVariant || 'caption',
             marginTop: 0.5,
           },
         }}

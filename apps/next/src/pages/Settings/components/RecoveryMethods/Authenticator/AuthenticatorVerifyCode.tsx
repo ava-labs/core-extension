@@ -1,5 +1,25 @@
-import { Button, Paper, Stack, toast, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  Paper,
+  Stack,
+  styled,
+  toast,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+
+const CodePaper = styled(Paper)(() => ({
+  borderRadius: 2,
+  overflow: 'hidden',
+  width: '100%',
+  flexDirection: 'row',
+  px: 1.5,
+  py: 2,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  mt: 4,
+}));
 
 export const AuthenticatorVerifyCode = ({ totpSecret, onNext }) => {
   const { t } = useTranslation();
@@ -11,21 +31,7 @@ export const AuthenticatorVerifyCode = ({ totpSecret, onNext }) => {
       height="100%"
       width="100%"
     >
-      <Paper
-        elevation={1}
-        sx={{
-          borderRadius: 2,
-          overflow: 'hidden',
-          width: '100%',
-          flexDirection: 'row',
-          px: 1.5,
-          py: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          mt: 4,
-        }}
-      >
+      <CodePaper elevation={1} sx={{}}>
         <Typography
           variant="body2"
           color="text.primary"
@@ -44,7 +50,7 @@ export const AuthenticatorVerifyCode = ({ totpSecret, onNext }) => {
         >
           {t('Copy')}
         </Button>
-      </Paper>
+      </CodePaper>
       {/** TODO: Put the description sections with ICONS after they put in the k2 alpine */}
       <Button onClick={onNext} color="primary" variant="contained" fullWidth>
         {t('Next')}

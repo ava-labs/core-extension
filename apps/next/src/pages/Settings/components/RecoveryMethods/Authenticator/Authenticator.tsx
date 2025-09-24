@@ -70,10 +70,6 @@ export const Authenticator: FC = () => {
     ),
   };
 
-  const onBack = useCallback(() => {
-    goBack();
-  }, [goBack]);
-
   const onCodeSubmit = useCallback(async () => {
     setIsSubmitted(true);
     if (!totpChallenge) {
@@ -96,7 +92,7 @@ export const Authenticator: FC = () => {
       title={headline[screenState]}
       withBackButton
       contentProps={{ justifyContent: 'flex-start', alignItems: 'start' }}
-      onBack={onBack}
+      onBack={goBack}
     >
       <Typography variant="caption">{description[screenState]}</Typography>
       {screenState === AuthenticatorState.Initial && (

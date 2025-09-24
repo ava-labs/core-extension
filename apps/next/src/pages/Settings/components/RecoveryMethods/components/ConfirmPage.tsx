@@ -11,31 +11,30 @@ export const ConfirmPage = ({ onConfirm, onCancel, title, warning }) => {
       <Page
         title={title}
         contentProps={{
+          height: 1,
           alignItems: 'stretch',
-          justifyContent: 'flex-start',
+          justifyContent: 'space-between',
         }}
         onBack={onCancel}
       >
-        <Stack justifyContent="space-between" height="100%">
-          <RecoveryMethodFailure text={warning} />
-          <Stack gap={1}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="extension"
-              onClick={onConfirm}
-            >
-              {t('Next')}
-            </Button>
-            <Button
-              variant="contained"
-              color="secondary"
-              size="extension"
-              onClick={onCancel}
-            >
-              {t('Back')}
-            </Button>
-          </Stack>
+        <RecoveryMethodFailure text={warning} />
+        <Stack gap={1}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="extension"
+            onClick={onConfirm}
+          >
+            {t('Next')}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            size="extension"
+            onClick={onCancel}
+          >
+            {t('Back')}
+          </Button>
         </Stack>
       </Page>
     </SlideUpDialog>

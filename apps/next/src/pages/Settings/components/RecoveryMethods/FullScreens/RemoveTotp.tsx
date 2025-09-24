@@ -11,8 +11,8 @@ import {
 
 import { useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
-import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
-import { FIDOChallenge } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/components/FIDOChallenge';
+import { useMFAEvents } from '../../common/useMFAEvent';
+import { FIDOChallenge } from '../../common/FIDOChallenge';
 import { useHistory } from 'react-router-dom';
 import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
 

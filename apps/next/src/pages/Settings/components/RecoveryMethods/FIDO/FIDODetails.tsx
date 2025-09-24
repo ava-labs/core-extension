@@ -11,7 +11,6 @@ export enum FIDOState {
 export const FIDODetails = ({ method }) => {
   return (
     <CardMenuItem
-      onClick={() => {}}
       icon={getIconForMethod(method)}
       text={method.name}
       key={method.toString()}

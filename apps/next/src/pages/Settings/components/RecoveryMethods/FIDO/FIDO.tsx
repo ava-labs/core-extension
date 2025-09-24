@@ -9,7 +9,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
-import { useMFAEvents } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA/hooks/useMFAEvent';
+import { useMFAEvents } from '../../common/useMFAEvent';
 import { AuthErrorCode, ExtensionRequest, MfaResponseData } from '@core/types';
 import { TotpCodeField } from '@/components/TotpCodeField';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
@@ -42,16 +42,16 @@ export const FIDO = () => {
     try {
       await removeFidoDevice(deviceId);
       toast.success(t('FIDO device removed!'));
-      history.push('/settings/recovery-methods');
     } catch {
       toast.error(t('Error occurred. Please try again.'));
+    } finally {
       history.push('/settings/recovery-methods');
     }
   }, [deviceId, history, removeFidoDevice, t]);
 
   useEffect(() => {
     remove();
-  }, [deviceId, remove, removeFidoDevice]);
+  }, [remove]);
 
   const submitCode = useCallback(
     async (params: MfaResponseData) => {

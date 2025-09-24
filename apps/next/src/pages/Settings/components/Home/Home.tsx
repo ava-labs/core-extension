@@ -111,8 +111,8 @@ export const SettingsHomePage = () => {
                 {t('Set up ')}
               </Button>
             }
-            labelTpyographyVariant="subtitle3"
-            descriptionTpyographyVariant="caption2"
+            labelVariant="subtitle3"
+            descriptionVariant="caption2"
             sx={{ borderBottom: 'none' }}
           />
         </Card>

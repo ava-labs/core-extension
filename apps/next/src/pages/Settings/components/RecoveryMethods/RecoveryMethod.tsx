@@ -13,6 +13,12 @@ interface RecoveryMethodProps {
   method: RecoveryMethodType;
 }
 
+const openRemoveTotpPopup = () =>
+  openFullscreenTab('update-recovery-method/totp/remove');
+
+const openAddTotpPopup = () =>
+  openFullscreenTab('update-recovery-method/totp/add');
+
 export const RecoveryMethod = ({ method }: RecoveryMethodProps) => {
   const { t } = useTranslation();
   const { hasTotpConfigured, hasFidoConfigured, recoveryMethods } =
@@ -23,23 +29,13 @@ export const RecoveryMethod = ({ method }: RecoveryMethodProps) => {
 
   const isRemovable =
     recoveryMethods.length > 1 && hasFidoConfigured && hasTotpConfigured;
-  const openRemoveTotpPopup = useCallback(async () => {
-    openFullscreenTab('update-recovery-method/totp/remove');
-  }, []);
-  const openAddTotpPopup = useCallback(async () => {
-    openFullscreenTab('update-recovery-method/totp/add');
-  }, []);
 
   const onRemoveConfirm = useCallback(() => {
     setIsConfirmOpen(false);
     return method.type === 'totp'
       ? openRemoveTotpPopup()
       : history.push(`/settings/recovery-method/fido/${method.id}`);
-  }, [history, method, openRemoveTotpPopup]);
-
-  const onChangeConfirm = useCallback(() => {
-    openAddTotpPopup();
-  }, [openAddTotpPopup]);
+  }, [history, method]);
 
   return (
     <>
@@ -56,7 +52,7 @@ export const RecoveryMethod = ({ method }: RecoveryMethodProps) => {
       {isChangeOpen && (
         <ConfirmPage
           title={t('Are you sure you want to change the authenticator?')}
-          onConfirm={onChangeConfirm}
+          onConfirm={openAddTotpPopup}
           onCancel={() => setIsChangeOpen(false)}
           warning={t(
             'You will no longer be able to use this authenticator once you switch. You will need to re-add an authenticator',

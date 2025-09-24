@@ -18,7 +18,7 @@ export const AuthenticatorVerifyTotp = ({
 }: AuthenticatorVerifyTotpProps) => {
   const totpError = useTotpErrorMessage(error);
   const keyboardShortcuts = useKeyboardShortcuts({
-    Enter: () => onSubmit && onSubmit(),
+    Enter: () => onSubmit?.(),
   });
   const { t } = useTranslation();
 

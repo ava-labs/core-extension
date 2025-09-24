@@ -15,7 +15,6 @@ export enum AuthenticatorState {
 export const AuthenticatorDetails = ({ method, methodName }) => {
   return (
     <CardMenuItem
-      onClick={() => {}}
       icon={getIconForMethod(method)}
       text={methodName}
       key={method.toString()}
