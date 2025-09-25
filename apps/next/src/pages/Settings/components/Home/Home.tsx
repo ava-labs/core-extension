@@ -60,7 +60,7 @@ export const SettingsHomePage = () => {
   const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
   const { featureFlags } = useFeatureFlagContext();
-  const areMfaSettingsAvailable =
+  const isMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
 
   return (
@@ -232,7 +232,7 @@ export const SettingsHomePage = () => {
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
 
         {walletDetails?.type === SecretType.Seedless &&
-          areMfaSettingsAvailable && (
+          isMfaSettingsAvailable && (
             <SettingsNavItem
               label={t('Recovery methods')}
               divider

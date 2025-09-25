@@ -26,8 +26,6 @@ export const SeedlessMfaLoginFlow: FC<SeedlessMfaLoginFlowProps> = ({
   const history = useHistory();
   const { registerBackButtonHandler, setTotal } = useModalPageControl();
   const { oidcToken, setSeedlessSignerToken } = useOnboardingContext();
-  // TODO: remove
-  console.log('oidcToken: ', oidcToken);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
