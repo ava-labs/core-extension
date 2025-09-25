@@ -724,6 +724,7 @@
   "You are about to exit the recovery phrase export process. Are you sure you want to exit?": "You are about to exit the recovery phrase export process. Are you sure you want to exit?",
   "You can now close this window and continue using Core.": "You can now close this window and continue using Core.",
   "You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees": "You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees",
+  "You cannot add a new recovery method for your wallet! Try again later!": "You cannot add a new recovery method for your wallet! Try again later!",
   "You do not have enough funds to cover the network fees.": "You do not have enough funds to cover the network fees.",
   "You may need to enable popups to continue, you can find this setting near the address bar.": "You may need to enable popups to continue, you can find this setting near the address bar.",
   "You must allow access to scan the QR code.": "You must allow access to scan the QR code.",
