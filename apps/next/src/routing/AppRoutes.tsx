@@ -1,21 +1,26 @@
 import { Route, Switch } from 'react-router-dom';
 
+import {
+  getBridgePath,
+  getContactsPath,
+  getSendPath,
+  getSwapPath,
+} from '@/config/routes';
 import AccountManagement from '@/pages/AccountManagement';
+import { Bridge } from '@/pages/Bridge';
+import { Concierge } from '@/pages/Concierge';
 import { Contacts } from '@/pages/Contacts';
+import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
+import { KeystoneUsbReconnect } from '@/pages/KeystoneUsb/Reconnect';
+import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
 import { Portfolio } from '@/pages/Portfolio';
 import { Receive } from '@/pages/Receive';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
-import { Concierge } from '@/pages/Concierge';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 import { Swap } from '@/pages/Swap';
-
-import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
-import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
-import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
-import { KeystoneUsbReconnect } from '@/pages/KeystoneUsb/Reconnect';
-import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
+import { TrendingTokens } from '@/pages/TrendingTokens';
 
 export const AppRoutes = () => (
   <Switch>
@@ -34,6 +39,7 @@ export const AppRoutes = () => (
     <Route path="/trending" component={TrendingTokens} />
     <Route path={getSwapPath()} component={Swap} />
     <Route path={'/concierge'} component={Concierge} />
+    <Route path={getBridgePath()} component={Bridge} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
     <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
     <Route path="/" component={Portfolio} />

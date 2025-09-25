@@ -20,6 +20,7 @@ import {
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
   SwapContextProvider,
+  UnifiedBridgeProvider,
   useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
@@ -36,13 +37,13 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -152,6 +153,7 @@ export function App() {
           <SwapContextProvider {...swapToastCallbacks} />,
           <DefiContextProvider />,
           <FirebaseContextProvider />,
+          <UnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
