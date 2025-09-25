@@ -11,10 +11,13 @@ import { useTranslation } from 'react-i18next';
 import { MdCurrencyBitcoin, MdKeyboardArrowDown } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { UnderConstruction } from './UnderConstruction';
+import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
+  const assets = useAllTokensFromEnabledNetworks();
+  console.log('assets: ', assets);
   return (
     <Stack direction="column" gap={1.25} height={1}>
       <Box height={40} bgcolor="background.paper" borderRadius={2} px={2}>

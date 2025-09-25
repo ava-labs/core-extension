@@ -58,7 +58,7 @@ const NetworkContext = createContext<{
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
   favoriteNetworks: NetworkWithCaipId[];
-  enabledNetworks: number[];
+  enabledNetworks: NetworkWithCaipId[];
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
@@ -123,6 +123,19 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
           );
         }),
     [favoriteNetworks, network, networks],
+  );
+
+  const getEnabledNetworks = useMemo(
+    () =>
+      networks
+        .filter((networkItem) => enabledNetworks.includes(networkItem.chainId))
+        .filter((n) => {
+          return (
+            (!network?.isTestnet && !n.isTestnet) ||
+            (network?.isTestnet && n.isTestnet)
+          );
+        }),
+    [enabledNetworks, network?.isTestnet, networks],
   );
 
   const getCustomNetworks = useMemo(
@@ -348,7 +361,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
         favoriteNetworks: getFavoriteNetworks,
-        enabledNetworks: enabledNetworks,
+        enabledNetworks: getEnabledNetworks,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
