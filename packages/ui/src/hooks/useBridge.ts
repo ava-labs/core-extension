@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BridgeAsset,
   TokenType as BridgeTokenType,
@@ -8,9 +7,10 @@ import {
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { findMatchingBridgeAsset, isNFT } from '@core/common';
 import { BridgeOptions, NetworkWithCaipId } from '@core/types';
-import { isNFT, findMatchingBridgeAsset } from '@core/common';
 import {
   useAnalyticsContext,
   useNetworkContext,
@@ -115,23 +115,14 @@ export function useBridge(): Bridge {
   }, [sourceBalance?.balance]);
 
   useEffect(() => {
-    let isMounted = true;
-
     if (asset && amount && targetChain) {
       getFee(asset.symbol, amount, targetChain.caipId).then((fee) => {
-        if (!isMounted) {
-          return;
-        }
-
         setBridgeFee(fee);
         setReceiveAmount(amount - fee);
       });
 
       getMinimumTransferAmount(asset, amount, targetChain.caipId).then(
         (min) => {
-          if (!isMounted) {
-            return;
-          }
           setMinimum(min);
         },
       );
@@ -140,10 +131,6 @@ export function useBridge(): Bridge {
       setBridgeFee(undefined);
       setReceiveAmount(undefined);
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [amount, asset, getFee, targetChain, getMinimumTransferAmount]);
 
   const estimateGas = useCallback(async () => {
@@ -217,7 +204,7 @@ export function useBridge(): Bridge {
   return {
     amount,
     setAmount,
-    bridgableTokens: bridgableTokens,
+    bridgableTokens,
     availableChainIds,
     bridgeFee,
     estimateGas,

@@ -19,6 +19,7 @@ import {
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
   SwapContextProvider,
+  UnifiedBridgeProvider,
   useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
@@ -137,6 +138,7 @@ export function App() {
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
           <DefiContextProvider />,
+          <UnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
