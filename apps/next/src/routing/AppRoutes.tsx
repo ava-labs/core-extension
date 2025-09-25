@@ -9,9 +9,15 @@ import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
 import { Swap } from '@/pages/Swap';
 
-import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
-import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import {
+  getBridgePath,
+  getContactsPath,
+  getSendPath,
+  getSwapPath,
+} from '@/config/routes';
+import { Bridge } from '@/pages/Bridge';
 import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
+import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
 
 export const AppRoutes = () => (
   <Switch>
@@ -24,6 +30,7 @@ export const AppRoutes = () => (
     <Route path={getSendPath()} component={Send} />
     <Route path="/trending" component={TrendingTokens} />
     <Route path={getSwapPath()} component={Swap} />
+    <Route path={getBridgePath()} component={Bridge} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
     <Route path="/" component={Portfolio} />
   </Switch>

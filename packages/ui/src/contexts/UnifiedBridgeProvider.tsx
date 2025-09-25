@@ -18,6 +18,7 @@ import {
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
 import {
+  PropsWithChildren,
   createContext,
   useCallback,
   useContext,
@@ -28,30 +29,30 @@ import {
 import { filter, map } from 'rxjs';
 
 import {
+  Account,
+  CommonError,
   ExtensionRequest,
   UNIFIED_BRIDGE_DEFAULT_STATE,
   UnifiedBridgeError,
   UnifiedBridgeState,
-  Account,
-  CommonError,
 } from '@core/types';
 
 import { RpcMethod } from '@avalabs/vm-module-types';
 import {
-  UnifiedBridgeGetState,
-  BridgeGetStateHandler,
-  UnifiedBridgeTrackTransfer,
-} from '@core/service-worker';
-import {
-  assert,
   SupportedProvider,
+  assert,
   getEnabledBridgeTypes,
   getProviderForNetwork,
   isBitcoinCaipId,
-  lowerCaseKeys,
   isBridgeStateUpdateEventListener,
   isUnifiedBridgeStateUpdate,
+  lowerCaseKeys,
 } from '@core/common';
+import {
+  BridgeGetStateHandler,
+  UnifiedBridgeGetState,
+  UnifiedBridgeTrackTransfer,
+} from '@core/service-worker';
 import { useTranslation } from 'react-i18next';
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
@@ -126,11 +127,7 @@ const DEFAULT_STATE = {
 
 const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
 
-export function UnifiedBridgeProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
   const { t } = useTranslation();
   const {
     accounts: { active: activeAccount },

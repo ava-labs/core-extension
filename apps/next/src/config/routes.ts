@@ -71,3 +71,22 @@ export const getSwapPath = (query?: Partial<SwapQueryTokens>) => {
 
   return `${pathname}?${searchString}`;
 };
+
+/**
+ * Bridge
+ **/
+export const BRIDGE_QUERY_TOKENS = {
+  sourceNetwork: 'srcNet',
+  sourceToken: 'srcToken',
+  sourceTokenQuery: 'srcTokenQ',
+  targetNetwork: 'tgtNet',
+  targetToken: 'tgtToken',
+  targetTokenQuery: 'rgtTokenQ',
+  amount: 'amount',
+};
+export type BridgeQueryTokens = typeof BRIDGE_QUERY_TOKENS;
+export const getBridgePath = (query?: Partial<BridgeQueryTokens>) => {
+  const pathname = generatePath('/bridge');
+  const search = new URLSearchParams(query);
+  return search.size === 0 ? pathname : `${pathname}?${search}`;
+};

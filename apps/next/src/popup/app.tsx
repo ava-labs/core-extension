@@ -19,6 +19,7 @@ import {
   OnboardingContextProvider,
   PermissionContextProvider,
   SwapContextProvider,
+  UnifiedBridgeProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -129,6 +130,7 @@ export function App() {
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
+          <UnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
