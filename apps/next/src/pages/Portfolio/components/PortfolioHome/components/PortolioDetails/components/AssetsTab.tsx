@@ -11,14 +11,15 @@ import { useTranslation } from 'react-i18next';
 import { MdCurrencyBitcoin, MdKeyboardArrowDown } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { UnderConstruction } from './UnderConstruction';
+import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
   return (
     <Stack direction="column" gap={1.25} height={1}>
-      <Box height={40} bgcolor="background.paper" borderRadius={2} px={2}>
-        Trending tokens placeholder
+      <Box bgcolor="background.paper" borderRadius={2} px={2}>
+        <TrendingTokenBanner />
       </Box>
       <Stack direction="row" gap={1.25}>
         <StyledButton

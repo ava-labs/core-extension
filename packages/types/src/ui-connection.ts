@@ -188,6 +188,8 @@ export enum ExtensionRequest {
   NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
+
+  GET_TRENDING_TOKENS = 'get_trending_tokens',
 }
 
 /* eslint-disable no-prototype-builtins */

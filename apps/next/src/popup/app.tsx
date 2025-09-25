@@ -49,6 +49,7 @@ const pagesWithoutHeader = [
   '/permissions',
   '/network/switch',
   '/manage-tokens',
+  '/trending',
   getContactsPath(),
   getSendPath(),
   getSwapPath(),
