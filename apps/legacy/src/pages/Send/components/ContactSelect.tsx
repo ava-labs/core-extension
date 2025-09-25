@@ -1,12 +1,5 @@
 import { NetworkVMType } from '@avalabs/core-chains-sdk';
-import {
-  Box,
-  Stack,
-  Tab,
-  TabPanel,
-  Tabs,
-  Typography,
-} from '@avalabs/core-k2-components';
+import { Box, Stack, Tab, TabPanel, Tabs } from '@avalabs/core-k2-components';
 import type { Contact } from '@avalabs/types';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +18,6 @@ import {
   AddressDropdownListMyAccounts,
   MyAccountContacts,
 } from './AddressDropdownListMyAccounts';
-import { useRecentRecipients } from '../hooks/useRecentRecipients';
 
 interface ContactSelectProps {
   selectedContact?: Contact;
@@ -34,20 +26,20 @@ interface ContactSelectProps {
 
 enum TabId {
   ADDRESS_BOOK,
-  RECENT_ADDRESSES,
+  // RECENT_ADDRESSES, Hiding recents for now
   MY_ACCOUNTS,
 }
 
-const NoContactsMessage = ({ header, description }) => (
-  <Stack sx={{ pt: 12, gap: 1, textAlign: 'center', width: '100%' }}>
-    <Typography variant="h4" color="text.primary">
-      {header}
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      {description}
-    </Typography>
-  </Stack>
-);
+// const NoContactsMessage = ({ header, description }) => (
+//   <Stack sx={{ pt: 12, gap: 1, textAlign: 'center', width: '100%' }}>
+//     <Typography variant="h4" color="text.primary">
+//       {header}
+//     </Typography>
+//     <Typography variant="body2" color="text.secondary">
+//       {description}
+//     </Typography>
+//   </Stack>
+// );
 
 export const ContactSelect = ({
   onChange,
@@ -60,7 +52,7 @@ export const ContactSelect = ({
   const { contacts } = useContactsContext();
   const { network } = useNetworkContext();
   const [selectedTab, setSelectedTab] = useState(TabId.ADDRESS_BOOK);
-  const { recentRecipients } = useRecentRecipients();
+  // const { recentRecipients } = useRecentRecipients();
 
   const formattedAccounts = useMemo(() => {
     const formattedPrimary: MyAccountContacts = {};
@@ -181,12 +173,16 @@ export const ContactSelect = ({
           tabIndex={0}
           label={t('Address Book')}
         />
-        <Tab
+        {/* 
+				Hiding Recents tab for now
+
+				<Tab
           value={TabId.RECENT_ADDRESSES}
           data-testid="send-recent-contact-tab"
           tabIndex={1}
           label={t('Recents')}
         />
+      */}
         <Tab
           value={TabId.MY_ACCOUNTS}
           data-testid="send-my-accounts-tab"
@@ -220,7 +216,7 @@ export const ContactSelect = ({
             addContact
           />
         </TabPanel>
-        <TabPanel
+        {/* <TabPanel
           value={selectedTab}
           index={TabId.RECENT_ADDRESSES}
           sx={{
@@ -240,7 +236,7 @@ export const ContactSelect = ({
               description={t('Enter the address in the above field')}
             />
           )}
-        </TabPanel>
+        </TabPanel> */}
         <TabPanel
           value={selectedTab}
           index={TabId.MY_ACCOUNTS}
