@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useIdentifyAddress } from './useIdentifyAddress';
 import { getAddressForNetwork } from '../utils/getAddressForNetwork';
+import { TransactionType } from '@avalabs/vm-module-types';
 
 //Some known addresses that are not contacts
 const BURN_ADDRESS = '0x000000000000000000000000000000000000dEaD';
@@ -38,16 +39,22 @@ export const useRecentRecipients = () => {
     }
 
     getTransactionHistory().then((history) => {
-      const filteredHistory = history.filter((tx, index, self) => {
-        if (!tx.isSender || (isNonXPHistoryItem(tx) && tx.isContractCall)) {
-          return false;
-        }
-        // filter out dupe to addresses
-        return (
-          index === self.findIndex((temp) => temp.to === tx.to) &&
-          !addressesToFilter.includes(tx.to)
-        );
-      });
+      const filteredHistory = history
+        .filter(
+          (tx) =>
+            tx.txType === TransactionType.SEND ||
+            tx.txType === TransactionType.NFT_SEND,
+        )
+        .filter((tx, index, self) => {
+          if (!tx.isSender || (isNonXPHistoryItem(tx) && tx.isContractCall)) {
+            return false;
+          }
+          // filter out dupe to addresses
+          return (
+            index === self.findIndex((temp) => temp.to === tx.to) &&
+            !addressesToFilter.includes(tx.to)
+          );
+        });
 
       const contactHistory = filteredHistory.reduce((acc, tx) => {
         const addressIdentities = [identifyAddress(tx.to)];
