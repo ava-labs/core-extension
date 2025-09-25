@@ -51,7 +51,7 @@ export function SimpleAddress({
     >
       <CopyIcon
         sx={{
-          ...(iconColor ? { color: iconColor } : {}),
+          ...(iconColor ? { color: iconColor as string } : {}),
         }}
       />
       <Typography variant="caption" color={textColor}>
