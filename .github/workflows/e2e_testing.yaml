@@ -26,7 +26,7 @@ jobs:
         run: |
           corepack enable
       - name: Checkout extension
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: '${{ github.head_ref }}'
           fetch-depth: 0
@@ -92,7 +92,7 @@ jobs:
           node-version: 20.18.3
           check-latest: true
       - name: Checkout automation repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ava-labs/avalanche-test-automation
           path: ./
