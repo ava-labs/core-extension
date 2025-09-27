@@ -8,16 +8,17 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdCurrencyBitcoin, MdKeyboardArrowDown } from 'react-icons/md';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
-import { UnderConstruction } from './UnderConstruction';
 import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
+
+import { AssetCard } from './AssetCard';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
-  const assets = useAllTokensFromEnabledNetworks();
+  const assets = useAllTokensFromEnabledNetworks(true, true);
   console.log('assets: ', assets);
   return (
     <Stack direction="column" gap={1.25} height={1}>
@@ -43,11 +44,21 @@ export const AssetsTab: FC = () => {
           </StyledButton>
         </Box>
       </Stack>
-      <UnderConstruction
+      {/* <UnderConstruction
         title="Assets"
         description="Your assets will be displayed here. We're working hard to bring you this feature soon!"
         icon={<MdCurrencyBitcoin size={24} />}
-      />
+      /> */}
+      <Stack width="100%" flexGrow={1}>
+        {assets.map((token, index) => (
+          <AssetCard
+            key={token.name}
+            asset={token}
+            last={index === assets.length - 1}
+            // network={network}
+          />
+        ))}
+      </Stack>
     </Stack>
   );
 };

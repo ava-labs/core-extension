@@ -31,6 +31,7 @@ const getCoreChainId = (network: TrendingTokensNetwork) => {
 };
 
 export const TokenCard = ({ token, last, network }: TokenCardProps) => {
+  console.log('token: ', token);
   const rank = token.rank;
   const { currency } = useSettingsContext();
   const { t } = useTranslation();

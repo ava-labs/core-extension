@@ -128,7 +128,11 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const getEnabledNetworks = useMemo(
     () =>
       networks
-        .filter((networkItem) => enabledNetworks.includes(networkItem.chainId))
+        .filter((networkItem) => {
+          return enabledNetworks
+            ? enabledNetworks.includes(networkItem.chainId)
+            : false;
+        })
         .filter((n) => {
           return (
             (!network?.isTestnet && !n.isTestnet) ||
