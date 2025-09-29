@@ -140,6 +140,19 @@
     "@firebase/messaging@npm:0.12.17": "patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch",
     "@firebase/app-check@npm:0.8.13": "patch:@firebase/app-check@npm%3A0.8.13#~/.yarn/patches/@firebase-app-check-npm-0.8.13-82152b436a.patch",
     "@mui/material@npm:^6.4.10": "patch:@mui/material@npm%3A6.4.10#~/.yarn/patches/@mui-material-npm-6.4.10-51975882a1.patch",
-    "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10"
+    "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10",
+    "@avalabs/core-bridge-sdk": "file:../avalanche-sdks/packages/bridge-sdk",
+    "@avalabs/core-chains-sdk": "file:../avalanche-sdks/packages/chains-sdk",
+    "@avalabs/core-coingecko-sdk": "file:../avalanche-sdks/packages/coingecko-sdk",
+    "@avalabs/core-covalent-sdk": "file:../avalanche-sdks/packages/covalent-sdk",
+    "@avalabs/core-etherscan-sdk": "file:../avalanche-sdks/packages/etherscan-sdk",
+    "@avalabs/core-gasless-sdk": "file:../avalanche-sdks/packages/gasless-sdk",
+    "@avalabs/core-snowtrace-sdk": "file:../avalanche-sdks/packages/snowtrace-sdk",
+    "@avalabs/core-token-prices-sdk": "file:../avalanche-sdks/packages/token-prices-sdk",
+    "@avalabs/core-utils-sdk": "file:../avalanche-sdks/packages/utils",
+    "@avalabs/core-wallets-sdk": "file:../avalanche-sdks/packages/wallets-sdk",
+    "@avalabs/glacier-sdk": "file:../avalanche-sdks/packages/glacier-sdk",
+    "@avalabs/types": "file:../avalanche-sdks/packages/types",
+    "@avalabs/hw-app-avalanche": "file:../work-fork/ledger-avalanche-js"
   }
 }
