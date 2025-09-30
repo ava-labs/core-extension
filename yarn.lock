@@ -129,66 +129,66 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-bridge-sdk@file:../avalanche-sdks/packages/bridge-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-bridge-sdk@file:../avalanche-sdks/packages/bridge-sdk#../avalanche-sdks/packages/bridge-sdk::hash=fab972&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-bridge-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-bridge-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.62"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.62"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.63"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.63"
   peerDependencies:
     big.js: ^6.2.1
     bitcoinjs-lib: ^5.2.0
     coinselect: ^3.1.12
     ethers: ^6.7.1
     react: ^17.0.2
-  checksum: 10c0/4a79a4ded08e018b40fcd7a17e2e8a25da70150415979643dd40e2222938e1e4c8842bc87487cb932d6040aae74861ef752634646836c2283d63a369e06cc6f5
+  checksum: 10c0/7d65b1c501d539ad5f6c8e768b2844067239285f948a4ed8348b2fac2d50eb8cc77be48a93bc42205be2422597ab498105d89a5db0b343a5a566f2e15c396883
   languageName: node
   linkType: hard
 
-"@avalabs/core-chains-sdk@file:../avalanche-sdks/packages/chains-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-chains-sdk@file:../avalanche-sdks/packages/chains-sdk#../avalanche-sdks/packages/chains-sdk::hash=3e2bff&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-chains-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-chains-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-  checksum: 10c0/e2a64e6fbf1497b43f0c7d996bf6f59e271ce55c708edcae0559e6aa431a55b3bf8f296a20426757c5264bc0bd04659b3b519a2d24486454c81a250d47ac1551
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+  checksum: 10c0/72997fde8c57a3253f180f128e096e7a878f3d2b03a824c13b5801d1cea1cf9ac3e8fd9444c4fc3121d1e5f6ab157baf80dc7d149bb71b365daea6bc9fb1d7cb
   languageName: node
   linkType: hard
 
-"@avalabs/core-coingecko-sdk@file:../avalanche-sdks/packages/coingecko-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-coingecko-sdk@file:../avalanche-sdks/packages/coingecko-sdk#../avalanche-sdks/packages/coingecko-sdk::hash=46bb90&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-coingecko-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-  checksum: 10c0/962bb2ca3dba09ea5fce962dfaa2f91d57a1dca85c9be96406d2da944aef6e9a5eb8c499ff156fed524efe55bf257d386511a41791880ff30138cd497d1bea9f
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+  checksum: 10c0/e5f01f8c4f8aed9a55e16e594c71e642c0f0b089aec3693173003690e623515109a4db4b3447916fdb72126220588fa7cd438d56adf0ce574e80b7b62fae5c4a
   languageName: node
   linkType: hard
 
-"@avalabs/core-covalent-sdk@file:../avalanche-sdks/packages/covalent-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-covalent-sdk@file:../avalanche-sdks/packages/covalent-sdk#../avalanche-sdks/packages/covalent-sdk::hash=e5fdf7&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-covalent-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-  checksum: 10c0/14c7b02016fd085b4455ffd9e8b79db9a896aca9a266bdae01068351a68321a669e4476ea0b7b6cf053f9bd90409e39b4116d875e934531e40fbadfee6c8f229
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+  checksum: 10c0/855f4d8717453cc6376a21253c69df8306c3310ba41f99253ed45e088f899b23fd729e684b2020dc36ee29e54e9767a3a4017d38972857f5a33f1435039af327
   languageName: node
   linkType: hard
 
-"@avalabs/core-etherscan-sdk@file:../avalanche-sdks/packages/etherscan-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-etherscan-sdk@file:../avalanche-sdks/packages/etherscan-sdk#../avalanche-sdks/packages/etherscan-sdk::hash=2a5ead&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-etherscan-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-  checksum: 10c0/ba0d9cd05489cc50aa8abc5a22aa8d226ce672b7fd29c5d46b5c3e1429711716790b97975fa240a2d203620e1f45850b1e092952dded3b2251e7013d336f1197
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+  checksum: 10c0/67160be358c4869f6bf3276c98b717a4f3d517a065652a7dd10fbd0a00cfeb4ce52368f63d007b11b444e028ed3ee605b592701d195deb95d1b979ab0611ac7b
   languageName: node
   linkType: hard
 
-"@avalabs/core-gasless-sdk@file:../avalanche-sdks/packages/gasless-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-gasless-sdk@file:../avalanche-sdks/packages/gasless-sdk#../avalanche-sdks/packages/gasless-sdk::hash=839ed7&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-gasless-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-alpha.63"
   dependencies:
     "@noble/hashes": "npm:1.7.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/4a6cbd5ac44b045afcd9ff8ca6505ca172cd8d41970b70a31553e9f62d3448b3c61a423f3cf433a68b745fa613c670e7d4f1410a3e0d3807d4c1e05a400816ba
+  checksum: 10c0/34eeb4fe9978024acee159758d00f58e6823b94c12cf1429391f25486910e4e9a7983bf9167794b9c873156e00fa628cde1c8cffe7d4c84374162e6e15a73687
   languageName: node
   linkType: hard
 
@@ -221,28 +221,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-snowtrace-sdk@file:../avalanche-sdks/packages/snowtrace-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-snowtrace-sdk@file:../avalanche-sdks/packages/snowtrace-sdk#../avalanche-sdks/packages/snowtrace-sdk::hash=a8e7dd&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-snowtrace-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-  checksum: 10c0/b0f5f46cf370d3b4b6acac462d9c34c0269a1f2fb1487c9d4f90cab7ec925c4ba7a4e8b7cce6b57399ebde3a87c12dce0e5509d5330e2d247a5cb4f822f09f7b
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+  checksum: 10c0/792760c5eb8c092ee8c12d9ebc17e9786b879a953f6a4c568c3c21fd421ec10c70a26ae7cbfbe92d4ade3176df5b5068f4447db3bc954029cc1bd3e4e7a7d1ed
   languageName: node
   linkType: hard
 
-"@avalabs/core-token-prices-sdk@file:../avalanche-sdks/packages/token-prices-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-token-prices-sdk@file:../avalanche-sdks/packages/token-prices-sdk#../avalanche-sdks/packages/token-prices-sdk::hash=9277b3&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-token-prices-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-token-prices-sdk@npm:3.1.0-alpha.63"
   dependencies:
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.62"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.62"
-  checksum: 10c0/b8ac01bf4ef7f56ac639820e02c036f9dbaee9d786bbd788b4afc0a101f6cafa60e6de1a61a589c6d1ed24dd34729e06930e503c5560a514baff2ba4af846d0b
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.63"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
+  checksum: 10c0/2bc29bb7dd9f72c760e23b160d6f79a939f6f84b18e24e29e4c968d034dcb32fcada8f0e12851fb369f96b432c5a49315db37cbe8617821dab0e8d740f45f60d
   languageName: node
   linkType: hard
 
-"@avalabs/core-utils-sdk@file:../avalanche-sdks/packages/utils::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-utils-sdk@file:../avalanche-sdks/packages/utils#../avalanche-sdks/packages/utils::hash=324968&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-utils-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-utils-sdk@npm:3.1.0-alpha.63"
   dependencies:
     "@hpke/core": "npm:1.2.5"
     is-ipfs: "npm:6.0.2"
@@ -250,13 +250,13 @@ __metadata:
     big.js: ^6.2.1
     bn.js: ^5.2.1
     ethers: ^6.7.1
-  checksum: 10c0/e576fec3351c832380f8a6f779c170acb2c9c3563d6a8e0918e968aa353aa122445c1f0bf2fc71c23b9831521b0fb3621a675c42a456bbea6f87d80aa0356a33
+  checksum: 10c0/a36e6f44d7610ba4f7c2a184131961585aefcbe0e1070f5a5d48c401480239f5982f9242e7425b79ef0a0694aabce31287d48d0fa2afcca9c2f64010b301403c
   languageName: node
   linkType: hard
 
-"@avalabs/core-wallets-sdk@file:../avalanche-sdks/packages/wallets-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/core-wallets-sdk@file:../avalanche-sdks/packages/wallets-sdk#../avalanche-sdks/packages/wallets-sdk::hash=8d6c50&locator=avalanche-extension%40workspace%3A."
+"@avalabs/core-wallets-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/core-wallets-sdk@npm:3.1.0-alpha.63"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
@@ -287,7 +287,7 @@ __metadata:
     xss: "npm:1.0.14"
   peerDependencies:
     ethers: ^6.7.1
-  checksum: 10c0/cebd4dc7a85fdbe19468a57cc2bce8708a8f0ad0a3e6a7a383ac4b5b443a07283a149ddde78a6c1f5c8b26e99b5dc592b50f0c39d0dcb13b73154ff2e3a19213
+  checksum: 10c0/951df075b642a922a29f4e0a97021010b3fd3cc11f0362d864f0bda98fb7521e0ba977b1bf759d3384fc7570d7c5586d04c9f188df90e372418ec7d47b58afad
   languageName: node
   linkType: hard
 
@@ -316,10 +316,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/glacier-sdk@file:../avalanche-sdks/packages/glacier-sdk::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/glacier-sdk@file:../avalanche-sdks/packages/glacier-sdk#../avalanche-sdks/packages/glacier-sdk::hash=c18f66&locator=avalanche-extension%40workspace%3A."
-  checksum: 10c0/67f8eb27ee54ee436fdcb4a65b0b8e27f877081ba265a9eeacac58b418b2fdbf047b742ade7cb7a24b6b3e519dc5f9ecc29d885309d5b296d61e90aadb8b79fe
+"@avalabs/glacier-sdk@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/glacier-sdk@npm:3.1.0-alpha.63"
+  checksum: 10c0/14fe6f58f4c9f6db9410eaa1a1cc513d2f3d5f602ba9815da4e3927f4471f6ccc7f9e01119085e7579df8fec3e4b92a4d8d4170ce89690f37549a0c7f0e66528
   languageName: node
   linkType: hard
 
@@ -395,10 +395,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/types@file:../avalanche-sdks/packages/types::locator=avalanche-extension%40workspace%3A.":
-  version: 3.1.0-alpha.62
-  resolution: "@avalabs/types@file:../avalanche-sdks/packages/types#../avalanche-sdks/packages/types::hash=af3b94&locator=avalanche-extension%40workspace%3A."
-  checksum: 10c0/1994589afa291b6b902f901acd8136c6e29bc195f0073fbc1e4f4813288f9df4a386c02ceee04ec845335fc32e05fe85c1df30c5ae696243c05f3b9b7c71f8dc
+"@avalabs/types@npm:3.1.0-alpha.63":
+  version: 3.1.0-alpha.63
+  resolution: "@avalabs/types@npm:3.1.0-alpha.63"
+  checksum: 10c0/bc579b82b8367f9e03384a577d6a1e1b6ddb78716ebb60b51fbbf6c91bc85f059fedb39f4a0fff2916559772b8f85bbbaba82e6db9e3dfba54c10e74c7c33a43
   languageName: node
   linkType: hard
 
