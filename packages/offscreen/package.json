@@ -12,7 +12,7 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/core-gasless-sdk": "file:../../../avalanche-sdks/packages/gasless",
+    "@avalabs/core-gasless-sdk": "3.1.0-alpha.63",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*"

@@ -153,6 +153,6 @@
     "@avalabs/core-wallets-sdk": "file:../avalanche-sdks/packages/wallets-sdk",
     "@avalabs/glacier-sdk": "file:../avalanche-sdks/packages/glacier-sdk",
     "@avalabs/types": "file:../avalanche-sdks/packages/types",
-    "@avalabs/hw-app-avalanche": "file:../work-fork/ledger-avalanche-js"
+    "@avalabs/hw-app-avalanche": "1.1.1"
   }
 }
