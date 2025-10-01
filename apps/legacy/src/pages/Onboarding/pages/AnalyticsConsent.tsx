@@ -66,7 +66,7 @@ export const AnalyticsConsent = () => {
       return;
     }
 
-    const coreWebLink = `${process.env.CORE_WEB_BASE_URL}/discover/?newUser=1`;
+    const coreWebLink = `${process.env.CORE_WEB_BASE_URL}/portfolio/?newUser=1`;
 
     // submit handler can't be in the onNext and onBack callbacks since it would run in a stale closure
     // resulting in an always false analytics consent
