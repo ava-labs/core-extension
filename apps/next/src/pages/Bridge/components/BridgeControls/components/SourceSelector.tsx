@@ -1,8 +1,6 @@
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
-import { BridgeQueryTokens } from '@/config/routes';
-import { useBridgeContext } from '@/pages/Bridge/context';
-import { QueryUpdateFn } from '@/pages/Bridge/hooks/useBridgeQuery';
+import { useBridgeState } from '@/pages/Bridge/contexts';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NetworkSelect } from './NetworkSelect';
@@ -10,49 +8,42 @@ import { NetworkSelect } from './NetworkSelect';
 type Props = {
   // UI
   loading: boolean;
-  query: BridgeQueryTokens;
-  onQueryChange: QueryUpdateFn;
 };
 
-export const SourceSelector: FC<Props> = ({
-  loading,
-  query,
-  onQueryChange,
-}) => {
+export const SourceSelector: FC<Props> = ({ loading }) => {
   const { t } = useTranslation();
-  const bridge = useBridgeContext();
-
-  console.log(bridge, query);
+  const bridge = useBridgeState();
+  const { updateQuery, ...query } = bridge.query;
 
   return (
     <Card>
       <NetworkSelect
         label={t('From')}
-        chains={bridge.availableChainIds}
+        chains={bridge.sourceChainIds}
         selected={query.sourceNetwork}
-        onSelect={(network) =>
-          onQueryChange({
-            sourceNetwork: network,
-            sourceNetworkQuery: '',
-          })
-        }
+        onSelect={(sourceNetwork) => {
+          updateQuery({
+            sourceNetwork,
+            sourceToken: '',
+            sourceTokenQuery: '',
+          });
+        }}
       />
       <TokenAmountInput
         id="bridge-from-amount"
         tokenId={query.sourceToken}
-        estimatedFee={0n}
-        tokensForAccount={bridge.bridgableTokens}
+        tokensForAccount={bridge.sourceTokens}
         onTokenChange={(token) =>
-          onQueryChange({
+          updateQuery({
             sourceToken: token,
             sourceTokenQuery: '',
           })
         }
         amount={query.amount}
-        onAmountChange={(amount) => onQueryChange({ amount })}
+        onAmountChange={(amount) => updateQuery({ amount })}
         tokenHint={query.sourceToken && t('You pay')}
         isLoading={loading}
-        onQueryChange={(q) => onQueryChange({ sourceTokenQuery: q })}
+        onQueryChange={(q) => updateQuery({ sourceTokenQuery: q })}
         tokenQuery={query.sourceTokenQuery}
       />
     </Card>

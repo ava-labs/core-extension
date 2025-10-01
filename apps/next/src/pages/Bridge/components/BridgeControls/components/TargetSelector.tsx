@@ -1,45 +1,42 @@
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
-import { BridgeQueryTokens } from '@/config/routes';
-import { useBridgeContext } from '@/pages/Bridge/context';
-import { QueryUpdateFn } from '@/pages/Bridge/hooks/useBridgeQuery';
+import { useBridgeState } from '@/pages/Bridge/contexts';
 
-import { getUniqueTokenId } from '@core/types';
 import { noop } from 'lodash';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NetworkSelect } from './NetworkSelect';
 
 type Props = {
-  onQueryChange: QueryUpdateFn;
-  query: BridgeQueryTokens;
+  // UI
+  loading: boolean;
 };
 
-export const TargetSelector: FC<Props> = ({ query, onQueryChange }) => {
+export const TargetSelector: FC<Props> = () => {
   const { t } = useTranslation();
 
-  const { possibleTargetChains, receiveAmount, transferableAssets } =
-    useBridgeContext();
+  const { query } = useBridgeState();
+  const { targetNetwork, targetToken, updateQuery } = query;
 
   return (
     <Card>
       <NetworkSelect
         label={t('To')}
-        chains={possibleTargetChains}
-        selected={query.targetNetwork}
-        onSelect={(network) => onQueryChange({ targetNetwork: network })}
+        chains={[targetNetwork]}
+        selected={targetNetwork}
+        onSelect={() => {}}
       />
       <TokenAmountInput
         autoFocus={false}
         id="bridge-to-amount"
-        tokenId={query.targetToken ?? getUniqueTokenId(transferableAssets[0]!)}
-        tokensForAccount={transferableAssets}
+        tokenId={targetToken}
+        tokensForAccount={[]}
         onTokenChange={(token) =>
-          onQueryChange({ targetToken: token, targetTokenQuery: '' })
+          updateQuery({ targetToken: token, targetTokenQuery: '' })
         }
         tokenQuery={query.targetTokenQuery}
-        onQueryChange={(q) => onQueryChange({ targetTokenQuery: q })}
-        amount={receiveAmount?.toString() ?? ''}
+        onQueryChange={(q) => updateQuery({ targetTokenQuery: q })}
+        amount={query.amount ?? ''}
         onAmountChange={noop}
         withPresetButtons={false}
         tokenHint={query.targetToken && t('You receive')}

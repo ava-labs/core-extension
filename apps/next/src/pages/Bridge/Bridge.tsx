@@ -7,14 +7,20 @@ import { useTranslation } from 'react-i18next';
 import { AccountSelect } from '@/components/AccountSelect';
 import { Page } from '@/components/Page';
 
+import { LoadingScreen } from '@/components/LoadingScreen';
 import {
   BridgeControls,
   BridgeErrorMessage,
   BridgeProviderNotice,
   CoreFeeNotice,
 } from './components';
-import { BridgeContextProvider } from './context';
-import { useBridgeQuery } from './hooks/useBridgeQuery';
+import {
+  BridgeQueryProvider,
+  BridgeStateProvider,
+  NextUnifiedBridgeProvider,
+  useBridgeQuery,
+  useNextUnifiedBridgeContext,
+} from './contexts';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 const contentProps: StackProps = {
@@ -36,7 +42,7 @@ const BridgePage: FC = () => {
   const [accountQuery, setAccountQuery] = useState('');
   const [bridgeError, setBridgeError] = useState<string>('');
 
-  const { updateQuery, ...queryParams } = useBridgeQuery();
+  const { updateQuery } = useBridgeQuery();
 
   const performBridge = () => {
     toast.error('Not implemented');
@@ -61,7 +67,7 @@ const BridgePage: FC = () => {
           }}
           onQueryChange={setAccountQuery}
         />
-        <BridgeControls query={queryParams} onQueryChange={updateQuery} />
+        <BridgeControls onQueryChange={updateQuery} />
       </Stack>
       <BridgeErrorMessage error={bridgeError} />
       <CoreFeeNotice />
@@ -89,10 +95,26 @@ const BridgePage: FC = () => {
   );
 };
 
+const BridgePageLoader: FC = () => {
+  const { isReady } = useNextUnifiedBridgeContext();
+  if (!isReady) {
+    return <LoadingScreen />;
+  }
+  return (
+    <BridgeStateProvider>
+      <BridgePage />
+    </BridgeStateProvider>
+  );
+};
+
 export const Bridge = () => {
   return (
-    <BridgeContextProvider>
-      <BridgePage />
-    </BridgeContextProvider>
+    <BridgeQueryProvider>
+      {({ sourceNetwork }) => (
+        <NextUnifiedBridgeProvider sourceNetworkId={sourceNetwork}>
+          <BridgePageLoader />
+        </NextUnifiedBridgeProvider>
+      )}
+    </BridgeQueryProvider>
   );
 };
