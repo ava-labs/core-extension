@@ -1,7 +1,6 @@
-import { Fade, MenuItem, Stack, Typography } from '@avalabs/k2-alpine';
+import { MenuItem, Stack, Typography } from '@avalabs/k2-alpine';
 import { useNetworkContext } from '@core/ui';
 import { FC } from 'react';
-import { FaCheck } from 'react-icons/fa6';
 import * as Styled from './Styled';
 
 type Props = {
@@ -33,23 +32,12 @@ export const NetworkSelect: FC<Props> = ({
       {networks.map((network) => (
         <MenuItem
           key={network.caipId}
-          data-testid={`blockchaind-${network.caipId}`}
+          data-testid={`blockchain-id-${network.caipId}`}
           value={network.caipId}
         >
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            width="100%"
-          >
-            <Stack direction="row" columnGap={1} alignItems="center">
-              <img src={network.logoUri} width={16} height={16} alt="" />
-              <Typography variant="body3">{network.chainName}</Typography>
-            </Stack>
-
-            <Fade in={selected === network.caipId} mountOnEnter unmountOnExit>
-              <FaCheck size={16} />
-            </Fade>
+          <Stack direction="row" columnGap={1} alignItems="center">
+            <img src={network.logoUri} width={16} height={16} alt="" />
+            <Typography variant="body3">{network.chainName}</Typography>
           </Stack>
         </MenuItem>
       ))}

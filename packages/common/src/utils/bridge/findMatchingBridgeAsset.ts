@@ -14,6 +14,7 @@ export const findMatchingBridgeAsset = (
   token: Exclude<TokenWithBalance, NftTokenWithBalance>,
 ): BridgeAsset | undefined => {
   return assets.find((a) => {
+    console.log('findMatchingBridgeAsset', { a, token });
     if (a.type === BridgeTokenType.NATIVE && token.type === TokenType.NATIVE) {
       return a.symbol.toLowerCase() === token.symbol.toLowerCase();
     }
