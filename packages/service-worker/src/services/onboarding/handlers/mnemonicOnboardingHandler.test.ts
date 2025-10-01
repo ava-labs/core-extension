@@ -142,7 +142,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     });
   });
 
-  it('sets up an mnemonic wallet correctly', async () => {
+  it.only('sets up an mnemonic wallet correctly', async () => {
     (getXpubFromMnemonic as jest.Mock).mockResolvedValueOnce(
       'xpubFromMnemonic',
     );
@@ -187,6 +187,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
     expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
       walletId: WALLET_ID,
+      addAllWithHistory: true,
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
