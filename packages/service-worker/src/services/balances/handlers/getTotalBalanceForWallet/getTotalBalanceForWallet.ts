@@ -131,19 +131,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         (network) => network.vmName !== 'PVM',
       );
 
-      console.log('P-chain balance filtering:', {
-        pChainNetworks: pChainNetworks.map((n) => ({
-          chainId: n.chainId,
-          vmName: n.vmName,
-        })),
-        nonPChainNetworks: nonPChainNetworks.map((n) => ({
-          chainId: n.chainId,
-          vmName: n.vmName,
-        })),
-        pChainCount: pChainNetworks.length,
-        nonPChainCount: nonPChainNetworks.length,
-      });
-
       const [pChainBalances, nonPChainBalances] = await Promise.all([
         // P-chain: Only native tokens (AVAX)
         pChainNetworks.length > 0

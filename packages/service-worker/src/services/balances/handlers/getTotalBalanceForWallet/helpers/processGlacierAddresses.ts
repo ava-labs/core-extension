@@ -15,22 +15,11 @@ export async function processGlacierAddresses(
     const glacierBatchSize = 64;
     const allGlacierAddresses: ChainAddressChainIdMap[] = [];
 
-    console.log(
-      `Processing ${addresses.length} addresses in batches of ${glacierBatchSize}`,
-    );
-
     for (let i = 0; i < addresses.length; i += glacierBatchSize) {
       const batch = addresses.slice(i, i + glacierBatchSize);
-      console.log(
-        `Requesting batch ${Math.floor(i / glacierBatchSize) + 1}: ${batch.length} addresses`,
-      );
 
       const { addresses: glacierAddresses } = await fetchActivity(batch);
       allGlacierAddresses.push(...glacierAddresses);
-
-      console.log(
-        `Batch ${Math.floor(i / glacierBatchSize) + 1} returned ${glacierAddresses.length} addresses with activity`,
-      );
     }
 
     const seenByGlacier: Record<string, ChainAddressChainIdMap> =
@@ -52,10 +41,6 @@ export async function processGlacierAddresses(
         gap += 1;
       }
     }
-
-    console.log(
-      `Processed ${addresses.length} addresses, found ${result.length} with activity, gap: ${gap}`,
-    );
     return { gap, result };
   }
 }
