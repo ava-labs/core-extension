@@ -42,7 +42,6 @@ import { SecretsService } from '../secrets/SecretsService';
 import { StorageService } from '../storage/StorageService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { uniq } from 'lodash';
-import { GlacierService } from '../glacier/GlacierService';
 
 type AddAccountParams = {
   walletId: string;
@@ -106,7 +105,6 @@ export class AccountsService implements OnLock, OnUnlock {
     private ledgerService: LedgerService,
     private walletConnectService: WalletConnectService,
     private addressResolver: AddressResolver,
-    private glacierService: GlacierService,
   ) {}
 
   async onUnlock(): Promise<void> {
