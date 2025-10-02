@@ -31,10 +31,8 @@ import {
 } from '@core/common';
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { GlacierService } from '../glacier/GlacierService';
 
 jest.mock('../storage/StorageService');
-jest.mock('../glacier/GlacierService');
 jest.mock('../secrets/SecretsService');
 jest.mock('../ledger/LedgerService');
 jest.mock('../lock/LockService');
@@ -62,7 +60,6 @@ describe('background/services/accounts/AccountsService', () => {
   );
   networkService.getUnknownUsedNetwork = jest.fn();
   const storageService = new StorageService({} as any);
-  const glacierService = new GlacierService();
   const ledgerService = new LedgerService();
   const walletConnectService = new WalletConnectService(
     new WalletConnectStorage(storageService),
@@ -231,7 +228,6 @@ describe('background/services/accounts/AccountsService', () => {
       ledgerService,
       walletConnectService,
       addressResolver,
-      glacierService,
     );
   });
 
@@ -777,32 +773,6 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith(newAccounts);
-    });
-    it('should check the address history', async () => {
-      accountsService.hasAddressEVMHistory = jest.fn().mockResolvedValue(false);
-      const uuid = 'uuid';
-      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
-      await accountsService.addPrimaryAccount({
-        walletId: WALLET_ID,
-        addAllWithHistory: true,
-      });
-      expect(accountsService.hasAddressEVMHistory).toHaveBeenCalled();
-    });
-
-    it('should add a new next account if it has history', async () => {
-      accountsService.hasAddressEVMHistory = jest
-        .fn()
-        .mockResolvedValueOnce(true)
-        .mockResolvedValue(false);
-      const uuid = 'uuid';
-      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
-      await accountsService.addPrimaryAccount({
-        walletId: WALLET_ID,
-        addAllWithHistory: true,
-      });
-      expect(accountsService.hasAddressEVMHistory).toHaveBeenCalled();
-      const accounts = await accountsService.getAccounts();
-      expect(accounts.primary[WALLET_ID]?.length).toBe(2);
     });
   });
 
