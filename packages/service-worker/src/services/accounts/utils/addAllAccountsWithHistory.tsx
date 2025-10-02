@@ -6,7 +6,6 @@ import { AccountType } from '@core/types';
 
 interface CheckAccountsHistoryParams {
   walletId: string;
-  // address: string;
 }
 
 export const addAllAccountsWithHistory = async ({
@@ -16,7 +15,10 @@ export const addAllAccountsWithHistory = async ({
   const accountsService = container.resolve(AccountsService);
 
   const networkService = container.resolve(NetworkService);
+
   const avalancheNetwork = await networkService.getAvalancheNetwork();
+
+  const module = await moduleManager.loadModule(avalancheNetwork.caipId);
 
   let lastIndexChecked = 0;
   let accountsWithoutActivity = 0;
@@ -31,26 +33,28 @@ export const addAllAccountsWithHistory = async ({
       type: AccountType.PRIMARY as const,
       walletId: walletId,
     };
-    const nextAccountAddresses =
-      await accountsService.getAddressesForAccount(nextAccount);
 
-    const history = await (
-      await moduleManager.loadModule(avalancheNetwork.caipId)
-    ).getTransactionHistory({
-      address: nextAccountAddresses.addressC,
-      network: { ...avalancheNetwork, tokens: [] },
-    });
+    try {
+      const nextAccountAddresses =
+        await accountsService.getAddressesForAccount(nextAccount);
 
-    if (!history.transactions.length) {
-      accountsWithoutActivity++;
-      continue;
+      const history = await module.getTransactionHistory({
+        address: nextAccountAddresses.addressC,
+        network: { ...avalancheNetwork, tokens: [] },
+      });
+
+      if (!history.transactions.length) {
+        accountsWithoutActivity++;
+        continue;
+      }
+      lastIndexToAdd = lastIndexChecked;
+      accountsWithoutActivity = 0;
+    } catch (e) {
+      console.error(e);
     }
-    lastIndexToAdd = lastIndexChecked;
-    accountsWithoutActivity = 0;
   }
 
   for (let i = 0; i < lastIndexToAdd; i++) {
     await accountsService.addPrimaryAccount({ walletId });
   }
-  return true;
 };
