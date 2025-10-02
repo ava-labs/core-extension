@@ -1,4 +1,4 @@
-import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
+import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   Account,
   AccountError,
@@ -47,7 +47,6 @@ import { GlacierService } from '../glacier/GlacierService';
 type AddAccountParams = {
   walletId: string;
   name?: string;
-  addAllWithHistory?: boolean;
 };
 
 @singleton()
@@ -116,17 +115,6 @@ export class AccountsService implements OnLock, OnUnlock {
     // refresh addresses so in case the user switches to testnet mode,
     // as the BTC address needs to be updated
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
-  }
-
-  async hasAddressEVMHistory(address: string) {
-    const history = await this.glacierService.getAddressEVMHistory(address);
-    if (!history) {
-      return;
-    }
-    const addressHistory = history.indexedChains?.find(
-      (chain) => parseInt(chain.chainId, 10) === ChainId.AVALANCHE_MAINNET_ID,
-    );
-    return !!addressHistory;
   }
 
   async getAccountFromActiveWalletByAddress(address: string) {
@@ -238,7 +226,7 @@ export class AccountsService implements OnLock, OnUnlock {
           return account;
         }
 
-        const addresses = await this.#getAddressesForAccount(account);
+        const addresses = await this.getAddressesForAccount(account);
 
         return {
           ...account,
@@ -285,7 +273,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
   };
 
-  async #getAddressesForAccount(
+  async getAddressesForAccount(
     account: AccountWithOptionalAddresses,
   ): Promise<DerivedAddresses> {
     if (isPrimaryAccount(account)) {
@@ -326,7 +314,7 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
-    const addresses = await this.#getAddressesForAccount(account);
+    const addresses = await this.getAddressesForAccount(account);
     if (account.type === AccountType.PRIMARY) {
       const walletAccounts = this.#accounts.primary[account.walletId]!;
 
@@ -479,46 +467,7 @@ export class AccountsService implements OnLock, OnUnlock {
     return accounts.flatMap(getAllAddressesForAccount);
   }
 
-  async #hasNextAccountsHistory({
-    walletId,
-    accountsCount,
-    index,
-  }: {
-    walletId: string;
-    accountsCount: number;
-    index: number;
-  }) {
-    let hasHistory: boolean | undefined = false;
-
-    const nextAccount = {
-      id: `${index}`,
-      index,
-      name: `Dummy Account`,
-      type: AccountType.PRIMARY as const,
-      walletId: walletId,
-    };
-
-    const nextAccountAddresses =
-      await this.#getAddressesForAccount(nextAccount);
-
-    hasHistory = await this.hasAddressEVMHistory(nextAccountAddresses.addressC);
-
-    if (hasHistory) {
-      return hasHistory;
-    }
-
-    if (accountsCount <= 1) {
-      return hasHistory;
-    }
-
-    return await this.#hasNextAccountsHistory({
-      walletId,
-      index: ++index,
-      accountsCount: --accountsCount,
-    });
-  }
-
-  async addPrimaryAccount({ walletId, addAllWithHistory }: AddAccountParams) {
+  async addPrimaryAccount({ walletId }: AddAccountParams) {
     const selectedWalletAccounts = this.#accounts.primary[walletId] ?? [];
     const lastAccount = selectedWalletAccounts.at(-1);
 
@@ -539,7 +488,7 @@ export class AccountsService implements OnLock, OnUnlock {
       addressResolver: this.addressResolver,
     });
 
-    const addresses = await this.#getAddressesForAccount(newAccount);
+    const addresses = await this.getAddressesForAccount(newAccount);
 
     assertPropDefined(addresses, 'addressC', AccountError.EVMAddressNotFound);
     assertPropDefined(addresses, 'addressBTC', AccountError.BTCAddressNotFound);
@@ -569,17 +518,6 @@ export class AccountsService implements OnLock, OnUnlock {
       windowId: crypto.randomUUID(),
       properties: { addresses: await this.#getAllAddresses() },
     });
-
-    if (addAllWithHistory) {
-      const hasNextAccountsHistory = await this.#hasNextAccountsHistory({
-        walletId,
-        index: nextIndex + 1,
-        accountsCount: 2,
-      });
-      if (hasNextAccountsHistory) {
-        return this.addPrimaryAccount({ walletId, addAllWithHistory: true });
-      }
-    }
 
     return id;
   }
