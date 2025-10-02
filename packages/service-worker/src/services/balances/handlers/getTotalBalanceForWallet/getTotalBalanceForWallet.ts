@@ -123,12 +123,51 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       );
 
       // Get balance for derived addresses
-      const { tokens: derivedAddressesBalances } =
-        await this.balanceAggregatorService.getBalancesForNetworks(
-          networksIncludedInTotal.map((network) => network.chainId),
-          derivedAccounts,
-          [TokenType.NATIVE, TokenType.ERC20],
-        );
+      // For P-chain, only fetch native AVAX tokens to ensure only native AVAX is included
+      const pChainNetworks = networksIncludedInTotal.filter(
+        (network) => network.vmName === 'PVM',
+      );
+      const nonPChainNetworks = networksIncludedInTotal.filter(
+        (network) => network.vmName !== 'PVM',
+      );
+
+      console.log('P-chain balance filtering:', {
+        pChainNetworks: pChainNetworks.map((n) => ({
+          chainId: n.chainId,
+          vmName: n.vmName,
+        })),
+        nonPChainNetworks: nonPChainNetworks.map((n) => ({
+          chainId: n.chainId,
+          vmName: n.vmName,
+        })),
+        pChainCount: pChainNetworks.length,
+        nonPChainCount: nonPChainNetworks.length,
+      });
+
+      const [pChainBalances, nonPChainBalances] = await Promise.all([
+        // P-chain: Only native tokens (AVAX)
+        pChainNetworks.length > 0
+          ? this.balanceAggregatorService.getBalancesForNetworks(
+              pChainNetworks.map((network) => network.chainId),
+              derivedAccounts,
+              [TokenType.NATIVE],
+            )
+          : { tokens: {} },
+        // Non-P-chain: Native and ERC20 tokens
+        nonPChainNetworks.length > 0
+          ? this.balanceAggregatorService.getBalancesForNetworks(
+              nonPChainNetworks.map((network) => network.chainId),
+              derivedAccounts,
+              [TokenType.NATIVE, TokenType.ERC20],
+            )
+          : { tokens: {} },
+      ]);
+
+      // Merge P-chain and non-P-chain balances
+      const derivedAddressesBalances = {
+        ...pChainBalances.tokens,
+        ...nonPChainBalances.tokens,
+      };
 
       let totalBalanceInCurrency = calculateTotalBalanceForAccounts(
         derivedAddressesBalances,
