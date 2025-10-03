@@ -29,7 +29,7 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
       .mockReturnValueOnce({ getAvalancheNetwork });
   });
 
-  it.only('should add (5) accounts with history and stop it after two empty history', async () => {
+  it('should add (5) accounts with history and stop it after two empty history', async () => {
     // 0 -- activity
     // 1 -- no activity
     // 2 -- activity
@@ -67,5 +67,22 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
 
     await addAllAccountsWithHistory({ walletId: 'wallet-id' });
     expect(addPrimaryAccount).toHaveBeenCalledTimes(5);
+  });
+  it('should add only one account', async () => {
+    getTransactionHistory
+      .mockResolvedValueOnce({
+        transactions: [],
+      })
+      .mockResolvedValueOnce({
+        transactions: [],
+      })
+      .mockResolvedValueOnce({
+        transactions: [],
+      });
+    await addAllAccountsWithHistory({
+      walletId: 'wallet-id',
+      addFirstAccount: true,
+    });
+    expect(addPrimaryAccount).toHaveBeenCalledTimes(1);
   });
 });

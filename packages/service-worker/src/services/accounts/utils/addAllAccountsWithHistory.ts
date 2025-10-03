@@ -45,7 +45,7 @@ export const addAllAccountsWithHistory = async ({
         network: { ...avalancheNetwork, tokens: [] },
       });
 
-      if (!history.transactions.length) {
+      if (!history || !history.transactions.length) {
         accountsWithoutActivity++;
         continue;
       }
