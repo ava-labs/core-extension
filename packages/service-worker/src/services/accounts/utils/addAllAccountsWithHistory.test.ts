@@ -4,6 +4,7 @@ import { addAllAccountsWithHistory } from './addAllAccountsWithHistory';
 describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.tsx', () => {
   const getTransactionHistory = jest.fn();
   const addPrimaryAccount = jest.fn();
+  const getAccounts = jest.fn();
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -20,7 +21,11 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
     jest
       .spyOn(container, 'resolve')
       .mockReturnValueOnce({ loadModule })
-      .mockReturnValueOnce({ getAddressesForAccount, addPrimaryAccount })
+      .mockReturnValueOnce({
+        getAddressesForAccount,
+        addPrimaryAccount,
+        getAccounts,
+      })
       .mockReturnValueOnce({ getAvalancheNetwork });
   });
 
