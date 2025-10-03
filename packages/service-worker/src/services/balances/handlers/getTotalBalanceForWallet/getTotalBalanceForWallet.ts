@@ -86,6 +86,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         ).filter((address) => !derivedAddressesUnprefixed.includes(address))
       : [];
 
+    console.log('underivedXPChainAddresses', underivedXPChainAddresses);
+
     return underivedXPChainAddresses.map<Partial<Account>>((address) => ({
       addressPVM: `P-${address}`,
       addressAVM: `X-${address}`,
