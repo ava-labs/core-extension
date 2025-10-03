@@ -38,6 +38,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    (addAllAccountsWithHistory as jest.Mock).mockResolvedValue(['1']);
   });
 
   const handle = (params) => {
