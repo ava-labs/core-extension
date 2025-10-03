@@ -191,6 +191,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
     expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
       walletId: WALLET_ID,
+      addFirstAccount: true,
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);

@@ -91,7 +91,7 @@ export class MnemonicOnboardingHandler implements HandlerType {
       };
     }
 
-    await addAllAccountsWithHistory({ walletId });
+    await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
 
     await finalizeOnboarding({
       walletId,

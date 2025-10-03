@@ -6,10 +6,12 @@ import { AccountType } from '@core/types';
 
 interface CheckAccountsHistoryParams {
   walletId: string;
+  addFirstAccount?: boolean;
 }
 
 export const addAllAccountsWithHistory = async ({
   walletId,
+  addFirstAccount,
 }: CheckAccountsHistoryParams) => {
   const moduleManager = container.resolve(ModuleManager);
   const accountsService = container.resolve(AccountsService);
@@ -54,8 +56,7 @@ export const addAllAccountsWithHistory = async ({
     }
   }
 
-  const addedAccounts = await accountsService.getAccounts();
-  if (lastIndexToAdd === 0 && !addedAccounts.active) {
+  if (lastIndexToAdd === 0 && addFirstAccount) {
     await accountsService.addPrimaryAccount({ walletId });
   }
 

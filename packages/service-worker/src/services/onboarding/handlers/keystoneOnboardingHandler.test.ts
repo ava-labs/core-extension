@@ -156,6 +156,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     });
     expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
       walletId: WALLET_ID,
+      addFirstAccount: true,
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
