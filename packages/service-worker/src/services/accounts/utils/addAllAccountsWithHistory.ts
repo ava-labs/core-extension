@@ -55,7 +55,6 @@ export const addAllAccountsWithHistory = async ({
   }
 
   const addedAccounts = await accountsService.getAccounts();
-  console.log('addedAccounts: ', addedAccounts);
   if (lastIndexToAdd === 0 && !addedAccounts.active) {
     await accountsService.addPrimaryAccount({ walletId });
   }
