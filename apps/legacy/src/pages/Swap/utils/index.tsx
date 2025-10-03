@@ -12,7 +12,7 @@ interface GetTokenIconProps {
   token?: TokenWithBalanceEVM;
 }
 
-export const MIN_SLIPPAGE = 0.1;
+export const MIN_SLIPPAGE = 0.01;
 
 export const TokenIcon = ({ token }: GetTokenIconProps) => {
   if (!token) {
