@@ -23,13 +23,10 @@ export async function processGlacierAddresses(
     }
 
     const seenByGlacier: Record<string, ChainAddressChainIdMap> =
-      allGlacierAddresses.reduce(
-        (acc, addressInfo) => ({
-          ...acc,
-          [addressInfo.address]: addressInfo,
-        }),
-        {},
-      );
+      allGlacierAddresses.reduce((acc, addressInfo) => {
+        acc[addressInfo.address] = addressInfo;
+        return acc;
+      }, {});
 
     const result: string[] = [];
     for (let i = 0; i < addresses.length && !isDone(gap); i++) {
