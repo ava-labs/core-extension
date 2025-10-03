@@ -15,6 +15,11 @@ import {
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 import { AddressPublicKey } from '../../secrets/AddressPublicKey';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
+
+jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
+  addAllAccountsWithHistory: jest.fn(),
+}));
 
 describe('src/background/services/wallet/handlers/importLedger', () => {
   const walletService = {
@@ -132,9 +137,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       name: nameValue,
     });
 
-    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(2);
-
-    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
+    expect(addAllAccountsWithHistory).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.Ledger,
@@ -272,66 +275,6 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(1);
     expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
-
-    expect(result).toEqual({
-      type: SecretType.LedgerLive,
-      name: nameValue,
-      id: walletId,
-    });
-  });
-
-  it('imports max 3 accounts', async () => {
-    const walletId = crypto.randomUUID();
-    const pubKeysValue = [
-      {
-        evm: 'pubKeyEvm1',
-      },
-      {
-        evm: 'pubKeyEvm2',
-      },
-      {
-        evm: 'pubKeyEvm3',
-      },
-      {
-        evm: 'pubKeyEvm4',
-      },
-    ] as any;
-    const nameValue = 'walletName';
-    secretsService.isKnownSecret.mockResolvedValueOnce(false);
-    walletService.addPrimaryWallet.mockResolvedValue(walletId);
-    secretsService.getWalletAccountsSecretsById.mockResolvedValue({
-      secretType: SecretType.LedgerLive,
-      publicKeys: pubKeysValue,
-      derivationPathSpec: DerivationPath.LedgerLive,
-      id: walletId,
-      name: nameValue,
-    });
-
-    const { result } = await handle({
-      secretType: SecretType.LedgerLive,
-      pubKeys: pubKeysValue,
-      name: nameValue,
-      numberOfAccountsToCreate: 4,
-    });
-
-    expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
-      secretType: SecretType.LedgerLive,
-      publicKeys: pubKeysValue.map((key, index) =>
-        AddressPublicKey.fromJSON({
-          key: key.evm,
-          curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            index,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
-        }).toJSON(),
-      ),
-      derivationPathSpec: DerivationPath.LedgerLive,
-      name: nameValue,
-    });
-
-    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(3);
 
     expect(result).toEqual({
       type: SecretType.LedgerLive,
