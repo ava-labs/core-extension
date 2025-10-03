@@ -189,9 +189,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
       name: undefined,
     });
 
-    // expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
-    //   walletId: WALLET_ID,
-    // });
     expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
       walletId: WALLET_ID,
     });
