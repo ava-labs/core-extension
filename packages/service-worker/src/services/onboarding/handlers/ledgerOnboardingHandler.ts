@@ -195,10 +195,7 @@ export class LedgerOnboardingHandler implements HandlerType {
         });
       }
     } else {
-      await this.accountsService.addPrimaryAccount({
-        walletId,
-      });
-      addAllAccountsWithHistory({ walletId });
+      await addAllAccountsWithHistory({ walletId });
     }
 
     await finalizeOnboarding({

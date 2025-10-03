@@ -25,7 +25,6 @@ export const addAllAccountsWithHistory = async ({
   let lastIndexToAdd = 0;
 
   while (accountsWithoutActivity < 2) {
-    lastIndexChecked++;
     const nextAccount = {
       id: `${lastIndexChecked}`,
       index: lastIndexChecked,
@@ -33,6 +32,7 @@ export const addAllAccountsWithHistory = async ({
       type: AccountType.PRIMARY as const,
       walletId: walletId,
     };
+    lastIndexChecked++;
 
     try {
       const nextAccountAddresses =

@@ -94,10 +94,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
       };
     }
 
-    await this.accountsService.addPrimaryAccount({
-      walletId,
-    });
-    addAllAccountsWithHistory({ walletId });
+    await addAllAccountsWithHistory({ walletId });
 
     await finalizeOnboarding({
       walletId,

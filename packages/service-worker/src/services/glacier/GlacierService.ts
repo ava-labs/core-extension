@@ -18,10 +18,6 @@ export class GlacierService {
     HEADERS,
   });
 
-  async getAddressEVMHistory(address: string) {
-    return this.glacierSdkInstance.evmChains.listAddressChains({ address });
-  }
-
   async getChainIdsForAddresses({
     addresses,
     network,
