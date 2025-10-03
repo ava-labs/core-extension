@@ -67,7 +67,6 @@ export function AddWalletWithSeedPhrase() {
 
   const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const [isKnownPhrase, setIsKnownPhrase] = useState(false);
-  console.log('isKnownPhrase: ', isKnownPhrase);
   const [isPhraseValid, setIsPhraseValid] = useState(false);
 
   const deriveAddresses = useCallback(
