@@ -56,11 +56,13 @@ export const addAllAccountsWithHistory = async ({
     }
   }
 
+  const accountIds: string[] = [];
   if (lastIndexToAdd === 0 && addFirstAccount) {
-    await accountsService.addPrimaryAccount({ walletId });
+    accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
 
   for (let i = 0; i < lastIndexToAdd; i++) {
-    await accountsService.addPrimaryAccount({ walletId });
+    accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
+  return accountIds;
 };
