@@ -1,1 +1,1 @@
-export { RecoveryMethodsList } from './components/RecoveryMethodsList';
+export * from './RecoveryMethods';
