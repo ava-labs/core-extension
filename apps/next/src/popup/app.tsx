@@ -11,6 +11,7 @@ import {
   BalancesProvider,
   ContactsContextProvider,
   CurrenciesContextProvider,
+  FirebaseContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -52,6 +53,7 @@ const pagesWithoutHeader = [
   getContactsPath(),
   getSendPath(),
   getSwapPath(),
+  '/concierge',
 ];
 
 export function App() {
@@ -129,6 +131,7 @@ export function App() {
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
+          <FirebaseContextProvider />,
         ]) as ReactElement[]
       }
     >
