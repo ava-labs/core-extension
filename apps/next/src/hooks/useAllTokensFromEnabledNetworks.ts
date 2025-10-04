@@ -2,8 +2,14 @@ import { useNetworkContext } from '@core/ui';
 import { useAllTokens } from './useAllTokens';
 
 // TODO: Currently the hook is using favoriteNetwork. It should be changed to enabledNetworks once added.
-export const useAllTokensFromEnabledNetworks = () => {
-  const { favoriteNetworks } = useNetworkContext();
+export const useAllTokensFromEnabledNetworks = (
+  onlyTokensWithBalances?: boolean,
+  hideMalicious?: boolean,
+) => {
+  const { enabledNetworks } = useNetworkContext();
+  const tokens = useAllTokens(enabledNetworks, hideMalicious);
 
-  return useAllTokens(favoriteNetworks, false);
+  return !onlyTokensWithBalances
+    ? tokens
+    : tokens.filter((token) => token.balance);
 };
