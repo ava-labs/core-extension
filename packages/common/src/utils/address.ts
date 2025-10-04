@@ -66,6 +66,7 @@ export async function getAddressesInRangeForSeedless(
     start,
     limit,
   );
+
   const session = await SignerSession.loadSignerSession(sessionStorage);
   // Get keys
   const keys = await session.keys();

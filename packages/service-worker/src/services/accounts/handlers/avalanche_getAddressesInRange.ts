@@ -1,7 +1,6 @@
 import {
   canSkipApproval,
   getAddressesInRange,
-  getAddressesInRangeForSeedless,
   KNOWN_CORE_DOMAINS,
 } from '@core/common';
 import {
@@ -13,7 +12,6 @@ import {
   DEFERRED_RESPONSE,
   GetAddressesInRangeDisplayData,
   GetAddressesInRangeResponse,
-  SecretType,
 } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
@@ -22,7 +20,6 @@ import { NetworkService } from '../../network/NetworkService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { getExtendedPublicKey } from '../../secrets/utils';
 import { AccountsService } from '../AccountsService';
-import { SeedlessTokenStorage } from '../../seedless/SeedlessTokenStorage';
 
 type Params = [
   externalStart: number,
@@ -53,6 +50,10 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
     super();
   }
 
+  #removePrefixedAddress = (address: string) => {
+    return address.replace('P-', '');
+  };
+
   #getCorrectedLimit = (limit?: number) => {
     const MAX_LIMIT = 100;
 
@@ -69,18 +70,10 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
     externalStart,
     externalLimit,
   }) => {
-    console.log('🔍 #getAddresses called with:', {
-      internalStart,
-      internalLimit,
-      externalStart,
-      externalLimit,
-    });
     const provXP = await this.networkService.getAvalanceProviderXP();
     const activeAccount = await this.accountsService.getActiveAccount();
-    console.log('🔍 activeAccount:', activeAccount);
     const secrets =
       await this.secretsService.getPrimaryAccountSecrets(activeAccount);
-    console.log('🔍 secrets:', secrets);
 
     const addresses: { external: string[]; internal: string[] } = {
       external: [],
@@ -88,7 +81,6 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
     };
 
     if (!secrets) {
-      console.log('🔍 No secrets, returning empty addresses');
       return addresses;
     }
 
@@ -98,7 +90,6 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
         AVALANCHE_BASE_DERIVATION_PATH,
         'secp256k1',
       );
-      console.log('extendedPublicKey', extendedPublicKey);
       if (extendedPublicKey) {
         if (externalLimit > 0) {
           addresses.external = getAddressesInRange(
@@ -125,29 +116,27 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
         activeAccount?.type === AccountType.PRIMARY
           ? activeAccount.walletId
           : undefined;
-      console.log('walletId', walletId);
       if (walletId) {
-        const walletSecrets =
-          await this.secretsService.getSecretsById(walletId);
-        console.log('walletSecrets', walletSecrets);
-        if (walletSecrets?.secretType === SecretType.Seedless) {
-          const storage = new SeedlessTokenStorage(this.secretsService);
+        const accountsInWallet =
+          await this.accountsService.getPrimaryAccountsByWalletId(walletId);
 
-          addresses.external = await getAddressesInRangeForSeedless(
-            storage,
-            !this.networkService.isMainnet(),
-            externalStart,
-            externalLimit,
-          );
-        }
+        addresses.external = accountsInWallet
+          .map((account) =>
+            this.#removePrefixedAddress(account.addressPVM ?? ''),
+          )
+          .filter(Boolean);
+      } else {
+        const xpAddress = this.#removePrefixedAddress(
+          activeAccount?.addressPVM ?? '',
+        );
+        addresses.external = xpAddress ? [xpAddress] : [];
       }
-    }
 
-    return addresses;
+      return addresses;
+    }
   };
 
   handleAuthenticated = async ({ request, scope }) => {
-    console.log('🔍 handleAuthenticated called with request:', request);
     const [externalStart, internalStart, externalLimit, internalLimit] =
       request.params;
 
