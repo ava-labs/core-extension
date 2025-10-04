@@ -310,13 +310,32 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('only fetches balances for the imported accounts', async () => {
       const response = await handleRequest(IMPORTED_ACCOUNTS_WALLET_ID);
       expect(response.error).toBeUndefined();
+      // Now expects 2 calls: P-chain and non-P-chain for derived accounts
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(1);
+      ).toHaveBeenCalledTimes(2);
+
+      // Call 1: P-chain networks for derived accounts (native tokens only)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledWith(
-        expect.any(Array),
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.arrayContaining([ChainId.AVALANCHE_P]),
+        [ACCOUNT_IMPORTED_0, ACCOUNT_IMPORTED_1],
+        [TokenType.NATIVE],
+      );
+
+      // Call 2: Non-P-chain networks for derived accounts (native + ERC20 tokens)
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(
+        2,
+        expect.arrayContaining([
+          ChainId.AVALANCHE_MAINNET_ID,
+          ChainId.AVALANCHE_X,
+          ChainId.BITCOIN,
+          ChainId.ETHEREUM_HOMESTEAD,
+        ]),
         [ACCOUNT_IMPORTED_0, ACCOUNT_IMPORTED_1],
         [TokenType.NATIVE, TokenType.ERC20],
       );
@@ -348,13 +367,32 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('only fetches balances for already derived accounts', async () => {
       const response = await handleRequest('seedless');
       expect(response.error).toBeUndefined();
+      // Now expects 2 calls: P-chain and non-P-chain for derived accounts
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(1);
+      ).toHaveBeenCalledTimes(2);
+
+      // Call 1: P-chain networks for derived accounts (native tokens only)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledWith(
-        expect.any(Array),
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.arrayContaining([ChainId.AVALANCHE_P]),
+        [ACCOUNT_SEEDLESS],
+        [TokenType.NATIVE],
+      );
+
+      // Call 2: Non-P-chain networks for derived accounts (native + ERC20 tokens)
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(
+        2,
+        expect.arrayContaining([
+          ChainId.AVALANCHE_MAINNET_ID,
+          ChainId.AVALANCHE_X,
+          ChainId.BITCOIN,
+          ChainId.ETHEREUM_HOMESTEAD,
+        ]),
         [ACCOUNT_SEEDLESS],
         [TokenType.NATIVE, TokenType.ERC20],
       );
@@ -404,15 +442,28 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
+      // Now expects 2 calls: P-chain and non-P-chain for derived accounts
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(1);
+      ).toHaveBeenCalledTimes(2);
+
+      // Call 1: P-chain networks for derived accounts (native tokens only)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledWith(
+      ).toHaveBeenNthCalledWith(
+        1,
+        [ChainId.AVALANCHE_P],
+        [ACCOUNT_SEED_0, ACCOUNT_SEED_1],
+        [TokenType.NATIVE],
+      );
+
+      // Call 2: Non-P-chain networks for derived accounts (native + ERC20 tokens)
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(
+        2,
         [
           ChainId.AVALANCHE_MAINNET_ID,
-          ChainId.AVALANCHE_P,
           ChainId.AVALANCHE_X,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
@@ -434,15 +485,28 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
+      // Now expects 2 calls: P-chain and non-P-chain for derived accounts
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(1);
+      ).toHaveBeenCalledTimes(2);
+
+      // Call 1: P-chain networks for derived accounts (native tokens only)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledWith(
+      ).toHaveBeenNthCalledWith(
+        1,
+        [ChainId.AVALANCHE_TEST_P],
+        [ACCOUNT_SEED_0, ACCOUNT_SEED_1],
+        [TokenType.NATIVE],
+      );
+
+      // Call 2: Non-P-chain networks for derived accounts (native + ERC20 tokens)
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(
+        2,
         [
           ChainId.AVALANCHE_TESTNET_ID,
-          ChainId.AVALANCHE_TEST_P,
           ChainId.AVALANCHE_TEST_X,
           ChainId.BITCOIN_TESTNET,
           ChainId.ETHEREUM_TEST_SEPOLIA,
@@ -477,17 +541,28 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       const response = await handleRequest('ledger');
       expect(response.error).toBeUndefined();
 
-      // Fetching balances of derived accounts
+      // Fetching balances of derived accounts (now split into P-chain and non-P-chain)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(2);
+      ).toHaveBeenCalledTimes(3);
+
+      // Call 1: P-chain networks for derived accounts (native tokens only)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenNthCalledWith(
         1,
+        [ChainId.AVALANCHE_P],
+        [ACCOUNT_LEDGER_0, ACCOUNT_LEDGER_1],
+        [TokenType.NATIVE],
+      );
+
+      // Call 2: Non-P-chain networks for derived accounts (native + ERC20 tokens)
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(
+        2,
         [
           ChainId.AVALANCHE_MAINNET_ID,
-          ChainId.AVALANCHE_P,
           ChainId.AVALANCHE_X,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
@@ -496,14 +571,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         [TokenType.NATIVE, TokenType.ERC20],
       );
 
-      // Fetching XP balances of underived accounts, without caching
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(2);
+      // Call 3: Fetching XP balances of underived accounts, without caching
       expect(
         balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenNthCalledWith(
-        2,
+        3,
         [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
         [{ addressPVM: `P-${xpAddress}`, addressAVM: `X-${xpAddress}` }],
         [TokenType.NATIVE],

@@ -5,8 +5,9 @@ import { getAddressesInRange } from '@core/common';
 
 import {
   AddressActivityFetcher,
-  GLACIER_ADDRESS_FETCH_LIMIT,
   ITERATION_LIMIT,
+  INTERNAL_ADDRESS_BATCH_SIZE,
+  EXTERNAL_ADDRESS_BATCH_SIZE,
 } from '../models';
 
 import { processGlacierAddresses } from './processGlacierAddresses';
@@ -26,18 +27,22 @@ export async function getAccountsWithActivity(
   let iteration = 0;
 
   while (!isDone(externalGap) && !isDone(internalGap) && !tooManyIterations) {
+    // Generate addresses in batches of 100 for internal and external
     const external = getAddressesInRange(
       xpubXP,
       providerXP,
       false,
       externalStart,
+      EXTERNAL_ADDRESS_BATCH_SIZE,
     );
     const internal = getAddressesInRange(
       xpubXP,
       providerXP,
       true,
       internalStart,
+      INTERNAL_ADDRESS_BATCH_SIZE,
     );
+
     const [externalResult, internalResult] = await Promise.all([
       processGlacierAddresses(external, activityFetcher, externalGap),
       processGlacierAddresses(internal, activityFetcher, internalGap),
@@ -47,10 +52,10 @@ export async function getAccountsWithActivity(
     result = [...result, ...internalResult.result];
 
     externalGap = externalResult.gap;
-    externalStart += GLACIER_ADDRESS_FETCH_LIMIT;
+    externalStart += EXTERNAL_ADDRESS_BATCH_SIZE;
 
     internalGap = internalResult.gap;
-    internalStart += GLACIER_ADDRESS_FETCH_LIMIT;
+    internalStart += INTERNAL_ADDRESS_BATCH_SIZE;
 
     iteration += 1;
     tooManyIterations = iteration >= ITERATION_LIMIT;
