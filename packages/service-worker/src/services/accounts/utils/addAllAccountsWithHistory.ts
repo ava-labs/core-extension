@@ -7,11 +7,13 @@ import { AccountType } from '@core/types';
 interface CheckAccountsHistoryParams {
   walletId: string;
   addFirstAccount?: boolean;
+  lastIndex?: number;
 }
 
 export const addAllAccountsWithHistory = async ({
   walletId,
   addFirstAccount,
+  lastIndex,
 }: CheckAccountsHistoryParams) => {
   const moduleManager = container.resolve(ModuleManager);
   const accountsService = container.resolve(AccountsService);
@@ -22,7 +24,7 @@ export const addAllAccountsWithHistory = async ({
 
   const module = await moduleManager.loadModule(avalancheNetwork.caipId);
 
-  let lastIndexChecked = 0;
+  let lastIndexChecked = lastIndex || 0;
   let accountsWithoutActivity = 0;
   let lastIndexToAdd = 0;
 
@@ -61,7 +63,7 @@ export const addAllAccountsWithHistory = async ({
     accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
 
-  for (let i = 0; i < lastIndexToAdd; i++) {
+  for (let i = 0; i < lastIndexToAdd - (lastIndex || 0); i++) {
     accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
   return accountIds;
