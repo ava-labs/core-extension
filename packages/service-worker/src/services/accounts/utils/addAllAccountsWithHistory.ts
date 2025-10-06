@@ -57,6 +57,7 @@ export const addAllAccountsWithHistory = async ({
       accountsWithoutActivity = 0;
     } catch (e) {
       console.error(e);
+      break;
     }
   }
 
