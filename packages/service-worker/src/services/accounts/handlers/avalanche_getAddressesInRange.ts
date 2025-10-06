@@ -130,9 +130,9 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
         );
         addresses.external = xpAddress ? [xpAddress] : [];
       }
-
-      return addresses;
     }
+
+    return addresses;
   };
 
   handleAuthenticated = async ({ request, scope }) => {
