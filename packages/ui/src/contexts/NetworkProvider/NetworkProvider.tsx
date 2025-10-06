@@ -394,7 +394,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
             method: ExtensionRequest.NETWORK_REMOVE_FAVORITE_NETWORK,
             params: [chainId],
           }).then((result) => {
-            setFavoriteNetworks(result.sort(promoteAvalancheNetworks));
+            setFavoriteNetworks(result);
             capture('NetworkFavoriteRemoved', {
               networkChainId: chainId,
               isCustom: isCustomNetwork(chainId),

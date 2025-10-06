@@ -2,7 +2,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { Network } from '@core/types';
 import { promoteAvalancheNetworks } from './networkSortingFn';
 
-describe('networkSortingFn', () => {
+describe('contexts/NetworkProvider/networkSortingFn', () => {
   describe('promoteAvalancheNetworks', () => {
     // Helper function to create mock network objects
     const createMockNetwork = (chainId: number): Network =>
