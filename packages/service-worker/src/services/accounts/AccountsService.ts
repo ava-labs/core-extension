@@ -224,7 +224,7 @@ export class AccountsService implements OnLock, OnUnlock {
           return account;
         }
 
-        const addresses = await this.#getAddressesForAccount(account);
+        const addresses = await this.getAddressesForAccount(account);
 
         return {
           ...account,
@@ -271,7 +271,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
   };
 
-  async #getAddressesForAccount(
+  async getAddressesForAccount(
     account: AccountWithOptionalAddresses,
   ): Promise<DerivedAddresses> {
     if (isPrimaryAccount(account)) {
@@ -312,7 +312,7 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
-    const addresses = await this.#getAddressesForAccount(account);
+    const addresses = await this.getAddressesForAccount(account);
     if (account.type === AccountType.PRIMARY) {
       const walletAccounts = this.#accounts.primary[account.walletId]!;
 
@@ -486,7 +486,7 @@ export class AccountsService implements OnLock, OnUnlock {
       addressResolver: this.addressResolver,
     });
 
-    const addresses = await this.#getAddressesForAccount(newAccount);
+    const addresses = await this.getAddressesForAccount(newAccount);
 
     assertPropDefined(addresses, 'addressC', AccountError.EVMAddressNotFound);
     assertPropDefined(addresses, 'addressBTC', AccountError.BTCAddressNotFound);
@@ -516,6 +516,7 @@ export class AccountsService implements OnLock, OnUnlock {
       windowId: crypto.randomUUID(),
       properties: { addresses: await this.#getAllAddresses() },
     });
+
     return id;
   }
 

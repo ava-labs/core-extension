@@ -215,6 +215,7 @@ export function LedgerConnector({
       accountIndex = 0,
       addressList: AddressType[] = [],
       pubKeys: PubKeyType[] = [],
+      emptyAccounts = 0,
     ) => {
       try {
         const pubKey = await getPublicKey(accountIndex, derivationPathSpec);
@@ -224,7 +225,9 @@ export function LedgerConnector({
           'AVM',
         );
         const address = getEvmAddressFromPubKey(pubKey);
+
         const { balance } = await getAvaxBalance(address);
+
         const newAddresses = [
           ...addressList,
           {
@@ -233,18 +236,25 @@ export function LedgerConnector({
             explorerLink: getAvalancheAddressLink(address),
           },
         ];
+        const hasBalance = balance.balanceDisplayValue !== '0';
+
         setAddresses(newAddresses);
         lastAccountIndexWithBalance.current = Math.max(
           0,
           newAddresses.findLastIndex((addr) => addr.balance !== '0'),
         );
-        if (accountIndex < 2) {
-          await getPubKeys(derivationPathSpec, accountIndex + 1, newAddresses, [
-            ...pubKeys,
-            { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
-          ]);
-        }
-        if (accountIndex >= 2) {
+        if (emptyAccounts < 2) {
+          await getPubKeys(
+            derivationPathSpec,
+            accountIndex + 1,
+            newAddresses,
+            [
+              ...pubKeys,
+              { evm: pubKey.toString('hex'), xp: pubKeyXP.toString('hex') },
+            ],
+            hasBalance ? 0 : emptyAccounts + 1,
+          );
+        } else {
           capture('OnboardingLedgerConnected');
           setPublicKeyState(LedgerStatus.LEDGER_CONNECTED);
           const publicKeyValue = [

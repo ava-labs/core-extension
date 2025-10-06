@@ -22,6 +22,7 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
 
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_SEED_PHRASE,
@@ -40,19 +41,13 @@ export class ImportSeedPhraseHandler implements HandlerType {
   ) {}
 
   async #addAccounts(walletId: string) {
-    // We need to await each of these calls, otherwise there may be race conditions
-    // (i.e. address for 0-index account derived N times).
-    const activeAccount = await this.accountsService.addPrimaryAccount({
+    const accountIds = await addAllAccountsWithHistory({
       walletId,
+      addFirstAccount: true,
     });
-    await this.accountsService.addPrimaryAccount({
-      walletId,
-    });
-    await this.accountsService.addPrimaryAccount({
-      walletId,
-    });
-
-    await this.accountsService.activateAccount(activeAccount);
+    if (accountIds[0]) {
+      await this.accountsService.activateAccount(accountIds[0]);
+    }
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {

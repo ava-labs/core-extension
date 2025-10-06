@@ -88,6 +88,7 @@ export function TransactionDetails({
 
   const { network } = useNetworkContext();
   const { isFlagEnabled } = useFeatureFlagContext();
+  const [slippageInputValue, setSlippageInputValue] = useState(slippage);
   const [isDetailsOpen, setIsDetailsOpen] = useState(
     isTransactionDetailsOpen || false,
   );
@@ -213,7 +214,7 @@ export function TransactionDetails({
                   <TextField
                     data-testid="swap-slippage-tolerance-input"
                     size={'small'}
-                    value={slippage}
+                    value={slippageInputValue}
                     placeholder="Input Percent %"
                     fullWidth
                     type="number"
@@ -226,13 +227,15 @@ export function TransactionDetails({
                     }}
                     onChange={(e) => {
                       const inputValue = e.target.value;
-                      setSlippage(inputValue);
+                      setSlippageInputValue(inputValue);
 
-                      setError(
-                        isSlippageValid(inputValue)
-                          ? ''
-                          : t('Enter a value of at least 0.1%'),
-                      );
+                      if (!isSlippageValid(inputValue)) {
+                        setError(t('Enter a value of at least 0.01%'));
+                        return;
+                      }
+
+                      setSlippage(inputValue);
+                      setError('');
                     }}
                   />
                   <Typography

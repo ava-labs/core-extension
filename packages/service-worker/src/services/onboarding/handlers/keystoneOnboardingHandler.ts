@@ -18,6 +18,7 @@ import { injectable } from 'tsyringe';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.KEYSTONE_ONBOARDING_SUBMIT,
@@ -93,9 +94,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
       };
     }
 
-    await this.accountsService.addPrimaryAccount({
-      walletId,
-    });
+    await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
 
     await finalizeOnboarding({
       walletId,
