@@ -4,6 +4,8 @@ import { AccountsService } from '../AccountsService';
 import { NetworkService } from '~/services/network/NetworkService';
 import { AccountType } from '@core/types';
 
+export const ACCOUNTS_ADDED_KEY = 'accountsAdded';
+
 interface CheckAccountsHistoryParams {
   walletId: string;
   addFirstAccount?: boolean;
@@ -66,5 +68,8 @@ export const addAllAccountsWithHistory = async ({
   for (let i = 0; i < lastIndexToAdd - (lastIndex || 0); i++) {
     accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
+
+  // await storageService.saveUnencrypted(ACCOUNTS_ADDED_KEY, true);
+
   return accountIds;
 };
