@@ -4,7 +4,6 @@ import {
   KNOWN_CORE_DOMAINS,
 } from '@core/common';
 import {
-  AccountType,
   Action,
   AVALANCHE_BASE_DERIVATION_PATH,
   DAppProviderRequest,
@@ -113,7 +112,7 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
       }
     } else {
       const walletId =
-        activeAccount?.type === AccountType.PRIMARY
+        activeAccount && 'walletId' in activeAccount
           ? activeAccount.walletId
           : undefined;
       if (walletId) {
