@@ -17,10 +17,7 @@ type HandlerType = ExtensionRequestHandler<
 export class GetAccountsHandler implements HandlerType {
   method = ExtensionRequest.ACCOUNT_GET_ACCOUNTS as const;
 
-  constructor(
-    private accountsService: AccountsService,
-    // private secretsService: SecretsService,
-  ) {}
+  constructor(private accountsService: AccountsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const accounts = await this.accountsService.getAccounts();
@@ -34,9 +31,6 @@ export class GetAccountsHandler implements HandlerType {
         lastIndex,
       });
     }
-
-    // const wallets = await this.secretsService.getPrimaryWalletsDetails();
-    // console.log('wallets: ', wallets);
 
     return {
       ...request,

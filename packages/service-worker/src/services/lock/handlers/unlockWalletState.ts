@@ -37,16 +37,11 @@ export class UnlockWalletHandler implements HandlerType {
       };
     }
 
-    //TODO
-
     const accounts = await this.accountsService.getAccounts();
-    console.log('accounts: ', accounts);
     const walletIds = Object.keys(accounts.primary);
-    console.log('walletIds: ', walletIds);
 
     const hasAccountsAdded =
       await this.storageService.loadUnencrypted(ACCOUNTS_ADDED_KEY);
-    console.log('hasAccountsAdded: ', hasAccountsAdded);
     if (!hasAccountsAdded) {
       for (const walletId of walletIds) {
         const lastIndex = accounts.primary[walletId]?.length;
