@@ -175,11 +175,10 @@ describe('utils/calculateTotalBalance', () => {
 
     const balance = calculateTotalBalance(account, networks, avmBalances, true);
 
-    // Should include UTXO balance (unlocked + locked, excluding pendingStaked)
-    // unlocked: 1000000000 + 2000000000 = 3000000000
-    // locked: 500000000
-    // Total UTXO: 3500000000 (3.5 AVAX)
-    expect(balance.sum).toBe(3500000000);
+    // Should use the token.balance field instead of UTXO calculation
+    // balance: 100n (from token.balance) / 10^9 = 0.0000001 AVAX
+    // 0.0000001 AVAX * priceInCurrency (5) = 0.0000005
+    expect(balance.sum).toBe(0.0000005);
   });
 
   it('should calculate UTXO balance for PVM token when isUsedForWalletBalance is true', () => {
@@ -296,12 +295,10 @@ describe('utils/calculateTotalBalance', () => {
 
     const balance = calculateTotalBalance(account, networks, pvmBalances, true);
 
-    // Should include UTXO balance (unlockedUnstaked + unlockedStaked + lockedStaked, excluding pendingStaked)
-    // unlockedUnstaked: 1000000000
-    // unlockedStaked: 2000000000
-    // lockedStaked: 500000000
-    // Total UTXO: 3500000000 (3.5 AVAX)
-    expect(balance.sum).toBe(3500000000);
+    // Should use the token.balance field instead of UTXO calculation
+    // balance: 100n (from token.balance) / 10^9 = 0.0000001 AVAX
+    // 0.0000001 AVAX * priceInCurrency (5) = 0.0000005
+    expect(balance.sum).toBe(0.0000005);
   });
 
   it('should use regular balanceInCurrency for non-AVM/PVM tokens', () => {

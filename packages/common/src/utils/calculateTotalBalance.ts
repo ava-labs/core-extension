@@ -13,6 +13,7 @@ import {
   TokenWithBalanceAVM,
   TokenWithBalancePVM,
 } from '@avalabs/vm-module-types';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 export function calculateTotalBalance(
   account?: Partial<Account>,
@@ -145,17 +146,28 @@ const getBalanceForWalletBalance = (
     return undefined;
   }
 
-  if (token.utxos && typeof token.utxos === 'object') {
+  if (token.utxos) {
     // Sum all UTXO values from the utxos object
     Object.entries(token.utxos).forEach(([key, utxoGroup]) => {
       if (Array.isArray(utxoGroup) && shouldIncludeUtxoGroup(key)) {
         utxoGroup.forEach((utxo) => {
-          totalUtxoBalance += Number(utxo.amount);
+          if (Number(utxo.amount) > 0) {
+            totalUtxoBalance += Number(utxo.amount);
+          }
         });
       }
     });
   }
-  return totalUtxoBalance * token.priceInCurrency;
+
+  const tokenUnit = new TokenUnit(
+    totalUtxoBalance,
+    token.decimals,
+    token.symbol,
+  );
+
+  return (
+    tokenUnit.toDisplay({ fixedDp: 2, asNumber: true }) * token.priceInCurrency
+  );
 };
 
 const isXPToken = (

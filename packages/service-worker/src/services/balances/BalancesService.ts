@@ -103,8 +103,6 @@ export class BalancesService {
               const updatedTokenBalance = { ...tokenBalance };
               const watchlistAvaxPrice = priceChanges?.['avax']?.currentPrice;
               if (isAvaxOnAvalancheChains && watchlistAvaxPrice) {
-                console.log('overriding avax price');
-
                 const balanceUnit = new TokenUnit(
                   tokenBalance.balance,
                   tokenBalance.decimals,
@@ -141,6 +139,7 @@ export class BalancesService {
                   });
 
                 updatedTokenBalance.priceInCurrency = watchlistAvaxPrice;
+                console.log({ tokenBalance, updatedTokenBalance });
               }
 
               return {

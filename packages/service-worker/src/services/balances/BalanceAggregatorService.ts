@@ -69,10 +69,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     ).filter((network) => chainIds.includes(network.chainId));
 
     const priceChangesData = await this.getPriceChangesData();
-    console.log(
-      'Price changes data passed to getBalancesForNetworks:',
-      priceChangesData,
-    );
 
     const updateRequests = await Promise.allSettled(
       networks.map(async (network) => {
@@ -216,17 +212,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         return;
       }
       const priceChanges: PriceChangesData[] = await priceChangesResult.json();
-      console.log('Watchlist API response:', priceChanges);
-      console.log('Sample price change data:', priceChanges[0]);
       const tokensData: TokensPriceShortData = priceChanges.reduce(
         (acc: TokensPriceShortData, data: PriceChangesData) => {
-          if (data.symbol === 'avax') {
-            console.log(`Processing ${data.symbol}:`, {
-              current_price: data.current_price,
-              price_change_24h: data.price_change_24h,
-            });
-          }
-
           return {
             ...acc,
             [data.symbol]: {
@@ -238,7 +225,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         },
         {},
       );
-      console.log('Final tokensData:', tokensData);
 
       priceChangesData = { ...tokensData };
 
