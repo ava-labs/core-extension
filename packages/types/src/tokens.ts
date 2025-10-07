@@ -43,6 +43,7 @@ export interface TokensPriceShortData {
   [symbol: string]: {
     priceChange?: number;
     priceChangePercentage?: number;
+    currentPrice?: number;
   };
 }
 
