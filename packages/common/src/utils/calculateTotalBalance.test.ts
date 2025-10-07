@@ -92,6 +92,12 @@ describe('utils/calculateTotalBalance', () => {
       description: 'Avalanche native token',
       logoUri: 'avax-logo',
       balanceInCurrency: 5,
+      priceInCurrency: 5,
+      priceChanges: {
+        currentPrice: 5,
+        percentage: 0,
+        value: 0,
+      },
       utxos: {
         unlocked: [
           {
@@ -175,10 +181,12 @@ describe('utils/calculateTotalBalance', () => {
 
     const balance = calculateTotalBalance(account, networks, avmBalances, true);
 
-    // Should use the token.balance field instead of UTXO calculation
-    // balance: 100n (from token.balance) / 10^9 = 0.0000001 AVAX
-    // 0.0000001 AVAX * priceInCurrency (5) = 0.0000005
-    expect(balance.sum).toBe(0.0000005);
+    // Should calculate from UTXO amounts (excluding pendingStaked)
+    // unlocked: 1000000000 + 2000000000 = 3000000000 nAVAX
+    // locked: 500000000 nAVAX
+    // Total UTXO: 3500000000 nAVAX = 3.5 AVAX
+    // 3.5 AVAX * priceInCurrency (5) = 17.5
+    expect(balance.sum).toBe(17.5);
   });
 
   it('should calculate UTXO balance for PVM token when isUsedForWalletBalance is true', () => {
@@ -193,6 +201,12 @@ describe('utils/calculateTotalBalance', () => {
       description: 'Avalanche native token',
       logoUri: 'avax-logo',
       balanceInCurrency: 5,
+      priceInCurrency: 5,
+      priceChanges: {
+        currentPrice: 5,
+        percentage: 0,
+        value: 0,
+      },
       utxos: {
         unlockedUnstaked: [
           {
@@ -295,13 +309,85 @@ describe('utils/calculateTotalBalance', () => {
 
     const balance = calculateTotalBalance(account, networks, pvmBalances, true);
 
-    // Should use the token.balance field instead of UTXO calculation
-    // balance: 100n (from token.balance) / 10^9 = 0.0000001 AVAX
-    // 0.0000001 AVAX * priceInCurrency (5) = 0.0000005
-    expect(balance.sum).toBe(0.0000005);
+    // Should calculate from UTXO amounts (excluding pendingStaked)
+    // unlockedUnstaked: 1000000000 nAVAX
+    // unlockedStaked: 2000000000 nAVAX
+    // lockedStaked: 500000000 nAVAX
+    // Total UTXO: 3500000000 nAVAX = 3.5 AVAX
+    // 3.5 AVAX * priceInCurrency (5) = 17.5
+    expect(balance.sum).toBe(17.5);
   });
 
-  it('should use regular balanceInCurrency for non-AVM/PVM tokens', () => {
+  it('should calculate balance for C-chain (EVM) AVAX token when isUsedForWalletBalance is true', () => {
+    const cChainToken: NetworkTokenWithBalance = {
+      type: TokenType.NATIVE,
+      name: 'Avalanche',
+      symbol: 'AVAX',
+      balance: 1000000000n, // 1 AVAX in nAVAX
+      balanceDisplayValue: '1.0',
+      coingeckoId: 'avax',
+      decimals: 9,
+      description: 'Avalanche native token',
+      logoUri: 'avax-logo',
+      balanceInCurrency: 5,
+      priceInCurrency: 5,
+      priceChanges: {
+        currentPrice: 5,
+        percentage: 0,
+        value: 0,
+      },
+    };
+
+    const account: Account = {
+      id: 'account1',
+      name: 'test account',
+      addressC: '0x123',
+      addressBTC: 'btc-address',
+      type: AccountType.PRIMARY,
+      index: 0,
+      walletId: 'walletId',
+    };
+
+    const cChainBalances: Balances = {
+      [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+        [account.addressC!]: {
+          AVAX: cChainToken,
+        },
+      },
+    };
+
+    const networks: NetworkWithCaipId[] = [
+      {
+        chainId: ChainId.AVALANCHE_MAINNET_ID,
+        vmName: NetworkVMType.EVM,
+        caipId: 'eip155:43114',
+        chainName: 'Avalanche',
+        rpcUrl: 'https://api.avax.network',
+        networkToken: {
+          name: 'Avalanche',
+          symbol: 'AVAX',
+          decimals: 9,
+          description: 'AVAX',
+          logoUri: '',
+        },
+        logoUri: '',
+        explorerUrl: 'https://snowtrace.io',
+      },
+    ];
+
+    const balance = calculateTotalBalance(
+      account,
+      networks,
+      cChainBalances,
+      true,
+    );
+
+    // Should use token.balance for C-chain
+    // balance: 1000000000n (1 AVAX) * priceInCurrency (5) = 5
+    expect(balance.sum).toBe(5);
+  });
+
+  it('should use regular balanceInCurrency for non-AVAX tokens', () => {
     const evmToken: NetworkTokenWithBalance = {
       type: TokenType.NATIVE,
       name: 'Ethereum',
@@ -354,7 +440,7 @@ describe('utils/calculateTotalBalance', () => {
 
     const balance = calculateTotalBalance(account, networks, evmBalances, true);
 
-    // Should use regular balanceInCurrency for EVM tokens
+    // Should use regular balanceInCurrency for non-AVAX tokens
     expect(balance.sum).toBe(150);
   });
 });

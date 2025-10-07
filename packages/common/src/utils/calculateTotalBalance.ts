@@ -7,6 +7,7 @@ import {
 import { hasAccountBalances } from './hasAccountBalances';
 import { getAddressForChain } from './getAddressForChain';
 import {
+  NetworkTokenWithBalance,
   NetworkVMType,
   TokenType,
   TokenWithBalance,
@@ -129,22 +130,46 @@ const getBalanceInCurrency = (
   if (
     isUsedForWalletBalance &&
     token.type === TokenType.NATIVE &&
-    token.symbol === 'AVAX' &&
-    isXPToken(token, network)
+    token.symbol === 'AVAX'
   ) {
-    return getBalanceForWalletBalance(token);
+    if (isXPToken(token, network)) {
+      return getBalanceInCurrencyForXP(token);
+    } else {
+      return getBalanceInCurrencyForC(token);
+    }
   }
+
   return token.balanceInCurrency ?? 0;
 };
 
-const getBalanceForWalletBalance = (
+const convertBalanceToDisplayValue = (
+  value: bigint | number,
+  maxDecimals: number,
+  symbol: string,
+  priceInCurrency: number,
+) => {
+  const tokenUnit = new TokenUnit(value, maxDecimals, symbol);
+  return tokenUnit.toDisplay({ fixedDp: 2, asNumber: true }) * priceInCurrency;
+};
+
+const getBalanceInCurrencyForC = (token: NetworkTokenWithBalance) => {
+  const priceInCurrency = getPriceInCurrency(token);
+
+  return convertBalanceToDisplayValue(
+    token.balance,
+    token.decimals,
+    token.symbol,
+    priceInCurrency,
+  );
+};
+
+const getBalanceInCurrencyForXP = (
   token: TokenWithBalancePVM | TokenWithBalanceAVM,
 ) => {
-  let totalUtxoBalance = 0;
-
   if (token.priceInCurrency === undefined) {
     return undefined;
   }
+  let totalUtxoBalance = 0;
 
   if (token.utxos) {
     // Sum all UTXO values from the utxos object
@@ -158,15 +183,13 @@ const getBalanceForWalletBalance = (
       }
     });
   }
+  const priceInCurrency = getPriceInCurrency(token);
 
-  const tokenUnit = new TokenUnit(
+  return convertBalanceToDisplayValue(
     totalUtxoBalance,
     token.decimals,
     token.symbol,
-  );
-
-  return (
-    tokenUnit.toDisplay({ fixedDp: 2, asNumber: true }) * token.priceInCurrency
+    priceInCurrency,
   );
 };
 
@@ -184,4 +207,12 @@ const isXPToken = (
 
 const shouldIncludeUtxoGroup = (key: string) => {
   return key !== 'pendingStaked';
+};
+
+const getPriceInCurrency = (token: TokenWithBalance) => {
+  const defaultPrice = token.priceInCurrency ?? 0;
+  if (token.type === TokenType.NATIVE && token.symbol === 'AVAX') {
+    return token.priceChanges?.currentPrice ?? defaultPrice;
+  }
+  return defaultPrice;
 };

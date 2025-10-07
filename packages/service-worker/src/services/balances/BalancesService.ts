@@ -1,4 +1,3 @@
-import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { singleton } from 'tsyringe';
 import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
@@ -75,7 +74,7 @@ export class BalancesService {
       storage: cacheStorage,
     });
 
-    // Apply price changes data and override AVAX prices for C/X/P chains with watchlist prices
+    // Apply price changes data, VM Modules don't do this yet
     const balances = Object.keys(rawBalances).reduce(
       (
         accountBalances,
@@ -95,60 +94,13 @@ export class BalancesService {
                 return tokens;
               }
 
-              // Check if this is AVAX on C/X/P chains and override price with watchlist data
-              const isAvaxOnAvalancheChains =
-                tokenBalance.type === TokenType.NATIVE &&
-                tokenBalance.symbol === 'AVAX';
-
-              const updatedTokenBalance = { ...tokenBalance };
-              const watchlistAvaxPrice = priceChanges?.['avax']?.currentPrice;
-              if (isAvaxOnAvalancheChains && watchlistAvaxPrice) {
-                const balanceUnit = new TokenUnit(
-                  tokenBalance.balance,
-                  tokenBalance.decimals,
-                  tokenBalance.symbol,
-                );
-                const balanceInCurrency =
-                  balanceUnit !== undefined
-                    ? balanceUnit.mul(watchlistAvaxPrice)
-                    : undefined;
-
-                updatedTokenBalance.balanceInCurrency =
-                  balanceInCurrency?.toDisplay({ fixedDp: 2, asNumber: true });
-
-                updatedTokenBalance.balanceCurrencyDisplayValue =
-                  balanceInCurrency?.toDisplay({ fixedDp: 2 });
-
-                const availableUnit = new TokenUnit(
-                  tokenBalance.available,
-                  tokenBalance.decimals,
-                  tokenBalance.symbol,
-                );
-
-                const availableInCurrency =
-                  availableUnit !== undefined
-                    ? availableUnit.mul(watchlistAvaxPrice)
-                    : undefined;
-
-                updatedTokenBalance.availableCurrencyDisplayValue =
-                  availableInCurrency?.toDisplay({ fixedDp: 2 });
-                updatedTokenBalance.availableInCurrency =
-                  availableInCurrency?.toDisplay({
-                    fixedDp: 2,
-                    asNumber: true,
-                  });
-
-                updatedTokenBalance.priceInCurrency = watchlistAvaxPrice;
-                console.log({ tokenBalance, updatedTokenBalance });
-              }
-
               return {
                 ...tokens,
                 [tokenKey]: {
-                  ...updatedTokenBalance,
+                  ...tokenBalance,
                   priceChanges: getPriceChangeValues(
-                    updatedTokenBalance.symbol,
-                    updatedTokenBalance.balanceInCurrency,
+                    tokenBalance.symbol,
+                    tokenBalance.balanceInCurrency,
                     priceChanges,
                   ),
                 },

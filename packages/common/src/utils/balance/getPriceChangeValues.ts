@@ -20,5 +20,6 @@ export function getPriceChangeValues(
   return {
     percentage: tokenChangePercentage,
     value: tokenChangeValue,
+    currentPrice: priceChanges[symbol]?.currentPrice,
   };
 }

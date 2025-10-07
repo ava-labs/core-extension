@@ -47,4 +47,10 @@ export interface TokensPriceShortData {
   };
 }
 
+export interface TokenPriceChanges {
+  percentage: number | undefined;
+  value: number;
+  currentPrice: number | undefined;
+}
+
 export const priceChangeRefreshRate = 1000 * 60 * 60;
