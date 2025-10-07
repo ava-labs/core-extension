@@ -101,11 +101,6 @@ export class BalancesService {
                 tokenBalance.symbol === 'AVAX';
 
               const updatedTokenBalance = { ...tokenBalance };
-              console.log({
-                isAvaxOnAvalancheChains,
-                priceChanges,
-                avaxPrice: priceChanges?.['avax']?.currentPrice,
-              });
               const watchlistAvaxPrice = priceChanges?.['avax']?.currentPrice;
               if (isAvaxOnAvalancheChains && watchlistAvaxPrice) {
                 console.log('overriding avax price');
@@ -146,14 +141,6 @@ export class BalancesService {
                   });
 
                 updatedTokenBalance.priceInCurrency = watchlistAvaxPrice;
-
-                console.log({
-                  updatedTokenBalance,
-                  tokenBalance,
-                  priceChanges,
-                  priceChangesKeys: Object.keys(priceChanges || {}),
-                  avaxData: priceChanges?.['avax'],
-                });
               }
 
               return {

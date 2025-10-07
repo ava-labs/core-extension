@@ -6,11 +6,19 @@ import {
 } from '@core/types';
 import { hasAccountBalances } from './hasAccountBalances';
 import { getAddressForChain } from './getAddressForChain';
+import {
+  NetworkVMType,
+  TokenType,
+  TokenWithBalance,
+  TokenWithBalanceAVM,
+  TokenWithBalancePVM,
+} from '@avalabs/vm-module-types';
 
 export function calculateTotalBalance(
   account?: Partial<Account>,
   networks?: NetworkWithCaipId[],
   balances?: Balances,
+  isUsedForWalletBalance?: boolean,
 ) {
   if (!account || !balances || !networks?.length) {
     return {
@@ -55,7 +63,8 @@ export function calculateTotalBalance(
       },
       chainId,
     ) => {
-      const address = getAddressForChain(networkDict[chainId], account);
+      const network = networkDict[chainId];
+      const address = getAddressForChain(network, account);
 
       if (!address) {
         return total;
@@ -78,8 +87,11 @@ export function calculateTotalBalance(
               ]
             : [...sumTotal.priceChange.percentage];
 
+          const balanceInCurrency =
+            getBalanceInCurrency(token, isUsedForWalletBalance, network) ?? 0;
+
           return {
-            sum: sumTotal.sum + (token.balanceInCurrency ?? 0),
+            sum: sumTotal.sum + balanceInCurrency,
             priceChange: {
               value:
                 sumTotal.priceChange.value + (token.priceChanges?.value ?? 0),
@@ -107,3 +119,57 @@ export function calculateTotalBalance(
 
   return sum;
 }
+
+const getBalanceInCurrency = (
+  token: TokenWithBalance,
+  isUsedForWalletBalance?: boolean,
+  network?: NetworkWithCaipId,
+) => {
+  if (
+    isUsedForWalletBalance &&
+    token.type === TokenType.NATIVE &&
+    token.symbol === 'AVAX' &&
+    isXPToken(token, network)
+  ) {
+    return getBalanceForWalletBalance(token);
+  }
+  return token.balanceInCurrency ?? 0;
+};
+
+const getBalanceForWalletBalance = (
+  token: TokenWithBalancePVM | TokenWithBalanceAVM,
+) => {
+  let totalUtxoBalance = 0;
+
+  if (token.priceInCurrency === undefined) {
+    return undefined;
+  }
+
+  if (token.utxos && typeof token.utxos === 'object') {
+    // Sum all UTXO values from the utxos object
+    Object.entries(token.utxos).forEach(([key, utxoGroup]) => {
+      if (Array.isArray(utxoGroup) && shouldIncludeUtxoGroup(key)) {
+        utxoGroup.forEach((utxo) => {
+          totalUtxoBalance += Number(utxo.amount);
+        });
+      }
+    });
+  }
+  return totalUtxoBalance * token.priceInCurrency;
+};
+
+const isXPToken = (
+  token: TokenWithBalance,
+  network?: NetworkWithCaipId,
+): token is TokenWithBalancePVM | TokenWithBalanceAVM => {
+  return (
+    token.type === TokenType.NATIVE &&
+    'utxos' in token &&
+    (network?.vmName === NetworkVMType.AVM ||
+      network?.vmName === NetworkVMType.PVM)
+  );
+};
+
+const shouldIncludeUtxoGroup = (key: string) => {
+  return key !== 'pendingStaked';
+};

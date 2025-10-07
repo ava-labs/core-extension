@@ -38,6 +38,8 @@ type HandlerType = ExtensionRequestHandler<
   GetTotalBalanceForWalletParams
 >;
 
+const defaultBalances = { tokens: {} };
+
 @injectable()
 export class GetTotalBalanceForWalletHandler implements HandlerType {
   method = ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET as const;
@@ -131,24 +133,34 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         (network) => network.vmName !== 'PVM',
       );
 
-      const [pChainBalances, nonPChainBalances] = await Promise.all([
-        // P-chain: Only native tokens (AVAX)
-        pChainNetworks.length > 0
-          ? this.balanceAggregatorService.getBalancesForNetworks(
-              pChainNetworks.map((network) => network.chainId),
-              derivedAccounts,
-              [TokenType.NATIVE],
-            )
-          : { tokens: {} },
-        // Non-P-chain: Native and ERC20 tokens
-        nonPChainNetworks.length > 0
-          ? this.balanceAggregatorService.getBalancesForNetworks(
-              nonPChainNetworks.map((network) => network.chainId),
-              derivedAccounts,
-              [TokenType.NATIVE, TokenType.ERC20],
-            )
-          : { tokens: {} },
-      ]);
+      const [pChainBalancesResult, nonPChainBalancesResult] =
+        await Promise.allSettled([
+          // P-chain: Only native tokens (AVAX)
+          pChainNetworks.length > 0
+            ? this.balanceAggregatorService.getBalancesForNetworks(
+                pChainNetworks.map((network) => network.chainId),
+                derivedAccounts,
+                [TokenType.NATIVE],
+              )
+            : defaultBalances,
+          // Non-P-chain: Native and ERC20 tokens
+          nonPChainNetworks.length > 0
+            ? this.balanceAggregatorService.getBalancesForNetworks(
+                nonPChainNetworks.map((network) => network.chainId),
+                derivedAccounts,
+                [TokenType.NATIVE, TokenType.ERC20],
+              )
+            : defaultBalances,
+        ]);
+
+      const pChainBalances =
+        pChainBalancesResult.status === 'fulfilled'
+          ? pChainBalancesResult.value
+          : defaultBalances;
+      const nonPChainBalances =
+        nonPChainBalancesResult.status === 'fulfilled'
+          ? nonPChainBalancesResult.value
+          : defaultBalances;
 
       // Merge P-chain and non-P-chain balances
       const derivedAddressesBalances = {
