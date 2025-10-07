@@ -5,8 +5,6 @@ import {
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
-// import { SecretsService } from '~/services/secrets/SecretsService';
-import { addAllAccountsWithHistory } from '../utils/addAllAccountsWithHistory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.ACCOUNT_GET_ACCOUNTS,
@@ -21,16 +19,6 @@ export class GetAccountsHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const accounts = await this.accountsService.getAccounts();
-
-    const walletIds = Object.keys(accounts.primary);
-
-    for (const walletId of walletIds) {
-      const lastIndex = accounts.primary[walletId]?.length;
-      addAllAccountsWithHistory({
-        walletId,
-        lastIndex,
-      });
-    }
 
     return {
       ...request,

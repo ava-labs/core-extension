@@ -70,7 +70,5 @@ export const addAllAccountsWithHistory = async ({
     accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
 
-  // await storageService.saveUnencrypted(ACCOUNTS_ADDED_KEY, true);
-
   return accountIds;
 };
