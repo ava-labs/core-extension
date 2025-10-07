@@ -1,19 +1,21 @@
-import { useOnboardingContext } from '@core/ui';
-import { OnboardingURLs, OnboardingPhase } from '@core/types';
-import { useAnalyticsContext } from '@core/ui';
-import { Trans, useTranslation } from 'react-i18next';
 import {
   AirdropIcon,
   Button,
   Stack,
   Typography,
 } from '@avalabs/core-k2-components';
-import { PageNav } from '../components/PageNav';
+import { getCoreWebPortfolioUrl } from '@core/common';
+import { FeatureGates, OnboardingPhase, OnboardingURLs } from '@core/types';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useOnboardingContext,
+} from '@core/ui';
 import { useEffect, useMemo, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { PageNav } from '../components/PageNav';
 import { VerifyGoBackModal } from './Seedless/modals/VerifyGoBackModal';
-import { FeatureGates } from '@core/types';
-import { useFeatureFlagContext } from '@core/ui';
 
 export const AnalyticsConsent = () => {
   const {
@@ -66,7 +68,7 @@ export const AnalyticsConsent = () => {
       return;
     }
 
-    const coreWebLink = `${process.env.CORE_WEB_BASE_URL}/portfolio/?newUser=1`;
+    const coreWebLink = getCoreWebPortfolioUrl('newUser=1');
 
     // submit handler can't be in the onNext and onBack callbacks since it would run in a stale closure
     // resulting in an always false analytics consent
