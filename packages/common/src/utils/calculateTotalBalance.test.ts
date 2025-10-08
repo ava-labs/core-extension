@@ -301,4 +301,63 @@ describe('utils/calculateTotalBalance', () => {
     // Should use regular balanceInCurrency for non-AVAX tokens
     expect(balance.sum).toBe(150);
   });
+
+  it('should only include AVAX UTXOs in balance calculation when isUsedForWalletBalance is true', () => {
+    const createUtxoEntryWithSymbol = (amount: string, symbol: string) => ({
+      assetId: symbol,
+      name: symbol,
+      symbol,
+      denomination: 9,
+      type: PrimaryNetworkAssetType.SECP256K1,
+      amount,
+      utxoCount: 1,
+    });
+
+    const avmToken: TokenWithBalanceAVM = {
+      ...createBaseToken(),
+      utxos: {
+        unlocked: [
+          createUtxoEntryWithSymbol('1000000000', 'AVAX'), // 1 AVAX
+          createUtxoEntryWithSymbol('2000000000', 'USDC'), // 2 USDC (should be ignored)
+          createUtxoEntryWithSymbol('500000000', 'AVAX'), // 0.5 AVAX
+        ],
+        locked: [
+          createUtxoEntryWithSymbol('300000000', 'AVAX'), // 0.3 AVAX
+          createUtxoEntryWithSymbol('100000000', 'USDT'), // 0.1 USDT (should be ignored)
+        ],
+        atomicMemoryUnlocked: [],
+        atomicMemoryLocked: [],
+      },
+      balancePerType: {
+        locked: 300000000n,
+        unlocked: 3500000000n,
+        atomicMemoryUnlocked: 0n,
+        atomicMemoryLocked: 0n,
+      },
+    };
+
+    const account = {
+      ...createBaseAccount(),
+      addressAVM: 'X-test123',
+    };
+
+    const avmBalances: Balances = {
+      [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+        [account.addressAVM!]: {
+          AVAX: avmToken,
+        },
+      },
+    };
+
+    const networks = [createBaseNetwork(NetworkVMType.AVM)];
+
+    const balance = calculateTotalBalance(account, networks, avmBalances, true);
+
+    // Should only include AVAX UTXOs in the calculation:
+    // unlocked AVAX: 1000000000 + 500000000 = 1500000000 nAVAX = 1.5 AVAX
+    // locked AVAX: 300000000 nAVAX = 0.3 AVAX
+    // Total AVAX UTXOs: 1800000000 nAVAX = 1.8 AVAX
+    // 1.8 AVAX * priceInCurrency (5) = 9
+    expect(balance.sum).toBe(9);
+  });
 });
