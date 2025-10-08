@@ -5,18 +5,20 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
   const getTransactionHistory = jest.fn();
   const addPrimaryAccount = jest.fn();
   const getAccounts = jest.fn();
+  let getAddressesForAccount = jest.fn();
+
   beforeEach(() => {
     jest.resetAllMocks();
 
     const loadModule = jest.fn().mockResolvedValue({ getTransactionHistory });
 
-    const getAddressesForAccount = jest
-      .fn()
-      .mockResolvedValue({ addressC: 'addressC' });
-
     const getAvalancheNetwork = jest
       .fn()
       .mockResolvedValue({ caipId: 'caipId' });
+
+    getAddressesForAccount = jest
+      .fn()
+      .mockResolvedValue({ addressC: 'addressC' });
 
     jest
       .spyOn(container, 'resolve')
@@ -84,5 +86,23 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
       addFirstAccount: true,
     });
     expect(addPrimaryAccount).toHaveBeenCalledTimes(1);
+  });
+
+  it('should check the history from the given index', async () => {
+    getTransactionHistory
+      .mockResolvedValueOnce({
+        transactions: [],
+      })
+      .mockResolvedValueOnce({
+        transactions: [1],
+      });
+    await addAllAccountsWithHistory({
+      walletId: 'wallet-id',
+      addFirstAccount: true,
+      lastIndex: 4,
+    });
+    expect(getAddressesForAccount).toHaveBeenCalledWith(
+      expect.objectContaining({ index: 4 }),
+    );
   });
 });

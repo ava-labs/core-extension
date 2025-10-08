@@ -45,7 +45,7 @@ export class UnlockWalletHandler implements HandlerType {
     if (!hasAccountsAdded) {
       for (const walletId of walletIds) {
         const lastIndex = accounts.primary[walletId]?.length;
-        await addAllAccountsWithHistory({
+        addAllAccountsWithHistory({
           walletId,
           lastIndex,
         });
