@@ -55,7 +55,7 @@ export function useTokenPriceMissing(): UseTokenPriceMissingProps {
         return;
       }
       const isMissingPrices = Object.values(tokensForActiveAccount)
-        .filter(getTokenVisibility) // Disregard hidden tokens
+        .filter((token) => getTokenVisibility(token, networkId)) // Disregard hidden tokens
         .some(
           (token) => token.balance > 0n && token.priceInCurrency === undefined, // Only look at tokens that actually have some balance
         );

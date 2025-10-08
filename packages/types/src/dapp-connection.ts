@@ -46,6 +46,7 @@ export enum DAppProviderRequest {
   WALLET_ADD_NETWORK = 'wallet_addNetwork',
   WALLET_GET_PUBKEY = 'wallet_getPublicKey',
   WALLET_CONNECT = 'wallet_requestAccountPermission',
+  WALLET_GET_NETWORK_STATE = 'wallet_getNetworkState',
 }
 
 export enum Web3Event {

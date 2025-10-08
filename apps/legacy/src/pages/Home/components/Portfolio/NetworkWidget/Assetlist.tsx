@@ -1,5 +1,5 @@
 import { TokenIcon } from '@/components/common/TokenIcon';
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useNetworkContext } from '@core/ui';
 import { useSettingsContext } from '@core/ui';
 import { useSetSendDataInParams } from '@core/ui';
 import { useHistory } from 'react-router-dom';
@@ -61,13 +61,14 @@ export function Assetlist({ assetList }: AssetListProps) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { currencyFormatter, getTokenVisibility } = useSettingsContext();
+  const { network } = useNetworkContext();
   const maxAssetCount = 4;
 
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
 
   const filteredAssetList = assetList
-    .filter((asset) => getTokenVisibility(asset))
+    .filter((asset) => getTokenVisibility(asset, network?.caipId))
     .sort((a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0));
 
   const restAssetCount = filteredAssetList.length - maxAssetCount;
