@@ -106,4 +106,4 @@ export * from './openFullscreenTab';
 export * from './approveSeedlessRegistration';
 export * from './isChainSupportedByWallet';
 export * from './retry';
-export * from './isChainSupportedWalletOrAccount';
+export * from './isChainSupportedByWalletOrAccount';

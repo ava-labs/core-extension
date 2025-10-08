@@ -23,7 +23,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { NetworkLogo } from '@/components/common/NetworkLogo';
 import {
   ipfsResolverWithFallback,
-  isChainSupportedWalletOrAccount,
+  isChainSupportedByWalletOrAccount,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 import {
@@ -71,7 +71,7 @@ export function NetworkList({ networkList }: NetworkListProps) {
       <TransitionGroup component={null}>
         {networkList.map((networkItem, index) => {
           const isFavorite = isFavoriteNetwork(networkItem.chainId);
-          const isSupportedByActiveWallet = isChainSupportedWalletOrAccount(
+          const isSupportedByActiveWallet = isChainSupportedByWalletOrAccount(
             networkItem,
             walletDetails,
             activeAccount,

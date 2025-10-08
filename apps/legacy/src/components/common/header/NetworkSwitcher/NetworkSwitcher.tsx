@@ -15,7 +15,7 @@ import {
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { isChainSupportedWalletOrAccount } from '@core/common';
+import { isChainSupportedByWalletOrAccount } from '@core/common';
 import {
   useAccountsContext,
   useAnalyticsContext,
@@ -150,7 +150,7 @@ export function NetworkSwitcher() {
                         return null;
                       }
 
-                      const isSupported = isChainSupportedWalletOrAccount(
+                      const isSupported = isChainSupportedByWalletOrAccount(
                         networkItem,
                         walletDetails,
                         activeAccount,

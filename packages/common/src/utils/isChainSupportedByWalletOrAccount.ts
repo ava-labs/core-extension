@@ -4,7 +4,7 @@ import {
 } from '@core/common';
 import { Account, NetworkWithCaipId, WalletDetails } from '@core/types';
 
-export function isChainSupportedWalletOrAccount(
+export function isChainSupportedByWalletOrAccount(
   network: NetworkWithCaipId | undefined,
   wallet: WalletDetails | undefined,
   account: Account | undefined,
