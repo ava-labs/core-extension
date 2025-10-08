@@ -176,7 +176,7 @@ const getBalanceInCurrencyForXP = (
     Object.entries(token.utxos).forEach(([key, utxoGroup]) => {
       if (Array.isArray(utxoGroup) && shouldIncludeUtxoGroup(key)) {
         utxoGroup.forEach((utxo) => {
-          if (Number(utxo.amount) > 0) {
+          if (utxo.symbol === 'AVAX') {
             totalUtxoBalance += Number(utxo.amount);
           }
         });

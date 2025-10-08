@@ -16,12 +16,10 @@ export function getPriceChangeValues(
   const tokenChangeValue =
     (balanceInCurrency || 0) *
     ((priceChanges[symbol]?.priceChangePercentage || 0) / 100);
-  // Watchlist price for AVAX on C/X/P chains is used for wallet balance calculation
-  const currentPrice = priceChanges[symbol]?.currentPrice;
 
   return {
     percentage: tokenChangePercentage,
     value: tokenChangeValue,
-    currentPrice,
+    currentPrice: priceChanges[symbol]?.currentPrice,
   };
 }
