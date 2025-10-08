@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useTokensWithBalances } from '@core/ui';
+import { useNetworkContext, useTokensWithBalances } from '@core/ui';
 import { useSetSendDataInParams } from '@core/ui';
 import { TokenListItem } from './TokenListItem';
 import { WalletIsEmpty } from './WalletIsEmpty';
@@ -34,6 +34,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const { capture } = useAnalyticsContext();
   const { isFunctionSupported: isManageTokenSupported } =
     useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
+  const { network } = useNetworkContext();
 
   const firstAsset = tokensWithBalances[0];
   const firstAssetBalance =
@@ -49,17 +50,17 @@ export function TokenList({ searchQuery }: TokenListProps) {
       (searchQuery
         ? tokensWithBalances.filter(
             (token) =>
-              getTokenVisibility(token) &&
+              getTokenVisibility(token, network?.caipId) &&
               (token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 token.symbol.toLowerCase().includes(searchQuery.toLowerCase())),
           )
         : tokensWithBalances
       )
-        .filter((token) => getTokenVisibility(token))
+        .filter((token) => getTokenVisibility(token, network?.caipId))
         .sort(
           (a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0),
         ),
-    [searchQuery, tokensWithBalances, getTokenVisibility],
+    [searchQuery, tokensWithBalances, getTokenVisibility, network],
   );
 
   const toggleManageTokensPage = () => {

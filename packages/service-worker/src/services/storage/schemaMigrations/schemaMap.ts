@@ -1,12 +1,3 @@
-import {} from // ACCOUNTS_STORAGE_KEY,
-// WALLET_STORAGE_ENCRYPTION_KEY,
-// WALLET_STORAGE_KEY,
-// NETWORK_STORAGE_KEY,
-// SETTINGS_STORAGE_KEY,
-// BALANCES_CACHE_KEY,
-// UNIFIED_BRIDGE_STATE_STORAGE_KEY,
-// PERMISSION_STORAGE_KEY,
-'@core/types';
 import accounts_v2 from './migrations/accounts_v2';
 import wallet_v2 from './migrations/wallet_v2';
 import wallet_v3 from './migrations/wallet_v3';
@@ -24,6 +15,7 @@ import wallet_v5 from './migrations/wallet_v5/wallet_v5';
 import permissions_v2 from './migrations/permissions_v2';
 import wallet_v6 from './migrations/wallet_v6/wallet_v6';
 import network_v5 from './migrations/network_v5';
+import settings_v3 from './migrations/settings_v3';
 
 export const SCHEMA_MAP = {
   ['accounts']: {
@@ -95,11 +87,15 @@ export const SCHEMA_MAP = {
     ],
   },
   ['settings']: {
-    latestVersion: 2,
+    latestVersion: 3,
     migrations: [
       {
         version: 2,
         migration: settings_v2,
+      },
+      {
+        version: 3,
+        migration: settings_v3,
       },
     ],
   },
