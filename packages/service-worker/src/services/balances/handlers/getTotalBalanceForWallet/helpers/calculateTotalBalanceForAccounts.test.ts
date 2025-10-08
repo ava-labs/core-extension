@@ -59,11 +59,13 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
 
     const balances = {} as any;
     const chainIds = [];
+    const priceChangesData = undefined;
 
     const result = calculateTotalBalanceForAccounts(
       balances,
       accounts,
       chainIds,
+      priceChangesData,
     );
 
     expect(calculateTotalBalance).toHaveBeenCalledTimes(4);
@@ -73,6 +75,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       chainIds,
       balances,
       true,
+      priceChangesData,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       2,
@@ -80,6 +83,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       chainIds,
       balances,
       true,
+      priceChangesData,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       3,
@@ -87,6 +91,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       chainIds,
       balances,
       true,
+      priceChangesData,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       4,
@@ -94,6 +99,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       chainIds,
       balances,
       true,
+      priceChangesData,
     );
 
     expect(result).toEqual(1600);

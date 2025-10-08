@@ -2,6 +2,7 @@ import {
   Account,
   Balances,
   NetworkWithCaipId,
+  TokensPriceShortData,
   TotalPriceChange,
 } from '@core/types';
 import { hasAccountBalances } from './hasAccountBalances';
@@ -21,6 +22,7 @@ export function calculateTotalBalance(
   networks?: NetworkWithCaipId[],
   balances?: Balances,
   isUsedForWalletBalance?: boolean,
+  priceChangesData?: TokensPriceShortData,
 ) {
   if (!account || !balances || !networks?.length) {
     return {
@@ -90,7 +92,12 @@ export function calculateTotalBalance(
             : [...sumTotal.priceChange.percentage];
 
           const balanceInCurrency =
-            getBalanceInCurrency(token, isUsedForWalletBalance, network) ?? 0;
+            getBalanceInCurrency(
+              token,
+              isUsedForWalletBalance,
+              network,
+              priceChangesData,
+            ) ?? 0;
 
           return {
             sum: sumTotal.sum + balanceInCurrency,
@@ -126,6 +133,7 @@ const getBalanceInCurrency = (
   token: TokenWithBalance,
   isUsedForWalletBalance?: boolean,
   network?: NetworkWithCaipId,
+  priceChangesData?: TokensPriceShortData,
 ) => {
   if (
     isUsedForWalletBalance &&
@@ -133,9 +141,9 @@ const getBalanceInCurrency = (
     token.symbol === 'AVAX'
   ) {
     if (isXPToken(token, network)) {
-      return getBalanceInCurrencyForXP(token);
+      return getBalanceInCurrencyForXP(token, priceChangesData);
     } else {
-      return getBalanceInCurrencyForC(token);
+      return getBalanceInCurrencyForC(token, priceChangesData);
     }
   }
 
@@ -152,8 +160,11 @@ const convertBalanceToDisplayValue = (
   return tokenUnit.toDisplay({ fixedDp: 2, asNumber: true }) * priceInCurrency;
 };
 
-const getBalanceInCurrencyForC = (token: NetworkTokenWithBalance) => {
-  const priceInCurrency = getPriceInCurrency(token);
+const getBalanceInCurrencyForC = (
+  token: NetworkTokenWithBalance,
+  priceChangesData?: TokensPriceShortData,
+) => {
+  const priceInCurrency = getPriceInCurrency(token, priceChangesData);
 
   return convertBalanceToDisplayValue(
     token.balance,
@@ -165,6 +176,7 @@ const getBalanceInCurrencyForC = (token: NetworkTokenWithBalance) => {
 
 const getBalanceInCurrencyForXP = (
   token: TokenWithBalancePVM | TokenWithBalanceAVM,
+  priceChangesData?: TokensPriceShortData,
 ) => {
   if (token.priceInCurrency === undefined) {
     return undefined;
@@ -183,7 +195,7 @@ const getBalanceInCurrencyForXP = (
       }
     });
   }
-  const priceInCurrency = getPriceInCurrency(token);
+  const priceInCurrency = getPriceInCurrency(token, priceChangesData);
 
   return convertBalanceToDisplayValue(
     totalUtxoBalance,
@@ -209,10 +221,15 @@ const shouldIncludeUtxoGroup = (key: string) => {
   return key !== 'pendingStaked';
 };
 
-const getPriceInCurrency = (token: TokenWithBalance) => {
+const getPriceInCurrency = (
+  token: TokenWithBalance,
+  priceChangesData?: TokensPriceShortData,
+) => {
   const defaultPrice = token.priceInCurrency ?? 0;
   if (token.type === TokenType.NATIVE && token.symbol === 'AVAX') {
-    return token.priceChanges?.currentPrice ?? defaultPrice;
+    const currentPrice = priceChangesData?.[token.symbol]?.currentPrice;
+    return currentPrice ?? defaultPrice;
   }
+
   return defaultPrice;
 };

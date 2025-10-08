@@ -1,5 +1,10 @@
 import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
-import { Account, AccountType, Balances } from '@core/types';
+import {
+  Account,
+  AccountType,
+  Balances,
+  TokensPriceShortData,
+} from '@core/types';
 import { calculateTotalBalance } from './calculateTotalBalance';
 import {
   NetworkTokenWithBalance,
@@ -359,5 +364,139 @@ describe('utils/calculateTotalBalance', () => {
     // Total AVAX UTXOs: 1800000000 nAVAX = 1.8 AVAX
     // 1.8 AVAX * priceInCurrency (5) = 9
     expect(balance.sum).toBe(9);
+  });
+
+  it('should use priceChangesData for AVAX price when provided', () => {
+    const cChainToken: NetworkTokenWithBalance = {
+      ...createBaseToken(),
+      balance: 1000000000n, // 1 AVAX in nAVAX
+      balanceDisplayValue: '1.0',
+      priceInCurrency: 5, // Default price
+    };
+
+    const account = {
+      ...createBaseAccount(),
+      addressC: '0x123',
+    };
+
+    const cChainBalances: Balances = {
+      [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+        [account.addressC!]: {
+          AVAX: cChainToken,
+        },
+      },
+    };
+
+    const networks = [createBaseNetwork(NetworkVMType.EVM)];
+
+    const priceChangesData: TokensPriceShortData = {
+      AVAX: {
+        currentPrice: 10, // Override price
+        priceChangePercentage: 5,
+        priceChange: 0.5,
+      },
+    };
+
+    const balance = calculateTotalBalance(
+      account,
+      networks,
+      cChainBalances,
+      true,
+      priceChangesData,
+    );
+
+    // Should use priceChangesData.currentPrice (10) instead of token.priceInCurrency (5)
+    // balance: 1000000000n (1 AVAX) * priceInCurrency (10) = 10
+    expect(balance.sum).toBe(10);
+  });
+
+  it('should fallback to default price when priceChangesData is not provided for AVAX', () => {
+    const cChainToken: NetworkTokenWithBalance = {
+      ...createBaseToken(),
+      balance: 1000000000n, // 1 AVAX in nAVAX
+      balanceDisplayValue: '1.0',
+      priceInCurrency: 5, // Default price
+    };
+
+    const account = {
+      ...createBaseAccount(),
+      addressC: '0x123',
+    };
+
+    const cChainBalances: Balances = {
+      [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+        [account.addressC!]: {
+          AVAX: cChainToken,
+        },
+      },
+    };
+
+    const networks = [createBaseNetwork(NetworkVMType.EVM)];
+
+    const balance = calculateTotalBalance(
+      account,
+      networks,
+      cChainBalances,
+      true,
+      undefined, // No priceChangesData
+    );
+
+    // Should use token.priceInCurrency (5) as fallback
+    // balance: 1000000000n (1 AVAX) * priceInCurrency (5) = 5
+    expect(balance.sum).toBe(5);
+  });
+
+  it('should use priceChangesData for AVM AVAX token when provided', () => {
+    const avmToken: TokenWithBalanceAVM = {
+      ...createBaseToken(),
+      utxos: {
+        unlocked: [createUtxoEntry('1000000000')], // 1 AVAX
+        locked: [],
+        atomicMemoryUnlocked: [],
+        atomicMemoryLocked: [],
+      },
+      balancePerType: {
+        locked: 0n,
+        unlocked: 1000000000n,
+        atomicMemoryUnlocked: 0n,
+        atomicMemoryLocked: 0n,
+      },
+      priceInCurrency: 5, // Default price
+    };
+
+    const account = {
+      ...createBaseAccount(),
+      addressAVM: 'X-test123',
+    };
+
+    const avmBalances: Balances = {
+      [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+        [account.addressAVM!]: {
+          AVAX: avmToken,
+        },
+      },
+    };
+
+    const networks = [createBaseNetwork(NetworkVMType.AVM)];
+
+    const priceChangesData: TokensPriceShortData = {
+      AVAX: {
+        currentPrice: 15, // Override price
+        priceChangePercentage: 10,
+        priceChange: 1.5,
+      },
+    };
+
+    const balance = calculateTotalBalance(
+      account,
+      networks,
+      avmBalances,
+      true,
+      priceChangesData,
+    );
+
+    // Should use priceChangesData.currentPrice (15) instead of token.priceInCurrency (5)
+    // balance: 1000000000n (1 AVAX) * priceInCurrency (15) = 15
+    expect(balance.sum).toBe(15);
   });
 });

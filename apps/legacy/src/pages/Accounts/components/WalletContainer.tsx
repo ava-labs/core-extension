@@ -74,7 +74,7 @@ export const WalletContainer = ({
               variant="text"
               onClick={() => {
                 window.open(
-                  `https://core.app/portfolio/p-chain/asset`,
+                  `https://core.app/portfolio/wallet/p-chain/utxos`,
                   '_blank',
                   'noreferrer',
                 );

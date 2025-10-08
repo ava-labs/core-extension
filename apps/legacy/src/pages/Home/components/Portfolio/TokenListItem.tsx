@@ -1,6 +1,5 @@
 import { TokenCardWithBalance } from '@/components/common/TokenCardWithBalance';
 import { useSettingsContext } from '@core/ui';
-import { TokenPriceChanges } from '@core/types';
 
 interface TokenListItemProps {
   name: string;
@@ -9,7 +8,10 @@ interface TokenListItemProps {
   children: any;
   balanceInCurrency?: string;
   onClick(): void;
-  priceChanges?: TokenPriceChanges;
+  priceChanges?: {
+    percentage?: number | undefined;
+    value?: number | undefined;
+  };
   isMalicious?: boolean;
 }
 
