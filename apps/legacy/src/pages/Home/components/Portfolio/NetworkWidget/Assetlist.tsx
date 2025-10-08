@@ -1,8 +1,13 @@
 import { BalanceColumn } from '@/components/common/BalanceColumn';
+import { TokenIcon } from '@/components/common/TokenIcon';
+import { useAnalyticsContext, useNetworkContext } from '@core/ui';
+import { useSettingsContext } from '@core/ui';
+import { useSetSendDataInParams } from '@core/ui';
+import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { InlineTokenEllipsis } from '@/components/common/InlineTokenEllipsis';
 import { PAndL } from '@/components/common/ProfitAndLoss';
 import { TokenEllipsis } from '@/components/common/TokenEllipsis';
-import { TokenIcon } from '@/components/common/TokenIcon';
 import {
   Button,
   ChevronRightIcon,
@@ -15,13 +20,6 @@ import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { hasUnconfirmedBalance } from '@core/common';
 import { getUnconfirmedBalanceInCurrency } from '@core/types';
-import {
-  useAnalyticsContext,
-  useSetSendDataInParams,
-  useSettingsContext,
-} from '@core/ui';
-import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -63,13 +61,14 @@ export function Assetlist({ assetList }: AssetListProps) {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { currencyFormatter, getTokenVisibility } = useSettingsContext();
+  const { network } = useNetworkContext();
   const maxAssetCount = 4;
 
   const setSendDataInParams = useSetSendDataInParams();
   const history = useHistory();
 
   const filteredAssetList = assetList
-    .filter((asset) => getTokenVisibility(asset))
+    .filter((asset) => getTokenVisibility(asset, network?.caipId))
     .sort((a, b) => (b.balanceInCurrency ?? 0) - (a.balanceInCurrency ?? 0));
 
   const restAssetCount = filteredAssetList.length - maxAssetCount;
