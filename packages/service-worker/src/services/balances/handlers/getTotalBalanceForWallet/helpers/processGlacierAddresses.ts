@@ -11,16 +11,23 @@ export async function processGlacierAddresses(
   if (isDone(gap)) {
     return { gap, result: [] };
   } else {
-    const { addresses: glacierAddresses } = await fetchActivity(addresses);
+    // Request to Glacier in batches of 64 addresses
+    const glacierBatchSize = 64;
+    const allGlacierAddresses: ChainAddressChainIdMap[] = [];
+
+    for (let i = 0; i < addresses.length; i += glacierBatchSize) {
+      const batch = addresses.slice(i, i + glacierBatchSize);
+
+      const { addresses: glacierAddresses } = await fetchActivity(batch);
+      allGlacierAddresses.push(...glacierAddresses);
+    }
 
     const seenByGlacier: Record<string, ChainAddressChainIdMap> =
-      glacierAddresses.reduce(
-        (acc, addressInfo) => ({
-          ...acc,
-          [addressInfo.address]: addressInfo,
-        }),
-        {},
-      );
+      allGlacierAddresses.reduce((acc, addressInfo) => {
+        acc[addressInfo.address] = addressInfo;
+        return acc;
+      }, {});
+
     const result: string[] = [];
     for (let i = 0; i < addresses.length && !isDone(gap); i++) {
       const address = addresses[i];
@@ -31,7 +38,6 @@ export async function processGlacierAddresses(
         gap += 1;
       }
     }
-
     return { gap, result };
   }
 }
