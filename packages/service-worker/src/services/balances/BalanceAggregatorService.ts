@@ -190,9 +190,16 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
     let priceChangesData = changesData?.priceChanges || {};
 
+    // Check if cached data has currentPrice field, if not fetch fresh data
+    const hasCurrentPrice = Object.values(priceChangesData).some(
+      (token: any) =>
+        token && typeof token === 'object' && 'currentPrice' in token,
+    );
+
     if (
       !priceChangesData ||
       !Object.keys(priceChangesData).length ||
+      !hasCurrentPrice ||
       (lastUpdated && lastUpdated + priceChangeRefreshRate < Date.now())
     ) {
       const [priceChangesResult] = await resolve(
@@ -212,6 +219,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             [data.symbol]: {
               priceChange: data.price_change_24h,
               priceChangePercentage: data.price_change_percentage_24h,
+              currentPrice: data.current_price,
             },
           };
         },
