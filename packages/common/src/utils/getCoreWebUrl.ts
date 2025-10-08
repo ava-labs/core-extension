@@ -6,3 +6,9 @@ export const getCoreWebUrl = (address?: string) => {
 
   return `${baseCoreWebUrl}/portfolio/${address}`;
 };
+
+export const getCoreWebPortfolioUrl = (query?: string) => {
+  const baseCoreWebUrl = process.env.CORE_WEB_BASE_URL;
+  const portfolioUrl = `${baseCoreWebUrl}/portfolio`;
+  return query ? `${portfolioUrl}?${query}` : portfolioUrl;
+};
