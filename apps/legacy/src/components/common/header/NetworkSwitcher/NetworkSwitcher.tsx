@@ -1,27 +1,31 @@
-import { useNetworkContext } from '@core/ui';
-import { useRef, useState } from 'react';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { useHistory } from 'react-router-dom';
-import { NetworkLogo } from '../../NetworkLogo';
-import { useTranslation } from 'react-i18next';
 import {
-  ChevronDownIcon,
+  Box,
   CheckIcon,
-  GearIcon,
-  styled,
-  Typography,
-  Stack,
+  ChevronDownIcon,
   Chip,
+  ClickAwayListener,
+  GearIcon,
+  Grow,
   MenuItem,
   MenuList,
   Popper,
-  Grow,
-  ClickAwayListener,
-  Box,
+  Stack,
+  styled,
   Tooltip,
+  Typography,
 } from '@avalabs/core-k2-components';
-import { useAnalyticsContext, useWalletContext } from '@core/ui';
-import { isChainSupportedByWallet } from '@core/common';
+import { isChainSupportedByWalletOrAccount } from '@core/common';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useNetworkContext,
+  useWalletContext,
+} from '@core/ui';
+import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { NetworkLogo } from '../../NetworkLogo';
 
 const defaultNetworks = [
   ChainId.AVALANCHE_MAINNET_ID,
@@ -37,7 +41,7 @@ const Chevron = styled(ChevronDownIcon, {
   transform: rotateX(${({ isOpen }) => (isOpen ? `180deg` : `0`)});
 `;
 
-const NetworkSelectronMenuItem = styled(MenuItem)`
+const NetworkSelectorMenuItem = styled(MenuItem)`
   color: ${({ theme }) => theme.palette.text.secondary};
 `;
 
@@ -45,6 +49,9 @@ export function NetworkSwitcher() {
   const { network, setNetwork, favoriteNetworks, networks } =
     useNetworkContext();
   const { walletDetails } = useWalletContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   const networkList = [
     ...networks.filter(
@@ -142,9 +149,11 @@ export function NetworkSwitcher() {
                       if (!networkItem) {
                         return null;
                       }
-                      const isSupported = isChainSupportedByWallet(
-                        networkItem.vmName,
-                        walletDetails?.type,
+
+                      const isSupported = isChainSupportedByWalletOrAccount(
+                        networkItem,
+                        walletDetails,
+                        activeAccount,
                       );
                       return (
                         <Tooltip
@@ -158,7 +167,7 @@ export function NetworkSwitcher() {
                               : ''
                           }
                         >
-                          <NetworkSelectronMenuItem
+                          <NetworkSelectorMenuItem
                             data-testid={`select-network-${networkItem.chainId}-button`}
                             onClick={
                               isSupported
@@ -196,11 +205,11 @@ export function NetworkSwitcher() {
                             {networkItem.chainId === network?.chainId && (
                               <CheckIcon size={16} />
                             )}
-                          </NetworkSelectronMenuItem>
+                          </NetworkSelectorMenuItem>
                         </Tooltip>
                       );
                     })}
-                  <NetworkSelectronMenuItem
+                  <NetworkSelectorMenuItem
                     data-testid="manage-networks-button"
                     key="NetworksPage"
                     onClick={() => {
@@ -218,7 +227,7 @@ export function NetworkSwitcher() {
                         {t('Manage Networks')}
                       </Typography>
                     </Stack>
-                  </NetworkSelectronMenuItem>
+                  </NetworkSelectorMenuItem>
                 </Stack>
               </MenuList>
             </Grow>

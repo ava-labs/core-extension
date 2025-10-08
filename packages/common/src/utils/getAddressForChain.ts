@@ -1,5 +1,3 @@
-import { NetworkVMType } from '@avalabs/vm-module-types';
-
 import { Account, NetworkWithCaipId } from '@core/types';
 
 import { mapAddressesToVMs } from './address';
@@ -12,7 +10,5 @@ export function getAddressForChain(
     return '';
   }
 
-  return (
-    mapAddressesToVMs(account)[network.vmName satisfies NetworkVMType] ?? ''
-  );
+  return mapAddressesToVMs(account)[network.vmName] ?? '';
 }
