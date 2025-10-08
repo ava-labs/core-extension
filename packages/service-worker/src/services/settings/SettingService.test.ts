@@ -334,7 +334,9 @@ describe('background/services/settings/SettingsService.ts', () => {
 
     describe('setTokensVisibility', () => {
       const visibility: TokensVisibility = {
-        ETH: false,
+        'eip155:1': {
+          ETH: false,
+        },
       };
       it('should save the new value for token visibility properly', async () => {
         const eventListener = jest.fn();
@@ -355,7 +357,9 @@ describe('background/services/settings/SettingsService.ts', () => {
 
     describe('setCollectiblesVisibility', () => {
       const visibility: CollectiblesVisibility = {
-        '0x00000': false,
+        'eip155:1': {
+          '0x00000': false,
+        },
       };
       it('should save the new value for collectible visibility properly', async () => {
         const eventListener = jest.fn();
