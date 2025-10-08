@@ -41,6 +41,7 @@ describe('utils/getPriceChangeValues', () => {
     expect(changes).toEqual({
       value: 3,
       percentage: 100,
+      currentPrice: undefined,
     });
   });
   it('should return an empty calculation because of the missing price changes', () => {
@@ -51,6 +52,7 @@ describe('utils/getPriceChangeValues', () => {
     expect(changes).toEqual({
       value: 0,
       percentage: undefined,
+      currentPrice: undefined,
     });
   });
   it('should return an empty calculation because of the missing balanceInCurrency value', () => {
@@ -58,6 +60,7 @@ describe('utils/getPriceChangeValues', () => {
     expect(changes).toEqual({
       value: 0,
       percentage: undefined,
+      currentPrice: undefined,
     });
   });
 

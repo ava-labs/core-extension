@@ -1,14 +1,15 @@
-import { TokensPriceShortData } from '@core/types';
+import { TokensPriceShortData, TokenPriceChanges } from '@core/types';
 
 export function getPriceChangeValues(
   tokenSymbol: string,
   balanceInCurrency?: number,
   priceChanges?: TokensPriceShortData,
-) {
+): TokenPriceChanges {
   if (!priceChanges) {
     return {
       percentage: undefined,
       value: 0,
+      currentPrice: undefined,
     };
   }
   const symbol = tokenSymbol.toLowerCase();
