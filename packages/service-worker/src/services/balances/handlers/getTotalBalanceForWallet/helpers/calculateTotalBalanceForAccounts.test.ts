@@ -72,24 +72,28 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       accounts[0],
       chainIds,
       balances,
+      true,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       2,
       accounts[1],
       chainIds,
       balances,
+      true,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       3,
       accounts[2],
       chainIds,
       balances,
+      true,
     );
     expect(calculateTotalBalance).toHaveBeenNthCalledWith(
       4,
       accounts[3],
       chainIds,
       balances,
+      true,
     );
 
     expect(result).toEqual(1600);

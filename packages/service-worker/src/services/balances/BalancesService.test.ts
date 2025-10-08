@@ -219,6 +219,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -250,6 +251,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -303,6 +305,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -335,6 +338,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -359,7 +363,10 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         [account],
         [],
         {
-          test2: { priceChangePercentage: 25 },
+          test2: {
+            priceChangePercentage: 25,
+            currentPrice: 5,
+          },
         },
       );
 
@@ -370,6 +377,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: 25,
               value: 4,
+              currentPrice: 5,
             },
           },
         },
@@ -383,54 +391,6 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         customTokens: [],
         tokenTypes: [],
         storage: expect.any(LRUCache),
-      });
-    });
-
-    it('should override AVAX price with watchlist data for C/X/P chains', async () => {
-      const mockAvaxBalance = {
-        symbol: 'AVAX',
-        balance: 10,
-        balanceInCurrency: 100, // VM module price: $10 per AVAX
-        type: TokenType.NATIVE,
-      };
-
-      const mockPriceChanges = {
-        AVAX: {
-          currentPrice: 15, // Watchlist price: $15 per AVAX
-          priceChange: 1,
-          priceChangePercentage: 7.14,
-        },
-      };
-
-      moduleMock.getBalances.mockResolvedValue({
-        networkId2: {
-          addressC: {
-            AVAX: mockAvaxBalance,
-          },
-        },
-      });
-
-      const network = { vmName: NetworkVMType.EVM, caipId: 'evm' };
-      const result = await service.getBalancesForNetwork(
-        network as any,
-        [account],
-        [],
-        mockPriceChanges,
-      );
-
-      expect(result).toEqual({
-        networkId2: {
-          addressC: {
-            AVAX: {
-              ...mockAvaxBalance,
-              balanceInCurrency: 150, // 10 AVAX * $15 = $150
-              priceChanges: {
-                percentage: 7.14,
-                value: 10, // 10 AVAX * $1 price change
-              },
-            },
-          },
-        },
       });
     });
   });

@@ -12,6 +12,63 @@ import { NetworkWithCaipId } from '@core/types';
 import { PrimaryNetworkAssetType } from '@avalabs/glacier-sdk';
 
 describe('utils/calculateTotalBalance', () => {
+  // Helper functions and shared data
+  const createBaseAccount = (): Account => ({
+    id: 'account1',
+    name: 'test account',
+    addressBTC: 'btc-address',
+    addressC: 'c-address',
+    type: AccountType.PRIMARY,
+    index: 0,
+    walletId: 'walletId',
+  });
+
+  const createBaseNetwork = (vmName: NetworkVMType): NetworkWithCaipId => ({
+    chainId: ChainId.AVALANCHE_MAINNET_ID,
+    vmName,
+    caipId: 'eip155:43114',
+    chainName: 'Avalanche',
+    rpcUrl: 'https://api.avax.network',
+    networkToken: {
+      name: 'Avalanche',
+      symbol: 'AVAX',
+      decimals: 9,
+      description: 'AVAX',
+      logoUri: '',
+    },
+    logoUri: '',
+    explorerUrl: 'https://snowtrace.io',
+  });
+
+  const createBaseToken = () => ({
+    type: TokenType.NATIVE as const,
+    name: 'Avalanche',
+    symbol: 'AVAX',
+    balance: 100n,
+    balanceDisplayValue: '0.0000001',
+    coingeckoId: 'avax',
+    decimals: 9,
+    description: 'Avalanche native token',
+    logoUri: 'avax-logo',
+    balanceInCurrency: 5,
+    priceInCurrency: 5,
+    priceChanges: {
+      currentPrice: 5,
+      percentage: 0,
+      value: 0,
+    },
+  });
+
+  const createUtxoEntry = (amount: string) => ({
+    assetId: 'AVAX',
+    name: 'Avalanche',
+    symbol: 'AVAX',
+    denomination: 9,
+    type: PrimaryNetworkAssetType.SECP256K1,
+    amount,
+    utxoCount: 1,
+  });
+
   const account1: Account = {
     id: 'account1 ID',
     name: 'account1 name',
@@ -82,54 +139,13 @@ describe('utils/calculateTotalBalance', () => {
 
   it('should calculate UTXO balance for AVM token when isUsedForWalletBalance is true', () => {
     const avmToken: TokenWithBalanceAVM = {
-      type: TokenType.NATIVE,
-      name: 'Avalanche',
-      symbol: 'AVAX',
-      balance: 100n,
-      balanceDisplayValue: '0.0000001',
-      coingeckoId: 'avax',
-      decimals: 9,
-      description: 'Avalanche native token',
-      logoUri: 'avax-logo',
-      balanceInCurrency: 5,
-      priceInCurrency: 5,
-      priceChanges: {
-        currentPrice: 5,
-        percentage: 0,
-        value: 0,
-      },
+      ...createBaseToken(),
       utxos: {
         unlocked: [
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '1000000000',
-            utxoCount: 1,
-          },
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '2000000000',
-            utxoCount: 1,
-          },
+          createUtxoEntry('1000000000'),
+          createUtxoEntry('2000000000'),
         ],
-        locked: [
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '500000000',
-            utxoCount: 1,
-          },
-        ],
+        locked: [createUtxoEntry('500000000')],
         atomicMemoryUnlocked: [],
         atomicMemoryLocked: [],
       },
@@ -141,15 +157,9 @@ describe('utils/calculateTotalBalance', () => {
       },
     };
 
-    const account: Account = {
-      id: 'account1',
-      name: 'test account',
+    const account = {
+      ...createBaseAccount(),
       addressAVM: 'X-test123',
-      addressBTC: 'btc-address',
-      addressC: 'c-address',
-      type: AccountType.PRIMARY,
-      index: 0,
-      walletId: 'walletId',
     };
 
     const avmBalances: Balances = {
@@ -160,24 +170,7 @@ describe('utils/calculateTotalBalance', () => {
       },
     };
 
-    const networks: NetworkWithCaipId[] = [
-      {
-        chainId: ChainId.AVALANCHE_MAINNET_ID,
-        vmName: NetworkVMType.AVM,
-        caipId: 'eip155:43114',
-        chainName: 'Avalanche',
-        rpcUrl: 'https://api.avax.network',
-        networkToken: {
-          name: 'Avalanche',
-          symbol: 'AVAX',
-          decimals: 9,
-          description: 'AVAX',
-          logoUri: '',
-        },
-        logoUri: '',
-        explorerUrl: 'https://snowtrace.io',
-      },
-    ];
+    const networks = [createBaseNetwork(NetworkVMType.AVM)];
 
     const balance = calculateTotalBalance(account, networks, avmBalances, true);
 
@@ -191,67 +184,12 @@ describe('utils/calculateTotalBalance', () => {
 
   it('should calculate UTXO balance for PVM token when isUsedForWalletBalance is true', () => {
     const pvmToken: TokenWithBalancePVM = {
-      type: TokenType.NATIVE,
-      name: 'Avalanche',
-      symbol: 'AVAX',
-      balance: 100n,
-      balanceDisplayValue: '0.0000001',
-      coingeckoId: 'avax',
-      decimals: 9,
-      description: 'Avalanche native token',
-      logoUri: 'avax-logo',
-      balanceInCurrency: 5,
-      priceInCurrency: 5,
-      priceChanges: {
-        currentPrice: 5,
-        percentage: 0,
-        value: 0,
-      },
+      ...createBaseToken(),
       utxos: {
-        unlockedUnstaked: [
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '1000000000',
-            utxoCount: 1,
-          },
-        ],
-        unlockedStaked: [
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '2000000000',
-            utxoCount: 1,
-          },
-        ],
-        lockedStaked: [
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '500000000',
-            utxoCount: 1,
-          },
-        ],
-        pendingStaked: [
-          {
-            assetId: 'AVAX',
-            name: 'Avalanche',
-            symbol: 'AVAX',
-            denomination: 9,
-            type: PrimaryNetworkAssetType.SECP256K1,
-            amount: '1000000000',
-            utxoCount: 1,
-          },
-        ],
+        unlockedUnstaked: [createUtxoEntry('1000000000')],
+        unlockedStaked: [createUtxoEntry('2000000000')],
+        lockedStaked: [createUtxoEntry('500000000')],
+        pendingStaked: [createUtxoEntry('1000000000')],
         lockedPlatform: [],
         lockedStakeable: [],
         atomicMemoryUnlocked: [],
@@ -269,15 +207,9 @@ describe('utils/calculateTotalBalance', () => {
       },
     };
 
-    const account: Account = {
-      id: 'account1',
-      name: 'test account',
+    const account = {
+      ...createBaseAccount(),
       addressPVM: 'P-test123',
-      addressBTC: 'btc-address',
-      addressC: 'c-address',
-      type: AccountType.PRIMARY,
-      index: 0,
-      walletId: 'walletId',
     };
 
     const pvmBalances: Balances = {
@@ -288,24 +220,7 @@ describe('utils/calculateTotalBalance', () => {
       },
     };
 
-    const networks: NetworkWithCaipId[] = [
-      {
-        chainId: ChainId.AVALANCHE_MAINNET_ID,
-        vmName: NetworkVMType.PVM,
-        caipId: 'eip155:43114',
-        chainName: 'Avalanche',
-        rpcUrl: 'https://api.avax.network',
-        networkToken: {
-          name: 'Avalanche',
-          symbol: 'AVAX',
-          decimals: 9,
-          description: 'AVAX',
-          logoUri: '',
-        },
-        logoUri: '',
-        explorerUrl: 'https://snowtrace.io',
-      },
-    ];
+    const networks = [createBaseNetwork(NetworkVMType.PVM)];
 
     const balance = calculateTotalBalance(account, networks, pvmBalances, true);
 
@@ -320,32 +235,14 @@ describe('utils/calculateTotalBalance', () => {
 
   it('should calculate balance for C-chain (EVM) AVAX token when isUsedForWalletBalance is true', () => {
     const cChainToken: NetworkTokenWithBalance = {
-      type: TokenType.NATIVE,
-      name: 'Avalanche',
-      symbol: 'AVAX',
+      ...createBaseToken(),
       balance: 1000000000n, // 1 AVAX in nAVAX
       balanceDisplayValue: '1.0',
-      coingeckoId: 'avax',
-      decimals: 9,
-      description: 'Avalanche native token',
-      logoUri: 'avax-logo',
-      balanceInCurrency: 5,
-      priceInCurrency: 5,
-      priceChanges: {
-        currentPrice: 5,
-        percentage: 0,
-        value: 0,
-      },
     };
 
-    const account: Account = {
-      id: 'account1',
-      name: 'test account',
+    const account = {
+      ...createBaseAccount(),
       addressC: '0x123',
-      addressBTC: 'btc-address',
-      type: AccountType.PRIMARY,
-      index: 0,
-      walletId: 'walletId',
     };
 
     const cChainBalances: Balances = {
@@ -356,24 +253,7 @@ describe('utils/calculateTotalBalance', () => {
       },
     };
 
-    const networks: NetworkWithCaipId[] = [
-      {
-        chainId: ChainId.AVALANCHE_MAINNET_ID,
-        vmName: NetworkVMType.EVM,
-        caipId: 'eip155:43114',
-        chainName: 'Avalanche',
-        rpcUrl: 'https://api.avax.network',
-        networkToken: {
-          name: 'Avalanche',
-          symbol: 'AVAX',
-          decimals: 9,
-          description: 'AVAX',
-          logoUri: '',
-        },
-        logoUri: '',
-        explorerUrl: 'https://snowtrace.io',
-      },
-    ];
+    const networks = [createBaseNetwork(NetworkVMType.EVM)];
 
     const balance = calculateTotalBalance(
       account,
@@ -401,14 +281,9 @@ describe('utils/calculateTotalBalance', () => {
       balanceInCurrency: 150,
     };
 
-    const account: Account = {
-      id: 'account1',
-      name: 'test account',
+    const account = {
+      ...createBaseAccount(),
       addressC: '0x123',
-      addressBTC: 'btc-address',
-      type: AccountType.PRIMARY,
-      index: 0,
-      walletId: 'walletId',
     };
 
     const evmBalances: Balances = {
@@ -419,24 +294,7 @@ describe('utils/calculateTotalBalance', () => {
       },
     };
 
-    const networks: NetworkWithCaipId[] = [
-      {
-        chainId: ChainId.AVALANCHE_MAINNET_ID,
-        vmName: NetworkVMType.EVM,
-        caipId: 'eip155:43114',
-        chainName: 'Avalanche',
-        rpcUrl: 'https://api.avax.network',
-        networkToken: {
-          name: 'Avalanche',
-          symbol: 'AVAX',
-          decimals: 9,
-          description: 'AVAX',
-          logoUri: '',
-        },
-        logoUri: '',
-        explorerUrl: 'https://snowtrace.io',
-      },
-    ];
+    const networks = [createBaseNetwork(NetworkVMType.EVM)];
 
     const balance = calculateTotalBalance(account, networks, evmBalances, true);
 
