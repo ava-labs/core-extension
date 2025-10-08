@@ -1,11 +1,8 @@
-import { TokenIcon } from '@/components/common/TokenIcon';
-import { useAnalyticsContext } from '@core/ui';
-import { useSettingsContext } from '@core/ui';
-import { useSetSendDataInParams } from '@core/ui';
-import { useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { BalanceColumn } from '@/components/common/BalanceColumn';
 import { InlineTokenEllipsis } from '@/components/common/InlineTokenEllipsis';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { PAndL } from '@/components/common/ProfitAndLoss';
+import { TokenEllipsis } from '@/components/common/TokenEllipsis';
+import { TokenIcon } from '@/components/common/TokenIcon';
 import {
   Button,
   ChevronRightIcon,
@@ -14,12 +11,17 @@ import {
   keyframes,
   styled,
 } from '@avalabs/core-k2-components';
-import { TokenEllipsis } from '@/components/common/TokenEllipsis';
-import { BalanceColumn } from '@/components/common/BalanceColumn';
-import { PAndL } from '@/components/common/ProfitAndLoss';
-import { hasUnconfirmedBalance } from '@core/common';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { hasUnconfirmedBalance } from '@core/common';
 import { getUnconfirmedBalanceInCurrency } from '@core/types';
+import {
+  useAnalyticsContext,
+  useSetSendDataInParams,
+  useSettingsContext,
+} from '@core/ui';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
 interface AssetListProps {
   assetList: TokenWithBalance[];
@@ -75,18 +77,17 @@ export function Assetlist({ assetList }: AssetListProps) {
   return (
     <>
       {filteredAssetList.slice(0, maxAssetCount).map((token) => {
-        const totalBalance =
-          token.balance && hasUnconfirmedBalance(token)
-            ? new TokenUnit(
-                token.balance + token.unconfirmedBalance,
-                token.decimals,
-                token.symbol,
-              )
-            : new TokenUnit(
-                token.balance,
-                'decimals' in token ? token.decimals : 0,
-                token.symbol,
-              );
+        const totalBalance = hasUnconfirmedBalance(token)
+          ? new TokenUnit(
+              token.balance + token.unconfirmedBalance,
+              token.decimals,
+              token.symbol,
+            )
+          : new TokenUnit(
+              token.balance,
+              'decimals' in token ? token.decimals : 0,
+              token.symbol,
+            );
 
         const balanceInCurrency = token.balanceInCurrency;
 
