@@ -1,12 +1,13 @@
 import {
   Account,
   Balances,
+  getUnconfirmedBalanceInCurrency,
   NetworkWithCaipId,
   TokensPriceShortData,
   TotalPriceChange,
 } from '@core/types';
-import { hasAccountBalances } from './hasAccountBalances';
 import { getAddressForChain } from './getAddressForChain';
+import { hasAccountBalances } from './hasAccountBalances';
 import {
   NetworkTokenWithBalance,
   NetworkVMType,
@@ -35,19 +36,18 @@ export function calculateTotalBalance(
   }
 
   const networkDict: Record<number, NetworkWithCaipId> = networks.reduce(
-    (dict, network) => ({
-      ...dict,
-      [network.chainId]: network,
-    }),
+    (dict, network) => {
+      dict[network.chainId] = network;
+      return dict;
+    },
     {},
   );
-  const chainIdsToSum = new Set(Object.keys(networkDict).map(Number));
 
-  const hasBalances = hasAccountBalances(
-    balances,
-    account,
-    Array.from(chainIdsToSum),
+  const chainIdsToSum = Array.from(
+    new Set(Object.keys(networkDict).map(Number)),
   );
+
+  const hasBalances = hasAccountBalances(balances, account, chainIdsToSum);
 
   if (!hasBalances) {
     return {
@@ -59,7 +59,7 @@ export function calculateTotalBalance(
     };
   }
 
-  const sum = Array.from(chainIdsToSum).reduce(
+  const sum = chainIdsToSum.reduce(
     (
       total: {
         sum: number;
@@ -74,54 +74,52 @@ export function calculateTotalBalance(
         return total;
       }
 
-      const sumValues = Object.values(
-        balances?.[chainId]?.[address] ?? {},
-      )?.reduce(
-        (
-          sumTotal: {
-            sum: number;
-            priceChange: TotalPriceChange;
-          },
-          token,
-        ) => {
-          const percentage = token.priceChanges?.percentage
-            ? [
-                ...sumTotal.priceChange.percentage,
-                token.priceChanges?.percentage,
-              ]
-            : [...sumTotal.priceChange.percentage];
+      const tokens = balances?.[chainId]?.[address];
+      if (!tokens) {
+        return total;
+      }
 
-          const balanceInCurrency =
-            getBalanceInCurrency(
-              token,
-              isUsedForWalletBalance,
-              network,
-              priceChangesData,
-            ) ?? 0;
+      const sumValues = Object.values(tokens).reduce<BalanceAccumulator>(
+        (sumTotal, token) => {
+          const confirmedBalance =
+            (token.type === TokenType.NATIVE && token.symbol === 'AVAX'
+              ? getBalanceInCurrencyForAVAX(
+                  token,
+                  isUsedForWalletBalance,
+                  network,
+                  priceChangesData,
+                )
+              : token.balanceInCurrency) ?? 0;
+
+          const unconfirmedBalance =
+            getUnconfirmedBalanceInCurrency(token) ?? 0;
+
+          sumTotal.sum += confirmedBalance + unconfirmedBalance;
+
+          if (token.priceChanges?.value) {
+            sumTotal.priceChange.value += token.priceChanges.value;
+          }
+
+          if (token.priceChanges?.percentage) {
+            sumTotal.priceChange.percentage.push(token.priceChanges.percentage);
+          }
 
           return {
-            sum: sumTotal.sum + balanceInCurrency,
+            sum: sumTotal.sum,
             priceChange: {
               value:
                 sumTotal.priceChange.value + (token.priceChanges?.value ?? 0),
-              percentage,
+              percentage: sumTotal.priceChange.percentage,
             },
           };
         },
         { sum: 0, priceChange: { value: 0, percentage: [] } },
-      ) || { sum: 0, priceChange: { value: 0, percentage: [] } };
+      );
 
-      return {
-        ...total,
-        sum: total.sum + sumValues.sum,
-        priceChange: {
-          value: sumValues.priceChange.value + total.priceChange.value,
-          percentage: [
-            ...sumValues.priceChange.percentage,
-            ...total.priceChange.percentage,
-          ],
-        },
-      };
+      total.sum += sumValues.sum;
+      total.priceChange.value += sumValues.priceChange.value;
+      total.priceChange.percentage.unshift(...sumValues.priceChange.percentage);
+      return total;
     },
     { sum: 0, priceChange: { value: 0, percentage: [] } },
   );
@@ -129,7 +127,12 @@ export function calculateTotalBalance(
   return sum;
 }
 
-const getBalanceInCurrency = (
+type BalanceAccumulator = {
+  sum: number;
+  priceChange: TotalPriceChange;
+};
+
+const getBalanceInCurrencyForAVAX = (
   token: TokenWithBalance,
   isUsedForWalletBalance?: boolean,
   network?: NetworkWithCaipId,
