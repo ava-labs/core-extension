@@ -6,11 +6,6 @@ import { AccountsService } from '~/services/accounts/AccountsService';
 import { StorageService } from '~/services/storage/StorageService';
 import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
-// jest.mock('@core/common', () => ({
-//   ...jest.requireActual('@core/common'),
-//   resolve: jest.fn().mockResolvedValue([true, 'asd']),
-// }));
-
 jest.mock('../../accounts/utils/addAllAccountsWithHistory', () => ({
   addAllAccountsWithHistory: jest.fn(),
 }));
@@ -51,8 +46,7 @@ describe('/service-worker/src/services/lock/handlers/unlockWalletState.ts', () =
 
       jest.spyOn(lockServiceMock, 'unlock').mockResolvedValue({} as any);
 
-      const result = await handler.handle(buildRpcCall(request));
-      console.log('result: ', result);
+      await handler.handle(buildRpcCall(request));
 
       expect(lockServiceMock.unlock).toHaveBeenCalledWith('password');
     });
@@ -71,8 +65,7 @@ describe('/service-worker/src/services/lock/handlers/unlockWalletState.ts', () =
 
       jest.spyOn(lockServiceMock, 'unlock').mockResolvedValue({} as any);
 
-      const result = await handler.handle(buildRpcCall(request));
-      console.log('result: ', result);
+      await handler.handle(buildRpcCall(request));
 
       expect(await lockServiceMock.unlock).toHaveBeenCalledWith('password');
       expect(addAllAccountsWithHistory).toHaveBeenCalledTimes(2);
