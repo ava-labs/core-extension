@@ -61,6 +61,9 @@ export enum Web3Event {
   ACCOUNTS_CHANGED_CA = 'accountsChangedCA', // Chain-agnostic version of ACCOUNTS_CHANGED
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
+
+  // Core Web specific event
+  NETWORK_STATE_CHANGED = 'networkStateChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {

@@ -38,6 +38,7 @@ import { AvalancheDeleteAccountsHandler } from '../../services/accounts/handlers
 import { AccountsChangedCAEvents } from '../../services/accounts/events/accountsChangedCAEvent';
 import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wallet_requestAccountPermission';
 import { WalletGetNetworkStateHandler } from '~/services/network/handlers/wallet_getNetworkState';
+import { NetworkStateChangedEvents } from '~/services/network/events/networkStateChanged';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -129,5 +130,6 @@ export class DappRequestHandlerRegistry {}
   { token: 'DAppEventEmitter', useToken: AccountsChangedCAEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionEvents },
+  { token: 'DAppEventEmitter', useToken: NetworkStateChangedEvents },
 ])
 export class DappEventEmitterRegistry {}

@@ -28,6 +28,7 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       decimals: 18,
     },
     vmName: NetworkVMType.EVM,
+    isTestnet: false,
   };
 
   const mockEthereumNetwork = {
@@ -43,6 +44,7 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       decimals: 18,
     },
     vmName: NetworkVMType.EVM,
+    isTestnet: false,
   };
 
   const mockBitcoinNetwork = {
@@ -58,12 +60,53 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       decimals: 8,
     },
     vmName: NetworkVMType.BITCOIN,
+    isTestnet: false,
+  };
+
+  const mockTestnetNetwork = {
+    chainId: 43113,
+    caipId: 'eip155:43113',
+    chainName: 'Avalanche Fuji Testnet',
+    rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
+    logoUri: 'https://example.com/avalanche-logo.png',
+    explorerUrl: 'https://testnet.snowtrace.io',
+    networkToken: {
+      name: 'Avalanche',
+      symbol: 'AVAX',
+      decimals: 18,
+    },
+    vmName: NetworkVMType.EVM,
+    isTestnet: true,
+  };
+
+  const mockEthereumTestnetNetwork = {
+    chainId: 5,
+    caipId: 'eip155:5',
+    chainName: 'Ethereum Goerli Testnet',
+    rpcUrl: 'https://goerli.infura.io/v3/key',
+    logoUri: 'https://example.com/ethereum-logo.png',
+    explorerUrl: 'https://goerli.etherscan.io',
+    networkToken: {
+      name: 'Ethereum',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    vmName: NetworkVMType.EVM,
+    isTestnet: true,
   };
 
   const mockAllNetworks = [
     mockActiveNetwork,
     mockEthereumNetwork,
     mockBitcoinNetwork,
+  ];
+
+  const mockAllNetworksWithTestnets = [
+    mockActiveNetwork,
+    mockEthereumNetwork,
+    mockBitcoinNetwork,
+    mockTestnetNetwork,
+    mockEthereumTestnetNetwork,
   ];
 
   const mockFavoriteNetworks = [ChainId.AVALANCHE_MAINNET_ID, 1, 123];
@@ -437,6 +480,113 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
 
       expect(result.result).toBeDefined();
       expect(result.result.networks).toHaveLength(0); // No networks found
+    });
+
+    it('filters networks based on testnet status - mainnet active network', async () => {
+      const favoritesIncludingTestnets = [
+        ChainId.AVALANCHE_MAINNET_ID, // mainnet
+        1, // ethereum mainnet
+        43113, // avalanche testnet
+        5, // ethereum testnet
+      ];
+
+      mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        favoritesIncludingTestnets,
+      );
+      mockNetworkService.allNetworks = {
+        promisify: jest.fn().mockResolvedValue(
+          mockAllNetworksWithTestnets.reduce((acc, network) => {
+            acc[network.chainId] = network;
+            return acc;
+          }, {} as any),
+        ),
+      } as any;
+      Object.defineProperty(mockNetworkService, 'uiActiveNetwork', {
+        get: jest.fn(() => mockActiveNetwork), // mainnet active
+      });
+      mockSettingsService.getTokensVisibility.mockResolvedValue({});
+
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(getNetworkStateRequest),
+      );
+
+      expect(result.result).toBeDefined();
+      expect(result.result.networks).toHaveLength(2); // Only mainnet networks
+
+      const chainIds = result.result.networks.map((n) => n.caip2ChainId);
+      expect(chainIds).toContain(`eip155:${ChainId.AVALANCHE_MAINNET_ID}`);
+      expect(chainIds).toContain('eip155:1');
+      expect(chainIds).not.toContain('eip155:43113'); // testnet excluded
+      expect(chainIds).not.toContain('eip155:5'); // testnet excluded
+    });
+
+    it('filters networks based on testnet status - testnet active network', async () => {
+      const favoritesIncludingMainnets = [
+        ChainId.AVALANCHE_MAINNET_ID, // mainnet
+        1, // ethereum mainnet
+        43113, // avalanche testnet
+        5, // ethereum testnet
+      ];
+
+      mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        favoritesIncludingMainnets,
+      );
+      mockNetworkService.allNetworks = {
+        promisify: jest.fn().mockResolvedValue(
+          mockAllNetworksWithTestnets.reduce((acc, network) => {
+            acc[network.chainId] = network;
+            return acc;
+          }, {} as any),
+        ),
+      } as any;
+      Object.defineProperty(mockNetworkService, 'uiActiveNetwork', {
+        get: jest.fn(() => mockTestnetNetwork), // testnet active
+      });
+      mockSettingsService.getTokensVisibility.mockResolvedValue({});
+
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(getNetworkStateRequest),
+      );
+
+      expect(result.result).toBeDefined();
+      expect(result.result.networks).toHaveLength(2); // Only testnet networks
+
+      const chainIds = result.result.networks.map((n) => n.caip2ChainId);
+      expect(chainIds).toContain('eip155:43113'); // testnet active
+      expect(chainIds).toContain('eip155:5'); // testnet favorite
+      expect(chainIds).not.toContain(`eip155:${ChainId.AVALANCHE_MAINNET_ID}`); // mainnet excluded
+      expect(chainIds).not.toContain('eip155:1'); // mainnet excluded
+    });
+
+    it('includes active testnet network even if not in favorites', async () => {
+      const favoritesWithoutActiveTestnet = [5]; // Only Ethereum testnet, not Avalanche testnet
+
+      mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        favoritesWithoutActiveTestnet,
+      );
+      mockNetworkService.allNetworks = {
+        promisify: jest.fn().mockResolvedValue(
+          mockAllNetworksWithTestnets.reduce((acc, network) => {
+            acc[network.chainId] = network;
+            return acc;
+          }, {} as any),
+        ),
+      } as any;
+      Object.defineProperty(mockNetworkService, 'uiActiveNetwork', {
+        get: jest.fn(() => mockTestnetNetwork), // testnet active
+      });
+      mockSettingsService.getTokensVisibility.mockResolvedValue({});
+
+      const result = await handler.handleAuthenticated(
+        buildRpcCall(getNetworkStateRequest),
+      );
+
+      expect(result.result).toBeDefined();
+      expect(result.result.networks).toHaveLength(2); // Active testnet + favorite testnet
+
+      const chainIds = result.result.networks.map((n) => n.caip2ChainId);
+      expect(chainIds).toContain('eip155:43113'); // active testnet
+      expect(chainIds).toContain('eip155:5'); // favorite testnet
     });
   });
 

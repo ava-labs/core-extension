@@ -3,6 +3,7 @@ import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
 import { SettingsService } from '~/services/settings/SettingsService';
+import { getNetworkStateWithTokenvisibility } from '../utils/getNetworkStateWithTokenvisibility';
 interface WalletGetNetworkStateResponse {
   networks: {
     caip2ChainId: string;
@@ -32,57 +33,27 @@ export class WalletGetNetworkStateHandler extends DAppRequestHandler {
   }
 
   handleAuthenticated = async ({ request }) => {
-    const favoriteNetworks = await this.networkService.getFavoriteNetworks();
-    const allNetworks = Object.values(
-      await this.networkService.allNetworks.promisify(),
-    );
-    const activeNetwork = this.networkService.uiActiveNetwork;
+    try {
+      const networks: WalletGetNetworkStateResponse['networks'] =
+        await getNetworkStateWithTokenvisibility(
+          this.networkService,
+          this.settingsService,
+        );
 
-    if (!activeNetwork || !allNetworks || !favoriteNetworks) {
+      return {
+        ...request,
+        result: {
+          networks,
+        },
+      };
+    } catch (error) {
       return {
         ...request,
         error: ethErrors.rpc.resourceUnavailable({
-          message: 'no active network',
+          message: (error as Error)?.message ?? 'unknown error',
         }),
       };
     }
-
-    const tokenVisibility = await this.settingsService.getTokensVisibility();
-
-    const networks: WalletGetNetworkStateResponse['networks'] = Array.from(
-      new Set([activeNetwork.chainId, ...favoriteNetworks]),
-    )
-      .map((chainId) =>
-        allNetworks.find((network) => network.chainId === chainId),
-      )
-      .filter((network) => network !== undefined)
-      .map((network) => {
-        return {
-          caip2ChainId: network.caipId,
-          rpcUrl: network.rpcUrl,
-          name: network.chainName,
-          logoUrl: network.logoUri,
-          explorerUrl: network.explorerUrl,
-          networkToken: {
-            name: network.networkToken.name,
-            symbol: network.networkToken.symbol,
-            decimals: network.networkToken.decimals,
-          },
-          enabledTokens: Object.keys(
-            tokenVisibility[network.caipId] ?? {},
-          ).filter((token) => tokenVisibility[network.caipId]?.[token]),
-          disabledTokens: Object.keys(
-            tokenVisibility[network.caipId] ?? {},
-          ).filter((token) => !tokenVisibility[network.caipId]?.[token]),
-        };
-      });
-
-    return {
-      ...request,
-      result: {
-        networks,
-      },
-    };
   };
 
   handleUnauthenticated = async ({ request }) => {
