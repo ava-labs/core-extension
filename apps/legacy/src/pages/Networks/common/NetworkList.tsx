@@ -1,7 +1,3 @@
-import { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   Collapse,
@@ -19,15 +15,23 @@ import {
   toast,
   useTheme,
 } from '@avalabs/core-k2-components';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { NetworkLogo } from '@/components/common/NetworkLogo';
-import { useNetworkContext, useWalletContext } from '@core/ui';
-import { useAnalyticsContext } from '@core/ui';
 import {
   ipfsResolverWithFallback,
-  isChainSupportedByWallet,
+  isChainSupportedWalletOrAccount,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useNetworkContext,
+  useWalletContext,
+} from '@core/ui';
 
 import { NetworkListItem } from './NetworkListItem';
 import {
@@ -54,6 +58,9 @@ export function NetworkList({ networkList }: NetworkListProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const [favoritedItem, setFavoritedItem] = useState<number | null>(null);
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   if (!networkList.length) {
     return null;
@@ -64,9 +71,10 @@ export function NetworkList({ networkList }: NetworkListProps) {
       <TransitionGroup component={null}>
         {networkList.map((networkItem, index) => {
           const isFavorite = isFavoriteNetwork(networkItem.chainId);
-          const isSupportedByActiveWallet = isChainSupportedByWallet(
-            networkItem.vmName,
-            walletDetails?.type,
+          const isSupportedByActiveWallet = isChainSupportedWalletOrAccount(
+            networkItem,
+            walletDetails,
+            activeAccount,
           );
           return (
             <Collapse key={networkItem.chainId} className="item">
