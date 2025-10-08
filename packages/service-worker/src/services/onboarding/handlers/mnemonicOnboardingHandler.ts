@@ -22,6 +22,7 @@ import { injectable } from 'tsyringe';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { startOnboarding } from '../startOnboarding';
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.MNEMONIC_ONBOARDING_SUBMIT,
@@ -90,9 +91,7 @@ export class MnemonicOnboardingHandler implements HandlerType {
       };
     }
 
-    await this.accountsService.addPrimaryAccount({
-      walletId,
-    });
+    await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
 
     await finalizeOnboarding({
       walletId,
