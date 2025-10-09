@@ -36,7 +36,7 @@ export class NetworkStateChangedEvents implements DAppEventEmitter {
       );
 
       this.eventEmitter.emit('update', {
-        method: Web3Event.CHAIN_CHANGED,
+        method: Web3Event.NETWORK_STATE_CHANGED,
         params: { networks: networkState },
       });
     } catch (error) {
