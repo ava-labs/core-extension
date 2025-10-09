@@ -110,7 +110,7 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
 
       // Listen for the update event
       networkStateChangedEvents.addListener((event: any) => {
-        expect(event.method).toBe(Web3Event.CHAIN_CHANGED);
+        expect(event.method).toBe(Web3Event.NETWORK_STATE_CHANGED);
         expect(event.params).toEqual({ networks: mockNetworkStateData });
         expect(getNetworkStateWithTokenvisibility).toHaveBeenCalledWith(
           mockNetworkService,
@@ -189,7 +189,7 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
 
       // Listen for the update event
       networkStateChangedEvents.addListener((event: any) => {
-        expect(event.method).toBe(Web3Event.CHAIN_CHANGED);
+        expect(event.method).toBe(Web3Event.NETWORK_STATE_CHANGED);
         expect(event.params).toEqual({ networks: mockNetworkStateData });
         expect(getNetworkStateWithTokenvisibility).toHaveBeenCalledWith(
           mockNetworkService,
@@ -264,7 +264,7 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
       networkStateChangedEvents.setConnectionInfo(mockSyncConnectionInfo);
 
       networkStateChangedEvents.addListener((event: any) => {
-        expect(event.method).toBe(Web3Event.CHAIN_CHANGED);
+        expect(event.method).toBe(Web3Event.NETWORK_STATE_CHANGED);
         expect(event.params).toEqual({ networks: [] });
         done();
       });
