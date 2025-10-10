@@ -202,16 +202,27 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       !hasCurrentPrice ||
       (lastUpdated && lastUpdated + priceChangeRefreshRate < Date.now())
     ) {
-      const [priceChangesResult] = await resolve(
-        fetch(
-          `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
+      const [priceChangesResult, priceResult] = await Promise.allSettled([
+        resolve(
+          fetch(
+            `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
+          ),
         ),
-      );
+        resolve(fetch(`${process.env.PROXY_URL}/watchlist/price`)),
+      ]);
 
-      if (!priceChangesResult) {
+      if (
+        priceChangesResult.status !== 'fulfilled' ||
+        !priceChangesResult.value[0]
+      ) {
         return;
       }
-      const priceChanges: PriceChangesData[] = await priceChangesResult.json();
+      const priceChanges: PriceChangesData[] =
+        await priceChangesResult.value[0].json();
+      const price =
+        priceResult.status === 'fulfilled' && priceResult.value[0]
+          ? await priceResult.value[0].json()
+          : {};
       const tokensData: TokensPriceShortData = priceChanges.reduce(
         (acc: TokensPriceShortData, data: PriceChangesData) => {
           return {
@@ -219,7 +230,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             [data.symbol]: {
               priceChange: data.price_change_24h,
               priceChangePercentage: data.price_change_percentage_24h,
-              currentPrice: data.current_price,
+              currentPrice: price[data.symbol] ?? data.current_price,
             },
           };
         },
