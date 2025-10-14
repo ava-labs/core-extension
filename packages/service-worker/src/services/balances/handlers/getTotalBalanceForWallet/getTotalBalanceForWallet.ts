@@ -124,7 +124,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       );
 
       // Get balance for derived addresses
-      let totalBalanceInCurrency = 0;
+      let totalBalanceInCurrency: null | number = null;
       for (const account of derivedAccounts) {
         const { tokens: derivedAddressesBalances } =
           await this.balanceAggregatorService.getBalancesForNetworks(
@@ -133,6 +133,15 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             [TokenType.NATIVE, TokenType.ERC20],
           );
 
+        if (totalBalanceInCurrency === null) {
+          totalBalanceInCurrency = calculateTotalBalanceForAccounts(
+            derivedAddressesBalances,
+            [account],
+            networksIncludedInTotal,
+            priceChangesData,
+          );
+          continue;
+        }
         totalBalanceInCurrency += calculateTotalBalanceForAccounts(
           derivedAddressesBalances,
           [account],
