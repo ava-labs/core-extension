@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import {
   Chip,
   ChipProps,
+  CircularProgress,
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
@@ -11,10 +12,14 @@ import { WalletTypeIcon } from '@/pages/Accounts/components/WalletTypeIcon';
 
 type WalletChipProps = ChipProps & {
   walletDetails: WalletDetails;
+  walletBalance?: string;
+  isWalletBalanceLoading?: boolean;
 };
 
 export const WalletChip = ({
   walletDetails,
+  walletBalance,
+  isWalletBalanceLoading,
   sx,
   ...props
 }: WalletChipProps) => {
@@ -40,7 +45,12 @@ export const WalletChip = ({
         }
         label={
           <Typography variant="caption" ref={onLabelChange}>
-            {walletDetails.name}
+            {walletDetails.name}:{' '}
+            {isWalletBalanceLoading ? (
+              <CircularProgress size={10} color="primary" sx={{ ml: '2px' }} />
+            ) : (
+              walletBalance
+            )}
           </Typography>
         }
         size="small"
