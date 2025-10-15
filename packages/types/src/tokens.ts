@@ -53,4 +53,4 @@ export interface TokenPriceChanges {
   currentPrice: number | undefined;
 }
 
-export const priceChangeRefreshRate = 1000 * 60 * 60;
+export const priceChangeRefreshRate = 1000 * 60 * 5;
