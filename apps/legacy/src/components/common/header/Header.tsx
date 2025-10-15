@@ -169,13 +169,20 @@ export function Header() {
           <Divider light orientation="vertical" sx={{ py: 1.5, pl: 0.25 }} />
           <WalletChip
             walletDetails={walletDetails}
-            sx={{ maxWidth: 140 }}
+            sx={{ maxWidth: 200, cursor: 'pointer' }}
             walletBalance={
               activeWalletTotalBalance
                 ? currencyFormatter(activeWalletTotalBalance)
                 : undefined
             }
             isWalletBalanceLoading={isLoading}
+            onClick={() => {
+              window.open(
+                `${process.env.CORE_WEB_BASE_URL}/portfolio`,
+                '_blank',
+                'noreferrer',
+              );
+            }}
           />
         </Stack>
       )}

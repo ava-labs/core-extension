@@ -1,4 +1,3 @@
-import { useCallback, useState } from 'react';
 import {
   Chip,
   ChipProps,
@@ -23,18 +22,20 @@ export const WalletChip = ({
   sx,
   ...props
 }: WalletChipProps) => {
-  const [isOverflowing, setIsOverflowing] = useState(false);
-
-  const onLabelChange = useCallback((label: HTMLSpanElement) => {
-    if (label?.parentElement) {
-      setIsOverflowing(
-        label.parentElement.scrollWidth > label.parentElement.offsetWidth,
-      );
-    }
-  }, []);
+  const truncateWalletName =
+    walletDetails.name && walletDetails.name.length > 12
+      ? `${walletDetails.name.slice(0, 9)}...`
+      : walletDetails.name;
 
   return (
-    <Tooltip title={isOverflowing ? walletDetails.name : ''} placement="bottom">
+    <Tooltip
+      title={
+        truncateWalletName?.includes('...')
+          ? `${walletDetails.name}: ${walletBalance ?? ''}`
+          : ''
+      }
+      placement="bottom"
+    >
       <Chip
         icon={
           <WalletTypeIcon
@@ -44,8 +45,8 @@ export const WalletChip = ({
           />
         }
         label={
-          <Typography variant="caption" ref={onLabelChange}>
-            {walletDetails.name}:{' '}
+          <Typography variant="caption">
+            {truncateWalletName}:{' '}
             {isWalletBalanceLoading ? (
               <CircularProgress size={10} color="primary" sx={{ ml: '2px' }} />
             ) : (
@@ -55,7 +56,14 @@ export const WalletChip = ({
         }
         size="small"
         sx={[
-          { gap: 0.5, backgroundColor: 'grey.850' },
+          {
+            gap: 0.5,
+            backgroundColor: 'grey.850',
+            '& .MuiChip-label': {
+              overflow: 'hidden',
+              textOverflow: 'clip',
+            },
+          },
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
         {...props}
