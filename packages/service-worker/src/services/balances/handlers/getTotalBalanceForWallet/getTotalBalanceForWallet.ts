@@ -159,6 +159,13 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
 
         // we need to batch the request because the glacier endpoint works with 64 addresses at most
         const batchSize = 64;
+        const xpChains = (
+          await Promise.all(
+            getXPChainIds(this.networkService.isMainnet()).map((chainId) =>
+              this.networkService.getNetwork(chainId),
+            ),
+          )
+        ).filter(isNotNullish);
         for (let i = 0; i < underivedAccounts.length; i += batchSize) {
           const accountsBatch = underivedAccounts.slice(i, i + batchSize);
           const { tokens: underivedAddressesBalances } =
@@ -168,14 +175,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
               [TokenType.NATIVE],
               false, // Don't cache this
             );
-
-          const xpChains = (
-            await Promise.all(
-              getXPChainIds(this.networkService.isMainnet()).map((chainId) =>
-                this.networkService.getNetwork(chainId),
-              ),
-            )
-          ).filter(isNotNullish);
 
           const underivedAccountsTotal = calculateTotalBalanceForAccounts(
             underivedAddressesBalances,
