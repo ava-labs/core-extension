@@ -44,7 +44,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
           return {
             ...acc,
             walletType: secrets.secretType,
-            walletName: secrets?.name,
+            walletName: 'name' in secrets ? secrets.name : undefined,
             xpubXP: xpubXP?.key,
             active,
           };
