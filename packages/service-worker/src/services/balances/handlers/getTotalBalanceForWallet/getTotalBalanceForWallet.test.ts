@@ -532,19 +532,23 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       });
     });
 
-    it('fetches XP balances for underived accounts with activity', async () => {
+    it('fetches XP balances for underived accounts with activity and do that with two batches (two different calls)', async () => {
       const xpAddress = 'ledger-2-address';
       const underivedAddresses = [xpAddress]; // One underived account with activity
+      underivedAddresses.length = 100;
+      underivedAddresses.fill(xpAddress, 1, 100); // plus 99 more to trigger batching
+
       mockAccountsWithActivity(underivedAddresses);
+
       mockBalances(true, {
         X: {
           [`X-${xpAddress}`]: {
-            ...buildBalance('AVAX', 300),
+            ...buildBalance('AVAX', 100),
           },
         },
         P: {
           [`P-${xpAddress}`]: {
-            ...buildBalance('AVAX', 450),
+            ...buildBalance('AVAX', 900),
           },
         },
       });
@@ -552,10 +556,10 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       const response = await handleRequest('ledger');
       expect(response.error).toBeUndefined();
 
-      // Fetching balances of derived accounts (all networks per account) and underived accounts
+      // Fetching balances of derived accounts (all networks per account) and underived accounts two times because of batching
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(3);
+      ).toHaveBeenCalledTimes(4);
 
       // Call 1: All networks for derived accounts (native + ERC20 tokens)
       expect(
@@ -589,19 +593,38 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       );
 
       // Call 2: Fetching XP balances of underived accounts, without caching
+      // expecting two calls because of batching (64+36)
+      const expectedBatch = new Array(64).fill({
+        addressPVM: `P-${xpAddress}`,
+        addressAVM: `X-${xpAddress}`,
+      });
+      const expectedBatch2 = new Array(36).fill({
+        addressPVM: `P-${xpAddress}`,
+        addressAVM: `X-${xpAddress}`,
+      });
       expect(
         balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenNthCalledWith(
         3,
         [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-        [{ addressPVM: `P-${xpAddress}`, addressAVM: `X-${xpAddress}` }],
+        expectedBatch,
+        [TokenType.NATIVE],
+        false,
+      );
+
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(
+        4,
+        [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
+        expectedBatch2,
         [TokenType.NATIVE],
         false,
       );
 
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: true,
-        totalBalanceInCurrency: 2190, // 750 on underived accounts + 1440 on those mocked by default (already derived)
+        totalBalanceInCurrency: 201440, // 200000 on underived accounts + 1440 on those mocked by default (already derived)
       });
     });
   });

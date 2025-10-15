@@ -156,33 +156,39 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         // We DO NOT cache this response. When fetching balances for multiple X/P addresses at once,
         // Glacier responds with all the balances aggregated into one record and the Avalanche Module
         // returns it with the first address as the key. If cached, we'd save incorrect data.
-        const { tokens: underivedAddressesBalances } =
-          await this.balanceAggregatorService.getBalancesForNetworks(
-            getXPChainIds(this.networkService.isMainnet()),
-            underivedAccounts as Account[],
-            [TokenType.NATIVE],
-            false, // Don't cache this
+
+        // we need to batch the request because the glacier endpoint works with 64 addresses at most
+        const batchSize = 64;
+        for (let i = 0; i < underivedAccounts.length; i += batchSize) {
+          const accountsBatch = underivedAccounts.slice(i, i + batchSize);
+          const { tokens: underivedAddressesBalances } =
+            await this.balanceAggregatorService.getBalancesForNetworks(
+              getXPChainIds(this.networkService.isMainnet()),
+              accountsBatch as Account[],
+              [TokenType.NATIVE],
+              false, // Don't cache this
+            );
+
+          const xpChains = (
+            await Promise.all(
+              getXPChainIds(this.networkService.isMainnet()).map((chainId) =>
+                this.networkService.getNetwork(chainId),
+              ),
+            )
+          ).filter(isNotNullish);
+
+          const underivedAccountsTotal = calculateTotalBalanceForAccounts(
+            underivedAddressesBalances,
+            underivedAccounts,
+            xpChains,
           );
-
-        const xpChains = (
-          await Promise.all(
-            getXPChainIds(this.networkService.isMainnet()).map((chainId) =>
-              this.networkService.getNetwork(chainId),
-            ),
-          )
-        ).filter(isNotNullish);
-
-        const underivedAccountsTotal = calculateTotalBalanceForAccounts(
-          underivedAddressesBalances,
-          underivedAccounts,
-          xpChains,
-        );
-        if (totalBalanceInCurrency === undefined) {
-          totalBalanceInCurrency = underivedAccountsTotal;
-        } else {
-          totalBalanceInCurrency += underivedAccountsTotal;
+          if (totalBalanceInCurrency === undefined) {
+            totalBalanceInCurrency = underivedAccountsTotal;
+          } else {
+            totalBalanceInCurrency += underivedAccountsTotal;
+          }
+          hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
         }
-        hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
       }
 
       return {
