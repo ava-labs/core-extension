@@ -29,11 +29,7 @@ export const WalletChip = ({
 
   return (
     <Tooltip
-      title={
-        truncateWalletName?.includes('...')
-          ? `${walletDetails.name}: ${walletBalance ?? ''}`
-          : ''
-      }
+      title={`${walletDetails.name} ${walletBalance ? `: ${walletBalance}` : ''}`}
       placement="bottom"
     >
       <Chip
