@@ -23,8 +23,8 @@ export const WalletChip = ({
   ...props
 }: WalletChipProps) => {
   const truncateWalletName =
-    walletDetails.name && walletDetails.name.length > 12
-      ? `${walletDetails.name.slice(0, 9)}...`
+    walletDetails.name && walletDetails.name.length > 15
+      ? `${walletDetails.name.slice(0, 12)}...`
       : walletDetails.name;
 
   return (
