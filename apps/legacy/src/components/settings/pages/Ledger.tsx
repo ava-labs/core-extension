@@ -8,7 +8,7 @@ import {
   Box,
   Divider,
   Scrollbars,
-  ChevronRightIcon,
+  EditIcon,
 } from '@avalabs/core-k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
@@ -85,7 +85,8 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
                     })
                   }
                 >
-                  {t('Edit')} <ChevronRightIcon size={12} />
+                  {walletDetails?.derivationPath.toUpperCase()}{' '}
+                  <EditIcon size={14} />
                 </Typography>
               </ListItem>
             </>

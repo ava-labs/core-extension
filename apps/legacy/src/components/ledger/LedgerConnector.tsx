@@ -61,7 +61,6 @@ export function LedgerConnector({
   checkIfWalletExists,
   addedDerivationPath,
 }: LedgerConnectorProps) {
-  console.log('ledgerconnector derivationPath: ', addedDerivationPath);
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const {

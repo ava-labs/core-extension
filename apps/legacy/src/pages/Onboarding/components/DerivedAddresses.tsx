@@ -26,6 +26,7 @@ export function DerivedAddresses({
   balanceSymbol,
   header,
 }: DerivedAddressesProps) {
+  console.log('numberOfExpectedAddresses: ', numberOfExpectedAddresses);
   const theme = useTheme();
   const { t } = useTranslation();
   const hasBalance = useMemo(() => {
