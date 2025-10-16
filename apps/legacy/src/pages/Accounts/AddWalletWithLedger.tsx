@@ -16,7 +16,7 @@ import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType, SecretType } from '@core/types';
 import { NameYourWallet } from './components/NameYourWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { useImportLedger } from '@core/ui';
+import { useImportLedger, useQueryParams } from '@core/ui';
 import {
   LedgerConnector,
   LedgerConnectorData,
@@ -61,9 +61,18 @@ export function AddWalletWithLedger() {
   const { isImporting, importLedger } = useImportLedger();
   const [step, setStep] = useState(Step.Import);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
+
+  const params = useQueryParams();
+  console.log('params: ', params);
+  const walletId = params.get('walletId') || undefined;
+  console.log('walletId: ', walletId);
+  const derivationPath = params.get('derivationPath') as DerivationPath;
+  console.log('derivationPath: ', derivationPath);
+
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44,
+    DerivationPath.LedgerLive,
   );
+
   const lastAccountIndexWithBalance = useRef(0);
   const [solanaKeys, setSolanaKeys] = useState<SolanaPublicKey[]>([]);
 
@@ -251,6 +260,7 @@ export function AddWalletWithLedger() {
                   onSuccess={onSuccess}
                   onTroubleshoot={() => setStep(Step.Troubleshoot)}
                   checkIfWalletExists
+                  addedDerivationPath={derivationPath}
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>

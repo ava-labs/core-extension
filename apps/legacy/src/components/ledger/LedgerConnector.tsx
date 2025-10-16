@@ -52,13 +52,16 @@ interface LedgerConnectorProps {
   onSuccess: (data: LedgerConnectorData) => void;
   onTroubleshoot: () => void;
   checkIfWalletExists?: boolean;
+  addedDerivationPath?: DerivationPath;
 }
 
 export function LedgerConnector({
   onSuccess,
   onTroubleshoot,
   checkIfWalletExists,
+  addedDerivationPath,
 }: LedgerConnectorProps) {
+  console.log('ledgerconnector derivationPath: ', addedDerivationPath);
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const {
@@ -77,7 +80,9 @@ export function LedgerConnector({
   const [isLedgerExistsError, setIsLedgerExistsError] = useState(false);
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44,
+    addedDerivationPath === DerivationPath.BIP44
+      ? DerivationPath.LedgerLive
+      : DerivationPath.BIP44,
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);

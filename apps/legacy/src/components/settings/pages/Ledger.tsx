@@ -12,7 +12,11 @@ import {
 } from '@avalabs/core-k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { REQUIRED_LEDGER_VERSION, useLedgerContext } from '@core/ui';
+import {
+  REQUIRED_LEDGER_VERSION,
+  useLedgerContext,
+  useWalletContext,
+} from '@core/ui';
 import { Trans, useTranslation } from 'react-i18next';
 import { ConnectionIndicatorK2 } from '../../common/ConnectionIndicatorK2';
 import browser from 'webextension-polyfill';
@@ -39,6 +43,8 @@ const InstructionLink = styled(Typography)`
 export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { hasLedgerTransport, avaxAppVersion } = useLedgerContext();
+  const { walletDetails } = useWalletContext();
+  console.log('walletDetails: ', walletDetails);
 
   return (
     <Stack
@@ -75,7 +81,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
                   sx={{ cursor: 'pointer' }}
                   onClick={() =>
                     browser.tabs.create({
-                      url: `/fullscreen.html#/accounts/add-wallet/ledger`,
+                      url: `/fullscreen.html#/accounts/add-wallet/ledger?walletId=${walletDetails?.id}&derivationPath=${walletDetails?.derivationPath}`,
                     })
                   }
                 >
