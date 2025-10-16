@@ -179,6 +179,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   }
 
   getPriceChangesData = async () => {
+    const watchlistTokens = ['avax', 'btc', 'sol'];
+
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
     const changesData =
@@ -226,7 +228,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             [data.symbol]: {
               priceChange: data.price_change_24h,
               priceChangePercentage: data.price_change_percentage_24h,
-              currentPrice: price[data.symbol] ?? data.current_price,
+              currentPrice: watchlistTokens.includes(data.symbol.toLowerCase())
+                ? (price[data.symbol] ?? data.current_price)
+                : data.current_price,
             },
           };
         },
