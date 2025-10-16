@@ -16,10 +16,15 @@ import {
   useNetworkContext,
   usePermissionContext,
   useSettingsContext,
+  useWalletTotalBalance,
 } from '@core/ui';
 import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 
-import { getAddressForChain, getAllAddressesForAccount } from '@core/common';
+import {
+  getAddressForChain,
+  getAllAddressesForAccount,
+  isPrimaryAccount,
+} from '@core/common';
 import { AccountType } from '@core/types';
 import { useWalletContext } from '@core/ui';
 import { AccountSelectorButton } from '../account/AccountSelectorButton';
@@ -37,6 +42,12 @@ export function Header() {
   const { t } = useTranslation();
   const { walletDetails, wallets } = useWalletContext();
 
+  const { currencyFormatter } = useSettingsContext();
+  const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
+    useWalletTotalBalance(
+      isPrimaryAccount(activeAccount) ? activeAccount.walletId : undefined,
+    );
+
   const { setIsSettingsOpen, setSettingsActivePage } = useSettingsContext();
 
   const isConnected =
@@ -53,7 +64,7 @@ export function Header() {
   const showWalletInfo = Boolean(
     walletDetails?.name &&
       activeAccount?.type === AccountType.PRIMARY &&
-      wallets.length > 1,
+      wallets.length,
   );
 
   return (
@@ -156,7 +167,23 @@ export function Header() {
             <SimpleAddress address={address} />
           </Stack>
           <Divider light orientation="vertical" sx={{ py: 1.5, pl: 0.25 }} />
-          <WalletChip walletDetails={walletDetails} sx={{ maxWidth: 140 }} />
+          <WalletChip
+            walletDetails={walletDetails}
+            sx={{ maxWidth: 200, cursor: 'pointer' }}
+            walletBalance={
+              activeWalletTotalBalance !== undefined
+                ? currencyFormatter(activeWalletTotalBalance)
+                : undefined
+            }
+            isWalletBalanceLoading={isLoading}
+            onClick={() => {
+              window.open(
+                `${process.env.CORE_WEB_BASE_URL}/portfolio`,
+                '_blank',
+                'noreferrer',
+              );
+            }}
+          />
         </Stack>
       )}
     </Stack>
