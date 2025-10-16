@@ -27,6 +27,8 @@ export class ChainAgnosticProvider extends EventEmitter {
   #requestRateLimiter = new RequestRatelimiter([
     'eth_requestAccounts',
     'avalanche_selectWallet',
+    'wallet_addEthereumChain',
+    'wallet_switchEthereumChain',
   ]);
 
   constructor(connection) {

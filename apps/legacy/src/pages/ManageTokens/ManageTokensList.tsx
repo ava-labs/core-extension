@@ -9,7 +9,7 @@ import { AutoSizer } from 'react-virtualized';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 import VirtualizedList from '@/components/common/VirtualizedList';
-import { useTokensWithBalances } from '@core/ui';
+import { useNetworkContext, useTokensWithBalances } from '@core/ui';
 import { TokenIcon } from '@/components/common/TokenIcon';
 import { useSettingsContext } from '@core/ui';
 import { isTokenMalicious } from '@core/common';
@@ -106,6 +106,7 @@ type ManageTokensListItemProps = {
 
 const ManageTokensListItem = ({ token, style }: ManageTokensListItemProps) => {
   const { getTokenVisibility, toggleTokenVisibility } = useSettingsContext();
+  const { network } = useNetworkContext();
 
   return (
     <Stack
@@ -132,8 +133,10 @@ const ManageTokensListItem = ({ token, style }: ManageTokensListItemProps) => {
         {isTokenMalicious(token) && <MaliciousTokenWarningIcon size={16} />}
         <Switch
           size="small"
-          checked={getTokenVisibility(token)}
-          onChange={() => toggleTokenVisibility(token)}
+          checked={getTokenVisibility(token, network?.caipId)}
+          onChange={() =>
+            network && toggleTokenVisibility(token, network.caipId)
+          }
         />
       </Stack>
     </Stack>

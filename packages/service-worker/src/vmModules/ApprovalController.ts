@@ -1,39 +1,40 @@
-import { singleton } from 'tsyringe';
 import {
   ApprovalParams,
   ApprovalResponse,
-  BtcTxUpdateFn,
-  DisplayData,
-  EvmTxUpdateFn,
   BatchApprovalController,
-  RpcMethod,
-  SigningData,
   BatchApprovalParams,
   BatchApprovalResponse,
+  BtcTxUpdateFn,
+  DisplayData,
   EvmTxBatchUpdateFn,
-  SigningRequest,
-  SigningData_EthSendTx,
+  EvmTxUpdateFn,
   RequestPublicKeyParams,
+  RpcMethod,
+  SigningData,
+  SigningData_EthSendTx,
+  SigningRequest,
 } from '@avalabs/vm-module-types';
-import { rpcErrors, providerErrors } from '@metamask/rpc-errors';
+import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
+import { singleton } from 'tsyringe';
 
-import { WalletService } from '../services/wallet/WalletService';
 import {
+  ACTION_HANDLED_BY_MODULE,
   Action,
   ActionStatus,
   ActionType,
   MultiTxAction,
+  NetworkWithCaipId,
   isBatchApprovalAction,
 } from '@core/types';
 import { openApprovalWindow } from '../runtime/openApprovalWindow';
 import { NetworkService } from '../services/network/NetworkService';
-import { NetworkWithCaipId, ACTION_HANDLED_BY_MODULE } from '@core/types';
+import { WalletService } from '../services/wallet/WalletService';
 
+import { SecretsService } from '../services/secrets/SecretsService';
 import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';
-import { SecretsService } from '../services/secrets/SecretsService';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -69,18 +70,15 @@ export class ApprovalController implements BatchApprovalController {
     this.#networkService = networkService;
   }
 
-  onTransactionPending = (...args) => {
-    console.log('DEBUG pending', ...args);
+  onTransactionPending = () => {
     // Transaction Pending. Show a toast? Trigger browser notification?',
   };
 
-  onTransactionConfirmed = (...args) => {
-    console.log('DEBUG confirmed', ...args);
+  onTransactionConfirmed = () => {
     // Transaction Confirmed. Show a toast? Trigger browser notification?',
   };
 
-  onTransactionReverted = (...args) => {
-    console.log('DEBUG reverted', ...args);
+  onTransactionReverted = () => {
     // Transaction Reverted. Show a toast? Trigger browser notification?',
   };
 
@@ -174,7 +172,9 @@ export class ApprovalController implements BatchApprovalController {
           network,
         );
 
-        if (approvalResult.signedTx) {
+        if (typeof approvalResult === 'string') {
+          resolve({ signedData: approvalResult });
+        } else if (approvalResult.signedTx) {
           resolve({ signedData: approvalResult.signedTx });
         } else if (approvalResult.txHash) {
           resolve({ txHash: approvalResult.txHash });
@@ -350,6 +350,27 @@ export class ApprovalController implements BatchApprovalController {
       case RpcMethod.HVM_SIGN_TRANSACTION:
         return await this.#walletService.sign(
           signingData.data,
+          network,
+          action.tabId,
+        );
+
+      case RpcMethod.AVALANCHE_SIGN_TRANSACTION:
+      case RpcMethod.AVALANCHE_SEND_TRANSACTION:
+        return await this.#walletService.sign(
+          signingData,
+          network,
+          action.tabId,
+        );
+
+      case RpcMethod.SIGN_TYPED_DATA:
+      case RpcMethod.SIGN_TYPED_DATA_V1:
+      case RpcMethod.SIGN_TYPED_DATA_V3:
+      case RpcMethod.SIGN_TYPED_DATA_V4:
+      case RpcMethod.ETH_SIGN:
+      case RpcMethod.PERSONAL_SIGN:
+      case RpcMethod.AVALANCHE_SIGN_MESSAGE:
+        return await this.#walletService.signGenericMessage(
+          signingData,
           network,
           action.tabId,
         );

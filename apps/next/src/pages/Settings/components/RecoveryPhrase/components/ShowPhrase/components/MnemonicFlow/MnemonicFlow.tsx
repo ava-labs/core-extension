@@ -14,7 +14,7 @@ import {
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRevealPhrase } from '../../hooks/useRevealPhrase';
-import { PhraseCard } from './components/PhraseCard';
+import { PhraseCard } from '../PhraseCard';
 
 const contentProps: StackProps = {
   gap: 2,

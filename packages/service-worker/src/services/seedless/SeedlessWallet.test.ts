@@ -66,7 +66,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
     new SeedlessTokenStorage({} as any),
   );
   const networkService = jest.mocked<NetworkService>(
-    new NetworkService({} as any, {} as any),
+    new NetworkService({} as any, {} as any, {} as any),
   );
   const sessionManager = jest.mocked<SeedlessSessionManager>({
     notifyTokenExpired: jest.fn(),
@@ -873,10 +873,12 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error for unknown message types', async () => {
         await expect(
-          wallet.signMessage('Some unknown type' as MessageType, {
-            data: '0x',
-            from: '0x1234',
-          }),
+          wallet.signMessage(
+            'Some unknown type' as MessageType.AVALANCHE_SIGN,
+            {
+              data: '0x',
+            },
+          ),
         ).rejects.toThrow('Unknown message type');
       });
     });

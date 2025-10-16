@@ -7,14 +7,16 @@ import { useCallback, useMemo, useState } from 'react';
 import { FeatureGates } from '@core/types';
 import { useWalletContext } from '@core/ui';
 import { SendErrorMessage } from '@core/types';
-import { isValidAvmAddress } from '@core/common';
-import { stripAddressPrefix } from '@core/common';
+import {
+  isValidAvmAddress,
+  stripAddressPrefix,
+  getMaxUtxoSet,
+} from '@core/common';
 import { DAppProviderRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
 import { useFeatureFlagContext } from '@core/ui';
 import { AvalancheSendTransactionHandler } from '@core/service-worker';
 
-import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { SendAdapterAVM } from './models';
 import { AVMSendOptions } from '../../models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';

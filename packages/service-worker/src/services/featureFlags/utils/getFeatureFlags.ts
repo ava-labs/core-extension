@@ -13,7 +13,7 @@ export async function getFeatureFlags(
 
   const json_data = JSON.stringify({
     token,
-    distinct_id: userId,
+    distinct_id: userId || 'core-extension',
     groups: {},
   });
 

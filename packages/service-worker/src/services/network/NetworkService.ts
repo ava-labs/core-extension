@@ -20,6 +20,7 @@ import {
 import {
   AVALANCHE_XP_NETWORK,
   AVALANCHE_XP_TEST_NETWORK,
+  AvalancheCaip2ChainId,
   BITCOIN_NETWORK,
   BITCOIN_TEST_NETWORK,
   ChainId,
@@ -35,7 +36,7 @@ import {
 } from '@avalabs/core-wallets-sdk';
 import { resolve, wait } from '@avalabs/core-utils-sdk';
 import { Network as EthersNetwork } from 'ethers';
-import { isPchainNetwork } from '@core/common';
+import { buildCoreEth, isPchainNetwork } from '@core/common';
 import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { isXchainNetwork } from '@core/common';
 import { runtime } from 'webextension-polyfill';
@@ -49,6 +50,8 @@ import {
   isSyncDomain,
 } from '@core/common';
 import { isSolanaNetwork } from '@core/common';
+import { defaultEnabledNetworks } from './consts';
+import { GlacierService } from '../glacier/GlacierService';
 
 @singleton()
 export class NetworkService implements OnLock, OnStorageReady {
@@ -57,6 +60,11 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _favoriteNetworks: number[] = [];
   private _chainListFetched = new Signal<ChainList>();
 
+  // Complete list of enabled networks ID
+  private _enabledNetworks: number[] = [...defaultEnabledNetworks];
+  // Network data that is stored in storage
+  private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
+
   private _fetchedChainListSignal = this._chainListFetched
     .cache(new ValueCache())
     .readOnly();
@@ -64,6 +72,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   public uiActiveNetworkChanged = new Signal<Network | undefined>();
   public developerModeChanged = new Signal<boolean | undefined>();
   public favoriteNetworksUpdated = new Signal<number[]>();
+  public enabledNetworksUpdated = new Signal<number[]>();
   public dappScopeChanged = new Signal<{ domain: string; scope: string }>();
 
   // Provides a way to read the most recently dispatched _allNetworks
@@ -113,6 +122,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   constructor(
     private storageService: StorageService,
     private featureFlagService: FeatureFlagService,
+    private glacierService: GlacierService,
   ) {
     this._initChainList();
 
@@ -226,18 +236,29 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworksUpdated.dispatch(networkIds);
   }
 
+  private set enabledNetworks(networkIds: number[]) {
+    const uniqueNetworkIds = [
+      ...new Set([...defaultEnabledNetworks, ...networkIds]),
+    ];
+
+    this._enabledNetworks = uniqueNetworkIds;
+    this.enabledNetworksUpdated.dispatch(networkIds);
+  }
+
+  private set networkAvailability(
+    networkAvailability: Record<number, { isEnabled: boolean }>,
+  ) {
+    this._networkAvailability = networkAvailability;
+    this.enabledNetworks =
+      this.#convertNetworkAvailabilityToEnabledNetworks(networkAvailability);
+  }
+
   async getFavoriteNetworks() {
-    const allNetworks = await this.allNetworks.promisify();
-    const isMainnet = this.isMainnet();
-    const filteredFavoriteNetworks = this._favoriteNetworks.filter((id) => {
-      if (allNetworks) {
-        return isMainnet
-          ? !allNetworks[id]?.isTestnet
-          : allNetworks[id]?.isTestnet;
-      }
-      return false;
-    });
-    return filteredFavoriteNetworks;
+    return this.#filterByEnvironment(this._favoriteNetworks);
+  }
+
+  async getEnabledNetworks() {
+    return this.#filterByEnvironment(this._enabledNetworks);
   }
 
   public get customNetworks() {
@@ -256,7 +277,29 @@ export class NetworkService implements OnLock, OnStorageReady {
     }
     this.favoriteNetworks = [...storedFavoriteNetworks, chainId];
     this.updateNetworkState();
+
+    // This keeps the favorite and enabled networks in sync
+    await this.enableNetwork(chainId);
+
     return this._favoriteNetworks;
+  }
+
+  async enableNetwork(chainId: number) {
+    if (
+      this._enabledNetworks.includes(chainId) ||
+      defaultEnabledNetworks.includes(chainId)
+    ) {
+      return this._enabledNetworks;
+    }
+
+    this.networkAvailability = {
+      ...this._networkAvailability,
+      [chainId]: {
+        isEnabled: true,
+      },
+    };
+    this.updateNetworkState();
+    return this._enabledNetworks;
   }
 
   async removeFavoriteNetwork(chainId: number) {
@@ -266,13 +309,30 @@ export class NetworkService implements OnLock, OnStorageReady {
         storedFavoriteNetworkChainId !== chainId,
     );
     this.updateNetworkState();
+
+    // This keeps the favorite and enabled networks in sync
+    await this.disableNetwork(chainId);
+
     return this._favoriteNetworks;
+  }
+
+  async disableNetwork(chainId: number) {
+    this.networkAvailability = {
+      ...this._networkAvailability,
+      [chainId]: {
+        isEnabled: false,
+      },
+    };
+    this.updateNetworkState();
+    return this._enabledNetworks;
   }
 
   async onLock(): Promise<void> {
     this.uiActiveNetwork = undefined;
     this._customNetworks = {};
     this._favoriteNetworks = [];
+    this._enabledNetworks = [];
+    this._networkAvailability = {};
     this.#dappScopes = {};
   }
 
@@ -318,6 +378,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       dappScopes: this.#dappScopes,
       customNetworks: this._customNetworks,
       favoriteNetworks: this._favoriteNetworks,
+      networkAvailability: this._networkAvailability,
     });
   }
 
@@ -360,6 +421,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     this.favoriteNetworks = storedState?.favoriteNetworks || [
       ChainId.AVALANCHE_MAINNET_ID,
     ];
+    this.networkAvailability = storedState?.networkAvailability ?? {};
   }
 
   private async _getCachedChainList(): Promise<ChainList | undefined> {
@@ -466,6 +528,12 @@ export class NetworkService implements OnLock, OnStorageReady {
   async getNetwork(
     scopeOrChainId: string | number,
   ): Promise<NetworkWithCaipId | undefined> {
+    if (
+      scopeOrChainId === AvalancheCaip2ChainId.C ||
+      scopeOrChainId === AvalancheCaip2ChainId.C_TESTNET
+    ) {
+      return this.getCoreEthNetwork();
+    }
     const chainId =
       typeof scopeOrChainId === 'string'
         ? scopeOrChainId.startsWith('0x')
@@ -493,6 +561,12 @@ export class NetworkService implements OnLock, OnStorageReady {
       throw new Error('Avalanche network not found');
     }
     return network;
+  }
+
+  // We don't want to list CoreEth network, so we have a dedicated method to get it
+  // for signing things
+  async getCoreEthNetwork() {
+    return buildCoreEth(await this.getAvalancheNetwork());
   }
 
   /**
@@ -604,7 +678,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     this._customNetworks = {
       ...this._customNetworks,
-      [chainId]: omit(customNetwork, 'customRpcHeaders') as NetworkWithCaipId, // should be saved in overrides
+      [chainId]: customNetwork,
     };
 
     this._allNetworks.dispatch({
@@ -612,6 +686,9 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...this._customNetworks,
     });
     this.updateNetworkState();
+
+    // Automatically favorite the newly added network
+    await this.addFavoriteNetwork(chainId);
 
     return customNetwork;
   }
@@ -700,6 +777,27 @@ export class NetworkService implements OnLock, OnStorageReady {
 
     // Update storage
     this.updateNetworkState();
+  }
+
+  async getUnknownUsedNetwork(addressC: string) {
+    const chainsForAddress =
+      await this.glacierService.getEvmChainsForAddress(addressC);
+
+    const usedIndexedChains =
+      chainsForAddress.indexedChains?.map((chainInfo) => chainInfo.chainId) ||
+      [];
+    const usedUnindexedChains = chainsForAddress.unindexedChains || [];
+    const allUsedChains = [...usedIndexedChains, ...usedUnindexedChains];
+    const unknownChains = allUsedChains
+      .filter(
+        (chainId) =>
+          this._networkAvailability[chainId] === undefined &&
+          !defaultEnabledNetworks.includes(Number(chainId)),
+      )
+      .map(Number);
+    unknownChains.forEach((chainId) => {
+      this.enableNetwork(chainId);
+    });
   }
 
   /**
@@ -796,5 +894,27 @@ export class NetworkService implements OnLock, OnStorageReady {
         decorateWithCaipId(network),
       ]),
     );
+  };
+
+  #convertNetworkAvailabilityToEnabledNetworks = (
+    networkAvailability: Record<number, { isEnabled: boolean }>,
+  ) => {
+    return Object.entries(networkAvailability)
+      .filter(([, network]) => network.isEnabled)
+      .map(([chainId]) => Number(chainId));
+  };
+
+  #filterByEnvironment = async (networkIds: number[]) => {
+    const allNetworks = await this.allNetworks.promisify();
+    const isMainnet = this.isMainnet();
+    const filteredFavoriteNetworks = networkIds.filter((id) => {
+      if (allNetworks) {
+        return isMainnet
+          ? !allNetworks[id]?.isTestnet
+          : allNetworks[id]?.isTestnet;
+      }
+      return false;
+    });
+    return filteredFavoriteNetworks;
   };
 }

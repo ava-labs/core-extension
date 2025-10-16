@@ -28,6 +28,7 @@ import {
   mapVMAddresses,
   ReadWriteLock,
   Monitoring,
+  isImportedAccount,
 } from '@core/common';
 import { EventEmitter } from 'events';
 import { singleton } from 'tsyringe';
@@ -114,6 +115,23 @@ export class AccountsService implements OnLock, OnUnlock {
     this.networkService.developerModeChanged.add(this.onDeveloperModeChanged);
   }
 
+  async getAccountFromActiveWalletByAddress(address: string) {
+    const activeAccount = await this.getActiveAccount();
+    if (!activeAccount) {
+      return;
+    }
+
+    if (isImportedAccount(activeAccount)) {
+      return activeAccount;
+    }
+
+    const accounts = this.#accounts.primary[activeAccount.walletId] ?? [];
+
+    return accounts.find((account) =>
+      getAllAddressesForAccount(account).includes(address),
+    );
+  }
+
   async getActiveAccount() {
     const accounts = await this.getAccounts();
     return accounts.active;
@@ -133,6 +151,11 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.#rwLock.acquireReadLock();
 
     try {
+      const addressC = accounts.active?.addressC;
+      if (addressC && addressC !== this.#accounts.active?.addressC) {
+        this.networkService.getUnknownUsedNetwork(addressC);
+      }
+
       this.#accounts = accounts;
     } finally {
       await this.#rwLock.releaseReadLock();
@@ -201,7 +224,7 @@ export class AccountsService implements OnLock, OnUnlock {
           return account;
         }
 
-        const addresses = await this.#getAddressesForAccount(account);
+        const addresses = await this.getAddressesForAccount(account);
 
         return {
           ...account,
@@ -248,7 +271,7 @@ export class AccountsService implements OnLock, OnUnlock {
     }
   };
 
-  async #getAddressesForAccount(
+  async getAddressesForAccount(
     account: AccountWithOptionalAddresses,
   ): Promise<DerivedAddresses> {
     if (isPrimaryAccount(account)) {
@@ -289,7 +312,7 @@ export class AccountsService implements OnLock, OnUnlock {
       return;
     }
 
-    const addresses = await this.#getAddressesForAccount(account);
+    const addresses = await this.getAddressesForAccount(account);
     if (account.type === AccountType.PRIMARY) {
       const walletAccounts = this.#accounts.primary[account.walletId]!;
 
@@ -463,7 +486,7 @@ export class AccountsService implements OnLock, OnUnlock {
       addressResolver: this.addressResolver,
     });
 
-    const addresses = await this.#getAddressesForAccount(newAccount);
+    const addresses = await this.getAddressesForAccount(newAccount);
 
     assertPropDefined(addresses, 'addressC', AccountError.EVMAddressNotFound);
     assertPropDefined(addresses, 'addressBTC', AccountError.BTCAddressNotFound);
@@ -493,6 +516,7 @@ export class AccountsService implements OnLock, OnUnlock {
       windowId: crypto.randomUUID(),
       properties: { addresses: await this.#getAllAddresses() },
     });
+
     return id;
   }
 

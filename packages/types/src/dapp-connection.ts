@@ -29,6 +29,7 @@ export enum DAppProviderRequest {
   AVALANCHE_UPDATE_CONTACT = 'avalanche_updateContact',
   AVALANCHE_REMOVE_CONTACT = 'avalanche_removeContact',
   AVALANCHE_GET_ACCOUNTS = 'avalanche_getAccounts',
+  AVALANCHE_ADD_ACCOUNT = 'avalanche_addAccount',
   AVALANCHE_GET_ADDRESSES_IN_RANGE = 'avalanche_getAddressesInRange',
   AVALANCHE_GET_BRIDGE_STATE = 'avalanche_getBridgeState',
   AVALANCHE_SELECT_WALLET = 'avalanche_selectWallet',
@@ -45,6 +46,7 @@ export enum DAppProviderRequest {
   WALLET_ADD_NETWORK = 'wallet_addNetwork',
   WALLET_GET_PUBKEY = 'wallet_getPublicKey',
   WALLET_CONNECT = 'wallet_requestAccountPermission',
+  WALLET_GET_NETWORK_STATE = 'wallet_getNetworkState',
 }
 
 export enum Web3Event {
@@ -59,6 +61,9 @@ export enum Web3Event {
   ACCOUNTS_CHANGED_CA = 'accountsChangedCA', // Chain-agnostic version of ACCOUNTS_CHANGED
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
+
+  // Core Web specific event
+  NETWORK_STATE_CHANGED = 'networkStateChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {

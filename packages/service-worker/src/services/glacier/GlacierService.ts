@@ -72,4 +72,10 @@ export class GlacierService {
 
     return token;
   }
+
+  async getEvmChainsForAddress(address: string) {
+    return this.glacierSdkInstance.evmChains.listAddressChains({
+      address,
+    });
+  }
 }

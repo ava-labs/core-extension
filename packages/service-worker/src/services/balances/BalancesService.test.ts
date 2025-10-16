@@ -219,6 +219,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -250,6 +251,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -303,6 +305,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -335,6 +338,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: undefined,
               value: 0,
+              currentPrice: undefined,
             },
           },
         },
@@ -359,7 +363,10 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         [account],
         [],
         {
-          test2: { priceChangePercentage: 25 },
+          test2: {
+            priceChangePercentage: 25,
+            currentPrice: 5,
+          },
         },
       );
 
@@ -370,6 +377,7 @@ describe('src/background/services/balances/BalancesService.ts', () => {
             priceChanges: {
               percentage: 25,
               value: 4,
+              currentPrice: 5,
             },
           },
         },

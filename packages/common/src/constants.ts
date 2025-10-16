@@ -4,12 +4,12 @@ import browser from 'webextension-polyfill';
 const CORE_WEB_DOMAIN = 'core.app' as const;
 const CORE_WEB_STAGING_DOMAINS = [
   'staging.core.app',
-  'core-web.pages.dev', // Can be removed once Core Web is moved to CF Workers.
+  'develop.core.app',
 ] as const;
 const DAPP_DEV_DOMAINS = [
+  'avalabs.workers.dev', // Supports Core Web preview URLS (ie https://abc123-core-web-dev.avalabs.workers.dev)
   'localhost',
   '127.0.0.1',
-  'develop.core.app',
 ] as const;
 
 const SYNCED_DOMAINS_PRODUCTION_BUILD = [CORE_WEB_DOMAIN] as const;

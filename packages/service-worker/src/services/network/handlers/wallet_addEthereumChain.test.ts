@@ -47,7 +47,7 @@ describe('background/services/network/handlers/wallet_addEthereumChain.ts', () =
     jest.resetAllMocks();
 
     jest.mocked(canSkipApproval).mockResolvedValue(false);
-    mockNetworkService = new NetworkService({} as any, {} as any);
+    mockNetworkService = new NetworkService({} as any, {} as any, {} as any);
     (mockNetworkService.isValidRPCUrl as jest.Mock).mockReturnValue(true);
     jest.spyOn(mockNetworkService, 'setNetwork');
     mockNetworkService.allNetworks = {

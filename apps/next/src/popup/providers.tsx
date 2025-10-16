@@ -1,27 +1,13 @@
-import React, { ReactElement } from 'react';
+import { cloneElement, FC, ReactElement } from 'react';
 
-export const Providers = ({
-  providers,
-  children,
-}: {
+type Props = {
   providers: ReactElement[];
   children: ReactElement;
-}) => {
-  const renderProvider = (
-    renderedProviders: ReactElement[],
-    renderedChildren: ReactElement,
-  ) => {
-    const [provider, ...restProviders] = renderedProviders;
+};
 
-    if (provider) {
-      return React.cloneElement(
-        provider,
-        undefined,
-        renderProvider(restProviders, renderedChildren),
-      );
-    }
-
-    return renderedChildren;
-  };
-  return renderProvider(providers, children);
+export const Providers: FC<Props> = ({ providers, children }) => {
+  return providers.reduceRight(
+    (node, provider) => cloneElement(provider, undefined, node),
+    children,
+  );
 };

@@ -13,12 +13,16 @@ import {
   FeatureGates,
   SendErrorMessage,
 } from '@core/types';
-import { isValidPvmAddress, resolve, stripAddressPrefix } from '@core/common';
+import {
+  getMaxUtxoSet,
+  isValidPvmAddress,
+  resolve,
+  stripAddressPrefix,
+} from '@core/common';
 
 import type { pvm } from '@avalabs/avalanchejs';
 import { PVMSendOptions } from '../../models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
-import { getMaxUtxoSet } from '../../utils/getMaxUtxos';
 import { SendAdapterPVM } from './models';
 
 const PCHAIN_ALIAS = 'P' as const;

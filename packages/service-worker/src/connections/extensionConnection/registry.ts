@@ -150,6 +150,9 @@ import { UnsubscribeFromNotification } from '../../services/notifications/handle
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
+import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
+import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
+import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -222,6 +225,15 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
     token: 'ExtensionRequestHandler',
     useToken: RemoveFavoriteNetworkHandler,
   },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: EnableNetworkHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: DisableNetworkHandler,
+  },
+
   {
     token: 'ExtensionRequestHandler',
     useToken: SetActiveNetworkHandler,
@@ -466,6 +478,7 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
   },
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
+  { token: 'ExtensionRequestHandler', useToken: GetTrendingTokensHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 

@@ -5,6 +5,8 @@ import {
   TokenWithBalanceAVM,
   TokenWithBalanceBTC,
   TokenWithBalancePVM,
+  TokenWithBalanceSPL,
+  TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
 
 import { EnsureDefined } from './util-types';
@@ -126,16 +128,134 @@ export type FungibleTokenBalance = Exclude<
   assetType: FungibleAssetType;
 };
 
+export type NonNativeFungibleTokenBalance = Exclude<
+  FungibleTokenBalance,
+  { type: TokenType.NATIVE }
+>;
+
+export type NativeTokenBalance = Extract<
+  FungibleTokenBalance,
+  { type: TokenType.NATIVE }
+>;
+
+export type EvmNativeTokenBalance = NativeTokenBalance & {
+  assetType: 'evm_native';
+};
+
+export type Erc20TokenBalance = Extract<
+  FungibleTokenBalance,
+  { type: TokenType.ERC20 }
+> & {
+  assetType: 'evm_erc20';
+};
+
+export type BtcTokenBalance = Extract<
+  FungibleTokenBalance,
+  // TODO: fix this reliance on "unconfirmedBalance" to recognize BTC token
+  { unconfirmedBalance?: bigint }
+> & {
+  assetType: 'btc_native';
+};
+
+export type XChainTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalanceAVM
+> & {
+  assetType: 'avm_native';
+};
+
+export type PChainTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalancePVM
+> & {
+  assetType: 'pvm_native';
+};
+
+export type SolanaNativeTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalanceSVM
+> & {
+  assetType: 'svm_native';
+};
+
+export type SolanaSplTokenBalance = Extract<
+  FungibleTokenBalance,
+  TokenWithBalanceSPL
+> & {
+  assetType: 'svm_spl';
+};
+
 export type NonFungibleTokenBalance = NftTokenWithBalance & {
   coreChainId: number;
   assetType: NonFungibleAssetType;
 };
 
 export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
-  return `${token.type}:${token.symbol}:${token.type === TokenType.NATIVE ? '-' : token.address}:${token.coreChainId}`;
+  return getUniqueTokenIdGeneric({
+    type: token.type,
+    symbol: token.symbol,
+    address: token.type === TokenType.NATIVE ? undefined : token.address,
+    coreChainId: token.coreChainId,
+  });
 };
+
+export const getUniqueTokenIdGeneric = ({
+  type,
+  symbol,
+  address,
+  coreChainId,
+}: {
+  type: TokenType;
+  symbol: string;
+  address?: string;
+  coreChainId: number;
+}) => {
+  return `${type}:${symbol}:${type === TokenType.NATIVE ? '-' : address}:${coreChainId}`;
+};
+
+export const isNativeToken = (
+  token: FungibleTokenBalance,
+): token is NativeTokenBalance => token.type === TokenType.NATIVE;
+
+export const isEvmFungibleToken = (
+  token: FungibleTokenBalance,
+): token is Erc20TokenBalance | EvmNativeTokenBalance =>
+  token.assetType === 'evm_erc20' || token.assetType === 'evm_native';
 
 export const isEvmNativeToken = (
   token: FungibleTokenBalance,
-): token is FungibleTokenBalance & { assetType: 'evm_native' } =>
-  token.assetType === 'evm_native';
+): token is EvmNativeTokenBalance => token.assetType === 'evm_native';
+
+export const isErc20Token = (
+  token: FungibleTokenBalance,
+): token is Erc20TokenBalance => token.type === TokenType.ERC20;
+
+export const isBtcToken = (
+  token: FungibleTokenBalance,
+): token is BtcTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'btc_native';
+
+export const isXChainToken = (
+  token: FungibleTokenBalance,
+): token is XChainTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'avm_native';
+
+export const isPChainToken = (
+  token: FungibleTokenBalance,
+): token is PChainTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'pvm_native';
+
+export const isSolanaNativeToken = (
+  token: FungibleTokenBalance,
+): token is SolanaNativeTokenBalance =>
+  token.type === TokenType.NATIVE && token.assetType === 'svm_native';
+
+export const isSolanaSplToken = (
+  token: FungibleTokenBalance,
+): token is SolanaSplTokenBalance =>
+  token.type === TokenType.SPL && token.assetType === 'svm_spl';
+
+export const isSolanaFungibleToken = (
+  token: FungibleTokenBalance,
+): token is SolanaSplTokenBalance | SolanaNativeTokenBalance =>
+  token.assetType === 'svm_spl' || token.assetType === 'svm_native';

@@ -6,6 +6,7 @@ import { StorageService } from '../../../services/storage/StorageService';
 import { errorCodes, EthereumRpcError } from 'eth-rpc-errors';
 import { FeatureFlagService } from '../../../services/featureFlags/FeatureFlagService';
 import { caipToChainId, decorateWithCaipId } from '@core/common';
+import { GlacierService } from '~/services/glacier/GlacierService';
 
 jest.mock('../../../services/network/NetworkService');
 
@@ -61,6 +62,7 @@ describe('background/services/transactions/utils/getTargetNetworkForTx.ts', () =
     mockNetworkService = new NetworkService(
       {} as unknown as StorageService,
       {} as unknown as FeatureFlagService,
+      {} as unknown as GlacierService,
     );
 
     // eslint-disable-next-line

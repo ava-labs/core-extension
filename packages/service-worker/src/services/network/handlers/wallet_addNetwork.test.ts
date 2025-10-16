@@ -51,7 +51,7 @@ describe('background/services/network/handlers/wallet_addNetwork.ts', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-    mockNetworkService = new NetworkService({} as any, {} as any);
+    mockNetworkService = new NetworkService({} as any, {} as any, {} as any);
     jest.spyOn(mockNetworkService, 'setNetwork');
     mockNetworkService.allNetworks = {
       promisify: () =>

@@ -4,7 +4,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import { useCallback, useEffect, useState } from 'react';
 
 import { chainIdToCaip } from '@core/common';
-import { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
@@ -15,7 +15,7 @@ import { useTransactionCallbacks } from './useTransactionCallbacks';
 type UseEvmNativeSendArgs = {
   token: FungibleTokenBalance;
   amount: bigint;
-  from: string;
+  from: Account;
   to?: string;
   network: NetworkWithCaipId;
 };
@@ -31,7 +31,7 @@ export const useEvmNativeSend = ({
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
 
-  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(token);
+  const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
   const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
 
   const [error, setError] = useState('');
@@ -52,9 +52,8 @@ export const useEvmNativeSend = ({
           method: RpcMethod.ETH_SEND_TRANSACTION,
           params: [
             {
-              from,
+              from: from.addressC,
               to,
-              gas: asHex(23000),
               value: asHex(amount),
               chainId: asHex(token.coreChainId),
               maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
@@ -83,7 +82,7 @@ export const useEvmNativeSend = ({
     onSendSuccess,
     onSendFailure,
     token.coreChainId,
-    from,
+    from.addressC,
     to,
     amount,
     getNetworkFee,

@@ -13,6 +13,8 @@ import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 import { useCameraPermissions } from '@core/ui';
 import { EVM_BASE_DERIVATION_PATH } from '@core/types';
 
+import { VideoFeedCrosshair } from '@/components/keystone';
+
 import {
   ErrorType,
   PublicKey,
@@ -21,7 +23,6 @@ import {
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 
-import { Crosshair } from './Crosshair';
 import { QRCodeScanner } from './QRCodeScanner';
 import { KeystoneQRError } from './KeystoneQRError';
 import { QRCodeScannerContainer } from './QRCodeScannerContainer';
@@ -155,7 +156,7 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
         <Fade in={Boolean(error)} mountOnEnter unmountOnExit>
           <KeystoneQRError errorType={error!} onRetry={onRetry} />
         </Fade>
-        <Crosshair
+        <VideoFeedCrosshair
           color={
             status === 'error'
               ? getHexAlpha(theme.palette.primary.main, 10)

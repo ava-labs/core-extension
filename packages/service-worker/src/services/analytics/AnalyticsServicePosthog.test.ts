@@ -20,7 +20,14 @@ jest.mock('@core/common', () => ({
 }));
 jest.mock('@avalabs/core-utils-sdk');
 jest.mock('./utils/encryptAnalyticsData');
-jest.mock('webextension-polyfill');
+jest.mock('webextension-polyfill', () => ({
+  runtime: {
+    getManifest: jest.fn().mockReturnValue({
+      version: '1.0.0',
+    }),
+    getPlatformInfo: jest.fn(),
+  },
+}));
 
 describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
   beforeEach(() => {
@@ -33,6 +40,18 @@ describe('src/background/services/analytics/AnalyticsServicePosthog', () => {
     jest.mocked(browser.runtime.getPlatformInfo).mockResolvedValue({
       os: 'mac',
       arch: 'arm',
+    });
+
+    // Mock chrome.runtime.getManifest for AnalyticsServicePosthog
+    Object.defineProperty(global, 'chrome', {
+      value: {
+        runtime: {
+          getManifest: jest.fn().mockReturnValue({
+            version: '1.0.0',
+          }),
+        },
+      },
+      writable: true,
     });
   });
 

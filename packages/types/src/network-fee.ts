@@ -1,3 +1,5 @@
+import { NetworkFees } from '@avalabs/vm-module-types';
+
 export type FeeRate = {
   maxFeePerGas: bigint;
   maxPriorityFeePerGas?: bigint;
@@ -12,7 +14,10 @@ export interface NetworkFee {
   isFixedFee: boolean;
 }
 
-export type TransactionPriority = 'low' | 'medium' | 'high';
+export type TransactionPriority = Extract<
+  keyof NetworkFees,
+  'low' | 'medium' | 'high'
+>;
 
 export type SerializedNetworkFee = Omit<
   NetworkFee,

@@ -159,10 +159,15 @@ export const useSolanaSwap: SwapAdapter<SvmSwapQuote> = (
         method: RpcMethod,
         txParams: [NormalizedTransactionParams],
       ): Promise<string> =>
-        request({
-          method,
-          params: txParams,
-        });
+        request(
+          {
+            method,
+            params: txParams,
+          },
+          {
+            scope: network.caipId,
+          },
+        );
 
       const txHash = await JupiterProvider.swap({
         srcTokenAddress: srcToken,

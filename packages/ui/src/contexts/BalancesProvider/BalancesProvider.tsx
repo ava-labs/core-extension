@@ -345,10 +345,14 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         return;
       }
 
+      const accountBalances =
+        balances.tokens?.[tokenNetwork.chainId]?.[addressForChain];
+
       const token =
-        balances.tokens?.[tokenNetwork.chainId]?.[addressForChain]?.[
-          addressOrSymbol
-        ];
+        accountBalances?.[addressOrSymbol] ??
+        // Also try lower-cased.
+        // Native token symbols are not lower-cased by the balance services.
+        accountBalances?.[addressOrSymbol.toLowerCase()];
 
       return token?.priceInCurrency;
     },

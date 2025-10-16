@@ -23,10 +23,9 @@ import {
   UserIcon,
   XIcon,
 } from '@avalabs/core-k2-components';
-import { getCoreWebUrl } from '@core/common';
+import { getCoreWebPortfolioUrl } from '@core/common';
 import {
   SettingsPages,
-  useAccountsContext,
   useAnalyticsContext,
   useLanguage,
   useSeedlessMfaManager,
@@ -47,9 +46,6 @@ export function MainPage({
   const { isLedgerWallet } = useWalletContext();
   const { lockWallet } = useSettingsContext();
   const { currentLanguage } = useLanguage();
-  const {
-    accounts: { active: activeAccount },
-  } = useAccountsContext();
   const { capture } = useAnalyticsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
 
@@ -140,11 +136,7 @@ export function MainPage({
             }}
             data-testid="core-web-link-button"
             onClick={() => {
-              window.open(
-                getCoreWebUrl(activeAccount?.addressC),
-                '_blank',
-                'noreferrer',
-              );
+              window.open(getCoreWebPortfolioUrl(), '_blank', 'noreferrer');
             }}
           >
             <ListItemIcon>

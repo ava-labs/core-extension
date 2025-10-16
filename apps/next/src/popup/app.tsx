@@ -6,6 +6,7 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
+  AnalyticsContextProvider,
   ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
@@ -17,6 +18,7 @@ import {
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SwapContextProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -31,18 +33,25 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import { useSwapCallbacks } from '@/pages/Swap';
+import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { getContactsPath, getSendPath } from '@/config/routes';
-import { ApprovalRoutes, AppRoutes } from '@/routing';
 
 const pagesWithoutHeader = [
   '/account-management',
   '/settings',
   '/receive',
   '/approve',
+  '/permissions',
+  '/network/switch',
+  '/manage-tokens',
+  '/trending',
   getContactsPath(),
   getSendPath(),
+  getSwapPath(),
 ];
 
 export function App() {
@@ -60,6 +69,8 @@ export function App() {
   const isAppContext =
     isSpecificContextContainer(ContextContainer.POPUP) ||
     isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+
+  const swapToastCallbacks = useSwapCallbacks();
 
   useEffect(() => {
     /* The list of contexts that should support navigation history */
@@ -96,23 +107,28 @@ export function App() {
       providers={
         Children.toArray([
           <ThemeProvider theme={preferredColorScheme} />,
-          <AccountsContextProvider />,
-          <NetworkContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
+          <AnalyticsContextProvider />,
           <PersonalAvatarProvider />,
+          <LedgerContextProvider />,
+          <NetworkContextProvider />,
+          <KeystoneContextProvider />,
+          <OnboardingContextProvider
+            onError={(message: string) => toast.error(message)}
+            LoadingComponent={LoadingScreen}
+            OnboardingScreen={Onboarding}
+          />,
+          <AccountsContextProvider />,
+          <WalletContextProvider
+            LockedComponent={LockScreen}
+            LoadingComponent={LoadingScreen}
+          />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
           <CurrenciesContextProvider />,
-          <OnboardingContextProvider
-            onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
-            OnboardingScreen={Onboarding}
-          />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
+          <SwapContextProvider {...swapToastCallbacks} />,
         ]) as ReactElement[]
       }
     >

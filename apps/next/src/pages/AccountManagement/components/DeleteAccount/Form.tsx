@@ -1,8 +1,8 @@
+import { ActionButtons } from '@/components/ActionButtons';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
-import { ActionButtons } from '../ActionButtons';
 import { ViewHost } from '../ViewHost';
 
 type Props = {

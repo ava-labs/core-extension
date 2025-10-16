@@ -12,6 +12,7 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import {
   useAnalyticsContext,
   useContactsContext,
+  useNetworkContext,
   useSettingsContext,
   useWalletContext,
 } from '@core/ui';
@@ -42,13 +43,13 @@ import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
+  const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
   const { walletDetails } = useWalletContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
 
-  const [isTestnetMode, setIsTestnetMode] = useState(false);
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
   const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
@@ -64,8 +65,8 @@ export const SettingsHomePage = () => {
       <Stack direction="row" justifyContent="space-between" gap={1.5}>
         <SwitchCard
           titleSize="small"
-          checked={isTestnetMode}
-          onChange={() => setIsTestnetMode((is) => !is)}
+          checked={isDeveloperMode}
+          onChange={() => setDeveloperMode(!isDeveloperMode)}
           title={t('Testnet mode')}
           description={t(
             'Enable a sandbox environment for testing without using real funds',
@@ -125,11 +126,17 @@ export const SettingsHomePage = () => {
         />
         <SettingsNavItem
           label={t('View preference')}
+          divider
           secondaryAction={
             <ViewPreferenceSelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
             />
           }
+        />
+        <SettingsNavItem
+          label={t('Networks')}
+          href={`${path}/network-management`}
+          divider
         />
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
