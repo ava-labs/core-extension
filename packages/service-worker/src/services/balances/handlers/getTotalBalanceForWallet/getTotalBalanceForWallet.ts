@@ -124,19 +124,31 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       );
 
       // Get balance for derived addresses
-      const { tokens: derivedAddressesBalances } =
-        await this.balanceAggregatorService.getBalancesForNetworks(
-          networksIncludedInTotal.map((network) => network.chainId),
-          derivedAccounts,
-          [TokenType.NATIVE, TokenType.ERC20],
-        );
+      let totalBalanceInCurrency: undefined | number = undefined;
+      for (const account of derivedAccounts) {
+        const { tokens: derivedAddressesBalances } =
+          await this.balanceAggregatorService.getBalancesForNetworks(
+            networksIncludedInTotal.map((network) => network.chainId),
+            [account],
+            [TokenType.NATIVE, TokenType.ERC20],
+          );
 
-      let totalBalanceInCurrency = calculateTotalBalanceForAccounts(
-        derivedAddressesBalances,
-        derivedAccounts,
-        networksIncludedInTotal,
-        priceChangesData,
-      );
+        if (totalBalanceInCurrency === undefined) {
+          totalBalanceInCurrency = calculateTotalBalanceForAccounts(
+            derivedAddressesBalances,
+            [account],
+            networksIncludedInTotal,
+            priceChangesData,
+          );
+          continue;
+        }
+        totalBalanceInCurrency += calculateTotalBalanceForAccounts(
+          derivedAddressesBalances,
+          [account],
+          networksIncludedInTotal,
+          priceChangesData,
+        );
+      }
       let hasBalanceOnUnderivedAccounts = false;
 
       if (underivedAccounts.length > 0) {
@@ -144,14 +156,9 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         // We DO NOT cache this response. When fetching balances for multiple X/P addresses at once,
         // Glacier responds with all the balances aggregated into one record and the Avalanche Module
         // returns it with the first address as the key. If cached, we'd save incorrect data.
-        const { tokens: underivedAddressesBalances } =
-          await this.balanceAggregatorService.getBalancesForNetworks(
-            getXPChainIds(this.networkService.isMainnet()),
-            underivedAccounts as Account[],
-            [TokenType.NATIVE],
-            false, // Don't cache this
-          );
 
+        // we need to batch the request because the glacier endpoint works with 64 addresses at most
+        const batchSize = 64;
         const xpChains = (
           await Promise.all(
             getXPChainIds(this.networkService.isMainnet()).map((chainId) =>
@@ -159,14 +166,28 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             ),
           )
         ).filter(isNotNullish);
+        for (let i = 0; i < underivedAccounts.length; i += batchSize) {
+          const accountsBatch = underivedAccounts.slice(i, i + batchSize);
+          const { tokens: underivedAddressesBalances } =
+            await this.balanceAggregatorService.getBalancesForNetworks(
+              getXPChainIds(this.networkService.isMainnet()),
+              accountsBatch as Account[],
+              [TokenType.NATIVE],
+              false, // Don't cache this
+            );
 
-        const underivedAccountsTotal = calculateTotalBalanceForAccounts(
-          underivedAddressesBalances,
-          underivedAccounts,
-          xpChains,
-        );
-        totalBalanceInCurrency += underivedAccountsTotal;
-        hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+          const underivedAccountsTotal = calculateTotalBalanceForAccounts(
+            underivedAddressesBalances,
+            underivedAccounts,
+            xpChains,
+          );
+          if (totalBalanceInCurrency === undefined) {
+            totalBalanceInCurrency = underivedAccountsTotal;
+          } else {
+            totalBalanceInCurrency += underivedAccountsTotal;
+          }
+          hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+        }
       }
 
       return {
