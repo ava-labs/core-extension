@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
 import {
   Chip,
   ChipProps,
+  CircularProgress,
   Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
@@ -11,25 +11,27 @@ import { WalletTypeIcon } from '@/pages/Accounts/components/WalletTypeIcon';
 
 type WalletChipProps = ChipProps & {
   walletDetails: WalletDetails;
+  walletBalance?: string;
+  isWalletBalanceLoading?: boolean;
 };
 
 export const WalletChip = ({
   walletDetails,
+  walletBalance,
+  isWalletBalanceLoading,
   sx,
   ...props
 }: WalletChipProps) => {
-  const [isOverflowing, setIsOverflowing] = useState(false);
-
-  const onLabelChange = useCallback((label: HTMLSpanElement) => {
-    if (label?.parentElement) {
-      setIsOverflowing(
-        label.parentElement.scrollWidth > label.parentElement.offsetWidth,
-      );
-    }
-  }, []);
+  const truncateWalletName =
+    walletDetails.name && walletDetails.name.length > 15
+      ? `${walletDetails.name.slice(0, 12)}...`
+      : walletDetails.name;
 
   return (
-    <Tooltip title={isOverflowing ? walletDetails.name : ''} placement="bottom">
+    <Tooltip
+      title={`${walletDetails.name} ${walletBalance ? `: ${walletBalance}` : ''}`}
+      placement="bottom"
+    >
       <Chip
         icon={
           <WalletTypeIcon
@@ -39,13 +41,25 @@ export const WalletChip = ({
           />
         }
         label={
-          <Typography variant="caption" ref={onLabelChange}>
-            {walletDetails.name}
+          <Typography variant="caption">
+            {truncateWalletName}:{' '}
+            {isWalletBalanceLoading ? (
+              <CircularProgress size={10} color="primary" sx={{ ml: '2px' }} />
+            ) : (
+              walletBalance
+            )}
           </Typography>
         }
         size="small"
         sx={[
-          { gap: 0.5, backgroundColor: 'grey.850' },
+          {
+            gap: 0.5,
+            backgroundColor: 'grey.850',
+            '& .MuiChip-label': {
+              overflow: 'hidden',
+              textOverflow: 'clip',
+            },
+          },
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
         {...props}
