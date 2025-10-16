@@ -8,12 +8,14 @@ import {
   Box,
   Divider,
   Scrollbars,
+  ChevronRightIcon,
 } from '@avalabs/core-k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
 import { REQUIRED_LEDGER_VERSION, useLedgerContext } from '@core/ui';
 import { Trans, useTranslation } from 'react-i18next';
 import { ConnectionIndicatorK2 } from '../../common/ConnectionIndicatorK2';
+import browser from 'webextension-polyfill';
 
 const StyledListNumber = styled(Box)`
   background-color: ${({ theme }) => theme.palette.grey[800]};
@@ -61,10 +63,26 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
             </Stack>
           </ListItem>
           {hasLedgerTransport && (
-            <ListItem sx={{ justifyContent: 'space-between' }}>
-              <Typography variant="body2">{t('Ledger Version')}</Typography>
-              <Typography variant="body2">{avaxAppVersion}</Typography>
-            </ListItem>
+            <>
+              <ListItem sx={{ justifyContent: 'space-between' }}>
+                <Typography variant="body2">{t('Ledger Version')}</Typography>
+                <Typography variant="body2">{avaxAppVersion}</Typography>
+              </ListItem>
+              <ListItem sx={{ justifyContent: 'space-between' }}>
+                <Typography variant="body2">{t('Derivation Path')}</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    browser.tabs.create({
+                      url: `/fullscreen.html#/accounts/add-wallet/ledger`,
+                    })
+                  }
+                >
+                  {t('Edit')} <ChevronRightIcon size={12} />
+                </Typography>
+              </ListItem>
+            </>
           )}
         </List>
         {!hasLedgerTransport && (
