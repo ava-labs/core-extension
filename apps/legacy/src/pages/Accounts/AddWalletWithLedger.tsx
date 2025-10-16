@@ -16,7 +16,7 @@ import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType, SecretType } from '@core/types';
 import { NameYourWallet } from './components/NameYourWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { useImportLedger, useQueryParams } from '@core/ui';
+import { useAccountsContext, useImportLedger, useQueryParams } from '@core/ui';
 import {
   LedgerConnector,
   LedgerConnectorData,
@@ -61,13 +61,16 @@ export function AddWalletWithLedger() {
   const { isImporting, importLedger } = useImportLedger();
   const [step, setStep] = useState(Step.Import);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
+  const {
+    accounts: { primary: primaryAccounts },
+    deleteAccounts,
+  } = useAccountsContext();
 
   const params = useQueryParams();
-  console.log('params: ', params);
+
   const walletId = params.get('walletId') || undefined;
-  console.log('walletId: ', walletId);
+
   const derivationPath = params.get('derivationPath') as DerivationPath;
-  console.log('derivationPath: ', derivationPath);
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
     DerivationPath.LedgerLive,
@@ -99,6 +102,7 @@ export function AddWalletWithLedger() {
 
   const handleImport = useCallback(
     async (name?: string) => {
+      console.log('handleImport: ', handleImport);
       try {
         capture('LedgerImportStarted');
 
@@ -111,6 +115,7 @@ export function AddWalletWithLedger() {
                     ?.key ?? '',
               }))
             : solanaKeys.map(({ key }) => ({ evm: '', svm: key }));
+        console.log('mergedKeys: ', mergedKeys);
 
         await importLedger({
           xpub,
@@ -124,9 +129,21 @@ export function AddWalletWithLedger() {
           numberOfAccountsToCreate: lastAccountIndexWithBalance.current + 1,
         });
 
+        console.log('walletId: ', walletId);
+        console.log('primaryAccounts: ', primaryAccounts);
+        if (walletId && primaryAccounts[walletId]) {
+          console.log('haho');
+          const oldLegderAccountIds = primaryAccounts[walletId].map(
+            (account) => account.id,
+          );
+          console.log('oldLegderAccountIds: ', oldLegderAccountIds);
+          await deleteAccounts(oldLegderAccountIds);
+        }
+
         capture('LedgerImportSuccess');
         setStep(Step.Completed);
       } catch (err) {
+        console.log('err: ', err);
         capture('LedgerImportFailure');
         Monitoring.sentryCaptureException(
           err as Error,
@@ -138,14 +155,16 @@ export function AddWalletWithLedger() {
     },
     [
       capture,
-      getErrorMessage,
-      importLedger,
-      lastAccountIndexWithBalance,
-      pathSpec,
       publicKeys,
+      solanaKeys,
+      importLedger,
       xpub,
       xpubXP,
-      solanaKeys,
+      pathSpec,
+      walletId,
+      primaryAccounts,
+      deleteAccounts,
+      getErrorMessage,
     ],
   );
 

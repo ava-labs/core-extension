@@ -20,6 +20,7 @@ import {
 import { Trans, useTranslation } from 'react-i18next';
 import { ConnectionIndicatorK2 } from '../../common/ConnectionIndicatorK2';
 import browser from 'webextension-polyfill';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 const StyledListNumber = styled(Box)`
   background-color: ${({ theme }) => theme.palette.grey[800]};
@@ -85,7 +86,9 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
                     })
                   }
                 >
-                  {walletDetails?.derivationPath.toUpperCase()}{' '}
+                  {walletDetails?.derivationPath === DerivationPath.LedgerLive
+                    ? t('Leger Live')
+                    : t('BIP44')}{' '}
                   <EditIcon size={14} />
                 </Typography>
               </ListItem>
