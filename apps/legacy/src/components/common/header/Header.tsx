@@ -64,7 +64,7 @@ export function Header() {
   const showWalletInfo = Boolean(
     walletDetails?.name &&
       activeAccount?.type === AccountType.PRIMARY &&
-      wallets.length > 1,
+      wallets.length,
   );
 
   return (
@@ -171,7 +171,7 @@ export function Header() {
             walletDetails={walletDetails}
             sx={{ maxWidth: 200, cursor: 'pointer' }}
             walletBalance={
-              activeWalletTotalBalance
+              activeWalletTotalBalance !== undefined
                 ? currencyFormatter(activeWalletTotalBalance)
                 : undefined
             }
