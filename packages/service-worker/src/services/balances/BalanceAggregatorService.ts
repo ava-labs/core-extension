@@ -214,12 +214,10 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         resolve(fetch(`${process.env.PROXY_URL}/watchlist/price`)),
       ]);
 
-      if (priceResultError && priceChangeResultError) {
+      if ((priceResultError && priceChangeResultError) || !priceChangesResult) {
         return;
       }
-      const priceChanges: PriceChangesData[] = priceChangesResult
-        ? await priceChangesResult.json()
-        : {};
+      const priceChanges: PriceChangesData[] = await priceChangesResult.json();
       const price = priceResult ? await priceResult.json() : {};
       const tokensData: TokensPriceShortData = priceChanges.reduce(
         (acc: TokensPriceShortData, data: PriceChangesData) => {
