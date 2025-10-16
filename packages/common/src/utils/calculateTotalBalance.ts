@@ -160,7 +160,7 @@ const convertBalanceToDisplayValue = (
   priceInCurrency: number,
 ) => {
   const tokenUnit = new TokenUnit(value, maxDecimals, symbol);
-  return tokenUnit.toDisplay({ fixedDp: 4, asNumber: true }) * priceInCurrency;
+  return tokenUnit.toDisplay({ asNumber: true }) * priceInCurrency;
 };
 
 const getBalanceInCurrencyForC = (
