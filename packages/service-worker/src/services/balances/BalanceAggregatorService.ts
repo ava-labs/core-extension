@@ -23,7 +23,7 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
-import { isFulfilled } from '@core/common';
+import { isFulfilled, watchlistTokens } from '@core/common';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { groupTokensByType } from '@core/common';
 
@@ -179,8 +179,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   }
 
   getPriceChangesData = async () => {
-    const watchlistTokens = ['avax', 'btc', 'sol'];
-
     const selectedCurrency = (await this.settingsService.getSettings())
       .currency;
     const changesData =

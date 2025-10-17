@@ -18,6 +18,8 @@ import {
 } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 
+export const watchlistTokens = ['avax', 'btc', 'sol'];
+
 export function calculateTotalBalance(
   account?: Partial<Account>,
   networks?: NetworkWithCaipId[],
@@ -224,13 +226,17 @@ const shouldIncludeUtxoGroup = (key: string) => {
   return key !== 'pendingStaked';
 };
 
-const getPriceInCurrency = (
+export const getPriceInCurrency = (
   token: TokenWithBalance,
   priceChangesData?: TokensPriceShortData,
 ) => {
   const defaultPrice = token.priceInCurrency ?? 0;
-  if (token.type === TokenType.NATIVE && token.symbol === 'AVAX') {
-    const currentPrice = priceChangesData?.[token.symbol]?.currentPrice;
+  const tokenSymbol = token.symbol.toLowerCase();
+  if (
+    token.type === TokenType.NATIVE &&
+    watchlistTokens.includes(tokenSymbol)
+  ) {
+    const currentPrice = priceChangesData?.[tokenSymbol]?.currentPrice;
     return currentPrice ?? defaultPrice;
   }
 
