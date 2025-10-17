@@ -1,6 +1,7 @@
 import {
   createContext,
   Dispatch,
+  PropsWithChildren,
   SetStateAction,
   useCallback,
   useContext,
@@ -46,7 +47,7 @@ const FirebaseContext = createContext<{
   getModel: () => false,
 } as any);
 
-export function FirebaseContextProvider({ children }: { children: any }) {
+export function FirebaseContextProvider({ children }: PropsWithChildren) {
   const { request } = useConnectionContext();
   const [prompts, setPrompts] = useState<ChatDialogHistory[]>([
     {
@@ -55,7 +56,7 @@ export function FirebaseContextProvider({ children }: { children: any }) {
     },
     {
       role: 'model',
-      content: `Core Concierge does not provide financial advice or any other recommendations. Core Concierge can make mistakes. Please review all transactions before signing.`,
+      content: `Core Concierge does not provide financial advice or any other recommendations. Core Concierge can make mistakes. **Please review all transactions before signing.**`,
     },
   ]);
 
