@@ -2,7 +2,7 @@ import { singleton } from 'tsyringe';
 import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { SettingsService } from '../settings/SettingsService';
-import { getPriceChangeValues, getPriceInCurrency } from '@core/common';
+import { getPriceChangeValues } from '@core/common';
 import * as Sentry from '@sentry/browser';
 import {
   Network,
@@ -94,20 +94,10 @@ export class BalancesService {
                 return tokens;
               }
 
-              const priceInCurrency = getPriceInCurrency(
-                tokenBalance,
-                priceChanges,
-              );
-
               return {
                 ...tokens,
                 [tokenKey]: {
                   ...tokenBalance,
-                  priceInCurrency,
-                  balanceInCurrency: priceInCurrency * tokenBalance.balance,
-                  balanceDisplayValue: (
-                    tokenBalance.balance * priceInCurrency
-                  ).toFixed(2),
                   priceChanges: getPriceChangeValues(
                     tokenBalance.symbol,
                     tokenBalance.balanceInCurrency,
