@@ -2,17 +2,27 @@ import { isDevelopment, isProductionBuild } from './utils/environment';
 import browser from 'webextension-polyfill';
 
 const CORE_WEB_DOMAIN = 'core.app' as const;
+/**
+ * Supports Core Web preview URLs.
+ *
+ * @example 'https://abc123-core-web-dev.avalabs.workers.dev'
+ */
+const CORE_WEB_PREVIEW_DOMAIN = 'avalabs.workers.dev' as const;
+
 const CORE_WEB_STAGING_DOMAINS = [
   'staging.core.app',
   'develop.core.app',
 ] as const;
 const DAPP_DEV_DOMAINS = [
-  'avalabs.workers.dev', // Supports Core Web preview URLS (ie https://abc123-core-web-dev.avalabs.workers.dev)
+  CORE_WEB_PREVIEW_DOMAIN,
   'localhost',
   '127.0.0.1',
 ] as const;
 
-const SYNCED_DOMAINS_PRODUCTION_BUILD = [CORE_WEB_DOMAIN] as const;
+const SYNCED_DOMAINS_PRODUCTION_BUILD = [
+  CORE_WEB_DOMAIN,
+  CORE_WEB_PREVIEW_DOMAIN,
+] as const;
 const SYNCED_DOMAINS_DEVELOPMENT_BUILD = [
   CORE_WEB_DOMAIN,
   ...CORE_WEB_STAGING_DOMAINS,
