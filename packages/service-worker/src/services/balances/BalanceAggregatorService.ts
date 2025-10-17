@@ -23,7 +23,7 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
-import { isFulfilled } from '@core/common';
+import { isFulfilled, watchlistTokens } from '@core/common';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { groupTokensByType } from '@core/common';
 
@@ -202,16 +202,23 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       !hasCurrentPrice ||
       (lastUpdated && lastUpdated + priceChangeRefreshRate < Date.now())
     ) {
-      const [priceChangesResult] = await resolve(
-        fetch(
-          `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
+      const [
+        [priceChangesResult, priceChangeResultError],
+        [priceResult, priceResultError],
+      ] = await Promise.all([
+        resolve(
+          fetch(
+            `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
+          ),
         ),
-      );
+        resolve(fetch(`${process.env.PROXY_URL}/watchlist/price`)),
+      ]);
 
-      if (!priceChangesResult) {
+      if ((priceResultError && priceChangeResultError) || !priceChangesResult) {
         return;
       }
       const priceChanges: PriceChangesData[] = await priceChangesResult.json();
+      const price = priceResult ? await priceResult.json() : {};
       const tokensData: TokensPriceShortData = priceChanges.reduce(
         (acc: TokensPriceShortData, data: PriceChangesData) => {
           return {
@@ -219,7 +226,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             [data.symbol]: {
               priceChange: data.price_change_24h,
               priceChangePercentage: data.price_change_percentage_24h,
-              currentPrice: data.current_price,
+              currentPrice: watchlistTokens.includes(data.symbol.toLowerCase())
+                ? (price[data.symbol] ?? data.current_price)
+                : data.current_price,
             },
           };
         },

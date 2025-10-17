@@ -95,8 +95,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const { walletId } = request.params;
     const requestsImportedAccounts = isImportedAccountsRequest(walletId);
-    const priceChangesData =
-      await this.balanceAggregatorService.getPriceChangesData();
     try {
       const allAccounts = await this.accountsService.getAccounts();
       const derivedAccounts = requestsImportedAccounts
@@ -138,7 +136,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             derivedAddressesBalances,
             [account],
             networksIncludedInTotal,
-            priceChangesData,
           );
           continue;
         }
@@ -146,7 +143,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           derivedAddressesBalances,
           [account],
           networksIncludedInTotal,
-          priceChangesData,
         );
       }
       let hasBalanceOnUnderivedAccounts = false;

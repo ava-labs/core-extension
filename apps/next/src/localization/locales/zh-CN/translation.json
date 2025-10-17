@@ -21,7 +21,7 @@
   "Insufficient balance": "余额不足",
   "Insufficient balance.": "余额不足。",
   "Insufficient funds": "资金不足",
-  "Insurance Buyer": "保险购买者",//？？？
+  "Insurance Buyer": "保险购买者",
   "Internal error": "内部错误",
   "Invalid code": "无效代码",
   "Invalid code. Please try again.": "无效代码。请重试。",
@@ -90,7 +90,7 @@
   "User declined the transaction": "用户已拒绝了该交易",
   "User rejected the request": "用户拒绝了该请求",
   "Vesting": "归属",
-  "View in Explorer": "在资源管理器内查看", //在区块浏览器中查看
+  "View in Explorer": "在资源管理器内查看",
   "We were not able to verify this code. Please try again.": "我们无法验证此代码，请重试。",
   "Yield": "收益",
   "You do not have enough funds to cover the network fees.": "您的资金不足以支付网络费用。",
