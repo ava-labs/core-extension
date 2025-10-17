@@ -102,7 +102,6 @@ export function AddWalletWithLedger() {
 
   const handleImport = useCallback(
     async (name?: string) => {
-      console.log('handleImport: ', handleImport);
       try {
         capture('LedgerImportStarted');
 
@@ -115,7 +114,6 @@ export function AddWalletWithLedger() {
                     ?.key ?? '',
               }))
             : solanaKeys.map(({ key }) => ({ evm: '', svm: key }));
-        console.log('mergedKeys: ', mergedKeys);
 
         await importLedger({
           xpub,
@@ -129,21 +127,16 @@ export function AddWalletWithLedger() {
           numberOfAccountsToCreate: lastAccountIndexWithBalance.current + 1,
         });
 
-        console.log('walletId: ', walletId);
-        console.log('primaryAccounts: ', primaryAccounts);
         if (walletId && primaryAccounts[walletId]) {
-          console.log('haho');
           const oldLegderAccountIds = primaryAccounts[walletId].map(
             (account) => account.id,
           );
-          console.log('oldLegderAccountIds: ', oldLegderAccountIds);
           await deleteAccounts(oldLegderAccountIds);
         }
 
         capture('LedgerImportSuccess');
         setStep(Step.Completed);
       } catch (err) {
-        console.log('err: ', err);
         capture('LedgerImportFailure');
         Monitoring.sentryCaptureException(
           err as Error,

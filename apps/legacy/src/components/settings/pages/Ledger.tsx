@@ -45,7 +45,6 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { hasLedgerTransport, avaxAppVersion } = useLedgerContext();
   const { walletDetails } = useWalletContext();
-  console.log('walletDetails: ', walletDetails);
 
   return (
     <Stack
