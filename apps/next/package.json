@@ -22,7 +22,7 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.63",
     "@avalabs/k2-alpine": "1.235.0",
     "@avalabs/types": "3.1.0-alpha.63",
-    "@avalabs/vm-module-types": "0.0.0-fix-use-watchlist-for-prices-20251017125238",
+    "@avalabs/vm-module-types": "1.10.3",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",
