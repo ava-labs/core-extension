@@ -5,19 +5,20 @@ import {
   GasSettings,
   ErrorCode as UnifiedBridgeErrorCode,
 } from '@avalabs/bridge-unified';
-import { assert } from '@core/common';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { assert, caipToChainId, chainIdToCaip } from '@core/common';
 import {
   CommonError,
   NetworkWithCaipId,
   UnifiedBridgeState,
 } from '@core/types';
 import { useNetworkContext } from '@core/ui';
+import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/networkSortingFn';
 import {
   PropsWithChildren,
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +36,7 @@ import {
 import { getChainAssets, getEnvironment, getErrorMessage } from './utils';
 
 export interface UnifiedBridgeContext {
+  sourceNetwork: NetworkWithCaipId | undefined;
   estimateTransferGas(
     symbol: string,
     amount: bigint,
@@ -77,6 +79,13 @@ type Props = PropsWithChildren<{
   sourceNetworkId: NetworkWithCaipId['caipId'];
 }>;
 
+const AVAX_CAIPS = {
+  mainnet: [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X].map(chainIdToCaip),
+  devnet: [ChainId.AVALANCHE_TEST_P, ChainId.AVALANCHE_TEST_X].map(
+    chainIdToCaip,
+  ),
+} as const;
+
 export function NextUnifiedBridgeProvider({
   children,
   sourceNetworkId,
@@ -93,8 +102,14 @@ export function NextUnifiedBridgeProvider({
   );
 
   const availableChainIds = useMemo(
-    () => Object.keys(core?.getAssets() ?? {}),
-    [core],
+    () =>
+      [
+        ...Object.keys(core?.getAssets() ?? {}),
+        ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
+      ].sort((one, another) =>
+        promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
+      ),
+    [core, isDeveloperMode],
   );
 
   const transferableAssets = useMemo(() => {
@@ -132,6 +147,7 @@ export function NextUnifiedBridgeProvider({
       supportsAsset,
       transferAsset,
       transferableAssets,
+      sourceNetwork,
     };
   }, [
     core,
@@ -146,11 +162,8 @@ export function NextUnifiedBridgeProvider({
     supportsAsset,
     transferAsset,
     transferableAssets,
+    sourceNetwork,
   ]);
-
-  useEffect(() => {
-    console.log('BRIDGE CONTEXT: unifiedBridge', context);
-  }, [context]);
 
   return (
     <NextUnifiedBridgeContext value={context}>

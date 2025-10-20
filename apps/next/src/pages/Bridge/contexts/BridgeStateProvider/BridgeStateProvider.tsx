@@ -1,13 +1,17 @@
-import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { BridgeAsset } from '@avalabs/bridge-unified';
-import { findMatchingBridgeAsset } from '@core/common';
-import { FungibleTokenBalance } from '@core/types';
-import { useAccountsContext } from '@core/ui';
-import { createContext, FC, PropsWithChildren, use } from 'react';
+import { findMatchingBridgeAsset, isNFT } from '@core/common';
+import {
+  FungibleTokenBalance,
+  getUniqueTokenId,
+  NetworkWithCaipId,
+} from '@core/types';
+import { useTokensWithBalances } from '@core/ui';
+import { createContext, FC, PropsWithChildren, use, useMemo } from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
-import { useFee } from './hooks/useFee';
+import { useAmountAfterFee } from './hooks/useAmountAfterFee';
 import { useInitialize } from './hooks/useInitialize';
+import { checkIfXorPChain } from './utils/checkIfXOrPChain';
 
 const BridgeStateContext = createContext<
   | undefined
@@ -17,46 +21,90 @@ const BridgeStateContext = createContext<
       sourceChainIds: string[];
       sourceTokens: FungibleTokenBalance[];
       assets: BridgeAsset[];
-      targetTokens: BridgeAsset[];
+      target: BridgeAsset | undefined;
       fee: bigint;
+      amountAfterFee: string | undefined;
+      getAssetIdentifierOnTargetChain: (
+        symbol?: string,
+        chainId?: string,
+      ) => string | undefined;
+      shouldUseCrossChainTransfer: boolean;
+      targetNetworkId: NetworkWithCaipId['caipId'];
+      targetToken: FungibleTokenBalance | undefined;
     }
 >(undefined);
 
 export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const query = useBridgeQuery();
-  const { sourceToken, sourceNetwork, amount, targetToken } = query;
+  const { amount, sourceToken } = query;
 
-  const { transferableAssets, availableChainIds, isReady } =
-    useNextUnifiedBridgeContext();
   const {
-    accounts: { active },
-  } = useAccountsContext();
-  const tokens = useTokensForAccount(active);
-  const sourceTokens = tokens.filter((token) =>
-    findMatchingBridgeAsset(transferableAssets, token),
+    transferableAssets,
+    availableChainIds,
+    isReady,
+    getAssetIdentifierOnTargetChain,
+    sourceNetwork,
+  } = useNextUnifiedBridgeContext();
+
+  const balances = useTokensWithBalances({
+    network: sourceNetwork,
+    forceShowTokensWithoutBalances: true,
+  });
+
+  const fungibleBalances = useMemo(
+    () => balances.filter((t): t is FungibleTokenBalance => !isNFT(t)),
+    [balances],
+  );
+
+  const sourceTokens = useMemo(
+    () =>
+      fungibleBalances.filter((t) =>
+        findMatchingBridgeAsset(transferableAssets, t),
+      ),
+    [fungibleBalances, transferableAssets],
+  );
+
+  const tokenToAssetMap = useMemo(
+    () =>
+      new Map(
+        sourceTokens.map((token) => [
+          getUniqueTokenId(token),
+          findMatchingBridgeAsset(transferableAssets, token),
+        ]),
+      ),
+    [sourceTokens, transferableAssets],
   );
 
   useInitialize(query, sourceTokens);
 
-  const [targetNetwork] = Object.keys(availableChainIds!);
-  const fee = useFee(targetToken, amount, targetNetwork);
+  const sourceAsset = tokenToAssetMap.get(sourceToken);
+  const [targetNetworkId = ''] = Object.keys(sourceAsset?.destinations ?? {});
+  // TODO: Find the actual target token based on the source token and the target network
+  const targetToken = sourceTokens.find(
+    (t) => getUniqueTokenId(t) === sourceToken,
+  );
 
-  const targetDestinations =
-    transferableAssets.find((asset) => asset.symbol === sourceToken)
-      ?.destinations[sourceNetwork] ?? [];
-
-  const targetTokens = targetDestinations[targetNetwork!];
+  const { amountAfterFee, fee } = useAmountAfterFee(
+    targetToken,
+    amount,
+    targetNetworkId,
+  );
 
   return (
     <BridgeStateContext
       value={{
-        isReady: isReady,
+        isReady,
         query,
         sourceTokens,
         sourceChainIds: availableChainIds,
         assets: transferableAssets,
-        targetTokens,
+        target: sourceAsset,
+        getAssetIdentifierOnTargetChain,
         fee,
+        amountAfterFee,
+        shouldUseCrossChainTransfer: checkIfXorPChain(sourceNetwork),
+        targetNetworkId,
+        targetToken,
       }}
     >
       {children}

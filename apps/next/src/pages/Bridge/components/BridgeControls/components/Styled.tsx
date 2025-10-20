@@ -1,5 +1,9 @@
 import { Select as NextSelect } from '@/components/Select';
-import { selectClasses, styled } from '@avalabs/k2-alpine';
+import {
+  Divider as K2Divider,
+  selectClasses,
+  styled,
+} from '@avalabs/k2-alpine';
 
 export const Select = styled(NextSelect)({
   [`&.${selectClasses.root}`]: {
@@ -10,3 +14,7 @@ export const Select = styled(NextSelect)({
     marginInlineStart: 'auto',
   },
 });
+
+export const Divider = styled(K2Divider)(({ theme }) => ({
+  marginInline: theme.spacing(1.5),
+}));

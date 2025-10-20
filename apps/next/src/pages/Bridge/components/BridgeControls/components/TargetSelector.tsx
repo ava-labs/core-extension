@@ -2,45 +2,45 @@ import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 import { useBridgeState } from '@/pages/Bridge/contexts';
 
+import { getUniqueTokenId } from '@core/types';
 import { noop } from 'lodash';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NetworkSelect } from './NetworkSelect';
+import * as Styled from './Styled';
 
 type Props = {
-  // UI
-  loading: boolean;
+  // TODO: Add props if needed
+  fakeProps?: unknown;
 };
 
 export const TargetSelector: FC<Props> = () => {
   const { t } = useTranslation();
 
-  const { query } = useBridgeState();
-  const { targetNetwork, targetToken, updateQuery } = query;
+  const { targetNetworkId, targetToken, amountAfterFee } = useBridgeState();
 
   return (
     <Card>
       <NetworkSelect
         label={t('To')}
-        chains={[targetNetwork]}
-        selected={targetNetwork}
-        onSelect={() => {}}
+        chains={targetNetworkId ? [targetNetworkId] : []}
+        selected={targetNetworkId || ''}
+        onSelect={noop}
+        disabled
       />
+      <Styled.Divider />
       <TokenAmountInput
         autoFocus={false}
+        disabled
         id="bridge-to-amount"
-        tokenId={targetToken}
-        tokensForAccount={[]}
-        onTokenChange={(token) =>
-          updateQuery({ targetToken: token, targetTokenQuery: '' })
-        }
-        tokenQuery={query.targetTokenQuery}
-        onQueryChange={(q) => updateQuery({ targetTokenQuery: q })}
-        amount={query.amount ?? ''}
+        tokenId={(targetToken && getUniqueTokenId(targetToken)) || ''}
+        tokensForAccount={targetToken ? [targetToken] : []}
+        onTokenChange={noop}
+        tokenQuery={''}
+        onQueryChange={noop}
+        amount={amountAfterFee ?? ''}
         onAmountChange={noop}
         withPresetButtons={false}
-        tokenHint={query.targetToken && t('You receive')}
-        isLoading={false}
       />
     </Card>
   );

@@ -9,19 +9,16 @@ import {
 import { FC } from 'react';
 
 type PairFlipperProps = {
-  disabled: boolean;
   onClick: () => void;
 };
 
-export const PairFlipper: FC<PairFlipperProps> = ({ disabled, onClick }) => {
+export const PairFlipper: FC<PairFlipperProps> = ({ onClick }) => {
   return (
     <Stack alignItems="center" justifyContent="center">
-      <FlipButton color="secondary" disabled={disabled} onClick={onClick}>
+      <FlipButton color="secondary" onClick={onClick}>
         <SwapIcon
           size={20}
-          style={{
-            transform: 'rotate(90deg) translate(-2px, -2px)',
-          }}
+          style={{ transform: 'rotate(90deg) translate(-2px, -2px)' }}
         />
       </FlipButton>
     </Stack>

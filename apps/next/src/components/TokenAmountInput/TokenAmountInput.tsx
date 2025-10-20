@@ -1,15 +1,15 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useTranslation } from 'react-i18next';
-import { useCallback, useMemo } from 'react';
 import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
+import { FocusEventHandler, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
-import { useConvertedCurrencyFormatter } from '@core/ui';
 import {
-  getUniqueTokenId,
   FungibleTokenBalance,
+  getUniqueTokenId,
   isNativeToken,
 } from '@core/types';
+import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
@@ -31,6 +31,9 @@ type TokenAmountInputProps = {
   tokenHint?: string;
   autoFocus?: boolean;
   isLoading?: boolean;
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
+  disabled?: boolean;
 };
 
 export const TokenAmountInput = ({
@@ -48,6 +51,9 @@ export const TokenAmountInput = ({
   tokenHint,
   autoFocus = true,
   isLoading = false,
+  onFocus,
+  onBlur,
+  disabled,
 }: TokenAmountInputProps) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
@@ -120,6 +126,7 @@ export const TokenAmountInput = ({
           query={tokenQuery}
           onQueryChange={onQueryChange}
           hint={tokenHint}
+          disabled={disabled}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
@@ -133,6 +140,9 @@ export const TokenAmountInput = ({
             slotProps={{
               input: {
                 readOnly: isLoading,
+                onFocus,
+                onBlur,
+                disabled,
               },
             }}
             value={amount}
