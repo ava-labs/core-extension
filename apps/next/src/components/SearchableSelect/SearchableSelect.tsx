@@ -1,3 +1,4 @@
+import { Divider, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
 import {
   ComponentProps,
   FC,
@@ -7,15 +8,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Divider, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
-import type {
-  Group,
-  UseSearchableSelectProps,
-  UseSearchableSelectReturnValues,
-} from './types';
+import { FiAlertCircle } from 'react-icons/fi';
 import {
   GroupAccordion as DefaultGroupAccordion,
   SearchableSelectTrigger as DefaultSearchableSelectTrigger,
@@ -25,7 +21,11 @@ import {
   SearchableSelectPopover,
 } from './components';
 import { useSearchableSelect } from './hooks';
-import { FiAlertCircle } from 'react-icons/fi';
+import type {
+  Group,
+  UseSearchableSelectProps,
+  UseSearchableSelectReturnValues,
+} from './types';
 
 type SearchableSelectOwnProps<T> = {
   label: string;
@@ -45,6 +45,7 @@ type SearchableSelectOwnProps<T> = {
    */
   skipGroupingEntirely?: boolean;
   searchInputProps?: Omit<ComponentProps<typeof SearchInput>, 'slotProps'>;
+  disabled?: boolean;
 };
 interface SearchableSelectSlots<T> {
   groupAccordion?: JSXElementConstructor<
@@ -79,6 +80,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
     suppressFlattening,
     skipGroupingEntirely,
     searchInputProps,
+    disabled,
     ...hookProps
   } = props;
 
@@ -123,7 +125,11 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
         label={label}
         value={value}
         renderValue={renderValue}
-        onClick={() => hookProps.options.length > 0 && setIsOpen((o) => !o)}
+        onClick={
+          disabled
+            ? undefined
+            : () => hookProps.options.length > 0 && setIsOpen((o) => !o)
+        }
       />
       <SearchableSelectPopover
         open={isOpen}
