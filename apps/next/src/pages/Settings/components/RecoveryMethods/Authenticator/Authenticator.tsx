@@ -7,11 +7,21 @@ import { useState } from 'react';
 import { useGoBack, useSeedlessMfaManager } from '@core/ui';
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
-import { AuthenticatorState } from './AuthenticatorDetails';
-import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { InProgress } from '../../common/InProgress';
 import { RecoveryMethodFailure } from '../components/RecoveryMethodFailure';
 import { AuthenticatorVerifyTotp } from './AuthenticatorVerifyTotp';
 import { useHistory } from 'react-router-dom';
+
+export enum AuthenticatorState {
+  Initial = 'initial',
+  Initiated = 'initiated',
+  ConfirmChange = 'confirm-change',
+  ConfirmRemoval = 'confirm-removal',
+  Pending = 'pending',
+  Completing = 'completing',
+  VerifyCode = 'verify-code',
+  Failure = 'failure',
+}
 
 export const Authenticator: FC = () => {
   const { t } = useTranslation();
@@ -29,21 +39,19 @@ export const Authenticator: FC = () => {
 
   const goBack = useGoBack();
 
-  const initChange = useCallback(async () => {
-    try {
-      const challenge = await initAuthenticatorChange();
-
-      setTotpChallenge(challenge);
-      setScreenState(AuthenticatorState.Initiated);
-    } catch {
-      setTotpChallenge(undefined);
-      setScreenState(AuthenticatorState.Failure);
-    }
-  }, [initAuthenticatorChange]);
-
   useEffect(() => {
+    const initChange = async () => {
+      try {
+        const challenge = await initAuthenticatorChange();
+        setTotpChallenge(challenge);
+        setScreenState(AuthenticatorState.Initiated);
+      } catch {
+        setTotpChallenge(undefined);
+        setScreenState(AuthenticatorState.Failure);
+      }
+    };
     initChange();
-  }, [initChange]);
+  }, [initAuthenticatorChange]);
 
   const totpSecret = useMemo(() => {
     if (!totpChallenge) {

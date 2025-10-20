@@ -2,7 +2,7 @@ import { FullscreenModal } from '@/components/FullscreenModal';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InProgress } from '../../../InProgress';
+import { InProgress } from '@/pages/Settings/components/common/InProgress';
 import { FIDOChallenge } from '../../../../../../../common/FIDOChallenge';
 import { MfaChoicePrompt } from './components/MfaChoicePrompt';
 import { TOTPChallenge } from './components/TOTPChallenge';

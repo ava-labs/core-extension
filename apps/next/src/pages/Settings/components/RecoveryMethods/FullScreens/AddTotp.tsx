@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
 import { Button, Stack, toast } from '@avalabs/k2-alpine';
 import { AuthenticatorVerifyTotp } from '../Authenticator/AuthenticatorVerifyTotp';
-import { AuthenticatorState } from '../Authenticator/AuthenticatorDetails';
 import { useTranslation } from 'react-i18next';
 import {
   FullscreenModalActions,
@@ -14,6 +13,7 @@ import {
 import { SeedlessTotpQRCode } from '@/pages/Onboarding/flows/SeedlessFlow/screens';
 import { RecoveryMethodFailure } from '../components/RecoveryMethodFailure';
 import { useHistory } from 'react-router-dom';
+import { AuthenticatorState } from '../Authenticator';
 
 export const AddTotp = () => {
   const [error, setError] = useState<AuthErrorCode>();

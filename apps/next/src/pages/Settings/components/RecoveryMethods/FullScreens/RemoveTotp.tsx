@@ -11,10 +11,10 @@ import {
 
 import { useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
-import { useMFAEvents } from '../../common/useMFAEvent';
-import { FIDOChallenge } from '../../common/FIDOChallenge';
+import { useMFAEvents } from '@/pages/Settings/components/common/useMFAEvent';
+import { FIDOChallenge } from '@/pages/Settings/components/common/FIDOChallenge';
 import { useHistory } from 'react-router-dom';
-import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { InProgress } from '@/pages/Settings/components/common/InProgress';
 
 enum RemoveTotpState {
   Loading = 'loading',

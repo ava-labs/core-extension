@@ -13,7 +13,7 @@ import { useMFAEvents } from '../../common/useMFAEvent';
 import { AuthErrorCode, ExtensionRequest, MfaResponseData } from '@core/types';
 import { TotpCodeField } from '@/components/TotpCodeField';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
-import { InProgress } from '../../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { InProgress } from '@/pages/Settings/components/common/InProgress';
 
 export const FIDO = () => {
   const history = useHistory();

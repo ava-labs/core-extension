@@ -17,7 +17,7 @@ import { FC, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
-import { InProgress } from '../RecoveryPhrase/components/ShowPhrase/components/InProgress';
+import { InProgress } from './InProgress';
 import { ChallengeComponentProps } from '../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/types';
 import { useParams } from 'react-router-dom';
 import { RecoveryMethodsFullScreenParams } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
