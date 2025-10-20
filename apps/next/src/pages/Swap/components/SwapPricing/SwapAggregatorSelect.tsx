@@ -55,7 +55,7 @@ export const SwapAggregatorSelect: FC<SwapAggregatorSelectProps> = ({
         ...bestRate,
         quote: {
           ...bestRate.quote,
-          aggregator: { id: 'auto', name: t('Auto') },
+          aggregator: { id: 'auto', name: t('Auto'), logo_url: '' },
         },
       },
       ...quotes.quotes,
@@ -131,10 +131,10 @@ export const SwapAggregatorSelect: FC<SwapAggregatorSelectProps> = ({
                 <Stack direction="row" alignItems="center" gap={1}>
                   {q.aggregator.id !== 'auto' && (
                     <img
-                      src={`/images/swap-providers/provider-${q.aggregator.id}.svg`}
+                      src={q.aggregator.logo_url}
                       width={32}
                       height={32}
-                      alt=""
+                      alt={q.aggregator.name}
                     />
                   )}
                   <Stack flexGrow={1}>
