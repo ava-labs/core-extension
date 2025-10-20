@@ -79,9 +79,6 @@ export const BRIDGE_QUERY_TOKENS = {
   sourceNetwork: 'srcNet',
   sourceToken: 'srcToken',
   sourceTokenQuery: 'srcTokenQ',
-  targetNetwork: 'tgtNet',
-  targetToken: 'tgtToken',
-  targetTokenQuery: 'rgtTokenQ',
   amount: 'amount',
 };
 export type BridgeQueryTokens = typeof BRIDGE_QUERY_TOKENS;
