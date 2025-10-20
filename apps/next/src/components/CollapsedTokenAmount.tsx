@@ -84,5 +84,19 @@ export const CollapsedTokenAmount = ({
       </Tooltip>
     );
   }
+
+  // If the fraction is longer than the max fraction size, but we can't collapse
+  // the zeroes, let's truncate the amount and show an approximation with the
+  // exact amount in a tooltip.
+  if (fraction && fraction.length > MAX_FRACTION_SIZE) {
+    return (
+      <Tooltip title={amount}>
+        <Typography {...finalRegularProps}>
+          ~{integer}.{fraction.substring(0, MAX_FRACTION_SIZE)}
+        </Typography>
+      </Tooltip>
+    );
+  }
+
   return <Typography {...finalRegularProps}>{amount}</Typography>;
 };
