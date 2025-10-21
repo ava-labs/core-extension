@@ -5,6 +5,7 @@ import { TokenType } from '@avalabs/vm-module-types';
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
 import { useLiveBalance } from '@core/ui';
 
+import { NoScrollStack } from '@/components/NoScrollStack';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 
 import {
@@ -82,7 +83,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
 
   return (
     <Styled.ApprovalScreenPage>
-      <Styled.NoScrollStack>
+      <NoScrollStack>
         <ApprovalScreenTitle title={action.displayData.title} />
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
@@ -102,7 +103,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
           isProcessing={isProcessing}
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
-      </Styled.NoScrollStack>
+      </NoScrollStack>
       {hasOverlayWarning(action) && (
         <MaliciousTxOverlay
           open={hasOverlayWarning(action)}
