@@ -1,8 +1,25 @@
+import { BridgeType } from '@avalabs/bridge-unified';
 import { AvalancheHorizontalIcon, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { useBridgeState } from '../contexts';
 
 export const BridgeProviderNotice = () => {
   const { t } = useTranslation();
+  const { target, targetNetworkId } = useBridgeState();
+
+  const [bridgeType] = target?.destinations[targetNetworkId] ?? [];
+
+  const icon =
+    bridgeType === BridgeType.CCTP ? (
+      <img
+        src="/images/bridge-providers/circle.png"
+        height={14}
+        alt="Circle"
+        style={{ filter: 'contrast(0.05)' }}
+      />
+    ) : (
+      <AvalancheHorizontalIcon size={80} />
+    );
 
   return (
     <Stack
@@ -14,7 +31,7 @@ export const BridgeProviderNotice = () => {
       gap={0.5}
     >
       <Typography variant="caption">{t('Powered by')}</Typography>
-      <AvalancheHorizontalIcon size={80} />
+      {icon}
     </Stack>
   );
 };
