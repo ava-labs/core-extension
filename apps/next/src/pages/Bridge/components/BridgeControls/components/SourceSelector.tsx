@@ -25,7 +25,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
   };
 
   return (
-    <Card>
+    <Card noPadding>
       <NetworkSelect
         label={t('From')}
         chains={sourceChainIds}

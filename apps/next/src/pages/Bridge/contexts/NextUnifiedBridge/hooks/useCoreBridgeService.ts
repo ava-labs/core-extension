@@ -35,8 +35,8 @@ export function useCoreBridgeService(
       return null;
     }
 
-    return getEnabledBridgeTypes(featureFlags).map((type) =>
-      getInitializerForBridgeType(type, bitcoinProvider, signers),
+    return getEnabledBridgeTypes(featureFlags).map((bridgeType) =>
+      getInitializerForBridgeType(bridgeType, bitcoinProvider, signers),
     );
   }, [bitcoinProvider, featureFlags, signers]);
 

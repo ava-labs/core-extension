@@ -1,11 +1,11 @@
+import { useAllTokens } from '@/hooks/useAllTokens';
 import { BridgeAsset } from '@avalabs/bridge-unified';
-import { findMatchingBridgeAsset, isNFT } from '@core/common';
+import { findMatchingBridgeAsset } from '@core/common';
 import {
   FungibleTokenBalance,
   getUniqueTokenId,
   NetworkWithCaipId,
 } from '@core/types';
-import { useTokensWithBalances } from '@core/ui';
 import { createContext, FC, PropsWithChildren, use, useMemo } from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
@@ -29,6 +29,7 @@ const BridgeStateContext = createContext<
         chainId?: string,
       ) => string | undefined;
       shouldUseCrossChainTransfer: boolean;
+      targetNetworks: NetworkWithCaipId['caipId'][];
       targetNetworkId: NetworkWithCaipId['caipId'];
       targetToken: FungibleTokenBalance | undefined;
     }
@@ -46,22 +47,15 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     sourceNetwork,
   } = useNextUnifiedBridgeContext();
 
-  const balances = useTokensWithBalances({
-    network: sourceNetwork,
-    forceShowTokensWithoutBalances: true,
-  });
-
-  const fungibleBalances = useMemo(
-    () => balances.filter((t): t is FungibleTokenBalance => !isNFT(t)),
-    [balances],
+  const networksForToken = useMemo(
+    () => (sourceNetwork ? [sourceNetwork] : []),
+    [sourceNetwork],
   );
+  const tokens = useAllTokens(networksForToken);
 
   const sourceTokens = useMemo(
-    () =>
-      fungibleBalances.filter((t) =>
-        findMatchingBridgeAsset(transferableAssets, t),
-      ),
-    [fungibleBalances, transferableAssets],
+    () => tokens.filter((t) => findMatchingBridgeAsset(transferableAssets, t)),
+    [tokens, transferableAssets],
   );
 
   const tokenToAssetMap = useMemo(
@@ -78,11 +72,10 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   useInitialize(query, sourceTokens);
 
   const sourceAsset = tokenToAssetMap.get(sourceToken);
-  const [targetNetworkId = ''] = Object.keys(sourceAsset?.destinations ?? {});
+  const targetNetworks = Object.keys(sourceAsset?.destinations ?? {});
+  const [targetNetworkId = ''] = targetNetworks;
   // TODO: Find the actual target token based on the source token and the target network
-  const targetToken = sourceTokens.find(
-    (t) => getUniqueTokenId(t) === sourceToken,
-  );
+  const targetToken = tokens.find((t) => getUniqueTokenId(t) === sourceToken);
 
   const { amountAfterFee, fee } = useAmountAfterFee(
     targetToken,
@@ -104,6 +97,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         amountAfterFee,
         shouldUseCrossChainTransfer: checkIfXorPChain(sourceNetwork),
         targetNetworkId,
+        targetNetworks,
         targetToken,
       }}
     >
