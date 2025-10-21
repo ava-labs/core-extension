@@ -11,27 +11,28 @@ import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
 import { useAmountAfterFee } from './hooks/useAmountAfterFee';
 import { useInitialize } from './hooks/useInitialize';
+import { usePairFlipper } from './hooks/usePairFlipper';
 import { checkIfXorPChain } from './utils/checkIfXOrPChain';
+
+type UnifiedBridgeContext = ReturnType<typeof useNextUnifiedBridgeContext>;
 
 const BridgeStateContext = createContext<
   | undefined
   | {
-      isReady: boolean;
+      isReady: UnifiedBridgeContext['isReady'];
       query: BridgeQueryContext;
-      sourceChainIds: string[];
+      sourceChainIds: UnifiedBridgeContext['availableChainIds'];
       sourceTokens: FungibleTokenBalance[];
       assets: BridgeAsset[];
       target: BridgeAsset | undefined;
       fee: bigint;
       amountAfterFee: string | undefined;
-      getAssetIdentifierOnTargetChain: (
-        symbol?: string,
-        chainId?: string,
-      ) => string | undefined;
       shouldUseCrossChainTransfer: boolean;
       targetNetworks: NetworkWithCaipId['caipId'][];
       targetNetworkId: NetworkWithCaipId['caipId'];
       targetToken: FungibleTokenBalance | undefined;
+      transferAsset: UnifiedBridgeContext['transferAsset'];
+      flipPair: VoidFunction;
     }
 >(undefined);
 
@@ -43,8 +44,8 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     transferableAssets,
     availableChainIds,
     isReady,
-    getAssetIdentifierOnTargetChain,
     sourceNetwork,
+    transferAsset,
   } = useNextUnifiedBridgeContext();
 
   const networksForToken = useMemo(
@@ -83,6 +84,12 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     targetNetworkId,
   );
 
+  const flipPair = usePairFlipper({
+    tokens,
+    targetNetworkId,
+    query,
+  });
+
   return (
     <BridgeStateContext
       value={{
@@ -92,13 +99,14 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         sourceChainIds: availableChainIds,
         assets: transferableAssets,
         target: sourceAsset,
-        getAssetIdentifierOnTargetChain,
         fee,
         amountAfterFee,
         shouldUseCrossChainTransfer: checkIfXorPChain(sourceNetwork),
         targetNetworkId,
         targetNetworks,
         targetToken,
+        transferAsset,
+        flipPair,
       }}
     >
       {children}
