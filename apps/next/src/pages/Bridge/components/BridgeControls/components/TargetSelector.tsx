@@ -17,14 +17,15 @@ type Props = {
 export const TargetSelector: FC<Props> = () => {
   const { t } = useTranslation();
 
-  const { targetNetworkId, targetToken, amountAfterFee } = useBridgeState();
+  const { targetNetworkId, targetNetworks, targetToken, amountAfterFee } =
+    useBridgeState();
 
   return (
-    <Card>
+    <Card noPadding>
       <NetworkSelect
         label={t('To')}
-        chains={targetNetworkId ? [targetNetworkId] : []}
-        selected={targetNetworkId || ''}
+        chains={targetNetworks}
+        selected={targetNetworkId}
         onSelect={noop}
         disabled
       />

@@ -39,7 +39,7 @@ import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import * as routes from '@/config/routes';
 import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -55,10 +55,11 @@ const pagesWithoutHeader = [
   '/manage-tokens',
   '/trending',
   '/defi',
-  getContactsPath(),
-  getSendPath(),
-  getSwapPath(),
   '/concierge',
+  routes.getContactsPath(),
+  routes.getSendPath(),
+  routes.getSwapPath(),
+  routes.getBridgePath(),
 ];
 
 // Create a client for React Query

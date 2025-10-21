@@ -9,6 +9,7 @@ import { Page } from '@/components/Page';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 import {
+  BannerTop,
   BridgeControls,
   BridgeErrorMessage,
   BridgeProviderNotice,
@@ -54,7 +55,8 @@ const BridgePage: FC = () => {
 
   return (
     <Page title={t('Bridge')} withBackButton contentProps={contentProps}>
-      <Stack gap={2}>
+      <Stack gap={1}>
+        <BannerTop />
         <AccountSelect
           addressType="C"
           value={active}
