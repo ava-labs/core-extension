@@ -44,13 +44,11 @@ const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 export const useFunctions = ({ setIsTyping, setInput }) => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
-  // const [input, setInput] = useState<string>('');
   const { network, networks, setNetwork, getNetwork } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
   const { swap, getRate } = useSwapContext();
-  // const [isTyping, setIsTyping] = useState(false);
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
   const { targetChain, transferableAssets, transfer } = useBridge();
@@ -61,22 +59,6 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
   });
   const tokensForAccount = useTokensForAccount(accounts.active);
   const { getNetworkFee } = useNetworkFeeContext();
-
-  // const { isSending, isValid, error, send } = useEvmNativeSend({
-  //   token,
-  //   amount: amountBigInt,
-  //   from,
-  //   to,
-  //   network,
-  // });
-
-  // const { isSending, isValid, error, send } = useEvmErc20Send({
-  //   token,
-  //   amount: amountBigInt,
-  //   from,
-  //   to,
-  //   network,
-  // });
 
   const userMessages = useMemo(
     () =>
@@ -124,10 +106,6 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         if (isNativeToken) {
           const networkFee = await getNetworkFee(token.coreChainId);
 
-          console.log(
-            'chainIdToCaip(tokenToSend.coreChainId): ',
-            chainIdToCaip(tokenToSend.coreChainId),
-          );
           if (!networkFee) {
             throw new Error('Network fee not found');
           }

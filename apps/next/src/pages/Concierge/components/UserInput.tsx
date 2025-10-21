@@ -80,7 +80,7 @@ export const UserInput = ({
       onKeyUp={(e) => {
         if (e.key === 'ArrowUp' && userMessages) {
           const index =
-            userMessageHistoryIndex || userMessageHistoryIndex === 0
+            userMessageHistoryIndex && userMessageHistoryIndex >= 0
               ? userMessageHistoryIndex - 1
               : userMessages.length - 1;
           const message = userMessages[index];
@@ -94,7 +94,9 @@ export const UserInput = ({
         }
         if (e.key === 'ArrowDown' && userMessages) {
           const index =
-            userMessageHistoryIndex || userMessageHistoryIndex === 0
+            userMessageHistoryIndex &&
+            userMessageHistoryIndex >= 0 &&
+            userMessageHistoryIndex < userMessages.length - 1
               ? userMessageHistoryIndex + 1
               : userMessages.length - 1;
           const message = userMessages[index];

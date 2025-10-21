@@ -12,7 +12,7 @@ type PageProps = {
   contentProps?: StackProps;
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
-  py?: number;
+  px?: number;
 };
 
 // TODO: remove this once we have a proper scrollable component
@@ -34,7 +34,7 @@ export const Page = ({
   withBackButton = true,
   withViewSwitcher = true,
   containerProps,
-  py,
+  px,
   ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
@@ -56,7 +56,7 @@ export const Page = ({
         title={title}
       />
       <NoScrollStack>
-        <Stack px={py ?? 1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
+        <Stack px={px ?? 1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
               <Stack direction="row" gap={1} justifyContent="space-between">

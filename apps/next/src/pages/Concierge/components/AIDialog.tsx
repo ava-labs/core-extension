@@ -6,7 +6,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Typewriter } from './Typewriter';
 import { PromptItem } from '@core/ui';
 import ReactMarkdown from 'react-markdown';
@@ -18,6 +18,22 @@ export const AIBox = styled(Box)(({ theme }) => ({
     textDecoration: 'underline',
   },
 }));
+
+const getTypingSpeed = (message: PromptItem) => {
+  if (message.content.length < 50) {
+    return 20;
+  }
+  if (message.content.length > 50 && message.content.length <= 500) {
+    return 10;
+  }
+  if (message.content.length > 500 && message.content.length <= 1000) {
+    return 4;
+  }
+  if (message.content.length > 1000) {
+    return 1;
+  }
+  return 5;
+};
 
 export const AIDialog = ({
   message,
@@ -32,22 +48,7 @@ export const AIDialog = ({
   const theme = useTheme();
   const [isTextTyped, setIsTextTyped] = useState(!lastMessage);
   const { t } = useTranslation();
-
-  const typingSpeed = useMemo(() => {
-    if (message.content.length < 50) {
-      return 20;
-    }
-    if (message.content.length > 50 && message.content.length <= 500) {
-      return 10;
-    }
-    if (message.content.length > 500 && message.content.length <= 1000) {
-      return 4;
-    }
-    if (message.content.length > 1000) {
-      return 1;
-    }
-    return 5;
-  }, [message.content.length]);
+  const typingSpeed = getTypingSpeed(message);
 
   useEffect(() => {
     if (isTextTyped) {

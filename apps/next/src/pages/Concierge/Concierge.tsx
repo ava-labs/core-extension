@@ -23,7 +23,6 @@ export const Concierge = () => {
   const [isTyping, setIsTyping] = useState(false);
   const scrollbarRef = useRef<Scrollbars | null>(null);
   const { prompts } = useFirebaseContext();
-  console.log('prompts: ', prompts);
   const { prompt, userMessages } = useFunctions({ setIsTyping, setInput });
 
   useEffect(() => {
@@ -47,7 +46,7 @@ export const Concierge = () => {
             animation: `15s ${promptBackgroundAnimation} ease-in infinite`,
           }}
         />
-        <Page withBackButton py={0}>
+        <Page withBackButton px={0}>
           <Stack
             sx={{
               height: '100%',

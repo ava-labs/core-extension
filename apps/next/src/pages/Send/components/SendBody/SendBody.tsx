@@ -45,7 +45,6 @@ export const SendBody = ({
   recipient,
 }: SendBodyProps) => {
   const { t } = useTranslation();
-  console.log('token: ', token);
 
   // If any of the parameters is not ready, we just show a disabled Send button.
   if (
