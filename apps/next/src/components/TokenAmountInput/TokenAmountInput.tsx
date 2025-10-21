@@ -34,6 +34,7 @@ type TokenAmountInputProps = {
   onFocus?: FocusEventHandler;
   onBlur?: FocusEventHandler;
   disabled?: boolean;
+  tokenBalance?: boolean;
 };
 
 export const TokenAmountInput = ({
@@ -54,6 +55,7 @@ export const TokenAmountInput = ({
   onFocus,
   onBlur,
   disabled,
+  tokenBalance = true,
 }: TokenAmountInputProps) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
@@ -127,6 +129,7 @@ export const TokenAmountInput = ({
           onQueryChange={onQueryChange}
           hint={tokenHint}
           disabled={disabled}
+          tokenBalance={tokenBalance}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput

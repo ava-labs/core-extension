@@ -1,4 +1,4 @@
-import { Button, Stack, StackProps, toast } from '@avalabs/k2-alpine';
+import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { useAccountsContext, useLiveBalance } from '@core/ui';
 import { FC, useState } from 'react';
@@ -8,6 +8,7 @@ import { AccountSelect } from '@/components/AccountSelect';
 import { Page } from '@/components/Page';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { stringToBigint } from '@core/common';
 import {
   BannerTop,
   BridgeControls,
@@ -19,7 +20,7 @@ import {
   BridgeQueryProvider,
   BridgeStateProvider,
   NextUnifiedBridgeProvider,
-  useBridgeQuery,
+  useBridgeState,
   useNextUnifiedBridgeContext,
 } from './contexts';
 
@@ -42,12 +43,36 @@ const BridgePage: FC = () => {
   } = useAccountsContext();
   const [accountQuery, setAccountQuery] = useState('');
   const [bridgeError, setBridgeError] = useState<string>('');
+  const {
+    transferAsset,
+    target,
+    query: { amount, updateQuery },
+    targetNetworkId,
+  } = useBridgeState();
 
-  const { updateQuery } = useBridgeQuery();
+  const canExecuteBridge = target && amount && targetNetworkId;
 
   const performBridge = () => {
-    toast.error('Not implemented');
-    setBridgeError('Not implemented');
+    if (!canExecuteBridge) {
+      return;
+    }
+
+    transferAsset(
+      target.symbol,
+      stringToBigint(amount, target.decimals),
+      targetNetworkId,
+    )
+      .then((txHash) => {
+        if (txHash) {
+          setBridgeError('');
+        } else {
+          throw new Error('Missing tx hash');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        setBridgeError(t('Failed to bridge'));
+      });
   };
 
   const isConfirming = false;
@@ -69,7 +94,7 @@ const BridgePage: FC = () => {
           }}
           onQueryChange={setAccountQuery}
         />
-        <BridgeControls onQueryChange={updateQuery} />
+        <BridgeControls />
       </Stack>
       <BridgeErrorMessage error={bridgeError} />
       <CoreFeeNotice />
