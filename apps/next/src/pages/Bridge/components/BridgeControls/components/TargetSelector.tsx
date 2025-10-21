@@ -4,7 +4,7 @@ import { useBridgeState } from '@/pages/Bridge/contexts';
 
 import { getUniqueTokenId } from '@core/types';
 import { noop } from 'lodash';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NetworkSelect } from './NetworkSelect';
 import * as Styled from './Styled';
@@ -20,6 +20,16 @@ export const TargetSelector: FC<Props> = () => {
   const { targetNetworkId, targetNetworks, targetToken, amountAfterFee } =
     useBridgeState();
 
+  const { tokenId, tokens } = useMemo(() => {
+    if (!targetToken) {
+      return { tokenId: '', tokens: [] };
+    }
+    return {
+      tokenId: getUniqueTokenId(targetToken),
+      tokens: [targetToken],
+    };
+  }, [targetToken]);
+
   return (
     <Card noPadding>
       <NetworkSelect
@@ -34,14 +44,15 @@ export const TargetSelector: FC<Props> = () => {
         autoFocus={false}
         disabled
         id="bridge-to-amount"
-        tokenId={(targetToken && getUniqueTokenId(targetToken)) || ''}
-        tokensForAccount={targetToken ? [targetToken] : []}
+        tokenId={tokenId}
+        tokensForAccount={tokens}
         onTokenChange={noop}
         tokenQuery={''}
         onQueryChange={noop}
         amount={amountAfterFee ?? ''}
         onAmountChange={noop}
         withPresetButtons={false}
+        tokenBalance={false}
       />
     </Card>
   );
