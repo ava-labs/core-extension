@@ -15,8 +15,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "1.10.3",
-    "@avalabs/svm-module": "1.10.3",
+    "@avalabs/evm-module": "0.0.0-feat-evm-gas-limit-updater-20251021095244",
+    "@avalabs/svm-module": "0.0.0-feat-evm-gas-limit-updater-20251021095244",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
