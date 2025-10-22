@@ -10,6 +10,7 @@ import {
   AnalyticsContextProvider,
   ConnectionContextProvider,
   FeatureFlagsContextProvider,
+  NetworkContextProvider,
   SettingsContextProvider,
 } from '@core/ui';
 import { Children, lazy, ReactElement, Suspense } from 'react';
@@ -41,6 +42,7 @@ browser.tabs.query({ active: true }).then(() => {
               <SettingsContextProvider />,
               <FeatureFlagsContextProvider />,
               <AnalyticsContextProvider />,
+              <NetworkContextProvider />,
               <Suspense
                 fallback={
                   <Stack

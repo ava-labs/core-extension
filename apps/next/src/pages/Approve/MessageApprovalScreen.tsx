@@ -6,6 +6,8 @@ import { Avatar, Stack, Typography } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
 import { ActionStatus, NetworkWithCaipId } from '@core/types';
 
+import { NoScrollStack } from '@/components/NoScrollStack';
+
 import {
   ActionDetails,
   ActionDrawer,
@@ -100,7 +102,7 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
 
   return (
     <Styled.ApprovalScreenPage>
-      <Styled.NoScrollStack>
+      <NoScrollStack>
         {hasDappInfo(action) ? (
           <Stack
             mt={5}
@@ -173,7 +175,7 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
           isProcessing={action.status === ActionStatus.SUBMITTING}
           withConfirmationSwitch={hasOverlayWarning(action)}
         />
-      </Styled.NoScrollStack>
+      </NoScrollStack>
       {hasOverlayWarning(action) && (
         <MaliciousTxOverlay
           open={hasOverlayWarning(action)}
