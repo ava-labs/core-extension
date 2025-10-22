@@ -72,8 +72,10 @@ export function AddWalletWithLedger() {
 
   const derivationPath = params.get('derivationPath') as DerivationPath;
 
+  const isEditScreen = Boolean(walletId && derivationPath);
+
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.LedgerLive,
+    DerivationPath.BIP44,
   );
 
   const lastAccountIndexWithBalance = useRef(0);
@@ -264,7 +266,9 @@ export function AddWalletWithLedger() {
               <Stack>
                 <Stack direction="row" alignItems="flex-start" sx={{ mb: 1 }}>
                   <PageTitle showBackButton={false}>
-                    {t('Add Wallet with Ledger')}
+                    {isEditScreen
+                      ? t('Change the Derivation Path')
+                      : t('Add Wallet with Ledger')}
                   </PageTitle>
                 </Stack>
 
@@ -273,6 +277,7 @@ export function AddWalletWithLedger() {
                   onTroubleshoot={() => setStep(Step.Troubleshoot)}
                   checkIfWalletExists
                   addedDerivationPath={derivationPath}
+                  isEditScreen={isEditScreen}
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>

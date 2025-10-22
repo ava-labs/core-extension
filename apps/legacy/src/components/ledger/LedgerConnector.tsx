@@ -53,6 +53,7 @@ interface LedgerConnectorProps {
   onTroubleshoot: () => void;
   checkIfWalletExists?: boolean;
   addedDerivationPath?: DerivationPath;
+  isEditScreen?: boolean;
 }
 
 export function LedgerConnector({
@@ -60,6 +61,7 @@ export function LedgerConnector({
   onTroubleshoot,
   checkIfWalletExists,
   addedDerivationPath,
+  isEditScreen,
 }: LedgerConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
@@ -412,6 +414,7 @@ export function LedgerConnector({
           pathSpec={pathSpec}
           onPathSelected={onPathSelected}
           isDisabled={dropdownDisabled}
+          isEditScreen={isEditScreen}
         />
         {pathSpec &&
           publicKeyState !== LedgerStatus.LEDGER_UNINITIATED &&
