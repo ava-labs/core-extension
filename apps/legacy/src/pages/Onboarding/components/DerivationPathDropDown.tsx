@@ -12,15 +12,23 @@ interface DerivationPathDropdownProps {
   onPathSelected: (path: DerivationPath) => void;
   pathSpec: DerivationPath;
   isDisabled: boolean;
+  isEditScreen?: boolean;
 }
 
 export function DerivationPathDropdown({
   pathSpec,
   onPathSelected,
   isDisabled,
+  isEditScreen,
 }: DerivationPathDropdownProps) {
   const { t } = useTranslation();
   const theme = useTheme();
+
+  const hasBIP44AddedAlready =
+    isEditScreen && pathSpec === DerivationPath.LedgerLive;
+
+  const hasLedgerLiveAddedAlready =
+    isEditScreen && pathSpec === DerivationPath.BIP44;
 
   return (
     <Stack>
@@ -57,39 +65,45 @@ export function DerivationPathDropdown({
         label={t('Select derivation path')}
         InputProps={{ disabled: isDisabled }}
       >
-        <DropdownItem
-          value={DerivationPath.BIP44}
-          selected={pathSpec === DerivationPath.BIP44}
-          data-testid="connect-account-menu-item"
-        >
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
+        {!hasBIP44AddedAlready ? (
+          <DropdownItem
+            value={DerivationPath.BIP44}
+            selected={pathSpec === DerivationPath.BIP44}
+            data-testid="connect-account-menu-item"
           >
-            <Typography variant="body2">{t('BIP44 (Default)')}</Typography>
-            {pathSpec === DerivationPath.BIP44 && <CheckIcon />}
-          </Stack>
-        </DropdownItem>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '100%',
+              }}
+            >
+              <Typography variant="body2">
+                {!isEditScreen ? t('BIP44 (Default)') : t('BIP44')}
+              </Typography>
+              {pathSpec === DerivationPath.BIP44 && <CheckIcon />}
+            </Stack>
+          </DropdownItem>
+        ) : null}
 
-        <DropdownItem
-          value={DerivationPath.LedgerLive}
-          selected={pathSpec === DerivationPath.LedgerLive}
-          data-testid="connect-account-menu-item"
-        >
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: '100%',
-            }}
+        {!hasLedgerLiveAddedAlready ? (
+          <DropdownItem
+            value={DerivationPath.LedgerLive}
+            selected={pathSpec === DerivationPath.LedgerLive}
+            data-testid="connect-account-menu-item"
           >
-            <Typography variant="body2">{t('Ledger Live')}</Typography>
-            {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
-          </Stack>
-        </DropdownItem>
+            <Stack
+              sx={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '100%',
+              }}
+            >
+              <Typography variant="body2">{t('Ledger Live')}</Typography>
+              {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
+            </Stack>
+          </DropdownItem>
+        ) : null}
       </Dropdown>
     </Stack>
   );
