@@ -1,27 +1,13 @@
-import {
-  AnalyzeTxParams,
-  AnalyzeTxResult,
-  BridgeAsset,
-  GasSettings,
-  ErrorCode as UnifiedBridgeErrorCode,
-} from '@avalabs/bridge-unified';
+import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { assert, caipToChainId, chainIdToCaip } from '@core/common';
-import {
-  CommonError,
-  NetworkWithCaipId,
-  UnifiedBridgeState,
-} from '@core/types';
+import { CommonError, NetworkWithCaipId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/networkSortingFn';
-import {
-  PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import { memoize } from 'lodash';
+import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isConfirming } from '../../lib/isConfirming';
 import {
   useAssetIdentifier,
   useBridgeEnvironment,
@@ -33,51 +19,12 @@ import {
   useTransferAsset,
   useUnifiedBridgeState,
 } from './hooks';
+import { UnifiedBridgeContext } from './types';
 import { getChainAssets, getEnvironment, getErrorMessage } from './utils';
-
-export interface UnifiedBridgeContext {
-  sourceNetwork: NetworkWithCaipId | undefined;
-  estimateTransferGas(
-    symbol: string,
-    amount: bigint,
-    targetChainId: string,
-  ): Promise<bigint>;
-  getAssetIdentifierOnTargetChain(
-    symbol?: string,
-    chainId?: string,
-  ): string | undefined;
-  getFee(
-    symbol: string,
-    amount: bigint,
-    targetChainId: string,
-  ): Promise<bigint>;
-  analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult;
-  supportsAsset(address: string, targetChainId: string): boolean;
-  transferAsset(
-    symbol: string,
-    amount: bigint,
-    targetChainId: string,
-    gasSettings?: GasSettings,
-  ): Promise<any>;
-  getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
-  getMinimumTransferAmount(
-    asset: BridgeAsset,
-    amount: bigint,
-    targetChainId: string,
-  ): Promise<bigint>;
-  transferableAssets: BridgeAsset[];
-  state: UnifiedBridgeState;
-  availableChainIds: NetworkWithCaipId['caipId'][];
-  isReady: boolean;
-}
 
 const NextUnifiedBridgeContext = createContext<
   UnifiedBridgeContext | undefined
 >(undefined);
-
-type Props = PropsWithChildren<{
-  sourceNetworkId: NetworkWithCaipId['caipId'];
-}>;
 
 const AVAX_CAIPS = {
   mainnet: [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X].map(chainIdToCaip),
@@ -86,14 +33,10 @@ const AVAX_CAIPS = {
   ),
 } as const;
 
-export function NextUnifiedBridgeProvider({
-  children,
-  sourceNetworkId,
-}: Props) {
+export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const { t } = useTranslation();
-  const { getNetwork, bitcoinProvider, isDeveloperMode } = useNetworkContext();
+  const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
   const state = useUnifiedBridgeState();
-  const sourceNetwork = getNetwork(sourceNetworkId);
 
   const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
   const core = useCoreBridgeService(
@@ -112,26 +55,20 @@ export function NextUnifiedBridgeProvider({
     [core, isDeveloperMode],
   );
 
-  const transferableAssets = useMemo(() => {
-    return getChainAssets(core, sourceNetworkId);
-  }, [core, sourceNetworkId]);
-
-  const analyzeTx = useCallback(
-    (txInfo: AnalyzeTxParams) => {
-      assert(core, CommonError.Unknown);
-      return core.analyzeTx(txInfo);
-    },
+  const getTransferableAssets = useMemo(
+    () =>
+      memoize((caipId: NetworkWithCaipId['caipId']) =>
+        getChainAssets(core, caipId),
+      ),
     [core],
   );
-  const estimateTransferGas = useEstimateTransferGas(core, sourceNetwork);
+
+  const estimateTransferGas = useEstimateTransferGas(core);
   const getAssetIdentifierOnTargetChain = useAssetIdentifier(core);
-  const getFee = useFee(core, sourceNetwork);
-  const getMinimumTransferAmount = useMinimumTransferAmount(
-    core,
-    sourceNetwork,
-  );
-  const supportsAsset = useSupportsAsset(core, sourceNetwork);
-  const transferAsset = useTransferAsset(core, sourceNetwork);
+  const getFee = useFee(core);
+  const getMinimumTransferAmount = useMinimumTransferAmount(core);
+  const supportsAsset = useSupportsAsset(core);
+  const transferAsset = useTransferAsset(core);
 
   const context = useMemo<UnifiedBridgeContext>(() => {
     return {
@@ -140,14 +77,17 @@ export function NextUnifiedBridgeProvider({
       estimateTransferGas,
       getErrorMessage: getErrorMessage(t),
       state,
-      analyzeTx,
       getAssetIdentifierOnTargetChain,
       getMinimumTransferAmount,
       getFee,
       supportsAsset,
       transferAsset,
-      transferableAssets,
-      sourceNetwork,
+      getTransferableAssets,
+      isTxConfirming: (txHash) => isConfirming(txHash, state.pendingTransfers),
+      analyzeTx: (txInfo: AnalyzeTxParams) => {
+        assert(core, CommonError.Unknown);
+        return core.analyzeTx(txInfo);
+      },
     };
   }, [
     core,
@@ -155,14 +95,12 @@ export function NextUnifiedBridgeProvider({
     estimateTransferGas,
     t,
     state,
-    analyzeTx,
     getAssetIdentifierOnTargetChain,
     getMinimumTransferAmount,
     getFee,
     supportsAsset,
     transferAsset,
-    transferableAssets,
-    sourceNetwork,
+    getTransferableAssets,
   ]);
 
   return (

@@ -6,8 +6,8 @@ import { getUniqueTokenId } from '@core/types';
 import { noop } from 'lodash';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import * as Styled from '../../../../Styled';
 import { NetworkSelect } from './NetworkSelect';
-import * as Styled from './Styled';
 
 type Props = {
   // TODO: Add props if needed

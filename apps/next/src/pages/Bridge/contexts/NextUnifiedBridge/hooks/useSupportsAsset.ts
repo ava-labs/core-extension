@@ -3,20 +3,21 @@ import { NetworkWithCaipId } from '@core/types';
 import { useCallback } from 'react';
 import { getChainAssets } from '../utils';
 
-export function useSupportsAsset(
-  core: UnifiedBridgeService | null,
-  sourceNetwork: NetworkWithCaipId | undefined,
-) {
+export function useSupportsAsset(core: UnifiedBridgeService | null) {
   const supportsAsset = useCallback(
-    (lookupAddressOrSymbol: string, targetChainId: string) => {
+    (
+      lookupAddressOrSymbol: string,
+      sourceNetworkId: NetworkWithCaipId['caipId'],
+      targetChainId: string,
+    ) => {
       return getSupportsAssets(
         core,
-        sourceNetwork?.caipId,
+        sourceNetworkId,
         targetChainId,
         lookupAddressOrSymbol,
       );
     },
-    [core, sourceNetwork?.caipId],
+    [core],
   );
 
   return supportsAsset;
