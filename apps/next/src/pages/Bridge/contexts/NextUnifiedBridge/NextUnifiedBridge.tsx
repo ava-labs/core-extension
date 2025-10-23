@@ -22,6 +22,7 @@ import {
   useMemo,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import { isConfirming } from '../../lib/isConfirming';
 import {
   useAssetIdentifier,
   useBridgeEnvironment,
@@ -69,6 +70,7 @@ export interface UnifiedBridgeContext {
   state: UnifiedBridgeState;
   availableChainIds: NetworkWithCaipId['caipId'][];
   isReady: boolean;
+  isTxConfirming: (txHash: string) => boolean;
 }
 
 const NextUnifiedBridgeContext = createContext<
@@ -148,6 +150,7 @@ export function NextUnifiedBridgeProvider({
       transferAsset,
       transferableAssets,
       sourceNetwork,
+      isTxConfirming: (txHash) => isConfirming(txHash, state.pendingTransfers),
     };
   }, [
     core,

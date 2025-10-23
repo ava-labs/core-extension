@@ -20,8 +20,10 @@ const BridgeStateContext = createContext<
   | undefined
   | {
       isReady: UnifiedBridgeContext['isReady'];
-      query: BridgeQueryContext;
       sourceChainIds: UnifiedBridgeContext['availableChainIds'];
+      transferAsset: UnifiedBridgeContext['transferAsset'];
+      state: UnifiedBridgeContext['state'];
+      query: BridgeQueryContext;
       sourceTokens: FungibleTokenBalance[];
       assets: BridgeAsset[];
       target: BridgeAsset | undefined;
@@ -31,8 +33,8 @@ const BridgeStateContext = createContext<
       targetNetworks: NetworkWithCaipId['caipId'][];
       targetNetworkId: NetworkWithCaipId['caipId'];
       targetToken: FungibleTokenBalance | undefined;
-      transferAsset: UnifiedBridgeContext['transferAsset'];
       flipPair: VoidFunction;
+      isTxConfirming: UnifiedBridgeContext['isTxConfirming'];
     }
 >(undefined);
 
@@ -46,6 +48,8 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     isReady,
     sourceNetwork,
     transferAsset,
+    state,
+    isTxConfirming,
   } = useNextUnifiedBridgeContext();
 
   const networksForToken = useMemo(
@@ -107,6 +111,8 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         targetToken,
         transferAsset,
         flipPair,
+        state,
+        isTxConfirming,
       }}
     >
       {children}

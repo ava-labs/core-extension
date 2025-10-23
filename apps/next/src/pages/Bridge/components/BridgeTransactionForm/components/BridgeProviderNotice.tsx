@@ -1,7 +1,7 @@
 import { BridgeType } from '@avalabs/bridge-unified';
 import { AvalancheHorizontalIcon, Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { useBridgeState } from '../contexts';
+import { useBridgeState } from '../../../contexts';
 
 export const BridgeProviderNotice = () => {
   const { t } = useTranslation();
