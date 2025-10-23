@@ -49,9 +49,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/avalanche-module@npm:1.10.3":
-  version: 1.10.3
-  resolution: "@avalabs/avalanche-module@npm:1.10.3"
+"@avalabs/avalanche-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244":
+  version: 0.0.0-feat-evm-gas-limit-updater-20251021095244
+  resolution: "@avalabs/avalanche-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
@@ -61,12 +61,12 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/types": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@metamask/rpc-errors": "npm:6.3.0"
     big.js: "npm:6.2.1"
     bn.js: "npm:5.2.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/81d03607fc4073f601c821d1ac0cb225b30438e187ec4cb4211b238d25240e5a285fc7c8e4d20131abf63f3c735c31c078605bccb3beb6d51be9a4d0ded16210
+  checksum: 10c0/d5ee22a57b81d30ec8b0e82bbf83c847f213cd73a48267f63cef0bec26834ac8fe1fe376733461d736e747afb79c8eeec570c334d7fc3db2e687ad9ce0c5d972
   languageName: node
   linkType: hard
 
@@ -96,20 +96,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/bitcoin-module@npm:1.10.3":
-  version: 1.10.3
-  resolution: "@avalabs/bitcoin-module@npm:1.10.3"
+"@avalabs/bitcoin-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244":
+  version: 0.0.0-feat-evm-gas-limit-updater-20251021095244
+  resolution: "@avalabs/bitcoin-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
   dependencies:
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@metamask/rpc-errors": "npm:6.3.0"
     big.js: "npm:6.2.1"
     bitcoinjs-lib: "npm:5.2.0"
     bn.js: "npm:5.2.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/479bcba323eba612cf0ff5d407c628b48b35425d537bccd0a77f446a311d66e3877006a46f0d9a3d6f96030e47ad0077ff7f67a3b449b1439c7bfb9370d248c7
+  checksum: 10c0/a9ee0e3b93e70c6ddb28e0015ee093f3954dcb848c97d2c20da7fce6a06f8a99fce35ae90cd26d62fbf866b71d305e39273bf015d33dba3c97d2564fc1a06c41
   languageName: node
   linkType: hard
 
@@ -291,9 +291,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/evm-module@npm:1.10.3":
-  version: 1.10.3
-  resolution: "@avalabs/evm-module@npm:1.10.3"
+"@avalabs/evm-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244":
+  version: 0.0.0-feat-evm-gas-limit-updater-20251021095244
+  resolution: "@avalabs/evm-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
   dependencies:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.61"
@@ -302,7 +302,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/types": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@blockaid/client": "npm:0.48.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@openzeppelin/contracts": "npm:4.9.6"
@@ -312,7 +312,7 @@ __metadata:
     zod: "npm:3.23.8"
   peerDependencies:
     ethers: 6.13.5
-  checksum: 10c0/7998be5d04f36b14159315c232733d8050ff3c943a2c85574b5650d9de033dac6080a0e2da57bf2d30954b156e45ffe8ec4080e7fb5dd2298d91507e63c03314
+  checksum: 10c0/5f95852a6a05235603067229ac8f790298224c2cd896b2c97e9fd788c4fb9396c49be0df3cf5b0c7212166462e6ef3208352a71e055e176d28dcf60469d0cfb2
   languageName: node
   linkType: hard
 
@@ -323,18 +323,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/hvm-module@npm:1.10.3":
-  version: 1.10.3
-  resolution: "@avalabs/hvm-module@npm:1.10.3"
+"@avalabs/hvm-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244":
+  version: 0.0.0-feat-evm-gas-limit-updater-20251021095244
+  resolution: "@avalabs/hvm-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@noble/hashes": "npm:1.5.0"
     "@scure/base": "npm:1.2.4"
     hypersdk-client: "npm:0.4.16"
     zod: "npm:3.23.8"
-  checksum: 10c0/84ca6dd876dcab128064ffc95b6dfa7dcdd8548cca5bb12d5012cd8104f49d0892d14b0934bc94fb4e4a0a92f38ae7cfa61f82d7d022537fedc3a759933ea0b6
+  checksum: 10c0/5d6c9265c38e65d902821e624233bd9dbb5041f1b45aba3082fc83b5446d764233e09d7f2bda061e7e98469f2cceb1d1666d8cf445097692bbf4df8dbaac4173
   languageName: node
   linkType: hard
 
@@ -372,15 +372,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/svm-module@npm:1.10.3":
-  version: 1.10.3
-  resolution: "@avalabs/svm-module@npm:1.10.3"
+"@avalabs/svm-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244":
+  version: 0.0.0-feat-evm-gas-limit-updater-20251021095244
+  resolution: "@avalabs/svm-module@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
   dependencies:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@blockaid/client": "npm:0.48.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@scure/base": "npm:1.2.4"
@@ -391,7 +391,7 @@ __metadata:
     "@wallet-standard/base": "npm:1.1.0"
     "@wallet-standard/features": "npm:1.1.0"
     zod: "npm:3.23.8"
-  checksum: 10c0/ce85c75e6669ab1cc65107be446fa13ca1213200d3add1fcb21abf7e11cdb4a852fac36bf67115203e630599a427a438ce9b83d1a8701a312356127ac13d26e1
+  checksum: 10c0/22e075e0b873a5f69be11c18ce1b40e58e31823a8a701cedf7ee10f06e1f9108183d41c8a77b217403425fe48262e794b60c79041f61dc0ee64536fdfe09d1e9
   languageName: node
   linkType: hard
 
@@ -402,9 +402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/vm-module-types@npm:1.10.3":
-  version: 1.10.3
-  resolution: "@avalabs/vm-module-types@npm:1.10.3"
+"@avalabs/vm-module-types@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244":
+  version: 0.0.0-feat-evm-gas-limit-updater-20251021095244
+  resolution: "@avalabs/vm-module-types@npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
   dependencies:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.61"
@@ -415,7 +415,7 @@ __metadata:
     zod: "npm:3.23.8"
   peerDependencies:
     ethers: 6.13.5
-  checksum: 10c0/384fa52495acfdb8cf630ca4759792ad8fa820aaa89ac31d6386c70909fbf36bbdccf83438359c4783ec4baba9d3831862a5f9a9a8c59d1c7838e34b52ccfb1e
+  checksum: 10c0/b53c1dfb5b25d6224ededbbc2c5a66d9c908f5fb8b30fac88a9cab7a10a56711c197889ac17bc1519016441b665458e75182c049dd753b98f235647f17318f83
   languageName: node
   linkType: hard
 
@@ -3676,9 +3676,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core-ext/legacy@workspace:apps/legacy"
   dependencies:
-    "@avalabs/avalanche-module": "npm:1.10.3"
+    "@avalabs/avalanche-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bitcoin-module": "npm:1.10.3"
+    "@avalabs/bitcoin-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/bridge-unified": "npm:4.0.3"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.63"
@@ -3691,13 +3691,13 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.63"
-    "@avalabs/evm-module": "npm:1.10.3"
+    "@avalabs/evm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.63"
-    "@avalabs/hvm-module": "npm:1.10.3"
+    "@avalabs/hvm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/svm-module": "npm:1.10.3"
+    "@avalabs/svm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/types": "npm:3.1.0-alpha.63"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-react": "npm:7.24.1"
@@ -3868,7 +3868,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/k2-alpine": "npm:1.235.0"
     "@avalabs/types": "npm:3.1.0-alpha.63"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-react": "npm:7.24.1"
@@ -4029,8 +4029,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/inpage@workspace:packages/inpage"
   dependencies:
-    "@avalabs/evm-module": "npm:1.10.3"
-    "@avalabs/svm-module": "npm:1.10.3"
+    "@avalabs/evm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
+    "@avalabs/svm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@core/common": "workspace:*"
     "@core/messaging": "workspace:*"
     "@core/types": "workspace:*"
@@ -4113,9 +4113,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/service-worker@workspace:packages/service-worker"
   dependencies:
-    "@avalabs/avalanche-module": "npm:1.10.3"
+    "@avalabs/avalanche-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bitcoin-module": "npm:1.10.3"
+    "@avalabs/bitcoin-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/bridge-unified": "npm:4.0.3"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.63"
@@ -4127,13 +4127,13 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.63"
-    "@avalabs/evm-module": "npm:1.10.3"
+    "@avalabs/evm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.63"
-    "@avalabs/hvm-module": "npm:1.10.3"
+    "@avalabs/hvm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/svm-module": "npm:1.10.3"
+    "@avalabs/svm-module": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@avalabs/types": "npm:3.1.0-alpha.63"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-typescript": "npm:7.24.1"
@@ -4295,7 +4295,7 @@ __metadata:
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.63"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.63"
-    "@avalabs/vm-module-types": "npm:1.10.3"
+    "@avalabs/vm-module-types": "npm:0.0.0-feat-evm-gas-limit-updater-20251021095244"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
     "@eslint/compat": "npm:1.2.4"

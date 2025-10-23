@@ -8,14 +8,14 @@ import { SlideUpDialog } from '@/components/Dialog';
 
 import { FeePresetButton } from '../../../generic/NetworkFee';
 import { CustomGasSettings } from './CustomGasSettings';
-import { EvmFeePreset } from '../types';
+import { EvmFeePreset, EvmGasSettings } from '../types';
 
 type FeePresetSelectorProps = {
   gasLimit: number;
   feePreset: EvmFeePreset;
   customPreset?: FeeRate;
   nativeToken: NativeTokenBalance;
-  choosePreset: (preset: EvmFeePreset, feeRate?: FeeRate) => void;
+  choosePreset: (preset: EvmFeePreset, evmGasSettings?: EvmGasSettings) => void;
   feeDecimals: number;
 };
 

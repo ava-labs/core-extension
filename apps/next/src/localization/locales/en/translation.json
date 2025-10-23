@@ -604,7 +604,7 @@
   "Total balance": "Total balance",
   "Total network fee": "Total network fee",
   "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.": "Total network fee = (current base fee + max priority fee) × gas limit. It will never be higher than max base fee × gas limit.",
-  "Total units of gas needed to complete the transaction. Editing is not possible at this time.": "Total units of gas needed to complete the transaction. Editing is not possible at this time.",
+  "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.": "Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.",
   "Transaction has been blocked": "Transaction has been blocked",
   "Transaction has been cancelled": "Transaction has been cancelled",
   "Transaction has been rejected": "Transaction has been rejected",

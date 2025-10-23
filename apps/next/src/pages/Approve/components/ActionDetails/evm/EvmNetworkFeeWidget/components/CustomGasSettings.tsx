@@ -11,6 +11,7 @@ import { Page } from '@/components/Page';
 
 import { DetailsSection } from '../../../generic/DetailsSection';
 import { TxDetailsRow } from '../../../generic/DetailsItem/items/DetailRow';
+import { EvmGasSettings } from '../types';
 import { InvisibileInput } from '@/components/Forms/InvisibleInput';
 
 type CustomGasSettingsProps = {
@@ -18,7 +19,7 @@ type CustomGasSettingsProps = {
   customPreset: FeeRate;
   nativeToken: NativeTokenBalance;
   gasLimit: number;
-  onSave: (feeRate: FeeRate) => void;
+  onSave: (feeRate: EvmGasSettings) => void;
   feeDecimals: number;
 };
 
@@ -41,6 +42,9 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
   const [customMaxTipString, setCustomMaxTipString] = useState(
     formatUnits(customPreset.maxPriorityFeePerGas ?? 1n, feeDecimals),
   );
+  const [customGasLimitString, setCustomGasLimitString] = useState(
+    gasLimit.toString(),
+  );
 
   const fees = calculateGasAndFees({
     maxFeePerGas: customMaxFeeString
@@ -48,7 +52,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
       : customPreset.maxFeePerGas,
     tokenPrice: nativeToken.priceInCurrency,
     tokenDecimals: nativeToken.decimals,
-    gasLimit,
+    gasLimit: customGasLimitString ? Number(customGasLimitString) : gasLimit,
   });
 
   const totalFeeInCurrency = fees?.feeUSD ?? null;
@@ -87,6 +91,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
     onSave({
       maxFeePerGas: parseUnits(customMaxFeeString, feeDecimals),
       maxPriorityFeePerGas: parseUnits(customMaxTipString, feeDecimals),
+      gasLimit: customGasLimitString ? Number(customGasLimitString) : undefined, // If user erases it completely, do not save it.
     });
   };
 
@@ -141,10 +146,15 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
           <TxDetailsRow
             label={t('Gas limit')}
             tooltip={t(
-              'Total units of gas needed to complete the transaction. Editing is not possible at this time.',
+              'Total units of gas needed to complete the transaction. Setting it too low may cause the transaction to fail.',
             )}
           >
-            <FeeInput readOnly defaultValue={gasLimit} />
+            <FeeInput
+              defaultValue={gasLimit}
+              onChange={(ev) => {
+                setCustomGasLimitString(ev.currentTarget.value || '0');
+              }}
+            />
           </TxDetailsRow>
         </DetailsSection>
         <DetailsSection>
