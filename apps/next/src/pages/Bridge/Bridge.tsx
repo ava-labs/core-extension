@@ -1,135 +1,50 @@
-import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
-import { useAccountsContext, useLiveBalance } from '@core/ui';
-import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useLiveBalance } from '@core/ui';
+import { FC } from 'react';
 
-import { AccountSelect } from '@/components/AccountSelect';
 import { Page } from '@/components/Page';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { stringToBigint } from '@core/common';
-import {
-  BannerTop,
-  BridgeControls,
-  BridgeErrorMessage,
-  BridgeProviderNotice,
-  CoreFeeNotice,
-} from './components';
+import { useTranslation } from 'react-i18next';
+import { BridgeInProgress } from './components/BridgeInProgress';
+import { BridgeTransactionForm } from './components/BridgeTransactionForm';
 import {
   BridgeQueryProvider,
   BridgeStateProvider,
-  NextUnifiedBridgeProvider,
-  useBridgeState,
+  useBridgeQuery,
   useNextUnifiedBridgeContext,
 } from './contexts';
+import { getPageContentProps } from './lib/getPageContentProps';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
-const contentProps: StackProps = {
-  justifyContent: 'flex-start',
-  alignItems: 'stretch',
-  width: 1,
-  height: 1,
-  gap: 0.5,
-};
 
 const BridgePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);
-
   const { t } = useTranslation();
-  const {
-    accounts: { active },
-    selectAccount,
-  } = useAccountsContext();
-  const [accountQuery, setAccountQuery] = useState('');
-  const [bridgeError, setBridgeError] = useState<string>('');
-  const {
-    transferAsset,
-    target,
-    query: { amount, updateQuery },
-    targetNetworkId,
-  } = useBridgeState();
+  const { isReady, isTxConfirming } = useNextUnifiedBridgeContext();
+  const { transactionId } = useBridgeQuery();
 
-  const canExecuteBridge = target && amount && targetNetworkId;
-
-  const performBridge = () => {
-    if (!canExecuteBridge) {
-      return;
-    }
-
-    transferAsset(
-      target.symbol,
-      stringToBigint(amount, target.decimals),
-      targetNetworkId,
-    )
-      .then((txHash) => {
-        if (txHash) {
-          setBridgeError('');
-        } else {
-          throw new Error('Missing tx hash');
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        setBridgeError(t('Failed to bridge'));
-      });
-  };
-
-  const isConfirming = false;
-  const isAmountLoading = false;
-
-  return (
-    <Page title={t('Bridge')} withBackButton contentProps={contentProps}>
-      <Stack gap={1}>
-        <BannerTop />
-        <AccountSelect
-          addressType="C"
-          value={active}
-          query={accountQuery}
-          onValueChange={(newAccount) => {
-            selectAccount(newAccount.id);
-            updateQuery({
-              amount: '',
-            });
-          }}
-          onQueryChange={setAccountQuery}
-        />
-        <BridgeControls />
-      </Stack>
-      <BridgeErrorMessage error={bridgeError} />
-      <CoreFeeNotice />
-      <Stack
-        width="100%"
-        flexGrow={1}
-        justifyContent="flex-end"
-        gap={1}
-        textAlign="center"
-      >
-        <BridgeProviderNotice />
-        <Button
-          fullWidth
-          size="extension"
-          variant="contained"
-          color="primary"
-          onClick={performBridge}
-          disabled={isConfirming || isAmountLoading}
-          loading={isConfirming || isAmountLoading}
-        >
-          {t('Bridge')}
-        </Button>
-      </Stack>
-    </Page>
-  );
-};
-
-const BridgePageLoader: FC = () => {
-  const { isReady } = useNextUnifiedBridgeContext();
   if (!isReady) {
     return <LoadingScreen />;
   }
+
+  const isConfirming = isTxConfirming(transactionId); // || true; // TODO: remove this before merging
+  const title = isConfirming
+    ? t('Bridge transfer in progress...')
+    : t('Bridge');
+  const BridgeStatePage = isConfirming
+    ? BridgeInProgress
+    : BridgeTransactionForm;
+
   return (
     <BridgeStateProvider>
-      <BridgePage />
+      <Page
+        title={title}
+        withBackButton
+        contentProps={getPageContentProps(isConfirming)}
+      >
+        <BridgeStatePage />
+      </Page>
     </BridgeStateProvider>
   );
 };
@@ -137,11 +52,7 @@ const BridgePageLoader: FC = () => {
 export const Bridge = () => {
   return (
     <BridgeQueryProvider>
-      {({ sourceNetwork }) => (
-        <NextUnifiedBridgeProvider sourceNetworkId={sourceNetwork}>
-          <BridgePageLoader />
-        </NextUnifiedBridgeProvider>
-      )}
+      <BridgePage />
     </BridgeQueryProvider>
   );
 };

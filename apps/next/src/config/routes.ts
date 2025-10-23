@@ -80,6 +80,7 @@ export const BRIDGE_QUERY_TOKENS = {
   sourceToken: 'srcToken',
   sourceTokenQuery: 'srcTokenQ',
   amount: 'amount',
+  transactionId: 'txId',
 };
 export type BridgeQueryTokens = typeof BRIDGE_QUERY_TOKENS;
 export const getBridgePath = (query?: Partial<BridgeQueryTokens>) => {

@@ -2,7 +2,7 @@ import { MenuItem, SelectProps, Stack, Typography } from '@avalabs/k2-alpine';
 import { NetworkWithCaipId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { FC } from 'react';
-import * as Styled from './Styled';
+import * as Styled from '../../../../Styled';
 
 type Props = {
   label: string;

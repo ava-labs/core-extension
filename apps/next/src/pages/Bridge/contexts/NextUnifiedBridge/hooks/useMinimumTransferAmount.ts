@@ -5,16 +5,18 @@ import { useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildChain } from '../utils';
 
-export function useMinimumTransferAmount(
-  core: UnifiedBridgeService | null,
-  sourceNetwork: NetworkWithCaipId | undefined,
-) {
+export function useMinimumTransferAmount(core: UnifiedBridgeService | null) {
   const { getNetwork } = useNetworkContext();
 
   const getMinimumTransferAmount = useCallback(
-    async (asset: BridgeAsset, amount: bigint, targetChainId: string) => {
+    async (
+      asset: BridgeAsset,
+      amount: bigint,
+      sourceNetworkId: NetworkWithCaipId['caipId'],
+      targetChainId: string,
+    ) => {
+      const sourceNetwork = getNetwork(sourceNetworkId);
       assert(core, CommonError.Unknown);
-      assert(sourceNetwork, CommonError.NoActiveNetwork);
 
       return core.getMinimumTransferAmount({
         asset,
@@ -23,7 +25,7 @@ export function useMinimumTransferAmount(
         targetChain: buildChain(getNetwork(targetChainId)),
       });
     },
-    [core, sourceNetwork, getNetwork],
+    [core, getNetwork],
   );
 
   return getMinimumTransferAmount;

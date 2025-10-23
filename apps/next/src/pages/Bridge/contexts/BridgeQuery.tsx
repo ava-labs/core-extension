@@ -6,8 +6,7 @@ import {
 import {
   createContext,
   FC,
-  isValidElement,
-  ReactNode,
+  PropsWithChildren,
   use,
   useCallback,
   useMemo,
@@ -24,11 +23,7 @@ const BridgeQueryContext = createContext<BridgeQueryContext | undefined>(
 );
 export type QueryUpdateFn = (payload: Partial<BridgeQueryTokens>) => void;
 
-type Props = {
-  children: (context: BridgeQueryContext) => ReactNode | ReactNode;
-};
-
-export const BridgeQueryProvider: FC<Props> = ({ children }) => {
+export const BridgeQueryProvider: FC<PropsWithChildren> = ({ children }) => {
   const {
     replace,
     location: { search },
@@ -68,9 +63,7 @@ export const BridgeQueryProvider: FC<Props> = ({ children }) => {
   }, [search, updateQuery]);
 
   return (
-    <BridgeQueryContext value={contextValue}>
-      {isValidElement(children) ? children : children(contextValue)}
-    </BridgeQueryContext>
+    <BridgeQueryContext value={contextValue}>{children}</BridgeQueryContext>
   );
 };
 

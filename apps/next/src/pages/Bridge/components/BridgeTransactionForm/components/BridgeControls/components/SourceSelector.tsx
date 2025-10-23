@@ -3,8 +3,8 @@ import { TokenAmountInput } from '@/components/TokenAmountInput';
 import { useBridgeState } from '@/pages/Bridge/contexts';
 import { FC, FocusEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import * as Styled from '../../../../Styled';
 import { NetworkSelect } from './NetworkSelect';
-import * as Styled from './Styled';
 import { UseCrossChainTransferInfo } from './UseCrossChainTransferInfo';
 
 type Props = {

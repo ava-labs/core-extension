@@ -1,6 +1,6 @@
 import { Collapse, Stack } from '@avalabs/k2-alpine';
 import { FC, useState } from 'react';
-import { useBridgeState } from '../../contexts';
+import { useBridgeState } from '../../../../contexts';
 import { PairFlipper } from './components/PairFlipper';
 import { SourceSelector } from './components/SourceSelector';
 import { TargetSelector } from './components/TargetSelector';

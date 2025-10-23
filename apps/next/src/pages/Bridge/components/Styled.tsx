@@ -1,47 +1,20 @@
+import { Select as NextSelect } from '@/components/Select';
 import {
-  Box,
-  Stack,
-  StackProps,
-  Tooltip,
-  Typography,
+  Divider as K2Divider,
+  selectClasses,
+  styled,
 } from '@avalabs/k2-alpine';
-import { FC } from 'react';
-import { MdInfoOutline } from 'react-icons/md';
 
-type SettingRowProps = StackProps & {
-  title: string;
-  tooltip?: string;
-};
+export const Select = styled(NextSelect)({
+  [`&.${selectClasses.root}`]: {
+    backgroundColor: 'transparent',
+  },
+  [`& .${selectClasses.select}`]: {
+    width: 'auto',
+    marginInlineStart: 'auto',
+  },
+});
 
-export const SettingRow: FC<SettingRowProps> = ({
-  title,
-  tooltip,
-  children,
-  ...props
-}) => (
-  <Stack
-    direction="row"
-    justifyContent="space-between"
-    alignItems="center"
-    py={1}
-    {...props}
-  >
-    <Stack direction="row" gap={0.5} alignItems="center">
-      <Typography variant="body3">{title}</Typography>
-
-      {tooltip && (
-        <Tooltip title={tooltip}>
-          <Box
-            display="flex"
-            flexShrink={0}
-            lineHeight={1}
-            color="text.secondary"
-          >
-            <MdInfoOutline color="text.secondary" size={16} />
-          </Box>
-        </Tooltip>
-      )}
-    </Stack>
-    {children}
-  </Stack>
-);
+export const Divider = styled(K2Divider)(({ theme }) => ({
+  marginInline: theme.spacing(1.5),
+}));
