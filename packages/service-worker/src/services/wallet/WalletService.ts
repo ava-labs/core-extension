@@ -19,6 +19,8 @@ import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
   getProviderForNetwork,
+  hasAtLeastOneElement,
+  isNotNullish,
   isPchainNetwork,
   isPrimaryAccount,
   isSolanaNetwork,
@@ -33,6 +35,7 @@ import {
   CommonError,
   FIREBLOCKS_REQUEST_EXPIRY,
   isAvalancheModuleTransactionRequest,
+  isMultiSigAvalancheTxRequest,
   isSolanaMsgRequest,
   isSolanaRequest,
   LedgerError,
@@ -95,6 +98,7 @@ import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { isTypedData } from '@avalabs/evm-module';
 import { isPersonalSign } from './utils/isPersonalSignRequest';
 import { rpcMethodToMessageType } from './utils/rpcMethodToMessageType';
+import { hex } from '@scure/base';
 @singleton()
 export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
@@ -186,10 +190,11 @@ export class WalletService implements OnUnlock {
   async #getSeedlessWallet(
     secrets: AccountWithSeedlessSecrets,
     network: Network,
-    accountIndex?: number,
+    accountIndex?: number | number[],
   ) {
-    const accountIndexToUse =
-      accountIndex === undefined ? secrets.account.index : accountIndex;
+    const accountIndices = Array.isArray(accountIndex)
+      ? accountIndex
+      : [accountIndex ?? secrets.account.index];
 
     const vmName =
       isXchainNetwork(network) || isPchainNetwork(network)
@@ -200,26 +205,28 @@ export class WalletService implements OnUnlock {
 
     const curve = isSolanaNetwork(network) ? 'ed25519' : 'secp256k1';
 
-    const derivationPaths = await this.addressResolver.getDerivationPathsByVM(
-      accountIndexToUse,
-      secrets.derivationPathSpec,
-      [vmName],
+    const derivationPaths = await Promise.all(
+      accountIndices.map((index) =>
+        this.addressResolver.getDerivationPathsByVM(
+          index,
+          secrets.derivationPathSpec,
+          [vmName],
+        ),
+      ),
     );
 
-    const addressPublicKey = getPublicKeyFor(
-      secrets,
-      derivationPaths[vmName],
-      curve,
-    );
+    const addressPublicKeys = derivationPaths
+      .map((pathsByVm) => getPublicKeyFor(secrets, pathsByVm[vmName], curve))
+      .filter(isNotNullish);
 
-    if (!addressPublicKey) {
-      throw new Error('Account public key not available');
+    if (!hasAtLeastOneElement(addressPublicKeys)) {
+      throw new Error('Account public keys not available');
     }
 
     return new SeedlessWallet({
       networkService: this.networkService,
       sessionStorage: new SeedlessTokenStorage(this.secretService),
-      addressPublicKey,
+      addressPublicKeys,
       network,
       sessionManager: container.resolve(SeedlessSessionManager),
     });
@@ -232,7 +239,7 @@ export class WalletService implements OnUnlock {
   }: {
     network: Network;
     tabId?: number;
-    accountIndex?: number;
+    accountIndex?: number | number[];
   }) {
     const activeAccount = await this.accountsService.getActiveAccount();
     if (!activeAccount) {
@@ -244,6 +251,20 @@ export class WalletService implements OnUnlock {
       return;
     }
     const { secretType } = secrets;
+
+    if (Array.isArray(accountIndex)) {
+      if (secretType === SecretType.LedgerLive) {
+        return new Avalanche.LedgerLiveSigner(accountIndex);
+      }
+
+      if (secretType === SecretType.Seedless) {
+        return this.#getSeedlessWallet(secrets, network, accountIndex);
+      }
+
+      throw new Error(
+        'An array of account indices can only be used with Seedless and LedgerLive wallets',
+      );
+    }
 
     // Solana
     if (network.vmName === NetworkVMType.SVM) {
@@ -688,6 +709,9 @@ export class WalletService implements OnUnlock {
     const wallet = await this.getWallet({
       network,
       tabId,
+      accountIndex: isMultiSigAvalancheTxRequest(tx)
+        ? tx.externalIndices
+        : undefined,
     });
 
     if (!wallet) {
@@ -846,6 +870,7 @@ export class WalletService implements OnUnlock {
         !(wallet instanceof Avalanche.StaticSigner) &&
         !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
         !(wallet instanceof Avalanche.LedgerSigner) &&
+        !(wallet instanceof Avalanche.LedgerLiveSigner) &&
         !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
@@ -856,7 +881,8 @@ export class WalletService implements OnUnlock {
       const txToSign = {
         tx: tx.tx,
         ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
-          wallet instanceof Avalanche.LedgerSigner) && {
+          wallet instanceof Avalanche.LedgerSigner ||
+          wallet instanceof Avalanche.LedgerLiveSigner) && {
           transport: this.ledgerService.recentTransport,
         }),
         externalIndices: tx.externalIndices,
@@ -1263,8 +1289,31 @@ export class WalletService implements OnUnlock {
     const secrets =
       await this.secretService.getPrimaryAccountSecrets(activeAccount);
 
-    if (!secrets || !('extendedPublicKeys' in secrets)) {
+    if (!secrets) {
       return [];
+    }
+
+    if (
+      secrets.secretType === SecretType.LedgerLive ||
+      secrets.secretType === SecretType.Seedless
+    ) {
+      const derivationPaths = indices.map((index) =>
+        getAddressDerivationPath(
+          index,
+          secrets.derivationPathSpec,
+          chainAlias === 'X' ? 'AVM' : 'PVM',
+        ),
+      );
+
+      const publicKeys = derivationPaths
+        .map((derivationPath) =>
+          getPublicKeyFor(secrets, derivationPath, 'secp256k1'),
+        )
+        .filter(isNotNullish);
+
+      return publicKeys.map((publicKey) =>
+        provXP.getAddress(Buffer.from(hex.decode(publicKey.key)), chainAlias),
+      );
     }
 
     if (isChange && chainAlias !== 'X') {

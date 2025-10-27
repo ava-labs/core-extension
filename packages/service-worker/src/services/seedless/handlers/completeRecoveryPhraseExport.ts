@@ -49,7 +49,7 @@ export class CompleteRecoveryPhraseExportHandler implements HandlerType {
     const wallet = new SeedlessWallet({
       networkService: this.networkService,
       sessionStorage: new SeedlessTokenStorage(this.secretsService),
-      addressPublicKey: secrets.publicKeys[0],
+      addressPublicKeys: secrets.publicKeys,
       mfaService: this.seedlessMfaService,
     });
 
