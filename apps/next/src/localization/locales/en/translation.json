@@ -554,6 +554,8 @@
   "Swap transaction succeeded! 🎉": "Swap transaction succeeded! 🎉",
   "System": "System",
   "Testnet mode": "Testnet mode",
+  "Testnet mode is off": "Testnet mode is off",
+  "Testnet mode is on": "Testnet mode is on",
   "That's it!": "That's it!",
   "The active account does not support Bitcoin.": "The active account does not support Bitcoin.",
   "The amount cannot be lower than the bridging fee": "The amount cannot be lower than the bridging fee",
