@@ -314,9 +314,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       wallet = new SeedlessWallet({
         networkService,
         sessionStorage,
-        addressPublicKey: {
-          key: strip0x(solanaKey.publicKey),
-        } as any,
+        addressPublicKeys: [
+          {
+            key: strip0x(solanaKey.publicKey),
+          } as any,
+        ],
       });
     });
 
@@ -390,9 +392,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: 'la la la',
-          } as any,
+          addressPublicKeys: [
+            {
+              key: 'la la la',
+            } as any,
+          ],
         });
       });
 
@@ -409,9 +413,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: 'la la la',
-          } as any,
+          addressPublicKeys: [
+            {
+              key: 'la la la',
+            } as any,
+          ],
           network: {} as any,
         });
       });
@@ -442,9 +448,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: 'la la la',
-          } as any,
+          addressPublicKeys: [
+            {
+              key: 'la la la',
+            } as any,
+          ],
           network: { vmName: NetworkVMType.EVM } as any,
           sessionManager,
         });
@@ -542,9 +550,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+          addressPublicKeys: [
+            {
+              key: strip0x(evmKey.publicKey),
+            } as any,
+          ],
           network: {} as any,
           sessionManager,
         });
@@ -611,9 +621,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: strip0x(avaKey.publicKey),
-          } as any,
+          addressPublicKeys: [
+            {
+              key: strip0x(avaKey.publicKey),
+            } as any,
+          ],
           network: {} as any,
           sessionManager,
         });
@@ -726,9 +738,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+          addressPublicKeys: [
+            {
+              key: strip0x(evmKey.publicKey),
+            } as any,
+          ],
           network: {} as any,
           sessionManager,
         });
@@ -825,9 +839,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+          addressPublicKeys: [
+            {
+              key: strip0x(evmKey.publicKey),
+            } as any,
+          ],
           sessionManager,
         });
 
@@ -892,9 +908,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+          addressPublicKeys: [
+            {
+              key: strip0x(evmKey.publicKey),
+            } as any,
+          ],
           network: {} as any,
         });
       });
@@ -903,9 +921,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: '',
-          } as any,
+          addressPublicKeys: [
+            {
+              key: '',
+            } as any,
+          ],
           network: {} as any,
         });
 
@@ -941,9 +961,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       wallet = new SeedlessWallet({
         networkService,
         sessionStorage,
-        addressPublicKey: {
-          key: strip0x(evmKey.publicKey),
-        } as any,
+        addressPublicKeys: [
+          {
+            key: strip0x(evmKey.publicKey),
+          } as any,
+        ],
         network: {} as any,
       });
 
@@ -979,9 +1001,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       wallet = new SeedlessWallet({
         networkService,
         sessionStorage,
-        addressPublicKey: {
-          key: strip0x(evmKey.publicKey),
-        } as any,
+        addressPublicKeys: [
+          {
+            key: strip0x(evmKey.publicKey),
+          } as any,
+        ],
       });
 
       global.fetch = jest.fn().mockResolvedValue({
@@ -1013,9 +1037,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: 'uknown key',
-          } as any,
+          addressPublicKeys: [
+            {
+              key: 'uknown key',
+            } as any,
+          ],
         });
       });
 
@@ -1130,9 +1156,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: {
-            key: strip0x(evmKey.publicKey),
-          } as any,
+          addressPublicKeys: [
+            {
+              key: strip0x(evmKey.publicKey),
+            } as any,
+          ],
           network: { chainId: ChainId.BITCOIN } as any,
         });
       });
@@ -1181,7 +1209,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         wallet = new SeedlessWallet({
           networkService,
           sessionStorage,
-          addressPublicKey: pubKey,
+          addressPublicKeys: [pubKey],
           network,
           sessionManager,
         });
@@ -1287,9 +1315,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       wallet = new SeedlessWallet({
         networkService,
         sessionStorage,
-        addressPublicKey: {
-          key: strip0x(evmKey.publicKey),
-        } as any,
+        addressPublicKeys: [
+          {
+            key: strip0x(evmKey.publicKey),
+          } as any,
+        ],
         mfaService,
       });
     });
