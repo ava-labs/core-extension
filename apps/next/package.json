@@ -22,7 +22,7 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.63",
     "@avalabs/k2-alpine": "1.235.0",
     "@avalabs/types": "3.1.0-alpha.63",
-    "@avalabs/vm-module-types": "0.0.0-feat-evm-gas-limit-updater-20251021095244",
+    "@avalabs/vm-module-types": "1.11.0",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",
