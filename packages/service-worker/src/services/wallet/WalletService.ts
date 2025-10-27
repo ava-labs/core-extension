@@ -261,9 +261,9 @@ export class WalletService implements OnUnlock {
         return this.#getSeedlessWallet(secrets, network, accountIndex);
       }
 
-      throw new Error(
-        'An array of account indices can only be used with Seedless and LedgerLive wallets',
-      );
+      // Other wallets only accept a single account index, but then they are also able
+      // to derive the public keys they need based on the extended public keys or the seedphrase.
+      accountIndex = accountIndex[0];
     }
 
     // Solana
