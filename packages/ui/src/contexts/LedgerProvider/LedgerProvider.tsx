@@ -552,26 +552,12 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
           statusCode: error.statusCode,
           name: error.name,
         });
-
+        console.log({ error });
         // Check if this looks like a device lock error
         const isLockError =
-          error?.statusCode === 0x6985 || // Conditions not satisfied
-          error?.statusCode === 0x6e00 || // CLA not supported
-          error?.statusCode === 0x6d00 || // INS not supported
-          error?.statusCode === 0x5515 || // Device locked
-          error?.statusCode === 0x6700 || // Wrong length
-          error?.statusCode === 0x6f00 || // Technical problem
-          error?.statusCode === 0x6faa || // Halted execution
-          error?.message?.includes('UNKNOWN_ERROR') ||
-          error?.message?.includes('Device locked') ||
-          error?.message?.includes('PIN') ||
-          error?.message?.includes('timeout') ||
-          error?.message?.includes('TIMEOUT') ||
-          error?.message?.includes('Invalid status') ||
-          error?.name === 'TransportStatusError' ||
-          error?.name === 'TimeoutError' ||
-          // Catch any communication errors that might indicate lock
-          (error?.statusCode && error?.statusCode !== 0x9000);
+          error?.statusCode === 21781 || // Device locked
+          error?.statusCode === 0x6b0c || // Something went wrong
+          error?.message?.includes('Device locked');
 
         if (isLockError && app) {
           // Device appears to be locked, clearing transport but keeping heartbeat running
@@ -590,8 +576,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     // Start heartbeat every 5 seconds
     const heartbeatInterval = setInterval(performHeartbeat, 5000);
 
-    // Perform initial heartbeat after a short delay
-    setTimeout(performHeartbeat, 2000);
+    performHeartbeat();
 
     return () => {
       if (heartbeatInterval) {
