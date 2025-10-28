@@ -495,21 +495,12 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     setLedgerVersionWarningClosed(result);
   }, [request]);
 
-  useEffect(() => {
-    console.log({ hasLedgerTransport: !!app });
-  }, [app]);
-
   // Ledger Stax getting locked when connected via USB needs to be detected and the transport needs to be cleared
   // Heartbeat mechanism is being used to detect device lock
   useEffect(() => {
-    // Keep monitoring even if app is cleared, but only if transport exists
-    if (!transportRef.current) {
-      return;
-    }
-
     let isCheckingHeartbeat = false;
 
-    const performHeartbeat = async () => {
+    const checkHeartbeat = async () => {
       if (isCheckingHeartbeat || !transportRef.current) {
         return;
       }
@@ -519,19 +510,8 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       try {
         if (!app) {
           // No app instance - try to re-establish connection
-          console.log('Attempting to re-establish Ledger connection...');
-          const newApp = await initLedgerApp(transportRef.current);
-          if (newApp) {
-            console.log('Ledger connection re-established');
-            console.log({ hasLedgerTransport: true });
-          }
+          await initLedgerApp(transportRef.current);
         } else {
-          // Send a low-level transport command that should fail when device is locked
-          // Use a direct APDU command rather than high-level app methods
-          console.log(
-            'Testing device responsiveness with direct transport command...',
-          );
-
           // Send a simple GET_VERSION command which should always require device interaction
           await transportRef.current.send(
             0xe0, // CLA - Generic command class
@@ -541,18 +521,8 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
             Buffer.alloc(0), // Data
             [0x9000], // Expected status code for success
           );
-
-          console.log(
-            'Ledger heartbeat: device responsive (direct transport test passed)',
-          );
         }
       } catch (error: any) {
-        console.log('Ledger heartbeat failed - device may be locked:', {
-          error: error.message,
-          statusCode: error.statusCode,
-          name: error.name,
-        });
-        console.log({ error });
         // Check if this looks like a device lock error
         const isLockError =
           error?.statusCode === 21781 || // Device locked
@@ -561,22 +531,18 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
 
         if (isLockError && app) {
           // Device appears to be locked, clearing transport but keeping heartbeat running
-          console.log(
-            'Device appears to be locked, clearing app but continuing to monitor',
-          );
           setApp(undefined);
           setAppType(LedgerAppType.UNKNOWN);
-          console.log({ hasLedgerTransport: false });
         }
       } finally {
         isCheckingHeartbeat = false;
       }
     };
 
-    // Start heartbeat every 5 seconds
-    const heartbeatInterval = setInterval(performHeartbeat, 5000);
+    // Start heartbeat every 3 seconds
+    const heartbeatInterval = setInterval(checkHeartbeat, 3000);
 
-    performHeartbeat();
+    checkHeartbeat();
 
     return () => {
       if (heartbeatInterval) {
