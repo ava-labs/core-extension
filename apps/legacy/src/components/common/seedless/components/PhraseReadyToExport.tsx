@@ -79,7 +79,13 @@ export const PhraseReadyToExport = ({
           {t('Recovery Phrase')}
         </Typography>
         <Card sx={{ backgroundColor: 'grey.850' }}>
-          <CardContent sx={{ px: 2, filter: mnemonic ? 'none' : 'blur(5px)' }}>
+          <CardContent
+            sx={{
+              px: 2,
+              filter: mnemonic ? 'none' : 'blur(5px)',
+              userSelect: mnemonic ? 'auto' : 'none',
+            }}
+          >
             <Typography variant="body2">
               {mnemonic || PLACEHOLDER_MNEMONIC}
             </Typography>
