@@ -539,7 +539,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       }
     };
 
-    // Start heartbeat every 3 seconds
+    // Check heartbeat every 3 seconds to detect if the device is locked (3 seconds might be too excessive, but it's a good starting point to avoid false positives)
     const heartbeatInterval = setInterval(checkHeartbeat, 3000);
 
     checkHeartbeat();
