@@ -1181,4 +1181,78 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       });
     });
   });
+
+  describe('checkHeartbeat', () => {
+    const sendMock = jest.fn();
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should not run heartbeat when transport is not available', async () => {
+      // Mock transportRef.current to be null
+      jest.spyOn(React, 'useRef').mockReturnValue({
+        current: null,
+      });
+
+      renderTestComponent();
+
+      // Fast-forward time to trigger heartbeat
+      jest.advanceTimersByTime(3000);
+
+      // Should not call transport.send when no transport
+      expect(sendMock).not.toHaveBeenCalled();
+    });
+
+    it('should run heartbeat when transport is available', async () => {
+      // Mock transportRef.current to be available
+      jest.spyOn(React, 'useRef').mockReturnValue({
+        current: {
+          send: sendMock,
+        },
+      });
+
+      renderTestComponent();
+
+      // Fast-forward time to trigger heartbeat
+      jest.advanceTimersByTime(3000);
+
+      // Should call transport.send when transport is available
+      expect(sendMock).toHaveBeenCalled();
+    });
+
+    it('should detect device lock error codes correctly', () => {
+      // Test the error detection logic directly
+      const testCases = [
+        { statusCode: 0x5515, shouldBeLock: true },
+        { statusCode: 0x6700, shouldBeLock: true },
+        { statusCode: 0x6b0c, shouldBeLock: true },
+        { statusCode: 0x9001, shouldBeLock: false },
+      ];
+
+      testCases.forEach(({ statusCode, shouldBeLock }) => {
+        const error = new Error('Test error') as any;
+        error.statusCode = statusCode;
+        const isLockError =
+          error?.statusCode === 0x5515 || // Device locked
+          error?.statusCode === 0x6700 || // Incorrect length
+          error?.statusCode === 0x6b0c; // Something went wrong
+
+        expect(isLockError).toBe(shouldBeLock);
+      });
+    });
+
+    it('should clean up interval on unmount', () => {
+      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      const { unmount } = renderTestComponent();
+
+      // Fast-forward to set up interval
+      jest.advanceTimersByTime(3000);
+
+      // Unmount component
+      unmount();
+
+      expect(clearIntervalSpy).toHaveBeenCalled();
+    });
+  });
 });

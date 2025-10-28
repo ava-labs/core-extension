@@ -525,9 +525,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       } catch (error: any) {
         // Check if this looks like a device lock error
         const isLockError =
-          error?.statusCode === 21781 || // Device locked
-          error?.statusCode === 0x6b0c || // Something went wrong
-          error?.message?.includes('Device locked');
+          error?.statusCode === 0x5515 || // Device locked
+          error?.statusCode === 0x6700 || // Incorrect length
+          error?.statusCode === 0x6b0c; // Something went wrong
 
         if (isLockError && app) {
           // Device appears to be locked, clearing transport but keeping heartbeat running
