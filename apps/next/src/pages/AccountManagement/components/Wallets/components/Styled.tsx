@@ -29,15 +29,16 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
     justifyContent: 'unset',
   },
   '& .accordion-header-container': {
-    alignItems: 'end',
+    alignItems: 'center',
     gap: theme.spacing(1),
     [`& > .${typographyClasses.root}`]: {
       width: '100%',
     },
   },
   '& .accordion-header-icon': {
-    display: 'block',
+    display: 'flex',
     margin: 0,
+    lineHeight: 1,
   },
   [`& .${accordionSummaryClasses.content}`]: {
     margin: 0,

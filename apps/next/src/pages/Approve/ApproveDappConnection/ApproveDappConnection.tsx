@@ -1,5 +1,6 @@
-import { useTranslation } from 'react-i18next';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { Stack, Typography } from '@avalabs/k2-alpine';
+import { Trans, useTranslation } from 'react-i18next';
 import { FC, useCallback, useEffect, useMemo } from 'react';
 
 import {
@@ -7,17 +8,17 @@ import {
   useApproveAction,
   useGetRequestId,
   usePermissionContext,
+  WalletTotalBalanceProvider,
 } from '@core/ui';
-import { ActionStatus, DAppProviderRequest } from '@core/types';
 import { mapAddressesToVMs } from '@core/common';
+import { ActionStatus, DAppProviderRequest } from '@core/types';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
-import {
-  ActionDrawer,
-  ApprovalScreenTitle,
-  LoadingScreen,
-  Styled,
-} from './components';
+
+import { ActionDrawer, LoadingScreen, Styled } from '../components';
+
+import { useDappPermissionsState } from './hooks';
+import { ConnectWalletCard, SizedAvatar } from './components';
 
 export const ApproveDappConnection: FC = () => {
   const { t } = useTranslation();
@@ -61,6 +62,9 @@ export const ApproveDappConnection: FC = () => {
     [action, activeAccountAddressForRequestedVM, isDomainConnectedToAccount],
   );
 
+  const { wallets, isLoading, isSelected, toggleAccount, selectedAccounts } =
+    useDappPermissionsState(action?.displayData.addressVM ?? NetworkVMType.EVM);
+
   // If the domain already has permissions for the active account, close the popup
   useEffect(() => {
     if (isAccountPermissionGranted && isRequestingAccess) {
@@ -85,6 +89,7 @@ export const ApproveDappConnection: FC = () => {
 
   // Must also wait for isAccountPermissionGranted since `onApproveClicked` is async
   if (
+    isLoading ||
     !permissions ||
     !action ||
     !activeAccount ||
@@ -94,25 +99,55 @@ export const ApproveDappConnection: FC = () => {
   }
 
   return (
-    <Styled.ApprovalScreenPage>
-      <ApprovalScreenTitle title={action.displayData.title} />
+    <WalletTotalBalanceProvider>
+      <Styled.ApprovalScreenPage>
+        <NoScrollStack mt={5}>
+          <Stack flexGrow={1} px={2} alignItems="center" gap={3}>
+            <SizedAvatar size={60} src={action.displayData.dappIcon} />
+            <Typography variant="body3" mx={5} textAlign="center">
+              <Trans
+                i18nKey="Do you want to allow <b>{{dappUrl}}</b> to access your wallet?"
+                components={{
+                  b: <b />,
+                }}
+                values={{
+                  dappUrl: action.displayData.dappUrl,
+                }}
+              />
+            </Typography>
 
-      <NoScrollStack>
-        <Stack flexGrow={1} px={2}>
-          <Typography variant="h4">
-            {t('🚧 Placeholder - needs implementation 🚧')}
-          </Typography>
-          <Typography variant="body1">
-            {t('Approving will give this dApp access to your active account.')}
-          </Typography>
-        </Stack>
-        <ActionDrawer
-          open
-          approve={onApproveClicked}
-          reject={cancelHandler}
-          isProcessing={action.status === ActionStatus.SUBMITTING}
-        />
-      </NoScrollStack>
-    </Styled.ApprovalScreenPage>
+            <Stack width="100%" gap={1.5} mt={1.5}>
+              {wallets.map((wallet, index) => (
+                <ConnectWalletCard
+                  key={wallet.id}
+                  wallet={wallet}
+                  initiallyExpanded={index === 0}
+                  selectedAccounts={selectedAccounts}
+                  isSelected={isSelected}
+                  toggleAccount={toggleAccount}
+                  isLoading={isLoading}
+                />
+              ))}
+            </Stack>
+          </Stack>
+          <ActionDrawer
+            open
+            approve={onApproveClicked}
+            reject={cancelHandler}
+            isProcessing={action.status === ActionStatus.SUBMITTING}
+            isDisabled={!selectedAccounts.size}
+            approveText={
+              selectedAccounts.size === 0
+                ? t('Connect')
+                : selectedAccounts.size === 1
+                  ? t('Connect 1 account')
+                  : t('Connect {{count}} accounts', {
+                      count: selectedAccounts.size,
+                    })
+            }
+          />
+        </NoScrollStack>
+      </Styled.ApprovalScreenPage>
+    </WalletTotalBalanceProvider>
   );
 };

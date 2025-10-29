@@ -1,17 +1,22 @@
 import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
 import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
-import { cloneElement, FC, ReactElement, useState } from 'react';
+import {
+  cloneElement,
+  FC,
+  PropsWithChildren,
+  ReactElement,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { RenamableTitle } from '../../RenamableTitle';
 import * as Styled from './Styled';
 import { WalletIconProps } from '@/components/WalletIcon';
-interface WalletCardProps {
+interface WalletCardProps extends PropsWithChildren {
   id: WalletDetails['id'];
   name: WalletDetails['name'];
   icon: ReactElement<WalletIconProps>;
   initialExpanded: boolean;
-  children: ReactElement[];
   disableRename?: boolean;
 }
 

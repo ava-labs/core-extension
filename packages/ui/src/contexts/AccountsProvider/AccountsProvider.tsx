@@ -14,6 +14,7 @@ import {
   Account,
   ExtensionRequest,
   DAppProviderRequest,
+  IMPORTED_ACCOUNTS_WALLET_ID,
 } from '@core/types';
 import {
   AddAccountHandler,
@@ -36,6 +37,10 @@ const AccountsContext = createContext<
       accounts: Accounts;
       allAccounts: Account[];
       getAllAccountsForVM: (vm: NetworkVMType) => Account[];
+      getAllWalletAccountsForVM: (
+        vm: NetworkVMType,
+        walletId: string,
+      ) => Account[];
       isActiveAccount(id: Account | Account['id']): boolean;
       selectAccount(id: string): Promise<any>;
       renameAccount(id: string, name: string): Promise<any>;
@@ -92,6 +97,19 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
   const getAllAccountsForVM = useCallback(
     (vm: NetworkVMType) =>
       allAccounts.filter((acc) => getAddressByVMType(acc, vm)),
+    [allAccounts],
+  );
+
+  const getAllWalletAccountsForVM = useCallback(
+    (vm: NetworkVMType, walletId: string) => {
+      return allAccounts.filter(
+        (acc) =>
+          getAddressByVMType(acc, vm) &&
+          (isPrimaryAccount(acc)
+            ? acc.walletId === walletId
+            : walletId === IMPORTED_ACCOUNTS_WALLET_ID),
+      );
+    },
     [allAccounts],
   );
 
@@ -185,6 +203,7 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
         getAccountByIndex,
         allAccounts,
         getAllAccountsForVM,
+        getAllWalletAccountsForVM,
         isActiveAccount,
         selectAccount,
         renameAccount,

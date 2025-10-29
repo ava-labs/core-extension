@@ -104,6 +104,8 @@ export class RequestAccountPermissionHandler
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
+          dappUrl: request.site?.url,
+          dappIcon: request.site?.icon,
         },
       },
       `permissions`,
