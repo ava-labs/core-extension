@@ -68,6 +68,12 @@ export enum LedgerAppType {
 export const REQUIRED_LEDGER_VERSION = '0.7.3';
 export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
 
+const LEDGER_ERROR_CODES = Object.freeze({
+  DEVICE_LOCKED: 0x5515,
+  INCORRECT_LENGTH: 0x6700,
+  SOMETHING_WRONG: 0x6b0c,
+});
+
 /**
  * Run this here since each new window will have a different id
  * this is used to track the transport and close on window close
@@ -524,10 +530,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         }
       } catch (error: any) {
         // Check if this looks like a device lock error
-        const isLockError =
-          error?.statusCode === 0x5515 || // Device locked
-          error?.statusCode === 0x6700 || // Incorrect length
-          error?.statusCode === 0x6b0c; // Something went wrong
+        const isLockError = Object.values(LEDGER_ERROR_CODES).includes(
+          error?.statusCode,
+        );
 
         if (isLockError && app) {
           // Device appears to be locked, clearing transport but keeping heartbeat running
