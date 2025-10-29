@@ -55,6 +55,7 @@ export enum FeatureGates {
   ONE_CLICK_SWAP = 'one-click-swap',
   GASLESS = 'gasless',
   SOLANA_SUPPORT = 'solana-support',
+  SOLANA_LAUNCH_MODAL = 'solana-launch-modal',
   CORE_ASSISTANT = 'core-assistant',
   SWAP_USE_MARKR = 'swap-use-markr',
 }

@@ -25,6 +25,7 @@ import { finalizeOnboarding } from '../finalizeOnboarding';
 import { OnboardingService } from '../OnboardingService';
 import { startOnboarding } from '../startOnboarding';
 import { isNotNullish } from '@core/common';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT,
@@ -184,13 +185,17 @@ export class LedgerOnboardingHandler implements HandlerType {
       };
     }
 
-    for (let i = 0; i < (numberOfAccountsToCreate || 1); i++) {
-      if (pubKeys && pubKeys.length < i) {
-        break;
+    if (pubKeys?.length) {
+      for (let i = 0; i < (numberOfAccountsToCreate || 1); i++) {
+        if (pubKeys && pubKeys.length < i) {
+          break;
+        }
+        await this.accountsService.addPrimaryAccount({
+          walletId,
+        });
       }
-      await this.accountsService.addPrimaryAccount({
-        walletId,
-      });
+    } else {
+      await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
     }
 
     await finalizeOnboarding({

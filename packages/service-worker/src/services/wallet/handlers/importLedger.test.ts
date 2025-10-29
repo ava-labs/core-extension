@@ -15,6 +15,11 @@ import {
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 import { AddressPublicKey } from '../../secrets/AddressPublicKey';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
+
+jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
+  addAllAccountsWithHistory: jest.fn(),
+}));
 
 describe('src/background/services/wallet/handlers/importLedger', () => {
   const walletService = {
@@ -33,6 +38,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    (addAllAccountsWithHistory as jest.Mock).mockResolvedValue(['1']);
   });
 
   const handle = (params) => {
@@ -132,9 +138,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       name: nameValue,
     });
 
-    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(2);
-
-    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
+    expect(addAllAccountsWithHistory).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.Ledger,
@@ -280,7 +284,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     });
   });
 
-  it('imports max 3 accounts', async () => {
+  it('imports 4 accounts with ledger live', async () => {
     const walletId = crypto.randomUUID();
     const pubKeysValue = [
       {
@@ -331,7 +335,8 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       name: nameValue,
     });
 
-    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(3);
+    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(4);
+    expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
       type: SecretType.LedgerLive,

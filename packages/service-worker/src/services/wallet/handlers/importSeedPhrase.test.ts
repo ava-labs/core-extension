@@ -14,6 +14,11 @@ import { ImportSeedPhraseHandler } from './importSeedPhrase';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
+
+jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
+  addAllAccountsWithHistory: jest.fn(),
+}));
 
 describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
   const walletService = {
@@ -32,6 +37,7 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    (addAllAccountsWithHistory as jest.Mock).mockResolvedValue(['1', '2', '3']);
   });
 
   const handle = (params) => {
@@ -146,14 +152,8 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
       name: 'Dummy mnemonic',
     });
 
-    expect(accountsService.addPrimaryAccount).toHaveBeenCalledTimes(3);
-    expect(accountsService.addPrimaryAccount).toHaveBeenNthCalledWith(1, {
-      walletId,
-    });
-    expect(accountsService.addPrimaryAccount).toHaveBeenNthCalledWith(2, {
-      walletId,
-    });
-    expect(accountsService.addPrimaryAccount).toHaveBeenNthCalledWith(3, {
+    expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
+      addFirstAccount: true,
       walletId,
     });
 

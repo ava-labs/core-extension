@@ -6,7 +6,6 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
-  AnalyticsContextProvider,
   ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
@@ -14,12 +13,12 @@ import {
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
-  NetworkContextProvider,
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
   SwapContextProvider,
+  useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -64,6 +63,7 @@ export function App() {
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
 
+  const { isDeveloperMode } = useNetworkContext();
   const isApprovalContext = isSpecificContextContainer(
     ContextContainer.CONFIRM,
   );
@@ -107,11 +107,11 @@ export function App() {
     <Providers
       providers={
         Children.toArray([
-          <ThemeProvider theme={preferredColorScheme} />,
-          <AnalyticsContextProvider />,
+          <ThemeProvider
+            theme={isDeveloperMode ? 'dark' : preferredColorScheme}
+          />,
           <PersonalAvatarProvider />,
           <LedgerContextProvider />,
-          <NetworkContextProvider />,
           <KeystoneContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
@@ -119,7 +119,6 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
-          <NetworkContextProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <WalletContextProvider
