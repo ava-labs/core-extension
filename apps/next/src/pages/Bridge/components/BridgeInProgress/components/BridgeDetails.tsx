@@ -1,46 +1,57 @@
 import { Card } from '@/components/Card';
 import { Chain } from '@avalabs/bridge-unified';
-import { Stack, Typography } from '@avalabs/k2-alpine';
-import { useNetworkContext } from '@core/ui/src/contexts';
+import { bigToLocaleString } from '@avalabs/core-utils-sdk';
+import { Box, Stack, Typography } from '@avalabs/k2-alpine';
+import { bigintToBig } from '@core/common';
+import { useNativeTokenPrice } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui/src/contexts';
+import Big from 'big.js';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdDone } from 'react-icons/md';
+import { ConfirmationsCounter } from './ConfirmationsRow';
 import * as Styled from './Styled';
 
 type Props = {
-  type: 'source' | 'target';
+  networkLabel: string;
   chain: Chain;
-  fee: bigint;
+  fee: Big | bigint;
   confirmationsRequired: number;
   confirmationsReceived: number;
 };
 
 export const BridgeDetails: FC<Props> = ({
-  type,
+  networkLabel,
   chain,
   fee,
   confirmationsRequired,
   confirmationsReceived,
 }) => {
   const { t } = useTranslation();
-  const isConfirmed = confirmationsReceived === confirmationsRequired;
+  const { currencyFormatter } = useSettingsContext();
   const { getNetwork } = useNetworkContext();
-  const network = getNetwork(chain.chainId);
+  const network = getNetwork(chain.chainId)!;
+
+  const tokenPrice = useNativeTokenPrice(network);
+
+  const feeBig =
+    typeof fee === 'bigint'
+      ? bigintToBig(fee, network.networkToken.decimals)
+      : fee;
+
   return (
     <Card noPadding>
-      <Styled.RowItem>
+      <Styled.RowItem borderTop={1} borderBottom={1} borderColor="transparent">
         <Typography variant="body3" color="text.primary">
-          {type === 'source' ? t('From') : t('To')}
+          {networkLabel}
         </Typography>
-        <Typography variant="body3" color="text.primary">
-          <img
-            src={network?.logoUri}
-            width={24}
-            height={24}
-            alt="Network logo"
-          />
-          {chain.chainName}
-        </Typography>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Box position="relative">
+            <Styled.NetworkLogo src={network?.logoUri} alt="Network logo" />
+          </Box>
+          <Typography variant="body3" color="text.primary">
+            {network.chainName}
+          </Typography>
+        </Stack>
       </Styled.RowItem>
       <Styled.Divider />
       <Styled.RowItem>
@@ -49,40 +60,22 @@ export const BridgeDetails: FC<Props> = ({
         </Typography>
         <Stack>
           <Typography variant="body3" color="text.primary" align="right">
-            {fee} AVAX
+            {bigToLocaleString(feeBig)} {network.networkToken.symbol}
           </Typography>
           <Typography variant="caption" color="text.secondary" align="right">
-            {fee} USD
+            {fee && tokenPrice
+              ? currencyFormatter(feeBig.mul(tokenPrice).toNumber())
+              : ''}
           </Typography>
         </Stack>
       </Styled.RowItem>
       <Styled.Divider />
-      <Stack direction="column">
-        <Styled.RowItem>
-          <Typography variant="body3" color="text.primary">
-            {t('Confirmations')}
-          </Typography>
-          {isConfirmed ? (
-            <MdDone />
-          ) : (
-            <Typography variant="body3" color="text.primary">
-              {t('{{received}} out of {{required}}', {
-                received: confirmationsReceived,
-                required: confirmationsRequired,
-              })}
-            </Typography>
-          )}
-        </Styled.RowItem>
-        {!isConfirmed && (
-          <Styled.RowItem display="block">
-            <Styled.ProgressItem
-              variant="determinate"
-              color="success"
-              value={(confirmationsReceived / confirmationsRequired) * 100}
-            />
-          </Styled.RowItem>
-        )}
-      </Stack>
+      <Styled.RowItem flexWrap="wrap">
+        <ConfirmationsCounter
+          required={confirmationsRequired}
+          received={confirmationsReceived}
+        />
+      </Styled.RowItem>
     </Card>
   );
 };

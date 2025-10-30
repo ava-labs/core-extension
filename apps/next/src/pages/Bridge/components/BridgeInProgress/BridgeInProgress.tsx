@@ -1,90 +1,64 @@
-import {
-  BridgeTransfer,
-  BridgeType,
-  Environment,
-  TokenType,
-} from '@avalabs/bridge-unified';
-import { FC } from 'react';
-import { useBridgeState } from '../../contexts';
+import { useBridgeState } from '@/pages/Bridge/contexts';
+import { Box, Button } from '@avalabs/k2-alpine';
+import { findMatchingBridgeAsset } from '@core/common';
+import { useBridgeAmounts } from '@core/ui';
+import Big from 'big.js';
+import { FC, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails } from './components';
 
-// TODO: remove this before merging
-const TEST_TRANSFER: BridgeTransfer = {
-  type: BridgeType.AVALANCHE_EVM,
-  environment: Environment.PROD,
-  fromAddress: '0xSourceAddress',
-  toAddress: '0xTargetAddress',
-  amount: 100000000n,
-  sourceNetworkFee: 100000000n,
-  targetNetworkFee: 100000000n,
-  sourceRequiredConfirmationCount: 6,
-  targetRequiredConfirmationCount: 2,
-  sourceConfirmationCount: 1,
-  targetConfirmationCount: 2,
-  asset: {
-    type: TokenType.NATIVE,
-    name: 'Ethereum',
-    symbol: 'ETH',
-    decimals: 18,
-    destinations: {
-      'eip155:10': [],
-    },
-  },
-  bridgeFee: 0n,
-  sourceChain: {
-    chainName: '',
-    chainId: '',
-    rpcUrl: '',
-    utilityAddresses: undefined,
-    networkToken: {
-      type: TokenType.NATIVE,
-      name: 'Ethereum',
-      symbol: 'ETH',
-      decimals: 18,
-    },
-  },
-  sourceStartedAt: 0,
-  sourceTxHash: '',
-  targetChain: {
-    chainName: '',
-    chainId: '',
-    rpcUrl: '',
-    utilityAddresses: undefined,
-    networkToken: {
-      type: TokenType.NATIVE,
-      name: 'Optimism',
-      symbol: 'OP',
-      decimals: 18,
-    },
-  },
-};
-
 export const BridgeInProgress: FC = () => {
+  const { t } = useTranslation();
   const {
     query: { transactionId },
     state: { pendingTransfers },
+    sourceTokens,
   } = useBridgeState();
+  const pendingTransfer = pendingTransfers[transactionId];
 
-  const pendingTransfer = pendingTransfers[transactionId] ?? TEST_TRANSFER;
+  const token = useMemo(() => {
+    if (!pendingTransfer?.asset) {
+      return undefined;
+    }
+    const assets = [pendingTransfer.asset];
+    return sourceTokens.find((srcToken) =>
+      findMatchingBridgeAsset(assets, srcToken),
+    );
+  }, [sourceTokens, pendingTransfer?.asset]);
+
+  const {
+    amount = Big(0),
+    sourceNetworkFee = Big(0),
+    targetNetworkFee = Big(0),
+  } = useBridgeAmounts(pendingTransfer);
+
   if (!pendingTransfer) {
-    return <>😕</>;
+    return null;
   }
+
   return (
     <>
+      <BridgeTokenCard token={token} amount={amount} />
       <BridgeDetails
-        type="source"
+        networkLabel={t('From')}
         chain={pendingTransfer.sourceChain}
-        fee={pendingTransfer.sourceNetworkFee ?? 0n}
+        fee={sourceNetworkFee}
         confirmationsRequired={pendingTransfer.sourceRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.sourceConfirmationCount}
       />
       <BridgeDetails
-        type="target"
+        networkLabel={t('To')}
         chain={pendingTransfer.targetChain}
-        fee={pendingTransfer.targetNetworkFee ?? 0n}
+        fee={targetNetworkFee}
         confirmationsRequired={pendingTransfer.targetRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.targetConfirmationCount}
       />
+      <Box mt="auto">
+        <Button variant="contained" size="extension" color="primary" fullWidth>
+          {t('Notify me when it’s done')}
+        </Button>
+      </Box>
     </>
   );
 };

@@ -19,10 +19,7 @@ import {
 import { useCallback } from 'react';
 import { buildParams, getAsset } from '../utils';
 
-export function useTransferAsset(
-  core: UnifiedBridgeService | null,
-  sourceNetwork: NetworkWithCaipId | undefined,
-) {
+export function useTransferAsset(core: UnifiedBridgeService | null) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -43,9 +40,11 @@ export function useTransferAsset(
     async (
       symbol: string,
       amount: bigint,
+      sourceNetworkId: NetworkWithCaipId['caipId'],
       targetChainId: string,
       gasSettings?: GasSettings,
     ) => {
+      const sourceNetwork = getNetwork(sourceNetworkId);
       assert(core, CommonError.Unknown);
       assert(sourceNetwork, CommonError.NoActiveNetwork);
 
@@ -79,7 +78,7 @@ export function useTransferAsset(
         throw err;
       }
     },
-    [core, sourceNetwork, activeAccount, getNetwork, trackBridgeTransfer],
+    [core, activeAccount, getNetwork, trackBridgeTransfer],
   );
 
   return transferAsset;

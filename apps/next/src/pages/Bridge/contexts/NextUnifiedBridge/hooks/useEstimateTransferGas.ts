@@ -9,10 +9,7 @@ import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildParams, getAsset } from '../utils';
 
-export function useEstimateTransferGas(
-  core: UnifiedBridgeService | null,
-  sourceNetwork: NetworkWithCaipId | undefined,
-) {
+export function useEstimateTransferGas(core: UnifiedBridgeService | null) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -22,8 +19,10 @@ export function useEstimateTransferGas(
     async (
       symbol: string,
       amount: bigint,
+      sourceNetworkId: NetworkWithCaipId['caipId'],
       targetChainId: string,
     ): Promise<bigint> => {
+      const sourceNetwork = getNetwork(sourceNetworkId);
       assert(core, CommonError.Unknown);
       assert(sourceNetwork, CommonError.NoActiveNetwork);
 
@@ -33,7 +32,7 @@ export function useEstimateTransferGas(
 
       const { fromAddress, sourceChain, targetChain } = await buildParams(
         activeAccount,
-        sourceNetwork,
+        getNetwork(sourceNetworkId),
         getNetwork(targetChainId),
       );
 
@@ -47,7 +46,7 @@ export function useEstimateTransferGas(
 
       return gasLimit;
     },
-    [core, sourceNetwork, activeAccount, getNetwork],
+    [core, activeAccount, getNetwork],
   );
 
   return estimateTransferGas;

@@ -6,6 +6,7 @@ import {
   getUniqueTokenId,
   NetworkWithCaipId,
 } from '@core/types';
+import { useNetworkContext } from '@core/ui';
 import { createContext, FC, PropsWithChildren, use, useMemo } from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
@@ -28,7 +29,7 @@ const BridgeStateContext = createContext<
       assets: BridgeAsset[];
       target: BridgeAsset | undefined;
       fee: bigint;
-      amountAfterFee: string | undefined;
+      amountAfterFee: bigint;
       shouldUseCrossChainTransfer: boolean;
       targetNetworks: NetworkWithCaipId['caipId'][];
       targetNetworkId: NetworkWithCaipId['caipId'];
@@ -40,17 +41,22 @@ const BridgeStateContext = createContext<
 
 export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const query = useBridgeQuery();
-  const { amount, sourceToken } = query;
+  const { getNetwork } = useNetworkContext();
+  const { amount, sourceNetwork: sourceNetworkId, sourceToken } = query;
 
   const {
-    transferableAssets,
+    getTransferableAssets,
     availableChainIds,
     isReady,
-    sourceNetwork,
     transferAsset,
     state,
     isTxConfirming,
   } = useNextUnifiedBridgeContext();
+
+  const sourceNetwork = useMemo(
+    () => (sourceNetworkId ? getNetwork(sourceNetworkId) : undefined),
+    [getNetwork, sourceNetworkId],
+  );
 
   const networksForToken = useMemo(
     () => (sourceNetwork ? [sourceNetwork] : []),
@@ -58,20 +64,24 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   );
   const tokens = useAllTokens(networksForToken);
 
-  const sourceTokens = useMemo(
-    () => tokens.filter((t) => findMatchingBridgeAsset(transferableAssets, t)),
-    [tokens, transferableAssets],
-  );
-
   const tokenToAssetMap = useMemo(
     () =>
-      new Map(
-        sourceTokens.map((token) => [
-          getUniqueTokenId(token),
-          findMatchingBridgeAsset(transferableAssets, token),
-        ]),
-      ),
-    [sourceTokens, transferableAssets],
+      tokens.reduce((map, token) => {
+        const asset = findMatchingBridgeAsset(
+          getTransferableAssets(sourceNetworkId),
+          token,
+        );
+        if (asset) {
+          map.set(getUniqueTokenId(token), asset);
+        }
+        return map;
+      }, new Map<string, BridgeAsset>()),
+    [tokens, getTransferableAssets, sourceNetworkId],
+  );
+
+  const sourceTokens = useMemo(
+    () => tokens.filter((t) => tokenToAssetMap.get(getUniqueTokenId(t))),
+    [tokens, tokenToAssetMap],
   );
 
   useInitialize(query, sourceTokens);
@@ -85,6 +95,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const { amountAfterFee, fee } = useAmountAfterFee(
     targetToken,
     amount,
+    sourceNetworkId,
     targetNetworkId,
   );
 
@@ -101,7 +112,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         query,
         sourceTokens,
         sourceChainIds: availableChainIds,
-        assets: transferableAssets,
+        assets: getTransferableAssets(sourceNetworkId),
         target: sourceAsset,
         fee,
         amountAfterFee,

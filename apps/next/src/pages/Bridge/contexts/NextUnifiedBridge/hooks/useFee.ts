@@ -9,17 +9,16 @@ import { useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildChain, getAsset } from '../utils';
 
-export function useFee(
-  core: UnifiedBridgeService | null,
-  sourceNetwork: NetworkWithCaipId | undefined,
-) {
+export function useFee(core: UnifiedBridgeService | null) {
   const { getNetwork } = useNetworkContext();
   const getFee = useCallback(
     async (
       symbol: string,
       amount: bigint,
+      sourceNetworkId: NetworkWithCaipId['caipId'],
       targetChainId: string,
     ): Promise<bigint> => {
+      const sourceNetwork = getNetwork(sourceNetworkId);
       assert(core, CommonError.Unknown);
       assert(sourceNetwork, CommonError.NoActiveNetwork);
 
@@ -50,7 +49,7 @@ export function useFee(
 
       return feeChain[feeAssetId] ?? 0n;
     },
-    [core, sourceNetwork, getNetwork],
+    [core, getNetwork],
   );
 
   return getFee;

@@ -11,10 +11,10 @@ import { BridgeTransactionForm } from './components/BridgeTransactionForm';
 import {
   BridgeQueryProvider,
   BridgeStateProvider,
-  NextUnifiedBridgeProvider,
   useBridgeQuery,
   useNextUnifiedBridgeContext,
 } from './contexts';
+import { getPageContentProps } from './lib/getPageContentProps';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -28,8 +28,10 @@ const BridgePage: FC = () => {
     return <LoadingScreen />;
   }
 
-  const isConfirming = isTxConfirming(transactionId) || true;
-  const title = isConfirming ? t('Bridge Transfer in Progress') : t('Bridge');
+  const isConfirming = isTxConfirming(transactionId); // || true; // TODO: remove this before merging
+  const title = isConfirming
+    ? t('Bridge transfer in progress...')
+    : t('Bridge');
   const BridgeStatePage = isConfirming
     ? BridgeInProgress
     : BridgeTransactionForm;
@@ -39,13 +41,7 @@ const BridgePage: FC = () => {
       <Page
         title={title}
         withBackButton
-        contentProps={{
-          justifyContent: 'flex-start',
-          alignItems: 'stretch',
-          width: 1,
-          height: 1,
-          gap: isConfirming ? 1 : 0.5,
-        }}
+        contentProps={getPageContentProps(isConfirming)}
       >
         <BridgeStatePage />
       </Page>
@@ -56,11 +52,7 @@ const BridgePage: FC = () => {
 export const Bridge = () => {
   return (
     <BridgeQueryProvider>
-      {({ sourceNetwork }) => (
-        <NextUnifiedBridgeProvider sourceNetworkId={sourceNetwork}>
-          <BridgePage />
-        </NextUnifiedBridgeProvider>
-      )}
+      <BridgePage />
     </BridgeQueryProvider>
   );
 };
