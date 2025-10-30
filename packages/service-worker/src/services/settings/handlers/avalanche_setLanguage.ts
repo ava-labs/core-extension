@@ -9,8 +9,6 @@ import { SettingsService } from '../SettingsService';
 
 type Params = [language?: string];
 
-// Avalanche add account handler
-// This handler is similar to the AddAccountHandler, but it is used for dapp adding accounts to primary accounts
 @injectable()
 export class AvalancheSetLanguageHandler extends DAppRequestHandler<
   Params,

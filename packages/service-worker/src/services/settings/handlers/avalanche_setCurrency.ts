@@ -9,8 +9,6 @@ import { SettingsService } from '../SettingsService';
 
 type Params = [currency?: string];
 
-// Avalanche add account handler
-// This handler is similar to the AddAccountHandler, but it is used for dapp adding accounts to primary accounts
 @injectable()
 export class AvalancheSetCurrencyHandler extends DAppRequestHandler<
   Params,
