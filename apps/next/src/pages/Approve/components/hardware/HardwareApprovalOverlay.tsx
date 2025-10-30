@@ -41,6 +41,6 @@ export const HardwareApprovalOverlay = ({
       />
     );
   } else if (deviceType === 'keystone-usb') {
-    return <KeystoneUSBApprovalOverlay />;
+    return <KeystoneUSBApprovalOverlay reject={reject} approve={approve} />;
   }
 };

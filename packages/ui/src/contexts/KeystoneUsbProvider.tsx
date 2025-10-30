@@ -16,6 +16,7 @@ import Avalanche, { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 
 interface KeystoneContextType {
   initKeystoneTransport: () => Promise<void>;
+  retryConnection: () => Promise<void>;
   popDeviceSelection: () => Promise<boolean>;
   getExtendedPublicKey: (chainType?: ChainIDAlias) => Promise<string>;
   wasTransportAttempted: boolean;
@@ -57,6 +58,15 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     setInitialized(true);
   }, []);
 
+  const retryConnection = useCallback(async () => {
+    // Reset state to allow retry
+    setWasTransportAttempted(false);
+    avalancheAppRef.current = null;
+    setInitialized(false);
+    // Small delay to ensure state reset, then reinitialize
+    setTimeout(() => setInitialized(true), 100);
+  }, []);
+
   const popDeviceSelection = useCallback(async () => {
     if (avalancheAppRef.current) {
       return true;
@@ -91,6 +101,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     <KeystoneContext.Provider
       value={{
         initKeystoneTransport,
+        retryConnection,
         popDeviceSelection,
         getExtendedPublicKey,
         wasTransportAttempted,
