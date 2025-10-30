@@ -47,6 +47,9 @@ export enum DAppProviderRequest {
   WALLET_GET_PUBKEY = 'wallet_getPublicKey',
   WALLET_CONNECT = 'wallet_requestAccountPermission',
   WALLET_GET_NETWORK_STATE = 'wallet_getNetworkState',
+  AVALANCHE_SET_LANGUAGE = 'avalanche_setLanguage',
+  AVALANCHE_SET_CURRENCY = 'avalanche_setCurrency',
+  AVALANCHE_GET_SETTINGS = 'avalanche_getSettings',
 }
 
 export enum Web3Event {
