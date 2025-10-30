@@ -5,7 +5,7 @@ import {
   Divider,
 } from '@avalabs/core-k2-components';
 import { CollectibleListEmpty } from '@/pages/Collectibles/components/CollectibleListEmpty';
-import { useSettingsContext } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui';
 import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { useNfts } from '@core/ui';
@@ -17,7 +17,8 @@ type ManageTokensListProps = {
 export const ManageCollectiblesList = ({
   searchQuery,
 }: ManageTokensListProps) => {
-  const nfts = useNfts();
+  const { network } = useNetworkContext();
+  const nfts = useNfts(network);
 
   if (nfts?.length === 0) {
     return (

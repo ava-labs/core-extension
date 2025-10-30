@@ -1,4 +1,4 @@
-import { useSettingsContext } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui';
 import { CollectibleMedia } from './CollectibleMedia';
 import { CollectibleWrapper } from './CollectibleWrapper';
 import { Button } from '@avalabs/core-k2-components';
@@ -10,7 +10,8 @@ export function CollectibleGrid({
 }: {
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
-  const nfts = useNfts();
+  const { network } = useNetworkContext();
+  const nfts = useNfts(network);
   const { getCollectibleVisibility } = useSettingsContext();
   const nftsToShow = nfts?.filter((nft) => {
     return getCollectibleVisibility(nft);

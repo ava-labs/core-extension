@@ -1,7 +1,7 @@
 import { CollectibleMedia } from './CollectibleMedia';
 import { Stack } from '@avalabs/core-k2-components';
 import { TokenCard } from '@/components/common/TokenCard';
-import { useSettingsContext } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { useNfts } from '@core/ui';
 
@@ -10,7 +10,8 @@ export function CollectibleList({
 }: {
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
-  const nfts = useNfts();
+  const { network } = useNetworkContext();
+  const nfts = useNfts(network);
   const { getCollectibleVisibility } = useSettingsContext();
   const nftsToShow = nfts?.filter((nft) => {
     return getCollectibleVisibility(nft);
