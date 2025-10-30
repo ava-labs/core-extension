@@ -81,9 +81,7 @@ export function LedgerConnector({
   const [isLedgerExistsError, setIsLedgerExistsError] = useState(false);
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    addedDerivationPath === DerivationPath.BIP44
-      ? DerivationPath.LedgerLive
-      : DerivationPath.BIP44,
+    addedDerivationPath || DerivationPath.BIP44,
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);

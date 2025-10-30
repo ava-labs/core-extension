@@ -25,10 +25,17 @@ export function DerivationPathDropdown({
   const theme = useTheme();
 
   const hasBIP44AddedAlready =
-    isEditScreen && pathSpec === DerivationPath.LedgerLive;
+    isEditScreen && pathSpec === DerivationPath.BIP44;
 
   const hasLedgerLiveAddedAlready =
-    isEditScreen && pathSpec === DerivationPath.BIP44;
+    isEditScreen && pathSpec === DerivationPath.LedgerLive;
+
+  const bip44Label = hasBIP44AddedAlready
+    ? t('BIP44 (Current)')
+    : t('BIP44 (Default)');
+  const ledgerLiveLabel = hasLedgerLiveAddedAlready
+    ? t('Ledger Live (Current)')
+    : t('Ledger Live');
 
   return (
     <Stack>
@@ -50,9 +57,9 @@ export function DerivationPathDropdown({
           renderValue: () => {
             switch (pathSpec) {
               case DerivationPath.LedgerLive:
-                return <Typography>{t('Ledger Live')}</Typography>;
+                return <Typography>{ledgerLiveLabel}</Typography>;
               case DerivationPath.BIP44:
-                return <Typography>{t('BIP44 (Default)')}</Typography>;
+                return <Typography>{bip44Label}</Typography>;
             }
           },
           onChange: (e) => {
@@ -65,45 +72,39 @@ export function DerivationPathDropdown({
         label={t('Select derivation path')}
         InputProps={{ disabled: isDisabled }}
       >
-        {!hasBIP44AddedAlready ? (
-          <DropdownItem
-            value={DerivationPath.BIP44}
-            selected={pathSpec === DerivationPath.BIP44}
-            data-testid="connect-account-menu-item"
+        <DropdownItem
+          value={DerivationPath.BIP44}
+          selected={pathSpec === DerivationPath.BIP44}
+          data-testid="connect-account-menu-item"
+        >
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
           >
-            <Stack
-              sx={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}
-            >
-              <Typography variant="body2">
-                {!isEditScreen ? t('BIP44 (Default)') : t('BIP44')}
-              </Typography>
-              {pathSpec === DerivationPath.BIP44 && <CheckIcon />}
-            </Stack>
-          </DropdownItem>
-        ) : null}
+            <Typography variant="body2">{bip44Label}</Typography>
+            {pathSpec === DerivationPath.BIP44 && <CheckIcon />}
+          </Stack>
+        </DropdownItem>
 
-        {!hasLedgerLiveAddedAlready ? (
-          <DropdownItem
-            value={DerivationPath.LedgerLive}
-            selected={pathSpec === DerivationPath.LedgerLive}
-            data-testid="connect-account-menu-item"
+        <DropdownItem
+          value={DerivationPath.LedgerLive}
+          selected={pathSpec === DerivationPath.LedgerLive}
+          data-testid="connect-account-menu-item"
+        >
+          <Stack
+            sx={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}
           >
-            <Stack
-              sx={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '100%',
-              }}
-            >
-              <Typography variant="body2">{t('Ledger Live')}</Typography>
-              {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
-            </Stack>
-          </DropdownItem>
-        ) : null}
+            <Typography variant="body2">{ledgerLiveLabel}</Typography>
+            {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
+          </Stack>
+        </DropdownItem>
       </Dropdown>
     </Stack>
   );
