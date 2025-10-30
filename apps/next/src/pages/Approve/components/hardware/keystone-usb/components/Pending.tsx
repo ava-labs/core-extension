@@ -1,30 +1,27 @@
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/k2-alpine';
-
 import { StateComponentProps } from '../types';
+import { PendingKeystoneCircles } from './PendingKeystoneCircles';
+import { useTranslation } from 'react-i18next';
 
-import { PendingLedgerCircles } from './PendingLedgerCircles';
-
-export const PendingApproval: FC<StateComponentProps> = ({ state }) => {
+export const Pending: FC<StateComponentProps> = ({ state }) => {
   const { t } = useTranslation();
 
-  if (state.state !== 'pending') {
+  if (state !== 'pending') {
     return null;
   }
 
   return (
     <Stack width="100%" height="100%" gap={2}>
       <Stack px={6} flexGrow={1} alignItems="center" justifyContent="center">
-        <PendingLedgerCircles />
+        <PendingKeystoneCircles />
         <Stack gap={1} textAlign="center">
           <Typography variant="body3" fontWeight={500}>
-            {t('Please review the transaction on your Ledger')}
+            {t('Please review the transaction on your Keystone')}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {t(
-              'Open the {{appName}} app on your Ledger device in order to continue with this transaction',
-              { appName: state.requiredApp },
+              'Open the Avalanche app on your Keystone device in order to continue with this transaction',
             )}
           </Typography>
         </Stack>

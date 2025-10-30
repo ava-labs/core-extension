@@ -48,11 +48,11 @@ const getSignerType = ({
   if (isUsingLedgerWallet) {
     return 'ledger';
   }
-  if (isUsingKeystoneWallet) {
-    return 'keystone-qr';
-  }
   if (isUsingKeystone3Wallet) {
     return 'keystone-usb';
+  }
+  if (isUsingKeystoneWallet) {
+    return 'keystone-qr';
   }
 
   throw new Error('Unknown signer type');
