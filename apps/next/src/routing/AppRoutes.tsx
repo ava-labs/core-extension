@@ -45,6 +45,7 @@ export const AppRoutes = () => (
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
     <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
     <Route path="/sync" component={Activity} />
+    <Route path="/activity" component={Activity} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );

@@ -1,6 +1,6 @@
 import { UnifiedBridgeState } from '@core/types';
 
-export function isConfirming(
+export function isTransactionConfirming(
   txHash: string,
   transfers: UnifiedBridgeState['pendingTransfers'],
 ) {

@@ -28,11 +28,11 @@ const BridgePage: FC = () => {
     return <LoadingScreen />;
   }
 
-  const isConfirming = isTxConfirming(transactionId); // || true; // TODO: remove this before merging
+  const isConfirming = isTxConfirming(transactionId);
   const title = isConfirming
     ? t('Bridge transfer in progress...')
     : t('Bridge');
-  const BridgeStatePage = isConfirming
+  const BridgeTransactionPage = isConfirming
     ? BridgeInProgress
     : BridgeTransactionForm;
 
@@ -43,7 +43,7 @@ const BridgePage: FC = () => {
         withBackButton
         contentProps={getPageContentProps(isConfirming)}
       >
-        <BridgeStatePage />
+        <BridgeTransactionPage />
       </Page>
     </BridgeStateProvider>
   );

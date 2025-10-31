@@ -23,7 +23,8 @@ export const ListItemIcon = styled(K2ListItemIcon)({
 
 export const ChevronRightIcon = styled(K2ChevronRightIcon)(({ theme }) => ({
   display: 'block',
-  marginBlockStart: 'auto',
+  marginBlock: 'auto',
+  translate: theme.spacing(1.5),
   color: theme.palette.text.secondary,
   cursor: 'pointer',
 }));

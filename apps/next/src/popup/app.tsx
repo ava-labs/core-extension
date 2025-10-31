@@ -56,6 +56,7 @@ const pagesWithoutHeader = [
   '/trending',
   '/defi',
   '/concierge',
+  '/activity',
   routes.getContactsPath(),
   routes.getSendPath(),
   routes.getSwapPath(),
