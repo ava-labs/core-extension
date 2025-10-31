@@ -168,6 +168,54 @@ export function UnifiedBridgeProvider({
 
   const evmSigner: EvmSigner = useMemo(
     () => ({
+      signMessage: async (
+        data: { message: string; account: string; chainId: number },
+        _,
+        { currentSignature, requiredSignatures },
+      ) => {
+        const { message, account, chainId } = data;
+
+        assert(message, UnifiedBridgeError.InvalidTxPayload);
+        assert(account, UnifiedBridgeError.InvalidTxPayload);
+
+        try {
+          const result = await request(
+            {
+              method: RpcMethod.PERSONAL_SIGN,
+              params: [message, account],
+            },
+            {
+              scope: `eip155:${chainId}`,
+              context: {
+                customApprovalScreenTitle: t('Confirm Bridge'),
+                alert:
+                  requiredSignatures > currentSignature
+                    ? {
+                        type: 'info',
+                        title: t(
+                          'This operation requires {{total}} approvals.',
+                          {
+                            total: requiredSignatures,
+                          },
+                        ),
+                        notice: t(
+                          'You will be prompted {{remaining}} more time(s).',
+                          {
+                            remaining: requiredSignatures - currentSignature,
+                          },
+                        ),
+                      }
+                    : undefined,
+              },
+            },
+          );
+
+          return result as `0x${string}`;
+        } catch (err) {
+          console.error(err);
+          throw err;
+        }
+      },
       sign: async (
         { from, data, to, value },
         _,
