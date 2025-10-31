@@ -12,7 +12,7 @@ import {
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
-type PartialSettings = Partial<SettingsState>;
+type PartialSettings = Omit<SettingsState, 'customTokens'>;
 type Params = [settings?: PartialSettings];
 
 @injectable()
