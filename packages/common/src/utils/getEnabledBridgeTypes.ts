@@ -13,10 +13,16 @@ export const getEnabledBridgeTypes = (featureFlags: Partial<FeatureFlags>) => {
   if (featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_EVM]) {
     enabled.push(BridgeType.AVALANCHE_EVM);
   }
-  if (featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]) {
+  if (
+    featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA] &&
+    featureFlags[FeatureGates.BRIDGE_BTC]
+  ) {
     enabled.push(BridgeType.AVALANCHE_BTC_AVA);
   }
-  if (featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]) {
+  if (
+    featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC] &&
+    featureFlags[FeatureGates.BRIDGE_BTC]
+  ) {
     enabled.push(BridgeType.AVALANCHE_AVA_BTC);
   }
 

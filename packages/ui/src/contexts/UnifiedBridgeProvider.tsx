@@ -423,20 +423,8 @@ export function UnifiedBridgeProvider({
       return [];
     }
 
-    const assets = core.getAssets()[activeNetwork.caipId] ?? [];
-
-    // Filter out BTC and BTC.b if BRIDGE_BTC feature flag is disabled
-    const isBridgeBtcEnabled = isFlagEnabled(FeatureGates.BRIDGE_BTC);
-    if (!isBridgeBtcEnabled) {
-      return assets.filter(
-        (asset) =>
-          asset.symbol.toUpperCase() !== 'BTC' &&
-          asset.symbol.toUpperCase() !== 'BTC.B',
-      );
-    }
-
-    return assets;
-  }, [activeNetwork, core, isFlagEnabled]);
+    return core.getAssets()[activeNetwork.caipId] ?? [];
+  }, [activeNetwork, core]);
 
   useEffect(() => {
     request<UnifiedBridgeGetState>({

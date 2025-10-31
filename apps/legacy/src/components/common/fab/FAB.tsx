@@ -25,9 +25,10 @@ import {
   FunctionNames,
   useFeatureFlagContext,
   useIsFunctionAvailable,
+  useNetworkContext,
 } from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
-import { getCoreWebUrl } from '@core/common';
+import { getCoreWebUrl, isBitcoinNetwork } from '@core/common';
 import { Flipper } from '../Flipper';
 import { FeatureGates } from '@core/types';
 
@@ -104,6 +105,7 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   const history = useHistory();
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
   const { isFlagEnabled } = useFeatureFlagContext();
+  const { network } = useNetworkContext();
 
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
@@ -154,7 +156,11 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   ]
     .filter(({ name }) => checkIsFunctionSupported(name))
     .filter(({ name }) => {
-      if (name === FunctionNames.BRIDGE) {
+      if (
+        name === FunctionNames.BRIDGE &&
+        network &&
+        isBitcoinNetwork(network)
+      ) {
         return isFlagEnabled(FeatureGates.BRIDGE_BTC);
       }
       return true;
