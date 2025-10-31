@@ -32,6 +32,7 @@ export class NetworksUpdatedEvents implements ExtensionEventEmitter {
           ),
           favoriteNetworks,
           customNetworks: this.networkService.customNetworks,
+          enabledNetworks: await this.networkService.getEnabledNetworks(),
         },
       });
     });
