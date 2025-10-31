@@ -24,7 +24,12 @@ export const BridgeTransactionForm = () => {
   const {
     transferAsset,
     asset: target,
-    query: { amount, updateQuery, transactionId },
+    query: {
+      amount,
+      updateQuery,
+      transactionId,
+      sourceNetwork: sourceNetworkId,
+    },
     targetNetworkId,
     state,
     isTxConfirming,
@@ -46,6 +51,7 @@ export const BridgeTransactionForm = () => {
     transferAsset(
       target.symbol,
       stringToBigint(amount, target.decimals),
+      sourceNetworkId,
       targetNetworkId,
     )
       .then((txId) => {
