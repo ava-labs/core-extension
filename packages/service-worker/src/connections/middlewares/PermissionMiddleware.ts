@@ -119,9 +119,8 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
   DAppProviderRequest.WALLET_RENAME,
   DAppProviderRequest.WALLET_GET_NETWORK_STATE,
-  DAppProviderRequest.AVALANCHE_SET_LANGUAGE,
-  DAppProviderRequest.AVALANCHE_GET_SETTINGS,
-  DAppProviderRequest.AVALANCHE_SET_CURRENCY,
+  DAppProviderRequest.WALLET_GET_SETTINGS,
+  DAppProviderRequest.WALLET_SET_SETTINGS,
 ]);
 
 export function PermissionMiddleware(

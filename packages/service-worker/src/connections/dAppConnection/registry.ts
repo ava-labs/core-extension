@@ -39,10 +39,9 @@ import { AccountsChangedCAEvents } from '../../services/accounts/events/accounts
 import { RequestAccountPermissionHandler } from '../../services/web3/handlers/wallet_requestAccountPermission';
 import { WalletGetNetworkStateHandler } from '~/services/network/handlers/wallet_getNetworkState';
 import { NetworkStateChangedEvents } from '~/services/network/events/networkStateChanged';
-import { AvalancheSetLanguageHandler } from '~/services/settings/handlers/avalanche_setLanguage';
-import { AvalancheGetSettingsHandler } from '~/services/settings/handlers/avalanche_getSettings';
-import { AvalancheSetCurrencyHandler } from '~/services/settings/handlers/avalanche_setCurrency';
 import { SettingsUpdatedEventsCore } from '~/services/settings/events/settingsUpdatedEventCore';
+import { WalletSetSettingsHandler } from '~/services/settings/handlers/wallet_setSettings';
+import { WalletGetSettingsHandler } from '~/services/settings/handlers/wallet_getSettings';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -92,9 +91,8 @@ const SHARED_HANDLERS = [
     token: 'DAppRequestHandler',
     useToken: WalletGetNetworkStateHandler,
   },
-  { token: 'DAppRequestHandler', useToken: AvalancheSetLanguageHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheGetSettingsHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSetCurrencyHandler },
+  { token: 'DAppRequestHandler', useToken: WalletGetSettingsHandler },
+  { token: 'DAppRequestHandler', useToken: WalletSetSettingsHandler },
 ];
 
 const LEGACY_REQUEST_HANDLERS = [

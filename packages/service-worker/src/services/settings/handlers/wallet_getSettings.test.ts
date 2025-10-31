@@ -5,7 +5,7 @@ import {
   SettingsState,
   AnalyticsConsent,
 } from '@core/types';
-import { AvalancheGetSettingsHandler } from './avalanche_getSettings';
+import { WalletGetSettingsHandler } from './wallet_getSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { SettingsService } from '../SettingsService';
 
@@ -15,11 +15,11 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     getSettings: getSettingsMock,
   } as unknown as SettingsService;
 
-  const handler = new AvalancheGetSettingsHandler(settingsServiceMock);
+  const handler = new WalletGetSettingsHandler(settingsServiceMock);
 
   const createRequest = () => ({
     id: '123',
-    method: DAppProviderRequest.AVALANCHE_GET_SETTINGS,
+    method: DAppProviderRequest.WALLET_GET_SETTINGS,
   });
 
   const mockSettingsState: SettingsState = {

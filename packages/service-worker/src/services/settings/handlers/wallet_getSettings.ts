@@ -3,8 +3,8 @@ import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
 @injectable()
-export class AvalancheGetSettingsHandler extends DAppRequestHandler {
-  methods = [DAppProviderRequest.AVALANCHE_GET_SETTINGS];
+export class WalletGetSettingsHandler extends DAppRequestHandler {
+  methods = [DAppProviderRequest.WALLET_GET_SETTINGS];
 
   constructor(private settingsService: SettingsService) {
     super();
