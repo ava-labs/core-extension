@@ -19,7 +19,6 @@ import {
   OnboardingContextProvider,
   PermissionContextProvider,
   SwapContextProvider,
-  UnifiedBridgeProvider,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -36,6 +35,7 @@ import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import * as routes from '@/config/routes';
+import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -131,13 +131,13 @@ export function App() {
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
-          <UnifiedBridgeProvider />,
+          <NextUnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
       <>
         {displayHeader && (
-          <Stack sx={{ width: 1 }}>
+          <Stack width={1}>
             <Header />
           </Stack>
         )}

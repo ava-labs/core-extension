@@ -23,7 +23,7 @@ export const BridgeTransactionForm = () => {
   const [accountQuery, setAccountQuery] = useState('');
   const {
     transferAsset,
-    target,
+    asset: target,
     query: { amount, updateQuery, transactionId },
     targetNetworkId,
     state,
