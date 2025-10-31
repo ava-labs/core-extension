@@ -1,17 +1,58 @@
-import { FC } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import { StateComponentProps } from '../types';
 import { Box, Stack, Typography, Button } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { useKeystoneUsbContext, isSpecificContextContainer } from '@core/ui';
+import { tabs } from 'webextension-polyfill';
+import { ContextContainer } from '@core/types';
 import { FiAlertCircle } from 'react-icons/fi';
-import { useKeystoneUsbContext } from '@core/ui';
 
 export const Disconnected: FC<StateComponentProps> = ({
   state,
   approve: _approve,
-  reject,
+  reject: _reject,
 }) => {
   const { t } = useTranslation();
-  const { retryConnection } = useKeystoneUsbContext();
+  const {
+    popDeviceSelection,
+    initKeystoneTransport,
+    retryConnection,
+    wasTransportAttempted,
+  } = useKeystoneUsbContext();
+
+  // Auto-retry connection when in disconnected state (device might be locked)
+  useEffect(() => {
+    if (state === 'disconnected' && wasTransportAttempted) {
+      const interval = setInterval(() => {
+        retryConnection();
+      }, 2000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [state, wasTransportAttempted, retryConnection]);
+
+  const onReconnect = useCallback(async () => {
+    if (isSpecificContextContainer(ContextContainer.CONFIRM)) {
+      await popDeviceSelection();
+    } else {
+      // Open in a full screen tab, the extension window does not support the device selection popup.
+      const tab = await tabs.create({
+        url: '/fullscreen.html#/keystone-usb/reconnect',
+      });
+
+      const initTransport = (tabId) => {
+        if (tabId === tab.id) {
+          initKeystoneTransport();
+        }
+
+        tabs.onRemoved.removeListener(initTransport);
+      };
+
+      tabs.onRemoved.addListener(initTransport);
+    }
+  }, [popDeviceSelection, initKeystoneTransport]);
 
   if (state !== 'disconnected') {
     return null;
@@ -36,7 +77,7 @@ export const Disconnected: FC<StateComponentProps> = ({
             {t('Keystone disconnected')}
           </Typography>
           <Stack>
-            <Typography variant="caption">
+            <Typography variant="caption" color="text.secondary">
               {t(
                 'Core is no longer connected to your Keystone device. Reconnect to continue.',
               )}
@@ -45,11 +86,8 @@ export const Disconnected: FC<StateComponentProps> = ({
         </Stack>
       </Stack>
       <Stack gap={1} p={2}>
-        <Button onClick={retryConnection} fullWidth>
-          {t('Reconnect')}
-        </Button>
-        <Button onClick={reject} fullWidth variant="outlined">
-          {t('Dismiss')}
+        <Button onClick={onReconnect} fullWidth>
+          {t('Unable to connect?')}
         </Button>
       </Stack>
     </Stack>

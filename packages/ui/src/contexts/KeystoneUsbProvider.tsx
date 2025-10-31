@@ -31,24 +31,39 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   const { request } = useConnectionContext();
   const avalancheAppRef = useRef<Avalanche | null>(null);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
+  const [hasKeystoneTransport, setHasKeystoneTransport] = useState(false);
 
   useEffect(() => {
     const subscription = of([initialized])
       .pipe(
         filter(([isInitialized]) => !!isInitialized),
-        switchMap(() => getKeystoneTransport()),
+        switchMap(async () => {
+          const app = await getKeystoneTransport();
+          if (!app) {
+            setWasTransportAttempted(true);
+            setHasKeystoneTransport(false);
+            throw new Error('Keystone transport not available');
+          }
+          return app;
+        }),
         tap((app) => {
           avalancheAppRef.current = app as Avalanche;
-        }),
-        tap(() => {
+          setHasKeystoneTransport(true);
           setWasTransportAttempted(true);
         }),
         retryWhen((errors) => {
           setWasTransportAttempted(true);
+          setHasKeystoneTransport(false);
           return errors.pipe(delay(2000));
         }),
       )
-      .subscribe();
+      .subscribe({
+        error: () => {
+          // Ensure wasTransportAttempted is set even on final error
+          setWasTransportAttempted(true);
+          setHasKeystoneTransport(false);
+        },
+      });
     return () => {
       subscription.unsubscribe();
     };
@@ -59,9 +74,10 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   }, []);
 
   const retryConnection = useCallback(async () => {
-    // Reset state to allow retry
-    setWasTransportAttempted(false);
+    // Retry connection without resetting wasTransportAttempted to avoid flashing
+    // Clear the app reference and reset initialized to trigger a fresh connection attempt
     avalancheAppRef.current = null;
+    setHasKeystoneTransport(false);
     setInitialized(false);
     // Small delay to ensure state reset, then reinitialize
     setTimeout(() => setInitialized(true), 100);
@@ -106,7 +122,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
         getExtendedPublicKey,
         wasTransportAttempted,
         getMasterFingerprint,
-        hasKeystoneTransport: !!avalancheAppRef.current,
+        hasKeystoneTransport,
       }}
     >
       {children}

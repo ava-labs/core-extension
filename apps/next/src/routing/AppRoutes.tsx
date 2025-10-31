@@ -12,6 +12,7 @@ import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
+import { KeystoneUsbReconnect } from '@/pages/KeystoneUsb/Reconnect';
 
 export const AppRoutes = () => (
   <Switch>
@@ -25,6 +26,7 @@ export const AppRoutes = () => (
     <Route path="/trending" component={TrendingTokens} />
     <Route path={getSwapPath()} component={Swap} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
+    <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );
