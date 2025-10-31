@@ -35,13 +35,13 @@ export function SearchableSelectTrigger<T>({
 
 const Container = styled((props: StackProps) => (
   <Stack role="button" {...props} />
-))(({ theme }) => ({
+))(({ onClick, theme }) => ({
   flexDirection: 'row',
   paddingInline: theme.spacing(1.5),
   paddingBlock: theme.spacing(0.5),
   alignItems: 'center',
   gap: theme.spacing(0.5),
-  cursor: 'pointer',
+  cursor: onClick ? 'pointer' : 'default',
 }));
 
 const LabelAndValueWrapper = styled(Stack)(({ theme }) => ({

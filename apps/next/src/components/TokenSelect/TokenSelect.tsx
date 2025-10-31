@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 
 import { SearchableSelect } from '../SearchableSelect';
-import { compareTokens, searchTokens } from './lib/utils';
 import {
   SelectedToken,
   TokenMenuItem,
   TokenSelectPrompt,
   TokenSelectTrigger,
 } from './components';
+import { compareTokens, searchTokens } from './lib/utils';
 
 type TokenSelectProps = {
   id: string;
@@ -20,6 +20,8 @@ type TokenSelectProps = {
   query: string;
   onQueryChange: (query: string) => void;
   hint?: string;
+  disabled?: boolean;
+  tokenBalance?: boolean;
 };
 
 function TokenSelectRaw({
@@ -30,6 +32,8 @@ function TokenSelectRaw({
   query,
   onQueryChange,
   hint,
+  disabled,
+  tokenBalance = true,
 }: TokenSelectProps) {
   const { t } = useTranslation();
 
@@ -40,6 +44,7 @@ function TokenSelectRaw({
   return (
     <SearchableSelect<FungibleTokenBalance>
       id={id}
+      disabled={disabled}
       options={tokenList}
       getOptionId={getUniqueTokenId}
       groupBy={() => ''} // No grouping
@@ -57,7 +62,7 @@ function TokenSelectRaw({
       }}
       renderValue={(token) =>
         token ? (
-          <SelectedToken token={token} hint={hint} />
+          <SelectedToken token={token} hint={hint} balance={tokenBalance} />
         ) : (
           <TokenSelectPrompt />
         )

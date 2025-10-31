@@ -1,15 +1,15 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useTranslation } from 'react-i18next';
-import { useCallback, useMemo } from 'react';
 import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
+import { FC, FocusEventHandler, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
-import { useConvertedCurrencyFormatter } from '@core/ui';
 import {
-  getUniqueTokenId,
   FungibleTokenBalance,
+  getUniqueTokenId,
   isNativeToken,
 } from '@core/types';
+import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
@@ -18,7 +18,6 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
-  maxAmount?: bigint;
   estimatedFee?: bigint;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
@@ -26,16 +25,23 @@ type TokenAmountInputProps = {
   tokenQuery: string;
   onQueryChange: (tokenQuery: string) => void;
   amount: string;
+  maxAmount?: bigint;
+  minAmount?: bigint;
   onAmountChange: (amount: string) => void;
   withPresetButtons?: boolean;
   tokenHint?: string;
   autoFocus?: boolean;
   isLoading?: boolean;
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
+  disabled?: boolean;
+  tokenBalance?: boolean;
 };
 
-export const TokenAmountInput = ({
+export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   id,
   maxAmount,
+  minAmount = 0n,
   estimatedFee,
   tokenId,
   tokensForAccount,
@@ -48,7 +54,11 @@ export const TokenAmountInput = ({
   tokenHint,
   autoFocus = true,
   isLoading = false,
-}: TokenAmountInputProps) => {
+  onFocus,
+  onBlur,
+  disabled,
+  tokenBalance = true,
+}) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
 
@@ -120,19 +130,24 @@ export const TokenAmountInput = ({
           query={tokenQuery}
           onQueryChange={onQueryChange}
           hint={tokenHint}
+          disabled={disabled}
+          tokenBalance={tokenBalance}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange(ev.target.value)}
-            error={Boolean(isAmountTooBig) || amountBigInt < 0n}
+            error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
             }
             slotProps={{
               input: {
                 readOnly: isLoading,
+                onFocus,
+                onBlur,
+                disabled,
               },
             }}
             value={amount}
