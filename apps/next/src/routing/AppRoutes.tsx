@@ -32,7 +32,7 @@ export const AppRoutes = () => (
     <Route path={getSwapPath()} component={Swap} />
     <Route path={getBridgePath()} component={Bridge} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
-    <Route path="/sync" component={Activity} />
+    <Route path="/activity" component={Activity} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );

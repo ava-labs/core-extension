@@ -50,6 +50,7 @@ const pagesWithoutHeader = [
   '/network/switch',
   '/manage-tokens',
   '/trending',
+  '/activity',
   routes.getContactsPath(),
   routes.getSendPath(),
   routes.getSwapPath(),
