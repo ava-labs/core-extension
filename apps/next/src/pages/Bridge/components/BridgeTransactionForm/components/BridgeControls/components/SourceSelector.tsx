@@ -1,9 +1,9 @@
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
+import { Styled } from '@/pages/Bridge/components';
 import { useBridgeState } from '@/pages/Bridge/contexts';
 import { FC, FocusEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import * as Styled from '../../../../Styled';
 import { NetworkSelect } from './NetworkSelect';
 import { UseCrossChainTransferInfo } from './UseCrossChainTransferInfo';
 
@@ -13,8 +13,13 @@ type Props = {
 
 export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
   const { t } = useTranslation();
-  const { sourceChainIds, sourceTokens, shouldUseCrossChainTransfer, query } =
-    useBridgeState();
+  const {
+    sourceChainIds,
+    sourceTokens,
+    shouldUseCrossChainTransfer,
+    query,
+    minTransferAmount,
+  } = useBridgeState();
   const { updateQuery } = query;
   const [isFocused, setIsFocused] = useState(false);
 
@@ -46,6 +51,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
           id="bridge-from-amount"
           tokenId={query.sourceToken}
           tokensForAccount={sourceTokens}
+          minAmount={minTransferAmount}
           onTokenChange={(token) =>
             updateQuery({
               sourceToken: token,

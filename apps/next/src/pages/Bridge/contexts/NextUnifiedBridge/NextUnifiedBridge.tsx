@@ -1,4 +1,3 @@
-import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { assert, caipToChainId, chainIdToCaip } from '@core/common';
 import { CommonError, NetworkWithCaipId } from '@core/types';
@@ -84,7 +83,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
       transferAsset,
       getTransferableAssets,
       isTxConfirming: (txHash) => isConfirming(txHash, state.pendingTransfers),
-      analyzeTx: (txInfo: AnalyzeTxParams) => {
+      analyzeTx: (txInfo) => {
         assert(core, CommonError.Unknown);
         return core.analyzeTx(txInfo);
       },

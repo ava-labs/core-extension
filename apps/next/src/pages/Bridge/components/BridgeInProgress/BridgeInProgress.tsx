@@ -39,7 +39,7 @@ export const BridgeInProgress: FC = () => {
 
   return (
     <>
-      <BridgeTokenCard token={token} amount={amount} />
+      <BridgeTokenCard token={token} amount={amount} size={24} badgeSize={10} />
       <BridgeDetails
         networkLabel={t('From')}
         chain={pendingTransfer.sourceChain}

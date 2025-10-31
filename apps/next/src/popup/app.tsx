@@ -20,7 +20,6 @@ import {
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
   SwapContextProvider,
-  UnifiedBridgeProvider,
   useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
@@ -40,6 +39,7 @@ import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import * as routes from '@/config/routes';
+import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -154,13 +154,13 @@ export function App() {
           <SwapContextProvider {...swapToastCallbacks} />,
           <DefiContextProvider />,
           <FirebaseContextProvider />,
-          <UnifiedBridgeProvider />,
+          <NextUnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
       <>
         {displayHeader && (
-          <Stack sx={{ width: 1 }}>
+          <Stack width={1}>
             <Header />
           </Stack>
         )}

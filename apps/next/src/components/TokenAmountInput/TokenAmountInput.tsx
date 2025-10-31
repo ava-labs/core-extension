@@ -1,6 +1,6 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
-import { FocusEventHandler, useCallback, useMemo } from 'react';
+import { FC, FocusEventHandler, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
@@ -18,7 +18,6 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
-  maxAmount?: bigint;
   estimatedFee?: bigint;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
@@ -26,6 +25,8 @@ type TokenAmountInputProps = {
   tokenQuery: string;
   onQueryChange: (tokenQuery: string) => void;
   amount: string;
+  maxAmount?: bigint;
+  minAmount?: bigint;
   onAmountChange: (amount: string) => void;
   withPresetButtons?: boolean;
   tokenHint?: string;
@@ -37,9 +38,10 @@ type TokenAmountInputProps = {
   tokenBalance?: boolean;
 };
 
-export const TokenAmountInput = ({
+export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   id,
   maxAmount,
+  minAmount = 0n,
   estimatedFee,
   tokenId,
   tokensForAccount,
@@ -56,7 +58,7 @@ export const TokenAmountInput = ({
   onBlur,
   disabled,
   tokenBalance = true,
-}: TokenAmountInputProps) => {
+}) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
 
@@ -136,7 +138,7 @@ export const TokenAmountInput = ({
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange(ev.target.value)}
-            error={Boolean(isAmountTooBig) || amountBigInt < 0n}
+            error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
             }

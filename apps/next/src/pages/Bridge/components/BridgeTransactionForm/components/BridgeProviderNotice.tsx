@@ -5,7 +5,7 @@ import { useBridgeState } from '../../../contexts';
 
 export const BridgeProviderNotice = () => {
   const { t } = useTranslation();
-  const { target, targetNetworkId } = useBridgeState();
+  const { asset: target, targetNetworkId } = useBridgeState();
 
   const [bridgeType] = target?.destinations[targetNetworkId] ?? [];
 
