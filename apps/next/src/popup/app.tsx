@@ -38,6 +38,7 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -140,6 +141,7 @@ export function App() {
         )}
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
+        <LedgerRegisterBtcWalletPolicy />
       </>
     </Providers>
   );
