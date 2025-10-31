@@ -53,6 +53,7 @@ const pagesWithoutHeader = [
   '/manage-tokens',
   '/trending',
   '/defi',
+  '/activity',
   routes.getContactsPath(),
   routes.getSendPath(),
   routes.getSwapPath(),

@@ -37,7 +37,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
       >
         <FiSettings size={24} style={{ scale: 5 / 6 }} />
       </IconButton>
-      <IconButton size="small" onClick={() => history.push('/sync')}>
+      <IconButton size="small" onClick={() => history.push('/activity')}>
         <AnimatedSyncIcon size={24} data-active={hasPendingTransactions} />
       </IconButton>
       <ViewModeSwitcher />

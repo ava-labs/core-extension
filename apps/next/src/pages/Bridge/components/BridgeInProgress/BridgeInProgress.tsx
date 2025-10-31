@@ -5,11 +5,13 @@ import { useBridgeAmounts } from '@core/ui';
 import Big from 'big.js';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails } from './components';
 
 export const BridgeInProgress: FC = () => {
   const { t } = useTranslation();
+  const { push } = useHistory();
   const {
     query: { transactionId },
     state: { pendingTransfers },
@@ -55,7 +57,13 @@ export const BridgeInProgress: FC = () => {
         confirmationsReceived={pendingTransfer.targetConfirmationCount}
       />
       <Box mt="auto">
-        <Button variant="contained" size="extension" color="primary" fullWidth>
+        <Button
+          variant="contained"
+          size="extension"
+          color="primary"
+          fullWidth
+          onClick={() => push('/')}
+        >
           {t('Notify me when it’s done')}
         </Button>
       </Box>
