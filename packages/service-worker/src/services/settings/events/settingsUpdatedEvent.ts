@@ -1,7 +1,6 @@
 import {
-  ConnectionInfo,
-  DAppEventEmitter,
   ExtensionConnectionEvent,
+  ExtensionEventEmitter,
   SettingsEvents,
 } from '@core/types';
 import { EventEmitter } from 'events';
@@ -9,19 +8,12 @@ import { SettingsService } from '../SettingsService';
 import { singleton } from 'tsyringe';
 
 @singleton()
-export class SettingsUpdatedEvents implements DAppEventEmitter {
+export class SettingsUpdatedEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
-  private _connectionInfo?: ConnectionInfo;
-
-  setConnectionInfo(connectionInfo: ConnectionInfo) {
-    this._connectionInfo = connectionInfo;
-  }
-
   constructor(private settingsService: SettingsService) {
     this.settingsService.addListener(
       SettingsEvents.SETTINGS_UPDATED,
       (settings) => {
-        // Emit extension event (for extension UI)
         this.eventEmitter.emit('update', {
           name: SettingsEvents.SETTINGS_UPDATED,
           value: settings,
