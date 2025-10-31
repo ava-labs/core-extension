@@ -21,10 +21,15 @@ import {
   IconButton,
 } from '@avalabs/core-k2-components';
 
-import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
+import {
+  FunctionNames,
+  useFeatureFlagContext,
+  useIsFunctionAvailable,
+} from '@core/ui';
 import { useAnalyticsContext } from '@core/ui';
 import { getCoreWebUrl } from '@core/common';
 import { Flipper } from '../Flipper';
+import { FeatureGates } from '@core/types';
 
 const ActionButtonWrapper = styled(Stack)`
   padding: 0 8px;
@@ -98,6 +103,8 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const history = useHistory();
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
+  const { isFlagEnabled } = useFeatureFlagContext();
+
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -144,7 +151,14 @@ export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
       name: FunctionNames.BRIDGE,
       icon: <BridgeIcon size={24} sx={{ color: theme.palette.common.black }} />,
     },
-  ].filter(({ name }) => checkIsFunctionSupported(name));
+  ]
+    .filter(({ name }) => checkIsFunctionSupported(name))
+    .filter(({ name }) => {
+      if (name === FunctionNames.BRIDGE) {
+        return isFlagEnabled(FeatureGates.BRIDGE_BTC);
+      }
+      return true;
+    });
 
   const fabText = isOpen ? t('Close') : t('Actions');
 

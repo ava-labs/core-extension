@@ -52,6 +52,7 @@ import {
   isBridgeStateUpdateEventListener,
   isUnifiedBridgeStateUpdate,
 } from '@core/common';
+import { FeatureGates } from '@core/types';
 import { useTranslation } from 'react-i18next';
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
@@ -145,7 +146,7 @@ export function UnifiedBridgeProvider({
     UNIFIED_BRIDGE_DEFAULT_STATE,
   );
   const [isBridgeDevEnv, setIsBridgeDevEnv] = useState(false);
-  const { featureFlags } = useFeatureFlagContext();
+  const { featureFlags, isFlagEnabled } = useFeatureFlagContext();
   const enabledBridgeTypes = useMemo(
     () => getEnabledBridgeTypes(featureFlags),
     [featureFlags],
@@ -383,10 +384,17 @@ export function UnifiedBridgeProvider({
     });
   }, [environment, activeBridgeTypes]);
 
-  const availableChainIds = useMemo(
-    () => Object.keys(core?.getAssets() ?? {}),
-    [core],
-  );
+  const availableChainIds = useMemo(() => {
+    const chainIds = Object.keys(core?.getAssets() ?? {});
+
+    // Filter out Bitcoin networks if BRIDGE_BTC feature flag is disabled
+    const isBridgeBtcEnabled = isFlagEnabled(FeatureGates.BRIDGE_BTC);
+    if (!isBridgeBtcEnabled) {
+      return chainIds.filter((chainId) => !isBitcoinCaipId(chainId));
+    }
+
+    return chainIds;
+  }, [core, isFlagEnabled]);
 
   const buildChain = useCallback(
     (chainId: string): Chain => {
@@ -415,8 +423,20 @@ export function UnifiedBridgeProvider({
       return [];
     }
 
-    return core.getAssets()[activeNetwork.caipId] ?? [];
-  }, [activeNetwork, core]);
+    const assets = core.getAssets()[activeNetwork.caipId] ?? [];
+
+    // Filter out BTC and BTC.b if BRIDGE_BTC feature flag is disabled
+    const isBridgeBtcEnabled = isFlagEnabled(FeatureGates.BRIDGE_BTC);
+    if (!isBridgeBtcEnabled) {
+      return assets.filter(
+        (asset) =>
+          asset.symbol.toUpperCase() !== 'BTC' &&
+          asset.symbol.toUpperCase() !== 'BTC.B',
+      );
+    }
+
+    return assets;
+  }, [activeNetwork, core, isFlagEnabled]);
 
   useEffect(() => {
     request<UnifiedBridgeGetState>({
