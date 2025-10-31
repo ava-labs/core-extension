@@ -42,7 +42,7 @@ import { NetworkStateChangedEvents } from '~/services/network/events/networkStat
 import { AvalancheSetLanguageHandler } from '~/services/settings/handlers/avalanche_setLanguage';
 import { AvalancheGetSettingsHandler } from '~/services/settings/handlers/avalanche_getSettings';
 import { AvalancheSetCurrencyHandler } from '~/services/settings/handlers/avalanche_setCurrency';
-import { SettingsUpdatedEvents } from '~/services/settings/events/settingsUpdatedEvent';
+import { SettingsUpdatedEventsCore } from '~/services/settings/events/settingsUpdatedEventCore';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -138,6 +138,6 @@ export class DappRequestHandlerRegistry {}
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionEvents },
   { token: 'DAppEventEmitter', useToken: NetworkStateChangedEvents },
-  { token: 'DAppEventEmitter', useToken: SettingsUpdatedEvents },
+  { token: 'DAppEventEmitter', useToken: SettingsUpdatedEventsCore },
 ])
 export class DappEventEmitterRegistry {}

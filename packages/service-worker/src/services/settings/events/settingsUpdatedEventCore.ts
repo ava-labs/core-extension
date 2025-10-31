@@ -3,13 +3,15 @@ import {
   DAppEventEmitter,
   ExtensionConnectionEvent,
   SettingsEvents,
+  Web3Event,
 } from '@core/types';
+import { isSyncDomain } from '@core/common';
 import { EventEmitter } from 'events';
 import { SettingsService } from '../SettingsService';
 import { singleton } from 'tsyringe';
 
 @singleton()
-export class SettingsUpdatedEvents implements DAppEventEmitter {
+export class SettingsUpdatedEventsCore implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
   private _connectionInfo?: ConnectionInfo;
 
@@ -21,11 +23,16 @@ export class SettingsUpdatedEvents implements DAppEventEmitter {
     this.settingsService.addListener(
       SettingsEvents.SETTINGS_UPDATED,
       (settings) => {
-        // Emit extension event (for extension UI)
-        this.eventEmitter.emit('update', {
-          name: SettingsEvents.SETTINGS_UPDATED,
-          value: settings,
-        });
+        // Emit web3 event (for dApps) - only for Core Suite domains
+        if (
+          this._connectionInfo?.domain &&
+          isSyncDomain(this._connectionInfo.domain)
+        ) {
+          this.eventEmitter.emit('update', {
+            method: Web3Event.SETTINGS_CHANGED,
+            params: settings,
+          });
+        }
       },
     );
   }
