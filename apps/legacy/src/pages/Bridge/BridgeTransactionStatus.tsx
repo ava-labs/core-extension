@@ -68,6 +68,7 @@ const BridgeTransactionStatus = () => {
   } = useAccountsContext();
   const { getErrorMessage } = useUnifiedBridgeContext();
   const bridgeTransactions = usePendingBridgeTransactions();
+  console.log({ bridgeTransactions });
   const { removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toCardOpen, setToCardOpen] = useState<boolean>(false);
@@ -147,6 +148,15 @@ const BridgeTransactionStatus = () => {
     targetCurrentConfirmations,
     targetRequiredConfirmations,
   } = useBridgeTransferStatus(bridgeTransaction);
+
+  console.log({
+    bridgeTransaction,
+    isComplete,
+    sourceCurrentConfirmations,
+    sourceRequiredConfirmations,
+    targetCurrentConfirmations,
+    targetRequiredConfirmations,
+  });
 
   const errorCode = isUnifiedBridgeTransfer(bridgeTransaction)
     ? bridgeTransaction.errorCode
