@@ -334,20 +334,6 @@ export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;
 }
 
-export const CORE_DOMAINS = [
-  'localhost',
-  '127.0.0.1',
-  'core-web.pages.dev',
-  'core.app',
-  'staging.core.app',
-  'develop.core.app',
-  'ava-labs.github.io', // playground
-  'avacloud.io',
-  'avacloud-app.pages.dev',
-  'launch-4zn.pages.dev',
-  'launchpad.avacloud.io ',
-];
-
 export interface ConnectionController {
   connect(connection: Runtime.Port): void;
   disconnect(): void;

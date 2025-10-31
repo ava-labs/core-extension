@@ -29,11 +29,27 @@ const SYNCED_DOMAINS_DEVELOPMENT_BUILD = [
   ...DAPP_DEV_DOMAINS,
 ] as const;
 
+const KNOWN_AVACLOUD_DOMAINS = [
+  'avacloud.io',
+  'avacloud-app.pages.dev',
+  'launchpad.avacloud.io',
+];
+
+const PLAYGROUD_APP = 'ava-labs.github.io';
+
 export const KNOWN_CORE_DOMAINS = [
   CORE_WEB_DOMAIN,
   ...CORE_WEB_STAGING_DOMAINS,
   ...DAPP_DEV_DOMAINS,
 ] as const;
+
+// Domains allowed to access the avalanche_* methods
+export const WHITELISTED_DOMAINS = [
+  ...KNOWN_CORE_DOMAINS,
+  ...KNOWN_AVACLOUD_DOMAINS,
+  ...DAPP_DEV_DOMAINS,
+  PLAYGROUD_APP,
+];
 
 export const SYNCED_DOMAINS = isProductionBuild()
   ? SYNCED_DOMAINS_PRODUCTION_BUILD
