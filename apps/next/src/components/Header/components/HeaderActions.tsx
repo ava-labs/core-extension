@@ -1,55 +1,32 @@
-import {
-  IconButton,
-  QrCodeIcon,
-  Stack,
-  styled,
-  SyncIcon,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
+import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
+import { IconButton, QrCodeIcon, Stack, useTheme } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { ComponentProps, FC } from 'react';
+import { FC } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 
 type Props = {
-  activeAccount: Account | undefined;
-  pendingTransaction: boolean;
+  account: Account | undefined;
 };
 
-type AnimatedSyncIconProps = ComponentProps<typeof SyncIcon> & {
-  pending: boolean;
-};
-
-const AnimatedSyncIcon = styled(SyncIcon, {
-  shouldForwardProp: (prop) => prop !== 'pending',
-})<AnimatedSyncIconProps>(({ pending }) => ({
-  animationName: pending ? 'rotate' : 'none',
-  animationDuration: '2s',
-  animationTimingFunction: 'linear',
-  animationIterationCount: 'infinite',
-
-  '@keyframes rotate': {
-    from: { transform: 'rotate(360deg)' },
-    to: { transform: 'rotate(0deg)' },
-  },
-}));
-
-export const HeaderActions: FC<Props> = ({
-  activeAccount,
-  pendingTransaction,
-}) => {
+export const HeaderActions: FC<Props> = ({ account }) => {
   const history = useHistory();
   const theme = useTheme();
+  const {
+    state: { pendingTransfers },
+  } = useNextUnifiedBridgeContext();
+  const hasPendingTransactions = Object.values(pendingTransfers).length > 0;
 
   return (
     <Stack direction="row" alignItems="center">
-      <ConnectedSites activeAccount={activeAccount} />
+      <ConnectedSites activeAccount={account} />
       <IconButton
-        disabled={!activeAccount}
+        disabled={!account}
         size="small"
-        onClick={() => history.push(`/receive?accId=${activeAccount?.id}`)}
+        onClick={() => history.push(`/receive?accId=${account?.id}`)}
       >
         <QrCodeIcon fill={theme.palette.text.primary} size={24} />
       </IconButton>
@@ -60,8 +37,8 @@ export const HeaderActions: FC<Props> = ({
       >
         <FiSettings size={24} style={{ scale: 5 / 6 }} />
       </IconButton>
-      <IconButton size="small">
-        <AnimatedSyncIcon size={24} pending={pendingTransaction} />
+      <IconButton size="small" onClick={() => history.push('/sync')}>
+        <AnimatedSyncIcon size={24} data-active={hasPendingTransactions} />
       </IconButton>
       <ViewModeSwitcher />
     </Stack>

@@ -7,6 +7,8 @@ import {
   getSwapPath,
 } from '@/config/routes';
 import AccountManagement from '@/pages/AccountManagement';
+
+import { Activity } from '@/pages/Activity';
 import { Bridge } from '@/pages/Bridge';
 import { Concierge } from '@/pages/Concierge';
 import { Contacts } from '@/pages/Contacts';
@@ -42,6 +44,7 @@ export const AppRoutes = () => (
     <Route path={getBridgePath()} component={Bridge} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
     <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
+    <Route path="/sync" component={Activity} />
     <Route path="/" component={Portfolio} />
   </Switch>
 );
