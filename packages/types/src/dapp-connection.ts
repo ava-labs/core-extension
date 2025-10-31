@@ -65,8 +65,9 @@ export enum Web3Event {
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
 
-  // Core Web specific event
+  // Core Web specific events
   NETWORK_STATE_CHANGED = 'networkStateChanged',
+  SETTINGS_CHANGED = 'settingsChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {
