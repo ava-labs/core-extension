@@ -16,6 +16,7 @@ import {
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SeedlessMfaManagementProvider,
   SwapContextProvider,
   useNetworkContext,
   usePageHistory,
@@ -118,10 +119,13 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}
             LoadingComponent={LoadingScreen}
           />,
+          <SeedlessMfaManagementProvider />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
