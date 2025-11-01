@@ -7,6 +7,7 @@ import { Portfolio } from '@/pages/Portfolio';
 import { Receive } from '@/pages/Receive';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
+import { Concierge } from '@/pages/Concierge';
 import { Swap } from '@/pages/Swap';
 
 import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
@@ -24,6 +25,7 @@ export const AppRoutes = () => (
     <Route path={getSendPath()} component={Send} />
     <Route path="/trending" component={TrendingTokens} />
     <Route path={getSwapPath()} component={Swap} />
+    <Route path={'/concierge'} component={Concierge} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />
     <Route path="/" component={Portfolio} />
   </Switch>
