@@ -8,12 +8,19 @@ import {
   Box,
   Divider,
   Scrollbars,
+  EditIcon,
 } from '@avalabs/core-k2-components';
 import { SettingsPageProps } from '../models';
 import { SettingsHeader } from '../SettingsHeader';
-import { REQUIRED_LEDGER_VERSION, useLedgerContext } from '@core/ui';
+import {
+  REQUIRED_LEDGER_VERSION,
+  useLedgerContext,
+  useWalletContext,
+} from '@core/ui';
 import { Trans, useTranslation } from 'react-i18next';
 import { ConnectionIndicatorK2 } from '../../common/ConnectionIndicatorK2';
+import browser from 'webextension-polyfill';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 const StyledListNumber = styled(Box)`
   background-color: ${({ theme }) => theme.palette.grey[800]};
@@ -37,6 +44,7 @@ const InstructionLink = styled(Typography)`
 export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
   const { t } = useTranslation();
   const { hasLedgerTransport, avaxAppVersion } = useLedgerContext();
+  const { walletDetails } = useWalletContext();
 
   return (
     <Stack
@@ -61,10 +69,29 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
             </Stack>
           </ListItem>
           {hasLedgerTransport && (
-            <ListItem sx={{ justifyContent: 'space-between' }}>
-              <Typography variant="body2">{t('Ledger Version')}</Typography>
-              <Typography variant="body2">{avaxAppVersion}</Typography>
-            </ListItem>
+            <>
+              <ListItem sx={{ justifyContent: 'space-between' }}>
+                <Typography variant="body2">{t('Ledger Version')}</Typography>
+                <Typography variant="body2">{avaxAppVersion}</Typography>
+              </ListItem>
+              <ListItem sx={{ justifyContent: 'space-between' }}>
+                <Typography variant="body2">{t('Derivation Path')}</Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() =>
+                    browser.tabs.create({
+                      url: `/fullscreen.html#/accounts/add-wallet/ledger?walletId=${walletDetails?.id}&derivationPath=${walletDetails?.derivationPath}`,
+                    })
+                  }
+                >
+                  {walletDetails?.derivationPath === DerivationPath.LedgerLive
+                    ? t('Leger Live')
+                    : t('BIP44')}{' '}
+                  <EditIcon size={14} />
+                </Typography>
+              </ListItem>
+            </>
           )}
         </List>
         {!hasLedgerTransport && (
