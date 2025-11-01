@@ -102,6 +102,14 @@ export function AddWalletWithLedger() {
     lastAccountIndexWithBalance.current = data.lastAccountIndexWithBalance;
   }
 
+  const onReset = () => {
+    setXpub('');
+    setXpubXP('');
+    setPublicKeys(undefined);
+    setHasPublicKeys(false);
+    lastAccountIndexWithBalance.current = 0;
+  };
+
   const handleImport = useCallback(
     async (name?: string) => {
       try {
@@ -278,6 +286,7 @@ export function AddWalletWithLedger() {
                   checkIfWalletExists
                   addedDerivationPath={derivationPath}
                   isEditScreen={isEditScreen}
+                  onReset={onReset}
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>

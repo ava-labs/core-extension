@@ -54,6 +54,7 @@ interface LedgerConnectorProps {
   checkIfWalletExists?: boolean;
   addedDerivationPath?: DerivationPath;
   isEditScreen?: boolean;
+  onReset?: () => void;
 }
 
 export function LedgerConnector({
@@ -62,6 +63,7 @@ export function LedgerConnector({
   checkIfWalletExists,
   addedDerivationPath,
   isEditScreen,
+  onReset,
 }: LedgerConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
@@ -85,7 +87,9 @@ export function LedgerConnector({
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
-  const [dropdownDisabled, setDropdownDisabled] = useState(true);
+  const [dropdownDisabled, setDropdownDisabled] = useState(
+    isEditScreen ? false : true,
+  );
   const lastAccountIndexWithBalance = useRef(0);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -97,6 +101,7 @@ export function LedgerConnector({
     setAddresses([]);
     setHasPublicKeys(false);
     setPathSpec(DerivationPath.BIP44);
+    onReset?.();
   };
 
   const getAddressFromXpubKey = useCallback(
@@ -357,6 +362,10 @@ export function LedgerConnector({
   // Attempt to automatically connect using Ledger Live as soon as we
   // establish the transport.
   useEffect(() => {
+    // When in edit mode, do not auto fetch keys
+    if (isEditScreen) {
+      return;
+    }
     const retrieveKeys = async (selectedPathSpec: DerivationPath) => {
       setPublicKeyState(LedgerStatus.LEDGER_LOADING);
       setDropdownDisabled(true);
@@ -397,6 +406,7 @@ export function LedgerConnector({
     getDerivationPathValue,
     wasTransportAttempted,
     getXPublicKey,
+    isEditScreen,
   ]);
 
   return (
@@ -412,7 +422,6 @@ export function LedgerConnector({
           pathSpec={pathSpec}
           onPathSelected={onPathSelected}
           isDisabled={dropdownDisabled}
-          isEditScreen={isEditScreen}
         />
         {pathSpec &&
           publicKeyState !== LedgerStatus.LEDGER_UNINITIATED &&

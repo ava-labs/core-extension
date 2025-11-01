@@ -7,35 +7,33 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { Dropdown, DropdownItem } from '@/components/common/Dropdown';
+import { useQueryParams } from '@core/ui';
 
 interface DerivationPathDropdownProps {
   onPathSelected: (path: DerivationPath) => void;
   pathSpec: DerivationPath;
   isDisabled: boolean;
-  isEditScreen?: boolean;
 }
 
 export function DerivationPathDropdown({
   pathSpec,
   onPathSelected,
   isDisabled,
-  isEditScreen,
 }: DerivationPathDropdownProps) {
+  const params = useQueryParams();
+  const defaultDerivationPath = params.get('derivationPath') as DerivationPath;
+
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const hasBIP44AddedAlready =
-    isEditScreen && pathSpec === DerivationPath.BIP44;
-
-  const hasLedgerLiveAddedAlready =
-    isEditScreen && pathSpec === DerivationPath.LedgerLive;
-
-  const bip44Label = hasBIP44AddedAlready
-    ? t('BIP44 (Current)')
-    : t('BIP44 (Default)');
-  const ledgerLiveLabel = hasLedgerLiveAddedAlready
-    ? t('Ledger Live (Current)')
-    : t('Ledger Live');
+  const bip44Label =
+    defaultDerivationPath == DerivationPath.BIP44
+      ? t('BIP44 (Current)')
+      : t('BIP44 (Default)');
+  const ledgerLiveLabel =
+    defaultDerivationPath == DerivationPath.LedgerLive
+      ? t('Ledger Live (Current)')
+      : t('Ledger Live');
 
   return (
     <Stack>
