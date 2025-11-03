@@ -1,10 +1,6 @@
 import { UnifiedBridgeService } from '@avalabs/bridge-unified';
 import { assert } from '@core/common';
-import {
-  CommonError,
-  NetworkWithCaipId,
-  UnifiedBridgeError,
-} from '@core/types';
+import { CommonError, UnifiedBridgeError } from '@core/types';
 import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildParams, getAsset } from '../utils';
@@ -19,12 +15,14 @@ export function useEstimateTransferGas(core: UnifiedBridgeService | null) {
     async (
       symbol: string,
       amount: bigint,
-      sourceNetworkId: NetworkWithCaipId['caipId'],
+      sourceChainId: string,
       targetChainId: string,
     ): Promise<bigint> => {
-      const sourceNetwork = getNetwork(sourceNetworkId);
+      const sourceNetwork = getNetwork(sourceChainId);
+      const targetNetwork = getNetwork(targetChainId);
       assert(core, CommonError.Unknown);
-      assert(sourceNetwork, CommonError.NoActiveNetwork);
+      assert(sourceNetwork, CommonError.UnknownNetwork);
+      assert(targetNetwork, CommonError.UnknownNetwork);
 
       const asset = getAsset(core, symbol, sourceNetwork.caipId);
 
@@ -32,8 +30,8 @@ export function useEstimateTransferGas(core: UnifiedBridgeService | null) {
 
       const { fromAddress, sourceChain, targetChain } = await buildParams(
         activeAccount,
-        getNetwork(sourceNetworkId),
-        getNetwork(targetChainId),
+        sourceNetwork,
+        targetNetwork,
       );
 
       const gasLimit = await core.estimateGas({

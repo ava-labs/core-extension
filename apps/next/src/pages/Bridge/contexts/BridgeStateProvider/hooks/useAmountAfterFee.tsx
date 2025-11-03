@@ -17,7 +17,7 @@ export function useAmountAfterFee(
   targetToken: FungibleTokenBalance | undefined,
   amount: string,
   sourceNetworkId: string,
-  targetNetwork: string | undefined,
+  targetNetworkId: string | undefined,
 ) {
   const { getFee } = useNextUnifiedBridgeContext();
   const [feeState, setFeeState] = useState<FeeState>(DEFAULT_STATE);
@@ -25,10 +25,10 @@ export function useAmountAfterFee(
   const { symbol, decimals } = targetToken ?? {};
 
   useEffect(() => {
-    if (symbol && amount && targetNetwork && decimals) {
+    if (symbol && amount && targetNetworkId && decimals) {
       const amountBigInt = stringToBigint(amount, decimals);
       setFeeState(DEFAULT_STATE);
-      getFee(symbol, amountBigInt, sourceNetworkId, targetNetwork).then(
+      getFee(symbol, amountBigInt, sourceNetworkId, targetNetworkId).then(
         (fee) => {
           const afterFee = amountBigInt - fee;
           setFeeState({
@@ -38,7 +38,7 @@ export function useAmountAfterFee(
         },
       );
     }
-  }, [amount, targetNetwork, symbol, decimals, getFee, sourceNetworkId]);
+  }, [amount, targetNetworkId, symbol, decimals, getFee, sourceNetworkId]);
 
   return feeState;
 }
