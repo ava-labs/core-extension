@@ -38,6 +38,7 @@ const BridgeStateContext = createContext<
       sourceNetwork: NetworkWithCaipId | undefined;
       targetNetworks: NetworkWithCaipId['caipId'][];
       targetNetworkId: NetworkWithCaipId['caipId'];
+      sourceToken: FungibleTokenBalance | undefined;
       targetToken: FungibleTokenBalance | undefined;
       flipPair: VoidFunction;
     }
@@ -139,6 +140,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         targetNetworkId,
         targetNetworks,
         targetToken,
+        sourceToken: tokenAndAssetLookup.get(sourceToken)?.token,
         transferAsset,
         flipPair,
         state,

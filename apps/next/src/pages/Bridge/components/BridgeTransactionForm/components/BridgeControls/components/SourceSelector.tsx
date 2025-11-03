@@ -19,6 +19,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
     shouldUseCrossChainTransfer,
     query,
     minTransferAmount,
+    sourceToken,
   } = useBridgeState();
   const { updateQuery } = query;
   const [isFocused, setIsFocused] = useState(false);
@@ -52,6 +53,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
           tokenId={query.sourceToken}
           tokensForAccount={sourceTokens}
           minAmount={minTransferAmount}
+          maxAmount={sourceToken?.balance}
           onTokenChange={(token) =>
             updateQuery({
               sourceToken: token,
