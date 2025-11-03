@@ -7,7 +7,7 @@ import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { BridgeTokenCard } from '../BridgeTokenCard';
-import { BridgeDetails } from './components';
+import { BridgeDetails, TransactionFailure } from './components';
 
 export const BridgeInProgress: FC = () => {
   const { t } = useTranslation();
@@ -37,6 +37,16 @@ export const BridgeInProgress: FC = () => {
 
   if (!pendingTransfer) {
     return null;
+  }
+
+  if (pendingTransfer.errorCode) {
+    return (
+      <TransactionFailure
+        token={token}
+        amount={amount}
+        transfer={pendingTransfer}
+      />
+    );
   }
 
   return (
