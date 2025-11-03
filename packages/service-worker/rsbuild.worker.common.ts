@@ -49,7 +49,7 @@ export default defineConfig(() => {
         // Joi by default goes to browser-specific version which does not include the list of TLDS (which we need for email validation)
         joi: require.resolve('joi/lib/index.js'),
       },
-      dedupe: ['bn.js', 'bitcoinjs-lib', 'ledger-bitcoin'],
+      dedupe: ['bn.js', 'ledger-bitcoin'],
       fallback: {
         path: false,
         fs: false,

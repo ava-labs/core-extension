@@ -10,7 +10,7 @@ import {
   BtcSigner,
   Chain,
   Environment,
-  EvmSigner,
+  EvmSignerWithMessage,
   GasSettings,
   TokenType,
   ErrorCode as UnifiedBridgeErrorCode,
@@ -57,6 +57,7 @@ import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useNetworkContext } from './NetworkProvider';
+import { hex, utf8 } from '@scure/base';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -166,23 +167,23 @@ export function UnifiedBridgeProvider({
   const [activeBridgeTypes, setActiveBridgeTypes] =
     useState<BridgeServicesMap>();
 
-  const evmSigner: EvmSigner = useMemo(
+  const evmSigner: EvmSignerWithMessage = useMemo(
     () => ({
       signMessage: async (
-        data: { message: string; account: string; chainId: number },
+        data: { message: string; address: string; chainId: number },
         _,
         { currentSignature, requiredSignatures },
       ) => {
-        const { message, account, chainId } = data;
+        const { message, address, chainId } = data;
 
         assert(message, UnifiedBridgeError.InvalidTxPayload);
-        assert(account, UnifiedBridgeError.InvalidTxPayload);
+        assert(address, UnifiedBridgeError.InvalidTxPayload);
 
         try {
           const result = await request(
             {
               method: RpcMethod.PERSONAL_SIGN,
-              params: [message, account],
+              params: [hex.encode(utf8.decode(message)), address],
             },
             {
               scope: `eip155:${chainId}`,
