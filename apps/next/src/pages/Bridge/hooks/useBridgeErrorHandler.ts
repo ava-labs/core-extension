@@ -1,4 +1,4 @@
-import { bigToLocaleString, bigintToBig } from '@avalabs/core-utils-sdk';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { isAddressBlockedError, stringToBigint } from '@core/common';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,45 +10,86 @@ export const useBridgeErrorHandler = () => {
   const [isAddressBlocked, setIsAddressBlocked] = useState(false);
   const {
     minTransferAmount,
-    targetToken,
-    query: { transactionId, amount },
-    state: { pendingTransfers },
+    query: { amount },
+    fee = 0n,
+    sourceToken,
   } = useBridgeState();
+
+  const hasEnoughBalanceForTransfer =
+    sourceToken && minTransferAmount
+      ? sourceToken.balance >= minTransferAmount
+      : true;
 
   const clearError = useCallback(() => {
     setError('');
   }, []);
 
   useEffect(() => {
-    if (transactionId) {
-      const pendingTransfer = pendingTransfers[transactionId];
-      if (pendingTransfer) {
-        setError(
-          t('Bridge error: {{error}}', { error: pendingTransfer.errorCode }),
-        );
-      }
-    }
-  }, [transactionId, pendingTransfers, t]);
-
-  useEffect(() => {
-    if (!amount || minTransferAmount == null || !targetToken) {
+    if (
+      !amount ||
+      minTransferAmount == null ||
+      !sourceToken ||
+      hasEnoughBalanceForTransfer
+    ) {
       clearError();
       return;
     }
 
-    const bigIntAmount = stringToBigint(amount, targetToken.decimals);
-    if (bigIntAmount < minTransferAmount) {
+    const bigIntAmount = stringToBigint(amount, sourceToken.decimals);
+    if (
+      bigIntAmount < minTransferAmount ||
+      minTransferAmount > sourceToken.balance
+    ) {
       setError(
-        t('Minimum transfer amount is {{minAmount}}', {
-          minAmount: bigToLocaleString(
-            bigintToBig(minTransferAmount, targetToken.decimals),
-          ),
+        t('Minimum transfer amount is {{limit}}', {
+          limit: bigIntToString(minTransferAmount, sourceToken.decimals),
         }),
       );
     } else {
       clearError();
     }
-  }, [amount, clearError, minTransferAmount, targetToken, t]);
+  }, [
+    amount,
+    clearError,
+    minTransferAmount,
+    sourceToken,
+    t,
+    hasEnoughBalanceForTransfer,
+  ]);
+
+  useEffect(() => {
+    if (
+      !amount ||
+      !sourceToken ||
+      !fee ||
+      !minTransferAmount ||
+      !hasEnoughBalanceForTransfer
+    ) {
+      return;
+    }
+
+    const amountBigInt = stringToBigint(amount, sourceToken.decimals);
+    const maxAvailable = sourceToken.balance - fee;
+
+    if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
+      setError(
+        t('Maximum available after fees is {{balance}} {{symbol}}', {
+          balance: bigIntToString(maxAvailable, sourceToken.decimals),
+          symbol: sourceToken.symbol,
+        }),
+      );
+    } else {
+      clearError();
+    }
+  }, [
+    fee,
+    sourceToken,
+    amount,
+    clearError,
+    t,
+    minTransferAmount,
+    hasEnoughBalanceForTransfer,
+  ]);
 
   const onBridgeError = useCallback((err: unknown, fallbackMessage: string) => {
     if (isAddressBlockedError(err)) {
