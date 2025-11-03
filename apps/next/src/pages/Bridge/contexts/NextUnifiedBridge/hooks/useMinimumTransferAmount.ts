@@ -15,13 +15,17 @@ export function useMinimumTransferAmount(core: UnifiedBridgeService | null) {
       sourceNetworkId: string,
       targetNetworkId: string,
     ) => {
+      const sourceNetwork = getNetwork(sourceNetworkId);
+      const targetNetwork = getNetwork(targetNetworkId);
       assert(core, CommonError.Unknown);
+      assert(sourceNetwork, CommonError.UnknownNetwork);
+      assert(targetNetwork, CommonError.UnknownNetwork);
 
       return core.getMinimumTransferAmount({
         asset,
         amount,
-        sourceChain: buildChain(getNetwork(sourceNetworkId)),
-        targetChain: buildChain(getNetwork(targetNetworkId)),
+        sourceChain: buildChain(sourceNetwork),
+        targetChain: buildChain(targetNetwork),
       });
     },
     [core, getNetwork],

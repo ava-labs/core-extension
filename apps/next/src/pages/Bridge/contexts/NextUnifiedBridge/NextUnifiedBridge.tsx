@@ -1,7 +1,7 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { assert, caipToChainId, chainIdToCaip } from '@core/common';
 import { CommonError, NetworkWithCaipId } from '@core/types';
-import { useNetworkContext } from '@core/ui';
+import { useFeatureFlagContext, useNetworkContext } from '@core/ui';
 import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/networkSortingFn';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
@@ -18,7 +18,7 @@ import {
   useUnifiedBridgeState,
 } from './hooks';
 import { UnifiedBridgeContext } from './types';
-import { getChainAssets, getEnvironment } from './utils';
+import { getChainAssets, getEnvironment, removeDisabledChains } from './utils';
 
 const NextUnifiedBridgeContext = createContext<
   UnifiedBridgeContext | undefined
@@ -34,6 +34,7 @@ const AVAX_CAIPS = {
 export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
   const state = useUnifiedBridgeState();
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
   const core = useCoreBridgeService(
@@ -43,13 +44,16 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
 
   const availableChainIds = useMemo(
     () =>
-      [
-        ...Object.keys(core?.getAssets() ?? {}),
-        ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
-      ].sort((one, another) =>
-        promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
+      removeDisabledChains(
+        [
+          ...Object.keys(core?.getAssets() ?? {}),
+          ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
+        ].sort((one, another) =>
+          promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
+        ),
+        isFlagEnabled,
       ),
-    [core, isDeveloperMode],
+    [core, isDeveloperMode, isFlagEnabled],
   );
 
   const getTransferableAssets = useMemo(

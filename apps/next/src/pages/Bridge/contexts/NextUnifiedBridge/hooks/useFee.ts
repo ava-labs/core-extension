@@ -16,11 +16,13 @@ export function useFee(core: UnifiedBridgeService | null) {
       symbol: string,
       amount: bigint,
       sourceNetworkId: NetworkWithCaipId['caipId'],
-      targetChainId: string,
+      targetNetworkId: NetworkWithCaipId['caipId'],
     ): Promise<bigint> => {
       const sourceNetwork = getNetwork(sourceNetworkId);
+      const targetNetwork = getNetwork(targetNetworkId);
       assert(core, CommonError.Unknown);
       assert(sourceNetwork, CommonError.NoActiveNetwork);
+      assert(targetNetwork, CommonError.UnknownNetwork);
 
       const asset = getAsset(core, symbol, sourceNetwork.caipId);
       assert(asset, UnifiedBridgeError.UnknownAsset);
@@ -29,7 +31,7 @@ export function useFee(core: UnifiedBridgeService | null) {
         await core.getFees({
           asset,
           amount,
-          targetChain: buildChain(getNetwork(targetChainId)),
+          targetChain: buildChain(targetNetwork),
           sourceChain: buildChain(sourceNetwork),
         }),
       );

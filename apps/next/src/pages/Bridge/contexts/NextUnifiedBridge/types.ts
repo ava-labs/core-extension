@@ -10,8 +10,8 @@ export interface UnifiedBridgeContext {
   estimateTransferGas(
     symbol: string,
     amount: bigint,
-    sourceNetworkId: NetworkWithCaipId['caipId'],
-    targetChainId: string,
+    sourceChainId: string | number,
+    targetChainId: string | number,
   ): Promise<bigint>;
   getAssetIdentifierOnTargetChain(
     symbol?: string,
@@ -21,7 +21,7 @@ export interface UnifiedBridgeContext {
     symbol: string,
     amount: bigint,
     sourceNetworkId: NetworkWithCaipId['caipId'],
-    targetChainId: string,
+    targetNetworkId: NetworkWithCaipId['caipId'],
   ): Promise<bigint>;
   analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult;
   supportsAsset(

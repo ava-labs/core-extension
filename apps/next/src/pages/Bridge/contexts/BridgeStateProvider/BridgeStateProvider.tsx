@@ -1,13 +1,21 @@
 import { useAllTokens } from '@/hooks/useAllTokens';
 import { BridgeAsset } from '@avalabs/bridge-unified';
-import { findMatchingBridgeAsset } from '@core/common';
+import { findMatchingBridgeAsset, stringToBigint } from '@core/common';
 import {
   FungibleTokenBalance,
   getUniqueTokenId,
   NetworkWithCaipId,
 } from '@core/types';
 import { useNetworkContext } from '@core/ui';
-import { createContext, FC, PropsWithChildren, use, useMemo } from 'react';
+import {
+  createContext,
+  FC,
+  PropsWithChildren,
+  use,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
 import { useFetchMinTransferAmount } from './hooks';
@@ -41,6 +49,7 @@ const BridgeStateContext = createContext<
       sourceToken: FungibleTokenBalance | undefined;
       targetToken: FungibleTokenBalance | undefined;
       flipPair: VoidFunction;
+      requiredGas: bigint;
     }
 >(undefined);
 
@@ -48,6 +57,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const query = useBridgeQuery();
   const { getNetwork } = useNetworkContext();
   const { amount, sourceNetwork: sourceNetworkId, sourceToken } = query;
+  const [requiredGas, setRequiredGas] = useState<bigint>(0n);
 
   const {
     getTransferableAssets,
@@ -57,6 +67,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     state,
     isTxConfirming,
     getMinimumTransferAmount,
+    estimateTransferGas,
   } = useNextUnifiedBridgeContext();
 
   const sourceNetwork = useMemo(
@@ -124,6 +135,24 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     targetNetworkId,
   );
 
+  useEffect(() => {
+    if (asset?.symbol && amount && sourceNetworkId && targetNetworkId) {
+      estimateTransferGas(
+        asset.symbol,
+        stringToBigint(amount, asset.decimals),
+        sourceNetworkId,
+        targetNetworkId,
+      ).then(setRequiredGas);
+    }
+  }, [
+    asset?.symbol,
+    asset?.decimals,
+    amount,
+    sourceNetworkId,
+    targetNetworkId,
+    estimateTransferGas,
+  ]);
+
   return (
     <BridgeStateContext
       value={{
@@ -146,6 +175,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         state,
         isTxConfirming,
         minTransferAmount,
+        requiredGas,
       }}
     >
       {children}

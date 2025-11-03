@@ -11,8 +11,8 @@ export const useBridgeErrorHandler = () => {
   const {
     minTransferAmount,
     query: { amount },
-    fee = 0n,
     sourceToken,
+    requiredGas,
   } = useBridgeState();
 
   const hasEnoughBalanceForTransfer =
@@ -61,7 +61,7 @@ export const useBridgeErrorHandler = () => {
     if (
       !amount ||
       !sourceToken ||
-      !fee ||
+      !requiredGas ||
       !minTransferAmount ||
       !hasEnoughBalanceForTransfer
     ) {
@@ -69,8 +69,7 @@ export const useBridgeErrorHandler = () => {
     }
 
     const amountBigInt = stringToBigint(amount, sourceToken.decimals);
-    const maxAvailable = sourceToken.balance - fee;
-
+    const maxAvailable = sourceToken.balance - requiredGas;
     if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
       setError(
         t('Maximum available after fees is {{balance}} {{symbol}}', {
@@ -82,7 +81,7 @@ export const useBridgeErrorHandler = () => {
       clearError();
     }
   }, [
-    fee,
+    requiredGas,
     sourceToken,
     amount,
     clearError,
