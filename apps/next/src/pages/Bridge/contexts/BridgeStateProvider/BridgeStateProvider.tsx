@@ -32,8 +32,8 @@ const BridgeStateContext = createContext<
       sourceTokens: FungibleTokenBalance[];
       assets: BridgeAsset[];
       asset: BridgeAsset | undefined;
-      fee: bigint;
-      amountAfterFee: bigint;
+      fee: bigint | undefined;
+      amountAfterFee: bigint | undefined;
       shouldUseCrossChainTransfer: boolean;
       sourceNetwork: NetworkWithCaipId | undefined;
       targetNetworks: NetworkWithCaipId['caipId'][];

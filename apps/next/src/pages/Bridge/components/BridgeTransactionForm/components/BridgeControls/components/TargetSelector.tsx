@@ -25,7 +25,7 @@ export const TargetSelector: FC = () => {
       <Styled.Divider />
       <BridgeTokenCard
         token={targetToken}
-        amount={amountAfterFee}
+        amount={amountAfterFee ?? 0n}
         size={32}
         badgeSize={14}
       />

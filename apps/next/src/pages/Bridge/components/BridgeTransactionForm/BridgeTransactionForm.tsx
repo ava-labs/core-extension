@@ -1,11 +1,11 @@
 import { AccountSelect } from '@/components/AccountSelect';
 import { Button, Stack } from '@avalabs/k2-alpine';
-import { stringToBigint } from '@core/common';
+import { handleTxOutcome, stringToBigint } from '@core/common';
 import { useAccountsContext } from '@core/ui';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../../contexts';
-import { useBridgeErrorHandler } from '../../hooks';
+import { TransferResult } from '../../hooks';
 import {
   BannerTop,
   BridgeControls,
@@ -14,7 +14,19 @@ import {
   CoreFeeNotice,
 } from './components';
 
-export const BridgeTransactionForm = () => {
+type Props = {
+  error: string;
+  onSuccess(result: TransferResult): void;
+  onRejected(result: TransferResult): void;
+  onFailure(error: unknown): void;
+};
+
+export const BridgeTransactionForm: FC<Props> = ({
+  error,
+  onSuccess,
+  onRejected,
+  onFailure,
+}) => {
   const { t } = useTranslation();
   const {
     accounts: { active },
@@ -24,57 +36,47 @@ export const BridgeTransactionForm = () => {
   const {
     transferAsset,
     asset: target,
-    query: {
-      amount,
-      updateQuery,
-      transactionId,
-      sourceNetwork: sourceNetworkId,
-    },
+    query: { amount, updateQuery, sourceNetwork: sourceNetworkId },
     targetNetworkId,
-    state,
-    isTxConfirming,
+    fee,
+    minTransferAmount,
   } = useBridgeState();
-
-  const {
-    error: bridgeError,
-    onBridgeError,
-    clearError,
-  } = useBridgeErrorHandler();
 
   const canExecuteBridge = target && amount && targetNetworkId;
 
-  const performBridge = () => {
+  const performBridge = async () => {
     if (!canExecuteBridge) {
       return;
     }
 
-    transferAsset(
-      target.symbol,
-      stringToBigint(amount, target.decimals),
-      sourceNetworkId,
-      targetNetworkId,
-    )
-      .then((txId) => {
-        if (txId) {
-          updateQuery({
-            transactionId: txId,
-          });
-          clearError();
-        } else {
-          throw new Error('Missing tx hash');
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        onBridgeError(err, t('Failed to bridge'));
-      });
+    try {
+      const result = await handleTxOutcome(
+        transferAsset(
+          target.symbol,
+          stringToBigint(amount, target.decimals),
+          sourceNetworkId,
+          targetNetworkId,
+        ),
+      );
+
+      if (result.isApproved) {
+        onSuccess(result);
+      } else {
+        onRejected(result);
+      }
+    } catch (txError) {
+      onFailure(txError);
+    }
   };
 
-  console.log('UNI BRIDGE STATE', state);
-
-  const isAmountLoading = false;
-  const isConfirming = isTxConfirming(transactionId);
-  const isBridgeButtonDisabled = isConfirming || isAmountLoading;
+  const isFeeLoading = fee === undefined;
+  const isAmountCorrect =
+    canExecuteBridge &&
+    minTransferAmount &&
+    minTransferAmount <= stringToBigint(amount, target.decimals);
+  const isBridgeButtonDisabled = Boolean(
+    !canExecuteBridge || error || isFeeLoading || !isAmountCorrect,
+  );
   return (
     <>
       <Stack gap={1}>
@@ -93,7 +95,7 @@ export const BridgeTransactionForm = () => {
         />
         <BridgeControls />
       </Stack>
-      <BridgeErrorMessage error={bridgeError} />
+      <BridgeErrorMessage error={error} />
       <CoreFeeNotice />
       <Stack
         width="100%"
@@ -110,7 +112,6 @@ export const BridgeTransactionForm = () => {
           color="primary"
           onClick={performBridge}
           disabled={isBridgeButtonDisabled}
-          loading={isBridgeButtonDisabled}
         >
           {t('Bridge')}
         </Button>

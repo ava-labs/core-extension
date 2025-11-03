@@ -6,6 +6,7 @@ import { Page } from '@/components/Page';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { useTranslation } from 'react-i18next';
+import { BridgeSanctions } from './components';
 import { BridgeInProgress } from './components/BridgeInProgress';
 import { BridgeTransactionForm } from './components/BridgeTransactionForm';
 import {
@@ -14,6 +15,7 @@ import {
   useBridgeQuery,
   useNextUnifiedBridgeContext,
 } from './contexts';
+import { useBridgeErrorHandler, useBridgeTxHandlers } from './hooks';
 import { getPageContentProps } from './lib/getPageContentProps';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
@@ -21,38 +23,53 @@ const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 const BridgePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
-  const { isReady, isTxConfirming } = useNextUnifiedBridgeContext();
+  const { isTxConfirming } = useNextUnifiedBridgeContext();
   const { transactionId } = useBridgeQuery();
 
-  if (!isReady) {
-    return <LoadingScreen />;
+  const errorHandler = useBridgeErrorHandler();
+
+  const txHandlers = useBridgeTxHandlers(errorHandler);
+
+  if (errorHandler.isAddressBlocked) {
+    return <BridgeSanctions />;
   }
 
   const isConfirming = isTxConfirming(transactionId);
   const title = isConfirming
     ? t('Bridge transfer in progress...')
     : t('Bridge');
-  const BridgeTransactionPage = isConfirming
-    ? BridgeInProgress
-    : BridgeTransactionForm;
 
   return (
-    <BridgeStateProvider>
-      <Page
-        title={title}
-        withBackButton
-        contentProps={getPageContentProps(isConfirming)}
-      >
-        <BridgeTransactionPage />
-      </Page>
-    </BridgeStateProvider>
+    <Page
+      title={title}
+      withBackButton
+      contentProps={getPageContentProps(isConfirming)}
+    >
+      {isConfirming ? (
+        <BridgeInProgress />
+      ) : (
+        <BridgeTransactionForm
+          error={errorHandler.error}
+          onSuccess={txHandlers.onSuccess}
+          onRejected={txHandlers.onRejected}
+          onFailure={txHandlers.onFailure}
+        />
+      )}
+    </Page>
   );
 };
 
 export const Bridge = () => {
+  const { isReady } = useNextUnifiedBridgeContext();
+  if (!isReady) {
+    return <LoadingScreen />;
+  }
+
   return (
     <BridgeQueryProvider>
-      <BridgePage />
+      <BridgeStateProvider>
+        <BridgePage />
+      </BridgeStateProvider>
     </BridgeQueryProvider>
   );
 };

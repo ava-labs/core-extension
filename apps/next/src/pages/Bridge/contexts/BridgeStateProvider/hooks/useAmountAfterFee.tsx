@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react';
 import { useNextUnifiedBridgeContext } from '../../NextUnifiedBridge';
 
 type FeeState = {
-  fee: bigint;
-  amountAfterFee: bigint;
+  fee: bigint | undefined;
+  amountAfterFee: bigint | undefined;
 };
 
 const DEFAULT_STATE: FeeState = {
-  fee: 0n,
-  amountAfterFee: 0n,
+  fee: undefined,
+  amountAfterFee: undefined,
 };
 
 export function useAmountAfterFee(
@@ -27,11 +27,13 @@ export function useAmountAfterFee(
   useEffect(() => {
     if (symbol && amount && targetNetwork && decimals) {
       const amountBigInt = stringToBigint(amount, decimals);
+      setFeeState(DEFAULT_STATE);
       getFee(symbol, amountBigInt, sourceNetworkId, targetNetwork).then(
         (fee) => {
+          const afterFee = amountBigInt - fee;
           setFeeState({
             fee,
-            amountAfterFee: amountBigInt - fee,
+            amountAfterFee: afterFee < 0n ? 0n : afterFee,
           });
         },
       );

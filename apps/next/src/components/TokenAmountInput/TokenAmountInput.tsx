@@ -165,6 +165,8 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           justifyContent="end"
           alignItems="center"
           gap={1}
+          onFocus={onFocus}
+          onBlur={onBlur}
         >
           <AmountPresetButton onClick={() => handlePresetClick(25)}>
             {t('25%')}

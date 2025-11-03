@@ -3,7 +3,6 @@ import {
   AnalyzeTxResult,
   BridgeAsset,
   GasSettings,
-  ErrorCode as UnifiedBridgeErrorCode,
 } from '@avalabs/bridge-unified';
 import { NetworkWithCaipId, UnifiedBridgeState } from '@core/types';
 
@@ -36,8 +35,7 @@ export interface UnifiedBridgeContext {
     sourceNetworkId: NetworkWithCaipId['caipId'],
     targetChainId: string,
     gasSettings?: GasSettings,
-  ): Promise<any>;
-  getErrorMessage(errorCode: UnifiedBridgeErrorCode): string;
+  ): Promise<string>;
   getMinimumTransferAmount(
     asset: BridgeAsset,
     amount: bigint,

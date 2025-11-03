@@ -5,7 +5,6 @@ import { useNetworkContext } from '@core/ui';
 import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/networkSortingFn';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { isTransactionConfirming } from '../../lib/isTransactionConfirming';
 import {
   useAssetIdentifier,
@@ -19,7 +18,7 @@ import {
   useUnifiedBridgeState,
 } from './hooks';
 import { UnifiedBridgeContext } from './types';
-import { getChainAssets, getEnvironment, getErrorMessage } from './utils';
+import { getChainAssets, getEnvironment } from './utils';
 
 const NextUnifiedBridgeContext = createContext<
   UnifiedBridgeContext | undefined
@@ -33,7 +32,6 @@ const AVAX_CAIPS = {
 } as const;
 
 export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
-  const { t } = useTranslation();
   const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
   const state = useUnifiedBridgeState();
 
@@ -74,7 +72,6 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
       isReady: !!core,
       availableChainIds,
       estimateTransferGas,
-      getErrorMessage: getErrorMessage(t),
       state,
       getAssetIdentifierOnTargetChain,
       getMinimumTransferAmount,
@@ -93,7 +90,6 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
     core,
     availableChainIds,
     estimateTransferGas,
-    t,
     state,
     getAssetIdentifierOnTargetChain,
     getMinimumTransferAmount,
