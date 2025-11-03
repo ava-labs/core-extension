@@ -84,11 +84,12 @@ export const RecoveryMethodList = ({
   return (
     <>
       <Paper
-        elevation={1}
+        elevation={0}
         sx={{
           borderRadius: 2,
           overflow: 'hidden',
           width: '100%',
+          backgroundColor: 'surface.primary',
         }}
       >
         {!noMFAMethodsAvailable && (

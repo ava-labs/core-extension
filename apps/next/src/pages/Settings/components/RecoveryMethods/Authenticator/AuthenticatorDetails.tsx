@@ -1,12 +1,12 @@
+import { MethodCard } from '../components/MethodCard';
 import { getIconForMethod } from '../RecoveryMethodCard';
-import { CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
-
 export const AuthenticatorDetails = ({ method, methodName }) => {
   return (
-    <CardMenuItem
+    <MethodCard
       icon={getIconForMethod(method)}
-      text={methodName}
+      title={methodName}
       key={method.toString()}
+      showChevron={false}
     />
   );
 };

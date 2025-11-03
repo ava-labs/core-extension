@@ -72,6 +72,9 @@ export const SettingsHomePage = () => {
         'Manage and customize your Core experience to your liking.',
       )}
       withBackButton
+      onBack={() => {
+        push('/');
+      }}
     >
       <Stack direction="row" justifyContent="space-between" gap={1.5}>
         <SwitchCard

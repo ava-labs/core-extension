@@ -1,5 +1,5 @@
-import { CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 import { getIconForMethod } from '../RecoveryMethodCard';
+import { MethodCard } from '../components/MethodCard';
 
 export enum FIDOState {
   Initial = 'initial',
@@ -10,10 +10,11 @@ export enum FIDOState {
 
 export const FIDODetails = ({ method }) => {
   return (
-    <CardMenuItem
+    <MethodCard
       icon={getIconForMethod(method)}
-      text={method.name}
+      title={method.name}
       key={method.toString()}
+      showChevron={false}
     />
   );
 };

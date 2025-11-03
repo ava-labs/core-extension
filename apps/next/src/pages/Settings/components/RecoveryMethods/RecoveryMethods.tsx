@@ -61,7 +61,7 @@ export const RecoveryMethods: FC = () => {
     >
       {isLoadingRecoveryMethods && (
         <Paper
-          elevation={1}
+          elevation={0}
           sx={{
             borderRadius: 2,
             overflow: 'hidden',

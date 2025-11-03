@@ -1,6 +1,6 @@
-import { CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
 import { MethodIcons } from './RecoveryMethodList';
 import { RecoveryMethod } from '@core/types';
+import { MethodCard } from './components/MethodCard';
 
 interface RecoveryMethodCardProps {
   method: RecoveryMethod;
@@ -24,12 +24,10 @@ export const RecoveryMethodCard = ({
   methodName,
 }: RecoveryMethodCardProps) => {
   return (
-    <CardMenuItem
-      onClick={onClick}
+    <MethodCard
       icon={getIconForMethod(method)}
-      text={methodName || method.type}
-      key={method.toString()}
-      size="small"
+      title={methodName || method.type}
+      onClick={onClick}
     />
   );
 };
