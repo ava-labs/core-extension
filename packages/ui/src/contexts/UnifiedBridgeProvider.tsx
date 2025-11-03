@@ -183,7 +183,7 @@ export function UnifiedBridgeProvider({
           const result = await request(
             {
               method: RpcMethod.PERSONAL_SIGN,
-              params: [hex.encode(utf8.decode(message)), address],
+              params: [`0x${hex.encode(utf8.decode(message))}`, address],
             },
             {
               scope: `eip155:${chainId}`,
