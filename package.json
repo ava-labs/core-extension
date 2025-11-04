@@ -140,5 +140,8 @@
     "@firebase/messaging@npm:0.12.17": "patch:@firebase/messaging@npm%3A0.12.17#~/.yarn/patches/@firebase-messaging-npm-0.12.17-b743d37abd.patch",
     "@firebase/app-check@npm:0.8.13": "patch:@firebase/app-check@npm%3A0.8.13#~/.yarn/patches/@firebase-app-check-npm-0.8.13-82152b436a.patch",
     "@mui/material@npm:^6.4.10": "patch:@mui/material@npm%3A6.4.10#~/.yarn/patches/@mui-material-npm-6.4.10-51975882a1.patch"
+  },
+  "dependencies": {
+    "mime": "^4.1.0"
   }
 }

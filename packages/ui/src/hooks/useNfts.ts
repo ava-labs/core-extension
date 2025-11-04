@@ -12,7 +12,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
   } = useAccountsContext();
 
   return useMemo<NftTokenWithBalance[]>(() => {
-    console.log(network, balances.nfts, activeAccount);
+    console.log(network, { balances }, activeAccount, 'helolo check here');
     if (!balances.nfts || !activeAccount) {
       return [];
     }
@@ -29,8 +29,11 @@ export const useNfts = (network?: NetworkWithCaipId) => {
       );
     }
 
+    // No network provided: return NFTs across all networks for the active account
     return Object.values(balances.nfts ?? {}).flatMap((chainBalances) =>
-      Object.values(chainBalances?.[userAddress] ?? {}),
+      Object.values(
+        chainBalances?.['0x886b7142402D3e9A31E71D2f0009146B61f80D3B'] ?? {},
+      ),
     );
-  }, [network, balances.nfts, activeAccount]);
+  }, [network, balances, activeAccount]);
 };

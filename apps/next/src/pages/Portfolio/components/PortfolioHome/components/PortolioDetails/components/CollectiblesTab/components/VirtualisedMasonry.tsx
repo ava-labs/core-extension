@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import {
   AutoSizer,
   CellMeasurer,
@@ -7,83 +7,98 @@ import {
   Masonry,
   MasonryCellProps,
 } from 'react-virtualized';
-import { Scrollbars } from 'react-custom-scrollbars-2';
+import { FormattedCollectible } from '../CollectiblesTab';
 
 const DEFAULT_GUTTER_SIZE = 10;
+const DEFAULT_COLUMN_WIDTH = 200;
+const DEFAULT_HEIGHT = 92;
 
 export function VirtualisedMasonry({
-  columnWidth,
-  itemCount,
+  columnWidth = DEFAULT_COLUMN_WIDTH,
+  items,
   cellContentRenderer,
 }: {
-  columnWidth: number;
-  itemCount: number;
-  cellContentRenderer: (index: number) => React.ReactNode;
+  columnWidth?: number;
+  items: FormattedCollectible[];
+  cellContentRenderer?: (
+    index: number,
+    onImageLoaded?: () => void,
+  ) => React.ReactNode;
 }) {
-  const [size, setSize] = useState({ width: 0, height: 0 });
   const masonryRef = useRef<Masonry>(null);
-  const cache = useMemo(
-    () =>
-      new CellMeasurerCache({
-        defaultHeight: 120,
-        defaultWidth: columnWidth,
-        fixedWidth: true,
-      }),
-    [],
-  );
 
-  const cellPositioner = useMemo(() => {
-    return createMasonryCellPositioner({
+  // Create stable cache - never recreate it
+  const cache = useRef(
+    new CellMeasurerCache({
+      defaultHeight: DEFAULT_HEIGHT,
+      defaultWidth: columnWidth,
+      fixedWidth: true,
+    }),
+  ).current;
+
+  // Create stable cellPositioner
+  const cellPositioner = useRef(
+    createMasonryCellPositioner({
       cellMeasurerCache: cache,
       columnCount: 3,
       columnWidth: columnWidth,
       spacer: DEFAULT_GUTTER_SIZE,
-    });
-  }, [cache, columnWidth]);
+    }),
+  ).current;
 
+  // Reset when items change
   useEffect(() => {
     cache.clearAll();
     cellPositioner.reset({
-      columnCount: Math.max(
-        1,
-        Math.floor(
-          // last column has no gutter
-          (size.width + DEFAULT_GUTTER_SIZE) /
-            (columnWidth + DEFAULT_GUTTER_SIZE),
-        ),
-      ),
+      columnCount: 3,
       columnWidth: columnWidth,
       spacer: DEFAULT_GUTTER_SIZE,
     });
-    masonryRef.current?.clearCellPositions();
-  }, [size, cellPositioner, cache, columnWidth]);
+    if (masonryRef.current) {
+      masonryRef.current.clearCellPositions();
+      masonryRef.current.recomputeCellPositions();
+    }
+  }, [items.length, cache, cellPositioner, columnWidth]);
 
-  const cellRenderer = ({ index, key, parent, style }: MasonryCellProps) => {
-    return (
-      <CellMeasurer cache={cache} index={index} key={key} parent={parent}>
-        <div style={style}>{cellContentRenderer(index)}</div>
-      </CellMeasurer>
-    );
-  };
+  // Stable cellRenderer - access items/cellContentRenderer from closure
+  const cellRenderer = useCallback(
+    ({ index, key, parent, style }: MasonryCellProps) => {
+      return (
+        <CellMeasurer cache={cache} index={index} key={key} parent={parent}>
+          {({ measure, registerChild }) => (
+            <div style={style} ref={registerChild}>
+              {cellContentRenderer ? cellContentRenderer(index, measure) : null}
+            </div>
+          )}
+        </CellMeasurer>
+      );
+    },
+    [cache, cellContentRenderer],
+  );
 
   return (
-    <AutoSizer onResize={setSize}>
-      {({ width, height }) => {
-        return (
-          <Scrollbars autoHide style={{ width, height }}>
+    <div style={{ width: '100%', height: '100%' }}>
+      <AutoSizer>
+        {({ width, height }) => {
+          if (!width || !height) {
+            return null;
+          }
+
+          return (
             <Masonry
               ref={masonryRef}
-              autoHeight={true}
-              cellCount={itemCount}
+              autoHeight={false}
+              cellCount={items.length}
               cellMeasurerCache={cache}
               cellPositioner={cellPositioner}
               cellRenderer={cellRenderer}
               height={height}
               width={width}
+              overscanByPixels={100}
             />
-          </Scrollbars>
-        );
-      }}
-    </AutoSizer>
+          );
+        }}
+      </AutoSizer>
+    </div>
   );
 }

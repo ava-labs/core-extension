@@ -1,4 +1,4 @@
-import type { EvmCollectible } from '~/balances/evm/types/evmBalanceTypes';
+import { FormattedCollectible } from '../CollectiblesTab';
 import { useCollectibleDoubleHop } from './useCollectibleDoubleHop';
 
 /**
@@ -6,30 +6,22 @@ import { useCollectibleDoubleHop } from './useCollectibleDoubleHop';
  * @param collectible The raw collectible data
  * @returns Enhanced collectible with display properties and loading state
  */
-export function useCollectibleDisplay(collectible: EvmCollectible) {
+export function useCollectibleDisplay(collectible: FormattedCollectible) {
   const {
     collectible: enhancedCollectible,
     isLoading,
-    refetch,
+    error,
   } = useCollectibleDoubleHop(collectible);
 
-  // Check if the collectible has unreachable or invalid token URI
-  const isUnreachable =
-    enhancedCollectible.metadata?.indexStatus === 'UNREACHABLE_TOKEN_URI' ||
-    enhancedCollectible.metadata?.indexStatus === 'INVALID_TOKEN_URI_SCHEME';
+  // Show error if no logoUri is available or there's an error
+  const showError = !enhancedCollectible.logoUri || error !== null;
 
-  // Show error if URI is unreachable or no preview URI is available
-  const showError = isUnreachable || !enhancedCollectible.previewUri;
-
-  // Extract name and collection name
-  const name =
-    enhancedCollectible.metadata?.name || enhancedCollectible.name || 'Unnamed';
+  // Extract name - use collectible name or default
+  const name = enhancedCollectible.name || 'Unnamed';
 
   return {
     enhancedCollectible,
     isLoading,
-    refetch,
-    isUnreachable,
     showError,
     name,
   };

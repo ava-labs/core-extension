@@ -1,13 +1,12 @@
 import { PopoverItem } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { MediaTypeFilters } from '../hooks/useCollectiblesToolbar';
 import { DropdownMenu } from '@/components/DropdownMenu';
 
-export type FilterType = 'all' | 'pictures' | 'gifs' | 'videos';
-
 interface CollectiblesFilterProps {
-  typeFilter: FilterType;
+  typeFilter: MediaTypeFilters;
   showHidden: boolean;
-  onTypeChange: (type: FilterType) => void;
+  onTypeChange: (type: keyof MediaTypeFilters) => void;
   onToggleHidden: () => void;
 }
 
@@ -23,25 +22,25 @@ export function CollectiblesFilter({
     <DropdownMenu label={t('Filter')}>
       <PopoverItem
         onClick={() => onTypeChange('all')}
-        selected={typeFilter === 'all'}
+        selected={typeFilter.all}
       >
         {t('All types')}
       </PopoverItem>
       <PopoverItem
-        onClick={() => onTypeChange('pictures')}
-        selected={typeFilter === 'pictures'}
+        onClick={() => onTypeChange('picture')}
+        selected={typeFilter.picture && !typeFilter.all}
       >
         {t('Pictures')}
       </PopoverItem>
       <PopoverItem
-        onClick={() => onTypeChange('gifs')}
-        selected={typeFilter === 'gifs'}
+        onClick={() => onTypeChange('gif')}
+        selected={typeFilter.gif && !typeFilter.all}
       >
         {t('GIFs')}
       </PopoverItem>
       <PopoverItem
-        onClick={() => onTypeChange('videos')}
-        selected={typeFilter === 'videos'}
+        onClick={() => onTypeChange('video')}
+        selected={typeFilter.video && !typeFilter.all}
       >
         {t('Videos')}
       </PopoverItem>

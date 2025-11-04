@@ -15,7 +15,7 @@ type PageProps = {
 };
 
 // TODO: remove this once we have a proper scrollable component
-const NoScrollStack = styled(Stack)`
+export const NoScrollStack = styled(Stack)`
   overflow: auto;
   flex-grow: 1;
   &::-webkit-scrollbar {

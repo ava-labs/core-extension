@@ -1,4 +1,4 @@
-import { CircularProgress, Stack, styled } from '@avalabs/k2-alpine';
+import { Box, CircularProgress, Stack, styled } from '@avalabs/k2-alpine';
 import { hasAccountBalances } from '@core/common';
 import {
   useAccountsContext,
@@ -27,15 +27,32 @@ export const PortfolioHome: FC = () => {
   const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
 
   return (
-    <Stack height={1} px={1.5} pb={1.5} gap={2.5}>
+    <Stack
+      height={1}
+      px={1.5}
+      pb={1.5}
+      gap={2.5}
+      data-scroll-container="portfolio-content"
+      sx={{ overflow: 'auto' }}
+    >
       <AccountInfo
         accountName={accounts.active?.name ?? ''}
         balance={totalBalance}
       />
-      <Stack flexGrow={1} gap={2.5}>
+      <Stack flexGrow={1} gap={2.5} sx={{ minHeight: 0 }}>
         {isLoading ? <CenteredSpinner /> : <PortfolioContent tab={activeTab} />}
+        <Box
+          sx={{
+            position: 'sticky',
+            bottom: 0,
+            backgroundColor: 'background.default',
+            zIndex: 9999,
+            mt: 'auto',
+          }}
+        >
+          <NavigationBar active={activeTab} onChange={setActiveTab} />
+        </Box>
       </Stack>
-      <NavigationBar active={activeTab} onChange={setActiveTab} />
     </Stack>
   );
 };
