@@ -192,7 +192,7 @@ export const useIsFunctionAvailable = (
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
-  const { isFlagEnabled, featureFlags } = useFeatureFlagContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const {
     accounts: { active },
@@ -244,7 +244,7 @@ export const useIsFunctionAvailable = (
       }
 
       if (isBitcoinNetwork(network)) {
-        return featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA];
+        return isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA);
       }
       return true;
     }
