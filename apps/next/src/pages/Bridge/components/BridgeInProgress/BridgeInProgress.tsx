@@ -1,5 +1,6 @@
 import { useBridgeState } from '@/pages/Bridge/contexts';
-import { Box, Button } from '@avalabs/k2-alpine';
+import { BridgeTransfer } from '@avalabs/bridge-unified';
+import { Box, Button, Collapse } from '@avalabs/k2-alpine';
 import { findMatchingBridgeAsset } from '@core/common';
 import { useBridgeAmounts } from '@core/ui';
 import Big from 'big.js';
@@ -9,15 +10,14 @@ import { useHistory } from 'react-router-dom';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails, TransactionFailure } from './components';
 
-export const BridgeInProgress: FC = () => {
+type Props = {
+  transfer: BridgeTransfer;
+};
+
+export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
   const { t } = useTranslation();
-  const { push } = useHistory();
-  const {
-    query: { transactionId },
-    state: { pendingTransfers },
-    sourceTokens,
-  } = useBridgeState();
-  const pendingTransfer = pendingTransfers[transactionId];
+  const { push, goBack } = useHistory();
+  const { sourceTokens } = useBridgeState();
 
   const token = useMemo(() => {
     if (!pendingTransfer?.asset) {
@@ -39,18 +39,14 @@ export const BridgeInProgress: FC = () => {
     return null;
   }
 
-  if (pendingTransfer.errorCode) {
-    return (
-      <TransactionFailure
-        token={token}
-        amount={amount}
-        transfer={pendingTransfer}
-      />
-    );
-  }
+  const hasError = Boolean(pendingTransfer.errorCode);
+  const isComplete = Boolean(pendingTransfer.completedAt);
 
   return (
     <>
+      <Collapse in={hasError}>
+        <TransactionFailure code={pendingTransfer.errorCode} />
+      </Collapse>
       <BridgeTokenCard token={token} amount={amount} size={24} badgeSize={10} />
       <BridgeDetails
         networkLabel={t('From')}
@@ -58,6 +54,7 @@ export const BridgeInProgress: FC = () => {
         fee={sourceNetworkFee}
         confirmationsRequired={pendingTransfer.sourceRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.sourceConfirmationCount}
+        error={hasError}
       />
       <BridgeDetails
         networkLabel={t('To')}
@@ -65,16 +62,18 @@ export const BridgeInProgress: FC = () => {
         fee={targetNetworkFee}
         confirmationsRequired={pendingTransfer.targetRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.targetConfirmationCount}
+        error={hasError}
       />
+
       <Box mt="auto">
         <Button
           variant="contained"
           size="extension"
           color="primary"
           fullWidth
-          onClick={() => push('/')}
+          onClick={isComplete ? goBack : () => push('/')}
         >
-          {t('Notify me when it’s done')}
+          {isComplete ? t('Close') : t('Notify me when it’s done')}
         </Button>
       </Box>
     </>

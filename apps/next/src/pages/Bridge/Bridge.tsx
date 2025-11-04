@@ -23,7 +23,7 @@ const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 const BridgePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
-  const { isTxConfirming } = useNextUnifiedBridgeContext();
+  const { state } = useNextUnifiedBridgeContext();
   const { transactionId } = useBridgeQuery();
 
   const errorHandler = useBridgeErrorHandler();
@@ -34,19 +34,26 @@ const BridgePage: FC = () => {
     return <BridgeSanctions />;
   }
 
-  const isConfirming = isTxConfirming(transactionId);
-  const title = isConfirming
-    ? t('Bridge transfer in progress...')
+  const pendingTransfer = state.pendingTransfers[transactionId];
+  const isInProgress = pendingTransfer != null;
+  const title = isInProgress
+    ? t('Bridge transfer {{action}}', {
+        action: pendingTransfer.completedAt
+          ? pendingTransfer.errorCode
+            ? t('failed')
+            : t('completed')
+          : t('in progress...'),
+      })
     : t('Bridge');
 
   return (
     <Page
       title={title}
       withBackButton
-      contentProps={getPageContentProps(isConfirming)}
+      contentProps={getPageContentProps(isInProgress)}
     >
-      {isConfirming ? (
-        <BridgeInProgress />
+      {isInProgress ? (
+        <BridgeInProgress transfer={pendingTransfer} />
       ) : (
         <BridgeTransactionForm
           error={errorHandler.error}

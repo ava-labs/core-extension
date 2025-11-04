@@ -48,5 +48,4 @@ export interface UnifiedBridgeContext {
   state: UnifiedBridgeState;
   availableChainIds: NetworkWithCaipId['caipId'][];
   isReady: boolean;
-  isTxConfirming: (txHash: string) => boolean;
 }

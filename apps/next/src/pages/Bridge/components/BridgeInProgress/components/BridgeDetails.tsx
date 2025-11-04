@@ -17,6 +17,7 @@ type Props = {
   fee: Big | bigint;
   confirmationsRequired: number;
   confirmationsReceived: number;
+  error: boolean;
 };
 
 export const BridgeDetails: FC<Props> = ({
@@ -25,6 +26,7 @@ export const BridgeDetails: FC<Props> = ({
   fee,
   confirmationsRequired,
   confirmationsReceived,
+  error,
 }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
@@ -74,6 +76,7 @@ export const BridgeDetails: FC<Props> = ({
         <ConfirmationsCounter
           required={confirmationsRequired}
           received={confirmationsReceived}
+          color={error ? 'error' : 'success'}
         />
       </Styled.RowItem>
     </Card>

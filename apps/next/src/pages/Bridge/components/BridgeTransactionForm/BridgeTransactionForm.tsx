@@ -33,6 +33,7 @@ export const BridgeTransactionForm: FC<Props> = ({
     selectAccount,
   } = useAccountsContext();
   const [accountQuery, setAccountQuery] = useState('');
+  const [isBridgeExecuting, setIsBridgeExecuting] = useState(false);
   const {
     transferAsset,
     asset: target,
@@ -48,6 +49,8 @@ export const BridgeTransactionForm: FC<Props> = ({
     if (!canExecuteBridge) {
       return;
     }
+
+    setIsBridgeExecuting(true);
 
     try {
       const result = await handleTxOutcome(
@@ -66,6 +69,8 @@ export const BridgeTransactionForm: FC<Props> = ({
       }
     } catch (txError) {
       onFailure(txError);
+    } finally {
+      setIsBridgeExecuting(false);
     }
   };
 
@@ -75,7 +80,11 @@ export const BridgeTransactionForm: FC<Props> = ({
     minTransferAmount &&
     minTransferAmount <= stringToBigint(amount, target.decimals);
   const isBridgeButtonDisabled = Boolean(
-    !canExecuteBridge || error || isFeeLoading || !isAmountCorrect,
+    !canExecuteBridge ||
+      error ||
+      isFeeLoading ||
+      !isAmountCorrect ||
+      isBridgeExecuting,
   );
   return (
     <>
@@ -112,6 +121,7 @@ export const BridgeTransactionForm: FC<Props> = ({
           color="primary"
           onClick={performBridge}
           disabled={isBridgeButtonDisabled}
+          loading={isBridgeExecuting}
         >
           {t('Bridge')}
         </Button>

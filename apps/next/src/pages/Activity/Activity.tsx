@@ -26,7 +26,15 @@ export const Activity = () => {
       {Object.values(pendingTransfers).map((transfer) => (
         <ActivityItem
           key={transfer.sourceTxHash}
-          title={t('Bridging in progress...')}
+          pending={!transfer.completedAt}
+          title={t('{{token}} bridge {{action}}', {
+            token: transfer.asset.symbol,
+            action: transfer.completedAt
+              ? transfer.errorCode
+                ? t('failed')
+                : t('completed')
+              : t('in progress...'),
+          })}
           subtitle={t('Click for more details')}
           onClick={() => {
             history.push(

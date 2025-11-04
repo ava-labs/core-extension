@@ -8,6 +8,7 @@ type Props = {
   title: string;
   subtitle: string;
   onClick: VoidFunction;
+  pending: boolean;
 };
 
 const textSlotProps: ListItemTextProps['slotProps'] = {
@@ -24,7 +25,12 @@ const textSlotProps: ListItemTextProps['slotProps'] = {
   },
 };
 
-export const ActivityItem: FC<Props> = ({ title, subtitle, onClick }) => {
+export const ActivityItem: FC<Props> = ({
+  title,
+  subtitle,
+  onClick,
+  pending,
+}) => {
   return (
     <Card noPadding>
       <ListItem
@@ -34,7 +40,7 @@ export const ActivityItem: FC<Props> = ({ title, subtitle, onClick }) => {
         <Styled.ListItemButton onClick={onClick}>
           <Styled.ListItemIcon>
             <Styled.Avatar>
-              <AnimatedSyncIcon size={20} data-active />
+              <AnimatedSyncIcon size={20} data-active={pending} />
             </Styled.Avatar>
           </Styled.ListItemIcon>
           <ListItemText
