@@ -1,5 +1,5 @@
-import { FeatureFlags, FeatureFlagPayloads } from '@core/types';
-import { DISABLED_FLAG_VALUES } from '@core/common';
+import { DISABLED_FLAG_VALUES, fetchAndVerify } from '@core/common';
+import { posthogResponseSchema } from '../types';
 export async function getFeatureFlags(
   token?: string,
   userId?: string,
@@ -28,17 +28,17 @@ export async function getFeatureFlags(
 
   const fetchWithPosthogFallback = async () => {
     const fetcher = async (url: string) => {
-      const response: {
-        featureFlags: FeatureFlags;
-        featureFlagPayloads: Partial<FeatureFlagPayloads>;
-      } = await (
-        await fetch(`${url}/decide?${params}`, {
-          method: 'POST',
-          body: 'data=' + encodeURIComponent(data),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        })
-      ).json();
-
+      const response = await fetchAndVerify(
+        [
+          `${url}/decide?${params}`,
+          {
+            method: 'POST',
+            body: 'data=' + encodeURIComponent(data),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          },
+        ],
+        posthogResponseSchema,
+      );
       return response;
     };
 
@@ -48,20 +48,22 @@ export async function getFeatureFlags(
       if (!response.featureFlags) {
         throw new Error('Failed to fetch cached data.');
       }
-
       return response;
     } catch {
       if (!posthogUrl) {
         throw new Error('Invalid Posthog URL');
       }
 
-      const response = await fetcher(posthogUrl);
+      const response = await fetchAndVerify(
+        [posthogUrl],
+        posthogResponseSchema,
+      );
+
       return response;
     }
   };
 
   const response = await fetchWithPosthogFallback();
-
   // Posthog API does not return disabled flags on their `/decide` api endpoint
   // Define disabled state values for the flags
   return {
