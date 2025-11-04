@@ -18,7 +18,7 @@ type ActionDrawerProps = StackProps & {
   reject?: () => void;
   withConfirmationSwitch?: boolean;
   isProcessing: boolean;
-  isDisabled: boolean;
+  isDisabled?: boolean;
 };
 
 export const ActionDrawer = ({
@@ -28,7 +28,7 @@ export const ActionDrawer = ({
   reject,
   withConfirmationSwitch,
   isProcessing,
-  isDisabled,
+  isDisabled = false,
   ...props
 }: ActionDrawerProps) => {
   const { t } = useTranslation();

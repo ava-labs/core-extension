@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { WalletCard } from '@/pages/AccountManagement/components/Wallets/components/WalletCard';
+import { WalletCard } from '@/components/WalletCard/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
 
 import { ConnectWalletCardProps, WalletToConnectState } from '../types';
@@ -37,7 +37,6 @@ export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
         <WalletIcon type={wallet.type} authProvider={wallet.authProvider} />
       }
       initialExpanded={initiallyExpanded}
-      disableRename
     >
       <ContentComponent {...props} />
     </WalletCard>
