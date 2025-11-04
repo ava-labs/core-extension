@@ -30,8 +30,6 @@ export const LedgerRegisterBtcWalletPolicy: FC = () => {
 
   const Content = ComponentByPhase[phase];
 
-  console.log('DEBUG status', status, policyName);
-
   return (
     <SlideUpDialog open={status !== 'idle' && status !== 'dismissed'}>
       <Page

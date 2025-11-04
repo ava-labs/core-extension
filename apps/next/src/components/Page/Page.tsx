@@ -18,7 +18,6 @@ type PageProps = {
   contentProps?: StackProps;
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
-  titleProps?: TypographyProps;
   descriptionProps?: TypographyProps;
 };
 

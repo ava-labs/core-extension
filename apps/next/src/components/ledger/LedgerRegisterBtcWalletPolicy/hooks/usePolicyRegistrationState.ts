@@ -30,10 +30,12 @@ export const usePolicyRegistrationState = (): PolicyRegistrationState => {
   const [status, setStatus] = useState<Status>('idle');
 
   const dismiss = useCallback(async () => {
+    const previousStatus = status;
+
     setStatus('idle');
     reset();
 
-    if (status.endsWith(':error')) {
+    if (previousStatus.endsWith(':error')) {
       await closeCurrentApp();
     }
   }, [status, reset, closeCurrentApp]);
