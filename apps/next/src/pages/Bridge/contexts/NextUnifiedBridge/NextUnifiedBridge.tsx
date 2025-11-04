@@ -9,8 +9,8 @@ import {
   useAssetIdentifier,
   useBridgeEnvironment,
   useCoreBridgeService,
-  useEstimateTransferGas,
-  useFee,
+  useGetFee,
+  useGetTransferGasEstimate,
   useMinimumTransferAmount,
   useSupportsAsset,
   useTransferAsset,
@@ -63,9 +63,9 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
     [core],
   );
 
-  const estimateTransferGas = useEstimateTransferGas(core);
+  const estimateTransferGas = useGetTransferGasEstimate(core);
   const getAssetIdentifierOnTargetChain = useAssetIdentifier(core);
-  const getFee = useFee(core);
+  const getFee = useGetFee(core);
   const getMinimumTransferAmount = useMinimumTransferAmount(core);
   const supportsAsset = useSupportsAsset(core);
   const transferAsset = useTransferAsset(core);

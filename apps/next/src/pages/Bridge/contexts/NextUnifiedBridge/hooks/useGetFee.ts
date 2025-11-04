@@ -9,7 +9,7 @@ import { useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildChain, getAsset } from '../utils';
 
-export function useFee(core: UnifiedBridgeService | null) {
+export function useGetFee(core: UnifiedBridgeService | null) {
   const { getNetwork } = useNetworkContext();
   const getFee = useCallback(
     async (
