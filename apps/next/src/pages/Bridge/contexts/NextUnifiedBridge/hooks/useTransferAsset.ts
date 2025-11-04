@@ -41,23 +41,22 @@ export function useTransferAsset(core: UnifiedBridgeService | null) {
       symbol: string,
       amount: bigint,
       sourceNetworkId: NetworkWithCaipId['caipId'],
-      targetChainId: string,
+      targetNetworkId: NetworkWithCaipId['caipId'],
       gasSettings?: GasSettings,
     ) => {
-      const sourceNetwork = getNetwork(sourceNetworkId);
       assert(core, CommonError.Unknown);
+
+      const sourceNetwork = getNetwork(sourceNetworkId);
       assert(sourceNetwork, CommonError.NoActiveNetwork);
 
-      const asset = getAsset(core, symbol, sourceNetwork.caipId);
+      const targetNetwork = getNetwork(targetNetworkId);
+      assert(targetNetwork, CommonError.UnknownNetwork);
 
+      const asset = getAsset(core, symbol, sourceNetwork.caipId);
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
       const { fromAddress, toAddress, sourceChain, targetChain } =
-        await buildParams(
-          activeAccount,
-          sourceNetwork,
-          getNetwork(targetChainId),
-        );
+        await buildParams(activeAccount, sourceNetwork, targetNetwork);
 
       try {
         const bridgeTransfer = await core.transferAsset({

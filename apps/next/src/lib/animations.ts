@@ -1,13 +1,15 @@
 import { css, keyframes } from '@avalabs/k2-alpine';
 import { Keyframes } from '@emotion/react';
+import { CSSProperties } from 'react';
 
 const createAnimation = (
   animation: Keyframes,
   duration: string = '0.3s',
   easing: string = 'ease-in-out',
+  count: CSSProperties['animationIterationCount'] = 1,
 ) => css`
   @media (prefers-reduced-motion: no-preference) {
-    animation: ${animation} ${duration} ${easing};
+    animation: ${animation} ${duration} ${easing} ${count};
   }
 `;
 
@@ -29,6 +31,15 @@ const shake = keyframes`
   }
 `;
 
+const rotate = keyframes`
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+`;
 export default {
   shake: createAnimation(shake),
+  rotate: createAnimation(rotate, '2s', 'linear', 'infinite'),
 };

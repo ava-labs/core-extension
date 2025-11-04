@@ -5,7 +5,7 @@ import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildParams, getAsset } from '../utils';
 
-export function useEstimateTransferGas(core: UnifiedBridgeService | null) {
+export function useGetTransferGasEstimate(core: UnifiedBridgeService | null) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
