@@ -220,7 +220,9 @@ export class WalletService implements OnUnlock {
       .filter(isNotNullish);
 
     if (!hasAtLeastOneElement(addressPublicKeys)) {
-      throw new Error('Account public keys not available');
+      throw new Error('No public keys not available');
+    } else if (addressPublicKeys.length < accountIndices.length) {
+      throw new Error('Some of requested signing keys are not available');
     }
 
     return new SeedlessWallet({
@@ -232,15 +234,14 @@ export class WalletService implements OnUnlock {
     });
   }
 
-  private async getWallet({
-    network,
-    tabId,
-    accountIndex,
-  }: {
-    network: Network;
-    tabId?: number;
-    accountIndex?: number | number[];
-  }) {
+  #isMultiSignerRequest(
+    params: GetWalletParams,
+  ): params is GetWalletForMultiSignerParams {
+    return 'accountIndices' in params && Array.isArray(params.accountIndices);
+  }
+
+  private async getWallet(params: GetWalletParams) {
+    const { network, tabId } = params;
     const activeAccount = await this.accountsService.getActiveAccount();
     if (!activeAccount) {
       return;
@@ -252,18 +253,18 @@ export class WalletService implements OnUnlock {
     }
     const { secretType } = secrets;
 
-    if (Array.isArray(accountIndex)) {
+    const accountIndex: number | undefined = this.#isMultiSignerRequest(params)
+      ? params.accountIndices[0]
+      : params.accountIndex;
+
+    if (this.#isMultiSignerRequest(params)) {
       if (secretType === SecretType.LedgerLive) {
-        return new Avalanche.LedgerLiveSigner(accountIndex);
+        return new Avalanche.LedgerLiveSigner(params.accountIndices);
       }
 
       if (secretType === SecretType.Seedless) {
-        return this.#getSeedlessWallet(secrets, network, accountIndex);
+        return this.#getSeedlessWallet(secrets, network, params.accountIndices);
       }
-
-      // Other wallets only accept a single account index, but then they are also able
-      // to derive the public keys they need based on the extended public keys or the seedphrase.
-      accountIndex = accountIndex[0];
     }
 
     // Solana
@@ -706,13 +707,19 @@ export class WalletService implements OnUnlock {
     tabId?: number,
     originalRequestMethod?: string,
   ): Promise<SigningResult> {
-    const wallet = await this.getWallet({
-      network,
-      tabId,
-      accountIndex: isMultiSigAvalancheTxRequest(tx)
-        ? tx.externalIndices
-        : undefined,
-    });
+    const getWalletParams: GetWalletParams = isMultiSigAvalancheTxRequest(tx)
+      ? {
+          network,
+          tabId,
+          accountIndices: isMultiSigAvalancheTxRequest(tx)
+            ? tx.externalIndices
+            : undefined,
+        }
+      : {
+          network,
+          tabId,
+        };
+    const wallet = await this.getWallet(getWalletParams);
 
     if (!wallet) {
       throw new Error('Wallet not found');
@@ -1371,3 +1378,17 @@ export class WalletService implements OnUnlock {
     };
   }
 }
+
+type GetWalletForSingleSignerParams = {
+  network: Network;
+  tabId?: number;
+  accountIndex?: number;
+};
+type GetWalletForMultiSignerParams = {
+  network: Network;
+  tabId?: number;
+  accountIndices: number[];
+};
+type GetWalletParams =
+  | GetWalletForSingleSignerParams
+  | GetWalletForMultiSignerParams;

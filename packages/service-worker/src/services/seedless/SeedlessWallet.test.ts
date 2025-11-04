@@ -511,7 +511,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
     beforeEach(() => {
       session = {
-        keys: jest.fn().mockResolvedValue(validKeySet),
+        keys: jest.fn().mockResolvedValue([...validKeySet, avaKey2]),
         signBlob: jest.fn().mockResolvedValue({
           data: jest.fn().mockReturnValue({ signature }),
         }),
@@ -521,14 +521,14 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
         .mockResolvedValue(session);
     });
 
-    describe('when public key is not provided', () => {
+    describe('when no public key is provided', () => {
       beforeEach(() => {
         wallet = new SeedlessWallet({ networkService, sessionStorage });
       });
 
       it('raises an error', async () => {
         await expect(wallet.signAvalancheTx({} as any)).rejects.toThrow(
-          'Public key not available',
+          'Public keys not available',
         );
       });
     });
@@ -666,6 +666,35 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             expect.anything(),
           );
         });
+      });
+
+      it('calls signBlob() method for each requested signing key', async () => {
+        networkService.isMainnet.mockReturnValue(true);
+        wallet = new SeedlessWallet({
+          networkService,
+          sessionStorage,
+          addressPublicKeys: [
+            { key: strip0x(avaKey.publicKey) } as any,
+            { key: strip0x(avaKey2.publicKey) } as any,
+          ],
+        });
+
+        await wallet.signAvalancheTx({
+          ...txRequest,
+          externalIndices: [0, 1],
+        } as any);
+
+        expect(session.signBlob).toHaveBeenCalledTimes(2);
+        expect(session.signBlob).toHaveBeenNthCalledWith(
+          1,
+          avaKey.key_id,
+          expect.anything(),
+        );
+        expect(session.signBlob).toHaveBeenNthCalledWith(
+          2,
+          avaKey2.key_id,
+          expect.anything(),
+        );
       });
 
       it('calls signBlob() method with proper payload', async () => {

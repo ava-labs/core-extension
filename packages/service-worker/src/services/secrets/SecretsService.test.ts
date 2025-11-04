@@ -1395,7 +1395,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
 
           expect(SeedlessWallet).toHaveBeenCalledWith({
             sessionStorage: expect.any(SeedlessTokenStorage),
-            addressPublicKey: oldKeys[0],
+            addressPublicKeys: oldKeys,
           });
 
           expect(seedlessWalletMock.addAccount).toHaveBeenCalledWith(1);

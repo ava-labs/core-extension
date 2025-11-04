@@ -12,7 +12,7 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/core-gasless-sdk": "3.1.0-canary.939d7ca.0",
+    "@avalabs/core-gasless-sdk": "3.1.0-canary.db305ee.0",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*"
