@@ -7,9 +7,14 @@ import * as Styled from './Styled';
 type Props = {
   required: number;
   received: number;
+  color: 'success' | 'error';
 };
 
-export const ConfirmationsCounter: FC<Props> = ({ required, received }) => {
+export const ConfirmationsCounter: FC<Props> = ({
+  required,
+  received,
+  color,
+}) => {
   const { t } = useTranslation();
   const isConfirmed = received >= required;
 
@@ -41,7 +46,7 @@ export const ConfirmationsCounter: FC<Props> = ({ required, received }) => {
       {!isConfirmed && (
         <Styled.ProgressItem
           variant="determinate"
-          color="success"
+          color={color}
           value={(received / required) * 100}
         />
       )}

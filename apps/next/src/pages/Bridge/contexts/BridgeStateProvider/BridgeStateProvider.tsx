@@ -34,7 +34,6 @@ const BridgeStateContext = createContext<
       sourceChainIds: UnifiedBridgeContext['availableChainIds'];
       transferAsset: UnifiedBridgeContext['transferAsset'];
       state: UnifiedBridgeContext['state'];
-      isTxConfirming: UnifiedBridgeContext['isTxConfirming'];
       minTransferAmount: bigint | undefined;
       query: BridgeQueryContext;
       sourceTokens: FungibleTokenBalance[];
@@ -65,7 +64,6 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     isReady,
     transferAsset,
     state,
-    isTxConfirming,
     getMinimumTransferAmount,
     estimateTransferGas,
   } = useNextUnifiedBridgeContext();
@@ -173,7 +171,6 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         transferAsset,
         flipPair,
         state,
-        isTxConfirming,
         minTransferAmount,
         requiredGas,
       }}

@@ -5,7 +5,6 @@ import { useFeatureFlagContext, useNetworkContext } from '@core/ui';
 import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/networkSortingFn';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
-import { isTransactionConfirming } from '../../lib/isTransactionConfirming';
 import {
   useAssetIdentifier,
   useBridgeEnvironment,
@@ -83,8 +82,6 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
       supportsAsset,
       transferAsset,
       getTransferableAssets,
-      isTxConfirming: (txHash) =>
-        isTransactionConfirming(txHash, state.pendingTransfers),
       analyzeTx: (txInfo) => {
         assert(core, CommonError.Unknown);
         return core.analyzeTx(txInfo);

@@ -9,9 +9,12 @@ export const AnimatedSyncIcon = styled(MdSync)(({ theme }) => ({
   animationTimingFunction: 'linear',
   animationIterationCount: 'infinite',
 
-  '&[data-active="false"]': {
-    animationPlayState: 'paused',
+  '&[data-hidden="true"]': {
     width: 0,
+  },
+
+  '&[data-active="false"], &[data-hidden="true"]': {
+    animationPlayState: 'paused',
   },
 
   '@keyframes rotate': {
