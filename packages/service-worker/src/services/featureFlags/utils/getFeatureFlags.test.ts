@@ -23,7 +23,10 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
       ok: true,
       status: 200,
       json: jest.fn().mockResolvedValue({
-        featureFlags: { [FeatureGates.BRIDGE]: false },
+        featureFlags: {
+          [FeatureGates.EVERYTHING]: true,
+          [FeatureGates.BRIDGE]: false,
+        },
         featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
       }),
     });
@@ -43,6 +46,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
 
       expect(flags).toEqual({
         ...DISABLED_FLAG_VALUES,
+        [FeatureGates.EVERYTHING]: true,
         [FeatureGates.BRIDGE]: false,
       });
     });
@@ -102,7 +106,10 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           ok: true,
           status: 200,
           json: jest.fn().mockResolvedValue({
-            featureFlags: { [FeatureGates.BRIDGE]: false },
+            featureFlags: {
+              [FeatureGates.EVERYTHING]: true,
+              [FeatureGates.BRIDGE]: false,
+            },
             featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
           }),
         });
@@ -225,7 +232,10 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
         ok: true,
         status: 200,
         json: jest.fn().mockResolvedValue({
-          featureFlags: { [FeatureGates.BRIDGE]: false },
+          featureFlags: {
+            [FeatureGates.EVERYTHING]: true,
+            [FeatureGates.BRIDGE]: false,
+          },
           featureFlagPayloads: { [FeatureGates.DEFI]: 123 }, // Should be string, not number
         }),
       });
@@ -247,7 +257,10 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
           ok: true,
           status: 200,
           json: jest.fn().mockResolvedValue({
-            featureFlags: { [FeatureGates.BRIDGE]: false },
+            featureFlags: {
+              [FeatureGates.EVERYTHING]: true,
+              [FeatureGates.BRIDGE]: false,
+            },
             featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
           }),
         });
@@ -260,6 +273,7 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
 
       expect(result.flags).toEqual({
         ...DISABLED_FLAG_VALUES,
+        [FeatureGates.EVERYTHING]: true,
         [FeatureGates.BRIDGE]: false,
       });
       expect(fetch).toHaveBeenCalledTimes(2);
