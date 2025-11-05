@@ -1,4 +1,10 @@
-import { Box, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import {
+  Box,
+  getHexAlpha,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -178,15 +184,14 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
               }}
             >
               <AnimatedButton
-                color="primary"
                 variant="contained"
                 sx={{
                   borderColor: 'common.white_10',
                   maxWidth: '100%',
                   justifyContent: 'flex-start',
                   px: 1.5,
-                  backgroundColor: 'common.white_30',
-                  color: 'text.primary',
+                  backgroundColor: getHexAlpha(theme.palette.text.primary, 30),
+                  color: 'common.white',
                 }}
                 onClick={() => {
                   history.push('/concierge');

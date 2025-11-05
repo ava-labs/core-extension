@@ -42,7 +42,7 @@ export const UserInput = ({
       size="medium"
       sx={{
         color: 'grey.400',
-        backgroundColor: getHexAlpha(theme.palette.grey[800], 60),
+        backgroundColor: getHexAlpha(theme.palette.background.default, 60),
         borderRadius: 1,
       }}
       focused
