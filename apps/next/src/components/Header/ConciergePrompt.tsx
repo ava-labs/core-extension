@@ -117,17 +117,7 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
             exit
             in={isAIBackdropOpen}
             nodeRef={nodeRef3}
-            // onEntered={() => {
-            //   console.log('onEntered');
-            //   // it needs to be delayed (waiting for the button animation getting done) to avoid the glitch
-            //   // setTimeout(() => {
-            //   // }, 500);
-            //   setIsHoverAreaHidden(true);
-            //   hasBackdropEntered.current = true;
-            // }}
             onExited={() => {
-              // console.log('onExited prop: ', prop);
-              // setIsHoverAreaHidden(false);
               hasBackdropEntered.current = false;
             }}
           >

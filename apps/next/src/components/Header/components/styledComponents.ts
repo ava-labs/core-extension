@@ -122,7 +122,7 @@ export const PromptButtonBackground = styled(Stack)(({ theme }) => ({
   top: -100,
   left: 0,
   height: '200px',
-  width: '345px',
+  width: '100%',
   zIndex: theme.zIndex.appBar,
   pointerEvents: 'none',
 }));
