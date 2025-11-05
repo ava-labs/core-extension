@@ -36,14 +36,14 @@ export const BridgeTransactionForm: FC<Props> = ({
   const [isBridgeExecuting, setIsBridgeExecuting] = useState(false);
   const {
     transferAsset,
-    asset: target,
+    asset,
     query: { amount, updateQuery, sourceNetwork: sourceNetworkId },
     targetNetworkId,
     fee,
     minTransferAmount,
   } = useBridgeState();
 
-  const canExecuteBridge = target && amount && targetNetworkId;
+  const canExecuteBridge = asset && amount && targetNetworkId;
 
   const performBridge = async () => {
     if (!canExecuteBridge) {
@@ -55,8 +55,8 @@ export const BridgeTransactionForm: FC<Props> = ({
     try {
       const result = await handleTxOutcome(
         transferAsset(
-          target.symbol,
-          stringToBigint(amount, target.decimals),
+          asset.symbol,
+          stringToBigint(amount, asset.decimals),
           sourceNetworkId,
           targetNetworkId,
         ),
@@ -78,7 +78,7 @@ export const BridgeTransactionForm: FC<Props> = ({
   const isAmountCorrect =
     canExecuteBridge &&
     minTransferAmount &&
-    minTransferAmount <= stringToBigint(amount, target.decimals);
+    minTransferAmount <= stringToBigint(amount, asset.decimals);
   const isBridgeButtonDisabled = Boolean(
     !canExecuteBridge ||
       error ||

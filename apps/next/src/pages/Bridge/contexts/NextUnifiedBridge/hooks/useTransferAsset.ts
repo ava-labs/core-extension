@@ -17,7 +17,7 @@ import {
   useNetworkContext,
 } from '@core/ui';
 import { useCallback } from 'react';
-import { buildParams, getAsset } from '../utils';
+import { buildParams, getChainAssetBySymbol } from '../utils';
 
 export function useTransferAsset(core: UnifiedBridgeService | null) {
   const {
@@ -52,7 +52,7 @@ export function useTransferAsset(core: UnifiedBridgeService | null) {
       const targetNetwork = getNetwork(targetNetworkId);
       assert(targetNetwork, CommonError.UnknownNetwork);
 
-      const asset = getAsset(core, symbol, sourceNetwork.caipId);
+      const asset = getChainAssetBySymbol(core, symbol, sourceNetwork.caipId);
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
       const { fromAddress, toAddress, sourceChain, targetChain } =

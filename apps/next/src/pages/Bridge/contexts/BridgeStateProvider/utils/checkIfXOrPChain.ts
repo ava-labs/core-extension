@@ -2,14 +2,11 @@ import { isPchainNetworkId, isXchainNetworkId } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 
 export function checkIfXorPChain(
-  sourceNetwork: NetworkWithCaipId | undefined,
+  chainId: NetworkWithCaipId['chainId'],
 ): boolean {
-  if (!sourceNetwork) {
+  if (!chainId) {
     return false;
   }
 
-  return (
-    isXchainNetworkId(sourceNetwork.chainId) ||
-    isPchainNetworkId(sourceNetwork.chainId)
-  );
+  return isXchainNetworkId(chainId) || isPchainNetworkId(chainId);
 }

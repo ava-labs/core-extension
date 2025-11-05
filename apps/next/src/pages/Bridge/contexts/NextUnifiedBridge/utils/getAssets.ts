@@ -11,18 +11,12 @@ export function getChainAssets(
   return core.getAssets()[caipId] ?? [];
 }
 
-export function getAsset(
+export function getChainAssetBySymbol(
   core: UnifiedBridgeService | null,
   symbol: string,
   caipId: string,
 ) {
   const chainAssets = getChainAssets(core, caipId);
-
-  console.log('PAIR SWAP -> getAsset', {
-    symbol,
-    caipId,
-    chainAssets,
-  });
 
   if (chainAssets.length === 0) {
     return undefined;

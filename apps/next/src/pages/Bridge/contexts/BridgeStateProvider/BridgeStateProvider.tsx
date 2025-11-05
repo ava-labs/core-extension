@@ -1,12 +1,6 @@
-import { useAllTokens } from '@/hooks/useAllTokens';
 import { BridgeAsset } from '@avalabs/bridge-unified';
-import { findMatchingBridgeAsset, stringToBigint } from '@core/common';
-import {
-  FungibleTokenBalance,
-  getUniqueTokenId,
-  NetworkWithCaipId,
-} from '@core/types';
-import { useNetworkContext } from '@core/ui';
+import { caipToChainId, stringToBigint } from '@core/common';
+import { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 import {
   createContext,
   FC,
@@ -18,11 +12,11 @@ import {
 } from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
-import { useFetchMinTransferAmount } from './hooks';
+import { useFetchMinTransferAmount, useTargetToken } from './hooks';
 import { useAmountAfterFee } from './hooks/useAmountAfterFee';
 import { useInitialize } from './hooks/useInitialize';
 import { usePairFlipper } from './hooks/usePairFlipper';
-import { useTargetToken } from './hooks/useTargetToken';
+import { useTokenLookup } from './hooks/useTokenLookup';
 import { checkIfXorPChain } from './utils/checkIfXOrPChain';
 
 type UnifiedBridgeContext = ReturnType<typeof useNextUnifiedBridgeContext>;
@@ -34,33 +28,34 @@ const BridgeStateContext = createContext<
       sourceChainIds: UnifiedBridgeContext['availableChainIds'];
       transferAsset: UnifiedBridgeContext['transferAsset'];
       state: UnifiedBridgeContext['state'];
-      minTransferAmount: bigint | undefined;
       query: BridgeQueryContext;
-      sourceTokens: FungibleTokenBalance[];
-      assets: BridgeAsset[];
+      amountAfterFee: bigint | undefined;
       asset: BridgeAsset | undefined;
       fee: bigint | undefined;
-      amountAfterFee: bigint | undefined;
-      shouldUseCrossChainTransfer: boolean;
-      sourceNetwork: NetworkWithCaipId | undefined;
-      targetNetworks: NetworkWithCaipId['caipId'][];
-      targetNetworkId: NetworkWithCaipId['caipId'];
-      sourceToken: FungibleTokenBalance | undefined;
-      targetToken: FungibleTokenBalance | undefined;
       flipPair: VoidFunction;
+      minTransferAmount: bigint | undefined;
       requiredGas: bigint;
+      shouldUseCrossChainTransfer: boolean;
+      sourceToken: FungibleTokenBalance | undefined;
+      sourceTokens: FungibleTokenBalance[];
+      targetNetworkId: NetworkWithCaipId['caipId'];
+      targetNetworkIds: NetworkWithCaipId['caipId'][];
+      targetToken: FungibleTokenBalance | undefined;
     }
 >(undefined);
 
 export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const query = useBridgeQuery();
-  const { getNetwork } = useNetworkContext();
-  const { amount, sourceNetwork: sourceNetworkId, sourceToken } = query;
+  const {
+    amount,
+    sourceNetwork: sourceNetworkId,
+    sourceToken: sourceTokenId,
+  } = query;
   const [requiredGas, setRequiredGas] = useState<bigint>(0n);
 
   const {
     getTransferableAssets,
-    availableChainIds,
+    availableChainIds: sourceChainIds,
     isReady,
     transferAsset,
     state,
@@ -68,61 +63,36 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     estimateTransferGas,
   } = useNextUnifiedBridgeContext();
 
-  const sourceNetwork = useMemo(
-    () => (sourceNetworkId ? getNetwork(sourceNetworkId) : undefined),
-    [getNetwork, sourceNetworkId],
-  );
+  const { tokens: sourceTokens, lookup: sourceTokenAndAssetLookup } =
+    useTokenLookup(sourceNetworkId, getTransferableAssets(sourceNetworkId));
 
-  const networksForToken = useMemo(
-    () => (sourceNetwork ? [sourceNetwork] : []),
-    [sourceNetwork],
-  );
-  const tokens = useAllTokens(networksForToken);
-
-  const tokenAndAssetLookup = useMemo(
-    () =>
-      tokens.reduce((lookup, token) => {
-        const asset = findMatchingBridgeAsset(
-          getTransferableAssets(sourceNetworkId),
-          token,
-        );
-        if (asset) {
-          lookup.set(getUniqueTokenId(token), { asset, token });
-        }
-        return lookup;
-      }, new Map<string, { asset: BridgeAsset; token: FungibleTokenBalance }>()),
-    [tokens, getTransferableAssets, sourceNetworkId],
-  );
-
-  const sourceTokens = useMemo(
-    () => tokens.filter((t) => tokenAndAssetLookup.has(getUniqueTokenId(t))),
-    [tokens, tokenAndAssetLookup],
-  );
-
-  useInitialize(query, sourceTokens);
-
-  const asset = tokenAndAssetLookup.get(sourceToken)?.asset ?? undefined;
-  const targetNetworks = useMemo(
+  const { asset, token: sourceToken } =
+    sourceTokenAndAssetLookup.get(sourceTokenId) ?? {};
+  const targetNetworkIds = useMemo(
     () => (asset?.destinations ? Object.keys(asset.destinations) : []),
     [asset?.destinations],
   );
-  const [targetNetworkId = ''] = targetNetworks;
+  const [targetNetworkId = ''] = targetNetworkIds;
+
   const targetToken = useTargetToken(
     targetNetworkId,
-    tokenAndAssetLookup.get(sourceToken)?.token,
+    getTransferableAssets(targetNetworkId),
+    asset,
   );
+  useInitialize(query, sourceTokens);
 
   const { amountAfterFee, fee } = useAmountAfterFee(
-    targetToken,
+    asset,
+    sourceToken?.balance,
+    requiredGas,
     amount,
     sourceNetworkId,
     targetNetworkId,
   );
 
   const flipPair = usePairFlipper({
-    tokens,
     targetNetworkId,
-    query,
+    targetToken,
   });
 
   const minTransferAmount = useFetchMinTransferAmount(
@@ -134,40 +104,38 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 
   useEffect(() => {
-    if (asset?.symbol && amount && sourceNetworkId && targetNetworkId) {
+    if (!asset || !amount) {
+      return;
+    }
+    const amountBigInt = stringToBigint(amount, asset.decimals);
+
+    if (amountBigInt && sourceNetworkId && targetNetworkId) {
       estimateTransferGas(
         asset.symbol,
-        stringToBigint(amount, asset.decimals),
+        amountBigInt,
         sourceNetworkId,
         targetNetworkId,
       ).then(setRequiredGas);
     }
-  }, [
-    asset?.symbol,
-    asset?.decimals,
-    amount,
-    sourceNetworkId,
-    targetNetworkId,
-    estimateTransferGas,
-  ]);
+  }, [amount, sourceNetworkId, targetNetworkId, estimateTransferGas, asset]);
 
   return (
     <BridgeStateContext
       value={{
         isReady,
         query,
-        sourceNetwork,
         sourceTokens,
-        sourceChainIds: availableChainIds,
-        assets: getTransferableAssets(sourceNetworkId),
+        sourceChainIds,
         asset,
         fee,
         amountAfterFee,
-        shouldUseCrossChainTransfer: checkIfXorPChain(sourceNetwork),
+        shouldUseCrossChainTransfer: Boolean(
+          sourceNetworkId && checkIfXorPChain(caipToChainId(sourceNetworkId)),
+        ),
+        targetNetworkIds,
         targetNetworkId,
-        targetNetworks,
         targetToken,
-        sourceToken: tokenAndAssetLookup.get(sourceToken)?.token,
+        sourceToken,
         transferAsset,
         flipPair,
         state,

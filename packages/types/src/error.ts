@@ -71,6 +71,7 @@ export enum FireblocksErrorCode {
 }
 
 export enum CommonError {
+  InvalidAmount = 'invalid-amount',
   Unknown = 'unknown',
   UserRejected = 'user-rejected',
   NetworkError = 'network-error',

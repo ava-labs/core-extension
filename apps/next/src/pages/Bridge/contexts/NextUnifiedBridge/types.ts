@@ -6,45 +6,41 @@ import {
 } from '@avalabs/bridge-unified';
 import { NetworkWithCaipId, UnifiedBridgeState } from '@core/types';
 
+type NetworkId = NetworkWithCaipId['caipId' | 'chainId'];
+
 export interface UnifiedBridgeContext {
   estimateTransferGas(
     symbol: string,
     amount: bigint,
-    sourceChainId: string | number,
-    targetChainId: string | number,
+    sourceChainId: NetworkId,
+    targetChainId: NetworkId,
   ): Promise<bigint>;
-  getAssetIdentifierOnTargetChain(
-    symbol?: string,
-    chainId?: string,
-  ): string | undefined;
   getFee(
     symbol: string,
     amount: bigint,
-    sourceNetworkId: NetworkWithCaipId['caipId'],
-    targetNetworkId: NetworkWithCaipId['caipId'],
+    sourceNetworkId: NetworkId,
+    targetNetworkId: NetworkId,
   ): Promise<bigint>;
   analyzeTx(txInfo: AnalyzeTxParams): AnalyzeTxResult;
   supportsAsset(
     lookupAddressOrSymbol: string,
-    sourceNetworkId: NetworkWithCaipId['caipId'],
-    targetChainId: string,
+    sourceNetworkId: NetworkId,
+    targetNetworkId: NetworkId,
   ): boolean;
   transferAsset(
     symbol: string,
     amount: bigint,
-    sourceNetworkId: NetworkWithCaipId['caipId'],
-    targetChainId: string,
+    sourceNetworkId: NetworkId,
+    targetNetworkId: NetworkId,
     gasSettings?: GasSettings,
   ): Promise<string>;
   getMinimumTransferAmount(
     asset: BridgeAsset,
     amount: bigint,
-    sourceNetworkId: NetworkWithCaipId['caipId'],
-    targetChainId: string,
+    sourceNetworkId: NetworkId,
+    targetNetworkId: NetworkId,
   ): Promise<bigint>;
-  getTransferableAssets(
-    sourceNetworkId: NetworkWithCaipId['caipId'],
-  ): BridgeAsset[];
+  getTransferableAssets(networkId: NetworkWithCaipId['caipId']): BridgeAsset[];
   state: UnifiedBridgeState;
   availableChainIds: NetworkWithCaipId['caipId'][];
   isReady: boolean;

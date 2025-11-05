@@ -7,7 +7,7 @@ import {
 } from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
-import { buildChain, getAsset } from '../utils';
+import { buildChain, getChainAssetBySymbol } from '../utils';
 
 export function useGetFee(core: UnifiedBridgeService | null) {
   const { getNetwork } = useNetworkContext();
@@ -24,7 +24,7 @@ export function useGetFee(core: UnifiedBridgeService | null) {
       assert(sourceNetwork, CommonError.NoActiveNetwork);
       assert(targetNetwork, CommonError.UnknownNetwork);
 
-      const asset = getAsset(core, symbol, sourceNetwork.caipId);
+      const asset = getChainAssetBySymbol(core, symbol, sourceNetwork.caipId);
       assert(asset, UnifiedBridgeError.UnknownAsset);
 
       const feeMap = lowerCaseKeys(
