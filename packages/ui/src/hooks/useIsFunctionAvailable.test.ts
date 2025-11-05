@@ -500,15 +500,17 @@ describe('hooks/useIsFunctionAvailable', () => {
     });
 
     it('returns false for Bitcoin network when UNIFIED_BRIDGE_AB_BTC_TO_AVA is disabled', () => {
+      const testFeatureFlags = {
+        ...mockFeatureFlags,
+        [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
+      };
+
       (useNetworkContext as jest.Mock).mockReturnValue({
         network: { chainId: ChainId.BITCOIN },
       });
       (useFeatureFlagContext as jest.Mock).mockReturnValue({
-        isFlagEnabled: mockIsFlagEnabled,
-        featureFlags: {
-          ...mockFeatureFlags,
-          [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
-        },
+        isFlagEnabled: (flag: FeatureGates) => testFeatureFlags[flag] ?? false,
+        featureFlags: testFeatureFlags,
       });
 
       const { result } = renderHook(() =>
