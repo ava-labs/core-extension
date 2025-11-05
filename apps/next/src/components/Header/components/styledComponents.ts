@@ -6,13 +6,6 @@ import {
   styled,
 } from '@avalabs/k2-alpine';
 
-CSS.registerProperty({
-  name: '--angle',
-  syntax: '<angle>',
-  inherits: false,
-  initialValue: '0deg',
-});
-
 export const AccountInfo = styled(Stack)`
   cursor: pointer;
   border-radius: 10px;
@@ -111,6 +104,7 @@ export const AnimatedButton = styled(Button)(({ theme }) => ({
 }));
 
 export const PromptButtonBackground = styled(Stack)(({ theme }) => ({
+  '--angle': '0deg',
   background: `conic-gradient(
       from var(--angle),
       rgba(255, 255, 255, 0) 0deg,

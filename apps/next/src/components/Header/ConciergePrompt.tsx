@@ -11,14 +11,16 @@ import {
 import { useFeatureFlagContext, useSettingsContext } from '@core/ui';
 import { FeatureGates } from '@core/types';
 
-export const ConciergePrompt = () => {
+export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
   const theme = useTheme();
   const history = useHistory();
   const { t } = useTranslation();
-  const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
+
   const [isHoverAreaHidden, setIsHoverAreaHidden] = useState(false);
   const { coreAssistant } = useSettingsContext();
   const { featureFlags } = useFeatureFlagContext();
+  const timer = useRef<NodeJS.Timeout>(null);
+  const hasBackdropEntered = useRef(false);
 
   const buttonLabels = [
     t('Ask Core Concierge to send crypto'),
@@ -42,26 +44,36 @@ export const ConciergePrompt = () => {
 
   return (
     <>
+      {/* THE BOX AREA WHERE WE WANT TO CATCH THE CURSOR */}
       <Stack
         className="prompt-hover-area"
         sx={{
           width: '100%',
-          height: '60px',
+          height: '40px',
           position: 'absolute',
           top: '56px',
-          zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip + 1,
+          zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip - 1,
         }}
         onMouseEnter={() => {
-          setIsAIBackdropOpen(true);
+          timer.current = setTimeout(() => {
+            setIsAIBackdropOpen(true);
+          }, 400);
+        }}
+        onMouseLeave={() => {
+          if (!isAIBackdropOpen && timer.current) {
+            clearTimeout(timer.current);
+          }
         }}
       />
       <TransitionGroup component={null}>
         <Stack>
+          {/* GRADIENT BACKGROUND */}
           <CSSTransition
             key={1}
             timeout={200}
             classNames="overlay"
             appear
+            enter
             exit
             in={isAIBackdropOpen}
             nodeRef={nodeRef2}
@@ -96,6 +108,7 @@ export const ConciergePrompt = () => {
               />
             </Stack>
           </CSSTransition>
+          {/* BACKDROP */}
           <CSSTransition
             key={2}
             timeout={1000}
@@ -104,6 +117,19 @@ export const ConciergePrompt = () => {
             exit
             in={isAIBackdropOpen}
             nodeRef={nodeRef3}
+            // onEntered={() => {
+            //   console.log('onEntered');
+            //   // it needs to be delayed (waiting for the button animation getting done) to avoid the glitch
+            //   // setTimeout(() => {
+            //   // }, 500);
+            //   setIsHoverAreaHidden(true);
+            //   hasBackdropEntered.current = true;
+            // }}
+            onExited={() => {
+              // console.log('onExited prop: ', prop);
+              // setIsHoverAreaHidden(false);
+              hasBackdropEntered.current = false;
+            }}
           >
             <Stack
               sx={{
@@ -127,12 +153,15 @@ export const ConciergePrompt = () => {
                 },
               }}
               ref={nodeRef3}
-              onMouseEnter={() => {
-                setIsAIBackdropOpen(false);
-                setIsHoverAreaHidden(false);
+              onMouseMove={() => {
+                if (hasBackdropEntered.current) {
+                  setIsAIBackdropOpen(false);
+                  setIsHoverAreaHidden(false);
+                }
               }}
             />
           </CSSTransition>
+          {/* THE BUTTON */}
           <CSSTransition
             key={3}
             timeout={1000}
@@ -145,6 +174,7 @@ export const ConciergePrompt = () => {
               // it needs to be delayed (waiting for the button animation getting done) to avoid the glitch
               setTimeout(() => {
                 setIsHoverAreaHidden(true);
+                hasBackdropEntered.current = true;
               }, 500);
             }}
           >
@@ -153,7 +183,7 @@ export const ConciergePrompt = () => {
                 position: 'absolute',
                 top: '56px',
                 width: '100%',
-                height: '70px',
+                height: '40px',
                 px: 1.5,
               }}
             >

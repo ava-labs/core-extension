@@ -17,6 +17,7 @@ export const Header = () => {
   const activeAccount = accounts.active;
   const theme = useTheme();
   const [isAddressAppear, setIsAddressAppear] = useState(false);
+  const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
   const history = useHistory();
 
   // TODO: fix this after the transactions will be implemented
@@ -46,6 +47,9 @@ export const Header = () => {
           px: 1,
           zIndex: theme.zIndex.tooltip + 1,
         }}
+        onMouseEnter={() => {
+          setIsAIBackdropOpen(false);
+        }}
       >
         <AccountSelectContainer
           onMouseOver={() => setIsAddressAppear(true)}
@@ -70,7 +74,10 @@ export const Header = () => {
           pendingTransaction={isTransactionPending}
         />
       </Stack>
-      <ConciergePrompt />
+      <ConciergePrompt
+        isAIBackdropOpen={isAIBackdropOpen}
+        setIsAIBackdropOpen={setIsAIBackdropOpen}
+      />
     </Stack>
   );
 };

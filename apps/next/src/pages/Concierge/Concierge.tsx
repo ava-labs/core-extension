@@ -33,14 +33,19 @@ export const Concierge = () => {
 
   return (
     <Slide in direction="up">
-      <Stack>
+      <Stack
+        sx={{
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
         <Stack
           sx={{
             backgroundImage: 'url(/images/ai-prompt-bg.svg)',
             backgroundSize: 'cover',
             position: 'absolute',
-            top: '300px',
-            left: '-150px',
+            bottom: '-300px',
+            left: '-200px',
             width: '600px',
             height: '600px',
             animation: `15s ${promptBackgroundAnimation} ease-in infinite`,
