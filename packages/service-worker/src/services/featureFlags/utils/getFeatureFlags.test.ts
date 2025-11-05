@@ -20,6 +20,8 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
     jest.resetAllMocks();
     realFetch = global.fetch;
     global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
       json: jest.fn().mockResolvedValue({
         featureFlags: { [FeatureGates.BRIDGE]: false },
         featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
@@ -91,8 +93,14 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
     beforeEach(() => {
       global.fetch = jest
         .fn()
-        .mockRejectedValueOnce(new Error('some error'))
         .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          json: jest.fn().mockResolvedValue({ error: 'Internal Server Error' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
           json: jest.fn().mockResolvedValue({
             featureFlags: { [FeatureGates.BRIDGE]: false },
             featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
@@ -165,5 +173,115 @@ describe('src/background/services/featureFlags/utils/getFeatureFlags', () => {
     });
 
     testResponseData();
+  });
+
+  describe('error handling', () => {
+    it('throws error when HTTP response is not ok', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: jest.fn().mockResolvedValue({
+          error: 'Internal Server Error',
+        }),
+      });
+
+      await expect(
+        getFeatureFlags('token', 'userID', 'https://example.com'),
+      ).rejects.toThrow('Request failed with status 500');
+    });
+
+    it('throws error when response does not match schema - missing featureFlags', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          // Missing featureFlags field
+          featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
+        }),
+      });
+
+      await expect(
+        getFeatureFlags('token', 'userID', 'https://example.com'),
+      ).rejects.toThrow();
+    });
+
+    it('throws error when response does not match schema - invalid featureFlag type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          featureFlags: { [FeatureGates.BRIDGE]: 'invalid' }, // Should be boolean, not string
+          featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
+        }),
+      });
+
+      await expect(
+        getFeatureFlags('token', 'userID', 'https://example.com'),
+      ).rejects.toThrow();
+    });
+
+    it('throws error when response does not match schema - invalid featureFlagPayloads type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          featureFlags: { [FeatureGates.BRIDGE]: false },
+          featureFlagPayloads: { [FeatureGates.DEFI]: 123 }, // Should be string, not number
+        }),
+      });
+
+      await expect(
+        getFeatureFlags('token', 'userID', 'https://example.com'),
+      ).rejects.toThrow();
+    });
+
+    it('handles 404 error when proxy fails', async () => {
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 404,
+          json: jest.fn().mockResolvedValue({ error: 'Not Found' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            featureFlags: { [FeatureGates.BRIDGE]: false },
+            featureFlagPayloads: { [FeatureGates.DEFI]: '>=1.60.0' },
+          }),
+        });
+
+      const result = await getFeatureFlags(
+        'token',
+        'userID',
+        'https://example.com',
+      );
+
+      expect(result.flags).toEqual({
+        ...DISABLED_FLAG_VALUES,
+        [FeatureGates.BRIDGE]: false,
+      });
+      expect(fetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('throws error when both proxy and posthog fail with non-ok status', async () => {
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+          json: jest.fn().mockResolvedValue({ error: 'Internal Server Error' }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 503,
+          json: jest.fn().mockResolvedValue({ error: 'Service Unavailable' }),
+        });
+
+      await expect(
+        getFeatureFlags('token', 'userID', 'https://example.com'),
+      ).rejects.toThrow('Request failed with status 503');
+    });
   });
 });

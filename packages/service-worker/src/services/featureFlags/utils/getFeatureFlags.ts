@@ -54,11 +54,7 @@ export async function getFeatureFlags(
         throw new Error('Invalid Posthog URL');
       }
 
-      const response = await fetchAndVerify(
-        [posthogUrl],
-        posthogResponseSchema,
-      );
-
+      const response = await fetcher(posthogUrl);
       return response;
     }
   };
