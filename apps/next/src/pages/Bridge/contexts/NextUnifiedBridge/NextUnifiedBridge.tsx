@@ -6,7 +6,6 @@ import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import {
-  useAssetIdentifier,
   useBridgeEnvironment,
   useCoreBridgeService,
   useGetFee,
@@ -64,7 +63,6 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   );
 
   const estimateTransferGas = useGetTransferGasEstimate(core);
-  const getAssetIdentifierOnTargetChain = useAssetIdentifier(core);
   const getFee = useGetFee(core);
   const getMinimumTransferAmount = useMinimumTransferAmount(core);
   const supportsAsset = useSupportsAsset(core);
@@ -76,7 +74,6 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
       availableChainIds,
       estimateTransferGas,
       state,
-      getAssetIdentifierOnTargetChain,
       getMinimumTransferAmount,
       getFee,
       supportsAsset,
@@ -92,7 +89,6 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
     availableChainIds,
     estimateTransferGas,
     state,
-    getAssetIdentifierOnTargetChain,
     getMinimumTransferAmount,
     getFee,
     supportsAsset,

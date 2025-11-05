@@ -3,7 +3,7 @@ import { assert } from '@core/common';
 import { CommonError, UnifiedBridgeError } from '@core/types';
 import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
-import { buildParams, getAsset } from '../utils';
+import { buildParams, getChainAssetBySymbol } from '../utils';
 
 export function useGetTransferGasEstimate(core: UnifiedBridgeService | null) {
   const {
@@ -24,7 +24,7 @@ export function useGetTransferGasEstimate(core: UnifiedBridgeService | null) {
       assert(sourceNetwork, CommonError.UnknownNetwork);
       assert(targetNetwork, CommonError.UnknownNetwork);
 
-      const asset = getAsset(core, symbol, sourceNetwork.caipId);
+      const asset = getChainAssetBySymbol(core, symbol, sourceNetwork.caipId);
 
       assert(asset, UnifiedBridgeError.UnknownAsset);
 

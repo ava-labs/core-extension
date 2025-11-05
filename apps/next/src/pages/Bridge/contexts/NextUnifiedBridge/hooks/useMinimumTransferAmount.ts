@@ -15,6 +15,8 @@ export function useMinimumTransferAmount(core: UnifiedBridgeService | null) {
       sourceNetworkId: string,
       targetNetworkId: string,
     ) => {
+      assert(amount, CommonError.InvalidAmount);
+
       const sourceNetwork = getNetwork(sourceNetworkId);
       const targetNetwork = getNetwork(targetNetworkId);
       assert(core, CommonError.Unknown);

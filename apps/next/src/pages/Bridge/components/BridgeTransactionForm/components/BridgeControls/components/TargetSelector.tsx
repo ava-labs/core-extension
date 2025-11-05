@@ -10,14 +10,14 @@ import { NetworkSelect } from './NetworkSelect';
 export const TargetSelector: FC = () => {
   const { t } = useTranslation();
 
-  const { targetNetworkId, targetNetworks, targetToken, amountAfterFee } =
+  const { targetNetworkId, targetNetworkIds, targetToken, amountAfterFee } =
     useBridgeState();
 
   return (
     <Card noPadding>
       <NetworkSelect
         label={t('To')}
-        chains={targetNetworks}
+        chains={targetNetworkIds}
         selected={targetNetworkId}
         onSelect={noop}
         disabled

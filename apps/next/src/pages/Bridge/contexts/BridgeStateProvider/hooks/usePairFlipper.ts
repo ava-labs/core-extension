@@ -1,40 +1,29 @@
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
-import { useCallback, useRef } from 'react';
-import { BridgeQueryContext } from '../../BridgeQuery';
-import { useNextUnifiedBridgeContext } from '../../NextUnifiedBridge';
+import { useCallback } from 'react';
+import { useBridgeQuery } from '../../BridgeQuery';
 
 type UsePairFlipperParams = {
-  tokens: FungibleTokenBalance[];
   targetNetworkId: string;
-  query: BridgeQueryContext;
+  targetToken: FungibleTokenBalance | undefined;
 };
 
 export const usePairFlipper = ({
-  tokens,
   targetNetworkId,
-  query,
+  targetToken,
 }: UsePairFlipperParams) => {
-  const queryRef = useRef(query);
-  queryRef.current = query;
-  const tokensRef = useRef(tokens);
-  tokensRef.current = tokens;
-  const { getAssetIdentifierOnTargetChain } = useNextUnifiedBridgeContext();
+  const { updateQuery } = useBridgeQuery();
 
   const flipPair = useCallback(() => {
-    const { sourceToken, updateQuery } = queryRef.current;
-    const srcToken = tokensRef.current.find(
-      (t) => getUniqueTokenId(t) === sourceToken,
-    )!;
+    if (!targetToken || !targetNetworkId) {
+      return;
+    }
     updateQuery({
       sourceNetwork: targetNetworkId,
-      sourceToken: getAssetIdentifierOnTargetChain(
-        srcToken.symbol,
-        targetNetworkId,
-      ),
+      sourceToken: getUniqueTokenId(targetToken),
       sourceTokenQuery: '',
       amount: '',
     });
-  }, [getAssetIdentifierOnTargetChain, targetNetworkId]);
+  }, [targetNetworkId, targetToken, updateQuery]);
 
   return flipPair;
 };

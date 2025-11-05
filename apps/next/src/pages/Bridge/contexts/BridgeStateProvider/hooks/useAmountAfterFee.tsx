@@ -1,5 +1,5 @@
+import { BridgeAsset } from '@avalabs/bridge-unified';
 import { stringToBigint } from '@core/common';
-import { FungibleTokenBalance } from '@core/types';
 import { useEffect, useState } from 'react';
 import { useNextUnifiedBridgeContext } from '../../NextUnifiedBridge';
 
@@ -14,19 +14,32 @@ const DEFAULT_STATE: FeeState = {
 };
 
 export function useAmountAfterFee(
-  targetToken: FungibleTokenBalance | undefined,
+  asset: BridgeAsset | undefined,
+  balance: bigint | undefined,
+  requiredGas: bigint,
   amount: string,
   sourceNetworkId: string,
   targetNetworkId: string | undefined,
 ) {
-  const { getFee } = useNextUnifiedBridgeContext();
   const [feeState, setFeeState] = useState<FeeState>(DEFAULT_STATE);
+  const { getFee } = useNextUnifiedBridgeContext();
 
-  const { symbol, decimals } = targetToken ?? {};
+  const { symbol, decimals } = asset ?? {};
 
   useEffect(() => {
-    if (symbol && amount && targetNetworkId && decimals) {
+    if (
+      symbol &&
+      amount &&
+      targetNetworkId &&
+      decimals &&
+      requiredGas != null &&
+      balance != null
+    ) {
       const amountBigInt = stringToBigint(amount, decimals);
+      if (amountBigInt <= balance - requiredGas) {
+        return;
+      }
+
       setFeeState(DEFAULT_STATE);
       getFee(symbol, amountBigInt, sourceNetworkId, targetNetworkId).then(
         (fee) => {
@@ -38,7 +51,16 @@ export function useAmountAfterFee(
         },
       );
     }
-  }, [amount, targetNetworkId, symbol, decimals, getFee, sourceNetworkId]);
+  }, [
+    amount,
+    targetNetworkId,
+    symbol,
+    decimals,
+    getFee,
+    sourceNetworkId,
+    requiredGas,
+    balance,
+  ]);
 
   return feeState;
 }
