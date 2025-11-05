@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ActionStatus } from '@core/types';
 import { useApproveAction, useGetRequestId } from '@core/ui';
 
+import { NoScrollStack } from '@/components/NoScrollStack';
 import {
   ActionDrawer,
   ApprovalScreenTitle,
@@ -31,7 +32,7 @@ export const ExtensionActionApprovalScreen = () => {
 
   return (
     <Styled.ApprovalScreenPage>
-      <Styled.NoScrollStack>
+      <NoScrollStack>
         <ApprovalScreenTitle
           title={t('🚧 Placeholder - needs implementation 🚧')}
         />
@@ -40,7 +41,7 @@ export const ExtensionActionApprovalScreen = () => {
             'This is a placeholder screen just to allow us to reject/approve some wallet-specific interactions (i.e. chain switching).',
           )}
         </Typography>
-      </Styled.NoScrollStack>
+      </NoScrollStack>
       <ActionDrawer
         open
         approve={approve}

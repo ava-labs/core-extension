@@ -85,9 +85,11 @@ export const useTokensWithBalances = (
         return tokens;
       }
 
-      return tokens.filter(getTokenVisibility);
+      return tokens.filter((token) =>
+        getTokenVisibility(token, activeNetwork?.caipId),
+      );
     },
-    [getTokenVisibility, options.forceHiddenTokens],
+    [getTokenVisibility, options.forceHiddenTokens, activeNetwork?.caipId],
   );
 
   const selectedNetwork = useMemo(

@@ -1,5 +1,6 @@
 import {
   useDismissedBanners,
+  useFeatureFlagContext,
   useNetworkContext,
   useWalletContext,
 } from '@core/ui';
@@ -8,9 +9,11 @@ import { SOLANA_NOW_SUPPORTED_BANNER_ID } from './SolanaNowSupported';
 import { isChainSupportedByWallet, openFullscreenTab } from '@core/common';
 import { NetworkVMType, SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { useHistory } from 'react-router-dom';
+import { FeatureGates } from '@core/types';
 
 export const useSolanaSupportModal = () => {
   const history = useHistory();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { dismiss, isDismissed } = useDismissedBanners();
   const { getNetwork, setNetwork } = useNetworkContext();
   const { walletDetails, isLedgerWallet } = useWalletContext();
@@ -23,6 +26,9 @@ export const useSolanaSupportModal = () => {
   );
 
   const solana = getNetwork(SolanaCaip2ChainId.MAINNET);
+  const isSolanaLaunchModalEnabled = isFlagEnabled(
+    FeatureGates.SOLANA_LAUNCH_MODAL,
+  );
   const isSolanaAvailable = Boolean(solana);
   const isOnDerivingScreen = location.hash.includes(
     'ledger/derive-solana-addresses',
@@ -30,6 +36,7 @@ export const useSolanaSupportModal = () => {
 
   useEffect(() => {
     if (
+      !isSolanaLaunchModalEnabled ||
       !isSolanaSupportedByActiveWallet ||
       !isSolanaAvailable ||
       isOnDerivingScreen
@@ -52,6 +59,7 @@ export const useSolanaSupportModal = () => {
     };
   }, [
     isDismissed,
+    isSolanaLaunchModalEnabled,
     isSolanaSupportedByActiveWallet,
     isSolanaAvailable,
     isOnDerivingScreen,

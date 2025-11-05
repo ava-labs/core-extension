@@ -42,11 +42,15 @@ export enum LanguageLinks {
 }
 
 export type TokensVisibility = {
-  [key: string]: boolean;
+  [networkCaipId: string]: {
+    [tokenAddress: string]: boolean;
+  };
 };
 
 export type CollectiblesVisibility = {
-  [key: string]: boolean;
+  [networkCaipId: string]: {
+    [tokenAddress: string]: boolean;
+  };
 };
 
 export type AddCustomTokenData = {
@@ -54,7 +58,7 @@ export type AddCustomTokenData = {
 };
 
 type CustomTokens = {
-  [chain: string]: {
+  [networkCaipId: string]: {
     [tokenAddress: string]: NetworkContractToken;
   };
 };

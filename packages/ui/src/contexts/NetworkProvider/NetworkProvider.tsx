@@ -13,6 +13,12 @@ import {
 } from '@core/types';
 
 import {
+  buildCoreEth,
+  getNetworkCaipId,
+  getProviderForNetwork,
+  updateIfDifferent,
+} from '@core/common';
+import {
   AddEnabledNetworkHandler,
   AddFavoriteNetworkHandler,
   GetNetworksStateHandler,
@@ -24,12 +30,6 @@ import {
   SetDevelopermodeNetworkHandler,
   UpdateDefaultNetworkHandler,
 } from '@core/service-worker';
-import {
-  buildCoreEth,
-  getNetworkCaipId,
-  getProviderForNetwork,
-  updateIfDifferent,
-} from '@core/common';
 import {
   Dispatch,
   PropsWithChildren,
@@ -44,9 +44,10 @@ import {
 import { filter, map } from 'rxjs';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
-import { networkChanged } from './networkChanges';
-import { networksUpdatedEventListener } from './networksUpdatedEventListener';
 import { isNetworkUpdatedEvent } from './isNetworkUpdatedEvent';
+import { networkChanged } from './networkChanges';
+import { promoteAvalancheNetworks } from './networkSortingFn';
+import { networksUpdatedEventListener } from './networksUpdatedEventListener';
 
 const NetworkContext = createContext<{
   network?: NetworkWithCaipId | undefined;
@@ -240,12 +241,24 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     return request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      updateIfDifferent(setNetworks, result.networks);
+      updateIfDifferent(
+        setNetworks,
+        result.networks.sort(promoteAvalancheNetworks),
+      );
       updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
-      updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
-      updateIfDifferent(setEnabledNetworks, result.enabledNetworks);
-      updateIfDifferent(setCustomNetworks, result.customNetworks);
+      updateIfDifferent(
+        setFavoriteNetworks,
+        result.favoriteNetworks.sort(promoteAvalancheNetworks),
+      );
+      updateIfDifferent(
+        setEnabledNetworks,
+        result.enabledNetworks.sort(promoteAvalancheNetworks),
+      );
+      updateIfDifferent(
+        setCustomNetworks,
+        result.customNetworks.sort(promoteAvalancheNetworks),
+      );
     });
   }, [request]);
 
@@ -305,9 +318,18 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         map((evt) => evt.value),
       )
       .subscribe(async (result) => {
-        updateIfDifferent(setNetworks, result.networks);
-        updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
-        updateIfDifferent(setEnabledNetworks, result.enabledNetworks);
+        updateIfDifferent(
+          setNetworks,
+          result.networks.sort(promoteAvalancheNetworks),
+        );
+        updateIfDifferent(
+          setFavoriteNetworks,
+          result.favoriteNetworks.sort(promoteAvalancheNetworks),
+        );
+        updateIfDifferent(
+          setEnabledNetworks,
+          result.enabledNetworks.sort(promoteAvalancheNetworks),
+        );
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
           networkChanged.dispatch(newNetwork?.caipId);
@@ -315,7 +337,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
           return newNetwork;
         });
         setCustomNetworks(
-          Object.values(result.customNetworks).map(({ chainId }) => chainId),
+          Object.values(result.customNetworks)
+            .sort(promoteAvalancheNetworks)
+            .map(({ chainId }) => chainId),
         );
       });
 
@@ -330,7 +354,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       request<AddEnabledNetworkHandler>({
         method: ExtensionRequest.ENABLE_NETWORK,
         params: chainId,
-      }).then(setEnabledNetworks);
+      }).then((result) =>
+        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
+      );
     },
     [request],
   );
@@ -340,7 +366,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       request<RemoveEnabledNetworkHandler>({
         method: ExtensionRequest.DISABLE_NETWORK,
         params: chainId,
-      }).then(setEnabledNetworks);
+      }).then((result) =>
+        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
+      );
     },
     [request],
   );
@@ -371,7 +399,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
             params: [chainId],
           }).then((result) => {
-            setFavoriteNetworks(result);
+            setFavoriteNetworks(result.sort(promoteAvalancheNetworks));
             capture('NetworkFavoriteAdded', {
               networkChainId: chainId,
               isCustom: isCustomNetwork(chainId),

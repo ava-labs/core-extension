@@ -6,6 +6,5 @@ export const isChainSupportedByAccount = (
   account?: Account,
 ) => {
   const addressForNetwork = getAddressForChain(network, account);
-
-  return !!addressForNetwork;
+  return Boolean(addressForNetwork);
 };

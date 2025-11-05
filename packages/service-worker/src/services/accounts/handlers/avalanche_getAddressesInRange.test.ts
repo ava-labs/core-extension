@@ -31,7 +31,8 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
   } as any;
 
   const accountsService = jest.mocked<AccountsService>({
-    getActiveAccount: async () => undefined,
+    getActiveAccount: jest.fn(),
+    getPrimaryAccountsByWalletId: jest.fn(),
   } as any);
 
   const handleRequest = async (request) => {
@@ -58,6 +59,7 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
   beforeEach(() => {
     jest.resetAllMocks();
     jest.mocked(canSkipApproval).mockResolvedValue(true);
+    accountsService.getActiveAccount.mockResolvedValue(undefined);
   });
 
   describe('handleAuthenticated', () => {
@@ -195,6 +197,108 @@ describe('background/services/accounts/handlers/avalanche_getAddressesInRange.ts
         expect(result.internal).toHaveLength(100);
         expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(200);
       });
+    });
+
+    describe('non-mnemonic wallets', () => {
+      const testNonMnemonicWallet = (
+        walletType: SecretType,
+        prefix: string,
+      ) => {
+        describe(`${walletType} wallet`, () => {
+          const mockAccounts = [
+            { addressPVM: `P-${prefix}-address1` },
+            { addressPVM: `P-${prefix}-address2` },
+            { addressPVM: `P-${prefix}-address3` },
+          ] as any;
+
+          beforeEach(() => {
+            getPrimaryAccountSecretsMock.mockResolvedValue({
+              secretType: walletType,
+            });
+          });
+
+          it('should return addresses from wallet when walletId is present', async () => {
+            const mockActiveAccount = {
+              walletId: `${prefix}-wallet-id`,
+            } as any;
+            accountsService.getActiveAccount.mockResolvedValue(
+              mockActiveAccount,
+            );
+            accountsService.getPrimaryAccountsByWalletId.mockResolvedValue(
+              mockAccounts,
+            );
+
+            const { result } = await handleRequest(
+              buildRpcCall(getPayload({ params: [0, 0, 10, 10] })),
+            );
+
+            expect(result).toEqual({
+              external: [
+                `${prefix}-address1`,
+                `${prefix}-address2`,
+                `${prefix}-address3`,
+              ],
+              internal: [],
+            });
+            expect(
+              accountsService.getPrimaryAccountsByWalletId,
+            ).toHaveBeenCalledWith(`${prefix}-wallet-id`);
+          });
+
+          it('should return single address when no walletId but activeAccount has addressPVM', async () => {
+            const mockActiveAccount = {
+              addressPVM: `P-${prefix}-single-address`,
+            } as any;
+            accountsService.getActiveAccount.mockResolvedValue(
+              mockActiveAccount,
+            );
+
+            const { result } = await handleRequest(
+              buildRpcCall(getPayload({ params: [0, 0, 10, 10] })),
+            );
+
+            expect(result).toEqual({
+              external: [`${prefix}-single-address`],
+              internal: [],
+            });
+            expect(
+              accountsService.getPrimaryAccountsByWalletId,
+            ).not.toHaveBeenCalled();
+          });
+
+          it('should handle empty addresses from wallet accounts', async () => {
+            const mockAccountsWithEmpty = [
+              { addressPVM: `P-${prefix}-address1` },
+              { addressPVM: '' },
+              { addressPVM: `P-${prefix}-address2` },
+              { addressPVM: null },
+            ] as any;
+            const mockActiveAccount = {
+              walletId: `${prefix}-wallet-id`,
+            } as any;
+            accountsService.getActiveAccount.mockResolvedValue(
+              mockActiveAccount,
+            );
+            accountsService.getPrimaryAccountsByWalletId.mockResolvedValue(
+              mockAccountsWithEmpty,
+            );
+
+            const { result } = await handleRequest(
+              buildRpcCall(getPayload({ params: [0, 0, 10, 10] })),
+            );
+
+            expect(result).toEqual({
+              external: [`${prefix}-address1`, `${prefix}-address2`],
+              internal: [],
+            });
+          });
+        });
+      };
+
+      testNonMnemonicWallet(SecretType.LedgerLive, 'ledger');
+      testNonMnemonicWallet(SecretType.Keystone, 'keystone');
+      testNonMnemonicWallet(SecretType.Ledger, 'ledger-regular');
+      testNonMnemonicWallet(SecretType.Seedless, 'seedless');
     });
   });
 

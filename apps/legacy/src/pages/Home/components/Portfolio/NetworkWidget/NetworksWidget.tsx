@@ -1,23 +1,27 @@
 import { Stack } from '@avalabs/core-k2-components';
 
+import { hasUnconfirmedBalance, isChainSupportedByAccount } from '@core/common';
 import { getUnconfirmedBalanceInCurrency } from '@core/types';
 import {
   useAccountsContext,
   useNetworkContext,
   useTokensWithBalances,
 } from '@core/ui';
-import { isChainSupportedByAccount } from '@core/common';
 
+import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { ActiveNetworkWidget } from './ActiveNetworkWidget';
 import { NetworkList } from './NetworkList';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
 
 export const tokensWithBalances = (tokenList?: TokenWithBalance[]) => {
   if (!tokenList) {
     return;
   }
 
-  return tokenList.filter((token) => token.balance > 0);
+  return tokenList.filter(
+    (token) =>
+      token.balance > 0 ||
+      (hasUnconfirmedBalance(token) && token.unconfirmedBalance > 0n),
+  );
 };
 
 export const getNetworkBalance = (assetList: TokenWithBalance[]) => {

@@ -5,7 +5,7 @@ import {
   Divider,
 } from '@avalabs/core-k2-components';
 import { CollectibleListEmpty } from '@/pages/Collectibles/components/CollectibleListEmpty';
-import { useSettingsContext } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui';
 import { CollectibleMedia } from '@/pages/Collectibles/components/CollectibleMedia';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { useNfts } from '@core/ui';
@@ -66,6 +66,7 @@ type ManageCollectiblesListItemProps = {
 export const ManageCollectiblesListItem = ({
   nft,
 }: ManageCollectiblesListItemProps) => {
+  const { network } = useNetworkContext();
   const { getCollectibleVisibility, toggleCollectibleVisibility } =
     useSettingsContext();
 
@@ -99,8 +100,10 @@ export const ManageCollectiblesListItem = ({
       </Stack>
       <Switch
         size="small"
-        checked={getCollectibleVisibility(nft)}
-        onChange={() => toggleCollectibleVisibility(nft)}
+        checked={getCollectibleVisibility(nft, network?.caipId)}
+        onChange={() =>
+          network && toggleCollectibleVisibility(nft, network.caipId)
+        }
       />
     </Stack>
   );
