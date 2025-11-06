@@ -12,11 +12,13 @@ import {
 } from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
 import { useNextUnifiedBridgeContext } from '../NextUnifiedBridge';
-import { useFetchMinTransferAmount, useTargetToken } from './hooks';
-import { useAmountAfterFee } from './hooks/useAmountAfterFee';
-import { useInitialize } from './hooks/useInitialize';
-import { usePairFlipper } from './hooks/usePairFlipper';
-import { useTokenLookup } from './hooks/useTokenLookup';
+import {
+  useAmountAfterFee,
+  useFetchMinTransferAmount,
+  useInitialize,
+  useTargetToken,
+  useTokenLookup,
+} from './hooks';
 import { checkIfXorPChain } from './utils/checkIfXOrPChain';
 
 type UnifiedBridgeContext = ReturnType<typeof useNextUnifiedBridgeContext>;
@@ -32,7 +34,6 @@ const BridgeStateContext = createContext<
       amountAfterFee: bigint | undefined;
       asset: BridgeAsset | undefined;
       fee: bigint | undefined;
-      flipPair: VoidFunction;
       minTransferAmount: bigint | undefined;
       requiredGas: bigint;
       shouldUseCrossChainTransfer: boolean;
@@ -63,23 +64,20 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     estimateTransferGas,
   } = useNextUnifiedBridgeContext();
 
-  const { tokens: sourceTokens, lookup: sourceTokenAndAssetLookup } =
-    useTokenLookup(sourceNetworkId, getTransferableAssets(sourceNetworkId));
+  const sourceLookup = useTokenLookup(
+    sourceNetworkId,
+    getTransferableAssets(sourceNetworkId),
+  );
 
-  const { asset, token: sourceToken } =
-    sourceTokenAndAssetLookup.get(sourceTokenId) ?? {};
+  const { asset, token: sourceToken } = sourceLookup.get(sourceTokenId) ?? {};
+
+  useInitialize(query, sourceLookup.tokens);
+
   const targetNetworkIds = useMemo(
     () => (asset?.destinations ? Object.keys(asset.destinations) : []),
     [asset?.destinations],
   );
   const [targetNetworkId = ''] = targetNetworkIds;
-
-  const targetToken = useTargetToken(
-    targetNetworkId,
-    getTransferableAssets(targetNetworkId),
-    asset,
-  );
-  useInitialize(query, sourceTokens);
 
   const { amountAfterFee, fee } = useAmountAfterFee(
     asset,
@@ -90,10 +88,11 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     targetNetworkId,
   );
 
-  const flipPair = usePairFlipper({
+  const targetToken = useTargetToken(
     targetNetworkId,
-    targetToken,
-  });
+    getTransferableAssets(targetNetworkId),
+    asset,
+  );
 
   const minTransferAmount = useFetchMinTransferAmount(
     getMinimumTransferAmount,
@@ -122,25 +121,24 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   return (
     <BridgeStateContext
       value={{
-        isReady,
-        query,
-        sourceTokens,
-        sourceChainIds,
+        amountAfterFee,
         asset,
         fee,
-        amountAfterFee,
+        isReady,
+        minTransferAmount,
+        query,
+        requiredGas,
         shouldUseCrossChainTransfer: Boolean(
           sourceNetworkId && checkIfXorPChain(caipToChainId(sourceNetworkId)),
         ),
-        targetNetworkIds,
-        targetNetworkId,
-        targetToken,
+        sourceChainIds,
         sourceToken,
-        transferAsset,
-        flipPair,
+        sourceTokens: sourceLookup.tokens,
         state,
-        minTransferAmount,
-        requiredGas,
+        targetNetworkId,
+        targetNetworkIds,
+        targetToken,
+        transferAsset,
       }}
     >
       {children}

@@ -19,6 +19,7 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 type TokenAmountInputProps = {
   id: string;
   estimatedFee?: bigint;
+  alwaysSubtractFee?: boolean;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
   onTokenChange: (token: string) => void;
@@ -43,6 +44,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   maxAmount,
   minAmount = 0n,
   estimatedFee,
+  alwaysSubtractFee,
   tokenId,
   tokensForAccount,
   onTokenChange,
@@ -86,9 +88,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       );
 
       // If sending the max. amount of a native token, we need to subtract the estimated fee.
-      const amountToSubtract =
-        percentage === 100 && isNativeToken(token) ? (estimatedFee ?? 0n) : 0n;
-
+      const shouldSubtractFee =
+        alwaysSubtractFee || (percentage === 100 && isNativeToken(token));
+      const amountToSubtract = shouldSubtractFee ? (estimatedFee ?? 0n) : 0n;
       const calculatedMaxAmount = tokenUnit
         .div(100 / percentage)
         .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol));
@@ -98,7 +100,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
-    [onAmountChange, estimatedFee, token],
+    [token, alwaysSubtractFee, estimatedFee, onAmountChange],
   );
 
   const usdValue =

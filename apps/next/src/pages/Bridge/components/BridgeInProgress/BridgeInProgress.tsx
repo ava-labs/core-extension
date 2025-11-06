@@ -1,6 +1,6 @@
 import { useBridgeState } from '@/pages/Bridge/contexts';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
-import { Box, Button, Collapse } from '@avalabs/k2-alpine';
+import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { findMatchingBridgeAsset } from '@core/common';
 import { useBridgeAmounts } from '@core/ui';
 import Big from 'big.js';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails, TransactionFailure } from './components';
+import { useUntrackTransaction } from './hooks/useUntrackTransaction';
 
 type Props = {
   transfer: BridgeTransfer;
@@ -34,6 +35,8 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
     sourceNetworkFee = Big(0),
     targetNetworkFee = Big(0),
   } = useBridgeAmounts(pendingTransfer);
+
+  const untrackTransaction = useUntrackTransaction();
 
   if (!pendingTransfer) {
     return null;
@@ -65,7 +68,7 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         error={hasError}
       />
 
-      <Box mt="auto">
+      <Stack mt="auto" gap={1}>
         <Button
           variant="contained"
           size="extension"
@@ -75,7 +78,21 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         >
           {isComplete ? t('Close') : t('Notify me when it’s done')}
         </Button>
-      </Box>
+        {isComplete && (
+          <Button
+            variant="contained"
+            size="extension"
+            color="secondary"
+            fullWidth
+            onClick={() => {
+              untrackTransaction(pendingTransfer.sourceTxHash);
+              goBack();
+            }}
+          >
+            {t('Untrack transaction')}
+          </Button>
+        )}
+      </Stack>
     </>
   );
 };

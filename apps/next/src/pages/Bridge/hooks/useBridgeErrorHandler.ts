@@ -1,12 +1,12 @@
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { isAddressBlockedError, stringToBigint } from '@core/common';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../contexts';
 
 export const useBridgeErrorHandler = () => {
   const { t } = useTranslation();
-  const [error, setError] = useState<string>('');
+  const [bridgeError, setBridgeError] = useState<string>('');
   const [isAddressBlocked, setIsAddressBlocked] = useState(false);
   const {
     minTransferAmount,
@@ -15,95 +15,89 @@ export const useBridgeErrorHandler = () => {
     requiredGas,
   } = useBridgeState();
 
+  const amountBigInt =
+    sourceToken && amount ? stringToBigint(amount, sourceToken.decimals) : 0n;
+
+  const hasInsufficientBalance = sourceToken
+    ? amountBigInt > sourceToken.balance
+    : false;
+
   const hasEnoughBalanceForTransfer =
     sourceToken && minTransferAmount
       ? sourceToken.balance >= minTransferAmount
       : true;
 
-  const clearError = useCallback(() => {
-    setError('');
-  }, []);
-
-  useEffect(() => {
+  const minAmountError = useMemo(() => {
     if (
-      !amount ||
+      !amountBigInt ||
       minTransferAmount == null ||
       !sourceToken ||
-      hasEnoughBalanceForTransfer
+      hasInsufficientBalance
     ) {
-      clearError();
-      return;
+      return '';
     }
 
-    const bigIntAmount = stringToBigint(amount, sourceToken.decimals);
     if (
-      bigIntAmount < minTransferAmount ||
+      amountBigInt < minTransferAmount ||
       minTransferAmount > sourceToken.balance
     ) {
-      setError(
-        t('Minimum transfer amount is {{limit}}', {
-          limit: bigIntToString(minTransferAmount, sourceToken.decimals),
-        }),
-      );
-    } else {
-      clearError();
+      return t('Minimum transfer amount is {{limit}}', {
+        limit: bigIntToString(minTransferAmount, sourceToken.decimals),
+      });
     }
-  }, [
-    amount,
-    clearError,
-    minTransferAmount,
-    sourceToken,
-    t,
-    hasEnoughBalanceForTransfer,
-  ]);
+    return '';
+  }, [amountBigInt, hasInsufficientBalance, minTransferAmount, sourceToken, t]);
 
-  useEffect(() => {
+  const maxAmountError = useMemo(() => {
     if (
-      !amount ||
+      !amountBigInt ||
       !sourceToken ||
       !requiredGas ||
       !minTransferAmount ||
-      !hasEnoughBalanceForTransfer
+      !hasEnoughBalanceForTransfer ||
+      hasInsufficientBalance
     ) {
-      return;
+      return '';
     }
 
-    const amountBigInt = stringToBigint(amount, sourceToken.decimals);
     const maxAvailable = sourceToken.balance - requiredGas;
     if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
-      setError(
-        t('Maximum available after fees is {{balance}} {{symbol}}', {
-          balance: bigIntToString(maxAvailable, sourceToken.decimals),
-          symbol: sourceToken.symbol,
-        }),
-      );
-    } else {
-      clearError();
+      return t('Maximum available after fees is {{balance}} {{symbol}}', {
+        balance: bigIntToString(maxAvailable, sourceToken.decimals),
+        symbol: sourceToken.symbol,
+      });
     }
+    return '';
   }, [
-    requiredGas,
+    amountBigInt,
     sourceToken,
-    amount,
-    clearError,
-    t,
+    requiredGas,
     minTransferAmount,
     hasEnoughBalanceForTransfer,
+    hasInsufficientBalance,
+    t,
   ]);
+
+  const clearError = useCallback(() => {
+    setBridgeError('');
+  }, []);
 
   const onBridgeError = useCallback((err: unknown, fallbackMessage: string) => {
     if (isAddressBlockedError(err)) {
       setIsAddressBlocked(true);
     } else if (err instanceof Error) {
-      setError(err.message);
+      setBridgeError(err.message);
     } else if (typeof err === 'string') {
-      setError(err);
+      setBridgeError(err);
     } else {
-      setError(fallbackMessage);
+      setBridgeError(fallbackMessage);
     }
   }, []);
 
   return {
-    error,
+    error: hasInsufficientBalance
+      ? t('Insufficient balance')
+      : minAmountError || maxAmountError || bridgeError,
     clearError,
     onBridgeError,
     isAddressBlocked,
