@@ -6,16 +6,6 @@ export const getStaticMimeType = (url: string): string | undefined => {
   return mime.getType(url) ?? undefined;
 };
 
-export const isVideo = (url?: string): boolean => {
-  if (!url) return false;
-  return /\.(mp4|webm|ogg|mov|avi)(\?.*)?$/i.test(url);
-};
-
-export const isGif = (url?: string): boolean => {
-  if (!url) return false;
-  return /\.(gif)(\?.*)?$/i.test(url);
-};
-
 export const BASE64_IMAGE_REGEX =
   /^(data:image\/svg\+xml;base64|data:application\/json;base64),/;
 
@@ -119,7 +109,29 @@ export const filterCollectiblesByMediaType = (
 };
 
 /**
+ * Get display name for sorting (name or collectionName fallback)
+ */
+const getDisplayName = (collectible: FormattedCollectible): string => {
+  return collectible.name || collectible.collectionName || '';
+};
+
+/**
+ * Compare by logoUri presence - items with logoUri come first
+ */
+const compareByLogoUri = (
+  a: FormattedCollectible,
+  b: FormattedCollectible,
+): number => {
+  const aHasLogo = !!a.logoUri;
+  const bHasLogo = !!b.logoUri;
+  if (aHasLogo && !bHasLogo) return -1;
+  if (!aHasLogo && bHasLogo) return 1;
+  return 0; // Same group
+};
+
+/**
  * Sort collectibles by SortMode
+ * Always prioritizes items with logoUri first, then applies the sort mode within each group
  */
 export const sortCollectibles = (
   collectibles: FormattedCollectible[],
@@ -127,26 +139,33 @@ export const sortCollectibles = (
 ): FormattedCollectible[] => {
   const sorted = [...collectibles];
 
-  switch (sortMode) {
-    case 'name-asc':
-      return sorted.sort((a, b) => {
-        return a.name.localeCompare(b.name);
-      });
+  return sorted.sort((a, b) => {
+    // First, prioritize items with logoUri
+    const logoComparison = compareByLogoUri(a, b);
+    if (logoComparison !== 0) return logoComparison;
 
-    case 'name-desc':
-      return sorted.sort((a, b) => {
-        return b.name.localeCompare(a.name);
-      });
+    // Within the same group, apply the sort mode
+    switch (sortMode) {
+      case 'name-asc': {
+        const aName = getDisplayName(a);
+        const bName = getDisplayName(b);
+        return aName.localeCompare(bName);
+      }
 
-    case 'date-added':
-      return sorted.sort((a, b) => {
+      case 'name-desc': {
+        const aName = getDisplayName(a);
+        const bName = getDisplayName(b);
+        return bName.localeCompare(aName);
+      }
+
+      case 'date-added': {
         const dateA = a.updatedAt ?? 0;
         const dateB = b.updatedAt ?? 0;
-        // Most recent first (descending)
-        return dateB - dateA;
-      });
+        return dateB - dateA; // Most recent first
+      }
 
-    default:
-      return sorted;
-  }
+      default:
+        return 0;
+    }
+  });
 };

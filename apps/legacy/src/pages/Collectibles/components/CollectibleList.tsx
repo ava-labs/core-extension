@@ -11,7 +11,7 @@ export function CollectibleList({
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
   const { network } = useNetworkContext();
-  const nfts = useNfts(network);
+  const { collectibles: nfts } = useNfts(network);
   const { getCollectibleVisibility } = useSettingsContext();
   const nftsToShow = nfts?.filter((nft) => {
     return getCollectibleVisibility(nft);

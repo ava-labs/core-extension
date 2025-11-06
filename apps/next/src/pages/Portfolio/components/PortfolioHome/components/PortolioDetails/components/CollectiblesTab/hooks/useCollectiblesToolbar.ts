@@ -1,6 +1,7 @@
 import { useMemo, useState, useCallback } from 'react';
 import { filterCollectiblesByMediaType, sortCollectibles } from '../utils';
 import { FormattedCollectible } from '../CollectiblesTab';
+import { useStorage } from '@/hooks/useStorage';
 export type MediaTypeFilters = {
   all: boolean;
   picture: boolean;
@@ -16,18 +17,32 @@ export const useCollectiblesToolbar = ({
 }: {
   collectibles: FormattedCollectible[];
 }) => {
-  const [mediaFilters, setMediaFilters] = useState<MediaTypeFilters>({
-    all: true,
-    picture: true,
-    gif: true,
-    video: true,
-  });
-  const [sortOption, setSortOption] = useState<SortMode>('name-asc');
-  const [openManageDialog, setOpenManageDialog] = useState(false);
-  const [showHidden, setShowHidden] = useState(false);
-  const [hiddenCollectiblesIds, setHiddenCollectiblesIds] = useState<string[]>(
-    [],
+  const [mediaFilters, setMediaFilters] = useStorage<string, MediaTypeFilters>(
+    'collectibles-media-filters',
+    {
+      all: true,
+      picture: true,
+      gif: true,
+      video: true,
+    },
   );
+  const [sortOption, setSortOption] = useStorage<string, SortMode>(
+    'collectibles-sort-option',
+    'name-asc',
+  );
+  const [openManageDialog, setOpenManageDialog] = useState(false);
+  const [showHidden, setShowHidden] = useStorage<string, boolean>(
+    'collectibles-show-hidden',
+    false,
+  );
+  const [hideUnreachable, setHideUnreachable] = useStorage<string, boolean>(
+    'collectibles-hide-unreachable',
+    true,
+  );
+  const [hiddenCollectiblesIds, setHiddenCollectiblesIds] = useStorage<
+    string,
+    string[]
+  >('hidden-collectibles-ids', []);
 
   const toggleMediaFilter = useCallback(
     (filterType: keyof MediaTypeFilters) => {
@@ -66,7 +81,7 @@ export const useCollectiblesToolbar = ({
         }
       });
     },
-    [],
+    [setMediaFilters],
   );
 
   const hiddenCollectibles = useMemo(
@@ -74,8 +89,8 @@ export const useCollectiblesToolbar = ({
     [hiddenCollectiblesIds],
   );
 
-  const toggleCollectible = useMemo(
-    () => (collectible: FormattedCollectible) => {
+  const toggleCollectible = useCallback(
+    (collectible: FormattedCollectible) => {
       const id = collectible.uniqueCollectibleId;
       setHiddenCollectiblesIds((prev) => {
         const newSet = new Set(prev);
@@ -87,17 +102,29 @@ export const useCollectiblesToolbar = ({
         return Array.from(newSet);
       });
     },
-    [],
+    [setHiddenCollectiblesIds],
   );
 
-  const filteredCollectibles = useMemo<FormattedCollectible[]>(
-    () => filterCollectiblesByMediaType(collectibles, mediaFilters),
-    [collectibles, mediaFilters],
-  );
+  const filteredCollectibles = useMemo<FormattedCollectible[]>(() => {
+    // First, filter out unreachable collectibles if hideUnreachable is true
+    const reachableCollectibles = hideUnreachable
+      ? collectibles.filter(
+          (collectible) =>
+            collectible.metadata?.indexStatus !== 'UNREACHABLE_TOKEN_URI' &&
+            collectible.metadata?.indexStatus !== 'INVALID_TOKEN_URI_SCHEME',
+        )
+      : collectibles;
+    // Then apply media type filters
+    return filterCollectiblesByMediaType(reachableCollectibles, mediaFilters);
+  }, [collectibles, mediaFilters, hideUnreachable]);
 
   const toggleShowHidden = useCallback(() => {
     setShowHidden((prev) => !prev);
-  }, []);
+  }, [setShowHidden]);
+
+  const toggleHideUnreachable = useCallback(() => {
+    setHideUnreachable((prev) => !prev);
+  }, [setHideUnreachable]);
 
   const sortedCollectibles = useMemo<FormattedCollectible[]>(
     () => sortCollectibles(filteredCollectibles, sortOption),
@@ -121,11 +148,13 @@ export const useCollectiblesToolbar = ({
     sortOption,
     openManageDialog,
     showHidden,
+    hideUnreachable,
     hiddenCollectibles,
     toggleMediaFilter,
     setSortOption,
     setOpenManageDialog,
     toggleShowHidden,
+    toggleHideUnreachable,
     toggleCollectible,
   };
 };

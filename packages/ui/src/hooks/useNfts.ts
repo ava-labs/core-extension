@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useBalancesContext } from '../contexts';
 import { useAccountsContext } from '../contexts';
-import { getAddressForChain } from '@core/common';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
+import { getAddressForChain } from '@core/common';
 
 export const useNfts = (network?: NetworkWithCaipId) => {
   const { balances } = useBalancesContext();
@@ -11,29 +11,47 @@ export const useNfts = (network?: NetworkWithCaipId) => {
     accounts: { active: activeAccount },
   } = useAccountsContext();
 
-  return useMemo<NftTokenWithBalance[]>(() => {
-    console.log(network, { balances }, activeAccount, 'helolo check here');
+  return useMemo<{
+    collectibles: NftTokenWithBalance[];
+    loading: boolean;
+    error: string | undefined;
+  }>(() => {
     if (!balances.nfts || !activeAccount) {
-      return [];
+      return {
+        collectibles: [],
+        loading: balances.loading,
+        error: balances.error,
+      };
     }
+    const userAddress = getAddressForChain(network, activeAccount);
 
     if (network) {
-      const userAddress = getAddressForChain(network, activeAccount);
-
       if (!userAddress) {
-        return [];
+        return {
+          collectibles: [],
+          loading: balances.loading,
+          error: balances.error,
+        };
       }
 
-      return Object.values(
-        balances.nfts?.[network.chainId]?.[userAddress] ?? {},
-      );
+      return {
+        collectibles: Object.values(
+          balances.nfts?.[network.chainId]?.[userAddress] ?? {},
+        ),
+        loading: balances.loading,
+        error: balances.error,
+      };
     }
 
-    // No network provided: return NFTs across all networks for the active account
-    return Object.values(balances.nfts ?? {}).flatMap((chainBalances) =>
-      Object.values(
-        chainBalances?.['0x886b7142402D3e9A31E71D2f0009146B61f80D3B'] ?? {},
+    return {
+      collectibles: Object.values(balances.nfts ?? {}).flatMap(
+        (chainBalances) =>
+          activeAccount.addressC
+            ? Object.values(chainBalances?.[activeAccount.addressC] ?? {})
+            : [],
       ),
-    );
+      loading: balances.loading,
+      error: balances.error,
+    };
   }, [network, balances, activeAccount]);
 };

@@ -46,7 +46,7 @@ export function Collectibles({
   const { balances } = useBalancesContext();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
-  const nfts = useNfts(network);
+  const { collectibles: nfts } = useNfts(network);
   const history = useHistory();
   const setCollectibleParams = useSetCollectibleParams();
   const { setNavigationHistoryData } = usePageHistory();

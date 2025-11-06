@@ -1,5 +1,5 @@
 import { Page } from '@/components/Page';
-import { Dialog, Stack } from '@avalabs/k2-alpine';
+import { Dialog, Stack, Switch, Typography, Box } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { FormattedCollectible } from '../CollectiblesTab';
 import { SearchField } from '@/pages/Contacts/components/SearchField';
@@ -12,6 +12,8 @@ export type CollectiblesManagePopupProps = {
   collectibles: FormattedCollectible[];
   hiddenCollectibles: Set<string>;
   toggleCollectible: (collectible: FormattedCollectible) => void;
+  hideUnreachable: boolean;
+  toggleHideUnreachable: () => void;
 };
 
 export const CollectiblesManagePopup = ({
@@ -20,13 +22,15 @@ export const CollectiblesManagePopup = ({
   collectibles,
   hiddenCollectibles,
   toggleCollectible,
+  hideUnreachable,
+  toggleHideUnreachable,
 }: CollectiblesManagePopupProps) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredCollectibles = useMemo(() => {
     return collectibles.filter((collectible) => {
-      return (
+      const matchesSearch =
         collectible.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         collectible.address
           ?.toLowerCase()
@@ -34,8 +38,9 @@ export const CollectiblesManagePopup = ({
         collectible.collectionName
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        collectible.tokenId?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+        collectible.tokenId?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesSearch;
     });
   }, [collectibles, searchQuery]);
   return (
@@ -62,6 +67,23 @@ export const CollectiblesManagePopup = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value.trim())}
           />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              py: 1.5,
+            }}
+          >
+            <Typography variant="body2">
+              {t('Hide unreachable collectibles')}
+            </Typography>
+            <Switch
+              checked={hideUnreachable}
+              onChange={toggleHideUnreachable}
+              size="small"
+            />
+          </Box>
           <CollectibleSwitchList
             collectibles={filteredCollectibles}
             hiddenCollectibles={hiddenCollectibles}

@@ -1,9 +1,6 @@
 import { Stack, Typography } from '@avalabs/k2-alpine';
-import { useTranslation } from 'react-i18next';
 
-export function CollectibleListEmpty() {
-  const { t } = useTranslation();
-
+export function CollectibleListEmpty({ title }: { title: string }) {
   return (
     <Stack
       sx={{
@@ -11,6 +8,7 @@ export function CollectibleListEmpty() {
         alignItems: 'center',
         justifyContent: 'center',
         flexGrow: 1,
+        mt: 5,
       }}
     >
       <Typography
@@ -21,7 +19,7 @@ export function CollectibleListEmpty() {
         🌵
       </Typography>
       <Typography variant="body3" sx={{ fontWeight: 600 }}>
-        {t('No collectibles')}
+        {title}
       </Typography>
     </Stack>
   );

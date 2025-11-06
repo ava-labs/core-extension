@@ -1,8 +1,9 @@
-import { Box, Button, RefreshIcon, Skeleton, Stack } from '@avalabs/k2-alpine';
+import { Box, Button, RefreshIcon, Skeleton } from '@avalabs/k2-alpine';
 import type { CSSProperties, LegacyRef, PropsWithChildren } from 'react';
 import { forwardRef, memo, useRef, useState } from 'react';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { BASE64_IMAGE_REGEX, getMediaRenderType } from '../utils';
+import { useResolvedMediaType } from '../hooks/useResolvedMediaType';
 
 // Utility to merge multiple refs
 const mergeRefs = <T,>(refs: Array<React.Ref<T> | undefined>) => {
@@ -29,12 +30,12 @@ type SharedMediaProps = {
 
 type MediaRendererProps = SharedMediaProps & {
   alt?: string;
-  showSkeleton?: boolean;
   isLoading?: boolean;
   refetch?: () => void;
   maintainAspectRatio?: boolean;
   staticMimeType?: string;
   collectible?: NftTokenWithBalance;
+  eager?: boolean;
 };
 
 // Media components
@@ -47,7 +48,7 @@ const MediaSkeleton = memo(function MediaSkeleton() {
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 9999,
+        zIndex: 5,
         minHeight: '92px',
       }}
     >
@@ -57,7 +58,7 @@ const MediaSkeleton = memo(function MediaSkeleton() {
           width: '100%',
           height: '100%',
           background: '#3a3a3b',
-          borderRadius: '4px',
+          borderRadius: '12px',
         }}
       />
     </Box>
@@ -131,13 +132,12 @@ export const MediaRenderer = memo(
         alt,
         isLoading: externalIsLoading = false,
         refetch: externalRefetch,
-        showSkeleton = true,
-        showError: externalShowError = false,
+        showError = false,
         maintainAspectRatio = true,
         style,
+        onLoad,
         staticMimeType,
         onError: onErrorProp,
-        onLoad: onLoadProp,
         ...restProps
       },
       ref,
@@ -148,15 +148,30 @@ export const MediaRenderer = memo(
       const [isLoaded, setIsLoaded] = useState(false);
       // Track local refresh state - for button animation
       const [isRefreshingLocally, setIsRefreshingLocally] = useState(false);
+      // Track if media has completely failed (both primary and fallback)
+      const [hasMediaFailed, setHasMediaFailed] = useState(false);
 
       const sourceFirstPass = collectible?.logoUri;
       const srcRaw = collectible?.logoSmall || collectible?.tokenUri;
-      const currentSource = useFallback ? srcRaw : sourceFirstPass;
+      const currentSource =
+        useFallback && !sourceFirstPass ? srcRaw : sourceFirstPass;
+
+      const {
+        data: fetchedMimeType,
+        isLoading: mimeTypeIsLoading,
+        isError: mimeTypeIsError,
+        refetch: mimeTypeRefetch,
+      } = useResolvedMediaType({
+        source: currentSource,
+        staticMimeType,
+        tokenId: collectible?.tokenId,
+      });
 
       // Use static MIME type directly (simplified version without async resolution)
-      const finalMimeType = staticMimeType;
+      const finalMimeType = fetchedMimeType ?? staticMimeType;
 
-      const isLoading = externalIsLoading || isRefreshingLocally;
+      const isLoading =
+        externalIsLoading || isRefreshingLocally || mimeTypeIsLoading;
 
       const mergedStyle: CSSProperties = {
         width: '100%',
@@ -173,21 +188,27 @@ export const MediaRenderer = memo(
         e.stopPropagation();
         e.preventDefault();
 
-        // Show refresh animation
+        // Show refresh animation first
         setIsRefreshingLocally(true);
-        await externalRefetch?.();
-        await sleep(300);
-        setIsRefreshingLocally(false);
+
+        // Reset error states and try again
+        setHasMediaFailed(false);
         setUseFallback(false);
         setIsLoaded(false);
+
+        await externalRefetch?.();
+        await mimeTypeRefetch();
+        await sleep(300);
+        setIsRefreshingLocally(false);
       };
 
       const handleError = () => {
         if (useFallback) {
           // Already tried fallback, now it's an error
+          setHasMediaFailed(true);
           onErrorProp?.();
         } else {
-          // Try fallback
+          // Try fallback source
           setUseFallback(true);
           setIsLoaded(false);
         }
@@ -195,14 +216,18 @@ export const MediaRenderer = memo(
 
       const handleLoad = () => {
         setIsLoaded(true);
-        onLoadProp?.();
+        onLoad?.();
       };
 
-      // Determine if in error state - only when not loading and has error
+      // Determine if in error state (keep showing error UI while refreshing)
+      const hasNoSource = !currentSource;
       const isError =
-        !isLoading &&
-        (externalShowError || (!sourceFirstPass && !srcRaw)) &&
-        (!srcRaw || useFallback);
+        isRefreshingLocally ||
+        hasMediaFailed ||
+        hasNoSource ||
+        (!isLoading &&
+          (showError || mimeTypeIsError) &&
+          (!srcRaw || useFallback));
 
       // Error state UI
       const renderErrorState = () => (
@@ -219,28 +244,32 @@ export const MediaRenderer = memo(
             minHeight: '92px',
           }}
           {...restProps}
-          ref={ref as unknown as LegacyRef<HTMLDivElement>}
+          ref={ref}
         >
-          <Button
-            onClick={handleRefresh}
-            disabled={isLoading}
-            variant="contained"
-            color="secondary"
-            sx={{
-              padding: 0.5,
-              width: 40,
-              height: 40,
-              minHeight: 40,
-              minWidth: 40,
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: `${isLoading ? 'rotate(360deg)' : ''} translate(-50%, -50%)`,
-              transition: 'transform 0.5s ease-in-out',
-            }}
-          >
-            <RefreshIcon size={22} />
-          </Button>
+          {isLoading ? (
+            <MediaSkeleton />
+          ) : (
+            <Button
+              onClick={handleRefresh}
+              disabled={isLoading}
+              variant="contained"
+              color="secondary"
+              sx={{
+                padding: 0.5,
+                width: 40,
+                height: 40,
+                minHeight: 40,
+                minWidth: 40,
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: `${isLoading ? 'rotate(360deg)' : ''} translate(-50%, -50%)`,
+                transition: 'transform 0.5s ease-in-out',
+              }}
+            >
+              <RefreshIcon size={22} />
+            </Button>
+          )}
         </Box>
       );
 
@@ -253,8 +282,7 @@ export const MediaRenderer = memo(
             position: 'relative',
           }}
         >
-          {isLoading && showSkeleton && <MediaSkeleton />}
-          {children}
+          {isLoading ? <MediaSkeleton /> : children}
         </Box>
       );
 
@@ -273,7 +301,6 @@ export const MediaRenderer = memo(
             style={mergedStyle}
             src={currentSource}
             onError={handleError}
-            onLoad={handleLoad}
             isLoading={isLoading}
             {...restProps}
           />,
@@ -287,14 +314,12 @@ export const MediaRenderer = memo(
             style={mergedStyle}
             src={currentSource}
             onError={handleError}
-            onLoad={handleLoad}
             isLoading={isLoading}
             {...restProps}
           />,
         );
       }
 
-      // Default case: render an image
       // Use style.height if provided, otherwise 'auto' for natural aspect ratio
       const containerHeight = style?.height || 'auto';
       const isFixedHeight = containerHeight === '100%';
@@ -319,38 +344,67 @@ export const MediaRenderer = memo(
               : { minHeight: '92px' }),
           }}
         >
-          {isLoading && showSkeleton && (
-            <Stack>
-              <MediaSkeleton />
-            </Stack>
-          )}
-
-          {!isLoading && (
+          {isLoading ? (
+            <MediaSkeleton />
+          ) : (
             <source
               srcSet={sourceIsBase64Image ? srcRaw : currentSource}
               type={sourceIsBase64Image ? 'image/svg+xml' : finalMimeType}
             />
           )}
-          <img
-            src={currentSource}
-            style={{
-              display: isLoading ? 'none' : 'block',
-              width: '100%',
-              height: isFixedHeight ? '100%' : 'auto',
-              objectFit: maintainAspectRatio ? 'contain' : 'cover',
-              backgroundColor: 'transparent',
-              opacity: isLoaded && !isLoading ? 1 : 0,
-              transition: 'opacity 0.2s ease-in-out',
-              zIndex: 1,
-            }}
-            onError={handleError}
-            onLoad={handleLoad}
-            ref={ref as unknown as LegacyRef<HTMLImageElement>}
-            decoding="async"
-            loading="lazy"
-            {...restProps}
-            alt={alt || collectible?.name}
-          />
+
+          {!hasMediaFailed && !isLoading && (
+            <img
+              src={currentSource}
+              style={{
+                display: isLoading ? 'none' : 'block',
+                width: '100%',
+                height: isFixedHeight ? '100%' : 'auto',
+                objectFit: maintainAspectRatio ? 'contain' : 'cover',
+                backgroundColor: 'transparent',
+                opacity: isLoaded && !isLoading ? 1 : 0,
+                transition: 'opacity 0.2s ease-in-out',
+                zIndex: 1,
+              }}
+              onError={handleError}
+              onLoad={handleLoad}
+              ref={ref as unknown as LegacyRef<HTMLImageElement>}
+              decoding="async"
+              loading="lazy"
+              {...restProps}
+              alt={alt || collectible?.name}
+            />
+          )}
+          {hasMediaFailed &&
+            (isRefreshingLocally ? (
+              <MediaSkeleton />
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '92px',
+                }}
+              >
+                <Button
+                  onClick={handleRefresh}
+                  variant="contained"
+                  color="secondary"
+                  sx={{
+                    padding: 0.5,
+                    width: 40,
+                    height: 40,
+                    minHeight: 40,
+                    minWidth: 40,
+                  }}
+                >
+                  <RefreshIcon size={22} />
+                </Button>
+              </Box>
+            ))}
         </Box>
       );
     },

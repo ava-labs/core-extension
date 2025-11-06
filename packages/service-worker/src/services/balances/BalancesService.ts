@@ -49,8 +49,7 @@ export class BalancesService {
         .map((account) => {
           switch (network.vmName) {
             case NetworkVMType.EVM:
-              //return account.addressC;
-              return '0xc3be1583772305b6cb802189ae0043d1ad5587d9';
+              return account.addressC;
             case NetworkVMType.BITCOIN:
               return account.addressBTC;
             case NetworkVMType.AVM:
@@ -88,9 +87,7 @@ export class BalancesService {
 
         return {
           ...accountBalances,
-          [accountKey === '0xc3be1583772305b6cb802189ae0043d1ad5587d9'
-            ? '0x886b7142402D3e9A31E71D2f0009146B61f80D3B'
-            : accountKey]: Object.keys(rawAccountTokenList).reduce(
+          [accountKey]: Object.keys(rawAccountTokenList).reduce(
             (tokens, tokenKey): Record<string, TokenWithBalance> => {
               const tokenBalance = rawAccountTokenList[tokenKey];
               if (tokenBalance?.error) {

@@ -18,7 +18,7 @@ export const ManageCollectiblesList = ({
   searchQuery,
 }: ManageTokensListProps) => {
   const { network } = useNetworkContext();
-  const nfts = useNfts(network);
+  const { collectibles: nfts } = useNfts(network);
 
   if (nfts?.length === 0) {
     return (

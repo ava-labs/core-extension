@@ -1,5 +1,6 @@
 import { FormattedCollectible } from '../CollectiblesTab';
 import { useCollectibleDoubleHop } from './useCollectibleDoubleHop';
+import { isNil } from 'lodash';
 
 /**
  * Hook to prepare collectible data for display
@@ -10,18 +11,28 @@ export function useCollectibleDisplay(collectible: FormattedCollectible) {
   const {
     collectible: enhancedCollectible,
     isLoading,
+    isFetching,
     error,
+    refetch,
   } = useCollectibleDoubleHop(collectible);
 
-  // Show error if no logoUri is available or there's an error
-  const showError = !enhancedCollectible.logoUri || error !== null;
+  // Get unreachable flag from enhanced collectible
+  const isUnreachable =
+    enhancedCollectible.metadata?.indexStatus === 'UNREACHABLE_TOKEN_URI' ||
+    enhancedCollectible.metadata?.indexStatus === 'INVALID_TOKEN_URI_SCHEME';
 
-  // Extract name - use collectible name or default
-  const name = enhancedCollectible.name || 'Unnamed';
+  const showError =
+    isUnreachable || !enhancedCollectible.logoUri || !isNil(error);
+
+  // Extract name - use collectible name or collectionName or default
+  const name = enhancedCollectible.name || enhancedCollectible.collectionName;
 
   return {
     enhancedCollectible,
     isLoading,
+    isFetching,
+    refetch,
+    isUnreachable,
     showError,
     name,
   };

@@ -46,7 +46,7 @@ export const PortfolioHome: FC = () => {
             position: 'sticky',
             bottom: 0,
             backgroundColor: 'background.default',
-            zIndex: 9999,
+            zIndex: 10,
             mt: 'auto',
           }}
         >

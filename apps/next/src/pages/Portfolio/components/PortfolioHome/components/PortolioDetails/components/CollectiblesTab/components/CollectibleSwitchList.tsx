@@ -1,5 +1,5 @@
 import { Box } from '@avalabs/k2-alpine';
-import { FC, useMemo } from 'react';
+import { FC, useMemo, memo } from 'react';
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 import { FormattedCollectible } from '../CollectiblesTab';
 import { Divider } from '@/pages/Portfolio/components/ManageTokens/components/Divider';
@@ -17,7 +17,7 @@ export const CollectibleSwitchList: FC<Props> = ({
   collectibles,
   hiddenCollectibles,
   toggleCollectible,
-  filter = '',
+  filter,
 }) => {
   const [height, containerRef] = useContainerHeight<HTMLDivElement>(400);
 
@@ -38,16 +38,21 @@ export const CollectibleSwitchList: FC<Props> = ({
     [filter, collectibles],
   );
 
+  const itemData = useMemo(
+    () => ({
+      collectibles: filtered,
+      hiddenCollectibles,
+      toggleCollectible,
+    }),
+    [filtered, hiddenCollectibles, toggleCollectible],
+  );
+
   return (
     <Box height={1} ref={containerRef}>
       <FixedSizeList
         height={height}
         width="100%"
-        itemData={{
-          collectibles: filtered,
-          hiddenCollectibles,
-          toggleCollectible,
-        }}
+        itemData={itemData}
         itemCount={filtered.length}
         itemSize={54}
         overscanCount={5}
@@ -65,22 +70,22 @@ type RowData = {
   toggleCollectible: (collectible: FormattedCollectible) => void;
 };
 
-const RowRenderer: FC<ListChildComponentProps<RowData>> = ({
-  index,
-  data,
-  style,
-}) => {
-  const collectible = data.collectibles[index]!;
-  const isHidden = data.hiddenCollectibles.has(collectible.uniqueCollectibleId);
+const RowRenderer: FC<ListChildComponentProps<RowData>> = memo(
+  function RowRenderer({ index, data, style }) {
+    const collectible = data.collectibles[index]!;
+    const isHidden = data.hiddenCollectibles.has(
+      collectible.uniqueCollectibleId,
+    );
 
-  return (
-    <div style={style}>
-      <Divider first={index === 0} />
-      <CollectibleListItem
-        collectible={collectible}
-        isHidden={isHidden}
-        onToggle={data.toggleCollectible}
-      />
-    </div>
-  );
-};
+    return (
+      <div key={collectible.uniqueCollectibleId} style={style}>
+        <Divider first={index === 0} />
+        <CollectibleListItem
+          collectible={collectible}
+          isHidden={isHidden}
+          onToggle={data.toggleCollectible}
+        />
+      </div>
+    );
+  },
+);

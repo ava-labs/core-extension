@@ -6,7 +6,7 @@ import xss from 'xss';
 export const useCollectibleFromParams = () => {
   const { search } = useLocation();
   const { network } = useNetworkContext();
-  const nfts = useNfts(network);
+  const { collectibles: nfts } = useNfts(network);
 
   return useMemo(() => {
     const { nft, tokenId } = (Object as any).fromEntries(
