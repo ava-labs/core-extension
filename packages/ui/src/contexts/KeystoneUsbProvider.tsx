@@ -7,9 +7,11 @@ import {
   useCallback,
 } from 'react';
 import { delay, filter, of, retryWhen, switchMap, tap } from 'rxjs';
-import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import {
+  createKeystoneTransport,
+  TransportWebUSB,
+} from '@keystonehq/hw-transport-webusb';
 import { useConnectionContext } from './ConnectionProvider';
-import { getKeystoneTransport } from './utils/keystoneHelper';
 import { resolve } from '@core/common';
 import { fromPublicKey } from 'bip32';
 import Avalanche, { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
@@ -30,6 +32,7 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   const [initialized, setInitialized] = useState(false);
   const { request } = useConnectionContext();
   const avalancheAppRef = useRef<Avalanche | null>(null);
+  const transportRef = useRef<TransportWebUSB | null>(null);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [hasKeystoneTransport, setHasKeystoneTransport] = useState(false);
 
@@ -38,11 +41,23 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
       .pipe(
         filter(([isInitialized]) => !!isInitialized),
         switchMap(async () => {
-          const app = await getKeystoneTransport();
-          if (!app) {
+          // Get transport directly to store reference
+          const [usbTransport] = await resolve(createKeystoneTransport());
+          if (!usbTransport) {
             setWasTransportAttempted(true);
             setHasKeystoneTransport(false);
             throw new Error('Keystone transport not available');
+          }
+          transportRef.current = usbTransport;
+          const app = new Avalanche(usbTransport);
+          // Try to verify the device is accessible (not just locked)
+          // If this fails, the device might be locked, but transport still exists
+          try {
+            await app.getAppConfig();
+          } catch (_error) {
+            // Device might be locked - keep transport but don't set hasKeystoneTransport yet
+            // This allows retry to work for locked devices
+            throw new Error('Keystone device locked or unavailable');
           }
           return app;
         }),
@@ -52,6 +67,8 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
           setWasTransportAttempted(true);
         }),
         retryWhen((errors) => {
+          // Don't clear transport reference on retry - device might just be locked
+          // Only update state to show disconnected, but keep transport for retry
           setWasTransportAttempted(true);
           setHasKeystoneTransport(false);
           return errors.pipe(delay(2000));
@@ -60,6 +77,9 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
       .subscribe({
         error: () => {
           // Ensure wasTransportAttempted is set even on final error
+          // Don't clear transport reference here - it might still be valid for locked devices
+          // Only clear app reference, transport will be reused on retry
+          avalancheAppRef.current = null;
           setWasTransportAttempted(true);
           setHasKeystoneTransport(false);
         },
@@ -75,8 +95,9 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
 
   const retryConnection = useCallback(async () => {
     // Retry connection without resetting wasTransportAttempted to avoid flashing
-    // Clear the app reference and reset initialized to trigger a fresh connection attempt
+    // Clear the app and transport references and reset initialized to trigger a fresh connection attempt
     avalancheAppRef.current = null;
+    transportRef.current = null;
     setHasKeystoneTransport(false);
     setInitialized(false);
     // Small delay to ensure state reset, then reinitialize
