@@ -3,7 +3,7 @@ import { Stack, Box, CircularProgress } from '@avalabs/k2-alpine';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { CollectibleCard } from './components/CollectibleCard';
 import { VirtualizedGrid } from './components/VirtualizedGrid';
-import { useNfts } from '@core/ui';
+import { useAccountsContext, useNetworkContext, useNfts } from '@core/ui';
 import { useLiveBalance } from '@core/ui';
 import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import {
@@ -14,6 +14,7 @@ import {
   getUniqueCollectibleId,
   getStaticMimeType,
   getCollectibleMediaType,
+  getCoreCollectibleUrl,
 } from './utils';
 import { CollectibleToolbar } from './components/CollectibleToolbar';
 import { CollectiblesManagePopup } from './components/CollectiblesManagePopup';
@@ -25,6 +26,7 @@ export type FormattedCollectible = NftTokenWithBalance & {
   uniqueCollectibleId: string;
   staticMimeType?: string;
   unreachable?: boolean;
+  coreCollectibleUrl?: string;
 };
 
 const POLLED_BALANCES = [TokenType.ERC721, TokenType.ERC1155];
@@ -34,8 +36,15 @@ export function CollectiblesTab() {
 
   const { collectibles, loading } = useNfts();
   const { t } = useTranslation();
+  const { isDeveloperMode } = useNetworkContext();
+  const { getNetwork } = useNetworkContext();
+  const {
+    accounts: { active },
+  } = useAccountsContext();
   const formattedCollectibles = useMemo(() => {
     return collectibles.map((collectible) => {
+      const ownerAddress = active?.addressC;
+      const network = getNetwork(collectible.chainId);
       const url = collectible.logoUri ?? undefined;
       const staticMimeType = url ? getStaticMimeType(url) : undefined;
       const mediaType = getCollectibleMediaType(staticMimeType);
@@ -50,9 +59,18 @@ export function CollectiblesTab() {
         collectibleTypeMedia: mediaType,
         uniqueCollectibleId,
         staticMimeType,
+        coreCollectibleUrl:
+          ownerAddress && network
+            ? getCoreCollectibleUrl(
+                ownerAddress,
+                collectible,
+                isDeveloperMode,
+                network,
+              )
+            : undefined,
       };
     });
-  }, [collectibles]);
+  }, [collectibles, active, getNetwork, isDeveloperMode]);
 
   const {
     processedCollectibles,
@@ -70,11 +88,10 @@ export function CollectiblesTab() {
     setOpenManageDialog,
   } = useCollectiblesToolbar({ collectibles: formattedCollectibles });
 
-  const handleItemClick = useCallback((nft: NftTokenWithBalance) => {
-    // TODO: Navigate to collectible details page
-    console.log('Clicked collectible:', nft);
-    // This would typically use a router to navigate to a detailed view
-    // or open a modal with collectible details
+  const handleItemClick = useCallback((nft: FormattedCollectible) => {
+    if (nft.coreCollectibleUrl) {
+      window.open(nft.coreCollectibleUrl, '_blank', 'noreferrer');
+    }
   }, []);
 
   return (

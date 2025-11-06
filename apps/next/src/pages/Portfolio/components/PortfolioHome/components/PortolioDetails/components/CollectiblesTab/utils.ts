@@ -1,6 +1,8 @@
 import { MediaTypeFilters, SortMode } from './hooks/useCollectiblesToolbar';
 import mime from 'mime/lite';
 import { FormattedCollectible } from './CollectiblesTab';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '@core/types';
 
 export const getStaticMimeType = (url: string): string | undefined => {
   return mime.getType(url) ?? undefined;
@@ -11,6 +13,14 @@ export const BASE64_IMAGE_REGEX =
 
 let videoElement: HTMLVideoElement;
 
+export const getCoreCollectibleUrl = (
+  ownerAddress: string,
+  collectible: NftTokenWithBalance,
+  isDeveloperMode: boolean,
+  network: NetworkWithCaipId,
+): string => {
+  return `https://${isDeveloperMode ? 'test.' : ''}core.app/portfolio/${ownerAddress}/collectibles/${network.subnetExplorerUriId}/${collectible.address}/${collectible.tokenId}/`;
+};
 // Check if browser can play a video type
 export const supportsVideoType = (mimeType: string): boolean => {
   if (mimeType && mimeType.startsWith('video/')) {
