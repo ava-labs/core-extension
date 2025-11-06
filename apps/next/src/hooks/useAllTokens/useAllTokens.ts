@@ -30,9 +30,7 @@ export const useAllTokens = (
 
   useEffect(() => {
     Promise.allSettled(
-      Object.values(networks).map((network) =>
-        getNetworkTokens({ request, network }),
-      ),
+      networks.map((network) => getNetworkTokens({ request, network })),
     ).then((settledResults) => {
       setPlaceholderTokens(
         settledResults

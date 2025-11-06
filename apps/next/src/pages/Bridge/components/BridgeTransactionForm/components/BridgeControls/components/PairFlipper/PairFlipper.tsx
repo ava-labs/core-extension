@@ -1,3 +1,4 @@
+import { useBridgeState } from '@/pages/Bridge/contexts';
 import {
   buttonBaseClasses,
   getHexAlpha,
@@ -7,19 +8,20 @@ import {
   SwapIcon,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
+import { usePairFlipper } from './usePairFlipper';
 
-type PairFlipperProps = {
-  onClick: () => void;
-};
-
-export const PairFlipper: FC<PairFlipperProps> = ({ onClick }) => {
+export const PairFlipper: FC = () => {
+  const { targetNetworkId, targetToken } = useBridgeState();
+  const { flip, canFlip } = usePairFlipper(targetNetworkId, targetToken);
   return (
     <Stack alignItems="center" justifyContent="center">
-      <FlipButton color="secondary" onClick={onClick}>
-        <SwapIcon
-          size={20}
-          style={{ transform: 'rotate(90deg) translate(-2px, -2px)' }}
-        />
+      <FlipButton
+        color="secondary"
+        onClick={flip}
+        disabled={!canFlip}
+        loading={!canFlip}
+      >
+        <FlipIcon size={20} />
       </FlipButton>
     </Stack>
   );
@@ -38,3 +40,7 @@ const FlipButton = styled(IconButton)(({ theme: { palette } }) => ({
     backgroundColor: palette.mode === 'light' ? 'glass.dark3' : 'glass.light2',
   },
 }));
+
+const FlipIcon = styled(SwapIcon)({
+  transform: 'rotate(90deg) translate(-2px, -2px)',
+});

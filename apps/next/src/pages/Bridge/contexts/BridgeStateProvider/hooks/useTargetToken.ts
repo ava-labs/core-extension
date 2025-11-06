@@ -1,30 +1,21 @@
-import { useAllTokens } from '@/hooks/useAllTokens';
-import { BridgeAsset } from '@avalabs/bridge-unified';
+import { BridgeAsset, TokenType } from '@avalabs/bridge-unified';
 import { findMatchingBridgeAsset } from '@core/common';
-import { useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
+import { useNetworkTokens } from './useNetworkTokens';
 
-// TODO: Find the actual target token based on the source token and the target network
 export function useTargetToken(
   targetNetworkId: string,
   assets: BridgeAsset[],
   selectedAsset: BridgeAsset | undefined,
 ) {
-  const { getNetwork } = useNetworkContext();
-
-  const networks = useMemo(() => {
-    const network = getNetwork(targetNetworkId);
-    return network ? [network] : [];
-  }, [targetNetworkId, getNetwork]);
-
-  const tokens = useAllTokens(networks, false);
+  const tokens = useNetworkTokens(targetNetworkId);
 
   const matchedAssets = useMemo(
     () =>
       selectedAsset
         ? assets.filter(
             (a) =>
-              a.symbol === selectedAsset.symbol ||
+              a.symbol === getWrappedSymbol(selectedAsset) ||
               a.name === selectedAsset.name,
           )
         : [],
@@ -34,15 +25,23 @@ export function useTargetToken(
   const matchedToken = useMemo(
     () =>
       selectedAsset
-        ? tokens.find(
-            (t) =>
-              t.symbol === selectedAsset.symbol ||
-              t.name === selectedAsset.name ||
-              findMatchingBridgeAsset(matchedAssets, t),
-          )
+        ? tokens.find((t) => findMatchingBridgeAsset(matchedAssets, t))
         : undefined,
     [selectedAsset, tokens, matchedAssets],
   );
 
   return matchedToken;
 }
+
+const getWrappedSymbol = (asset: BridgeAsset) => {
+  if (asset.type !== TokenType.NATIVE) {
+    return asset.symbol;
+  }
+
+  // Ethereum
+  if (asset.symbol === 'ETH') {
+    return 'WETH.e';
+  }
+
+  return asset.symbol;
+};

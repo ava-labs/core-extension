@@ -1,4 +1,3 @@
-import { useAllTokens } from '@/hooks/useAllTokens/useAllTokens';
 import { BridgeAsset } from '@avalabs/bridge-unified';
 import { findMatchingBridgeAsset } from '@core/common';
 import {
@@ -6,8 +5,8 @@ import {
   getUniqueTokenId,
   NetworkWithCaipId,
 } from '@core/types';
-import { useNetworkContext } from '@core/ui';
 import { useMemo } from 'react';
+import { useNetworkTokens } from './useNetworkTokens';
 
 type LookupValue = { asset: BridgeAsset; token: FungibleTokenBalance };
 
@@ -15,13 +14,7 @@ export function useTokenLookup(
   networkId: NetworkWithCaipId['caipId'],
   assets: BridgeAsset[],
 ) {
-  const { getNetwork } = useNetworkContext();
-  const networksForToken = useMemo(() => {
-    const network = getNetwork(networkId);
-    return network ? [network] : [];
-  }, [networkId, getNetwork]);
-
-  const tokens = useAllTokens(networksForToken, false);
+  const tokens = useNetworkTokens(networkId);
 
   const tokenAndAssetLookup = useMemo(() => {
     return tokens.reduce((lookup, token) => {
@@ -33,14 +26,13 @@ export function useTokenLookup(
     }, new Map<string, LookupValue>());
   }, [tokens, assets]);
 
-  const transferableTokens = useMemo(
-    () => Array.from(tokenAndAssetLookup.values()).map(({ token }) => token),
+  return useMemo(
+    () => ({
+      tokens: Array.from(tokenAndAssetLookup.values()).map(
+        ({ token }) => token,
+      ),
+      get: (tokenId: string) => tokenAndAssetLookup.get(tokenId),
+    }),
     [tokenAndAssetLookup],
   );
-
-  return {
-    tokens: transferableTokens,
-    lookup: tokenAndAssetLookup,
-    allTokens: tokens,
-  };
 }
