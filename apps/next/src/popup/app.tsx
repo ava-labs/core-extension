@@ -31,7 +31,7 @@ import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
@@ -77,8 +77,6 @@ export function App() {
   const preferredColorScheme = usePreferredColorScheme();
   const { pathname } = useLocation();
   const history = useHistory();
-  const historyRef = useRef(history);
-  historyRef.current = history;
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
 
@@ -102,13 +100,13 @@ export function App() {
       return;
     }
     if (Object.keys(navigationHistory).length !== 0) {
-      historyRef.current.push(navigationHistory.location); // go to last visited route
+      history.push(navigationHistory.location); // go to last visited route
     }
 
-    return historyRef.current.listen(() => {
-      setNavigationHistory(historyRef.current);
+    return history.listen(() => {
+      setNavigationHistory(history);
     });
-  }, [navigationHistory, setNavigationHistory]);
+  }, [history, navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
     return (
