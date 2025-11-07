@@ -711,9 +711,7 @@ export class WalletService implements OnUnlock {
       ? {
           network,
           tabId,
-          accountIndices: isMultiSigAvalancheTxRequest(tx)
-            ? tx.externalIndices
-            : undefined,
+          accountIndices: tx.externalIndices,
         }
       : {
           network,
