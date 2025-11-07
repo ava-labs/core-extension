@@ -1,16 +1,19 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { assert, caipToChainId, chainIdToCaip } from '@core/common';
 import { CommonError, NetworkWithCaipId } from '@core/types';
-import { useFeatureFlagContext, useNetworkContext } from '@core/ui';
-import { promoteAvalancheNetworks } from '@core/ui/src/contexts/NetworkProvider/networkSortingFn';
+import {
+  promoteAvalancheNetworks,
+  useFeatureFlagContext,
+  useNetworkContext,
+} from '@core/ui';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import {
   useBridgeEnvironment,
   useCoreBridgeService,
   useGetFee,
+  useGetMinimumTransferAmount,
   useGetTransferGasEstimate,
-  useMinimumTransferAmount,
   useSupportsAsset,
   useTransferAsset,
   useUnifiedBridgeState,
@@ -64,7 +67,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
 
   const estimateTransferGas = useGetTransferGasEstimate(core);
   const getFee = useGetFee(core);
-  const getMinimumTransferAmount = useMinimumTransferAmount(core);
+  const getMinimumTransferAmount = useGetMinimumTransferAmount(core);
   const supportsAsset = useSupportsAsset(core);
   const transferAsset = useTransferAsset(core);
 

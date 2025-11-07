@@ -24,38 +24,35 @@ export function useAmountAfterFee(
   const [feeState, setFeeState] = useState<FeeState>(DEFAULT_STATE);
   const { getFee } = useNextUnifiedBridgeContext();
 
-  const { symbol, decimals } = asset ?? {};
-
   useEffect(() => {
-    if (
-      symbol &&
-      amount &&
-      targetNetworkId &&
-      decimals &&
-      requiredGas != null &&
-      balance != null
-    ) {
-      const amountBigInt = stringToBigint(amount, decimals);
-      if (amountBigInt <= balance - requiredGas) {
-        return;
-      }
+    setFeeState(DEFAULT_STATE);
 
-      setFeeState(DEFAULT_STATE);
-      getFee(symbol, amountBigInt, sourceNetworkId, targetNetworkId).then(
-        (fee) => {
-          const afterFee = amountBigInt - fee;
-          setFeeState({
-            fee,
-            amountAfterFee: afterFee < 0n ? 0n : afterFee,
-          });
-        },
-      );
+    if (
+      !asset ||
+      !amount ||
+      !targetNetworkId ||
+      requiredGas == null ||
+      balance == null
+    ) {
+      return;
     }
+
+    const { symbol, decimals } = asset;
+    const amountBigInt = stringToBigint(amount, decimals);
+
+    getFee(symbol, amountBigInt, sourceNetworkId, targetNetworkId).then(
+      (fee) => {
+        const afterFee = amountBigInt - fee;
+        setFeeState({
+          fee,
+          amountAfterFee: afterFee < 0n ? 0n : afterFee,
+        });
+      },
+    );
   }, [
+    asset,
     amount,
     targetNetworkId,
-    symbol,
-    decimals,
     getFee,
     sourceNetworkId,
     requiredGas,

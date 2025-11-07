@@ -6,7 +6,7 @@ import { SourceSelector } from './components/SourceSelector';
 import { TargetSelector } from './components/TargetSelector';
 
 export const BridgeControls: FC = () => {
-  const { shouldUseCrossChainTransfer } = useBridgeState();
+  const { isBridgeSupported } = useBridgeState();
   const [sourceFocused, setSourceFocused] = useState(false);
 
   return (
@@ -14,10 +14,10 @@ export const BridgeControls: FC = () => {
       <Collapse in>
         <SourceSelector onFocusChanged={setSourceFocused} />
       </Collapse>
-      <Collapse in={!shouldUseCrossChainTransfer && !sourceFocused}>
+      <Collapse in={!isBridgeSupported && !sourceFocused}>
         <PairFlipper />
       </Collapse>
-      <Collapse in={!shouldUseCrossChainTransfer}>
+      <Collapse in={!isBridgeSupported}>
         <TargetSelector />
       </Collapse>
     </Stack>
