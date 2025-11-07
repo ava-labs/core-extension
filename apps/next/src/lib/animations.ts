@@ -30,16 +30,6 @@ const shake = keyframes`
     transform: translateX(0);
   }
 `;
-
-const rotate = keyframes`
-  from {
-    transform: rotate(360deg);
-  }
-  to {
-    transform: rotate(0deg);
-  }
-`;
 export default {
   shake: createAnimation(shake),
-  rotate: createAnimation(rotate, '2s', 'linear', 'infinite'),
 };

@@ -1,14 +1,21 @@
-import animations from '@/lib/animations';
-import { styled } from '@avalabs/k2-alpine';
+import { keyframes, styled } from '@avalabs/k2-alpine';
 import { MdSync } from 'react-icons/md';
+
+const rotate = keyframes`
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+`;
 
 export const AnimatedSyncIcon = styled(MdSync)(({ theme }) => ({
   color: theme.palette.text.primary,
-  transition: theme.transitions.create(['width']),
-  ...animations.rotate,
+  animation: `${rotate} 2s linear infinite`,
 
-  '&[data-hidden="true"]': {
-    width: 0,
+  '*:has(> &[data-hidden="true"])': {
+    display: 'none',
   },
 
   '&[data-active="false"], &[data-hidden="true"]': {
