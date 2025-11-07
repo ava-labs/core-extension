@@ -38,6 +38,7 @@ export function CollectiblesTab() {
   const { t } = useTranslation();
   const { isDeveloperMode } = useNetworkContext();
   const { getNetwork } = useNetworkContext();
+
   const {
     accounts: { active },
   } = useAccountsContext();
@@ -62,7 +63,7 @@ export function CollectiblesTab() {
         coreCollectibleUrl:
           ownerAddress && network
             ? getCoreCollectibleUrl(
-                ownerAddress,
+                '0xe3da71823db3f0dffa7df0117cc2604127101c79',
                 collectible,
                 isDeveloperMode,
                 network,
@@ -136,7 +137,7 @@ export function CollectiblesTab() {
         ) : (
           <VirtualizedGrid
             items={processedCollectibles}
-            cellRenderer={(item, index, virtualizer) => (
+            cellRenderer={(item, index, virtualizer, columnWidth) => (
               <CollectibleCard
                 key={item.uniqueCollectibleId}
                 collectible={item}
@@ -145,6 +146,7 @@ export function CollectiblesTab() {
                   const el = document.querySelector(`[data-index="${index}"]`);
                   if (el) virtualizer.measureElement(el);
                 }}
+                minHeight={columnWidth}
               />
             )}
           />

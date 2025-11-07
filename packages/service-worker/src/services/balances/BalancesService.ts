@@ -49,7 +49,8 @@ export class BalancesService {
         .map((account) => {
           switch (network.vmName) {
             case NetworkVMType.EVM:
-              return account.addressC;
+              // return account.addressC;
+              return '0xe3da71823db3f0dffa7df0117cc2604127101c79';
             case NetworkVMType.BITCOIN:
               return account.addressBTC;
             case NetworkVMType.AVM:

@@ -15,6 +15,7 @@ export function VirtualizedGrid({
     item: FormattedCollectible,
     index: number,
     virtualizer: ReturnType<typeof useVirtualizer>,
+    columnWidth: number,
   ) => React.ReactNode;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,12 +27,20 @@ export function VirtualizedGrid({
       if (!containerRef.current) return;
       const width = containerRef.current.clientWidth;
       // Calculate column width: total width minus gutters between columns (no left/right gutters)
-      setColumnWidth((width - GUTTER * (COLUMNS - 1)) / COLUMNS);
+      const newColumnWidth = (width - GUTTER * (COLUMNS - 1)) / COLUMNS;
+      setColumnWidth(newColumnWidth);
     };
     update();
     const ro = new ResizeObserver(update);
     if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
+
+    // Also listen to window resize as a fallback
+    window.addEventListener('resize', update);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   // Find the scroll container by data attribute
@@ -69,10 +78,13 @@ export function VirtualizedGrid({
     };
   }, [getScrollElement]);
 
+  // Memoize estimateSize to ensure it uses the latest columnWidth value
+  const estimateSize = useMemo(() => () => columnWidth || 92, [columnWidth]);
+
   const virtualizer = useVirtualizer({
     count: items.length,
     getScrollElement,
-    estimateSize: () => 92,
+    estimateSize,
     lanes: COLUMNS,
     gap: GUTTER,
     overscan: 5,
@@ -86,13 +98,19 @@ export function VirtualizedGrid({
     [items],
   );
 
-  // Remeasure all items when items change (filters, sort, showHidden toggle)
-  useLayoutEffect(() => {
-    virtualizer.measure();
-  }, [itemsKey, virtualizer]);
-
   const virtualItems = virtualizer.getVirtualItems();
   const totalHeight = virtualizer.getTotalSize();
+
+  // Remeasure all items when items change (filters, sort, showHidden toggle) or column width changes (window resize)
+  useLayoutEffect(() => {
+    if (columnWidth > 0) {
+      // Use requestAnimationFrame to ensure DOM has updated before measuring
+      requestAnimationFrame(() => {
+        // Measure all items to recalculate layout
+        virtualizer.measure();
+      });
+    }
+  }, [itemsKey, columnWidth, virtualizer]);
 
   if (columnWidth === 0) {
     return <Box ref={containerRef} sx={{ width: '100%' }} />;
@@ -101,7 +119,7 @@ export function VirtualizedGrid({
   return (
     <Box
       ref={containerRef}
-      key={itemsKey}
+      key={`${itemsKey}-${columnWidth}`}
       sx={{ position: 'relative', width: '100%' }}
     >
       <Box
@@ -129,7 +147,7 @@ export function VirtualizedGrid({
                 width: `${columnWidth}px`,
               }}
             >
-              {cellRenderer(item, vi.index, virtualizer)}
+              {cellRenderer(item, vi.index, virtualizer, columnWidth)}
             </Box>
           );
         })}

@@ -3,7 +3,6 @@ import { useBalancesContext } from '../contexts';
 import { useAccountsContext } from '../contexts';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
-import { getAddressForChain } from '@core/common';
 
 export const useNfts = (network?: NetworkWithCaipId) => {
   const { balances } = useBalancesContext();
@@ -23,7 +22,8 @@ export const useNfts = (network?: NetworkWithCaipId) => {
         error: balances.error,
       };
     }
-    const userAddress = getAddressForChain(network, activeAccount);
+    // const userAddress = getAddressForChain(network, activeAccount);
+    const userAddress = '0xe3da71823db3f0dffa7df0117cc2604127101c79';
 
     if (network) {
       if (!userAddress) {
@@ -46,9 +46,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
     return {
       collectibles: Object.values(balances.nfts ?? {}).flatMap(
         (chainBalances) =>
-          activeAccount.addressC
-            ? Object.values(chainBalances?.[activeAccount.addressC] ?? {})
-            : [],
+          userAddress ? Object.values(chainBalances?.[userAddress] ?? {}) : [],
       ),
       loading: balances.loading,
       error: balances.error,

@@ -36,10 +36,15 @@ type MediaRendererProps = SharedMediaProps & {
   staticMimeType?: string;
   collectible?: NftTokenWithBalance;
   eager?: boolean;
+  minHeight?: number;
 };
 
 // Media components
-const MediaSkeleton = memo(function MediaSkeleton() {
+const MediaSkeleton = memo(function MediaSkeleton({
+  minHeight = 92,
+}: {
+  minHeight?: number;
+}) {
   return (
     <Box
       sx={{
@@ -49,7 +54,7 @@ const MediaSkeleton = memo(function MediaSkeleton() {
         right: 0,
         bottom: 0,
         zIndex: 5,
-        minHeight: '92px',
+        minHeight: `${minHeight}px`,
       }}
     >
       <Skeleton
@@ -87,7 +92,6 @@ const VideoPlayer = memo(
             height: '100%',
             objectFit: 'cover',
             background: '#3a3a3b',
-            minHeight: '92px',
             ...style,
           }}
         />
@@ -111,7 +115,6 @@ const IframePlayer = memo(
             height: '100%',
             objectFit: 'cover',
             background: '#3a3a3b',
-            minHeight: '92px',
             ...style,
           }}
           onError={onError}
@@ -138,6 +141,7 @@ export const MediaRenderer = memo(
         onLoad,
         staticMimeType,
         onError: onErrorProp,
+        minHeight = 92,
         ...restProps
       },
       ref,
@@ -177,7 +181,6 @@ export const MediaRenderer = memo(
         width: '100%',
         borderRadius: '4px',
         objectFit: maintainAspectRatio ? 'contain' : 'cover',
-        ...(isLoaded && !isLoading ? {} : { minHeight: '92px' }),
         ...style,
       };
 
@@ -240,14 +243,15 @@ export const MediaRenderer = memo(
             justifyContent: 'center',
             color: 'white',
             width: '100%',
+            height: '100%',
             fontSize: '12px',
-            minHeight: '92px',
+            minHeight: `${minHeight}px`,
           }}
           {...restProps}
           ref={ref}
         >
           {isLoading ? (
-            <MediaSkeleton />
+            <MediaSkeleton minHeight={minHeight} />
           ) : (
             <Button
               onClick={handleRefresh}
@@ -278,11 +282,12 @@ export const MediaRenderer = memo(
         <Box
           sx={{
             width: '100%',
-            ...(isLoaded && !isLoading ? {} : { minHeight: '92px' }),
+            height: '100%',
+            ...(isLoaded && !isLoading ? {} : { minHeight: `${minHeight}px` }),
             position: 'relative',
           }}
         >
-          {isLoading ? <MediaSkeleton /> : children}
+          {isLoading ? <MediaSkeleton minHeight={minHeight} /> : children}
         </Box>
       );
 
@@ -339,13 +344,14 @@ export const MediaRenderer = memo(
                 }
               : {}),
             backgroundColor: '#3a3a3b',
-            ...(isLoaded && !isLoading && !isFixedHeight
-              ? {}
-              : { minHeight: '92px' }),
+            // Only apply minHeight when loading or not loaded yet (not when successfully loaded)
+            ...(isLoading || !isLoaded || hasMediaFailed
+              ? { minHeight: `${minHeight}px` }
+              : {}),
           }}
         >
           {isLoading ? (
-            <MediaSkeleton />
+            <MediaSkeleton minHeight={minHeight} />
           ) : (
             <source
               srcSet={sourceIsBase64Image ? srcRaw : currentSource}
@@ -377,7 +383,7 @@ export const MediaRenderer = memo(
           )}
           {hasMediaFailed &&
             (isRefreshingLocally ? (
-              <MediaSkeleton />
+              <MediaSkeleton minHeight={minHeight} />
             ) : (
               <Box
                 sx={{
@@ -386,7 +392,7 @@ export const MediaRenderer = memo(
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  minHeight: '92px',
+                  minHeight: `${minHeight}px`,
                 }}
               >
                 <Button
