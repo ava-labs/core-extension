@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { useKeystoneUsbContext } from '@core/ui';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
 import { resolve } from '@core/common';
-import Avalanche from '@keystonehq/hw-app-avalanche';
 
 type PendingProps = StateComponentProps & {
   action: Action<DisplayData>;
@@ -34,14 +33,12 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
       // This ensures the device can handle signing requests
       const verifyAndApprove = async () => {
         try {
-          // Test that we can actually create a transport and communicate with device
-          // This is what signTx() will do, so we verify it works first
+          // Make sure that the transport is available and the device is ready
           const [usbTransport] = await resolve(createKeystoneTransport());
           if (!usbTransport) {
             throw new Error('Transport not available');
           }
-          const testApp = new Avalanche(usbTransport);
-          await testApp.getAppConfig();
+
           // Device is ready, now call approve
           await approve();
         } catch (error) {
