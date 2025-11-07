@@ -71,7 +71,6 @@ export * from './useSyncBridgeConfig';
 export * from './useConvertedCurrencyFormatter';
 export * from './useAppTypeFromParams';
 export * from './useIsIncorrectDevice';
-export * from './useIsIncorrectKeystoneDevice';
 export * from './useRegisterBtcWalletPolicy';
 export * from './useSolanaPublicKeys';
 export * from './useSeedlessActions';
