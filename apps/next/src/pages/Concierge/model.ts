@@ -63,17 +63,31 @@ export const functionDeclarations: FunctionDeclaration[] = [
     },
   },
   {
-    name: 'switchNetwork',
-    description: `Switches the currently active network to the given new one. You can switch to ANY type of networks. When the user wants to list them, you MUST format the list and use only the "id" and the "name" of the networks and do not use any code formatting like JSON or any other objects. You can use any networks which has an id not just the evm ones.`,
+    name: 'disableNetwork',
+    description: `Disables the given network. You can disable to ANY type of networks. The network name can be found in the available networks list and the user can give it with lowercase letters.`,
     parameters: {
       type: SchemaType.OBJECT,
       properties: {
-        networkId: {
-          type: SchemaType.STRING,
-          description: `The chainId or the caipId of the network to activate. The chainId or the caipId lives in the available networks list as an id property. E.g. You can find them by the name of the network. When the network cannot be found you must try to provide existing alternatives from the network list.`,
+        chainId: {
+          type: SchemaType.NUMBER,
+          description: `The chainId of the network to disable. The chainId lives in the available networks list as an id property. E.g. You can find it by the name of the network. When the network cannot be found you must try to provide existing alternatives from the network list.`,
         },
       },
-      required: ['networkId'],
+      required: ['chainId'],
+    },
+  },
+  {
+    name: 'enableNetwork',
+    description: `Enables the given network. You can disable to ANY type of networks. The network name can be found in the available networks list and the user can give it with lowercase letters. There is a 'chainId' property in the available networks list. You can find the enabled networks list in the prompt template and it is an array contains the chain id of the enabled networks.`,
+    parameters: {
+      type: SchemaType.OBJECT,
+      properties: {
+        chainId: {
+          type: SchemaType.NUMBER,
+          description: `The chainId of the network to enable. The chainId lives in the available networks list as an id property. E.g. You can find it by the name of the network. When the network cannot be found you must try to provide existing alternatives from the network list.`,
+        },
+      },
+      required: ['chainId'],
     },
   },
   {
@@ -154,6 +168,7 @@ You are Core Concierge, a professional crypto wallet AI assistant. Your job is t
 Do not let users send more tokens than their balance. When any action fails, apologize and show the error message.
 When listing data, format the information for readability and your response must not to be a JSON if the object has a "name" and/or a "symbol" property use them instead. 
 Available networks: __NETWORKS__
+Enabled networks: __ENABLED_NETWORKS__
 Current network id: __CURRENT_NETWORK_ID___
 The user has the following contacts:
 __CONTACTS__

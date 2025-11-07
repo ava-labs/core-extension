@@ -44,7 +44,8 @@ const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 export const useFunctions = ({ setIsTyping, setInput }) => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
-  const { network, networks, setNetwork, getNetwork } = useNetworkContext();
+  const { network, networks, enableNetwork, disableNetwork, enabledNetworks } =
+    useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
@@ -196,16 +197,6 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
 
         return {
           content: `Success! The new active account is ${accountId}`,
-        };
-      },
-      switchNetwork: async ({ networkId }: { networkId: string }) => {
-        const newActiveNetwork = getNetwork(networkId);
-        if (!newActiveNetwork) {
-          throw new Error(`Cannot find the new network you want to activate.`);
-        }
-        setNetwork(newActiveNetwork);
-        return {
-          content: `Success! The new active network is ${newActiveNetwork.chainName}`,
         };
       },
       createContact: async ({
@@ -398,18 +389,30 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           content: `Bridge initiated ${amount}${foundAsset.symbol} to ${destinationNetwork}.`,
         };
       },
+      enableNetwork: async ({ chainId }: { chainId: number }) => {
+        enableNetwork(chainId);
+        return {
+          content: `Network with chain ID ${chainId} has been enabled.`,
+        };
+      },
+      disableNetwork: async ({ chainId }: { chainId: number }) => {
+        disableNetwork(chainId);
+        return {
+          content: `Network with chain ID ${chainId} has been disabled.`,
+        };
+      },
     }),
     [
       accounts.active,
       allAvailableTokens,
       createContact,
-      getNetwork,
+      disableNetwork,
+      enableNetwork,
       getNetworkFee,
       getRate,
       network,
       request,
       selectAccount,
-      setNetwork,
       swap,
       t,
       targetChain?.caipId,
@@ -455,6 +458,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
             name: n.chainName,
             isTestnet: n.isTestnet,
             vmName: n.vmName,
+            chainId: n.chainId,
           })),
         ),
       )
@@ -490,6 +494,14 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           })),
           (_, v) => (typeof v === 'bigint' ? v.toString() : v),
         ),
+      )
+      .replace(
+        '__ENABLED_NETWORKS__',
+        JSON.stringify(
+          enabledNetworks.map((id) => ({
+            chainId: id,
+          })),
+        ),
       );
   }, [
     network,
@@ -499,6 +511,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
     networks,
     contacts,
     transferableAssets,
+    enabledNetworks,
   ]);
 
   const prompt = useCallback(
