@@ -45,9 +45,9 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
           // Device is ready, now call approve
           await approve();
         } catch (error) {
-          console.error('Keystone device not ready for signing:', error);
+          console.error('Approval error:', error);
+        } finally {
           hasApprovedRef.current = false;
-          // Don't call approve if device isn't ready
         }
       };
 
