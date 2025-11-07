@@ -20,6 +20,7 @@ export const KeystoneUSBApprovalOverlay: FC<
     useKeystoneUsbContext();
   const hasApprovedRef = useRef(false);
   const previousStateRef = useRef<typeof state>('loading');
+  const previousStateForDelayRef = useRef<typeof state>('loading');
 
   useEffect(() => {
     // Initialize transport to check availability (required for state detection)
@@ -27,8 +28,15 @@ export const KeystoneUSBApprovalOverlay: FC<
   }, [initKeystoneTransport]);
 
   useEffect(() => {
+    // Store previous state for delay calculation before updating
+    previousStateForDelayRef.current = previousStateRef.current;
+
     // Reset approval flag when state changes from pending to something else
-    if (previousStateRef.current === 'pending' && state !== 'pending') {
+    // Also reset when transitioning from disconnected to pending (device unlocked/reconnected)
+    if (
+      (previousStateRef.current === 'pending' && state !== 'pending') ||
+      (previousStateRef.current === 'disconnected' && state === 'pending')
+    ) {
       hasApprovedRef.current = false;
     }
     previousStateRef.current = state;
@@ -47,7 +55,12 @@ export const KeystoneUSBApprovalOverlay: FC<
       hasKeystoneTransport
     ) {
       hasApprovedRef.current = true;
-      // Small delay to ensure device is fully ready after unlock
+      // Use the previous state captured before state effect updated it
+      // Longer delay when transitioning from disconnected (device was reconnected/unregistered)
+      // Shorter delay for normal unlock (device was just locked)
+      const wasDisconnected =
+        previousStateForDelayRef.current === 'disconnected';
+      const delay = wasDisconnected ? 1500 : 500;
       setTimeout(() => {
         approve().catch((error) => {
           // If approve fails, reset the flag so we can retry
@@ -56,13 +69,11 @@ export const KeystoneUSBApprovalOverlay: FC<
           // via the provider's error handling, but we log it here for debugging
           console.error('Keystone approval failed:', error);
         });
-      }, 500);
+      }, delay);
     }
   }, [state, approve, action.status, hasKeystoneTransport]);
 
   const Component = StateComponentMapper[state].component;
-
-  console.log({ state });
 
   return (
     <HardwareApprovalDrawer reject={reject}>

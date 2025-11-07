@@ -90,6 +90,24 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
   }, [initialized, request]);
 
   const initKeystoneTransport = useCallback(async () => {
+    // If we already have a connected app, verify it's still valid and set state immediately
+    // This prevents the overlay from showing 'loading' when device is already connected
+    if (avalancheAppRef.current) {
+      try {
+        await avalancheAppRef.current.getAppConfig();
+        setHasKeystoneTransport(true);
+        setWasTransportAttempted(true);
+        // Don't trigger stream if already connected - state is already set
+        return;
+      } catch {
+        // Connection is stale, clear it and let the stream reconnect
+        avalancheAppRef.current = null;
+        transportRef.current = null;
+        setHasKeystoneTransport(false);
+        setWasTransportAttempted(true);
+      }
+    }
+    // Trigger stream to check connection
     setInitialized(true);
   }, []);
 
