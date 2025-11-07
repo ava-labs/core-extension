@@ -41,6 +41,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const core = useCoreBridgeService(
     getEnvironment(isDeveloperMode, isBridgeDevEnv),
     bitcoinProvider,
+    isDeveloperMode,
   );
 
   const availableChainIds = useMemo(

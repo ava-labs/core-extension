@@ -55,6 +55,7 @@ export enum UnifiedBridgeError {
   UnsupportedNetwork = 'unsupported-network',
   InvalidTxPayload = 'invalid-tx-payload',
   NonBitcoinAccount = 'non-bitcoin-account',
+  MissingChainId = 'missing-chain-id',
 }
 
 export enum SeedlessError {

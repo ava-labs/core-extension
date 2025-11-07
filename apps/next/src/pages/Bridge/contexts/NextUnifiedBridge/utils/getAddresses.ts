@@ -15,17 +15,17 @@ export function getAddresses(
   const isFromBitcoin = isBitcoinCaipId(sourceChain.chainId);
   const isToBitcoin = isBitcoinCaipId(targetChain.chainId);
 
-  const { addressBTC, addressC } = account;
-
   if (isFromBitcoin || isToBitcoin) {
-    assert(addressBTC, UnifiedBridgeError.NonBitcoinAccount);
+    assert(account.addressBTC, UnifiedBridgeError.NonBitcoinAccount);
+
+    return {
+      fromAddress: isFromBitcoin ? account.addressBTC : account.addressC,
+      toAddress: isFromBitcoin ? account.addressC : account.addressBTC,
+    };
   }
 
-  const fromAddress = isFromBitcoin ? addressBTC! : addressC;
-  const toAddress = isFromBitcoin ? addressC : addressBTC!;
-
   return {
-    fromAddress,
-    toAddress,
+    fromAddress: account.addressC,
+    toAddress: account.addressC,
   };
 }

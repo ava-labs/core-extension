@@ -4,6 +4,7 @@ import {
   Environment,
   getEnabledBridgeServices,
 } from '@avalabs/bridge-unified';
+import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import { getEnabledBridgeTypes } from '@core/common';
 import { useConnectionContext, useFeatureFlagContext } from '@core/ui';
@@ -15,6 +16,7 @@ import { getBtcSigner, getEVMSigner } from '../utils/signers';
 export function useCoreBridgeService(
   environment: Environment | null,
   bitcoinProvider: BitcoinProvider | undefined,
+  isDevMode: boolean,
 ) {
   const { request } = useConnectionContext();
   const { t } = useTranslation();
@@ -25,9 +27,13 @@ export function useCoreBridgeService(
   const signers = useMemo<Parameters<typeof getInitializerForBridgeType>[2]>(
     () => ({
       evm: getEVMSigner(request, t),
-      btc: getBtcSigner(request, t),
+      btc: getBtcSigner(
+        request,
+        isDevMode ? BitcoinCaip2ChainId.TESTNET : BitcoinCaip2ChainId.MAINNET,
+        t,
+      ),
     }),
-    [request, t],
+    [isDevMode, request, t],
   );
 
   const bridgeInitializers = useMemo(() => {
