@@ -13,7 +13,13 @@ export function useFetchMinTransferAmount(
   const [minAmount, setMinAmount] = useState<bigint>();
 
   useEffect(() => {
-    if (!asset || !amount || !sourceNetworkId || !targetNetworkId) {
+    if (
+      !asset ||
+      !amount ||
+      !sourceNetworkId ||
+      !targetNetworkId ||
+      stringToBigint(amount, asset.decimals) <= 0n
+    ) {
       setMinAmount(undefined);
       return;
     }

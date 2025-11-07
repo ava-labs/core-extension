@@ -36,7 +36,7 @@ const BridgeStateContext = createContext<
       fee: bigint | undefined;
       minTransferAmount: bigint | undefined;
       requiredGas: bigint;
-      shouldUseCrossChainTransfer: boolean;
+      isBridgeSupported: boolean;
       sourceToken: FungibleTokenBalance | undefined;
       sourceTokens: FungibleTokenBalance[];
       targetNetworkId: NetworkWithCaipId['caipId'];
@@ -128,7 +128,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         minTransferAmount,
         query,
         requiredGas,
-        shouldUseCrossChainTransfer: Boolean(
+        isBridgeSupported: Boolean(
           sourceNetworkId && checkIfXorPChain(caipToChainId(sourceNetworkId)),
         ),
         sourceChainIds,

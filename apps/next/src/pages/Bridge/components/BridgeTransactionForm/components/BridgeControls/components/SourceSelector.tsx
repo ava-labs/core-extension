@@ -16,7 +16,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
   const {
     sourceChainIds,
     sourceTokens,
-    shouldUseCrossChainTransfer,
+    isBridgeSupported,
     query,
     minTransferAmount,
     sourceToken,
@@ -46,7 +46,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
         }}
       />
       <Styled.Divider />
-      {shouldUseCrossChainTransfer ? (
+      {isBridgeSupported ? (
         <UseCrossChainTransferInfo networkId={query.sourceNetwork} />
       ) : (
         <TokenAmountInput

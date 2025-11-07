@@ -15,12 +15,7 @@ export const PairFlipper: FC = () => {
   const { flip, canFlip } = usePairFlipper(targetNetworkId, targetToken);
   return (
     <Stack alignItems="center" justifyContent="center">
-      <FlipButton
-        color="secondary"
-        onClick={flip}
-        disabled={!canFlip}
-        loading={!canFlip}
-      >
+      <FlipButton color="secondary" onClick={flip} disabled={!canFlip}>
         <FlipIcon size={20} />
       </FlipButton>
     </Stack>

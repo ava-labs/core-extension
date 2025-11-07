@@ -5,7 +5,7 @@ import { useNetworkContext } from '@core/ui';
 import { useCallback } from 'react';
 import { buildChain } from '../utils';
 
-export function useMinimumTransferAmount(core: UnifiedBridgeService | null) {
+export function useGetMinimumTransferAmount(core: UnifiedBridgeService | null) {
   const { getNetwork } = useNetworkContext();
 
   const getMinimumTransferAmount = useCallback(
@@ -16,7 +16,6 @@ export function useMinimumTransferAmount(core: UnifiedBridgeService | null) {
       targetNetworkId: string,
     ) => {
       assert(amount, CommonError.InvalidAmount);
-
       const sourceNetwork = getNetwork(sourceNetworkId);
       const targetNetwork = getNetwork(targetNetworkId);
       assert(core, CommonError.Unknown);

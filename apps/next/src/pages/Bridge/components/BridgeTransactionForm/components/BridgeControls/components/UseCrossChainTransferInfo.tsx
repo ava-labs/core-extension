@@ -7,7 +7,8 @@ import {
 } from '@core/common';
 import { FC, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdInfoOutline } from 'react-icons/md';
+import { BsArrowUpRightCircleFill as ExternalLinkIcon } from 'react-icons/bs';
+import { MdInfoOutline as InfoIcon } from 'react-icons/md';
 
 type Props = {
   networkId: string;
@@ -32,7 +33,7 @@ const UseCrossChainTransferInfo: FC<Props> = ({ networkId }) => {
       pt={3}
       pb={3.5}
     >
-      <MdInfoOutline color="error" size={20} />
+      <InfoIcon color="error" size={20} />
       <Typography variant="subtitle4" width={210} textAlign="center">
         {t(
           'To move {{network}} funds, you need to complete a cross-chain transfer',
@@ -47,6 +48,7 @@ const UseCrossChainTransferInfo: FC<Props> = ({ networkId }) => {
         href={`${CORE_WEB_BASE_URL}/stake/cross-chain-transfer`}
         target="_blank"
         rel="noopener noreferrer"
+        endIcon={<ExternalLinkIcon size={16} />}
       >
         {t('Go to cross-chain transfer')}
       </Button>
