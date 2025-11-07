@@ -1,10 +1,12 @@
 import { BtcSigner } from '@avalabs/bridge-unified';
+import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { RequestHandlerType } from '@core/types';
 import { TFunction } from 'react-i18next';
 
 export function getBtcSigner(
   request: RequestHandlerType,
+  scope: BitcoinCaip2ChainId,
   t: TFunction,
 ): BtcSigner {
   return {
@@ -23,6 +25,7 @@ export function getBtcSigner(
             },
           },
           {
+            scope,
             context: {
               customApprovalScreenTitle: t('Confirm Bridge'),
               alert:
