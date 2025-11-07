@@ -6,6 +6,9 @@ import { StateComponentProps } from '../types';
 import { PendingKeystoneCircles } from './PendingKeystoneCircles';
 import { useTranslation } from 'react-i18next';
 import { useKeystoneUsbContext } from '@core/ui';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import { resolve } from '@core/common';
+import Avalanche from '@keystonehq/hw-app-avalanche';
 
 type PendingProps = StateComponentProps & {
   action: Action<DisplayData>;
@@ -17,30 +20,54 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
   const hasApprovedRef = useRef(false);
 
   useEffect(() => {
-    // Only call approve when:
-    // 1. State is 'pending' (device is connected and ready)
-    // 2. Action status is PENDING (waiting for approval, not already submitted/completed)
-    // 3. We haven't already called approve() for this pending state
-    // 4. Device transport is confirmed available (hasKeystoneTransport is true)
-    if (
-      state === 'pending' &&
-      action.status === ActionStatus.PENDING &&
-      !hasApprovedRef.current &&
-      hasKeystoneTransport
-    ) {
+    // Reset flag when state is not pending or action is not pending
+    if (state !== 'pending' || action.status !== ActionStatus.PENDING) {
+      hasApprovedRef.current = false;
+      return;
+    }
+
+    // Only call approve when device is ready and we haven't called it yet
+    if (hasKeystoneTransport && !hasApprovedRef.current) {
       hasApprovedRef.current = true;
-      const delay = 1500;
-      setTimeout(() => {
-        approve()
-          .catch((error) => {
-            // If approve fails (e.g., device disconnected), the state should update
-            // via the provider's error handling, but we log it here for debugging
-            console.error('Keystone approval failed:', error);
-          })
-          .finally(() => {
-            hasApprovedRef.current = false;
-          });
-      }, delay);
+
+      // Verify device is actually ready by testing transport creation
+      // This ensures the device can handle signing requests
+      const verifyAndApprove = async () => {
+        try {
+          // Test that we can actually create a transport and communicate with device
+          // This is what signTx() will do, so we verify it works first
+          const [usbTransport] = await resolve(createKeystoneTransport());
+          if (!usbTransport) {
+            throw new Error('Transport not available');
+          }
+          const testApp = new Avalanche(usbTransport);
+          await testApp.getAppConfig();
+          // Device is ready, now call approve
+          await approve();
+        } catch (error) {
+          console.error('Keystone device not ready for signing:', error);
+          hasApprovedRef.current = false;
+          // Don't call approve if device isn't ready
+        }
+      };
+
+      // Small delay to ensure state is stable
+      const timeoutId = setTimeout(() => {
+        // Check again before calling (device might have disconnected during delay)
+        if (
+          state === 'pending' &&
+          action.status === ActionStatus.PENDING &&
+          hasKeystoneTransport
+        ) {
+          verifyAndApprove();
+        } else {
+          hasApprovedRef.current = false;
+        }
+      }, 500);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
     }
   }, [state, approve, action.status, hasKeystoneTransport]);
 

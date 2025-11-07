@@ -7,11 +7,7 @@ import { tabs } from 'webextension-polyfill';
 import { ContextContainer } from '@core/types';
 import { FiAlertCircle } from 'react-icons/fi';
 
-export const Disconnected: FC<StateComponentProps> = ({
-  state,
-  approve: _approve,
-  reject: _reject,
-}) => {
+export const Disconnected: FC<StateComponentProps> = ({ state }) => {
   const { t } = useTranslation();
   const {
     popDeviceSelection,
