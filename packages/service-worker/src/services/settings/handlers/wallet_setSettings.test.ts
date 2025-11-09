@@ -212,10 +212,11 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setLanguageMock).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        ...request,
-        error: 'Error: Invalid language parameter',
-      });
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error).toContain('Error: Invalid settings:');
+        expect(result.error).toContain('language');
+      }
     });
 
     it('should return error for invalid currency', async () => {
@@ -223,10 +224,11 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setCurrencyMock).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        ...request,
-        error: 'Error: Invalid currency parameter',
-      });
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error).toContain('Error: Invalid settings:');
+        expect(result.error).toContain('currency');
+      }
     });
 
     it('should return error for invalid theme', async () => {
@@ -234,10 +236,11 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setThemeMock).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        ...request,
-        error: 'Error: Invalid theme parameter',
-      });
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error).toContain('Error: Invalid settings:');
+        expect(result.error).toContain('theme');
+      }
     });
 
     it('should return error for invalid analyticsConsent', async () => {
@@ -247,10 +250,11 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setAnalyticsConsentMock).not.toHaveBeenCalled();
-      expect(result).toEqual({
-        ...request,
-        error: 'Error: Invalid analyticsConsent parameter',
-      });
+      expect('error' in result).toBe(true);
+      if ('error' in result) {
+        expect(result.error).toContain('Error: Invalid settings:');
+        expect(result.error).toContain('analyticsConsent');
+      }
     });
 
     it('should return error when service throws an error', async () => {

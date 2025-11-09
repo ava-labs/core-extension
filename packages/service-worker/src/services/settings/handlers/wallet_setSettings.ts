@@ -55,7 +55,6 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
       }
 
       const validationResult = SettingsSchema.safeParse(newSettings);
-      console.log('validationResult', validationResult);
       if (!validationResult.success) {
         const errorMessage = validationResult.error.errors
           .map((err) => `${err.path.join('.')}: ${err.message}`)
