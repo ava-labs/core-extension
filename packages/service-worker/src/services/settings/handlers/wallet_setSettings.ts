@@ -6,14 +6,30 @@ import {
   Languages,
   CURRENCIES,
   AnalyticsConsent,
-  ColorTheme,
-  ViewMode,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
+import { z } from 'zod';
 
 type PartialSettings = Omit<SettingsState, 'customTokens'>;
 type Params = [settings?: PartialSettings];
+
+const SettingsSchema = z.object({
+  language: z.nativeEnum(Languages).optional(),
+  currency: z.nativeEnum(CURRENCIES).optional(),
+  analyticsConsent: z.nativeEnum(AnalyticsConsent).optional(),
+  theme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
+  preferredView: z.enum(['floating', 'sidebar']).optional(),
+  showTokensWithoutBalances: z.boolean().optional(),
+  coreAssistant: z.boolean().optional(),
+  showTrendingTokens: z.boolean().optional(),
+  tokensVisibility: z
+    .record(z.string(), z.record(z.string(), z.boolean()))
+    .optional(),
+  collectiblesVisibility: z
+    .record(z.string(), z.record(z.string(), z.boolean()))
+    .optional(),
+});
 
 @injectable()
 export class WalletSetSettingsHandler extends DAppRequestHandler<
@@ -24,80 +40,6 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
 
   constructor(private settingsService: SettingsService) {
     super();
-  }
-
-  private validateSettings(settings: PartialSettings): {
-    valid: boolean;
-    error?: string;
-  } {
-    // Validate language if provided
-    if (settings.language !== undefined) {
-      const availableLanguages = Object.values(Languages);
-      if (!availableLanguages.includes(settings.language)) {
-        return { valid: false, error: 'Invalid language parameter' };
-      }
-    }
-
-    // Validate currency if provided
-    if (settings.currency !== undefined) {
-      const availableCurrencies = Object.values(CURRENCIES);
-      if (!availableCurrencies.includes(settings.currency as CURRENCIES)) {
-        return { valid: false, error: 'Invalid currency parameter' };
-      }
-    }
-
-    // Validate analyticsConsent if provided
-    if (settings.analyticsConsent !== undefined) {
-      const validConsents = Object.values(AnalyticsConsent);
-      if (!validConsents.includes(settings.analyticsConsent)) {
-        return { valid: false, error: 'Invalid analyticsConsent parameter' };
-      }
-    }
-
-    // Validate theme if provided
-    if (settings.theme !== undefined) {
-      const validThemes = ['LIGHT', 'DARK', 'SYSTEM'] as ColorTheme[];
-      if (!validThemes.includes(settings.theme)) {
-        return { valid: false, error: 'Invalid theme parameter' };
-      }
-    }
-
-    // Validate preferredView if provided
-    if (settings.preferredView !== undefined) {
-      const validViews = ['floating', 'sidebar'] as ViewMode[];
-      if (!validViews.includes(settings.preferredView)) {
-        return { valid: false, error: 'Invalid preferredView parameter' };
-      }
-    }
-
-    // Validate showTokensWithoutBalances if provided
-    if (
-      settings.showTokensWithoutBalances !== undefined &&
-      typeof settings.showTokensWithoutBalances !== 'boolean'
-    ) {
-      return {
-        valid: false,
-        error: 'Invalid showTokensWithoutBalances parameter',
-      };
-    }
-
-    // Validate coreAssistant if provided
-    if (
-      settings.coreAssistant !== undefined &&
-      typeof settings.coreAssistant !== 'boolean'
-    ) {
-      return { valid: false, error: 'Invalid coreAssistant parameter' };
-    }
-
-    // Validate showTrendingTokens if provided
-    if (
-      settings.showTrendingTokens !== undefined &&
-      typeof settings.showTrendingTokens !== 'boolean'
-    ) {
-      return { valid: false, error: 'Invalid showTrendingTokens parameter' };
-    }
-
-    return { valid: true };
   }
 
   handleAuthenticated = async (
@@ -112,60 +54,69 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         throw new Error('No settings provided');
       }
 
-      // Validate the settings
-      const validation = this.validateSettings(newSettings);
-      if (!validation.valid) {
-        throw new Error(validation.error);
+      const validationResult = SettingsSchema.safeParse(newSettings);
+      console.log('validationResult', validationResult);
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors
+          .map((err) => `${err.path.join('.')}: ${err.message}`)
+          .join(', ');
+        throw new Error(`Invalid settings: ${errorMessage}`);
       }
+
+      const validatedSettings = validationResult.data;
 
       // Update each setting individually using service methods
-      if (newSettings.language !== undefined) {
-        await this.settingsService.setLanguage(newSettings.language);
+      if (validatedSettings.language !== undefined) {
+        await this.settingsService.setLanguage(validatedSettings.language);
       }
 
-      if (newSettings.currency !== undefined) {
-        await this.settingsService.setCurrencty(newSettings.currency);
+      if (validatedSettings.currency !== undefined) {
+        await this.settingsService.setCurrencty(validatedSettings.currency);
       }
 
-      if (newSettings.showTokensWithoutBalances !== undefined) {
+      if (validatedSettings.showTokensWithoutBalances !== undefined) {
         await this.settingsService.setShowTokensWithNoBalance(
-          newSettings.showTokensWithoutBalances,
+          validatedSettings.showTokensWithoutBalances,
         );
       }
 
-      if (newSettings.theme !== undefined) {
-        await this.settingsService.setTheme(newSettings.theme);
+      if (validatedSettings.theme !== undefined) {
+        await this.settingsService.setTheme(validatedSettings.theme);
       }
 
-      if (newSettings.tokensVisibility !== undefined) {
+      if (validatedSettings.tokensVisibility !== undefined) {
         await this.settingsService.setTokensVisibility(
-          newSettings.tokensVisibility,
+          validatedSettings.tokensVisibility,
         );
       }
 
-      if (newSettings.collectiblesVisibility !== undefined) {
+      if (validatedSettings.collectiblesVisibility !== undefined) {
         await this.settingsService.setCollectiblesVisibility(
-          newSettings.collectiblesVisibility,
+          validatedSettings.collectiblesVisibility,
         );
       }
 
-      if (newSettings.analyticsConsent !== undefined) {
+      if (validatedSettings.analyticsConsent !== undefined) {
         await this.settingsService.setAnalyticsConsent(
-          newSettings.analyticsConsent === AnalyticsConsent.Approved,
+          validatedSettings.analyticsConsent === AnalyticsConsent.Approved,
         );
       }
 
-      if (newSettings.coreAssistant !== undefined) {
-        await this.settingsService.setCoreAssistant(newSettings.coreAssistant);
+      if (validatedSettings.coreAssistant !== undefined) {
+        await this.settingsService.setCoreAssistant(
+          validatedSettings.coreAssistant,
+        );
       }
 
-      if (newSettings.preferredView !== undefined) {
-        await this.settingsService.setPreferredView(newSettings.preferredView);
+      if (validatedSettings.preferredView !== undefined) {
+        await this.settingsService.setPreferredView(
+          validatedSettings.preferredView,
+        );
       }
 
-      if (newSettings.showTrendingTokens !== undefined) {
+      if (validatedSettings.showTrendingTokens !== undefined) {
         await this.settingsService.setShowTrendingTokens(
-          newSettings.showTrendingTokens,
+          validatedSettings.showTrendingTokens,
         );
       }
 
