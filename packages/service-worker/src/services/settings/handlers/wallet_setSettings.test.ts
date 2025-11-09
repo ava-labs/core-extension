@@ -6,7 +6,10 @@ import {
   AnalyticsConsent,
   ColorTheme,
 } from '@core/types';
-import { WalletSetSettingsHandler } from './wallet_setSettings';
+import {
+  WalletSetSettingsHandler,
+  WalletSetSettingsResponse,
+} from './wallet_setSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { SettingsService } from '../SettingsService';
 
@@ -53,6 +56,19 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     showTrendingTokens: true,
   };
 
+  const mockSettingsResponse: WalletSetSettingsResponse = {
+    currency: CURRENCIES.USD,
+    showTokensWithoutBalances: true,
+    theme: 'LIGHT',
+    tokensVisibility: {},
+    collectiblesVisibility: {},
+    analyticsConsent: AnalyticsConsent.Approved,
+    language: Languages.EN,
+    coreAssistant: true,
+    preferredView: 'floating',
+    showTrendingTokens: true,
+  };
+
   const createRequest = (params?: [Partial<SettingsState>?]) => ({
     id: '123',
     method: DAppProviderRequest.WALLET_SET_SETTINGS,
@@ -67,8 +83,14 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
   describe('handleAuthenticated', () => {
     it('should successfully update language setting', async () => {
       const request = createRequest([{ language: Languages.ES }]);
-      const updatedSettings = { ...mockSettingsState, language: Languages.ES };
-      getSettingsMock.mockResolvedValueOnce(updatedSettings);
+      const updatedResponse = {
+        ...mockSettingsResponse,
+        language: Languages.ES,
+      };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        language: Languages.ES,
+      });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -76,38 +98,44 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       expect(setLanguageMock).toHaveBeenCalledTimes(1);
       expect(result).toEqual({
         ...request,
-        result: updatedSettings,
+        result: updatedResponse,
       });
     });
 
     it('should successfully update currency setting', async () => {
       const request = createRequest([{ currency: CURRENCIES.EUR }]);
-      const updatedSettings = {
-        ...mockSettingsState,
+      const updatedResponse = {
+        ...mockSettingsResponse,
         currency: CURRENCIES.EUR,
       };
-      getSettingsMock.mockResolvedValueOnce(updatedSettings);
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        currency: CURRENCIES.EUR,
+      });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setCurrencyMock).toHaveBeenCalledWith(CURRENCIES.EUR);
       expect(result).toEqual({
         ...request,
-        result: updatedSettings,
+        result: updatedResponse,
       });
     });
 
     it('should successfully update theme setting', async () => {
       const request = createRequest([{ theme: 'DARK' }]);
-      const updatedSettings = { ...mockSettingsState, theme: 'DARK' };
-      getSettingsMock.mockResolvedValueOnce(updatedSettings);
+      const updatedResponse = { ...mockSettingsResponse, theme: 'DARK' };
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        theme: 'DARK',
+      });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setThemeMock).toHaveBeenCalledWith('DARK');
       expect(result).toEqual({
         ...request,
-        result: updatedSettings,
+        result: updatedResponse,
       });
     });
 
@@ -120,14 +148,20 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
           coreAssistant: false,
         },
       ]);
-      const updatedSettings = {
-        ...mockSettingsState,
+      const updatedResponse = {
+        ...mockSettingsResponse,
         language: Languages.FR,
         currency: CURRENCIES.EUR,
         theme: 'DARK',
         coreAssistant: false,
       };
-      getSettingsMock.mockResolvedValueOnce(updatedSettings);
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        language: Languages.FR,
+        currency: CURRENCIES.EUR,
+        theme: 'DARK',
+        coreAssistant: false,
+      });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -137,24 +171,27 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       expect(setCoreAssistantMock).toHaveBeenCalledWith(false);
       expect(result).toEqual({
         ...request,
-        result: updatedSettings,
+        result: updatedResponse,
       });
     });
 
     it('should successfully update showTokensWithoutBalances', async () => {
       const request = createRequest([{ showTokensWithoutBalances: false }]);
-      const updatedSettings = {
-        ...mockSettingsState,
+      const updatedResponse = {
+        ...mockSettingsResponse,
         showTokensWithoutBalances: false,
       };
-      getSettingsMock.mockResolvedValueOnce(updatedSettings);
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        showTokensWithoutBalances: false,
+      });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setShowTokensWithNoBalanceMock).toHaveBeenCalledWith(false);
       expect(result).toEqual({
         ...request,
-        result: updatedSettings,
+        result: updatedResponse,
       });
     });
 
@@ -162,18 +199,21 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       const request = createRequest([
         { analyticsConsent: AnalyticsConsent.Denied },
       ]);
-      const updatedSettings = {
-        ...mockSettingsState,
+      const updatedResponse = {
+        ...mockSettingsResponse,
         analyticsConsent: AnalyticsConsent.Denied,
       };
-      getSettingsMock.mockResolvedValueOnce(updatedSettings);
+      getSettingsMock.mockResolvedValueOnce({
+        ...mockSettingsState,
+        analyticsConsent: AnalyticsConsent.Denied,
+      });
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(setAnalyticsConsentMock).toHaveBeenCalledWith(false);
       expect(result).toEqual({
         ...request,
-        result: updatedSettings,
+        result: updatedResponse,
       });
     });
 

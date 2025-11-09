@@ -6,6 +6,10 @@ import {
   Languages,
   CURRENCIES,
   AnalyticsConsent,
+  ColorTheme,
+  ViewMode,
+  TokensVisibility,
+  CollectiblesVisibility,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
@@ -13,6 +17,20 @@ import { z } from 'zod';
 
 type PartialSettings = Omit<SettingsState, 'customTokens'>;
 type Params = [settings?: PartialSettings];
+
+// Separate return type for the handler API response
+export interface WalletSetSettingsResponse {
+  currency: string;
+  showTokensWithoutBalances: boolean;
+  theme: ColorTheme;
+  tokensVisibility: TokensVisibility;
+  collectiblesVisibility: CollectiblesVisibility;
+  analyticsConsent: AnalyticsConsent;
+  language: Languages;
+  coreAssistant: boolean;
+  preferredView: ViewMode;
+  showTrendingTokens: boolean;
+}
 
 const SettingsSchema = z.object({
   language: z.nativeEnum(Languages).optional(),
@@ -34,7 +52,7 @@ const SettingsSchema = z.object({
 @injectable()
 export class WalletSetSettingsHandler extends DAppRequestHandler<
   Params,
-  SettingsState
+  WalletSetSettingsResponse
 > {
   methods = [DAppProviderRequest.WALLET_SET_SETTINGS];
 
@@ -122,9 +140,23 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
       // Get the final updated settings
       const finalSettings = await this.settingsService.getSettings();
 
+      // Map internal state to API response (excluding customTokens)
+      const response: WalletSetSettingsResponse = {
+        currency: finalSettings.currency,
+        showTokensWithoutBalances: finalSettings.showTokensWithoutBalances,
+        theme: finalSettings.theme,
+        tokensVisibility: finalSettings.tokensVisibility,
+        collectiblesVisibility: finalSettings.collectiblesVisibility,
+        analyticsConsent: finalSettings.analyticsConsent,
+        language: finalSettings.language,
+        coreAssistant: finalSettings.coreAssistant,
+        preferredView: finalSettings.preferredView,
+        showTrendingTokens: finalSettings.showTrendingTokens,
+      };
+
       return {
         ...request,
-        result: finalSettings,
+        result: response,
       };
     } catch (e: any) {
       return {
