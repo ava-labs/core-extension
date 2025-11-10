@@ -22,7 +22,9 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     it('calls handle authenticated', async () => {
       const handler = new WalletRequestPermissionsHandler(
         {} as PermissionsService,
-        {} as AccountsService,
+        {
+          getActiveAccount: jest.fn(),
+        } as unknown as AccountsService,
       );
       const handleUnauthenticatedSpy = jest.spyOn(
         handler,
@@ -85,6 +87,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
     const accountsServiceMock = {
       getAccountByID: jest.fn(),
       activateAccount: jest.fn(),
+      getActiveAccount: jest.fn(),
     };
 
     const permissionServiceMock = {
@@ -122,7 +125,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
 
       await handler.onActionApproved(
         { ...mockAction },
-        undefined,
+        [],
         onSuccessMock,
         onErrorMock,
       );

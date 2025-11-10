@@ -1,65 +1,93 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import {
+  Account,
+  DappPermissions,
   IMPORTED_ACCOUNTS_WALLET_ID,
   isVMCapableAccount,
+  Permissions,
   SecretType,
 } from '@core/types';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { isChainSupportedByWallet, mapAddressesToVMs } from '@core/common';
 
-import { DappPermissionsState } from '../types';
+import { ConnectDappDisplayData, DappPermissionsState } from '../types';
+
+const getInitiallySelectedAccounts = (
+  activeAccount: Account,
+  getAccount: (address: string) => Account | undefined,
+  vm: NetworkVMType,
+  permissions?: DappPermissions,
+): Map<string, boolean> => {
+  const { accounts } = permissions ?? {};
+
+  const allMap = new Map<string, boolean>();
+
+  const accountsWithAccess = Object.entries(accounts ?? {})
+    .filter(([_, accessibleVM]) => {
+      return vm === accessibleVM;
+    })
+    .map(([address]) => getAccount(address))
+    .filter((acc) => acc !== undefined)
+    .filter((acc) => acc.id !== activeAccount.id)
+    .map((acc) => acc.id);
+
+  if (isVMCapableAccount(vm, activeAccount)) {
+    allMap.set(activeAccount.id, true);
+  }
+
+  for (const id of accountsWithAccess) {
+    allMap.set(id, true);
+  }
+
+  return allMap;
+};
 
 export const useDappPermissionsState = (
-  vm: NetworkVMType.SVM | NetworkVMType.EVM,
+  activeAccount: Account,
+  permissions: Permissions,
+  displayData: ConnectDappDisplayData,
 ): DappPermissionsState => {
   const { t } = useTranslation();
-  const {
-    getAllWalletAccountsForVM,
-    allAccounts,
-    accounts: { active: activeAccount },
-  } = useAccountsContext();
+  const { getAllWalletAccountsForVM, getAccount, allAccounts } =
+    useAccountsContext();
   const { wallets, walletDetails } = useWalletContext();
 
-  const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(
-    new Set(),
+  const { addressVM: vm, dappDomain } = displayData;
+  const initiallySelectedAccounts = useMemo(() => {
+    return getInitiallySelectedAccounts(
+      activeAccount,
+      getAccount,
+      vm,
+      permissions[dappDomain],
+    );
+  }, [activeAccount, getAccount, vm, permissions, dappDomain]);
+
+  const [accountSettings, setAaccountSettings] = useState(
+    initiallySelectedAccounts,
   );
 
   const toggleAccount = (accountId: string) =>
-    setSelectedAccounts((current) => {
-      const set = new Set(current);
-      if (set.has(accountId)) {
-        set.delete(accountId);
-      } else {
-        set.add(accountId);
-      }
-      return set;
+    setAaccountSettings((current) => {
+      const map = new Map(current);
+      map.set(accountId, !map.get(accountId));
+      return map;
     });
 
-  const isSelected = (accountId: string) => selectedAccounts.has(accountId);
-
-  useEffect(() => {
-    if (activeAccount) {
-      setSelectedAccounts((current) => {
-        const set = new Set(current);
-        if (isVMCapableAccount(vm, activeAccount)) {
-          set.add(activeAccount.id);
-        }
-        return set;
-      });
-    }
-  }, [activeAccount, vm]);
+  const isSelected = (accountId: string) =>
+    accountSettings.get(accountId) ?? false;
 
   if (!walletDetails || !allAccounts.length) {
     return {
       isLoading: true,
       wallets: [],
+      numberOfSelectedAccounts: 0,
       isSelected,
       toggleAccount,
-      selectedAccounts,
+      accountSettings,
     };
   }
 
@@ -84,7 +112,10 @@ export const useDappPermissionsState = (
     isLoading: false,
     isSelected,
     toggleAccount,
-    selectedAccounts,
+    numberOfSelectedAccounts: Array.from(accountSettings.values()).filter(
+      (enabled) => enabled,
+    ).length,
+    accountSettings,
     wallets: sortedWallets.map((wallet) => {
       const accounts = getAllWalletAccountsForVM(vm, wallet.id).map(
         (account) => ({

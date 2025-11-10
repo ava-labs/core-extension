@@ -175,7 +175,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
 
       await handler.onActionApproved(
         { ...mockAction },
-        undefined,
+        '',
         onSuccessMock,
         onErrorMock,
       );
@@ -204,7 +204,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
 
       expect(onErrorMock).toHaveBeenCalledTimes(1);
       expect(onErrorMock).toHaveBeenCalledWith(
-        ethErrors.rpc.internal('Unspecified dApp domain'),
+        ethErrors.rpc.internal('Domain not set'),
       );
       expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();

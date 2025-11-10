@@ -10,6 +10,10 @@ import { PermissionsService } from '../../permissions/PermissionsService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import {
+  getDappConnector,
+  getLegacyDappConnector,
+} from './utils/connectToDapp';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -62,11 +66,13 @@ export class ConnectRequestHandler implements DAppRequestHandler {
         ...request,
         displayData: {
           addressVM: NetworkVMType.EVM,
+          // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
           dappUrl: request.site?.url,
           dappIcon: request.site?.icon,
+          dappDomain: request.site?.domain,
         },
       },
       `permissions`,
@@ -81,41 +87,24 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     onSuccess,
     onError,
   ) => {
-    const selectedAccount = await this.accountsService.getAccountByID(result);
+    const connectorArgs = {
+      accountsService: this.accountsService,
+      permissionsService: this.permissionsService,
+      vm: pendingAction.params.addressVM || NetworkVMType.EVM,
+    };
+    const baseCallbackArgs = {
+      pendingAction,
+      onSuccess,
+      onError,
+    };
 
-    if (!selectedAccount) {
-      onError(ethErrors.rpc.internal('Selected account not found'));
-      return;
+    if (Array.isArray(result)) {
+      return getDappConnector(connectorArgs)({ ...baseCallbackArgs, result });
     }
 
-    if (!pendingAction?.site?.domain) {
-      onError(ethErrors.rpc.internal('Domain not set'));
-      return;
-    }
-
-    const activeAccount = await this.accountsService.getActiveAccount();
-    // The site was already approved
-    // We usually get here when an already approved site attempts to connect and the extension was locked
-    if (
-      activeAccount &&
-      activeAccount.id === result &&
-      (await this.permissionsService.hasDomainPermissionForAccount(
-        pendingAction.site.domain,
-        activeAccount,
-      ))
-    ) {
-      onSuccess([selectedAccount.addressC]);
-      return;
-    }
-
-    await this.permissionsService.grantPermission(
-      pendingAction.site.domain,
-      selectedAccount.addressC,
-      NetworkVMType.EVM,
-    );
-
-    await this.accountsService.activateAccount(result);
-
-    onSuccess([selectedAccount.addressC]);
+    return getLegacyDappConnector(connectorArgs)({
+      ...baseCallbackArgs,
+      result,
+    });
   };
 }

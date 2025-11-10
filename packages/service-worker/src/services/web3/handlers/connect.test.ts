@@ -236,6 +236,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
         expect.objectContaining({
           addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         }),
+        NetworkVMType.EVM,
       );
       expect(permissionServiceMock.grantPermission).not.toHaveBeenCalled();
       expect(accountsServiceMock.activateAccount).not.toHaveBeenCalled();

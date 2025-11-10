@@ -37,6 +37,7 @@ export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
         <WalletIcon type={wallet.type} authProvider={wallet.authProvider} />
       }
       initialExpanded={initiallyExpanded}
+      disableRename
     >
       <ContentComponent {...props} />
     </WalletCard>

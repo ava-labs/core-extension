@@ -1,5 +1,13 @@
 import { FC } from 'react';
-import { Stack, Switch, truncateAddress, Typography } from '@avalabs/k2-alpine';
+import {
+  Box,
+  Stack,
+  Switch,
+  Tooltip,
+  truncateAddress,
+  Typography,
+} from '@avalabs/k2-alpine';
+import { useTranslation } from 'react-i18next';
 
 import {
   useAccountsContext,
@@ -17,6 +25,7 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
   isSelected,
   toggleAccount,
 }) => {
+  const { t } = useTranslation();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -27,6 +36,8 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
     <Stack px={0.5} divider={<AccountDivider />}>
       {wallet.accounts.map((account) => {
         const balance = getTotalBalance(account.address)?.sum;
+        const isDisabled = account.id === activeAccount?.id;
+
         return (
           <Stack key={account.id} direction="row" alignItems="center" gap={1.5}>
             <Stack flexGrow={1}>
@@ -40,12 +51,21 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
             <Typography variant="body3" fontWeight={500} color="text.secondary">
               {typeof balance === 'number' ? currencyFormatter(balance) : '-'}
             </Typography>
-            <Switch
-              checked={isSelected(account.id)}
-              disabled={account.id === activeAccount?.id}
-              onChange={() => toggleAccount(account.id)}
-              size="small"
-            />
+            <Tooltip
+              title={
+                isDisabled ? t('Active account is accessible by default') : ''
+              }
+            >
+              <Box sx={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}>
+                <Switch
+                  checked={isSelected(account.id)}
+                  readOnly={isDisabled}
+                  disabled={isDisabled}
+                  onChange={() => toggleAccount(account.id)}
+                  size="small"
+                />
+              </Box>
+            </Tooltip>
           </Stack>
         );
       })}
