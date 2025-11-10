@@ -6,10 +6,6 @@ import {
   Languages,
   CURRENCIES,
   AnalyticsConsent,
-  ColorTheme,
-  ViewMode,
-  TokensVisibility,
-  CollectiblesVisibility,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
@@ -18,17 +14,36 @@ import { z } from 'zod';
 type PartialSettings = Omit<SettingsState, 'customTokens'>;
 type Params = [settings?: PartialSettings];
 
-// Separate return type for the handler API response
+type Currency = 'USD' | 'EUR' | 'GBP' | 'AUD' | 'CAD' | 'CHF' | 'HKD';
 export interface WalletSetSettingsResponse {
-  currency: string;
+  currency: Currency;
   showTokensWithoutBalances: boolean;
-  theme: ColorTheme;
-  tokensVisibility: TokensVisibility;
-  collectiblesVisibility: CollectiblesVisibility;
-  analyticsConsent: AnalyticsConsent;
-  language: Languages;
+  theme: 'DARK' | 'LIGHT' | 'SYSTEM';
+  tokensVisibility: {
+    [networkCaipId: string]: {
+      [tokenAddress: string]: boolean;
+    };
+  };
+  collectiblesVisibility: {
+    [networkCaipId: string]: {
+      [tokenAddress: string]: boolean;
+    };
+  };
+  analyticsConsent: 'pending' | 'approved' | 'denied';
+  language:
+    | 'en'
+    | 'de-DE'
+    | 'es-EM'
+    | 'fr-FR'
+    | 'ja-JP'
+    | 'hi-IN'
+    | 'ko-KR'
+    | 'ru-RU'
+    | 'tr-TR'
+    | 'zh-CN'
+    | 'zh-TW';
   coreAssistant: boolean;
-  preferredView: ViewMode;
+  preferredView: 'floating' | 'sidebar';
   showTrendingTokens: boolean;
 }
 
@@ -142,7 +157,7 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
 
       // Map internal state to API response (excluding customTokens)
       const response: WalletSetSettingsResponse = {
-        currency: finalSettings.currency,
+        currency: finalSettings.currency as Currency,
         showTokensWithoutBalances: finalSettings.showTokensWithoutBalances,
         theme: finalSettings.theme,
         tokensVisibility: finalSettings.tokensVisibility,
