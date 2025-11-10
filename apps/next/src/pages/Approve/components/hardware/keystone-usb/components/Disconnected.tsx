@@ -72,19 +72,17 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
           <Typography variant="body3" fontWeight={500}>
             {t('Keystone disconnected')}
           </Typography>
-          <Stack>
+          <Stack gap={1.5}>
             <Typography variant="caption" color="text.secondary">
               {t(
                 'Core is no longer connected to your Keystone device. Reconnect to continue.',
               )}
             </Typography>
+            <Button onClick={onReconnect} fullWidth>
+              {t('Unable to connect?')}
+            </Button>
           </Stack>
         </Stack>
-      </Stack>
-      <Stack gap={1} p={2}>
-        <Button onClick={onReconnect} fullWidth>
-          {t('Unable to connect?')}
-        </Button>
       </Stack>
     </Stack>
   );

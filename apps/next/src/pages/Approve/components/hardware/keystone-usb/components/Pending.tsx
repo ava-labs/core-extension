@@ -27,8 +27,6 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
 
     // Only call approve when device is ready and we haven't called it yet
     if (hasKeystoneTransport && !hasApprovedRef.current) {
-      hasApprovedRef.current = true;
-
       // Verify device is actually ready by testing transport creation
       // This ensures the device can handle signing requests
       const verifyAndApprove = async () => {
@@ -40,6 +38,7 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
           }
 
           // Device is ready, now call approve
+          hasApprovedRef.current = true;
           await approve();
         } catch (error) {
           console.error('Approval error:', error);
@@ -54,7 +53,8 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
         if (
           state === 'pending' &&
           action.status === ActionStatus.PENDING &&
-          hasKeystoneTransport
+          hasKeystoneTransport &&
+          !hasApprovedRef.current
         ) {
           verifyAndApprove();
         } else {
