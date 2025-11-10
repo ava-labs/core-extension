@@ -1,34 +1,44 @@
 import { NetworkContractToken } from '@avalabs/core-chains-sdk';
-import {
-  DAppRequestHandler,
-  DAppProviderRequest,
-  ColorTheme,
-  TokensVisibility,
-  CollectiblesVisibility,
-  AnalyticsConsent,
-  Languages,
-  ViewMode,
-} from '@core/types';
+import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 
-type CustomTokens = {
-  [networkCaipId: string]: {
-    [tokenAddress: string]: NetworkContractToken;
-  };
-};
+type Currency = 'USD' | 'EUR' | 'GBP' | 'AUD' | 'CAD' | 'CHF' | 'HKD';
 
 interface WalletGetSettingsHandlerResult {
-  currency: string;
-  customTokens: CustomTokens;
+  currency: Currency;
+  customTokens: {
+    [networkCaipId: string]: {
+      [tokenAddress: string]: NetworkContractToken;
+    };
+  };
   showTokensWithoutBalances: boolean;
-  theme: ColorTheme;
-  tokensVisibility: TokensVisibility;
-  collectiblesVisibility: CollectiblesVisibility;
-  analyticsConsent: AnalyticsConsent;
-  language: Languages;
+  theme: 'DARK' | 'LIGHT' | 'SYSTEM';
+  tokensVisibility: {
+    [networkCaipId: string]: {
+      [tokenAddress: string]: boolean;
+    };
+  };
+  collectiblesVisibility: {
+    [networkCaipId: string]: {
+      [tokenAddress: string]: boolean;
+    };
+  };
+  analyticsConsent: 'pending' | 'approved' | 'denied';
+  language:
+    | 'en'
+    | 'de-DE'
+    | 'es-EM'
+    | 'fr-FR'
+    | 'ja-JP'
+    | 'hi-IN'
+    | 'ko-KR'
+    | 'ru-RU'
+    | 'tr-TR'
+    | 'zh-CN'
+    | 'zh-TW';
   coreAssistant: boolean;
-  preferredView: ViewMode;
+  preferredView: 'floating' | 'sidebar';
   showTrendingTokens: boolean;
 }
 @injectable()
@@ -45,21 +55,22 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
   handleAuthenticated = async ({ request }) => {
     try {
       const settings = await this.settingsService.getSettings();
+      const response: WalletGetSettingsHandlerResult = {
+        customTokens: settings.customTokens,
+        currency: settings.currency as Currency,
+        showTokensWithoutBalances: settings.showTokensWithoutBalances,
+        theme: settings.theme,
+        tokensVisibility: settings.tokensVisibility,
+        collectiblesVisibility: settings.collectiblesVisibility,
+        analyticsConsent: settings.analyticsConsent,
+        language: settings.language,
+        coreAssistant: settings.coreAssistant,
+        preferredView: settings.preferredView,
+        showTrendingTokens: settings.showTrendingTokens,
+      };
       return {
         ...request,
-        result: {
-          currency: settings.currency,
-          customTokens: settings.customTokens,
-          showTokensWithoutBalances: settings.showTokensWithoutBalances,
-          theme: settings.theme,
-          tokensVisibility: settings.tokensVisibility,
-          collectiblesVisibility: settings.collectiblesVisibility,
-          analyticsConsent: settings.analyticsConsent,
-          language: settings.language,
-          coreAssistant: settings.coreAssistant,
-          preferredView: settings.preferredView,
-          showTrendingTokens: settings.showTrendingTokens,
-        },
+        result: response,
       };
     } catch (e: any) {
       return {

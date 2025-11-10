@@ -2,7 +2,6 @@ import {
   DAppRequestHandler,
   DAppProviderRequest,
   JsonRpcRequestParams,
-  SettingsState,
   Languages,
   CURRENCIES,
   AnalyticsConsent,
@@ -11,7 +10,24 @@ import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 import { z } from 'zod';
 
-type PartialSettings = Omit<SettingsState, 'customTokens'>;
+const SettingsSchema = z.object({
+  language: z.nativeEnum(Languages).optional(),
+  currency: z.nativeEnum(CURRENCIES).optional(),
+  analyticsConsent: z.nativeEnum(AnalyticsConsent).optional(),
+  theme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
+  preferredView: z.enum(['floating', 'sidebar']).optional(),
+  showTokensWithoutBalances: z.boolean().optional(),
+  coreAssistant: z.boolean().optional(),
+  showTrendingTokens: z.boolean().optional(),
+  tokensVisibility: z
+    .record(z.string(), z.record(z.string(), z.boolean()))
+    .optional(),
+  collectiblesVisibility: z
+    .record(z.string(), z.record(z.string(), z.boolean()))
+    .optional(),
+});
+
+type PartialSettings = z.infer<typeof SettingsSchema>;
 type Params = [settings?: PartialSettings];
 
 type Currency = 'USD' | 'EUR' | 'GBP' | 'AUD' | 'CAD' | 'CHF' | 'HKD';
@@ -46,23 +62,6 @@ export interface WalletSetSettingsResponse {
   preferredView: 'floating' | 'sidebar';
   showTrendingTokens: boolean;
 }
-
-const SettingsSchema = z.object({
-  language: z.nativeEnum(Languages).optional(),
-  currency: z.nativeEnum(CURRENCIES).optional(),
-  analyticsConsent: z.nativeEnum(AnalyticsConsent).optional(),
-  theme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
-  preferredView: z.enum(['floating', 'sidebar']).optional(),
-  showTokensWithoutBalances: z.boolean().optional(),
-  coreAssistant: z.boolean().optional(),
-  showTrendingTokens: z.boolean().optional(),
-  tokensVisibility: z
-    .record(z.string(), z.record(z.string(), z.boolean()))
-    .optional(),
-  collectiblesVisibility: z
-    .record(z.string(), z.record(z.string(), z.boolean()))
-    .optional(),
-});
 
 @injectable()
 export class WalletSetSettingsHandler extends DAppRequestHandler<
