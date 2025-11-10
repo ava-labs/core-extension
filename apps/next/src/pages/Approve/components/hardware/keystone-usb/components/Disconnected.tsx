@@ -73,7 +73,7 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
             {t('Keystone disconnected')}
           </Typography>
           <Stack gap={1.5}>
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption">
               {t(
                 'Core is no longer connected to your Keystone device. Reconnect to continue.',
               )}
