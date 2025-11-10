@@ -14,6 +14,8 @@ import { useTokensBySymbols } from './useTokensBySymbols';
 import { SwappableToken } from '../models';
 import { useSwapContext } from '@core/ui';
 
+export const DEFAULT_SLIPPAGE = '0.2';
+
 export function useSwapStateFunctions() {
   const {
     setError,
@@ -54,14 +56,16 @@ export function useSwapStateFunctions() {
   const [defaultFromValue, setFromDefaultValue] = useState<bigint>();
   const [fromTokenValue, setFromTokenValue] = useState<Amount>();
   const [toTokenValue, setToTokenValue] = useState<Amount>();
-  const [slippageTolerance, setSlippageTolerance] = useState('1');
+  const [slippageTolerance, setSlippageTolerance] = useState(DEFAULT_SLIPPAGE);
 
   const updateSlippage = useCallback(
     (value: string) => {
-      setSlippageTolerance(value);
+      const sanitizedValue = value.trim() === '' ? '0' : value;
+
+      setSlippageTolerance(sanitizedValue);
       swapFormValuesStream.next({
         ...swapFormValuesStream.getValue(),
-        slippageTolerance: value,
+        slippageTolerance: sanitizedValue,
       });
     },
     [swapFormValuesStream],

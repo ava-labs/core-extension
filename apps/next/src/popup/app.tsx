@@ -6,20 +6,20 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
-  AnalyticsContextProvider,
   ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
   CurrenciesContextProvider,
+  DefiContextProvider,
   FirebaseContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
-  NetworkContextProvider,
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
   SwapContextProvider,
+  useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -49,6 +49,8 @@ const pagesWithoutHeader = [
   '/permissions',
   '/network/switch',
   '/manage-tokens',
+  '/trending',
+  '/defi',
   getContactsPath(),
   getSendPath(),
   getSwapPath(),
@@ -64,6 +66,7 @@ export function App() {
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
 
+  const { isDeveloperMode } = useNetworkContext();
   const isApprovalContext = isSpecificContextContainer(
     ContextContainer.CONFIRM,
   );
@@ -107,11 +110,11 @@ export function App() {
     <Providers
       providers={
         Children.toArray([
-          <ThemeProvider theme={preferredColorScheme} />,
-          <AnalyticsContextProvider />,
+          <ThemeProvider
+            theme={isDeveloperMode ? 'dark' : preferredColorScheme}
+          />,
           <PersonalAvatarProvider />,
           <LedgerContextProvider />,
-          <NetworkContextProvider />,
           <KeystoneContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
@@ -130,6 +133,7 @@ export function App() {
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
+          <DefiContextProvider />,
           <FirebaseContextProvider />,
         ]) as ReactElement[]
       }

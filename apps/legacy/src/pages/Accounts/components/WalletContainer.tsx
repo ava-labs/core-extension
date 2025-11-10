@@ -9,7 +9,6 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import { SecretType, WalletDetails, PrimaryAccount } from '@core/types';
-import { useNetworkContext } from '@core/ui';
 
 import { useWalletTotalBalance } from '@core/ui';
 import { SelectionMode } from '@core/ui';
@@ -27,7 +26,6 @@ export const WalletContainer = ({
   accounts: PrimaryAccount[];
 }) => {
   const { t } = useTranslation();
-  const { isDeveloperMode } = useNetworkContext();
   const [isExpanded, setIsExpanded] = useState(true);
   const {
     isLoading,
@@ -76,9 +74,7 @@ export const WalletContainer = ({
               variant="text"
               onClick={() => {
                 window.open(
-                  `https://${
-                    isDeveloperMode ? 'test.' : ''
-                  }core.app/tools/utxo-manager`,
+                  `${process.env.CORE_WEB_BASE_URL}/portfolio/wallet/p-chain/assets`,
                   '_blank',
                   'noreferrer',
                 );

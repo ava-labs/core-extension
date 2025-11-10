@@ -49,6 +49,10 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
     super();
   }
 
+  #removePrefixedAddress = (address: string) => {
+    return address.replace('P-', '');
+  };
+
   #getCorrectedLimit = (limit?: number) => {
     const MAX_LIMIT = 100;
 
@@ -75,35 +79,56 @@ export class AvalancheGetAddressesInRangeHandler extends DAppRequestHandler<
       internal: [],
     };
 
-    if (!secrets || !('extendedPublicKeys' in secrets)) {
+    if (!secrets) {
       return addresses;
     }
 
-    const extendedPublicKey = getExtendedPublicKey(
-      secrets.extendedPublicKeys,
-      AVALANCHE_BASE_DERIVATION_PATH,
-      'secp256k1',
-    );
+    if ('extendedPublicKeys' in secrets) {
+      const extendedPublicKey = getExtendedPublicKey(
+        secrets.extendedPublicKeys,
+        AVALANCHE_BASE_DERIVATION_PATH,
+        'secp256k1',
+      );
+      if (extendedPublicKey) {
+        if (externalLimit > 0) {
+          addresses.external = getAddressesInRange(
+            extendedPublicKey.key,
+            provXP,
+            false,
+            externalStart,
+            externalLimit,
+          );
+        }
 
-    if (extendedPublicKey) {
-      if (externalLimit > 0) {
-        addresses.external = getAddressesInRange(
-          extendedPublicKey.key,
-          provXP,
-          false,
-          externalStart,
-          externalLimit,
-        );
+        if (internalLimit > 0) {
+          addresses.internal = getAddressesInRange(
+            extendedPublicKey.key,
+            provXP,
+            true,
+            internalStart,
+            internalLimit,
+          );
+        }
       }
+    } else {
+      const walletId =
+        activeAccount && 'walletId' in activeAccount
+          ? activeAccount.walletId
+          : undefined;
+      if (walletId) {
+        const accountsInWallet =
+          await this.accountsService.getPrimaryAccountsByWalletId(walletId);
 
-      if (internalLimit > 0) {
-        addresses.internal = getAddressesInRange(
-          extendedPublicKey.key,
-          provXP,
-          true,
-          internalStart,
-          internalLimit,
+        addresses.external = accountsInWallet
+          .map((account) =>
+            this.#removePrefixedAddress(account.addressPVM ?? ''),
+          )
+          .filter(Boolean);
+      } else {
+        const xpAddress = this.#removePrefixedAddress(
+          activeAccount?.addressPVM ?? '',
         );
+        addresses.external = xpAddress ? [xpAddress] : [];
       }
     }
 

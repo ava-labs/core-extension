@@ -47,7 +47,7 @@ export const isChainSupportedByWallet = (
         secretType === SecretType.Mnemonic ||
         secretType === SecretType.PrivateKey
       );
+    default:
+      return false;
   }
-
-  return false;
 };

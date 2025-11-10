@@ -188,6 +188,8 @@ export enum ExtensionRequest {
   NOTIFICATION_SUBSCRIBE = 'notification_subscribe',
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
+
+  GET_TRENDING_TOKENS = 'get_trending_tokens',
 }
 
 /* eslint-disable no-prototype-builtins */
@@ -331,20 +333,6 @@ export interface DAppEventEmitter extends ConnectionEventEmitter {
 export interface JSONRPCRequestWithDomain extends JsonRpcRequest<any> {
   domain: string;
 }
-
-export const CORE_DOMAINS = [
-  'localhost',
-  '127.0.0.1',
-  'core-web.pages.dev',
-  'core.app',
-  'staging.core.app',
-  'develop.core.app',
-  'ava-labs.github.io', // playground
-  'avacloud.io',
-  'avacloud-app.pages.dev',
-  'launch-4zn.pages.dev',
-  'launchpad.avacloud.io ',
-];
 
 export interface ConnectionController {
   connect(connection: Runtime.Port): void;

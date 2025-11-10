@@ -50,6 +50,16 @@ const getInitialFeeRate = (
   }
 };
 
+const getInitialGasLimit = (
+  data?: SigningData | MultiTxFeeData,
+): number | undefined => {
+  if (!data || data.type !== RpcMethod.ETH_SEND_TRANSACTION) {
+    return undefined;
+  }
+
+  return data.data.gasLimit ? Number(data.data.gasLimit) : undefined;
+};
+
 const MultiTxSymbol: unique symbol = Symbol();
 
 type MultiTxFeeData = {
@@ -86,6 +96,7 @@ export function useFeeCustomizer({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.SLOW,
   );
+  const [isFeeConfigured, setIsFeeConfigured] = useState(false);
 
   useEffect(() => {
     if (network && isAvalancheNetwork(network)) {
@@ -169,7 +180,7 @@ export function useFeeCustomizer({
   }, [action, isFeeSelectorEnabled, txIndex]);
 
   const updateFee = useCallback(
-    async (maxFeeRate: bigint, maxTipRate?: bigint) => {
+    async (maxFeeRate: bigint, maxTipRate?: bigint, gasLimit?: number) => {
       if (!action?.actionId || !isFeeSelectorEnabled) {
         return;
       }
@@ -177,7 +188,7 @@ export function useFeeCustomizer({
       const newFeeConfig =
         signingData?.type === RpcMethod.BITCOIN_SEND_TRANSACTION
           ? { feeRate: Number(maxFeeRate) }
-          : { maxFeeRate, maxTipRate };
+          : { maxFeeRate, maxTipRate, gasLimit };
 
       await request<UpdateActionTxDataHandler>({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
@@ -278,6 +289,9 @@ export function useFeeCustomizer({
   const [maxPriorityFeePerGas, setMaxPriorityFeePerGas] = useState(
     networkFee?.low?.maxPriorityFeePerGas,
   );
+  const [customGasLimit, setCustomGasLimit] = useState(
+    getInitialGasLimit(signingData),
+  );
 
   useEffect(() => {
     if (!networkFee || !isFeeSelectorEnabled) {
@@ -291,15 +305,24 @@ export function useFeeCustomizer({
     );
   }, [networkFee, isFeeSelectorEnabled]);
 
+  useEffect(() => {
+    setIsFeeConfigured(
+      signingData?.type !== RpcMethod.ETH_SEND_TRANSACTION ||
+        typeof signingData?.data?.maxFeePerGas === 'bigint',
+    );
+  }, [signingData]);
+
   const setCustomFee = useCallback(
     (values: {
       maxFeePerGas: bigint;
       feeType: GasFeeModifier;
       maxPriorityFeePerGas: bigint;
+      customGasLimit?: number;
     }) => {
       setMaxFeePerGas(values.maxFeePerGas);
       setMaxPriorityFeePerGas(values.maxPriorityFeePerGas);
       setGasFeeModifier(values.feeType);
+      setCustomGasLimit(values.customGasLimit);
     },
     [],
   );
@@ -331,7 +354,7 @@ export function useFeeCustomizer({
     let isMounted = true;
 
     setIsCalculatingFee(true);
-    updateFee(maxFeePerGas, maxPriorityFeePerGas)
+    updateFee(maxFeePerGas, maxPriorityFeePerGas, customGasLimit)
       .catch((err) => {
         console.error(err);
         if (!isMounted) {
@@ -353,6 +376,7 @@ export function useFeeCustomizer({
     isFeeSelectorEnabled,
     maxFeePerGas,
     maxPriorityFeePerGas,
+    customGasLimit,
     updateFee,
     txIndex,
   ]);
@@ -396,6 +420,7 @@ export function useFeeCustomizer({
 
   return {
     isCalculatingFee,
+    isFeeConfigured,
     hasEnoughForNetworkFee,
     renderFeeWidget,
     feeError,

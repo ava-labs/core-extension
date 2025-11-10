@@ -25,6 +25,7 @@ import { AccountsService } from '../../accounts/AccountsService';
 
 import { buildExtendedPublicKey } from '../../secrets/utils';
 import { isNotNullish } from '@core/common';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER,
@@ -210,13 +211,23 @@ export class ImportLedgerHandler implements HandlerType {
     }
 
     const accountsToBeCreated = numberOfAccountsToCreate || 3;
-    const accountsToCreate = Math.min(
-      3,
+    const accountsToCreate = Math.max(
+      1,
       pubKeys?.length
         ? Math.min(pubKeys.length, accountsToBeCreated)
         : accountsToBeCreated,
     );
-    await this.#addAccounts(id, accountsToCreate);
+    if (pubKeys?.length) {
+      await this.#addAccounts(id, accountsToCreate);
+    } else {
+      const accountIds = await addAllAccountsWithHistory({
+        walletId: id,
+        addFirstAccount: true,
+      });
+      if (accountIds[0]) {
+        this.accountsService.activateAccount(accountIds[0]);
+      }
+    }
 
     const addedWallet =
       await this.secretsService.getWalletAccountsSecretsById(id);

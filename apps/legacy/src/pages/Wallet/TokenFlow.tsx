@@ -3,15 +3,6 @@ import { NotSupportedByWallet } from '@/components/common/NotSupportedByWallet';
 import { PageTitle } from '@/components/common/PageTitle';
 import { PAndL } from '@/components/common/ProfitAndLoss';
 import { TokenIcon } from '@/components/common/TokenIcon';
-import { useAccountsContext } from '@core/ui';
-import { useAnalyticsContext } from '@core/ui';
-import { useNetworkContext } from '@core/ui';
-import { useSettingsContext } from '@core/ui';
-import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
-import { useLiveBalance } from '@core/ui';
-import { useSetSendDataInParams } from '@core/ui';
-import { useTokenFromParams } from '@core/ui';
-import { useTokensWithBalances } from '@core/ui';
 import {
   ArrowUpRightIcon,
   BridgeIcon,
@@ -21,11 +12,10 @@ import {
   Divider,
   QRCodeIcon,
   Stack,
+  Tooltip,
   Typography,
 } from '@avalabs/core-k2-components';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
-import { getUnconfirmedBalanceInCurrency } from '@core/types';
 import {
   getCoreWebUrl,
   hasUnconfirmedBalance,
@@ -35,10 +25,25 @@ import {
   isXchainNetwork,
   openNewTab,
 } from '@core/common';
+import { getUnconfirmedBalanceInCurrency } from '@core/types';
+import {
+  FunctionNames,
+  useAccountsContext,
+  useAnalyticsContext,
+  useIsFunctionAvailable,
+  useLiveBalance,
+  useNetworkContext,
+  useSetSendDataInParams,
+  useSettingsContext,
+  useTokenFromParams,
+  useTokensWithBalances,
+} from '@core/ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router';
 import { Activity } from '../Activity/Activity';
+import { BTCBalanceBreakdown } from './BTCBalanceBreakdown';
+import { TokenBalance } from './TokenFlowBalance';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -62,19 +67,13 @@ export function TokenFlow() {
     FunctionNames.BUY,
   );
 
-  const isBitcoin = useMemo(() => {
-    if (!network) return false;
-    return isBitcoinNetwork(network);
-  }, [network]);
-
-  const isPchain = useMemo(() => {
-    if (!network) return false;
-    return isPchainNetwork(network);
-  }, [network]);
-
-  const isXchain = useMemo(() => {
-    if (!network) return false;
-    return isXchainNetwork(network);
+  const { isBitcoin, isPchain, isXchain } = useMemo(() => {
+    const networkExists = !!network;
+    return {
+      isBitcoin: networkExists && isBitcoinNetwork(network),
+      isPchain: networkExists && isPchainNetwork(network),
+      isXchain: networkExists && isXchainNetwork(network),
+    };
   }, [network]);
 
   const hasAccessToActiveNetwork = useMemo(() => {
@@ -121,19 +120,6 @@ export function TokenFlow() {
         (getUnconfirmedBalanceInCurrency(token) ?? 0)
       : token.balanceInCurrency;
 
-  const totalBalance =
-    token.balance && hasUnconfirmedBalance(token)
-      ? new TokenUnit(
-          token.balance + token.unconfirmedBalance,
-          token.decimals,
-          token.symbol,
-        )
-      : new TokenUnit(
-          token.balance,
-          'decimals' in token ? token.decimals : 0,
-          token.symbol,
-        );
-
   return (
     <Stack sx={{ width: '100%', position: 'relative' }}>
       <PageTitle
@@ -177,15 +163,22 @@ export function TokenFlow() {
                 : currencyFormatter(0)}
             </Typography>
           </Stack>
-          <Stack sx={{ justifyContent: 'space-between', flexDirection: 'row' }}>
-            <Stack direction="row" alignItems="center" sx={{ columnGap: 0.5 }}>
-              <Typography data-testid="token-details-balance" variant="body2">
-                {totalBalance.toDisplay()}{' '}
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {token.symbol}
-              </Typography>
-            </Stack>
+          <Stack
+            sx={{
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+            }}
+          >
+            {'unconfirmedBalance' in token ? (
+              <Tooltip
+                title={<BTCBalanceBreakdown token={token} />}
+                placement="bottom"
+              >
+                <TokenBalance token={token} />
+              </Tooltip>
+            ) : (
+              <TokenBalance token={token} />
+            )}
             <PAndL
               value={token.priceChanges?.value}
               percentage={token.priceChanges?.percentage}

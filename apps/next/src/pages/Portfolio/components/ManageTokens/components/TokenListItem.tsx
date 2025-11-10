@@ -11,7 +11,7 @@ import {
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 import { isTokenMalicious } from '@core/common';
 import { FungibleTokenBalance } from '@core/types';
-import { useSettingsContext } from '@core/ui';
+import { useNetworkContext, useSettingsContext } from '@core/ui';
 import { FC, ReactElement } from 'react';
 
 interface Props {
@@ -38,14 +38,17 @@ const listItemTextProps: ListItemTextProps = {
 
 export const TokenListItem: FC<Props> = ({ token }) => {
   const { getTokenVisibility, toggleTokenVisibility } = useSettingsContext();
+  const { network } = useNetworkContext();
 
   return (
     <ListItem
       key={token.name}
       secondaryAction={
         <Switch
-          checked={getTokenVisibility(token)}
-          onChange={() => toggleTokenVisibility(token)}
+          checked={getTokenVisibility(token, network?.caipId)}
+          onChange={() =>
+            network && toggleTokenVisibility(token, network.caipId)
+          }
           size="small"
         />
       }

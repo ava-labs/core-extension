@@ -10,11 +10,14 @@ import { Settings } from '@/pages/Settings';
 import { Concierge } from '@/pages/Concierge';
 import { Swap } from '@/pages/Swap';
 
+import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
+import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
 
 export const AppRoutes = () => (
   <Switch>
+    <Route path="/defi/:protocolId" component={DeFiProtocolDetails} />
     <Route path="/receive" component={Receive} />
     <Route path="/settings" component={Settings} />
     <Route path={getContactsPath()} component={Contacts} />
@@ -22,6 +25,7 @@ export const AppRoutes = () => (
     <Route path="/import-wallet/seedphrase" component={ImportSeedphraseFlow} />
     <Route path="/import-wallet/ledger/:phase?" component={ImportLedgerFlow} />
     <Route path={getSendPath()} component={Send} />
+    <Route path="/trending" component={TrendingTokens} />
     <Route path={getSwapPath()} component={Swap} />
     <Route path={'/concierge'} component={Concierge} />
     <Route path="/ledger/reconnect" component={LedgerReconnect} />

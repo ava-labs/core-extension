@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useConnectionContext } from '@core/ui';
-import { ExtensionRequest, FeeRate } from '@core/types';
+import { ExtensionRequest } from '@core/types';
 import { type UpdateActionTxDataHandler } from '@core/service-worker';
 import { calculateGasAndFees } from '@core/common';
 
@@ -9,7 +9,7 @@ import { useNativeToken } from '@/hooks/useNativeToken';
 import { useUpdateAccountBalance } from '@/hooks/useUpdateAccountBalance';
 import { useCurrentFeesForNetwork } from '@/hooks/useCurrentFeesForNetwork';
 
-import { EvmFeePreset } from '../../types';
+import { EvmFeePreset, EvmGasSettings } from '../../types';
 import { getFeeInfo, getInitialFeeRate, hasEnoughForFee } from './lib';
 import { EvmTxSigningData, UseEvmTransactionFee } from './types';
 import { getDefaultFeePreset } from '@/utils/getDefaultFeePreset';
@@ -40,14 +40,14 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
   });
 
   const updateFee = useCallback(
-    async (maxFeeRate: bigint, maxTipRate?: bigint) => {
+    async (maxFeeRate: bigint, maxTipRate?: bigint, gasLimit?: number) => {
       if (!action.actionId) {
         return;
       }
 
       await request<UpdateActionTxDataHandler>({
         method: ExtensionRequest.ACTION_UPDATE_TX_DATA,
-        params: [action.actionId, { maxFeeRate, maxTipRate }],
+        params: [action.actionId, { maxFeeRate, maxTipRate, gasLimit }],
       });
     },
     [action?.actionId, request],
@@ -64,7 +64,7 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
   }, [networkFee]);
 
   const choosePreset = useCallback(
-    async (preset: EvmFeePreset, feeRate?: FeeRate) => {
+    async (preset: EvmFeePreset, feeRate?: EvmGasSettings) => {
       if (!networkFee) {
         return;
       }
@@ -74,7 +74,11 @@ export const useEvmTransactionFee: UseEvmTransactionFee = ({
 
         setFeePreset('custom');
         setCustomPreset(feeRate);
-        await updateFee(feeRate.maxFeePerGas, feeRate.maxPriorityFeePerGas);
+        await updateFee(
+          feeRate.maxFeePerGas,
+          feeRate.maxPriorityFeePerGas,
+          feeRate.gasLimit,
+        );
         return;
       }
 
