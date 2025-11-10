@@ -12,6 +12,7 @@ import { EventEmitter } from 'events';
 import { AccountsService } from '../AccountsService';
 import { PermissionsService } from '../../permissions/PermissionsService';
 import { injectable } from 'tsyringe';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 
 type AccountsChangedEventData = string[];
 
@@ -35,7 +36,12 @@ export class AccountsChangedEvents implements DAppEventEmitter {
   ) {
     this.permissionsService.addListener(
       PermissionEvents.PERMISSIONS_STATE_UPDATE,
-      async (permissions: unknown) => {
+      async (permissions: unknown, concernedVms: NetworkVMType[]) => {
+        // This emitter only cares about EVM permissions
+        if (!concernedVms.includes(NetworkVMType.EVM)) {
+          return;
+        }
+
         const currentPermissions =
           permissions && this._connectionInfo?.domain
             ? (permissions as Permissions)[this._connectionInfo.domain]

@@ -1,17 +1,30 @@
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  CircularProgress,
+  Stack,
+  Typography,
+  TypographyProps,
+} from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
 import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
-import { cloneElement, FC, ReactElement, useState } from 'react';
+import {
+  cloneElement,
+  FC,
+  MouseEventHandler,
+  PropsWithChildren,
+  ReactElement,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
-import { RenamableTitle } from '../../RenamableTitle';
+import { RenamableTitle } from '../../pages/AccountManagement/components/RenamableTitle';
 import * as Styled from './Styled';
 import { WalletIconProps } from '@/components/WalletIcon';
-interface WalletCardProps {
+import { useHistory } from 'react-router-dom';
+import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
+interface WalletCardProps extends PropsWithChildren {
   id: WalletDetails['id'];
   name: WalletDetails['name'];
   icon: ReactElement<WalletIconProps>;
   initialExpanded: boolean;
-  children: ReactElement[];
   disableRename?: boolean;
 }
 
@@ -24,12 +37,30 @@ export const WalletCard: FC<WalletCardProps> = ({
   name,
 }) => {
   const { t } = useTranslation();
+  const { push } = useHistory();
   const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
     useWalletTotalBalance(id);
   const { currencyFormatter } = useSettingsContext();
 
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
-  const Title = disableRename ? Typography : RenamableTitle;
+  const sharedTitleProps: TypographyProps = {
+    width: 1,
+    variant: 'subtitle3',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  };
+
+  const handleRename: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    push({
+      pathname: '/account-management/rename',
+      search: new URLSearchParams({
+        [URL_SEARCH_TOKENS.wallet]: id,
+      }).toString(),
+    });
+  };
 
   return (
     <>
@@ -48,17 +79,13 @@ export const WalletCard: FC<WalletCardProps> = ({
             gap={0.5}
             width="calc(100% - 32px)"
           >
-            <Title
-              type="wallet"
-              tokenId={id}
-              width={1}
-              variant="subtitle3"
-              whiteSpace="nowrap"
-              overflow="hidden"
-              textOverflow="ellipsis"
-            >
-              {name}
-            </Title>
+            {disableRename ? (
+              <Typography {...sharedTitleProps}>{name}</Typography>
+            ) : (
+              <RenamableTitle {...sharedTitleProps} onRename={handleRename}>
+                {name}
+              </RenamableTitle>
+            )}
             {isLoading && <CircularProgress size={14} />}
             {!isLoading && !hasErrorOccurred && (
               <Typography variant="body3" color="text.disabled">

@@ -14,17 +14,21 @@ import { InDrawerAlert } from './warnings/InDrawerAlert';
 type ActionDrawerProps = StackProps & {
   open: boolean;
   approve?: () => void;
+  approveText?: string;
   reject?: () => void;
   withConfirmationSwitch?: boolean;
   isProcessing: boolean;
+  isDisabled?: boolean;
 };
 
 export const ActionDrawer = ({
   open,
   approve,
+  approveText,
   reject,
   withConfirmationSwitch,
   isProcessing,
+  isDisabled = false,
   ...props
 }: ActionDrawerProps) => {
   const { t } = useTranslation();
@@ -48,11 +52,13 @@ export const ActionDrawer = ({
               size="extension"
               onClick={approve}
               disabled={
-                isProcessing || (withConfirmationSwitch && !userHasConfirmed)
+                isDisabled ||
+                isProcessing ||
+                (withConfirmationSwitch && !userHasConfirmed)
               }
               loading={isProcessing}
             >
-              {t('Approve')}
+              {approveText || t('Approve')}
             </Button>
           )}
           {reject && (

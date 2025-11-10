@@ -96,6 +96,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith(
         mockPermissionData.permissions,
+        [NetworkVMType.EVM, NetworkVMType.SVM],
       );
 
       await permissionService.getPermissions();
@@ -128,8 +129,12 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       expect(eventListener).toHaveBeenNthCalledWith(
         1,
         mockPermissionData.permissions,
+        [NetworkVMType.EVM, NetworkVMType.SVM],
       );
-      expect(eventListener).toHaveBeenNthCalledWith(2, {});
+      expect(eventListener).toHaveBeenNthCalledWith(2, {}, [
+        NetworkVMType.EVM,
+        NetworkVMType.SVM,
+      ]);
     });
   });
 
@@ -224,7 +229,7 @@ describe('background/services/permissions/PermissionsService.ts', () => {
     });
   });
 
-  describe('addPermission', () => {
+  describe('grantPermission', () => {
     it('adds new permission for new domain and saves it to storage', async () => {
       const permissionService = new PermissionsService(storageService);
 
@@ -299,9 +304,12 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       );
 
       expect(eventListener).toHaveBeenCalledTimes(1);
-      expect(eventListener).toHaveBeenCalledWith({
-        'oneaccount.example': newPermission,
-      });
+      expect(eventListener).toHaveBeenCalledWith(
+        {
+          'oneaccount.example': newPermission,
+        },
+        [NetworkVMType.EVM],
+      );
     });
   });
 
@@ -388,7 +396,10 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       ]);
 
       expect(eventListener).toHaveBeenCalledTimes(1);
-      expect(eventListener).toHaveBeenCalledWith(newPermissions);
+      expect(eventListener).toHaveBeenCalledWith(newPermissions, [
+        NetworkVMType.EVM,
+        NetworkVMType.SVM,
+      ]);
     });
   });
 
@@ -464,11 +475,135 @@ describe('background/services/permissions/PermissionsService.ts', () => {
       );
 
       expect(eventListener).toHaveBeenCalledTimes(1);
-      expect(eventListener).toHaveBeenCalledWith({
-        'newdomain.example': {
-          domain: 'newdomain.example',
-          accounts: {
-            '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
+      expect(eventListener).toHaveBeenCalledWith(
+        {
+          'newdomain.example': {
+            domain: 'newdomain.example',
+            accounts: {
+              '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee': NetworkVMType.EVM,
+            },
+          },
+        },
+        [NetworkVMType.EVM],
+      );
+    });
+  });
+
+  describe('updateAccessForDomain()', () => {
+    const existingAddress = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+    const newAddressC = '0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+    const newAddressSVM = '0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB';
+
+    const domain = 'existing.example';
+
+    it('adds access for accounts with enabled flag set to true', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      const existingPermissions = {
+        domain,
+        accounts: {
+          [existingAddress]: NetworkVMType.EVM,
+        },
+      };
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: {
+          'existing.example': existingPermissions,
+        },
+      });
+
+      const permissions = await permissionService.updateAccessForDomain({
+        domain,
+        accounts: [
+          {
+            account: {
+              addressC: newAddressC,
+              addressSVM: newAddressSVM,
+            } as Account,
+            enabled: true,
+          },
+        ],
+        notifiedVMConnectors: [NetworkVMType.EVM],
+      });
+
+      expect(permissions[domain]?.accounts[existingAddress]).toBe(
+        NetworkVMType.EVM,
+      );
+      expect(permissions[domain]?.accounts[newAddressC]).toBe(
+        NetworkVMType.EVM,
+      );
+      expect(permissions[domain]?.accounts[newAddressSVM]).toBe(
+        NetworkVMType.SVM,
+      );
+    });
+
+    it('revokes access for accounts with enabled flag set to false', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      const existingPermissions = {
+        domain,
+        accounts: {
+          [existingAddress]: NetworkVMType.EVM,
+          [newAddressC]: NetworkVMType.EVM,
+          [newAddressSVM]: NetworkVMType.SVM,
+        },
+      };
+      (storageService.load as jest.Mock).mockResolvedValue({
+        permissions: {
+          'existing.example': existingPermissions,
+        },
+      });
+
+      const permissions = await permissionService.updateAccessForDomain({
+        domain,
+        accounts: [
+          {
+            account: {
+              addressC: existingAddress,
+            } as Account,
+            enabled: false,
+          },
+        ],
+        notifiedVMConnectors: [NetworkVMType.EVM],
+      });
+
+      expect(permissions[domain]?.accounts).not.toHaveProperty(existingAddress);
+      expect(permissions[domain]?.accounts).toHaveProperty(newAddressC);
+      expect(permissions[domain]?.accounts).toHaveProperty(newAddressSVM);
+    });
+
+    it('saves updates to storage', async () => {
+      const permissionService = new PermissionsService(storageService);
+
+      const existingPermissions = {
+        domain,
+        accounts: {
+          [existingAddress]: NetworkVMType.EVM,
+        },
+      };
+      (storageService.load as jest.Mock).mockResolvedValue(existingPermissions);
+      await permissionService.updateAccessForDomain({
+        domain,
+        accounts: [
+          {
+            account: {
+              addressC: newAddressC,
+              addressSVM: newAddressSVM,
+            } as Account,
+            enabled: true,
+          },
+        ],
+        notifiedVMConnectors: [NetworkVMType.EVM],
+      });
+
+      expect(storageService.save).toHaveBeenCalledTimes(1);
+      expect(storageService.save).toHaveBeenCalledWith(PERMISSION_STORAGE_KEY, {
+        permissions: {
+          [domain]: {
+            domain,
+            accounts: {
+              [newAddressC]: NetworkVMType.EVM,
+              [newAddressSVM]: NetworkVMType.SVM,
+            },
           },
         },
       });
