@@ -1,36 +1,24 @@
+import React from 'react';
+import { Action } from '@core/types';
 import { Disconnected } from './components/Disconnected';
 import { Loading } from './components/Loading';
 import { Pending } from './components/Pending';
+import { DisplayData } from '@avalabs/vm-module-types';
 
 export type StateComponentProps = {
   state: KeystoneUsbApprovalState;
   approve: () => Promise<unknown>;
   reject: () => void;
+  action: Action<DisplayData>;
 };
 
 export type KeystoneUsbApprovalState = 'loading' | 'disconnected' | 'pending';
 
-type StateComponent = {
-  component: React.ComponentType<any>;
-};
-
-const LoadingState: StateComponent = {
-  component: Loading,
-};
-
-const DisconnectedState: StateComponent = {
-  component: Disconnected,
-};
-
-const PendingState: StateComponent = {
-  component: Pending,
-};
-
 export const StateComponentMapper: Record<
   KeystoneUsbApprovalState,
-  StateComponent
+  React.ComponentType<StateComponentProps>
 > = {
-  loading: LoadingState,
-  disconnected: DisconnectedState,
-  pending: PendingState,
+  loading: Loading,
+  disconnected: Disconnected,
+  pending: Pending,
 };

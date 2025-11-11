@@ -42,29 +42,20 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
           await approve();
         } catch (error) {
           console.error('Approval error:', error);
-        } finally {
           hasApprovedRef.current = false;
         }
       };
 
-      // Small delay to ensure state is stable
-      const timeoutId = setTimeout(() => {
-        // Check again before calling (device might have disconnected during delay)
-        if (
-          state === 'pending' &&
-          action.status === ActionStatus.PENDING &&
-          hasKeystoneTransport &&
-          !hasApprovedRef.current
-        ) {
-          verifyAndApprove();
-        } else {
-          hasApprovedRef.current = false;
-        }
-      }, 500);
-
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      if (
+        state === 'pending' &&
+        action.status === ActionStatus.PENDING &&
+        hasKeystoneTransport &&
+        !hasApprovedRef.current
+      ) {
+        verifyAndApprove();
+      } else {
+        hasApprovedRef.current = false;
+      }
     }
   }, [state, approve, action.status, hasKeystoneTransport]);
 

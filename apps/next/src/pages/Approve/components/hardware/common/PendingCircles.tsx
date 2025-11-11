@@ -2,8 +2,12 @@ import { Box, styled } from '@avalabs/k2-alpine';
 import { getHexAlpha } from '@avalabs/k2-alpine';
 import { FC, ComponentType } from 'react';
 
+export type IconProps = {
+  size?: number;
+};
+
 export type PendingCirclesProps = {
-  Icon: ComponentType<any>;
+  Icon: ComponentType<IconProps>;
   size?: number;
 };
 
