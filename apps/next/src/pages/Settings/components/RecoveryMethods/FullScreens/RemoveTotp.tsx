@@ -25,6 +25,15 @@ enum RemoveTotpState {
   Failure = 'failure',
 }
 
+const centeredStackSx = {
+  width: 1,
+  height: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 2,
+  textAlign: 'center' as const,
+};
+
 export const RemoveTotp = () => {
   const history = useHistory();
   const { t } = useTranslation();
@@ -34,12 +43,14 @@ export const RemoveTotp = () => {
   const mfaChallenge = useMFAEvents(setError);
 
   const remove = useCallback(async () => {
+    console.log('remove');
     try {
       await removeTotp();
       setState(RemoveTotpState.Success);
       toast.success('Recovery method removed!', { duration: 20000 });
       history.push('update-recovery-method');
-    } catch {
+    } catch (e) {
+      console.log('error: ', e);
       setState(RemoveTotpState.Failure);
     }
   }, [history, removeTotp]);
@@ -51,31 +62,12 @@ export const RemoveTotp = () => {
   return (
     <Stack sx={{ height: '100%' }}>
       {(!mfaChallenge || !mfaChallenge.challenge) && (
-        <Stack
-          sx={{
-            width: 1,
-            height: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 2,
-            px: 2,
-            textAlign: 'center',
-          }}
-        >
+        <Stack sx={{ ...centeredStackSx, px: 2 }}>
           <InProgress textSize="body1" />
         </Stack>
       )}
       {state === RemoveTotpState.Failure && (
-        <Stack
-          sx={{
-            width: 1,
-            height: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 2,
-            px: 3,
-          }}
-        >
+        <Stack sx={{ ...centeredStackSx, px: 3 }}>
           <AlertCircleIcon size={72} />
           <Stack sx={{ textAlign: 'center', gap: 0.5 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
@@ -106,17 +98,7 @@ export const RemoveTotp = () => {
         </Stack>
       )}
       {state === RemoveTotpState.Success && (
-        <Stack
-          sx={{
-            width: 1,
-            height: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: 2,
-            px: 2,
-            textAlign: 'center',
-          }}
-        >
+        <Stack sx={{ ...centeredStackSx, px: 2 }}>
           <CheckCircleIcon size={72} sx={{ color: 'success.main' }} />
           <Typography variant="h5">{t('Success!')}</Typography>
           <Typography variant="body2">

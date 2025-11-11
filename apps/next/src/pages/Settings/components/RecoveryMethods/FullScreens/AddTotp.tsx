@@ -34,17 +34,6 @@ export const AddTotp = () => {
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  const initChange = useCallback(async () => {
-    try {
-      const challenge = await initAuthenticatorChange();
-      setTotpChallenge(challenge);
-      setScreenState(AuthenticatorState.Pending);
-    } catch {
-      setTotpChallenge(undefined);
-      setScreenState(AuthenticatorState.Failure);
-    }
-  }, [initAuthenticatorChange]);
-
   const onVerify = useCallback(async () => {
     if (!totpChallenge) {
       return;
@@ -64,8 +53,18 @@ export const AddTotp = () => {
   }, [code, completeAuthenticatorChange, history, t, totpChallenge]);
 
   useEffect(() => {
+    const initChange = async () => {
+      try {
+        const challenge = await initAuthenticatorChange();
+        setTotpChallenge(challenge);
+        setScreenState(AuthenticatorState.Pending);
+      } catch {
+        setTotpChallenge(undefined);
+        setScreenState(AuthenticatorState.Failure);
+      }
+    };
     initChange();
-  }, [initChange]);
+  }, [initAuthenticatorChange]);
 
   return (
     <Stack sx={{ height: '100%' }}>

@@ -3,8 +3,16 @@ import { RecoveryMethodCard } from './RecoveryMethodCard';
 import { useAnalyticsContext } from '@core/ui';
 import { RecoveryMethodScreen } from './RecoveryMethods';
 import { Paper } from '@avalabs/k2-alpine';
+import { RecoveryMethod } from '@core/types';
+import { FC, Dispatch, SetStateAction } from 'react';
 
-export const ConfiguredMethodList = ({
+interface ConfiguredMethodListProps {
+  existingRecoveryMethods: RecoveryMethod[];
+  setSelectedMethod: Dispatch<SetStateAction<RecoveryMethod | null>>;
+  setScreen: Dispatch<SetStateAction<RecoveryMethodScreen | undefined>>;
+}
+
+export const ConfiguredMethodList: FC<ConfiguredMethodListProps> = ({
   existingRecoveryMethods,
   setSelectedMethod,
   setScreen,
@@ -23,28 +31,20 @@ export const ConfiguredMethodList = ({
       }}
     >
       {existingRecoveryMethods.map((method) => {
-        if (method.type === 'totp') {
-          return (
-            <RecoveryMethodCard
-              method={method}
-              key="totp"
-              methodName={t('Authenticator')}
-              onClick={() => {
-                capture('ConfigureTotpClicked');
-                setSelectedMethod(method);
-                setScreen(RecoveryMethodScreen.Method);
-              }}
-            />
-          );
-        }
+        const isTotp = method.type === 'totp';
+        const methodName = isTotp ? t('Authenticator') : method.name;
+        const key = isTotp ? 'totp' : method.id;
+        const captureEvent = isTotp
+          ? 'ConfigureTotpClicked'
+          : 'ConfigureFidoClicked';
 
         return (
           <RecoveryMethodCard
+            key={key}
             method={method}
-            key={method.id}
-            methodName={method.name}
+            methodName={methodName}
             onClick={() => {
-              capture('ConfigureFidoClicked');
+              capture(captureEvent);
               setSelectedMethod(method);
               setScreen(RecoveryMethodScreen.Method);
             }}

@@ -34,12 +34,11 @@ export const RecoveryMethods: FC = () => {
     if (isLoadingRecoveryMethods) {
       return;
     }
-    if (!hasMfaConfigured) {
-      setScreen(RecoveryMethodScreen.NewList);
-    }
-    if (hasMfaConfigured) {
-      setScreen(RecoveryMethodScreen.ConfiguredList);
-    }
+    setScreen(
+      hasMfaConfigured
+        ? RecoveryMethodScreen.ConfiguredList
+        : RecoveryMethodScreen.NewList,
+    );
   }, [hasMfaConfigured, isLoadingRecoveryMethods]);
 
   return (

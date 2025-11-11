@@ -1,34 +1,24 @@
 import { WarningMessage } from '@/components/WarningMessage';
 import { CardMenu, CardMenuItem } from '@/pages/Onboarding/components/CardMenu';
-import {
-  Button,
-  Divider,
-  EncryptedIcon,
-  Paper,
-  PasswordIcon,
-  SecurityKeyIcon,
-} from '@avalabs/k2-alpine';
+import { Button, Divider, Paper } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
 import { FeatureGates } from '@core/types';
 import { useAnalyticsContext, useFeatureFlagContext } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { getRecoveryMethodCards } from './recoveryMethodCards.config';
 
-export const MethodIcons = {
-  passkey: <PasswordIcon size={24} />,
-  authenticator: <EncryptedIcon size={24} />,
-  yubikey: <SecurityKeyIcon size={24} />,
-};
+interface RecoveryMethodListProps {
+  hasTotpConfigured: boolean;
+  hasMFAConfigured: boolean;
+  onNext: () => void;
+}
 
 export const RecoveryMethodList = ({
   hasTotpConfigured,
   hasMFAConfigured,
   onNext,
-}: {
-  hasTotpConfigured: boolean;
-  hasMFAConfigured: boolean;
-  onNext: () => void;
-}) => {
+}: RecoveryMethodListProps) => {
   const { t } = useTranslation();
   const history = useHistory();
   const { capture } = useAnalyticsContext();
@@ -41,45 +31,13 @@ export const RecoveryMethodList = ({
   const noMFAMethodsAvailable =
     !isPasskeyOn && !isYubikeyOn && (!isAuthenticatorOn || hasTotpConfigured);
 
-  const recoveryMethodCards = [
-    {
-      icon: MethodIcons.passkey,
-      title: t('Passkey'),
-      description: t(
-        'Passkeys are used for quick, password-free recovery and enhanced security.',
-      ),
-      to: 'update-recovery-method/fido/add/passkey',
-      analyticsKey: 'AddPasskeyClicked',
-      method: 'passkey',
-      isOn: isPasskeyOn,
-    },
-    {
-      icon: MethodIcons.authenticator,
-      title: t('Authenticator app'),
-      description: t(
-        'Authenticator apps generate secure, time-based codes for wallet recovery.',
-      ),
-      // add url for in-extension version
-      to: !hasMFAConfigured
-        ? '/settings/recovery-method/authenticator'
-        : 'update-recovery-method/totp/add',
-      analyticsKey: 'AddAuthenticatorClicked',
-      method: 'authenticator',
-      newTab: !hasMFAConfigured ? false : true,
-      isOn: isAuthenticatorOn,
-    },
-    {
-      icon: MethodIcons.yubikey,
-      title: t('Yubikey'),
-      description: t(
-        'YubiKeys are physical, hardware-based protection and strong authentication.',
-      ),
-      to: 'update-recovery-method/fido/add/yubikey',
-      analyticsKey: 'AddYubikeyClicked',
-      method: 'yubikey',
-      isOn: isYubikeyOn,
-    },
-  ];
+  const recoveryMethodCards = getRecoveryMethodCards({
+    t,
+    isPasskeyOn,
+    isYubikeyOn,
+    isAuthenticatorOn,
+    hasMFAConfigured,
+  });
 
   return (
     <>

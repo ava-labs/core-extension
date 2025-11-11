@@ -1,13 +1,13 @@
 import { Button, Paper, Stack } from '@avalabs/k2-alpine';
 import { useSeedlessMfaManager } from '@core/ui';
 import { useTranslation } from 'react-i18next';
-import { AuthenticatorDetails } from './Authenticator/AuthenticatorDetails';
-import { FIDODetails } from './FIDO/FIDODetails';
 import { RecoveryMethod as RecoveryMethodType } from '@core/types';
 import { useCallback, useState } from 'react';
 import { openFullscreenTab } from '@core/common';
 import { useHistory } from 'react-router-dom';
 import { ConfirmPage } from './components/ConfirmPage';
+import { MethodCard } from './components/MethodCard';
+import { getIconForMethod } from './RecoveryMethodCard';
 
 interface RecoveryMethodProps {
   method: RecoveryMethodType;
@@ -70,12 +70,21 @@ export const RecoveryMethod = ({ method }: RecoveryMethodProps) => {
       >
         <Stack>
           {method.type === 'totp' && (
-            <AuthenticatorDetails
-              method={method}
-              methodName={t('Authenticator')}
+            <MethodCard
+              icon={getIconForMethod(method)}
+              title={t('Authenticator')}
+              key={method.toString()}
+              showChevron={false}
             />
           )}
-          {method.type === 'fido' && <FIDODetails method={method} />}
+          {method.type === 'fido' && (
+            <MethodCard
+              icon={getIconForMethod(method)}
+              title={method.name}
+              key={method.toString()}
+              showChevron={false}
+            />
+          )}
         </Stack>
       </Paper>
       <Stack sx={{ width: '100%', marginTop: 'auto' }}>

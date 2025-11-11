@@ -14,6 +14,8 @@ interface MethodCardProps {
   showChevron?: boolean;
 }
 
+const checronIconClassName = 'MethodCard-chevron';
+
 export const MethodCard: FC<MethodCardProps> = ({
   icon,
   title,
@@ -27,7 +29,7 @@ export const MethodCard: FC<MethodCardProps> = ({
         <Typography variant="subtitle3">{title}</Typography>
       </Stack>
       {showChevron && (
-        <ChevronRightIcon className="MethodCard-chevron" size={20} />
+        <ChevronRightIcon className={checronIconClassName} size={20} />
       )}
     </StyledMethodCard>
   );
@@ -42,7 +44,7 @@ const StyledMethodCard = styled(Box)(({ theme }) => ({
   color: theme.palette.text.primary,
   cursor: 'pointer',
 
-  '& .MethodCard-chevron': {
+  [`& .${checronIconClassName}`]: {
     color: theme.palette.text.secondary,
   },
 }));

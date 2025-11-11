@@ -3,11 +3,11 @@ import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InProgress } from '@/pages/Settings/components/common/InProgress';
-import { FIDOChallenge } from '../../../../../../../common/FIDOChallenge';
+import { FIDOChallenge } from '@/pages/Settings/components/common/FIDOChallenge';
 import { MfaChoicePrompt } from './components/MfaChoicePrompt';
 import { TOTPChallenge } from './components/TOTPChallenge';
 import { useMFAChoice } from './hooks/useMFAChoice';
-import { useMFAEvents } from '../../../../../../../common/useMFAEvent';
+import { useMFAEvents } from '@/pages/Settings/components/common/useMFAEvent';
 import { useSelectMFAMethod } from './hooks/useSelectMFAMethod';
 
 export const MFA: FC = () => {

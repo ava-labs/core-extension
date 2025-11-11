@@ -1,5 +1,4 @@
 import { RemoveTotp } from './RemoveTotp';
-import { FullscreenModalTitle } from '@/components/FullscreenModal';
 import { RecoveryMethodsFullScreenParams } from './RecoveryMethodsFullScreen';
 import { AddTotp } from './AddTotp';
 import { AddFIDO } from './AddFIDO';
@@ -40,7 +39,6 @@ export const FullScreenContent = ({
 }: RecoveryMethodsFullScreenParams) => {
   const page = getFullScreenContent(mfaType, action);
 
-  const headline = {};
   const content: FullScreenContentProps = useMemo(
     () => ({
       removeTOTP: <RemoveTotp />,
@@ -55,12 +53,5 @@ export const FullScreenContent = ({
     [keyType],
   );
 
-  return (
-    <>
-      {headline[page] && (
-        <FullscreenModalTitle>{headline[page]}</FullscreenModalTitle>
-      )}
-      {content[page]}
-    </>
-  );
+  return <>{content[page]}</>;
 };

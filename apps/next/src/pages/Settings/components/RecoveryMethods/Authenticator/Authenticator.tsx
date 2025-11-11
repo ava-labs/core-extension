@@ -1,7 +1,7 @@
 import { Page } from '@/components/Page';
 import { toast, Typography } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { TFunction, useTranslation } from 'react-i18next';
 import { AuthErrorCode, TotpResetChallenge } from '@core/types';
 import { useState } from 'react';
 import { useGoBack, useSeedlessMfaManager } from '@core/ui';
@@ -23,6 +23,29 @@ export enum AuthenticatorState {
   Failure = 'failure',
 }
 
+const getPageText = (screenState: AuthenticatorState, t: TFunction) => {
+  const headline = {
+    [AuthenticatorState.Initial]: t('Scan QR code'),
+    [AuthenticatorState.Initiated]: t('Scan QR code'),
+    [AuthenticatorState.VerifyCode]: t('Verify code'),
+    [AuthenticatorState.Failure]: t('Something went wrong'),
+  };
+
+  const description = {
+    [AuthenticatorState.Initial]: t('Setting up your authenticator app.'),
+    [AuthenticatorState.Initiated]: t(
+      'Open any authenticator app and scan the QR code below or enter the code manually',
+    ),
+    [AuthenticatorState.VerifyCode]: t(
+      'Enter the code generated from the authenticator app',
+    ),
+  };
+  return {
+    title: headline[screenState],
+    description: description[screenState],
+  };
+};
+
 export const Authenticator: FC = () => {
   const { t } = useTranslation();
   const history = useHistory();
@@ -38,6 +61,8 @@ export const Authenticator: FC = () => {
   const [error, setError] = useState<AuthErrorCode>();
 
   const goBack = useGoBack();
+
+  const { title, description } = getPageText(screenState, t);
 
   useEffect(() => {
     const initChange = async () => {
@@ -61,23 +86,6 @@ export const Authenticator: FC = () => {
     return new URL(totpChallenge.totpUrl).searchParams.get('secret') ?? '';
   }, [totpChallenge]);
 
-  const headline = {
-    [AuthenticatorState.Initial]: t('Scan QR code'),
-    [AuthenticatorState.Initiated]: t('Scan QR code'),
-    [AuthenticatorState.VerifyCode]: t('Verify code'),
-    [AuthenticatorState.Failure]: t('Something went wrong'),
-  };
-
-  const description = {
-    [AuthenticatorState.Initial]: t('Setting up your authenticator app.'),
-    [AuthenticatorState.Initiated]: t(
-      'Open any authenticator app and scan the QR code below or enter the code manually',
-    ),
-    [AuthenticatorState.VerifyCode]: t(
-      'Enter the code generated from the authenticator app',
-    ),
-  };
-
   const onCodeSubmit = useCallback(async () => {
     setIsSubmitted(true);
     if (!totpChallenge) {
@@ -97,12 +105,12 @@ export const Authenticator: FC = () => {
 
   return (
     <Page
-      title={headline[screenState]}
+      title={title}
       withBackButton
       contentProps={{ justifyContent: 'flex-start', alignItems: 'start' }}
       onBack={goBack}
     >
-      <Typography variant="caption">{description[screenState]}</Typography>
+      <Typography variant="caption">{description}</Typography>
       {screenState === AuthenticatorState.Initial && (
         <InProgress textSize="body1" />
       )}
