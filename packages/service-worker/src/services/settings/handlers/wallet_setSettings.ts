@@ -9,6 +9,7 @@ import {
 import { injectable } from 'tsyringe';
 import { SettingsService } from '../SettingsService';
 import { z } from 'zod';
+import { ethErrors } from 'eth-rpc-errors';
 
 const SettingsSchema = z.object({
   language: z.nativeEnum(Languages).optional(),
@@ -175,7 +176,9 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
     } catch (e: any) {
       return {
         ...request,
-        error: e.toString(),
+        error: ethErrors.rpc.invalidRequest({
+          message: e.toString(),
+        }),
       };
     }
   };

@@ -12,6 +12,7 @@ import {
 } from './wallet_setSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { SettingsService } from '../SettingsService';
+import { ethErrors } from 'eth-rpc-errors';
 
 describe('packages/service-worker/src/services/settings/handlers/wallet_setSettings', () => {
   const getSettingsMock = jest.fn();
@@ -223,7 +224,9 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
 
       expect(result).toEqual({
         ...request,
-        error: 'Error: No settings provided',
+        error: ethErrors.rpc.invalidRequest({
+          message: 'Error: No settings provided',
+        }),
       });
     });
 
@@ -233,7 +236,9 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
 
       expect(result).toEqual({
         ...request,
-        error: 'Error: No settings provided',
+        error: ethErrors.rpc.invalidRequest({
+          message: 'Error: No settings provided',
+        }),
       });
     });
 
@@ -243,7 +248,9 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
 
       expect(result).toEqual({
         ...request,
-        error: 'Error: No settings provided',
+        error: ethErrors.rpc.invalidRequest({
+          message: 'Error: No settings provided',
+        }),
       });
     });
 
@@ -254,8 +261,8 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       expect(setLanguageMock).not.toHaveBeenCalled();
       expect('error' in result).toBe(true);
       if ('error' in result) {
-        expect(result.error).toContain('Error: Invalid settings:');
-        expect(result.error).toContain('language');
+        expect(result.error.message).toContain('Error: Invalid settings:');
+        expect(result.error.message).toContain('language');
       }
     });
 
@@ -266,8 +273,8 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       expect(setCurrencyMock).not.toHaveBeenCalled();
       expect('error' in result).toBe(true);
       if ('error' in result) {
-        expect(result.error).toContain('Error: Invalid settings:');
-        expect(result.error).toContain('currency');
+        expect(result.error.message).toContain('Error: Invalid settings:');
+        expect(result.error.message).toContain('currency');
       }
     });
 
@@ -278,8 +285,8 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       expect(setThemeMock).not.toHaveBeenCalled();
       expect('error' in result).toBe(true);
       if ('error' in result) {
-        expect(result.error).toContain('Error: Invalid settings:');
-        expect(result.error).toContain('theme');
+        expect(result.error.message).toContain('Error: Invalid settings:');
+        expect(result.error.message).toContain('theme');
       }
     });
 
@@ -292,8 +299,8 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
       expect(setAnalyticsConsentMock).not.toHaveBeenCalled();
       expect('error' in result).toBe(true);
       if ('error' in result) {
-        expect(result.error).toContain('Error: Invalid settings:');
-        expect(result.error).toContain('analyticsConsent');
+        expect(result.error.message).toContain('Error: Invalid settings:');
+        expect(result.error.message).toContain('analyticsConsent');
       }
     });
 
@@ -306,7 +313,9 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
 
       expect(result).toEqual({
         ...request,
-        error: error.toString(),
+        error: ethErrors.rpc.invalidRequest({
+          message: error.toString(),
+        }),
       });
     });
   });
