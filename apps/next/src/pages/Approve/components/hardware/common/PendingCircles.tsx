@@ -3,7 +3,7 @@ import { getHexAlpha } from '@avalabs/k2-alpine';
 import { FC, ComponentType } from 'react';
 
 export type IconProps = {
-  size?: number;
+  size?: string | number;
 };
 
 export type PendingCirclesProps = {
