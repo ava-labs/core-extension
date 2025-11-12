@@ -24,7 +24,6 @@ export const useNfts = (network?: NetworkWithCaipId) => {
       };
     }
     const userAddress = getAddressForChain(network, activeAccount);
-
     if (network) {
       if (!userAddress) {
         return {
@@ -46,7 +45,9 @@ export const useNfts = (network?: NetworkWithCaipId) => {
     return {
       collectibles: Object.values(balances.nfts ?? {}).flatMap(
         (chainBalances) =>
-          userAddress ? Object.values(chainBalances?.[userAddress] ?? {}) : [],
+          activeAccount
+            ? Object.values(chainBalances?.[activeAccount.addressC] ?? {})
+            : [],
       ),
       loading: balances.loading,
       error: balances.error,

@@ -27,6 +27,8 @@ export const CollectibleCard = memo(function CollectibleCard({
         cursor: 'pointer',
         borderRadius: 2,
         overflow: 'hidden',
+        border: 1,
+        borderColor: 'divider',
         backgroundColor: 'background.paper',
         width: '100%',
         position: 'relative',
@@ -39,10 +41,12 @@ export const CollectibleCard = memo(function CollectibleCard({
           position="absolute"
           top={5}
           right={5}
-          bgcolor="text.secondary"
+          bgcolor={(theme) => theme.palette.grey[700]}
           borderRadius="9999px"
+          border={1}
+          borderColor="divider"
           zIndex={5}
-          maxWidth="calc(100% - 20px)"
+          maxWidth="calc(100% - 40px)"
           overflow="hidden"
         >
           <Typography
