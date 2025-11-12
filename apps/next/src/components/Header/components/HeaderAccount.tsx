@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 
 type Props = {
   wallet: HeaderWalletDetails;
-  account: Account;
+  account?: Account;
 };
 
 export const HeaderAccount: FC<Props> = ({ wallet, account }) => {
@@ -16,13 +16,13 @@ export const HeaderAccount: FC<Props> = ({ wallet, account }) => {
     <>
       <Typography
         variant="body2"
-        onClick={() => history.push(`/portfolio/wallet/${wallet.id}`)}
+        onClick={() => history.push(`/wallet/${wallet.id}`)}
       >
         {wallet.name}
       </Typography>
       <MdNavigateNext />
       <Typography variant="body2" onClick={() => history.push(`/portfolio`)}>
-        {account.name}
+        {account?.name}
       </Typography>
     </>
   );

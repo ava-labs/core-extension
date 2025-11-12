@@ -1,15 +1,7 @@
-import {
-  getHexAlpha,
-  Stack,
-  styled,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { getHexAlpha, Stack, styled, useTheme } from '@avalabs/k2-alpine';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { useCallback, useMemo, useState } from 'react';
-import { MdOutlineUnfoldMore } from 'react-icons/md';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
-import { PersonalAvatar } from '../PersonalAvatar';
+import { useHistory, useLocation } from 'react-router-dom';
 import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
 import { isImportedAccount, isPrimaryAccount } from '@core/common';
@@ -88,21 +80,15 @@ export const Header = () => {
   const theme = useTheme();
   const [isAddressAppear, setIsAddressAppear] = useState(false);
   const history = useHistory();
-  // Current route information available:
-  // - location.pathname: current path (e.g., '/portfolio', '/account-management')
-  // - location.search: query string (e.g., '?activeTab=assets')
-  // - params: route parameters (e.g., { accountId: '...', walletId: '...' })
-
   const location = useLocation();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const params = useParams();
 
   // TODO: fix this after the transactions will be implemented
   // TODO: fix the icon in k2 dark mode.....
   // the true will rotate
   const isTransactionPending = false;
 
-  const isAccountView = location.pathname === '/portfolio';
+  const isWalletView =
+    location.pathname === `/wallet/${headerWalletDetails.id}`;
   return (
     <Stack
       sx={{
@@ -132,20 +118,20 @@ export const Header = () => {
           onClick={() => history.push('/account-management')}
         >
           <AccountInfo>
-            {isAccountView && !!activeAccount ? (
+            {isWalletView ? (
+              <HeaderWallet wallet={headerWalletDetails} />
+            ) : (
               <HeaderAccount
                 wallet={headerWalletDetails}
                 account={activeAccount}
               />
-            ) : (
-              <HeaderWallet wallet={headerWalletDetails} />
             )}
-            <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
+            {/* <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
             <Typography variant="body2">{activeAccount?.name}</Typography>
             <MdOutlineUnfoldMore
               size={24}
               color={getHexAlpha(theme.palette.primary.main, 70)}
-            />
+            /> */}
           </AccountInfo>
           <AddressList
             isAddressAppear={isAddressAppear}
