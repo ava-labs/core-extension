@@ -11,7 +11,6 @@ import {
   BridgeControls,
   BridgeErrorMessage,
   BridgeProviderNotice,
-  CoreFeeNotice,
 } from './components';
 
 type Props = {
@@ -37,8 +36,12 @@ export const BridgeTransactionForm: FC<Props> = ({
   const {
     transferAsset,
     asset,
-    query: { amount, updateQuery, sourceNetwork: sourceNetworkId },
-    targetNetworkId,
+    query: {
+      amount,
+      updateQuery,
+      sourceNetwork: sourceNetworkId,
+      targetNetwork: targetNetworkId,
+    },
     fee,
     minTransferAmount,
   } = useBridgeState();
@@ -105,7 +108,6 @@ export const BridgeTransactionForm: FC<Props> = ({
         <BridgeControls />
       </Stack>
       <BridgeErrorMessage error={error} />
-      <CoreFeeNotice />
       <Stack
         width="100%"
         flexGrow={1}

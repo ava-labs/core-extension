@@ -56,7 +56,7 @@ export const SourceSelector: FC<Props> = ({ onFocusChanged }) => {
           minAmount={minTransferAmount}
           maxAmount={sourceToken?.balance}
           estimatedFee={requiredGas}
-          alwaysSubtractFee
+          alwaysApplyFee
           onTokenChange={(token) =>
             updateQuery({
               sourceToken: token,

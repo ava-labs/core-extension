@@ -1,11 +1,7 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
-import { assert, caipToChainId, chainIdToCaip } from '@core/common';
+import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
+import { assert, caipToChainId } from '@core/common';
 import { CommonError, NetworkWithCaipId } from '@core/types';
-import {
-  promoteAvalancheNetworks,
-  useFeatureFlagContext,
-  useNetworkContext,
-} from '@core/ui';
+import { promoteAvalancheNetworks, useNetworkContext } from '@core/ui';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import {
@@ -19,23 +15,20 @@ import {
   useUnifiedBridgeState,
 } from './hooks';
 import { UnifiedBridgeContext } from './types';
-import { getChainAssets, getEnvironment, removeDisabledChains } from './utils';
+import { getChainAssets, getEnvironment } from './utils';
 
 const NextUnifiedBridgeContext = createContext<
   UnifiedBridgeContext | undefined
 >(undefined);
 
 const AVAX_CAIPS = {
-  mainnet: [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X].map(chainIdToCaip),
-  devnet: [ChainId.AVALANCHE_TEST_P, ChainId.AVALANCHE_TEST_X].map(
-    chainIdToCaip,
-  ),
+  mainnet: [AvalancheCaip2ChainId.P, AvalancheCaip2ChainId.X],
+  devnet: [AvalancheCaip2ChainId.P_TESTNET, AvalancheCaip2ChainId.X_TESTNET],
 } as const;
 
 export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
   const state = useUnifiedBridgeState();
-  const { isFlagEnabled } = useFeatureFlagContext();
 
   const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
   const core = useCoreBridgeService(
@@ -46,16 +39,13 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
 
   const availableChainIds = useMemo(
     () =>
-      removeDisabledChains(
-        [
-          ...Object.keys(core?.getAssets() ?? {}),
-          ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
-        ].sort((one, another) =>
-          promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
-        ),
-        isFlagEnabled,
+      [
+        ...Object.keys(core?.getAssets() ?? {}),
+        ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
+      ].sort((one, another) =>
+        promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
       ),
-    [core, isDeveloperMode, isFlagEnabled],
+    [core, isDeveloperMode],
   );
 
   const getTransferableAssets = useMemo(

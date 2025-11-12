@@ -13,7 +13,7 @@ export const Select: FC<SelectProps> = ({ label, ...props }) => {
     <SelectWithProperStyling
       label={label as string}
       {...props}
-      IconComponent={SelectExpandIcon}
+      IconComponent={props.disabled ? NoIcon : SelectExpandIcon}
     />
   );
 };
@@ -21,6 +21,8 @@ export const Select: FC<SelectProps> = ({ label, ...props }) => {
 const SelectExpandIcon: FC = () => (
   <ChevronRightIcon size={20} sx={{ flexShrink: 0 }} />
 );
+
+const NoIcon: FC = () => null;
 
 const SelectWithProperStyling = styled(K2Select)(({ theme }) => ({
   [`&.${selectClasses.root}`]: {

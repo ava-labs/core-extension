@@ -11,8 +11,10 @@ import { FC } from 'react';
 import { usePairFlipper } from './usePairFlipper';
 
 export const PairFlipper: FC = () => {
-  const { targetNetworkId, targetToken } = useBridgeState();
-  const { flip, canFlip } = usePairFlipper(targetNetworkId, targetToken);
+  const { targetToken } = useBridgeState();
+
+  const { flip, canFlip } = usePairFlipper(targetToken);
+
   return (
     <Stack alignItems="center" justifyContent="center">
       <FlipButton color="secondary" onClick={flip} disabled={!canFlip}>

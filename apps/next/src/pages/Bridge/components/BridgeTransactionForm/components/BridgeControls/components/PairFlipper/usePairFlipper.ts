@@ -3,24 +3,23 @@ import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { useCallback } from 'react';
 
 export const usePairFlipper = (
-  targetNetworkId: string,
   targetToken: FungibleTokenBalance | undefined,
 ) => {
-  const { updateQuery } = useBridgeQuery();
+  const { updateQuery, targetNetwork } = useBridgeQuery();
 
-  const canFlip = targetToken != null && !!targetNetworkId;
+  const canFlip = targetToken != null && !!targetNetwork;
 
   const flip = useCallback(() => {
     if (!canFlip) {
       return;
     }
     updateQuery({
-      sourceNetwork: targetNetworkId,
+      sourceNetwork: targetNetwork,
       sourceToken: getUniqueTokenId(targetToken),
       sourceTokenQuery: '',
       amount: '',
     });
-  }, [canFlip, targetNetworkId, targetToken, updateQuery]);
+  }, [canFlip, targetNetwork, targetToken, updateQuery]);
 
   return {
     flip,

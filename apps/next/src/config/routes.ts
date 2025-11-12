@@ -76,11 +76,12 @@ export const getSwapPath = (query?: Partial<SwapQueryTokens>) => {
  * Bridge
  **/
 export const BRIDGE_QUERY_TOKENS = {
-  sourceNetwork: 'srcNet',
-  sourceToken: 'srcToken',
-  sourceTokenQuery: 'srcTokenQ',
-  amount: 'amount',
-  transactionId: 'txId',
+  sourceNetwork: 'src',
+  targetNetwork: 'dest',
+  sourceToken: 'srcT',
+  sourceTokenQuery: 'srcTQ',
+  amount: 'a',
+  transactionId: 'tx',
 };
 export type BridgeQueryTokens = typeof BRIDGE_QUERY_TOKENS;
 export const getBridgePath = (query?: Partial<BridgeQueryTokens>) => {

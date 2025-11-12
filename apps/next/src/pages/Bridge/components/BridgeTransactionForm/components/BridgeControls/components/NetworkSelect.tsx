@@ -22,7 +22,7 @@ export const NetworkSelect: FC<Props> = ({
   label,
   chains,
   selected,
-  disabled,
+  disabled = chains.length < 2,
   onSelect,
 }) => {
   const { getNetwork } = useNetworkContext();
