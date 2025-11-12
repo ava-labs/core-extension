@@ -26,6 +26,7 @@ type CardMenuItemProps = {
   icon: ReactElement;
   text: string;
   description?: string;
+  'data-testid'?: string;
 } & (
   | {
       link: string;
@@ -39,6 +40,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
   icon,
   text,
   description,
+  'data-testid': dataTestId,
   ...props
 }) => {
   const history = useHistory();
@@ -47,7 +49,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
     'onClick' in props ? props.onClick : () => history.push(props.link);
 
   return (
-    <CardMenuItemContainer onClick={onClick}>
+    <CardMenuItemContainer onClick={onClick} data-testid={dataTestId}>
       {icon}
       <Stack className="CardLikeMenuItem-text-wrapper">
         <Stack gap={0.5}>

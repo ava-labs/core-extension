@@ -58,7 +58,10 @@ export const PasswordSection: FC<Props> = ({
               size="small"
               placeholder={t('Password must be at least 8 characters')}
               slotProps={{
-                htmlInput: { sx: { textAlign: 'end', px: 0, py: 0 } },
+                htmlInput: {
+                  sx: { textAlign: 'end', px: 0, py: 0 },
+                  'data-testid': 'enter-password-input',
+                },
               }}
               fullWidth
               value={password}
@@ -82,7 +85,10 @@ export const PasswordSection: FC<Props> = ({
               type="password"
               size="small"
               slotProps={{
-                htmlInput: { sx: { textAlign: 'end', px: 0, py: 0 } },
+                htmlInput: {
+                  sx: { textAlign: 'end', px: 0, py: 0 },
+                  'data-testid': 'confirm-password-input',
+                },
               }}
               fullWidth
               value={confirmPassword}
@@ -97,6 +103,13 @@ export const PasswordSection: FC<Props> = ({
       <Typography
         variant="caption"
         textAlign="end"
+        data-testid={
+          passwordsMetadata?.message?.includes('at least')
+            ? 'password-length-error'
+            : passwordsMetadata?.message?.includes('Weak password')
+              ? 'weak-password-message'
+              : 'password-strength-message'
+        }
         sx={{
           height: 14,
           transition: 'color .1s ease-in-out',
