@@ -5,13 +5,19 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
-import { useState } from 'react';
+import { useAccountsContext, useWalletContext } from '@core/ui';
+import { useCallback, useMemo, useState } from 'react';
 import { MdOutlineUnfoldMore } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { PersonalAvatar } from '../PersonalAvatar';
 import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
+import { isImportedAccount, isPrimaryAccount } from '@core/common';
+import { AccountType, ImportedAccount } from '@core/types';
+import { HeaderWallet } from './components/HeaderWallet';
+import { HeaderAccount } from './components/HeaderAccount';
+import { HeaderWalletDetails } from './types';
+import { useTranslation } from 'react-i18next';
 
 const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -39,16 +45,64 @@ const AccountSelectContainer = styled(Stack)`
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
+  const { t } = useTranslation();
+  const { getWallet } = useWalletContext();
   const activeAccount = accounts.active;
+  const activeWallet = isPrimaryAccount(activeAccount)
+    ? getWallet(activeAccount.walletId)
+    : undefined;
+
+  const getImportedWalletName = useCallback(
+    (acct: ImportedAccount) => {
+      switch (acct.type) {
+        case AccountType.IMPORTED:
+          return t(`Imported`);
+        case AccountType.WALLET_CONNECT:
+          return t(`WalletConnect`);
+        case AccountType.FIREBLOCKS:
+          return t(`Fireblocks`);
+      }
+    },
+    [t],
+  );
+
+  const headerWalletDetails: HeaderWalletDetails = useMemo(() => {
+    const walletId = isPrimaryAccount(activeAccount)
+      ? activeAccount.walletId
+      : isImportedAccount(activeAccount)
+        ? activeAccount.id
+        : '';
+
+    const walletName = isPrimaryAccount(activeAccount)
+      ? (activeWallet?.name ?? '')
+      : isImportedAccount(activeAccount)
+        ? getImportedWalletName(activeAccount as ImportedAccount)
+        : '';
+
+    return {
+      id: walletId,
+      name: walletName,
+    };
+  }, [activeAccount, activeWallet?.name, getImportedWalletName]);
+
   const theme = useTheme();
   const [isAddressAppear, setIsAddressAppear] = useState(false);
   const history = useHistory();
+  // Current route information available:
+  // - location.pathname: current path (e.g., '/portfolio', '/account-management')
+  // - location.search: query string (e.g., '?activeTab=assets')
+  // - params: route parameters (e.g., { accountId: '...', walletId: '...' })
+
+  const location = useLocation();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const params = useParams();
 
   // TODO: fix this after the transactions will be implemented
   // TODO: fix the icon in k2 dark mode.....
   // the true will rotate
   const isTransactionPending = false;
 
+  const isAccountView = location.pathname === '/portfolio';
   return (
     <Stack
       sx={{
@@ -78,6 +132,14 @@ export const Header = () => {
           onClick={() => history.push('/account-management')}
         >
           <AccountInfo>
+            {isAccountView && !!activeAccount ? (
+              <HeaderAccount
+                wallet={headerWalletDetails}
+                account={activeAccount}
+              />
+            ) : (
+              <HeaderWallet wallet={headerWalletDetails} />
+            )}
             <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
             <Typography variant="body2">{activeAccount?.name}</Typography>
             <MdOutlineUnfoldMore
