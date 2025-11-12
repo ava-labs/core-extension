@@ -5,9 +5,9 @@ import { useBridgeState } from '../../../contexts';
 
 export const BridgeProviderNotice = () => {
   const { t } = useTranslation();
-  const { asset: target, targetNetworkId } = useBridgeState();
+  const { asset: target, query } = useBridgeState();
 
-  const [bridgeType] = target?.destinations[targetNetworkId] ?? [];
+  const [bridgeType] = target?.destinations[query.targetNetwork] ?? [];
 
   const icon =
     bridgeType === BridgeType.CCTP ? (

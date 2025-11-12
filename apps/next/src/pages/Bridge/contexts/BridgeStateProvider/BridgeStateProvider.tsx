@@ -1,13 +1,12 @@
 import { BridgeAsset } from '@avalabs/bridge-unified';
 import { caipToChainId, stringToBigint } from '@core/common';
-import { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
+import { FungibleTokenBalance } from '@core/types';
 import {
   createContext,
   FC,
   PropsWithChildren,
   use,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { BridgeQueryContext, useBridgeQuery } from '../BridgeQuery';
@@ -39,8 +38,6 @@ const BridgeStateContext = createContext<
       isBridgeSupported: boolean;
       sourceToken: FungibleTokenBalance | undefined;
       sourceTokens: FungibleTokenBalance[];
-      targetNetworkId: NetworkWithCaipId['caipId'];
-      targetNetworkIds: NetworkWithCaipId['caipId'][];
       targetToken: FungibleTokenBalance | undefined;
     }
 >(undefined);
@@ -51,6 +48,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     amount,
     sourceNetwork: sourceNetworkId,
     sourceToken: sourceTokenId,
+    targetNetwork: targetNetworkId,
   } = query;
   const [requiredGas, setRequiredGas] = useState<bigint>(0n);
 
@@ -71,13 +69,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
 
   const { asset, token: sourceToken } = sourceLookup.get(sourceTokenId) ?? {};
 
-  useInitialize(query, sourceLookup.tokens);
-
-  const targetNetworkIds = useMemo(
-    () => (asset?.destinations ? Object.keys(asset.destinations) : []),
-    [asset?.destinations],
-  );
-  const [targetNetworkId = ''] = targetNetworkIds;
+  useInitialize(query, sourceLookup.tokens, asset);
 
   const { amountAfterFee, fee } = useAmountAfterFee(
     asset,
@@ -135,8 +127,6 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         sourceToken,
         sourceTokens: sourceLookup.tokens,
         state,
-        targetNetworkId,
-        targetNetworkIds,
         targetToken,
         transferAsset,
       }}

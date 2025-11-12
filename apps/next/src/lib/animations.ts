@@ -4,8 +4,8 @@ import { CSSProperties } from 'react';
 
 const createAnimation = (
   animation: Keyframes,
-  duration: string = '0.3s',
-  easing: string = 'ease-in-out',
+  duration: CSSProperties['animationDuration'] = '0.3s',
+  easing: CSSProperties['animationTimingFunction'] = 'ease-in-out',
   count: CSSProperties['animationIterationCount'] = 1,
 ) => css`
   @media (prefers-reduced-motion: no-preference) {
@@ -30,6 +30,7 @@ const shake = keyframes`
     transform: translateX(0);
   }
 `;
+
 export default {
   shake: createAnimation(shake),
 };

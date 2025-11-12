@@ -55,10 +55,10 @@ export const useAllTokens = (
               getUniqueTokenId(balanceToken) === getUniqueTokenId(token),
           ),
       ),
-      ...Object.entries(customTokens).flatMap(([chainId, tokens]) =>
-        Object.values(tokens).map(getTokenMapper(Number(chainId))),
+      ...networks.flatMap(({ chainId }) =>
+        Object.values(customTokens[chainId] ?? {}).map(getTokenMapper(chainId)),
       ),
     ],
-    [customTokens, placeholderTokens, tokensForAccount],
+    [customTokens, networks, placeholderTokens, tokensForAccount],
   );
 };

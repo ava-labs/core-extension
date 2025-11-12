@@ -19,7 +19,7 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 type TokenAmountInputProps = {
   id: string;
   estimatedFee?: bigint;
-  alwaysSubtractFee?: boolean;
+  alwaysApplyFee?: boolean;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
   onTokenChange: (token: string) => void;
@@ -36,7 +36,6 @@ type TokenAmountInputProps = {
   onFocus?: FocusEventHandler;
   onBlur?: FocusEventHandler;
   disabled?: boolean;
-  tokenBalance?: boolean;
 };
 
 export const TokenAmountInput: FC<TokenAmountInputProps> = ({
@@ -44,7 +43,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   maxAmount,
   minAmount = 0n,
   estimatedFee,
-  alwaysSubtractFee,
+  alwaysApplyFee,
   tokenId,
   tokensForAccount,
   onTokenChange,
@@ -59,7 +58,6 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   onFocus,
   onBlur,
   disabled,
-  tokenBalance = true,
 }) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
@@ -89,7 +87,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
       // If sending the max. amount of a native token, we need to subtract the estimated fee.
       const shouldSubtractFee =
-        alwaysSubtractFee || (percentage === 100 && isNativeToken(token));
+        alwaysApplyFee || (percentage === 100 && isNativeToken(token));
       const amountToSubtract = shouldSubtractFee ? (estimatedFee ?? 0n) : 0n;
       const calculatedMaxAmount = tokenUnit
         .div(100 / percentage)
@@ -100,7 +98,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
-    [token, alwaysSubtractFee, estimatedFee, onAmountChange],
+    [token, alwaysApplyFee, estimatedFee, onAmountChange],
   );
 
   const usdValue =
@@ -133,7 +131,6 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           onQueryChange={onQueryChange}
           hint={tokenHint}
           disabled={disabled}
-          tokenBalance={tokenBalance}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput

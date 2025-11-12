@@ -17,14 +17,9 @@ import { FungibleTokenBalance } from '@core/types';
 type SelectedTokenProps = {
   token: FungibleTokenBalance;
   hint?: string;
-  balance?: boolean;
 };
 
-export const SelectedToken: FC<SelectedTokenProps> = ({
-  token,
-  hint,
-  balance = true,
-}) => {
+export const SelectedToken: FC<SelectedTokenProps> = ({ token, hint }) => {
   const theme = useTheme();
 
   return (
@@ -57,7 +52,7 @@ export const SelectedToken: FC<SelectedTokenProps> = ({
             <ChevronDownIcon size={16} />
           </Box>
         </Stack>
-        {balance && <TokenBalance token={token} />}
+        <TokenBalance token={token} />
       </Stack>
     </>
   );

@@ -35,6 +35,10 @@ export function useTargetToken(
 
 const getWrappedSymbol = (asset: BridgeAsset) => {
   if (asset.type !== TokenType.NATIVE) {
+    if (asset.symbol === 'WETH.e') {
+      return 'ETH';
+    }
+
     return asset.symbol;
   }
 

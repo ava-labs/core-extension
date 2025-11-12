@@ -6,10 +6,12 @@ import {
   EvmSigner,
 } from '@avalabs/bridge-unified';
 
+type BridgeSigners = { evm: EvmSigner; btc: BtcSigner };
+
 export function getInitializerForBridgeType(
   type: BridgeType,
   bitcoinFunctions: BitcoinFunctions,
-  signers: { evm: EvmSigner; btc: BtcSigner },
+  { btc, evm }: BridgeSigners,
 ): BridgeInitializer {
   switch (type) {
     case BridgeType.CCTP:
@@ -17,20 +19,20 @@ export function getInitializerForBridgeType(
     case BridgeType.AVALANCHE_EVM:
       return {
         type,
-        signer: signers.evm,
+        signer: evm,
       };
 
     case BridgeType.AVALANCHE_AVA_BTC:
       return {
         type,
-        signer: signers.evm,
+        signer: evm,
         bitcoinFunctions,
       };
 
     case BridgeType.AVALANCHE_BTC_AVA:
       return {
         type,
-        signer: signers.btc,
+        signer: btc,
         bitcoinFunctions,
       };
   }

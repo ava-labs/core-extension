@@ -36,20 +36,25 @@ export function useGetFee(core: UnifiedBridgeService | null) {
         }),
       );
 
-      // We currently operate on the assumption that the fee is paid in the
-      // same token as is bridged.
-      // Although sometimes it may be paid on the source chain (as is the case for CCTP),
-      // and sometimes it may be paid on the target chain (i.e. Avalanche Bridge), the
-      // result for the end users is that the received amount on the target chain is lowered
-      // by the fee amount.
-      const [feeChainId] = Object.keys(feeMap); // ID of the chain where the fee is paid
-      assert(feeChainId, UnifiedBridgeError.InvalidFee);
-      const feeChain = feeMap[feeChainId];
-      assert(feeChain, UnifiedBridgeError.InvalidFee);
-      const [feeAssetId] = Object.keys(feeChain); // address or "NATIVE"
-      assert(feeAssetId, UnifiedBridgeError.InvalidFee);
+      try {
+        // We currently operate on the assumption that the fee is paid in the
+        // same token as is bridged.
+        // Although sometimes it may be paid on the source chain (as is the case for CCTP),
+        // and sometimes it may be paid on the target chain (i.e. Avalanche Bridge), the
+        // result for the end users is that the received amount on the target chain is lowered
+        // by the fee amount.
+        const [feeChainId] = Object.keys(feeMap); // ID of the chain where the fee is paid
+        assert(feeChainId, UnifiedBridgeError.InvalidFee);
+        const feeChain = feeMap[feeChainId];
+        assert(feeChain, UnifiedBridgeError.InvalidFee);
+        const [feeAssetId] = Object.keys(feeChain); // address or "NATIVE"
+        assert(feeAssetId, UnifiedBridgeError.InvalidFee);
 
-      return feeChain[feeAssetId] ?? 0n;
+        return feeChain[feeAssetId] ?? 0n;
+      } catch (error) {
+        console.error(error);
+        return 0n;
+      }
     },
     [core, getNetwork],
   );

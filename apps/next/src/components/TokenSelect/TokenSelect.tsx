@@ -21,7 +21,6 @@ type TokenSelectProps = {
   onQueryChange: (query: string) => void;
   hint?: string;
   disabled?: boolean;
-  tokenBalance?: boolean;
 };
 
 function TokenSelectRaw({
@@ -33,7 +32,6 @@ function TokenSelectRaw({
   onQueryChange,
   hint,
   disabled,
-  tokenBalance = true,
 }: TokenSelectProps) {
   const { t } = useTranslation();
 
@@ -62,7 +60,7 @@ function TokenSelectRaw({
       }}
       renderValue={(token) =>
         token ? (
-          <SelectedToken token={token} hint={hint} balance={tokenBalance} />
+          <SelectedToken token={token} hint={hint} />
         ) : (
           <TokenSelectPrompt />
         )
