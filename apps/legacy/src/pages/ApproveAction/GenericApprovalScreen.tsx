@@ -78,6 +78,7 @@ export function GenericApprovalScreen() {
   const { getNetwork } = useNetworkContext();
   const {
     isCalculatingFee,
+    isFeeConfigured,
     feeError,
     hasEnoughForNetworkFee,
     renderFeeWidget,
@@ -103,7 +104,10 @@ export function GenericApprovalScreen() {
   const isFeeValid =
     (isGaslessOn && isGaslessEligible) ||
     !hasFeeSelector ||
-    (!feeError && !isCalculatingFee && hasEnoughForNetworkFee);
+    (!feeError &&
+      !isCalculatingFee &&
+      hasEnoughForNetworkFee &&
+      isFeeConfigured);
 
   useEffect(() => {
     if (!caipId) {

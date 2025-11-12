@@ -1,5 +1,6 @@
 import {
   createContext,
+  PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
@@ -88,7 +89,7 @@ const DefiContext = createContext<
   },
 });
 
-export function DefiContextProvider({ children }) {
+export function DefiContextProvider({ children }: PropsWithChildren) {
   const {
     accounts: { active },
   } = useAccountsContext();

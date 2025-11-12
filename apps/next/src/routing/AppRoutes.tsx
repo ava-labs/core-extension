@@ -12,9 +12,11 @@ import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens/TrendingTokens';
 import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
 import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
+import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
 
 export const AppRoutes = () => (
   <Switch>
+    <Route path="/defi/:protocolId" component={DeFiProtocolDetails} />
     <Route path="/receive" component={Receive} />
     <Route path="/settings" component={Settings} />
     <Route path={getContactsPath()} component={Contacts} />

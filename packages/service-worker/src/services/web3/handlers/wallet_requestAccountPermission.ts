@@ -13,6 +13,10 @@ import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { getAddressByVMType } from '@core/common';
+import {
+  getDappConnector,
+  getLegacyDappConnector,
+} from './utils/connectToDapp';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -101,9 +105,13 @@ export class RequestAccountPermissionHandler
         type: ActionType.Single,
         displayData: {
           addressVM: request.params?.addressVM || NetworkVMType.EVM, // Default to EVM
+          // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
+          dappUrl: request.site?.url,
+          dappIcon: request.site?.icon,
+          dappDomain: request.site?.domain,
         },
       },
       `permissions`,
@@ -114,59 +122,28 @@ export class RequestAccountPermissionHandler
 
   onActionApproved = async (
     pendingAction: Action,
-    result,
-    onSuccess,
-    onError,
+    result: string | { id: string; enabled: boolean }[],
+    onSuccess: (result: unknown) => Promise<void>,
+    onError: (error: Error) => Promise<void>,
   ) => {
-    const vm = pendingAction.params.addressVM || NetworkVMType.EVM;
-    const selectedAccount = await this.accountsService.getAccountByID(result);
+    const connectorArgs = {
+      accountsService: this.accountsService,
+      permissionsService: this.permissionsService,
+      vm: pendingAction.params.addressVM || NetworkVMType.EVM,
+    };
+    const baseCallbackArgs = {
+      pendingAction,
+      onSuccess,
+      onError,
+    };
 
-    if (!selectedAccount) {
-      onError(ethErrors.rpc.internal('Selected account not found'));
-      return;
+    if (Array.isArray(result)) {
+      return getDappConnector(connectorArgs)({ ...baseCallbackArgs, result });
     }
 
-    if (!pendingAction?.site?.domain) {
-      onError(ethErrors.rpc.internal('Unspecified dApp domain'));
-      return;
-    }
-
-    const address = getAddressByVMType(selectedAccount, vm);
-
-    if (!address) {
-      onError(
-        ethErrors.rpc.internal(
-          'The active account does not support the requested VM',
-        ),
-      );
-      return;
-    }
-
-    const activeAccount = await this.accountsService.getActiveAccount();
-    // The site was already approved
-    // We usually get here when an already approved site attempts to connect
-    // and the extension was locked in the meantime
-    if (
-      activeAccount &&
-      activeAccount.id === result &&
-      (await this.permissionsService.hasDomainPermissionForAccount(
-        pendingAction.site.domain,
-        activeAccount,
-        vm,
-      ))
-    ) {
-      onSuccess([address]);
-      return;
-    }
-
-    await this.permissionsService.grantPermission(
-      pendingAction.site.domain,
-      address,
-      vm,
-    );
-
-    await this.accountsService.activateAccount(result);
-
-    onSuccess([address]);
+    return getLegacyDappConnector(connectorArgs)({
+      ...baseCallbackArgs,
+      result,
+    });
   };
 }

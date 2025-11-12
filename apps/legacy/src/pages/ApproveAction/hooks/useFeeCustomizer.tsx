@@ -96,6 +96,7 @@ export function useFeeCustomizer({
   const [gasFeeModifier, setGasFeeModifier] = useState<GasFeeModifier>(
     GasFeeModifier.SLOW,
   );
+  const [isFeeConfigured, setIsFeeConfigured] = useState(false);
 
   useEffect(() => {
     if (network && isAvalancheNetwork(network)) {
@@ -304,6 +305,13 @@ export function useFeeCustomizer({
     );
   }, [networkFee, isFeeSelectorEnabled]);
 
+  useEffect(() => {
+    setIsFeeConfigured(
+      signingData?.type !== RpcMethod.ETH_SEND_TRANSACTION ||
+        typeof signingData?.data?.maxFeePerGas === 'bigint',
+    );
+  }, [signingData]);
+
   const setCustomFee = useCallback(
     (values: {
       maxFeePerGas: bigint;
@@ -412,6 +420,7 @@ export function useFeeCustomizer({
 
   return {
     isCalculatingFee,
+    isFeeConfigured,
     hasEnoughForNetworkFee,
     renderFeeWidget,
     feeError,
