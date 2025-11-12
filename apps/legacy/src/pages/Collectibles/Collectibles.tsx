@@ -54,7 +54,7 @@ export function Collectibles({
     useIsFunctionAvailable(FunctionNames.MANAGE_COLLECTIBLES);
   const { getCollectibleVisibility } = useSettingsContext();
   const visibleNfts = nfts.filter((nft) => {
-    return getCollectibleVisibility(nft);
+    return getCollectibleVisibility(nft, network?.caipId);
   });
 
   const handleClick = (type: ListType) => {

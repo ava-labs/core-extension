@@ -11,11 +11,13 @@ export function CollectibleList({
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
   const { network } = useNetworkContext();
-  const { collectibles: nfts } = useNfts(network);
+  const { collectibles: nfts } = useNfts();
   const { getCollectibleVisibility } = useSettingsContext();
-  const nftsToShow = nfts?.filter((nft) => {
-    return getCollectibleVisibility(nft);
-  });
+  const nftsToShow = network?.caipId
+    ? nfts?.filter((nft) => {
+        return getCollectibleVisibility(nft, network?.caipId);
+      })
+    : [];
 
   return (
     <Stack sx={{ px: 2 }} data-testid="collectibles-list">

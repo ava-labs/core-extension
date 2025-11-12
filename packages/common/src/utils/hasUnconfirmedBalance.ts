@@ -8,5 +8,8 @@ import {
 export const hasUnconfirmedBalance = (
   token: TokenWithBalance,
 ): token is TokenWithBalanceBTC & { unconfirmedBalance: BN } => {
-  return 'unconfirmedBalance' in token && Boolean(token.unconfirmedBalance);
+  return (
+    ('unconfirmedBalance' satisfies keyof TokenWithBalanceBTC) in token &&
+    Boolean(token.unconfirmedBalance)
+  );
 };

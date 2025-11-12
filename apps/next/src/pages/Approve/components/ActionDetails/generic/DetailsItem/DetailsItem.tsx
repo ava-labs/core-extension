@@ -6,6 +6,10 @@ import { AddressDetail } from './items/AddressDetail';
 import { LinkDetail } from './items/LinkDetail';
 import { NetworkDetail } from './items/NetworkDetail';
 import { RawDataDetail } from './items/RawDataDetails/RawDataDetail';
+import { FundsRecipientDetail } from './items/FundsRecipientDetail';
+import { CurrencyDetail } from './items/CurrencyDetail';
+import { NodeIdDetail } from './items/NodeIdDetail';
+import { DateDetail } from './items/DateDetail';
 
 type DetailsItemProps = {
   item: DetailItem;
@@ -31,5 +35,17 @@ export const DetailsItem = ({ item }: DetailsItemProps) => {
 
     case DetailItemType.DATA:
       return <RawDataDetail item={item} />;
+
+    case DetailItemType.FUNDS_RECIPIENT:
+      return <FundsRecipientDetail item={item} />;
+
+    case DetailItemType.CURRENCY:
+      return <CurrencyDetail item={item} />;
+
+    case DetailItemType.NODE_ID:
+      return <NodeIdDetail item={item} />;
+
+    case DetailItemType.DATE:
+      return <DateDetail item={item} />;
   }
 };

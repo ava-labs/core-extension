@@ -9,14 +9,16 @@ export const getCurrencyFormatter = (currency = 'USD') => {
     maximumFractionDigits: 6,
   });
 
-  return (amount: number) => {
+  return (amount: number, withRounding = true) => {
     const minAmount = 0.001;
     const isTooSmall = amount < minAmount && amount > 0 ? true : false;
     const prefixString = isTooSmall ? '<' : '';
 
     const transformedAmount = isTooSmall
       ? minAmount
-      : modifyFractionNumber(amount);
+      : withRounding
+        ? modifyFractionNumber(amount)
+        : amount;
 
     const parts = formatter.formatToParts(transformedAmount);
 

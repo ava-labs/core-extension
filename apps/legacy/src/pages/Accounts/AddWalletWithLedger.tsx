@@ -16,7 +16,7 @@ import { LedgerWrongVersionOverlay } from '../Ledger/LedgerWrongVersionOverlay';
 import { PubKeyType, SecretType } from '@core/types';
 import { NameYourWallet } from './components/NameYourWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { useImportLedger } from '@core/ui';
+import { useAccountsContext, useImportLedger, useQueryParams } from '@core/ui';
 import {
   LedgerConnector,
   LedgerConnectorData,
@@ -61,9 +61,23 @@ export function AddWalletWithLedger() {
   const { isImporting, importLedger } = useImportLedger();
   const [step, setStep] = useState(Step.Import);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
+  const {
+    accounts: { primary: primaryAccounts },
+    deleteAccounts,
+  } = useAccountsContext();
+
+  const params = useQueryParams();
+
+  const walletId = params.get('walletId') || undefined;
+
+  const derivationPath = params.get('derivationPath') as DerivationPath;
+
+  const isEditScreen = Boolean(walletId && derivationPath);
+
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
     DerivationPath.BIP44,
   );
+
   const lastAccountIndexWithBalance = useRef(0);
   const [solanaKeys, setSolanaKeys] = useState<SolanaPublicKey[]>([]);
 
@@ -87,6 +101,14 @@ export function AddWalletWithLedger() {
     setPathSpec(data.pathSpec);
     lastAccountIndexWithBalance.current = data.lastAccountIndexWithBalance;
   }
+
+  const onReset = () => {
+    setXpub('');
+    setXpubXP('');
+    setPublicKeys(undefined);
+    setHasPublicKeys(false);
+    lastAccountIndexWithBalance.current = 0;
+  };
 
   const handleImport = useCallback(
     async (name?: string) => {
@@ -115,6 +137,13 @@ export function AddWalletWithLedger() {
           numberOfAccountsToCreate: lastAccountIndexWithBalance.current + 1,
         });
 
+        if (walletId && primaryAccounts[walletId]) {
+          const oldLegderAccountIds = primaryAccounts[walletId].map(
+            (account) => account.id,
+          );
+          await deleteAccounts(oldLegderAccountIds);
+        }
+
         capture('LedgerImportSuccess');
         setStep(Step.Completed);
       } catch (err) {
@@ -129,14 +158,16 @@ export function AddWalletWithLedger() {
     },
     [
       capture,
-      getErrorMessage,
-      importLedger,
-      lastAccountIndexWithBalance,
-      pathSpec,
       publicKeys,
+      solanaKeys,
+      importLedger,
       xpub,
       xpubXP,
-      solanaKeys,
+      pathSpec,
+      walletId,
+      primaryAccounts,
+      deleteAccounts,
+      getErrorMessage,
     ],
   );
 
@@ -243,7 +274,9 @@ export function AddWalletWithLedger() {
               <Stack>
                 <Stack direction="row" alignItems="flex-start" sx={{ mb: 1 }}>
                   <PageTitle showBackButton={false}>
-                    {t('Add Wallet with Ledger')}
+                    {isEditScreen
+                      ? t('Change the Derivation Path')
+                      : t('Add Wallet with Ledger')}
                   </PageTitle>
                 </Stack>
 
@@ -251,6 +284,9 @@ export function AddWalletWithLedger() {
                   onSuccess={onSuccess}
                   onTroubleshoot={() => setStep(Step.Troubleshoot)}
                   checkIfWalletExists
+                  addedDerivationPath={derivationPath}
+                  isEditScreen={isEditScreen}
+                  onReset={onReset}
                 />
               </Stack>
               <Stack sx={{ p: 2, mb: 2, rowGap: 1 }}>

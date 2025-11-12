@@ -48,14 +48,21 @@ type SettingsFromProvider = SettingsState & {
   lockWallet(): Promise<true>;
   updateCurrencySetting(currency: string): Promise<true>;
   toggleShowTokensWithoutBalanceSetting(): Promise<true>;
-  toggleTokenVisibility(token: TokenWithBalance): Promise<true | undefined>;
-  getTokenVisibility(token: TokenWithBalance): boolean;
+  toggleTokenVisibility(
+    token: TokenWithBalance,
+    caipId: string,
+  ): Promise<true | undefined>;
+  getTokenVisibility(token: TokenWithBalance, caipId?: string): boolean;
   toggleCollectibleVisibility(
     token: NftTokenWithBalance,
+    caipId: string,
   ): Promise<true | undefined>;
-  getCollectibleVisibility(token: NftTokenWithBalance): boolean;
+  getCollectibleVisibility(
+    token: NftTokenWithBalance,
+    caipId?: string,
+  ): boolean;
   updateTheme(theme: ColorTheme): Promise<boolean>;
-  currencyFormatter(value: number): string;
+  currencyFormatter(value: number, withRounding?: boolean): string;
   setAnalyticsConsent(consent: boolean): Promise<boolean>;
   setLanguage(lang: Languages): Promise<boolean>;
   isSettingsOpen: boolean;
@@ -126,7 +133,10 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     });
   }
 
-  async function toggleTokenVisibility(token: TokenWithBalance) {
+  async function toggleTokenVisibility(
+    token: TokenWithBalance,
+    caipId: string,
+  ) {
     if (token.type !== TokenType.ERC20 && token.type !== TokenType.SPL) {
       return;
     }
@@ -138,31 +148,42 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
       params: [
         {
           ...tokensVisibility,
-          [key]: !getTokenVisibility(token),
+          [caipId]: {
+            ...(tokensVisibility[caipId] ?? {}),
+            [key]: !getTokenVisibility(token, caipId),
+          },
         },
       ],
     });
   }
 
   const getTokenVisibility = useCallback(
-    (token: TokenWithBalance) => {
+    (token: TokenWithBalance, caipId?: string) => {
+      if (!caipId) {
+        return true;
+      }
       const key =
         token.type === TokenType.NATIVE ? token.symbol : token.address;
-      const tokensVisibility = settings?.tokensVisibility ?? {};
+      const tokenVisibility = settings?.tokensVisibility?.[caipId]?.[key];
 
       // If the token is flagged as malicious, only show it if the user specifically enabled it.
       return isTokenMalicious(token)
-        ? tokensVisibility[key]
-        : tokensVisibility[key] || tokensVisibility[key] === undefined;
+        ? tokenVisibility
+        : tokenVisibility || tokenVisibility === undefined;
     },
     [settings?.tokensVisibility],
   );
 
-  async function toggleCollectibleVisibility(nft: NftTokenWithBalance) {
+  async function toggleCollectibleVisibility(
+    nft: NftTokenWithBalance,
+    caipId: string,
+  ) {
     const key = `${nft.address}-${nft.tokenId}`;
     const visibility = settings?.collectiblesVisibility ?? {};
     // We used to (wrongly) index by address only.
-    const isHidden = (visibility[key] ?? visibility[nft.address]) === false;
+    const isHidden =
+      (visibility[caipId]?.[key] ?? visibility[caipId]?.[nft.address]) ===
+      false;
     // If token is now hidden, just remove it from the dictionary,
     // otherwise set it to false.
     const updatedVisibility = isHidden
@@ -176,11 +197,17 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
   }
 
   const getCollectibleVisibility = useCallback(
-    (nft: NftTokenWithBalance) => {
+    (nft: NftTokenWithBalance, caipId?: string) => {
+      if (!caipId) {
+        return true;
+      }
       const key = `${nft.address}-${nft.tokenId}`;
       const visibility = settings?.collectiblesVisibility ?? {};
       // We used to index by address only.
-      return (visibility[key] ?? visibility[nft.address]) !== false;
+      return (
+        (visibility[caipId]?.[key] ?? visibility[caipId]?.[nft.address]) !==
+        false
+      );
     },
     [settings?.collectiblesVisibility],
   );

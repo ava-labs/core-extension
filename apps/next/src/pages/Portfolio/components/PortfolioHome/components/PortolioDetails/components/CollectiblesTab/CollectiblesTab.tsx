@@ -63,7 +63,7 @@ export function CollectiblesTab() {
         coreCollectibleUrl:
           ownerAddress && network
             ? getCoreCollectibleUrl(
-                '0xe3da71823db3f0dffa7df0117cc2604127101c79',
+                ownerAddress,
                 collectible,
                 isDeveloperMode,
                 network,
@@ -96,12 +96,12 @@ export function CollectiblesTab() {
   }, []);
 
   return (
-    <Stack sx={{ width: '100%' }}>
+    <Stack gap={1.25} height={1}>
       <Stack
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ mb: 2, width: '100%' }}
+        sx={{ mb: 1, width: '100%' }}
       >
         {collectibles.length > 0 && (
           <CollectibleToolbar
@@ -136,6 +136,7 @@ export function CollectiblesTab() {
           <CollectibleListEmpty title={t('You hid all your collectibles')} />
         ) : (
           <VirtualizedGrid
+            isPopupOpen={openManageDialog}
             items={processedCollectibles}
             cellRenderer={(item, index, virtualizer, columnWidth) => (
               <CollectibleCard

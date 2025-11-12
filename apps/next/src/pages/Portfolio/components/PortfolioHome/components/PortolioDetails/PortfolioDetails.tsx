@@ -1,7 +1,7 @@
 import { FC } from 'react';
-import type { TabName } from '../NavigationBar';
-import { ActivityTab, AssetsTab, DeFiTab, CollectiblesTab } from './components';
+import { ActivityTab, AssetsTab, CollectiblesTab, DeFiTab } from './components';
 import { PortfolioActionButtons } from './components/PortfolioActionButtons';
+import { TabName } from '../../PortfolioHome';
 
 type Props = {
   tab: TabName;

@@ -1,6 +1,7 @@
 import { useIsIntersecting } from '@/hooks/useIsIntersecting';
-import { Stack, StackProps, styled, Typography } from '@avalabs/k2-alpine';
+import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 import { PageTopBar } from '../PageTopBar';
+import { NoScrollStack } from '../NoScrollStack';
 
 type PageProps = {
   title?: string;
@@ -13,15 +14,6 @@ type PageProps = {
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
 };
-
-// TODO: remove this once we have a proper scrollable component
-export const NoScrollStack = styled(Stack)`
-  overflow: auto;
-  flex-grow: 1;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
 
 export const Page = ({
   title,

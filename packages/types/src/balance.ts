@@ -128,6 +128,11 @@ export type FungibleTokenBalance = Exclude<
   assetType: FungibleAssetType;
 };
 
+export type NonNativeFungibleTokenBalance = Exclude<
+  FungibleTokenBalance,
+  { type: TokenType.NATIVE }
+>;
+
 export type NativeTokenBalance = Extract<
   FungibleTokenBalance,
   { type: TokenType.NATIVE }
@@ -186,13 +191,36 @@ export type NonFungibleTokenBalance = NftTokenWithBalance & {
 };
 
 export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
-  return `${token.type}:${token.symbol}:${token.type === TokenType.NATIVE ? '-' : token.address}:${token.coreChainId}`;
+  return getUniqueTokenIdGeneric({
+    type: token.type,
+    symbol: token.symbol,
+    address: token.type === TokenType.NATIVE ? undefined : token.address,
+    coreChainId: token.coreChainId,
+  });
+};
+
+export const getUniqueTokenIdGeneric = ({
+  type,
+  symbol,
+  address,
+  coreChainId,
+}: {
+  type: TokenType;
+  symbol: string;
+  address?: string;
+  coreChainId: number;
+}) => {
+  return `${type}:${symbol}:${type === TokenType.NATIVE ? '-' : address}:${coreChainId}`;
 };
 
 export const isNativeToken = (
   token: FungibleTokenBalance,
-): token is NativeTokenBalance | Erc20TokenBalance =>
-  token.type === TokenType.NATIVE;
+): token is NativeTokenBalance => token.type === TokenType.NATIVE;
+
+export const isEvmFungibleToken = (
+  token: FungibleTokenBalance,
+): token is Erc20TokenBalance | EvmNativeTokenBalance =>
+  token.assetType === 'evm_erc20' || token.assetType === 'evm_native';
 
 export const isEvmNativeToken = (
   token: FungibleTokenBalance,
@@ -226,3 +254,8 @@ export const isSolanaSplToken = (
   token: FungibleTokenBalance,
 ): token is SolanaSplTokenBalance =>
   token.type === TokenType.SPL && token.assetType === 'svm_spl';
+
+export const isSolanaFungibleToken = (
+  token: FungibleTokenBalance,
+): token is SolanaSplTokenBalance | SolanaNativeTokenBalance =>
+  token.assetType === 'svm_spl' || token.assetType === 'svm_native';

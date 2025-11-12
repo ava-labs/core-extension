@@ -49,11 +49,9 @@ export const useMaxAmountForTokenSend = (
   useEffect(() => {
     if (!token || !from) return;
 
-    let isMounted = true;
-
     getNetworkFee(token.coreChainId)
       .then((networkFee) => {
-        if (!networkFee || !isMounted) {
+        if (!networkFee) {
           return;
         }
 
@@ -66,19 +64,19 @@ export const useMaxAmountForTokenSend = (
             from.addressBTC,
             to,
             getNetwork(token.coreChainId),
-          ).then((res) => isMounted && setResult(res));
+          ).then(setResult);
         } else if (isAvmCapableAccount(from) && isXChainToken(token)) {
           getXChainMaxAmount(
             from,
             isLedgerWallet,
             getNetwork(token.coreChainId),
-          ).then((res) => isMounted && setResult(res));
+          ).then(setResult);
         } else if (isPvmCapableAccount(from) && isPChainToken(token)) {
           getPChainMaxAmount(
             from,
             isLedgerWallet,
             getNetwork(token.coreChainId),
-          ).then((res) => isMounted && setResult(res));
+          ).then(setResult);
         } else if (
           isSvmCapableAccount(from) &&
           (isSolanaNativeToken(token) || isSolanaSplToken(token))
@@ -98,10 +96,6 @@ export const useMaxAmountForTokenSend = (
           error,
         );
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, [token, getNetworkFee, from, to, getNetwork, isLedgerWallet]);
 
   return result;

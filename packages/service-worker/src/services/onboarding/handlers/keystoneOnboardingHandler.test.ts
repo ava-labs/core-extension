@@ -21,8 +21,12 @@ import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
 import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
+import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
 jest.mock('../utils/addChainsToFavoriteIfNeeded');
+jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
+  addAllAccountsWithHistory: jest.fn(),
+}));
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const actual = jest.requireActual('@avalabs/core-wallets-sdk');
@@ -150,8 +154,9 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
       secretType: SecretType.Keystone,
       name: undefined,
     });
-    expect(accountsServiceMock.addPrimaryAccount).toHaveBeenCalledWith({
+    expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
       walletId: WALLET_ID,
+      addFirstAccount: true,
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);

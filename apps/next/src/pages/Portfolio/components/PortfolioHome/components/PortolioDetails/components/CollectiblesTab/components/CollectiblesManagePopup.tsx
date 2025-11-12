@@ -5,6 +5,7 @@ import { FormattedCollectible } from '../CollectiblesTab';
 import { SearchField } from '@/pages/Contacts/components/SearchField';
 import { useMemo, useState } from 'react';
 import { CollectibleSwitchList } from './CollectibleSwitchList';
+import { CollectibleListEmpty } from './CollectibleListEmpty';
 
 export type CollectiblesManagePopupProps = {
   open: boolean;
@@ -84,12 +85,16 @@ export const CollectiblesManagePopup = ({
               size="small"
             />
           </Box>
-          <CollectibleSwitchList
-            collectibles={filteredCollectibles}
-            hiddenCollectibles={hiddenCollectibles}
-            toggleCollectible={toggleCollectible}
-            filter={searchQuery}
-          />
+          {filteredCollectibles.length > 0 ? (
+            <CollectibleSwitchList
+              collectibles={filteredCollectibles}
+              hiddenCollectibles={hiddenCollectibles}
+              toggleCollectible={toggleCollectible}
+              filter={searchQuery}
+            />
+          ) : (
+            <CollectibleListEmpty title={t('No results found')} />
+          )}
         </Stack>
       </Page>
     </Dialog>

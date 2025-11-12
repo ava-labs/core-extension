@@ -2,7 +2,6 @@ import { AccountsService } from '../../services/accounts/AccountsService';
 import { LockService } from '../../services/lock/LockService';
 import { PermissionsService } from '../../services/permissions/PermissionsService';
 import {
-  CORE_DOMAINS,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
   DAppProviderRequest,
@@ -11,6 +10,7 @@ import {
 } from '@core/types';
 import { Middleware } from './models';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import { WHITELISTED_DOMAINS } from '@core/common';
 
 const RESTRICTED_METHODS = Object.freeze([] as string[]);
 
@@ -115,8 +115,10 @@ const CORE_METHODS = Object.freeze([
   'avalanche_setDeveloperMode',
   DAppProviderRequest.ACCOUNT_RENAME,
   DAppProviderRequest.ACCOUNTS_DELETE,
+  DAppProviderRequest.AVALANCHE_ADD_ACCOUNT,
   DAppProviderRequest.BITCOIN_SEND_TRANSACTION,
   DAppProviderRequest.WALLET_RENAME,
+  DAppProviderRequest.WALLET_GET_NETWORK_STATE,
 ]);
 
 export function PermissionMiddleware(
@@ -162,8 +164,8 @@ export function PermissionMiddleware(
 
       if (
         context.authenticated === true &&
-        (CORE_DOMAINS.includes(domain) ||
-          CORE_DOMAINS.includes(domainWithoutSubdomain.join('.')))
+        (WHITELISTED_DOMAINS.includes(domain) ||
+          WHITELISTED_DOMAINS.includes(domainWithoutSubdomain.join('.')))
       ) {
         next();
       } else {

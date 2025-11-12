@@ -88,7 +88,10 @@ export function SwapProviders({
     return [
       {
         ...bestRate,
-        quote: { ...bestRate.quote, aggregator: { id: 'auto', name: 'Auto' } },
+        quote: {
+          ...bestRate.quote,
+          aggregator: { id: 'auto', name: 'Auto', logo_url: '' },
+        },
       },
       ...quotes.quotes,
     ];
@@ -196,10 +199,10 @@ export function SwapProviders({
                       <IoSparklesOutline size={32} />
                     ) : (
                       <img
-                        src={`/images/logos/provider-${q.aggregator.id}.svg`}
+                        src={q.aggregator.logo_url}
                         width={32}
                         height={32}
-                        alt=""
+                        alt={q.aggregator.name}
                       />
                     )}
 

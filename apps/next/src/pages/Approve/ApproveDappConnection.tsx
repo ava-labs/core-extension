@@ -11,6 +11,7 @@ import {
 import { ActionStatus, DAppProviderRequest } from '@core/types';
 import { mapAddressesToVMs } from '@core/common';
 
+import { NoScrollStack } from '@/components/NoScrollStack';
 import {
   ActionDrawer,
   ApprovalScreenTitle,
@@ -96,7 +97,7 @@ export const ApproveDappConnection: FC = () => {
     <Styled.ApprovalScreenPage>
       <ApprovalScreenTitle title={action.displayData.title} />
 
-      <Styled.NoScrollStack>
+      <NoScrollStack>
         <Stack flexGrow={1} px={2}>
           <Typography variant="h4">
             {t('🚧 Placeholder - needs implementation 🚧')}
@@ -109,9 +110,9 @@ export const ApproveDappConnection: FC = () => {
           open
           approve={onApproveClicked}
           reject={cancelHandler}
-          action={action}
+          isProcessing={action.status === ActionStatus.SUBMITTING}
         />
-      </Styled.NoScrollStack>
+      </NoScrollStack>
     </Styled.ApprovalScreenPage>
   );
 };

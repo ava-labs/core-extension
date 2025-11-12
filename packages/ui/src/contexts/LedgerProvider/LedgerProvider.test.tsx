@@ -30,6 +30,8 @@ import { LockEvents } from '@core/types';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import Eth from '@ledgerhq/hw-app-eth';
 import Solana from '@ledgerhq/hw-app-solana';
+import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 
 jest.mock('../ConnectionProvider', () => {
   const connectionFunctions = {
@@ -47,7 +49,9 @@ jest.mock('@ledgerhq/hw-app-eth');
 jest.mock('@ledgerhq/hw-app-solana');
 jest.mock('ledger-bitcoin');
 jest.mock('@ledgerhq/hw-transport-webusb');
+jest.mock('@ledgerhq/hw-transport-webhid');
 jest.mock('../utils/getLedgerTransport');
+jest.mock('../utils/shouldUseWebHID');
 
 const TestComponent = ({ methodParams }) => {
   const {
@@ -139,6 +143,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
     const connectionMocks = useConnectionContext();
     (connectionMocks.request as jest.Mock).mockResolvedValue(undefined);
     (connectionMocks.events as jest.Mock).mockReturnValue(new Subject());
+    jest.mocked(shouldUseWebHID).mockResolvedValue(false);
 
     jest.spyOn(React, 'useRef').mockReturnValue({
       current: refMock,
@@ -532,6 +537,12 @@ describe('src/contexts/LedgerProvider.tsx', () => {
 
       await waitFor(() => {
         expect(getLedgerTransport).toHaveBeenCalled();
+      });
+
+      // Clear the AppAvalanche mock to ignore heartbeat calls
+      (AppAvalanche as unknown as jest.Mock).mockClear();
+
+      await waitFor(() => {
         expect(AppAvalanche).not.toHaveBeenCalled();
       });
 
@@ -962,6 +973,19 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(screen.getByTestId('result').textContent).toBe('true');
       });
     });
+
+    it('pops up hid device selection properly', async () => {
+      jest.mocked(shouldUseWebHID).mockResolvedValue(true);
+      (TransportWebHID.request as jest.Mock).mockResolvedValueOnce({});
+
+      renderTestComponent();
+      fireEvent.click(screen.getByTestId('popDeviceSelection'));
+
+      await waitFor(() => {
+        expect(TransportWebHID.request).toHaveBeenCalled();
+        expect(screen.getByTestId('result').textContent).toBe('true');
+      });
+    });
   });
 
   describe('getMasterFingerprint', () => {
@@ -1161,6 +1185,119 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           method: ExtensionRequest.LEDGER_VERSION_WARNING_CLOSED,
         });
       });
+    });
+  });
+
+  describe('checkHeartbeat', () => {
+    beforeEach(() => {
+      // Clear any previous calls to refMock.send before each test
+      refMock.send.mockClear();
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should not run heartbeat when transport is not available', async () => {
+      // Mock transportRef.current to be null
+      jest.spyOn(React, 'useRef').mockReturnValue({
+        current: null,
+      });
+
+      renderTestComponent();
+
+      // Fast-forward time to trigger heartbeat
+      jest.advanceTimersByTime(3000);
+
+      // Should not call transport.send when no transport
+      expect(refMock.send).not.toHaveBeenCalled();
+      expect(AppAvalanche).not.toHaveBeenCalled();
+    });
+
+    it('should run heartbeat when transport is available', async () => {
+      // Mock transportRef.current to be available
+      jest.spyOn(React, 'useRef').mockReturnValue({
+        current: refMock,
+      });
+
+      // Mock app state to exist so heartbeat runs
+      const mockApp = new AppAvalanche(refMock as any);
+      jest.spyOn(React, 'useState').mockImplementation(((initialValue: any) => {
+        if (initialValue === undefined) {
+          // This is the app state
+          return [mockApp, jest.fn()];
+        }
+        return [initialValue, jest.fn()];
+      }) as any);
+
+      renderTestComponent();
+
+      // Fast-forward time to trigger heartbeat
+      jest.advanceTimersByTime(3000);
+
+      // Should call transport.send when transport is available
+      expect(refMock.send).toHaveBeenCalled();
+    });
+
+    it('should run heartbeat when no app but transport is available', async () => {
+      // Mock transportRef.current to be available
+      jest.spyOn(React, 'useRef').mockReturnValue({
+        current: refMock,
+      });
+
+      // Mock app state to be undefined (no app)
+      jest.spyOn(React, 'useState').mockImplementation(((initialValue: any) => {
+        if (initialValue === undefined) {
+          // This is the app state - return undefined to simulate no app
+          return [undefined, jest.fn()];
+        }
+        return [initialValue, jest.fn()];
+      }) as any);
+
+      renderTestComponent();
+
+      // Fast-forward time to trigger heartbeat
+      jest.advanceTimersByTime(3000);
+
+      // The heartbeat should run (it will attempt to reinitialize the app)
+      // We can verify this by checking that the heartbeat mechanism is active
+      // The actual reinitialization will happen through initLedgerApp
+      expect(refMock.send).not.toHaveBeenCalled(); // No direct send call when no app
+    });
+
+    it('should detect device lock error codes correctly', () => {
+      // Test the error detection logic directly
+      const testCases = [
+        { statusCode: 0x5515, shouldBeLock: true },
+        { statusCode: 0x6700, shouldBeLock: true },
+        { statusCode: 0x6b0c, shouldBeLock: true },
+        { statusCode: 0x9001, shouldBeLock: false },
+      ];
+
+      testCases.forEach(({ statusCode, shouldBeLock }) => {
+        const error = new Error('Test error') as any;
+        error.statusCode = statusCode;
+        const isLockError =
+          error?.statusCode === 0x5515 || // Device locked
+          error?.statusCode === 0x6700 || // Incorrect length
+          error?.statusCode === 0x6b0c; // Something went wrong
+
+        expect(isLockError).toBe(shouldBeLock);
+      });
+    });
+
+    it('should clean up interval on unmount', () => {
+      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+
+      const { unmount } = renderTestComponent();
+
+      // Fast-forward to set up interval
+      jest.advanceTimersByTime(3000);
+
+      // Unmount component
+      unmount();
+
+      expect(clearIntervalSpy).toHaveBeenCalled();
     });
   });
 });

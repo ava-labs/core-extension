@@ -3,6 +3,7 @@ import { FunctionIsUnavailable } from '@/components/common/FunctionIsUnavailable
 import { PageTitle } from '@/components/common/PageTitle';
 import { TokenSelect } from '@/components/common/TokenSelect';
 import {
+  calculateRate,
   isJupiterQuote,
   isParaswapQuote,
   SwapQuote,
@@ -42,7 +43,7 @@ import { SwapError } from './components/SwapError';
 import { TransactionDetails } from './components/TransactionDetails';
 import { useSwapStateFunctions } from './hooks/useSwapStateFunctions';
 import { SwappableToken } from './models';
-import { calculateRate, isSlippageValid } from './utils';
+import { isSlippageValid } from './utils';
 import { useHistory } from 'react-router-dom';
 import { useSwappableTokens } from './hooks/useSwapTokens';
 import { SwapEngineNotice } from './components/SwapEngineNotice';

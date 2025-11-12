@@ -9,6 +9,7 @@ const GUTTER = 10;
 export function VirtualizedGrid({
   items,
   cellRenderer,
+  isPopupOpen,
 }: {
   items: FormattedCollectible[];
   cellRenderer: (
@@ -17,6 +18,7 @@ export function VirtualizedGrid({
     virtualizer: ReturnType<typeof useVirtualizer>,
     columnWidth: number,
   ) => React.ReactNode;
+  isPopupOpen: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [columnWidth, setColumnWidth] = useState(0);
@@ -119,7 +121,7 @@ export function VirtualizedGrid({
   return (
     <Box
       ref={containerRef}
-      key={`${itemsKey}-${columnWidth}`}
+      key={isPopupOpen ? undefined : `${itemsKey}-${columnWidth}`} // Prevent re-rendering when popup is open
       sx={{ position: 'relative', width: '100%' }}
     >
       <Box

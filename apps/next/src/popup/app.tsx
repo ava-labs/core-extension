@@ -6,7 +6,6 @@ import {
 } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
-  AnalyticsContextProvider,
   ApprovalsContextProvider,
   BalancesProvider,
   ContactsContextProvider,
@@ -14,10 +13,11 @@ import {
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
-  NetworkContextProvider,
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SwapContextProvider,
+  useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
@@ -33,7 +33,9 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
-import { getContactsPath, getSendPath } from '@/config/routes';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
@@ -44,9 +46,12 @@ const pagesWithoutHeader = [
   '/receive',
   '/approve',
   '/permissions',
+  '/network/switch',
   '/manage-tokens',
+  '/trending',
   getContactsPath(),
   getSendPath(),
+  getSwapPath(),
 ];
 
 // Create a client for React Query
@@ -68,12 +73,15 @@ export function App() {
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
 
+  const { isDeveloperMode } = useNetworkContext();
   const isApprovalContext = isSpecificContextContainer(
     ContextContainer.CONFIRM,
   );
   const isAppContext =
     isSpecificContextContainer(ContextContainer.POPUP) ||
     isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+
+  const swapToastCallbacks = useSwapCallbacks();
 
   useEffect(() => {
     /* The list of contexts that should support navigation history */
@@ -109,26 +117,30 @@ export function App() {
     <Providers
       providers={
         Children.toArray([
-          <ThemeProvider theme={preferredColorScheme} />,
+          <ThemeProvider
+            theme={isDeveloperMode ? 'dark' : preferredColorScheme}
+          />,
           <QueryClientProvider client={queryClient} />,
-          <AnalyticsContextProvider />,
           <PersonalAvatarProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
           <OnboardingContextProvider
             onError={(message: string) => toast.error(message)}
-            LoadingComponent={CircularProgress}
+            LoadingComponent={LoadingScreen}
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
-          <NetworkContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
-          <WalletContextProvider LockedComponent={LockScreen} />,
+          <WalletContextProvider
+            LockedComponent={LockScreen}
+            LoadingComponent={LoadingScreen}
+          />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
           <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
+          <SwapContextProvider {...swapToastCallbacks} />,
         ]) as ReactElement[]
       }
     >

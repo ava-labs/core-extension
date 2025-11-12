@@ -67,6 +67,7 @@ type ManageCollectiblesListItemProps = {
 export const ManageCollectiblesListItem = ({
   nft,
 }: ManageCollectiblesListItemProps) => {
+  const { network } = useNetworkContext();
   const { getCollectibleVisibility, toggleCollectibleVisibility } =
     useSettingsContext();
 
@@ -100,8 +101,10 @@ export const ManageCollectiblesListItem = ({
       </Stack>
       <Switch
         size="small"
-        checked={getCollectibleVisibility(nft)}
-        onChange={() => toggleCollectibleVisibility(nft)}
+        checked={getCollectibleVisibility(nft, network?.caipId)}
+        onChange={() =>
+          network && toggleCollectibleVisibility(nft, network.caipId)
+        }
       />
     </Stack>
   );

@@ -1,4 +1,4 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
+import { AvalancheCaip2ChainId, ChainId } from '@avalabs/core-chains-sdk';
 import {
   Avalanche,
   BitcoinProvider,
@@ -13,20 +13,23 @@ import {
 } from '@core/types';
 
 import {
+  buildCoreEth,
+  getNetworkCaipId,
+  getProviderForNetwork,
+  updateIfDifferent,
+} from '@core/common';
+import {
+  AddEnabledNetworkHandler,
   AddFavoriteNetworkHandler,
   GetNetworksStateHandler,
   RemoveCustomNetworkHandler,
+  RemoveEnabledNetworkHandler,
   RemoveFavoriteNetworkHandler,
   SaveCustomNetworkHandler,
   SetActiveNetworkHandler,
   SetDevelopermodeNetworkHandler,
   UpdateDefaultNetworkHandler,
 } from '@core/service-worker';
-import {
-  getNetworkCaipId,
-  getProviderForNetwork,
-  updateIfDifferent,
-} from '@core/common';
 import {
   Dispatch,
   PropsWithChildren,
@@ -41,9 +44,10 @@ import {
 import { filter, map } from 'rxjs';
 import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
-import { networkChanged } from './networkChanges';
-import { networksUpdatedEventListener } from './networksUpdatedEventListener';
 import { isNetworkUpdatedEvent } from './isNetworkUpdatedEvent';
+import { networkChanged } from './networkChanges';
+import { promoteAvalancheNetworks } from './networkSortingFn';
+import { networksUpdatedEventListener } from './networksUpdatedEventListener';
 
 const NetworkContext = createContext<{
   network?: NetworkWithCaipId | undefined;
@@ -55,9 +59,12 @@ const NetworkContext = createContext<{
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
   favoriteNetworks: NetworkWithCaipId[];
+  enabledNetworks: number[];
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
+  enableNetwork(chainId: number): void;
+  disableNetwork(chainId: number): void;
   customNetworks: NetworkWithCaipId[];
   isCustomNetwork(chainId: number): boolean;
   isChainIdExist(chainId: number): boolean;
@@ -76,14 +83,18 @@ const NetworkContext = createContext<{
   async removeCustomNetwork() {},
   isDeveloperMode: false,
   favoriteNetworks: [],
+  enabledNetworks: [],
   addFavoriteNetwork() {},
   removeFavoriteNetwork() {},
   isFavoriteNetwork: () => false,
+  enableNetwork() {},
+  disableNetwork() {},
   customNetworks: [],
   isCustomNetwork: () => false,
   isChainIdExist: () => false,
   getNetwork: () => undefined,
   avaxProviderC: undefined,
+
   ethereumProvider: undefined,
   bitcoinProvider: undefined,
 });
@@ -98,6 +109,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
   const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
+  const [enabledNetworks, setEnabledNetworks] = useState<number[]>([]);
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
 
@@ -135,6 +147,13 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
 
   const getNetwork = useCallback(
     (lookupChainId: number | string) => {
+      // If Core Eth is requested, we need to build it (it is not present on the network list).
+      if (lookupChainId === AvalancheCaip2ChainId.C) {
+        return buildCoreEth(getNetwork(ChainId.AVALANCHE_MAINNET_ID));
+      } else if (lookupChainId === AvalancheCaip2ChainId.C_TESTNET) {
+        return buildCoreEth(getNetwork(ChainId.AVALANCHE_TESTNET_ID));
+      }
+
       return networks.find(
         ({ chainId, caipId }) =>
           chainId === lookupChainId || caipId === lookupChainId,
@@ -205,11 +224,24 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     return request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      updateIfDifferent(setNetworks, result.networks);
+      updateIfDifferent(
+        setNetworks,
+        result.networks.sort(promoteAvalancheNetworks),
+      );
       updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
-      updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
-      updateIfDifferent(setCustomNetworks, result.customNetworks);
+      updateIfDifferent(
+        setFavoriteNetworks,
+        result.favoriteNetworks.sort(promoteAvalancheNetworks),
+      );
+      updateIfDifferent(
+        setEnabledNetworks,
+        result.enabledNetworks.sort(promoteAvalancheNetworks),
+      );
+      updateIfDifferent(
+        setCustomNetworks,
+        result.customNetworks.sort(promoteAvalancheNetworks),
+      );
     });
   }, [request]);
 
@@ -221,10 +253,22 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   };
 
   const saveCustomNetwork = async (customNetwork: CustomNetworkPayload) => {
-    return request<SaveCustomNetworkHandler>({
+    const result = await request<SaveCustomNetworkHandler>({
       method: ExtensionRequest.NETWORK_SAVE_CUSTOM,
       params: [customNetwork],
     }).then(getNetworkState);
+
+    const chainId =
+      typeof customNetwork.chainId === 'string'
+        ? parseInt(customNetwork.chainId, 16)
+        : customNetwork.chainId;
+
+    capture('NetworkFavoriteAdded', {
+      networkChainId: chainId,
+      isCustom: true,
+    });
+
+    return result;
   };
 
   const updateDefaultNetwork = async (networkOverrides: NetworkOverrides) => {
@@ -257,8 +301,18 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         map((evt) => evt.value),
       )
       .subscribe(async (result) => {
-        updateIfDifferent(setNetworks, result.networks);
-        updateIfDifferent(setFavoriteNetworks, result.favoriteNetworks);
+        updateIfDifferent(
+          setNetworks,
+          result.networks.sort(promoteAvalancheNetworks),
+        );
+        updateIfDifferent(
+          setFavoriteNetworks,
+          result.favoriteNetworks.sort(promoteAvalancheNetworks),
+        );
+        updateIfDifferent(
+          setEnabledNetworks,
+          result.enabledNetworks.sort(promoteAvalancheNetworks),
+        );
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
           networkChanged.dispatch(newNetwork?.caipId);
@@ -266,7 +320,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
           return newNetwork;
         });
         setCustomNetworks(
-          Object.values(result.customNetworks).map(({ chainId }) => chainId),
+          Object.values(result.customNetworks)
+            .sort(promoteAvalancheNetworks)
+            .map(({ chainId }) => chainId),
         );
       });
 
@@ -275,6 +331,30 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       networksSubscription.unsubscribe();
     };
   }, [events, getNetworkState]);
+
+  const enableNetwork = useCallback(
+    (chainId: number) => {
+      request<AddEnabledNetworkHandler>({
+        method: ExtensionRequest.ENABLE_NETWORK,
+        params: chainId,
+      }).then((result) =>
+        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
+      );
+    },
+    [request],
+  );
+
+  const disableNetwork = useCallback(
+    (chainId: number) => {
+      request<RemoveEnabledNetworkHandler>({
+        method: ExtensionRequest.DISABLE_NETWORK,
+        params: chainId,
+      }).then((result) =>
+        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
+      );
+    },
+    [request],
+  );
 
   return (
     <NetworkContext.Provider
@@ -296,12 +376,13 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
         favoriteNetworks: getFavoriteNetworks,
+        enabledNetworks: enabledNetworks,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
             params: [chainId],
           }).then((result) => {
-            setFavoriteNetworks(result);
+            setFavoriteNetworks(result.sort(promoteAvalancheNetworks));
             capture('NetworkFavoriteAdded', {
               networkChainId: chainId,
               isCustom: isCustomNetwork(chainId),
@@ -322,6 +403,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         },
         isFavoriteNetwork: (chainId: number) =>
           favoriteNetworks.includes(chainId),
+        enableNetwork,
+        disableNetwork,
         customNetworks: getCustomNetworks,
         isCustomNetwork,
         isChainIdExist,

@@ -25,6 +25,11 @@ describe('utils/getPriceChangeValues', () => {
       priceChangePercentage: 100,
       priceChange: 1,
     },
+    avax: {
+      priceChangePercentage: 100,
+      priceChange: 1,
+      currentPrice: 5,
+    },
   };
 
   it('should return the calculated changes', () => {
@@ -36,6 +41,7 @@ describe('utils/getPriceChangeValues', () => {
     expect(changes).toEqual({
       value: 3,
       percentage: 100,
+      currentPrice: undefined,
     });
   });
   it('should return an empty calculation because of the missing price changes', () => {
@@ -46,6 +52,7 @@ describe('utils/getPriceChangeValues', () => {
     expect(changes).toEqual({
       value: 0,
       percentage: undefined,
+      currentPrice: undefined,
     });
   });
   it('should return an empty calculation because of the missing balanceInCurrency value', () => {
@@ -53,6 +60,20 @@ describe('utils/getPriceChangeValues', () => {
     expect(changes).toEqual({
       value: 0,
       percentage: undefined,
+      currentPrice: undefined,
+    });
+  });
+
+  it('should return the calculated changes for AVAX', () => {
+    const changes = getPriceChangeValues(
+      'AVAX',
+      network1TokenBalance.balanceInCurrency,
+      priceChanges,
+    );
+    expect(changes).toEqual({
+      value: 3,
+      percentage: 100,
+      currentPrice: 5,
     });
   });
 });

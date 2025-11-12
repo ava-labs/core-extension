@@ -1,7 +1,7 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo } from 'react';
-import { Collapse, Grow, Stack } from '@avalabs/k2-alpine';
+import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import { useConvertedCurrencyFormatter } from '@core/ui';
@@ -18,8 +18,8 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
-  maxAmount: bigint;
-  estimatedFee: bigint;
+  maxAmount?: bigint;
+  estimatedFee?: bigint;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
   onTokenChange: (token: string) => void;
@@ -27,6 +27,10 @@ type TokenAmountInputProps = {
   onQueryChange: (tokenQuery: string) => void;
   amount: string;
   onAmountChange: (amount: string) => void;
+  withPresetButtons?: boolean;
+  tokenHint?: string;
+  autoFocus?: boolean;
+  isLoading?: boolean;
 };
 
 export const TokenAmountInput = ({
@@ -40,6 +44,10 @@ export const TokenAmountInput = ({
   onQueryChange,
   amount,
   onAmountChange,
+  withPresetButtons = true,
+  tokenHint,
+  autoFocus = true,
+  isLoading = false,
 }: TokenAmountInputProps) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
@@ -55,7 +63,7 @@ export const TokenAmountInput = ({
   const amountBigInt =
     token && amountHasValue ? stringToBigint(amount, token.decimals) : 0n;
 
-  const isAmountTooBig = token ? amountBigInt > maxAmount : false;
+  const isAmountTooBig = token && maxAmount ? amountBigInt > maxAmount : false;
 
   const handlePresetClick = useCallback(
     (percentage: number) => {
@@ -69,7 +77,7 @@ export const TokenAmountInput = ({
 
       // If sending the max. amount of a native token, we need to subtract the estimated fee.
       const amountToSubtract =
-        percentage === 100 && isNativeToken(token) ? estimatedFee : 0n;
+        percentage === 100 && isNativeToken(token) ? (estimatedFee ?? 0n) : 0n;
 
       const calculatedMaxAmount = tokenUnit
         .div(100 / percentage)
@@ -111,19 +119,31 @@ export const TokenAmountInput = ({
           onValueChange={onTokenChange}
           query={tokenQuery}
           onQueryChange={onQueryChange}
+          hint={tokenHint}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
-            autoFocus
+            autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange(ev.target.value)}
             error={Boolean(isAmountTooBig) || amountBigInt < 0n}
-            helperText={currencyValue || '-'} // Prevents the helper text from disappearing completely
+            helperText={
+              isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
+            }
+            slotProps={{
+              input: {
+                readOnly: isLoading,
+              },
+            }}
             value={amount}
           />
         </Grow>
       </Stack>
-      <Collapse in={Boolean(token)} mountOnEnter unmountOnExit>
+      <Collapse
+        in={withPresetButtons && Boolean(token)}
+        mountOnEnter
+        unmountOnExit
+      >
         <Stack
           direction="row"
           width="100%"

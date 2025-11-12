@@ -45,7 +45,7 @@ export const Tab = styled(MuiTab)(({ theme }) => ({
   },
 
   '[data-size="small"] &': {
-    maxWidth: '80px',
+    flex: 1,
     paddingBlock: theme.spacing(1),
     paddingInline: theme.spacing(2),
   },

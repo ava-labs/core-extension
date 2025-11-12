@@ -10,6 +10,8 @@ import {
   BatchTokenBalanceChange,
   SingleTokenBalanceChange,
 } from './components';
+import { SimulationAlertBox } from './components/SimulationAlertBox';
+import { useTranslation } from 'react-i18next';
 
 type TransactionBalanceChangeProps = BalanceChange & {
   isSimulationSuccessful?: boolean;
@@ -18,51 +20,84 @@ type TransactionBalanceChangeProps = BalanceChange & {
 export const TransactionBalanceChange: FC<TransactionBalanceChangeProps> = ({
   ins,
   outs,
+  isSimulationSuccessful,
 }) => {
-  // TODO: Add the warnings below -- to be defined by the UX team.
-  // const hasSentItems = outs.length > 0;
-  // const hasReceivedItems = ins.length > 0;
-  // const showNoPreExecWarning = isSimulationSuccessful === false; // may be undefined
-  // const showNoDataWarning =
-  //   !hasSentItems && !hasReceivedItems && !isSimulationSuccessful;
+  const { t } = useTranslation();
+
+  const hasSentItems = outs.filter(({ items }) => items.length > 0).length > 0;
+  const hasReceivedItems =
+    ins.filter(({ items }) => items.length > 0).length > 0;
+  const hasSomeBalanceChangeInfo = hasSentItems || hasReceivedItems;
+  const showNoPreExecWarning = isSimulationSuccessful === false; // may be undefined
+  const showNoDataWarning = hasSomeBalanceChangeInfo && !isSimulationSuccessful;
 
   return (
-    <DetailsSection>
-      {outs.map(({ token, items }) =>
-        items.length === 1 ? (
-          <SingleTokenBalanceChange
-            key={isNetworkContractToken(token) ? token.address : token.symbol}
-            token={token}
-            item={items[0]!}
-            direction="loss"
-          />
-        ) : (
-          <BatchTokenBalanceChange
-            key={isNetworkContractToken(token) ? token.address : token.symbol}
-            token={token}
-            items={items}
-            direction="loss"
-          />
-        ),
+    <>
+      {hasSomeBalanceChangeInfo && (
+        <DetailsSection>
+          {outs.map(({ token, items }) =>
+            items.length <= 1 ? (
+              <SingleTokenBalanceChange
+                key={
+                  isNetworkContractToken(token) ? token.address : token.symbol
+                }
+                token={token}
+                item={items[0]!}
+                direction="loss"
+              />
+            ) : (
+              <BatchTokenBalanceChange
+                key={
+                  isNetworkContractToken(token) ? token.address : token.symbol
+                }
+                token={token}
+                items={items}
+                direction="loss"
+              />
+            ),
+          )}
+          {ins
+            .filter(({ items }) => items.length > 0)
+            .map(({ token, items }) =>
+              items.length <= 1 ? (
+                <SingleTokenBalanceChange
+                  key={
+                    isNetworkContractToken(token) ? token.address : token.symbol
+                  }
+                  token={token}
+                  item={items[0]!}
+                  direction="gain"
+                />
+              ) : (
+                <BatchTokenBalanceChange
+                  key={
+                    isNetworkContractToken(token) ? token.address : token.symbol
+                  }
+                  token={token}
+                  items={items}
+                  direction="gain"
+                />
+              ),
+            )}
+        </DetailsSection>
       )}
-      {ins.map(({ token, items }) =>
-        items.length === 1 ? (
-          <SingleTokenBalanceChange
-            key={isNetworkContractToken(token) ? token.address : token.symbol}
-            token={token}
-            item={items[0]!}
-            direction="gain"
-          />
-        ) : (
-          <BatchTokenBalanceChange
-            key={isNetworkContractToken(token) ? token.address : token.symbol}
-            token={token}
-            items={items}
-            direction="gain"
-          />
-        ),
+      {showNoPreExecWarning && (
+        <SimulationAlertBox
+          textLines={[
+            t('Transaction pre-execution is unavailable.'),
+            t('The displayed token list might be incomplete.'),
+          ]}
+        />
       )}
-    </DetailsSection>
+      {!showNoPreExecWarning && showNoDataWarning && (
+        <SimulationAlertBox
+          textLines={[
+            t('Balance change unavailable.'),
+            t('Proceed with caution.'),
+          ]}
+        />
+      )}
+    </>
   );
 };
 

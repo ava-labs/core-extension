@@ -54,6 +54,8 @@ import {
 } from './listeners';
 import { useConnectionContext } from '../ConnectionProvider';
 import { getLedgerTransport } from '../utils/getLedgerTransport';
+import TransportWebHID from '@ledgerhq/hw-transport-webhid';
+import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -65,6 +67,12 @@ export enum LedgerAppType {
 
 export const REQUIRED_LEDGER_VERSION = '0.7.3';
 export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
+
+const LEDGER_ERROR_CODES = Object.freeze({
+  DEVICE_LOCKED: 0x5515,
+  INCORRECT_LENGTH: 0x6700,
+  SOMETHING_WRONG: 0x6b0c,
+});
 
 /**
  * Run this here since each new window will have a different id
@@ -363,8 +371,14 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     if (app) {
       return true;
     }
-    const [usbTransport] = await resolve(TransportWebUSB.request());
-    if (usbTransport) {
+
+    const useWebHID = await shouldUseWebHID();
+
+    const [deviceTransport] = await resolve<Transport>(
+      useWebHID ? TransportWebHID.request() : TransportWebUSB.request(),
+    );
+
+    if (deviceTransport) {
       return true;
     }
 
@@ -486,6 +500,61 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     });
     setLedgerVersionWarningClosed(result);
   }, [request]);
+
+  // Ledger Stax getting locked when connected via USB needs to be detected and the transport needs to be cleared
+  // Heartbeat mechanism is being used to detect device lock
+  useEffect(() => {
+    let isCheckingHeartbeat = false;
+
+    const checkHeartbeat = async () => {
+      if (isCheckingHeartbeat || !transportRef.current) {
+        return;
+      }
+
+      isCheckingHeartbeat = true;
+
+      try {
+        if (!app) {
+          // No app instance - try to re-establish connection
+          await initLedgerApp(transportRef.current);
+        } else {
+          // Send a simple GET_VERSION command which should always require device interaction
+          await transportRef.current.send(
+            0xe0, // CLA - Generic command class
+            0x01, // INS - Get version instruction
+            0x00, // P1
+            0x00, // P2
+            Buffer.alloc(0), // Data
+            [0x9000], // Expected status code for success
+          );
+        }
+      } catch (error: any) {
+        // Check if this looks like a device lock error
+        const isLockError = Object.values(LEDGER_ERROR_CODES).includes(
+          error?.statusCode,
+        );
+
+        if (isLockError && app) {
+          // Device appears to be locked, clearing transport but keeping heartbeat running
+          setApp(undefined);
+          setAppType(LedgerAppType.UNKNOWN);
+        }
+      } finally {
+        isCheckingHeartbeat = false;
+      }
+    };
+
+    // Check heartbeat every 3 seconds to detect if the device is locked (3 seconds might be too excessive, but it's a good starting point to avoid false positives)
+    const heartbeatInterval = setInterval(checkHeartbeat, 3000);
+
+    checkHeartbeat();
+
+    return () => {
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+      }
+    };
+  }, [app, initLedgerApp]);
 
   return (
     <LedgerContext.Provider

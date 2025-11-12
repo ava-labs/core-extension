@@ -50,7 +50,6 @@ export const useSolanaSend = ({
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let isMounted = true;
     setError('');
 
     if (!to || !isValidSvmAddress(to)) {
@@ -75,11 +74,11 @@ export const useSolanaSend = ({
     if (isSolanaNativeToken(token)) {
       const provider = getSolanaProvider(network);
       getAccountOccupiedSpace(to, provider).then((accountSpace) => {
-        if (!isMounted || accountSpace !== 0n) return;
+        if (accountSpace !== 0n) return;
         // If the recipient account does not hold any data, the first transfer
         // must be greater than the rent-exempt minimum.
         getRentExemptMinimum(0n, provider).then((minimum) => {
-          if (!isMounted || amount >= minimum) return;
+          if (amount >= minimum) return;
           setError(
             t('Minimum amount is {{minimum}}.', {
               minimum: `${new TokenUnit(minimum, token.decimals, token.symbol).toDisplay()} ${token.symbol}`,
@@ -88,10 +87,6 @@ export const useSolanaSend = ({
         });
       });
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [maxAmount, t, to, estimatedFee, amount, token, network]);
 
   const send = useCallback(async () => {

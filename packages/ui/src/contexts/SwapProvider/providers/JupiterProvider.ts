@@ -149,6 +149,15 @@ export const JupiterProvider: SwapProvider = {
       throw swapError(CommonError.MismatchingProvider);
     }
 
+    // If no fee account is available, remove platformFee from quote to maintain consistency
+    // Jupiter API expects either both platformFee + feeAccount or neither
+    const cleanedQuote = feeAccount
+      ? quote
+      : {
+          ...quote,
+          platformFee: null,
+        };
+
     const [txResponse, buildTxError] = await resolve(
       fetchAndVerify(
         [
@@ -159,10 +168,10 @@ export const JupiterProvider: SwapProvider = {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              quoteResponse: quote,
+              quoteResponse: cleanedQuote,
               userPublicKey: userAddress,
               dynamicComputeUnitLimit: true, // Gives us a higher chance of the transaction landing
-              feeAccount,
+              ...(feeAccount && { feeAccount }),
             }),
           },
         ],

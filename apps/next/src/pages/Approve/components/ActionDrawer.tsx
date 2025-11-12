@@ -6,60 +6,73 @@ import {
   StackProps,
   styled,
 } from '@avalabs/k2-alpine';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DisplayData } from '@avalabs/vm-module-types';
 
-import { Action, ActionStatus } from '@core/types';
+import { InDrawerAlert } from './warnings/InDrawerAlert';
 
 type ActionDrawerProps = StackProps & {
   open: boolean;
   approve?: () => void;
   reject?: () => void;
-  action: Action<DisplayData>;
+  withConfirmationSwitch?: boolean;
+  isProcessing: boolean;
 };
 
 export const ActionDrawer = ({
   open,
   approve,
   reject,
-  action,
+  withConfirmationSwitch,
+  isProcessing,
   ...props
 }: ActionDrawerProps) => {
   const { t } = useTranslation();
 
+  const [userHasConfirmed, setUserHasConfirmed] = useState(false);
+
   return (
     <Slide in={open} direction="up" mountOnEnter unmountOnExit>
       <Drawer {...props}>
-        {approve && (
-          <Button
-            variant="contained"
-            color="primary"
-            size="extension"
-            onClick={approve}
-            disabled={action.status === ActionStatus.SUBMITTING}
-            loading={action.status === ActionStatus.SUBMITTING}
-          >
-            {t('Approve')}
-          </Button>
+        {withConfirmationSwitch && (
+          <InDrawerAlert
+            isConfirmed={userHasConfirmed}
+            setIsConfirmed={setUserHasConfirmed}
+          />
         )}
-        {reject && (
-          <Button
-            variant="contained"
-            color="secondary"
-            size="extension"
-            onClick={reject}
-            disabled={action.status === ActionStatus.SUBMITTING}
-            loading={action.status === ActionStatus.SUBMITTING}
-          >
-            {t('Reject')}
-          </Button>
-        )}
+        <Stack gap={1}>
+          {approve && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="extension"
+              onClick={approve}
+              disabled={
+                isProcessing || (withConfirmationSwitch && !userHasConfirmed)
+              }
+              loading={isProcessing}
+            >
+              {t('Approve')}
+            </Button>
+          )}
+          {reject && (
+            <Button
+              variant="contained"
+              color="secondary"
+              size="extension"
+              onClick={reject}
+              disabled={isProcessing}
+            >
+              {t('Reject')}
+            </Button>
+          )}
+        </Stack>
       </Drawer>
     </Slide>
   );
 };
 
-const Drawer = styled(Stack)(({ theme }) => ({
+export const Drawer = styled(Stack)(({ theme }) => ({
   width: '100%',
   position: 'sticky',
   bottom: 0,

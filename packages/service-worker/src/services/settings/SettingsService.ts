@@ -185,6 +185,11 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
+  async getTokensVisibility() {
+    const settings = await this.getSettings();
+    return settings.tokensVisibility;
+  }
+
   async setCollectiblesVisibility(visibility: CollectiblesVisibility) {
     const settings = await this.getSettings();
     await this.saveSettings({

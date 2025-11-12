@@ -1,7 +1,7 @@
 import { Stack, toast } from '@avalabs/core-k2-components';
 import { Header } from '@/components/common/header/Header';
 import { WalletLoading } from '@/components/common/WalletLoading';
-import { AccountsContextProvider } from '@core/ui';
+import { AccountsContextProvider, WalletTotalBalanceProvider } from '@core/ui';
 import { BalancesProvider } from '@core/ui';
 import { BridgeProvider } from '@core/ui';
 import { ContactsContextProvider } from '@core/ui';
@@ -156,7 +156,10 @@ export function Popup() {
                 }
               >
                 <NetworkFeeContextProvider>
-                  <WalletContextProvider LockedComponent={WalletLocked}>
+                  <WalletContextProvider
+                    LockedComponent={WalletLocked}
+                    LoadingComponent={LoadingContent}
+                  >
                     <NotificationsContextProvider>
                       <CurrenciesContextProvider>
                         <BalancesProvider>
@@ -176,50 +179,53 @@ export function Popup() {
                                           <SeedlessMfaManagementProvider>
                                             <WalletLoading>
                                               <ApprovalsContextProvider>
-                                                <TestnetBanner />
-                                                <AnalyticsOptInDialog />
-                                                <Stack
-                                                  sx={{
-                                                    flexGrow: 1,
-                                                    width: dimensions.width,
-                                                    maxHeight: 'auto',
-                                                    overflow: 'auto',
-                                                    alignItems: 'center',
-                                                    margin: 'auto',
-                                                  }}
-                                                >
-                                                  {displayHeader && (
-                                                    <Stack sx={{ width: 1 }}>
-                                                      <Header />
-                                                    </Stack>
-                                                  )}
-
+                                                <WalletTotalBalanceProvider>
+                                                  <TestnetBanner />
+                                                  <AnalyticsOptInDialog />
                                                   <Stack
-                                                    direction="row"
                                                     sx={{
                                                       flexGrow: 1,
-                                                      justifyContent: 'center',
-                                                      py: isMiniMode ? 0 : 2,
-                                                      maxWidth: '100%',
-                                                      maxHeight: '100%',
-                                                      width: appWidth,
+                                                      width: dimensions.width,
+                                                      maxHeight: 'auto',
+                                                      overflow: 'auto',
+                                                      alignItems: 'center',
+                                                      margin: 'auto',
                                                     }}
                                                   >
-                                                    {isConfirm ? (
-                                                      <ApprovalRoutes />
-                                                    ) : (
-                                                      <AppRoutes />
+                                                    {displayHeader && (
+                                                      <Stack sx={{ width: 1 }}>
+                                                        <Header />
+                                                      </Stack>
                                                     )}
-                                                    <LedgerIncorrectDevice />
-                                                    <LedgerRegisterBtcWalletPolicy />
-                                                    <LedgerSolanaAddressPrompt />
-                                                    <SeedlessAuthPrompt />
-                                                    <WhatsNewModal />
-                                                    {isMiniMode && (
-                                                      <InAppApprovalOverlay />
-                                                    )}
+
+                                                    <Stack
+                                                      direction="row"
+                                                      sx={{
+                                                        flexGrow: 1,
+                                                        justifyContent:
+                                                          'center',
+                                                        py: isMiniMode ? 0 : 2,
+                                                        maxWidth: '100%',
+                                                        maxHeight: '100%',
+                                                        width: appWidth,
+                                                      }}
+                                                    >
+                                                      {isConfirm ? (
+                                                        <ApprovalRoutes />
+                                                      ) : (
+                                                        <AppRoutes />
+                                                      )}
+                                                      <LedgerIncorrectDevice />
+                                                      <LedgerRegisterBtcWalletPolicy />
+                                                      <LedgerSolanaAddressPrompt />
+                                                      <SeedlessAuthPrompt />
+                                                      <WhatsNewModal />
+                                                      {isMiniMode && (
+                                                        <InAppApprovalOverlay />
+                                                      )}
+                                                    </Stack>
                                                   </Stack>
-                                                </Stack>
+                                                </WalletTotalBalanceProvider>
                                               </ApprovalsContextProvider>
                                             </WalletLoading>
                                           </SeedlessMfaManagementProvider>

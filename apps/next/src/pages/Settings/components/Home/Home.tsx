@@ -3,6 +3,7 @@ import {
   ChevronRightIcon,
   Stack,
   Switch,
+  toast,
   Typography,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
@@ -39,6 +40,7 @@ import {
 import { CurrencySelector } from '../CurrencySelector';
 import { ThemeSelector } from '../ThemeSelector';
 import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
+import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 
 export const SettingsHomePage = () => {
   const { t } = useTranslation();
@@ -66,7 +68,14 @@ export const SettingsHomePage = () => {
         <SwitchCard
           titleSize="small"
           checked={isDeveloperMode}
-          onChange={() => setDeveloperMode(!isDeveloperMode)}
+          onChange={() => {
+            setDeveloperMode(!isDeveloperMode);
+            toast.info(
+              isDeveloperMode
+                ? t('Testnet mode is off')
+                : t('Testnet mode is on'),
+            );
+          }}
           title={t('Testnet mode')}
           description={t(
             'Enable a sandbox environment for testing without using real funds',
@@ -126,11 +135,17 @@ export const SettingsHomePage = () => {
         />
         <SettingsNavItem
           label={t('View preference')}
+          divider
           secondaryAction={
             <ViewPreferenceSelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
             />
           }
+        />
+        <SettingsNavItem
+          label={t('Networks')}
+          href={`${path}/network-management`}
+          divider
         />
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
@@ -242,6 +257,12 @@ export const SettingsHomePage = () => {
         {t('Lock Core')}
       </Button>
       <Footer mt={4} />
+      {isDeveloperMode && (
+        <TestnetModeOverlay
+          verticalLines={[12, -12]}
+          horizontalLines={[80, 102, 116]}
+        />
+      )}
     </Page>
   );
 };
