@@ -25,9 +25,8 @@ export const AddTotp = () => {
 
   const [totpChallenge, setTotpChallenge] = useState<TotpResetChallenge>();
 
-  const [screenState, setScreenState] = useState<AuthenticatorState>(
-    AuthenticatorState.Initiated,
-  );
+  const [screenState, setScreenState] =
+    useState<AuthenticatorState>('initiated');
 
   const [code, setCode] = useState('');
 
@@ -57,10 +56,10 @@ export const AddTotp = () => {
       try {
         const challenge = await initAuthenticatorChange();
         setTotpChallenge(challenge);
-        setScreenState(AuthenticatorState.Pending);
+        setScreenState('pending');
       } catch {
         setTotpChallenge(undefined);
-        setScreenState(AuthenticatorState.Failure);
+        setScreenState('failure');
       }
     };
     initChange();
@@ -69,13 +68,13 @@ export const AddTotp = () => {
   return (
     <Stack sx={{ height: '100%' }}>
       {!totpChallenge && <MFA />}
-      {screenState === AuthenticatorState.Pending && totpChallenge && (
+      {screenState === 'pending' && totpChallenge && (
         <SeedlessTotpQRCode
           challengeUrl={totpChallenge?.totpUrl ?? ''}
-          onNext={() => setScreenState(AuthenticatorState.VerifyCode)}
+          onNext={() => setScreenState('verify-code')}
         />
       )}
-      {screenState === AuthenticatorState.VerifyCode && totpChallenge && (
+      {screenState === 'verify-code' && totpChallenge && (
         <>
           <FullscreenModalTitle>{t('Verify Code')}</FullscreenModalTitle>
           <FullscreenModalDescription>
@@ -104,7 +103,7 @@ export const AddTotp = () => {
           </FullscreenModalActions>
         </>
       )}
-      {screenState === AuthenticatorState.Failure && <RecoveryMethodFailure />}
+      {screenState === 'failure' && <RecoveryMethodFailure />}
     </Stack>
   );
 };

@@ -12,33 +12,30 @@ import { RecoveryMethodFailure } from '../components/RecoveryMethodFailure';
 import { AuthenticatorVerifyTotp } from './AuthenticatorVerifyTotp';
 import { useHistory } from 'react-router-dom';
 
-export enum AuthenticatorState {
-  Initial = 'initial',
-  Initiated = 'initiated',
-  ConfirmChange = 'confirm-change',
-  ConfirmRemoval = 'confirm-removal',
-  Pending = 'pending',
-  Completing = 'completing',
-  VerifyCode = 'verify-code',
-  Failure = 'failure',
-}
+export type AuthenticatorState =
+  | 'initial'
+  | 'initiated'
+  | 'confirm-change'
+  | 'confirm-removal'
+  | 'pending'
+  | 'completing'
+  | 'verify-code'
+  | 'failure';
 
 const getPageText = (screenState: AuthenticatorState, t: TFunction) => {
-  const headline = {
-    [AuthenticatorState.Initial]: t('Scan QR code'),
-    [AuthenticatorState.Initiated]: t('Scan QR code'),
-    [AuthenticatorState.VerifyCode]: t('Verify code'),
-    [AuthenticatorState.Failure]: t('Something went wrong'),
+  const headline: Partial<Record<AuthenticatorState, string>> = {
+    initial: t('Scan QR code'),
+    initiated: t('Scan QR code'),
+    'verify-code': t('Verify code'),
+    failure: t('Something went wrong'),
   };
 
-  const description = {
-    [AuthenticatorState.Initial]: t('Setting up your authenticator app.'),
-    [AuthenticatorState.Initiated]: t(
+  const description: Partial<Record<AuthenticatorState, string>> = {
+    initial: t('Setting up your authenticator app.'),
+    initiated: t(
       'Open any authenticator app and scan the QR code below or enter the code manually',
     ),
-    [AuthenticatorState.VerifyCode]: t(
-      'Enter the code generated from the authenticator app',
-    ),
+    'verify-code': t('Enter the code generated from the authenticator app'),
   };
   return {
     title: headline[screenState],
@@ -53,9 +50,7 @@ export const Authenticator: FC = () => {
     useSeedlessMfaManager();
   const [totpChallenge, setTotpChallenge] = useState<TotpResetChallenge>();
   const [showSecret, setShowSecret] = useState(false);
-  const [screenState, setScreenState] = useState<AuthenticatorState>(
-    AuthenticatorState.Initial,
-  );
+  const [screenState, setScreenState] = useState<AuthenticatorState>('initial');
   const [code, setCode] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<AuthErrorCode>();
@@ -69,10 +64,10 @@ export const Authenticator: FC = () => {
       try {
         const challenge = await initAuthenticatorChange();
         setTotpChallenge(challenge);
-        setScreenState(AuthenticatorState.Initiated);
+        setScreenState('initiated');
       } catch {
         setTotpChallenge(undefined);
-        setScreenState(AuthenticatorState.Failure);
+        setScreenState('failure');
       }
     };
     initChange();
@@ -89,7 +84,7 @@ export const Authenticator: FC = () => {
   const onCodeSubmit = useCallback(async () => {
     setIsSubmitted(true);
     if (!totpChallenge) {
-      setScreenState(AuthenticatorState.Failure);
+      setScreenState('failure');
       return;
     }
     try {
@@ -111,25 +106,21 @@ export const Authenticator: FC = () => {
       onBack={goBack}
     >
       <Typography variant="caption">{description}</Typography>
-      {screenState === AuthenticatorState.Initial && (
-        <InProgress textSize="body1" />
-      )}
-      {screenState === AuthenticatorState.Initiated &&
-        !showSecret &&
-        totpChallenge && (
-          <AuthenticatorVerifyScreen
-            totpChallenge={totpChallenge}
-            onNext={() => setScreenState(AuthenticatorState.VerifyCode)}
-            onShowSecret={() => setShowSecret(true)}
-          />
-        )}
-      {screenState === AuthenticatorState.Initiated && showSecret && (
-        <AuthenticatorVerifyCode
-          totpSecret={totpSecret}
-          onNext={() => setScreenState(AuthenticatorState.VerifyCode)}
+      {screenState === 'initial' && <InProgress textSize="body1" />}
+      {screenState === 'initiated' && !showSecret && totpChallenge && (
+        <AuthenticatorVerifyScreen
+          totpChallenge={totpChallenge}
+          onNext={() => setScreenState('verify-code')}
+          onShowSecret={() => setShowSecret(true)}
         />
       )}
-      {totpChallenge && screenState === AuthenticatorState.VerifyCode && (
+      {screenState === 'initiated' && showSecret && (
+        <AuthenticatorVerifyCode
+          totpSecret={totpSecret}
+          onNext={() => setScreenState('verify-code')}
+        />
+      )}
+      {totpChallenge && screenState === 'verify-code' && (
         <AuthenticatorVerifyTotp
           onChange={(c) => {
             setCode(c);
@@ -140,7 +131,7 @@ export const Authenticator: FC = () => {
           isSubmitted={isSubmitted}
         />
       )}
-      {screenState === AuthenticatorState.Failure && <RecoveryMethodFailure />}
+      {screenState === 'failure' && <RecoveryMethodFailure />}
     </Page>
   );
 };

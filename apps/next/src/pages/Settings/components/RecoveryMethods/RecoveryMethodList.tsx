@@ -37,8 +37,12 @@ export const RecoveryMethodList = ({
     isYubikeyOn,
     isAuthenticatorOn,
     hasMFAConfigured,
-  });
+  }).filter(
+    (card) =>
+      (card.method === 'authenticator' && hasTotpConfigured) || card.isOn,
+  );
 
+  console.log('recoveryMethodCards', recoveryMethodCards);
   return (
     <>
       <Paper
@@ -53,22 +57,15 @@ export const RecoveryMethodList = ({
         {!noMFAMethodsAvailable && (
           <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
             {recoveryMethodCards.map((card, idx) => {
-              if (
-                (card.method === 'authenticator' && hasTotpConfigured) ||
-                !card.isOn
-              ) {
-                return null;
-              }
-
               return (
                 <CardMenuItem
                   onClick={() => {
                     capture(card.analyticsKey);
                     if (card.newTab === false) {
                       history.push(card.to);
-                      return;
+                    } else {
+                      openFullscreenTab(card.to);
                     }
-                    openFullscreenTab(card.to);
                   }}
                   icon={card.icon}
                   text={card.title}

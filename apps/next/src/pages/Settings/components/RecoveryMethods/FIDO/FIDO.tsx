@@ -38,20 +38,19 @@ export const FIDO = () => {
 
   const deviceId = `${id}${hash}`;
 
-  const remove = useCallback(async () => {
-    try {
-      await removeFidoDevice(deviceId);
-      toast.success(t('FIDO device removed!'));
-    } catch {
-      toast.error(t('Error occurred. Please try again.'));
-    } finally {
-      history.push('/settings/recovery-methods');
-    }
-  }, [deviceId, history, removeFidoDevice, t]);
-
   useEffect(() => {
+    const remove = async () => {
+      try {
+        await removeFidoDevice(deviceId);
+        toast.success(t('FIDO device removed!'));
+      } catch {
+        toast.error(t('Error occurred. Please try again.'));
+      } finally {
+        history.push('/settings/recovery-methods');
+      }
+    };
     remove();
-  }, [remove]);
+  }, [deviceId, history, removeFidoDevice, t]);
 
   const submitCode = useCallback(
     async (params: MfaResponseData) => {

@@ -7,7 +7,7 @@ import { openFullscreenTab } from '@core/common';
 import { useHistory } from 'react-router-dom';
 import { ConfirmPage } from './components/ConfirmPage';
 import { MethodCard } from './components/MethodCard';
-import { getIconForMethod } from './RecoveryMethodCard';
+import { getIconForMethod } from './utils';
 
 interface RecoveryMethodProps {
   method: RecoveryMethodType;
