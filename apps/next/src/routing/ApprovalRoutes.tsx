@@ -3,7 +3,7 @@ import { CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { Route, Switch, SwitchProps } from 'react-router-dom';
 
 import { GenericApprovalScreen } from '@/pages/Approve/GenericApprovalScreen';
-import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection';
+import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection/ApproveDappConnection';
 import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionApprovalScreen';
 
 export const ApprovalRoutes = (props: SwitchProps) => (

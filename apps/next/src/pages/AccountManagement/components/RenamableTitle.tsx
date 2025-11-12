@@ -9,12 +9,9 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC, MouseEventHandler } from 'react';
 import { MdModeEdit } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
-import { URL_SEARCH_TOKENS } from '../utils/searchParams';
 
 type Props = TypographyProps & {
-  type: 'account' | 'wallet';
-  tokenId: string;
+  onRename: MouseEventHandler<HTMLButtonElement>;
 };
 
 const RenameButton = styled(IconButton)(({ theme }) => ({
@@ -33,24 +30,10 @@ const RenameButton = styled(IconButton)(({ theme }) => ({
 
 export const RenamableTitle: FC<Props> = ({
   children,
-  type,
-  tokenId,
+  onRename,
   width,
   ...props
 }) => {
-  const { push } = useHistory();
-
-  const handleClick: MouseEventHandler<HTMLButtonElement> = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    push({
-      pathname: '/account-management/rename',
-      search: new URLSearchParams({
-        [URL_SEARCH_TOKENS[type]]: tokenId,
-      }).toString(),
-    });
-  };
-
   return (
     <Box
       display="flex"
@@ -66,7 +49,7 @@ export const RenamableTitle: FC<Props> = ({
       >
         {children}
       </Typography>
-      <RenameButton onClick={handleClick} size="small">
+      <RenameButton onClick={onRename} size="small">
         <MdModeEdit size={12} color={props.color} />
       </RenameButton>
     </Box>
