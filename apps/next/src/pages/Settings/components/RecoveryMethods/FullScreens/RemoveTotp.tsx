@@ -5,6 +5,7 @@ import {
   Button,
   CheckCircleIcon,
   Stack,
+  SxProps,
   toast,
   Typography,
 } from '@avalabs/core-k2-components';
@@ -25,7 +26,7 @@ enum RemoveTotpState {
   Failure = 'failure',
 }
 
-const centeredStackSx = {
+const centeredStackSx: SxProps = {
   width: 1,
   height: 1,
   justifyContent: 'center',
