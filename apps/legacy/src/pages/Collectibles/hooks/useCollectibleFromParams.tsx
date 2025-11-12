@@ -1,12 +1,11 @@
-import { useNetworkContext, useNfts } from '@core/ui';
+import { useNfts } from '@core/ui';
 import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import xss from 'xss';
 
 export const useCollectibleFromParams = () => {
   const { search } = useLocation();
-  const { network } = useNetworkContext();
-  const { collectibles: nfts } = useNfts(network);
+  const { collectibles: nfts } = useNfts();
 
   return useMemo(() => {
     const { nft, tokenId } = (Object as any).fromEntries(

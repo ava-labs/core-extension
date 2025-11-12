@@ -84,8 +84,6 @@ export class MnemonicOnboardingHandler implements HandlerType {
       name: walletName,
     });
 
-    console.log('walletId', walletId, 'walletName', walletName);
-
     if (!walletId) {
       return {
         ...request,
@@ -94,16 +92,6 @@ export class MnemonicOnboardingHandler implements HandlerType {
     }
 
     await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
-
-    console.log('finalizing onboarding');
-    console.log({
-      walletId,
-      networkService: this.networkService,
-      accountsService: this.accountsService,
-      lockService: this.lockService,
-      onboardingService: this.onboardingService,
-      password,
-    });
 
     await finalizeOnboarding({
       walletId,

@@ -1,4 +1,4 @@
-import { Box, Button, Chip, Stack, Typography } from '@avalabs/k2-alpine';
+import { Box, Button, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
