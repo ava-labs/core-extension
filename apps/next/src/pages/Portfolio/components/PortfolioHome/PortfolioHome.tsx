@@ -21,13 +21,25 @@ import { PortfolioDetails } from './components/PortolioDetails';
 import { useTranslation } from 'react-i18next';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
+import { useHistory, useLocation } from 'react-router-dom';
 
 export type TabName = 'assets' | 'collectibles' | 'defi' | 'activity';
 
 export const PortfolioHome: FC = () => {
   const { t } = useTranslation();
+
+  /**
+   * TODO: This is a temporary solution to get the active tab from the URL.
+   */
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const activeTabFromParams = queryParams.get('activeTab') as TabName;
+  const history = useHistory();
+
   const { accounts } = useAccountsContext();
-  const [activeTab, setActiveTab] = useState<TabName>('assets');
+  const [activeTab, setActiveTab] = useState<TabName>(
+    activeTabFromParams ?? 'assets',
+  );
   const { networks, isDeveloperMode } = useNetworkContext();
   const { totalBalance, balances } = useBalancesContext();
   const isLoading = !totalBalance;
@@ -89,9 +101,14 @@ export const PortfolioHome: FC = () => {
         <TabsContainer>
           <TabBar
             tabBarItems={TABS}
-            value={activeTab}
+            value={activeTabFromParams ?? activeTab}
             onChange={(_, val) => {
-              setActiveTab(val);
+              queryParams.set('activeTab', val);
+              history.push({
+                pathname: location.pathname,
+                search: queryParams.toString(),
+              });
+              setActiveTab(val as TabName);
             }}
             size="extension"
           />

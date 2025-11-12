@@ -7,10 +7,12 @@ import {
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { PermissionsService } from '../PermissionsService';
-import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissionsConvertedToMetaMaskStructure';
-import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import {
+  getDappConnector,
+  getLegacyDappConnector,
+} from '~/services/web3/handlers/utils/connectToDapp';
 
 @injectable()
 export class WalletRequestPermissionsHandler extends DAppRequestHandler {
@@ -30,9 +32,14 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       {
         ...request,
         displayData: {
+          addressVM: NetworkVMType.EVM,
+          // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
           domainIcon: request.site?.icon,
+          dappUrl: request.site?.url,
+          dappIcon: request.site?.icon,
+          dappDomain: request.site?.domain,
         },
       },
       `permissions`,
@@ -47,35 +54,29 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
 
   onActionApproved = async (
     pendingAction: Action,
-    result: any,
-    onSuccess: (result: unknown) => void,
-    onError: (error: Error) => void,
+    result: string | { id: string; enabled: boolean }[],
+    onSuccess: (result: unknown) => Promise<void>,
+    onError: (error: Error) => Promise<void>,
   ) => {
-    const selectedAccount = await this.accountsService.getAccountByID(result);
-    if (!selectedAccount) {
-      onError(ethErrors.rpc.internal('Selected account not found'));
-      return;
+    const connectorArgs = {
+      accountsService: this.accountsService,
+      permissionsService: this.permissionsService,
+      vm: NetworkVMType.EVM,
+      convertToMetaMaskStructure: true,
+    };
+    const baseCallbackArgs = {
+      pendingAction,
+      onSuccess,
+      onError,
+    };
+
+    if (Array.isArray(result)) {
+      return getDappConnector(connectorArgs)({ ...baseCallbackArgs, result });
     }
 
-    if (!pendingAction.site?.domain) {
-      onError(ethErrors.rpc.internal('Domain not set'));
-      return;
-    }
-
-    const currentPermissions = await this.permissionsService.grantPermission(
-      pendingAction.site.domain,
-      selectedAccount.addressC,
-      NetworkVMType.EVM,
-    );
-
-    await this.accountsService.activateAccount(result);
-
-    onSuccess(
-      getPermissionsConvertedToMetaMaskStructure(
-        selectedAccount.addressC,
-        pendingAction.site.domain,
-        currentPermissions,
-      ),
-    );
+    return getLegacyDappConnector(connectorArgs)({
+      ...baseCallbackArgs,
+      result,
+    });
   };
 }

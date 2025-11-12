@@ -10,6 +10,7 @@ import {
   BalancesProvider,
   ContactsContextProvider,
   CurrenciesContextProvider,
+  DefiContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -49,6 +50,7 @@ const pagesWithoutHeader = [
   '/network/switch',
   '/manage-tokens',
   '/trending',
+  '/defi',
   getContactsPath(),
   getSendPath(),
   getSwapPath(),
@@ -141,6 +143,7 @@ export function App() {
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
+          <DefiContextProvider />,
         ]) as ReactElement[]
       }
     >
