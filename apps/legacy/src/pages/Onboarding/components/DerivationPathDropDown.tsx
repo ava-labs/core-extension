@@ -7,6 +7,7 @@ import {
   useTheme,
 } from '@avalabs/core-k2-components';
 import { Dropdown, DropdownItem } from '@/components/common/Dropdown';
+import { useQueryParams } from '@core/ui';
 
 interface DerivationPathDropdownProps {
   onPathSelected: (path: DerivationPath) => void;
@@ -19,8 +20,20 @@ export function DerivationPathDropdown({
   onPathSelected,
   isDisabled,
 }: DerivationPathDropdownProps) {
+  const params = useQueryParams();
+  const defaultDerivationPath = params.get('derivationPath') as DerivationPath;
+
   const { t } = useTranslation();
   const theme = useTheme();
+
+  const bip44Label =
+    defaultDerivationPath == DerivationPath.BIP44
+      ? t('BIP44 (Current)')
+      : t('BIP44 (Default)');
+  const ledgerLiveLabel =
+    defaultDerivationPath == DerivationPath.LedgerLive
+      ? t('Ledger Live (Current)')
+      : t('Ledger Live');
 
   return (
     <Stack>
@@ -42,9 +55,9 @@ export function DerivationPathDropdown({
           renderValue: () => {
             switch (pathSpec) {
               case DerivationPath.LedgerLive:
-                return <Typography>{t('Ledger Live')}</Typography>;
+                return <Typography>{ledgerLiveLabel}</Typography>;
               case DerivationPath.BIP44:
-                return <Typography>{t('BIP44 (Default)')}</Typography>;
+                return <Typography>{bip44Label}</Typography>;
             }
           },
           onChange: (e) => {
@@ -69,7 +82,7 @@ export function DerivationPathDropdown({
               width: '100%',
             }}
           >
-            <Typography variant="body2">{t('BIP44 (Default)')}</Typography>
+            <Typography variant="body2">{bip44Label}</Typography>
             {pathSpec === DerivationPath.BIP44 && <CheckIcon />}
           </Stack>
         </DropdownItem>
@@ -86,7 +99,7 @@ export function DerivationPathDropdown({
               width: '100%',
             }}
           >
-            <Typography variant="body2">{t('Ledger Live')}</Typography>
+            <Typography variant="body2">{ledgerLiveLabel}</Typography>
             {pathSpec === DerivationPath.LedgerLive && <CheckIcon />}
           </Stack>
         </DropdownItem>
