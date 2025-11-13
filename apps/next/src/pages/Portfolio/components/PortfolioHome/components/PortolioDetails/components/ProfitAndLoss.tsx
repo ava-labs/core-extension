@@ -1,5 +1,6 @@
 import {
   Stack,
+  Theme,
   TriangleDownIcon,
   TriangleUpIcon,
   Typography,
@@ -12,97 +13,86 @@ import {
 import { useSettingsContext } from '@core/ui';
 import { useMemo } from 'react';
 
-export enum Trend {
-  Up = 'up',
-  Down = 'down',
-  NoChange = 'no-change',
-}
+export type Trend = 'up' | 'down' | 'no-change';
 
 interface ProfitAndLossProps {
-  // value?: number;
-  // percentage?: number;
-  // showPercentage?: boolean;
-  // size?: 'big';
   asset: FungibleTokenBalance;
 }
 
-export const ProfitAndLoss = ({
-  // value,
-  // percentage,
-  // size,
-  // showPercentage,
-  // balanceInCurrency,
-  asset,
-}: ProfitAndLossProps) => {
+const getTrend = (percentage: number | undefined | null): Trend => {
+  if (percentage === undefined || percentage === null) {
+    return 'no-change';
+  }
+  if (percentage > 0) {
+    return 'up';
+  }
+  if (percentage < 0) {
+    return 'down';
+  }
+  return 'no-change';
+};
+
+const getTrendColor = (trend: Trend, theme: Theme): string => {
+  switch (trend) {
+    case 'up':
+      return theme.palette.success.main;
+    case 'down':
+      return theme.palette.error.light;
+    default:
+      return theme.palette.text.secondary;
+  }
+};
+
+const getTrendIcon = (trend: Trend) => {
+  switch (trend) {
+    case 'up':
+      return <TriangleUpIcon size={8} />;
+    case 'down':
+      return <TriangleDownIcon size={8} />;
+    default:
+      return null;
+  }
+};
+
+export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   const { currencyFormatter } = useSettingsContext();
   const theme = useTheme();
 
-  const trend =
-    asset.priceChanges?.percentage && asset.priceChanges?.percentage > 0
-      ? Trend.Up
-      : Trend.Down;
+  const priceChanges = asset.priceChanges;
+  const balanceInCurrency = asset.balanceInCurrency;
 
-  const color = useMemo(() => {
-    if (trend === Trend.Up) {
-      return theme.palette.success.main;
-    }
-    if (trend === Trend.Down) {
-      return theme.palette.error.light;
-    }
-    return theme.palette.text.secondary;
-  }, [
-    theme.palette.error.light,
-    theme.palette.success.main,
-    theme.palette.text.secondary,
-    trend,
-  ]);
-
-  const Icon = () => {
-    if (trend === Trend.Up) {
-      return <TriangleUpIcon size={8} />;
-    }
-    if (trend === Trend.Down) {
-      return <TriangleDownIcon size={8} />;
-    }
-  };
+  const trend = getTrend(priceChanges?.percentage);
+  const trendColor = useMemo(() => getTrendColor(trend, theme), [trend, theme]);
+  const trendIcon = getTrendIcon(trend);
 
   if (
-    !asset.priceChanges?.percentage ||
-    !asset.priceChanges?.value ||
-    !asset.balanceInCurrency
+    !priceChanges ||
+    priceChanges.percentage === undefined ||
+    priceChanges.percentage === null ||
+    priceChanges.value === undefined ||
+    balanceInCurrency === undefined
   ) {
-    return <></>;
+    return null;
   }
 
-  return (
-    <Stack>
-      {/* <ProfitAndLoss
-        value={currencyFormatter(value)}
-        percentage={
-          showPercentage
-            ? `${percentage.toFixed(DEFAULT_DECIMALS)}%`
-            : undefined
-        }
-        trend={trend}
-        size={size}
-      /> */}
-      <Stack sx={{ gap: 0.5 }}>
-        <>
-          <Typography sx={{ color: theme.palette.text.secondary }}>
-            {/* {`${percentage.toFixed(DEFAULT_DECIMALS)}%`} */}
-            {currencyFormatter(
-              asset.balanceInCurrency +
-                (getUnconfirmedBalanceInCurrency(asset) ?? 0),
-            )}
-          </Typography>
-        </>
+  const totalBalance =
+    balanceInCurrency + (getUnconfirmedBalanceInCurrency(asset) ?? 0);
+  const formattedBalance = currencyFormatter(totalBalance);
+  const formattedPriceChange = currencyFormatter(priceChanges.value);
 
-        <Stack
-          sx={{ flexDirection: 'row', color, alignItems: 'center', gap: 0.5 }}
-        >
-          <Typography>{currencyFormatter(asset.priceChanges.value)}</Typography>
-          <Icon />
-        </Stack>
+  return (
+    <Stack alignItems="flex-end" gap={0.5}>
+      <Typography variant="subtitle3" color="text.primary">
+        {formattedBalance}
+      </Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={0.5}
+        sx={{ color: trendColor }}
+      >
+        <Typography variant="subtitle3">{formattedPriceChange}</Typography>
+        {trendIcon}
       </Stack>
     </Stack>
   );

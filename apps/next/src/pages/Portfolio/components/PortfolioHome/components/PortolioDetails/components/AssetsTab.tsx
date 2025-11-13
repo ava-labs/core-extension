@@ -19,7 +19,6 @@ export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
   const assets = useAllTokensFromEnabledNetworks(true, true);
-  console.log('assets: ', assets);
   return (
     <Stack direction="column" gap={1.25} height={1}>
       <Box bgcolor="background.paper" borderRadius={2} px={2}>
@@ -44,19 +43,9 @@ export const AssetsTab: FC = () => {
           </StyledButton>
         </Box>
       </Stack>
-      {/* <UnderConstruction
-        title="Assets"
-        description="Your assets will be displayed here. We're working hard to bring you this feature soon!"
-        icon={<MdCurrencyBitcoin size={24} />}
-      /> */}
-      <Stack width="100%" flexGrow={1}>
-        {assets.map((token, index) => (
-          <AssetCard
-            key={token.name}
-            asset={token}
-            last={index === assets.length - 1}
-            // network={network}
-          />
+      <Stack width="100%" flexGrow={1} gap={1}>
+        {assets.map((token) => (
+          <AssetCard key={token.name} asset={token} />
         ))}
       </Stack>
     </Stack>

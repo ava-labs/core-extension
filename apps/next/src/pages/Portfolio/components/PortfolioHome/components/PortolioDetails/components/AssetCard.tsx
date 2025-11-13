@@ -1,77 +1,107 @@
-import { Avatar, Box, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  Box,
+  ChevronRightIcon,
+  Stack,
+  Theme,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { ProfitAndLoss } from './ProfitAndLoss';
 import { FungibleTokenBalance } from '@core/types';
+import { TokenAvatar } from '@/components/TokenAvatar';
+import { Card } from '@/components/Card';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
-  last?: boolean;
+  onClick?: () => void;
 }
 
-export const AssetCard = ({ asset, last }: AssetCardProps) => {
-  console.log('asset: ', asset);
+const AVATAR_SIZE = 40;
+const BADGE_SIZE = 18;
+const CHEVRON_SIZE = 20;
+const CARD_BORDER_RADIUS = 2;
+const CARD_GAP = 1.5;
+const CARD_PADDING_X = 1.5;
+const CARD_PADDING_Y = 1;
+
+const getBadgeBorderColor = (theme: Theme): string => {
+  return theme.palette.mode === 'dark'
+    ? '#47474c'
+    : theme.palette.surface.primary;
+};
+
+const formatTokenBalance = (balance: string, symbol: string): string => {
+  return `${balance} ${symbol}`;
+};
+
+export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
+  const theme = useTheme();
+
+  const handleClick = () => {
+    onClick?.();
+    // TODO: Navigate to asset details page when route is available
+    // const history = useHistory();
+    // history.push(`/asset/${asset.symbol}`);
+  };
+
+  const badgeBorderColor = getBadgeBorderColor(theme);
+  const tokenBalanceText = formatTokenBalance(
+    asset.balanceDisplayValue,
+    asset.symbol,
+  );
+
   return (
-    <Stack
-      width="100%"
-      direction="row"
-      alignItems="center"
-      justifyContent="space-between"
-      pt={1}
-    >
-      {/* Left side - Avatar */}
-      <Box position="relative" sx={{ transform: 'translateY(-4px)' }}>
-        <Avatar
-          alt={asset.symbol}
-          src={asset.logoUri || undefined}
-          sx={{ width: 36, height: 36 }}
-        >
-          {asset.symbol}
-        </Avatar>
-      </Box>
+    <Card sx={{ width: '100%', borderRadius: CARD_BORDER_RADIUS }}>
       <Stack
+        role="button"
+        onClick={handleClick}
         direction="row"
         alignItems="center"
-        justifyContent="space-between"
-        gap={2}
-        flexGrow={1}
-        ml={2}
-        pb={1}
-        borderBottom={last ? undefined : '1px solid'}
-        borderColor={last ? undefined : 'divider'}
-        width={`calc(100% - 52px)`} // 36px (avatar) + 16px (gaps)
+        gap={CARD_GAP}
+        sx={{
+          cursor: onClick ? 'pointer' : 'default',
+          px: theme.spacing(CARD_PADDING_X),
+          py: theme.spacing(CARD_PADDING_Y),
+        }}
       >
-        {/* Middle left side - Token info */}
+        <Box flexShrink={0}>
+          <TokenAvatar
+            token={asset}
+            size={AVATAR_SIZE}
+            badgeSize={BADGE_SIZE}
+            badgeSx={{
+              borderColor: badgeBorderColor,
+            }}
+          />
+        </Box>
+
         <Stack flexGrow={1} minWidth={0}>
-          <Typography variant="body3" noWrap>
+          <Typography
+            variant="subtitle3"
+            noWrap
+            fontWeight="600"
+            color="text.primary"
+          >
             {asset.name}
           </Typography>
-          <Typography color="text.secondary" variant="body3" noWrap>
-            {asset.balanceDisplayValue} {asset.symbol}
+          <Typography color="text.primary" variant="body3" noWrap>
+            {tokenBalanceText}
           </Typography>
         </Stack>
 
-        <Stack
-          justifyContent="space-between"
-          alignItems="center"
-          flexGrow={1}
-          direction="row"
-          columnGap={1.5}
-        >
-          <Box
-            alignItems="flex-end"
-            ml="auto"
-            display="flex"
-            justifyContent="flex-end"
-          >
-            <Stack alignItems="flex-end">
-              <ProfitAndLoss
-                // percentage={asset.priceChanges?.percentage}
-                // value={asset.balanceCurrencyDisplayValue}
-                asset={asset}
-              />
-            </Stack>
-          </Box>
+        <Stack alignItems="flex-end" flexShrink={0}>
+          <ProfitAndLoss asset={asset} />
         </Stack>
+
+        <Box
+          display="flex"
+          flexShrink={0}
+          alignItems="center"
+          justifyContent="center"
+        >
+          <ChevronRightIcon size={CHEVRON_SIZE} color="text.secondary" />
+        </Box>
       </Stack>
-    </Stack>
+    </Card>
   );
 };
