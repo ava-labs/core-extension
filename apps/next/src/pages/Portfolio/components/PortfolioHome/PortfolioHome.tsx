@@ -128,7 +128,7 @@ const TabsContainer = styled(Stack)(({ theme }) => ({
   bottom: 0,
   paddingTop: theme.spacing(1),
   background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
-
+  zIndex: theme.zIndex.appBar,
   '> div': {
     background: 'unset',
   },
