@@ -16,7 +16,7 @@ export const BulkDeleteButtons: FC = () => {
   return (
     <>
       {!isManageMode && (
-        <Box mx="auto">
+        <Box mx="auto" marginTop="auto">
           <Button
             variant="contained"
             size="xsmall"
@@ -26,7 +26,7 @@ export const BulkDeleteButtons: FC = () => {
               setShowButtons(true);
             }}
           >
-            {t('Manage')}
+            {t('Manage wallets')}
           </Button>
         </Box>
       )}

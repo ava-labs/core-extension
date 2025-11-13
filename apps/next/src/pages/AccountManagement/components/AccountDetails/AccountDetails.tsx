@@ -1,8 +1,8 @@
 import { toast, ToastOptions } from '@avalabs/k2-alpine';
 import { FC, useMemo } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
+import { Page } from '@/components/Page';
 import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
-import { ViewHost } from '../ViewHost';
 import { DetailsView } from './components/DetailsView';
 
 const toastOptions: ToastOptions = {
@@ -40,12 +40,21 @@ export const AccountDetails: FC = () => {
   const { account } = accountParams;
 
   return (
-    <ViewHost in>
+    <Page
+      withBackButton
+      containerProps={{
+        mt: 3,
+      }}
+      contentProps={{
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+      }}
+    >
       <DetailsView
         account={account}
         onRename={switchTo.rename}
         onRemove={switchTo.remove}
       />
-    </ViewHost>
+    </Page>
   );
 };

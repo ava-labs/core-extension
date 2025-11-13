@@ -1,6 +1,7 @@
-import { Box, Button } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 import { useAccountManager } from '@core/ui';
 import { FC } from 'react';
+import { MdAdd } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
@@ -14,16 +15,16 @@ export const AddOrConnectWalletButton: FC = () => {
   }
 
   return (
-    <Box marginTop="auto">
+    <Stack marginTop={1} alignItems="center" justifyContent="center">
       <Button
         variant="contained"
-        color="primary"
+        color="secondary"
         size="extension"
-        fullWidth
         onClick={() => push('/account-management/add-wallet')}
       >
-        {t('Add an account or connect a wallet')}
+        <MdAdd size={20} />
+        {t('Add account')}
       </Button>
-    </Box>
+    </Stack>
   );
 };

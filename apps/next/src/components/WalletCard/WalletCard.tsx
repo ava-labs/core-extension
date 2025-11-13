@@ -21,6 +21,7 @@ import { WalletIconProps } from '@/components/WalletIcon';
 import { useHistory } from 'react-router-dom';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 interface WalletCardProps extends PropsWithChildren {
+  accountsNumber: number;
   id: WalletDetails['id'];
   name: WalletDetails['name'];
   icon: ReactElement<WalletIconProps>;
@@ -29,6 +30,7 @@ interface WalletCardProps extends PropsWithChildren {
 }
 
 export const WalletCard: FC<WalletCardProps> = ({
+  accountsNumber,
   children,
   disableRename,
   icon,
@@ -45,7 +47,8 @@ export const WalletCard: FC<WalletCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const sharedTitleProps: TypographyProps = {
     width: 1,
-    variant: 'subtitle3',
+    variant: 'h6',
+    lineHeight: 1,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -74,37 +77,37 @@ export const WalletCard: FC<WalletCardProps> = ({
         >
           <Stack
             direction="row"
-            height="21px"
             alignItems="center"
-            gap={0.5}
             width="calc(100% - 32px)"
+            justifyContent="space-between"
+            mr={1}
           >
             {disableRename ? (
-              <Typography {...sharedTitleProps}>{name}</Typography>
+              <Stack>
+                <Typography {...sharedTitleProps}>{name}</Typography>
+                <Typography variant="body3" color="text.disabled">
+                  {accountsNumber > 1
+                    ? t('{{count}} accounts', { count: accountsNumber })
+                    : t('{{count}} account', { count: accountsNumber })}
+                </Typography>
+              </Stack>
             ) : (
-              <RenamableTitle {...sharedTitleProps} onRename={handleRename}>
-                {name}
-              </RenamableTitle>
+              <Stack>
+                <RenamableTitle {...sharedTitleProps} onRename={handleRename}>
+                  {name}
+                </RenamableTitle>
+                <Typography variant="body3" color="text.disabled">
+                  {accountsNumber > 1
+                    ? t('{{count}} accounts', { count: accountsNumber })
+                    : t('{{count}} account', { count: accountsNumber })}
+                </Typography>
+              </Stack>
             )}
             {isLoading && <CircularProgress size={14} />}
             {!isLoading && !hasErrorOccurred && (
-              <Typography variant="body3" color="text.disabled">
+              <Typography variant="h6">
                 {currencyFormatter(totalBalanceInCurrency ?? 0)}
               </Typography>
-            )}
-            {!isLoading && hasErrorOccurred && (
-              <>
-                <Styled.ErrorIcon size={16} />
-                <Typography
-                  variant="subtitle3"
-                  color="error"
-                  component={Styled.Shrinkable}
-                  whiteSpace="nowrap"
-                  id="error-message"
-                >
-                  {t('Unable to load balances')}
-                </Typography>
-              </>
             )}
           </Stack>
         </Styled.AccordionSummary>

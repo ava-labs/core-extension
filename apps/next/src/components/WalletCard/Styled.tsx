@@ -1,4 +1,5 @@
 import {
+  accordionClasses,
   accordionSummaryClasses,
   Accordion as K2Accordion,
   AccordionDetails as K2AccordionDetails,
@@ -16,13 +17,20 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
     theme.palette.mode === 'light'
       ? theme.palette.surface.primary
       : theme.palette.background.paper,
+  [`&.${accordionClasses.expanded} .${accordionSummaryClasses.root}`]: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+    backdropFilter: 'blur(30px)',
+    WebkitBackdropFilter: 'blur(30px)',
+  },
 }));
 
 export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
   [`&.${accordionSummaryClasses.root}`]: {
     minHeight: 42,
-    height: 42,
-    paddingBlock: theme.spacing(1),
+    // height: 42,
+    paddingBlock: theme.spacing(1.5),
     paddingInline: theme.spacing(1.5),
     justifyContent: 'unset',
   },

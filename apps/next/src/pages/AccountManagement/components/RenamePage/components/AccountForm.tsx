@@ -26,12 +26,5 @@ export const RenameAccountForm: FC<Props> = ({ account }) => {
       });
   };
 
-  return (
-    <RenameForm
-      label={t('Rename Account')}
-      name={account.name}
-      onSave={onSave}
-      onCancel={goBack}
-    />
-  );
+  return <RenameForm name={account.name} onSave={onSave} onCancel={goBack} />;
 };

@@ -2,6 +2,7 @@ import { toast } from '@avalabs/k2-alpine';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router-dom';
+import { Page } from '@/components/Page';
 import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
 import { isPrivateKeyRevealable } from '../../utils/isPrivateKeyRevealable';
 import { EnterPassword } from './components/EnterPassword';
@@ -26,9 +27,24 @@ export const ShowPrivateKey: FC = () => {
     return <Redirect to="/account-management" />;
   }
 
-  return revealed ? (
-    <KeyRevealed privateKey={privateKey} />
-  ) : (
-    <EnterPassword account={account} onAuthenticated={setPrivateKey} />
+  return (
+    <Page
+      title={
+        revealed
+          ? t('Private key')
+          : t('Enter your password to reveal the private key')
+      }
+      containerProps={{
+        mt: 3,
+      }}
+      withBackButton
+      contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
+    >
+      {revealed ? (
+        <KeyRevealed privateKey={privateKey} />
+      ) : (
+        <EnterPassword account={account} onAuthenticated={setPrivateKey} />
+      )}
+    </Page>
   );
 };

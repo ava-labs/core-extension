@@ -5,9 +5,6 @@ import {
   ListItemIcon,
   ListItemText,
   PopoverPosition,
-  Tooltip,
-  truncateAddress,
-  Typography,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { useAccountManager } from '@core/ui';
@@ -82,7 +79,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
   };
 
   return (
-    <ListItem disablePadding>
+    <ListItem disablePadding className="account-item">
       <Styled.ListItemButton
         disabled={isManageMode && !isAccountSelectable(account)}
         selected={!isManageMode && active}
@@ -101,17 +98,6 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
               {account.name}
             </RenamableTitle>
           }
-          secondary={
-            <Tooltip title={account.addressC} enterDelay={1000}>
-              <Typography
-                variant="mono2"
-                color="text.secondary"
-                component="span"
-              >
-                {truncateAddress(account.addressC)}
-              </Typography>
-            </Tooltip>
-          }
         />
         <ListItemText
           className="secondary-text"
@@ -119,6 +105,12 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
             <>
               {isHovered ? (
                 <Button
+                  sx={{
+                    position: 'absolute',
+                    right: (theme) => theme.spacing(1.5),
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                  }}
                   size="xsmall"
                   color="secondary"
                   variant="contained"

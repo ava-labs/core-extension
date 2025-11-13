@@ -3,7 +3,6 @@ import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
-import { ViewHost } from '../ViewHost';
 
 type Props = {
   label: string;
@@ -21,11 +20,18 @@ export const DeleteAccountForm: FC<Props> = ({
   const { t } = useTranslation();
 
   return (
-    <ViewHost in>
-      <Typography variant="h2" pr={2}>
+    <Stack flexGrow={1}>
+      <Typography variant="h2" pr={2} mt={3.5}>
         {label}
       </Typography>
-      <Stack gap={1} direction="row" pr={2} color="error.main">
+      <Stack
+        mt={1.5}
+        gap={1}
+        direction="row"
+        pr={2}
+        color="error.main"
+        alignItems="center"
+      >
         <Box flexShrink={0}>
           <MdErrorOutline size={24} />
         </Box>
@@ -33,7 +39,7 @@ export const DeleteAccountForm: FC<Props> = ({
       </Stack>
       <ActionButtons
         top={{
-          label: t('Yes, delete'),
+          label: t('Delete'),
           onClick: onDelete,
           color: 'secondary',
           panic: true,
@@ -44,6 +50,6 @@ export const DeleteAccountForm: FC<Props> = ({
           color: 'secondary',
         }}
       />
-    </ViewHost>
+    </Stack>
   );
 };

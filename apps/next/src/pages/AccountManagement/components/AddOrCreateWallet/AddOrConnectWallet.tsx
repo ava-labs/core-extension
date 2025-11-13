@@ -1,12 +1,4 @@
-import {
-  Card,
-  Divider,
-  LedgerIcon,
-  List,
-  Stack,
-  toast,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Card, Divider, LedgerIcon, List, toast } from '@avalabs/k2-alpine';
 import { AccountType } from '@core/types';
 import { openFullscreenTab } from '@core/common';
 import {
@@ -18,6 +10,7 @@ import {
 } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Page } from '@/components/Page';
 import { FaSquareCaretUp } from 'react-icons/fa6';
 import { MdAdd, MdKey, MdList, MdTopic } from 'react-icons/md';
 import { SiWalletconnect } from 'react-icons/si';
@@ -52,37 +45,40 @@ export const AddOrConnectWallet: FC = () => {
   }, [push, capture]);
 
   return (
-    <Stack gap={2} height={1}>
-      <Typography variant="h2" paddingInlineEnd={12} paddingBlockEnd={0.5}>
-        {t('Add an account or connect a wallet')}
-      </Typography>
+    <Page
+      title={t('Add an account or connect a wallet')}
+      withBackButton
+      containerProps={{
+        mt: 3,
+      }}
+      contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
+    >
       <Card>
         <List disablePadding dense>
-          {isPrimaryAccount && (
-            <AccountListItem
-              tooltip={
-                canAddNewAccount
-                  ? ''
-                  : t('Connect your Ledger device and open the Avalanche app')
-              }
-              disabled={!canAddNewAccount}
-              Icon={MdAdd}
-              primary={t('Create new account')}
-              secondary={t('Generate a new account in your active wallet')}
-              onClick={() =>
-                addAccount()
-                  .then(selectAccount)
-                  .then(goBack)
-                  .then(() => {
-                    toast.success(t('Account created successfully'));
-                  })
-                  .catch((error) => {
-                    toast.error(t('Account creation failed'));
-                    console.error(error);
-                  })
-              }
-            />
-          )}
+          <AccountListItem
+            tooltip={
+              canAddNewAccount
+                ? ''
+                : t('Connect your Ledger device and open the Avalanche app')
+            }
+            disabled={!canAddNewAccount || !isPrimaryAccount}
+            Icon={MdAdd}
+            primary={t('Create new account')}
+            secondary={t('Generate a new account in your active wallet')}
+            onClick={() =>
+              addAccount()
+                .then(selectAccount)
+                .then(goBack)
+                .then(() => {
+                  toast.success(t('Account created successfully'));
+                })
+                .catch((error) => {
+                  toast.error(t('Account creation failed'));
+                  console.error(error);
+                })
+            }
+          />
+
           <Divider />
           <AccountListItem
             Icon={MdKey}
@@ -127,6 +123,6 @@ export const AddOrConnectWallet: FC = () => {
           />
         </List>
       </Card>
-    </Stack>
+    </Page>
   );
 };
