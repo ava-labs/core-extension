@@ -7,6 +7,7 @@ import {
   StackProps,
   styled,
   Typography,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { FC, ReactNode, type ReactElement } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -26,13 +27,15 @@ type CardMenuItemProps = {
   icon: ReactElement;
   text: string;
   description?: string;
+  size?: string;
+  itemGap?: string;
   'data-testid'?: string;
 } & (
   | {
       link: string;
     }
   | {
-      onClick: () => void;
+      onClick?: () => void;
     }
 );
 
@@ -40,23 +43,38 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
   icon,
   text,
   description,
+  size,
   'data-testid': dataTestId,
   ...props
 }) => {
   const history = useHistory();
+  const theme = useTheme();
 
   const onClick =
-    'onClick' in props ? props.onClick : () => history.push(props.link);
+    'onClick' in props
+      ? props.onClick
+      : 'link' in props
+        ? () => history.push(props.link)
+        : undefined;
 
   return (
-    <CardMenuItemContainer onClick={onClick} data-testid={dataTestId}>
+    <CardMenuItemContainer
+      onClick={onClick}
+      data-testid={dataTestId}
+      sx={{
+        gap: theme.spacing(size === 'small' ? 1.5 : 3),
+        paddingX: theme.spacing(size === 'small' ? 1.5 : 2.5),
+      }}
+    >
       {icon}
       <Stack className="CardLikeMenuItem-text-wrapper">
         <Stack gap={0.5}>
-          <Typography variant="button">{text}</Typography>
+          <Typography variant={size === 'small' ? 'subtitle3' : 'button'}>
+            {text}
+          </Typography>
           {description && (
             <Typography
-              variant="subtitle1"
+              variant={size === 'small' ? 'caption2' : 'subtitle1'}
               color="text.secondary"
               whiteSpace="normal"
             >
@@ -80,10 +98,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
 const CardMenuItemContainer = styled(MenuItem)(({ theme }) => ({
   flexDirection: 'row',
   justifyContent: 'space-between',
-  gap: theme.spacing(3),
   color: theme.palette.text.primary,
-  paddingLeft: theme.spacing(2.5),
-  paddingRight: theme.spacing(2.5),
   transition: 'background-color .15s ease-in-out',
 
   '& .CardLikeMenuItem-chevron': {
