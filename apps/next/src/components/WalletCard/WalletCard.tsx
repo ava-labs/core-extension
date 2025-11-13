@@ -3,6 +3,7 @@ import {
   Stack,
   Typography,
   TypographyProps,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
 import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
@@ -20,12 +21,14 @@ import * as Styled from './Styled';
 import { WalletIconProps } from '@/components/WalletIcon';
 import { useHistory } from 'react-router-dom';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
+import { MdCircle } from 'react-icons/md';
 interface WalletCardProps extends PropsWithChildren {
   id: WalletDetails['id'];
   name: WalletDetails['name'];
   icon: ReactElement<WalletIconProps>;
   initialExpanded: boolean;
   disableRename?: boolean;
+  isActive?: boolean;
 }
 
 export const WalletCard: FC<WalletCardProps> = ({
@@ -35,7 +38,9 @@ export const WalletCard: FC<WalletCardProps> = ({
   id,
   initialExpanded,
   name,
+  isActive = false,
 }) => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const { push } = useHistory();
   const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
@@ -71,7 +76,21 @@ export const WalletCard: FC<WalletCardProps> = ({
         <Styled.AccordionSummary
           component="div"
           icon={cloneElement(icon, { expanded: isExpanded })}
+          sx={{ position: 'relative' }}
         >
+          {isActive && (
+            <MdCircle
+              color={theme.palette.success.main}
+              size={6}
+              style={{
+                position: 'absolute',
+                left: '4px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 1,
+              }}
+            />
+          )}
           <Stack
             direction="row"
             height="21px"

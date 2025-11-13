@@ -1,11 +1,12 @@
 import { useHistory, useParams } from 'react-router-dom';
 import { useAccountsContext, useWalletContext } from '@core/ui';
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { useCallback } from 'react';
 import { Account } from '@core/types';
-import { MdCheck } from 'react-icons/md';
+import { MdCircle } from 'react-icons/md';
 
 export const WalletView = () => {
+  const theme = useTheme();
   const { walletId } = useParams<{ walletId: string }>();
   const history = useHistory();
   const { getWallet } = useWalletContext();
@@ -31,7 +32,9 @@ export const WalletView = () => {
             key={`wallet-${account.id}`}
             onClick={() => clickHandler(account)}
           >
-            {isActiveAccount(account.id) && <MdCheck />}
+            {isActiveAccount(account.id) && (
+              <MdCircle color={theme.palette.success.main} />
+            )}
             <Typography>{account.name}</Typography>
           </Stack>
         ))}

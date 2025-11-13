@@ -16,6 +16,7 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
     theme.palette.mode === 'light'
       ? theme.palette.surface.primary
       : theme.palette.background.paper,
+  overflow: 'visible',
 }));
 
 export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
@@ -25,6 +26,7 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
     paddingBlock: theme.spacing(1),
     paddingInline: theme.spacing(1.5),
     justifyContent: 'unset',
+    overflow: 'visible',
   },
   '& .accordion-header-container': {
     alignItems: 'center',
@@ -37,6 +39,7 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
     display: 'flex',
     margin: 0,
     lineHeight: 1,
+    overflow: 'visible',
   },
   [`& .${accordionSummaryClasses.content}`]: {
     margin: 0,

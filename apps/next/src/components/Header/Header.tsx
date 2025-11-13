@@ -1,7 +1,7 @@
 import { getHexAlpha, Stack, styled, useTheme } from '@avalabs/k2-alpine';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { useCallback, useMemo, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
 import { isImportedAccount, isPrimaryAccount } from '@core/common';
@@ -79,7 +79,6 @@ export const Header = () => {
 
   const theme = useTheme();
   const [isAddressAppear, setIsAddressAppear] = useState(false);
-  const history = useHistory();
   const location = useLocation();
 
   // TODO: fix this after the transactions will be implemented
@@ -115,7 +114,6 @@ export const Header = () => {
         <AccountSelectContainer
           onMouseOver={() => setIsAddressAppear(true)}
           onMouseLeave={() => setIsAddressAppear(false)}
-          onClick={() => history.push('/account-management')}
         >
           <AccountInfo>
             {isWalletView ? (
@@ -126,12 +124,6 @@ export const Header = () => {
                 account={activeAccount}
               />
             )}
-            {/* <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
-            <Typography variant="body2">{activeAccount?.name}</Typography>
-            <MdOutlineUnfoldMore
-              size={24}
-              color={getHexAlpha(theme.palette.primary.main, 70)}
-            /> */}
           </AccountInfo>
           <AddressList
             isAddressAppear={isAddressAppear}

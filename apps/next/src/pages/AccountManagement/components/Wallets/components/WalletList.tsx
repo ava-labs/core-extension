@@ -39,6 +39,7 @@ export const WalletList: FC = () => {
               />
             }
             initialExpanded={walletAccounts.some(isActiveAccount)}
+            isActive={walletAccounts.some(isActiveAccount)}
           >
             {walletAccounts.map(renderAccount)}
           </WalletCard>
