@@ -147,9 +147,7 @@ export const sortCollectibles = (
   collectibles: FormattedCollectible[],
   sortMode: SortMode,
 ): FormattedCollectible[] => {
-  const sorted = [...collectibles];
-
-  return sorted.sort((a, b) => {
+  return collectibles.toSorted((a, b) => {
     // First, prioritize items with logoUri
     const logoComparison = compareByLogoUri(a, b);
     if (logoComparison !== 0) return logoComparison;

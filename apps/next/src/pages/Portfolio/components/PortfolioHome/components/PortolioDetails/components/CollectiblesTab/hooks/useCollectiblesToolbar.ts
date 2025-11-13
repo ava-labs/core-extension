@@ -12,6 +12,26 @@ export type MediaTypeFilters = {
 export type SortMode = 'name-asc' | 'name-desc' | 'date-added';
 export type FilterType = 'all' | 'picture' | 'gif' | 'video';
 
+/**
+ * Filter collectibles by unreachable status and media type
+ */
+const filterCollectibles = (
+  collectibles: FormattedCollectible[],
+  mediaFilters: MediaTypeFilters,
+  hideUnreachable: boolean,
+): FormattedCollectible[] => {
+  // First, filter out unreachable collectibles if hideUnreachable is true
+  const reachableCollectibles = hideUnreachable
+    ? collectibles.filter(
+        (collectible) =>
+          collectible.metadata?.indexStatus !== 'UNREACHABLE_TOKEN_URI' &&
+          collectible.metadata?.indexStatus !== 'INVALID_TOKEN_URI_SCHEME',
+      )
+    : collectibles;
+  // Then apply media type filters
+  return filterCollectiblesByMediaType(reachableCollectibles, mediaFilters);
+};
+
 export const useCollectiblesToolbar = ({
   collectibles,
 }: {
@@ -105,19 +125,6 @@ export const useCollectiblesToolbar = ({
     [setHiddenCollectiblesIds],
   );
 
-  const filteredCollectibles = useMemo<FormattedCollectible[]>(() => {
-    // First, filter out unreachable collectibles if hideUnreachable is true
-    const reachableCollectibles = hideUnreachable
-      ? collectibles.filter(
-          (collectible) =>
-            collectible.metadata?.indexStatus !== 'UNREACHABLE_TOKEN_URI' &&
-            collectible.metadata?.indexStatus !== 'INVALID_TOKEN_URI_SCHEME',
-        )
-      : collectibles;
-    // Then apply media type filters
-    return filterCollectiblesByMediaType(reachableCollectibles, mediaFilters);
-  }, [collectibles, mediaFilters, hideUnreachable]);
-
   const toggleShowHidden = useCallback(() => {
     setShowHidden((prev) => !prev);
   }, [setShowHidden]);
@@ -126,12 +133,17 @@ export const useCollectiblesToolbar = ({
     setHideUnreachable((prev) => !prev);
   }, [setHideUnreachable]);
 
-  const sortedCollectibles = useMemo<FormattedCollectible[]>(
-    () => sortCollectibles(filteredCollectibles, sortOption),
-    [filteredCollectibles, sortOption],
-  );
-
   const processedCollectibles = useMemo<FormattedCollectible[]>(() => {
+    const filteredCollectibles = filterCollectibles(
+      collectibles,
+      mediaFilters,
+      hideUnreachable,
+    );
+    const sortedCollectibles = sortCollectibles(
+      filteredCollectibles,
+      sortOption,
+    );
+
     if (showHidden) {
       // Show all collectibles (both hidden and visible)
       return sortedCollectibles;
@@ -140,7 +152,14 @@ export const useCollectiblesToolbar = ({
     return sortedCollectibles.filter(
       (collectible) => !hiddenCollectibles.has(collectible.uniqueCollectibleId),
     );
-  }, [sortedCollectibles, showHidden, hiddenCollectibles]);
+  }, [
+    collectibles,
+    mediaFilters,
+    hideUnreachable,
+    sortOption,
+    showHidden,
+    hiddenCollectibles,
+  ]);
 
   return {
     processedCollectibles,
