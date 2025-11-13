@@ -2,10 +2,19 @@ import { MIN_PASSWORD_LENGTH } from '@/pages/Settings/constants';
 import type { TFunction } from 'i18next';
 import zxcvbn from 'zxcvbn';
 
+export type PasswordValidationType =
+  | 'length-error'
+  | 'weak-password'
+  | 'average-password'
+  | 'strong-password'
+  | 'password-mismatch'
+  | 'password-match';
+
 export type PasswordValidationResult = {
   isValid: boolean;
   colorKey: string;
   message: string;
+  type: PasswordValidationType;
 };
 
 export const validatePasswordStrength = (
@@ -19,6 +28,7 @@ export const validatePasswordStrength = (
       isValid: false,
       colorKey: 'error.main',
       message: t('Weak password! Try adding more characters'),
+      type: 'weak-password' as const,
     };
   }
 
@@ -27,6 +37,7 @@ export const validatePasswordStrength = (
       isValid: true,
       colorKey: 'warning.dark',
       message: t('Average password - this will do'),
+      type: 'average-password' as const,
     };
   }
 
@@ -34,6 +45,7 @@ export const validatePasswordStrength = (
     isValid: true,
     colorKey: 'success.main',
     message: t('Strong password! Keep this one!'),
+    type: 'strong-password' as const,
   };
 };
 
@@ -47,6 +59,7 @@ const validatePasswordMatch = (
       isValid: false,
       colorKey: 'error.main',
       message: t('Passwords do not match'),
+      type: 'password-mismatch' as const,
     };
   }
 
@@ -54,6 +67,7 @@ const validatePasswordMatch = (
     isValid: true,
     colorKey: 'success.main',
     message: t('Awesome!'),
+    type: 'password-match' as const,
   };
 };
 
@@ -84,6 +98,7 @@ export const validatePasswords = ({
       message: t('Password must be at least {{min}} characters', {
         min: MIN_PASSWORD_LENGTH,
       }),
+      type: 'length-error' as const,
     };
   }
 

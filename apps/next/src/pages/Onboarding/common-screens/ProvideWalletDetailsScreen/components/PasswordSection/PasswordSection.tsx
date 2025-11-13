@@ -104,9 +104,9 @@ export const PasswordSection: FC<Props> = ({
         variant="caption"
         textAlign="end"
         data-testid={
-          passwordsMetadata?.message?.includes('at least')
+          passwordsMetadata?.type === 'length-error'
             ? 'password-length-error'
-            : passwordsMetadata?.message?.includes('Weak password')
+            : passwordsMetadata?.type === 'weak-password'
               ? 'weak-password-message'
               : 'password-strength-message'
         }
