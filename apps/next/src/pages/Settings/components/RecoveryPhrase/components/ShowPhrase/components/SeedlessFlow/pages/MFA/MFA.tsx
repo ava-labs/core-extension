@@ -2,16 +2,15 @@ import { FullscreenModal } from '@/components/FullscreenModal';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InProgress } from '../../../InProgress';
-import { StageProps } from '../../types';
-import { FIDOChallenge } from './components/FIDOChallenge';
+import { InProgress } from '@/pages/Settings/components/common/InProgress';
+import { FIDOChallenge } from '@/pages/Settings/components/common/FIDOChallenge';
 import { MfaChoicePrompt } from './components/MfaChoicePrompt';
 import { TOTPChallenge } from './components/TOTPChallenge';
 import { useMFAChoice } from './hooks/useMFAChoice';
-import { useMFAEvents } from './hooks/useMFAEvent';
+import { useMFAEvents } from '@/pages/Settings/components/common/useMFAEvent';
 import { useSelectMFAMethod } from './hooks/useSelectMFAMethod';
 
-export const MFA: FC<StageProps> = () => {
+export const MFA: FC = () => {
   const [error, setError] = useState<AuthErrorCode>();
   const mfaChoice = useMFAChoice();
   const mfaChallenge = useMFAEvents(setError);
@@ -45,7 +44,7 @@ export const MFA: FC<StageProps> = () => {
         />
       )}
 
-      {!mfaChoice.choice && (
+      {!mfaChoice.choice && !mfaChallenge && (
         <InProgress textSize="body1">
           {t('Fetching available authentication methods...')}
         </InProgress>
