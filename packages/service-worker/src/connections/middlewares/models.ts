@@ -7,10 +7,21 @@ import {
 export type Next = () => Promise<void> | void;
 export type ErrorCallback = (error: Error) => void;
 
+type AvalancheTxAccountInfo = {
+  xpAddress: string;
+  evmAddress?: string;
+  xpubXP?: string;
+  xpAddresses: {
+    index: number;
+    address: string;
+  }[];
+};
+
 export type Context<RequestType, ResponseType> = {
   request: RequestType;
   domainMetadata?: DomainMetadata;
   network?: NetworkWithCaipId;
+  account?: AvalancheTxAccountInfo;
   currentAddress?: string;
   currentEvmAddress?: string;
   xpubXP?: string;
