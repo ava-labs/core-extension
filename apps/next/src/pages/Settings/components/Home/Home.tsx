@@ -14,11 +14,11 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import {
   useAnalyticsContext,
   useContactsContext,
+  useFeatureFlagContext,
   useNetworkContext,
   useSettingsContext,
   useWalletContext,
   useSeedlessMfaManager,
-  useFeatureFlagContext,
 } from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -56,12 +56,16 @@ export const SettingsHomePage = () => {
   const { path } = useRouteMatch();
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
+  const { featureFlags } = useFeatureFlagContext();
 
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
-  const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
-  const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
+  const {
+    showTrendingTokens,
+    setShowTrendingTokens,
+    coreAssistant,
+    setCoreAssistant,
+  } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
-  const { featureFlags } = useFeatureFlagContext();
   const isMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
 
@@ -206,16 +210,18 @@ export const SettingsHomePage = () => {
           }
         />
       </SettingsCard>
-      <SwitchCard
-        title={t('Core Concierge')}
-        titleSize="large"
-        orientation="horizontal"
-        description={t(
-          'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
-        )}
-        checked={isCoreAiEnabled}
-        onChange={() => setIsCoreAiEnabled((is) => !is)}
-      />
+      {featureFlags[FeatureGates.CORE_ASSISTANT] && (
+        <SwitchCard
+          title={t('Core Concierge')}
+          titleSize="large"
+          orientation="horizontal"
+          description={t(
+            'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
+          )}
+          checked={coreAssistant}
+          onChange={() => setCoreAssistant(!coreAssistant)}
+        />
+      )}
       <SettingsCard
         title={t('Privacy and security')}
         description={t(
