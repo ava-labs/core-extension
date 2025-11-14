@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InProgress } from '../../InProgress';
+import { InProgress } from '@/pages/Settings/components/common/InProgress';
 import { StageProps } from '../types';
 import { OmniViewPage } from './OmniViewPage';
 

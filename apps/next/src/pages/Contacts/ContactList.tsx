@@ -11,6 +11,7 @@ export const ContactList = () => {
 
   return (
     <Page
+      data-testid="contacts-list-page"
       title={t('Contacts')}
       description={
         contacts.length === 1

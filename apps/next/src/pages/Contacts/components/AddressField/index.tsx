@@ -11,7 +11,7 @@ import { FormField } from '@/components/Forms/FormField';
 
 type FlavouredAddressFieldProps = Pick<
   ComponentProps<typeof FormField>,
-  'value' | 'onChange' | 'allowCopy'
+  'value' | 'onChange' | 'allowCopy' | 'data-testid'
 >;
 
 export const EVMAddressField: FC<FlavouredAddressFieldProps> = ({
@@ -23,6 +23,7 @@ export const EVMAddressField: FC<FlavouredAddressFieldProps> = ({
 
   return (
     <FormField
+      data-testid="contact-address-c-chain"
       value={value}
       label={t('Avalanche C-Chain')}
       placeholder={t('Type in or paste address')}
@@ -47,6 +48,7 @@ export const BTCAddressField: FC<FlavouredAddressFieldProps> = ({
 
   return (
     <FormField
+      data-testid="contact-address-bitcoin"
       value={value}
       label={t('Bitcoin')}
       placeholder={t('Type in or paste address')}
@@ -69,6 +71,7 @@ export const XPAddressField: FC<FlavouredAddressFieldProps> = ({
 
   return (
     <FormField
+      data-testid="contact-address-xp-chain"
       value={value}
       label={t('Avalanche X/P-Chain')}
       placeholder={t('Type in or paste address')}
@@ -93,6 +96,7 @@ export const SVMAddressField: FC<FlavouredAddressFieldProps> = ({
 
   return (
     <FormField
+      data-testid="contact-address-solana"
       value={value}
       label={t('Solana')}
       placeholder={t('Type in or paste address')}
