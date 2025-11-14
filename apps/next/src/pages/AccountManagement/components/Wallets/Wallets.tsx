@@ -1,24 +1,20 @@
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { Stack, styled } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { AddOrConnectWalletButton } from '../AddOrCreateWallet';
+import CurrentAccount from '../CurrentAccount';
 import { BulkDeleteButtons } from './components/BulkDeleteButtons';
 import { WalletList } from './components/WalletList';
-import { useTranslation } from 'react-i18next';
+
+const CurrentAccountWithExtraBottomMargin = styled(CurrentAccount)(
+  ({ theme }) => ({
+    marginBlockEnd: theme.spacing(1.5),
+  }),
+);
 
 export const Wallets: FC = () => {
-  const { t } = useTranslation();
   return (
     <Stack gap={1.5} height={1}>
-      <Stack gap={1}>
-        <Stack direction="row" gap={1} justifyContent="space-between">
-          <Typography variant="h2" component="h1">
-            {t('My Wallets')}
-          </Typography>
-        </Stack>
-        <Typography variant="caption" sx={{ width: '60%' }}>
-          {t('An overview of your wallets and\nassociated accounts')}
-        </Typography>
-      </Stack>
+      <CurrentAccountWithExtraBottomMargin />
       <Stack gap={1.5} overflow="auto">
         <WalletList />
       </Stack>
