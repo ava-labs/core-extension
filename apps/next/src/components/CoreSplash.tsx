@@ -51,6 +51,7 @@ export const CoreSplash = ({ onGifEnd, size = 'default', ...rest }: Props) => {
       width={size === 'big' ? 360 : 180}
       height={size === 'big' ? 120 : 60}
       alt="Core Logo"
+      data-testid="core-logo"
       onLoad={
         onGifEnd
           ? () => {
