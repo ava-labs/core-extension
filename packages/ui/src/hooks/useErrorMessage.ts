@@ -2,6 +2,7 @@ import { errorCodes } from 'eth-rpc-errors';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { isWrappedError } from '@core/common';
 import {
   CommonError,
   FireblocksErrorCode,
@@ -12,7 +13,6 @@ import {
   SwapErrorCode,
   UnifiedBridgeError,
 } from '@core/types';
-import { isWrappedError } from '@core/common';
 
 type ErrorTranslation = {
   title: string;
@@ -113,6 +113,9 @@ export const useErrorMessage = () => {
         [UnifiedBridgeError.NonBitcoinAccount]: {
           title: t('Unsupported account'),
           hint: t(`The active account does not support Bitcoin.`),
+        },
+        [UnifiedBridgeError.MissingChainId]: {
+          title: t('Missing chain ID'),
         },
       }),
       [t],
@@ -243,6 +246,10 @@ export const useErrorMessage = () => {
         hint: t(
           'Core has entered an unexpected state. Please restart the browser if the issue persists.',
         ),
+      },
+      [CommonError.InvalidAmount]: {
+        title: t('Invalid amount'),
+        hint: t('Please enter a valid amount.'),
       },
     }),
     [t],

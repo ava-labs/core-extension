@@ -1,13 +1,15 @@
 import { css, keyframes } from '@avalabs/k2-alpine';
 import { Keyframes } from '@emotion/react';
+import { CSSProperties } from 'react';
 
 const createAnimation = (
   animation: Keyframes,
-  duration: string = '0.3s',
-  easing: string = 'ease-in-out',
+  duration: CSSProperties['animationDuration'] = '0.3s',
+  easing: CSSProperties['animationTimingFunction'] = 'ease-in-out',
+  count: CSSProperties['animationIterationCount'] = 1,
 ) => css`
   @media (prefers-reduced-motion: no-preference) {
-    animation: ${animation} ${duration} ${easing};
+    animation: ${animation} ${duration} ${easing} ${count};
   }
 `;
 

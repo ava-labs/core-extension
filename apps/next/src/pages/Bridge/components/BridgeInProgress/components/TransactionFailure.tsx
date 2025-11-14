@@ -1,0 +1,33 @@
+import { Card } from '@/components/Card';
+import { ErrorCode } from '@avalabs/bridge-unified';
+import { Typography } from '@avalabs/k2-alpine';
+import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { getErrorMessage } from '../utils/getErrorMessage';
+import * as Styled from './Styled';
+
+type Props = {
+  code: ErrorCode | undefined;
+};
+
+export const TransactionFailure: FC<Props> = ({ code }) => {
+  const { t } = useTranslation();
+
+  if (!code) {
+    return null;
+  }
+
+  return (
+    <Card noPadding>
+      <Styled.Divider />
+      <Styled.RowItem>
+        <Typography variant="body3" color="text.primary">
+          {t('Error')}
+        </Typography>
+        <Typography variant="body3" color="text.primary">
+          {getErrorMessage(t, code)}
+        </Typography>
+      </Styled.RowItem>
+    </Card>
+  );
+};

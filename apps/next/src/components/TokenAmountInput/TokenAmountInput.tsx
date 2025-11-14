@@ -1,15 +1,15 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useTranslation } from 'react-i18next';
-import { useCallback, useMemo } from 'react';
 import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
+import { FC, FocusEventHandler, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
-import { useConvertedCurrencyFormatter } from '@core/ui';
 import {
-  getUniqueTokenId,
   FungibleTokenBalance,
+  getUniqueTokenId,
   isNativeToken,
 } from '@core/types';
+import { useConvertedCurrencyFormatter } from '@core/ui';
 
 import { TokenSelect } from '@/components/TokenSelect';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
@@ -18,25 +18,32 @@ import { AmountPresetButton, InvisibleAmountInput } from './components';
 
 type TokenAmountInputProps = {
   id: string;
-  maxAmount?: bigint;
   estimatedFee?: bigint;
+  alwaysApplyFee?: boolean;
   tokenId: string;
   tokensForAccount: FungibleTokenBalance[];
   onTokenChange: (token: string) => void;
   tokenQuery: string;
   onQueryChange: (tokenQuery: string) => void;
   amount: string;
+  maxAmount?: bigint;
+  minAmount?: bigint;
   onAmountChange: (amount: string) => void;
   withPresetButtons?: boolean;
   tokenHint?: string;
   autoFocus?: boolean;
   isLoading?: boolean;
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
+  disabled?: boolean;
 };
 
-export const TokenAmountInput = ({
+export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   id,
   maxAmount,
+  minAmount = 0n,
   estimatedFee,
+  alwaysApplyFee,
   tokenId,
   tokensForAccount,
   onTokenChange,
@@ -48,7 +55,10 @@ export const TokenAmountInput = ({
   tokenHint,
   autoFocus = true,
   isLoading = false,
-}: TokenAmountInputProps) => {
+  onFocus,
+  onBlur,
+  disabled,
+}) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
 
@@ -76,9 +86,9 @@ export const TokenAmountInput = ({
       );
 
       // If sending the max. amount of a native token, we need to subtract the estimated fee.
-      const amountToSubtract =
-        percentage === 100 && isNativeToken(token) ? (estimatedFee ?? 0n) : 0n;
-
+      const shouldSubtractFee =
+        alwaysApplyFee || (percentage === 100 && isNativeToken(token));
+      const amountToSubtract = shouldSubtractFee ? (estimatedFee ?? 0n) : 0n;
       const calculatedMaxAmount = tokenUnit
         .div(100 / percentage)
         .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol));
@@ -88,7 +98,7 @@ export const TokenAmountInput = ({
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
-    [onAmountChange, estimatedFee, token],
+    [token, alwaysApplyFee, estimatedFee, onAmountChange],
   );
 
   const usdValue =
@@ -120,19 +130,23 @@ export const TokenAmountInput = ({
           query={tokenQuery}
           onQueryChange={onQueryChange}
           hint={tokenHint}
+          disabled={disabled}
         />
         <Grow in={Boolean(token)} mountOnEnter unmountOnExit>
           <InvisibleAmountInput
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
             onChange={(ev) => onAmountChange(ev.target.value)}
-            error={Boolean(isAmountTooBig) || amountBigInt < 0n}
+            error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
             }
             slotProps={{
               input: {
                 readOnly: isLoading,
+                onFocus,
+                onBlur,
+                disabled,
               },
             }}
             value={amount}
@@ -150,6 +164,8 @@ export const TokenAmountInput = ({
           justifyContent="end"
           alignItems="center"
           gap={1}
+          onFocus={onFocus}
+          onBlur={onBlur}
         >
           <AmountPresetButton onClick={() => handlePresetClick(25)}>
             {t('25%')}
