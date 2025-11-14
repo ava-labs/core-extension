@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Screenshots
+test-results/screenshots/
+
+# User data
+user-data-dir/
+
+# Environment
+.env
+.env.local
+
+# Build output
+dist/
+tsconfig.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.mdc
+
+# Cursor IDE
+.cursor/
+.cursor/**
+
