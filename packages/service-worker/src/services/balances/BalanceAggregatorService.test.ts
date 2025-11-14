@@ -126,6 +126,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     address: '0x1',
     logoUri: 'logouri',
     logoSmall: '',
+    chainId: network1.chainId,
     tokenId: '123',
     tokenUri: 'tokenuri',
     collectionName: 'unknown',

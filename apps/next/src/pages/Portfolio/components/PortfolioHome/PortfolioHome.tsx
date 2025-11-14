@@ -75,6 +75,7 @@ export const PortfolioHome: FC = () => {
     <>
       <NoScrollStack
         height={1}
+        data-scroll-container="portfolio-content"
         // TODO: The "testnet" color palette needs to be updated, but core.app is already using it.
         // In Extension, we only need to change the background color of the home scren (portfolio page),
         // meanwhile the "testnet" color scheme changes the palette's "background.default" property,
@@ -126,6 +127,7 @@ export const PortfolioHome: FC = () => {
 const TabsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
+  zIndex: 100,
   paddingTop: theme.spacing(1),
   background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
 
