@@ -1,24 +1,70 @@
-import {
-  Box,
-  Button,
-  ButtonProps,
-  Stack,
-  styled,
-  toast,
-} from '@avalabs/k2-alpine';
-import { FC } from 'react';
+import { Box, Button, ButtonProps, Stack, styled } from '@avalabs/k2-alpine';
+import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
+import { getUniqueTokenId } from '@core/types';
+import { useNetworkContext } from '@core/ui';
 
 import { AssetCard } from './AssetCard';
+import {
+  filterAssetsByNetworks,
+  getAvailableNetworksFromAssets,
+} from './assetFiltering';
+import { FilterMenu } from './FilterMenu';
+import { SortMenu } from './SortMenu';
+import { AssetSortOption, sortAssets } from './assetSorting';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
+  const { getNetwork } = useNetworkContext();
+  const [filterMenuElement, setFilterMenuElement] =
+    useState<HTMLButtonElement | null>(null);
+  const [sortMenuElement, setSortMenuElement] =
+    useState<HTMLButtonElement | null>(null);
+  const [sort, setSort] = useState<AssetSortOption | null>(null);
+  const [selectedNetworks, setSelectedNetworks] = useState<Set<number>>(
+    new Set(),
+  );
+
   const assets = useAllTokensFromEnabledNetworks(true, true);
+
+  const availableNetworks = useMemo(
+    () => getAvailableNetworksFromAssets(assets, getNetwork),
+    [assets, getNetwork],
+  );
+
+  const filteredAssets = useMemo(
+    () => filterAssetsByNetworks(assets, selectedNetworks),
+    [assets, selectedNetworks],
+  );
+
+  const sortedAssets = useMemo(
+    () => sortAssets(filteredAssets, sort),
+    [filteredAssets, sort],
+  );
+
+  const handleFilterMenuClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    setFilterMenuElement(event.currentTarget);
+  };
+
+  const handleFilterMenuClose = () => {
+    setFilterMenuElement(null);
+  };
+
+  const handleSortMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setSortMenuElement(event.currentTarget);
+  };
+
+  const handleSortMenuClose = () => {
+    setSortMenuElement(null);
+  };
+
   return (
     <Stack direction="column" gap={1.25} height={1}>
       <Box bgcolor="background.paper" borderRadius={2} px={2}>
@@ -27,13 +73,13 @@ export const AssetsTab: FC = () => {
       <Stack direction="row" gap={1.25}>
         <StyledButton
           endIcon={<MdKeyboardArrowDown size={20} />}
-          onClick={() => toast.info('Coming soon')}
+          onClick={handleFilterMenuClick}
         >
           {t('Filter')}
         </StyledButton>
         <StyledButton
           endIcon={<MdKeyboardArrowDown size={20} />}
-          onClick={() => toast.info('Coming soon')}
+          onClick={handleSortMenuClick}
         >
           {t('Sort')}
         </StyledButton>
@@ -44,10 +90,27 @@ export const AssetsTab: FC = () => {
         </Box>
       </Stack>
       <Stack width="100%" flexGrow={1} gap={1}>
-        {assets.map((token) => (
-          <AssetCard key={token.name} asset={token} />
+        {sortedAssets.map((token) => (
+          <AssetCard key={getUniqueTokenId(token)} asset={token} />
         ))}
       </Stack>
+      <FilterMenu
+        id="filter-menu"
+        anchorEl={filterMenuElement}
+        selectedNetworks={selectedNetworks}
+        setSelectedNetworks={setSelectedNetworks}
+        availableNetworks={availableNetworks}
+        open={Boolean(filterMenuElement)}
+        onClose={handleFilterMenuClose}
+      />
+      <SortMenu
+        id="sort-menu"
+        anchorEl={sortMenuElement}
+        sort={sort}
+        setSort={setSort}
+        open={Boolean(sortMenuElement)}
+        onClose={handleSortMenuClose}
+      />
     </Stack>
   );
 };
