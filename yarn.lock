@@ -49,9 +49,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/avalanche-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513":
-  version: 0.0.0-fix-pass-xp-account-info-20251114120513
-  resolution: "@avalabs/avalanche-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+"@avalabs/avalanche-module@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@avalabs/avalanche-module@npm:2.2.0"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
@@ -61,12 +61,12 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/types": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     big.js: "npm:6.2.1"
     bn.js: "npm:5.2.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/e3b8316390def05551d64e480560ee9151287bc81d2faaa3824c71f4febef545acf56a75ab4757e8569faec0f995cd7e34f7a85c50cbe730b0c399375164687c
+  checksum: 10c0/035904676bb8b380ece5cd11354b982572f0cfb1d57a2788e51d9efab3cbecd5fc878d19b4c30fe012afe11e7b2529e50eb11a6f9552c0a45df8620a331f73d9
   languageName: node
   linkType: hard
 
@@ -96,20 +96,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/bitcoin-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513":
-  version: 0.0.0-fix-pass-xp-account-info-20251114120513
-  resolution: "@avalabs/bitcoin-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+"@avalabs/bitcoin-module@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@avalabs/bitcoin-module@npm:2.2.0"
   dependencies:
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     big.js: "npm:6.2.1"
     bitcoinjs-lib: "npm:5.2.0"
     bn.js: "npm:5.2.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/69690783a2a53832182a7c57fe8c888b6d668f9299379619fc3a7e42c1a23e3984c2b58d205ef8489b06c2f2be5b98017989ac9fb077266357495dccea712d59
+  checksum: 10c0/3ce7d96b260d93787c371a2a470cadc7f5c5df8537b889defd5743033bf51edad3ae1c69a4bcc9937d63fc7ee7c21ae098e3a658c2391d1d97456c38bf2ef9a1
   languageName: node
   linkType: hard
 
@@ -291,9 +291,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/evm-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513":
-  version: 0.0.0-fix-pass-xp-account-info-20251114120513
-  resolution: "@avalabs/evm-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+"@avalabs/evm-module@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@avalabs/evm-module@npm:2.2.0"
   dependencies:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.61"
@@ -302,7 +302,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/types": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@blockaid/client": "npm:0.48.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@openzeppelin/contracts": "npm:4.9.6"
@@ -312,7 +312,7 @@ __metadata:
     zod: "npm:3.23.8"
   peerDependencies:
     ethers: 6.13.5
-  checksum: 10c0/8ad85466b5b9734bc00556b1b5927654a792863000eb292232f7432f0c552d5a927c04dfdf012cc4bde7e1c29ed6bb47f4a62c5f0c0b1d5218b5b8633b0ffa3a
+  checksum: 10c0/13a52bf71666975d19b93817af84158272ed2529299afa63f1195b5e1f66bf93d4aeefcc3585ea064ccc6b27d3bcaff9748c337c25f8cdf23366f7966a36dc15
   languageName: node
   linkType: hard
 
@@ -323,18 +323,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/hvm-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513":
-  version: 0.0.0-fix-pass-xp-account-info-20251114120513
-  resolution: "@avalabs/hvm-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+"@avalabs/hvm-module@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@avalabs/hvm-module@npm:2.2.0"
   dependencies:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@noble/hashes": "npm:1.5.0"
     "@scure/base": "npm:1.2.4"
     hypersdk-client: "npm:0.4.16"
     zod: "npm:3.23.8"
-  checksum: 10c0/ddd6b1f6f8f86386fba3faacb682eb377347a1a5cce3247963a0a0474d88d249819337cb2c50fe3c40b15105f12ccbc35b82f9e3d1cf94468bf6dd4d8ae9c44b
+  checksum: 10c0/df34fb273bb8297434876a241767cc60142d55ebc1c38e5ff77ec634a12c2cfb2e24e29fe333ce5d7581f069032967d3da262a0b72c5b34b4c0b7197bdb021f1
   languageName: node
   linkType: hard
 
@@ -372,15 +372,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/svm-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513":
-  version: 0.0.0-fix-pass-xp-account-info-20251114120513
-  resolution: "@avalabs/svm-module@npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+"@avalabs/svm-module@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@avalabs/svm-module@npm:2.2.0"
   dependencies:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@blockaid/client": "npm:0.48.0"
     "@metamask/rpc-errors": "npm:6.3.0"
     "@scure/base": "npm:1.2.4"
@@ -391,7 +391,7 @@ __metadata:
     "@wallet-standard/base": "npm:1.1.0"
     "@wallet-standard/features": "npm:1.1.0"
     zod: "npm:3.23.8"
-  checksum: 10c0/2837f99699a6152338f9b3eca88d2080711a9f6beaba94236487106ebc8bba15f07bf1183af66862e7a357e9e89a03aa5bc926a04f3c7cdeea8fa3d4be6d9c03
+  checksum: 10c0/9c629d6cd7ac02225b3be125eb2c586c5776c0ae9cce6bbd721d1307073444725b5554b8f1251bb2eedcdb2b49f191ec213e0cdadc9890e47460c24796f30f4f
   languageName: node
   linkType: hard
 
@@ -402,9 +402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/vm-module-types@npm:0.0.0-fix-pass-xp-account-info-20251114120513":
-  version: 0.0.0-fix-pass-xp-account-info-20251114120513
-  resolution: "@avalabs/vm-module-types@npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+"@avalabs/vm-module-types@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@avalabs/vm-module-types@npm:2.2.0"
   dependencies:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.61"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.61"
@@ -415,7 +415,7 @@ __metadata:
     zod: "npm:3.23.8"
   peerDependencies:
     ethers: 6.13.5
-  checksum: 10c0/491277d184b3286c72f10a3d9fce54e68edc8cddf1e3b8d37f7092209fa2287de150c8d9acf5296f2488c9c42e68820d30f597aca8b8f074d38a822a85bc809b
+  checksum: 10c0/20406188d08dc5352f9f8372bf207adf62c6118105a392570d0fdbe5ca73c1dcefec47323e0bf0ce397247b5ad339f1cd89b0fe542e93f14dfefc21131820cd3
   languageName: node
   linkType: hard
 
@@ -3676,9 +3676,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core-ext/legacy@workspace:apps/legacy"
   dependencies:
-    "@avalabs/avalanche-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/avalanche-module": "npm:2.2.0"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bitcoin-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/bitcoin-module": "npm:2.2.0"
     "@avalabs/bridge-unified": "npm:4.0.3"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.67"
@@ -3691,13 +3691,13 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.67"
-    "@avalabs/evm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/evm-module": "npm:2.2.0"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.67"
-    "@avalabs/hvm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/hvm-module": "npm:2.2.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/svm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/svm-module": "npm:2.2.0"
     "@avalabs/types": "npm:3.1.0-alpha.67"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-react": "npm:7.24.1"
@@ -3868,7 +3868,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/k2-alpine": "npm:1.235.0"
     "@avalabs/types": "npm:3.1.0-alpha.67"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-react": "npm:7.24.1"
@@ -4029,8 +4029,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/inpage@workspace:packages/inpage"
   dependencies:
-    "@avalabs/evm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
-    "@avalabs/svm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/evm-module": "npm:2.2.0"
+    "@avalabs/svm-module": "npm:2.2.0"
     "@core/common": "workspace:*"
     "@core/messaging": "workspace:*"
     "@core/types": "workspace:*"
@@ -4113,9 +4113,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/service-worker@workspace:packages/service-worker"
   dependencies:
-    "@avalabs/avalanche-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/avalanche-module": "npm:2.2.0"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bitcoin-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/bitcoin-module": "npm:2.2.0"
     "@avalabs/bridge-unified": "npm:4.0.3"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.67"
@@ -4127,13 +4127,13 @@ __metadata:
     "@avalabs/core-token-prices-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.67"
-    "@avalabs/evm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/evm-module": "npm:2.2.0"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.67"
-    "@avalabs/hvm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/hvm-module": "npm:2.2.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/svm-module": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/svm-module": "npm:2.2.0"
     "@avalabs/types": "npm:3.1.0-alpha.67"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
     "@babel/preset-typescript": "npm:7.24.1"
@@ -4295,7 +4295,7 @@ __metadata:
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.67"
-    "@avalabs/vm-module-types": "npm:0.0.0-fix-pass-xp-account-info-20251114120513"
+    "@avalabs/vm-module-types": "npm:2.2.0"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
     "@eslint/compat": "npm:1.2.4"

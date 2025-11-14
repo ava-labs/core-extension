@@ -15,8 +15,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "0.0.0-fix-pass-xp-account-info-20251114120513",
-    "@avalabs/svm-module": "0.0.0-fix-pass-xp-account-info-20251114120513",
+    "@avalabs/evm-module": "2.2.0",
+    "@avalabs/svm-module": "2.2.0",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
