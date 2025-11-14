@@ -14,6 +14,7 @@ import { Middleware } from './models';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getAddressByVM from '~/services/wallet/utils/getAddressByVM';
 import { SecretsService } from '~/services/secrets/SecretsService';
+import { isNotNullish, isPrimaryAccount } from '@core/common';
 
 /**
  * This middleware appends the current address and xpubXP to the context.
@@ -46,6 +47,11 @@ export function AvalancheTxContextMiddleware(
     }
 
     const activeAccount = await accountsService.getActiveAccount();
+    const accounts = isPrimaryAccount(activeAccount)
+      ? await accountsService.getPrimaryAccountsByWalletId(
+          activeAccount.walletId,
+        )
+      : [];
 
     if (!activeAccount) {
       error(new Error('No active account'));
@@ -53,12 +59,28 @@ export function AvalancheTxContextMiddleware(
     }
 
     const currentAddress = getAddressByVM(addressVM, activeAccount);
+    const xpAddresses = accounts
+      .map((account) => {
+        const xpAddress = getAddressByVM(addressVM, account);
+        if (!xpAddress) {
+          return undefined;
+        }
+        return {
+          index: account.index,
+          address: xpAddress,
+        };
+      })
+      .filter(isNotNullish);
+
     const secrets =
       await secretsService.getPrimaryAccountSecrets(activeAccount);
 
-    context.currentAddress = currentAddress;
-    context.currentEvmAddress = activeAccount.addressC;
-    context.xpubXP = secrets ? findXpubXP(secrets) : undefined;
+    context.account = {
+      xpAddress: currentAddress ?? '',
+      evmAddress: activeAccount.addressC,
+      xpubXP: secrets ? findXpubXP(secrets) : undefined,
+      xpAddresses,
+    };
 
     next();
   };

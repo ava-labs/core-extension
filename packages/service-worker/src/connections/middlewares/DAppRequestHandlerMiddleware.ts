@@ -84,9 +84,7 @@ export function DAppRequestHandlerMiddleware(
             // Do not pass context from unknown sources.
             // This field is for our internal use only (only used with extension's direct connection)
             context: {
-              currentAddress: context.currentAddress,
-              currentEvmAddress: context.currentEvmAddress,
-              xpubXP: context.xpubXP,
+              account: context.account,
             },
           },
           context.network,

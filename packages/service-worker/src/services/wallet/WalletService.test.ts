@@ -56,9 +56,13 @@ import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
 import { TransactionPayload, VMABI } from 'hypersdk-client';
-import { buildExtendedPublicKey } from '../secrets/utils';
+import {
+  buildAddressPublicKey,
+  buildExtendedPublicKey,
+} from '../secrets/utils';
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from '../secrets/AddressResolver';
+import { hex } from '@scure/base';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -113,6 +117,9 @@ describe('background/services/wallet/WalletService.ts', () => {
   const staticSignerMock = Object.create(Avalanche.StaticSigner.prototype);
   const simpleSignerMock = Object.create(Avalanche.SimpleSigner.prototype);
   const ledgerSignerMock = Object.create(Avalanche.LedgerSigner.prototype);
+  const ledgerLiveSignerMock = Object.create(
+    Avalanche.LedgerLiveSigner.prototype,
+  );
   const evmLedgerSignerMock = Object.create(LedgerSigner.prototype);
   const ledgerSimpleSignerMock = Object.create(
     Avalanche.SimpleLedgerSigner.prototype,
@@ -820,6 +827,36 @@ describe('background/services/wallet/WalletService.ts', () => {
           {
             tx: unsignedTxMock,
             transport: transportMock,
+          },
+          undefined,
+        );
+      });
+
+      it('signs transaction correctly using LedgerLiveSigner', async () => {
+        const transportMock = {} as LedgerTransport;
+        (ledgerService as any).recentTransport = transportMock;
+        ledgerLiveSignerMock.signTx = jest
+          .fn()
+          .mockReturnValueOnce(unsignedTxMock);
+        getWalletSpy.mockResolvedValueOnce(ledgerLiveSignerMock);
+
+        const multiAccTxMock: AvalancheTransactionRequest = {
+          ...avalancheTxMock,
+          externalIndices: [0, 1],
+        };
+
+        const { signedTx } = await walletService.sign(
+          multiAccTxMock,
+          networkMock,
+          tabId,
+        );
+
+        expect(signedTx).toEqual(JSON.stringify(unsignedTxJSON));
+        expect(ledgerLiveSignerMock.signTx).toHaveBeenCalledWith(
+          {
+            tx: unsignedTxMock,
+            transport: transportMock,
+            externalIndices: multiAccTxMock.externalIndices,
           },
           undefined,
         );
@@ -1656,11 +1693,8 @@ describe('background/services/wallet/WalletService.ts', () => {
   describe('getAddressesByIndices', () => {
     const xpubXP = 'xpubXP';
 
-    it('returns an empty array if xpub XP is missing from storage', async () => {
-      secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
-        mnemonic: 'mnemonic',
-        xpubXP: undefined,
-      } as any);
+    it('returns an empty array secrets are not found', async () => {
+      secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce(null);
 
       const result = await walletService.getAddressesByIndices(
         [1, 2],
@@ -1670,6 +1704,63 @@ describe('background/services/wallet/WalletService.ts', () => {
 
       expect(result).toStrictEqual([]);
     });
+
+    it.each([SecretType.LedgerLive, SecretType.Seedless])(
+      'returns the known public keys for %s wallets',
+      async (secretType: SecretType) => {
+        secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
+          secretType,
+          derivationPathSpec:
+            secretType === SecretType.LedgerLive
+              ? DerivationPath.LedgerLive
+              : DerivationPath.BIP44,
+          publicKeys: [
+            buildAddressPublicKey(
+              '11111111',
+              getAddressDerivationPath(
+                0,
+                secretType === SecretType.LedgerLive
+                  ? DerivationPath.LedgerLive
+                  : DerivationPath.BIP44,
+                'PVM',
+              ),
+            ),
+            buildAddressPublicKey(
+              '22222222',
+              getAddressDerivationPath(
+                1,
+                secretType === SecretType.LedgerLive
+                  ? DerivationPath.LedgerLive
+                  : DerivationPath.BIP44,
+                'PVM',
+              ),
+            ),
+          ],
+        } as any);
+
+        getAddressMock.mockReturnValueOnce('P-1').mockReturnValueOnce('P-2');
+
+        const result = await walletService.getAddressesByIndices(
+          [0, 1],
+          'P',
+          false,
+        );
+
+        expect(getAddressMock).toHaveBeenCalledTimes(2);
+        expect(getAddressMock).toHaveBeenNthCalledWith(
+          1,
+          Buffer.from(hex.decode('11111111')),
+          'P',
+        );
+        expect(getAddressMock).toHaveBeenNthCalledWith(
+          2,
+          Buffer.from(hex.decode('22222222')),
+          'P',
+        );
+
+        expect(result).toStrictEqual(['P-1', 'P-2']);
+      },
+    );
 
     it('returns an empty array if isChange is true for P chain', async () => {
       secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({

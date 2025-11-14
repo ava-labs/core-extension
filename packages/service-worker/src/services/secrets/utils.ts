@@ -89,6 +89,19 @@ export function buildExtendedPublicKey(
   };
 }
 
+export function buildAddressPublicKey(
+  key: string,
+  derivationPath: string,
+  curve: Curve = 'secp256k1',
+): AddressPublicKeyJson {
+  return {
+    type: 'address-pubkey',
+    curve,
+    derivationPath,
+    key,
+  };
+}
+
 const findPublicKey =
   (path: string, curve: Curve) => (pk: AddressPublicKeyJson) =>
     pk.derivationPath === path && pk.curve === curve;

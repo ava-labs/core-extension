@@ -120,6 +120,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   };
 
   const network1NftTokenBalance: NftTokenWithBalance = {
+    chainId: network1.chainId,
     type: TokenType.ERC721,
     balance: 100n,
     balanceDisplayValue: '0.00001',
