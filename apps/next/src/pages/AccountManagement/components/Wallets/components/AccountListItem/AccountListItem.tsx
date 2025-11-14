@@ -70,6 +70,17 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
         },
       };
 
+  const handleRename: MouseEventHandler<HTMLButtonElement> = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    history.push({
+      pathname: '/account-management/rename',
+      search: new URLSearchParams({
+        [URL_SEARCH_TOKENS.account]: account.id,
+      }).toString(),
+    });
+  };
+
   return (
     <ListItem disablePadding>
       <Styled.ListItemButton
@@ -83,9 +94,8 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
         <ListItemText
           primary={
             <RenamableTitle
+              onRename={handleRename}
               variant="subtitle3"
-              type="account"
-              tokenId={account.id}
               component="span"
             >
               {account.name}

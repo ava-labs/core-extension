@@ -3,7 +3,7 @@ import { useAccountsContext, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountListItem } from './AccountListItem';
-import { WalletCard } from './WalletCard';
+import { WalletCard } from '@/components/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
 
 export const WalletList: FC = () => {
@@ -43,7 +43,6 @@ export const WalletList: FC = () => {
           key={IMPORTED_ACCOUNTS_WALLET_ID}
           id={IMPORTED_ACCOUNTS_WALLET_ID}
           name={t('Imported Accounts')}
-          disableRename
           icon={<WalletIcon type={SecretType.PrivateKey} />}
           initialExpanded={importedAccounts.some(isActiveAccount)}
         >
