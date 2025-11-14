@@ -126,3 +126,32 @@ export const PromptButtonBackground = styled(Stack)(({ theme }) => ({
   zIndex: theme.zIndex.appBar,
   pointerEvents: 'none',
 }));
+
+export const CSS_CLASSES = {
+  OVERLAY: 'overlay',
+  PROMPT_BACKGROUND: 'prompt-background',
+  BACKDROP: 'backdrop',
+  BUTTON: 'button',
+} as const;
+
+export type CSS_STATES = 'enter' | 'enter-done' | 'exit' | 'exit-done';
+
+/**
+ * Builds CSS classes for CSSTransition components
+ * @param className - The CSS class constant key - main component
+ * @param state - The transition state - where the transition is happening
+ * @param backgroundClass - Optional additional class to select a custom component (e.g. background)
+ * @returns The complete CSS class selector string which can be applied as CSSTransition wants it
+ */
+export const getClassSelector = (
+  className: keyof typeof CSS_CLASSES,
+  state: CSS_STATES,
+  backgroundClass?: keyof typeof CSS_CLASSES,
+): string => {
+  const baseClass = CSS_CLASSES[className];
+  const stateClass = `${baseClass}-${state}`;
+  if (backgroundClass) {
+    return `${stateClass}.${CSS_CLASSES[backgroundClass]}`;
+  }
+  return stateClass;
+};

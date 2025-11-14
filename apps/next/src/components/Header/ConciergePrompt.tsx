@@ -5,19 +5,29 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useRef, useState } from 'react';
+import { FC, useRef, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
   AnimatedButton,
+  CSS_CLASSES,
+  getClassSelector,
   PromptButtonBackground,
   TextAnimation,
 } from './components/styledComponents';
 import { useFeatureFlagContext, useSettingsContext } from '@core/ui';
 import { FeatureGates } from '@core/types';
 
-export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
+type ConciergePromptProps = {
+  isAIBackdropOpen: boolean;
+  setIsAIBackdropOpen: (isOpen: boolean) => void;
+};
+
+export const ConciergePrompt: FC<ConciergePromptProps> = ({
+  isAIBackdropOpen,
+  setIsAIBackdropOpen,
+}) => {
   const theme = useTheme();
   const history = useHistory();
   const { t } = useTranslation();
@@ -25,7 +35,7 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
   const [isHoverAreaHidden, setIsHoverAreaHidden] = useState(false);
   const { coreAssistant } = useSettingsContext();
   const { featureFlags } = useFeatureFlagContext();
-  const timer = useRef<NodeJS.Timeout>(null);
+  const timer = useRef<NodeJS.Timeout | null>(null);
   const hasBackdropEntered = useRef(false);
 
   const buttonLabels = [
@@ -40,9 +50,9 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
     return buttonLabels[Math.floor(Math.random() * buttonLabels.length)];
   };
 
-  const nodeRef = useRef(null);
-  const nodeRef2 = useRef(null);
-  const nodeRef3 = useRef(null);
+  const conciergeButtonRef = useRef(null);
+  const conciergeBackgroundRef = useRef(null);
+  const conciergeBackdropRef = useRef(null);
 
   if (!coreAssistant || !featureFlags[FeatureGates.CORE_ASSISTANT]) {
     return null;
@@ -52,7 +62,6 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
     <>
       {/* THE BOX AREA WHERE WE WANT TO CATCH THE CURSOR */}
       <Stack
-        className="prompt-hover-area"
         sx={{
           width: '100%',
           height: '40px',
@@ -77,40 +86,44 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
           <CSSTransition
             key={1}
             timeout={200}
-            classNames="overlay"
+            classNames={CSS_CLASSES.OVERLAY}
             appear
             enter
             exit
             in={isAIBackdropOpen}
-            nodeRef={nodeRef2}
+            nodeRef={conciergeBackgroundRef}
           >
             <Stack
               sx={{
-                '.prompt-background': {
+                [`.${CSS_CLASSES.PROMPT_BACKGROUND}`]: {
                   display: 'none',
                   opacity: 0,
                   transition: `opacity 400ms linear`,
                 },
-                '.overlay-enter.prompt-background': {
-                  display: 'block',
-                },
-                '.overlay-enter-done.prompt-background': {
-                  display: 'block',
-                  opacity: 1,
-                },
-                '.overlay-exit.prompt-background': {
-                  display: 'block',
-                  opacity: 1,
-                },
-                '.overlay-exit-done.prompt-background': {
-                  display: 'block',
-                  opacity: 0,
-                },
+                [`.${getClassSelector('OVERLAY', 'enter', 'PROMPT_BACKGROUND')}`]:
+                  {
+                    display: 'block',
+                  },
+                [`.${getClassSelector('OVERLAY', 'enter-done', 'PROMPT_BACKGROUND')}`]:
+                  {
+                    display: 'block',
+                    opacity: 1,
+                  },
+                [`.${getClassSelector('OVERLAY', 'exit', 'PROMPT_BACKGROUND')}`]:
+                  {
+                    display: 'block',
+                    opacity: 1,
+                  },
+                [`.${getClassSelector('OVERLAY', 'exit-done', 'PROMPT_BACKGROUND')}`]:
+                  {
+                    display: 'block',
+                    opacity: 0,
+                  },
               }}
             >
               <PromptButtonBackground
-                ref={nodeRef2}
-                className="prompt-background"
+                ref={conciergeBackgroundRef}
+                className={CSS_CLASSES.PROMPT_BACKGROUND}
               />
             </Stack>
           </CSSTransition>
@@ -118,11 +131,11 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
           <CSSTransition
             key={2}
             timeout={1000}
-            classNames="backdrop"
+            classNames={CSS_CLASSES.BACKDROP}
             appear
             exit
             in={isAIBackdropOpen}
-            nodeRef={nodeRef3}
+            nodeRef={conciergeBackdropRef}
             onExited={() => {
               hasBackdropEntered.current = false;
             }}
@@ -140,15 +153,15 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
                 transition: 'opacity 400ms linear',
                 opacity: 0,
                 zIndex: theme.zIndex.appBar - 1,
-                '&.backdrop-enter': {
+                [`&.${getClassSelector('BACKDROP', 'enter')}`]: {
                   display: 'flex',
                 },
-                '&.backdrop-enter-done': {
+                [`&.${getClassSelector('BACKDROP', 'enter-done')}`]: {
                   display: 'flex',
                   opacity: 1,
                 },
               }}
-              ref={nodeRef3}
+              ref={conciergeBackdropRef}
               onMouseMove={() => {
                 if (hasBackdropEntered.current) {
                   setIsAIBackdropOpen(false);
@@ -161,11 +174,11 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
           <CSSTransition
             key={3}
             timeout={1000}
-            classNames="button"
+            classNames={CSS_CLASSES.BUTTON}
             appear
             exit
             in={isAIBackdropOpen}
-            nodeRef={nodeRef}
+            nodeRef={conciergeButtonRef}
             onEntered={() => {
               // it needs to be delayed (waiting for the button animation getting done) to avoid the glitch
               setTimeout(() => {
@@ -198,7 +211,7 @@ export const ConciergePrompt = ({ isAIBackdropOpen, setIsAIBackdropOpen }) => {
                 }}
                 size="large"
                 fullWidth
-                ref={nodeRef}
+                ref={conciergeButtonRef}
               >
                 <Box component="span" sx={{ mr: 1, fontSize: 24 }}>
                   ✨
