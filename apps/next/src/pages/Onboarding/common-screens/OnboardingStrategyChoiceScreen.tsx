@@ -35,6 +35,7 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
           divider={<Divider sx={{ ml: 8, mr: 3 }} />}
         >
           <CardMenuItem
+            data-testid="import-recovery-phrase-option"
             icon={<EncryptedIcon size={24} />}
             text={t('Manually enter a recovery phrase')}
             onClick={() => {
@@ -43,6 +44,7 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
             }}
           />
           <CardMenuItem
+            data-testid="import-ledger-option"
             icon={<LedgerIcon size={24} />}
             text={t('Add using Ledger')}
             onClick={() => {
@@ -51,6 +53,7 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
             }}
           />
           <CardMenuItem
+            data-testid="import-keystone-option"
             icon={<LedgerIcon size={24} />} // TODO: Add Keystone icon
             text={t('Add using Keystone')}
             onClick={() => {

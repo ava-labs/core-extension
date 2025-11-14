@@ -63,6 +63,7 @@ export const RemoveContact = () => {
       </Stack>
       <Stack width="100%" gap={1} minHeight={100} justifyContent="flex-end">
         <Button
+          data-testid="confirm-delete-contact-button"
           variant="contained"
           color="secondary"
           sx={{ color: 'error.main' }}

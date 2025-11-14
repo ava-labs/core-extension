@@ -30,6 +30,7 @@ type FormFieldProps = {
   required?: boolean;
   endAdornment?: React.ReactNode;
   readOnly?: boolean;
+  'data-testid'?: string;
 };
 
 export const FormField = ({
@@ -45,6 +46,7 @@ export const FormField = ({
   required = false,
   endAdornment,
   readOnly = false,
+  'data-testid': dataTestId,
 }: FormFieldProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -83,6 +85,7 @@ export const FormField = ({
 
   return (
     <FieldContainer
+      data-testid={dataTestId}
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

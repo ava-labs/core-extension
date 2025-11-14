@@ -32,7 +32,10 @@ export const WalletNameSection: FC<StackProps> = (props) => {
             value={walletName ?? ''}
             onChange={(e) => setWalletName(e.target.value)}
             slotProps={{
-              htmlInput: { sx: { textAlign: 'end', px: 0, py: 0 } },
+              htmlInput: {
+                sx: { textAlign: 'end', px: 0, py: 0 },
+                'data-testid': 'wallet-name-input',
+              },
             }}
             fullWidth
           />

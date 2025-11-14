@@ -42,7 +42,13 @@ export const PageTopBar: FC<Props> = ({
       minHeight={56}
     >
       {showBack && (
-        <Box flexShrink={0} height={24} width={24} lineHeight="1">
+        <Box
+          flexShrink={0}
+          height={24}
+          width={24}
+          lineHeight="1"
+          data-testid="page-back-button"
+        >
           <MdArrowBack
             size={24}
             onClick={onBackClicked || goBack}
