@@ -12,12 +12,13 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
   AnimatedButton,
   CSS_CLASSES,
-  getClassSelector,
   PromptButtonBackground,
   TextAnimation,
 } from './components/styledComponents';
 import { useFeatureFlagContext, useSettingsContext } from '@core/ui';
 import { FeatureGates } from '@core/types';
+import { ConciergePromptBackground } from './components/ConciergePromptBackground';
+import { ConciergeBackdrop } from './components/ConciergeBackdrop';
 
 type ConciergePromptProps = {
   isAIBackdropOpen: boolean;
@@ -93,39 +94,12 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
             in={isAIBackdropOpen}
             nodeRef={conciergeBackgroundRef}
           >
-            <Stack
-              sx={{
-                [`.${CSS_CLASSES.PROMPT_BACKGROUND}`]: {
-                  display: 'none',
-                  opacity: 0,
-                  transition: `opacity 400ms linear`,
-                },
-                [`.${getClassSelector('OVERLAY', 'enter', 'PROMPT_BACKGROUND')}`]:
-                  {
-                    display: 'block',
-                  },
-                [`.${getClassSelector('OVERLAY', 'enter-done', 'PROMPT_BACKGROUND')}`]:
-                  {
-                    display: 'block',
-                    opacity: 1,
-                  },
-                [`.${getClassSelector('OVERLAY', 'exit', 'PROMPT_BACKGROUND')}`]:
-                  {
-                    display: 'block',
-                    opacity: 1,
-                  },
-                [`.${getClassSelector('OVERLAY', 'exit-done', 'PROMPT_BACKGROUND')}`]:
-                  {
-                    display: 'block',
-                    opacity: 0,
-                  },
-              }}
-            >
+            <ConciergePromptBackground>
               <PromptButtonBackground
                 ref={conciergeBackgroundRef}
                 className={CSS_CLASSES.PROMPT_BACKGROUND}
               />
-            </Stack>
+            </ConciergePromptBackground>
           </CSSTransition>
           {/* BACKDROP */}
           <CSSTransition
@@ -140,34 +114,11 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
               hasBackdropEntered.current = false;
             }}
           >
-            <Stack
-              sx={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: '#28282ECC',
-                backdropFilter: 'none',
-                display: 'none',
-                transition: 'opacity 400ms linear',
-                opacity: 0,
-                zIndex: theme.zIndex.appBar - 1,
-                [`&.${getClassSelector('BACKDROP', 'enter')}`]: {
-                  display: 'flex',
-                },
-                [`&.${getClassSelector('BACKDROP', 'enter-done')}`]: {
-                  display: 'flex',
-                  opacity: 1,
-                },
-              }}
-              ref={conciergeBackdropRef}
-              onMouseMove={() => {
-                if (hasBackdropEntered.current) {
-                  setIsAIBackdropOpen(false);
-                  setIsHoverAreaHidden(false);
-                }
-              }}
+            <ConciergeBackdrop
+              conciergeBackdropRef={conciergeBackdropRef}
+              hasBackdropEntered={hasBackdropEntered}
+              setIsAIBackdropOpen={setIsAIBackdropOpen}
+              setIsHoverAreaHidden={setIsHoverAreaHidden}
             />
           </CSSTransition>
           {/* THE BUTTON */}
