@@ -6,6 +6,7 @@ import { AccountListItem } from './AccountListItem';
 import { WalletCard } from '@/components/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
 import { useHistory } from 'react-router-dom';
+import { PrimaryWallet } from './PrimaryWallet';
 
 export const WalletList: FC = () => {
   const { t } = useTranslation();
@@ -28,7 +29,7 @@ export const WalletList: FC = () => {
         }
 
         return (
-          <WalletCard
+          <PrimaryWallet
             key={wallet.id}
             id={wallet.id}
             name={wallet.name}
@@ -40,9 +41,10 @@ export const WalletList: FC = () => {
             }
             initialExpanded={walletAccounts.some(isActiveAccount)}
             isActive={walletAccounts.some(isActiveAccount)}
+            accountCount={walletAccounts.length}
           >
             {walletAccounts.map(renderAccount)}
-          </WalletCard>
+          </PrimaryWallet>
         );
       })}
       {importedAccounts.length > 0 && (

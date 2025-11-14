@@ -40,7 +40,7 @@ export const AccountListCheckbox: FC<Props> = ({ account, active }) => {
         unmountOnExit
         onExited={() => setShowCheckbox(true)}
       >
-        <MdCheck size={24} color={active ? 'currentColor' : 'transparent'} />
+        <MdCheck size={16} color={active ? 'text.primary' : 'transparent'} />
       </Slide>
     </>
   );

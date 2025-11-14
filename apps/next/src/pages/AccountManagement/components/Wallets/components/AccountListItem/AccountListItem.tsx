@@ -5,9 +5,6 @@ import {
   ListItemIcon,
   ListItemText,
   PopoverPosition,
-  Tooltip,
-  truncateAddress,
-  Typography,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { useAccountManager } from '@core/ui';
@@ -97,20 +94,10 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
               onRename={handleRename}
               variant="subtitle3"
               component="span"
+              color={active ? 'text.primary' : 'text.disabled'}
             >
               {account.name}
             </RenamableTitle>
-          }
-          secondary={
-            <Tooltip title={account.addressC} enterDelay={1000}>
-              <Typography
-                variant="mono2"
-                color="text.secondary"
-                component="span"
-              >
-                {truncateAddress(account.addressC)}
-              </Typography>
-            </Tooltip>
           }
         />
         <ListItemText
