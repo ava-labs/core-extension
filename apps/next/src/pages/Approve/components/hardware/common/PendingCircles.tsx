@@ -1,12 +1,26 @@
-import { getHexAlpha, Box, styled, LedgerIcon } from '@avalabs/k2-alpine';
+import { Box, styled } from '@avalabs/k2-alpine';
+import { getHexAlpha } from '@avalabs/k2-alpine';
+import { FC, ComponentType } from 'react';
 
-export const PendingLedgerCircles = () => (
+export type IconProps = {
+  size?: string | number;
+};
+
+export type PendingCirclesProps = {
+  Icon: ComponentType<IconProps>;
+  size?: number;
+};
+
+export const PendingCircles: FC<PendingCirclesProps> = ({
+  Icon,
+  size = 24,
+}) => (
   <ConcentricCirclesBox>
     <Circle delay="6s" />
     <Circle delay="4s" />
     <Circle delay="2s" />
     <Circle delay="0s" />
-    <LedgerIcon size={24} />
+    <Icon size={size} />
   </ConcentricCirclesBox>
 );
 
