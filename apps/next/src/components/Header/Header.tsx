@@ -1,8 +1,7 @@
 import { getHexAlpha, Stack, styled, useTheme } from '@avalabs/k2-alpine';
 import { useAccountsContext, useWalletContext } from '@core/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
 import { isImportedAccount, isPrimaryAccount } from '@core/common';
 import { AccountType, ImportedAccount } from '@core/types';
@@ -19,6 +18,7 @@ const AccountInfo = styled(Stack)`
     theme.transitions.create(['background', 'opacity'])};
   flex-direction: row;
   align-items: center;
+  overflow: visible;
   & > svg {
     opacity: 0;
   }
@@ -27,6 +27,7 @@ const AccountInfo = styled(Stack)`
 const AccountSelectContainer = styled(Stack)`
   cursor: pointer;
   position: relative;
+  overflow: visible;
   &:hover > div:first-of-type {
     background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
     & > svg {
@@ -74,11 +75,19 @@ export const Header = () => {
     return {
       id: walletId,
       name: walletName,
+      type: activeWallet?.type,
+      authProvider: activeWallet?.authProvider,
     };
-  }, [activeAccount, activeWallet?.name, getImportedWalletName]);
+  }, [
+    activeAccount,
+    activeWallet?.name,
+    activeWallet?.type,
+    activeWallet?.authProvider,
+    getImportedWalletName,
+  ]);
 
   const theme = useTheme();
-  const [isAddressAppear, setIsAddressAppear] = useState(false);
+  // const [isAddressAppear, setIsAddressAppear] = useState(false);
   const location = useLocation();
 
   // TODO: fix this after the transactions will be implemented
@@ -97,6 +106,7 @@ export const Header = () => {
         width: '100%',
         zIndex: theme.zIndex.appBar,
         borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
+        overflow: 'visible',
       }}
     >
       <Stack
@@ -109,11 +119,12 @@ export const Header = () => {
           justifyContent: 'space-between',
           px: 1,
           zIndex: 1,
+          overflow: 'visible',
         }}
       >
         <AccountSelectContainer
-          onMouseOver={() => setIsAddressAppear(true)}
-          onMouseLeave={() => setIsAddressAppear(false)}
+        // onMouseOver={() => setIsAddressAppear(true)}
+        // onMouseLeave={() => setIsAddressAppear(false)}
         >
           <AccountInfo>
             {isWalletView ? (
@@ -125,10 +136,10 @@ export const Header = () => {
               />
             )}
           </AccountInfo>
-          <AddressList
+          {/* <AddressList
             isAddressAppear={isAddressAppear}
             activeAccount={activeAccount}
-          />
+          /> */}
         </AccountSelectContainer>
         <HeaderActions
           activeAccount={activeAccount}
