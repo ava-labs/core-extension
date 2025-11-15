@@ -14,7 +14,8 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
     useNetworkContext();
   const history = useHistory();
 
-  const enabledNetworksArray = enabledNetworks || [];
+  const enabledNetworksArray =
+    enabledNetworks.map((network) => network.chainId) || [];
 
   return (
     <Stack

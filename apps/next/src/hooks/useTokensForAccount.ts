@@ -140,7 +140,7 @@ const isNativeToken = (
 ): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
   token.type === TokenType.NATIVE;
 
-const isAvaxToken = (
+export const isAvaxToken = (
   token: FungibleTokenBalance,
 ): token is FungibleTokenBalance & { type: TokenType.NATIVE } =>
   token.type === TokenType.NATIVE && token.symbol === 'AVAX';
