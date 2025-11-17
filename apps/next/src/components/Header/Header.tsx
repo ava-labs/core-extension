@@ -1,10 +1,4 @@
-import {
-  getHexAlpha,
-  Stack,
-  styled,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { getHexAlpha, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { useAccountsContext } from '@core/ui';
 import { useState } from 'react';
 import { MdOutlineUnfoldMore } from 'react-icons/md';
@@ -12,36 +6,18 @@ import { useHistory } from 'react-router-dom';
 import { PersonalAvatar } from '../PersonalAvatar';
 import { AddressList } from './AddressList';
 import { HeaderActions } from './components/HeaderActions';
-
-const AccountInfo = styled(Stack)`
-  cursor: pointer;
-  border-radius: 10px;
-  padding: ${({ theme }) => theme.spacing(0.5)};
-  transition: ${({ theme }) =>
-    theme.transitions.create(['background', 'opacity'])};
-  flex-direction: row;
-  align-items: center;
-  & > svg {
-    opacity: 0;
-  }
-`;
-
-const AccountSelectContainer = styled(Stack)`
-  cursor: pointer;
-  position: relative;
-  &:hover > div:first-of-type {
-    background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
-    & > svg {
-      opacity: 1;
-    }
-  }
-`;
+import {
+  AccountInfo,
+  AccountSelectContainer,
+} from './components/styledComponents';
+import { ConciergePrompt } from './ConciergePrompt';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
   const activeAccount = accounts.active;
   const theme = useTheme();
   const [isAddressAppear, setIsAddressAppear] = useState(false);
+  const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
   const history = useHistory();
 
   // TODO: fix this after the transactions will be implemented
@@ -69,7 +45,10 @@ export const Header = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           px: 1,
-          zIndex: 1,
+          zIndex: theme.zIndex.tooltip + 1,
+        }}
+        onMouseEnter={() => {
+          setIsAIBackdropOpen(false);
         }}
       >
         <AccountSelectContainer
@@ -95,6 +74,10 @@ export const Header = () => {
           pendingTransaction={isTransactionPending}
         />
       </Stack>
+      <ConciergePrompt
+        isAIBackdropOpen={isAIBackdropOpen}
+        setIsAIBackdropOpen={setIsAIBackdropOpen}
+      />
     </Stack>
   );
 };

@@ -18,6 +18,7 @@ type PageProps = {
   contentProps?: StackProps;
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
+  px?: number;
   descriptionProps?: TypographyProps;
 };
 
@@ -31,6 +32,7 @@ export const Page = ({
   withBackButton = true,
   withViewSwitcher = true,
   containerProps,
+  px,
   descriptionProps,
   ...htmlProps
 }: PageProps) => {
@@ -53,7 +55,7 @@ export const Page = ({
         title={title}
       />
       <NoScrollStack>
-        <Stack px={1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
+        <Stack px={px ?? 1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
               <Stack direction="row" gap={1} justifyContent="space-between">
