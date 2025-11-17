@@ -1,0 +1,244 @@
+name: Core Extension E2E Smoke Tests
+
+on:
+  workflow_run:
+    workflows: ['CI for main']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      test-run-type:
+        type: choice
+        description: 'Run smoke tests or full regression?'
+        options:
+          - smoke
+          - full
+        required: true
+        default: 'smoke'
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+
+jobs:
+  build-extension:
+    name: Build Core Extension
+    runs-on: ubuntu-latest-16-cores-core-extension
+    if: '${{ !github.event.pull_request.draft }}'
+    environment: alpha
+    env:
+      RUNNER: CI
+      LOG_LEVEL: info
+      POST_TO_TESTRAIL: true
+      TESTRAIL_API_KEY: '${{ secrets.TESTRAIL_API_KEY }}'
+    outputs:
+      test_run_id: ${{ steps.trid.outputs.test_run_id }}
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          check-latest: true
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Checkout extension
+        uses: actions/checkout@v4
+        with:
+          ref: '${{ github.head_ref }}'
+          fetch-depth: 0
+
+      - name: Create .npmrc
+        run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' >> .npmrc
+
+      - name: Create env file
+        run: |
+          touch .env.production
+          echo RELEASE=alpha >> .env.production
+          echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env.production
+          echo POSTHOG_URL=${{ secrets.POSTHOG_URL }} >> .env.production
+          echo COVALENT_API_KEY=${{ secrets.COVALENT_API_KEY }} >> .env.production
+          echo GLACIER_URL=${{ secrets.GLACIER_URL }} >> .env.production
+          echo PROXY_URL=${{ secrets.PROXY_URL }} >> .env.production
+          echo CORE_EXTENSION_LANDING_URL=${{ secrets.CORE_EXTENSION_LANDING_URL }} >> .env.production
+          echo SENTRY_DSN=${{ secrets.SENTRY_DSN }} >> .env.production
+          echo COINBASE_APP_ID=${{ secrets.COINBASE_APP_ID }} >> .env.production
+          echo CORE_WEB_BASE_URL=${{ secrets.CORE_WEB_BASE_URL }} >> .env.production
+          echo GLACIER_API_KEY=${{ secrets.GLACIER_API_KEY }} >> .env.production
+          echo FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }} >> .env.production
+          echo ID_SERVICE_URL=${{ secrets.ID_SERVICE_URL }} >> .env.production
+          echo GASLESS_SERVICE_URL=${{ secrets.GASLESS_SERVICE_URL }} >> .env.production
+          echo EXTENSION_PUBLIC_KEY=${{ secrets.EXTENSION_PUBLIC_KEY_E2E }} >> .env.production
+          echo ID_SERVICE_API_KEY=${{ secrets.ID_SERVICE_API_KEY }} >> .env.production
+          echo NOTIFICATION_SENDER_SERVICE_URL=${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }} >> .env.production
+
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn allow-scripts
+
+      - name: Build extension
+        run: yarn build:next:alpha
+
+      - name: Inject extension key
+        run: |
+          echo $(cat ./dist-next/manifest.json | jq '.key = "${{ secrets.EXTENSION_PUBLIC_KEY_E2E }}"') > ./dist-next/manifest.json
+
+      - name: Upload built extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: ./dist-next
+
+      - name: Install TestRail CLI
+        run: pip3 install trcli
+
+      - name: Create test run in TestRail
+        id: trid
+        run: |
+          TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
+          TEST_RUN_ID=`trcli -y -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} add_run --title "New Gen Core Extension - $TS" --run-include-all | grep "run_id:" | awk '{print $2}'`
+          echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
+
+  playwright-tests:
+    name: Run Extension E2E Tests - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    needs: build-extension
+    runs-on: ubuntu-latest-16-cores-core-extension
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1]
+        shardTotal: [1]
+    env:
+      AWS_REGION: us-east-1
+      TEST_RUN_ID: ${{ needs.build-extension.outputs.test_run_id }}
+      RUNNER: CI
+      LOG_LEVEL: info
+      HEADLESS: 'true'
+      WALLET_PASSWORD: '${{ secrets.WALLET_PASSWORD }}'
+      RECOVERY_PHRASE_12_WORDS: '${{ secrets.RECOVERY_PHRASE_12_WORDS }}'
+      RECOVERY_PHRASE_24_WORDS: '${{ secrets.RECOVERY_PHRASE_24_WORDS }}'
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      options: --ipc=host --security-opt=seccomp=unconfined --cap-add=SYS_ADMIN --shm-size=4gb --memory=6g --cpus=4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Chrome
+        working-directory: e2e_Playwright_Tests
+        run: |
+          apt-get update
+          apt-get install -y wget gnupg
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+          apt-get update
+          apt-get install -y google-chrome-stable
+
+      - name: Download built extension
+        uses: actions/download-artifact@v4
+        with:
+          name: extension
+          path: ./e2e_Playwright_Tests/dist
+
+      - name: Output Github runner
+        run: |
+          curl ifconfig.io
+
+      - name: Create test environment file
+        run: |
+          cd e2e_Playwright_Tests
+          touch .env
+          echo "WALLET_PASSWORD=${{ secrets.WALLET_PASSWORD }}" >> .env
+          echo "RECOVERY_PHRASE_12_WORDS=${{ secrets.RECOVERY_PHRASE_12_WORDS }}" >> .env
+          echo "RECOVERY_PHRASE_24_WORDS=${{ secrets.RECOVERY_PHRASE_24_WORDS }}" >> .env
+
+      - name: Configure aws Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set Python for AWS CLI
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install AWS dependencies
+        shell: bash
+        run: |
+          python3 -m venv ~/py_env
+          source ~/py_env/bin/activate
+          pip3 install awscli
+
+      - name: Download Extension snapshots from AWS S3 bucket
+        shell: bash
+        working-directory: e2e_Playwright_Tests/helpers
+        run: |
+          mkdir -p storage-snapshots
+          cd storage-snapshots
+          source ~/py_env/bin/activate
+          aws s3 sync s3://core-qa-automation-snapshots/ext/ . || echo "No snapshots found in S3, continuing..."
+
+      - name: Install Playwright dependencies
+        run: |
+          cd e2e_Playwright_Tests
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright smoke tests
+        if: github.event.inputs.test-run-type == 'smoke' || github.event.inputs.test-run-type == '' || github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_run'
+        env:
+          CI: true
+          PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+        run: |
+          cd e2e_Playwright_Tests
+          GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
+
+      - name: Run Playwright full regression tests
+        if: github.event.inputs.test-run-type == 'full'
+        env:
+          CI: true
+          PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+        run: |
+          cd e2e_Playwright_Tests
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+
+      - name: Upload results to TestRail
+        if: always()
+        shell: bash
+        run: |
+          python3 -m venv ~/py_env
+          source ~/py_env/bin/activate
+          pip3 install trcli
+          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e_Playwright_Tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
+
+      - name: Output TestRail run link
+        if: always()
+        run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
+
+      - name: Upload files as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.shardIndex }}
+          path: |
+            e2e_Playwright_Tests/test-results
+            e2e_Playwright_Tests/playwright-report
+          retention-days: 30
