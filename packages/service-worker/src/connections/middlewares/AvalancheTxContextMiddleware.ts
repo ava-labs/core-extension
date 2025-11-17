@@ -59,7 +59,7 @@ export function AvalancheTxContextMiddleware(
     }
 
     const currentAddress = getAddressByVM(addressVM, activeAccount);
-    const xpAddresses = accounts
+    const externalXPAddresses = accounts
       .map((account) => {
         const xpAddress = getAddressByVM(addressVM, account);
         if (!xpAddress) {
@@ -79,7 +79,7 @@ export function AvalancheTxContextMiddleware(
       xpAddress: currentAddress ?? '',
       evmAddress: activeAccount.addressC,
       xpubXP: secrets ? findXpubXP(secrets) : undefined,
-      xpAddresses,
+      externalXPAddresses,
     };
 
     next();
