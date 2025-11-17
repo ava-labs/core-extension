@@ -1,40 +1,19 @@
-import { getHexAlpha, Stack, styled, useTheme } from '@avalabs/k2-alpine';
+import { getHexAlpha, Stack, useTheme } from '@avalabs/k2-alpine';
 import { useAccountsContext, useWalletContext } from '@core/ui';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { HeaderActions } from './components/HeaderActions';
+import {
+  AccountInfo,
+  AccountSelectContainer,
+} from './components/styledComponents';
+import { ConciergePrompt } from './ConciergePrompt';
 import { isImportedAccount, isPrimaryAccount } from '@core/common';
 import { AccountType, ImportedAccount } from '@core/types';
+import { HeaderWalletDetails } from './types';
 import { HeaderWallet } from './components/HeaderWallet';
 import { HeaderAccount } from './components/HeaderAccount';
-import { HeaderWalletDetails } from './types';
-import { useTranslation } from 'react-i18next';
-
-const AccountInfo = styled(Stack)`
-  cursor: pointer;
-  border-radius: 10px;
-  padding: ${({ theme }) => theme.spacing(0.5)};
-  transition: ${({ theme }) =>
-    theme.transitions.create(['background', 'opacity'])};
-  flex-direction: row;
-  align-items: center;
-  overflow: visible;
-  & > svg {
-    opacity: 0;
-  }
-`;
-
-const AccountSelectContainer = styled(Stack)`
-  cursor: pointer;
-  position: relative;
-  overflow: visible;
-  &:hover > div:first-of-type {
-    background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
-    & > svg {
-      opacity: 1;
-    }
-  }
-`;
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
@@ -89,6 +68,7 @@ export const Header = () => {
   const theme = useTheme();
   // const [isAddressAppear, setIsAddressAppear] = useState(false);
   const location = useLocation();
+  const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
 
   // TODO: fix this after the transactions will be implemented
   // TODO: fix the icon in k2 dark mode.....
@@ -118,8 +98,11 @@ export const Header = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           px: 1,
-          zIndex: 1,
+          zIndex: theme.zIndex.tooltip + 1,
           overflow: 'visible',
+        }}
+        onMouseEnter={() => {
+          setIsAIBackdropOpen(false);
         }}
       >
         <AccountSelectContainer
@@ -146,6 +129,10 @@ export const Header = () => {
           pendingTransaction={isTransactionPending}
         />
       </Stack>
+      <ConciergePrompt
+        isAIBackdropOpen={isAIBackdropOpen}
+        setIsAIBackdropOpen={setIsAIBackdropOpen}
+      />
     </Stack>
   );
 };
