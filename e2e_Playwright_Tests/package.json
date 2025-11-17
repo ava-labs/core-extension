@@ -1,0 +1,26 @@
+{
+  "name": "@core-ext/e2e-playwright",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright E2E tests for Core Extension",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:local": "playwright test --config=config/local.config.ts",
+    "report": "playwright show-report",
+    "codegen": "playwright codegen"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.52.0",
+    "@types/node": "20.17.42",
+    "@types/chrome": "0.0.277",
+    "dotenv": "16.4.1",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "playwright-extra": "4.3.6",
+    "puppeteer-extra-plugin-stealth": "2.11.2"
+  }
+}
