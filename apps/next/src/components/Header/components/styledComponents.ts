@@ -83,12 +83,12 @@ export const AnimatedButton = styled(Button)(({ theme }) => ({
       transform: 'scale(0)',
     },
   },
-  '&.button-enter': {
+  [`&.${getClassSelector('BUTTON', 'enter')}`]: {
     span: {
       display: 'inline',
     },
   },
-  '&.button-enter-done': {
+  [`&.${getClassSelector('BUTTON', 'enter-done')}`]: {
     height: '42px',
     width: '100%',
     span: {
