@@ -4,7 +4,7 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 
 import { StateComponentProps } from '../types';
 
-import { PendingLedgerCircles } from './Styled';
+import { PendingLedgerCircles } from './PendingLedgerCircles';
 
 export const PendingApproval: FC<StateComponentProps> = ({ state }) => {
   const { t } = useTranslation();
