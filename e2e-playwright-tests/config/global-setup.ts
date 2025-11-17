@@ -28,7 +28,7 @@ async function globalSetup(_config: FullConfig) {
   const extensionPath = path.resolve(__dirname, '..', 'dist');
   if (!fs.existsSync(extensionPath)) {
     console.warn('Warning: Extension build not found at', extensionPath);
-    console.warn('Please ensure the extension is copied to e2e_Playwright_Tests/dist');
+    console.warn('Please ensure the extension is copied to e2e-playwright-tests/dist');
   } else {
     console.log('Extension build found at', extensionPath);
   }

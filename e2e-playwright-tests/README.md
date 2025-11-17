@@ -5,14 +5,14 @@ Complete end-to-end testing framework for the Core Extension using Playwright.
 #### 1. Install Dependencies
 
 ```bash
-cd e2e_Playwright_Tests
+cd e2e-playwright-tests
 npm install
 npx playwright install chromium
 ```
 
 #### 2. Verify Extension Location
 
-The extension must be in `e2e_Playwright_Tests/dist/`:
+The extension must be in `e2e-playwright-tests/dist/`:
 
 ````bash
 # Verify manifest exists
@@ -59,7 +59,7 @@ npx playwright test --list
 ## Framework Structure
 
 ```
-e2e_Playwright_Tests/
+e2e-playwright-tests/
 ├── node_modules/              # Local dependencies (npm)
 ├── package.json               # Independent package file
 ├── tsconfig.json              # Standalone TypeScript config
@@ -160,13 +160,13 @@ test('test with wallet', async ({ unlockedExtensionPage }, testInfo) => {
 
 ### Extension Path
 
-The extension is loaded from `e2e_Playwright_Tests/dist/`:
+The extension is loaded from `e2e-playwright-tests/dist/`:
 
 ```typescript
 // constants.ts
 export const TEST_CONFIG = {
   extension: {
-    path: './dist', // Relative to e2e_Playwright_Tests/
+    path: './dist', // Relative to e2e-playwright-tests/
   },
 };
 ```

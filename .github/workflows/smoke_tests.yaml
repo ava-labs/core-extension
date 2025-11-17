@@ -140,7 +140,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Chrome
-        working-directory: e2e_Playwright_Tests
+        working-directory: e2e-playwright-tests
         run: |
           apt-get update
           apt-get install -y wget gnupg
@@ -153,7 +153,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: extension
-          path: ./e2e_Playwright_Tests/dist
+          path: ./e2e-playwright-tests/dist
 
       - name: Output Github runner
         run: |
@@ -161,7 +161,7 @@ jobs:
 
       - name: Create test environment file
         run: |
-          cd e2e_Playwright_Tests
+          cd e2e-playwright-tests
           touch .env
           echo "WALLET_PASSWORD=${{ secrets.WALLET_PASSWORD }}" >> .env
           echo "RECOVERY_PHRASE_12_WORDS=${{ secrets.RECOVERY_PHRASE_12_WORDS }}" >> .env
@@ -188,7 +188,7 @@ jobs:
 
       - name: Download Extension snapshots from AWS S3 bucket
         shell: bash
-        working-directory: e2e_Playwright_Tests/helpers
+        working-directory: e2e-playwright-tests/helpers
         run: |
           mkdir -p storage-snapshots
           cd storage-snapshots
@@ -197,7 +197,7 @@ jobs:
 
       - name: Install Playwright dependencies
         run: |
-          cd e2e_Playwright_Tests
+          cd e2e-playwright-tests
           npm install
           npx playwright install --with-deps chromium
 
@@ -207,7 +207,7 @@ jobs:
           CI: true
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
-          cd e2e_Playwright_Tests
+          cd e2e-playwright-tests
           GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
           PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
 
@@ -217,7 +217,7 @@ jobs:
           CI: true
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
-          cd e2e_Playwright_Tests
+          cd e2e-playwright-tests
           PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload results to TestRail
@@ -227,7 +227,7 @@ jobs:
           python3 -m venv ~/py_env
           source ~/py_env/bin/activate
           pip3 install trcli
-          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e_Playwright_Tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
+          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
 
       - name: Output TestRail run link
         if: always()
@@ -239,6 +239,6 @@ jobs:
         with:
           name: test-results-${{ matrix.shardIndex }}
           path: |
-            e2e_Playwright_Tests/test-results
-            e2e_Playwright_Tests/playwright-report
+            e2e-playwright-tests/test-results
+            e2e-playwright-tests/playwright-report
           retention-days: 30
