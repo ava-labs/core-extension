@@ -75,6 +75,7 @@ export const AddOrConnectWallet: FC = () => {
                   .then(goBack)
                   .then(() => {
                     toast.success(t('Account created successfully'));
+                    capture('CreatedANewAccountSuccessfully');
                   })
                   .catch((error) => {
                     toast.error(t('Account creation failed'));
@@ -95,21 +96,30 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdList}
             primary={t('Import a recovery phrase')}
             secondary={t('Enter your recovery phrase to import a wallet')}
-            onClick={() => openFullscreenTab('import-wallet/seedphrase')}
+            onClick={() => {
+              capture('AddWalletWithSeedphrase_Clicked');
+              openFullscreenTab('import-wallet/seedphrase');
+            }}
           />
           <Divider />
           <AccountListItem
             Icon={LedgerIcon}
             primary={t('Import Ledger wallet')}
             secondary={t('Use Ledger to connect')}
-            onClick={() => openFullscreenTab('import-wallet/ledger')}
+            onClick={() => {
+              capture('AddWalletWithLedger_Clicked');
+              openFullscreenTab('import-wallet/ledger');
+            }}
           />
           <Divider />
           <AccountListItem
             Icon={SiWalletconnect}
             primary={t('Connect with WalletConnect')}
             secondary={t('Scan QR code to connect your wallet')}
-            onClick={underDevelopmentClick}
+            onClick={() => {
+              capture('ImportWithWalletConnect_Clicked');
+              underDevelopmentClick();
+            }}
           />
           <Divider />
           <AccountListItem
@@ -123,7 +133,10 @@ export const AddOrConnectWallet: FC = () => {
             Icon={FaSquareCaretUp}
             primary={t('Import with Fireblocks account')}
             secondary={t('Manually enter your private key to import')}
-            onClick={underDevelopmentClick}
+            onClick={() => {
+              capture('ImportWithFireblocks_Clicked');
+              underDevelopmentClick();
+            }}
           />
         </List>
       </Card>

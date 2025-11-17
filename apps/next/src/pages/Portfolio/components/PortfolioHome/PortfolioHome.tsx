@@ -11,6 +11,7 @@ import {
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
+  useAnalyticsContext,
 } from '@core/ui';
 import { FC, useState } from 'react';
 import { NoScrollStack } from '@/components/NoScrollStack';
@@ -35,6 +36,7 @@ export const PortfolioHome: FC = () => {
   const queryParams = new URLSearchParams(search);
   const activeTabFromParams = queryParams.get('activeTab') as TabName;
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
 
   const { accounts } = useAccountsContext();
   const [activeTab, setActiveTab] = useState<TabName>(
@@ -108,6 +110,13 @@ export const PortfolioHome: FC = () => {
                 search: queryParams.toString(),
               });
               setActiveTab(val as TabName);
+              if (val === 'assets') {
+                capture('PortfolioAssetsClicked');
+              } else if (val === 'collectibles') {
+                capture('PortfolioCollectiblesClicked');
+              } else if (val === 'defi') {
+                capture('PortfolioDefiClicked');
+              }
             }}
             size="extension"
           />

@@ -5,7 +5,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
+import { useAccountsContext, useAnalyticsContext } from '@core/ui';
 import { useState } from 'react';
 import { MdOutlineUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
@@ -43,6 +43,7 @@ export const Header = () => {
   const theme = useTheme();
   const [isAddressAppear, setIsAddressAppear] = useState(false);
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
 
   // TODO: fix this after the transactions will be implemented
   // TODO: fix the icon in k2 dark mode.....
@@ -75,7 +76,10 @@ export const Header = () => {
         <AccountSelectContainer
           onMouseOver={() => setIsAddressAppear(true)}
           onMouseLeave={() => setIsAddressAppear(false)}
-          onClick={() => history.push('/account-management')}
+          onClick={() => {
+            capture('AccountSelectorOpened');
+            history.push('/account-management');
+          }}
         >
           <AccountInfo>
             <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />

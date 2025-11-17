@@ -185,6 +185,7 @@ export const SettingsHomePage = () => {
           label={t('Networks')}
           href={`${path}/network-management`}
           divider
+          onClick={() => capture('ManageNetworksClicked')}
         />
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
@@ -226,11 +227,13 @@ export const SettingsHomePage = () => {
           label={t('Connected sites')}
           href={`${path}/connected-sites`}
           divider
+          onClick={() => capture('ConnectedSitesClicked')}
         />
         <SettingsNavItem
           label={t('Change password')}
           divider
           href={`${path}/change-password`}
+          onClick={() => capture('ChangePasswordClicked')}
         />
         {!isMfaSetupPromptVisible &&
           (walletDetails?.type === SecretType.Mnemonic ||
@@ -284,18 +287,25 @@ export const SettingsHomePage = () => {
           label={t('Bug bounties')}
           href={BUG_BOUNTIES_URL}
           divider
+          onClick={() => capture('ReportBugClicked')}
         />
         <SettingsNavItem
           label={t('Request a feature')}
           href={CORE_FEATURE_REQUEST_URL}
           divider
+          onClick={() => capture('ProductFeatureRequestClicked')}
         />
         <SettingsNavItem
           label={t('Send feedback')}
           href={CORE_FEEDBACK_URL}
           divider
+          onClick={() => capture('ProductFeedbackClicked')}
         />
-        <SettingsNavItem label={t('Help center')} href={CORE_SUPPORT_URL} />
+        <SettingsNavItem
+          label={t('Help center')}
+          href={CORE_SUPPORT_URL}
+          onClick={() => capture('HelpCenterClicked')}
+        />
       </SettingsCard>
       <Button
         size="small"

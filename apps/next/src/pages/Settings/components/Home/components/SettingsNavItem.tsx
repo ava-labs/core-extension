@@ -17,6 +17,7 @@ type OwnProps = {
   description?: string;
   labelVariant?: 'subtitle3';
   descriptionVariant?: 'caption2';
+  onClick?: () => void;
 };
 type SettingsNavItemProps = Omit<ListItemProps, 'onClick'> & OwnProps;
 
@@ -28,6 +29,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   secondaryAction,
   labelVariant,
   descriptionVariant,
+  onClick,
   ...props
 }) => {
   const history = useHistory();
@@ -48,6 +50,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   return (
     <StyledListItem
       onClick={() => {
+        onClick?.();
         if (!hasLink) {
           return;
         }

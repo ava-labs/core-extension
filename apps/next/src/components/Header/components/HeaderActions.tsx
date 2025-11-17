@@ -10,6 +10,7 @@ import { Account } from '@core/types';
 import { ComponentProps, FC } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
+import { useAnalyticsContext } from '@core/ui';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 
@@ -42,6 +43,7 @@ export const HeaderActions: FC<Props> = ({
 }) => {
   const history = useHistory();
   const theme = useTheme();
+  const { capture } = useAnalyticsContext();
 
   return (
     <Stack direction="row" alignItems="center">
@@ -49,7 +51,10 @@ export const HeaderActions: FC<Props> = ({
       <IconButton
         disabled={!activeAccount}
         size="small"
-        onClick={() => history.push(`/receive?accId=${activeAccount?.id}`)}
+        onClick={() => {
+          capture('TokenReceiveClicked');
+          history.push(`/receive?accId=${activeAccount?.id}`);
+        }}
       >
         <QrCodeIcon fill={theme.palette.text.primary} size={24} />
       </IconButton>
