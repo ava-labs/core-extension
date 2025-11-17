@@ -94,6 +94,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
               onRename={handleRename}
               variant="subtitle3"
               component="span"
+              fontWeight={active ? 600 : 400}
             >
               {account.name}
             </RenamableTitle>

@@ -1,5 +1,5 @@
 import { ActionButtons } from '@/components/ActionButtons';
-import { Box, Stack, Typography } from '@avalabs/k2-alpine';
+import { Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
@@ -32,9 +32,9 @@ export const DeleteAccountForm: FC<Props> = ({
         color="error.main"
         alignItems="center"
       >
-        <Box flexShrink={0}>
+        <Stack flexShrink={0}>
           <MdErrorOutline size={24} />
-        </Box>
+        </Stack>
         <Typography variant="subtitle3">{message}</Typography>
       </Stack>
       <ActionButtons

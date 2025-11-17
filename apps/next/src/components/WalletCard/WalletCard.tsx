@@ -1,4 +1,5 @@
 import {
+  Box,
   CircularProgress,
   Stack,
   Typography,
@@ -27,6 +28,7 @@ interface WalletCardProps extends PropsWithChildren {
   icon: ReactElement<WalletIconProps>;
   initialExpanded: boolean;
   disableRename?: boolean;
+  showActiveIndicator?: boolean;
 }
 
 export const WalletCard: FC<WalletCardProps> = ({
@@ -37,6 +39,7 @@ export const WalletCard: FC<WalletCardProps> = ({
   id,
   initialExpanded,
   name,
+  showActiveIndicator,
 }) => {
   const { t } = useTranslation();
   const { push } = useHistory();
@@ -73,7 +76,19 @@ export const WalletCard: FC<WalletCardProps> = ({
       >
         <Styled.AccordionSummary
           component="div"
-          icon={cloneElement(icon, { expanded: isExpanded })}
+          icon={
+            <Stack direction="row" alignItems="center" gap={0.5}>
+              {showActiveIndicator && (
+                <Box
+                  width={6}
+                  height={6}
+                  borderRadius="50%"
+                  bgcolor="success.main"
+                />
+              )}
+              {cloneElement(icon, { expanded: isExpanded })}
+            </Stack>
+          }
         >
           <Stack
             direction="row"

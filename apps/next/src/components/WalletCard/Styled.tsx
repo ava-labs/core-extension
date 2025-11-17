@@ -18,6 +18,7 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
       ? theme.palette.surface.primary
       : theme.palette.background.paper,
   [`&.${accordionClasses.expanded} .${accordionSummaryClasses.root}`]: {
+    overflow: 'hidden',
     position: 'sticky',
     top: 0,
     zIndex: 1,
@@ -29,7 +30,6 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
 export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
   [`&.${accordionSummaryClasses.root}`]: {
     minHeight: 42,
-    // height: 42,
     paddingBlock: theme.spacing(1.5),
     paddingInline: theme.spacing(1.5),
     justifyContent: 'unset',
@@ -59,6 +59,7 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
 
 export const AccordionDetails = styled(K2AccordionDetails)(({ theme }) => ({
   paddingInline: theme.spacing(1.5),
+  overflow: 'hidden',
 }));
 
 export const ErrorIcon = styled(MdError)(({ theme }) => ({

@@ -1,20 +1,21 @@
-import { Account, IMPORTED_ACCOUNTS_WALLET_ID, SecretType } from '@core/types';
-import { useAccountsContext, useWalletContext } from '@core/ui';
-import { Box, Stack } from '@avalabs/k2-alpine';
+import { Account, AccountType, SecretType } from '@core/types';
+import { LedgerAppType, useAccountsContext, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountListItem } from './AccountListItem';
 import { WalletCard } from '@/components/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
 import * as Styled from './Styled';
-import { AddOrConnectWalletButton } from '../../AddOrCreateWallet';
+import { useLedgerContext } from '@core/ui';
+import { AddAccountButton } from '../../AddOrCreateWallet/AddAccountButton';
 
 export const WalletList: FC = () => {
   const { t } = useTranslation();
-  const { wallets } = useWalletContext();
+  const { wallets, isLedgerWallet } = useWalletContext();
   const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
   const importedAccounts = Object.values(accounts.imported);
   const renderAccount = getAccountRenderer(isActiveAccount, selectAccount);
+  const { hasLedgerTransport, appType } = useLedgerContext();
 
   return (
     <>
@@ -25,7 +26,10 @@ export const WalletList: FC = () => {
         }
 
         const isActiveWallet = walletAccounts.some(isActiveAccount);
-
+        const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
+        const canAddNewAccount =
+          !isLedgerWallet ||
+          (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
         return (
           <WalletCard
             key={wallet.id}
@@ -33,21 +37,12 @@ export const WalletList: FC = () => {
             id={wallet.id}
             name={wallet.name}
             icon={
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                {isActiveWallet && (
-                  <Box
-                    width={6}
-                    height={6}
-                    borderRadius="50%"
-                    bgcolor="success.main"
-                  />
-                )}
-                <WalletIcon
-                  type={wallet.type}
-                  authProvider={wallet.authProvider}
-                />
-              </Stack>
+              <WalletIcon
+                type={wallet.type}
+                authProvider={wallet.authProvider}
+              />
             }
+            showActiveIndicator={isActiveWallet}
             initialExpanded={isActiveWallet}
           >
             {walletAccounts.map((account, index) => {
@@ -78,52 +73,29 @@ export const WalletList: FC = () => {
                 </>
               );
             })}
-            {isActiveWallet && <AddOrConnectWalletButton />}
+            {isActiveWallet && isPrimaryAccount && canAddNewAccount && (
+              <AddAccountButton />
+            )}
           </WalletCard>
         );
       })}
-      {importedAccounts.length > 0 && (
-        <WalletCard
-          accountsNumber={importedAccounts.length}
-          key={IMPORTED_ACCOUNTS_WALLET_ID}
-          id={IMPORTED_ACCOUNTS_WALLET_ID}
-          name={t('Imported Accounts')}
-          icon={<WalletIcon type={SecretType.PrivateKey} />}
-          initialExpanded={importedAccounts.some(isActiveAccount)}
-        >
-          {importedAccounts.map((account, index) => {
-            const isSelectedActive = isActiveAccount(account.id);
-            const isLastItem = index === importedAccounts.length - 1;
-            const nextAccount = importedAccounts[index + 1];
-            const isNextActive = nextAccount
-              ? isActiveAccount(nextAccount.id)
-              : false;
+      {importedAccounts.map((account) => {
+        const isActiveAccountInWallet = isActiveAccount(account.id);
 
-            // Hide divider if:
-            // - Last item (no divider after last)
-            // - Current account is active (no divider below active)
-            // - Next account is active (no divider above active)
-            const shouldHideDivider =
-              isLastItem || isSelectedActive || isNextActive;
-
-            return (
-              <>
-                {renderAccount(account)}
-                {!isLastItem && (
-                  <Styled.AccountDivider
-                    className={
-                      shouldHideDivider ? 'account-divider-hidden' : ''
-                    }
-                  />
-                )}
-              </>
-            );
-          })}
-          {importedAccounts.some(isActiveAccount) && (
-            <AddOrConnectWalletButton />
-          )}
-        </WalletCard>
-      )}
+        return (
+          <WalletCard
+            key={account.id}
+            accountsNumber={1}
+            id={account.id}
+            name={t('Imported wallet')}
+            icon={<WalletIcon type={SecretType.PrivateKey} />}
+            showActiveIndicator={isActiveAccountInWallet}
+            initialExpanded={isActiveAccountInWallet}
+          >
+            {renderAccount(account)}
+          </WalletCard>
+        );
+      })}
     </>
   );
 };

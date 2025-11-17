@@ -1,10 +1,4 @@
-import {
-  getHexAlpha,
-  styled,
-  Stack,
-  Typography,
-  Button,
-} from '@avalabs/k2-alpine';
+import { getHexAlpha, styled, Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
@@ -14,6 +8,7 @@ import { WalletList } from './components/WalletList';
 import * as Styled from './components/Styled';
 import { TokenType } from '@avalabs/vm-module-types';
 import { useLiveBalance } from '@core/ui';
+import { AddOrConnectWalletButton } from '../AddOrCreateWallet';
 
 const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -21,14 +16,16 @@ export const WalletsHomePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
   const { walletDetails } = useWalletContext();
-  const { isLoading, hasErrorOccurred, refreshBalance } = useWalletTotalBalance(
+  const { isLoading, hasErrorOccurred } = useWalletTotalBalance(
     walletDetails?.id,
   );
 
   return (
     <Page
       title={t('My wallets')}
+      titleAction={<AddOrConnectWalletButton />}
       description={t('An overview of your wallets and associated accounts')}
+      descriptionColor="text.secondary"
       withBackButton
       contentProps={{
         alignItems: 'stretch',
@@ -55,18 +52,11 @@ export const WalletsHomePage: FC = () => {
                 {t('Unable to load balances')}
               </Typography>
             </Stack>
-            <Button
-              variant="contained"
-              color="secondary"
-              size="xsmall"
-              onClick={refreshBalance}
-            >
-              {t('Refresh')}
-            </Button>
           </Stack>
         )}
         <WalletList />
       </Stack>
+
       <BulkDeleteButtonsContainer>
         <BulkDeleteButtons />
       </BulkDeleteButtonsContainer>
@@ -77,14 +67,17 @@ export const WalletsHomePage: FC = () => {
 const BulkDeleteButtonsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
+  height: '75px',
   zIndex: 10,
   paddingTop: theme.spacing(1),
   paddingBottom: theme.spacing(1.5),
+  marginLeft: `-${theme.spacing(2)}`,
+  marginRight: `-${theme.spacing(2)}`,
   marginBottom: `-${theme.spacing(1.5)}`,
-  background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
+  background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.paper, 0)} 0%, ${theme.palette.background.paper} 42%)`,
 
   '> div': {
     borderRadius: theme.shape.mediumBorderRadius,
-    background: theme.palette.background.backdrop,
+    background: theme.palette.background.paper,
   },
 }));

@@ -31,12 +31,17 @@ export const ShowPrivateKey: FC = () => {
     <Page
       title={
         revealed
-          ? t('Private key')
+          ? t('Here’s the private key for this account')
           : t('Enter your password to reveal the private key')
       }
       containerProps={{
         mt: 3,
       }}
+      description={
+        revealed
+          ? t('This key gives access to your account’s addresses')
+          : undefined
+      }
       withBackButton
       contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
     >

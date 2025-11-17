@@ -13,6 +13,7 @@ type PageProps = {
   contentProps?: StackProps;
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
+  descriptionColor?: string;
 };
 
 export const Page = ({
@@ -25,6 +26,7 @@ export const Page = ({
   withBackButton = true,
   withViewSwitcher = true,
   containerProps,
+  descriptionColor = 'text.primary',
   ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
@@ -49,14 +51,23 @@ export const Page = ({
         <Stack px={1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
-              <Stack direction="row" gap={1} justifyContent="space-between">
+              <Stack
+                direction="row"
+                gap={1}
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Typography variant="h2" ref={ref} component="h1">
                   {title}
                 </Typography>
                 {titleAction}
               </Stack>
               {description && (
-                <Typography variant="caption" sx={{ width: '60%' }}>
+                <Typography
+                  variant="caption"
+                  sx={{ width: '60%' }}
+                  color={descriptionColor}
+                >
                   {description}
                 </Typography>
               )}

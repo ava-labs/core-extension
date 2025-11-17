@@ -42,7 +42,7 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
       : SecretType.Mnemonic;
 
   return (
-    <Stack height={1} gap={1.5}>
+    <Stack height={1} gap={1.5} mt={2}>
       <StyledSelect
         label={t('Chain')}
         value={chain}
