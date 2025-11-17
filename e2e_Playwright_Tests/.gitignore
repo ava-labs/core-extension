@@ -13,6 +13,9 @@ test-results/screenshots/
 # User data
 user-data-dir/
 
+# Wallet snapshots (stored in S3, not in repo)
+helpers/storage-snapshots/*.ts
+
 # Environment
 .env
 .env.local
