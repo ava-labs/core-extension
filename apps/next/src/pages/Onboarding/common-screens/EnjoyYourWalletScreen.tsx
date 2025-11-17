@@ -73,7 +73,9 @@ export const EnjoyYourWalletScreen: FC = () => {
         ) : (
           <Stack sx={{ gap: 3, textAlign: 'center', px: 5 }}>
             <Stack>
-              <Typography variant="h2">{t("That's it!")}</Typography>
+              <Typography variant="h2" data-testid="enjoy-wallet-title">
+                {t("That's it!")}
+              </Typography>
               <Typography variant="h2">{t('Enjoy your wallet')}</Typography>
             </Stack>
             <Typography variant="body1">

@@ -11,6 +11,7 @@ import {
   ContactsContextProvider,
   CurrenciesContextProvider,
   DefiContextProvider,
+  FirebaseContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
@@ -41,6 +42,7 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -55,6 +57,7 @@ const pagesWithoutHeader = [
   getContactsPath(),
   getSendPath(),
   getSwapPath(),
+  '/concierge',
 ];
 
 // Create a client for React Query
@@ -148,6 +151,7 @@ export function App() {
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
           <DefiContextProvider />,
+          <FirebaseContextProvider />,
         ]) as ReactElement[]
       }
     >
@@ -159,6 +163,7 @@ export function App() {
         )}
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
+        <LedgerRegisterBtcWalletPolicy />
       </>
     </Providers>
   );

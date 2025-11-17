@@ -29,6 +29,7 @@ type CardMenuItemProps = {
   description?: string;
   size?: string;
   itemGap?: string;
+  'data-testid'?: string;
 } & (
   | {
       link: string;
@@ -43,6 +44,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
   text,
   description,
   size,
+  'data-testid': dataTestId,
   ...props
 }) => {
   const history = useHistory();
@@ -58,6 +60,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
   return (
     <CardMenuItemContainer
       onClick={onClick}
+      data-testid={dataTestId}
       sx={{
         gap: theme.spacing(size === 'small' ? 1.5 : 3),
         paddingX: theme.spacing(size === 'small' ? 1.5 : 2.5),
