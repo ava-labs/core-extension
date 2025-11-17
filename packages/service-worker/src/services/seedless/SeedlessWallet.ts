@@ -30,6 +30,7 @@ import {
 import {
   assertPresent,
   getProviderForNetwork,
+  hasAtLeastOneElement,
   isBitcoinNetwork,
   isTokenExpiredError,
 } from '@core/common';
@@ -52,7 +53,7 @@ import { SeedlessSessionManager } from './SeedlessSessionManager';
 type ConstructorOpts = {
   networkService?: NetworkService;
   sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
-  addressPublicKey?: AddressPublicKeyJson;
+  addressPublicKeys?: AddressPublicKeyJson[];
   network?: Network;
   sessionManager?: SeedlessSessionManager;
   mfaService?: SeedlessMfaService;
@@ -61,7 +62,7 @@ type ConstructorOpts = {
 export class SeedlessWallet {
   #sessionStorage: cs.SessionStorage<cs.SignerSessionData>;
   #networkService?: NetworkService;
-  #addressPublicKey?: AddressPublicKeyJson;
+  #addressPublicKeys?: [AddressPublicKeyJson, ...AddressPublicKeyJson[]];
   #network?: Network;
   #sessionManager?: SeedlessSessionManager;
   #signerSession?: cs.SignerSession;
@@ -70,17 +71,26 @@ export class SeedlessWallet {
   constructor({
     networkService,
     sessionStorage,
-    addressPublicKey,
+    addressPublicKeys,
     network,
     sessionManager,
     mfaService,
   }: ConstructorOpts) {
     this.#networkService = networkService;
     this.#sessionStorage = sessionStorage;
-    this.#addressPublicKey = addressPublicKey;
     this.#network = network;
     this.#sessionManager = sessionManager;
     this.#mfaService = mfaService;
+
+    if (!addressPublicKeys || hasAtLeastOneElement(addressPublicKeys)) {
+      this.#addressPublicKeys = addressPublicKeys;
+    } else {
+      throw new Error('Address public keys not available');
+    }
+  }
+
+  get #firstAddressPublicKey() {
+    return this.#addressPublicKeys?.[0];
   }
 
   get #connected() {
@@ -110,7 +120,7 @@ export class SeedlessWallet {
   }
 
   async #getMnemonicId(withPrefix = false): Promise<string> {
-    if (!this.#addressPublicKey) {
+    if (!this.#firstAddressPublicKey) {
       throw new Error('Public key not available');
     }
 
@@ -120,7 +130,7 @@ export class SeedlessWallet {
       const keys = await session.keys();
 
       const activeAccountKey = keys.find(
-        (key) => strip0x(key.publicKey) === this.#addressPublicKey?.key,
+        (key) => strip0x(key.publicKey) === this.#firstAddressPublicKey?.key,
       );
 
       const mnemonicId = activeAccountKey?.derivation_info?.mnemonic_id;
@@ -440,7 +450,7 @@ export class SeedlessWallet {
     base64EncodedTx: string,
     provider: SolanaProvider,
   ): Promise<string> {
-    if (!this.#addressPublicKey?.key) {
+    if (!this.#firstAddressPublicKey) {
       throw new Error('Public key not available');
     }
     const txMessage = await deserializeTransactionMessage(
@@ -453,7 +463,7 @@ export class SeedlessWallet {
       const session = await this.#getSession();
       const signingKey = await this.#getSigningKey(
         cs.Ed25519.Solana,
-        this.#addressPublicKey.key,
+        this.#firstAddressPublicKey.key,
       );
       const address = signingKey.materialId;
 
@@ -480,7 +490,7 @@ export class SeedlessWallet {
   }
 
   async signTransaction(transaction: TransactionRequest): Promise<string> {
-    if (!this.#addressPublicKey || !this.#addressPublicKey.key) {
+    if (!this.#firstAddressPublicKey || !this.#firstAddressPublicKey.key) {
       throw new Error('Public key not available');
     }
 
@@ -495,7 +505,9 @@ export class SeedlessWallet {
 
     try {
       const signer = new Signer(
-        getEvmAddressFromPubKey(Buffer.from(this.#addressPublicKey.key, 'hex')),
+        getEvmAddressFromPubKey(
+          Buffer.from(this.#firstAddressPublicKey.key, 'hex'),
+        ),
         await this.#getSession(),
         provider,
       );
@@ -512,28 +524,31 @@ export class SeedlessWallet {
   ): Promise<Avalanche.SignTxRequest['tx']> {
     assertPresent(this.#networkService, CommonError.UnknownNetwork);
 
-    if (!this.#addressPublicKey) {
-      throw new Error('Public key not available');
+    if (!this.#addressPublicKeys) {
+      throw new Error('Public keys not available');
     }
 
     const isEvmTx = request.tx.getVM() === 'EVM';
     const isMainnet = this.#networkService.isMainnet();
     const session = await this.#getSession();
-    const key = isEvmTx
-      ? await this.#getSigningKey(cs.Secp256k1.Evm, this.#addressPublicKey.key)
-      : await this.#getSigningKey(
-          isMainnet ? cs.Secp256k1.Ava : cs.Secp256k1.AvaTest,
-          this.#addressPublicKey.key,
-        );
 
     try {
-      const response = await session.signBlob(key.key_id, {
-        message_base64: Buffer.from(sha256(request.tx.toBytes())).toString(
-          'base64',
-        ),
-      });
+      for (const publicKey of this.#addressPublicKeys) {
+        const key = isEvmTx
+          ? await this.#getSigningKey(cs.Secp256k1.Evm, publicKey.key)
+          : await this.#getSigningKey(
+              isMainnet ? cs.Secp256k1.Ava : cs.Secp256k1.AvaTest,
+              publicKey.key,
+            );
 
-      request.tx.addSignature(utils.hexToBuffer(response.data().signature));
+        const response = await session.signBlob(key.key_id, {
+          message_base64: Buffer.from(sha256(request.tx.toBytes())).toString(
+            'base64',
+          ),
+        });
+
+        request.tx.addSignature(utils.hexToBuffer(response.data().signature));
+      }
 
       return request.tx;
     } catch (err) {
@@ -564,12 +579,12 @@ export class SeedlessWallet {
     try {
       await Promise.all(
         psbt.txInputs.map((_, i) => {
-          if (!this.#addressPublicKey) {
+          if (!this.#firstAddressPublicKey) {
             throw new Error('Public key not available');
           }
 
           const signer = new SeedlessBtcSigner(
-            this.#addressPublicKey.key,
+            this.#firstAddressPublicKey.key,
             psbt,
             i,
             ins,
@@ -607,18 +622,18 @@ export class SeedlessWallet {
     messageParams: Pick<MessageParams, 'data'>,
   ): Promise<string | Buffer> {
     assertPresent(this.#networkService, CommonError.UnknownNetwork); // TODO: is networkService actually needed? why is #network not enough?
-    if (!this.#addressPublicKey) {
+    if (!this.#firstAddressPublicKey) {
       throw new Error('Public key not available');
     }
 
     if (messageType === MessageType.AVALANCHE_SIGN) {
-      if (!this.#addressPublicKey.key) {
+      if (!this.#firstAddressPublicKey.key) {
         throw new Error('X/P public key not available');
       }
 
       const xpProvider = await this.#networkService.getAvalanceProviderXP();
       const addressAVM = await xpProvider
-        .getAddress(Buffer.from(this.#addressPublicKey.key, 'hex'), 'X')
+        .getAddress(Buffer.from(this.#firstAddressPublicKey.key, 'hex'), 'X')
         .slice(2); // remove chain prefix
       const message = toUtf8(messageParams.data);
 
@@ -634,7 +649,7 @@ export class SeedlessWallet {
     }
 
     const addressEVM = getEvmAddressFromPubKey(
-      Buffer.from(this.#addressPublicKey.key, 'hex'),
+      Buffer.from(this.#firstAddressPublicKey.key, 'hex'),
     ).toLowerCase();
 
     switch (messageType) {
