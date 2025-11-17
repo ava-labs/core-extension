@@ -1,3 +1,5 @@
+import { CurrentAvalancheAccount } from '@avalabs/avalanche-module';
+
 import {
   DEFERRED_RESPONSE,
   DomainMetadata,
@@ -11,6 +13,7 @@ export type Context<RequestType, ResponseType> = {
   request: RequestType;
   domainMetadata?: DomainMetadata;
   network?: NetworkWithCaipId;
+  account?: CurrentAvalancheAccount;
   currentAddress?: string;
   currentEvmAddress?: string;
   xpubXP?: string;
