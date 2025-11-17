@@ -1,6 +1,6 @@
 import { Account, AccountType, SecretType } from '@core/types';
 import { LedgerAppType, useAccountsContext, useWalletContext } from '@core/ui';
-import { FC } from 'react';
+import { FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountListItem } from './AccountListItem';
 import { WalletCard } from '@/components/WalletCard';
@@ -30,6 +30,7 @@ export const WalletList: FC = () => {
         const canAddNewAccount =
           !isLedgerWallet ||
           (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
+
         return (
           <WalletCard
             key={wallet.id}
@@ -61,7 +62,7 @@ export const WalletList: FC = () => {
                 isLastItem || isSelectedActive || isNextActive;
 
               return (
-                <>
+                <Fragment key={account.id}>
                   {renderAccount(account)}
                   {!isLastItem && (
                     <Styled.AccountDivider
@@ -70,7 +71,7 @@ export const WalletList: FC = () => {
                       }
                     />
                   )}
-                </>
+                </Fragment>
               );
             })}
             {isActiveWallet && isPrimaryAccount && canAddNewAccount && (
@@ -87,6 +88,7 @@ export const WalletList: FC = () => {
             key={account.id}
             accountsNumber={1}
             id={account.id}
+            disableRename
             name={t('Imported wallet')}
             icon={<WalletIcon type={SecretType.PrivateKey} />}
             showActiveIndicator={isActiveAccountInWallet}
