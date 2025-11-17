@@ -15,8 +15,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "0.0.0-fix-explicit-naming-20251117141406",
-    "@avalabs/svm-module": "0.0.0-fix-explicit-naming-20251117141406",
+    "@avalabs/evm-module": "2.2.1",
+    "@avalabs/svm-module": "2.2.1",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
