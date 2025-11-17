@@ -112,9 +112,42 @@ jobs:
           TEST_RUN_ID=`trcli -y -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} add_run --title "New Gen Core Extension - $TS" --run-include-all | grep "run_id:" | awk '{print $2}'`
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
 
+  download-snapshots:
+    name: Download Test Snapshots from S3
+    needs: build-extension
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: us-east-1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Extension snapshots from AWS S3
+        run: |
+          mkdir -p snapshots
+          aws s3 sync s3://core-qa-automation-snapshots/ext/ ./snapshots/ || echo "No snapshots found in S3, continuing..."
+          ls -la ./snapshots/
+
+      - name: Upload snapshots as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-snapshots
+          path: ./snapshots/
+          if-no-files-found: warn
+
   playwright-tests:
     name: Run Extension E2E Tests - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-    needs: build-extension
+    needs: [build-extension, download-snapshots]
     runs-on: ubuntu-latest-16-cores-core-extension
     permissions:
       id-token: write
@@ -159,6 +192,12 @@ jobs:
           name: extension
           path: ./e2e-playwright-tests/dist
 
+      - name: Download test snapshots
+        uses: actions/download-artifact@v4
+        with:
+          name: test-snapshots
+          path: ./e2e-playwright-tests/helpers/storage-snapshots
+
       - name: Output Github runner
         run: |
           curl ifconfig.io
@@ -170,34 +209,6 @@ jobs:
           echo "WALLET_PASSWORD=${{ secrets.WALLET_PASSWORD }}" >> .env
           echo "RECOVERY_PHRASE_12_WORDS=${{ secrets.RECOVERY_PHRASE_12_WORDS }}" >> .env
           echo "RECOVERY_PHRASE_24_WORDS=${{ secrets.RECOVERY_PHRASE_24_WORDS }}" >> .env
-
-      - name: Configure aws Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
-          role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Set Python for AWS CLI
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-
-      - name: Install AWS dependencies
-        shell: bash
-        run: |
-          python3 -m venv ~/py_env
-          source ~/py_env/bin/activate
-          pip3 install awscli
-
-      - name: Download Extension snapshots from AWS S3 bucket
-        shell: bash
-        working-directory: e2e-playwright-tests/helpers
-        run: |
-          mkdir -p storage-snapshots
-          cd storage-snapshots
-          source ~/py_env/bin/activate
-          aws s3 sync s3://core-qa-automation-snapshots/ext/ . || echo "No snapshots found in S3, continuing..."
 
       - name: Install Playwright dependencies
         run: |
