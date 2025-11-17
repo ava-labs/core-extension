@@ -5,16 +5,12 @@ import { DropdownMenu } from '@/components/DropdownMenu';
 
 interface CollectiblesFilterProps {
   typeFilter: MediaTypeFilters;
-  showHidden: boolean;
   onTypeChange: (type: keyof MediaTypeFilters) => void;
-  onToggleHidden: () => void;
 }
 
 export function CollectiblesFilter({
   typeFilter,
-  showHidden,
   onTypeChange,
-  onToggleHidden,
 }: CollectiblesFilterProps) {
   const { t } = useTranslation();
 
@@ -43,9 +39,6 @@ export function CollectiblesFilter({
         selected={typeFilter.video && !typeFilter.all}
       >
         {t('Videos')}
-      </PopoverItem>
-      <PopoverItem onClick={onToggleHidden} selected={showHidden}>
-        {t('Show hidden NFTs')}
       </PopoverItem>
     </DropdownMenu>
   );

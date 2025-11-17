@@ -78,11 +78,9 @@ export function CollectiblesTab() {
     mediaFilters,
     sortOption,
     openManageDialog,
-    showHidden,
     hideUnreachable,
     hiddenCollectibles,
     toggleMediaFilter,
-    toggleShowHidden,
     toggleHideUnreachable,
     toggleCollectible,
     setSortOption,
@@ -107,8 +105,6 @@ export function CollectiblesTab() {
           <CollectibleToolbar
             mediaFilters={mediaFilters}
             toggleMediaFilter={toggleMediaFilter}
-            showHidden={showHidden}
-            toggleShowHidden={toggleShowHidden}
             toggleOpenManageDialog={() =>
               setOpenManageDialog(!openManageDialog)
             }

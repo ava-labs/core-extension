@@ -10,8 +10,6 @@ import { useTranslation } from 'react-i18next';
 export type CollectibleToolbarProps = {
   mediaFilters: MediaTypeFilters;
   toggleMediaFilter: (filterType: keyof MediaTypeFilters) => void;
-  showHidden: boolean;
-  toggleShowHidden: () => void;
   sortOption: SortMode;
   setSortOption: (option: SortMode) => void;
   toggleOpenManageDialog: () => void;
@@ -20,8 +18,6 @@ export type CollectibleToolbarProps = {
 export const CollectibleToolbar = ({
   mediaFilters,
   toggleMediaFilter,
-  showHidden,
-  toggleShowHidden,
   sortOption,
   setSortOption,
   toggleOpenManageDialog,
@@ -39,8 +35,6 @@ export const CollectibleToolbar = ({
         <CollectiblesFilter
           typeFilter={mediaFilters}
           onTypeChange={toggleMediaFilter}
-          showHidden={showHidden}
-          onToggleHidden={toggleShowHidden}
         />
         <CollectiblesSort
           sortOption={sortOption}

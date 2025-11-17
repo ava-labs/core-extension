@@ -51,10 +51,6 @@ export const useCollectiblesToolbar = ({
     'name-asc',
   );
   const [openManageDialog, setOpenManageDialog] = useState(false);
-  const [showHidden, setShowHidden] = useStorage<string, boolean>(
-    'collectibles-show-hidden',
-    false,
-  );
   const [hideUnreachable, setHideUnreachable] = useStorage<string, boolean>(
     'collectibles-hide-unreachable',
     true,
@@ -125,10 +121,6 @@ export const useCollectiblesToolbar = ({
     [setHiddenCollectiblesIds],
   );
 
-  const toggleShowHidden = useCallback(() => {
-    setShowHidden((prev) => !prev);
-  }, [setShowHidden]);
-
   const toggleHideUnreachable = useCallback(() => {
     setHideUnreachable((prev) => !prev);
   }, [setHideUnreachable]);
@@ -144,10 +136,6 @@ export const useCollectiblesToolbar = ({
       sortOption,
     );
 
-    if (showHidden) {
-      // Show all collectibles (both hidden and visible)
-      return sortedCollectibles;
-    }
     // Filter out hidden collectibles
     return sortedCollectibles.filter(
       (collectible) => !hiddenCollectibles.has(collectible.uniqueCollectibleId),
@@ -157,7 +145,6 @@ export const useCollectiblesToolbar = ({
     mediaFilters,
     hideUnreachable,
     sortOption,
-    showHidden,
     hiddenCollectibles,
   ]);
 
@@ -166,13 +153,11 @@ export const useCollectiblesToolbar = ({
     mediaFilters,
     sortOption,
     openManageDialog,
-    showHidden,
     hideUnreachable,
     hiddenCollectibles,
     toggleMediaFilter,
     setSortOption,
     setOpenManageDialog,
-    toggleShowHidden,
     toggleHideUnreachable,
     toggleCollectible,
   };
