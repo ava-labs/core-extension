@@ -149,6 +149,7 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <CurrencySelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+              onClick={() => capture('CurrencySettingClicked')}
             />
           }
         />
@@ -242,6 +243,7 @@ export const SettingsHomePage = () => {
               label={t('Show recovery phrase')}
               href={`${path}/recovery-phrase/show-phrase`}
               divider
+              onClick={() => capture('RecoveryPhraseClicked')}
             />
           )}
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
