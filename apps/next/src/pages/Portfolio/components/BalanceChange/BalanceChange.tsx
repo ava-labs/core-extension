@@ -36,9 +36,11 @@ export const BalanceChange: FC<BalanceChangeProps> = ({
       <Box color={pnlColor}>
         <PnLIcon size={12} />
       </Box>
-      <Typography variant="caption" fontWeight={600}>
-        {`${(percentageChange ?? 0).toFixed(1)}%`}
-      </Typography>
+      {percentageChange !== undefined && (
+        <Typography variant="caption" fontWeight={600}>
+          {`${(percentageChange ?? 0).toFixed(1)}%`}
+        </Typography>
+      )}
     </Stack>
   );
 };

@@ -30,7 +30,6 @@ const WalletViewContent = () => {
     percentageChange,
   } = useWalletTotalBalance(walletId);
 
-  console.log({ balanceChange, percentageChange });
   const wallet = getWallet(walletId);
   const accountsInWallet = getAccountsByWalletId(walletId);
 
@@ -81,9 +80,10 @@ const WalletViewContent = () => {
 
       <Card
         sx={{
-          backgroundColor: 'surface.secondary',
+          backgroundColor: 'background.paper',
           padding: 2,
           marginTop: 1.5,
+          overflow: 'visible',
         }}
       >
         <Typography variant="h3">{t('Accounts')}</Typography>
@@ -92,8 +92,12 @@ const WalletViewContent = () => {
           {/* TODO: replace with the actual number of accounts and networks */}
         </Typography>
 
-        {accountsInWallet.map((account) => (
-          <WalletAccount key={account.id} account={account} />
+        {accountsInWallet.map((account, index) => (
+          <WalletAccount
+            key={account.id}
+            account={account}
+            isFirst={index === 0}
+          />
         ))}
       </Card>
     </Stack>

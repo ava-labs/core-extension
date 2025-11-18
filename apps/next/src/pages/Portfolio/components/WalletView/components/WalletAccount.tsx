@@ -7,15 +7,17 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { FC, useCallback } from 'react';
-import { MdCircle } from 'react-icons/md';
+import { MdCircle, MdNavigateNext } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { BalanceChange } from '../../BalanceChange';
+import { NetworksWithBalances } from './NetworksWithBalances';
 
 type Props = {
   account: Account;
+  isFirst?: boolean;
 };
 
-export const WalletAccount: FC<Props> = ({ account }) => {
+export const WalletAccount: FC<Props> = ({ account, isFirst = false }) => {
   const theme = useTheme();
 
   const history = useHistory();
@@ -34,28 +36,45 @@ export const WalletAccount: FC<Props> = ({ account }) => {
     <Stack
       direction="row"
       alignItems="center"
+      justifyContent="space-between"
       gap={1}
       onClick={() => clickHandler()}
-      sx={{ cursor: 'pointer' }}
+      py={1}
+      sx={{
+        cursor: 'pointer',
+        position: 'relative',
+        ...(!isFirst && {
+          borderTop: `1px solid ${theme.palette.divider}`,
+        }),
+      }}
     >
-      {isActiveAccount(account.id) && (
-        <MdCircle color={theme.palette.success.main} />
-      )}
-      {/* TODO: Add random Icon */}
-      <PersonalAvatar cached size="small" sx={{ mr: 1 }} />
-      <Stack>
-        <Typography variant="subtitle3">{account.name}</Typography>
-        {/* <Typography variant="subtitle3">{account.addressC}</Typography> */}
-        {/*TODO: Replace with supported network logos */}
+      <Stack direction="row" alignItems="center" gap={1}>
+        {isActiveAccount(account.id) && (
+          <MdCircle
+            size={6}
+            color={theme.palette.success.main}
+            style={{
+              position: 'absolute',
+              left: '-8px',
+            }}
+          />
+        )}
+        {/* TODO: Add random Icon */}
+        <PersonalAvatar cached size="small" sx={{ mr: 1 }} />
+        <Stack>
+          <Typography variant="subtitle3">{account.name}</Typography>
+          <NetworksWithBalances account={account} />
+        </Stack>
       </Stack>
-      <Stack>
-        <Typography variant="subtitle3">
-          {currencyFormatter(balance?.sum ?? 0)}
-        </Typography>
-        <BalanceChange
-          balanceChange={balance?.priceChange.value ?? 0}
-          percentageChange={balance?.priceChange.percentage[0] ?? 0}
-        />
+
+      <Stack direction="row" alignItems="center" gap={0.5}>
+        <Stack alignItems="flex-end">
+          <Typography variant="subtitle3">
+            {currencyFormatter(balance?.sum ?? 0)}
+          </Typography>
+          <BalanceChange balanceChange={balance?.priceChange.value ?? 0} />
+        </Stack>
+        <MdNavigateNext size={16} color={theme.palette.text.secondary} />
       </Stack>
     </Stack>
   );
