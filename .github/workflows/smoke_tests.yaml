@@ -239,10 +239,9 @@ jobs:
         if: always()
         shell: bash
         run: |
-          python3 -m venv ~/py_env
-          source ~/py_env/bin/activate
-          pip3 install trcli
-          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
+          apt-get update && apt-get install -y python3-pip python3-venv
+          python3 -m pip install --user trcli
+          python3 -m trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
 
       - name: Output TestRail run link
         if: always()
