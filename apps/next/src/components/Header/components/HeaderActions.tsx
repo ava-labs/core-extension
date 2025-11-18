@@ -53,7 +53,11 @@ export const HeaderActions: FC<Props> = ({
       >
         <QrCodeIcon fill={theme.palette.text.primary} size={24} />
       </IconButton>
-      <IconButton onClick={() => history.push('/settings')} size="small">
+      <IconButton
+        data-testid="settings-button"
+        onClick={() => history.push('/settings')}
+        size="small"
+      >
         <FiSettings size={24} style={{ scale: 5 / 6 }} />
       </IconButton>
       <IconButton size="small">

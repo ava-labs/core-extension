@@ -10,6 +10,7 @@ export const EmptyContactList = () => {
 
   return (
     <Stack
+      data-testid="contacts-empty-state"
       flexGrow={1}
       alignItems="center"
       justifyContent="center"

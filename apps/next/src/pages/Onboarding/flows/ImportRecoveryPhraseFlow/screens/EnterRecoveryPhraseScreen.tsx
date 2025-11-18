@@ -81,6 +81,7 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
             alignItems="center"
             color="error.light"
             width="70%"
+            data-testid="recovery-phrase-error-message"
           >
             <Box sx={{ width: 24, height: 24 }}>
               <FiAlertCircle size={24} />

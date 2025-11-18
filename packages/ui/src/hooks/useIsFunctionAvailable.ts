@@ -5,6 +5,7 @@ import { ChainId } from '@avalabs/core-chains-sdk';
 import { Account, FeatureGates } from '@core/types';
 import {
   isAvalancheNetwork,
+  isBitcoinNetwork,
   isEthereumNetwork,
   isFireblocksAccount,
   isFireblocksApiSupported,
@@ -235,6 +236,17 @@ export const useIsFunctionAvailable = (
           : isSolanaNetwork(network)
             ? isFlagEnabled(FeatureGates.SWAP_SOLANA)
             : false;
+    }
+
+    if (functionToCheck === FunctionNames.BRIDGE) {
+      if (!network || !isFlagEnabled(FeatureGates.BRIDGE)) {
+        return false;
+      }
+
+      if (isBitcoinNetwork(network)) {
+        return isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA);
+      }
+      return true;
     }
 
     const featureFlagToCheck = FeatureFlagMap[functionToCheck];

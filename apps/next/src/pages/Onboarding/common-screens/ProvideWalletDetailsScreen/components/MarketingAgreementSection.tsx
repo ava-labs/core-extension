@@ -106,6 +106,7 @@ export const MarketingAgreementSection: FC<Props> = ({
                     slotProps={{
                       htmlInput: {
                         sx: { textAlign: 'end', px: 0, py: 0 },
+                        'data-testid': 'newsletter-email-input',
                       },
                     }}
                     fullWidth
@@ -121,7 +122,12 @@ export const MarketingAgreementSection: FC<Props> = ({
         )}
       </Section>
       <Fade in={isNewsletterEnabled && isEmailTouched && !isValidEmail}>
-        <Typography variant="caption" textAlign="end" color="error.light">
+        <Typography
+          variant="caption"
+          textAlign="end"
+          color="error.light"
+          data-testid="newsletter-email-error"
+        >
           {newsletterEmail
             ? t('This email looks invalid')
             : t('Enter your email address')}
