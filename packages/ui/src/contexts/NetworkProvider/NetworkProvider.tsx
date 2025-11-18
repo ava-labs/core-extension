@@ -60,6 +60,7 @@ const NetworkContext = createContext<{
   isDeveloperMode: boolean;
   favoriteNetworks: NetworkWithCaipId[];
   enabledNetworks: NetworkWithCaipId[];
+  enabledNetworkIds: number[];
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
@@ -84,6 +85,7 @@ const NetworkContext = createContext<{
   isDeveloperMode: false,
   favoriteNetworks: [],
   enabledNetworks: [],
+  enabledNetworkIds: [],
   addFavoriteNetwork() {},
   removeFavoriteNetwork() {},
   isFavoriteNetwork: () => false,
@@ -389,6 +391,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         isDeveloperMode: !!network?.isTestnet,
         favoriteNetworks: favoriteNetworksList,
         enabledNetworks: enabledNetworksList,
+        enabledNetworkIds: enabledNetworks,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
