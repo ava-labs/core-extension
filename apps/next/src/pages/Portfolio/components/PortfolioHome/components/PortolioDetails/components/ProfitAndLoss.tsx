@@ -11,7 +11,6 @@ import {
   getUnconfirmedBalanceInCurrency,
 } from '@core/types';
 import { useSettingsContext } from '@core/ui';
-import { useMemo } from 'react';
 
 export type Trend = 'up' | 'down' | 'no-change';
 
@@ -20,16 +19,11 @@ interface ProfitAndLossProps {
 }
 
 const getTrend = (percentage: number | undefined | null): Trend => {
-  if (percentage === undefined || percentage === null) {
+  if (!percentage) {
     return 'no-change';
   }
-  if (percentage > 0) {
-    return 'up';
-  }
-  if (percentage < 0) {
-    return 'down';
-  }
-  return 'no-change';
+
+  return percentage > 0 ? 'up' : 'down';
 };
 
 const getTrendColor = (trend: Trend, theme: Theme): string => {
@@ -62,7 +56,7 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   const balanceInCurrency = asset.balanceInCurrency;
 
   const trend = getTrend(priceChanges?.percentage);
-  const trendColor = useMemo(() => getTrendColor(trend, theme), [trend, theme]);
+  const trendColor = getTrendColor(trend, theme);
   const trendIcon = getTrendIcon(trend);
 
   if (

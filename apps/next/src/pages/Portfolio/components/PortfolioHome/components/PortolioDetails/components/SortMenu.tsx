@@ -7,7 +7,7 @@ import {
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdCheck } from 'react-icons/md';
-import { AssetSortOption } from './assetSorting';
+import { AssetSortOption } from '../utils/assetSorting';
 
 export type SortMenuProps = {
   id: string;

@@ -12,10 +12,10 @@ import { AssetCard } from './AssetCard';
 import {
   filterAssetsByNetworks,
   getAvailableNetworksFromAssets,
-} from './assetFiltering';
+} from '../utils/assetFiltering';
 import { FilterMenu } from './FilterMenu';
 import { SortMenu } from './SortMenu';
-import { AssetSortOption, sortAssets } from './assetSorting';
+import { AssetSortOption, sortAssets } from '../utils/assetSorting';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
