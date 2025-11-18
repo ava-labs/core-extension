@@ -5,6 +5,7 @@ import {
   Switch,
   toast,
   Typography,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,9 +14,11 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import {
   useAnalyticsContext,
   useContactsContext,
+  useFeatureFlagContext,
   useNetworkContext,
   useSettingsContext,
   useWalletContext,
+  useSeedlessMfaManager,
 } from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -30,7 +33,7 @@ import {
 } from '@/config';
 
 import { getContactsPath } from '@/config/routes';
-import { SecretType } from '@core/types';
+import { FeatureGates, SecretType } from '@core/types';
 import {
   AvatarButton,
   Footer,
@@ -40,9 +43,11 @@ import {
 import { CurrencySelector } from '../CurrencySelector';
 import { ThemeSelector } from '../ThemeSelector';
 import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
+import { Card } from '@/components/Card';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 
 export const SettingsHomePage = () => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
@@ -51,10 +56,18 @@ export const SettingsHomePage = () => {
   const { path } = useRouteMatch();
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
+  const { featureFlags } = useFeatureFlagContext();
 
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
-  const [isCoreAiEnabled, setIsCoreAiEnabled] = useState(false);
-  const { showTrendingTokens, setShowTrendingTokens } = useSettingsContext();
+  const {
+    showTrendingTokens,
+    setShowTrendingTokens,
+    coreAssistant,
+    setCoreAssistant,
+  } = useSettingsContext();
+  const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
+  const isMfaSettingsAvailable =
+    featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
 
   return (
     <Page
@@ -63,6 +76,9 @@ export const SettingsHomePage = () => {
         'Manage and customize your Core experience to your liking.',
       )}
       withBackButton
+      onBack={() => {
+        push('/');
+      }}
     >
       <Stack direction="row" justifyContent="space-between" gap={1.5}>
         <SwitchCard
@@ -91,6 +107,33 @@ export const SettingsHomePage = () => {
           )}
         />
       </Stack>
+
+      {isMfaSetupPromptVisible && (
+        <Card
+          sx={{
+            width: '100%',
+            px: theme.spacing(1.5),
+            py: theme.spacing(0.75),
+            gap: theme.spacing(1.5),
+          }}
+        >
+          <SettingsNavItem
+            label={t('No recovery methods set up')}
+            href={`${path}/recovery-methods`}
+            description={t('Finish setting up recovery methods')}
+            divider
+            secondaryAction={
+              <Button size="small" variant="contained" color="secondary">
+                {t('Set up ')}
+              </Button>
+            }
+            labelVariant="subtitle3"
+            descriptionVariant="caption2"
+            sx={{ borderBottom: 'none' }}
+          />
+        </Card>
+      )}
+
       <SettingsCard
         title={t('General')}
         description={t(
@@ -167,16 +210,18 @@ export const SettingsHomePage = () => {
           }
         />
       </SettingsCard>
-      <SwitchCard
-        title={t('Core Concierge')}
-        titleSize="large"
-        orientation="horizontal"
-        description={t(
-          'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
-        )}
-        checked={isCoreAiEnabled}
-        onChange={() => setIsCoreAiEnabled((is) => !is)}
-      />
+      {featureFlags[FeatureGates.CORE_ASSISTANT] && (
+        <SwitchCard
+          title={t('Core Concierge')}
+          titleSize="large"
+          orientation="horizontal"
+          description={t(
+            'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
+          )}
+          checked={coreAssistant}
+          onChange={() => setCoreAssistant(!coreAssistant)}
+        />
+      )}
       <SettingsCard
         title={t('Privacy and security')}
         description={t(
@@ -193,16 +238,26 @@ export const SettingsHomePage = () => {
           divider
           href={`${path}/change-password`}
         />
-        {(walletDetails?.type === SecretType.Mnemonic ||
-          walletDetails?.type === SecretType.Seedless) && (
-          <SettingsNavItem
-            label={t('Show recovery phrase')}
-            href={`${path}/recovery-phrase/show-phrase`}
-            divider
-          />
-        )}
+        {!isMfaSetupPromptVisible &&
+          (walletDetails?.type === SecretType.Mnemonic ||
+            walletDetails?.type === SecretType.Seedless) && (
+            <SettingsNavItem
+              label={t('Show recovery phrase')}
+              href={`${path}/recovery-phrase/show-phrase`}
+              divider
+            />
+          )}
         <SettingsNavItem label={t('Reset recovery phrase')} divider />
-        <SettingsNavItem label={t('Recovery methods')} divider />
+
+        {walletDetails?.type === SecretType.Seedless &&
+          isMfaSettingsAvailable && (
+            <SettingsNavItem
+              label={t('Recovery methods')}
+              divider
+              href={`${path}/recovery-methods`}
+            />
+          )}
+
         <SettingsNavItem
           label={t('Participate in Core Analytics')}
           description={t(

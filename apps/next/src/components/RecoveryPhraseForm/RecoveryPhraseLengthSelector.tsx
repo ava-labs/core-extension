@@ -54,26 +54,28 @@ export const RecoveryPhraseLengthSelector: FC<
         }}
       >
         <PopoverContent>
-          <PopoverItem
-            data-testid="onboarding-words-length-selector-menu-item-12"
-            onClick={() => {
-              setPhraseLength(12);
-              handleClose();
-            }}
-            selected={phraseLength === 12}
-          >
-            {t('12-word phrase')}
-          </PopoverItem>
-          <PopoverItem
-            data-testid="onboarding-words-length-selector-menu-item-24"
-            onClick={() => {
-              setPhraseLength(24);
-              handleClose();
-            }}
-            selected={phraseLength === 24}
-          >
-            {t('24-word phrase')}
-          </PopoverItem>
+          <div role="menuitem">
+            <PopoverItem
+              onClick={() => {
+                setPhraseLength(12);
+                handleClose();
+              }}
+              selected={phraseLength === 12}
+            >
+              {t('12-word phrase')}
+            </PopoverItem>
+          </div>
+          <div role="menuitem">
+            <PopoverItem
+              onClick={() => {
+                setPhraseLength(24);
+                handleClose();
+              }}
+              selected={phraseLength === 24}
+            >
+              {t('24-word phrase')}
+            </PopoverItem>
+          </div>
         </PopoverContent>
       </Popover>
     </>

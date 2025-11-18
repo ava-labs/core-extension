@@ -14,7 +14,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useReducer,
   useState,
 } from 'react';
@@ -157,7 +156,11 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
-  const { network, favoriteNetworks, getNetwork } = useNetworkContext();
+  const {
+    network,
+    enabledNetworks: enabledNetworkIds,
+    getNetwork,
+  } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
     getAccount,
@@ -168,10 +171,6 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   });
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
-  const polledChainIds = useMemo(
-    () => favoriteNetworks.map(({ chainId }) => chainId),
-    [favoriteNetworks],
-  );
 
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
@@ -242,7 +241,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     if (tokenTypes.length > 0) {
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
-        params: [activeAccount, polledChainIds, tokenTypes],
+        params: [activeAccount, enabledNetworkIds, tokenTypes],
       }).then((balancesData) => {
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
@@ -260,7 +259,13 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         method: ExtensionRequest.BALANCES_STOP_POLLING,
       });
     };
-  }, [request, activeAccount, network?.chainId, polledChainIds, subscribers]);
+  }, [
+    request,
+    activeAccount,
+    network?.chainId,
+    enabledNetworkIds,
+    subscribers,
+  ]);
 
   const updateBalanceOnNetworks = useCallback(
     async (accounts: Account[], chainIds?: number[]) => {
@@ -303,7 +308,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       const chainIds = [
         network?.chainId,
         ...getDefaultChainIds(!network?.isTestnet),
-        ...favoriteNetworks.map(({ chainId }) => chainId),
+        ...enabledNetworkIds,
       ].filter(isNotNullish);
       const networks = chainIds.map(getNetwork).filter(isNotNullish);
 
@@ -319,7 +324,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     },
     [
       getAccount,
-      favoriteNetworks,
+      enabledNetworkIds,
       getNetwork,
       network?.chainId,
       network?.isTestnet,

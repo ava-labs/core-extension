@@ -58,10 +58,16 @@ export const CustomizeCore: FC<Props> = ({ step, totalSteps, onNext }) => {
           onChange={(_, value) => setSelectedViewMode((prev) => value ?? prev)}
           exclusive
         >
-          <Styled.ToggleButton value={'floating' satisfies ViewMode}>
+          <Styled.ToggleButton
+            value={'floating' satisfies ViewMode}
+            data-testid="floating-view-option"
+          >
             <ViewModeOption viewMode="floating" label={t('Floating')} />
           </Styled.ToggleButton>
-          <Styled.ToggleButton value={'sidebar' satisfies ViewMode}>
+          <Styled.ToggleButton
+            value={'sidebar' satisfies ViewMode}
+            data-testid="sidebar-view-option"
+          >
             <ViewModeOption viewMode="sidebar" label={t('Sidebar')} />
           </Styled.ToggleButton>
         </Styled.ToggleButtonGroup>

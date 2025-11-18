@@ -11,12 +11,14 @@ import {
   ContactsContextProvider,
   CurrenciesContextProvider,
   DefiContextProvider,
+  FirebaseContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SeedlessMfaManagementProvider,
   SwapContextProvider,
   useNetworkContext,
   usePageHistory,
@@ -39,6 +41,7 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -53,6 +56,7 @@ const pagesWithoutHeader = [
   getContactsPath(),
   getSendPath(),
   getSwapPath(),
+  '/concierge',
 ];
 
 export function App() {
@@ -120,10 +124,13 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}
             LoadingComponent={LoadingScreen}
           />,
+          <SeedlessMfaManagementProvider />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
@@ -132,6 +139,7 @@ export function App() {
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
           <DefiContextProvider />,
+          <FirebaseContextProvider />,
         ]) as ReactElement[]
       }
     >
@@ -143,6 +151,7 @@ export function App() {
         )}
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
+        <LedgerRegisterBtcWalletPolicy />
       </>
     </Providers>
   );

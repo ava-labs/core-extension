@@ -48,6 +48,31 @@ export type AvalancheNewTransactionRequest = Extract<
   }
 >;
 
+export type AvalancheNewSendTransactionRequest = Extract<
+  AvalancheNewTransactionRequest,
+  {
+    type: RpcMethod.AVALANCHE_SEND_TRANSACTION;
+  }
+>;
+
+export type AvalancheMultiSigRequest = (
+  | AvalancheNewSendTransactionRequest
+  | AvalancheTransactionRequest
+) & { externalIndices: number[] };
+
+export const isMultiSigAvalancheTxRequest = (
+  sigReq: SignTransactionRequest,
+): sigReq is AvalancheMultiSigRequest => {
+  if (isAvalancheModuleTransactionRequest(sigReq)) {
+    return (
+      sigReq.type === RpcMethod.AVALANCHE_SEND_TRANSACTION &&
+      (sigReq.externalIndices?.length ?? 0) > 0
+    );
+  }
+
+  return 'tx' in sigReq && (sigReq.externalIndices?.length ?? 0) > 0;
+};
+
 export const isAvalancheModuleTransactionRequest = (
   sigReq: SignTransactionRequest,
 ): sigReq is AvalancheNewTransactionRequest =>

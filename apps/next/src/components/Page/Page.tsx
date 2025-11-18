@@ -1,5 +1,10 @@
 import { useIsIntersecting } from '@/hooks/useIsIntersecting';
-import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
+import {
+  Stack,
+  StackProps,
+  Typography,
+  TypographyProps,
+} from '@avalabs/k2-alpine';
 import { PageTopBar } from '../PageTopBar';
 import { NoScrollStack } from '../NoScrollStack';
 
@@ -13,7 +18,8 @@ type PageProps = {
   contentProps?: StackProps;
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
-  descriptionColor?: string;
+  px?: number;
+  descriptionProps?: TypographyProps;
 };
 
 export const Page = ({
@@ -26,7 +32,8 @@ export const Page = ({
   withBackButton = true,
   withViewSwitcher = true,
   containerProps,
-  descriptionColor = 'text.primary',
+  px,
+  descriptionProps,
   ...htmlProps
 }: PageProps) => {
   const { ref, isIntersecting, isObserving } = useIsIntersecting();
@@ -48,7 +55,7 @@ export const Page = ({
         title={title}
       />
       <NoScrollStack>
-        <Stack px={1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
+        <Stack px={px ?? 1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
               <Stack
@@ -57,7 +64,12 @@ export const Page = ({
                 justifyContent="space-between"
                 alignItems="center"
               >
-                <Typography variant="h2" ref={ref} component="h1">
+                <Typography
+                  variant="h2"
+                  ref={ref}
+                  component="h1"
+                  maxWidth="90%"
+                >
                   {title}
                 </Typography>
                 {titleAction}
@@ -65,8 +77,8 @@ export const Page = ({
               {description && (
                 <Typography
                   variant="caption"
-                  sx={{ width: '60%' }}
-                  color={descriptionColor}
+                  maxWidth="60%"
+                  {...descriptionProps}
                 >
                   {description}
                 </Typography>

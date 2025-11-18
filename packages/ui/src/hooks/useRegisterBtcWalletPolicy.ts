@@ -11,7 +11,7 @@ import {
   PrimaryAccount,
   WalletDetails,
 } from '@core/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const useRegisterBtcWalletPolicy = () => {
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
@@ -28,6 +28,11 @@ export const useRegisterBtcWalletPolicy = () => {
   const { accounts } = useAccountsContext();
   const { request } = useConnectionContext();
   const activeAccount = accounts.active;
+
+  const reset = useCallback(() => {
+    setMasterFingerprint(undefined);
+    setShouldRegisterBtcWalletPolicy(false);
+  }, [setMasterFingerprint]);
 
   useEffect(() => {
     const fetchWalletPolicyDetails = async (
@@ -65,10 +70,7 @@ export const useRegisterBtcWalletPolicy = () => {
       return;
     }
 
-    setMasterFingerprint(undefined);
-    setWalletPolicyName(undefined);
-    setWalletPolicyDerivationpath(undefined);
-    setShouldRegisterBtcWalletPolicy(false);
+    reset();
 
     if (isUsingLedgerWallet && appType === LedgerAppType.BITCOIN) {
       fetchWalletPolicyDetails(activeAccount, walletDetails);
@@ -80,11 +82,13 @@ export const useRegisterBtcWalletPolicy = () => {
     isUsingLedgerWallet,
     request,
     setMasterFingerprint,
+    reset,
   ]);
 
   return {
     shouldRegisterBtcWalletPolicy,
     walletPolicyName,
     walletPolicyDerivationpath,
+    reset,
   };
 };

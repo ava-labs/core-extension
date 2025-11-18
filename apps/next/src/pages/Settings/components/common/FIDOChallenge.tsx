@@ -9,6 +9,7 @@ import {
   AuthErrorCode,
   ExtensionRequest,
   FIDOApiEndpoint,
+  KeyType,
   MfaRequestType,
 } from '@core/types';
 import { useConnectionContext, useFidoErrorMessage } from '@core/ui';
@@ -16,8 +17,10 @@ import { FC, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
 import { SubmitMfaResponseHandler } from '~/services/seedless/handlers/submitMfaResponse';
-import { InProgress } from '../../../../InProgress';
-import { ChallengeComponentProps } from '../../../types';
+import { InProgress } from './InProgress';
+import { ChallengeComponentProps } from '../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/types';
+import { useParams } from 'react-router-dom';
+import { RecoveryMethodsFullScreenParams } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 
 type Props = ChallengeComponentProps<
   MfaRequestType.Fido | MfaRequestType.FidoRegister
@@ -34,6 +37,7 @@ export const FIDOChallenge: FC<Props> = ({
   const { request } = useConnectionContext();
   const [force, setForce] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const { keyType } = useParams<RecoveryMethodsFullScreenParams>();
 
   useEffect(() => {
     if (isVerifying && !force) {
@@ -44,7 +48,15 @@ export const FIDOChallenge: FC<Props> = ({
     setForce(false);
     onError(undefined);
 
-    launchFidoFlow(FIDOApiEndpoint.Authenticate, challenge.options)
+    launchFidoFlow(
+      challenge.type === MfaRequestType.Fido
+        ? FIDOApiEndpoint.Authenticate
+        : FIDOApiEndpoint.Register,
+      challenge.options,
+      challenge.type === MfaRequestType.FidoRegister && keyType
+        ? (keyType as KeyType)
+        : undefined,
+    )
       .then((answer) => {
         request<SubmitMfaResponseHandler>({
           method: ExtensionRequest.SEEDLESS_SUBMIT_MFA_RESPONSE,
@@ -61,9 +73,11 @@ export const FIDOChallenge: FC<Props> = ({
     onError,
     request,
     isVerifying,
-    challenge.mfaId,
+    challenge?.mfaId,
     force,
     challenge.options,
+    challenge.type,
+    keyType,
   ]);
 
   return (

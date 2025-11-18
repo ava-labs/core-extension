@@ -25,7 +25,7 @@ export const WalletsHomePage: FC = () => {
       title={t('My wallets')}
       titleAction={<AddOrConnectWalletButton />}
       description={t('An overview of your wallets and associated accounts')}
-      descriptionColor="text.secondary"
+      descriptionProps={{ color: 'text.secondary' }}
       withBackButton
       contentProps={{
         alignItems: 'stretch',
