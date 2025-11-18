@@ -223,8 +223,15 @@ jobs:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
           cd e2e-playwright-tests
-          GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
+          echo "Event name: ${{ github.event_name }}"
+          echo "Test run type: ${{ github.event.inputs.test-run-type }}"
+          if [ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ]; then
+            echo "Running smoke tests with @smoke filter"
+            PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --grep=@smoke
+          else
+            echo "Running all tests (no filter)"
+            PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          fi
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
@@ -241,7 +248,8 @@ jobs:
         run: |
           apt-get update && apt-get install -y python3-pip python3-venv
           python3 -m pip install --user --break-system-packages trcli
-          python3 -m trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
+          export PATH="/github/home/.local/bin:$PATH"
+          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
 
       - name: Output TestRail run link
         if: always()
