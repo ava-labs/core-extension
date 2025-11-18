@@ -94,7 +94,7 @@ const WalletViewContent = () => {
           color="text.secondary"
         >
           <WalletIcon
-            size="large"
+            size={19}
             type={wallet.type}
             authProvider={wallet.authProvider}
           />
