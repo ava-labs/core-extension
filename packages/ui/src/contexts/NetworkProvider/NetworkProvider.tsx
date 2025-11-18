@@ -113,7 +113,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
 
-  const getFavoriteNetworks = useMemo(
+  const favoriteNetworksList = useMemo(
     () =>
       networks
         .filter((networkItem) => favoriteNetworks.includes(networkItem.chainId))
@@ -126,7 +126,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     [favoriteNetworks, network, networks],
   );
 
-  const getEnabledNetworks = useMemo(
+  const enabledNetworksList = useMemo(
     () =>
       networks
         .filter((networkItem) => {
@@ -392,8 +392,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         updateDefaultNetwork,
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
-        favoriteNetworks: getFavoriteNetworks,
-        enabledNetworks: getEnabledNetworks,
+        favoriteNetworks: favoriteNetworksList,
+        enabledNetworks: enabledNetworksList,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
