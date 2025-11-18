@@ -22,6 +22,7 @@ import { useHistory } from 'react-router-dom';
 import { useAddCustomToken } from './hooks/useAddCustomToken';
 import { useTokenLookup } from './hooks/useTokenLookup';
 import * as Styled from './Styled';
+import { FaCheck } from 'react-icons/fa';
 
 const contentProps: StackProps = {
   gap: 2,
@@ -85,11 +86,30 @@ export const AddCustomToken: FC = () => {
           <MenuItem
             key={network.caipId}
             {...getOptionProps(network)}
-            sx={{ px: 2, py: 1.5 }}
+            sx={{ px: 2 }}
           >
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Styled.Avatar src={network.logoUri} />
-              <Typography variant="body3">{network.chainName}</Typography>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              width="100%"
+            >
+              <Stack direction="row" alignItems="center" gap={1}>
+                <Styled.Avatar src={network.logoUri} />
+                <Typography variant="body3">{network.chainName}</Typography>
+              </Stack>
+              <Stack position="relative" height={12}>
+                <Fade
+                  in={network.caipId === chainId}
+                  mountOnEnter
+                  unmountOnExit
+                >
+                  <FaCheck
+                    className="check"
+                    style={{ position: 'absolute', right: 0 }}
+                  />
+                </Fade>
+              </Stack>
             </Stack>
           </MenuItem>
         )}
