@@ -1,4 +1,7 @@
-import { PersonalAvatar } from '@/components/PersonalAvatar';
+import {
+  PersonalAvatar,
+  type PersonalAvatarName,
+} from '@/components/PersonalAvatar';
 import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import {
@@ -15,9 +18,14 @@ import { NetworksWithBalances } from './NetworksWithBalances';
 type Props = {
   account: Account;
   isFirst?: boolean;
+  avatarName?: PersonalAvatarName;
 };
 
-export const WalletAccount: FC<Props> = ({ account, isFirst = false }) => {
+export const WalletAccount: FC<Props> = ({
+  account,
+  isFirst = false,
+  avatarName = 'abstract-1.svg',
+}) => {
   const theme = useTheme();
 
   const history = useHistory();
@@ -59,9 +67,8 @@ export const WalletAccount: FC<Props> = ({ account, isFirst = false }) => {
             }}
           />
         )}
-        {/* TODO: Add random Icon */}
-        <PersonalAvatar cached size="small" sx={{ mr: 1 }} />
-        <Stack>
+        <PersonalAvatar name={avatarName} size="xsmall" sx={{ mr: 1 }} />
+        <Stack gap={0.5}>
           <Typography variant="subtitle3">{account.name}</Typography>
           <NetworksWithBalances account={account} />
         </Stack>

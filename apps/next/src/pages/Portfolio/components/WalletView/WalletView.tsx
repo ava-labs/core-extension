@@ -14,6 +14,30 @@ import { BalanceChange } from '../BalanceChange';
 import { PortfolioActionButtons } from '../PortfolioHome/components/PortolioDetails/components/PortfolioActionButtons';
 import { Card } from '@/components/Card';
 import { WalletAccount } from './components/WalletAccount';
+import {
+  usePersonalAvatar,
+  type PersonalAvatarName,
+} from '@/components/PersonalAvatar';
+import { useMemo } from 'react';
+
+// Avatars from lines 3-17 of avatar-dictionary.ts
+const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
+  'abstract-1.svg',
+  'abstract-2.svg',
+  'abstract-3.svg',
+  'abstract-4.svg',
+  'abstract-5.svg',
+  'art-1.svg',
+  'art-10.svg',
+  'art-2.svg',
+  'art-3.svg',
+  'art-4.svg',
+  'art-5.svg',
+  'art-6.svg',
+  'art-7.svg',
+  'art-8.svg',
+  'art-9.svg',
+];
 
 const WalletViewContent = () => {
   const { t } = useTranslation();
@@ -21,6 +45,9 @@ const WalletViewContent = () => {
   const { getWallet } = useWalletContext();
   const { getAccountsByWalletId } = useAccountsContext();
   const { currencyFormatter, currency } = useSettingsContext();
+  const {
+    selected: { name: userAvatarName },
+  } = usePersonalAvatar();
 
   const {
     isLoading,
@@ -32,6 +59,28 @@ const WalletViewContent = () => {
 
   const wallet = getWallet(walletId);
   const accountsInWallet = getAccountsByWalletId(walletId);
+
+  // Generate unique avatars for each account
+  const accountAvatars = useMemo(() => {
+    const availableAvatars = ACCOUNT_AVATAR_OPTIONS.filter(
+      (avatar) => avatar !== userAvatarName,
+    );
+
+    // If user's avatar removed all options, use original list
+    const avatarsToUse =
+      availableAvatars.length > 0 ? availableAvatars : ACCOUNT_AVATAR_OPTIONS;
+
+    const avatarMap = new Map<string, PersonalAvatarName>();
+    accountsInWallet.forEach((account, index) => {
+      const avatarIndex = index % avatarsToUse.length;
+      const selectedAvatar = avatarsToUse[avatarIndex];
+      if (selectedAvatar) {
+        avatarMap.set(account.id, selectedAvatar);
+      }
+    });
+
+    return avatarMap;
+  }, [accountsInWallet, userAvatarName]);
 
   if (!wallet) return null;
 
@@ -97,6 +146,7 @@ const WalletViewContent = () => {
             key={account.id}
             account={account}
             isFirst={index === 0}
+            avatarName={accountAvatars.get(account.id) ?? 'abstract-1.svg'}
           />
         ))}
       </Card>
