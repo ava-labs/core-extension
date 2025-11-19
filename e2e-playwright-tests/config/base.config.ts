@@ -1,4 +1,9 @@
-import { devices, PlaywrightTestConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
+import * as path from 'node:path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
 
 const shardId = process.env.PLAYWRIGHT_SHARD || 'default';
 
@@ -7,7 +12,7 @@ const testRailOptions = {
   outputFile: `../test-results/junit-report-${shardId}.xml`,
 };
 
-export const baseConfig: PlaywrightTestConfig = {
+export default defineConfig({
   globalSetup: require.resolve('./global-setup.ts'),
   testDir: '../tests',
   testMatch: '**/*.spec.ts',
@@ -56,4 +61,4 @@ export const baseConfig: PlaywrightTestConfig = {
       },
     },
   ],
-};
+});
