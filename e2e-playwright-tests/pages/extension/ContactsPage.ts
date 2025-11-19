@@ -100,21 +100,40 @@ export class ContactsPage extends BasePage {
 
     const settingsButton = this.page.locator('[data-testid="settings-button"]');
 
+    console.log(`ContactsPage: Current URL before navigation: ${currentUrl}`);
+
     // Quick check if Settings button is already visible (1 second max)
     const isVisible = await settingsButton.isVisible({ timeout: 1000 }).catch(() => false);
+    console.log(`ContactsPage: Settings button visible: ${isVisible}`);
 
     if (!isVisible) {
-      // Settings button not visible, navigate to home if needed
-      if (!currentUrl.includes('popup.html#/home') && !currentUrl.includes('home.html#/home')) {
-        await this.goto('popup.html#/home');
-      }
+      // Settings button not visible, check current page state
+      console.log(`ContactsPage: Settings button not found, checking page state...`);
 
-      // Wait for page to load after navigation
-      await this.page.waitForLoadState('domcontentloaded');
-      await this.page.waitForTimeout(2000);
+      // Take a snapshot of what's actually on the page
+      const pageTitle = await this.page.title().catch(() => 'unknown');
+      console.log(`ContactsPage: Page title: ${pageTitle}`);
+
+      // Check if we need to navigate to home
+      const needsNavigation =
+        !currentUrl.includes('popup.html#/home') &&
+        !currentUrl.includes('home.html#/home') &&
+        !currentUrl.includes('home.html#/');
+
+      if (needsNavigation) {
+        console.log(`ContactsPage: Navigating to home page...`);
+        await this.goto('home.html#/home');
+        await this.page.waitForLoadState('domcontentloaded');
+        await this.page.waitForTimeout(2000);
+        console.log(`ContactsPage: Navigation complete, current URL: ${this.page.url()}`);
+      } else {
+        console.log(`ContactsPage: Already on home page, waiting for UI to load...`);
+        await this.page.waitForTimeout(3000);
+      }
     }
 
     // Wait for Settings button to be visible and clickable
+    console.log(`ContactsPage: Waiting for settings button...`);
     await settingsButton.waitFor({ state: 'visible', timeout: 15000 });
     await settingsButton.click({ timeout: 10000 });
 

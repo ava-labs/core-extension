@@ -261,6 +261,20 @@ export const test = base.extend<ExtensionFixtures>({
           console.log('Network not idle, continuing...');
         });
       }
+
+      // Final check: log the current URL and wait a bit more
+      console.log(`Final check - Current URL: ${page.url()}`);
+      const pageTitle = await page.title().catch(() => 'unknown');
+      console.log(`Final check - Page title: ${pageTitle}`);
+
+      // Check if we're actually on a home/portfolio page or if we got redirected
+      const finalUrl = page.url();
+      if (finalUrl.includes('onboard') || finalUrl.includes('lock')) {
+        console.warn(`WARNING: Page appears to be at ${finalUrl} - not on home page!`);
+      }
+
+      // One more wait to be absolutely sure
+      await page.waitForTimeout(2000);
     } else {
       console.log('No snapshot loaded, skipping wallet unlock');
     }
