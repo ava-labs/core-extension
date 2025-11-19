@@ -19,8 +19,9 @@ import {
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
 import { useMemo } from 'react';
+import { useNetworksWithBalance } from './hooks/useNetworksWithBalance';
 
-// Avatars from lines 3-17 of avatar-dictionary.ts
+// Avatars from avatar-dictionary.ts
 const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
   'abstract-1.svg',
   'abstract-2.svg',
@@ -48,6 +49,7 @@ const WalletViewContent = () => {
   const {
     selected: { name: userAvatarName },
   } = usePersonalAvatar();
+  const networksWithBalance = useNetworksWithBalance(walletId);
 
   const {
     isLoading,
@@ -81,6 +83,17 @@ const WalletViewContent = () => {
 
     return avatarMap;
   }, [accountsInWallet, userAvatarName]);
+  const accountCount = useMemo(() => {
+    return Object.keys(networksWithBalance).length;
+  }, [networksWithBalance]);
+
+  const networkCount = useMemo(() => {
+    const allNetworks = Object.values(networksWithBalance).flat();
+    const uniqueChainIds = new Set(
+      allNetworks.map((network) => network.chainId),
+    );
+    return uniqueChainIds.size;
+  }, [networksWithBalance]);
 
   if (!wallet) return null;
 
@@ -137,8 +150,13 @@ const WalletViewContent = () => {
       >
         <Typography variant="h3">{t('Accounts')}</Typography>
         <Typography variant="body1">
-          {t('This wallet has 4 accounts over 6 networks')}
-          {/* TODO: replace with the actual number of accounts and networks */}
+          {t(
+            'This wallet has {{accountCount}} accounts over {{networkCount}} networks',
+            {
+              accountCount,
+              networkCount,
+            },
+          )}
         </Typography>
 
         {accountsInWallet.map((account, index) => (
@@ -147,6 +165,7 @@ const WalletViewContent = () => {
             account={account}
             isFirst={index === 0}
             avatarName={accountAvatars.get(account.id) ?? 'abstract-1.svg'}
+            networksWithBalance={networksWithBalance[account.id] ?? []}
           />
         ))}
       </Card>

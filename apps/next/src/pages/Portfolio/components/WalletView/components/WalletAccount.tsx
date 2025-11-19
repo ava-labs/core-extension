@@ -3,7 +3,7 @@ import {
   type PersonalAvatarName,
 } from '@/components/PersonalAvatar';
 import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { Account } from '@core/types';
+import { Account, NetworkWithCaipId } from '@core/types';
 import {
   useAccountsContext,
   useBalancesContext,
@@ -19,12 +19,14 @@ type Props = {
   account: Account;
   isFirst?: boolean;
   avatarName?: PersonalAvatarName;
+  networksWithBalance: NetworkWithCaipId[];
 };
 
 export const WalletAccount: FC<Props> = ({
   account,
   isFirst = false,
   avatarName = 'abstract-1.svg',
+  networksWithBalance,
 }) => {
   const theme = useTheme();
 
@@ -70,7 +72,7 @@ export const WalletAccount: FC<Props> = ({
         <PersonalAvatar name={avatarName} size="xsmall" sx={{ mr: 1 }} />
         <Stack gap={0.5}>
           <Typography variant="subtitle3">{account.name}</Typography>
-          <NetworksWithBalances account={account} />
+          <NetworksWithBalances networksWithBalance={networksWithBalance} />
         </Stack>
       </Stack>
 
