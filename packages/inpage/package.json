@@ -15,8 +15,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "2.2.1",
-    "@avalabs/svm-module": "2.2.1",
+    "@avalabs/evm-module": "0.0.0-refactor-xp-derivation-paths-20251119091515",
+    "@avalabs/svm-module": "0.0.0-refactor-xp-derivation-paths-20251119091515",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",
