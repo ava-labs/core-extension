@@ -117,7 +117,7 @@ export class AddressResolver {
           derivationPathType,
         })
         .catch((error) => {
-          console.error(
+          console.warn(
             `Failed to derive address for account ${accountIndex} and ${network.caipId}`,
             error,
           );
