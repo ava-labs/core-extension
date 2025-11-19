@@ -236,27 +236,13 @@ jobs:
         env:
           CI: true
         run: |
-          echo "Checking xvfb:"
-          which xvfb-run || echo "xvfb-run not found"
-          echo "Checking npx:"
-          which npx || echo "npx not found"
-          echo "Node version:"
-          node --version
-          echo "NPM version:"
-          npm --version
-          echo "Checking playwright installation:"
-          npx playwright --version || echo "Playwright not found"
           GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
           echo "GREP_FILTER: $GREP_FILTER"
-          echo "Running Playwright tests WITHOUT xvfb first..."
-          set +e
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
-          EXIT_CODE=$?
-          echo "Playwright exit code: $EXIT_CODE"
-          set -e
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "Tests failed or had issues, but continuing..."
-          fi
+          echo "Listing tests that match the filter..."
+          npx playwright test --config=config/base.config.ts --list $GREP_FILTER
+          echo ""
+          echo "Running Playwright tests..."
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER --reporter=list,junit
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
