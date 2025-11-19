@@ -34,28 +34,35 @@ const WalletSection = styled('div')<{
   shouldTruncate: boolean;
   maxWidth?: number;
   shouldExpand: boolean;
-}>(({ theme, showIcon, shouldTruncate, maxWidth, shouldExpand }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  minWidth: 0,
-  width: 'fit-content',
-  maxWidth: showIcon
-    ? 'none'
-    : shouldTruncate && maxWidth
-      ? `${maxWidth + (shouldExpand ? 20 : 0)}px`
-      : shouldTruncate
-        ? '45%'
-        : 'none',
-  flexShrink: shouldTruncate ? 1 : 0,
-  flexGrow: 0,
-  cursor: 'pointer',
-  position: 'relative',
-  justifyContent: 'center',
-  overflow: 'visible',
-  transition: theme.transitions.create(['max-width'], {
-    duration: theme.transitions.duration.short,
-  }),
-}));
+}>(({ theme, showIcon, shouldTruncate, maxWidth, shouldExpand }) => {
+  // Determine maxWidth based on display mode
+  let computedMaxWidth = 'none';
+  if (!showIcon && shouldTruncate) {
+    if (maxWidth) {
+      const expandedWidth = maxWidth + (shouldExpand ? HOVER_EXPANSION : 0);
+      computedMaxWidth = `${expandedWidth}px`;
+    } else {
+      computedMaxWidth = '45%'; // Fallback
+    }
+  }
+
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: 0,
+    width: 'fit-content',
+    maxWidth: computedMaxWidth,
+    flexShrink: shouldTruncate ? 1 : 0,
+    flexGrow: 0,
+    cursor: 'pointer',
+    position: 'relative',
+    justifyContent: 'center',
+    overflow: 'visible',
+    transition: theme.transitions.create(['max-width'], {
+      duration: theme.transitions.duration.short,
+    }),
+  };
+});
 
 const AccountSection = styled('div')<{ shouldShift: boolean }>(
   ({ theme, shouldShift }) => ({
@@ -76,28 +83,30 @@ const AccountSection = styled('div')<{ shouldShift: boolean }>(
   }),
 );
 
-const TruncatedText = styled(Typography)<{
-  showFade?: boolean;
-}>(({ theme, showFade }) => ({
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  position: 'relative',
-  display: 'block',
-  textOverflow: 'clip',
-  '&::after': showFade
-    ? {
-        content: '""',
-        position: 'absolute',
-        right: 0,
-        top: 0,
-        bottom: 0,
-        width: '24px',
-        background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
-        pointerEvents: 'none',
-      }
-    : {},
-}));
+// Text that truncates with a fade gradient effect
+const TruncatedText = styled(Typography)<{ showFade?: boolean }>(
+  ({ theme, showFade }) => ({
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    position: 'relative',
+    display: 'block',
+    textOverflow: 'clip',
+    '&::after': showFade
+      ? {
+          content: '""',
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: '24px',
+          background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
+          pointerEvents: 'none',
+        }
+      : {},
+  }),
+);
 
+// Small label shown below sections on hover
 const Label = styled(Typography)(({ theme }) => ({
   fontSize: '10px',
   opacity: 0.6,
@@ -109,13 +118,14 @@ const Label = styled(Typography)(({ theme }) => ({
   zIndex: 10,
 }));
 
+// Tooltip showing wallet balance, fixed to top of screen
 const BalanceTooltip = styled('div')<{
   isVisible: boolean;
   leftPosition: number;
 }>(({ theme, isVisible, leftPosition }) => ({
   position: 'fixed',
   top: 0,
-  left: `${leftPosition - 6}px`, // Subtract padding to align with text
+  left: `${leftPosition - 6}px`,
   height: '16px',
   display: 'flex',
   alignItems: 'center',
@@ -148,22 +158,99 @@ const IconWrapper = styled('div')<{ shouldShift: boolean }>(
   }),
 );
 
+// Layout constants
+const CONTAINER_WIDTH = 128;
+const NAVIGATE_ICON_WIDTH = 20;
+const WALLET_ICON_WIDTH = 20;
+const GAP = 4;
+const HOVER_EXPANSION = 20;
+
+// Helper to measure text width
+const measureTextWidth = (text: string): number => {
+  const temp = document.createElement('div');
+  temp.style.cssText =
+    'position:absolute;visibility:hidden;white-space:nowrap;font-size:14px';
+  temp.textContent = text;
+  document.body.appendChild(temp);
+  const width = temp.offsetWidth;
+  document.body.removeChild(temp);
+  return width;
+};
+
+// Layout state for wallet display
+type WalletLayout = {
+  showIcon: boolean;
+  shouldTruncate: boolean;
+  isTruncated: boolean;
+  maxWidth: number | undefined;
+};
+
+// Calculate wallet layout based on available space
+const calculateWalletLayout = (
+  walletNameWidth: number,
+  accountNameWidth: number,
+  hasWalletIcon: boolean,
+): WalletLayout => {
+  const totalNeeded =
+    walletNameWidth + GAP + NAVIGATE_ICON_WIDTH + GAP + accountNameWidth;
+
+  // Scenario 1: Everything fits
+  if (totalNeeded <= CONTAINER_WIDTH) {
+    return {
+      showIcon: false,
+      shouldTruncate: false,
+      isTruncated: false,
+      maxWidth: undefined,
+    };
+  }
+
+  // Scenario 2: Need to truncate wallet
+  const spaceForAccount = accountNameWidth + GAP + NAVIGATE_ICON_WIDTH + GAP;
+  const spaceForWallet = CONTAINER_WIDTH - spaceForAccount;
+
+  // Scenario 3: Show icon if wallet would be too narrow
+  if (spaceForWallet < WALLET_ICON_WIDTH && hasWalletIcon) {
+    return {
+      showIcon: true,
+      shouldTruncate: false,
+      isTruncated: false,
+      maxWidth: undefined,
+    };
+  }
+
+  // Scenario 4: Truncate wallet name
+  return {
+    showIcon: false,
+    shouldTruncate: true,
+    isTruncated: walletNameWidth > spaceForWallet,
+    maxWidth: spaceForWallet,
+  };
+};
+
 const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
   const { t } = useTranslation();
   const history = useHistory();
+
+  // Hover state
   const [isWalletHovered, setIsWalletHovered] = useState(false);
   const [isContainerHovered, setIsContainerHovered] = useState(false);
-  const [isWalletTruncated, setIsWalletTruncated] = useState(false);
-  const [isAccountTruncated, setIsAccountTruncated] = useState(false);
+
+  // Layout state (calculated from text widths)
   const [showWalletIcon, setShowWalletIcon] = useState(false);
   const [shouldTruncateWallet, setShouldTruncateWallet] = useState(false);
-  const [walletMaxWidth, setWalletMaxWidth] = useState<number | undefined>(
-    undefined,
-  );
+  const [walletMaxWidth, setWalletMaxWidth] = useState<number | undefined>();
+  const [isWalletTruncated, setIsWalletTruncated] = useState(false);
+  const [isAccountTruncated, setIsAccountTruncated] = useState(false);
+
+  // Tooltip position
   const [tooltipLeftPosition, setTooltipLeftPosition] = useState(0);
+
+  // DOM refs for measuring
   const walletTextRef = useRef<HTMLSpanElement>(null);
   const accountTextRef = useRef<HTMLSpanElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Balance data
   const { totalBalanceInCurrency, isLoading } = useWalletTotalBalance(
     wallet.id,
   );
@@ -196,83 +283,48 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
   ]);
 
   useEffect(() => {
-    const checkLayout = () => {
-      const CONTAINER_WIDTH = 128;
-      const ICON_WIDTH = 20; // MdNavigateNext icon
-      const GAP = 4; // theme.spacing(0.5) = 4px
+    const updateLayout = () => {
+      // Measure text widths
+      const walletNameWidth = measureTextWidth(wallet.name);
+      const accountNameWidth = measureTextWidth(account?.name || '');
 
-      // Create temporary elements to measure text widths
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.visibility = 'hidden';
-      tempContainer.style.whiteSpace = 'nowrap';
-      tempContainer.style.fontSize = '14px'; // subtitle3
-      document.body.appendChild(tempContainer);
+      // Calculate wallet display layout
+      const layout = calculateWalletLayout(
+        walletNameWidth,
+        accountNameWidth,
+        Boolean(wallet.type),
+      );
 
-      // Measure wallet name width
-      tempContainer.textContent = wallet.name;
-      const walletNameWidth = tempContainer.offsetWidth;
+      // Update wallet state
+      setShowWalletIcon(layout.showIcon);
+      setShouldTruncateWallet(layout.shouldTruncate);
+      setIsWalletTruncated(layout.isTruncated);
+      setWalletMaxWidth(layout.maxWidth);
 
-      // Measure account name width
-      tempContainer.textContent = account?.name || '';
-      const accountNameWidth = tempContainer.offsetWidth;
-
-      document.body.removeChild(tempContainer);
-
-      // Calculate total width needed for all elements
-      const totalWidth =
-        walletNameWidth + GAP + ICON_WIDTH + GAP + accountNameWidth;
-
-      if (totalWidth <= CONTAINER_WIDTH) {
-        // Everything fits - show full wallet name, no truncation
-        setShouldTruncateWallet(false);
-        setShowWalletIcon(false);
-        setIsWalletTruncated(false);
-        setWalletMaxWidth(undefined);
-      } else {
-        // Need to truncate - calculate available space for wallet to prevent account truncation
-        const WALLET_ICON_WIDTH = 20;
-
-        // Space needed for account to not truncate: accountName + gap + icon + gap
-        const spaceNeededForAccount = accountNameWidth + GAP + ICON_WIDTH + GAP;
-
-        // Space available for wallet
-        const spaceForWallet = CONTAINER_WIDTH - spaceNeededForAccount;
-
-        if (spaceForWallet < WALLET_ICON_WIDTH && wallet.type) {
-          // Wallet space is less than icon width, show icon instead
-          setShowWalletIcon(true);
-          setShouldTruncateWallet(false);
-          setIsWalletTruncated(false);
-          setWalletMaxWidth(undefined);
-        } else {
-          // Wallet space is >= icon width, show truncated wallet name
-          setShouldTruncateWallet(true);
-          setShowWalletIcon(false);
-          setIsWalletTruncated(walletNameWidth > spaceForWallet);
-          setWalletMaxWidth(spaceForWallet);
-        }
-      }
-
-      // Check if account is truncated
+      // Check if account text is truncated (via DOM comparison)
       if (accountTextRef.current) {
-        const isTruncated =
+        setIsAccountTruncated(
           accountTextRef.current.scrollWidth >
-          accountTextRef.current.clientWidth;
-        setIsAccountTruncated(isTruncated);
+            accountTextRef.current.clientWidth,
+        );
       }
 
       // Update tooltip position
       if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setTooltipLeftPosition(rect.left);
+        setTooltipLeftPosition(
+          containerRef.current.getBoundingClientRect().left,
+        );
       }
     };
 
-    checkLayout();
-    window.addEventListener('resize', checkLayout);
-    return () => window.removeEventListener('resize', checkLayout);
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
   }, [wallet.name, wallet.type, account?.name]);
+
+  const shouldExpandWallet = isWalletHovered && isWalletTruncated;
+  const navigateToWallet = () => history.push(`/wallet/${wallet.id}`);
+  const navigateToPortfolio = () => history.push(`/portfolio`);
 
   return (
     <Container
@@ -280,14 +332,15 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
       onMouseEnter={() => setIsContainerHovered(true)}
       onMouseLeave={() => setIsContainerHovered(false)}
     >
+      {/* Wallet Name or Icon */}
       <WalletSection
         showIcon={showWalletIcon}
         shouldTruncate={shouldTruncateWallet}
         maxWidth={walletMaxWidth}
-        shouldExpand={isWalletHovered && isWalletTruncated}
+        shouldExpand={shouldExpandWallet}
         onMouseEnter={() => setIsWalletHovered(true)}
         onMouseLeave={() => setIsWalletHovered(false)}
-        onClick={() => history.push(`/wallet/${wallet.id}`)}
+        onClick={navigateToWallet}
       >
         <BalanceTooltip
           isVisible={isWalletHovered}
@@ -297,6 +350,7 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
             ? t('Balance: Loading...')
             : `${t('Balance')}: ${walletTotalBalance}`}
         </BalanceTooltip>
+
         {showWalletIcon ? (
           <WalletIcon type={wallet.type!} authProvider={wallet.authProvider} />
         ) : (
@@ -308,15 +362,17 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
             {wallet.name}
           </TruncatedText>
         )}
+
         {isContainerHovered && <Label variant="caption">Wallet</Label>}
       </WalletSection>
+
+      {/* Navigation Arrow */}
       <IconWrapper shouldShift={false}>
         <MdNavigateNext />
       </IconWrapper>
-      <AccountSection
-        shouldShift={false}
-        onClick={() => history.push(`/portfolio`)}
-      >
+
+      {/* Account Name */}
+      <AccountSection shouldShift={false} onClick={navigateToPortfolio}>
         <TruncatedText
           ref={accountTextRef}
           variant="subtitle3"
@@ -324,6 +380,7 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
         >
           {account?.name}
         </TruncatedText>
+
         {isContainerHovered && <Label variant="caption">Account</Label>}
       </AccountSection>
     </Container>
