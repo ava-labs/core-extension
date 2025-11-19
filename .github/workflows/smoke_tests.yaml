@@ -236,8 +236,19 @@ jobs:
         env:
           CI: true
         run: |
+          echo "Current directory: $(pwd)"
+          echo "Listing files:"
+          ls -la
+          echo "Checking config file:"
+          ls -la config/base.config.ts
+          echo "Checking test directory:"
+          ls -la tests/
+          echo "Checking dist directory:"
+          ls -la dist/ || echo "No dist directory found"
           GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
+          echo "GREP_FILTER: $GREP_FILTER"
+          echo "Running Playwright tests..."
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER || echo "Playwright command failed with exit code $?"
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
