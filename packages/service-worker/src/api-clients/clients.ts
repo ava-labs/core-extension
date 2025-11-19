@@ -24,6 +24,7 @@ const profileApiClient = createProfileApiClient({
   baseUrl: process.env.PROFILE_SERVICE_URL,
 });
 profileApiClient.interceptors.request.use(authInterceptor);
+
 const balanceApiClient = createBalanceApiClient({
   baseUrl: process.env.BALANCE_SERVICE_URL,
 });
