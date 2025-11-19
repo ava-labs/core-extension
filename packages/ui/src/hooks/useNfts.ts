@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useBalancesContext } from '../contexts';
+import { useBalancesContext, useNetworkContext } from '../contexts';
 import { useAccountsContext } from '../contexts';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
@@ -10,6 +10,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { network: currentNetwork } = useNetworkContext();
 
   return useMemo<{
     collectibles: NftTokenWithBalance[];
@@ -23,8 +24,10 @@ export const useNfts = (network?: NetworkWithCaipId) => {
         error: balances.error,
       };
     }
-    const userAddress = getAddressForChain(network, activeAccount);
+
     if (network) {
+      const userAddress = getAddressForChain(network, activeAccount);
+
       if (!userAddress) {
         return {
           collectibles: [],
@@ -42,15 +45,23 @@ export const useNfts = (network?: NetworkWithCaipId) => {
       };
     }
 
+    if (!currentNetwork) {
+      return {
+        collectibles: [],
+        loading: false,
+        error: undefined,
+      };
+    }
+
+    const activeChainId = currentNetwork.chainId;
+    const userAddress = getAddressForChain(currentNetwork, activeAccount);
+
     return {
-      collectibles: Object.values(balances.nfts ?? {}).flatMap(
-        (chainBalances) =>
-          activeAccount
-            ? Object.values(chainBalances?.[activeAccount.addressC] ?? {})
-            : [],
+      collectibles: Object.values(
+        balances.nfts?.[activeChainId]?.[userAddress] ?? {},
       ),
       loading: balances.loading,
       error: balances.error,
     };
-  }, [network, balances, activeAccount]);
+  }, [network, balances, activeAccount, currentNetwork]);
 };
