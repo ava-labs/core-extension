@@ -232,18 +232,20 @@ jobs:
 
       - name: Run Playwright smoke tests
         if: github.event.inputs.test-run-type == 'smoke' || github.event.inputs.test-run-type == '' || github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_run'
+        working-directory: e2e-playwright-tests
         env:
           CI: true
         run: |
           GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=e2e-playwright-tests/config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
+        working-directory: e2e-playwright-tests
         env:
           CI: true
         run: |
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=e2e-playwright-tests/config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload results to TestRail
         if: always()
