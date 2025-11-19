@@ -13,6 +13,7 @@ import { DetailsView } from './components/DetailsView';
 import { ActionButtons } from '@/components/ActionButtons';
 import { useTranslation } from 'react-i18next';
 import { useAccountManager } from '@core/ui';
+import { URL_SEARCH_TOKENS } from '../../utils/searchParams';
 
 const toastOptions: ToastOptions = {
   id: 'account-details-guard',
@@ -34,11 +35,14 @@ export const AccountDetails: FC = () => {
           pathname: '/account-management/rename',
           search,
         }),
-      remove: () =>
+      remove: () => {
+        const params = new URLSearchParams(search);
+        params.set(URL_SEARCH_TOKENS.bulkMode, 'false');
         push({
           pathname: '/account-management/delete-account',
-          search,
-        }),
+          search: params.toString(),
+        });
+      },
     }),
     [push, search],
   );

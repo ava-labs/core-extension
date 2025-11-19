@@ -2,10 +2,10 @@ import { toast } from '@avalabs/k2-alpine';
 import { useAccountManager, useAccountsContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Redirect, useHistory } from 'react-router-dom';
+import { Redirect, useHistory, useLocation } from 'react-router-dom';
 import { Page } from '@/components/Page';
 import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
-import { AccountManagementRouteState } from '../../types';
+import { URL_SEARCH_TOKENS } from '../../utils/searchParams';
 import { DeleteAccountForm } from './Form';
 
 export const DeleteAccount: FC = () => {
@@ -13,11 +13,8 @@ export const DeleteAccount: FC = () => {
   const params = useAccountSearchParams(true);
   const { deleteAccounts } = useAccountsContext();
   const { exitManageMode } = useAccountManager();
-  const {
-    goBack,
-    go,
-    location: { state },
-  } = useHistory<AccountManagementRouteState>();
+  const { goBack, go } = useHistory();
+  const { search } = useLocation();
 
   if (!params.success) {
     return <Redirect to="/account-management" />;
@@ -26,7 +23,9 @@ export const DeleteAccount: FC = () => {
   const { accounts } = params;
 
   const [singleAccount] = accounts;
-  const isBulk = state?.bulkMode ?? accounts.length > 1;
+  const searchParams = new URLSearchParams(search);
+  const bulkModeParam = searchParams.get(URL_SEARCH_TOKENS.bulkMode);
+  const isBulk = bulkModeParam === 'true' || accounts.length > 1;
   const areMultipleAccounts = isBulk && accounts.length > 1;
   const onDone = () => (isBulk ? goBack() : go(-2));
 

@@ -77,9 +77,11 @@ export const WalletCard: FC<WalletCardProps> = ({
         <Styled.AccordionSummary
           component="div"
           icon={
-            <Stack direction="row" alignItems="center" gap={0.5}>
+            <Stack direction="row" alignItems="center">
               {showActiveIndicator && (
                 <Box
+                  position="absolute"
+                  left={4}
                   width={6}
                   height={6}
                   borderRadius="50%"

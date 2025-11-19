@@ -58,7 +58,10 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
         },
       }
     : {
-        onClick: () => onSelect(account.id),
+        onClick: () => {
+          onSelect(account.id);
+          history.push('/portfolio');
+        },
         onMouseEnter: () => setIsHovered(true),
         onMouseLeave: () => setIsHovered(false),
         onContextMenu: (e) => {

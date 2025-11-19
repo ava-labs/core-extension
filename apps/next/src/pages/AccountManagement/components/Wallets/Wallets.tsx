@@ -1,4 +1,4 @@
-import { getHexAlpha, styled, Stack, Typography } from '@avalabs/k2-alpine';
+import { Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
@@ -57,27 +57,7 @@ export const WalletsHomePage: FC = () => {
         <WalletList />
       </Stack>
 
-      <BulkDeleteButtonsContainer>
-        <BulkDeleteButtons />
-      </BulkDeleteButtonsContainer>
+      <BulkDeleteButtons />
     </Page>
   );
 };
-
-const BulkDeleteButtonsContainer = styled(Stack)(({ theme }) => ({
-  position: 'sticky',
-  bottom: 0,
-  height: '75px',
-  zIndex: 10,
-  paddingTop: theme.spacing(1),
-  paddingBottom: theme.spacing(1.5),
-  marginLeft: `-${theme.spacing(2)}`,
-  marginRight: `-${theme.spacing(2)}`,
-  marginBottom: `-${theme.spacing(1.5)}`,
-  background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.paper, 0)} 0%, ${theme.palette.background.paper} 42%)`,
-
-  '> div': {
-    borderRadius: theme.shape.mediumBorderRadius,
-    background: theme.palette.background.paper,
-  },
-}));
