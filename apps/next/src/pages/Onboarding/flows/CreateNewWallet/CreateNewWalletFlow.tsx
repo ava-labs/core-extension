@@ -56,7 +56,10 @@ export const CreateNewWalletFlow = () => {
       withCoreLogo
       withAppInfo
       withLanguageSelector
-      onBack={history.goBack}
+      onBack={() => {
+        capture('OnboardingCancelled');
+        history.goBack();
+      }}
     >
       <Switch>
         <Route exact path={BASE_PATH}>

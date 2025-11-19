@@ -1,4 +1,4 @@
-import { useSeedlessMfaManager } from '@core/ui';
+import { useSeedlessMfaManager, useAnalyticsContext } from '@core/ui';
 import { useCallback, useState } from 'react';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
 import { Stack, toast, Typography } from '@avalabs/k2-alpine';
@@ -16,6 +16,7 @@ export enum AddFIDOState {
 export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
   const { t } = useTranslation();
   const { addFidoDevice } = useSeedlessMfaManager();
+  const { capture } = useAnalyticsContext();
   const history = useHistory();
 
   const [screenState, setScreenState] = useState<AddFIDOState>(
@@ -24,8 +25,10 @@ export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
 
   const registerFidoKey = useCallback(
     async (deviceName: string) => {
+      capture('ConfigureFidoClicked', { keyType });
       try {
         await addFidoDevice(deviceName, keyType);
+        capture('RecoveryMethodAdded', { method: 'fido', keyType });
         toast.success(t(`${deviceName} (${keyType}) added!`), {
           duration: Infinity,
         });
@@ -35,7 +38,7 @@ export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
         setScreenState(AddFIDOState.Failure);
       }
     },
-    [addFidoDevice, history, keyType, t],
+    [addFidoDevice, history, keyType, t, capture],
   );
 
   return (
