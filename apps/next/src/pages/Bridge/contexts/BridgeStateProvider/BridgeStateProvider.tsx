@@ -84,6 +84,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     targetNetworkId,
     getTransferableAssets(targetNetworkId),
     asset,
+    sourceToken,
   );
 
   const minTransferAmount = useFetchMinTransferAmount(

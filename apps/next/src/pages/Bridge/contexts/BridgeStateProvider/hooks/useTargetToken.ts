@@ -1,33 +1,46 @@
 import { BridgeAsset, TokenType } from '@avalabs/bridge-unified';
-import { findMatchingBridgeAsset } from '@core/common';
+import { caipToChainId, findMatchingBridgeAsset } from '@core/common';
+import { FungibleTokenBalance } from '@core/types';
 import { useMemo } from 'react';
 import { useNetworkTokens } from './useNetworkTokens';
 
 export function useTargetToken(
   targetNetworkId: string,
-  assets: BridgeAsset[],
-  selectedAsset: BridgeAsset | undefined,
+  targetNetworkAssets: BridgeAsset[],
+  selectedSourceNetworkAsset: BridgeAsset | undefined,
+  selectedSourceToken: FungibleTokenBalance | undefined,
 ) {
   const tokens = useNetworkTokens(targetNetworkId);
 
   const matchedAssets = useMemo(
     () =>
-      selectedAsset
-        ? assets.filter(
+      selectedSourceNetworkAsset
+        ? targetNetworkAssets.filter(
             (a) =>
-              a.symbol === getWrappedSymbol(selectedAsset) ||
-              a.name === selectedAsset.name,
+              a.symbol === getWrappedSymbol(selectedSourceNetworkAsset) ||
+              a.name === selectedSourceNetworkAsset.name,
           )
         : [],
-    [assets, selectedAsset],
+    [targetNetworkAssets, selectedSourceNetworkAsset],
   );
 
   const matchedToken = useMemo(
     () =>
-      selectedAsset
-        ? tokens.find((t) => findMatchingBridgeAsset(matchedAssets, t))
+      selectedSourceNetworkAsset && selectedSourceToken
+        ? (tokens.find((t) => findMatchingBridgeAsset(matchedAssets, t)) ??
+          getFallbackToken(
+            selectedSourceToken,
+            selectedSourceNetworkAsset,
+            targetNetworkId,
+          ))
         : undefined,
-    [selectedAsset, tokens, matchedAssets],
+    [
+      selectedSourceNetworkAsset,
+      selectedSourceToken,
+      tokens,
+      targetNetworkId,
+      matchedAssets,
+    ],
   );
 
   return matchedToken;
@@ -48,4 +61,20 @@ const getWrappedSymbol = (asset: BridgeAsset) => {
   }
 
   return asset.symbol;
+};
+
+const getFallbackToken = (
+  sourceToken: FungibleTokenBalance,
+  asset: BridgeAsset,
+  targetNetworkId: string,
+): FungibleTokenBalance | undefined => {
+  if (!targetNetworkId) {
+    return undefined;
+  }
+
+  return {
+    ...sourceToken,
+    symbol: getWrappedSymbol(asset),
+    coreChainId: caipToChainId(targetNetworkId),
+  };
 };
