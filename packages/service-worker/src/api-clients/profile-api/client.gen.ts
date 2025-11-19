@@ -22,6 +22,6 @@ export type CreateClientConfig<T extends ClientOptions = ClientOptions2> = (
 
 export const client = createClient(
   createConfig<ClientOptions2>({
-    baseUrl: 'https://core-profile-api.avax.network',
+    baseUrl: 'https://core-profile-api.avax-test.network',
   }),
 );

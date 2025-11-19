@@ -1,7 +1,7 @@
 import { container } from 'tsyringe';
 import { AppCheckService } from '~/services/appcheck/AppCheckService';
-import { createClient as createV1ProfileApiClient } from '~/api-clients/profile-api/client';
-import { createClient as createV1BalanceApiClient } from '~/api-clients/balance-api/client';
+import { createClient as createProfileApiClient } from '~/api-clients/profile-api/client';
+import { createClient as createBalanceApiClient } from '~/api-clients/balance-api/client';
 
 const appcheckService = container.resolve(AppCheckService);
 
@@ -20,17 +20,13 @@ const authInterceptor = async <T extends InterceptorRequest>(
   return request;
 };
 
-const profileApiClientV1 = createV1ProfileApiClient({
+const profileApiClient = createProfileApiClient({
   baseUrl: process.env.PROFILE_SERVICE_URL,
 });
-profileApiClientV1.interceptors.request.use(authInterceptor);
-
-const balanceApiClientV1 = createV1BalanceApiClient({
+profileApiClient.interceptors.request.use(authInterceptor);
+const balanceApiClient = createBalanceApiClient({
   baseUrl: process.env.BALANCE_SERVICE_URL,
 });
-balanceApiClientV1.interceptors.request.use(authInterceptor);
+balanceApiClient.interceptors.request.use(authInterceptor);
 
-export {
-  profileApiClientV1 as profileApiClient,
-  balanceApiClientV1 as balanceApiClient,
-};
+export { profileApiClient, balanceApiClient };
