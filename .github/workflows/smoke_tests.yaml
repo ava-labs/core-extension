@@ -236,19 +236,27 @@ jobs:
         env:
           CI: true
         run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing files:"
-          ls -la
-          echo "Checking config file:"
-          ls -la config/base.config.ts
-          echo "Checking test directory:"
-          ls -la tests/
-          echo "Checking dist directory:"
-          ls -la dist/ || echo "No dist directory found"
+          echo "Checking xvfb:"
+          which xvfb-run || echo "xvfb-run not found"
+          echo "Checking npx:"
+          which npx || echo "npx not found"
+          echo "Node version:"
+          node --version
+          echo "NPM version:"
+          npm --version
+          echo "Checking playwright installation:"
+          npx playwright --version || echo "Playwright not found"
           GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
           echo "GREP_FILTER: $GREP_FILTER"
-          echo "Running Playwright tests..."
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER || echo "Playwright command failed with exit code $?"
+          echo "Running Playwright tests WITHOUT xvfb first..."
+          set +e
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
+          EXIT_CODE=$?
+          echo "Playwright exit code: $EXIT_CODE"
+          set -e
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "Tests failed or had issues, but continuing..."
+          fi
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
