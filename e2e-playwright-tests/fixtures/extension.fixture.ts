@@ -241,11 +241,25 @@ export const test = base.extend<ExtensionFixtures>({
 
         // Wait for navigation to Portfolio/Home page after unlock
         await page.waitForTimeout(2000);
+
+        // Wait for page to be fully loaded with snapshot data
+        await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+          console.log('Network not idle after unlock, continuing...');
+        });
+
+        // Give extension time to render the UI with snapshot data
+        await page.waitForTimeout(2000);
+
         console.log('Extension page unlocked and ready on Portfolio page');
       } catch (error) {
         console.warn('Wallet unlock not needed or already unlocked:', error);
         // Don't throw - wallet might already be unlocked with snapshot
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(3000);
+
+        // Wait for page to be fully loaded
+        await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+          console.log('Network not idle, continuing...');
+        });
       }
     } else {
       console.log('No snapshot loaded, skipping wallet unlock');

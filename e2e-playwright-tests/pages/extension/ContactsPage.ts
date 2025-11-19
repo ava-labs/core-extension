@@ -108,10 +108,15 @@ export class ContactsPage extends BasePage {
       if (!currentUrl.includes('popup.html#/home') && !currentUrl.includes('home.html#/home')) {
         await this.goto('popup.html#/home');
       }
+
+      // Wait for page to load after navigation
+      await this.page.waitForLoadState('domcontentloaded');
+      await this.page.waitForTimeout(2000);
     }
 
-    // Click Settings button (will wait if not visible yet)
-    await settingsButton.click({ timeout: 5000 });
+    // Wait for Settings button to be visible and clickable
+    await settingsButton.waitFor({ state: 'visible', timeout: 15000 });
+    await settingsButton.click({ timeout: 10000 });
 
     // Wait for settings menu and click "Saved addresses"
     const savedAddressesOption = this.page.getByText('Saved addresses', { exact: false });
