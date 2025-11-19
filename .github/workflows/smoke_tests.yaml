@@ -126,15 +126,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
           role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Set Python for AWS CLI
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install AWS dependencies
+        shell: bash
+        run: |
+          python3 -m venv ~/py_env
+          source ~/py_env/bin/activate
+          pip3 install awscli
+
       - name: Download Extension snapshots from AWS S3
+        shell: bash
         run: |
           mkdir -p snapshots
+          source ~/py_env/bin/activate
           aws s3 sync s3://core-qa-automation-snapshots/ext/ ./snapshots/ || echo "No snapshots found in S3, continuing..."
           ls -la ./snapshots/
 
@@ -176,11 +190,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Chrome
+      - name: Install Chrome and Python
         working-directory: e2e-playwright-tests
         run: |
           apt-get update
-          apt-get install -y wget gnupg
+          apt-get install -y wget gnupg python3-pip python3-venv
           wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
           echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
           apt-get update
@@ -211,8 +225,8 @@ jobs:
           echo "RECOVERY_PHRASE_24_WORDS=${{ secrets.RECOVERY_PHRASE_24_WORDS }}" >> .env
 
       - name: Install Playwright dependencies
+        working-directory: e2e-playwright-tests
         run: |
-          cd e2e-playwright-tests
           npm install
           npx playwright install --with-deps chromium
 
@@ -220,36 +234,25 @@ jobs:
         if: github.event.inputs.test-run-type == 'smoke' || github.event.inputs.test-run-type == '' || github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_run'
         env:
           CI: true
-          PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
-          cd e2e-playwright-tests
-          echo "Event name: ${{ github.event_name }}"
-          echo "Test run type: ${{ github.event.inputs.test-run-type }}"
-          if [ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ]; then
-            echo "Running smoke tests with @smoke filter"
-            PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --grep "@smoke"
-          else
-            echo "Running all tests (no filter)"
-            PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
-          fi
+          GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=e2e-playwright-tests/config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
         env:
           CI: true
-          PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
-          cd e2e-playwright-tests
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=e2e-playwright-tests/config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
       - name: Upload results to TestRail
         if: always()
         shell: bash
         run: |
-          apt-get update && apt-get install -y python3-pip python3-venv
-          python3 -m pip install --user --break-system-packages trcli
-          export PATH="/github/home/.local/bin:$PATH"
-          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} || echo "TestRail upload failed, continuing..."
+          python3 -m venv ~/py_env
+          source ~/py_env/bin/activate
+          pip3 install trcli
+          trcli -n -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }}
 
       - name: Output TestRail run link
         if: always()
