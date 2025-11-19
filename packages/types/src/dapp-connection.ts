@@ -47,6 +47,8 @@ export enum DAppProviderRequest {
   WALLET_GET_PUBKEY = 'wallet_getPublicKey',
   WALLET_CONNECT = 'wallet_requestAccountPermission',
   WALLET_GET_NETWORK_STATE = 'wallet_getNetworkState',
+  WALLET_GET_SETTINGS = 'wallet_getSettings',
+  WALLET_SET_SETTINGS = 'wallet_setSettings',
 }
 
 export enum Web3Event {
@@ -62,8 +64,9 @@ export enum Web3Event {
   // https://eips.ethereum.org/EIPS/eip-1193#chainchanged-1
   CHAIN_CHANGED = 'chainChanged',
 
-  // Core Web specific event
+  // Core Web specific events
   NETWORK_STATE_CHANGED = 'networkStateChanged',
+  SETTINGS_CHANGED = 'settingsChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {

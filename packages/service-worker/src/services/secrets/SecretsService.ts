@@ -732,7 +732,7 @@ export class SecretsService implements OnUnlock {
     ) {
       const wallet = new SeedlessWallet({
         sessionStorage: new SeedlessTokenStorage(this),
-        addressPublicKey: secrets.publicKeys[0],
+        addressPublicKeys: secrets.publicKeys,
       });
 
       // Prompt Core Seedless API to derive new keys
