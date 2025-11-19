@@ -41,7 +41,7 @@ export const getCurrencyFormatter = (currency = 'USD') => {
   };
 };
 
-const modifyFractionNumber = (amount: number) => {
+export const modifyFractionNumber = (amount: number) => {
   const [integer, fraction] = parseScientificNotation(amount.toString());
   if (!fraction) {
     return amount;

@@ -1,15 +1,21 @@
 import { useParams } from 'react-router-dom';
 import {
   useAccountsContext,
+  useBalancesContext,
   useSettingsContext,
   useWalletContext,
   useWalletTotalBalance,
   WalletTotalBalanceProvider,
 } from '@core/ui';
-import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  CircularProgress,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 
 import { WalletIcon } from '@/components/WalletIcon';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { BalanceChange } from '../BalanceChange';
 import { PortfolioActionButtons } from '../PortfolioHome/components/PortolioDetails/components/PortfolioActionButtons';
 import { Card } from '@/components/Card';
@@ -20,6 +26,8 @@ import {
 } from '@/components/PersonalAvatar';
 import { useMemo } from 'react';
 import { useNetworksWithBalance } from './hooks/useNetworksWithBalance';
+import { MdError } from 'react-icons/md';
+import { modifyFractionNumber } from '@core/ui/src/contexts/utils/getCurrencyFormatter';
 
 // Avatars from avatar-dictionary.ts
 const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
@@ -41,6 +49,7 @@ const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
 ];
 
 const WalletViewContent = () => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const { walletId } = useParams<{ walletId: string }>();
   const { getWallet } = useWalletContext();
@@ -50,6 +59,7 @@ const WalletViewContent = () => {
     selected: { name: userAvatarName },
   } = usePersonalAvatar();
   const networksWithBalance = useNetworksWithBalance(walletId);
+  const { getTotalBalance } = useBalancesContext();
 
   const {
     isLoading,
@@ -95,6 +105,18 @@ const WalletViewContent = () => {
     return uniqueChainIds.size;
   }, [networksWithBalance]);
 
+  // If fetching total wallet balance fails, add up the balances of all accounts as a backup
+  const backupTotalBalance = useMemo(() => {
+    let totalBalance = 0;
+    for (const account of accountsInWallet) {
+      const accountTotalBalance = getTotalBalance(account.addressC);
+      if (accountTotalBalance && accountTotalBalance.sum) {
+        totalBalance += modifyFractionNumber(accountTotalBalance.sum);
+      }
+    }
+    return totalBalance;
+  }, [accountsInWallet, getTotalBalance]);
+
   if (!wallet) return null;
 
   return (
@@ -107,7 +129,7 @@ const WalletViewContent = () => {
           color="text.secondary"
         >
           <WalletIcon
-            size={19}
+            size={29}
             type={wallet.type}
             authProvider={wallet.authProvider}
           />
@@ -118,16 +140,15 @@ const WalletViewContent = () => {
             <CircularProgress size={14} />
           </Stack>
         )}
-        {!isLoading && hasErrorOccurred && (
-          <Typography variant="h3" color="error">
-            {t('Unable to load balances')}
-          </Typography>
-        )}
-        {!isLoading && !hasErrorOccurred && (
+        {!isLoading && (
           <>
             <Stack direction="row" alignItems="baseline" gap={0.5} ml={0.5}>
               <Typography variant="h2">
-                {currencyFormatter(totalBalanceInCurrency ?? 0)}
+                {totalBalanceInCurrency !== undefined
+                  ? currencyFormatter(totalBalanceInCurrency)
+                  : backupTotalBalance !== undefined
+                    ? currencyFormatter(backupTotalBalance)
+                    : '-'}
               </Typography>
               <Typography variant="h7">{currency}</Typography>
             </Stack>
@@ -135,6 +156,16 @@ const WalletViewContent = () => {
               balanceChange={balanceChange}
               percentageChange={percentageChange}
             />
+            {hasErrorOccurred && (
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <MdError size={20} color={theme.palette.error.main} />
+                <Typography variant="subtitle4" color="error">
+                  {
+                    <Trans i18nKey="Unable to load all network balances, <br /> total may be incomplete" />
+                  }
+                </Typography>
+              </Stack>
+            )}
           </>
         )}
       </Stack>
