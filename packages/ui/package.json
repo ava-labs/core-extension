@@ -9,7 +9,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@avalabs/avalanchejs": "5.1.0-alpha.2",
-    "@avalabs/bridge-unified": "4.0.3",
+    "@avalabs/bridge-unified": "4.3.0",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.67",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.67",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.67",
@@ -53,6 +53,8 @@
     "@sentry/integrations": "7.66.0",
     "@sentry/react": "7.66.0",
     "@solana-program/token": "0.5.1",
+    "@tanstack/react-query": "5.83.0",
+    "@tanstack/react-virtual": "3.13.6",
     "argon2-browser": "1.18.0",
     "bip32": "2.0.6",
     "bip39": "3.0.4",
