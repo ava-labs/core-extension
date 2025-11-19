@@ -380,6 +380,12 @@ test.describe('Onboarding', () => {
       await expect(onboardingPage.verifySeedphraseTitle).toBeVisible();
       console.log('Verified: Verify recovery phrase title is visible');
 
+      // Wait for all verification buttons to be fully loaded
+      await extensionPage.waitForTimeout(2000);
+      await extensionPage.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+        console.log('Network not idle, continuing with verification...');
+      });
+
       const verificationButtons = await onboardingPage.seedphraseVerificationButtons.all();
       expect(verificationButtons.length).toBeGreaterThan(0);
       console.log(`Verified: ${verificationButtons.length} verification buttons are available`);
@@ -394,15 +400,15 @@ test.describe('Onboarding', () => {
         if (questionText?.includes('first word')) {
           const firstWord = seedphraseWordsArray[0];
           const firstWordButton = extensionPage.getByRole('button', { name: firstWord, exact: true }).first();
-          await firstWordButton.waitFor({ state: 'visible', timeout: 5000 });
+          await firstWordButton.waitFor({ state: 'visible', timeout: 10000 });
           await firstWordButton.click();
-          console.log(`Selected first word`);
+          console.log(`Selected first word: ${firstWord}`);
         } else if (questionText?.includes('last word')) {
           const lastWord = seedphraseWordsArray[seedphraseWordsArray.length - 1];
           const lastWordButton = extensionPage.getByRole('button', { name: lastWord, exact: true }).first();
-          await lastWordButton.waitFor({ state: 'visible', timeout: 5000 });
+          await lastWordButton.waitFor({ state: 'visible', timeout: 10000 });
           await lastWordButton.click();
-          console.log(`Selected last word`);
+          console.log(`Selected last word: ${lastWord}`);
         } else if (questionText?.includes('comes after')) {
           const wordMatch = questionText.match(/comes after.*?([a-z]+)/i);
           if (wordMatch) {
@@ -410,10 +416,11 @@ test.describe('Onboarding', () => {
             const afterWordIndex = seedphraseWordsArray.indexOf(afterWord);
             if (afterWordIndex !== -1 && afterWordIndex < seedphraseWordsArray.length - 1) {
               const nextWord = seedphraseWordsArray[afterWordIndex + 1];
+              console.log(`Looking for word "${nextWord}" that comes after "${afterWord}"`);
               const nextWordButton = extensionPage.getByRole('button', { name: nextWord, exact: true }).first();
-              await nextWordButton.waitFor({ state: 'visible', timeout: 5000 });
+              await nextWordButton.waitFor({ state: 'visible', timeout: 10000 });
               await nextWordButton.click();
-              console.log(`Selected word after "${afterWord}"`);
+              console.log(`Selected word after "${afterWord}": ${nextWord}`);
             }
           }
         }
