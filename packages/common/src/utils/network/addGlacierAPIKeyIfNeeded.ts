@@ -14,7 +14,7 @@ export function addGlacierAPIKeyIfNeeded(url: string): string {
   const urlObject = new URL(url);
 
   if (process.env.GLACIER_API_KEY && knownHosts.has(urlObject.host)) {
-    urlObject.searchParams.append('token', process.env.GLACIER_API_KEY);
+    urlObject.searchParams.append('rltoken', process.env.GLACIER_API_KEY);
     return urlObject.toString();
   }
 
