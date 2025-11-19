@@ -12,15 +12,6 @@ try {
   console.warn('mainnetPrimaryExtWallet snapshot not available');
 }
 
-// Try to load mainnetPrimaryWebWallet
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { mainnetPrimaryWebWallet } = require('./storage-snapshots/mainnetPrimaryWebWallet');
-  SNAPSHOTS.mainnetPrimaryWebWallet = mainnetPrimaryWebWallet;
-} catch (_e) {
-  console.warn('mainnetPrimaryWebWallet snapshot not available');
-}
-
 // Try to load testnetPrimaryExtWallet
 try {
   // eslint-disable-next-line @typescript-eslint/no-require-imports

@@ -115,54 +115,58 @@ export const test = base.extend<ExtensionFixtures>({
    * Starts fresh by default (no wallet snapshot loaded).
    */
   extensionPage: async ({ context, extensionId }, use, testInfo) => {
-    console.log('Creating extension page...');
+    console.log('Creating extension page (for tests WITHOUT wallet unlock)...');
 
     // Check if a snapshot is being used
     const snapshotAnnotation = testInfo.annotations.find((a) => a.type === 'snapshot');
     const hasSnapshot = snapshotAnnotation && snapshotAnnotation.description !== 'none';
 
-    // Wait for extension to auto-open its page
-    await context.waitForEvent('page', { timeout: 5000 }).catch(() => {});
-
-    // Find the extension page that was auto-opened
-    let page = context.pages().find((p) => p.url().startsWith(`chrome-extension://${extensionId}`));
-
-    // If no auto-opened page found, create one
-    if (!page) {
-      console.log('No auto-opened page found, creating new page...');
-      page = await context.newPage();
-      await page.goto(`chrome-extension://${extensionId}/home.html`);
-      await page.waitForLoadState('domcontentloaded');
-    } else {
-      console.log(`Using auto-opened extension page: ${page.url()}`);
-      await page.waitForLoadState('domcontentloaded');
+    if (hasSnapshot) {
+      console.warn(
+        'WARNING: extensionPage fixture is being used with a snapshot. Consider using unlockedExtensionPage instead.',
+      );
     }
+
+    // Always create a new page for the test (don't reuse auto-opened extension pages)
+    const page = await context.newPage();
+    console.log(`Navigating to popup.html#/home...`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html#/home`);
+    await page.waitForLoadState('domcontentloaded');
 
     // Wait for potential redirects (e.g., fresh extension redirects to onboarding)
     await page.waitForTimeout(1000);
 
-    // Wait a bit for the extension to initialize with the snapshot data
+    // Wait a bit for the extension to initialize with the snapshot data (if any)
     if (hasSnapshot) {
       await page.waitForTimeout(1000);
     }
 
-    // Close any extra extension pages
-    // Keep only our test page
+    // Close any extra extension pages that auto-opened
     for (const p of context.pages()) {
       if (p !== page && p.url().startsWith(`chrome-extension://${extensionId}`)) {
-        console.log('Closing extra extension page:', p.url());
+        console.log('Closing auto-opened extension page:', p.url());
         await p.close().catch(() => {});
       }
     }
 
-    // Also close any about:blank pages
+    // Close any about:blank pages
     for (const p of context.pages()) {
       if (p.url() === 'about:blank') {
         await p.close().catch(() => {});
       }
     }
 
-    console.log(`Extension page ready at: ${page.url()}`);
+    const finalUrl = page.url();
+    console.log(`Extension page ready at: ${finalUrl}`);
+
+    // Log the type of page we ended up on
+    if (finalUrl.includes('onboard')) {
+      console.log('→ On onboarding page (fresh extension - no wallet)');
+    } else if (finalUrl.includes('lock') || finalUrl.includes('login')) {
+      console.log('→ On lock/login page (wallet exists but locked)');
+    } else if (finalUrl.includes('home')) {
+      console.log('→ On home page (wallet may be unlocked)');
+    }
 
     await use(page);
 
@@ -195,89 +199,54 @@ export const test = base.extend<ExtensionFixtures>({
     const snapshotAnnotation = testInfo.annotations.find((a) => a.type === 'snapshot');
     const hasSnapshot = snapshotAnnotation && snapshotAnnotation.description !== 'none';
 
-    // Wait for extension to auto-open its page
-    await context.waitForEvent('page', { timeout: 5000 }).catch(() => {});
-
-    // Find the extension page that was auto-opened
-    let page = context.pages().find((p) => p.url().startsWith(`chrome-extension://${extensionId}`));
-
-    // If no auto-opened page found, create one
-    if (!page) {
-      console.log('No auto-opened page found, creating new page...');
-      page = await context.newPage();
-      await page.goto(`chrome-extension://${extensionId}/home.html`);
-      await page.waitForLoadState('domcontentloaded');
-    } else {
-      console.log(`Using auto-opened extension page: ${page.url()}`);
-      await page.waitForLoadState('domcontentloaded');
+    if (!hasSnapshot) {
+      throw new Error(
+        'unlockedExtensionPage fixture requires a wallet snapshot. Add annotation: { type: "snapshot", description: "snapshotName" }',
+      );
     }
 
-    // Wait a bit for the extension to initialize with the snapshot data
-    if (hasSnapshot) {
-      await page.waitForTimeout(1000);
-    }
+    // Always create a new page for the test (don't reuse auto-opened extension pages)
+    const page = await context.newPage();
+    console.log(`Navigating to popup.html#/home...`);
+    await page.goto(`chrome-extension://${extensionId}/popup.html#/home`);
+    await page.waitForLoadState('domcontentloaded');
 
-    // Close any extra extension pages
-    // Keep only our test page
+    console.log(`Current page URL after navigation: ${page.url()}`);
+
+    // Wait for snapshot data to be loaded and extension to render lock screen
+    await page.waitForTimeout(2000);
+
+    // Close any extra extension pages that auto-opened
     for (const p of context.pages()) {
       if (p !== page && p.url().startsWith(`chrome-extension://${extensionId}`)) {
-        console.log('Closing extra extension page:', p.url());
+        console.log('Closing auto-opened extension page:', p.url());
         await p.close().catch(() => {});
       }
     }
 
-    // Also close any about:blank pages
+    // Close any about:blank pages
     for (const p of context.pages()) {
       if (p.url() === 'about:blank') {
         await p.close().catch(() => {});
       }
     }
 
-    // Unlock wallet if snapshot is loaded
-    if (hasSnapshot) {
-      try {
-        await unlockWallet(page, TEST_CONFIG.wallet.password);
-        console.log('Wallet unlocked successfully');
+    // Now unlock the wallet with the password
+    console.log('Attempting to unlock wallet with password...');
+    await unlockWallet(page, TEST_CONFIG.wallet.password);
+    console.log('Wallet unlocked successfully');
 
-        // Wait for navigation to Portfolio/Home page after unlock
-        await page.waitForTimeout(2000);
+    // Wait for unlock to complete and page to load
+    await page.waitForTimeout(2000);
+    await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+      console.log('Network not idle after unlock, continuing...');
+    });
 
-        // Wait for page to be fully loaded with snapshot data
-        await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
-          console.log('Network not idle after unlock, continuing...');
-        });
+    // Additional wait for UI to render
+    await page.waitForTimeout(2000);
 
-        // Give extension time to render the UI with snapshot data
-        await page.waitForTimeout(2000);
-
-        console.log('Extension page unlocked and ready on Portfolio page');
-      } catch (error) {
-        console.warn('Wallet unlock not needed or already unlocked:', error);
-        // Don't throw - wallet might already be unlocked with snapshot
-        await page.waitForTimeout(3000);
-
-        // Wait for page to be fully loaded
-        await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
-          console.log('Network not idle, continuing...');
-        });
-      }
-
-      // Final check: log the current URL and wait a bit more
-      console.log(`Final check - Current URL: ${page.url()}`);
-      const pageTitle = await page.title().catch(() => 'unknown');
-      console.log(`Final check - Page title: ${pageTitle}`);
-
-      // Check if we're actually on a home/portfolio page or if we got redirected
-      const finalUrl = page.url();
-      if (finalUrl.includes('onboard') || finalUrl.includes('lock')) {
-        console.warn(`WARNING: Page appears to be at ${finalUrl} - not on home page!`);
-      }
-
-      // One more wait to be absolutely sure
-      await page.waitForTimeout(2000);
-    } else {
-      console.log('No snapshot loaded, skipping wallet unlock');
-    }
+    console.log(`Final URL after unlock: ${page.url()}`);
+    console.log('Extension page unlocked and ready');
 
     await use(page);
 
