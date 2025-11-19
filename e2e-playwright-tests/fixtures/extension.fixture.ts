@@ -126,12 +126,15 @@ export const test = base.extend<ExtensionFixtures>({
     await page.goto(`chrome-extension://${extensionId}/popup.html#/home`);
     await page.waitForLoadState('domcontentloaded');
 
+    // Wait for potential redirects (e.g., fresh extension redirects to onboarding)
+    await page.waitForTimeout(1000);
+
     // Wait a bit for the extension to initialize with the snapshot data
     if (hasSnapshot) {
       await page.waitForTimeout(1000);
     }
 
-    // Close any extra extension pages that auto-opened (onboarding, home.html, etc.)
+    // Close any extra extension pages that auto-opened
     // Keep only our newly created page
     for (const p of context.pages()) {
       if (p !== page && p.url().startsWith(`chrome-extension://${extensionId}`)) {
@@ -147,7 +150,7 @@ export const test = base.extend<ExtensionFixtures>({
       }
     }
 
-    console.log('Extension page ready');
+    console.log(`Extension page ready at: ${page.url()}`);
 
     await use(page);
 
