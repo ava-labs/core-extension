@@ -6,7 +6,7 @@ import { useHistory } from 'react-router-dom';
 import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 import { getUniqueTokenId } from '@core/types';
-import { useNetworkContext } from '@core/ui';
+import { useNetworkContext, useBalancesContext } from '@core/ui';
 
 import { AssetCard } from './AssetCard';
 import {
@@ -16,11 +16,14 @@ import {
 import { FilterMenu } from './FilterMenu';
 import { SortMenu } from './SortMenu';
 import { AssetSortOption, sortAssets } from '../utils/assetSorting';
+import { AssetsEmptyState } from './AssetsEmptyState';
+import { AssetsErrorState } from './AssetsErrorState';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
   const { getNetwork } = useNetworkContext();
+  const { balances } = useBalancesContext();
   const [filterMenuElement, setFilterMenuElement] =
     useState<HTMLButtonElement | null>(null);
   const [sortMenuElement, setSortMenuElement] =
@@ -31,6 +34,7 @@ export const AssetsTab: FC = () => {
   );
 
   const assets = useAllTokensFromEnabledNetworks(true, true);
+  const hasError = !!balances.error;
 
   const availableNetworks = useMemo(
     () => getAvailableNetworksFromAssets(assets, getNetwork),
@@ -90,9 +94,15 @@ export const AssetsTab: FC = () => {
         </Box>
       </Stack>
       <Stack width="100%" flexGrow={1} gap={1}>
-        {sortedAssets.map((token) => (
-          <AssetCard key={getUniqueTokenId(token)} asset={token} />
-        ))}
+        {hasError ? (
+          <AssetsErrorState />
+        ) : sortedAssets.length === 0 ? (
+          <AssetsEmptyState />
+        ) : (
+          sortedAssets.map((token) => (
+            <AssetCard key={getUniqueTokenId(token)} asset={token} />
+          ))
+        )}
       </Stack>
       <FilterMenu
         id="filter-menu"
