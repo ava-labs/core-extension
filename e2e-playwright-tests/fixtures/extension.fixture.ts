@@ -24,7 +24,8 @@ export const test = base.extend<ExtensionFixtures>({
    * By default, starts with a fresh extension (no snapshot).
    * To use a wallet snapshot, add annotation: { type: 'snapshot', description: 'snapshotName' }
    */
-  context: async (_baseFixtures, use, testInfo) => {
+  // eslint-disable-next-line no-empty-pattern
+  context: async ({}, use, testInfo) => {
     console.log('\nSetting up browser context with extension...');
 
     const extensionPath = path.resolve(__dirname, '..', TEST_CONFIG.extension.path);
