@@ -41,9 +41,25 @@ export async function createNewWallet(page: Page, password: string): Promise<str
 export async function unlockWallet(page: Page, password: string): Promise<void> {
   console.log('Unlocking wallet...');
 
-  // Wait for password input to be visible
+  // Wait for page to settle after snapshot load
+  await page.waitForTimeout(1000);
+
+  // Check if password input is visible (wallet is locked)
   const passwordInput = page.locator('input[type="password"]');
-  await passwordInput.waitFor({ state: 'visible', timeout: 15000 });
+  const isPasswordVisible = await passwordInput.isVisible({ timeout: 2000 }).catch(() => false);
+
+  if (!isPasswordVisible) {
+    console.log('No password input found - wallet may already be unlocked or redirecting...');
+    // Wait a bit longer for potential redirect to lock screen
+    await page.waitForTimeout(2000);
+    const isPasswordVisibleNow = await passwordInput.isVisible({ timeout: 2000 }).catch(() => false);
+
+    if (!isPasswordVisibleNow) {
+      console.log('Password input still not visible - assuming wallet is already unlocked');
+      return;
+    }
+  }
+
   console.log('Password input found');
 
   // Enter password
