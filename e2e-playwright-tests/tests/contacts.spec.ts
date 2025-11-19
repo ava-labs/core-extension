@@ -1,7 +1,6 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { ContactsPage } from '../pages/extension/ContactsPage';
 import { TEST_CONFIG } from '../constants';
-import { delay } from '../helpers/waits';
 
 test.describe('Contacts', () => {
   test(
@@ -18,7 +17,6 @@ test.describe('Contacts', () => {
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       await contactsPage.navigateToContacts();
-      await delay(120000); // Wait 2 minutes
 
       expect(await contactsPage.isOnContactsPage()).toBe(true);
       expect(await contactsPage.isEmptyStateVisible()).toBe(true);

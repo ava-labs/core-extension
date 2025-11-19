@@ -127,24 +127,30 @@ export const test = base.extend<ExtensionFixtures>({
       );
     }
 
-    // Always create a new page for the test (don't reuse auto-opened extension pages)
-    const page = await context.newPage();
-    console.log(`Navigating to popup.html#/home...`);
-    await page.goto(`chrome-extension://${extensionId}/popup.html#/home`);
-    await page.waitForLoadState('domcontentloaded');
+    // Wait for extension to auto-open its page
+    await context.waitForEvent('page', { timeout: 5000 }).catch(() => {});
 
-    // Wait for potential redirects (e.g., fresh extension redirects to onboarding)
-    await page.waitForTimeout(1000);
+    // Find the extension page that was auto-opened
+    let page = context.pages().find((p) => p.url().startsWith(`chrome-extension://${extensionId}`));
 
-    // Wait a bit for the extension to initialize with the snapshot data (if any)
-    if (hasSnapshot) {
-      await page.waitForTimeout(1000);
+    // If no auto-opened page found, create one and let extension redirect naturally
+    if (!page) {
+      console.log('No auto-opened page found, creating new page...');
+      page = await context.newPage();
+      await page.goto(`chrome-extension://${extensionId}/home.html`);
+      await page.waitForLoadState('domcontentloaded');
+    } else {
+      console.log(`Using auto-opened extension page: ${page.url()}`);
+      await page.waitForLoadState('domcontentloaded');
     }
 
-    // Close any extra extension pages that auto-opened
+    // Wait for potential redirects (e.g., fresh extension redirects to onboarding)
+    await page.waitForTimeout(2000);
+
+    // Close any extra extension pages
     for (const p of context.pages()) {
       if (p !== page && p.url().startsWith(`chrome-extension://${extensionId}`)) {
-        console.log('Closing auto-opened extension page:', p.url());
+        console.log('Closing extra extension page:', p.url());
         await p.close().catch(() => {});
       }
     }
