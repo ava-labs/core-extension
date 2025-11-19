@@ -31,18 +31,19 @@ import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import * as routes from '@/config/routes';
+import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -54,10 +55,12 @@ const pagesWithoutHeader = [
   '/manage-tokens',
   '/trending',
   '/defi',
-  getContactsPath(),
-  getSendPath(),
-  getSwapPath(),
   '/concierge',
+  '/activity',
+  routes.getContactsPath(),
+  routes.getSendPath(),
+  routes.getSwapPath(),
+  routes.getBridgePath(),
 ];
 
 // Create a client for React Query
@@ -74,8 +77,6 @@ export function App() {
   const preferredColorScheme = usePreferredColorScheme();
   const { pathname } = useLocation();
   const history = useHistory();
-  const historyRef = useRef(history);
-  historyRef.current = history;
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
 
@@ -99,13 +100,13 @@ export function App() {
       return;
     }
     if (Object.keys(navigationHistory).length !== 0) {
-      historyRef.current.push(navigationHistory.location); // go to last visited route
+      history.push(navigationHistory.location); // go to last visited route
     }
 
-    return historyRef.current.listen(() => {
-      setNavigationHistory(historyRef.current);
+    return history.listen(() => {
+      setNavigationHistory(history);
     });
-  }, [navigationHistory, setNavigationHistory]);
+  }, [history, navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
     return (
@@ -152,12 +153,13 @@ export function App() {
           <SwapContextProvider {...swapToastCallbacks} />,
           <DefiContextProvider />,
           <FirebaseContextProvider />,
+          <NextUnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
       <>
         {displayHeader && (
-          <Stack sx={{ width: 1 }}>
+          <Stack width={1}>
             <Header />
           </Stack>
         )}

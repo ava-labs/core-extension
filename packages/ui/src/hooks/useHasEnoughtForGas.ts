@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
 import { TokenType } from '@avalabs/vm-module-types';
+import { useEffect, useState } from 'react';
 import { useTokensWithBalances } from './useTokensWithBalances';
 
 export const useHasEnoughForGas = (
@@ -21,7 +21,7 @@ export const useHasEnoughForGas = (
       return;
     const token = tokens.find((x) => x.type === TokenType.NATIVE);
 
-    // If the native token has no blance, we do not have enough
+    // If the native token has no balance, we do not have enough
     if (!token) {
       setHasEnough(false);
       return;
