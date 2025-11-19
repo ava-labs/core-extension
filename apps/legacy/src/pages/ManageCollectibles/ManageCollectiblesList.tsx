@@ -17,7 +17,7 @@ type ManageTokensListProps = {
 export const ManageCollectiblesList = ({
   searchQuery,
 }: ManageTokensListProps) => {
-  const nfts = useNfts();
+  const { collectibles: nfts } = useNfts();
 
   if (nfts?.length === 0) {
     return (

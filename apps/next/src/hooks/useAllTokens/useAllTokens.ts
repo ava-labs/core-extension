@@ -30,9 +30,7 @@ export const useAllTokens = (
 
   useEffect(() => {
     Promise.allSettled(
-      Object.values(networks).map((network) =>
-        getNetworkTokens({ request, network }),
-      ),
+      networks.map((network) => getNetworkTokens({ request, network })),
     ).then((settledResults) => {
       setPlaceholderTokens(
         settledResults
@@ -57,10 +55,10 @@ export const useAllTokens = (
               getUniqueTokenId(balanceToken) === getUniqueTokenId(token),
           ),
       ),
-      ...Object.entries(customTokens).flatMap(([chainId, tokens]) =>
-        Object.values(tokens).map(getTokenMapper(Number(chainId))),
+      ...networks.flatMap(({ chainId }) =>
+        Object.values(customTokens[chainId] ?? {}).map(getTokenMapper(chainId)),
       ),
     ],
-    [customTokens, placeholderTokens, tokensForAccount],
+    [customTokens, networks, placeholderTokens, tokensForAccount],
   );
 };

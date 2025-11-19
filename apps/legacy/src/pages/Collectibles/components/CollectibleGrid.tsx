@@ -10,8 +10,8 @@ export function CollectibleGrid({
 }: {
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
-  const nfts = useNfts();
   const { network } = useNetworkContext();
+  const { collectibles: nfts } = useNfts();
   const { getCollectibleVisibility } = useSettingsContext();
   const nftsToShow = nfts?.filter((nft) => {
     return getCollectibleVisibility(nft, network?.caipId);

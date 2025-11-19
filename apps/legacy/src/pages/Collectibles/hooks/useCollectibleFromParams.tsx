@@ -5,7 +5,7 @@ import xss from 'xss';
 
 export const useCollectibleFromParams = () => {
   const { search } = useLocation();
-  const nfts = useNfts();
+  const { collectibles: nfts } = useNfts();
 
   return useMemo(() => {
     const { nft, tokenId } = (Object as any).fromEntries(
