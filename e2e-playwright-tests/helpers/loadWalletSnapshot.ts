@@ -1,13 +1,34 @@
 import type { BrowserContext, Page } from '@playwright/test';
-import { mainnetPrimaryExtWallet } from './storage-snapshots/mainnetPrimaryExtWallet';
-import { mainnetPrimaryWebWallet } from './storage-snapshots/mainnetPrimaryWebWallet';
-import { testnetPrimaryExtWallet } from './storage-snapshots/testnetPrimaryExtWallet';
 
-const SNAPSHOTS: Record<string, object> = {
-  testnetPrimaryExtWallet,
-  mainnetPrimaryExtWallet,
-  mainnetPrimaryWebWallet,
-};
+// Dynamically load snapshots that exist
+const SNAPSHOTS: Record<string, object> = {};
+
+// Try to load mainnetPrimaryExtWallet
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { mainnetPrimaryExtWallet } = require('./storage-snapshots/mainnetPrimaryExtWallet');
+  SNAPSHOTS.mainnetPrimaryExtWallet = mainnetPrimaryExtWallet;
+} catch (_e) {
+  console.warn('mainnetPrimaryExtWallet snapshot not available');
+}
+
+// Try to load mainnetPrimaryWebWallet
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { mainnetPrimaryWebWallet } = require('./storage-snapshots/mainnetPrimaryWebWallet');
+  SNAPSHOTS.mainnetPrimaryWebWallet = mainnetPrimaryWebWallet;
+} catch (_e) {
+  console.warn('mainnetPrimaryWebWallet snapshot not available');
+}
+
+// Try to load testnetPrimaryExtWallet
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { testnetPrimaryExtWallet } = require('./storage-snapshots/testnetPrimaryExtWallet');
+  SNAPSHOTS.testnetPrimaryExtWallet = testnetPrimaryExtWallet;
+} catch (_e) {
+  console.warn('testnetPrimaryExtWallet snapshot not available');
+}
 
 export const loadWalletSnapshot = async (
   context: BrowserContext,
