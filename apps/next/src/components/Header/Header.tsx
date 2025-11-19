@@ -39,13 +39,13 @@ export const Header = () => {
   );
 
   const headerWalletDetails: HeaderWalletDetails = useMemo(() => {
-    const walletId = isPrimaryAccount(activeAccount)
-      ? activeAccount.walletId
+    const walletId = activeWallet
+      ? activeWallet.id
       : isImportedAccount(activeAccount)
         ? activeAccount.id
         : '';
 
-    const walletName = isPrimaryAccount(activeAccount)
+    const walletName = activeWallet
       ? (activeWallet?.name ?? '')
       : isImportedAccount(activeAccount)
         ? getImportedWalletName(activeAccount as ImportedAccount)
@@ -54,16 +54,11 @@ export const Header = () => {
     return {
       id: walletId,
       name: walletName,
+      isTrueWallet: !!activeWallet,
       type: activeWallet?.type,
       authProvider: activeWallet?.authProvider,
     };
-  }, [
-    activeAccount,
-    activeWallet?.name,
-    activeWallet?.type,
-    activeWallet?.authProvider,
-    getImportedWalletName,
-  ]);
+  }, [activeAccount, getImportedWalletName, activeWallet]);
 
   const theme = useTheme();
   const location = useLocation();
@@ -111,6 +106,7 @@ export const Header = () => {
             ) : (
               <HeaderAccount
                 wallet={headerWalletDetails}
+                isTrueWallet={headerWalletDetails.isTrueWallet}
                 account={activeAccount}
               />
             )}

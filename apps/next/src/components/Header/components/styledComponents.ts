@@ -1,10 +1,4 @@
-import {
-  Button,
-  getHexAlpha,
-  keyframes,
-  Stack,
-  styled,
-} from '@avalabs/k2-alpine';
+import { Button, keyframes, Stack, styled } from '@avalabs/k2-alpine';
 
 export const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -22,12 +16,6 @@ export const AccountInfo = styled(Stack)`
 export const AccountSelectContainer = styled(Stack)`
   cursor: pointer;
   position: relative;
-  &:hover > div:first-of-type {
-    background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
-    & > svg {
-      opacity: 1;
-    }
-  }
 `;
 
 export const promptTextAnimation = keyframes`

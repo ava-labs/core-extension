@@ -120,7 +120,7 @@ const WalletViewContent = () => {
   if (!wallet) return null;
 
   return (
-    <Stack p={2} gap={1}>
+    <Stack p={1} mt={2} gap={1}>
       <Stack gap={1}>
         <Stack
           direction="row"
@@ -148,7 +148,7 @@ const WalletViewContent = () => {
                   ? currencyFormatter(totalBalanceInCurrency)
                   : backupTotalBalance !== undefined
                     ? currencyFormatter(backupTotalBalance)
-                    : '-'}
+                    : `-`}
               </Typography>
               <Typography variant="h7">{currency}</Typography>
             </Stack>
