@@ -79,4 +79,7 @@ export default [
       ],
     },
   },
+  {
+    ignores: ['**/*.gen.ts'],
+  },
 ];
