@@ -237,12 +237,7 @@ jobs:
           CI: true
         run: |
           GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
-          echo "GREP_FILTER: $GREP_FILTER"
-          echo "Listing tests that match the filter..."
-          npx playwright test --config=config/base.config.ts --list $GREP_FILTER
-          echo ""
-          echo "Running Playwright tests..."
-          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER --reporter=list,junit
+          PLAYWRIGHT_SHARD=${{ matrix.shardIndex }} xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' npx playwright test --config=config/base.config.ts --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} $GREP_FILTER
 
       - name: Run Playwright full regression tests
         if: github.event.inputs.test-run-type == 'full'
