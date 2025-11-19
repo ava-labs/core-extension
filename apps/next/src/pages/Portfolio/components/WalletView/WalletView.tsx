@@ -149,12 +149,14 @@ const WalletViewContent = () => {
         }}
       >
         <Typography variant="h3">{t('Accounts')}</Typography>
-        <Typography variant="body1">
+        <Typography variant="subtitle4" mb={2}>
           {t(
-            'This wallet has {{accountCount}} accounts over {{networkCount}} networks',
+            'This wallet has {{accountCount}} {{accountUnit}} over {{networkCount}} {{networkUnit}}',
             {
               accountCount,
               networkCount,
+              accountUnit: accountCount > 1 ? t('accounts') : t('account'),
+              networkUnit: networkCount > 1 ? t('networks') : t('network'),
             },
           )}
         </Typography>

@@ -60,6 +60,11 @@ export const useNetworksWithBalance = (
       )) {
         const accountId = addressToAccountId.get(address);
         if (accountId) {
+          // Skip if we already know this account has balance on this network
+          if (networksPerAccountSet.get(accountId)?.has(chainIdNum)) {
+            continue;
+          }
+
           // Check if this address has any tokens with balance
           const hasBalance = Object.values(addressBalances).some(
             (token) => token.balance > 0n,

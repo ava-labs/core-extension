@@ -66,7 +66,6 @@ export const Header = () => {
   ]);
 
   const theme = useTheme();
-  // const [isAddressAppear, setIsAddressAppear] = useState(false);
   const location = useLocation();
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
 
@@ -105,10 +104,7 @@ export const Header = () => {
           setIsAIBackdropOpen(false);
         }}
       >
-        <AccountSelectContainer
-        // onMouseOver={() => setIsAddressAppear(true)}
-        // onMouseLeave={() => setIsAddressAppear(false)}
-        >
+        <AccountSelectContainer>
           <AccountInfo>
             {isWalletView ? (
               <HeaderWallet wallet={headerWalletDetails} />
@@ -119,10 +115,6 @@ export const Header = () => {
               />
             )}
           </AccountInfo>
-          {/* <AddressList
-            isAddressAppear={isAddressAppear}
-            activeAccount={activeAccount}
-          /> */}
         </AccountSelectContainer>
         <HeaderActions
           activeAccount={activeAccount}
