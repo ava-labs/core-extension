@@ -5,7 +5,7 @@ import {
   PrivateKeyChain,
   SecretType,
 } from '@core/types';
-import { useConnectionContext } from '@core/ui';
+import { useAnalyticsContext, useConnectionContext } from '@core/ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GetPrivateKeyHandler } from '~/services/accounts/handlers/getPrivateKey';
@@ -13,6 +13,7 @@ import { GetPrivateKeyHandler } from '~/services/accounts/handlers/getPrivateKey
 export const useRevealKey = () => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
+  const { capture } = useAnalyticsContext();
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,6 +26,7 @@ export const useRevealKey = () => {
       id: string,
     ): Promise<string | null> => {
       if (!type) {
+        capture('ExportPrivateKeyErrorInvalidType');
         throw new Error('Invalid type!');
       }
       setIsLoading(true);
@@ -47,7 +49,7 @@ export const useRevealKey = () => {
           setIsLoading(false);
         });
     },
-    [request, t],
+    [capture, request, t],
   );
 
   return { error, isLoading, revealKey };

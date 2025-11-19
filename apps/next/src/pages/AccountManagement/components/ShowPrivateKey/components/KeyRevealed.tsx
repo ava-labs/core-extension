@@ -92,7 +92,10 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
           color="secondary"
           size="extension"
           fullWidth
-          onClick={goBack}
+          onClick={() => {
+            capture('ExportPrivateKeyCancelled');
+            goBack();
+          }}
         >
           {t('Done')}
         </Button>

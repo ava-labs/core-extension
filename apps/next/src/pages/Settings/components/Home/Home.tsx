@@ -260,6 +260,7 @@ export const SettingsHomePage = () => {
               label={t('Recovery methods')}
               divider
               href={`${path}/recovery-methods`}
+              onClick={() => capture('RecoveryMethodsClicked')}
             />
           )}
 
