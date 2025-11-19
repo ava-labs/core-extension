@@ -7,6 +7,10 @@ export const TEST_CONFIG = {
     // Extension ID (will be auto-detected if not provided)
     id: process.env.EXTENSION_ID || '',
   },
+  browser: {
+    // Run in headless mode (defaults to false for local dev, true in CI)
+    headless: process.env.HEADLESS === 'true' || process.env.CI === 'true',
+  },
   wallet: {
     password: (() => {
       if (!process.env.WALLET_PASSWORD) {

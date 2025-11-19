@@ -49,7 +49,7 @@ export const test = base.extend<ExtensionFixtures>({
 
     // Launch browser with extension in persistent context
     const context = await chromium.launchPersistentContext(userDataDir, {
-      headless: false,
+      headless: TEST_CONFIG.browser.headless,
       channel: 'chromium',
       permissions: ['clipboard-read', 'clipboard-write'],
       args: [
