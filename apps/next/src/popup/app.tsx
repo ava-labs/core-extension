@@ -25,6 +25,7 @@ import {
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { LockScreen } from '@/pages/LockScreen';
@@ -58,6 +59,16 @@ const pagesWithoutHeader = [
   getSwapPath(),
   '/concierge',
 ];
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
@@ -115,6 +126,7 @@ export function App() {
           <ThemeProvider
             theme={isDeveloperMode ? 'dark' : preferredColorScheme}
           />,
+          <QueryClientProvider client={queryClient} />,
           <PersonalAvatarProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,

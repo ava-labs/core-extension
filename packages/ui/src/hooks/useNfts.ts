@@ -1,27 +1,56 @@
 import { useMemo } from 'react';
 import { useBalancesContext } from '../contexts';
 import { useAccountsContext } from '../contexts';
-import { useNetworkContext } from '../contexts';
-import { getAddressForChain } from '@core/common';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '@core/types';
+import { getAddressForChain } from '@core/common';
 
-export const useNfts = () => {
+export const useNfts = (network?: NetworkWithCaipId) => {
   const { balances } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { network } = useNetworkContext();
 
-  return useMemo<NftTokenWithBalance[]>(() => {
-    if (!network || !balances.nfts || !activeAccount) {
-      return [];
+  return useMemo<{
+    collectibles: NftTokenWithBalance[];
+    loading: boolean;
+    error: string | undefined;
+  }>(() => {
+    if (!balances.nfts || !activeAccount) {
+      return {
+        collectibles: [],
+        loading: balances.loading,
+        error: balances.error,
+      };
     }
     const userAddress = getAddressForChain(network, activeAccount);
+    if (network) {
+      if (!userAddress) {
+        return {
+          collectibles: [],
+          loading: balances.loading,
+          error: balances.error,
+        };
+      }
 
-    if (!userAddress) {
-      return [];
+      return {
+        collectibles: Object.values(
+          balances.nfts?.[network.chainId]?.[userAddress] ?? {},
+        ),
+        loading: balances.loading,
+        error: balances.error,
+      };
     }
 
-    return Object.values(balances.nfts?.[network.chainId]?.[userAddress] ?? {});
-  }, [network, balances.nfts, activeAccount]);
+    return {
+      collectibles: Object.values(balances.nfts ?? {}).flatMap(
+        (chainBalances) =>
+          activeAccount
+            ? Object.values(chainBalances?.[activeAccount.addressC] ?? {})
+            : [],
+      ),
+      loading: balances.loading,
+      error: balances.error,
+    };
+  }, [network, balances, activeAccount]);
 };
