@@ -7,17 +7,43 @@ import {
 import { VM } from '@avalabs/avalanchejs';
 import { AddressPublicKeyJson, Curve } from '@core/types';
 
-export const buildAddressPublicKey = (
+export function buildAddressPublicKey(
+  key: Buffer,
+  vm: 'SVM',
+  accountIndex: number,
+  curve: Curve,
+): AddressPublicKeyJson;
+export function buildAddressPublicKey(
+  key: Buffer,
+  vm: VM,
+  accountIndex: number,
+  curve: Curve,
+  pathSpec: DerivationPath,
+): AddressPublicKeyJson;
+export function buildAddressPublicKey(
   key: Buffer,
   vm: VM | 'SVM',
   accountIndex: number,
   curve: Curve,
-): AddressPublicKeyJson => ({
-  curve,
-  derivationPath:
-    vm === 'SVM'
-      ? getSolanaDerivationPath(accountIndex)
-      : getAddressDerivationPath(accountIndex, DerivationPath.LedgerLive, vm),
-  type: 'address-pubkey',
-  key: hex.encode(Uint8Array.from(key)),
-});
+  pathSpec?: DerivationPath,
+): AddressPublicKeyJson {
+  if (vm === 'SVM') {
+    return {
+      curve,
+      derivationPath: getSolanaDerivationPath(accountIndex),
+      type: 'address-pubkey',
+      key: hex.encode(Uint8Array.from(key)),
+    };
+  }
+
+  if (!pathSpec) {
+    throw new Error('Path spec is required for non-Solana addresses');
+  }
+
+  return {
+    curve,
+    derivationPath: getAddressDerivationPath(accountIndex, pathSpec, vm),
+    type: 'address-pubkey',
+    key: hex.encode(Uint8Array.from(key)),
+  };
+}

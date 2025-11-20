@@ -100,6 +100,7 @@ export interface LedgerSecrets extends PrimarySecretsBase {
 
 export interface LedgerLiveSecrets extends PrimarySecretsBase {
   secretType: SecretType.LedgerLive;
+  extendedPublicKeys: ExtendedPublicKey[];
   derivationPathSpec: DerivationPath.LedgerLive;
 }
 
