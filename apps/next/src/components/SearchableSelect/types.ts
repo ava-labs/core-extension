@@ -50,5 +50,5 @@ export type SearchableSelectTriggerProps<T> = {
   label: string;
   value?: T;
   renderValue: (value?: T) => React.ReactNode;
-  onClick: () => void;
+  onClick: undefined | VoidFunction;
 };

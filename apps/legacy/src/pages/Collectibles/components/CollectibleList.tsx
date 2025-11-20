@@ -10,8 +10,8 @@ export function CollectibleList({
 }: {
   onClick: (nft: NftTokenWithBalance) => void;
 }) {
-  const nfts = useNfts();
   const { network } = useNetworkContext();
+  const { collectibles: nfts } = useNfts();
   const { getCollectibleVisibility } = useSettingsContext();
   const nftsToShow = network?.caipId
     ? nfts?.filter((nft) => {

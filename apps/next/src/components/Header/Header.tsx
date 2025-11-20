@@ -21,11 +21,6 @@ export const Header = () => {
   const history = useHistory();
   const { capture } = useAnalyticsContext();
 
-  // TODO: fix this after the transactions will be implemented
-  // TODO: fix the icon in k2 dark mode.....
-  // the true will rotate
-  const isTransactionPending = false;
-
   return (
     <Stack
       sx={{
@@ -73,10 +68,7 @@ export const Header = () => {
             activeAccount={activeAccount}
           />
         </AccountSelectContainer>
-        <HeaderActions
-          activeAccount={activeAccount}
-          pendingTransaction={isTransactionPending}
-        />
+        <HeaderActions account={activeAccount} />
       </Stack>
       <ConciergePrompt
         isAIBackdropOpen={isAIBackdropOpen}

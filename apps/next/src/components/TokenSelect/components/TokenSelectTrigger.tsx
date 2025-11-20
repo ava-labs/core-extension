@@ -12,8 +12,8 @@ export const TokenSelectTrigger = ({
   <StyledStack {...props}>{renderValue(token)}</StyledStack>
 );
 
-const StyledStack = styled(Stack)(({ theme }) => ({
-  cursor: 'pointer',
+const StyledStack = styled(Stack)(({ onClick, theme }) => ({
+  cursor: onClick ? 'pointer' : 'default',
   overflow: 'hidden',
   flexDirection: 'row',
   alignItems: 'center',
