@@ -50,7 +50,7 @@ export class DeriveMissingKeysHandler implements HandlerType {
 
       const seedlessWallet = new SeedlessWallet({
         sessionStorage: new SeedlessTokenStorage(this.secretsService),
-        addressPublicKey,
+        addressPublicKeys: [addressPublicKey],
       });
 
       await seedlessWallet.deriveMissingKeys();

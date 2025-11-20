@@ -1,27 +1,67 @@
 import { useMemo } from 'react';
-import { useBalancesContext } from '../contexts';
+import { useBalancesContext, useNetworkContext } from '../contexts';
 import { useAccountsContext } from '../contexts';
-import { useNetworkContext } from '../contexts';
-import { getAddressForChain } from '@core/common';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
+import { NetworkWithCaipId } from '@core/types';
+import { getAddressForChain } from '@core/common';
 
-export const useNfts = () => {
+export const useNfts = (network?: NetworkWithCaipId) => {
   const { balances } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { network } = useNetworkContext();
+  const { network: currentNetwork } = useNetworkContext();
 
-  return useMemo<NftTokenWithBalance[]>(() => {
-    if (!network || !balances.nfts || !activeAccount) {
-      return [];
+  return useMemo<{
+    collectibles: NftTokenWithBalance[];
+    loading: boolean;
+    error: string | undefined;
+  }>(() => {
+    if (!balances.nfts || !activeAccount) {
+      return {
+        collectibles: [],
+        loading: balances.loading,
+        error: balances.error,
+      };
     }
-    const userAddress = getAddressForChain(network, activeAccount);
 
-    if (!userAddress) {
-      return [];
+    if (network) {
+      const userAddress = getAddressForChain(network, activeAccount);
+
+      if (!userAddress) {
+        return {
+          collectibles: [],
+          loading: balances.loading,
+          error: balances.error,
+        };
+      }
+
+      return {
+        collectibles: Object.values(
+          balances.nfts?.[network.chainId]?.[userAddress] ?? {},
+        ),
+        loading: balances.loading,
+        error: balances.error,
+      };
     }
 
-    return Object.values(balances.nfts?.[network.chainId]?.[userAddress] ?? {});
-  }, [network, balances.nfts, activeAccount]);
+    if (!currentNetwork) {
+      return {
+        collectibles: [],
+        loading: false,
+        error: undefined,
+      };
+    }
+
+    const activeChainId = currentNetwork.chainId;
+    const userAddress = getAddressForChain(currentNetwork, activeAccount);
+
+    return {
+      collectibles: Object.values(
+        balances.nfts?.[activeChainId]?.[userAddress] ?? {},
+      ),
+      loading: balances.loading,
+      error: balances.error,
+    };
+  }, [network, balances, activeAccount, currentNetwork]);
 };

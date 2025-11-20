@@ -21,13 +21,25 @@ import { PortfolioDetails } from './components/PortolioDetails';
 import { useTranslation } from 'react-i18next';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
+import { useHistory, useLocation } from 'react-router-dom';
 
 export type TabName = 'assets' | 'collectibles' | 'defi' | 'activity';
 
 export const PortfolioHome: FC = () => {
   const { t } = useTranslation();
+
+  /**
+   * TODO: This is a temporary solution to get the active tab from the URL.
+   */
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const activeTabFromParams = queryParams.get('activeTab') as TabName;
+  const history = useHistory();
+
   const { accounts } = useAccountsContext();
-  const [activeTab, setActiveTab] = useState<TabName>('assets');
+  const [activeTab, setActiveTab] = useState<TabName>(
+    activeTabFromParams ?? 'assets',
+  );
   const { networks, isDeveloperMode } = useNetworkContext();
   const { totalBalance, balances } = useBalancesContext();
   const isLoading = !totalBalance;
@@ -63,6 +75,7 @@ export const PortfolioHome: FC = () => {
     <>
       <NoScrollStack
         height={1}
+        data-scroll-container="portfolio-content"
         // TODO: The "testnet" color palette needs to be updated, but core.app is already using it.
         // In Extension, we only need to change the background color of the home scren (portfolio page),
         // meanwhile the "testnet" color scheme changes the palette's "background.default" property,
@@ -88,9 +101,14 @@ export const PortfolioHome: FC = () => {
         <TabsContainer>
           <TabBar
             tabBarItems={TABS}
-            value={activeTab}
+            value={activeTabFromParams ?? activeTab}
             onChange={(_, val) => {
-              setActiveTab(val);
+              queryParams.set('activeTab', val);
+              history.push({
+                pathname: location.pathname,
+                search: queryParams.toString(),
+              });
+              setActiveTab(val as TabName);
             }}
             size="extension"
           />
@@ -109,6 +127,7 @@ export const PortfolioHome: FC = () => {
 const TabsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
+  zIndex: 100,
   paddingTop: theme.spacing(1),
   background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
 

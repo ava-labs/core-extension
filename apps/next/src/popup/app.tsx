@@ -10,30 +10,36 @@ import {
   BalancesProvider,
   ContactsContextProvider,
   CurrenciesContextProvider,
+  DefiContextProvider,
+  FirebaseContextProvider,
   isSpecificContextContainer,
   KeystoneContextProvider,
   LedgerContextProvider,
   NetworkFeeContextProvider,
   OnboardingContextProvider,
   PermissionContextProvider,
+  SeedlessMfaManagementProvider,
   SwapContextProvider,
   useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
 } from '@core/ui';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { getContactsPath, getSendPath, getSwapPath } from '@/config/routes';
+import * as routes from '@/config/routes';
+import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -48,17 +54,29 @@ const pagesWithoutHeader = [
   '/network/switch',
   '/manage-tokens',
   '/trending',
-  getContactsPath(),
-  getSendPath(),
-  getSwapPath(),
+  '/defi',
+  '/concierge',
+  '/activity',
+  routes.getContactsPath(),
+  routes.getSendPath(),
+  routes.getSwapPath(),
+  routes.getBridgePath(),
 ];
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: false,
+    },
+  },
+});
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
   const { pathname } = useLocation();
   const history = useHistory();
-  const historyRef = useRef(history);
-  historyRef.current = history;
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
 
@@ -82,13 +100,13 @@ export function App() {
       return;
     }
     if (Object.keys(navigationHistory).length !== 0) {
-      historyRef.current.push(navigationHistory.location); // go to last visited route
+      history.push(navigationHistory.location); // go to last visited route
     }
 
-    return historyRef.current.listen(() => {
-      setNavigationHistory(historyRef.current);
+    return history.listen(() => {
+      setNavigationHistory(history);
     });
-  }, [navigationHistory, setNavigationHistory]);
+  }, [history, navigationHistory, setNavigationHistory]);
 
   if (!preferredColorScheme) {
     return (
@@ -109,6 +127,7 @@ export function App() {
           <ThemeProvider
             theme={isDeveloperMode ? 'dark' : preferredColorScheme}
           />,
+          <QueryClientProvider client={queryClient} />,
           <PersonalAvatarProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
@@ -118,10 +137,13 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
+          <LedgerContextProvider />,
+          <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}
             LoadingComponent={LoadingScreen}
           />,
+          <SeedlessMfaManagementProvider />,
           <ContactsContextProvider />,
           <BalancesProvider />,
           <PermissionContextProvider />,
@@ -129,17 +151,21 @@ export function App() {
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
           <SwapContextProvider {...swapToastCallbacks} />,
+          <DefiContextProvider />,
+          <FirebaseContextProvider />,
+          <NextUnifiedBridgeProvider />,
         ]) as ReactElement[]
       }
     >
       <>
         {displayHeader && (
-          <Stack sx={{ width: 1 }}>
+          <Stack width={1}>
             <Header />
           </Stack>
         )}
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
+        <LedgerRegisterBtcWalletPolicy />
       </>
     </Providers>
   );

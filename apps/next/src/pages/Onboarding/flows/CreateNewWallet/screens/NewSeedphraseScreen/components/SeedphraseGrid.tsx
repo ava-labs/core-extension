@@ -24,7 +24,11 @@ export const SeedphraseGrid: FC<SeedphraseGridProps> = ({ phrase }) => {
               sx={{ pl: 1, '::marker': { color: 'text.secondary' } }}
             >
               {isFakeBeforeReal && <FakeWord />}
-              <Typography variant="body2" color="text.primary">
+              <Typography
+                variant="body2"
+                color="text.primary"
+                data-testid="seedphrase-word"
+              >
                 {words[i]}
               </Typography>
               {!isFakeBeforeReal && <FakeWord />}

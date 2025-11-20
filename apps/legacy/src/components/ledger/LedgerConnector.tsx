@@ -52,12 +52,18 @@ interface LedgerConnectorProps {
   onSuccess: (data: LedgerConnectorData) => void;
   onTroubleshoot: () => void;
   checkIfWalletExists?: boolean;
+  addedDerivationPath?: DerivationPath;
+  isEditScreen?: boolean;
+  onReset?: () => void;
 }
 
 export function LedgerConnector({
   onSuccess,
   onTroubleshoot,
   checkIfWalletExists,
+  addedDerivationPath,
+  isEditScreen,
+  onReset,
 }: LedgerConnectorProps) {
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
@@ -77,12 +83,15 @@ export function LedgerConnector({
   const [isLedgerExistsError, setIsLedgerExistsError] = useState(false);
 
   const [pathSpec, setPathSpec] = useState<DerivationPath>(
-    DerivationPath.BIP44,
+    addedDerivationPath || DerivationPath.BIP44,
   );
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [hasPublicKeys, setHasPublicKeys] = useState(false);
-  const [dropdownDisabled, setDropdownDisabled] = useState(true);
+  const [dropdownDisabled, setDropdownDisabled] = useState(
+    isEditScreen ? false : true,
+  );
   const lastAccountIndexWithBalance = useRef(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { t } = useTranslation();
   const { importLedger } = useImportLedger();
@@ -92,6 +101,7 @@ export function LedgerConnector({
     setAddresses([]);
     setHasPublicKeys(false);
     setPathSpec(DerivationPath.BIP44);
+    onReset?.();
   };
 
   const getAddressFromXpubKey = useCallback(
@@ -156,6 +166,7 @@ export function LedgerConnector({
   );
 
   const getXPublicKey = useCallback(async () => {
+    setIsLoading(true);
     try {
       const xpubValue = await getExtendedPublicKey();
       const xpubXPValue = await getExtendedPublicKey(
@@ -184,6 +195,8 @@ export function LedgerConnector({
       capture('OnboardingLedgerConnectionFailed');
       setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
       popDeviceSelection();
+    } finally {
+      setIsLoading(false);
     }
   }, [
     getExtendedPublicKey,
@@ -217,6 +230,7 @@ export function LedgerConnector({
       pubKeys: PubKeyType[] = [],
       emptyAccounts = 0,
     ) => {
+      setIsLoading(true);
       try {
         const pubKey = await getPublicKey(accountIndex, derivationPathSpec);
         const pubKeyXP = await getPublicKey(
@@ -283,6 +297,8 @@ export function LedgerConnector({
         capture('OnboardingLedgerConnectionFailed');
         setPublicKeyState(LedgerStatus.LEDGER_CONNECTION_FAILED);
         popDeviceSelection();
+      } finally {
+        setIsLoading(false);
       }
     },
     [
@@ -346,6 +362,10 @@ export function LedgerConnector({
   // Attempt to automatically connect using Ledger Live as soon as we
   // establish the transport.
   useEffect(() => {
+    // When in edit mode, do not auto fetch keys
+    if (isEditScreen) {
+      return;
+    }
     const retrieveKeys = async (selectedPathSpec: DerivationPath) => {
       setPublicKeyState(LedgerStatus.LEDGER_LOADING);
       setDropdownDisabled(true);
@@ -386,6 +406,7 @@ export function LedgerConnector({
     getDerivationPathValue,
     wasTransportAttempted,
     getXPublicKey,
+    isEditScreen,
   ]);
 
   return (
@@ -412,7 +433,11 @@ export function LedgerConnector({
               }}
             >
               <Divider flexItem />
-              <DerivedAddresses addresses={addresses} balanceSymbol="AVAX" />
+              <DerivedAddresses
+                addresses={addresses}
+                balanceSymbol="AVAX"
+                isLoading={isLoading}
+              />
             </Stack>
           )}
       </Stack>

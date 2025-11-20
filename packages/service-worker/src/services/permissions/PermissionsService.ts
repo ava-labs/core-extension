@@ -13,8 +13,14 @@ import {
   PermissionsState,
   DappPermissions,
 } from '@core/types';
-import { getAddressByVMType, getAllAddressesForAccount } from '@core/common';
-import { SYNCED_DOMAINS } from '@core/common';
+import {
+  getAddressByVMType,
+  getAllAddressesForAccount,
+  SYNCED_DOMAINS,
+} from '@core/common';
+import { GrantAccessToAccountsOptions } from './types';
+
+const VMs = [NetworkVMType.EVM, NetworkVMType.SVM];
 
 @singleton()
 export class PermissionsService implements OnLock {
@@ -27,20 +33,38 @@ export class PermissionsService implements OnLock {
     return this.#permissions;
   }
 
-  set permissions(permissions: Permissions | undefined) {
+  #setPermissions(
+    permissions: undefined,
+    vmsToNotify: NetworkVMType[],
+  ): undefined;
+  #setPermissions(
+    permissions: Permissions,
+    vmsToNotify: NetworkVMType[],
+  ): Permissions;
+  #setPermissions(
+    permissions: Permissions | undefined,
+    vmsToNotify: NetworkVMType[],
+  ): Permissions | undefined;
+  #setPermissions(
+    permissions: Permissions | undefined,
+    vmsToNotify: NetworkVMType[],
+  ) {
     if (JSON.stringify(this.permissions) === JSON.stringify(permissions)) {
-      return;
+      return this.#permissions;
     }
 
     this.#permissions = permissions;
     this.#eventEmitter.emit(
       PermissionEvents.PERMISSIONS_STATE_UPDATE,
       this.permissions ?? {},
+      vmsToNotify,
     );
+
+    return permissions;
   }
 
   onLock(): void {
-    this.permissions = undefined;
+    this.#setPermissions(undefined, VMs);
   }
 
   // use getter to cache permissions
@@ -55,7 +79,7 @@ export class PermissionsService implements OnLock {
         await this.storageService.load<PermissionsState>(
           PERMISSION_STORAGE_KEY,
         );
-      this.permissions = storedPermissions?.permissions ?? {};
+      this.#setPermissions(storedPermissions?.permissions ?? {}, VMs);
     } catch (_err) {
       /**
        * If permissions arent pulled then dont set permissions to an empty object
@@ -72,6 +96,83 @@ export class PermissionsService implements OnLock {
   async getPermissionsForDomain(domain: string) {
     const permissions = await this.getPermissions();
     return permissions[domain];
+  }
+
+  /**
+   * Updates permissions for a given dApp.
+   */
+  async updateAccessForDomain({
+    domain,
+    accounts,
+    notifiedVMConnectors,
+  }: GrantAccessToAccountsOptions) {
+    const currentPermissions = await this.getPermissions();
+    const permissionsForDomain = currentPermissions[domain] ?? {
+      domain,
+      accounts: {},
+    };
+
+    // First, revoke any permissions that are in the account list with
+    // "enabled" set to false.
+    const accountsToRevoke = accounts
+      .filter(({ enabled }) => !enabled)
+      .map(({ account }) => account);
+
+    const accountsToGrant = accounts
+      .filter(({ enabled }) => enabled)
+      .map(({ account }) => account);
+
+    const clearedPermissions = Object.fromEntries(
+      Object.entries(permissionsForDomain.accounts).filter(([address]) => {
+        const isRevoked = accountsToRevoke.some((account) =>
+          getAllAddressesForAccount(account).includes(address),
+        );
+
+        return !isRevoked;
+      }),
+    );
+
+    const newPermissionsForAccounts = accountsToGrant.reduce(
+      (accountsAcc, account) => {
+        return {
+          ...accountsAcc,
+          ...VMs.reduce((addressesAcc, vm) => {
+            // Grant address-based permissions for each VM.
+            // TODO: Switch to using the account IDs instead (requires a storage migration)
+            const address = getAddressByVMType(account, vm);
+            if (!address) {
+              return addressesAcc;
+            }
+
+            return {
+              ...addressesAcc,
+              [address]: vm,
+            };
+          }, {}),
+        };
+      },
+      {},
+    );
+
+    const newPermissions = {
+      ...currentPermissions,
+      [domain]: {
+        domain,
+        accounts: {
+          ...clearedPermissions,
+          ...newPermissionsForAccounts,
+        },
+      },
+    };
+
+    this.#setPermissions(newPermissions, notifiedVMConnectors);
+
+    await this.storageService.save<PermissionsState | undefined>(
+      PERMISSION_STORAGE_KEY,
+      { permissions: newPermissions },
+    );
+
+    return newPermissions;
   }
 
   async hasDomainPermissionForAccount(
@@ -116,22 +217,29 @@ export class PermissionsService implements OnLock {
       accounts: omit(permissionsForDomain.accounts, addresses),
     };
 
+    let savedPermissions: Permissions;
     if (Object.keys(newPermissionsForDomain.accounts).length === 0) {
       // dApp no longer has any permissions, just remove the whole domain
-      this.permissions = omit(currentPermissions, domain);
+      savedPermissions = this.#setPermissions(
+        omit(currentPermissions, domain),
+        VMs,
+      );
     } else {
-      this.permissions = {
-        ...currentPermissions,
-        [domain]: newPermissionsForDomain,
-      };
+      savedPermissions = this.#setPermissions(
+        {
+          ...currentPermissions,
+          [domain]: newPermissionsForDomain,
+        },
+        VMs,
+      );
     }
 
     await this.storageService.save<PermissionsState | undefined>(
       PERMISSION_STORAGE_KEY,
-      { permissions: this.permissions },
+      { permissions: savedPermissions },
     );
 
-    return this.permissions;
+    return savedPermissions;
   }
 
   async grantPermission(domain: string, address: string, vm: NetworkVMType) {
@@ -141,20 +249,23 @@ export class PermissionsService implements OnLock {
       accounts: {},
     };
 
-    this.permissions = {
-      ...currentPermissions,
-      [domain]: {
-        ...permissionsForDomain,
-        accounts: {
-          ...permissionsForDomain.accounts,
-          [address]: vm,
+    const permissions = this.#setPermissions(
+      {
+        ...currentPermissions,
+        [domain]: {
+          ...permissionsForDomain,
+          accounts: {
+            ...permissionsForDomain.accounts,
+            [address]: vm,
+          },
         },
       },
-    };
+      [vm],
+    );
 
     await this.storageService.save<PermissionsState | undefined>(
       PERMISSION_STORAGE_KEY,
-      { permissions: this.permissions },
+      { permissions },
     );
 
     return this.permissions;
@@ -184,22 +295,28 @@ export class PermissionsService implements OnLock {
         }),
         currentPermissions,
       );
-      this.permissions = newPermissions;
+      this.#setPermissions(newPermissions, VMs);
 
       await this.storageService.save<PermissionsState | undefined>(
         PERMISSION_STORAGE_KEY,
-        { permissions: this.permissions },
+        { permissions: newPermissions },
       );
     } catch (err) {
       console.error(err);
     }
   }
 
-  addListener(event: PermissionEvents, callback: (data: unknown) => void) {
+  addListener(
+    event: PermissionEvents,
+    callback: (data: unknown, concernedVms: NetworkVMType[]) => void,
+  ) {
     this.#eventEmitter.addListener(event, callback);
   }
 
-  removeListener(event: PermissionEvents, callback: (data: unknown) => void) {
+  removeListener(
+    event: PermissionEvents,
+    callback: (data: unknown, concernedVms: NetworkVMType[]) => void,
+  ) {
     this.#eventEmitter.removeListener(event, callback);
   }
 }

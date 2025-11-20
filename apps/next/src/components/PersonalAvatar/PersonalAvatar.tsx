@@ -68,6 +68,7 @@ export const PersonalAvatar = ({
       aria-selected={selected}
       role={onClick ? 'radio' : 'presentation'}
       tabIndex={onClick ? 0 : -1}
+      data-testid={onClick ? 'avatar-option' : undefined}
       sx={combineSx(
         {
           position: 'relative',
