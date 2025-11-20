@@ -7,6 +7,7 @@ import {
 
 export const TokenAddressInput = styled(OutlinedInput)(({ theme }) => ({
   backgroundColor: theme.palette.surface.primary,
+  paddingTop: theme.spacing(4),
   ...theme.typography.mono2,
   fontSize: '11px !important',
   [`& .${outlinedInputClasses.notchedOutline}`]: {

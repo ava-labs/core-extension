@@ -137,6 +137,16 @@ export const AddCustomToken: FC = () => {
           slots={{
             input: Styled.TokenAddressInput,
           }}
+          sx={{
+            '& .MuiInputLabel-root': {
+              fontSize: '11px',
+              color: 'text.secondary',
+              transform: 'translate(14px, 10px) scale(1)',
+              '&.Mui-focused': {
+                color: 'text.secondary',
+              },
+            },
+          }}
         />
       </Collapse>
 
