@@ -92,6 +92,7 @@ export enum CommonError {
 export enum LedgerError {
   TransportNotFound = 'ledger-transport-not-found',
   NoPublicKeyReturned = 'ledger-no-public-key-returned',
+  NoExtendedPublicKeyReturned = 'ledger-no-extended-public-key-returned',
 }
 
 export enum SecretsError {

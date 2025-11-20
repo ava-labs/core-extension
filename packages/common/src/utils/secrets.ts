@@ -1,4 +1,5 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { EVM_BASE_DERIVATION_PATH, PrimaryWalletSecrets } from '@core/types';
 
 export const getLegacyXPAddressIndexFromPath = (path: string) => {
   const unprefixed = path.replace('m/', '');
@@ -54,3 +55,23 @@ export const getAddressIndexFromPath = (vm: NetworkVMType, path: string) => {
       return getEvmAccountIndexFromPath(path);
   }
 };
+
+export const getAvalancheXPub = (
+  secrets: PrimaryWalletSecrets,
+  accountIndex: number,
+) => {
+  if (!secrets || !('extendedPublicKeys' in secrets)) {
+    return;
+  }
+
+  return secrets.extendedPublicKeys.find(
+    (key) =>
+      key.curve === 'secp256k1' &&
+      key.derivationPath === getAvalancheExtendedKeyPath(accountIndex),
+  );
+};
+
+export const getEvmExtendedKeyPath = () => EVM_BASE_DERIVATION_PATH;
+
+export const getAvalancheExtendedKeyPath = (accountIndex: number) =>
+  `m/44'/9000'/${accountIndex}'`;
