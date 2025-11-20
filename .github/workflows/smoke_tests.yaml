@@ -169,20 +169,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shardIndex: [1]
-        shardTotal: [1]
+        # Parallel execution with 4 shards on 16-core runner
+        # Each shard runs with 4 workers for optimal performance
+        # Adjust shardTotal to increase/decrease parallelism
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
     env:
       AWS_REGION: us-east-1
       TEST_RUN_ID: ${{ needs.build-extension.outputs.test_run_id }}
       RUNNER: CI
       LOG_LEVEL: info
       HEADLESS: 'true'
+      WORKERS: '4' # Number of parallel workers per shard (4 CPUs allocated per container)
       WALLET_PASSWORD: '${{ secrets.WALLET_PASSWORD }}'
       RECOVERY_PHRASE_12_WORDS: '${{ secrets.RECOVERY_PHRASE_12_WORDS }}'
       RECOVERY_PHRASE_24_WORDS: '${{ secrets.RECOVERY_PHRASE_24_WORDS }}'
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-noble
-      options: --ipc=host --security-opt=seccomp=unconfined --cap-add=SYS_ADMIN --shm-size=4gb --memory=6g --cpus=4
+      # Optimized for parallel execution: 4 CPUs + 4 workers per shard
+      options: --ipc=host --security-opt=seccomp=unconfined --cap-add=SYS_ADMIN --shm-size=2gb --memory=4g --cpus=4
 
     steps:
       - name: Checkout

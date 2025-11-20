@@ -12,6 +12,32 @@ const testRailOptions = {
   outputFile: `../test-results/junit-report-${shardId}.xml`,
 };
 
+/**
+ * Worker configuration:
+ * - Local: Uses all available CPU cores (undefined = 100% parallelization)
+ * - CI: Configurable via WORKERS env var, defaults to 4 for optimal performance
+ *
+ * The CI runner has 16 cores with 4 CPUs allocated per container.
+ * Using 4 workers allows parallel test execution within each shard.
+ */
+const getWorkers = () => {
+  if (!process.env.CI) {
+    // Local: use all available cores for maximum speed
+    return undefined; // Playwright will use 50% of CPU cores
+  }
+
+  // CI: use configured workers or default to 4
+  const workers = parseInt(process.env.WORKERS || '4', 10);
+  console.log(`Running with ${workers} parallel workers in CI`);
+  return workers;
+};
+
+/**
+ * Fully parallel mode allows tests within a single file to run in parallel.
+ * Disabled in CI to ensure more stable test execution with extension.
+ */
+const fullyParallel = !process.env.CI;
+
 export default defineConfig({
   globalSetup: require.resolve('./global-setup.ts'),
   testDir: '../tests',
@@ -21,7 +47,8 @@ export default defineConfig({
   expect: { timeout: 10000 },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: getWorkers(),
+  fullyParallel: fullyParallel,
   reporter: [process.env.CI ? ['junit', testRailOptions] : ['html'], ['list']],
 
   // Shared settings for all projects

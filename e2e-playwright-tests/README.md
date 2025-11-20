@@ -100,6 +100,87 @@ e2e-playwright-tests/
 
 ---
 
+## Running Tests
+
+### Quick Start
+
+```bash
+# Run all tests (parallel, default configuration)
+npm test
+
+# Run smoke tests only
+npm run test:smoke
+
+# Run with UI mode (interactive)
+npm run test:ui
+
+# Run in headed mode (see browser)
+npm run test:headed
+
+# Debug a specific test
+npm run test:debug
+```
+
+### Parallel Testing
+
+The test suite supports parallel execution for faster results. See [PARALLEL_TESTING.md](./PARALLEL_TESTING.md) for detailed documentation.
+
+**Local Development:**
+
+```bash
+# Run with all available cores (default)
+npm test
+
+# Run with 4 parallel workers
+npm run test:parallel
+
+# Run with maximum parallelization
+npm run test:parallel:max
+
+# Run sequentially (no parallelization)
+npm run test:sequential
+
+# Simulate CI shard locally
+npm run test:shard
+```
+
+**Performance:**
+
+- **Sequential**: ~15-20 minutes for smoke tests
+- **Parallel (4 workers)**: ~5-7 minutes for smoke tests
+- **CI (4 shards × 4 workers)**: ~4-6 minutes for smoke tests
+
+**CI Configuration:**
+
+- 4 parallel shards distribute test files
+- 4 workers per shard for parallel execution
+- Total: up to 16 tests running simultaneously
+- Optimized for 16-core GitHub Actions runner
+
+### Advanced Test Execution
+
+```bash
+# Run specific test file
+npx playwright test tests/onboarding.spec.ts
+
+# Run tests matching pattern
+npx playwright test --grep="@smoke"
+
+# Run with specific browser
+npx playwright test --project=chromium
+
+# Run with custom workers
+npx playwright test --workers=8
+
+# Run specific shard (1 of 4)
+npx playwright test --shard=1/4
+
+# Generate HTML report
+npm run report
+```
+
+---
+
 ## Writing Tests
 
 ### Basic Test Template

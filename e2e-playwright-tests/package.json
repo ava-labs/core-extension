@@ -9,6 +9,12 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:local": "playwright test --config=config/local.config.ts",
+    "test:smoke": "playwright test --grep=@smoke",
+    "test:sequential": "playwright test --workers=1",
+    "test:parallel": "playwright test --workers=4",
+    "test:parallel:max": "playwright test",
+    "test:shard": "playwright test --shard=1/4",
+    "test:ci": "CI=true playwright test --workers=4",
     "report": "playwright show-report",
     "codegen": "playwright codegen"
   },
