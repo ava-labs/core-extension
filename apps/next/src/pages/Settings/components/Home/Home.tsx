@@ -252,7 +252,11 @@ export const SettingsHomePage = () => {
               onClick={() => capture('RecoveryPhraseClicked')}
             />
           )}
-        <SettingsNavItem label={t('Reset recovery phrase')} divider />
+        <SettingsNavItem
+          label={t('Reset recovery phrase')}
+          divider
+          onClick={() => capture('RecoveryPhraseResetClicked')}
+        />
 
         {walletDetails?.type === SecretType.Seedless &&
           isMfaSettingsAvailable && (
