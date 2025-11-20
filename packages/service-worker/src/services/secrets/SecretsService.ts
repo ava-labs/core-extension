@@ -1,5 +1,13 @@
 import { omit, pick, uniqBy } from 'lodash';
 import { singleton } from 'tsyringe';
+import { fromPublicKey } from 'bip32';
+
+import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import {
+  Curve as KeystoneCurve,
+  DerivationAlgorithm,
+} from '@keystonehq/bc-ur-registry';
 
 import EventEmitter from 'events';
 import {
@@ -925,13 +933,45 @@ export class SecretsService implements OnUnlock {
         ).toJSON();
         newPublicKeys.push(publicKeyEVM);
       }
+
       if (!hasAVMPublicKey && secrets.secretType === SecretType.Keystone3Pro) {
-        const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathAVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyAVM);
+        const existingXPXpub = getAvalancheXPub(secrets, index);
+
+        if (existingXPXpub) {
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              secrets.extendedPublicKeys,
+              'secp256k1',
+              derivationPathAVM,
+            ).toJSON(),
+          );
+        } else {
+          const app = new KeystoneUSBAvalancheSDK(
+            await createKeystoneTransport(),
+          );
+          const { publicKey, chainCode } = await app.getPubkey(
+            getAvalancheExtendedKeyPath(index),
+            KeystoneCurve.secp256k1,
+            DerivationAlgorithm.slip10,
+          );
+          const newXPXpub: ExtendedPublicKey = {
+            type: 'extended-pubkey',
+            curve: 'secp256k1',
+            derivationPath: getAvalancheExtendedKeyPath(index),
+            key: fromPublicKey(
+              Buffer.from(publicKey, 'hex'),
+              chainCode,
+            ).toBase58(),
+          };
+          newExtendedPublicKeys.push(newXPXpub);
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              [newXPXpub],
+              'secp256k1',
+              derivationPathAVM,
+            ).toJSON(),
+          );
+        }
       }
     }
 
@@ -939,6 +979,14 @@ export class SecretsService implements OnUnlock {
       await this.updateSecrets(
         {
           publicKeys: [...secrets.publicKeys, ...newPublicKeys],
+          ...('extendedPublicKeys' in secrets
+            ? {
+                extendedPublicKeys: [
+                  ...secrets.extendedPublicKeys,
+                  ...newExtendedPublicKeys,
+                ],
+              }
+            : {}),
         },
         walletId,
       );
