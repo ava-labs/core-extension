@@ -76,21 +76,12 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         publicKeys.push({
           index,
           vm: 'EVM',
-          key: buildAddressPublicKey(
-            evmKey,
-            'EVM',
-            index,
-            'secp256k1',
-            derivationPathSpec,
-          ),
+          key: buildAddressPublicKey(evmKey, 'EVM', index, 'secp256k1'),
         });
       }
 
       for (const { key: xpubXP, index } of xpExtendedKeys) {
-        const addressPublicKey = await getAddressPublicKeyFromXPub(
-          xpubXP,
-          index,
-        );
+        const addressPublicKey = await getAddressPublicKeyFromXPub(xpubXP, 0);
 
         publicKeys.push({
           index,
@@ -100,7 +91,6 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
             'AVM',
             index,
             'secp256k1',
-            derivationPathSpec,
           ),
         });
       }
@@ -115,7 +105,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         addressPublicKeys: publicKeys,
       };
     },
-    [getExtendedPublicKeys, derivationPathSpec],
+    [getExtendedPublicKeys],
   );
 
   const assertUniqueWallet = useCallback(
