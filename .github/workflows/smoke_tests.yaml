@@ -169,11 +169,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Parallel execution with 4 shards on 16-core runner
+        # Parallel execution with 3 shards on 16-core runner
         # Each shard runs with 4 workers for optimal performance
         # Adjust shardTotal to increase/decrease parallelism
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
+        shardIndex: [1, 2, 3]
+        shardTotal: [3]
     env:
       AWS_REGION: us-east-1
       TEST_RUN_ID: ${{ needs.build-extension.outputs.test_run_id }}

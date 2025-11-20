@@ -40,16 +40,16 @@ npx playwright test --debug
 
 **Configuration:**
 
-- **Shards**: 4 parallel shards (distributes test files)
+- **Shards**: 3 parallel shards (distributes test files)
 - **Workers**: 4 workers per shard (parallel test execution)
-- **Total parallelism**: Up to 16 tests running simultaneously (4 shards × 4 workers)
+- **Total parallelism**: Up to 12 tests running simultaneously (3 shards × 4 workers)
 - **Retries**: 2 retries per test on failure
 - **Runner**: ubuntu-latest-16-cores-core-extension (16 vCPUs)
 - **Resources per shard**: 4 CPUs, 4GB RAM, 2GB shared memory
 
 **How It Works:**
 
-1. Test files are divided into 4 equal shards
+1. Test files are divided into 3 equal shards
 2. Each shard runs on a separate CI runner
 3. Within each shard, 4 workers run tests in parallel
 4. Results are combined and uploaded to TestRail
@@ -64,8 +64,8 @@ npx playwright test --debug
 
 ### After (Parallel)
 
-- **Setup**: 4 shards, 4 workers per shard
-- **Parallelism**: 16x potential speedup
+- **Setup**: 3 shards, 4 workers per shard
+- **Parallelism**: 12x potential speedup
 - **Estimated time**: ~4-6 minutes for smoke tests
 - **Speedup**: ~70-75% reduction in execution time
 
@@ -218,11 +218,11 @@ Running 50 tests using 4 workers
 
 ## FAQ
 
-**Q: Why 4 shards and 4 workers?**
-A: Optimized for the 16-core CI runner. 4 shards × 4 workers = 16 parallel tests maximum.
+**Q: Why 3 shards and 4 workers?**
+A: Optimized for the 16-core CI runner. 3 shards × 4 workers = 12 parallel tests, leaving headroom for system processes.
 
-**Q: Can I run with more than 16 parallel tests?**
-A: Yes, but you'll hit resource constraints. Monitor memory and CPU usage.
+**Q: Can I run with more than 12 parallel tests?**
+A: Yes, you can use 4 shards (16 parallel tests max), but monitor memory and CPU usage carefully.
 
 **Q: Do I need to change my tests?**
 A: No, if tests are already isolated. Most tests should work as-is.
@@ -231,7 +231,7 @@ A: No, if tests are already isolated. Most tests should work as-is.
 A: Mark it with `test.describe.serial()` or use `test.slow()` to give it more time.
 
 **Q: How do I test parallel configuration locally?**
-A: Run `npx playwright test --shard=1/4 --workers=4` to simulate one shard.
+A: Run `npx playwright test --shard=1/3 --workers=4` to simulate one shard.
 
 ## References
 

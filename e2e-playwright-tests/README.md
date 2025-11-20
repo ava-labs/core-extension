@@ -148,13 +148,13 @@ npm run test:shard
 
 - **Sequential**: ~15-20 minutes for smoke tests
 - **Parallel (4 workers)**: ~5-7 minutes for smoke tests
-- **CI (4 shards × 4 workers)**: ~4-6 minutes for smoke tests
+- **CI (3 shards × 4 workers)**: ~4-6 minutes for smoke tests
 
 **CI Configuration:**
 
-- 4 parallel shards distribute test files
+- 3 parallel shards distribute test files
 - 4 workers per shard for parallel execution
-- Total: up to 16 tests running simultaneously
+- Total: up to 12 tests running simultaneously
 - Optimized for 16-core GitHub Actions runner
 
 ### Advanced Test Execution
@@ -172,8 +172,8 @@ npx playwright test --project=chromium
 # Run with custom workers
 npx playwright test --workers=8
 
-# Run specific shard (1 of 4)
-npx playwright test --shard=1/4
+# Run specific shard (1 of 3)
+npx playwright test --shard=1/3
 
 # Generate HTML report
 npm run report
