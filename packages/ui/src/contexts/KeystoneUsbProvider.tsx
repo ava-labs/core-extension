@@ -12,15 +12,19 @@ import {
   TransportWebUSB,
 } from '@keystonehq/hw-transport-webusb';
 import { useConnectionContext } from './ConnectionProvider';
-import { resolve } from '@core/common';
+import { getAvalancheExtendedKeyPath, resolve } from '@core/common';
 import { fromPublicKey } from 'bip32';
 import Avalanche, { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
+import { Curve, DerivationAlgorithm } from '@keystonehq/bc-ur-registry';
 
 interface KeystoneContextType {
   initKeystoneTransport: () => Promise<void>;
   retryConnection: () => Promise<void>;
   popDeviceSelection: () => Promise<boolean>;
-  getExtendedPublicKey: (chainType?: ChainIDAlias) => Promise<string>;
+  getExtendedPublicKey: (
+    chainType: ChainIDAlias,
+    index: number,
+  ) => Promise<string>;
   wasTransportAttempted: boolean;
   getMasterFingerprint: () => Promise<string>;
   hasKeystoneTransport: boolean;
@@ -134,13 +138,24 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     throw Error('Keystone device selection failed');
   }, [avalancheAppRef]);
 
-  const getExtendedPublicKey = async (chainType?: ChainIDAlias) => {
+  const getExtendedPublicKey = async (
+    chainType: ChainIDAlias,
+    index: number,
+  ) => {
     if (!avalancheAppRef.current) {
       throw new Error('no device detected');
     }
 
-    const { publicKey, chainCode } =
-      await avalancheAppRef.current.getExtendedPublicKey(chainType);
+    if (chainType === ChainIDAlias.C) {
+      const { publicKey, chainCode } =
+        await avalancheAppRef.current.getExtendedPublicKey(chainType);
+      return fromPublicKey(Buffer.from(publicKey, 'hex'), chainCode).toBase58();
+    }
+    const { publicKey, chainCode } = await avalancheAppRef.current.getPubkey(
+      getAvalancheExtendedKeyPath(index),
+      Curve.secp256k1,
+      DerivationAlgorithm.slip10,
+    );
     return fromPublicKey(Buffer.from(publicKey, 'hex'), chainCode).toBase58();
   };
 
