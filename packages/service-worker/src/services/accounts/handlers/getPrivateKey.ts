@@ -142,11 +142,7 @@ export class GetPrivateKeyHandler implements HandlerType {
         const seed = mnemonicToSeedSync(primaryAccount.mnemonic);
         const master = fromSeed(seed);
         const pvmNode = master.derivePath(
-          getAddressDerivationPath(
-            accountIndex,
-            primaryAccount.derivationPathSpec,
-            'PVM',
-          ),
+          getAddressDerivationPath(accountIndex, 'PVM'),
         );
         if (!pvmNode.privateKey) {
           return {

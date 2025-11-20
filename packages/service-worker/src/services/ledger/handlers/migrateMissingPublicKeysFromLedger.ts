@@ -108,7 +108,6 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           const account = accounts[i]!;
           const avmDerivationPath = getAddressDerivationPath(
             account.index,
-            DerivationPath.LedgerLive,
             'AVM',
           );
 
