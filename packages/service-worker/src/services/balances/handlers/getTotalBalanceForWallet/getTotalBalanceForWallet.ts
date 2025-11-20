@@ -5,6 +5,7 @@ import {
   getAllAddressesForAccounts,
   getXPChainIds,
   isNotNullish,
+  modifyFractionNumber,
 } from '@core/common';
 
 import {
@@ -142,12 +143,12 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         );
 
         if (totalBalanceInCurrency === undefined) {
-          totalBalanceInCurrency = balance;
-          totalPriceChangeValue = priceChangeValue;
+          totalBalanceInCurrency = modifyFractionNumber(balance);
+          totalPriceChangeValue = modifyFractionNumber(priceChangeValue);
           continue;
         }
-        totalBalanceInCurrency += balance;
-        totalPriceChangeValue += priceChangeValue;
+        totalBalanceInCurrency += modifyFractionNumber(balance);
+        totalPriceChangeValue += modifyFractionNumber(priceChangeValue);
       }
       let hasBalanceOnUnderivedAccounts = false;
 
@@ -183,11 +184,15 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
               xpChains,
             );
           if (totalBalanceInCurrency === undefined) {
-            totalBalanceInCurrency = underivedAccountsTotal;
-            totalPriceChangeValue = priceChangeValue;
+            totalBalanceInCurrency = modifyFractionNumber(
+              underivedAccountsTotal,
+            );
+            totalPriceChangeValue = modifyFractionNumber(priceChangeValue);
           } else {
-            totalBalanceInCurrency += underivedAccountsTotal;
-            totalPriceChangeValue += priceChangeValue;
+            totalBalanceInCurrency += modifyFractionNumber(
+              underivedAccountsTotal,
+            );
+            totalPriceChangeValue += modifyFractionNumber(priceChangeValue);
           }
           hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
         }

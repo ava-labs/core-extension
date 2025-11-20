@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import {
   useAccountsContext,
-  useBalancesContext,
   useSettingsContext,
   useWalletContext,
   useWalletTotalBalance,
@@ -27,7 +26,6 @@ import {
 import { useMemo } from 'react';
 import { useNetworksWithBalance } from './hooks/useNetworksWithBalance';
 import { MdError } from 'react-icons/md';
-import { modifyFractionNumber } from '@core/ui/src/contexts/utils/getCurrencyFormatter';
 
 // Avatars from avatar-dictionary.ts
 const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
@@ -59,7 +57,6 @@ const WalletViewContent = () => {
     selected: { name: userAvatarName },
   } = usePersonalAvatar();
   const networksWithBalance = useNetworksWithBalance(walletId);
-  const { getTotalBalance } = useBalancesContext();
 
   const {
     isLoading,
@@ -105,17 +102,10 @@ const WalletViewContent = () => {
     return uniqueChainIds.size;
   }, [networksWithBalance]);
 
-  // If fetching total wallet balance fails, add up the balances of all accounts as a backup
-  const backupTotalBalance = useMemo(() => {
-    let totalBalance = 0;
-    for (const account of accountsInWallet) {
-      const accountTotalBalance = getTotalBalance(account.addressC);
-      if (accountTotalBalance && accountTotalBalance.sum) {
-        totalBalance += modifyFractionNumber(accountTotalBalance.sum);
-      }
-    }
-    return totalBalance;
-  }, [accountsInWallet, getTotalBalance]);
+  const placeholderTotalBalance = useMemo(
+    () => currencyFormatter(0).replace('0.00', ' -'),
+    [currencyFormatter],
+  );
 
   if (!wallet) return null;
 
@@ -136,19 +126,21 @@ const WalletViewContent = () => {
           <Typography variant="h2">{wallet?.name}</Typography>
         </Stack>
         {isLoading && (
-          <Stack height={56.5} justifyContent="center">
-            <CircularProgress size={14} />
+          <Stack height={56.5} justifyContent="center" ml={0.5}>
+            <Stack direction="row" alignItems="center" gap={1}>
+              <Typography variant="h2">{placeholderTotalBalance}</Typography>
+              <Typography variant="h7">{currency}</Typography>
+              <CircularProgress size={14} />
+            </Stack>
           </Stack>
         )}
         {!isLoading && (
-          <>
-            <Stack direction="row" alignItems="baseline" gap={0.5} ml={0.5}>
+          <Stack ml={0.5}>
+            <Stack direction="row" alignItems="baseline" gap={0.5}>
               <Typography variant="h2">
                 {totalBalanceInCurrency !== undefined
                   ? currencyFormatter(totalBalanceInCurrency)
-                  : backupTotalBalance !== undefined
-                    ? currencyFormatter(backupTotalBalance)
-                    : `-`}
+                  : placeholderTotalBalance}
               </Typography>
               <Typography variant="h7">{currency}</Typography>
             </Stack>
@@ -166,7 +158,7 @@ const WalletViewContent = () => {
                 </Typography>
               </Stack>
             )}
-          </>
+          </Stack>
         )}
       </Stack>
       <PortfolioActionButtons />
