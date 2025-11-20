@@ -36,9 +36,9 @@ export class AddressPublicKey<HasDerivationPath extends boolean = true> {
 
   toJSON(): AddressPublicKeyJson<HasDerivationPath> {
     return {
-      type: this.type,
       curve: this.curve,
       derivationPath: this.derivationPath,
+      type: this.type,
       key: this.key,
       ...(this.btcWalletPolicyDetails && {
         btcWalletPolicyDetails: this.btcWalletPolicyDetails,
