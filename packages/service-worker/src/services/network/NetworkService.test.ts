@@ -149,7 +149,6 @@ describe('background/services/network/NetworkService', () => {
   beforeAll(() => {
     process.env = {
       ...env,
-      GLACIER_API_KEY: 'glacierapikey',
       PROXY_URL: 'https://proxyurl.example',
     };
   });

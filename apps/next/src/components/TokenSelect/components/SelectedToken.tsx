@@ -1,4 +1,3 @@
-import { FC } from 'react';
 import {
   Box,
   ChevronDownIcon,
@@ -7,12 +6,13 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { FC } from 'react';
 
-import { TokenAvatar } from '@/components/TokenAvatar';
-import { FungibleTokenBalance } from '@core/types';
 import { OverflowingTypography } from '@/components/OverflowingTypography';
-import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { TokenAvatar } from '@/components/TokenAvatar';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { FungibleTokenBalance } from '@core/types';
 
 type SelectedTokenProps = {
   token: FungibleTokenBalance;
@@ -21,9 +21,6 @@ type SelectedTokenProps = {
 
 export const SelectedToken: FC<SelectedTokenProps> = ({ token, hint }) => {
   const theme = useTheme();
-
-  const balance = getAvailableBalance(token, false);
-  const balanceDisplay = getAvailableBalance(token, true);
 
   return (
     <>
@@ -55,22 +52,23 @@ export const SelectedToken: FC<SelectedTokenProps> = ({ token, hint }) => {
             <ChevronDownIcon size={16} />
           </Box>
         </Stack>
-        <Tooltip
-          title={new TokenUnit(
-            balance,
-            token.decimals,
-            token.symbol,
-          ).toString()}
-        >
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            whiteSpace="nowrap"
-          >
-            {balanceDisplay} {token.symbol}
-          </Typography>
-        </Tooltip>
+        <TokenBalance token={token} />
       </Stack>
     </>
+  );
+};
+
+const TokenBalance: FC<{ token: FungibleTokenBalance }> = ({ token }) => {
+  const balance = getAvailableBalance(token, false);
+  const balanceDisplay = getAvailableBalance(token, true);
+
+  return (
+    <Tooltip
+      title={new TokenUnit(balance, token.decimals, token.symbol).toString()}
+    >
+      <Typography variant="caption" color="text.secondary" whiteSpace="nowrap">
+        {balanceDisplay} {token.symbol}
+      </Typography>
+    </Tooltip>
   );
 };
