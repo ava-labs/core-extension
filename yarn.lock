@@ -129,66 +129,66 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-bridge-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-bridge-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-bridge-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-bridge-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
   peerDependencies:
     big.js: ^6.2.1
     bitcoinjs-lib: ^5.2.0
     coinselect: ^3.1.12
     ethers: ^6.7.1
     react: ^17.0.2
-  checksum: 10c0/94a230d8d3d8636cf4bf8efcea4f163a77f9ba628004463bb108963d3e0d1ce9cc5c937d7ca1a6a36f541e1339bc14dea2a53a1c31f4b17c28e5164df16e546f
+  checksum: 10c0/056ce007259cbb5c7021e69b440e53b2119360edc8b5e386364d57980686914d979249bb02954775bfcadf57dbf9d9bd9444ac326dc85a5342d5197e56ca038f
   languageName: node
   linkType: hard
 
-"@avalabs/core-chains-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-chains-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-chains-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-chains-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-  checksum: 10c0/4f5e038db803f6792ffde5f881f788f3105876bac96be9bd318698d0707505906cb6f39a0e6606c4f928e6bf15d8a8929e2b9cd0df7cfa9edc15d98c4f57bc13
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+  checksum: 10c0/c84eedd876e5fa0bc5fd5964e59c24d1931e19107566002df9f4a84261531813ea86968a849708338fc551721d416021d46a1c405f078bc87fd980738b4755c0
   languageName: node
   linkType: hard
 
-"@avalabs/core-coingecko-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-coingecko-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-coingecko-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-  checksum: 10c0/a969fddffdb7a1c1e5a4424f75ecc8c48f22587372ff9e552179399eb5f26377775a3a0a844cf73ac9b3d9a426e261c73308239d6160c31eb1ee63d1b8bd89bb
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+  checksum: 10c0/9d553bd49fe3682d41ebd6b8a90910522887262ec279fae008584b69390082b52ab1488f40cad4278afebd106c01cd291740b07f6ec0251f685d5a1bfc398f57
   languageName: node
   linkType: hard
 
-"@avalabs/core-covalent-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-covalent-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-covalent-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-  checksum: 10c0/222faa206e242fed466c6f0464147defecbbacdddaf0bb823e3cc20728339c7f17018dc72ae1cd7d6756a37d526e3a95a2e5d443bec6ad93e1573e082dbe3e1d
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+  checksum: 10c0/f3ff2157d7addf3193a2e0ad5f469053ab7e537b90f13380042e6af2af3636621d1b672e1adb18728eccba3bc6615eb55981c8e03d39bb8e7c4472d4722f8384
   languageName: node
   linkType: hard
 
-"@avalabs/core-etherscan-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-etherscan-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-etherscan-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-  checksum: 10c0/4edb1d34600bc2dd20c69dd009d8c476844810c6af4f66bd98359606f1ba74026e8003554364f74567dcde69eddb489207f31d58527606aa63d6875edc7219b5
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+  checksum: 10c0/5dab1848cba204f3385907d5c7ebca71ea39c0219a1ea15eea8ffaeee7bcf954450d93f40f2c40d70e8f767baf26db27a49f7eeef765fa810e677f3cf791db57
   languageName: node
   linkType: hard
 
-"@avalabs/core-gasless-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-gasless-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-gasless-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
     "@noble/hashes": "npm:1.7.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/5b45d2c1c9377f5bd6701fb5fa219cb1e32e96f7da58621ebda40de565ce09903f7870b83ce974bb058cab69c85d1ed05caa1f246975949480ca89f24028cac1
+  checksum: 10c0/90af339f41185d07d8973d862473fc873497612751a7a1ff6aa33855bf5f0df6ae74f73604af9cdfcbf77bf24fa87db270ddc349db4f5b774079290c91cc12ae
   languageName: node
   linkType: hard
 
@@ -221,28 +221,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-snowtrace-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-  checksum: 10c0/cfdfdce9e3f2e20b9e97a6fa279f5bc9fb41eda15774a619f2e44c5532b7024996e1ecc2dc84733d7686c2aca5e6b8dee340c47e2f02ebca01824a16e954906e
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+  checksum: 10c0/bd33672d30540d015b50ed280e4958bd2feed8687ecd4764a32ed0bdd7805bdceb94ad7e1df0bd7300f64897de90d15ac0d440ba24e75c3644bc4bb10ac19c18
   languageName: node
   linkType: hard
 
-"@avalabs/core-token-prices-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-token-prices-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-token-prices-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-token-prices-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0+d05a869"
-  checksum: 10c0/fd5f972a34d8b131d2d64a51b32d4805f745ad3dd920cc33727349b82534e0295dd304ddd7e9ee8ad8e5254ffe45735a37855a232002b3bb39917569dc076f59
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0+7d0a6cf"
+  checksum: 10c0/32a96a422cc90940f2326404dc2d4a927bc3bbaa861de06c7443c0fa9459f99281f82b5f929de9cc27c38587e9c51d18b45c2b4dce4405fff413969b575c1dbc
   languageName: node
   linkType: hard
 
-"@avalabs/core-utils-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-utils-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-utils-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-utils-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
     "@hpke/core": "npm:1.2.5"
     is-ipfs: "npm:6.0.2"
@@ -250,13 +250,13 @@ __metadata:
     big.js: ^6.2.1
     bn.js: ^5.2.1
     ethers: ^6.7.1
-  checksum: 10c0/464963b757b094558daef75b526ddb07db053ec00b2abe1bea21475c18831e79afa9f00d5de25071eb02cc34aac45cb9b76c8ff43f045c0c773d2bdd03c46cec
+  checksum: 10c0/8537f835e4b498b65f6b5c0a15728578935058bb6ef68f749cd81c9cdba4ab7a3dbf908aac86817e64daf08b5e97f6b6842eb72c98cb5f3639bf0c1816f4481e
   languageName: node
   linkType: hard
 
-"@avalabs/core-wallets-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/core-wallets-sdk@npm:3.1.0-canary.d05a869.0"
+"@avalabs/core-wallets-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/core-wallets-sdk@npm:3.1.0-canary.7d0a6cf.0"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.61"
@@ -287,7 +287,7 @@ __metadata:
     xss: "npm:1.0.14"
   peerDependencies:
     ethers: ^6.7.1
-  checksum: 10c0/0140d8b35db275d30f123a081e2c6a7946c4cf5795b73c4f617c68ee65aff9b32ce8eed2381a879f2ce9178850488458f15a30ad70b725dab4b9b6b5fa500f60
+  checksum: 10c0/f313243e97cd03b84977d852f6655626fc446488bacbe48dc49de42acce9820519b0a57701cc821d0a540298e24a006880569d77d21e9fa030cdfbc33acdf6f6
   languageName: node
   linkType: hard
 
@@ -316,10 +316,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/glacier-sdk@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/glacier-sdk@npm:3.1.0-canary.d05a869.0"
-  checksum: 10c0/02965597ef392d319cdd947bde35a96a907deaaf77f9bd98fdc88fef96abd82ff310c5c10ff76dc13c15612dabf4aa7ff912649cee26c2745bee5e5985d7e5ac
+"@avalabs/glacier-sdk@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/glacier-sdk@npm:3.1.0-canary.7d0a6cf.0"
+  checksum: 10c0/83864b99c027c06764dc7cd21e4b379491476b2ae482d75a6fc5418eecd3f49e7e4182de2c11bb038682e00845f042d1858dd687f99b27b459bd8351e31fd7f8
   languageName: node
   linkType: hard
 
@@ -395,10 +395,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/types@npm:3.1.0-canary.d05a869.0":
-  version: 3.1.0-canary.d05a869.0
-  resolution: "@avalabs/types@npm:3.1.0-canary.d05a869.0"
-  checksum: 10c0/5099eb35001e4c310342e01a359242b2b0ce4695ea26a432ea638f9cf00f7667b184d0a7538dcc05936dab9b9d148449f568cd04a5184c563a0408e6bb2b1a0a
+"@avalabs/types@npm:3.1.0-canary.7d0a6cf.0":
+  version: 3.1.0-canary.7d0a6cf.0
+  resolution: "@avalabs/types@npm:3.1.0-canary.7d0a6cf.0"
+  checksum: 10c0/23d2f1ec4347bd565cd9f5b889a52c8eec915e142c84e5c74876f2b912e4a8676162a2c86f6f5dcc373e41d2264a25927059def686de1e6d559a0bc38f78b642
   languageName: node
   linkType: hard
 
@@ -3680,23 +3680,23 @@ __metadata:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@avalabs/bridge-unified": "npm:4.0.3"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/core-k2-components": "npm:4.18.0-alpha.53"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/evm-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
-    "@avalabs/glacier-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/hvm-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/svm-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
-    "@avalabs/types": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/types": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/vm-module-types": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -3863,11 +3863,11 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/k2-alpine": "npm:1.235.0"
-    "@avalabs/types": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/types": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/vm-module-types": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -4097,7 +4097,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/offscreen@workspace:packages/offscreen"
   dependencies:
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@core/common": "workspace:*"
     "@core/messaging": "workspace:*"
     "@core/types": "workspace:*"
@@ -4119,22 +4119,22 @@ __metadata:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@avalabs/bridge-unified": "npm:4.0.3"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/evm-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
-    "@avalabs/glacier-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/hvm-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/svm-module": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
-    "@avalabs/types": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/types": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/vm-module-types": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -4285,19 +4285,19 @@ __metadata:
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bridge-unified": "npm:4.0.3"
-    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.d05a869.0"
-    "@avalabs/glacier-sdk": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/core-bridge-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-chains-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-coingecko-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-covalent-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-etherscan-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-gasless-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-snowtrace-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-token-prices-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-utils-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/core-wallets-sdk": "npm:3.1.0-canary.7d0a6cf.0"
+    "@avalabs/glacier-sdk": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/types": "npm:3.1.0-canary.d05a869.0"
+    "@avalabs/types": "npm:3.1.0-canary.7d0a6cf.0"
     "@avalabs/vm-module-types": "npm:0.0.0-refactor-xp-derivation-paths-20251119091515"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"
