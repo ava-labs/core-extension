@@ -22,7 +22,6 @@ import {
   WalletEvents,
   LedgerError,
   AccountWithSecrets,
-  AVALANCHE_BASE_DERIVATION_PATH,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
 import { assertPresent, mapVMAddresses, isPrimaryAccount } from '@core/common';
@@ -39,8 +38,7 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
-import { NetworkType, postV1GetAddresses } from '~/api-clients/profile-api';
-import { profileApiClient } from '~/api-clients';
+import { callGetAddresses } from '~/api-clients';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -91,38 +89,7 @@ export class SecretsService implements OnUnlock {
 
     // calling profile api address calculation on extension unlock
     const walletKeys = await this.#loadSecrets(false);
-    (walletKeys?.wallets ?? []).map((wallet) => {
-      if (!('extendedPublicKeys' in wallet)) {
-        return;
-      }
-      const avalancheExtendedPublicKeys = wallet.extendedPublicKeys.filter(
-        ({ curve, derivationPath }) =>
-          derivationPath.startsWith(AVALANCHE_BASE_DERIVATION_PATH) &&
-          curve === 'secp256k1',
-      );
-      if (avalancheExtendedPublicKeys.length === 0) {
-        return;
-      }
-
-      const networkTypes: NetworkType[] = ['AVM', 'PVM'];
-      const isTestnetChoice = [true, false];
-
-      networkTypes.map((networkType) => {
-        isTestnetChoice.map((isTestnet) => {
-          avalancheExtendedPublicKeys.map((xpubKey) => {
-            postV1GetAddresses({
-              client: profileApiClient,
-              body: {
-                extendedPublicKey: xpubKey.key,
-                isTestnet,
-                networkType,
-                withExtraAddresses: false,
-              },
-            });
-          });
-        });
-      });
-    });
+    callGetAddresses(walletKeys);
   }
 
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
