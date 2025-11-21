@@ -431,7 +431,12 @@ export class OnboardingPage extends BasePage {
     await this.selectAvatarTitle.waitFor({ state: 'visible', timeout: 10000 });
     await this.avatarOptions.first().waitFor({ state: 'visible', timeout: 10000 });
     const avatars = await this.avatarOptions.all();
-    await avatars[0].click();
+    // Select second avatar (index 1) instead of first to avoid potential issues
+    if (avatars.length < 2) {
+      throw new Error(`Expected at least 2 avatars, but found ${avatars.length}`);
+    }
+    await avatars[1].click();
+    console.log('Selected second avatar option');
     await this.nextButton.click();
 
     // Wait for wallet creation/initialization to complete
