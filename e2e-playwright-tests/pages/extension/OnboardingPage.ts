@@ -440,8 +440,8 @@ export class OnboardingPage extends BasePage {
     await this.page.waitForTimeout(2000); // Give it time to start processing
 
     // Wait for submission to complete (may show loading spinner first)
-    // Increased timeout to 4 minutes for CI environment (crypto operations can be very slow)
-    await this.enjoyWalletTitle.waitFor({ state: 'visible', timeout: 240000 });
+    // Translation requests are mocked in tests to prevent failures
+    await this.enjoyWalletTitle.waitFor({ state: 'visible', timeout: 60000 });
     console.log('Wallet creation completed - enjoy wallet screen shown');
     await this.letsGoButton.click();
   }

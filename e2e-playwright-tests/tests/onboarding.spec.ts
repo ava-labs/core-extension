@@ -334,21 +334,44 @@ test.describe('Onboarding', () => {
       // Enable trace for this test to debug API calls
       await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
 
+      // Mock translation requests to prevent failures in CI
+      await extensionPage.route('https://core.app/locales/**', async (route) => {
+        const url = route.request().url();
+        console.log(`[MOCK] Mocking translation request: ${url}`);
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            "That's it!": "That's it!",
+            'Enjoy your wallet': 'Enjoy your wallet',
+            "Let's go!": "Let's go!",
+            'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees':
+              'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees',
+          }),
+        });
+      });
+
       // Log all network requests for debugging
       extensionPage.on('request', (request) => {
-        console.log(`[NETWORK] → ${request.method()} ${request.url()}`);
+        const url = request.url();
+        if (!url.includes('core.app/locales')) {
+          console.log(`[NETWORK] → ${request.method()} ${url}`);
+        }
       });
 
       extensionPage.on('response', (response) => {
         const status = response.status();
         const url = response.url();
-        if (status >= 400) {
+        if (status >= 400 && !url.includes('core.app/locales')) {
           console.log(`[NETWORK] ← ${status} ${url}`);
         }
       });
 
       extensionPage.on('requestfailed', (request) => {
-        console.log(`[NETWORK] ✗ FAILED ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
+        const url = request.url();
+        if (!url.includes('core.app/locales')) {
+          console.log(`[NETWORK] ✗ FAILED ${request.method()} ${url} - ${request.failure()?.errorText}`);
+        }
       });
 
       try {
