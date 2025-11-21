@@ -311,12 +311,15 @@ test.describe('Onboarding', () => {
 
   test(
     'As a CORE ext user, I can manually create a new wallet and complete the full onboarding flow',
-    { tag: '@smoke' },
+    {
+      tag: '@smoke',
+      annotation: [
+        { type: 'mockTranslations', description: 'true' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_ONBOARDING_008' },
+      ],
+    },
     async ({ extensionPage, context }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_automation_id:EXT_ONBOARDING_008',
-      });
+      // testInfo.annotations.push is done in test definition above
 
       // Enable trace for this test to debug API calls
       await context.tracing.start({ screenshots: true, snapshots: true, sources: true });

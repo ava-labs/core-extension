@@ -66,6 +66,127 @@ export const test = base.extend<ExtensionFixtures>({
 
     console.log('Browser context created');
 
+    // Check if translation mocking is requested via test annotation
+    const mockTranslationsAnnotation = testInfo.annotations.find((a) => a.type === 'mockTranslations');
+    if (mockTranslationsAnnotation) {
+      console.log('[FIXTURE] Setting up translation mocking at context level...');
+      const mockTranslations: Record<string, string> = {
+        "That's it!": "That's it!",
+        'Enjoy your wallet': 'Enjoy your wallet',
+        "Let's go!": "Let's go!",
+        'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees':
+          'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees',
+        'Create wallet': 'Create wallet',
+        'Import wallet': 'Import wallet',
+        Next: 'Next',
+        Back: 'Back',
+        Continue: 'Continue',
+        Cancel: 'Cancel',
+        Confirm: 'Confirm',
+        Skip: 'Skip',
+      };
+
+      // Set up routes BEFORE any pages are created
+      await context.route('**/*locales**', async (route) => {
+        const url = route.request().url();
+        const method = route.request().method();
+        if (method === 'GET' && (url.includes('locales') || url.includes('translation') || url.includes('i18n'))) {
+          console.log(`[FIXTURE-MOCK] Context route intercept: ${method} ${url}`);
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mockTranslations),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      await context.route('https://core.app/**', async (route) => {
+        const url = route.request().url();
+        const method = route.request().method();
+        if (method === 'GET' && (url.includes('locales') || url.includes('translation'))) {
+          console.log(`[FIXTURE-MOCK] core.app route intercept: ${method} ${url}`);
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mockTranslations),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      // Add init script to context (applies to all pages)
+      await context.addInitScript((mockData: Record<string, string>) => {
+        // @ts-expect-error - window exists in browser context where this code runs
+        const originalFetch = window.fetch;
+        // @ts-expect-error - window exists in browser context where this code runs
+        window.fetch = function (...args: any[]) {
+          const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+          if (url && (url.includes('locales') || url.includes('translation') || url.includes('i18n'))) {
+            console.log('[FIXTURE-MOCK] JavaScript fetch intercept:', url);
+            return Promise.resolve(
+              new Response(JSON.stringify(mockData), {
+                status: 200,
+                statusText: 'OK',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                },
+              }),
+            );
+          }
+          return originalFetch.apply(this, args);
+        };
+
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        XMLHttpRequest.prototype.open = function (method: string, url: string, ...rest: any[]) {
+          (this as any)._mockUrl = url;
+          return originalXHROpen.apply(this, [method, url, ...rest]);
+        };
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        XMLHttpRequest.prototype.send = function (...args: any[]) {
+          if (
+            (this as any)._mockUrl &&
+            ((this as any)._mockUrl.includes('locales') ||
+              (this as any)._mockUrl.includes('translation') ||
+              (this as any)._mockUrl.includes('i18n'))
+          ) {
+            console.log('[FIXTURE-MOCK] JavaScript XHR intercept:', (this as any)._mockUrl);
+            setTimeout(() => {
+              Object.defineProperty(this, 'status', { value: 200, writable: false });
+              Object.defineProperty(this, 'statusText', { value: 'OK', writable: false });
+              Object.defineProperty(this, 'responseText', { value: JSON.stringify(mockData), writable: false });
+              Object.defineProperty(this, 'readyState', { value: 4, writable: false });
+              if (this.onreadystatechange) {
+                this.onreadystatechange();
+              }
+              if (this.onload) {
+                this.onload();
+              }
+            }, 0);
+            return;
+          }
+          return originalXHRSend.apply(this, args);
+        };
+      }, mockTranslations);
+
+      console.log('[FIXTURE] Translation mocking configured at context level');
+    }
+
     // Wait for extension to load
     await waitForExtensionLoad(context);
     console.log('Extension loaded');
