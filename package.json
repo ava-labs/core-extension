@@ -19,7 +19,7 @@
     "build:alpha:no-source-maps": "NO_SOURCE_MAPS=true yarn build:alpha",
     "lint": "yarn workspaces foreach -Ap --exclude @core-ext/next run lint",
     "lint:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run lint",
-    "generate-clients": "openapi-ts && yarn workspace @core/service-worker prettify",
+    "generate-clients": "openapi-ts && yarn workspace @core/service-worker api-client:prepend && yarn workspace @core/service-worker prettify",
     "postinstall": "husky install",
     "prettify": "yarn workspaces foreach -Ap run prettify",
     "typecheck": "yarn workspaces foreach -Ap --exclude @core-ext/next run typecheck",
