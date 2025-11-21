@@ -325,129 +325,158 @@ test.describe('Onboarding', () => {
   test(
     'As a CORE ext user, I can manually create a new wallet and complete the full onboarding flow',
     { tag: '@smoke' },
-    async ({ extensionPage }, testInfo) => {
+    async ({ extensionPage, context }, testInfo) => {
       testInfo.annotations.push({
         type: 'testrail_case_field',
         description: 'custom_automation_id:EXT_ONBOARDING_008',
       });
-      console.log('Verifying manual wallet creation flow...');
 
-      const onboardingPage = new OnboardingPage(extensionPage);
-      const walletPassword = TEST_CONFIG.wallet.password;
+      // Enable trace for this test to debug API calls
+      await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
 
-      await onboardingPage.clickElement(onboardingPage.createWalletButton);
-      console.log('Clicked "Manually create new wallet" button');
-
-      await onboardingPage.newSeedphraseTitle.waitFor({ state: 'visible', timeout: 10000 });
-      console.log('New seedphrase screen loaded');
-
-      await expect(onboardingPage.newSeedphraseTitle).toBeVisible();
-      console.log('Verified: Recovery phrase title is visible');
-
-      const listItems = extensionPage.locator('ol li');
-      await listItems.first().waitFor({ state: 'visible', timeout: 5000 });
-
-      const seedphraseWordsArray: string[] = [];
-      const count = await listItems.count();
-      for (let i = 0; i < count; i++) {
-        const itemText = await listItems.nth(i).locator('p').first().textContent();
-        if (itemText && itemText.trim()) {
-          seedphraseWordsArray.push(itemText.trim());
-        }
-      }
-
-      expect(seedphraseWordsArray.length).toBeGreaterThan(0);
-      console.log(`Verified: ${seedphraseWordsArray.length} seedphrase words are displayed`);
-
-      await expect(onboardingPage.copyPhraseButton).toBeVisible();
-      console.log('Verified: Copy phrase button is visible');
-
-      await expect(onboardingPage.nextButton).toBeDisabled();
-      console.log('Verified: Next button is disabled initially');
-
-      await onboardingPage.createWalletTermsCheckbox.check();
-      console.log('Checked terms checkbox');
-
-      await expect(onboardingPage.nextButton).toBeEnabled({ timeout: 5000 });
-      console.log('Verified: Next button is enabled after accepting terms');
-
-      await onboardingPage.nextButton.click();
-      console.log('Clicked Next button - navigating to verify seedphrase page');
-
-      await onboardingPage.verifySeedphraseTitle.waitFor({ state: 'visible', timeout: 10000 });
-      console.log('Verify seedphrase screen loaded');
-
-      await expect(onboardingPage.verifySeedphraseTitle).toBeVisible();
-      console.log('Verified: Verify recovery phrase title is visible');
-
-      // Wait for all verification buttons to be fully loaded
-      await extensionPage.waitForTimeout(2000);
-      await extensionPage.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
-        console.log('Network not idle, continuing with verification...');
+      // Log all network requests for debugging
+      extensionPage.on('request', (request) => {
+        console.log(`[NETWORK] → ${request.method()} ${request.url()}`);
       });
 
-      const verificationButtons = await onboardingPage.seedphraseVerificationButtons.all();
-      expect(verificationButtons.length).toBeGreaterThan(0);
-      console.log(`Verified: ${verificationButtons.length} verification buttons are available`);
+      extensionPage.on('response', (response) => {
+        const status = response.status();
+        const url = response.url();
+        if (status >= 400) {
+          console.log(`[NETWORK] ← ${status} ${url}`);
+        }
+      });
 
-      const verificationQuestions = extensionPage.locator('p:has-text("Select the")');
-      const questionCount = await verificationQuestions.count();
-      console.log(`Answering ${questionCount} seedphrase verification questions`);
+      extensionPage.on('requestfailed', (request) => {
+        console.log(`[NETWORK] ✗ FAILED ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
+      });
 
-      for (let i = 0; i < questionCount; i++) {
-        const questionText = await verificationQuestions.nth(i).textContent();
+      try {
+        console.log('Verifying manual wallet creation flow...');
 
-        if (questionText?.includes('first word')) {
-          const firstWord = seedphraseWordsArray[0];
-          const firstWordButton = extensionPage.getByRole('button', { name: firstWord, exact: true }).first();
-          await firstWordButton.waitFor({ state: 'visible', timeout: 10000 });
-          await firstWordButton.click();
-          console.log(`Selected first word: ${firstWord}`);
-        } else if (questionText?.includes('last word')) {
-          const lastWord = seedphraseWordsArray[seedphraseWordsArray.length - 1];
-          const lastWordButton = extensionPage.getByRole('button', { name: lastWord, exact: true }).first();
-          await lastWordButton.waitFor({ state: 'visible', timeout: 10000 });
-          await lastWordButton.click();
-          console.log(`Selected last word: ${lastWord}`);
-        } else if (questionText?.includes('comes after')) {
-          const wordMatch = questionText.match(/comes after.*?([a-z]+)/i);
-          if (wordMatch) {
-            const afterWord = wordMatch[1].toLowerCase();
-            const afterWordIndex = seedphraseWordsArray.indexOf(afterWord);
-            if (afterWordIndex !== -1 && afterWordIndex < seedphraseWordsArray.length - 1) {
-              const nextWord = seedphraseWordsArray[afterWordIndex + 1];
-              console.log(`Looking for word "${nextWord}" that comes after "${afterWord}"`);
-              const nextWordButton = extensionPage.getByRole('button', { name: nextWord, exact: true }).first();
-              await nextWordButton.waitFor({ state: 'visible', timeout: 10000 });
-              await nextWordButton.click();
-              console.log(`Selected word after "${afterWord}": ${nextWord}`);
+        const onboardingPage = new OnboardingPage(extensionPage);
+        const walletPassword = TEST_CONFIG.wallet.password;
+
+        await onboardingPage.clickElement(onboardingPage.createWalletButton);
+        console.log('Clicked "Manually create new wallet" button');
+
+        await onboardingPage.newSeedphraseTitle.waitFor({ state: 'visible', timeout: 10000 });
+        console.log('New seedphrase screen loaded');
+
+        await expect(onboardingPage.newSeedphraseTitle).toBeVisible();
+        console.log('Verified: Recovery phrase title is visible');
+
+        const listItems = extensionPage.locator('ol li');
+        await listItems.first().waitFor({ state: 'visible', timeout: 5000 });
+
+        const seedphraseWordsArray: string[] = [];
+        const count = await listItems.count();
+        for (let i = 0; i < count; i++) {
+          const itemText = await listItems.nth(i).locator('p').first().textContent();
+          if (itemText && itemText.trim()) {
+            seedphraseWordsArray.push(itemText.trim());
+          }
+        }
+
+        expect(seedphraseWordsArray.length).toBeGreaterThan(0);
+        console.log(`Verified: ${seedphraseWordsArray.length} seedphrase words are displayed`);
+
+        await expect(onboardingPage.copyPhraseButton).toBeVisible();
+        console.log('Verified: Copy phrase button is visible');
+
+        await expect(onboardingPage.nextButton).toBeDisabled();
+        console.log('Verified: Next button is disabled initially');
+
+        await onboardingPage.createWalletTermsCheckbox.check();
+        console.log('Checked terms checkbox');
+
+        await expect(onboardingPage.nextButton).toBeEnabled({ timeout: 5000 });
+        console.log('Verified: Next button is enabled after accepting terms');
+
+        await onboardingPage.nextButton.click();
+        console.log('Clicked Next button - navigating to verify seedphrase page');
+
+        await onboardingPage.verifySeedphraseTitle.waitFor({ state: 'visible', timeout: 10000 });
+        console.log('Verify seedphrase screen loaded');
+
+        await expect(onboardingPage.verifySeedphraseTitle).toBeVisible();
+        console.log('Verified: Verify recovery phrase title is visible');
+
+        // Wait for all verification buttons to be fully loaded
+        await extensionPage.waitForTimeout(2000);
+        await extensionPage.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {
+          console.log('Network not idle, continuing with verification...');
+        });
+
+        const verificationButtons = await onboardingPage.seedphraseVerificationButtons.all();
+        expect(verificationButtons.length).toBeGreaterThan(0);
+        console.log(`Verified: ${verificationButtons.length} verification buttons are available`);
+
+        const verificationQuestions = extensionPage.locator('p:has-text("Select the")');
+        const questionCount = await verificationQuestions.count();
+        console.log(`Answering ${questionCount} seedphrase verification questions`);
+
+        for (let i = 0; i < questionCount; i++) {
+          const questionText = await verificationQuestions.nth(i).textContent();
+
+          if (questionText?.includes('first word')) {
+            const firstWord = seedphraseWordsArray[0];
+            const firstWordButton = extensionPage.getByRole('button', { name: firstWord, exact: true }).first();
+            await firstWordButton.waitFor({ state: 'visible', timeout: 10000 });
+            await firstWordButton.click();
+            console.log(`Selected first word: ${firstWord}`);
+          } else if (questionText?.includes('last word')) {
+            const lastWord = seedphraseWordsArray[seedphraseWordsArray.length - 1];
+            const lastWordButton = extensionPage.getByRole('button', { name: lastWord, exact: true }).first();
+            await lastWordButton.waitFor({ state: 'visible', timeout: 10000 });
+            await lastWordButton.click();
+            console.log(`Selected last word: ${lastWord}`);
+          } else if (questionText?.includes('comes after')) {
+            const wordMatch = questionText.match(/comes after.*?([a-z]+)/i);
+            if (wordMatch) {
+              const afterWord = wordMatch[1].toLowerCase();
+              const afterWordIndex = seedphraseWordsArray.indexOf(afterWord);
+              if (afterWordIndex !== -1 && afterWordIndex < seedphraseWordsArray.length - 1) {
+                const nextWord = seedphraseWordsArray[afterWordIndex + 1];
+                console.log(`Looking for word "${nextWord}" that comes after "${afterWord}"`);
+                const nextWordButton = extensionPage.getByRole('button', { name: nextWord, exact: true }).first();
+                await nextWordButton.waitFor({ state: 'visible', timeout: 10000 });
+                await nextWordButton.click();
+                console.log(`Selected word after "${afterWord}": ${nextWord}`);
+              }
             }
           }
         }
+
+        await expect(onboardingPage.nextButton).toBeEnabled({ timeout: 5000 });
+        console.log('Verified: Next button is enabled after seedphrase verification');
+
+        await onboardingPage.nextButton.click();
+        console.log('Clicked Next button - navigating to wallet details page');
+
+        await onboardingPage.fillWalletDetails('My New Wallet', walletPassword);
+        console.log('Wallet details filled with password validation');
+
+        await expect(onboardingPage.nextButton).toBeEnabled({ timeout: 10000 });
+        console.log('Verified: Next button is enabled with all mandatory fields filled');
+
+        await onboardingPage.verifyPolicyLinks();
+        console.log('Verified: Policy links navigate correctly');
+
+        await onboardingPage.testNewsletterEmail();
+        console.log('Verified: Newsletter email validation');
+
+        await expect(onboardingPage.nextButton).toBeEnabled();
+        await onboardingPage.completePostWalletSetup();
+
+        console.log('Successful end-to-end wallet creation completed');
+      } finally {
+        // Stop tracing and save trace file (always, even on failure)
+        const tracePath = testInfo.outputPath('trace.zip');
+        await context.tracing.stop({ path: tracePath });
+        console.log(`[TRACE] Saved to: ${tracePath}`);
+        console.log(`[TRACE] View with: npx playwright show-trace ${tracePath}`);
       }
-
-      await expect(onboardingPage.nextButton).toBeEnabled({ timeout: 5000 });
-      console.log('Verified: Next button is enabled after seedphrase verification');
-
-      await onboardingPage.nextButton.click();
-      console.log('Clicked Next button - navigating to wallet details page');
-
-      await onboardingPage.fillWalletDetails('My New Wallet', walletPassword);
-      console.log('Wallet details filled with password validation');
-
-      await expect(onboardingPage.nextButton).toBeEnabled({ timeout: 10000 });
-      console.log('Verified: Next button is enabled with all mandatory fields filled');
-
-      await onboardingPage.verifyPolicyLinks();
-      console.log('Verified: Policy links navigate correctly');
-
-      await onboardingPage.testNewsletterEmail();
-      console.log('Verified: Newsletter email validation');
-
-      await expect(onboardingPage.nextButton).toBeEnabled();
-      await onboardingPage.completePostWalletSetup();
-
-      console.log('Successful end-to-end wallet creation completed');
     },
   );
 });
