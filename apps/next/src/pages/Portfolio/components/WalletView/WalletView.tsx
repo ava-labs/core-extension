@@ -26,6 +26,7 @@ import {
 import { useMemo } from 'react';
 import { useNetworksWithBalance } from './hooks/useNetworksWithBalance';
 import { MdError } from 'react-icons/md';
+import { SecretType } from '@core/types';
 
 // Avatars from avatar-dictionary.ts
 const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
@@ -107,11 +108,23 @@ const WalletViewContent = () => {
     [currencyFormatter],
   );
 
+  const walletIconSize = useMemo(() => {
+    if (!wallet) return 29;
+    return wallet.type === SecretType.LedgerLive ||
+      wallet.type === SecretType.Ledger ||
+      wallet.type === SecretType.Seedless
+      ? 19
+      : wallet.type === SecretType.Keystone ||
+          wallet.type === SecretType.Keystone3Pro
+        ? 17.6
+        : 26.5;
+  }, [wallet]);
+
   if (!wallet) return null;
 
   return (
     <Stack p={1} mt={2} gap={1}>
-      <Stack gap={1}>
+      <Stack gap={1} ml={0.5}>
         <Stack
           direction="row"
           alignItems="center"
@@ -119,14 +132,14 @@ const WalletViewContent = () => {
           color="text.secondary"
         >
           <WalletIcon
-            size={29}
+            size={walletIconSize}
             type={wallet.type}
             authProvider={wallet.authProvider}
           />
           <Typography variant="h2">{wallet?.name}</Typography>
         </Stack>
         {isLoading && (
-          <Stack height={56.5} justifyContent="center" ml={0.5}>
+          <Stack height={48.5} justifyContent="flex-start">
             <Stack direction="row" alignItems="center" gap={1}>
               <Typography variant="h2">{placeholderTotalBalance}</Typography>
               <Typography variant="h7">{currency}</Typography>
@@ -135,7 +148,7 @@ const WalletViewContent = () => {
           </Stack>
         )}
         {!isLoading && (
-          <Stack ml={0.5}>
+          <Stack>
             <Stack direction="row" alignItems="baseline" gap={0.5}>
               <Typography variant="h2">
                 {totalBalanceInCurrency !== undefined

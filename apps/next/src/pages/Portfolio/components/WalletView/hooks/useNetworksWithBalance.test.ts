@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { TokenType } from '@avalabs/vm-module-types';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { Account, AccountType } from '@core/types';

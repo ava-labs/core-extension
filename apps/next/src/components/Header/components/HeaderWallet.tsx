@@ -72,9 +72,9 @@ export const HeaderWallet: FC<Props> = ({ wallet }) => {
   }, [wallet.name]);
 
   return (
-    <Container>
+    <Container onClick={() => history.push('/account-management')}>
       <PersonalAvatar cached size="xsmall" />
-      <WalletNameContainer onClick={() => history.push('/account-management')}>
+      <WalletNameContainer>
         <TruncatedText
           ref={walletTextRef}
           variant="subtitle3"

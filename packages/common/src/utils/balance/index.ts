@@ -4,4 +4,3 @@ export * from './groupTokensByType';
 export * from './isTokenWithBalanceAVM';
 export * from './isTokenWithBalancePVM';
 export * from './getMaxUtxos';
-export * from './rounding';

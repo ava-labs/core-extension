@@ -261,19 +261,22 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
   const { currencyFormatter, currency } = useSettingsContext();
 
   const walletTotalBalance = useMemo(() => {
+    const placeholderTotalBalance = currencyFormatter(0).replace('0.00', ' -');
+    const placeholderBalance = `${placeholderTotalBalance} ${currency}`;
+
     if (isTrueWallet) {
       return totalBalanceInCurrency
         ? `${currencyFormatter(totalBalanceInCurrency)} ${currency}`
-        : `- ${currency}`;
+        : placeholderBalance;
     }
     const accountForBalance = getAccountById(wallet.id);
     if (!accountForBalance) {
-      return `- ${currency}`;
+      return placeholderBalance;
     }
     const accountBalance = getTotalBalance(accountForBalance?.addressC);
     return accountBalance && accountBalance.sum
       ? `${currencyFormatter(accountBalance.sum)} ${currency}`
-      : `- ${currency}`;
+      : placeholderBalance;
   }, [
     currency,
     currencyFormatter,
