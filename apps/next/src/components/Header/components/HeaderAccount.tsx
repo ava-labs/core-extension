@@ -235,6 +235,7 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
   // Hover state
   const [isWalletHovered, setIsWalletHovered] = useState(false);
   const [isAccountHovered, setIsAccountHovered] = useState(false);
+  const [isAddressListHovered, setIsAddressListHovered] = useState(false);
   const [isContainerHovered, setIsContainerHovered] = useState(false);
 
   // Layout state (calculated from text widths)
@@ -391,11 +392,13 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
           {account?.name}
         </TruncatedText>
         {isContainerHovered && <Label variant="caption">Account</Label>}
-        <AddressList
-          isAddressAppear={isAccountHovered}
-          activeAccount={account}
-        />
       </AccountSection>
+      <AddressList
+        isAddressAppear={isAccountHovered || isAddressListHovered}
+        activeAccount={account}
+        onMouseEnter={() => setIsAddressListHovered(true)}
+        onMouseLeave={() => setIsAddressListHovered(false)}
+      />
     </Container>
   );
 };
