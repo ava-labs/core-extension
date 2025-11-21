@@ -2,11 +2,19 @@ import { DARK_THEME_SURFACE_COLOR } from '@/config';
 import {
   Card as K2Card,
   CardContent as K2CardContent,
+  CardProps as K2CardProps,
   styled,
 } from '@avalabs/k2-alpine';
 
-export const Card = styled(K2Card)(({ theme }) => ({
-  paddingBlock: theme.spacing(0.5),
+type OwnProps = {
+  noPadding?: boolean;
+};
+type Props = K2CardProps & OwnProps;
+
+export const Card = styled(K2Card, {
+  shouldForwardProp: (prop) => prop !== ('noPadding' satisfies keyof Props),
+})<Props>(({ theme, noPadding }) => ({
+  paddingBlock: noPadding ? 0 : theme.spacing(0.5),
   backgroundColor:
     // Discussing the right color for dark mode with the design team right now.
     // The previous one was rgba(255, 255, 255, 0.1), which led to issues when trying

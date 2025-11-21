@@ -22,14 +22,16 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
         'https://glacier-api.avax.network/somethingsomething',
       ),
     ).toBe(
-      'https://glacier-api.avax.network/somethingsomething?token=glacierapikey',
+      'https://glacier-api.avax.network/somethingsomething?rltoken=glacierapikey',
     );
   });
 
   it('adds key on the domain from the `GLACIER_URL`` env var', () => {
     expect(
       addGlacierAPIKeyIfNeeded(`${process.env.GLACIER_URL}/somethingsomething`),
-    ).toBe(`${process.env.GLACIER_URL}/somethingsomething?token=glacierapikey`);
+    ).toBe(
+      `${process.env.GLACIER_URL}/somethingsomething?rltoken=glacierapikey`,
+    );
   });
 
   it('adds key on the production `proxy-api.avax.network` domain', () => {
@@ -38,14 +40,14 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
         'https://proxy-api.avax.network/somethingsomething',
       ),
     ).toBe(
-      'https://proxy-api.avax.network/somethingsomething?token=glacierapikey',
+      'https://proxy-api.avax.network/somethingsomething?rltoken=glacierapikey',
     );
   });
 
   it('adds key on the domain from the `PROXY_URL`` env var', () => {
     expect(
       addGlacierAPIKeyIfNeeded(`${process.env.PROXY_URL}/somethingsomething`),
-    ).toBe(`${process.env.PROXY_URL}/somethingsomething?token=glacierapikey`);
+    ).toBe(`${process.env.PROXY_URL}/somethingsomething?rltoken=glacierapikey`);
   });
 
   it('supports query params', () => {
@@ -54,7 +56,7 @@ describe('utils/addGlacierAPIKeyIfNeeded', () => {
         'https://glacier-api.avax.network/somethingsomething?aa=123',
       ),
     ).toBe(
-      'https://glacier-api.avax.network/somethingsomething?aa=123&token=glacierapikey',
+      'https://glacier-api.avax.network/somethingsomething?aa=123&rltoken=glacierapikey',
     );
   });
 

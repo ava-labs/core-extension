@@ -5,7 +5,7 @@ import { isUserRejectionError } from './errors';
  */
 export async function handleTxOutcome<T>(txRequestPromise: Promise<T>): Promise<
   | {
-      isApproved: boolean;
+      isApproved: true;
       result: T;
       error?: never;
       hasError: false;
@@ -25,11 +25,11 @@ export async function handleTxOutcome<T>(txRequestPromise: Promise<T>): Promise<
       hasError: false,
       result,
     };
-  } catch (err) {
+  } catch (error) {
     return {
-      isApproved: !isUserRejectionError(err),
+      isApproved: !isUserRejectionError(error),
       hasError: true,
-      error: err,
+      error,
     };
   }
 }

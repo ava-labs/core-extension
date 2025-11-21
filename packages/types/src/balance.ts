@@ -191,10 +191,19 @@ export type NonFungibleTokenBalance = NftTokenWithBalance & {
 };
 
 export const getUniqueTokenId = <T extends FungibleTokenBalance>(token: T) => {
+  const normalizedSymbol = isEvmFungibleToken(token)
+    ? token.symbol.toLowerCase()
+    : token.symbol;
+  const normalizedAddress = isNativeToken(token)
+    ? undefined
+    : isEvmFungibleToken(token)
+      ? token.address.toLowerCase()
+      : token.address;
+
   return getUniqueTokenIdGeneric({
     type: token.type,
-    symbol: token.symbol,
-    address: token.type === TokenType.NATIVE ? undefined : token.address,
+    symbol: normalizedSymbol,
+    address: normalizedAddress,
     coreChainId: token.coreChainId,
   });
 };
@@ -210,7 +219,7 @@ export const getUniqueTokenIdGeneric = ({
   address?: string;
   coreChainId: number;
 }) => {
-  return `${type}:${symbol}:${type === TokenType.NATIVE ? '-' : address}:${coreChainId}`;
+  return `${type}:${symbol}:${address ?? '-'}:${coreChainId}`;
 };
 
 export const isNativeToken = (
