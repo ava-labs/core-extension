@@ -187,20 +187,16 @@ describe('background/services/wallet/WalletService.ts', () => {
         {
           key: 'evm',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.BIP44,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
         },
         {
           key: 'xp',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.BIP44,
-            'AVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'AVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
         },
       ],
       extendedPublicKeys: [],
@@ -235,21 +231,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       publicKeys: [
         {
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           key: 'evm',
         },
         {
           key: 'xp',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'AVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
         },
       ],
       walletId: WALLET_ID,
@@ -329,10 +321,10 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     jest
       .mocked(getAddressDerivationPath)
-      .mockImplementation((index, pathSpec, vm) => {
+      .mockImplementation((index, vm, options) => {
         const coin = vm === 'EVM' ? 60 : 9000;
 
-        return pathSpec === DerivationPath.BIP44
+        return options?.pathSpec === DerivationPath.BIP44
           ? `m/44'/${coin}'/0'/0/${index}`
           : `m/44'/${coin}'/${index}'/0/0`;
       });
@@ -1470,20 +1462,16 @@ describe('background/services/wallet/WalletService.ts', () => {
               {
                 key: evmPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.LedgerLive,
-                  'EVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'EVM', {
+                  pathSpec: DerivationPath.LedgerLive,
+                }),
               },
               {
                 key: xpPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.LedgerLive,
-                  'AVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'AVM', {
+                  pathSpec: DerivationPath.LedgerLive,
+                }),
               },
             ],
           },
@@ -1505,20 +1493,16 @@ describe('background/services/wallet/WalletService.ts', () => {
               {
                 key: evmPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.BIP44,
-                  'EVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'EVM', {
+                  pathSpec: DerivationPath.BIP44,
+                }),
               },
               {
                 key: xpPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.BIP44,
-                  'AVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'AVM', {
+                  pathSpec: DerivationPath.BIP44,
+                }),
               },
             ],
           },
@@ -1717,23 +1701,21 @@ describe('background/services/wallet/WalletService.ts', () => {
           publicKeys: [
             buildAddressPublicKey(
               '11111111',
-              getAddressDerivationPath(
-                0,
-                secretType === SecretType.LedgerLive
-                  ? DerivationPath.LedgerLive
-                  : DerivationPath.BIP44,
-                'PVM',
-              ),
+              getAddressDerivationPath(0, 'PVM', {
+                pathSpec:
+                  secretType === SecretType.LedgerLive
+                    ? DerivationPath.LedgerLive
+                    : DerivationPath.BIP44,
+              }),
             ),
             buildAddressPublicKey(
               '22222222',
-              getAddressDerivationPath(
-                1,
-                secretType === SecretType.LedgerLive
-                  ? DerivationPath.LedgerLive
-                  : DerivationPath.BIP44,
-                'PVM',
-              ),
+              getAddressDerivationPath(1, 'PVM', {
+                pathSpec:
+                  secretType === SecretType.LedgerLive
+                    ? DerivationPath.LedgerLive
+                    : DerivationPath.BIP44,
+              }),
             ),
           ],
         } as any);

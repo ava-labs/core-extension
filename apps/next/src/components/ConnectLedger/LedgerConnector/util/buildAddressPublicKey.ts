@@ -1,5 +1,8 @@
 import { hex } from '@scure/base';
-import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
+import {
+  DerivationPath,
+  getAddressDerivationPath,
+} from '@avalabs/core-wallets-sdk';
 import { VM } from '@avalabs/avalanchejs';
 import { AddressPublicKeyJson, Curve } from '@core/types';
 
@@ -8,10 +11,11 @@ export function buildAddressPublicKey(
   vm: VM | 'SVM',
   accountIndex: number,
   curve: Curve,
+  pathSpec: DerivationPath,
 ): AddressPublicKeyJson {
   return {
     curve,
-    derivationPath: getAddressDerivationPath(accountIndex, vm),
+    derivationPath: getAddressDerivationPath(accountIndex, vm, { pathSpec }),
     type: 'address-pubkey',
     key: hex.encode(Uint8Array.from(key)),
   };

@@ -171,7 +171,9 @@ export class ImportLedgerHandler implements HandlerType {
         publicKeys.push({
           curve: 'secp256k1',
           key: pubKey.evm,
-          derivationPath: getAddressDerivationPath(index, 'EVM'),
+          derivationPath: getAddressDerivationPath(index, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           type: 'address-pubkey',
         });
 

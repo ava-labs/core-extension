@@ -1,6 +1,7 @@
 import {
   Avalanche,
   DerivationPath,
+  getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
 } from '@avalabs/core-wallets-sdk';
 import { CallbackManager } from '~/runtime/CallbackManager';
@@ -26,8 +27,9 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import * as utils from './utils';
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from './AddressResolver';
-import { mapVMAddresses } from '@core/common';
+import { getAvalancheExtendedKeyPath, mapVMAddresses } from '@core/common';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { AddressPublicKey } from './AddressPublicKey';
 
 jest.mock('../storage/StorageService');
 jest.mock('../walletConnect/WalletConnectService');
@@ -259,6 +261,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           ],
           id: ACTIVE_WALLET_ID,
           secretType: SecretType.LedgerLive,
+          extendedPublicKeys: [],
           ...additionalData,
         },
       ],
@@ -1131,6 +1134,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
                 existingSecrets.wallets[0]?.derivationPathSpec,
               id: ACTIVE_WALLET_ID,
               secretType: SecretType.LedgerLive,
+              extendedPublicKeys: [],
               publicKeys: [
                 {
                   ...existingSecrets.wallets[0]?.publicKeys[0],
@@ -1209,7 +1213,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
       addressResolver.getDerivationPathsByVM.mockImplementation(
         (accountIndex) => ({
           [NetworkVMType.EVM]: `m/44'/60'/0'/0/${accountIndex}`,
-          [NetworkVMType.AVM]: `m/44'/9000'/0'/0/${accountIndex}`,
+          [NetworkVMType.AVM]: `m/44'/9000'/${accountIndex}'/0/0`,
           [NetworkVMType.HVM]: `m/44'/9000'/0'/0'/${accountIndex}'`,
         }),
       );
@@ -1256,13 +1260,12 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             ledgerService,
             addressResolver,
           }),
-          LedgerError.NoPublicKeyReturned,
+          LedgerError.NoExtendedPublicKeyReturned,
         );
-        expect(getPubKeyFromTransport).toHaveBeenCalledWith(
+        expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
           transportMock,
-          1,
-          DerivationPath.LedgerLive,
-          'EVM',
+          false,
+          EVM_BASE_DERIVATION_PATH,
         );
       });
 
@@ -1270,14 +1273,24 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         const transportMock = {} as LedgerTransport;
         mockLedgerLiveWallet({
           publicKeys: [],
+          extendedPublicKeys: [
+            {
+              type: 'extended-pubkey',
+              key: 'evm',
+              derivationPath: EVM_BASE_DERIVATION_PATH,
+              curve: 'secp256k1',
+            },
+          ],
         });
         jest
           .spyOn(ledgerService, 'recentTransport', 'get')
           .mockReturnValue(transportMock);
 
-        (getPubKeyFromTransport as jest.Mock)
-          .mockReturnValueOnce(Buffer.from('evm'))
-          .mockReturnValueOnce(Buffer.from(''));
+        (getLedgerExtendedPublicKey as jest.Mock).mockResolvedValueOnce('');
+
+        jest
+          .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
+          .mockReturnValueOnce({ toJSON: () => ({ key: 'evm' }) } as any);
 
         await expectToThrowErrorCode(
           secretsService.addAddress({
@@ -1286,19 +1299,12 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             ledgerService,
             addressResolver,
           }),
-          LedgerError.NoPublicKeyReturned,
+          LedgerError.NoExtendedPublicKeyReturned,
         );
-        expect(getPubKeyFromTransport).toHaveBeenCalledWith(
+        expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
           transportMock,
-          1,
-          DerivationPath.LedgerLive,
-          'EVM',
-        );
-        expect(getPubKeyFromTransport).toHaveBeenCalledWith(
-          transportMock,
-          1,
-          DerivationPath.LedgerLive,
-          'AVM',
+          false,
+          getAvalancheExtendedKeyPath(1),
         );
       });
 
