@@ -19,3 +19,6 @@ export function getIncludedNetworks(
     .map((chainId) => currentChainList[chainId])
     .filter(isNotNullish);
 }
+
+export const removeChainPrefix = (address: string) =>
+  address.replace(/^[PXC]-/i, '');
