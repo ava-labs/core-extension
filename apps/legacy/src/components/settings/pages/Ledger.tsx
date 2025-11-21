@@ -86,7 +86,7 @@ export function Ledger({ goBack, navigateTo, width }: SettingsPageProps) {
                   }
                 >
                   {walletDetails?.derivationPath === DerivationPath.LedgerLive
-                    ? t('Leger Live')
+                    ? t('Ledger Live')
                     : t('BIP44')}{' '}
                   <EditIcon size={14} />
                 </Typography>
