@@ -56,7 +56,7 @@ import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
 import { callGetAddresses } from '~/api-clients';
 import { NetworkType, postV1GetAddresses } from '~/api-clients/profile-api';
-import { profileApiClient } from '~/api-clients/clients';
+import { profileApiClient } from '~/api-clients';
 
 /**
  * Use this service to fetch, save or delete account secrets.
