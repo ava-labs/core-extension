@@ -321,47 +321,207 @@ test.describe('Onboarding', () => {
       // Enable trace for this test to debug API calls
       await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
 
+      // Create comprehensive mock translation object
+      const mockTranslations: Record<string, string> = {
+        "That's it!": "That's it!",
+        'Enjoy your wallet': 'Enjoy your wallet',
+        "Let's go!": "Let's go!",
+        'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees':
+          'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees',
+        // Add common onboarding keys as fallback
+        'Create wallet': 'Create wallet',
+        'Import wallet': 'Import wallet',
+        Next: 'Next',
+        Back: 'Back',
+        Continue: 'Continue',
+        Cancel: 'Cancel',
+        Confirm: 'Confirm',
+        Skip: 'Skip',
+      };
+
+      // Inject init script to intercept fetch/XMLHttpRequest at JavaScript level
+      // This catches requests before they even reach the network layer
+      await context.addInitScript((mockData: Record<string, string>) => {
+        // @ts-expect-error - window exists in browser context where this code runs
+        const originalFetch = window.fetch;
+        // @ts-expect-error - window exists in browser context where this code runs
+        window.fetch = function (...args: any[]) {
+          const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+          if (url && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+            console.log('[MOCK] JavaScript-level fetch intercept:', url);
+            return Promise.resolve(
+              new Response(JSON.stringify(mockData), {
+                status: 200,
+                statusText: 'OK',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                },
+              }),
+            );
+          }
+          return originalFetch.apply(this, args);
+        };
+
+        // Also intercept XMLHttpRequest (i18next-http-backend might use this)
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        XMLHttpRequest.prototype.open = function (method: string, url: string, ...rest: any[]) {
+          (this as any)._mockUrl = url;
+          return originalXHROpen.apply(this, [method, url, ...rest]);
+        };
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        XMLHttpRequest.prototype.send = function (...args: any[]) {
+          if (
+            (this as any)._mockUrl &&
+            ((this as any)._mockUrl.includes('core.app/locales') || (this as any)._mockUrl.includes('/locales/'))
+          ) {
+            console.log('[MOCK] JavaScript-level XHR intercept:', (this as any)._mockUrl);
+            setTimeout(() => {
+              Object.defineProperty(this, 'status', { value: 200, writable: false });
+              Object.defineProperty(this, 'statusText', { value: 'OK', writable: false });
+              Object.defineProperty(this, 'responseText', { value: JSON.stringify(mockData), writable: false });
+              Object.defineProperty(this, 'readyState', { value: 4, writable: false });
+              if (this.onreadystatechange) {
+                this.onreadystatechange();
+              }
+              if (this.onload) {
+                this.onload();
+              }
+            }, 0);
+            return;
+          }
+          return originalXHRSend.apply(this, args);
+        };
+      }, mockTranslations);
+
+      // Mock translation requests at CONTEXT level (intercepts network requests)
+      await context.route('**/locales/**', async (route) => {
+        const url = route.request().url();
+        const method = route.request().method();
+
+        if (method === 'GET' && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+          console.log(`[MOCK] Network-level route intercept: ${method} ${url}`);
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mockTranslations),
+          });
+          console.log(`[MOCK] Successfully mocked network response for: ${url}`);
+        } else {
+          await route.continue();
+        }
+      });
+
+      // Also set up route on the page level as backup
+      await extensionPage.route('**/locales/**', async (route) => {
+        const url = route.request().url();
+        const method = route.request().method();
+
+        if (method === 'GET' && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+          console.log(`[MOCK] Page-level route intercept: ${method} ${url}`);
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mockTranslations),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      // Also add init script to the current page (in case it already loaded)
+      await extensionPage.addInitScript((mockData: Record<string, string>) => {
+        // @ts-expect-error - window exists in browser context where this code runs
+        const originalFetch = window.fetch;
+        // @ts-expect-error - window exists in browser context where this code runs
+        window.fetch = function (...args: any[]) {
+          const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+          if (url && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+            console.log('[MOCK] Page-level fetch intercept:', url);
+            return Promise.resolve(
+              new Response(JSON.stringify(mockData), {
+                status: 200,
+                statusText: 'OK',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                },
+              }),
+            );
+          }
+          return originalFetch.apply(this, args);
+        };
+
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        const originalXHRSend = XMLHttpRequest.prototype.send;
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        XMLHttpRequest.prototype.open = function (method: string, url: string, ...rest: any[]) {
+          (this as any)._mockUrl = url;
+          return originalXHROpen.apply(this, [method, url, ...rest]);
+        };
+        // @ts-expect-error - XMLHttpRequest exists in browser context where this code runs
+        XMLHttpRequest.prototype.send = function (...args: any[]) {
+          if (
+            (this as any)._mockUrl &&
+            ((this as any)._mockUrl.includes('core.app/locales') || (this as any)._mockUrl.includes('/locales/'))
+          ) {
+            console.log('[MOCK] Page-level XHR intercept:', (this as any)._mockUrl);
+            setTimeout(() => {
+              Object.defineProperty(this, 'status', { value: 200, writable: false });
+              Object.defineProperty(this, 'statusText', { value: 'OK', writable: false });
+              Object.defineProperty(this, 'responseText', { value: JSON.stringify(mockData), writable: false });
+              Object.defineProperty(this, 'readyState', { value: 4, writable: false });
+              if (this.onreadystatechange) {
+                this.onreadystatechange();
+              }
+              if (this.onload) {
+                this.onload();
+              }
+            }, 0);
+            return;
+          }
+          return originalXHRSend.apply(this, args);
+        };
+      }, mockTranslations);
+
       // Lock theme to DARK to prevent theme switching during test
       await lockThemeToDark(extensionPage);
 
-      // Mock translation requests to prevent failures in CI
-      await extensionPage.route('https://core.app/locales/**', async (route) => {
-        const url = route.request().url();
-        console.log(`[MOCK] Mocking translation request: ${url}`);
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            "That's it!": "That's it!",
-            'Enjoy your wallet': 'Enjoy your wallet',
-            "Let's go!": "Let's go!",
-            'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees':
-              'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees',
-          }),
-        });
-      });
-
-      // Log all network requests for debugging
+      // Log all network requests for debugging (including translation requests)
       extensionPage.on('request', (request) => {
         const url = request.url();
-        if (!url.includes('core.app/locales')) {
+        if (url.includes('locales') || url.includes('core.app')) {
           console.log(`[NETWORK] → ${request.method()} ${url}`);
         }
       });
 
       extensionPage.on('response', (response) => {
-        const status = response.status();
         const url = response.url();
-        if (status >= 400 && !url.includes('core.app/locales')) {
+        const status = response.status();
+        if (url.includes('locales') || url.includes('core.app')) {
+          console.log(`[NETWORK] ← ${status} ${url}`);
+        } else if (status >= 400) {
           console.log(`[NETWORK] ← ${status} ${url}`);
         }
       });
 
       extensionPage.on('requestfailed', (request) => {
         const url = request.url();
-        if (!url.includes('core.app/locales')) {
-          console.log(`[NETWORK] ✗ FAILED ${request.method()} ${url} - ${request.failure()?.errorText}`);
-        }
+        console.log(`[NETWORK] ✗ FAILED ${request.method()} ${url} - ${request.failure()?.errorText}`);
       });
 
       try {
