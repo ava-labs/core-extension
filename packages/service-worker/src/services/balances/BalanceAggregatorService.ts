@@ -1,4 +1,4 @@
-import { OnLock, OnUnlock } from '../../runtime/lifecycleCallbacks';
+import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import {
   Account,

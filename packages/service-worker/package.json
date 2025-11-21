@@ -8,11 +8,12 @@
     "dev:next": "rsbuild build -w --config rsbuild.worker.dev.ts -- --core-gen=next",
     "build": "rsbuild build --config rsbuild.worker.prod.ts",
     "build:next": "rsbuild build --config rsbuild.worker.prod.ts -- --core-gen=next",
-    "lint": "eslint --fix \"src/**/*.ts*\"",
+    "lint": "eslint --fix \"src/**/*.ts*\" --no-warn-ignored",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "test": "yarn jest",
     "test:watch": "yarn jest --watch",
     "test:path": "yarn jest --watch --testPathPattern",
+    "api-client:prepend": "node src/api-clients/prepend-ts-nocheck.mjs",
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
@@ -145,6 +146,7 @@
     "ethers": "6.13.5",
     "file-loader": "6.2.0",
     "fs": "0.0.1-security",
+    "glob": "13.0.0",
     "globals": "15.13.0",
     "husky": "7.0.4",
     "i18next-scanner": "4.1.1",
