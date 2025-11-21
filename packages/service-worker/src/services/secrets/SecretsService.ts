@@ -100,63 +100,30 @@ export class SecretsService implements OnUnlock {
           derivationPath.startsWith(AVALANCHE_BASE_DERIVATION_PATH) &&
           curve === 'secp256k1',
       );
-      if (!avalancheExtendedPublicKeys) {
+      if (avalancheExtendedPublicKeys.length === 0) {
         return;
       }
-      const configurations = [
-        {
-          networkType: 'AVM',
-          isTestnet: false,
-          withExtraAddresses: false,
-        },
-        {
-          networkType: 'AVM',
-          isTestnet: false,
-          withExtraAddresses: true,
-        },
-        {
-          networkType: 'AVM',
-          isTestnet: true,
-          withExtraAddresses: false,
-        },
-        {
-          networkType: 'AVM',
-          isTestnet: true,
-          withExtraAddresses: true,
-        },
-        {
-          networkType: 'PVM',
-          isTestnet: false,
-          withExtraAddresses: false,
-        },
-        {
-          networkType: 'PVM',
-          isTestnet: false,
-          withExtraAddresses: true,
-        },
-        {
-          networkType: 'PVM',
-          isTestnet: true,
-          withExtraAddresses: false,
-        },
-        {
-          networkType: 'PVM',
-          isTestnet: true,
-          withExtraAddresses: true,
-        },
-      ];
 
-      avalancheExtendedPublicKeys.map((xpubKey) => {
-        configurations.map((configuration) =>
-          postV1GetAddresses({
-            client: profileApiClient,
-            body: {
-              extendedPublicKey: xpubKey.key,
-              ...configuration,
-              networkType: configuration.networkType as NetworkType,
-            },
-          }),
-        );
+      const networkTypes: NetworkType[] = ['AVM', 'PVM'];
+      const isTestnetChoice = [true, false];
+      const withExtraAddresses = [true, false];
+
+      networkTypes.map((networkType) => {
+        isTestnetChoice.map((isTestnet) => {
+          withExtraAddresses.map((withExtraAddress) => {
+            avalancheExtendedPublicKeys.map((xpubKey) => {
+              postV1GetAddresses({
+                client: profileApiClient,
+                body: {
+                  extendedPublicKey: xpubKey.key,
+                  isTestnet,
+                  networkType,
+                  withExtraAddresses: withExtraAddress,
+                },
+              });
+            });
+          });
+        });
       });
     });
   }
