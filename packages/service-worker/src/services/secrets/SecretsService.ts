@@ -31,6 +31,7 @@ import {
   LedgerError,
   AccountWithSecrets,
   ExtendedPublicKey,
+  AVALANCHE_BASE_DERIVATION_PATH,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
 import {
@@ -49,11 +50,13 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
-import { OnUnlock } from '../../runtime/lifecycleCallbacks';
+import { OnUnlock } from '~/runtime/lifecycleCallbacks';
 import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
 import { callGetAddresses } from '~/api-clients';
+import { NetworkType, postV1GetAddresses } from '~/api-clients/profile-api';
+import { profileApiClient } from '~/api-clients/clients';
 
 /**
  * Use this service to fetch, save or delete account secrets.
