@@ -15,16 +15,30 @@ import {
   useNetworkContext,
 } from '@core/ui';
 
-export const useNetworksWithBalance = (
-  walletId: string,
-): Record<string, NetworkWithCaipId[]> => {
-  const { getAccountsByWalletId } = useAccountsContext();
+type Props = {
+  walletId?: string;
+  accountId?: string;
+};
+export const useNetworksWithBalance = ({
+  walletId,
+  accountId,
+}: Props): Record<string, NetworkWithCaipId[]> => {
+  const { getAccountsByWalletId, getAccount } = useAccountsContext();
   const { getNetwork } = useNetworkContext();
   const {
     balances: { tokens: tokensByChain },
   } = useBalancesContext();
 
-  const accounts = getAccountsByWalletId(walletId);
+  const accounts = useMemo(() => {
+    if (walletId) {
+      return getAccountsByWalletId(walletId);
+    }
+    if (accountId) {
+      const account = getAccount(accountId);
+      return account ? [account] : [];
+    }
+    return [];
+  }, [walletId, accountId, getAccountsByWalletId, getAccount]);
 
   return useMemo(() => {
     const networksPerAccount: Record<string, NetworkWithCaipId[]> = {};
@@ -58,10 +72,10 @@ export const useNetworksWithBalance = (
       for (const [address, addressBalances] of Object.entries(
         chainBalances ?? {},
       )) {
-        const accountId = addressToAccountId.get(address);
-        if (accountId) {
+        const currentAccountId = addressToAccountId.get(address);
+        if (currentAccountId) {
           // Skip if we already know this account has balance on this network
-          if (networksPerAccountSet.get(accountId)?.has(chainIdNum)) {
+          if (networksPerAccountSet.get(currentAccountId)?.has(chainIdNum)) {
             continue;
           }
 
@@ -71,14 +85,17 @@ export const useNetworksWithBalance = (
           );
 
           if (hasBalance) {
-            networksPerAccountSet.get(accountId)?.add(chainIdNum);
+            networksPerAccountSet.get(currentAccountId)?.add(chainIdNum);
           }
         }
       }
     }
 
     // Convert network IDs to NetworkWithCaipId objects and sort by priority
-    for (const [accountId, networkIds] of networksPerAccountSet.entries()) {
+    for (const [
+      currentAccountId,
+      networkIds,
+    ] of networksPerAccountSet.entries()) {
       const networks: NetworkWithCaipId[] = [];
       for (const chainId of networkIds) {
         const network = getNetwork(chainId);
@@ -102,7 +119,7 @@ export const useNetworksWithBalance = (
         return getPriority(a) - getPriority(b);
       });
 
-      networksPerAccount[accountId] = networks;
+      networksPerAccount[currentAccountId] = networks;
     }
 
     return networksPerAccount;

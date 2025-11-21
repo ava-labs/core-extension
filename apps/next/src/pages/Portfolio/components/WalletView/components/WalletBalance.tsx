@@ -8,35 +8,44 @@ import {
 import { BalanceChange } from '../../BalanceChange';
 import { MdError } from 'react-icons/md';
 import { Trans } from 'react-i18next';
-import { SecretType, WalletDetails } from '@core/types';
+import { SecretType, SeedlessAuthProvider } from '@core/types';
 import { useMemo } from 'react';
-import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
+import { useSettingsContext } from '@core/ui';
 
 type Props = {
-  wallet: WalletDetails;
+  walletType?: SecretType;
+  walletAuthProvider?: SeedlessAuthProvider;
+  walletName?: string;
+  isLoading: boolean;
+  hasErrorOccurred: boolean;
+  totalBalanceInCurrency?: number;
+  balanceChange?: number;
+  percentageChange?: number;
 };
-export const WalletBalance = ({ wallet }: Props) => {
+export const WalletBalance = ({
+  walletType,
+  walletAuthProvider,
+  walletName,
+  isLoading,
+  hasErrorOccurred,
+  totalBalanceInCurrency,
+  balanceChange,
+  percentageChange,
+}: Props) => {
   const theme = useTheme();
   const { currencyFormatter, currency } = useSettingsContext();
-  const {
-    isLoading,
-    hasErrorOccurred,
-    totalBalanceInCurrency,
-    balanceChange,
-    percentageChange,
-  } = useWalletTotalBalance(wallet.id);
 
   const walletIconSize = useMemo(() => {
-    if (!wallet) return 29;
-    return wallet.type === SecretType.LedgerLive ||
-      wallet.type === SecretType.Ledger ||
-      wallet.type === SecretType.Seedless
+    if (!walletType) return 19;
+    return walletType === SecretType.LedgerLive ||
+      walletType === SecretType.Ledger ||
+      walletType === SecretType.Seedless
       ? 19
-      : wallet.type === SecretType.Keystone ||
-          wallet.type === SecretType.Keystone3Pro
+      : walletType === SecretType.Keystone ||
+          walletType === SecretType.Keystone3Pro
         ? 17.6
         : 26.5;
-  }, [wallet]);
+  }, [walletType]);
 
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),
@@ -46,12 +55,15 @@ export const WalletBalance = ({ wallet }: Props) => {
   return (
     <Stack gap={1} ml={0.5}>
       <Stack direction="row" alignItems="center" gap={1} color="text.secondary">
-        <WalletIcon
-          size={walletIconSize}
-          type={wallet.type}
-          authProvider={wallet.authProvider}
-        />
-        <Typography variant="h2">{wallet?.name}</Typography>
+        {walletType && (
+          <WalletIcon
+            size={walletIconSize}
+            type={walletType}
+            authProvider={walletAuthProvider}
+          />
+        )}
+
+        <Typography variant="h2">{walletName}</Typography>
       </Stack>
       {isLoading && (
         <Stack height={48.5} justifyContent="flex-start">

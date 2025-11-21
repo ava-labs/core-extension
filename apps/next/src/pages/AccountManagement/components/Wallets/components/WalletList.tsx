@@ -5,13 +5,19 @@ import { useTranslation } from 'react-i18next';
 import { AccountListItem } from './AccountListItem';
 import { WalletCard } from '@/components/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
+import { useHistory } from 'react-router-dom';
 
 export const WalletList: FC = () => {
   const { t } = useTranslation();
   const { wallets } = useWalletContext();
+  const history = useHistory();
   const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
   const importedAccounts = Object.values(accounts.imported);
-  const renderAccount = getAccountRenderer(isActiveAccount, selectAccount);
+  const renderAccount = getAccountRenderer(
+    isActiveAccount,
+    selectAccount,
+    history,
+  );
 
   return (
     <>
@@ -54,10 +60,12 @@ export const WalletList: FC = () => {
 };
 
 type AccountsCtx = ReturnType<typeof useAccountsContext>;
+type History = ReturnType<typeof useHistory>;
 const getAccountRenderer =
   (
     isActiveAccount: AccountsCtx['isActiveAccount'],
     selectAccount: AccountsCtx['selectAccount'],
+    history: History,
   ) =>
   // eslint-disable-next-line react/display-name
   (account: Account) => (
@@ -65,6 +73,9 @@ const getAccountRenderer =
       key={account.id}
       account={account}
       active={isActiveAccount(account.id)}
-      onSelect={selectAccount}
+      onSelect={() => {
+        selectAccount(account.id);
+        history.push(`/portfolio`);
+      }}
     />
   );
