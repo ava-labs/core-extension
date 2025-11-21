@@ -28,7 +28,7 @@ export const WalletError = () => {
         marginBottom={3}
       >
         {t(
-          'Could not find the wallet you are looking for. \n Please select different wallet.',
+          'Could not find the wallet you are looking for. \n Please select a different wallet.',
         )}
       </Typography>
       <Button
