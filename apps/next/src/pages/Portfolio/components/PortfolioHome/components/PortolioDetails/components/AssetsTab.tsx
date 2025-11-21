@@ -6,7 +6,11 @@ import { useHistory } from 'react-router-dom';
 import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 import { getUniqueTokenId } from '@core/types';
-import { useNetworkContext, useBalancesContext } from '@core/ui';
+import {
+  useNetworkContext,
+  useBalancesContext,
+  useLiveBalance,
+} from '@core/ui';
 
 import { AssetCard } from './AssetCard';
 import {
@@ -18,6 +22,7 @@ import { SortMenu } from './SortMenu';
 import { AssetSortOption, sortAssets } from '../utils/assetSorting';
 import { AssetsEmptyState } from './AssetsEmptyState';
 import { AssetsErrorState } from './AssetsErrorState';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
@@ -68,6 +73,8 @@ export const AssetsTab: FC = () => {
   const handleSortMenuClose = () => {
     setSortMenuElement(null);
   };
+
+  useLiveBalance([TokenType.NATIVE, TokenType.ERC20]);
 
   return (
     <Stack direction="column" gap={1.25} height={1}>
