@@ -6,6 +6,7 @@ import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../../contexts';
 import { TransferResult } from '../../hooks';
+import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
 import {
   BannerTop,
   BridgeControls,
@@ -108,6 +109,7 @@ export const BridgeTransactionForm: FC<Props> = ({
         <BridgeControls />
       </Stack>
       <BridgeErrorMessage error={error} />
+      <BitcoinBridgeInfo />
       <Stack
         width="100%"
         flexGrow={1}
