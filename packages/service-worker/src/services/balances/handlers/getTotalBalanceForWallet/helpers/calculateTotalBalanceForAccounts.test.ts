@@ -13,7 +13,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
         sum: 100,
         priceChange: {
           percentage: [0],
-          value: 0,
+          value: 10,
         },
       })
       .mockReturnValueOnce({
@@ -34,7 +34,7 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
         sum: 1500,
         priceChange: {
           percentage: [0],
-          value: 0,
+          value: 25,
         },
       });
 
@@ -92,6 +92,9 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       balances,
     );
 
-    expect(result).toEqual(1600);
+    expect(result).toEqual({
+      balance: 1600, // 100 + 0 + 0 + 1500
+      priceChangeValue: 35, // 10 + 0 + 0 + 25
+    });
   });
 });

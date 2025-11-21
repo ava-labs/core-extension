@@ -49,6 +49,7 @@ const AccountsContext = createContext<
       getAccount(address: string): Account | undefined;
       getAccountById(id: string): Account | undefined;
       getAccountByIndex(index: number): Account | undefined;
+      getAccountsByWalletId(walletId: string): Account[];
     }
   | undefined
 >(undefined);
@@ -194,6 +195,15 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
     [accounts.active, accounts.primary],
   );
 
+  const getAccountsByWalletId = useCallback(
+    (walletId: string) => {
+      return allAccounts.filter((acc) =>
+        isPrimaryAccount(acc) ? acc.walletId === walletId : walletId === acc.id,
+      );
+    },
+    [allAccounts],
+  );
+
   return (
     <AccountsContext.Provider
       value={{
@@ -209,6 +219,7 @@ export function AccountsContextProvider({ children }: PropsWithChildren) {
         renameAccount,
         addAccount,
         deleteAccounts,
+        getAccountsByWalletId,
       }}
     >
       {children}

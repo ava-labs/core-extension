@@ -215,8 +215,20 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     },
   };
 
-  const buildBalance = (symbolOrAddress: string, value: number) => ({
-    [symbolOrAddress]: { balanceInCurrency: value } as TokenWithBalance,
+  const buildBalance = (
+    symbolOrAddress: string,
+    value: number,
+    priceChangeValue?: number,
+  ) => ({
+    [symbolOrAddress]: {
+      balanceInCurrency: value,
+      ...(priceChangeValue !== undefined && {
+        priceChanges: {
+          value: priceChangeValue,
+          percentage: 0, // Not used in the calculation, but required by type
+        },
+      }),
+    } as TokenWithBalance,
   });
 
   const mockBalances = (
@@ -354,6 +366,8 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 125,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
   });
@@ -402,6 +416,8 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 43750,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
   });
@@ -480,6 +496,8 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 17510,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
 
@@ -529,6 +547,8 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 17510,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
 
@@ -625,7 +645,238 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: true,
         totalBalanceInCurrency: 201440, // 200000 on underived accounts + 1440 on those mocked by default (already derived)
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
+    });
+  });
+
+  describe('balance change and percentage change calculations', () => {
+    beforeEach(() => {
+      mockEnv(true);
+      mockAccounts();
+      mockSecrets(undefined); // No XP for simplicity
+    });
+
+    it('calculates positive balance change and percentage correctly', async () => {
+      // Current balance: 100, Price change: +10 => Previous balance: 90
+      // Percentage change: (10 / 90) * 100 = 11.11%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, 10), // balance: 100, priceChange: +10
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeCloseTo(11.11, 2);
+    });
+
+    it('calculates negative balance change and percentage correctly', async () => {
+      // Current balance: 100, Price change: -20 => Previous balance: 120
+      // Percentage change: (-20 / 120) * 100 = -16.67%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, -20), // balance: 100, priceChange: -20
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBe(-20);
+      expect(response.result?.percentageChange).toBeCloseTo(-16.67, 2);
+    });
+
+    it('aggregates price changes across multiple accounts correctly', async () => {
+      // Account 0: balance 100, change +10
+      // Account 1: balance 200, change -30
+      // Total: balance 300, change -20
+      // Previous balance: 320
+      // Percentage: (-20 / 320) * 100 = -6.25%
+      let callCount = 0;
+      balanceAggregatorService.getBalancesForNetworks.mockImplementation(
+        async () => {
+          callCount++;
+          if (callCount === 1) {
+            // First account
+            return {
+              nfts: {},
+              tokens: {
+                [ChainId.AVALANCHE_MAINNET_ID]: {
+                  [ACCOUNT_SEED_0.addressC]: {
+                    ...buildBalance('AVAX', 100, 10),
+                  },
+                },
+              },
+            };
+          } else {
+            // Second account
+            return {
+              nfts: {},
+              tokens: {
+                [ChainId.AVALANCHE_MAINNET_ID]: {
+                  [ACCOUNT_SEED_1.addressC]: {
+                    ...buildBalance('AVAX', 200, -30),
+                  },
+                },
+              },
+            };
+          }
+        },
+      );
+
+      const response = await handleRequest('seedphrase');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(300);
+      expect(response.result?.balanceChange).toBe(-20);
+      expect(response.result?.percentageChange).toBeCloseTo(-6.25, 2);
+    });
+
+    it('returns undefined for balanceChange when priceChange is 0', async () => {
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, 0), // No price change
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBeUndefined();
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('returns undefined for balanceChange when no priceChanges data exists', async () => {
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100), // No priceChanges field
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBeUndefined();
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('returns undefined for percentageChange when totalBalance is 0', async () => {
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 0, 10),
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(0);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('returns undefined for percentageChange when previous balance is 0 or negative', async () => {
+      // Current balance: 10, Price change: +10 => Previous balance: 0
+      // Cannot calculate percentage change from 0
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 10, 10),
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(10);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('aggregates price changes across multiple tokens in same account', async () => {
+      // AVAX: balance 100, change +10
+      // BTC: balance 50, change +5
+      // Total: balance 150, change +15
+      // Previous balance: 135
+      // Percentage: (15 / 135) * 100 = 11.11%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, 10),
+              ...buildBalance('BTC.b', 50, 5),
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(150);
+      expect(response.result?.balanceChange).toBe(15);
+      expect(response.result?.percentageChange).toBeCloseTo(11.11, 2);
+    });
+
+    it('handles mixed positive and negative price changes on same network', async () => {
+      // C-Chain AVAX: balance 100, change +20
+      // C-Chain USDC: balance 100, change -10
+      // Total: balance 200, change +10 (20 + (-10))
+      // Previous balance: 190 (200 - 10)
+      // Percentage: (10 / 190) * 100 = 5.26%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              AVAX: {
+                balanceInCurrency: 100,
+                priceChanges: { value: 20, percentage: 0 },
+              } as TokenWithBalance,
+              USDC: {
+                balanceInCurrency: 100,
+                priceChanges: { value: -10, percentage: 0 },
+              } as TokenWithBalance,
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(200);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeCloseTo(5.26, 2);
     });
   });
 });

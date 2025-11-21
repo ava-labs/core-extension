@@ -86,14 +86,7 @@ export function calculateTotalBalance(
             sumTotal.priceChange.percentage.push(token.priceChanges.percentage);
           }
 
-          return {
-            sum: sumTotal.sum,
-            priceChange: {
-              value:
-                sumTotal.priceChange.value + (token.priceChanges?.value ?? 0),
-              percentage: sumTotal.priceChange.percentage,
-            },
-          };
+          return sumTotal;
         },
         { sum: 0, priceChange: { value: 0, percentage: [] } },
       );

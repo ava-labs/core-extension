@@ -54,7 +54,6 @@ describe('utils/calculateTotalBalance', () => {
     balanceInCurrency: 5,
     priceInCurrency: 5,
     priceChanges: {
-      currentPrice: 5,
       percentage: 0,
       value: 0,
     },
@@ -199,5 +198,225 @@ describe('utils/calculateTotalBalance', () => {
 
     // Should use regular balanceInCurrency for non-AVAX tokens
     expect(balance.sum).toBe(150);
+  });
+
+  describe('price change calculations', () => {
+    it('should correctly aggregate positive price change for single token', () => {
+      const token: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: 10,
+          value: 10, // +$10 price change
+        },
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: token,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance(account, networks, testBalances);
+
+      expect(result.sum).toBe(100);
+      expect(result.priceChange.value).toBe(10);
+      expect(result.priceChange.percentage).toEqual([10]);
+    });
+
+    it('should correctly aggregate negative price change for single token', () => {
+      const token: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: -15,
+          value: -15, // -$15 price change
+        },
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: token,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance(account, networks, testBalances);
+
+      expect(result.sum).toBe(100);
+      expect(result.priceChange.value).toBe(-15);
+      expect(result.priceChange.percentage).toEqual([-15]);
+    });
+
+    it('should aggregate price changes across multiple tokens on same chain', () => {
+      const avaxToken: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'AVAX',
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: 5,
+          value: 20, // +$20
+        },
+      };
+
+      const usdcToken: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'USDC',
+        balanceInCurrency: 50,
+        priceChanges: {
+          percentage: -2,
+          value: -5, // -$5
+        },
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: avaxToken,
+            USDC: usdcToken,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance(account, networks, testBalances);
+
+      expect(result.sum).toBe(150); // 100 + 50
+      expect(result.priceChange.value).toBe(15); // 20 + (-5) = 15
+      expect(result.priceChange.percentage).toEqual([5, -2]); // AVAX, then USDC
+    });
+
+    it('should aggregate price changes across multiple chains', () => {
+      const cChainToken: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'AVAX',
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: 10,
+          value: 25, // +$25
+        },
+      };
+
+      const dfkToken: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'JEWEL',
+        balanceInCurrency: 75,
+        priceChanges: {
+          percentage: -5,
+          value: -10, // -$10
+        },
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: cChainToken,
+          },
+        },
+        [ChainId.DFK.toString()]: {
+          [account.addressC]: {
+            JEWEL: dfkToken,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+        createBaseNetwork(ChainId.DFK, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance(account, networks, testBalances);
+
+      expect(result.sum).toBe(175); // 100 + 75
+      expect(result.priceChange.value).toBe(15); // 25 + (-10) = 15
+      expect(result.priceChange.percentage).toEqual([-5, 10]);
+    });
+
+    it('should handle tokens without priceChanges field', () => {
+      const tokenWithPriceChange: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'AVAX',
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: 10,
+          value: 20,
+        },
+      };
+
+      const tokenWithoutPriceChange: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'USDC',
+        balanceInCurrency: 50,
+        // No priceChanges field
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: tokenWithPriceChange,
+            USDC: tokenWithoutPriceChange,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance(account, networks, testBalances);
+
+      expect(result.sum).toBe(150); // 100 + 50
+      expect(result.priceChange.value).toBe(20); // Only AVAX contributes
+      expect(result.priceChange.percentage).toEqual([10]);
+    });
+
+    it('should not double-count price changes', () => {
+      // This is a regression test for the bug where priceChanges.value was added twice
+      const token: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: 10,
+          value: 10,
+        },
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: token,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance(account, networks, testBalances);
+
+      // Should be 10, not 20 (which would indicate double-counting)
+      expect(result.priceChange.value).toBe(10);
+    });
   });
 });
