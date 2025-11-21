@@ -26,13 +26,22 @@ export const AddressCopyBox = ({ address, addressType }: Props) => {
 
   return (
     <Card>
-      <Stack direction="row" alignItems="center" gap={1.5} py={1} px={1.5}>
-        <ChainIcon size={32} />
-        <Stack gap={0.5}>
-          <Typography variant="subtitle3">{chainLabel}</Typography>
-          <Typography variant="mono2" sx={{ wordBreak: 'break-all' }}>
-            {address}
-          </Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={1.5}
+        py={1}
+        px={1.5}
+      >
+        <Stack direction="row" alignItems="center" gap={1.5}>
+          <ChainIcon size={32} />
+          <Stack>
+            <Typography variant="subtitle3">{chainLabel}</Typography>
+            <Typography variant="mono2" sx={{ wordBreak: 'break-all' }}>
+              {address}
+            </Typography>
+          </Stack>
         </Stack>
         <Button
           size="small"

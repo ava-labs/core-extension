@@ -1,14 +1,12 @@
 import { ActionButtons } from '@/components/ActionButtons';
 import { StandaloneField } from '@/components/StandaloneField';
 import { useSubmitButton } from '@/hooks/useSubmitButton';
-import { Typography } from '@avalabs/k2-alpine';
 import { FC, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ViewHost } from '../../ViewHost';
 import { validateName } from '../utils/validateName';
+import { Stack } from '@avalabs/k2-alpine';
 
 type Props = {
-  label: string;
   name: string;
   onSave: (newName: string) => void;
   onCancel: () => void;
@@ -16,7 +14,6 @@ type Props = {
 
 export const RenameForm: FC<Props> = ({
   name: currentName,
-  label,
   onSave,
   onCancel,
 }) => {
@@ -29,8 +26,7 @@ export const RenameForm: FC<Props> = ({
   const isError = touchedRef.current && !validation.success;
 
   return (
-    <ViewHost in>
-      <Typography variant="h2">{label}</Typography>
+    <Stack flexGrow={1}>
       <StandaloneField
         value={name}
         placeholder={currentName}
@@ -57,6 +53,6 @@ export const RenameForm: FC<Props> = ({
           onClick: onCancel,
         }}
       />
-    </ViewHost>
+    </Stack>
   );
 };

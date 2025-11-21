@@ -1,7 +1,6 @@
-import { ActionButtons } from '@/components/ActionButtons';
 import { Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { Account, SecretType } from '@core/types';
-import { useAccountManager, useWalletContext } from '@core/ui';
+import { useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AddressesCard } from './AddressesCard';
@@ -14,21 +13,18 @@ const Scroller = styled('div')({
 
 type Props = {
   account: Account;
-  onRename: () => void;
-  onRemove: () => void;
 };
 
-export const DetailsView: FC<Props> = ({ account, onRename, onRemove }) => {
+export const DetailsView: FC<Props> = ({ account }) => {
   const { t } = useTranslation();
 
   const { getWallet } = useWalletContext();
-  const { isAccountSelectable } = useAccountManager();
 
   const isPrimaryAccount = account.type === 'primary';
   const wallet = isPrimaryAccount ? getWallet(account.walletId) : undefined;
 
   return (
-    <>
+    <Stack flexGrow={1}>
       <AccountDetailsHeader account={account} />
       <Scroller>
         <Stack direction="column" gap={1.5}>
@@ -49,20 +45,6 @@ export const DetailsView: FC<Props> = ({ account, onRename, onRemove }) => {
           </Typography>
         </Stack>
       </Scroller>
-      <ActionButtons
-        top={{
-          label: t('Rename'),
-          onClick: onRename,
-          color: 'secondary',
-        }}
-        bottom={{
-          label: t('Remove account'),
-          onClick: onRemove,
-          color: 'secondary',
-          panic: true,
-          disabled: !isAccountSelectable(account),
-        }}
-      />
-    </>
+    </Stack>
   );
 };

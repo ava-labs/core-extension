@@ -58,7 +58,12 @@ export const Page = ({
         <Stack px={px ?? 1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
           {title && (
             <Stack gap={1}>
-              <Stack direction="row" gap={1} justifyContent="space-between">
+              <Stack
+                direction="row"
+                gap={1}
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Typography
                   variant="h2"
                   ref={ref}

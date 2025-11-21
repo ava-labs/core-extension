@@ -32,7 +32,8 @@ export const AccountBalance: FC<Props> = ({ account, selected }) => {
       <Typography
         variant="body3"
         component="span"
-        color={selected ? 'text.primary' : 'text.disabled'}
+        fontWeight={selected ? 600 : 400}
+        color="text.primary"
       >
         {currencyFormatter(balance?.sum ?? 0)}
       </Typography>

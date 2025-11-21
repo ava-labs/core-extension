@@ -12,11 +12,17 @@ export const textProps: ListItemTextProps = {
       },
     },
     primary: {
+      fontWeight: 500,
       variant: 'subtitle3',
     },
     secondary: {
       variant: 'body3',
       textAlign: 'end',
+      sx: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+      },
     },
   },
 };

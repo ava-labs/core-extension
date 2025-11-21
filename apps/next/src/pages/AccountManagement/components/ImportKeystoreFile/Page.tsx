@@ -1,6 +1,6 @@
 import { FC, useCallback, useState } from 'react';
-import { Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
+import { Page } from '@/components/Page';
 import { KeystoreError } from '@core/types';
 import { KeystoreFileUpload } from './components/KeystoreFileUpload';
 import { KeystoreFilePassword } from './components/KeystoreFilePassword';
@@ -32,15 +32,14 @@ export const ImportKeystoreFile: FC = () => {
   }, [file]);
 
   return (
-    <Stack
-      sx={{
-        width: '100%',
-        height: '100%',
+    <Page
+      title={t('Upload keystore file')}
+      withBackButton
+      containerProps={{
+        mt: 3,
       }}
+      contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
     >
-      <Stack direction="row" mt={2.5} mb={3} pr={1}>
-        <Typography variant="h2">{t('Upload keystore file')}</Typography>
-      </Stack>
       {step === 'ChooseFile' && (
         <KeystoreFileUpload
           file={file}
@@ -59,6 +58,6 @@ export const ImportKeystoreFile: FC = () => {
       {step === 'Error' && error && (
         <KeystoreFileError error={error} onTryAgain={reset} />
       )}
-    </Stack>
+    </Page>
   );
 };

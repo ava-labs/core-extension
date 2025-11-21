@@ -1,9 +1,10 @@
 import { FC } from 'react';
 import { ImportPrivateKeyForm } from './components/ImportPrivateKeyForm';
-import { Stack, toast } from '@avalabs/k2-alpine';
+import { toast } from '@avalabs/k2-alpine';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { Page } from '@/components/Page';
 import { useImportPrivateKey } from './hooks/useImportPrivateKey';
 import { DuplicatedAccountConfirmation } from './components/DuplicatedAccountConfirmation';
 import { useAnalyticsContext, useAccountsContext } from '@core/ui';
@@ -35,7 +36,14 @@ export const ImportPrivateKey: FC = () => {
   }, [importPrivateKey, privateKey, selectAccount, t, replace, capture]);
 
   return (
-    <Stack sx={{ height: '100%' }}>
+    <Page
+      title={t('Import private key')}
+      withBackButton
+      containerProps={{
+        mt: 3,
+      }}
+      contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
+    >
       {isDuplicatedAccountDialogOpen ? (
         <DuplicatedAccountConfirmation
           onImportDuplicate={handleImport}
@@ -50,6 +58,6 @@ export const ImportPrivateKey: FC = () => {
           setIsDuplicatedAccountDialogOpen={setIsDuplicatedAccountDialogOpen}
         />
       )}
-    </Stack>
+    </Page>
   );
 };
