@@ -347,7 +347,7 @@ test.describe('Onboarding', () => {
         // @ts-expect-error - window exists in browser context where this code runs
         window.fetch = function (...args: any[]) {
           const url = typeof args[0] === 'string' ? args[0] : args[0].url;
-          if (url && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+          if (url && (url.includes('locales') || url.includes('translation') || url.includes('i18n'))) {
             console.log('[MOCK] JavaScript-level fetch intercept:', url);
             return Promise.resolve(
               new Response(JSON.stringify(mockData), {
@@ -377,7 +377,9 @@ test.describe('Onboarding', () => {
         XMLHttpRequest.prototype.send = function (...args: any[]) {
           if (
             (this as any)._mockUrl &&
-            ((this as any)._mockUrl.includes('core.app/locales') || (this as any)._mockUrl.includes('/locales/'))
+            ((this as any)._mockUrl.includes('locales') ||
+              (this as any)._mockUrl.includes('translation') ||
+              (this as any)._mockUrl.includes('i18n'))
           ) {
             console.log('[MOCK] JavaScript-level XHR intercept:', (this as any)._mockUrl);
             setTimeout(() => {
@@ -398,12 +400,35 @@ test.describe('Onboarding', () => {
         };
       }, mockTranslations);
 
+      // Log ALL network requests to see what's happening
+      context.on('request', (request) => {
+        const url = request.url();
+        if (url.includes('locales') || url.includes('translation') || url.includes('i18n')) {
+          console.log(`[NETWORK-ALL] → ${request.method()} ${url}`);
+        }
+      });
+
+      context.on('response', (response) => {
+        const url = response.url();
+        if (url.includes('locales') || url.includes('translation') || url.includes('i18n')) {
+          console.log(`[NETWORK-ALL] ← ${response.status()} ${url}`);
+        }
+      });
+
+      context.on('requestfailed', (request) => {
+        const url = request.url();
+        if (url.includes('locales') || url.includes('translation') || url.includes('i18n')) {
+          console.log(`[NETWORK-ALL] ✗ FAILED ${request.method()} ${url} - ${request.failure()?.errorText}`);
+        }
+      });
+
       // Mock translation requests at CONTEXT level (intercepts network requests)
-      await context.route('**/locales/**', async (route) => {
+      // Use more permissive patterns to catch all possible translation URLs
+      await context.route('**/*locales**', async (route) => {
         const url = route.request().url();
         const method = route.request().method();
 
-        if (method === 'GET' && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+        if (method === 'GET' && (url.includes('locales') || url.includes('translation') || url.includes('i18n'))) {
           console.log(`[MOCK] Network-level route intercept: ${method} ${url}`);
           await route.fulfill({
             status: 200,
@@ -420,13 +445,55 @@ test.describe('Onboarding', () => {
         }
       });
 
-      // Also set up route on the page level as backup
-      await extensionPage.route('**/locales/**', async (route) => {
+      // Also intercept any requests to core.app that might be translation-related
+      await context.route('https://core.app/**', async (route) => {
         const url = route.request().url();
         const method = route.request().method();
 
-        if (method === 'GET' && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+        if (method === 'GET' && (url.includes('locales') || url.includes('translation'))) {
+          console.log(`[MOCK] core.app route intercept: ${method} ${url}`);
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mockTranslations),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      // Also set up route on the page level as backup (more permissive pattern)
+      await extensionPage.route('**/*locales**', async (route) => {
+        const url = route.request().url();
+        const method = route.request().method();
+
+        if (method === 'GET' && (url.includes('locales') || url.includes('translation') || url.includes('i18n'))) {
           console.log(`[MOCK] Page-level route intercept: ${method} ${url}`);
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(mockTranslations),
+          });
+        } else {
+          await route.continue();
+        }
+      });
+
+      // Also intercept core.app requests on page level
+      await extensionPage.route('https://core.app/**', async (route) => {
+        const url = route.request().url();
+        const method = route.request().method();
+
+        if (method === 'GET' && (url.includes('locales') || url.includes('translation'))) {
+          console.log(`[MOCK] Page-level core.app intercept: ${method} ${url}`);
           await route.fulfill({
             status: 200,
             contentType: 'application/json',
@@ -448,7 +515,7 @@ test.describe('Onboarding', () => {
         // @ts-expect-error - window exists in browser context where this code runs
         window.fetch = function (...args: any[]) {
           const url = typeof args[0] === 'string' ? args[0] : args[0].url;
-          if (url && (url.includes('core.app/locales') || url.includes('/locales/'))) {
+          if (url && (url.includes('locales') || url.includes('translation') || url.includes('i18n'))) {
             console.log('[MOCK] Page-level fetch intercept:', url);
             return Promise.resolve(
               new Response(JSON.stringify(mockData), {
@@ -477,7 +544,9 @@ test.describe('Onboarding', () => {
         XMLHttpRequest.prototype.send = function (...args: any[]) {
           if (
             (this as any)._mockUrl &&
-            ((this as any)._mockUrl.includes('core.app/locales') || (this as any)._mockUrl.includes('/locales/'))
+            ((this as any)._mockUrl.includes('locales') ||
+              (this as any)._mockUrl.includes('translation') ||
+              (this as any)._mockUrl.includes('i18n'))
           ) {
             console.log('[MOCK] Page-level XHR intercept:', (this as any)._mockUrl);
             setTimeout(() => {
@@ -500,6 +569,10 @@ test.describe('Onboarding', () => {
 
       // Lock theme to DARK to prevent theme switching during test
       await lockThemeToDark(extensionPage);
+
+      // Log current page state
+      console.log(`[SETUP] Routes configured. Current page URL: ${extensionPage.url()}`);
+      console.log(`[SETUP] Translation mocking active. Waiting for translation requests...`);
 
       // Log all network requests for debugging (including translation requests)
       extensionPage.on('request', (request) => {
