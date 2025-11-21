@@ -154,3 +154,95 @@ export async function switchToTab(context: BrowserContext, urlPattern: string): 
   await targetPage.bringToFront();
   return targetPage;
 }
+
+/**
+ * Lock theme to DARK to prevent theme switching during tests
+ * This prevents theme flickering issues during onboarding
+ *
+ * Approach: Override prefers-color-scheme media query to always return 'dark'
+ * This prevents SYSTEM theme from switching to light mode
+ */
+export async function lockThemeToDark(page: Page): Promise<void> {
+  console.log('[THEME] Locking theme to DARK by overriding media queries...');
+
+  try {
+    // Inject script to override matchMedia and set theme in storage
+    await page.evaluate(() => {
+      // Override matchMedia to always return dark for prefers-color-scheme
+      const originalMatchMedia = window.matchMedia;
+      window.matchMedia = function (query: string) {
+        if (query === '(prefers-color-scheme: dark)' || query === '(prefers-color-scheme: light)') {
+          return {
+            matches: query === '(prefers-color-scheme: dark)',
+            media: query,
+            onchange: null,
+            addListener: () => {},
+            removeListener: () => {},
+            addEventListener: () => {},
+            removeEventListener: () => {},
+            dispatchEvent: () => true,
+          } as MediaQueryList;
+        }
+        return originalMatchMedia.call(window, query);
+      };
+
+      // Also try to set theme in storage if chrome API is available
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+        chrome.storage.local.get(['settings'], (result) => {
+          if (!chrome.runtime.lastError && result.settings) {
+            try {
+              const settings = typeof result.settings === 'string' ? JSON.parse(result.settings) : result.settings;
+              if (settings.theme !== 'DARK') {
+                settings.theme = 'DARK';
+                chrome.storage.local.set({ settings }, () => {
+                  if (!chrome.runtime.lastError) {
+                    console.log('[THEME] Theme set to DARK in storage');
+                  }
+                });
+              }
+            } catch (_e) {
+              // Ignore parsing errors
+            }
+          } else {
+            // If no settings exist, create them with DARK theme
+            chrome.storage.local.set(
+              {
+                settings: { theme: 'DARK' },
+              },
+              () => {
+                if (!chrome.runtime.lastError) {
+                  console.log('[THEME] Created settings with DARK theme');
+                }
+              },
+            );
+          }
+        });
+      }
+    });
+
+    // Also add init script for future navigations
+    await page.addInitScript(() => {
+      const originalMatchMedia = window.matchMedia;
+      window.matchMedia = function (query: string) {
+        if (query === '(prefers-color-scheme: dark)' || query === '(prefers-color-scheme: light)') {
+          return {
+            matches: query === '(prefers-color-scheme: dark)',
+            media: query,
+            onchange: null,
+            addListener: () => {},
+            removeListener: () => {},
+            addEventListener: () => {},
+            removeEventListener: () => {},
+            dispatchEvent: () => true,
+          } as MediaQueryList;
+        }
+        return originalMatchMedia.call(window, query);
+      };
+    });
+
+    console.log('[THEME] Theme locked to DARK via media query override');
+  } catch (error) {
+    console.warn('[THEME] Failed to lock theme, continuing anyway:', error);
+    // Don't fail the test if theme locking fails
+  }
+}

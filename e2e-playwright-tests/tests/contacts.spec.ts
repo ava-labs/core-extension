@@ -6,7 +6,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, when I have no contacts I see an empty state',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -27,7 +26,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can add a new contact',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -57,7 +55,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can see Avalanche CXP Chain, BTC, and Solana addresses for contacts',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -97,7 +94,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can copy an address from the contact details',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -143,7 +139,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can edit an existing contact',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -186,7 +181,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can search for a contact',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -260,7 +254,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, when I search for a non existent contact I see No contacts match your search state',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -293,7 +286,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can delete a contact',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {
@@ -332,7 +324,6 @@ test.describe('Contacts', () => {
   test(
     'As a CORE ext user, I can delete one contact when multiple contacts exist',
     {
-      tag: '@smoke',
       annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
     },
     async ({ unlockedExtensionPage }, testInfo) => {

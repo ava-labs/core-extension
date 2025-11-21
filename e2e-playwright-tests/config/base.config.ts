@@ -46,7 +46,7 @@ export default defineConfig({
   timeout: 120000,
   expect: { timeout: 10000 },
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0, // Temporarily disabled retries to focus on problematic tests
   workers: getWorkers(),
   fullyParallel: fullyParallel,
   reporter: [process.env.CI ? ['junit', testRailOptions] : ['html'], ['list']],
