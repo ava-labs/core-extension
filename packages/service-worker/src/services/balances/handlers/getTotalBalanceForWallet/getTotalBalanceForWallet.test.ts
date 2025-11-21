@@ -15,6 +15,7 @@ import {
   Balances,
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
+  AddressPublicKeyJson,
 } from '@core/types';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import type { SecretsService } from '~/services/secrets/SecretsService';
@@ -28,6 +29,7 @@ import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
+import { hex } from '@scure/base';
 
 jest.mock('./helpers/getAccountsWithActivity');
 
@@ -42,7 +44,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
   const networkService: jest.Mocked<NetworkService> = {
     getAvalanceProviderXP: jest.fn(),
-    getFavoriteNetworks: jest.fn(),
+    getEnabledNetworks: jest.fn(),
     getNetwork: jest.fn(),
     isMainnet: jest.fn(),
     activeNetworks: {
@@ -65,7 +67,9 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     ChainId.ETHEREUM_HOMESTEAD,
     ChainId.ETHEREUM_TEST_SEPOLIA,
   ];
-  const PROVIDER_XP = {} as any;
+  const PROVIDER_XP = {
+    getAddress: jest.fn(),
+  } as any;
 
   const MAINNETS = {
     [ChainId.AVALANCHE_MAINNET_ID]: {
@@ -144,9 +148,13 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     accountsService.getAccounts.mockResolvedValue(accounts);
   };
 
-  const mockSecrets = (xpubXP?: string) => {
+  const mockSecrets = (
+    xpubXP?: string,
+    xpPublicKeys?: AddressPublicKeyJson[],
+  ) => {
     secretsService.getWalletAccountsSecretsById.mockResolvedValueOnce({
       secretType: SecretType.Mnemonic,
+      publicKeys: xpPublicKeys ?? [],
       extendedPublicKeys: xpubXP
         ? [buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH)]
         : [],
@@ -301,7 +309,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   beforeEach(() => {
     jest.resetAllMocks();
 
-    networkService.getFavoriteNetworks.mockResolvedValue(FAVORITE_NETWORKS);
+    networkService.getEnabledNetworks.mockResolvedValue(FAVORITE_NETWORKS);
     networkService.getNetwork.mockImplementation(
       (chainId) => MAINNETS[chainId] ?? TESTNETS[chainId],
     );
@@ -372,7 +380,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     });
   });
 
-  describe('when requested wallet does not include XP public key', () => {
+  describe('when requested wallet does not include xpubXP or any XP public keys', () => {
     beforeEach(() => {
       mockEnv(true);
       mockAccounts();
@@ -648,6 +656,56 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         balanceChange: undefined,
         percentageChange: undefined,
       });
+    });
+  });
+  describe('when requested wallet does has additional XP public keys for some accounts', () => {
+    const keys = ['00000001', '00000002'];
+    const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
+      type: 'address-pubkey',
+      key,
+      derivationPath: `m/44'/9000'/0'/0/${index + 1}`,
+      curve: 'secp256k1',
+    }));
+
+    beforeEach(() => {
+      mockEnv(true);
+      mockAccounts();
+      mockBalances(true);
+      mockSecrets(undefined, additionalXPKeys); // We've got additional XP public keys
+
+      PROVIDER_XP.getAddress.mockImplementation(
+        (key) => `X-${hex.encode(Uint8Array.from(key))}`,
+      );
+    });
+
+    it('fetches balances for the additional XP public keys', async () => {
+      const unresolvedAddresses = [
+        'avaxUnresolvedAddress-1',
+        'avaxUnresolvedAddress-2',
+      ];
+      mockAccountsWithActivity(unresolvedAddresses);
+
+      const response = await handleRequest('seedphrase');
+      expect(response.error).toBeUndefined();
+      expect(getAccountsWithActivity).not.toHaveBeenCalled();
+
+      additionalXPKeys.forEach((key, index) => {
+        expect(PROVIDER_XP.getAddress).toHaveBeenNthCalledWith(
+          index + 1,
+          Buffer.from(hex.decode(key.key)),
+          'X',
+        );
+      });
+
+      // Expect calls for X/P balances of the addresses derived from the additional X/P keys
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenCalledWith(
+        expect.arrayContaining([ChainId.AVALANCHE_X, ChainId.AVALANCHE_P]),
+        keys.map((key) => ({ addressPVM: `P-${key}`, addressAVM: `X-${key}` })),
+        [TokenType.NATIVE],
+        false,
+      );
     });
   });
 
