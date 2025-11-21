@@ -1,4 +1,4 @@
-jest.mock('~/api-clients/clients', () => ({
+jest.mock('~/api-clients', () => ({
   profileApiClient: jest.fn(),
 }));
 jest.mock('~/api-clients/profile-api', () => ({
