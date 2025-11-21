@@ -6,6 +6,7 @@ import {
   BitcoinProviderAbstract,
   BitcoinWallet,
   createWalletPolicy,
+  DerivationPath,
   getAddressDerivationPath,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
@@ -365,6 +366,7 @@ export class WalletService implements OnUnlock {
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
           'EVM',
+          { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
@@ -565,6 +567,7 @@ export class WalletService implements OnUnlock {
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
           'EVM',
+          { pathSpec: DerivationPath.LedgerLive },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
@@ -605,6 +608,7 @@ export class WalletService implements OnUnlock {
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
           'EVM',
+          { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
@@ -986,6 +990,7 @@ export class WalletService implements OnUnlock {
     const derivationPathEVM = getAddressDerivationPath(
       secrets.account.index,
       'EVM',
+      { pathSpec: secrets.derivationPathSpec },
     );
     const derivationPathAVM = getAddressDerivationPath(
       secrets.account.index,
@@ -1293,6 +1298,7 @@ export class WalletService implements OnUnlock {
         getAddressDerivationPath(index, chainAlias === 'X' ? 'AVM' : 'PVM'),
       );
 
+      // TODO: something is not yes here. try extended keys first and only then fall back to the legacy XP paths????
       const publicKeys = derivationPaths
         .map((derivationPath) =>
           getPublicKeyFor(secrets, derivationPath, 'secp256k1'),

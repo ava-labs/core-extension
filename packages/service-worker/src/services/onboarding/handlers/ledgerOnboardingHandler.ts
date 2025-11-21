@@ -139,7 +139,9 @@ export class LedgerOnboardingHandler implements HandlerType {
         publicKeys.push({
           curve: 'secp256k1',
           key: pubKey.evm,
-          derivationPath: getAddressDerivationPath(index, 'EVM'),
+          derivationPath: getAddressDerivationPath(index, 'EVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
           type: 'address-pubkey',
         });
 

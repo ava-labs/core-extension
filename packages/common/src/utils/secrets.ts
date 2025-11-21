@@ -73,5 +73,7 @@ export const getAvalancheXPub = (
 
 export const getEvmExtendedKeyPath = () => EVM_BASE_DERIVATION_PATH;
 
+export const getAvalancheXpBasePath = () => `m/44'/9000'/`;
+
 export const getAvalancheExtendedKeyPath = (accountIndex: number) =>
-  `m/44'/9000'/${accountIndex}'`;
+  `${getAvalancheXpBasePath()}${accountIndex}'`;

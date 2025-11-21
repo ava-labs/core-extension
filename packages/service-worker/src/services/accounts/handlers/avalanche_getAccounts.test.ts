@@ -90,10 +90,13 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
             type: 'extended-pubkey',
           },
         ],
+        publicKeys: [],
       } as any)
       .mockResolvedValue({
         secretType: SecretType.LedgerLive,
         name: 'My Ledger Wallet',
+        publicKeys: [],
+        extendedPublicKeys: [],
       } as any);
     jest.mocked(secretsService.getImportedAccountSecrets).mockResolvedValue({
       secretType: SecretType.PrivateKey,

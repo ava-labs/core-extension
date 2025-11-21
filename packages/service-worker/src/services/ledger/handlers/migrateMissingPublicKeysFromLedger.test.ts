@@ -35,21 +35,17 @@ const mapLegacyPubKeys = (pubKeys: PubKeyType[]): AddressPublicKeyJson[] =>
       AddressPublicKey.fromJSON({
         key: evm,
         curve: 'secp256k1',
-        derivationPath: getAddressDerivationPath(
-          index,
-          DerivationPath.LedgerLive,
-          'EVM',
-        ),
+        derivationPath: getAddressDerivationPath(index, 'EVM', {
+          pathSpec: DerivationPath.LedgerLive,
+        }),
       }).toJSON(),
       xp
         ? AddressPublicKey.fromJSON({
             key: xp,
             curve: 'secp256k1',
-            derivationPath: getAddressDerivationPath(
-              index,
-              DerivationPath.LedgerLive,
-              'AVM',
-            ),
+            derivationPath: getAddressDerivationPath(index, 'AVM', {
+              pathSpec: DerivationPath.LedgerLive,
+            }),
           }).toJSON()
         : undefined,
     ])

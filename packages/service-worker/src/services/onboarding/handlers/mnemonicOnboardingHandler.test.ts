@@ -138,6 +138,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(getXpubFromMnemonic).toHaveBeenCalledWith(mnemonic.toLowerCase());
     expect(Avalanche.getXpubFromMnemonic).toHaveBeenCalledWith(
       mnemonic.toLowerCase(),
+      0,
     );
 
     expect(result).toEqual({
@@ -191,7 +192,6 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
 
     expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
       walletId: WALLET_ID,
-      addFirstAccount: true,
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);
