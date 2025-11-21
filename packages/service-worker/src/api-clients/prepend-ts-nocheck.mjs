@@ -8,8 +8,6 @@ const __dirname = dirname(__filename);
 
 const filesToModify = ['queryKeySerializer.gen.ts'];
 
-console.log('asdasdasdas', __dirname);
-
 const files = glob.sync(__dirname + '/**/*');
 
 const filteredFiles = files.filter((fileWithPath) =>
