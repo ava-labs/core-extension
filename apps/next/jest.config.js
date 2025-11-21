@@ -5,7 +5,6 @@ module.exports = {
   preset: 'ts-jest',
   resolver: '<rootDir>/../../src/tests/resolver.js',
   testEnvironment: 'jest-environment-jsdom',
-  setupFiles: ['<rootDir>/../../src/tests/mockClientApis.ts'],
   setupFilesAfterEnv: ['<rootDir>/../../src/tests/setupTests.ts'],
   moduleNameMapper: {
     '^@/(.*)': '<rootDir>/src/$1',
