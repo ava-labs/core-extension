@@ -405,24 +405,15 @@ test.describe('Onboarding', () => {
 
       // Log ALL network requests to see what's happening
       context.on('request', (request) => {
-        const url = request.url();
-        if (url.includes('locales') || url.includes('translation') || url.includes('i18n')) {
-          console.log(`[NETWORK-ALL] → ${request.method()} ${url}`);
-        }
+        console.log(`[NETWORK-ALL] → ${request.method()} ${request.url()}`);
       });
 
       context.on('response', (response) => {
-        const url = response.url();
-        if (url.includes('locales') || url.includes('translation') || url.includes('i18n')) {
-          console.log(`[NETWORK-ALL] ← ${response.status()} ${url}`);
-        }
+        console.log(`[NETWORK-ALL] ← ${response.status()} ${response.url()}`);
       });
 
       context.on('requestfailed', (request) => {
-        const url = request.url();
-        if (url.includes('locales') || url.includes('translation') || url.includes('i18n')) {
-          console.log(`[NETWORK-ALL] ✗ FAILED ${request.method()} ${url} - ${request.failure()?.errorText}`);
-        }
+        console.log(`[NETWORK-ALL] ✗ FAILED ${request.method()} ${request.url()} - ${request.failure()?.errorText}`);
       });
 
       // Mock translation requests at CONTEXT level (intercepts network requests)
