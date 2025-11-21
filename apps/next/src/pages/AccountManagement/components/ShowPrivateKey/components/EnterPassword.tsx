@@ -3,6 +3,7 @@ import { LessRoundedPasswordField } from '@/components/StandaloneField';
 import { useSubmitButton } from '@/hooks/useSubmitButton';
 import { Button, MenuItem, Stack, Typography } from '@avalabs/k2-alpine';
 import { Account, AccountType, PrivateKeyChain, SecretType } from '@core/types';
+import { useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRevealKey } from '../hooks/useRevealKey';
@@ -17,6 +18,7 @@ type Props = {
 
 export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
   const [chain, setChain] = useState<PrivateKeyChain>(PrivateKeyChain.C);
   const [revealButtonRef, shortcuts] = useSubmitButton();
   const [password, setPassword] = useState('');
@@ -63,9 +65,30 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
         fullWidth
         loading={isLoading}
         disabled={!password || isLoading}
-        onClick={() =>
-          revealKey(password, chain, type, index, id).then(onAuthenticated)
-        }
+        onClick={async () => {
+          try {
+            const key = await revealKey(password, chain, type, index, id);
+            if (key) {
+              capture('ExportPrivateKeySuccessful', { chain });
+              onAuthenticated(key);
+              return;
+            }
+            if (
+              error?.includes('Password') ||
+              error?.includes('Invalid Password')
+            ) {
+              capture('ExportPrivateKeyErrorInvalidPassword');
+              return;
+            }
+            if (error?.includes('Chain') || error?.includes('Invalid Chain')) {
+              capture('ExportPrivateKeyErrorInvalidChain');
+              return;
+            }
+            capture('ExportPrivateKeyFailed');
+          } catch {
+            capture('ExportPrivateKeyFailed');
+          }
+        }}
       >
         {t('Reveal')}
       </Button>

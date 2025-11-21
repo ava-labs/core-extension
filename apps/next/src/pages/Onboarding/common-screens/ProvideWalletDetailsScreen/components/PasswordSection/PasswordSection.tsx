@@ -2,7 +2,7 @@ import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useOnboardingContext } from '@core/ui';
+import { useOnboardingContext, useAnalyticsContext } from '@core/ui';
 
 import { BorderlessTextField } from '@/components/BorderlessTextField';
 import {
@@ -24,6 +24,7 @@ export const PasswordSection: FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const { password, setPassword } = useOnboardingContext();
+  const { capture } = useAnalyticsContext();
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isPasswordTouched, setIsPasswordTouched] = useState(false);
   const [isConfirmPasswordTouched, setIsConfirmPasswordTouched] =
@@ -38,8 +39,12 @@ export const PasswordSection: FC<Props> = ({
   });
 
   useEffect(() => {
-    onValidityChange(Boolean(passwordsMetadata?.isValid));
-  }, [passwordsMetadata?.isValid, onValidityChange]);
+    const isValid = Boolean(passwordsMetadata?.isValid);
+    onValidityChange(isValid);
+    if (isValid) {
+      capture('OnboardingPasswordSet');
+    }
+  }, [passwordsMetadata?.isValid, onValidityChange, capture]);
 
   return (
     <Stack sx={{ gap: 0.5 }} {...props}>

@@ -1,5 +1,5 @@
 import { getHexAlpha, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
+import { useAccountsContext, useAnalyticsContext } from '@core/ui';
 import { useState } from 'react';
 import { MdOutlineUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
@@ -19,6 +19,7 @@ export const Header = () => {
   const [isAddressAppear, setIsAddressAppear] = useState(false);
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
 
   return (
     <Stack
@@ -49,7 +50,10 @@ export const Header = () => {
         <AccountSelectContainer
           onMouseOver={() => setIsAddressAppear(true)}
           onMouseLeave={() => setIsAddressAppear(false)}
-          onClick={() => history.push('/account-management')}
+          onClick={() => {
+            capture('AccountSelectorOpened');
+            history.push('/account-management');
+          }}
         >
           <AccountInfo>
             <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />

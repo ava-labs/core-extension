@@ -7,11 +7,13 @@ import {
 } from '@avalabs/k2-alpine';
 import { runtime } from 'webextension-polyfill';
 import { Trans, useTranslation } from 'react-i18next';
+import { useAnalyticsContext } from '@core/ui';
 
 import { InTextLink } from '@/components/InTextLink';
 
 export const Footer = (props: StackProps) => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   return (
     <FooterContainer {...props}>
@@ -26,6 +28,7 @@ export const Footer = (props: StackProps) => {
                 target="_blank"
                 href="https://core.app/terms/core"
                 rel="noreferrer"
+                onClick={() => capture('TermsOfUseClicked')}
               />
             ),
             policyLink: (
@@ -34,6 +37,7 @@ export const Footer = (props: StackProps) => {
                 target="_blank"
                 href="https://www.avalabs.org/privacy-policy"
                 rel="noreferrer"
+                onClick={() => capture('PrivacyPolicyClicked')}
               />
             ),
           }}

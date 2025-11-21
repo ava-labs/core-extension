@@ -8,13 +8,14 @@ import {
   SecurityKeyIcon,
   Stack,
 } from '@avalabs/k2-alpine';
-import { useSeedlessMfaManager } from '@core/ui';
+import { useAnalyticsContext, useSeedlessMfaManager } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
 export const DefaultContent = () => {
   const { t } = useTranslation();
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
   const { hasTotpConfigured, isLoadingRecoveryMethods } =
     useSeedlessMfaManager();
   return (
@@ -34,6 +35,7 @@ export const DefaultContent = () => {
               variant="contained"
               color="primary"
               onClick={() => {
+                capture('AddAuthenticatorClicked');
                 history.push('/update-recovery-method/totp/add');
               }}
               startIcon={<SecurityKeyIcon size={24} />}
@@ -45,6 +47,7 @@ export const DefaultContent = () => {
             variant="contained"
             color="primary"
             onClick={() => {
+              capture('AddYubikeyClicked');
               history.push('/update-recovery-method/fido/add/yubikey');
             }}
             startIcon={<SecurityKeyIcon size={24} />}
@@ -55,6 +58,7 @@ export const DefaultContent = () => {
             variant="contained"
             color="primary"
             onClick={() => {
+              capture('AddPasskeyClicked');
               history.push('/update-recovery-method/fido/add/passkey');
             }}
             startIcon={<PasswordIcon size={24} />}

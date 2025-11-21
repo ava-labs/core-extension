@@ -4,7 +4,11 @@ import { FC, useCallback, useEffect, useMemo } from 'react';
 import { TFunction, useTranslation } from 'react-i18next';
 import { AuthErrorCode, TotpResetChallenge } from '@core/types';
 import { useState } from 'react';
-import { useGoBack, useSeedlessMfaManager } from '@core/ui';
+import {
+  useGoBack,
+  useSeedlessMfaManager,
+  useAnalyticsContext,
+} from '@core/ui';
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
 import { InProgress } from '../../common/InProgress';
@@ -48,6 +52,7 @@ export const Authenticator: FC = () => {
   const history = useHistory();
   const { initAuthenticatorChange, completeAuthenticatorChange } =
     useSeedlessMfaManager();
+  const { capture } = useAnalyticsContext();
   const [totpChallenge, setTotpChallenge] = useState<TotpResetChallenge>();
   const [showSecret, setShowSecret] = useState(false);
   const [screenState, setScreenState] = useState<AuthenticatorState>('initial');
@@ -61,6 +66,7 @@ export const Authenticator: FC = () => {
 
   useEffect(() => {
     const initChange = async () => {
+      capture('ConfigureTotpClicked');
       try {
         const challenge = await initAuthenticatorChange();
         setTotpChallenge(challenge);
@@ -71,7 +77,7 @@ export const Authenticator: FC = () => {
       }
     };
     initChange();
-  }, [initAuthenticatorChange]);
+  }, [initAuthenticatorChange, capture]);
 
   const totpSecret = useMemo(() => {
     if (!totpChallenge) {
@@ -89,6 +95,7 @@ export const Authenticator: FC = () => {
     }
     try {
       await completeAuthenticatorChange(totpChallenge.totpId, code);
+      capture('RecoveryMethodAdded', { method: 'totp' });
       toast.success(t('Authenticator added!'));
       history.push('/settings/recovery-methods');
     } catch (e) {
@@ -96,7 +103,7 @@ export const Authenticator: FC = () => {
     } finally {
       setIsSubmitted(false);
     }
-  }, [code, completeAuthenticatorChange, history, t, totpChallenge]);
+  }, [code, completeAuthenticatorChange, history, t, totpChallenge, capture]);
 
   return (
     <Page

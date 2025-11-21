@@ -15,6 +15,7 @@ import {
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
+import { useAnalyticsContext } from '@core/ui';
 
 import { Device, PublicKey, DerivedKeys, ConnectorCallbacks } from '../types';
 import {
@@ -49,6 +50,7 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
 }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
+  const { capture } = useAnalyticsContext();
 
   const [addresses, setAddresses] = useState<string[]>([]);
 
@@ -59,11 +61,15 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
 
   useEffect(() => {
     if (derivedInfo) {
-      setAddresses(deriveAddresses(derivedInfo.addressPublicKeys));
+      const derivedAddresses = deriveAddresses(derivedInfo.addressPublicKeys);
+      setAddresses(derivedAddresses);
+      if (derivedAddresses.length > 0) {
+        capture('OnboardingKeystoneHasAddresses');
+      }
     } else {
       setAddresses([]);
     }
-  }, [derivedInfo]);
+  }, [derivedInfo, capture]);
 
   return (
     <>

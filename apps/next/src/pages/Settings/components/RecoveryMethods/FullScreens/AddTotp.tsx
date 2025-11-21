@@ -1,5 +1,5 @@
 import { AuthErrorCode, TotpResetChallenge } from '@core/types';
-import { useSeedlessMfaManager } from '@core/ui';
+import { useSeedlessMfaManager, useAnalyticsContext } from '@core/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
 import { Button, Stack, toast } from '@avalabs/k2-alpine';
@@ -19,6 +19,7 @@ export const AddTotp = () => {
   const [error, setError] = useState<AuthErrorCode>();
   const history = useHistory();
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   const { initAuthenticatorChange, completeAuthenticatorChange } =
     useSeedlessMfaManager();
@@ -40,6 +41,7 @@ export const AddTotp = () => {
     try {
       setIsVerifying(true);
       await completeAuthenticatorChange(totpChallenge.totpId, code);
+      capture('RecoveryMethodAdded', { method: 'totp' });
       toast.success(t('Authenticator added!'), {
         duration: Infinity,
       });
@@ -49,10 +51,11 @@ export const AddTotp = () => {
     } finally {
       setIsVerifying(false);
     }
-  }, [code, completeAuthenticatorChange, history, t, totpChallenge]);
+  }, [code, completeAuthenticatorChange, history, t, totpChallenge, capture]);
 
   useEffect(() => {
     const initChange = async () => {
+      capture('ConfigureTotpClicked');
       try {
         const challenge = await initAuthenticatorChange();
         setTotpChallenge(challenge);
@@ -63,7 +66,7 @@ export const AddTotp = () => {
       }
     };
     initChange();
-  }, [initAuthenticatorChange]);
+  }, [initAuthenticatorChange, capture]);
 
   return (
     <Stack sx={{ height: '100%' }}>

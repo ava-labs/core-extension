@@ -3,7 +3,11 @@ import { Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 import { Account, AddressType } from '@core/types';
-import { useAccountsContext, useWalletContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useWalletContext,
+} from '@core/ui';
 
 import { SearchableSelect } from '@/components/SearchableSelect';
 
@@ -33,6 +37,7 @@ export const AccountSelect: FC<AccountSelectProps> = ({
   const { t } = useTranslation();
   const { allAccounts } = useAccountsContext();
   const { getWallet } = useWalletContext();
+  const { capture } = useAnalyticsContext();
 
   return (
     <SearchableSelect<Account>
@@ -46,7 +51,14 @@ export const AccountSelect: FC<AccountSelectProps> = ({
       query={query}
       onQueryChange={onQueryChange}
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={(newAccount) => {
+        if (newAccount.id !== value?.id) {
+          capture('AccountSelectorAccountSwitched', {
+            type: newAccount.type,
+          });
+        }
+        onValueChange(newAccount);
+      }}
       label={t('Account')}
       renderValue={(val) =>
         val ? (

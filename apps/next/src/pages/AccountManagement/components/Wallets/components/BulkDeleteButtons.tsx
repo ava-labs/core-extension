@@ -1,7 +1,12 @@
 import { AccountManagementRouteState } from '@/pages/AccountManagement/types';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 import { Box, Button, Slide, Stack } from '@avalabs/k2-alpine';
-import { useAccountManager } from '@core/ui';
+import { Account, IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
+import {
+  useAccountManager,
+  useAccountsContext,
+  useAnalyticsContext,
+} from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -10,6 +15,8 @@ export const BulkDeleteButtons: FC = () => {
   const { t } = useTranslation();
   const { isManageMode, toggleManageMode, exitManageMode, selectedAccounts } =
     useAccountManager();
+  const { allAccounts } = useAccountsContext();
+  const { capture } = useAnalyticsContext();
   const [showButtons, setShowButtons] = useState(isManageMode);
   const { push } = useHistory<AccountManagementRouteState>();
 
@@ -44,7 +51,20 @@ export const BulkDeleteButtons: FC = () => {
             size="extension"
             fullWidth
             disabled={selectedAccounts.length === 0}
-            onClick={() =>
+            onClick={() => {
+              const selectedAccountsData = selectedAccounts
+                .map((id) => allAccounts.find((acc) => acc.id === id))
+                .filter((account): account is Account & { walletId?: string } =>
+                  Boolean(account),
+                );
+              const hasImportedAccount = selectedAccountsData.some(
+                (account) =>
+                  'walletId' in account &&
+                  account.walletId === IMPORTED_ACCOUNTS_WALLET_ID,
+              );
+              if (hasImportedAccount) {
+                capture('ImportedAccountDeleteClicked');
+              }
               push(
                 {
                   pathname: '/account-management/delete-account',
@@ -56,8 +76,8 @@ export const BulkDeleteButtons: FC = () => {
                   ).toString(),
                 },
                 { bulkMode: true },
-              )
-            }
+              );
+            }}
           >
             {t('Delete selected')}
           </Button>
