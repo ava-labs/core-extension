@@ -156,11 +156,7 @@ function balancesReducer(
 
 export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
-  const {
-    network,
-    enabledNetworks: enabledNetworkIds,
-    getNetwork,
-  } = useNetworkContext();
+  const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
     getAccount,
