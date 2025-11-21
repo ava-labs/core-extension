@@ -39,7 +39,6 @@ export const useNetworksWithBalance = ({
     }
     return [];
   }, [walletId, accountId, getAccountsByWalletId, getAccountById]);
-  console.log({ accounts });
 
   return useMemo(() => {
     const networksPerAccount: Record<string, NetworkWithCaipId[]> = {};

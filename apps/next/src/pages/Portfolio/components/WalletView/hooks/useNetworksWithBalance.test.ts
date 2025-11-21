@@ -88,13 +88,15 @@ const mockEthereumNetwork = {
 
 describe('useNetworksWithBalance', () => {
   const mockGetAccountsByWalletId = jest.fn();
+  const mockGetAccountById = jest.fn();
   const mockGetNetwork = jest.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
 
     (useAccountsContext as jest.Mock).mockReturnValue({
       getAccountsByWalletId: mockGetAccountsByWalletId,
+      getAccountById: mockGetAccountById,
     });
 
     (useNetworkContext as jest.Mock).mockReturnValue({
@@ -109,7 +111,9 @@ describe('useNetworksWithBalance', () => {
   it('returns empty object when no accounts exist for wallet', () => {
     mockGetAccountsByWalletId.mockReturnValue([]);
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     expect(result.current).toEqual({});
   });
@@ -117,7 +121,9 @@ describe('useNetworksWithBalance', () => {
   it('returns empty arrays for accounts with no balances', () => {
     mockGetAccountsByWalletId.mockReturnValue([mockAccount1, mockAccount2]);
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     expect(result.current).toEqual({
       'account-1': [],
@@ -162,7 +168,9 @@ describe('useNetworksWithBalance', () => {
       },
     });
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet	1' }),
+    );
 
     expect(result.current).toEqual({
       'account-1': [mockCChainNetwork, mockBitcoinNetwork],
@@ -227,7 +235,9 @@ describe('useNetworksWithBalance', () => {
       },
     });
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     expect(result.current).toEqual({
       'account-1': [mockCChainNetwork, mockBitcoinNetwork],
@@ -260,7 +270,9 @@ describe('useNetworksWithBalance', () => {
       },
     });
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     expect(result.current).toEqual({
       'account-1': [],
@@ -329,7 +341,9 @@ describe('useNetworksWithBalance', () => {
       },
     });
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     expect(result.current['account-1']).toEqual([
       mockCChainNetwork, // C-chain first
@@ -376,7 +390,9 @@ describe('useNetworksWithBalance', () => {
       },
     });
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     expect(result.current).toEqual({
       'account-1': [mockCChainNetwork], // Only known network
@@ -423,7 +439,9 @@ describe('useNetworksWithBalance', () => {
       },
     });
 
-    const { result } = renderHook(() => useNetworksWithBalance('wallet-1'));
+    const { result } = renderHook(() =>
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
+    );
 
     // Should only include the network once even with multiple addresses
     expect(result.current['account-1']).toEqual([mockCChainNetwork]);
@@ -438,7 +456,7 @@ describe('useNetworksWithBalance', () => {
     });
 
     const { result, rerender } = renderHook(() =>
-      useNetworksWithBalance('wallet-1'),
+      useNetworksWithBalance({ walletId: 'wallet-1' }),
     );
 
     // Initial state: only C-chain
@@ -500,5 +518,242 @@ describe('useNetworksWithBalance', () => {
       mockCChainNetwork,
       mockBitcoinNetwork,
     ]);
+  });
+
+  describe('when using accountId parameter', () => {
+    it('returns empty object when account does not exist', () => {
+      mockGetAccountById.mockReturnValue(undefined);
+
+      const { result } = renderHook(() =>
+        useNetworksWithBalance({ accountId: 'account-1' }),
+      );
+
+      expect(result.current).toEqual({});
+    });
+
+    it('returns empty array when account has no balances', () => {
+      mockGetAccountById.mockReturnValue(mockAccount1);
+
+      const { result } = renderHook(() =>
+        useNetworksWithBalance({ accountId: 'account-1' }),
+      );
+
+      expect(result.current).toEqual({
+        'account-1': [],
+      });
+    });
+
+    it('returns networks with balance for single account', () => {
+      mockGetAccountById.mockReturnValue(mockAccount1);
+      mockGetNetwork.mockImplementation((chainId: number) => {
+        if (chainId === ChainId.AVALANCHE_MAINNET_ID) return mockCChainNetwork;
+        if (chainId === ChainId.BITCOIN) return mockBitcoinNetwork;
+        return null;
+      });
+
+      (useBalancesContext as jest.Mock).mockReturnValue({
+        balances: {
+          tokens: {
+            [ChainId.AVALANCHE_MAINNET_ID]: {
+              [mockAccount1.addressC]: {
+                AVAX: {
+                  type: TokenType.NATIVE,
+                  name: 'Avalanche',
+                  symbol: 'AVAX',
+                  balance: 1000n,
+                  decimals: 18,
+                },
+              },
+            },
+            [ChainId.BITCOIN]: {
+              [mockAccount1.addressBTC]: {
+                BTC: {
+                  type: TokenType.NATIVE,
+                  name: 'Bitcoin',
+                  symbol: 'BTC',
+                  balance: 5000n,
+                  decimals: 8,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const { result } = renderHook(() =>
+        useNetworksWithBalance({ accountId: 'account-1' }),
+      );
+
+      expect(result.current).toEqual({
+        'account-1': [mockCChainNetwork, mockBitcoinNetwork],
+      });
+    });
+
+    it('returns sorted networks by priority for account', () => {
+      mockGetAccountById.mockReturnValue(mockAccount1);
+      mockGetNetwork.mockImplementation((chainId: number) => {
+        if (chainId === ChainId.AVALANCHE_MAINNET_ID) return mockCChainNetwork;
+        if (chainId === ChainId.AVALANCHE_P) return mockPChainNetwork;
+        if (chainId === ChainId.BITCOIN) return mockBitcoinNetwork;
+        if (chainId === ChainId.ETHEREUM_HOMESTEAD) return mockEthereumNetwork;
+        return null;
+      });
+
+      (useBalancesContext as jest.Mock).mockReturnValue({
+        balances: {
+          tokens: {
+            [ChainId.ETHEREUM_HOMESTEAD]: {
+              '0xAddress1': {
+                ETH: {
+                  type: TokenType.NATIVE,
+                  name: 'Ethereum',
+                  symbol: 'ETH',
+                  balance: 500n,
+                  decimals: 18,
+                },
+              },
+            },
+            [ChainId.BITCOIN]: {
+              bc1qy76a8lk4ym3af4u45f7fghuqc6ftfh7l6c87ed: {
+                BTC: {
+                  type: TokenType.NATIVE,
+                  name: 'Bitcoin',
+                  symbol: 'BTC',
+                  balance: 5000n,
+                  decimals: 8,
+                },
+              },
+            },
+            [ChainId.AVALANCHE_P]: {
+              'P-avax1address1': {
+                AVAX: {
+                  type: TokenType.NATIVE,
+                  name: 'Avalanche',
+                  symbol: 'AVAX',
+                  balance: 1000n,
+                  decimals: 9,
+                },
+              },
+            },
+            [ChainId.AVALANCHE_MAINNET_ID]: {
+              '0xAddress1': {
+                AVAX: {
+                  type: TokenType.NATIVE,
+                  name: 'Avalanche',
+                  symbol: 'AVAX',
+                  balance: 1000n,
+                  decimals: 18,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const { result } = renderHook(() =>
+        useNetworksWithBalance({ accountId: 'account-1' }),
+      );
+
+      // Should be sorted: C-Chain, P-Chain, Bitcoin, Ethereum
+      expect(result.current['account-1']).toEqual([
+        mockCChainNetwork,
+        mockPChainNetwork,
+        mockBitcoinNetwork,
+        mockEthereumNetwork,
+      ]);
+    });
+
+    it('excludes networks with zero balances', () => {
+      mockGetAccountById.mockReturnValue(mockAccount1);
+      mockGetNetwork.mockImplementation((chainId: number) => {
+        if (chainId === ChainId.AVALANCHE_MAINNET_ID) return mockCChainNetwork;
+        if (chainId === ChainId.BITCOIN) return mockBitcoinNetwork;
+        return null;
+      });
+
+      (useBalancesContext as jest.Mock).mockReturnValue({
+        balances: {
+          tokens: {
+            [ChainId.AVALANCHE_MAINNET_ID]: {
+              [mockAccount1.addressC]: {
+                AVAX: {
+                  type: TokenType.NATIVE,
+                  name: 'Avalanche',
+                  symbol: 'AVAX',
+                  balance: 1000n,
+                  decimals: 18,
+                },
+              },
+            },
+            [ChainId.BITCOIN]: {
+              [mockAccount1.addressBTC]: {
+                BTC: {
+                  type: TokenType.NATIVE,
+                  name: 'Bitcoin',
+                  symbol: 'BTC',
+                  balance: 0n,
+                  decimals: 8,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const { result } = renderHook(() =>
+        useNetworksWithBalance({ accountId: 'account-1' }),
+      );
+
+      // Should only include C-Chain, not Bitcoin with 0 balance
+      expect(result.current['account-1']).toEqual([mockCChainNetwork]);
+    });
+
+    it('handles account with multiple addresses on same network', () => {
+      const accountWithMultipleAddresses: Account = {
+        ...mockAccount1,
+        addressC: '0xAddress1',
+        addressCoreEth: '0xAddress1CoreEth',
+      };
+
+      mockGetAccountById.mockReturnValue(accountWithMultipleAddresses);
+      mockGetNetwork.mockImplementation((chainId: number) => {
+        if (chainId === ChainId.AVALANCHE_MAINNET_ID) return mockCChainNetwork;
+        return null;
+      });
+
+      (useBalancesContext as jest.Mock).mockReturnValue({
+        balances: {
+          tokens: {
+            [ChainId.AVALANCHE_MAINNET_ID]: {
+              '0xAddress1': {
+                AVAX: {
+                  type: TokenType.NATIVE,
+                  name: 'Avalanche',
+                  symbol: 'AVAX',
+                  balance: 1000n,
+                  decimals: 18,
+                },
+              },
+              '0xAddress1CoreEth': {
+                USDC: {
+                  type: TokenType.ERC20,
+                  name: 'USD Coin',
+                  symbol: 'USDC',
+                  balance: 500n,
+                  decimals: 6,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const { result } = renderHook(() =>
+        useNetworksWithBalance({ accountId: 'account-1' }),
+      );
+
+      // Should only include the network once even with multiple addresses
+      expect(result.current['account-1']).toEqual([mockCChainNetwork]);
+    });
   });
 });
