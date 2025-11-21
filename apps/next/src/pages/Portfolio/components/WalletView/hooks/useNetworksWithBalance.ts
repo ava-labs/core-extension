@@ -23,7 +23,7 @@ export const useNetworksWithBalance = ({
   walletId,
   accountId,
 }: Props): Record<string, NetworkWithCaipId[]> => {
-  const { getAccountsByWalletId, getAccount } = useAccountsContext();
+  const { getAccountsByWalletId, getAccountById } = useAccountsContext();
   const { getNetwork } = useNetworkContext();
   const {
     balances: { tokens: tokensByChain },
@@ -34,11 +34,12 @@ export const useNetworksWithBalance = ({
       return getAccountsByWalletId(walletId);
     }
     if (accountId) {
-      const account = getAccount(accountId);
+      const account = getAccountById(accountId);
       return account ? [account] : [];
     }
     return [];
-  }, [walletId, accountId, getAccountsByWalletId, getAccount]);
+  }, [walletId, accountId, getAccountsByWalletId, getAccountById]);
+  console.log({ accounts });
 
   return useMemo(() => {
     const networksPerAccount: Record<string, NetworkWithCaipId[]> = {};
