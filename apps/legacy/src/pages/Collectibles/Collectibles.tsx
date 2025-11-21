@@ -44,9 +44,9 @@ export function Collectibles({
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
   const { balances } = useBalancesContext();
-  const nfts = useNfts();
   const { capture } = useAnalyticsContext();
   const { network } = useNetworkContext();
+  const { collectibles: nfts } = useNfts(network);
   const history = useHistory();
   const setCollectibleParams = useSetCollectibleParams();
   const { setNavigationHistoryData } = usePageHistory();

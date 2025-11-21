@@ -161,6 +161,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     accounts: { active: activeAccount },
     getAccount,
   } = useAccountsContext();
+
   const [balances, dispatch] = useReducer(balancesReducer, {
     loading: true,
     cached: true,

@@ -154,5 +154,8 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.67",
     "@avalabs/types": "3.1.0-alpha.67",
     "@avalabs/hw-app-avalanche": "1.1.1"
+  },
+  "dependencies": {
+    "mime": "^4.1.0"
   }
 }

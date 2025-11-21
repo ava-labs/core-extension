@@ -10,7 +10,7 @@ import {
 import { MdAdd } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 
-import { getSendPath, getSwapPath } from '@/config/routes';
+import { getBridgePath, getSendPath, getSwapPath } from '@/config/routes';
 
 const onNotImplementedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
   e.preventDefault();
@@ -59,7 +59,7 @@ export const PortfolioActionButtons = () => {
           variant="extension"
           icon={<BridgeIcon size={ICON_SIZE} />}
           label="Bridge"
-          onClick={onNotImplementedClick}
+          onClick={() => push(getBridgePath())}
         />
       </Slide>
     </Stack>
