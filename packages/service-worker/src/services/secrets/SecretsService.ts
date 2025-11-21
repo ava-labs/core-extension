@@ -106,21 +106,18 @@ export class SecretsService implements OnUnlock {
 
       const networkTypes: NetworkType[] = ['AVM', 'PVM'];
       const isTestnetChoice = [true, false];
-      const withExtraAddresses = [true, false];
 
       networkTypes.map((networkType) => {
         isTestnetChoice.map((isTestnet) => {
-          withExtraAddresses.map((withExtraAddress) => {
-            avalancheExtendedPublicKeys.map((xpubKey) => {
-              postV1GetAddresses({
-                client: profileApiClient,
-                body: {
-                  extendedPublicKey: xpubKey.key,
-                  isTestnet,
-                  networkType,
-                  withExtraAddresses: withExtraAddress,
-                },
-              });
+          avalancheExtendedPublicKeys.map((xpubKey) => {
+            postV1GetAddresses({
+              client: profileApiClient,
+              body: {
+                extendedPublicKey: xpubKey.key,
+                isTestnet,
+                networkType,
+                withExtraAddresses: false,
+              },
             });
           });
         });
