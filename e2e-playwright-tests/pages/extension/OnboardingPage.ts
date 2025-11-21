@@ -446,8 +446,61 @@ export class OnboardingPage extends BasePage {
 
     // Wait for submission to complete (may show loading spinner first)
     // Translation requests are mocked in tests to prevent failures
-    await this.enjoyWalletTitle.waitFor({ state: 'visible', timeout: 60000 });
-    console.log('Wallet creation completed - enjoy wallet screen shown');
+    try {
+      await this.enjoyWalletTitle.waitFor({ state: 'visible', timeout: 60000 });
+      console.log('Wallet creation completed - enjoy wallet screen shown');
+    } catch (error) {
+      // Debug: Log what's actually on the page
+      console.log('=== DEBUG: Page state when enjoyWalletTitle timeout ===');
+      console.log('Current URL:', this.page.url());
+      console.log('Page title:', await this.page.title().catch(() => 'unknown'));
+
+      // Check for loading indicators
+      const loadingSpinner = this.page.locator(
+        '[data-testid*="loading"], [data-testid*="spinner"], .MuiCircularProgress-root',
+      );
+      const spinnerCount = await loadingSpinner.count();
+      console.log(`Loading spinners found: ${spinnerCount}`);
+
+      // Check for error messages
+      const errorMessages = this.page.locator('[role="alert"], [data-testid*="error"], .MuiAlert-root');
+      const errorCount = await errorMessages.count();
+      console.log(`Error messages found: ${errorCount}`);
+      if (errorCount > 0) {
+        for (let i = 0; i < errorCount; i++) {
+          const errorText = await errorMessages
+            .nth(i)
+            .textContent()
+            .catch(() => 'unknown');
+          console.log(`Error ${i + 1}: ${errorText}`);
+        }
+      }
+
+      // Check for any headings or text that might indicate what screen we're on
+      const headings = this.page.locator('h1, h2, h3, [role="heading"]');
+      const headingCount = await headings.count();
+      console.log(`Headings found: ${headingCount}`);
+      for (let i = 0; i < Math.min(headingCount, 5); i++) {
+        const headingText = await headings
+          .nth(i)
+          .textContent()
+          .catch(() => 'unknown');
+        console.log(`Heading ${i + 1}: ${headingText}`);
+      }
+
+      // Check page content
+      const bodyText = await this.page
+        .locator('body')
+        .textContent()
+        .catch(() => 'unknown');
+      console.log('Body text preview (first 500 chars):', bodyText?.substring(0, 500));
+
+      // Check for network errors in console
+      console.log('=== End DEBUG ===');
+
+      throw error; // Re-throw the original error
+    }
+
     await this.letsGoButton.click();
   }
 }
