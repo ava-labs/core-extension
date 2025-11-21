@@ -51,6 +51,7 @@ export const WalletCard: FC<WalletCardProps> = ({
   const sharedTitleProps: TypographyProps = {
     width: 1,
     variant: 'h6',
+    fontFamily: 'Aeonik',
     lineHeight: 1,
     whiteSpace: 'nowrap',
     overflow: 'hidden',

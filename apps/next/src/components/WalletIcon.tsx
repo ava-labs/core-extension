@@ -18,21 +18,21 @@ export const WalletIcon: FC<WalletIconProps> = ({
   expanded,
 }) => {
   if (type === SecretType.Ledger || type === SecretType.LedgerLive) {
-    return <LedgerIcon size={24} />;
+    return <LedgerIcon size={18} />;
   }
 
   if (type === SecretType.Seedless) {
     if (authProvider === SeedlessAuthProvider.Google) {
-      return <FaGoogle size={24} />;
+      return <FaGoogle size={18} />;
     }
 
     if (authProvider === SeedlessAuthProvider.Apple) {
-      return <FaApple size={24} />;
+      return <FaApple size={22} />;
     }
   }
 
   if (type === SecretType.Keystone || type === SecretType.Keystone3Pro) {
-    return <KeystoneIcon size={20} />;
+    return <KeystoneIcon size={18} />;
   }
 
   const MnemonicIcon = expanded ? WalletOpenIcon : WalletClosedIcon;

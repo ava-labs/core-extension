@@ -26,6 +26,9 @@ export const WalletsHomePage: FC = () => {
       titleAction={<AddOrConnectWalletButton />}
       description={t('An overview of your wallets and associated accounts')}
       descriptionProps={{ color: 'text.secondary' }}
+      containerProps={{
+        gap: 2,
+      }}
       withBackButton
       contentProps={{
         alignItems: 'stretch',
@@ -44,8 +47,9 @@ export const WalletsHomePage: FC = () => {
             <Stack direction="row" alignItems="center" gap={1}>
               <Styled.ErrorIcon size={24} />
               <Typography
-                variant="subtitle3"
+                variant="h6"
                 color="error"
+                fontSize="14px"
                 whiteSpace="nowrap"
                 id="error-message"
               >

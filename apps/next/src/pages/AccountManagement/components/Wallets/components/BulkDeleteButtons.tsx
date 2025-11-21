@@ -1,12 +1,5 @@
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
-import {
-  Box,
-  Button,
-  getHexAlpha,
-  Slide,
-  Stack,
-  styled,
-} from '@avalabs/k2-alpine';
+import { alpha, Box, Button, Slide, Stack, styled } from '@avalabs/k2-alpine';
 import { useAccountManager } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -83,17 +76,17 @@ export const BulkDeleteButtons: FC = () => {
 const BulkDeleteButtonsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
-  zIndex: 10,
+  zIndex: 100,
   paddingTop: theme.spacing(1),
   paddingBottom: theme.spacing(1.5),
-  marginLeft: `-${theme.spacing(2)}`,
+  marginLeft: `-${theme.spacing(1.5)}`,
   paddingInline: theme.spacing(2),
-  marginRight: `-${theme.spacing(2)}`,
+  marginRight: `-${theme.spacing(1.5)}`,
   marginBottom: `-${theme.spacing(1.5)}`,
-  background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.paper, 0)} 0%, ${theme.palette.background.paper} 42%)`,
+  background: `linear-gradient(180deg, ${alpha(theme.palette.mode === 'light' ? theme.palette.background.paper : theme.palette.background.default, 0)} 0%, 
+	${theme.palette.mode === 'light' ? theme.palette.background.paper : theme.palette.background.default} 32px)`,
 
   '> div': {
-    borderRadius: theme.shape.mediumBorderRadius,
-    background: theme.palette.background.paper,
+    background: 'unset',
   },
 }));

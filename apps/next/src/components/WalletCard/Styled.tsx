@@ -58,6 +58,7 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
 }));
 
 export const AccordionDetails = styled(K2AccordionDetails)(({ theme }) => ({
+  paddingTop: 0,
   paddingInline: theme.spacing(1.5),
   overflow: 'hidden',
 }));

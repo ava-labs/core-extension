@@ -1,10 +1,4 @@
-import {
-  getHexAlpha,
-  Stack,
-  styled,
-  toast,
-  ToastOptions,
-} from '@avalabs/k2-alpine';
+import { alpha, Stack, styled, toast, ToastOptions } from '@avalabs/k2-alpine';
 import { FC, useMemo } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 import { Page } from '@/components/Page';
@@ -89,17 +83,18 @@ export const AccountDetails: FC = () => {
 const ActionButtonsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
-  zIndex: 10,
+  zIndex: 100,
   height: '122px',
-  marginLeft: `-${theme.spacing(2)}`,
-  marginRight: `-${theme.spacing(2)}`,
+  marginLeft: `-${theme.spacing(1.5)}`,
+  marginRight: `-${theme.spacing(1.5)}`,
   paddingTop: theme.spacing(1),
   paddingInline: theme.spacing(2),
   paddingBottom: theme.spacing(1.5),
   marginBottom: `-${theme.spacing(1.5)}`,
-  background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.paper, 0)} 0%, ${theme.palette.background.paper} 42%)`,
+  background: `linear-gradient(180deg, ${alpha(theme.palette.mode === 'light' ? theme.palette.background.paper : theme.palette.background.default, 0)} 0%, 
+	${theme.palette.mode === 'light' ? theme.palette.background.paper : theme.palette.background.default} 32px)`,
+
   '> div': {
-    borderRadius: theme.shape.mediumBorderRadius,
-    background: theme.palette.background.paper,
+    background: 'unset',
   },
 }));

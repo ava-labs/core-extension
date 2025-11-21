@@ -24,7 +24,7 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
       <Typography variant="h2" color="text.secondary">
         {account.name}
       </Typography>
-      <Typography variant="h2" marginBlockEnd={0.5}>
+      <Typography variant="h2" marginBlockEnd={0.5} mb={2}>
         {currencyFormatter(balance?.sum ?? 0)}
       </Typography>
       {isTokensCached && (

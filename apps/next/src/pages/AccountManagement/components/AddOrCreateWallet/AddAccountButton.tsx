@@ -13,7 +13,7 @@ export const AddAccountButton: FC = () => {
       <Button
         variant="contained"
         color="secondary"
-        size="extension"
+        size="small"
         onClick={() =>
           addAccount()
             .then(selectAccount)
