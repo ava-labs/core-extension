@@ -107,9 +107,9 @@ export const AssetsTab: FC = () => {
       <FilterMenu
         id="filter-menu"
         anchorEl={filterMenuElement}
-        selectedNetworks={selectedNetworks}
-        setSelectedNetworks={setSelectedNetworks}
-        availableNetworks={availableNetworks}
+        selected={selectedNetworks}
+        onChange={setSelectedNetworks}
+        networks={availableNetworks}
         open={Boolean(filterMenuElement)}
         onClose={handleFilterMenuClose}
       />
@@ -117,7 +117,7 @@ export const AssetsTab: FC = () => {
         id="sort-menu"
         anchorEl={sortMenuElement}
         sort={sort}
-        setSort={setSort}
+        onSortChange={setSort}
         open={Boolean(sortMenuElement)}
         onClose={handleSortMenuClose}
       />

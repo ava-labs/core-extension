@@ -14,9 +14,9 @@ export type FilterMenuProps = {
   anchorEl: HTMLButtonElement | null;
   open: boolean;
   onClose: () => void;
-  selectedNetworks: Set<number>;
-  setSelectedNetworks: (networks: Set<number>) => void;
-  availableNetworks: NetworkWithCaipId[];
+  selected: Set<number>;
+  onChange: (networks: Set<NetworkWithCaipId['chainId']>) => void;
+  networks: NetworkWithCaipId[];
 };
 
 export const FilterMenu: FC<FilterMenuProps> = ({
@@ -24,27 +24,27 @@ export const FilterMenu: FC<FilterMenuProps> = ({
   anchorEl,
   open,
   onClose,
-  selectedNetworks,
-  setSelectedNetworks,
-  availableNetworks,
+  selected,
+  onChange,
+  networks,
 }) => {
   const { t } = useTranslation();
 
   const handleNetworkToggle = (chainId: number) => {
-    const newSelected = new Set(selectedNetworks);
+    const newSelected = new Set(selected);
     if (newSelected.has(chainId)) {
       newSelected.delete(chainId);
     } else {
       newSelected.add(chainId);
     }
-    setSelectedNetworks(newSelected);
+    onChange(newSelected);
   };
 
   const handleSelectAll = () => {
-    setSelectedNetworks(new Set());
+    onChange(new Set());
   };
 
-  const isAllSelected = selectedNetworks.size === 0;
+  const isAllSelected = selected.size === 0;
 
   return (
     <Popover id={id} open={open} anchorEl={anchorEl} onClose={onClose}>
@@ -61,8 +61,8 @@ export const FilterMenu: FC<FilterMenuProps> = ({
           <ListItemText primary={t('All Networks')} />
           {isAllSelected && <MdCheck size={16} />}
         </ListItemButton>
-        {availableNetworks.map((network) => {
-          const isSelected = selectedNetworks.has(network.chainId);
+        {networks.map((network) => {
+          const isSelected = selected.has(network.chainId);
           return (
             <ListItemButton
               key={network.chainId}

@@ -55,10 +55,6 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   const priceChanges = asset.priceChanges;
   const balanceInCurrency = asset.balanceInCurrency;
 
-  const trend = getTrend(priceChanges?.percentage);
-  const trendColor = getTrendColor(trend, theme);
-  const trendIcon = getTrendIcon(trend);
-
   if (
     !priceChanges ||
     priceChanges.percentage === undefined ||
@@ -68,6 +64,10 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   ) {
     return null;
   }
+
+  const trend = getTrend(priceChanges?.percentage);
+  const trendColor = getTrendColor(trend, theme);
+  const trendIcon = getTrendIcon(trend);
 
   const totalBalance =
     balanceInCurrency + (getUnconfirmedBalanceInCurrency(asset) ?? 0);

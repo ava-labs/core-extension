@@ -15,7 +15,7 @@ export type SortMenuProps = {
   open: boolean;
   onClose: () => void;
   sort: AssetSortOption | null;
-  setSort: (sort: AssetSortOption | null) => void;
+  onSortChange: (sort: AssetSortOption | null) => void;
 };
 
 export const SortMenu: FC<SortMenuProps> = ({
@@ -24,7 +24,7 @@ export const SortMenu: FC<SortMenuProps> = ({
   open,
   onClose,
   sort,
-  setSort,
+  onSortChange,
 }) => {
   const { t } = useTranslation();
 
@@ -49,7 +49,7 @@ export const SortMenu: FC<SortMenuProps> = ({
               borderRadius: 1,
             }}
             onClick={() => {
-              setSort(option.value);
+              onSortChange(option.value);
               onClose();
             }}
             selected={
