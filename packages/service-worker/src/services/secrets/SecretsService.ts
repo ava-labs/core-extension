@@ -22,6 +22,7 @@ import {
   WalletEvents,
   LedgerError,
   AccountWithSecrets,
+  AVALANCHE_BASE_DERIVATION_PATH,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
 import { assertPresent, mapVMAddresses, isPrimaryAccount } from '@core/common';
@@ -34,10 +35,12 @@ import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
-import { OnUnlock } from '../../runtime/lifecycleCallbacks';
+import { OnUnlock } from '~/runtime/lifecycleCallbacks';
 import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
+import { NetworkType, postV1GetAddresses } from '~/api-clients/profile-api';
+import { profileApiClient } from '~/api-clients/clients';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -85,6 +88,77 @@ export class SecretsService implements OnUnlock {
 
   async onUnlock(): Promise<void> {
     await this.emitWalletsInfo();
+
+    // calling profile api address calculation on extension unlock
+    const walletKeys = await this.#loadSecrets(false);
+    (walletKeys?.wallets ?? []).map((wallet) => {
+      if (!('extendedPublicKeys' in wallet)) {
+        return;
+      }
+      const avalancheExtendedPublicKeys = wallet.extendedPublicKeys.filter(
+        ({ curve, derivationPath }) =>
+          derivationPath.startsWith(AVALANCHE_BASE_DERIVATION_PATH) &&
+          curve === 'secp256k1',
+      );
+      if (!avalancheExtendedPublicKeys) {
+        return;
+      }
+      const configurations = [
+        {
+          networkType: 'AVM',
+          isTestnet: false,
+          withExtraAddresses: false,
+        },
+        {
+          networkType: 'AVM',
+          isTestnet: false,
+          withExtraAddresses: true,
+        },
+        {
+          networkType: 'AVM',
+          isTestnet: true,
+          withExtraAddresses: false,
+        },
+        {
+          networkType: 'AVM',
+          isTestnet: true,
+          withExtraAddresses: true,
+        },
+        {
+          networkType: 'PVM',
+          isTestnet: false,
+          withExtraAddresses: false,
+        },
+        {
+          networkType: 'PVM',
+          isTestnet: false,
+          withExtraAddresses: true,
+        },
+        {
+          networkType: 'PVM',
+          isTestnet: true,
+          withExtraAddresses: false,
+        },
+        {
+          networkType: 'PVM',
+          isTestnet: true,
+          withExtraAddresses: true,
+        },
+      ];
+
+      avalancheExtendedPublicKeys.map((xpubKey) => {
+        configurations.map((configuration) =>
+          postV1GetAddresses({
+            client: profileApiClient,
+            body: {
+              extendedPublicKey: xpubKey.key,
+              ...configuration,
+              networkType: configuration.networkType as NetworkType,
+            },
+          }),
+        );
+      });
+    });
   }
 
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
