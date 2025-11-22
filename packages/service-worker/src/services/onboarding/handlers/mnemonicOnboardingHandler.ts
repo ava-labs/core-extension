@@ -62,7 +62,7 @@ export class MnemonicOnboardingHandler implements HandlerType {
 
     const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive
     const xpub = await getXpubFromMnemonic(mnemonic);
-    const xpubXP = Avalanche.getXpubFromMnemonic(mnemonic);
+    const xpubXP = Avalanche.getXpubFromMnemonic(mnemonic, 0);
 
     await startOnboarding({
       settingsService: this.settingsService,
@@ -91,7 +91,7 @@ export class MnemonicOnboardingHandler implements HandlerType {
       };
     }
 
-    await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
+    await addAllAccountsWithHistory({ walletId });
 
     await finalizeOnboarding({
       walletId,

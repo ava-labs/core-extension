@@ -8,13 +8,11 @@ export const ACCOUNTS_ADDED_KEY = 'accountsAdded';
 
 interface CheckAccountsHistoryParams {
   walletId: string;
-  addFirstAccount?: boolean;
   lastIndex?: number;
 }
 
 export const addAllAccountsWithHistory = async ({
   walletId,
-  addFirstAccount,
   lastIndex,
 }: CheckAccountsHistoryParams) => {
   const moduleManager = container.resolve(ModuleManager);
@@ -34,7 +32,7 @@ export const addAllAccountsWithHistory = async ({
     const nextAccount = {
       id: `${lastIndexChecked}`,
       index: lastIndexChecked,
-      name: `Dummy Account`,
+      name: `Account ${lastIndexChecked + 1}`,
       type: AccountType.PRIMARY as const,
       walletId: walletId,
     };
@@ -62,11 +60,9 @@ export const addAllAccountsWithHistory = async ({
   }
 
   const accountIds: string[] = [];
-  if (lastIndexToAdd === 0 && addFirstAccount) {
-    accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
-  }
+  accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
 
-  for (let i = 0; i < lastIndexToAdd - (lastIndex || 0); i++) {
+  for (let i = 1; i < Math.max(1, lastIndexToAdd); i++) {
     accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
 

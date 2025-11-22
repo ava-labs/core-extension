@@ -16,6 +16,7 @@ import permissions_v2 from './migrations/permissions_v2';
 import wallet_v6 from './migrations/wallet_v6/wallet_v6';
 import network_v5 from './migrations/network_v5';
 import settings_v3 from './migrations/settings_v3';
+import wallet_v7 from './migrations/wallet_v7/wallet_v7';
 
 export const SCHEMA_MAP = {
   ['accounts']: {
@@ -32,7 +33,7 @@ export const SCHEMA_MAP = {
     ],
   },
   ['wallet']: {
-    latestVersion: 6,
+    latestVersion: 7,
     migrations: [
       {
         version: 2,
@@ -53,6 +54,10 @@ export const SCHEMA_MAP = {
       {
         version: 6,
         migration: wallet_v6,
+      },
+      {
+        version: 7,
+        migration: wallet_v7,
       },
     ],
   },

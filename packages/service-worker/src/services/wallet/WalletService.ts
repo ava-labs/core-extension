@@ -6,6 +6,7 @@ import {
   BitcoinProviderAbstract,
   BitcoinWallet,
   createWalletPolicy,
+  DerivationPath,
   getAddressDerivationPath,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
@@ -364,12 +365,11 @@ export class WalletService implements OnUnlock {
 
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'EVM',
+          { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'AVM',
         );
         const evmExtendedPubKey = getExtendedPublicKeyFor(
@@ -460,11 +460,7 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      const derivationPath = getAddressDerivationPath(
-        accountIndexToUse,
-        secrets.derivationPathSpec,
-        'EVM',
-      );
+      const derivationPath = getAddressDerivationPath(accountIndexToUse, 'EVM');
       const publicKey = getPublicKeyFor(secrets, derivationPath, 'secp256k1');
 
       assertPresent(publicKey, SecretsError.PublicKeyNotFound);
@@ -544,7 +540,6 @@ export class WalletService implements OnUnlock {
 
         const derivationPath = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'AVM',
         );
         const extPublicKey = getExtendedPublicKeyFor(
@@ -571,12 +566,11 @@ export class WalletService implements OnUnlock {
           accountIndex === undefined ? secrets.account.index : accountIndex;
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'EVM',
+          { pathSpec: DerivationPath.LedgerLive },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'AVM',
         );
         const pubkeyEVM = getPublicKeyFor(
@@ -613,12 +607,11 @@ export class WalletService implements OnUnlock {
 
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'EVM',
+          { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'AVM',
         );
         const evmExtendedPubKey = getExtendedPublicKeyFor(
@@ -996,12 +989,11 @@ export class WalletService implements OnUnlock {
 
     const derivationPathEVM = getAddressDerivationPath(
       secrets.account.index,
-      secrets.derivationPathSpec,
       'EVM',
+      { pathSpec: secrets.derivationPathSpec },
     );
     const derivationPathAVM = getAddressDerivationPath(
       secrets.account.index,
-      secrets.derivationPathSpec,
       'AVM',
     );
 
@@ -1303,13 +1295,10 @@ export class WalletService implements OnUnlock {
       secrets.secretType === SecretType.Seedless
     ) {
       const derivationPaths = indices.map((index) =>
-        getAddressDerivationPath(
-          index,
-          secrets.derivationPathSpec,
-          chainAlias === 'X' ? 'AVM' : 'PVM',
-        ),
+        getAddressDerivationPath(index, chainAlias === 'X' ? 'AVM' : 'PVM'),
       );
 
+      // TODO: something is not yes here. try extended keys first and only then fall back to the legacy XP paths????
       const publicKeys = derivationPaths
         .map((derivationPath) =>
           getPublicKeyFor(secrets, derivationPath, 'secp256k1'),
@@ -1326,11 +1315,7 @@ export class WalletService implements OnUnlock {
     }
 
     return indices.map((index) => {
-      const avmDerivationPath = getAddressDerivationPath(
-        index,
-        secrets.derivationPathSpec,
-        'AVM',
-      );
+      const avmDerivationPath = getAddressDerivationPath(index, 'AVM');
       const avmExtendedPubKey = getExtendedPublicKeyFor(
         secrets.extendedPublicKeys,
         avmDerivationPath,
