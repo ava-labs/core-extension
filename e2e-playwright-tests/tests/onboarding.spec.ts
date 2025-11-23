@@ -12,8 +12,8 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_automation_id:EXT_ONBOARDING_001',
+        type: 'custom_case_automation_id',
+        description: 'EXT_ONBOARDING_001',
       });
       console.log('Verifying onboarding options...');
 
@@ -44,7 +44,7 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'custom_automation_id',
+        type: 'custom_case_automation_id',
         description: 'EXT_ONBOARDING_002',
       });
       console.log('Verifying language dropdown functionality...');
@@ -105,8 +105,8 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_automation_id:EXT_ONBOARDING_003',
+        type: 'custom_case_automation_id',
+        description: 'EXT_ONBOARDING_003',
       });
       console.log('Verifying import wallet options...');
 
@@ -133,7 +133,7 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'custom_automation_id',
+        type: 'custom_case_automation_id',
         description: 'EXT_ONBOARDING_004',
       });
       console.log('Verifying recovery phrase form functionality...');
@@ -178,7 +178,7 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'custom_automation_id',
+        type: 'custom_case_automation_id',
         description: 'EXT_ONBOARDING_005',
       });
       console.log('Verifying invalid recovery phrase error...');
@@ -236,7 +236,7 @@ test.describe('Onboarding', () => {
     extensionPage,
   }, testInfo) => {
     testInfo.annotations.push({
-      type: 'custom_automation_id',
+      type: 'custom_case_automation_id',
       description: 'EXT_ONBOARDING_006',
     });
     console.log('Verifying successful onboarding with valid 12-word recovery phrase...');
@@ -279,7 +279,7 @@ test.describe('Onboarding', () => {
     extensionPage,
   }, testInfo) => {
     testInfo.annotations.push({
-      type: 'custom_automation_id',
+      type: 'custom_case_automation_id',
       description: 'EXT_ONBOARDING_007',
     });
     console.log('Verifying successful onboarding with valid 24-word recovery phrase...');
@@ -322,8 +322,8 @@ test.describe('Onboarding', () => {
     extensionPage,
   }, testInfo) => {
     testInfo.annotations.push({
-      type: 'testrail_case_field',
-      description: 'custom_automation_id:EXT_ONBOARDING_008',
+      type: 'custom_case_automation_id',
+      description: 'EXT_ONBOARDING_008',
     });
     console.log('Verifying manual wallet creation flow...');
 
