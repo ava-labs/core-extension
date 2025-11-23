@@ -434,14 +434,7 @@ export class OnboardingPage extends BasePage {
     await avatars[0].click();
     await this.nextButton.click();
 
-    // Wait for wallet creation/initialization to complete
-    // This can take a while in CI as it involves crypto operations
-    console.log('Waiting for wallet creation to complete...');
-    await this.page.waitForTimeout(2000); // Give it time to start processing
-
-    // Wait for submission to complete (may show loading spinner first)
-    // Increased timeout to 4 minutes for CI environment (crypto operations can be very slow)
-    await this.enjoyWalletTitle.waitFor({ state: 'visible', timeout: 240000 });
+    await this.enjoyWalletTitle.waitFor({ state: 'visible', timeout: 60000 });
     console.log('Wallet creation completed - enjoy wallet screen shown');
     await this.letsGoButton.click();
   }
