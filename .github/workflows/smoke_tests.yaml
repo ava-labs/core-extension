@@ -103,13 +103,17 @@ jobs:
           path: ./dist-next
 
       - name: Install TestRail CLI
-        run: pip3 install trcli
+        run: pip3 install trcli --break-system-packages || pip3 install trcli
 
       - name: Create test run in TestRail
         id: trid
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
-          TEST_RUN_ID=`trcli -y -h https://avalabs.testrail.io --project "Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} add_run --title "New Gen Core Extension - $TS" --run-include-all | grep "run_id:" | awk '{print $2}'`
+          TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} add_run --title "New Gen Core Extension - $TS" --run-include-all | grep "run_id:" | awk '{print $2}')
+          if [ -z "$TEST_RUN_ID" ]; then
+            echo "Error: Failed to retrieve TestRail Run ID"
+            exit 1
+          fi
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
 
   download-snapshots:
