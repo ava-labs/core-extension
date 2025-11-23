@@ -12,8 +12,8 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'custom_automation_id',
-        description: 'EXT_ONBOARDING_001',
+        type: 'testrail_case_field',
+        description: 'custom_automation_id:EXT_ONBOARDING_001',
       });
       console.log('Verifying onboarding options...');
 
@@ -105,8 +105,8 @@ test.describe('Onboarding', () => {
     { tag: '@smoke' },
     async ({ extensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'custom_automation_id',
-        description: 'EXT_ONBOARDING_003',
+        type: 'testrail_case_field',
+        description: 'custom_automation_id:EXT_ONBOARDING_003',
       });
       console.log('Verifying import wallet options...');
 
@@ -322,8 +322,8 @@ test.describe('Onboarding', () => {
     extensionPage,
   }, testInfo) => {
     testInfo.annotations.push({
-      type: 'custom_automation_id',
-      description: 'EXT_ONBOARDING_008',
+      type: 'testrail_case_field',
+      description: 'custom_automation_id:EXT_ONBOARDING_008',
     });
     console.log('Verifying manual wallet creation flow...');
 
