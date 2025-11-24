@@ -100,7 +100,6 @@ Once the integration/migration is done you can just update the exports in `packa
 import { container } from 'tsyringe';
 import { AppCheckService } from '~/services/appcheck/AppCheckService';
 import { createClient as createV1ProfileApiClient } from '~/api-clients/profile-api/client';
-import { createClient as createV1BalanceApiClient } from '~/api-clients/deprecated/balance-api/client';
 import { createClient as createV2BalanceApiClient } from '~/api-clients/balance-api/client';
 
 // The rest
@@ -110,5 +109,8 @@ const balanceApiClientV2 = createV2BalanceApiClient({
 });
 balanceApiClientV2.interceptors.request.use(authInterceptor);
 
-export { profileApiClient, balanceApiClientV2 as balanceApiClient };
+export {
+  profileApiClientV1 as profileApiClient,
+  balanceApiClientV2 as balanceApiClient,
+};
 ```
