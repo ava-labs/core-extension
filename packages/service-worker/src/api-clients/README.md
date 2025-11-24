@@ -16,7 +16,7 @@ If the given service's updated API response is backwards compatible you can just
 
 ## In case of breaking change
 
-In order to be able to release the extension with the changes without the need to wait for the API deployed first we need to have the old and the new version fo the client live next to eachother.
+In order to be able to release the extension with the changes without the need to wait for the API deployed first we need to have the old and the new version of the client live next to eachother.
 
 In such cases you should modify the already existing `openapi-ts.config.ts` config of the client to generate the old client to a `deprecated` folder:
 e.g.:
