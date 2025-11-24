@@ -317,7 +317,7 @@ test.afterEach(async ({ context }, testInfo) => {
     console.log('Test failed, capturing screenshot...');
 
     const screenshotDir = path.resolve(__dirname, '..', 'test-results', 'screenshots');
-    const filename = sanitizeFilename(`${testInfo.title}-${Date.now()}.png`);
+    const filename = sanitizeFilename(`${testInfo.title}.png`);
     const filepath = path.join(screenshotDir, filename);
 
     // Create directory if it doesn't exist
@@ -338,8 +338,8 @@ test.afterEach(async ({ context }, testInfo) => {
 
         // Add screenshot as test annotation for test management systems
         testInfo.annotations.push({
-          type: 'screenshot',
-          description: filepath,
+          type: 'testrail_attachment',
+          description: `./e2e-playwright-tests/test-results/screenshots/${filename}`,
         });
       } catch (error) {
         console.error('Failed to capture screenshot:', error);
