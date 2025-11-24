@@ -11,7 +11,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_001',
       });
 
@@ -32,7 +32,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_002',
       });
 
@@ -62,7 +62,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_003',
       });
 
@@ -102,7 +102,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_004',
       });
 
@@ -148,7 +148,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_005',
       });
 
@@ -191,7 +191,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_006',
       });
 
@@ -265,7 +265,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_007',
       });
 
@@ -298,7 +298,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_008',
       });
 
@@ -337,7 +337,7 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'automation_id',
+        type: 'custom_automation_id',
         description: 'EXT_CONTACTS_009',
       });
 
