@@ -68,6 +68,10 @@ yarn dev
 4. Click `Load unpacked` and go to the extension folder.
 5. Select the `dist` folder and press `Select`.
 
+### Update api clients
+
+Please refer to the **[DOC](/packages/service-worker/src/api-clients/README.md)**
+
 ## Release
 
 ### Versioning

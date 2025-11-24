@@ -38,6 +38,7 @@ import { OnUnlock } from '../../runtime/lifecycleCallbacks';
 import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
+import { callGetAddresses } from '~/api-clients';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -85,6 +86,19 @@ export class SecretsService implements OnUnlock {
 
   async onUnlock(): Promise<void> {
     await this.emitWalletsInfo();
+
+    // calling profile api address calculation on extension unlock
+    const walletKeys = await this.#loadSecrets(false);
+    callGetAddresses(
+      walletKeys?.wallets
+        .flatMap((wallet) => {
+          if (!('extendedPublicKeys' in wallet)) {
+            return;
+          }
+          return wallet.extendedPublicKeys;
+        })
+        .filter((xpub) => !!xpub) || [],
+    );
   }
 
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
