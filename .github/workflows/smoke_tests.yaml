@@ -268,7 +268,7 @@ jobs:
           if [ -f "./test-results/junit-report-${{ matrix.shardIndex }}.xml" ]; then
             echo "JUnit report file found"
             cat ./test-results/junit-report-${{ matrix.shardIndex }}.xml | head -50
-            trcli -v -n -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ secrets.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }} --test-case-field custom_automation_id
+            trcli -v -n -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ secrets.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }}
           else
             echo "ERROR: JUnit report file not found: ./test-results/junit-report-${{ matrix.shardIndex }}.xml"
             echo "Available files in test-results:"
