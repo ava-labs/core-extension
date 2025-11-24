@@ -11,8 +11,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_001',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_001',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -32,8 +32,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_002',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_002',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -62,8 +62,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_003',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_003',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -102,8 +102,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_004',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_004',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -148,8 +148,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_005',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_005',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -191,8 +191,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_006',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_006',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -265,8 +265,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_007',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_007',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -298,8 +298,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_008',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_008',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
@@ -337,8 +337,8 @@ test.describe('Contacts', () => {
     },
     async ({ unlockedExtensionPage }, testInfo) => {
       testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'automation_id:EXT_CONTACTS_009',
+        type: 'automation_id',
+        description: 'EXT_CONTACTS_009',
       });
 
       const contactsPage = new ContactsPage(unlockedExtensionPage);
