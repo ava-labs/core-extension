@@ -749,6 +749,11 @@ export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
         case UnifiedBridgeErrorCode.TIMEOUT:
           return t('The transaction timed out');
 
+        case UnifiedBridgeErrorCode.NOTARIZATION_FAILED:
+          return t(
+            'Notarization failed for deposit. Your deposit is safe, please contact support to complete the bridge.',
+          );
+
         case UnifiedBridgeErrorCode.TRANSACTION_REVERTED:
           return t('The transaction has been reverted');
       }
