@@ -16,8 +16,8 @@ interface AssetCardProps {
   onClick?: () => void;
 }
 
-const AVATAR_SIZE = 40;
-const BADGE_SIZE = 18;
+const AVATAR_SIZE = 32;
+const BADGE_SIZE = 16;
 const CHEVRON_SIZE = 20;
 const CARD_BORDER_RADIUS = 2;
 const CARD_GAP = 1.5;
@@ -51,7 +51,13 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
   );
 
   return (
-    <Card sx={{ width: '100%', borderRadius: CARD_BORDER_RADIUS }}>
+    <Card
+      sx={{
+        width: '100%',
+        borderRadius: CARD_BORDER_RADIUS,
+        backgroundColor: 'background.paper',
+      }}
+    >
       <Stack
         role="button"
         onClick={handleClick}
@@ -75,7 +81,7 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
           />
         </Box>
 
-        <Stack flexGrow={1} minWidth={0}>
+        <Stack flexGrow={1} minWidth={0} gap={0}>
           <Typography
             variant="subtitle3"
             noWrap

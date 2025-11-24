@@ -71,7 +71,7 @@ export const AssetsTab: FC = () => {
 
   return (
     <Stack direction="column" gap={1.25} height={1}>
-      <Box bgcolor="background.paper" borderRadius={2} px={2}>
+      <Box bgcolor="background.paper" borderRadius={2} px={1}>
         <TrendingTokenBanner />
       </Box>
       <Stack direction="row" gap={1.25}>

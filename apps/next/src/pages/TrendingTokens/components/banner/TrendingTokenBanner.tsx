@@ -33,7 +33,16 @@ export const TrendingTokenBanner = () => {
     secondToken &&
     thirdToken &&
     showTrendingTokens && (
-      <Card onClick={() => push(`/trending`)} sx={{ py: 0, cursor: 'pointer' }}>
+      <Card
+        onClick={() => push(`/trending`)}
+        sx={{
+          py: 0,
+          cursor: 'pointer',
+          height: '40px',
+          width: '100%',
+          backgroundColor: 'transparent',
+        }}
+      >
         <Stack
           alignItems="center"
           justifyContent="space-between"
