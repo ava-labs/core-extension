@@ -8,13 +8,17 @@ import {
 import { AssetsErrorState } from '../AssetsErrorState';
 import { getAddressForChain } from '@core/common';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
-import { TokenAvatar } from '@/components/TokenAvatar';
 import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { TokenType } from '@avalabs/vm-module-types';
 import { useMemo } from 'react';
 import { PortfolioActionButtons } from '../PortfolioActionButtons';
+import { StyledButton } from '../../styled';
+import { MdKeyboardArrowDown } from 'react-icons/md';
+import { useTranslation } from 'react-i18next';
+import { SizedAvatar } from '@/components/TokenAvatar/components';
 
 export const TokenDetails = () => {
+  const { t } = useTranslation();
   const { networkId, tokenId } = useParams<{
     networkId: string;
     tokenId: string;
@@ -53,6 +57,15 @@ export const TokenDetails = () => {
     placeholderTotalBalance,
     currencyFormatter,
   ]);
+  const handleFilterMenuClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    console.log('filter menu clicked', event);
+  };
+
+  const handleSortMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    console.log('sort menu clicked', event);
+  };
 
   if (!token || !tokenBalance) {
     return <AssetsErrorState />;
@@ -61,7 +74,9 @@ export const TokenDetails = () => {
   return (
     <Stack mt={4.5} mx={1.5}>
       <Box flexShrink={0}>
-        <TokenAvatar token={token} size={32} badgeSize={16} />
+        <SizedAvatar src={token.logoUri} alt={token.symbol} size={32} />
+
+        {/* <TokenAvatar token={token} size={32} badgeSize={16} /> */}
       </Box>
       <Typography variant="h2" color="text.secondary">
         {token.name}
@@ -81,6 +96,21 @@ export const TokenDetails = () => {
         </Typography>
       </Stack>
       <PortfolioActionButtons />
+
+      <Stack direction="row" gap={1.25} mt={3}>
+        <StyledButton
+          endIcon={<MdKeyboardArrowDown size={16} />}
+          onClick={handleFilterMenuClick}
+        >
+          {t('Filter')}
+        </StyledButton>
+        <StyledButton
+          endIcon={<MdKeyboardArrowDown size={16} />}
+          onClick={handleSortMenuClick}
+        >
+          {t('Sort')}
+        </StyledButton>
+      </Stack>
     </Stack>
   );
 };

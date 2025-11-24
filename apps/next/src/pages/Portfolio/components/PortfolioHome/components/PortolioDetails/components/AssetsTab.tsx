@@ -1,4 +1,4 @@
-import { Box, Button, ButtonProps, Stack, styled } from '@avalabs/k2-alpine';
+import { Box, Stack } from '@avalabs/k2-alpine';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdKeyboardArrowDown } from 'react-icons/md';
@@ -18,6 +18,7 @@ import { SortMenu } from './SortMenu';
 import { AssetSortOption, sortAssets } from '../utils/assetSorting';
 import { AssetsEmptyState } from './AssetsEmptyState';
 import { AssetsErrorState } from './AssetsErrorState';
+import { StyledButton } from '../styled';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
@@ -124,14 +125,3 @@ export const AssetsTab: FC = () => {
     </Stack>
   );
 };
-
-const StyledButton = styled((buttonProps: ButtonProps) => (
-  <Button
-    variant="contained"
-    color="secondary"
-    size="xsmall"
-    {...buttonProps}
-  />
-))(({ theme }) => ({
-  paddingInline: theme.spacing(1.5),
-}));
