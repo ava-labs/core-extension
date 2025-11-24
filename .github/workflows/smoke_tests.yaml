@@ -103,17 +103,13 @@ jobs:
           path: ./dist-next
 
       - name: Install TestRail CLI
-        run: pip3 install trcli --break-system-packages || pip3 install trcli
+        run: pip3 install trcli
 
       - name: Create test run in TestRail
         id: trid
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
-          TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ secrets.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} add_run --title "New Gen Core Extension - $TS" --run-include-all | grep "run_id:" | awk '{print $2}')
-          if [ -z "$TEST_RUN_ID" ]; then
-            echo "Error: Failed to retrieve TestRail Run ID"
-            exit 1
-          fi
+          TEST_RUN_ID=`trcli -y -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} add_run --title "New Gen Core Extension - $TS" --run-include-all | grep "run_id:" | awk '{print $2}'`
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
 
   download-snapshots:
@@ -264,9 +260,7 @@ jobs:
           python3 -m venv ~/py_env
           source ~/py_env/bin/activate
           pip3 install trcli
-          ls -la ./e2e-playwright-tests/test-results/ || echo "Directory not found"
-          cat ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml || echo "XML not found"
-          trcli -v -n -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ secrets.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }}
+          trcli -n -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ vars.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }}
 
       - name: Output TestRail run link
         if: always()
