@@ -116,14 +116,13 @@ export const AccountSectionContainer = styled('div')<{ shouldShift: boolean }>(
 );
 
 // Small label shown below sections on hover
-export const Label = styled(Typography)(({ theme }) => ({
+export const Label = styled(Typography)(() => ({
   fontSize: '10px',
   opacity: 0.6,
   position: 'absolute',
   top: '100%',
   left: 0,
   whiteSpace: 'nowrap',
-  marginTop: theme.spacing(0.25),
   zIndex: 1000,
   pointerEvents: 'none',
 }));
