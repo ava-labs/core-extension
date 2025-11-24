@@ -19,9 +19,9 @@ import { SizedAvatar } from '@/components/TokenAvatar/components';
 
 export const TokenDetails = () => {
   const { t } = useTranslation();
-  const { networkId, tokenId } = useParams<{
+  const { networkId, tokenAddress } = useParams<{
     networkId: string;
-    tokenId: string;
+    tokenAddress: string;
   }>();
   const {
     accounts: { active: activeAccount },
@@ -35,14 +35,14 @@ export const TokenDetails = () => {
 
   const token = assets.find((asset) =>
     asset.coreChainId === Number(networkId) && asset.type === TokenType.ERC20
-      ? asset.symbol.toLowerCase() === tokenId.toLowerCase()
+      ? asset.symbol.toLowerCase() === tokenAddress.toLowerCase()
       : asset.coreChainId === Number(networkId) &&
           asset.type === TokenType.NATIVE
-        ? asset.symbol.toLowerCase() === tokenId.toLowerCase()
+        ? asset.symbol.toLowerCase() === tokenAddress.toLowerCase()
         : false,
   );
 
-  const tokenBalance = balances.tokens?.[networkId]?.[address]?.[tokenId];
+  const tokenBalance = balances.tokens?.[networkId]?.[address]?.[tokenAddress];
 
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),

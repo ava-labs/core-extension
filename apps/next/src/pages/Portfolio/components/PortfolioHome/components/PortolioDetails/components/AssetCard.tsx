@@ -40,9 +40,9 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
   const history = useHistory();
 
   const handleClick = () => {
-    history.push(
-      `/asset/${asset.coreChainId}/${asset.type === TokenType.NATIVE ? asset.symbol : asset.address}`,
-    );
+    const tokenAddress =
+      asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
+    history.push(`/asset/${asset.coreChainId}/${tokenAddress}/${asset.name}`);
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);
