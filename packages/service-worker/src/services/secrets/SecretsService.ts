@@ -89,7 +89,16 @@ export class SecretsService implements OnUnlock {
 
     // calling profile api address calculation on extension unlock
     const walletKeys = await this.#loadSecrets(false);
-    callGetAddresses(walletKeys);
+    callGetAddresses(
+      walletKeys?.wallets
+        .flatMap((wallet) => {
+          if (!('extendedPublicKeys' in wallet)) {
+            return;
+          }
+          return wallet.extendedPublicKeys;
+        })
+        .filter((xpub) => !!xpub) || [],
+    );
   }
 
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
