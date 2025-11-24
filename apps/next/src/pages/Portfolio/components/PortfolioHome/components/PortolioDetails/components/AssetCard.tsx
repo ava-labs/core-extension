@@ -10,10 +10,11 @@ import { ProfitAndLoss } from './ProfitAndLoss';
 import { FungibleTokenBalance } from '@core/types';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { Card } from '@/components/Card';
+import { useHistory } from 'react-router-dom';
+import { TokenType } from '@avalabs/vm-module-types';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
-  onClick?: () => void;
 }
 
 const AVATAR_SIZE = 32;
@@ -34,14 +35,14 @@ const formatTokenBalance = (balance: string, symbol: string): string => {
   return `${balance} ${symbol}`;
 };
 
-export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
+export const AssetCard = ({ asset }: AssetCardProps) => {
   const theme = useTheme();
+  const history = useHistory();
 
   const handleClick = () => {
-    onClick?.();
-    // TODO: Navigate to asset details page when route is available
-    // const history = useHistory();
-    // history.push(`/asset/${asset.symbol}`);
+    history.push(
+      `/asset/${asset.coreChainId}/${asset.type === TokenType.NATIVE ? asset.symbol : asset.address}`,
+    );
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);
@@ -65,7 +66,7 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
         alignItems="center"
         gap={CARD_GAP}
         sx={{
-          cursor: onClick ? 'pointer' : 'default',
+          cursor: 'pointer',
           px: theme.spacing(CARD_PADDING_X),
           py: theme.spacing(CARD_PADDING_Y),
         }}
