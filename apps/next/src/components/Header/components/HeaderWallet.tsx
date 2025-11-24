@@ -2,7 +2,8 @@ import { PersonalAvatar } from '@/components/PersonalAvatar';
 import { FC, useEffect, useRef, useState } from 'react';
 import { HeaderWalletDetails } from '../types';
 import { useHistory } from 'react-router-dom';
-import { styled, Typography } from '@avalabs/k2-alpine';
+import { styled } from '@avalabs/k2-alpine';
+import { TruncatedText } from './styledComponents';
 
 type Props = {
   wallet: HeaderWalletDetails;
@@ -30,27 +31,6 @@ const WalletNameContainer = styled('div')({
   justifyContent: 'center',
   overflow: 'visible',
 });
-
-const TruncatedText = styled(Typography)<{ showFade?: boolean }>(
-  ({ theme, showFade }) => ({
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    position: 'relative',
-    display: 'block',
-    '&::after': showFade
-      ? {
-          content: '""',
-          position: 'absolute',
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: '24px',
-          background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
-          pointerEvents: 'none',
-        }
-      : {},
-  }),
-);
 
 export const HeaderWallet: FC<Props> = ({ wallet }) => {
   const history = useHistory();

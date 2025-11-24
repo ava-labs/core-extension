@@ -8,6 +8,7 @@ import { usePersonalAvatar } from '@/components/PersonalAvatar';
 import { useAccountsContext, useWalletTotalBalance } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
+import { getNetworkCount } from '../utils/networkCount';
 
 type Props = {
   wallet: WalletDetailsType;
@@ -28,7 +29,10 @@ export const WalletDetails = ({ wallet }: Props) => {
   } = usePersonalAvatar();
   // Generate unique avatars for each account
   const accountAvatars = useMemo(() => {
-    return getAccountAvatars(userAvatarName, accountsInWallet);
+    return getAccountAvatars({
+      userAvatarName,
+      accountsInWallet,
+    });
   }, [accountsInWallet, userAvatarName]);
 
   const accountCount = useMemo(() => {
@@ -36,11 +40,7 @@ export const WalletDetails = ({ wallet }: Props) => {
   }, [networksWithBalance]);
 
   const networkCount = useMemo(() => {
-    const allNetworks = Object.values(networksWithBalance).flat();
-    const uniqueChainIds = new Set(
-      allNetworks.map((network) => network.chainId),
-    );
-    return uniqueChainIds.size;
+    return getNetworkCount(networksWithBalance);
   }, [networksWithBalance]);
 
   return (

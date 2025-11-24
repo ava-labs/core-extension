@@ -1,4 +1,10 @@
-import { Button, keyframes, Stack, styled } from '@avalabs/k2-alpine';
+import {
+  Button,
+  keyframes,
+  Stack,
+  styled,
+  Typography,
+} from '@avalabs/k2-alpine';
 
 export const AccountInfo = styled(Stack)`
   cursor: pointer;
@@ -143,3 +149,25 @@ export const getClassSelector = (
   }
   return stateClass;
 };
+
+// Text that truncates with a fade gradient effect
+export const TruncatedText = styled(Typography)<{ showFade?: boolean }>(
+  ({ theme, showFade }) => ({
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    position: 'relative',
+    display: 'block',
+    '&::after': showFade
+      ? {
+          content: '""',
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: '24px',
+          background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
+          pointerEvents: 'none',
+        }
+      : {},
+  }),
+);

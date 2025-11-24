@@ -9,6 +9,7 @@ import { ImportedAccount } from '@core/types';
 import { Stack } from '@avalabs/k2-alpine';
 import { PortfolioActionButtons } from '../../PortfolioHome/components/PortolioDetails/components/PortfolioActionButtons';
 import { WalletAccountsCard } from './WalletAccountsCard';
+import { getNetworkCount } from '../utils/networkCount';
 
 type Props = {
   account: ImportedAccount;
@@ -24,15 +25,14 @@ export const ImportedAccountDetails = ({ account }: Props) => {
   } = usePersonalAvatar();
   // Generate unique avatars for each account
   const accountAvatars = useMemo(() => {
-    return getAccountAvatars(userAvatarName, [account]);
+    return getAccountAvatars({
+      userAvatarName,
+      accountsInWallet: [account],
+    });
   }, [userAvatarName, account]);
 
   const networkCount = useMemo(() => {
-    const allNetworks = Object.values(networksWithBalance).flat();
-    const uniqueChainIds = new Set(
-      allNetworks.map((network) => network.chainId),
-    );
-    return uniqueChainIds.size;
+    return getNetworkCount(networksWithBalance);
   }, [networksWithBalance]);
   const percentageChange = useMemo(() => {
     const amountChange = balance?.priceChange?.value;

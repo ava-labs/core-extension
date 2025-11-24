@@ -2,7 +2,7 @@ import { PersonalAvatarName } from '@/components/PersonalAvatar';
 import { Account } from '@core/types';
 
 // Avatars from avatar-dictionary.ts
-const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
+export const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
   'abstract-1.svg',
   'abstract-2.svg',
   'abstract-3.svg',
@@ -20,24 +20,32 @@ const ACCOUNT_AVATAR_OPTIONS: PersonalAvatarName[] = [
   'art-9.svg',
 ];
 
-export const getAccountAvatars = (
-  userAvatarName: PersonalAvatarName,
-  accountsInWallet: Account[],
-) => {
-  const availableAvatars = ACCOUNT_AVATAR_OPTIONS.filter(
-    (avatar) => avatar !== userAvatarName,
+type avatarsOptions = {
+  userAvatarName?: string;
+  accountsInWallet: Account[];
+};
+export const getAccountAvatars = ({
+  userAvatarName,
+  accountsInWallet,
+}: avatarsOptions) => {
+  const uniqueAccountIds = Array.from(
+    new Set(accountsInWallet.map((account) => account.id)),
   );
+
+  const availableAvatars = userAvatarName
+    ? ACCOUNT_AVATAR_OPTIONS.filter((avatar) => avatar !== userAvatarName)
+    : ACCOUNT_AVATAR_OPTIONS;
 
   // If user's avatar removed all options, use original list
   const avatarsToUse =
     availableAvatars.length > 0 ? availableAvatars : ACCOUNT_AVATAR_OPTIONS;
 
   const avatarMap = new Map<string, PersonalAvatarName>();
-  accountsInWallet.forEach((account, index) => {
+  uniqueAccountIds.forEach((accountId, index) => {
     const avatarIndex = index % avatarsToUse.length;
     const selectedAvatar = avatarsToUse[avatarIndex];
     if (selectedAvatar) {
-      avatarMap.set(account.id, selectedAvatar);
+      avatarMap.set(accountId, selectedAvatar);
     }
   });
 
