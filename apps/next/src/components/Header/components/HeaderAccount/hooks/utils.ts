@@ -13,7 +13,7 @@ export const measureTextWidth = (text: string): number => {
 // Layout constants
 const CONTAINER_WIDTH = 128;
 const NAVIGATE_ICON_WIDTH = 20;
-const WALLET_ICON_WIDTH = 20;
+const WALLET_ICON_WIDTH = 24; // Minimum width for icon + space for label
 const GAP = 4;
 
 // Layout state for wallet display

@@ -1,5 +1,10 @@
 import { TruncatedText } from '../../styledComponents';
-import { BalanceTooltip, Label, WalletSectionContainer } from '../styled';
+import {
+  BalanceTooltip,
+  Label,
+  TextWrapper,
+  WalletSectionContainer,
+} from '../styled';
 import { WalletIcon } from '@/components/WalletIcon';
 import { useTranslation } from 'react-i18next';
 import { FC, useMemo } from 'react';
@@ -90,13 +95,15 @@ export const WalletSection: FC<Props> = ({
           size={walletIconSize}
         />
       ) : (
-        <TruncatedText
-          ref={walletTextRef}
-          variant="subtitle3"
-          showFade={shouldTruncateWallet}
-        >
-          {wallet.name}
-        </TruncatedText>
+        <TextWrapper>
+          <TruncatedText
+            ref={walletTextRef}
+            variant="subtitle3"
+            showFade={shouldTruncateWallet}
+          >
+            {wallet.name}
+          </TruncatedText>
+        </TextWrapper>
       )}
 
       {isContainerHovered && <Label variant="caption">{t('Wallet')}</Label>}

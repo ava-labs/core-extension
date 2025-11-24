@@ -27,22 +27,32 @@ export const WalletSectionContainer = styled('div')<{
     }
   }
 
+  // When showing icon, ensure enough width for the label to not overlap
+  const computedMinWidth = showIcon ? 24 : 0;
+
   return {
     display: 'flex',
     flexDirection: 'column',
-    minWidth: 0,
-    width: 'fit-content',
+    minWidth: showIcon ? computedMinWidth : 0,
+    minHeight: '20px',
+    ...(showIcon && { width: computedMinWidth }),
     maxWidth: computedMaxWidth,
     flexShrink: shouldTruncate ? 1 : 0,
     flexGrow: 0,
     cursor: 'pointer',
     position: 'relative',
     justifyContent: 'center',
-    overflow: 'visible',
+    alignItems: showIcon ? 'center' : 'flex-start',
     transition: theme.transitions.create(['max-width'], {
       duration: theme.transitions.duration.short,
     }),
   };
+});
+
+export const TextWrapper = styled('div')({
+  overflow: 'hidden',
+  maxWidth: '100%',
+  position: 'relative',
 });
 
 // Tooltip showing wallet balance, fixed to top of screen
@@ -90,6 +100,7 @@ export const AccountSectionContainer = styled('div')<{ shouldShift: boolean }>(
     display: 'flex',
     flexDirection: 'column',
     minWidth: 0,
+    height: '20px',
     flexGrow: 1,
     flexShrink: 1,
     cursor: 'pointer',
@@ -113,5 +124,6 @@ export const Label = styled(Typography)(({ theme }) => ({
   left: 0,
   whiteSpace: 'nowrap',
   marginTop: theme.spacing(0.25),
-  zIndex: 10,
+  zIndex: 1000,
+  pointerEvents: 'none',
 }));
