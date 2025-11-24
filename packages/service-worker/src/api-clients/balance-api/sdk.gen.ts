@@ -29,7 +29,7 @@ export type Options<
 export const postV1BalanceGetBalances = <ThrowOnError extends boolean = false>(
   options: Options<PostV1BalanceGetBalancesData, ThrowOnError>,
 ) => {
-  return (options.client ?? client).post<
+  return (options.client ?? client).sse.post<
     PostV1BalanceGetBalancesResponses,
     unknown,
     ThrowOnError
