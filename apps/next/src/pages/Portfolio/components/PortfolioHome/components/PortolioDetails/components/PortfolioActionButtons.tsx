@@ -1,6 +1,7 @@
 import {
   BridgeIcon,
   SendIcon,
+  Slide,
   SquareButton,
   Stack,
   SwapIcon,
@@ -27,32 +28,40 @@ const ICON_SIZE = 19.2;
 export const PortfolioActionButtons = () => {
   const { push } = useHistory();
   return (
-    <Stack direction="row" gap={1}>
-      <SquareButton
-        variant="extension"
-        icon={<SendIcon size={ICON_SIZE} />}
-        label="Send"
-        onClick={() => push(getSendPath())}
-      />
-
-      <SquareButton
-        variant="extension"
-        icon={<SwapIcon size={ICON_SIZE} />}
-        label="Swap"
-        onClick={() => push(getSwapPath())}
-      />
-      <SquareButton
-        variant="extension"
-        icon={<MdAdd size={ICON_SIZE} />}
-        label="Buy"
-        onClick={onNotImplementedClick}
-      />
-      <SquareButton
-        variant="extension"
-        icon={<BridgeIcon size={ICON_SIZE} />}
-        label="Bridge"
-        onClick={() => push(getBridgePath())}
-      />
+    <Stack direction="row" gap={1} width="100%">
+      {/* TODO: create the proper animation */}
+      <Slide direction="left" in timeout={300} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<SendIcon size={ICON_SIZE} />}
+          label="Send"
+          onClick={() => push(getSendPath())}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={600} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<SwapIcon size={ICON_SIZE} />}
+          label="Swap"
+          onClick={() => push(getSwapPath())}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={900} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<MdAdd size={ICON_SIZE} />}
+          label="Buy"
+          onClick={onNotImplementedClick}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={1200} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<BridgeIcon size={ICON_SIZE} />}
+          label="Bridge"
+          onClick={() => push(getBridgePath())}
+        />
+      </Slide>
     </Stack>
   );
 };

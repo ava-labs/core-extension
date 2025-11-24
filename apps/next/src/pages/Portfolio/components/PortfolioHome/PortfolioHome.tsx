@@ -1,6 +1,6 @@
 import {
+  alpha,
   CircularProgress,
-  getHexAlpha,
   Stack,
   styled,
   TabBar,
@@ -127,9 +127,9 @@ export const PortfolioHome: FC = () => {
 const TabsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
   bottom: 0,
-  zIndex: 100,
   paddingTop: theme.spacing(1),
-  background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
+  zIndex: theme.zIndex.appBar,
+  background: `linear-gradient(180deg, ${alpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
 
   '> div': {
     background: 'unset',
