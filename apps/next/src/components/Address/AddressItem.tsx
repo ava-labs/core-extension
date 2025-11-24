@@ -69,7 +69,7 @@ export const AddressItem: FC<Props> = ({
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            navigator.clipboard.writeText(address);
+            navigator.clipboard.writeText(strippedAddress);
             toast.success(t('Address copied!'), {
               id: 'address-copied',
             });

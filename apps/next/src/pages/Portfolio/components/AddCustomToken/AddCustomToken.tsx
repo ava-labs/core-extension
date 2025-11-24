@@ -63,6 +63,7 @@ export const AddCustomToken: FC = () => {
         getGroupLabel={() => ''}
         value={selectedNetwork}
         query={networkQuery}
+        skipGroupingEntirely
         onValueChange={(network) => setChainId(network.caipId)}
         onQueryChange={setNetworkQuery}
         searchFn={(network, query) =>
@@ -113,7 +114,6 @@ export const AddCustomToken: FC = () => {
             </Stack>
           </MenuItem>
         )}
-        skipGroupingEntirely
       />
 
       <Collapse in={Boolean(chainId)}>
