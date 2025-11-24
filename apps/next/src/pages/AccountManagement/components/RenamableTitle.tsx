@@ -28,6 +28,15 @@ const RenameButton = styled(IconButton)(({ theme }) => ({
     },
 }));
 
+const TitleContainer = styled(Box)(({ theme }) => ({
+  maxWidth: '100%',
+  transition: theme.transitions.create(['max-width']),
+  [`.${listItemClasses.root}:hover &, .${accordionSummaryClasses.root}:hover &`]:
+    {
+      maxWidth: '130px',
+    },
+}));
+
 export const RenamableTitle: FC<Props> = ({
   children,
   onRename,
@@ -35,7 +44,7 @@ export const RenamableTitle: FC<Props> = ({
   ...props
 }) => {
   return (
-    <Box
+    <TitleContainer
       display="flex"
       flexDirection="row"
       width={width ?? 1}
@@ -52,6 +61,6 @@ export const RenamableTitle: FC<Props> = ({
       <RenameButton onClick={onRename} size="small">
         <MdModeEdit size={12} color={props.color} />
       </RenameButton>
-    </Box>
+    </TitleContainer>
   );
 };

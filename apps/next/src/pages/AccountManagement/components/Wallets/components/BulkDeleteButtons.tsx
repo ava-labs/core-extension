@@ -1,6 +1,5 @@
-import { AccountManagementRouteState } from '@/pages/AccountManagement/types';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
-import { Box, Button, Slide, Stack } from '@avalabs/k2-alpine';
+import { alpha, Box, Button, Slide, Stack, styled } from '@avalabs/k2-alpine';
 import { useAccountManager } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,12 +10,14 @@ export const BulkDeleteButtons: FC = () => {
   const { isManageMode, toggleManageMode, exitManageMode, selectedAccounts } =
     useAccountManager();
   const [showButtons, setShowButtons] = useState(isManageMode);
-  const { push } = useHistory<AccountManagementRouteState>();
+  const { push } = useHistory();
 
   return (
-    <>
+    <BulkDeleteButtonsContainer
+      sx={{ height: isManageMode ? '122px' : '75px' }}
+    >
       {!isManageMode && (
-        <Box mx="auto">
+        <Box mx="auto" marginTop="auto">
           <Button
             variant="contained"
             size="xsmall"
@@ -26,7 +27,7 @@ export const BulkDeleteButtons: FC = () => {
               setShowButtons(true);
             }}
           >
-            {t('Manage')}
+            {t('Manage wallets')}
           </Button>
         </Box>
       )}
@@ -44,20 +45,16 @@ export const BulkDeleteButtons: FC = () => {
             size="extension"
             fullWidth
             disabled={selectedAccounts.length === 0}
-            onClick={() =>
-              push(
-                {
-                  pathname: '/account-management/delete-account',
-                  search: new URLSearchParams(
-                    selectedAccounts.map((id) => [
-                      URL_SEARCH_TOKENS.account,
-                      id,
-                    ]),
-                  ).toString(),
-                },
-                { bulkMode: true },
-              )
-            }
+            onClick={() => {
+              const params = new URLSearchParams(
+                selectedAccounts.map((id) => [URL_SEARCH_TOKENS.account, id]),
+              );
+              params.set(URL_SEARCH_TOKENS.bulkMode, 'true');
+              push({
+                pathname: '/account-management/delete-account',
+                search: params.toString(),
+              });
+            }}
           >
             {t('Delete selected')}
           </Button>
@@ -72,6 +69,24 @@ export const BulkDeleteButtons: FC = () => {
           </Button>
         </Stack>
       </Slide>
-    </>
+    </BulkDeleteButtonsContainer>
   );
 };
+
+const BulkDeleteButtonsContainer = styled(Stack)(({ theme }) => ({
+  position: 'sticky',
+  bottom: 0,
+  zIndex: 100,
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1.5),
+  marginLeft: `-${theme.spacing(1.5)}`,
+  paddingInline: theme.spacing(2),
+  marginRight: `-${theme.spacing(1.5)}`,
+  marginBottom: `-${theme.spacing(1.5)}`,
+  background: `linear-gradient(180deg, ${alpha(theme.palette.mode === 'light' ? theme.palette.background.paper : theme.palette.background.default, 0)} 0%, 
+	${theme.palette.mode === 'light' ? theme.palette.background.paper : theme.palette.background.default} 32px)`,
+
+  '> div': {
+    background: 'unset',
+  },
+}));
