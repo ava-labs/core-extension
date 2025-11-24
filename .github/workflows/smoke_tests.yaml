@@ -256,11 +256,25 @@ jobs:
       - name: Upload results to TestRail
         if: always()
         shell: bash
+        working-directory: e2e-playwright-tests
         run: |
           python3 -m venv ~/py_env
           source ~/py_env/bin/activate
           pip3 install trcli
-          trcli -n -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ secrets.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./e2e-playwright-tests/test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }}
+          echo "TEST_RUN_ID: ${{ env.TEST_RUN_ID }}"
+          echo "Shard Index: ${{ matrix.shardIndex }}"
+          echo "Checking for JUnit report file..."
+          ls -la ./test-results/ || echo "Directory not found"
+          if [ -f "./test-results/junit-report-${{ matrix.shardIndex }}.xml" ]; then
+            echo "JUnit report file found"
+            cat ./test-results/junit-report-${{ matrix.shardIndex }}.xml | head -50
+            trcli -n -h https://avalabs.testrail.io --project "New Gen Core Extension" --username ${{ secrets.TESTRAIL_EMAIL }} --key ${{ secrets.TESTRAIL_API_KEY }} parse_junit -f ./test-results/junit-report-${{ matrix.shardIndex }}.xml --run-id=${{ env.TEST_RUN_ID }}
+          else
+            echo "ERROR: JUnit report file not found: ./test-results/junit-report-${{ matrix.shardIndex }}.xml"
+            echo "Available files in test-results:"
+            ls -la ./test-results/ || echo "Directory does not exist"
+            exit 1
+          fi
 
       - name: Output TestRail run link
         if: always()
