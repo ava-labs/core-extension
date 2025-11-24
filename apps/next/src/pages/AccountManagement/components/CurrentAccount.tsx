@@ -31,9 +31,8 @@ const CurrentAccount: FC<Props> = ({ className }) => {
   const { t } = useTranslation();
   const { accounts } = useAccountsContext();
   const { walletDetails } = useWalletContext();
-  const { totalBalanceInCurrency = 0 } = useWalletTotalBalance(
-    walletDetails?.id,
-  );
+  const { totalBalanceInCurrency } = useWalletTotalBalance(walletDetails?.id);
+
   const accountBalance = useBalanceTotalInCurrency(accounts.active);
   const { currencyFormatter } = useSettingsContext();
   useLiveBalance(POLLED_BALANCES);
@@ -41,14 +40,18 @@ const CurrentAccount: FC<Props> = ({ className }) => {
   return (
     <Root className={className}>
       <Typography variant="caption" color="text.disabled">
-        {t('Currently using {{name}}', { name: walletDetails?.name })}
+        {t('Currently using {{name}}', {
+          name: walletDetails ? walletDetails.name : 'Imported wallet',
+        })}
       </Typography>
       <Typography variant="caption" textAlign="end" color="text.disabled">
-        {currencyFormatter(totalBalanceInCurrency)}
+        {totalBalanceInCurrency
+          ? currencyFormatter(totalBalanceInCurrency)
+          : '-'}
       </Typography>
       <Typography variant="subtitle3">{accounts.active?.name}</Typography>
       <Typography variant="subtitle3" textAlign="end">
-        {currencyFormatter(accountBalance?.sum ?? 0)}
+        {accountBalance?.sum ? currencyFormatter(accountBalance.sum) : '-'}
       </Typography>
     </Root>
   );

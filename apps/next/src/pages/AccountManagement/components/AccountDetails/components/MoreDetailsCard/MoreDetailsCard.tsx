@@ -1,5 +1,6 @@
 import { isPrivateKeyRevealable } from '@/pages/AccountManagement/utils/isPrivateKeyRevealable';
 import {
+  Box,
   ChevronRightIcon,
   List,
   ListItem,
@@ -27,7 +28,7 @@ export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
   } = useHistory();
 
   return (
-    <Styled.Card>
+    <Styled.Card sx={{ paddingBlock: 0 }}>
       <Styled.CardContent>
         <List disablePadding>
           <ListItem>
@@ -42,11 +43,10 @@ export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
             <ListItemText primary={t('Wallet')} {...textProps} />
             <ListItemText secondary={walletName} {...textProps} />
           </ListItem>
-          {}
           <Styled.Divider variant="middle" component="li" />
           <ListItem disablePadding>
             <ListItemButton
-              sx={{ paddingBlock: 0.5 }}
+              sx={{ paddingBlock: 0.75 }}
               disabled={!isPrivateKeyRevealable(walletType)}
               onClick={() => {
                 push({
@@ -57,7 +57,18 @@ export const MoreDetailsCard: FC<Props> = ({ walletName, walletType }) => {
             >
               <ListItemText primary={t('Show private key')} {...textProps} />
               <ListItemText
-                secondary={<ChevronRightIcon size={20} />}
+                secondary={
+                  <Box
+                    component="span"
+                    sx={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      verticalAlign: 'middle',
+                    }}
+                  >
+                    <ChevronRightIcon size={22} />
+                  </Box>
+                }
                 {...textProps}
               />
             </ListItemButton>
