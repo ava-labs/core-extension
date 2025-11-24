@@ -114,18 +114,6 @@ export const ImportPrivateKeyForm = ({
 
   return (
     <>
-      <Typography
-        variant="h2"
-        sx={{
-          mt: '23px',
-          mb: 6,
-          '&.MuiTypography-root': {
-            fontWeight: 700,
-          },
-        }}
-      >
-        {t('Import private key')}
-      </Typography>
       <Stack>
         <LessRoundedPasswordField
           value={privateKey}

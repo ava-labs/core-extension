@@ -20,23 +20,23 @@ export const WalletIcon: FC<WalletIconProps> = ({
   size,
 }) => {
   if (type === SecretType.Ledger || type === SecretType.LedgerLive) {
-    return <LedgerIcon size={size ?? 16} />;
+    return <LedgerIcon size={size ?? 18} />;
   }
 
   if (type === SecretType.Seedless) {
     if (authProvider === SeedlessAuthProvider.Google) {
-      return <FaGoogle size={size ?? 16} />;
+      return <FaGoogle size={size ?? 18} />;
     }
 
     if (authProvider === SeedlessAuthProvider.Apple) {
-      return <FaApple size={size ?? 16} />;
+      return <FaApple size={size ?? 22} />;
     }
   }
 
   if (type === SecretType.Keystone || type === SecretType.Keystone3Pro) {
-    return <KeystoneIcon size={size ?? 14} />;
+    return <KeystoneIcon size={size ?? 18} />;
   }
 
   const MnemonicIcon = expanded ? WalletOpenIcon : WalletClosedIcon;
-  return <MnemonicIcon size={size ?? 21} />;
+  return <MnemonicIcon size={size ?? 24} />;
 };

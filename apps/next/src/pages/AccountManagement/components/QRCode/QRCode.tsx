@@ -3,15 +3,16 @@ import { useAccountsContext } from '@core/ui';
 import QRCodeSVG from 'qrcode.react';
 import { FC } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
+import { Page } from '@/components/Page';
 import { AddressItem } from '@/components/Address/AddressItem';
 import { type History } from 'history';
-import CurrentAccount from '../CurrentAccount';
 import * as Styled from '../Styled';
 import { AddressSelector } from '../../../../components/AddressSelector';
 import { getNavigateToQRCode, getSearchParams } from './utils';
 import { AddressType } from '@core/types';
 import { getChainLabelAndIconByAddressType } from '@/utils/getChainLabelAndIconByAddressType';
 import { CChainAddressDisclaimer } from '@/components/CChainAddressDisclaimer';
+import CurrentAccount from '../CurrentAccount';
 
 const QRCodeBox = styled(Box)(({ theme }) => ({
   position: 'relative',
@@ -47,39 +48,43 @@ export const QRCode: FC = () => {
   }
 
   return (
-    <Box height={1} gap={2} display="grid" gridTemplateRows="auto 1fr auto">
+    <Page
+      withBackButton
+      contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
+    >
       <CurrentAccount />
-
-      <Stack gap={1.5} alignItems="center" my="auto">
-        <AddressSelector
-          type={addressType}
-          account={account}
-          onChange={getOnAddressChange(replace, account.id)}
-        />
-        <QRCodeBox>
-          <QRCodeSVG
-            renderAs="svg"
-            value={account[`address${addressType}`] ?? ''}
-            level="H"
-            size={180}
+      <Box height={1} gap={2} display="grid" gridTemplateRows="1fr auto">
+        <Stack gap={1.5} alignItems="center" my="auto">
+          <AddressSelector
+            type={addressType}
+            account={account}
+            onChange={getOnAddressChange(replace, account.id)}
           />
-        </QRCodeBox>
+          <QRCodeBox>
+            <QRCodeSVG
+              renderAs="svg"
+              value={account[`address${addressType}`] ?? ''}
+              level="H"
+              size={180}
+            />
+          </QRCodeBox>
 
-        <Collapse in={addressType === 'C'}>
-          <CChainAddressDisclaimer />
-        </Collapse>
-      </Stack>
+          <Collapse in={addressType === 'C'}>
+            <CChainAddressDisclaimer />
+          </Collapse>
+        </Stack>
 
-      <Stack mt="auto" gap={1.5}>
-        <Styled.Card>
-          <AddressItem
-            {...getChainLabelAndIconByAddressType(addressType)}
-            address={account[`address${addressType}`]}
-            truncate={false}
-            copyActionVisibility="always"
-          />
-        </Styled.Card>
-      </Stack>
-    </Box>
+        <Stack mt="auto" gap={1.5}>
+          <Styled.Card>
+            <AddressItem
+              {...getChainLabelAndIconByAddressType(addressType)}
+              address={account[`address${addressType}`]}
+              truncate={false}
+              copyActionVisibility="always"
+            />
+          </Styled.Card>
+        </Stack>
+      </Box>
+    </Page>
   );
 };
