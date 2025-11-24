@@ -9,7 +9,7 @@ const shardId = process.env.PLAYWRIGHT_SHARD || 'default';
 
 const testRailOptions = {
   embedAnnotationsAsProperties: true,
-  outputFile: `../test-results/junit-report-${shardId}.xml`,
+  outputFile: `../tests/test-results/junit-report-${shardId}.xml`,
 };
 
 /**
@@ -42,7 +42,7 @@ export default defineConfig({
   globalSetup: require.resolve('./global-setup.ts'),
   testDir: '../tests',
   testMatch: '**/*.spec.ts',
-  outputDir: '../test-results',
+  outputDir: '../tests/test-results',
   timeout: 120000,
   expect: { timeout: 10000 },
   forbidOnly: !!process.env.CI,
