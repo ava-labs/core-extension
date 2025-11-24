@@ -1,3 +1,4 @@
+import { hex } from '@scure/base';
 import { RpcMethod } from '@avalabs/vm-module-types';
 
 import {
@@ -5,8 +6,9 @@ import {
   JsonRpcResponse,
   ExtensionConnectionMessage,
   ExtensionConnectionMessageResponse,
-  AVALANCHE_BASE_DERIVATION_PATH,
   PrimaryWalletSecrets,
+  ExtendedPublicKey,
+  AddressPublicKeyJson,
 } from '@core/types';
 
 import { AccountsService } from '~/services/accounts/AccountsService';
@@ -14,7 +16,8 @@ import { Middleware } from './models';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getAddressByVM from '~/services/wallet/utils/getAddressByVM';
 import { SecretsService } from '~/services/secrets/SecretsService';
-import { isNotNullish, isPrimaryAccount } from '@core/common';
+import { getAvalancheExtendedKeyPath, isPrimaryAccount } from '@core/common';
+import { NetworkService } from '~/services/network/NetworkService';
 
 /**
  * This middleware appends the current address and xpubXP to the context.
@@ -24,6 +27,7 @@ import { isNotNullish, isPrimaryAccount } from '@core/common';
 export function AvalancheTxContextMiddleware(
   accountsService: AccountsService,
   secretsService: SecretsService,
+  networkService: NetworkService,
 ): Middleware<
   JsonRpcRequest | ExtensionConnectionMessage,
   JsonRpcResponse | ExtensionConnectionMessageResponse
@@ -47,11 +51,6 @@ export function AvalancheTxContextMiddleware(
     }
 
     const activeAccount = await accountsService.getActiveAccount();
-    const accounts = isPrimaryAccount(activeAccount)
-      ? await accountsService.getPrimaryAccountsByWalletId(
-          activeAccount.walletId,
-        )
-      : [];
 
     if (!activeAccount) {
       error(new Error('No active account'));
@@ -59,26 +58,41 @@ export function AvalancheTxContextMiddleware(
     }
 
     const currentAddress = getAddressByVM(addressVM, activeAccount);
-    const externalXPAddresses = accounts
-      .map((account) => {
-        const xpAddress = getAddressByVM(addressVM, account);
-        if (!xpAddress) {
-          return undefined;
-        }
-        return {
-          index: account.index,
-          address: xpAddress,
-        };
-      })
-      .filter(isNotNullish);
 
+    if (!isPrimaryAccount(activeAccount)) {
+      context.account = {
+        xpAddress: currentAddress ?? '',
+        evmAddress: activeAccount.addressC,
+        externalXPAddresses: [],
+      };
+      next();
+      return;
+    }
+
+    const providerXP = await networkService.getAvalanceProviderXP();
     const secrets =
       await secretsService.getPrimaryAccountSecrets(activeAccount);
+
+    if (!secrets) {
+      error(new Error('Unable to locale public keys for the active account'));
+      return;
+    }
+
+    // Find legacy X/P addresses that have been previously derived.
+    const externalXPAddresses = secrets.publicKeys
+      .filter(getPublicKeysLocator(activeAccount.index))
+      .map(({ key, derivationPath }) => ({
+        index: getLegacyXPAddressIndexFromPath(derivationPath),
+        address: providerXP.getAddress(
+          Buffer.from(hex.decode(key)),
+          addressVM === 'PVM' ? 'P' : addressVM === 'AVM' ? 'X' : 'C',
+        ),
+      }));
 
     context.account = {
       xpAddress: currentAddress ?? '',
       evmAddress: activeAccount.addressC,
-      xpubXP: secrets ? findXpubXP(secrets) : undefined,
+      xpubXP: findXpubXP(secrets, activeAccount.index),
       externalXPAddresses,
     };
 
@@ -100,15 +114,29 @@ const getRequiredAddressVM = (method: string, params: unknown) => {
   return Avalanche.getVmByChainAlias(params.chainAlias as string);
 };
 
-const findXpubXP = (secrets: PrimaryWalletSecrets) => {
+const findXpubXP = (secrets: PrimaryWalletSecrets, index: number) => {
   const xpubXP =
-    secrets && 'extendedPublicKeys' in secrets
-      ? secrets.extendedPublicKeys.find(
-          (key) =>
-            key.curve === 'secp256k1' &&
-            key.derivationPath === AVALANCHE_BASE_DERIVATION_PATH,
-        )
+    'extendedPublicKeys' in secrets
+      ? secrets.extendedPublicKeys.find(getXPubLocator(index))
       : null;
 
   return xpubXP?.key;
+};
+
+const getXPubLocator = (index: number) => (key: ExtendedPublicKey) =>
+  key.curve === 'secp256k1' &&
+  key.derivationPath === getAvalancheExtendedKeyPath(index);
+
+const getPublicKeysLocator = (index: number) => (key: AddressPublicKeyJson) =>
+  key.curve === 'secp256k1' &&
+  key.derivationPath.startsWith(`${getAvalancheExtendedKeyPath(index)}/`);
+
+const getLegacyXPAddressIndexFromPath = (path: string) => {
+  const lastSegment = path.split('/').pop();
+
+  if (!lastSegment) {
+    throw new Error('Invalid derivation path');
+  }
+
+  return parseInt(lastSegment);
 };

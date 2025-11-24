@@ -28,7 +28,7 @@ export const buildPChainSendTx = async ({
 
   const feeState = await provider.getApiP().getFeeState();
 
-  const { utxos } = await getMaxUtxoSet(
+  const { utxos, balance } = await getMaxUtxoSet(
     isLedgerWallet,
     provider,
     wallet,
@@ -36,6 +36,11 @@ export const buildPChainSendTx = async ({
     feeState,
     preloadedUtxoSet,
   );
+
+  if (balance.available < amount) {
+    throw new Error('Insufficient balance');
+  }
+
   const assetId = provider.getAvaxID();
   const changeAddressBytes = utils.parse(account.addressPVM)[2];
 
