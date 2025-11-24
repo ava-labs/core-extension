@@ -68,7 +68,6 @@ const BridgeTransactionStatus = () => {
   } = useAccountsContext();
   const { getErrorMessage } = useUnifiedBridgeContext();
   const bridgeTransactions = usePendingBridgeTransactions();
-  console.log({ bridgeTransactions });
   const { removeBridgeTransaction } = useBridgeContext();
   const [fromCardOpen, setFromCardOpen] = useState<boolean>(false);
   const [toCardOpen, setToCardOpen] = useState<boolean>(false);
@@ -149,15 +148,6 @@ const BridgeTransactionStatus = () => {
     targetRequiredConfirmations,
   } = useBridgeTransferStatus(bridgeTransaction);
 
-  console.log({
-    bridgeTransaction,
-    isComplete,
-    sourceCurrentConfirmations,
-    sourceRequiredConfirmations,
-    targetCurrentConfirmations,
-    targetRequiredConfirmations,
-  });
-
   const errorCode = isUnifiedBridgeTransfer(bridgeTransaction)
     ? bridgeTransaction.errorCode
     : undefined;
@@ -196,6 +186,26 @@ const BridgeTransactionStatus = () => {
     bridgeConfig.config?.criticalBitcoin.offboardDelaySeconds;
 
   const hasOffBoardingDelay = typeof offboardingDelay === 'number';
+
+  /**
+   * For Unified Bridge, the source transfer is complete when the source
+   * confirmation count is greater than or equal to the source required
+   * confirmation count. This is because it can much longer for the target
+   * transaction to be created so we can't rely on targetStartedAt
+   */
+  const isBridgeSourceTransferComplete = useMemo(() => {
+    if (!bridgeTransaction) {
+      return false;
+    }
+    if (isUnifiedBridgeTransfer(bridgeTransaction)) {
+      return (
+        bridgeTransaction.sourceConfirmationCount >=
+        bridgeTransaction.sourceRequiredConfirmationCount
+      );
+    }
+
+    return Boolean(bridgeTransaction.targetStartedAt);
+  }, [bridgeTransaction]);
 
   if (!activeAccount) {
     history.push('/home');
@@ -287,7 +297,7 @@ const BridgeTransactionStatus = () => {
             </Card>
             <BridgeCard // from chain (Middle Card)
               isWaiting={false} // starts immediately
-              isDone={Boolean(bridgeTransaction.targetStartedAt)}
+              isDone={isBridgeSourceTransferComplete}
               isTransferComplete={isComplete}
             >
               <Stack
