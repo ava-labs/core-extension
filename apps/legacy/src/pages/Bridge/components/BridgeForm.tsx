@@ -48,6 +48,7 @@ import { NetworkFee } from '@core/types';
 import { findMatchingBridgeAsset, isBitcoinNetwork } from '@core/common';
 import { BridgeTypeFootnote } from './BridgeTypeFootnote';
 import { NetworkSelector } from './NetworkSelector';
+import { BridgeEstimatedTimeWarning } from './BridgeEstimatedTimeWarning';
 
 export type BridgeFormProps = ReturnType<typeof useBridge> & {
   isPending: boolean;
@@ -335,7 +336,7 @@ export const BridgeForm = ({
               pointerEvents: isPending ? 'none' : 'auto',
             }}
           >
-            <Stack ref={cardRef} sx={{ p: 0, overflow: 'unset' }}>
+            <Stack ref={cardRef} sx={{ p: 0, overflow: 'unset', gap: 1 }}>
               <Stack sx={{ width: '100%' }}>
                 {/* From section */}
                 <Card
@@ -537,6 +538,11 @@ export const BridgeForm = ({
                   </Card>
                 </Slide>
               </Stack>
+
+              <BridgeEstimatedTimeWarning
+                bridgeType={bridgeType}
+                targetChain={targetChain}
+              />
             </Stack>
           </Stack>
           {withFeeBox && neededGas && (
