@@ -27,7 +27,7 @@ export const callGetAddresses = (extendedPublicKeys: ExtendedPublicKey[]) => {
             networkType,
             withExtraAddresses: false,
           },
-        });
+        }).catch(() => {});
       });
     });
   });
