@@ -67,6 +67,22 @@ export const Header = () => {
   const isWalletView =
     location.pathname === `/wallet/${headerWalletDetails.id}`;
 
+  const tokenName = useMemo(() => {
+    console.log('location.pathname', location.pathname);
+    const isTokenDetailsView = location.pathname.startsWith('/asset/');
+
+    if (!isTokenDetailsView) {
+      return;
+    }
+    // Parse pathname: /asset/:networkId/:tokenAddress/:tokenName
+    const pathParts = location.pathname.split('/').filter(Boolean);
+    // pathParts = ['asset', networkId, tokenAddress, tokenName]
+    if (pathParts.length >= 4 && pathParts[0] === 'asset' && pathParts[3]) {
+      return decodeURIComponent(pathParts[3]);
+    }
+    return;
+  }, [location.pathname]);
+
   return (
     <Stack
       sx={{
@@ -104,6 +120,7 @@ export const Header = () => {
                 wallet={headerWalletDetails}
                 isTrueWallet={headerWalletDetails.isTrueWallet}
                 account={activeAccount}
+                tokenName={tokenName}
               />
             )}
           </AccountInfo>
