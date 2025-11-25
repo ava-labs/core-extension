@@ -1,4 +1,3 @@
-import { getHexAlpha, Stack, useTheme } from '@avalabs/k2-alpine';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -14,6 +13,7 @@ import { AccountType, ImportedAccount } from '@core/types';
 import { HeaderWalletDetails } from './types';
 import { HeaderWallet } from './components/HeaderWallet';
 import { HeaderAccount } from './components/HeaderAccount';
+import { HeaderContainer, HeaderNavigationContainer } from './styled';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
@@ -59,8 +59,6 @@ export const Header = () => {
       authProvider: activeWallet?.authProvider,
     };
   }, [activeAccount, getImportedWalletName, activeWallet]);
-
-  const theme = useTheme();
   const location = useLocation();
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
 
@@ -68,29 +66,8 @@ export const Header = () => {
     location.pathname === `/wallet/${headerWalletDetails.id}`;
 
   return (
-    <Stack
-      sx={{
-        position: 'relative',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: theme.zIndex.appBar,
-        borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
-        overflow: 'visible',
-      }}
-    >
-      <Stack
-        direction="row"
-        sx={{
-          background: theme.palette.background.default,
-          width: '100%',
-          height: '56px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          px: 1,
-          zIndex: theme.zIndex.tooltip + 1,
-          overflow: 'visible',
-        }}
+    <HeaderContainer>
+      <HeaderNavigationContainer
         onMouseEnter={() => {
           setIsAIBackdropOpen(false);
         }}
@@ -109,11 +86,11 @@ export const Header = () => {
           </AccountInfo>
         </AccountSelectContainer>
         <HeaderActions account={activeAccount} />
-      </Stack>
+      </HeaderNavigationContainer>
       <ConciergePrompt
         isAIBackdropOpen={isAIBackdropOpen}
         setIsAIBackdropOpen={setIsAIBackdropOpen}
       />
-    </Stack>
+    </HeaderContainer>
   );
 };
