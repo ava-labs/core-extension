@@ -88,13 +88,15 @@ const mockEthereumNetwork = {
 
 describe('useNetworksWithBalance', () => {
   const mockGetAccountsByWalletId = jest.fn();
+  const mockGetAccountById = jest.fn();
   const mockGetNetwork = jest.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
 
     (useAccountsContext as jest.Mock).mockReturnValue({
       getAccountsByWalletId: mockGetAccountsByWalletId,
+      getAccountById: mockGetAccountById,
     });
 
     (useNetworkContext as jest.Mock).mockReturnValue({
