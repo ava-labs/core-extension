@@ -29,7 +29,7 @@ export const KeystoreFilePassword = ({
   onCancel,
 }: KeystoreFilePasswordProps) => {
   const { capture } = useAnalyticsContext();
-  const { replace } = useHistory();
+  const { go } = useHistory();
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -48,10 +48,11 @@ export const KeystoreFilePassword = ({
       onSuccess: () => {
         capture('KeystoreFileImportSuccess');
         toast.success(t('Successfully imported the keystore file.'));
-        replace('/account-management');
+        // Go back 2 steps: skip import page and add-wallet page
+        go(-2);
       },
     }),
-    [capture, replace, t],
+    [capture, go, t],
   );
 
   const { importKeystoreFile, isImporting } =

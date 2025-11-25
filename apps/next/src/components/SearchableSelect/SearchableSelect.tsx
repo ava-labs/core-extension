@@ -145,7 +145,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
               {...searchInputProps}
             />
             <Divider />
-            {groupedOptions.length === 0 && (
+            {groupedOptions.every((group) => group.options.length === 0) && (
               <Stack
                 direction="row"
                 px={2}

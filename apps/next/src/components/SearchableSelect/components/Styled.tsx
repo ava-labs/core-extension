@@ -11,10 +11,7 @@ import {
 export const SearchableSelectMenuRoot = styled(Stack)({
   width: 'calc(100vw - 32px)',
   height: 'calc(100vh - 64px)',
-  overflow: 'auto',
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
+  overflow: 'hidden',
   ul: { paddingInline: 0 },
 });
 
@@ -35,10 +32,7 @@ export const SearchableSelectPopover = (props: PopoverProps) => (
 );
 
 export const NoScrollPopoverContent = styled(PopoverContent)({
-  overflow: 'auto',
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
+  overflow: 'hidden',
 });
 
 export const SearchableSelectListBox = styled((props: StackProps) => (

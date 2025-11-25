@@ -6,8 +6,9 @@ type ColorScheme = 'dark' | 'light' | 'testnet';
 export const usePreferredColorScheme = () => {
   const { theme } = useSettingsContext();
 
-  const [preferredColorScheme, setPreferredColorScheme] =
-    useState<ColorScheme>('light');
+  const [preferredColorScheme, setPreferredColorScheme] = useState<ColorScheme>(
+    theme === 'DARK' ? 'dark' : 'light',
+  );
 
   useEffect(() => {
     if (theme === 'DARK') {
