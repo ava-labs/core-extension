@@ -11,7 +11,7 @@ test.describe('Onboarding', () => {
     'As a CORE ext user, I can see Google, Apple, Manually create wallet, and Access existing wallet options',
     {
       tag: '@smoke',
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-001' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-001' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying onboarding options...');
@@ -42,7 +42,7 @@ test.describe('Onboarding', () => {
     'As a CORE ext user, on the onboarding page, I can check the language dropdown box and verify all languages are selectable',
     {
       tag: '@smoke',
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-002' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-002' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying language dropdown functionality...');
@@ -102,7 +102,7 @@ test.describe('Onboarding', () => {
     'As a CORE ext user, when I select the Access existing wallet option, I can see Recovery Phrase, Ledger and Keystone options',
     {
       tag: '@smoke',
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-003' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-003' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying import wallet options...');
@@ -129,7 +129,7 @@ test.describe('Onboarding', () => {
     'As a CORE ext user, for the Access Recovery Phrase option, 12-24 words can be selectable, Clear All and Next buttons can be functional',
     {
       tag: '@smoke',
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-004' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-004' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying recovery phrase form functionality...');
@@ -173,7 +173,7 @@ test.describe('Onboarding', () => {
     'As a CORE ext user, for the Access Recovery Phrase option, an Invalid Phrase error can be displayed if the user types the wrong one',
     {
       tag: '@smoke',
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-005' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-005' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying invalid recovery phrase error...');
@@ -230,7 +230,7 @@ test.describe('Onboarding', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 12 words, I can complete the full onboarding flow including wallet details, policy links verification, newsletter validation, customize core view selection, avatar selection, and wallet completion',
     {
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-006' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-006' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying successful onboarding with valid 12-word recovery phrase...');
@@ -273,7 +273,7 @@ test.describe('Onboarding', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 24 words, I can complete the full onboarding flow including wallet details, policy links verification, newsletter validation,core view selection, avatar selection, and wallet completion',
     {
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-007' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-007' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying successful onboarding with valid 24-word recovery phrase...');
@@ -316,7 +316,7 @@ test.describe('Onboarding', () => {
   test(
     'As a CORE ext user, I can manually create a new wallet and complete the full onboarding flow',
     {
-      annotation: [{ type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-ONBOARDING-008' }],
+      annotation: [{ type: 'testrail_case_field', description: 'custom_automation_id:EXT-ONBOARDING-008' }],
     },
     async ({ extensionPage }) => {
       console.log('Verifying manual wallet creation flow...');
