@@ -107,6 +107,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           result: {
             totalBalanceInCurrency: 0,
             hasBalanceOnUnderivedAccounts: false,
+            balanceChange: undefined,
+            percentageChange: undefined,
           },
         };
       }
@@ -123,6 +125,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
 
       // Get balance for derived addresses
       let totalBalanceInCurrency: undefined | number = undefined;
+      let totalPriceChangeValue = 0;
+
       for (const account of derivedAccounts) {
         const { tokens: derivedAddressesBalances } =
           await this.balanceAggregatorService.getBalancesForNetworks(
@@ -131,19 +135,19 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             [TokenType.NATIVE, TokenType.ERC20],
           );
 
-        if (totalBalanceInCurrency === undefined) {
-          totalBalanceInCurrency = calculateTotalBalanceForAccounts(
-            derivedAddressesBalances,
-            [account],
-            networksIncludedInTotal,
-          );
-          continue;
-        }
-        totalBalanceInCurrency += calculateTotalBalanceForAccounts(
+        const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
           derivedAddressesBalances,
           [account],
           networksIncludedInTotal,
         );
+
+        if (totalBalanceInCurrency === undefined) {
+          totalBalanceInCurrency = balance;
+          totalPriceChangeValue = priceChangeValue;
+          continue;
+        }
+        totalBalanceInCurrency += balance;
+        totalPriceChangeValue += priceChangeValue;
       }
       let hasBalanceOnUnderivedAccounts = false;
 
@@ -172,17 +176,40 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
               false, // Don't cache this
             );
 
-          const underivedAccountsTotal = calculateTotalBalanceForAccounts(
-            underivedAddressesBalances,
-            underivedAccounts,
-            xpChains,
-          );
+          const { balance: underivedAccountsTotal, priceChangeValue } =
+            calculateTotalBalanceForAccounts(
+              underivedAddressesBalances,
+              underivedAccounts,
+              xpChains,
+            );
           if (totalBalanceInCurrency === undefined) {
             totalBalanceInCurrency = underivedAccountsTotal;
+            totalPriceChangeValue = priceChangeValue;
           } else {
             totalBalanceInCurrency += underivedAccountsTotal;
+            totalPriceChangeValue += priceChangeValue;
           }
           hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+        }
+      }
+
+      // Calculate balance change and percentage change
+      // If there's no price change data, return undefined instead of 0
+
+      const balanceChange =
+        totalPriceChangeValue !== 0 ? totalPriceChangeValue : undefined;
+      let percentageChange: number | undefined = undefined;
+
+      if (
+        totalBalanceInCurrency !== undefined &&
+        totalBalanceInCurrency > 0 &&
+        balanceChange !== undefined &&
+        balanceChange !== 0
+      ) {
+        // Calculate the previous balance: current balance - change = previous balance
+        const previousBalance = totalBalanceInCurrency - balanceChange;
+        if (previousBalance > 0) {
+          percentageChange = (balanceChange / previousBalance) * 100;
         }
       }
 
@@ -191,6 +218,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         result: {
           totalBalanceInCurrency,
           hasBalanceOnUnderivedAccounts,
+          balanceChange,
+          percentageChange,
         },
       };
     } catch (e: any) {

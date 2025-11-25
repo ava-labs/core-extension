@@ -16,9 +16,13 @@ import { Account } from '@core/types';
 export const AddressList = ({
   isAddressAppear,
   activeAccount,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   isAddressAppear: boolean;
   activeAccount?: Account;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }) => {
   const theme = useTheme();
   const listBackground =
@@ -28,6 +32,8 @@ export const AddressList = ({
   return (
     <Grow in={isAddressAppear}>
       <Stack
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
         sx={{
           position: 'absolute',
           backdropFilter: 'blur(15px)',
