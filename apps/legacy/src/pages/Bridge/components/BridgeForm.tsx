@@ -1,4 +1,8 @@
-import { isNativeAsset } from '@avalabs/bridge-unified';
+import {
+  BridgeAsset,
+  isNativeAsset,
+  TokenType as BridgeTokenType,
+} from '@avalabs/bridge-unified';
 import {
   AlertCircleIcon,
   Button,
@@ -119,6 +123,80 @@ export const BridgeForm = ({
   const gasToken = network?.networkToken.symbol ?? '';
 
   const [neededGas, setNeededGas] = useState(0n);
+
+  // Store last selected asset per blockchain
+  const [lastAssetsByBlockchain, setLastAssetsByBlockchain] = useState<
+    Record<string, BridgeAsset>
+  >({});
+
+  // Save and restore last selected asset per blockchain
+  const previousNetworkCaipId = useRef<string | undefined>(network?.caipId);
+
+  useEffect(() => {
+    // Save current asset for the previous blockchain when network changes
+    if (
+      previousNetworkCaipId.current &&
+      previousNetworkCaipId.current !== network?.caipId &&
+      asset
+    ) {
+      setLastAssetsByBlockchain((prev) => ({
+        ...prev,
+        [previousNetworkCaipId.current!]: asset,
+      }));
+    }
+
+    // Restore saved asset for the new blockchain
+    if (
+      network?.caipId &&
+      transferableAssets.length > 0 &&
+      previousNetworkCaipId.current !== network?.caipId
+    ) {
+      const savedAsset = lastAssetsByBlockchain[network.caipId];
+      if (savedAsset) {
+        // Find the actual asset from transferableAssets that matches the saved asset
+        const restoredAsset = transferableAssets.find((a) => {
+          if (a.type !== savedAsset.type) return false;
+          if (a.type === BridgeTokenType.NATIVE) {
+            return a.symbol.toLowerCase() === savedAsset.symbol.toLowerCase();
+          }
+          if (a.type === BridgeTokenType.ERC20) {
+            const savedErc20 = savedAsset as Extract<
+              BridgeAsset,
+              { type: typeof BridgeTokenType.ERC20 }
+            >;
+            const currentErc20 = a as Extract<
+              BridgeAsset,
+              { type: typeof BridgeTokenType.ERC20 }
+            >;
+            return (
+              savedErc20.address?.toLowerCase() ===
+              currentErc20.address?.toLowerCase()
+            );
+          }
+          return false;
+        });
+
+        // Restore the asset if it's available and different from current
+        if (
+          restoredAsset &&
+          (!asset || asset.symbol !== restoredAsset.symbol)
+        ) {
+          setAsset(restoredAsset);
+          setAmount(0n);
+        }
+      }
+    }
+
+    // Update previous network reference
+    previousNetworkCaipId.current = network?.caipId;
+  }, [
+    network?.caipId,
+    transferableAssets,
+    asset,
+    setAsset,
+    setAmount,
+    lastAssetsByBlockchain,
+  ]);
 
   useEffect(() => {
     if (minimum && amount && amount < minimum) {
@@ -249,9 +327,16 @@ export const BridgeForm = ({
   const handleSelect = useCallback(
     (token: Exclude<TokenWithBalance, NftTokenWithBalance>) => {
       const foundAsset = findMatchingBridgeAsset(transferableAssets, token);
-
       if (!foundAsset) {
         return;
+      }
+
+      // Save the selected asset for the current blockchain
+      if (network?.caipId) {
+        setLastAssetsByBlockchain((prev) => ({
+          ...prev,
+          [network.caipId!]: foundAsset,
+        }));
       }
 
       setNavigationHistoryData({
@@ -268,11 +353,21 @@ export const BridgeForm = ({
       setAmount,
       setNavigationHistoryData,
       transferableAssets,
+      network?.caipId,
+      setLastAssetsByBlockchain,
     ],
   );
 
   const handleBlockchainSwap = useCallback(() => {
     if (targetChain && network) {
+      // Save current asset for the current blockchain before swapping
+      if (network.caipId && asset) {
+        setLastAssetsByBlockchain((prev) => ({
+          ...prev,
+          [network.caipId!]: asset,
+        }));
+      }
+
       setNavigationHistoryData({
         selectedToken: asset ? asset.symbol : undefined,
         inputAmount: undefined,
@@ -281,6 +376,7 @@ export const BridgeForm = ({
       setTargetChain(network);
       setNetwork(targetChain);
       setBridgeError('');
+      // The useEffect will handle restoring the saved asset for the new blockchain
     }
   }, [
     setNetwork,
@@ -291,6 +387,7 @@ export const BridgeForm = ({
     asset,
     network,
     setTargetChain,
+    setLastAssetsByBlockchain,
   ]);
 
   const disableTransfer = useMemo(
