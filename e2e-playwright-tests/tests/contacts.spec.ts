@@ -9,7 +9,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_001' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-001' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -28,7 +28,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_002' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-002' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -56,7 +56,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_003' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-003' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -94,7 +94,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_004' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-004' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -138,7 +138,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_005' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-005' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -179,7 +179,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_006' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-006' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -251,7 +251,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_007' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-007' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -282,7 +282,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_008' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-008' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
@@ -319,7 +319,7 @@ test.describe('Contacts', () => {
       tag: '@smoke',
       annotation: [
         { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
-        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_009' },
+        { type: 'testrail_case_field', description: 'custom_case_automation_id:EXT-CONTACTS-009' },
       ],
     },
     async ({ unlockedExtensionPage }) => {
