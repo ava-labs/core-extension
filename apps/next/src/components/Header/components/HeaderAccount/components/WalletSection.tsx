@@ -7,10 +7,10 @@ import {
 } from '../styled';
 import { WalletIcon } from '@/components/WalletIcon';
 import { useTranslation } from 'react-i18next';
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import { HeaderWalletDetails } from '../../../types';
 import { useHistory } from 'react-router-dom';
-import { SecretType, SeedlessAuthProvider } from '@core/types';
+import { getWalletIconSize } from './utils';
 
 type Props = {
   showWalletIcon: boolean;
@@ -45,29 +45,7 @@ export const WalletSection: FC<Props> = ({
   const history = useHistory();
   const navigateToWallet = () => history.push(`/wallet/${wallet.id}`);
 
-  const walletIconSize = useMemo(() => {
-    if (!wallet.type) return 16;
-
-    if (
-      wallet.type === SecretType.Ledger ||
-      wallet.type === SecretType.LedgerLive ||
-      wallet.type === SecretType.Keystone ||
-      wallet.type === SecretType.Keystone3Pro ||
-      (wallet.type === SecretType.Seedless &&
-        wallet.authProvider === SeedlessAuthProvider.Google)
-    ) {
-      return 12;
-    }
-
-    if (
-      wallet.type === SecretType.Seedless &&
-      wallet.authProvider === SeedlessAuthProvider.Apple
-    ) {
-      return 14.5;
-    }
-
-    return 16;
-  }, [wallet.type, wallet.authProvider]);
+  const walletIconSize = getWalletIconSize(wallet);
 
   return (
     <WalletSectionContainer
