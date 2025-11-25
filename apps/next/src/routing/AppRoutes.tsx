@@ -23,9 +23,11 @@ import { Settings } from '@/pages/Settings';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
+import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 
 export const AppRoutes = () => (
   <Switch>
+    <Route path="/seedless-auth" component={SeedlessAuthPopup} />
     <Route path="/defi/:protocolId" component={DeFiProtocolDetails} />
     <Route path="/receive" component={Receive} />
     <Route path="/settings" component={Settings} />
