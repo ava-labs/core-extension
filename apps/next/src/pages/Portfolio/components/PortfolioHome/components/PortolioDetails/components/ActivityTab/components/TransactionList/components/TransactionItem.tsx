@@ -38,12 +38,9 @@ const receivedAmountSlotProps: ListItemTextProps['slotProps'] = {
 };
 
 const sentAmountSlotProps: ListItemTextProps['slotProps'] = {
-  primary: {
-    variant: 'subtitle3',
-    whiteSpace: 'nowrap',
-  },
+  primary: receivedAmountSlotProps.primary,
   secondary: {
-    variant: 'body3',
+    ...receivedAmountSlotProps.secondary,
     color: 'error.main',
   },
 };
