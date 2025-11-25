@@ -16,7 +16,11 @@ import { Middleware } from './models';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 import getAddressByVM from '~/services/wallet/utils/getAddressByVM';
 import { SecretsService } from '~/services/secrets/SecretsService';
-import { getAvalancheExtendedKeyPath, isPrimaryAccount } from '@core/common';
+import {
+  getAvalancheExtendedKeyPath,
+  getLegacyXPAddressIndexFromPath,
+  isPrimaryAccount,
+} from '@core/common';
 import { NetworkService } from '~/services/network/NetworkService';
 
 /**
@@ -130,13 +134,3 @@ const getXPubLocator = (index: number) => (key: ExtendedPublicKey) =>
 const getPublicKeysLocator = (index: number) => (key: AddressPublicKeyJson) =>
   key.curve === 'secp256k1' &&
   key.derivationPath.startsWith(`${getAvalancheExtendedKeyPath(index)}/`);
-
-const getLegacyXPAddressIndexFromPath = (path: string) => {
-  const lastSegment = path.split('/').pop();
-
-  if (!lastSegment) {
-    throw new Error('Invalid derivation path');
-  }
-
-  return parseInt(lastSegment);
-};

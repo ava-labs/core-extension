@@ -1,4 +1,5 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
+
 import { EVM_BASE_DERIVATION_PATH, PrimaryWalletSecrets } from '@core/types';
 
 export const getLegacyXPAddressIndexFromPath = (path: string) => {
