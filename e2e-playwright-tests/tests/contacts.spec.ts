@@ -7,14 +7,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, when I have no contacts I see an empty state',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_001' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_001',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       await contactsPage.navigateToContacts();
 
@@ -28,14 +26,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can add a new contact',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_002' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_002',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
 
@@ -58,14 +54,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can see Avalanche CXP Chain, BTC, and Solana addresses for contacts',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_003' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_003',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
 
@@ -98,14 +92,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can copy an address from the contact details',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_004' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_004',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
 
@@ -144,14 +136,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can edit an existing contact',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_005' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_005',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
       const contact2 = TEST_CONFIG.testData.contacts.contact2;
@@ -187,14 +177,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can search for a contact',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_006' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_006',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
       const contact2 = TEST_CONFIG.testData.contacts.contact2;
@@ -261,14 +249,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, when I search for a non existent contact I see No contacts match your search state',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_007' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_007',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
 
@@ -294,14 +280,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can delete a contact',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_008' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_008',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
 
@@ -333,14 +317,12 @@ test.describe('Contacts', () => {
     'As a CORE ext user, I can delete one contact when multiple contacts exist',
     {
       tag: '@smoke',
-      annotation: [{ type: 'snapshot', description: 'mainnetPrimaryExtWallet' }],
+      annotation: [
+        { type: 'snapshot', description: 'mainnetPrimaryExtWallet' },
+        { type: 'testrail_case_field', description: 'custom_automation_id:EXT_CONTACTS_009' },
+      ],
     },
-    async ({ unlockedExtensionPage }, testInfo) => {
-      testInfo.annotations.push({
-        type: 'testrail_case_field',
-        description: 'custom_case_automation_id:EXT_CONTACTS_009',
-      });
-
+    async ({ unlockedExtensionPage }) => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
       const contact1 = TEST_CONFIG.testData.contacts.contact1;
       const contact2 = TEST_CONFIG.testData.contacts.contact2;
