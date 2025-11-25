@@ -943,6 +943,10 @@ export class WalletService implements OnUnlock {
       return { signedTx: signingResult.toHex() };
     }
 
+    if ('toHex' in signingResult && typeof signingResult.toHex === 'function') {
+      return { signedTx: signingResult.toHex() as string };
+    }
+
     return signingResult;
   }
 
