@@ -7,7 +7,6 @@ import {
   MdArrowDownward as ArrowDownIcon,
   MdArrowUpward as ArrowUpIcon,
 } from 'react-icons/md';
-import { NFTIcon } from './NTFIcon';
 
 export interface Props {
   transaction: TxHistoryItem;
@@ -27,10 +26,8 @@ export const TransactionTypeIcon: FC<Props> = ({ transaction }) => {
     transaction.txType === TransactionType.SEND &&
     token?.type === 'ERC1155'
   ) {
-    return <NFTIcon token={token} transaction={transaction} />;
+    return <ContractCallIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
   }
-
-  const FallbackIcon = transaction.isSender ? ArrowUpIcon : ArrowDownIcon;
 
   switch (transaction.txType) {
     case TransactionType.BRIDGE: {
@@ -48,22 +45,16 @@ export const TransactionTypeIcon: FC<Props> = ({ transaction }) => {
     case TransactionType.NFT_BUY:
     case TransactionType.NFT_SEND:
     case TransactionType.NFT_RECEIVE: {
-      return <NFTIcon token={token} transaction={transaction} />;
+      return <ContractCallIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
     }
     case TransactionType.TRANSFER:
-    case TransactionType.UNKNOWN:
-      {
-        if (token && isNftTokenType(token.type)) {
-          return <NFTIcon token={token} transaction={transaction} />;
-        }
-
-        if (transaction.isContractCall) {
-          return (
-            <ContractCallIcon size={iconSize} viewBox={k2IconViewBoxFix} />
-          );
-        }
+    case TransactionType.UNKNOWN: {
+      if ((token && isNftTokenType(token.type)) || transaction.isContractCall) {
+        return <ContractCallIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
       }
-
-      return <FallbackIcon size={iconSize} />;
+    }
   }
+
+  const FallbackIcon = transaction.isSender ? ArrowUpIcon : ArrowDownIcon;
+  return <FallbackIcon size={iconSize} />;
 };
