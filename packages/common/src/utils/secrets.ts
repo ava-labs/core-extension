@@ -1,8 +1,12 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
-import { EVM_BASE_DERIVATION_PATH, PrimaryWalletSecrets } from '@core/types';
+import {
+  EVM_BASE_DERIVATION_PATH,
+  ExtendedPublicKey,
+  PrimaryWalletSecrets,
+} from '@core/types';
 
-export const getLegacyXPAddressIndexFromPath = (path: string) => {
+export const getLegacyXPAddressIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
   const [, , , , addressIndex] = unprefixed.split('/');
 
@@ -13,7 +17,7 @@ export const getLegacyXPAddressIndexFromPath = (path: string) => {
   return parseInt(addressIndex);
 };
 
-export const getSolanaAccountIndexFromPath = (path: string) => {
+export const getSolanaAccountIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
   const [, , accountIndex] = unprefixed.split('/');
 
@@ -24,7 +28,7 @@ export const getSolanaAccountIndexFromPath = (path: string) => {
   return parseInt(accountIndex);
 };
 
-export const getXPAccountIndexFromPath = (path: string) => {
+export const getXPAccountIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
   const [, , accountIndex] = unprefixed.split('/');
 
@@ -35,7 +39,7 @@ export const getXPAccountIndexFromPath = (path: string) => {
   return parseInt(accountIndex);
 };
 
-export const getEvmAccountIndexFromPath = (path: string) => {
+export const getEvmAccountIndexFromPath = (path: string): number => {
   const lastSegment = path.split('/').pop();
 
   if (!lastSegment) {
@@ -45,11 +49,14 @@ export const getEvmAccountIndexFromPath = (path: string) => {
   return parseInt(lastSegment);
 };
 
-export const getAddressIndexFromPath = (vm: NetworkVMType, path: string) => {
+export const getAddressIndexFromPath = (
+  vm: NetworkVMType,
+  path: string,
+): number => {
   switch (vm) {
     case NetworkVMType.AVM:
     case NetworkVMType.PVM:
-      return getLegacyXPAddressIndexFromPath(path);
+      return getXPAccountIndexFromPath(path);
     case NetworkVMType.SVM:
       return getSolanaAccountIndexFromPath(path);
     default:
@@ -60,7 +67,7 @@ export const getAddressIndexFromPath = (vm: NetworkVMType, path: string) => {
 export const getAvalancheXPub = (
   secrets: PrimaryWalletSecrets,
   accountIndex: number,
-) => {
+): ExtendedPublicKey | undefined => {
   if (!secrets || !('extendedPublicKeys' in secrets)) {
     return;
   }
@@ -72,9 +79,9 @@ export const getAvalancheXPub = (
   );
 };
 
-export const getEvmExtendedKeyPath = () => EVM_BASE_DERIVATION_PATH;
+export const getEvmExtendedKeyPath = (): string => EVM_BASE_DERIVATION_PATH;
 
-export const getAvalancheXpBasePath = () => `m/44'/9000'/`;
+export const getAvalancheXpBasePath = (): string => `m/44'/9000'/`;
 
-export const getAvalancheExtendedKeyPath = (accountIndex: number) =>
+export const getAvalancheExtendedKeyPath = (accountIndex: number): string =>
   `${getAvalancheXpBasePath()}${accountIndex}'`;
