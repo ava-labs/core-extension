@@ -1,6 +1,6 @@
 import { EnsureDefined, ExcludeUndefined } from '@core/types';
 
-export const omitUndefined = <T extends Record<PropertyKey, unknown>>(obj: T) =>
+export const omitUndefined = <T extends object>(obj: T) =>
   Object.fromEntries(
     Object.entries(obj).filter(([, value]) => value !== undefined),
   ) as ExcludeUndefined<T>;

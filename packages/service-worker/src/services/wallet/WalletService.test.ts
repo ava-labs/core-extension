@@ -56,13 +56,9 @@ import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
 import { TransactionPayload, VMABI } from 'hypersdk-client';
-import {
-  buildAddressPublicKey,
-  buildExtendedPublicKey,
-} from '../secrets/utils';
+import { buildExtendedPublicKey } from '../secrets/utils';
 import { expectToThrowErrorCode } from '@shared/tests/test-utils';
 import { AddressResolver } from '../secrets/AddressResolver';
-import { hex } from '@scure/base';
 
 jest.mock('../network/NetworkService');
 jest.mock('../secrets/SecretsService');
@@ -1670,129 +1666,6 @@ describe('background/services/wallet/WalletService.ts', () => {
         0,
         xpub,
         name,
-      );
-    });
-  });
-
-  describe('getAddressesByIndices', () => {
-    const xpubXP = 'xpubXP';
-
-    it('returns an empty array secrets are not found', async () => {
-      secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce(null);
-
-      const result = await walletService.getAddressesByIndices(
-        [1, 2],
-        'X',
-        false,
-      );
-
-      expect(result).toStrictEqual([]);
-    });
-
-    it.each([SecretType.LedgerLive, SecretType.Seedless])(
-      'returns the known public keys for %s wallets',
-      async (secretType: SecretType) => {
-        secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
-          secretType,
-          derivationPathSpec:
-            secretType === SecretType.LedgerLive
-              ? DerivationPath.LedgerLive
-              : DerivationPath.BIP44,
-          publicKeys: [
-            buildAddressPublicKey(
-              '11111111',
-              getAddressDerivationPath(0, 'PVM', {
-                pathSpec:
-                  secretType === SecretType.LedgerLive
-                    ? DerivationPath.LedgerLive
-                    : DerivationPath.BIP44,
-              }),
-            ),
-            buildAddressPublicKey(
-              '22222222',
-              getAddressDerivationPath(1, 'PVM', {
-                pathSpec:
-                  secretType === SecretType.LedgerLive
-                    ? DerivationPath.LedgerLive
-                    : DerivationPath.BIP44,
-              }),
-            ),
-          ],
-        } as any);
-
-        getAddressMock.mockReturnValueOnce('P-1').mockReturnValueOnce('P-2');
-
-        const result = await walletService.getAddressesByIndices(
-          [0, 1],
-          'P',
-          false,
-        );
-
-        expect(getAddressMock).toHaveBeenCalledTimes(2);
-        expect(getAddressMock).toHaveBeenNthCalledWith(
-          1,
-          Buffer.from(hex.decode('11111111')),
-          'P',
-        );
-        expect(getAddressMock).toHaveBeenNthCalledWith(
-          2,
-          Buffer.from(hex.decode('22222222')),
-          'P',
-        );
-
-        expect(result).toStrictEqual(['P-1', 'P-2']);
-      },
-    );
-
-    it('returns an empty array if isChange is true for P chain', async () => {
-      secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
-        xpubXP,
-      } as any);
-
-      const result = await walletService.getAddressesByIndices(
-        [1, 2],
-        'P',
-        true,
-      );
-
-      expect(result).toStrictEqual([]);
-    });
-
-    it('returns the correct list of addresses', async () => {
-      secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
-        derivationPathSpec: DerivationPath.BIP44,
-        extendedPublicKeys: [
-          buildExtendedPublicKey('xpubXP', AVALANCHE_BASE_DERIVATION_PATH),
-        ],
-      } as any);
-
-      (Avalanche.getAddressFromXpub as jest.Mock)
-        .mockReturnValueOnce('0x1')
-        .mockReturnValueOnce('0x4');
-
-      const result = await walletService.getAddressesByIndices(
-        [1, 4],
-        'X',
-        false,
-      );
-
-      expect(result).toStrictEqual(['0x1', '0x4']);
-      expect(Avalanche.getAddressFromXpub).toHaveBeenCalledTimes(2);
-      expect(Avalanche.getAddressFromXpub).toHaveBeenNthCalledWith(
-        1,
-        xpubXP,
-        1,
-        getDefaultFujiProviderMock(),
-        'X',
-        false,
-      );
-      expect(Avalanche.getAddressFromXpub).toHaveBeenNthCalledWith(
-        2,
-        xpubXP,
-        4,
-        getDefaultFujiProviderMock(),
-        'X',
-        false,
       );
     });
   });

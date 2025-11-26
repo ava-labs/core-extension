@@ -19,6 +19,10 @@ import {
   CorePrimaryAccount,
   WalletType,
 } from '@avalabs/types';
+import { NetworkService } from '~/services/network/NetworkService';
+import { Avalanche } from '@avalabs/core-wallets-sdk';
+import { hex } from '@scure/base';
+import { stripAddressPrefix } from '@core/common';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {
@@ -27,12 +31,14 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   constructor(
     private accountsService: AccountsService,
     private secretsService: SecretsService,
+    private networkService: NetworkService,
   ) {
     super();
   }
 
   handleAuthenticated = async ({ request }) => {
     const accounts = await this.accountsService.getAccounts();
+    const providerXP = await this.networkService.getAvalanceProviderXP();
 
     const mappedPrimaryAccounts: CorePrimaryAccount[][] = await Promise.all(
       Object.keys(accounts.primary).map(async (walletId) => {
@@ -57,9 +63,10 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
             : null;
 
         return walletAccounts.map((acc) => {
-          const externalXPAddresses = this.#getXPPublicKeysForAccountIndex(
+          const externalXPAddresses = this.#getXPAddressesForAccountIndex(
             secrets.publicKeys,
             acc.index,
+            providerXP,
           );
 
           const primaryAccount: CorePrimaryAccount = {
@@ -119,9 +126,10 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
     };
   };
 
-  #getXPPublicKeysForAccountIndex = (
+  #getXPAddressesForAccountIndex = (
     publicKeys: AddressPublicKeyJson[],
     accountIndex: number,
+    provider: Avalanche.JsonRpcProvider,
   ) => {
     const addressIndices: AddressIndex[] = [];
 
@@ -151,7 +159,9 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
       }
 
       addressIndices.push({
-        address: key,
+        address: stripAddressPrefix(
+          provider.getAddress(Buffer.from(hex.decode(key)), 'P'),
+        ),
         index: addressIndex,
       });
     }

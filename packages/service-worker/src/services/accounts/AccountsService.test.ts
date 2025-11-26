@@ -435,11 +435,14 @@ describe('background/services/accounts/AccountsService', () => {
 
       expect(networkService.developerModeChanged.add).toHaveBeenCalledTimes(1);
 
+      // Since this is also called on unlock, we need to reset the mock to avoid counting those calls.
+      jest.mocked(addressResolver.getAddressesForSecretId).mockClear();
+
       // this mocks a network change
       (networkService.developerModeChanged.add as jest.Mock).mock.calls[0][0]();
       await new Promise(process.nextTick);
 
-      expect(addressResolver.getAddressesForSecretId).toHaveBeenCalledTimes(7);
+      expect(addressResolver.getAddressesForSecretId).toHaveBeenCalledTimes(6);
 
       const updatedAccounts = await accountsService.getAccounts();
       expect(updatedAccounts).toStrictEqual(mockAccounts(true, true));
