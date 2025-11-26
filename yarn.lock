@@ -3721,7 +3721,7 @@ __metadata:
     "@ethereumjs/common": "npm:2.6.5"
     "@ethereumjs/tx": "npm:3.4.0"
     "@google/generative-ai": "npm:0.22.0"
-    "@hpke/core": "npm:1.2.5"
+    "@hpke/core": "npm:1.7.5"
     "@keystonehq/alias-sampling": "npm:0.1.2"
     "@keystonehq/animated-qr": "npm:0.5.2"
     "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
@@ -4154,7 +4154,7 @@ __metadata:
     "@ethereumjs/tx": "npm:3.4.0"
     "@google/generative-ai": "npm:0.22.0"
     "@google/semantic-release-replace-plugin": "npm:1.1.0"
-    "@hpke/core": "npm:1.2.5"
+    "@hpke/core": "npm:1.7.5"
     "@keystonehq/animated-qr": "npm:0.5.2"
     "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
     "@keystonehq/ur-decoder": "npm:0.9.2"
@@ -4307,7 +4307,7 @@ __metadata:
     "@ethereumjs/common": "npm:2.6.5"
     "@ethereumjs/tx": "npm:3.4.0"
     "@google/generative-ai": "npm:0.22.0"
-    "@hpke/core": "npm:1.2.5"
+    "@hpke/core": "npm:1.7.5"
     "@keystonehq/alias-sampling": "npm:0.1.2"
     "@keystonehq/animated-qr": "npm:0.5.2"
     "@keystonehq/bc-ur-registry-eth": "npm:0.15.2"
@@ -6204,10 +6204,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hpke/common@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "@hpke/common@npm:1.8.1"
+  checksum: 10c0/a1208ac22ae6e61b875ed01616f2791813cd16a8afc9037379a303ffa9daa8964d29246990892931812d0f1ac31bbb10225dc739fad04bfc8a5e4e65b9447247
+  languageName: node
+  linkType: hard
+
 "@hpke/core@npm:1.2.5":
   version: 1.2.5
   resolution: "@hpke/core@npm:1.2.5"
   checksum: 10c0/cf759024ad8b94ce73c31ec98588dbc10a2a032e14fd361ba768ee92977f883257c17c435e59cd5c64dfccb13106a1ba8ce018f6697efe1c53788204ef0bf5a0
+  languageName: node
+  linkType: hard
+
+"@hpke/core@npm:1.7.5":
+  version: 1.7.5
+  resolution: "@hpke/core@npm:1.7.5"
+  dependencies:
+    "@hpke/common": "npm:^1.8.1"
+  checksum: 10c0/e0bc7534f2370f07e34e49eb6aa414df842ab536938d191be3a09fb5da0804651f68071e17d47bd6d253e5ce1f5ccfd0399931d4bafc4664c669ac84196dfe53
   languageName: node
   linkType: hard
 
