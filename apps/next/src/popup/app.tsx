@@ -65,7 +65,6 @@ const pagesWithoutHeader = [
   '/asset', // Token details path
 ];
 
-// Create a client for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
