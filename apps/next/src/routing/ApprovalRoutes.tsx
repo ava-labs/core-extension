@@ -5,6 +5,7 @@ import { Route, Switch, SwitchProps } from 'react-router-dom';
 import { GenericApprovalScreen } from '@/pages/Approve/GenericApprovalScreen';
 import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection/ApproveDappConnection';
 import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionApprovalScreen';
+import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -38,6 +39,7 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       <Route path="/permissions">
         <ApproveDappConnection />
       </Route>
+      <Route path="/seedless-auth" component={SeedlessAuthPopup} />
     </Switch>
   </Suspense>
 );
