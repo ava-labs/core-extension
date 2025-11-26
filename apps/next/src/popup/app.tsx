@@ -63,7 +63,6 @@ const pagesWithoutHeader = [
   routes.getBridgePath(),
 ];
 
-// Create a client for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

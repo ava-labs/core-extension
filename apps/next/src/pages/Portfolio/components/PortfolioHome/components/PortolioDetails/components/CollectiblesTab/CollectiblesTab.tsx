@@ -1,25 +1,24 @@
-import { useCallback, useMemo } from 'react';
-import { Stack, Box, CircularProgress } from '@avalabs/k2-alpine';
-import { CollectibleListEmpty } from './components/CollectibleListEmpty';
-import { CollectibleCard } from './components/CollectibleCard';
-import { VirtualizedGrid } from './components/VirtualizedGrid';
+import { Box, CircularProgress, Stack } from '@avalabs/k2-alpine';
+import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { useAccountsContext, useNetworkContext, useNfts } from '@core/ui';
-import { useLiveBalance } from '@core/ui';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import { isEmpty } from 'lodash';
+import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CollectibleCard } from './components/CollectibleCard';
+import { CollectibleListEmpty } from './components/CollectibleListEmpty';
+import { CollectibleToolbar } from './components/CollectibleToolbar';
+import { CollectiblesManagePopup } from './components/CollectiblesManagePopup';
+import { VirtualizedGrid } from './components/VirtualizedGrid';
 import {
   FilterType,
   useCollectiblesToolbar,
 } from './hooks/useCollectiblesToolbar';
 import {
-  getUniqueCollectibleId,
-  getStaticMimeType,
   getCollectibleMediaType,
   getCoreCollectibleUrl,
+  getStaticMimeType,
+  getUniqueCollectibleId,
 } from './utils';
-import { CollectibleToolbar } from './components/CollectibleToolbar';
-import { CollectiblesManagePopup } from './components/CollectiblesManagePopup';
-import { useTranslation } from 'react-i18next';
-import { isEmpty } from 'lodash';
 
 export type FormattedCollectible = NftTokenWithBalance & {
   collectibleTypeMedia: FilterType;
@@ -29,11 +28,7 @@ export type FormattedCollectible = NftTokenWithBalance & {
   coreCollectibleUrl?: string;
 };
 
-const POLLED_BALANCES = [TokenType.ERC721, TokenType.ERC1155];
-
 export function CollectiblesTab() {
-  useLiveBalance(POLLED_BALANCES);
-
   const { collectibles, loading } = useNfts();
   const { t } = useTranslation();
   const { isDeveloperMode } = useNetworkContext();
