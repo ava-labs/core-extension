@@ -252,6 +252,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
+      extendedPublicKeys: [],
       publicKeys: [
         {
           curve: 'secp256k1',

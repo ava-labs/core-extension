@@ -10,6 +10,7 @@ import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../AccountsService';
 
 jest.mock('../../secrets/SecretsService');
+jest.mock('../../network/NetworkService');
 jest.mock('../AccountsService');
 
 describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () => {
@@ -35,6 +36,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           type: AccountType.PRIMARY,
         },
         {
+          index: 3,
           id: 'uuid3',
           addressC: '0x222222eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
@@ -45,6 +47,15 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           index: 1,
           id: 'walletId2-uuid1',
           addressC: '0xwalletId2-eeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          type: AccountType.PRIMARY,
+        },
+      ],
+      ['walletId3']: [
+        {
+          index: 0,
+          id: 'walletId3-uuid1',
+          addressC: '0xwalletId3-eeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressPVM: 'P-seedless',
           type: AccountType.PRIMARY,
         },
       ],
@@ -70,6 +81,9 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
   );
 
   const secretsService = new SecretsService({} as any);
+  const networkService = {
+    getAvalanceProviderXP: jest.fn(),
+  } as any;
   const request = {
     id: '123',
     method: DAppProviderRequest.AVALANCHE_GET_ACCOUNTS,
@@ -77,9 +91,16 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.mocked(networkService.getAvalanceProviderXP).mockResolvedValue({
+      getAddress: jest
+        .fn()
+        .mockReturnValueOnce('P-seedless1')
+        .mockReturnValueOnce('P-seedless2'),
+    });
     jest
       .mocked(secretsService.getSecretsById)
       .mockResolvedValueOnce({
+        id: 'walletId1',
         secretType: SecretType.Mnemonic,
         name: 'Mnemonic Wallet',
         extendedPublicKeys: [
@@ -92,11 +113,29 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
         ],
         publicKeys: [],
       } as any)
-      .mockResolvedValue({
+      .mockResolvedValueOnce({
+        id: 'walletId2',
         secretType: SecretType.LedgerLive,
         name: 'My Ledger Wallet',
         publicKeys: [],
         extendedPublicKeys: [],
+      } as any)
+      .mockResolvedValueOnce({
+        id: 'walletId3',
+        secretType: SecretType.Seedless,
+        name: 'My Seedless Wallet',
+        publicKeys: [
+          {
+            curve: 'secp256k1',
+            derivationPath: `m/44'/9000'/0'/0/0`,
+            key: 'abcdef01',
+          },
+          {
+            curve: 'secp256k1',
+            derivationPath: `m/44'/9000'/0'/0/1`,
+            key: 'abcdef02',
+          },
+        ],
       } as any);
     jest.mocked(secretsService.getImportedAccountSecrets).mockResolvedValue({
       secretType: SecretType.PrivateKey,
@@ -108,6 +147,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     const handler = new AvalancheGetAccountsHandler(
       accountsService,
       secretsService,
+      networkService,
     );
     const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -118,7 +158,15 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           index: 1,
           id: 'uuid1',
           addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressAVM: '',
+          addressPVM: '',
+          addressBTC: undefined,
+          addressCoreEth: '',
+          addressSVM: '',
           type: AccountType.PRIMARY,
+          name: undefined,
+          walletId: 'walletId1',
+          xpAddresses: [],
           walletType: SecretType.Mnemonic,
           walletName: 'Mnemonic Wallet',
           active: false,
@@ -128,16 +176,33 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           index: 2,
           id: 'uuid2',
           addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressAVM: '',
+          addressPVM: '',
+          addressBTC: undefined,
+          addressCoreEth: '',
+          addressSVM: '',
           type: AccountType.PRIMARY,
+          name: undefined,
+          walletId: 'walletId1',
+          xpAddresses: [],
           walletType: SecretType.Mnemonic,
           walletName: 'Mnemonic Wallet',
           active: true,
           xpubXP: 'xpubXP',
         },
         {
+          index: 3,
           id: 'uuid3',
           addressC: '0x222222eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressAVM: '',
+          addressPVM: '',
+          addressBTC: undefined,
+          addressCoreEth: '',
+          addressSVM: '',
           type: AccountType.PRIMARY,
+          name: undefined,
+          walletId: 'walletId1',
+          xpAddresses: [],
           walletType: SecretType.Mnemonic,
           walletName: 'Mnemonic Wallet',
           active: false,
@@ -146,21 +211,60 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
         {
           active: false,
           addressC: '0xwalletId2-eeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressAVM: '',
+          addressPVM: '',
+          addressBTC: undefined,
+          addressCoreEth: '',
+          addressSVM: '',
           id: 'walletId2-uuid1',
+          walletId: 'walletId2',
+          xpAddresses: [],
           index: 1,
+          name: undefined,
           type: AccountType.PRIMARY,
           walletName: 'My Ledger Wallet',
           walletType: SecretType.LedgerLive,
           xpubXP: undefined,
         },
         {
+          index: 0,
+          active: false,
+          addressC: '0xwalletId3-eeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressPVM: 'P-seedless',
+          addressAVM: '',
+          addressBTC: undefined,
+          addressCoreEth: '',
+          addressSVM: '',
+          id: 'walletId3-uuid1',
+          walletId: 'walletId3',
+          type: AccountType.PRIMARY,
+          walletName: 'My Seedless Wallet',
+          walletType: SecretType.Seedless,
+          xpubXP: undefined,
+          xpAddresses: [
+            {
+              address: 'seedless1',
+              index: 0,
+            },
+            {
+              address: 'seedless2',
+              index: 1,
+            },
+          ],
+        },
+        {
           active: false,
           addressC: '0ximportedeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+          addressAVM: '',
+          addressPVM: '',
+          addressBTC: '',
+          addressCoreEth: '',
+          addressSVM: '',
+          name: undefined,
           id: 'imported-uuid3',
           type: 'imported',
-          walletName: undefined,
-          walletType: 'private-key',
           xpubXP: undefined,
+          xpAddresses: [],
         },
       ],
     });
@@ -170,6 +274,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     const handler = new AvalancheGetAccountsHandler(
       accountsService,
       secretsService,
+      networkService,
     );
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 
