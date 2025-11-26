@@ -8,12 +8,14 @@ import {
   openNewTab,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
+import { useConfettiContext } from '@/components/Confetti';
 
 const TOAST_ID = 'send-result';
 
 export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
   const { t } = useTranslation();
   const { replace } = useHistory();
+  const { triggerConfetti } = useConfettiContext();
 
   return {
     // When transaction is successfully sent to the network
@@ -21,6 +23,7 @@ export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
       // Redirect to home page
       replace('/');
 
+      triggerConfetti();
       toast.success(t('Transaction successful'), {
         id: TOAST_ID,
         action: <ExplorerLink network={network} hash={hash} />,

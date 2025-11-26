@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRightIcon, IconButton, toast } from '@avalabs/k2-alpine';
 
 import { openNewTab } from '@core/common';
+import { useConfettiContext } from '@/components/Confetti';
 
 const PENDING_TOAST_ID = 'swap-pending';
 const RESULT_TOAST_ID = 'swap-result';
@@ -15,6 +16,7 @@ type ShowToastWithLinkOptions = {
 
 export const useSwapCallbacks = () => {
   const { t } = useTranslation();
+  const { triggerConfetti } = useConfettiContext();
 
   const showPendingToast = useCallback(() => {
     toast.info(t('Transaction pending...'), {
@@ -35,6 +37,7 @@ export const useSwapCallbacks = () => {
   const showToastWithLink = useCallback(
     ({ url }: ShowToastWithLinkOptions) => {
       toast.dismiss(PENDING_TOAST_ID);
+      triggerConfetti();
       toast.success(t('Transaction successful'), {
         id: RESULT_TOAST_ID,
         duration: 10_000,
@@ -56,7 +59,7 @@ export const useSwapCallbacks = () => {
 
       return RESULT_TOAST_ID;
     },
-    [t],
+    [t, triggerConfetti],
   );
 
   return {

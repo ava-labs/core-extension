@@ -41,6 +41,7 @@
     "date-fns": "4.1.0",
     "motion": "12.5.0",
     "react": "19.0.0",
+    "react-confetti": "^6.4.0",
     "react-custom-scrollbars-2": "4.5.0",
     "react-dom": "19.0.0",
     "react-i18next": "11.18.6",
