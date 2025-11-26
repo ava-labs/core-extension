@@ -44,6 +44,7 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { SeedlessMissingKeysDerivation } from '@/components/seedless';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -166,6 +167,7 @@ export function App() {
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
         <LedgerRegisterBtcWalletPolicy />
+        <SeedlessMissingKeysDerivation />
       </>
     </Providers>
   );
