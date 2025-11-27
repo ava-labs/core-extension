@@ -1,9 +1,11 @@
 import { Stack, Tooltip, Typography } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 
-import { useBalancesContext } from '@core/ui/src/contexts/BalancesProvider';
-import { useSettingsContext } from '@core/ui/src/contexts/SettingsProvider';
-import { useBalanceTotalInCurrency } from '@core/ui/src/hooks/useBalanceTotalInCurrency';
+import {
+  useBalancesContext,
+  useBalanceTotalInCurrency,
+  useSettingsContext,
+} from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Styled from '../../Styled';
