@@ -99,6 +99,7 @@ import { prepareBtcTxForLedger } from './utils/prepareBtcTxForLedger';
 import { isTypedData } from '@avalabs/evm-module';
 import { isPersonalSign } from './utils/isPersonalSignRequest';
 import { rpcMethodToMessageType } from './utils/rpcMethodToMessageType';
+import { hex } from '@scure/base';
 @singleton()
 export class WalletService implements OnUnlock {
   private eventEmitter = new EventEmitter();
@@ -1273,6 +1274,68 @@ export class WalletService implements OnUnlock {
 
   addListener(event: WalletEvents, callback: (data: unknown) => void) {
     this.eventEmitter.on(event, callback);
+  }
+
+  async getAddressesByIndices(
+    indices: number[],
+    chainAlias: 'X' | 'P',
+    isChange: boolean,
+  ) {
+    const provXP = await this.networkService.getAvalanceProviderXP();
+    const activeAccount = await this.accountsService.getActiveAccount();
+    const secrets =
+      await this.secretService.getPrimaryAccountSecrets(activeAccount);
+
+    if (!secrets) {
+      return [];
+    }
+
+    if (
+      secrets.secretType === SecretType.LedgerLive ||
+      secrets.secretType === SecretType.Seedless
+    ) {
+      const derivationPaths = indices.map((index) =>
+        getAddressDerivationPath(index, chainAlias === 'X' ? 'AVM' : 'PVM'),
+      );
+
+      // TODO: something is not yes here. try extended keys first and only then fall back to the legacy XP paths????
+      const publicKeys = derivationPaths
+        .map((derivationPath) =>
+          getPublicKeyFor(secrets, derivationPath, 'secp256k1'),
+        )
+        .filter(isNotNullish);
+
+      return publicKeys.map((publicKey) =>
+        provXP.getAddress(Buffer.from(hex.decode(publicKey.key)), chainAlias),
+      );
+    }
+
+    if (isChange && chainAlias !== 'X') {
+      return [];
+    }
+
+    return indices.map((index) => {
+      const avmDerivationPath = getAddressDerivationPath(index, 'AVM');
+      const avmExtendedPubKey = getExtendedPublicKeyFor(
+        secrets.extendedPublicKeys,
+        avmDerivationPath,
+        'secp256k1',
+      );
+
+      assertPresent(
+        avmExtendedPubKey,
+        SecretsError.MissingExtendedPublicKey,
+        `AVM @ ${avmDerivationPath}`,
+      );
+
+      return Avalanche.getAddressFromXpub(
+        avmExtendedPubKey.key,
+        index,
+        provXP,
+        chainAlias,
+        isChange,
+      );
+    });
   }
 
   private async parseWalletPolicyDetails(account: Account) {
