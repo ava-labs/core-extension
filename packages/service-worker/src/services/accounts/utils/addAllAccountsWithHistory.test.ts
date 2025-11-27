@@ -83,6 +83,7 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
       });
     await addAllAccountsWithHistory({
       walletId: 'wallet-id',
+      addFirstAccount: true,
     });
     expect(addPrimaryAccount).toHaveBeenCalledTimes(1);
   });
@@ -97,6 +98,7 @@ describe('/service-worker/src/services/accounts/utils/addAllAccountsWithHistory.
       });
     await addAllAccountsWithHistory({
       walletId: 'wallet-id',
+      addFirstAccount: true,
       lastIndex: 4,
     });
     expect(getAddressesForAccount).toHaveBeenCalledWith(
