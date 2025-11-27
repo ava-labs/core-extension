@@ -76,7 +76,13 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         publicKeys.push({
           index,
           vm: 'EVM',
-          key: buildAddressPublicKey(evmKey, 'EVM', index, 'secp256k1'),
+          key: buildAddressPublicKey(
+            evmKey,
+            'EVM',
+            index,
+            'secp256k1',
+            derivationPathSpec,
+          ),
         });
       }
 
@@ -91,6 +97,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
             'AVM',
             index,
             'secp256k1',
+            derivationPathSpec,
           ),
         });
       }
@@ -105,7 +112,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         addressPublicKeys: publicKeys,
       };
     },
-    [getExtendedPublicKeys],
+    [getExtendedPublicKeys, derivationPathSpec],
   );
 
   const assertUniqueWallet = useCallback(
