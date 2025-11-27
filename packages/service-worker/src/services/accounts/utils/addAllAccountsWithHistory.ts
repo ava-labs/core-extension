@@ -8,11 +8,13 @@ export const ACCOUNTS_ADDED_KEY = 'accountsAdded';
 
 interface CheckAccountsHistoryParams {
   walletId: string;
+  addFirstAccount?: boolean;
   lastIndex?: number;
 }
 
 export const addAllAccountsWithHistory = async ({
   walletId,
+  addFirstAccount,
   lastIndex,
 }: CheckAccountsHistoryParams) => {
   const moduleManager = container.resolve(ModuleManager);
@@ -60,9 +62,11 @@ export const addAllAccountsWithHistory = async ({
   }
 
   const accountIds: string[] = [];
-  accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
+  if (lastIndexToAdd === 0 && addFirstAccount) {
+    accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
+  }
 
-  for (let i = 1; i < Math.max(1, lastIndexToAdd); i++) {
+  for (let i = 0; i < lastIndexToAdd - (lastIndex || 0); i++) {
     accountIds.push(await accountsService.addPrimaryAccount({ walletId }));
   }
 

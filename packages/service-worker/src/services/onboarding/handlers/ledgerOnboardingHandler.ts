@@ -192,7 +192,7 @@ export class LedgerOnboardingHandler implements HandlerType {
         });
       }
     } else {
-      await addAllAccountsWithHistory({ walletId });
+      await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
     }
 
     await finalizeOnboarding({

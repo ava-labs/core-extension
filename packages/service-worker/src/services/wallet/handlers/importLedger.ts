@@ -217,6 +217,7 @@ export class ImportLedgerHandler implements HandlerType {
     } else {
       const accountIds = await addAllAccountsWithHistory({
         walletId: id,
+        addFirstAccount: true,
       });
       if (accountIds[0]) {
         this.accountsService.activateAccount(accountIds[0]);
