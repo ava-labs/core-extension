@@ -1,8 +1,5 @@
 import {
-  Avalanche,
-  DerivationPath,
   getLedgerExtendedPublicKey,
-  getPubKeyFromTransport,
   getAddressDerivationPath,
 } from '@avalabs/core-wallets-sdk';
 import {
@@ -10,13 +7,19 @@ import {
   ExtensionRequestHandler,
   AddressPublicKeyJson,
   SecretType,
-  AVALANCHE_BASE_DERIVATION_PATH,
+  ExtendedPublicKey,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
 import { LedgerService } from '../LedgerService';
 import { AccountsService } from '../../accounts/AccountsService';
-import { getExtendedPublicKey, hasPublicKeyFor } from '../../secrets/utils';
+import {
+  buildExtendedPublicKey,
+  getExtendedPublicKey,
+  hasPublicKeyFor,
+} from '../../secrets/utils';
+import { getAvalancheExtendedKeyPath } from '@core/common';
+import { AddressPublicKey } from '~/services/secrets/AddressPublicKey';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
@@ -63,104 +66,87 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
         throw new Error('Ledger transport not available');
       }
 
-      if (secrets.secretType === SecretType.Ledger) {
-        // nothing to update, exit early
-        if (
-          getExtendedPublicKey(
-            secrets.extendedPublicKeys,
-            AVALANCHE_BASE_DERIVATION_PATH,
-            'secp256k1',
-          )
-        ) {
-          return {
-            ...request,
-            result: true,
-          };
-        }
+      const accounts =
+        await this.accountsService.getPrimaryAccountsByWalletId(walletId);
+      const accountIndices = accounts.map((account) => account.index);
 
-        const xpubXP = await getLedgerExtendedPublicKey(
-          transport,
-          false,
-          Avalanche.LedgerWallet.getAccountPath('X'),
+      const indicesWithMissingXPKeys = accountIndices.filter((index) => {
+        const xpubXP = getExtendedPublicKey(
+          secrets.extendedPublicKeys,
+          getAvalancheExtendedKeyPath(index),
+          'secp256k1',
         );
+        const hasXPPublicKey = hasPublicKeyFor(
+          secrets,
+          getAddressDerivationPath(index, 'AVM'),
+          'secp256k1',
+        );
+
+        return !xpubXP || !hasXPPublicKey;
+      });
+
+      // nothing to update, exit early
+      if (indicesWithMissingXPKeys.length === 0) {
+        return {
+          ...request,
+          result: true,
+        };
+      }
+
+      let hasError = false;
+      const newExtendedPublicKeys: ExtendedPublicKey[] = [];
+      const newPublicKeys: AddressPublicKeyJson[] = [];
+
+      for (const accountIndex of indicesWithMissingXPKeys) {
+        try {
+          const xpPublicKeyPath = getAddressDerivationPath(accountIndex, 'AVM');
+          const xpubXPPath = getAvalancheExtendedKeyPath(accountIndex);
+
+          let xpubXP = getExtendedPublicKey(
+            secrets.extendedPublicKeys,
+            xpubXPPath,
+            'secp256k1',
+          );
+
+          if (!xpubXP) {
+            const xpubXPString = await getLedgerExtendedPublicKey(
+              transport,
+              false,
+              xpubXPPath,
+            );
+
+            xpubXP = buildExtendedPublicKey(xpubXPString, xpubXPPath);
+            newExtendedPublicKeys.push(xpubXP);
+          }
+
+          if (hasPublicKeyFor(secrets, xpPublicKeyPath, 'secp256k1')) {
+            continue;
+          }
+
+          const xpPublicKey = AddressPublicKey.fromExtendedPublicKeys(
+            [xpubXP],
+            'secp256k1',
+            xpPublicKeyPath,
+          );
+
+          newPublicKeys.push(xpPublicKey.toJSON());
+        } catch (_err) {
+          hasError = true;
+          break;
+        }
 
         await this.secretsService.updateSecrets(
           {
+            publicKeys: [...secrets.publicKeys, ...newPublicKeys],
             extendedPublicKeys: [
               ...secrets.extendedPublicKeys,
-              {
-                type: 'extended-pubkey',
-                curve: 'secp256k1',
-                derivationPath: AVALANCHE_BASE_DERIVATION_PATH,
-                key: xpubXP,
-              },
+              ...newExtendedPublicKeys,
             ],
           },
           walletId,
         );
-      } else if (secrets.secretType === SecretType.LedgerLive) {
-        const accounts =
-          await this.accountsService.getPrimaryAccountsByWalletId(secrets.id);
 
-        const missingDerivationPaths: [number, string][] = [];
-
-        for (let i = 0; i < accounts.length; i++) {
-          const account = accounts[i]!;
-          const avmDerivationPath = getAddressDerivationPath(
-            account.index,
-            'AVM',
-          );
-
-          if (!hasPublicKeyFor(secrets, avmDerivationPath, 'secp256k1')) {
-            missingDerivationPaths.push([account.index, avmDerivationPath]);
-          }
-        }
-
-        // nothing to migrate, exit early
-        if (!missingDerivationPaths.length) {
-          return {
-            ...request,
-            result: true,
-          };
-        }
-
-        const migrationResult: {
-          newPubKeys: AddressPublicKeyJson[];
-          hasError: boolean;
-        } = {
-          newPubKeys: [],
-          hasError: false,
-        };
-
-        for (const [accountIndex, derivationPath] of missingDerivationPaths) {
-          try {
-            const addressPublicKeyXP = await getPubKeyFromTransport(
-              transport,
-              accountIndex,
-              DerivationPath.LedgerLive,
-              'AVM',
-            );
-
-            migrationResult.newPubKeys.push({
-              curve: 'secp256k1',
-              derivationPath,
-              key: addressPublicKeyXP.toString('hex'),
-              type: 'address-pubkey',
-            });
-          } catch (_err) {
-            migrationResult.hasError = true;
-            break;
-          }
-        }
-
-        await this.secretsService.updateSecrets(
-          {
-            publicKeys: [...secrets.publicKeys, ...migrationResult.newPubKeys],
-          },
-          walletId,
-        );
-
-        if (migrationResult.hasError) {
+        if (hasError) {
           throw new Error(
             'Error while searching for missing public keys: incomplete migration.',
           );
