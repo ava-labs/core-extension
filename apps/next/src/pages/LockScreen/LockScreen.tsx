@@ -37,7 +37,6 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
   const { isOnline } = useOnline();
   const [showUnlockForm, setShowUnlockForm] = useState<boolean>(false);
   const [showForgotPassword, setShowForgotPassword] = useState<boolean>(false);
-  const [hasCollapseEntered, setHasCollapseEntered] = useState<boolean>(false);
 
   const showForgotPasswordModal = () => setShowForgotPassword(true);
   const hideForgotPasswordModal = () => setShowForgotPassword(false);
@@ -58,16 +57,10 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
         </WarningMessage>
       )}
 
-      <Collapse
-        in={isUIReady}
-        onEntered={() => {
-          setHasCollapseEntered(true);
-        }}
-      >
+      <Collapse in={isUIReady} mountOnEnter unmountOnExit>
         <Unlock
           onUnlock={unlockWallet}
           onForgotPasswordClick={showForgotPasswordModal}
-          hasCollapseEntered={hasCollapseEntered}
         />
       </Collapse>
 
