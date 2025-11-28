@@ -160,6 +160,7 @@ export type DerivedAddresses = {
   addressPVM?: string;
   addressCoreEth?: string;
   addressHVM?: string;
+  addressSVM?: string;
 };
 
 export type DerivationPathsMap = Record<
