@@ -260,14 +260,11 @@ export class WalletService implements OnUnlock {
       ? params.accountIndices[0]
       : params.accountIndex;
 
-    if (this.#isMultiSignerRequest(params)) {
-      if (secretType === SecretType.LedgerLive) {
-        return new Avalanche.LedgerLiveSigner(params.accountIndices);
-      }
-
-      if (secretType === SecretType.Seedless) {
-        return this.#getSeedlessWallet(secrets, network, params.accountIndices);
-      }
+    if (
+      this.#isMultiSignerRequest(params) &&
+      secretType === SecretType.Seedless
+    ) {
+      return this.#getSeedlessWallet(secrets, network, params.accountIndices);
     }
 
     // Solana
