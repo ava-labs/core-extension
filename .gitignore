@@ -58,3 +58,8 @@ dist-next
 
 # CLI
 .sentryclirc
+
+# Python
+.venv/
+__pycache__/
+*.pyc
