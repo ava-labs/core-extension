@@ -45,6 +45,7 @@ import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
 import { LedgerIncorrectDevice } from '@/components/ledger/LedgerIncorrectDevice';
+import { GlobalHooks } from './components/GlobalHooks';
 
 const pagesWithoutHeader = [
   '/account-management',
@@ -166,6 +167,7 @@ export function App() {
         {isAppContext && <InAppApprovalOverlay />}
         <LedgerRegisterBtcWalletPolicy />
         <LedgerIncorrectDevice />
+        <GlobalHooks />
       </>
     </Providers>
   );
