@@ -1,7 +1,4 @@
-import {
-  getLedgerExtendedPublicKey,
-  getAddressDerivationPath,
-} from '@avalabs/core-wallets-sdk';
+import { getAddressDerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -11,7 +8,6 @@ import {
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { SecretsService } from '../../secrets/SecretsService';
-import { LedgerService } from '../LedgerService';
 import { AccountsService } from '../../accounts/AccountsService';
 import {
   buildExtendedPublicKey,
@@ -21,18 +17,27 @@ import {
 import { getAvalancheExtendedKeyPath } from '@core/common';
 import { AddressPublicKey } from '~/services/secrets/AddressPublicKey';
 
+import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import {
+  Curve as KeystoneCurve,
+  DerivationAlgorithm,
+} from '@keystonehq/bc-ur-registry';
+import { fromPublicKey } from 'bip32';
+
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS,
+  ExtensionRequest.KEYSTONE_MIGRATE_MISSING_PUBKEYS,
   boolean
 >;
 
 @injectable()
-export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
-  method = ExtensionRequest.LEDGER_MIGRATE_MISSING_PUBKEYS as const;
+export class MigrateMissingPublicKeysFromKeystoneHandler
+  implements HandlerType
+{
+  method = ExtensionRequest.KEYSTONE_MIGRATE_MISSING_PUBKEYS as const;
 
   constructor(
     private secretsService: SecretsService,
-    private ledgerService: LedgerService,
     private accountsService: AccountsService,
   ) {}
 
@@ -44,10 +49,8 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
       }
       const secrets =
         await this.secretsService.getAccountSecrets(activeAccount);
-      if (
-        secrets.secretType !== SecretType.Ledger &&
-        secrets.secretType !== SecretType.LedgerLive
-      ) {
+
+      if (secrets.secretType !== SecretType.Keystone3Pro) {
         return {
           ...request,
           result: true,
@@ -58,12 +61,6 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
       if (!walletId) {
         throw new Error('Wallet id is missing');
-      }
-
-      const transport = this.ledgerService.recentTransport;
-
-      if (!transport) {
-        throw new Error('Ledger transport not available');
       }
 
       const accounts =
@@ -112,13 +109,21 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           );
 
           if (!xpubXP) {
-            const xpubXPString = await getLedgerExtendedPublicKey(
-              transport,
-              false,
-              xpubXPPath,
+            const app = new KeystoneUSBAvalancheSDK(
+              await createKeystoneTransport(),
             );
-
-            xpubXP = buildExtendedPublicKey(xpubXPString, xpubXPPath);
+            const { publicKey, chainCode } = await app.getPubkey(
+              getAvalancheExtendedKeyPath(index),
+              KeystoneCurve.secp256k1,
+              DerivationAlgorithm.slip10,
+            );
+            xpubXP = buildExtendedPublicKey(
+              fromPublicKey(
+                Buffer.from(publicKey, 'hex'),
+                chainCode,
+              ).toBase58(),
+              getAvalancheExtendedKeyPath(index),
+            );
             newExtendedPublicKeys.push(xpubXP);
           }
 

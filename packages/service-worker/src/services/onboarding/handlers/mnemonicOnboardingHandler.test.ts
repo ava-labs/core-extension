@@ -138,6 +138,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(getXpubFromMnemonic).toHaveBeenCalledWith(mnemonic.toLowerCase());
     expect(Avalanche.getXpubFromMnemonic).toHaveBeenCalledWith(
       mnemonic.toLowerCase(),
+      0,
     );
 
     expect(result).toEqual({

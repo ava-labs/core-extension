@@ -83,7 +83,11 @@ export class DAppConnectionController implements ConnectionController {
         this.lockService,
       ),
       ActiveNetworkMiddleware(this.networkService),
-      AvalancheTxContextMiddleware(this.accountsService, this.secretsService),
+      AvalancheTxContextMiddleware(
+        this.accountsService,
+        this.secretsService,
+        this.networkService,
+      ),
       DAppRequestHandlerMiddleware(this.handlers, this.moduleManager),
       LoggerMiddleware(SideToLog.RESPONSE),
     );

@@ -6,6 +6,7 @@ import {
   BitcoinProviderAbstract,
   BitcoinWallet,
   createWalletPolicy,
+  DerivationPath,
   getAddressDerivationPath,
   getPublicKeyFromPrivateKey,
   getWalletFromMnemonic,
@@ -18,6 +19,7 @@ import {
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
+  getAvalancheExtendedKeyPath,
   getProviderForNetwork,
   hasAtLeastOneElement,
   isNotNullish,
@@ -83,6 +85,7 @@ import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { SecretsService } from '../secrets/SecretsService';
 import {
+  getExtendedPublicKey,
   getExtendedPublicKeyFor,
   getPublicKeyFor,
   isPrimaryWalletSecrets,
@@ -257,14 +260,11 @@ export class WalletService implements OnUnlock {
       ? params.accountIndices[0]
       : params.accountIndex;
 
-    if (this.#isMultiSignerRequest(params)) {
-      if (secretType === SecretType.LedgerLive) {
-        return new Avalanche.LedgerLiveSigner(params.accountIndices);
-      }
-
-      if (secretType === SecretType.Seedless) {
-        return this.#getSeedlessWallet(secrets, network, params.accountIndices);
-      }
+    if (
+      this.#isMultiSignerRequest(params) &&
+      secretType === SecretType.Seedless
+    ) {
+      return this.#getSeedlessWallet(secrets, network, params.accountIndices);
     }
 
     // Solana
@@ -364,12 +364,11 @@ export class WalletService implements OnUnlock {
 
         const derivationPathEVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'EVM',
+          { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
           accountIndexToUse,
-          secrets.derivationPathSpec,
           'AVM',
         );
         const evmExtendedPubKey = getExtendedPublicKeyFor(
@@ -460,11 +459,7 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      const derivationPath = getAddressDerivationPath(
-        accountIndexToUse,
-        secrets.derivationPathSpec,
-        'EVM',
-      );
+      const derivationPath = getAddressDerivationPath(accountIndexToUse, 'EVM');
       const publicKey = getPublicKeyFor(secrets, derivationPath, 'secp256k1');
 
       assertPresent(publicKey, SecretsError.PublicKeyNotFound);
@@ -528,79 +523,33 @@ export class WalletService implements OnUnlock {
       network.vmName === NetworkVMType.CoreEth
     ) {
       if (secretType === SecretType.Mnemonic) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-        return new Avalanche.SimpleSigner(secrets.mnemonic, accountIndexToUse);
+        return new Avalanche.SimpleSigner(
+          secrets.mnemonic,
+          secrets.account.index,
+        );
       }
 
-      if (secretType === SecretType.Ledger) {
+      if (
+        secretType === SecretType.Ledger ||
+        secretType === SecretType.LedgerLive
+      ) {
         assertPresent(
           this.ledgerService.recentTransport,
           LedgerError.TransportNotFound,
         );
 
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-
-        const derivationPath = getAddressDerivationPath(
-          accountIndexToUse,
-          secrets.derivationPathSpec,
-          'AVM',
-        );
-        const extPublicKey = getExtendedPublicKeyFor(
+        const extPublicKey = getExtendedPublicKey(
           secrets.extendedPublicKeys,
-          derivationPath,
+          getAvalancheExtendedKeyPath(secrets.account.index),
           'secp256k1',
         );
 
         assertPresent(extPublicKey, SecretsError.MissingExtendedPublicKey);
 
         return new Avalanche.SimpleLedgerSigner(
-          accountIndexToUse,
+          secrets.account.index, // With the new X/P account model, the account index should always match the active account.
           provider as Avalanche.JsonRpcProvider,
           extPublicKey.key,
-        );
-      }
-
-      if (secretType === SecretType.LedgerLive) {
-        assertPresent(
-          this.ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-        const derivationPathEVM = getAddressDerivationPath(
-          accountIndexToUse,
-          secrets.derivationPathSpec,
-          'EVM',
-        );
-        const derivationPathAVM = getAddressDerivationPath(
-          accountIndexToUse,
-          secrets.derivationPathSpec,
-          'AVM',
-        );
-        const pubkeyEVM = getPublicKeyFor(
-          secrets,
-          derivationPathEVM,
-          'secp256k1',
-        );
-        const pubkeyAVM = getPublicKeyFor(
-          secrets,
-          derivationPathAVM,
-          'secp256k1',
-        );
-
-        assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
-        assertPresent(pubkeyAVM, SecretsError.PublicKeyNotFound);
-
-        // TODO: SimpleLedgerSigner doesn't support LedgerLive derivation paths ATM
-        // https://ava-labs.atlassian.net/browse/CP-5861
-        return new Avalanche.LedgerSigner(
-          Buffer.from(pubkeyAVM.key, 'hex'),
-          derivationPathAVM,
-          Buffer.from(pubkeyEVM.key, 'hex'),
-          derivationPathEVM,
-          provider as Avalanche.JsonRpcProvider,
         );
       }
 
@@ -608,17 +557,13 @@ export class WalletService implements OnUnlock {
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-
         const derivationPathEVM = getAddressDerivationPath(
-          accountIndexToUse,
-          secrets.derivationPathSpec,
+          secrets.account.index,
           'EVM',
+          { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
-          accountIndexToUse,
-          secrets.derivationPathSpec,
+          secrets.account.index,
           'AVM',
         );
         const evmExtendedPubKey = getExtendedPublicKeyFor(
@@ -639,7 +584,7 @@ export class WalletService implements OnUnlock {
 
         return new KeystoneWallet(
           secrets.masterFingerprint,
-          accountIndexToUse,
+          secrets.account.index,
           this.keystoneService,
           network.chainId,
           tabId,
@@ -996,12 +941,11 @@ export class WalletService implements OnUnlock {
 
     const derivationPathEVM = getAddressDerivationPath(
       secrets.account.index,
-      secrets.derivationPathSpec,
       'EVM',
+      { pathSpec: secrets.derivationPathSpec },
     );
     const derivationPathAVM = getAddressDerivationPath(
       secrets.account.index,
-      secrets.derivationPathSpec,
       'AVM',
     );
 
@@ -1303,13 +1247,10 @@ export class WalletService implements OnUnlock {
       secrets.secretType === SecretType.Seedless
     ) {
       const derivationPaths = indices.map((index) =>
-        getAddressDerivationPath(
-          index,
-          secrets.derivationPathSpec,
-          chainAlias === 'X' ? 'AVM' : 'PVM',
-        ),
+        getAddressDerivationPath(index, chainAlias === 'X' ? 'AVM' : 'PVM'),
       );
 
+      // TODO: something is not yes here. try extended keys first and only then fall back to the legacy XP paths????
       const publicKeys = derivationPaths
         .map((derivationPath) =>
           getPublicKeyFor(secrets, derivationPath, 'secp256k1'),
@@ -1326,11 +1267,7 @@ export class WalletService implements OnUnlock {
     }
 
     return indices.map((index) => {
-      const avmDerivationPath = getAddressDerivationPath(
-        index,
-        secrets.derivationPathSpec,
-        'AVM',
-      );
+      const avmDerivationPath = getAddressDerivationPath(index, 'AVM');
       const avmExtendedPubKey = getExtendedPublicKeyFor(
         secrets.extendedPublicKeys,
         avmDerivationPath,

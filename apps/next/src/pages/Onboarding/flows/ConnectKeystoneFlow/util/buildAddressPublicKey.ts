@@ -13,11 +13,9 @@ export const buildAddressPublicKey = (
   vm: VM,
 ): AddressPublicKeyJson => ({
   curve: 'secp256k1',
-  derivationPath: getAddressDerivationPath(
-    accountIndex,
-    DerivationPath.LedgerLive,
-    vm,
-  ),
+  derivationPath: getAddressDerivationPath(accountIndex, vm, {
+    pathSpec: DerivationPath.BIP44,
+  }),
   type: 'address-pubkey',
   key: hex.encode(Uint8Array.from(key)),
 });

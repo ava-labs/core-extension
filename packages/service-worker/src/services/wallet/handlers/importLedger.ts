@@ -171,11 +171,9 @@ export class ImportLedgerHandler implements HandlerType {
         publicKeys.push({
           curve: 'secp256k1',
           key: pubKey.evm,
-          derivationPath: getAddressDerivationPath(
-            index,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(index, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           type: 'address-pubkey',
         });
 
@@ -183,11 +181,7 @@ export class ImportLedgerHandler implements HandlerType {
           publicKeys.push({
             curve: 'secp256k1',
             key: pubKey.xp,
-            derivationPath: getAddressDerivationPath(
-              index,
-              DerivationPath.LedgerLive,
-              'AVM',
-            ),
+            derivationPath: getAddressDerivationPath(index, 'AVM'),
             type: 'address-pubkey',
           });
         }
@@ -205,6 +199,7 @@ export class ImportLedgerHandler implements HandlerType {
       id = await this.walletService.addPrimaryWallet({
         secretType,
         derivationPathSpec: DerivationPath.LedgerLive,
+        extendedPublicKeys: [],
         publicKeys,
         name,
       });

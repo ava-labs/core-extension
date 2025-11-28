@@ -34,7 +34,7 @@ export const addAllAccountsWithHistory = async ({
     const nextAccount = {
       id: `${lastIndexChecked}`,
       index: lastIndexChecked,
-      name: `Dummy Account`,
+      name: `Account ${lastIndexChecked + 1}`,
       type: AccountType.PRIMARY as const,
       walletId: walletId,
     };

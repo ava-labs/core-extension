@@ -69,7 +69,11 @@ export class ExtensionConnectionController implements ConnectionController {
 
     this.pipeline = RequestProcessorPipeline(
       ActiveNetworkMiddleware(this.networkService),
-      AvalancheTxContextMiddleware(this.accountsService, this.secretsService),
+      AvalancheTxContextMiddleware(
+        this.accountsService,
+        this.secretsService,
+        this.networkService,
+      ),
       ExtensionRequestHandlerMiddleware(
         [...this.handlers, ...this.dappHandlers],
         this.moduleManager,
