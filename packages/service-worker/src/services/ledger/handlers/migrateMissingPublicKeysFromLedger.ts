@@ -68,9 +68,12 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
 
       const accounts =
         await this.accountsService.getPrimaryAccountsByWalletId(walletId);
-      const accountIndices = accounts.map((account) => account.index);
+      const accountIndexIds = accounts.map((account) => ({
+        id: account.id,
+        index: account.index,
+      }));
 
-      const indicesWithMissingXPKeys = accountIndices.filter((index) => {
+      const indicesWithMissingXPKeys = accountIndexIds.filter(({ index }) => {
         const xpubXP = getExtendedPublicKey(
           secrets.extendedPublicKeys,
           getAvalancheExtendedKeyPath(index),
@@ -97,10 +100,10 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
       const newExtendedPublicKeys: ExtendedPublicKey[] = [];
       const newPublicKeys: AddressPublicKeyJson[] = [];
 
-      for (const accountIndex of indicesWithMissingXPKeys) {
+      for (const { index } of indicesWithMissingXPKeys) {
         try {
-          const xpPublicKeyPath = getAddressDerivationPath(accountIndex, 'AVM');
-          const xpubXPPath = getAvalancheExtendedKeyPath(accountIndex);
+          const xpPublicKeyPath = getAddressDerivationPath(index, 'AVM');
+          const xpubXPPath = getAvalancheExtendedKeyPath(index);
 
           let xpubXP = getExtendedPublicKey(
             secrets.extendedPublicKeys,
@@ -145,6 +148,12 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           },
           walletId,
         );
+
+        if (newPublicKeys.length > 0 || newExtendedPublicKeys.length > 0) {
+          for (const { id } of indicesWithMissingXPKeys) {
+            await this.accountsService.refreshAddressesForAccount(id);
+          }
+        }
 
         if (hasError) {
           throw new Error(
