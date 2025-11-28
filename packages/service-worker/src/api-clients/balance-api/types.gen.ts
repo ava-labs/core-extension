@@ -11,17 +11,51 @@ export type GetBalancesRequestBody = {
   data: Array<
     | {
         /**
-         * The caip2 namespace
+         * The caip2 namespace for EVM chains
          */
-        namespace: string;
+        namespace: 'eip155';
         /**
-         * The addresses we want to get and sum up the balances for
+         * The list of addresses we want to get aggregated balances for
          */
         addresses: Array<string>;
         /**
-         * The second part for the caip2 chain ID
+         * The reference part of the caip2 ID (Supports EVM chains only)
          */
         references: Array<string>;
+      }
+    | {
+        /**
+         * The caip2 namespace for BTC chains
+         */
+        namespace: 'bip122';
+        /**
+         * The list of addresses we want to get aggregated balances for
+         */
+        addresses: Array<string>;
+        /**
+         * The reference part of the caip2 ID (Supports BTC chains only)
+         */
+        references: Array<
+          | '000000000019d6689c085ae165831e93'
+          | '000000000933ea01ad0ee984209779ba'
+        >;
+      }
+    | {
+        /**
+         * The caip2 namespace for SVM chains
+         */
+        namespace: 'solana';
+        /**
+         * The list of addresses we want to get aggregated balances for
+         */
+        addresses: Array<string>;
+        /**
+         * The reference part of the caip2 ID (Supports SVM chains only)
+         */
+        references: Array<
+          | '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
+          | 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1'
+        >;
       }
     | {
         /**
@@ -29,21 +63,19 @@ export type GetBalancesRequestBody = {
          */
         namespace: 'avax';
         /**
-         * The second part for the caip2 chain ID
+         * The reference part of the caip2 ID (Supports C chains only)
          */
         references: Array<
-          | '11111111111111111111111111111111LpoYY'
-          | 'fuji-11111111111111111111111111111111LpoYY'
-          | '2oYMBNV4eNHyqk2fjjV5nVQLDbtmNJzq5s3qs3Lo6ftnC6FByM'
-          | '2JVSBoinj9C2J33VntvzYtVJNZdN2NKiwwKjcumHUWEb5DbBrm'
+          | '8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a'
+          | 'YRLfeDBJpfEqUWe2FYR1OpXsnDDZeKWd'
         >;
         addressDetails: Array<{
           /**
-           * The wallet's ID. Will default to the hash of the addresses if not provided.
+           * The wallet's unique identifier.
            */
-          walletId?: string;
+          walletId: string;
           /**
-           * The addresses we want to get and sum up the balances for
+           * The list of addresses we want to get aggregated balances for
            */
           addresses: Array<string>;
         }>;
@@ -54,27 +86,45 @@ export type GetBalancesRequestBody = {
          */
         namespace: 'avax';
         /**
-         * The second part for the caip2 chain ID
+         * The reference part of the caip2 ID (Supports X and P chains only)
          */
         references: Array<
-          | '11111111111111111111111111111111LpoYY'
-          | 'fuji-11111111111111111111111111111111LpoYY'
-          | '2oYMBNV4eNHyqk2fjjV5nVQLDbtmNJzq5s3qs3Lo6ftnC6FByM'
-          | '2JVSBoinj9C2J33VntvzYtVJNZdN2NKiwwKjcumHUWEb5DbBrm'
+          | 'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo'
+          | 'Sj7NVE3jXTbJvwFAiu7OEUo_8g8ctXMG'
+          | 'imji8papUf2EhV3le337w1vgFauqkJg-'
+          | '8AJTpRj3SAqv1e80Mtl9em08LhvKEbkl'
         >;
-        extendedPublicKeyDetails: Array<{
+        addressDetails?: Array<{
           /**
-           * The wallet's ID. Will default to the hash of the extended public key if not provided.
+           * The wallet's unique identifier.
            */
-          walletId?: string;
+          walletId: string;
           /**
-           * The extended public key for X / P chain
+           * The list of addresses we want to get aggregated balances for
+           */
+          addresses: Array<string>;
+        }>;
+        extendedPublicKeyDetails?: Array<{
+          /**
+           * The wallet's unique identifier.
+           */
+          walletId: string;
+          /**
+           * The extended public key for X/P chains we want to get aggregated balances for
            */
           extendedPublicKey: string & string;
         }>;
+        /**
+         * Whether to filter out dust UTXOs from the balance calculation. Default is true. Only supported on P-chain.
+         */
+        filterOutDustUtxos?: boolean;
       }
   >;
   currency?: Currency;
+  /**
+   * Whether to show untrusted tokens in the balance response. Defaults to false.
+   */
+  showUntrustedTokens?: boolean;
 };
 
 /**
@@ -117,6 +167,19 @@ export type GetBalancesResponse =
   | ({
       networkType: 'pvm';
     } & PvmGetBalancesResponse)
+  | ({
+      networkType: 'coreth';
+    } & CorethGetBalancesResponse)
+  | {
+      caip2Id: string;
+      /**
+       * The type of the network
+       */
+      networkType?: 'evm' | 'btc' | 'svm' | 'avm' | 'pvm' | 'coreth';
+      id: string;
+      balances: null;
+      error: string;
+    }
   | {
       error: string;
     };
@@ -136,7 +199,7 @@ export type EvmGetBalancesResponse = {
     totalBalanceInCurrency?: number;
     erc20TokenBalances: Array<Erc20TokenBalance>;
   };
-  error: string | null;
+  error: null;
 };
 
 /**
@@ -207,7 +270,7 @@ export type BtcGetBalancesResponse = {
      */
     totalBalanceInCurrency?: number;
   };
-  error: string | null;
+  error: null;
 };
 
 /**
@@ -239,7 +302,7 @@ export type SvmGetBalancesResponse = {
       scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
     }>;
   };
-  error: string | null;
+  error: null;
 };
 
 /**
@@ -258,11 +321,15 @@ export type AvmGetBalancesResponse = {
     categories: {
       unlocked: Array<AvalancheBalanceItem>;
       locked: Array<AvalancheBalanceItem>;
-      atomicMemoryUnlocked: Array<AvalancheBalanceItem>;
-      atomicMemoryLocked: Array<AvalancheBalanceItem>;
+      atomicMemoryUnlocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+      atomicMemoryLocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
     };
   };
-  error: string | null;
+  error: null;
 };
 
 /**
@@ -271,18 +338,12 @@ export type AvmGetBalancesResponse = {
  * The balance for a given Avalanche asset
  */
 export type AvalancheBalanceItem = {
-  internalId?: string;
+  assetId: string;
   name: string;
   symbol: string;
-  type: 'native' | 'unknown';
   decimals: number;
-  logoUri?: string;
   balance: string;
-  balanceInCurrency?: number;
-  price?: number;
-  priceChange24h?: number;
-  priceChangePercentage24h?: number;
-  assetId: string;
+  type: 'native' | 'unknown';
 };
 
 /**
@@ -299,17 +360,45 @@ export type PvmGetBalancesResponse = {
      */
     totalBalanceInCurrency?: number;
     categories: {
-      unlockedStaked: Array<AvalancheBalanceItem>;
-      unlockedUnstaked: Array<AvalancheBalanceItem>;
-      lockedStaked: Array<AvalancheBalanceItem>;
-      lockedPlatform: Array<AvalancheBalanceItem>;
-      lockedStakeable: Array<AvalancheBalanceItem>;
-      pendingStaked: Array<AvalancheBalanceItem>;
-      atomicMemoryLocked: Array<AvalancheBalanceItem>;
-      atomicMemoryUnlocked: Array<AvalancheBalanceItem>;
+      unlockedStaked: string;
+      unlockedUnstaked: string;
+      lockedStaked: string;
+      lockedPlatform: string;
+      lockedStakeable: string;
+      atomicMemoryLocked: {
+        [key: string]: string;
+      };
+      atomicMemoryUnlocked: {
+        [key: string]: string;
+      };
     };
   };
-  error: string | null;
+  error: null;
+};
+
+/**
+ * The balance response for C-chain
+ */
+export type CorethGetBalancesResponse = {
+  caip2Id: string;
+  networkType: 'coreth';
+  id: string;
+  balances: {
+    nativeTokenBalance: NativeTokenBalance;
+    /**
+     * Total balance in given currency
+     */
+    totalBalanceInCurrency?: number;
+    categories: {
+      atomicMemoryUnlocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+      atomicMemoryLocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+    };
+  };
+  error: null;
 };
 
 /**
