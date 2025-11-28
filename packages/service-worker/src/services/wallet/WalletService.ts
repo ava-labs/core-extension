@@ -19,6 +19,7 @@ import {
 import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
+  getAvalancheExtendedKeyPath,
   getProviderForNetwork,
   hasAtLeastOneElement,
   isNotNullish,
@@ -84,6 +85,7 @@ import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { SecretsService } from '../secrets/SecretsService';
 import {
+  getExtendedPublicKey,
   getExtendedPublicKeyFor,
   getPublicKeyFor,
   isPrimaryWalletSecrets,
@@ -524,79 +526,74 @@ export class WalletService implements OnUnlock {
       network.vmName === NetworkVMType.CoreEth
     ) {
       if (secretType === SecretType.Mnemonic) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-        return new Avalanche.SimpleSigner(secrets.mnemonic, accountIndexToUse);
+        return new Avalanche.SimpleSigner(
+          secrets.mnemonic,
+          secrets.account.index,
+        );
       }
 
-      if (secretType === SecretType.Ledger) {
+      if (
+        secretType === SecretType.Ledger ||
+        secretType === SecretType.LedgerLive
+      ) {
         assertPresent(
           this.ledgerService.recentTransport,
           LedgerError.TransportNotFound,
         );
 
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-
-        const derivationPath = getAddressDerivationPath(
-          accountIndexToUse,
-          'AVM',
-        );
-        const extPublicKey = getExtendedPublicKeyFor(
+        const extPublicKey = getExtendedPublicKey(
           secrets.extendedPublicKeys,
-          derivationPath,
+          getAvalancheExtendedKeyPath(secrets.account.index),
           'secp256k1',
         );
 
         assertPresent(extPublicKey, SecretsError.MissingExtendedPublicKey);
 
         return new Avalanche.SimpleLedgerSigner(
-          accountIndexToUse,
+          secrets.account.index, // With the new X/P account model, the account index should always match the active account.
           provider as Avalanche.JsonRpcProvider,
           extPublicKey.key,
         );
       }
 
-      if (secretType === SecretType.LedgerLive) {
-        assertPresent(
-          this.ledgerService.recentTransport,
-          LedgerError.TransportNotFound,
-        );
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-        const derivationPathEVM = getAddressDerivationPath(
-          accountIndexToUse,
-          'EVM',
-          { pathSpec: DerivationPath.LedgerLive },
-        );
-        const derivationPathAVM = getAddressDerivationPath(
-          accountIndexToUse,
-          'AVM',
-        );
-        const pubkeyEVM = getPublicKeyFor(
-          secrets,
-          derivationPathEVM,
-          'secp256k1',
-        );
-        const pubkeyAVM = getPublicKeyFor(
-          secrets,
-          derivationPathAVM,
-          'secp256k1',
-        );
+      // if (secretType === SecretType.LedgerLive) {
+      //   assertPresent(
+      //     this.ledgerService.recentTransport,
+      //     LedgerError.TransportNotFound,
+      //   );
+      //   const derivationPathEVM = getAddressDerivationPath(
+      //     secrets.account.index,
+      //     'EVM',
+      //     { pathSpec: DerivationPath.LedgerLive },
+      //   );
+      //   const derivationPathAVM = getAddressDerivationPath(
+      //     secrets.account.index,
+      //     'AVM',
+      //   );
+      //   const pubkeyEVM = getPublicKeyFor(
+      //     secrets,
+      //     derivationPathEVM,
+      //     'secp256k1',
+      //   );
+      //   const pubkeyAVM = getPublicKeyFor(
+      //     secrets,
+      //     derivationPathAVM,
+      //     'secp256k1',
+      //   );
 
-        assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
-        assertPresent(pubkeyAVM, SecretsError.PublicKeyNotFound);
+      //   assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
+      //   assertPresent(pubkeyAVM, SecretsError.PublicKeyNotFound);
 
-        // TODO: SimpleLedgerSigner doesn't support LedgerLive derivation paths ATM
-        // https://ava-labs.atlassian.net/browse/CP-5861
-        return new Avalanche.LedgerSigner(
-          Buffer.from(pubkeyAVM.key, 'hex'),
-          derivationPathAVM,
-          Buffer.from(pubkeyEVM.key, 'hex'),
-          derivationPathEVM,
-          provider as Avalanche.JsonRpcProvider,
-        );
-      }
+      //   // TODO: SimpleLedgerSigner doesn't support LedgerLive derivation paths ATM
+      //   // https://ava-labs.atlassian.net/browse/CP-5861
+      //   return new Avalanche.LedgerSigner(
+      //     Buffer.from(pubkeyAVM.key, 'hex'),
+      //     derivationPathAVM,
+      //     Buffer.from(pubkeyEVM.key, 'hex'),
+      //     derivationPathEVM,
+      //     provider as Avalanche.JsonRpcProvider,
+      //   );
+      // }
 
       if (
         secretType === SecretType.Keystone ||
