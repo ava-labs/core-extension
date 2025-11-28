@@ -26,12 +26,5 @@ export const RenameWalletForm: FC<Props> = ({ wallet }) => {
       });
   };
 
-  return (
-    <RenameForm
-      label={t('Rename Wallet')}
-      name={wallet.name!}
-      onSave={onSave}
-      onCancel={goBack}
-    />
-  );
+  return <RenameForm name={wallet.name!} onSave={onSave} onCancel={goBack} />;
 };
