@@ -78,7 +78,13 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
                 'Core is no longer connected to your Keystone device. Reconnect to continue.',
               )}
             </Typography>
-            <Button onClick={onReconnect} fullWidth>
+            <Button
+              onClick={onReconnect}
+              fullWidth
+              variant="contained"
+              color="primary"
+              size="extension"
+            >
               {t('Unable to connect?')}
             </Button>
           </Stack>

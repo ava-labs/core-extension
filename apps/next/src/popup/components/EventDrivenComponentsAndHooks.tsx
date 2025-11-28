@@ -2,6 +2,7 @@ import { FC } from 'react';
 
 import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
+import { LedgerIncorrectDevice } from '@/components/ledger/LedgerIncorrectDevice';
 
 /**
  * This is a container component where you can place event-driven global components
@@ -23,6 +24,7 @@ export const EventDrivenComponentsAndHooks: FC = () => {
   return (
     <>
       <LedgerRegisterBtcWalletPolicy />
+      <LedgerIncorrectDevice />
     </>
   );
 };

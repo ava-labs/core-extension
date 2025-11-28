@@ -553,59 +553,17 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      // if (secretType === SecretType.LedgerLive) {
-      //   assertPresent(
-      //     this.ledgerService.recentTransport,
-      //     LedgerError.TransportNotFound,
-      //   );
-      //   const derivationPathEVM = getAddressDerivationPath(
-      //     secrets.account.index,
-      //     'EVM',
-      //     { pathSpec: DerivationPath.LedgerLive },
-      //   );
-      //   const derivationPathAVM = getAddressDerivationPath(
-      //     secrets.account.index,
-      //     'AVM',
-      //   );
-      //   const pubkeyEVM = getPublicKeyFor(
-      //     secrets,
-      //     derivationPathEVM,
-      //     'secp256k1',
-      //   );
-      //   const pubkeyAVM = getPublicKeyFor(
-      //     secrets,
-      //     derivationPathAVM,
-      //     'secp256k1',
-      //   );
-
-      //   assertPresent(pubkeyEVM, SecretsError.PublicKeyNotFound);
-      //   assertPresent(pubkeyAVM, SecretsError.PublicKeyNotFound);
-
-      //   // TODO: SimpleLedgerSigner doesn't support LedgerLive derivation paths ATM
-      //   // https://ava-labs.atlassian.net/browse/CP-5861
-      //   return new Avalanche.LedgerSigner(
-      //     Buffer.from(pubkeyAVM.key, 'hex'),
-      //     derivationPathAVM,
-      //     Buffer.from(pubkeyEVM.key, 'hex'),
-      //     derivationPathEVM,
-      //     provider as Avalanche.JsonRpcProvider,
-      //   );
-      // }
-
       if (
         secretType === SecretType.Keystone ||
         secretType === SecretType.Keystone3Pro
       ) {
-        const accountIndexToUse =
-          accountIndex === undefined ? secrets.account.index : accountIndex;
-
         const derivationPathEVM = getAddressDerivationPath(
-          accountIndexToUse,
+          secrets.account.index,
           'EVM',
           { pathSpec: DerivationPath.BIP44 },
         );
         const derivationPathAVM = getAddressDerivationPath(
-          accountIndexToUse,
+          secrets.account.index,
           'AVM',
         );
         const evmExtendedPubKey = getExtendedPublicKeyFor(
@@ -626,7 +584,7 @@ export class WalletService implements OnUnlock {
 
         return new KeystoneWallet(
           secrets.masterFingerprint,
-          accountIndexToUse,
+          secrets.account.index,
           this.keystoneService,
           network.chainId,
           tabId,

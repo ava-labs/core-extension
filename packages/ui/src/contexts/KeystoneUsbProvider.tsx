@@ -138,26 +138,29 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
     throw Error('Keystone device selection failed');
   }, [avalancheAppRef]);
 
-  const getExtendedPublicKey = async (
-    chainType: ChainIDAlias,
-    index: number,
-  ) => {
-    if (!avalancheAppRef.current) {
-      throw new Error('no device detected');
-    }
+  const getExtendedPublicKey = useCallback(
+    async (chainType: ChainIDAlias, index: number) => {
+      if (!avalancheAppRef.current) {
+        throw new Error('no device detected');
+      }
 
-    if (chainType === ChainIDAlias.C) {
-      const { publicKey, chainCode } =
-        await avalancheAppRef.current.getExtendedPublicKey(chainType);
+      if (chainType === ChainIDAlias.C) {
+        const { publicKey, chainCode } =
+          await avalancheAppRef.current.getExtendedPublicKey(chainType);
+        return fromPublicKey(
+          Buffer.from(publicKey, 'hex'),
+          chainCode,
+        ).toBase58();
+      }
+      const { publicKey, chainCode } = await avalancheAppRef.current.getPubkey(
+        getAvalancheExtendedKeyPath(index),
+        Curve.secp256k1,
+        DerivationAlgorithm.slip10,
+      );
       return fromPublicKey(Buffer.from(publicKey, 'hex'), chainCode).toBase58();
-    }
-    const { publicKey, chainCode } = await avalancheAppRef.current.getPubkey(
-      getAvalancheExtendedKeyPath(index),
-      Curve.secp256k1,
-      DerivationAlgorithm.slip10,
-    );
-    return fromPublicKey(Buffer.from(publicKey, 'hex'), chainCode).toBase58();
-  };
+    },
+    [],
+  );
 
   const getMasterFingerprint = async () => {
     if (!avalancheAppRef.current) {
