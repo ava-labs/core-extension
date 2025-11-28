@@ -137,7 +137,9 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           hasError = true;
           break;
         }
+      }
 
+      if (newPublicKeys.length > 0 || newExtendedPublicKeys.length > 0) {
         await this.secretsService.updateSecrets(
           {
             publicKeys: [...secrets.publicKeys, ...newPublicKeys],
@@ -149,17 +151,15 @@ export class MigrateMissingPublicKeysFromLedgerHandler implements HandlerType {
           walletId,
         );
 
-        if (newPublicKeys.length > 0 || newExtendedPublicKeys.length > 0) {
-          for (const { id } of indicesWithMissingXPKeys) {
-            await this.accountsService.refreshAddressesForAccount(id);
-          }
+        for (const { id } of indicesWithMissingXPKeys) {
+          await this.accountsService.refreshAddressesForAccount(id);
         }
+      }
 
-        if (hasError) {
-          throw new Error(
-            'Error while searching for missing public keys: incomplete migration.',
-          );
-        }
+      if (hasError) {
+        throw new Error(
+          'Error while searching for missing public keys: incomplete migration.',
+        );
       }
 
       return {
