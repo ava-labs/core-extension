@@ -1,5 +1,4 @@
 import { Page } from '@/components/Page';
-import { Select } from '@/components/Select';
 import { WarningMessage } from '@/components/WarningMessage';
 import {
   Box,
@@ -9,10 +8,10 @@ import {
   MenuItem,
   Stack,
   StackProps,
-  TextField,
   toast,
   Typography,
 } from '@avalabs/k2-alpine';
+import { SearchableSelect } from '@/components/SearchableSelect';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
@@ -22,6 +21,7 @@ import { useHistory } from 'react-router-dom';
 import { useAddCustomToken } from './hooks/useAddCustomToken';
 import { useTokenLookup } from './hooks/useTokenLookup';
 import * as Styled from './Styled';
+import { FaCheck } from 'react-icons/fa';
 
 const contentProps: StackProps = {
   gap: 2,
@@ -40,6 +40,7 @@ export const AddCustomToken: FC = () => {
   ); // AVAX C-Chain
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [networkQuery, setNetworkQuery] = useState<string>('');
 
   const evmOnly = networks.filter(
     (network) => network.vmName === NetworkVMType.EVM,
@@ -48,33 +49,74 @@ export const AddCustomToken: FC = () => {
   const { addCustomToken } = useAddCustomToken();
   const isTokenExists = useTokenLookup();
 
+  const selectedNetwork = evmOnly.find((n) => n.caipId === chainId);
+
   return (
     <Page title={t('Add Custom Token')} contentProps={contentProps}>
-      <Select
-        size="small"
+      <SearchableSelect<NetworkWithCaipId>
+        id="add-custom-token-network-select"
         label={t('Network')}
-        value={chainId ?? ''}
-        onChange={(e) =>
-          setChainId(e.target.value as NetworkWithCaipId['caipId'])
+        options={evmOnly}
+        getOptionId={(network) => network.caipId}
+        isOptionEqualToValue={(option, value) => option.caipId === value.caipId}
+        getGroupLabel={() => ''}
+        value={selectedNetwork}
+        query={networkQuery}
+        skipGroupingEntirely
+        onValueChange={(network) => setChainId(network.caipId)}
+        onQueryChange={setNetworkQuery}
+        searchFn={(network, query) =>
+          query
+            ? network.chainName.toLowerCase().includes(query.toLowerCase())
+            : true
         }
-      >
-        {evmOnly.map((network) => (
-          <MenuItem key={network.caipId} value={network.caipId}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              gap={1}
-              justifySelf="end"
-            >
+        renderValue={(network) =>
+          network ? (
+            <Stack direction="row" alignItems="center" gap={1}>
               <Styled.Avatar src={network.logoUri} />
               <Typography variant="body3">{network.chainName}</Typography>
             </Stack>
+          ) : (
+            <Typography variant="body3" color="text.secondary">
+              {t('Select network')}
+            </Typography>
+          )
+        }
+        renderOption={(network, getOptionProps) => (
+          <MenuItem
+            key={network.caipId}
+            {...getOptionProps(network)}
+            sx={{ px: 2 }}
+          >
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              width="100%"
+            >
+              <Stack direction="row" alignItems="center" gap={1}>
+                <Styled.Avatar src={network.logoUri} />
+                <Typography variant="body3">{network.chainName}</Typography>
+              </Stack>
+              <Stack position="relative" height={12}>
+                <Fade
+                  in={network.caipId === chainId}
+                  mountOnEnter
+                  unmountOnExit
+                >
+                  <FaCheck
+                    className="check"
+                    style={{ position: 'absolute', right: 0 }}
+                  />
+                </Fade>
+              </Stack>
+            </Stack>
           </MenuItem>
-        ))}
-      </Select>
+        )}
+      />
 
       <Collapse in={Boolean(chainId)}>
-        <TextField
+        <Styled.TextField
           fullWidth
           size="small"
           label={t('Token contract address')}
@@ -93,6 +135,16 @@ export const AddCustomToken: FC = () => {
           minRows={6}
           slots={{
             input: Styled.TokenAddressInput,
+          }}
+          sx={{
+            '& .MuiInputLabel-root': {
+              fontSize: '11px',
+              color: 'text.secondary',
+              transform: 'translate(14px, 10px) scale(1)',
+              '&.Mui-focused': {
+                color: 'text.secondary',
+              },
+            },
           }}
         />
       </Collapse>
