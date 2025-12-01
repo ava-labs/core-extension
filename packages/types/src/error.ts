@@ -106,7 +106,6 @@ export enum SecretsError {
   UnknownDerivationPathFormat = 'unknown-derivation-path-format',
   DerivationPathTooShort = 'derivation-path-too-short',
   UnsupportedCurve = 'unsupported-curve',
-  MissingPublicKeys = 'missing-public-keys',
 }
 
 export enum AccountError {
