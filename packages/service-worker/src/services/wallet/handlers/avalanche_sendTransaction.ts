@@ -143,11 +143,11 @@ export class AvalancheSendTransactionHandler extends DAppRequestHandler<
           ...externalAddresses,
           ...internalAddresses,
         ]),
-      ];
+      ].filter(isNotNullish);
 
-      const fromAddressBytes = fromAddresses
-        .filter(isNotNullish)
-        .map((address) => utils.parse(address)[2]);
+      const fromAddressBytes = fromAddresses.map(
+        (address) => utils.parse(address)[2],
+      );
 
       unsignedTx = await Avalanche.createAvalancheUnsignedTx({
         tx,
