@@ -8,7 +8,6 @@ import {
   MenuItem,
   Stack,
   StackProps,
-  TextField,
   toast,
   Typography,
 } from '@avalabs/k2-alpine';
@@ -117,7 +116,7 @@ export const AddCustomToken: FC = () => {
       />
 
       <Collapse in={Boolean(chainId)}>
-        <TextField
+        <Styled.TextField
           fullWidth
           size="small"
           label={t('Token contract address')}
