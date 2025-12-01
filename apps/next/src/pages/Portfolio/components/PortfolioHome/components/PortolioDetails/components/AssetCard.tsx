@@ -42,7 +42,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
   const handleClick = () => {
     const tokenAddress =
       asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
-    history.push(`/asset/${asset.coreChainId}/${tokenAddress}/${asset.name}`);
+    history.push(`/asset/${asset.coreChainId}/${tokenAddress}`);
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);

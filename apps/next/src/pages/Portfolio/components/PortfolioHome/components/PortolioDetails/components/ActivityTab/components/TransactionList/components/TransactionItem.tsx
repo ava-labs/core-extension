@@ -17,6 +17,7 @@ import { ViewInExplorerButton } from './ViewInExplorerButton';
 
 type Props = {
   transaction: TxHistoryItem;
+  showChainBadge?: boolean;
 };
 
 const TIME_FORMAT = 'HH:mm a';
@@ -65,7 +66,10 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
   },
 };
 
-export const TransactionItem: FC<Props> = ({ transaction }) => {
+export const TransactionItem: FC<Props> = ({
+  transaction,
+  showChainBadge = true,
+}) => {
   const { t } = useTranslation();
   const { getTokenPrice } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
@@ -95,7 +99,10 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
       }
     >
       <Styled.ListItemIcon>
-        <TransactionIcon transaction={transaction} />
+        <TransactionIcon
+          transaction={transaction}
+          showChainBadge={showChainBadge}
+        />
       </Styled.ListItemIcon>
       <ListItemText
         primary={t('{{amount}} {{symbol}} {{direction}}', {

@@ -11,10 +11,7 @@ export const Portfolio: FC = () => (
     <Route path="/manage-tokens/add-custom" component={AddCustomToken} />
     <Route path="/manage-tokens" component={ManageTokens} />
     <Route path="/wallet/:walletId" component={WalletView} />
-    <Route
-      path="/asset/:networkId/:tokenAddress/:tokenName"
-      component={TokenDetails}
-    />
+    <Route path="/asset/:networkId/:tokenAddress" component={TokenDetails} />
     <Route path="/" component={PortfolioHome} />
   </Switch>
 );

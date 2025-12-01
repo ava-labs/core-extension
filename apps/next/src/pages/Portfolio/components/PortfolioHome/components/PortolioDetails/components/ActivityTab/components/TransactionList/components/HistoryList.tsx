@@ -11,9 +11,14 @@ import { TransactionItem } from './TransactionItem';
 type Props = {
   filter: ActivityFilter;
   transactionHistory: TxHistoryItem<NetworkVMType>[];
+  showChainBadge?: boolean;
 };
 
-export const HistoryList: FC<Props> = ({ filter, transactionHistory }) => {
+export const HistoryList: FC<Props> = ({
+  filter,
+  transactionHistory,
+  showChainBadge = true,
+}) => {
   const groupedTransactionHistory = useGroupedHistory(
     transactionHistory,
     filter,
@@ -40,7 +45,10 @@ export const HistoryList: FC<Props> = ({ filter, transactionHistory }) => {
             >
               {transactions.map((tx, index, self) => (
                 <Fragment key={tx.hash}>
-                  <TransactionItem transaction={tx} />
+                  <TransactionItem
+                    transaction={tx}
+                    showChainBadge={showChainBadge}
+                  />
                   {index < self.length - 1 && (
                     <Styled.Divider variant="inset" />
                   )}
