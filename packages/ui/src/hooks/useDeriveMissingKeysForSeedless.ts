@@ -10,7 +10,6 @@ import {
 import { ExtensionRequest, SecretType } from '@core/types';
 import type { DeriveMissingKeysHandler } from '@core/service-worker';
 
-// TODO: Specifically not typing anything here as we're only intereset in the return
 type ToastCallbacks = {
   // Display a loading toast
   onLoading: () => void;
