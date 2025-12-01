@@ -1,28 +1,20 @@
-import { CORE_WEB_BASE_URL } from '@/config';
-import { Stack, Typography } from '@avalabs/k2-alpine';
-import { isTokenWithBalancePVM } from '@core/common';
-import { useNetworkContext, useTokensWithBalances } from '@core/ui';
+import { Divider, Typography } from '@avalabs/k2-alpine';
+
+import { Stack } from '@avalabs/k2-alpine';
+import { StyledCard } from '../../styled';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdInfoOutline, MdNavigateNext } from 'react-icons/md';
-import { StyledCard } from '../styled';
-import { AssetsErrorState } from '../../AssetsErrorState';
+import { CORE_WEB_BASE_URL } from '@/config/constants';
 
 type Props = {
-  networkId: number;
+  balances: TokenWithBalancePVM;
 };
-export const PchainDetails: FC<Props> = ({ networkId }) => {
+
+export const Assets: FC<Props> = ({ balances }) => {
   const { t } = useTranslation();
-  const { getNetwork } = useNetworkContext();
-  const network = getNetwork(networkId);
-
-  const pchainBalances = useTokensWithBalances({
-    network,
-  });
-
-  // Get the P-chain native token (should be the first/only token for P-chain)
-  const pchainToken = pchainBalances[0];
-  const _isCorrectBalance = isTokenWithBalancePVM(pchainToken);
 
   const _typeDisplayNames = {
     lockedStaked: t('Locked Staked'),
@@ -34,13 +26,8 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
     unlockedStaked: t('Unlocked Staked'),
     pendingStaked: t('Pending Staked'),
   };
-
-  if (!_isCorrectBalance) {
-    return <AssetsErrorState />;
-  }
-
   return (
-    <Stack gap={1}>
+    <>
       <StyledCard
         onClick={() =>
           window.open(
@@ -66,21 +53,39 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
           <MdNavigateNext size={20} color="text.secondary" />
         </Stack>
       </StyledCard>
-
       <StyledCard>
-        <Stack>
-          {Object.entries(pchainToken.balancePerType).map(([type, balance]) => {
+        <Stack divider={<Divider />}>
+          {Object.entries(balances.balancePerType).map(([type, balance]) => {
+            const displayBalance = new TokenUnit(
+              balance,
+              balances.decimals,
+              balances.symbol,
+            ).toDisplay();
+
+            const displayBalanceWithSymbol = `${displayBalance} AVAX`;
             return (
-              <Stack key={type}>
-                <Typography variant="subtitle4">
+              <Stack
+                key={type}
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                p={1.5}
+              >
+                <Typography variant="subtitle3">
                   {_typeDisplayNames[type]}
                 </Typography>
-                <Typography variant="subtitle4">{balance}</Typography>
+                <Typography
+                  variant="body3"
+                  color="text.secondary"
+                  textAlign="right"
+                >
+                  {displayBalanceWithSymbol}
+                </Typography>
               </Stack>
             );
           })}
         </Stack>
       </StyledCard>
-    </Stack>
+    </>
   );
 };

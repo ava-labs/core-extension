@@ -8,7 +8,7 @@ import { useTokenDetails } from './hooks/useTokenDetails';
 import { PageTopBar } from '@/components/PageTopBar';
 import { GeneralTokenDetails } from './components/GeneralTokenDetails';
 import { isPchainNetworkId, isXchainNetworkId } from '@core/common';
-import { PchainDetails } from './components/PchainDetails';
+import { PchainDetails } from './components/PChain/PchainDetails';
 import { XchainDetails } from './components/XchainDetails';
 
 export const TokenDetails = () => {
