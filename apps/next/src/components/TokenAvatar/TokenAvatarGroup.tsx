@@ -1,13 +1,13 @@
 import {
-  AvatarGroup,
   avatarClasses,
+  AvatarGroup,
   avatarGroupClasses,
   Stack,
   styled,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
-import { SizedAvatar } from './components';
+import { SizedAvatar } from '../SizedAvatar';
 
 type TokenAvatarGroupProps = {
   tokens: { symbol: string; logoUrl: string }[];

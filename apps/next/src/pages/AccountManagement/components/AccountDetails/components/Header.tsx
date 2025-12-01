@@ -14,10 +14,6 @@ type Props = {
   account: Account;
 };
 
-const SecondaryText = styled('span')(({ theme }) => ({
-  color: theme.palette.text.secondary,
-}));
-
 export const AccountDetailsHeader: FC<Props> = ({ account }) => {
   const { t } = useTranslation();
   const balance = useBalanceTotalInCurrency(account);
@@ -27,10 +23,11 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
 
   return (
     <header>
-      <Typography variant="h2" marginBlockEnd={0.5}>
-        <SecondaryText>{account.name}</SecondaryText>
-        <br />
-        <span>{currencyFormatter(balance?.sum ?? 0)}</span>
+      <Typography variant="h2" color="text.secondary">
+        {account.name}
+      </Typography>
+      <Typography variant="h2" marginBlockEnd={0.5} mb={2}>
+        {currencyFormatter(balance?.sum ?? 0)}
       </Typography>
       {isTokensCached && (
         <StaleBalanceContainer>

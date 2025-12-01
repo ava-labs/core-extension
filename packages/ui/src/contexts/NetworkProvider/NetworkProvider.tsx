@@ -59,7 +59,8 @@ const NetworkContext = createContext<{
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
   favoriteNetworks: NetworkWithCaipId[];
-  enabledNetworks: number[];
+  enabledNetworks: NetworkWithCaipId[];
+  enabledNetworkIds: number[];
   addFavoriteNetwork(chainId: number): void;
   removeFavoriteNetwork(chainId: number): void;
   isFavoriteNetwork(chainId: number): boolean;
@@ -84,6 +85,7 @@ const NetworkContext = createContext<{
   isDeveloperMode: false,
   favoriteNetworks: [],
   enabledNetworks: [],
+  enabledNetworkIds: [],
   addFavoriteNetwork() {},
   removeFavoriteNetwork() {},
   isFavoriteNetwork: () => false,
@@ -113,7 +115,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
 
-  const getFavoriteNetworks = useMemo(
+  const favoriteNetworksList = useMemo(
     () =>
       networks
         .filter((networkItem) => favoriteNetworks.includes(networkItem.chainId))
@@ -124,6 +126,18 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
           );
         }),
     [favoriteNetworks, network, networks],
+  );
+
+  const enabledNetworksList = useMemo(
+    () =>
+      !enabledNetworks
+        ? []
+        : networks
+            .filter(({ chainId }) => enabledNetworks.includes(chainId))
+            .filter(
+              (networkItem) => network?.isTestnet === networkItem.isTestnet,
+            ),
+    [enabledNetworks, network?.isTestnet, networks],
   );
 
   const getCustomNetworks = useMemo(
@@ -375,8 +389,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         updateDefaultNetwork,
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
-        favoriteNetworks: getFavoriteNetworks,
-        enabledNetworks: enabledNetworks,
+        favoriteNetworks: favoriteNetworksList,
+        enabledNetworks: enabledNetworksList,
+        enabledNetworkIds: enabledNetworks,
         addFavoriteNetwork: (chainId: number) => {
           request<AddFavoriteNetworkHandler>({
             method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,

@@ -1,7 +1,13 @@
 import { Select } from '@/components/Select';
 import { LessRoundedPasswordField } from '@/components/StandaloneField';
 import { useSubmitButton } from '@/hooks/useSubmitButton';
-import { Button, MenuItem, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  MenuItem,
+  Stack,
+  styled,
+  selectClasses,
+} from '@avalabs/k2-alpine';
 import { Account, AccountType, PrivateKeyChain, SecretType } from '@core/types';
 import { useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
@@ -15,6 +21,12 @@ type Props = {
   >;
   onAuthenticated(key: string | null): void;
 };
+
+const StyledSelect = styled(Select)(({ theme }) => ({
+  [`&.${selectClasses.root}`]: {
+    borderRadius: theme.shape.mediumBorderRadius,
+  },
+}));
 
 export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
   const { t } = useTranslation();
@@ -32,12 +44,8 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
       : SecretType.Mnemonic;
 
   return (
-    <Stack height={1} gap={2}>
-      <Typography variant="h2" paddingInlineEnd={7} paddingBlockEnd={3}>
-        {t('Enter your password to reveal the private key')}
-      </Typography>
-
-      <Select
+    <Stack height={1} gap={1.5} mt={2}>
+      <StyledSelect
         label={t('Chain')}
         value={chain}
         onChange={(e) => setChain(e.target.value as PrivateKeyChain)}
@@ -46,7 +54,7 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
         <MenuItem value={PrivateKeyChain.XP}>
           {t('Avalanche X/P-Chain')}
         </MenuItem>
-      </Select>
+      </StyledSelect>
 
       <LessRoundedPasswordField
         value={password}

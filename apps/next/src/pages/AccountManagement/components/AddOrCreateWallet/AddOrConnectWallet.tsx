@@ -1,25 +1,11 @@
-import {
-  Card,
-  Divider,
-  LedgerIcon,
-  List,
-  Stack,
-  toast,
-  Typography,
-} from '@avalabs/k2-alpine';
-import { AccountType } from '@core/types';
+import { Card, Divider, LedgerIcon, List, toast } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
-import {
-  LedgerAppType,
-  useAccountsContext,
-  useAnalyticsContext,
-  useLedgerContext,
-  useWalletContext,
-} from '@core/ui';
+import { useAnalyticsContext } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Page } from '@/components/Page';
 import { FaSquareCaretUp } from 'react-icons/fa6';
-import { MdAdd, MdKey, MdList, MdTopic } from 'react-icons/md';
+import { MdKey, MdList, MdTopic } from 'react-icons/md';
 import { SiWalletconnect } from 'react-icons/si';
 import { useHistory } from 'react-router-dom';
 import { AccountListItem } from './components/AccountListItem';
@@ -29,17 +15,8 @@ const underDevelopmentClick = () => toast.error('Under development');
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { isLedgerWallet } = useWalletContext();
-  const { hasLedgerTransport, appType } = useLedgerContext();
 
-  const { addAccount, accounts, selectAccount } = useAccountsContext();
-  const { goBack, push } = useHistory();
-
-  const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
-
-  const canAddNewAccount =
-    !isLedgerWallet ||
-    (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
+  const { push } = useHistory();
 
   const goToImportKeystoreFileScreen = useCallback(() => {
     capture('AddWalletWithKeystoreFile_Clicked');
@@ -52,39 +29,16 @@ export const AddOrConnectWallet: FC = () => {
   }, [push, capture]);
 
   return (
-    <Stack gap={2} height={1}>
-      <Typography variant="h2" paddingInlineEnd={12} paddingBlockEnd={0.5}>
-        {t('Add an account or connect a wallet')}
-      </Typography>
+    <Page
+      title={t('Add an account or connect a wallet')}
+      withBackButton
+      containerProps={{
+        mt: 3,
+      }}
+      contentProps={{ alignItems: 'stretch', justifyContent: 'flex-start' }}
+    >
       <Card>
         <List disablePadding dense>
-          {isPrimaryAccount && (
-            <AccountListItem
-              tooltip={
-                canAddNewAccount
-                  ? ''
-                  : t('Connect your Ledger device and open the Avalanche app')
-              }
-              disabled={!canAddNewAccount}
-              Icon={MdAdd}
-              primary={t('Create new account')}
-              secondary={t('Generate a new account in your active wallet')}
-              onClick={() =>
-                addAccount()
-                  .then(selectAccount)
-                  .then(goBack)
-                  .then(() => {
-                    toast.success(t('Account created successfully'));
-                    capture('CreatedANewAccountSuccessfully');
-                  })
-                  .catch((error) => {
-                    toast.error(t('Account creation failed'));
-                    console.error(error);
-                  })
-              }
-            />
-          )}
-          <Divider />
           <AccountListItem
             Icon={MdKey}
             primary={t('Import a private key')}
@@ -140,6 +94,6 @@ export const AddOrConnectWallet: FC = () => {
           />
         </List>
       </Card>
-    </Stack>
+    </Page>
   );
 };

@@ -7,6 +7,7 @@ import Big from 'big.js';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
+import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails, TransactionFailure } from './components';
 import { useUntrackTransaction } from './hooks/useUntrackTransaction';
@@ -51,6 +52,7 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         <TransactionFailure code={pendingTransfer.errorCode} />
       </Collapse>
       <BridgeTokenCard token={token} amount={amount} size={24} badgeSize={10} />
+      <BitcoinBridgeInfo />
       <BridgeDetails
         networkLabel={t('From')}
         chain={pendingTransfer.sourceChain}

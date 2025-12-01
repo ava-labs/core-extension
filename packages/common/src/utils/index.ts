@@ -107,3 +107,4 @@ export * from './approveSeedlessRegistration';
 export * from './isChainSupportedByWallet';
 export * from './retry';
 export * from './isChainSupportedByWalletOrAccount';
+export * from './secrets';

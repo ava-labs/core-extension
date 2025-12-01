@@ -1,8 +1,6 @@
-import { DialogContent, SxProps } from '@avalabs/k2-alpine';
 import {
   AccountManagerProvider,
   BalancesProvider,
-  useGoBack,
   WalletTotalBalanceProvider,
 } from '@core/ui';
 import { FC } from 'react';
@@ -14,55 +12,35 @@ import { ImportPrivateKey } from './components/ImportPrivateKey/Page';
 import { QRCode } from './components/QRCode';
 import { RenamePage } from './components/RenamePage';
 import { ShowPrivateKey } from './components/ShowPrivateKey/ShowPrivateKey';
-import { Wallets } from './components/Wallets';
+import { WalletsHomePage } from './components/Wallets';
 import { ImportKeystoreFile } from './components/ImportKeystoreFile/Page';
-import { PageTopBar } from '../../components/PageTopBar';
-import { SlideUpDialog } from '../../components/Dialog';
-
-const dialogContentSx: SxProps = {
-  container: 'account-management / size',
-  padding: 1.5,
-  overflow: 'hidden',
-};
 
 const AccountManagement: FC = () => {
   const { path } = useRouteMatch();
-  const goBack = useGoBack();
   return (
     <BalancesProvider>
       <WalletTotalBalanceProvider>
         <AccountManagerProvider>
-          <SlideUpDialog open>
-            <PageTopBar showBack onBackClicked={goBack} />
-            <DialogContent sx={dialogContentSx}>
-              <Switch>
-                <Route path={`${path}/rename`} component={RenamePage} />
-                <Route
-                  path={`${path}/delete-account`}
-                  component={DeleteAccount}
-                />
-                <Route path={`${path}/qr-code`} component={QRCode} />
-                <Route
-                  path={`${path}/add-wallet`}
-                  component={AddOrConnectWallet}
-                />
-                <Route
-                  path={`${path}/import-private-key`}
-                  component={ImportPrivateKey}
-                />
-                <Route
-                  path={`${path}/import-keystore-file`}
-                  component={ImportKeystoreFile}
-                />
-                <Route path={`${path}/account`} component={AccountDetails} />
-                <Route
-                  path={`${path}/show-private-key`}
-                  component={ShowPrivateKey}
-                />
-                <Route path={path} component={Wallets} />
-              </Switch>
-            </DialogContent>
-          </SlideUpDialog>
+          <Switch>
+            <Route path={path} exact component={WalletsHomePage} />
+            <Route path={`${path}/rename`} component={RenamePage} />
+            <Route path={`${path}/delete-account`} component={DeleteAccount} />
+            <Route path={`${path}/qr-code`} component={QRCode} />
+            <Route path={`${path}/add-wallet`} component={AddOrConnectWallet} />
+            <Route
+              path={`${path}/import-private-key`}
+              component={ImportPrivateKey}
+            />
+            <Route
+              path={`${path}/import-keystore-file`}
+              component={ImportKeystoreFile}
+            />
+            <Route path={`${path}/account`} component={AccountDetails} />
+            <Route
+              path={`${path}/show-private-key`}
+              component={ShowPrivateKey}
+            />
+          </Switch>
         </AccountManagerProvider>
       </WalletTotalBalanceProvider>
     </BalancesProvider>

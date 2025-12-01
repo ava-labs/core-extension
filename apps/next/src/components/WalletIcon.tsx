@@ -10,31 +10,33 @@ import { FaApple, FaGoogle } from 'react-icons/fa';
 
 export type WalletIconProps = {
   expanded?: boolean;
+  size?: number;
 } & Pick<WalletDetails, 'type' | 'authProvider'>;
 
 export const WalletIcon: FC<WalletIconProps> = ({
   type,
   authProvider,
   expanded,
+  size,
 }) => {
   if (type === SecretType.Ledger || type === SecretType.LedgerLive) {
-    return <LedgerIcon size={16} />;
+    return <LedgerIcon size={size ?? 18} />;
   }
 
   if (type === SecretType.Seedless) {
     if (authProvider === SeedlessAuthProvider.Google) {
-      return <FaGoogle size={16} />;
+      return <FaGoogle size={size ?? 18} />;
     }
 
     if (authProvider === SeedlessAuthProvider.Apple) {
-      return <FaApple size={16} />;
+      return <FaApple size={size ?? 22} />;
     }
   }
 
   if (type === SecretType.Keystone || type === SecretType.Keystone3Pro) {
-    return <KeystoneIcon size={14} />;
+    return <KeystoneIcon size={size ?? 18} />;
   }
 
   const MnemonicIcon = expanded ? WalletOpenIcon : WalletClosedIcon;
-  return <MnemonicIcon size={21} />;
+  return <MnemonicIcon size={size ?? 24} />;
 };

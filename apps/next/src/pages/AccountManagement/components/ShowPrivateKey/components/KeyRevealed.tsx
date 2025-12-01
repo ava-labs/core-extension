@@ -35,15 +35,13 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
 
   return (
     <Stack height={1} gap={1}>
-      <Typography variant="h2">
-        {t('Here’s the private key for this account')}
-      </Typography>
-
-      <Typography variant="caption">
-        {t('This key gives access to your account’s addresses')}
-      </Typography>
-
-      <Stack gap={1} direction="row" color="error.main" py={2}>
+      <Stack
+        gap={1}
+        direction="row"
+        color="error.main"
+        alignItems="center"
+        pb={2}
+      >
         <Box marginBlock="auto" flexShrink={0}>
           <MdErrorOutline size={24} />
         </Box>

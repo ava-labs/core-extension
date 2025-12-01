@@ -1,6 +1,7 @@
 import {
   BridgeIcon,
   SendIcon,
+  Slide,
   SquareButton,
   Stack,
   SwapIcon,
@@ -29,44 +30,52 @@ export const PortfolioActionButtons = () => {
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
   return (
-    <Stack direction="row" gap={1}>
-      <SquareButton
-        variant="extension"
-        icon={<SendIcon size={ICON_SIZE} />}
-        label="Send"
-        onClick={() => {
-          capture('TokenSendClicked');
-          push(getSendPath());
-        }}
-      />
-
-      <SquareButton
-        variant="extension"
-        icon={<SwapIcon size={ICON_SIZE} />}
-        label="Swap"
-        onClick={() => {
-          capture('TokenSwapClicked');
-          push(getSwapPath());
-        }}
-      />
-      <SquareButton
-        variant="extension"
-        icon={<MdAdd size={ICON_SIZE} />}
-        label="Buy"
-        onClick={(e) => {
-          capture('TokenBuyClicked');
-          onNotImplementedClick(e);
-        }}
-      />
-      <SquareButton
-        variant="extension"
-        icon={<BridgeIcon size={ICON_SIZE} />}
-        label="Bridge"
-        onClick={() => {
-          capture('TokenBridgeClicked');
-          push(getBridgePath());
-        }}
-      />
+    <Stack direction="row" gap={1} width="100%">
+      {/* TODO: create the proper animation */}
+      <Slide direction="left" in timeout={300} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<SendIcon size={ICON_SIZE} />}
+          label="Send"
+          onClick={() => {
+            capture('TokenSendClicked');
+            push(getSendPath());
+          }}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={600} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<SwapIcon size={ICON_SIZE} />}
+          label="Swap"
+          onClick={() => {
+            capture('TokenSwapClicked');
+            push(getSwapPath());
+          }}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={900} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<MdAdd size={ICON_SIZE} />}
+          label="Buy"
+          onClick={(e) => {
+            capture('TokenBuyClicked');
+            onNotImplementedClick(e);
+          }}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={1200} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<BridgeIcon size={ICON_SIZE} />}
+          label="Bridge"
+          onClick={() => {
+            capture('TokenBridgeClicked');
+            push(getBridgePath());
+          }}
+        />
+      </Slide>
     </Stack>
   );
 };

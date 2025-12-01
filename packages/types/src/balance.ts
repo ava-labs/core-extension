@@ -106,6 +106,8 @@ export const getUnconfirmedBalanceInCurrency = (token?: TokenWithBalance) => {
 export type TotalBalanceForWallet = {
   totalBalanceInCurrency?: number;
   hasBalanceOnUnderivedAccounts: boolean;
+  balanceChange?: number;
+  percentageChange?: number;
 };
 
 export type NonFungibleAssetType = 'evm_erc721' | 'evm_erc1155';
