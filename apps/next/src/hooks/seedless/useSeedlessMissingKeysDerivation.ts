@@ -3,7 +3,7 @@ import { useDeriveMissingKeysForSeedless } from '@core/ui';
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const SeedlessMissingKeysDerivation = () => {
+export const useSeedlessMissingKeysDerivation = () => {
   const { t } = useTranslation();
 
   const toastId = useRef<string | number>(undefined);
@@ -35,6 +35,4 @@ export const SeedlessMissingKeysDerivation = () => {
   );
 
   useDeriveMissingKeysForSeedless(callbacks);
-
-  return null;
 };
