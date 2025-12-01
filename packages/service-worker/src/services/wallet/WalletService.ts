@@ -20,6 +20,7 @@ import { NetworkVMType, PartialBy, RpcMethod } from '@avalabs/vm-module-types';
 import {
   assertPresent,
   getAvalancheExtendedKeyPath,
+  getLegacyXPDerivationPath,
   getProviderForNetwork,
   hasAtLeastOneElement,
   isNotNullish,
@@ -1238,56 +1239,62 @@ export class WalletService implements OnUnlock {
     const secrets =
       await this.secretService.getPrimaryAccountSecrets(activeAccount);
 
-    if (!secrets) {
+    if (!isPrimaryAccount(activeAccount) || !secrets) {
       return [];
-    }
-
-    if (
-      secrets.secretType === SecretType.LedgerLive ||
-      secrets.secretType === SecretType.Seedless
-    ) {
-      const derivationPaths = indices.map((index) =>
-        getAddressDerivationPath(index, chainAlias === 'X' ? 'AVM' : 'PVM'),
-      );
-
-      // TODO: something is not yes here. try extended keys first and only then fall back to the legacy XP paths????
-      const publicKeys = derivationPaths
-        .map((derivationPath) =>
-          getPublicKeyFor(secrets, derivationPath, 'secp256k1'),
-        )
-        .filter(isNotNullish);
-
-      return publicKeys.map((publicKey) =>
-        provXP.getAddress(Buffer.from(hex.decode(publicKey.key)), chainAlias),
-      );
     }
 
     if (isChange && chainAlias !== 'X') {
       return [];
     }
 
-    return indices.map((index) => {
-      const avmDerivationPath = getAddressDerivationPath(index, 'AVM');
-      const avmExtendedPubKey = getExtendedPublicKeyFor(
-        secrets.extendedPublicKeys,
-        avmDerivationPath,
-        'secp256k1',
+    // First try to use the extended public key
+    const extendedXPPublicKey =
+      'extendedPublicKeys' in secrets
+        ? getExtendedPublicKey(
+            secrets.extendedPublicKeys,
+            getAvalancheExtendedKeyPath(activeAccount.index),
+            'secp256k1',
+          )
+        : null;
+
+    if (extendedXPPublicKey) {
+      return indices.map((index) =>
+        Avalanche.getAddressFromXpub(
+          extendedXPPublicKey.key,
+          index,
+          provXP,
+          chainAlias,
+          isChange,
+        ),
+      );
+    }
+
+    // For Seedless and Ledger Live wallets, we may not have the extended public key.
+    // If that's the case, we need to return all known public keys for a given (legacy)
+    // X/P derivation path, which was m/44'/9000'/0'/0/N, where N is the address index.
+    if (
+      secrets.secretType === SecretType.Seedless ||
+      secrets.secretType === SecretType.LedgerLive
+    ) {
+      const derivationPaths = indices.map((index) =>
+        getLegacyXPDerivationPath(index, isChange),
       );
 
-      assertPresent(
-        avmExtendedPubKey,
-        SecretsError.MissingExtendedPublicKey,
-        `AVM @ ${avmDerivationPath}`,
+      const publicKeys = derivationPaths.map((derivationPath) =>
+        getPublicKeyFor(secrets, derivationPath, 'secp256k1'),
       );
 
-      return Avalanche.getAddressFromXpub(
-        avmExtendedPubKey.key,
-        index,
-        provXP,
-        chainAlias,
-        isChange,
+      return publicKeys.map((publicKey) =>
+        publicKey
+          ? provXP.getAddress(
+              Buffer.from(hex.decode(publicKey.key)),
+              chainAlias,
+            )
+          : null,
       );
-    });
+    }
+
+    return [];
   }
 
   private async parseWalletPolicyDetails(account: Account) {

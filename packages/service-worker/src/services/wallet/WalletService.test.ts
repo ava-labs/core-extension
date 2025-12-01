@@ -51,7 +51,7 @@ import { SecretsService } from '../secrets/SecretsService';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '@core/types';
-import { decorateWithCaipId } from '@core/common';
+import { decorateWithCaipId, getLegacyXPDerivationPath } from '@core/common';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
@@ -104,7 +104,10 @@ describe('background/services/wallet/WalletService.ts', () => {
   let addressResolver: AddressResolver;
   let secretsService: jest.Mocked<SecretsService>;
   const accountsService: jest.Mocked<AccountsService> = {
-    getActiveAccount: async () => ({}),
+    getActiveAccount: async () => ({
+      type: AccountType.PRIMARY,
+      index: 0,
+    }),
   } as any;
 
   const privateKeyMock =
@@ -1701,21 +1704,11 @@ describe('background/services/wallet/WalletService.ts', () => {
           publicKeys: [
             buildAddressPublicKey(
               '11111111',
-              getAddressDerivationPath(0, 'PVM', {
-                pathSpec:
-                  secretType === SecretType.LedgerLive
-                    ? DerivationPath.LedgerLive
-                    : DerivationPath.BIP44,
-              }),
+              getLegacyXPDerivationPath(0, false),
             ),
             buildAddressPublicKey(
               '22222222',
-              getAddressDerivationPath(1, 'PVM', {
-                pathSpec:
-                  secretType === SecretType.LedgerLive
-                    ? DerivationPath.LedgerLive
-                    : DerivationPath.BIP44,
-              }),
+              getLegacyXPDerivationPath(1, false),
             ),
           ],
         } as any);
@@ -1758,7 +1751,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toStrictEqual([]);
     });
 
-    it('returns the correct list of addresses', async () => {
+    it('uses the extended public key if available', async () => {
       secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
         derivationPathSpec: DerivationPath.BIP44,
         extendedPublicKeys: [
