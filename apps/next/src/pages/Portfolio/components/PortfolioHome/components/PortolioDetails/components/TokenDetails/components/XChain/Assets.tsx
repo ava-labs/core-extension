@@ -3,32 +3,28 @@ import { Divider } from '@avalabs/k2-alpine';
 import { Stack } from '@avalabs/k2-alpine';
 import { StyledCardNoPaddingY } from '../../styled';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
+import { TokenWithBalanceAVM } from '@avalabs/vm-module-types';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { UtxoBanner } from '../XPChains/UtxoBanner';
 import { BalanceLineItem } from '../XPChains/BalanceLineItem';
 
 type Props = {
-  balances: TokenWithBalancePVM;
+  balances: TokenWithBalanceAVM;
 };
 
 export const Assets: FC<Props> = ({ balances }) => {
   const { t } = useTranslation();
 
   const _typeDisplayNames = {
-    lockedStaked: t('Locked Staked'),
-    lockedStakeable: t('Locked Stakeable'),
-    lockedPlatform: t('Locked Platform'),
+    locked: t('Locked'),
+    unlocked: t('Unlocked'),
     atomicMemoryLocked: t('Atomic Memory Locked'),
     atomicMemoryUnlocked: t('Atomic Memory Unlocked'),
-    unlockedUnstaked: t('Unlocked Unstaked'),
-    unlockedStaked: t('Unlocked Staked'),
-    pendingStaked: t('Pending Staked'),
   };
   return (
     <>
-      <UtxoBanner network="p-chain" />
+      <UtxoBanner network="x-chain" />
       <StyledCardNoPaddingY>
         <Stack divider={<Divider />}>
           {Object.entries(balances.balancePerType).map(([type, balance]) => {

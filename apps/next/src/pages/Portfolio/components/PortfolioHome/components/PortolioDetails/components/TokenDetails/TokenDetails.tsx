@@ -9,7 +9,7 @@ import { PageTopBar } from '@/components/PageTopBar';
 import { GeneralTokenDetails } from './components/GeneralTokenDetails';
 import { isPchainNetworkId, isXchainNetworkId } from '@core/common';
 import { PchainDetails } from './components/PChain/PchainDetails';
-import { XchainDetails } from './components/XchainDetails';
+import { XchainDetails } from './components/XChain/XchainDetails';
 
 export const TokenDetails = () => {
   const { push } = useHistory();
@@ -68,7 +68,7 @@ export const TokenDetails = () => {
         {isPChain ? (
           <PchainDetails networkId={preppedNetworkId} />
         ) : isXChain ? (
-          <XchainDetails />
+          <XchainDetails networkId={preppedNetworkId} />
         ) : (
           <GeneralTokenDetails
             networkId={preppedNetworkId}
