@@ -39,11 +39,7 @@ export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
         </Slide>
       </Stack>
       <Suspense fallback={<TransactionListSkeleton />}>
-        <HistoryList
-          filter={filter}
-          transactionHistory={transactionHistory}
-          showChainBadge={false}
-        />
+        <HistoryList filter={filter} transactionHistory={transactionHistory} />
       </Suspense>
     </>
   );

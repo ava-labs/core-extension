@@ -6,7 +6,6 @@ import { TransactionTypeIcon } from './components/TransactionTypeIcon';
 
 export interface Props {
   transaction: TxHistoryItem;
-  showChainBadge?: boolean;
 }
 
 const badgeSx: BadgeProps['sx'] = { isolation: 'isolate' };
@@ -15,8 +14,8 @@ const anchor: BadgeProps['anchorOrigin'] = {
   horizontal: 'right',
 };
 
-const TransactionIcon: FC<Props> = ({ transaction, showChainBadge = true }) => {
-  return showChainBadge ? (
+const TransactionIcon: FC<Props> = ({ transaction }) => {
+  return (
     <Badge
       sx={badgeSx}
       overlap="circular"
@@ -36,17 +35,6 @@ const TransactionIcon: FC<Props> = ({ transaction, showChainBadge = true }) => {
         <TransactionTypeIcon transaction={transaction} />
       </Stack>
     </Badge>
-  ) : (
-    <Stack
-      width={32}
-      height={32}
-      alignItems="center"
-      justifyContent="center"
-      borderRadius="50%"
-      bgcolor="background.paper"
-    >
-      <TransactionTypeIcon transaction={transaction} />
-    </Stack>
   );
 };
 
