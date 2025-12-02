@@ -13,7 +13,6 @@ type Props = {
 export const AtomicFundsBalance: FC<Props> = ({ atomicBalance }) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  console.log('asdasdasdasd', atomicBalance);
   if (!atomicBalance) {
     return <></>;
   }
