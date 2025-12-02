@@ -43,9 +43,11 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 import { EventDrivenComponentsAndHooks } from './components';
 
 const pagesWithoutHeader = [
+  '/seedless-auth',
   '/account-management',
   '/settings',
   '/receive',
@@ -165,6 +167,7 @@ export function App() {
         {isAppContext && <InAppApprovalOverlay />}
 
         <EventDrivenComponentsAndHooks />
+        <SeedlessAuthPrompt />
       </>
     </Providers>
   );
