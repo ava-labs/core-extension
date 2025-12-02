@@ -15,6 +15,9 @@ export const useRevealKey = () => {
   const { request } = useConnectionContext();
   const { capture } = useAnalyticsContext();
   const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState<GetPrivateKeyErrorTypes | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const revealKey = useCallback(
@@ -30,11 +33,13 @@ export const useRevealKey = () => {
         throw new Error('Invalid type!');
       }
       setIsLoading(true);
+      setErrorType(null);
       return request<GetPrivateKeyHandler>({
         method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
         params: [{ type, index, id, password, chain }],
       })
         .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
+          setErrorType(e.type);
           if (e.type === GetPrivateKeyErrorTypes.Password) {
             setError(t('Invalid Password'));
           } else if (e.type === GetPrivateKeyErrorTypes.Chain) {
@@ -52,5 +57,5 @@ export const useRevealKey = () => {
     [capture, request, t],
   );
 
-  return { error, isLoading, revealKey };
+  return { error, errorType, isLoading, revealKey };
 };

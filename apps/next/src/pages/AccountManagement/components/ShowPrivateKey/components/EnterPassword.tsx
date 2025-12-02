@@ -8,7 +8,13 @@ import {
   styled,
   selectClasses,
 } from '@avalabs/k2-alpine';
-import { Account, AccountType, PrivateKeyChain, SecretType } from '@core/types';
+import {
+  Account,
+  AccountType,
+  GetPrivateKeyErrorTypes,
+  PrivateKeyChain,
+  SecretType,
+} from '@core/types';
 import { useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,7 +40,7 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
   const [chain, setChain] = useState<PrivateKeyChain>(PrivateKeyChain.C);
   const [revealButtonRef, shortcuts] = useSubmitButton();
   const [password, setPassword] = useState('');
-  const { revealKey, error, isLoading } = useRevealKey();
+  const { revealKey, error, errorType, isLoading } = useRevealKey();
 
   const id = account.id;
   const index = account.type === AccountType.IMPORTED ? 0 : account.index;
@@ -81,14 +87,11 @@ export const EnterPassword: FC<Props> = ({ account, onAuthenticated }) => {
               onAuthenticated(key);
               return;
             }
-            if (
-              error?.includes('Password') ||
-              error?.includes('Invalid Password')
-            ) {
+            if (errorType === GetPrivateKeyErrorTypes.Password) {
               capture('ExportPrivateKeyErrorInvalidPassword');
               return;
             }
-            if (error?.includes('Chain') || error?.includes('Invalid Chain')) {
+            if (errorType === GetPrivateKeyErrorTypes.Chain) {
               capture('ExportPrivateKeyErrorInvalidChain');
               return;
             }
