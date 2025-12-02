@@ -22,7 +22,6 @@ export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
     onSendSuccess: (hash: string) => {
       // Redirect to home page
       replace('/');
-
       triggerConfetti();
       toast.success(t('Transaction successful'), {
         id: TOAST_ID,

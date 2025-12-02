@@ -23,7 +23,7 @@ const onNotImplementedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
   );
 };
 
-const ICON_SIZE = 19.2;
+const ICON_SIZE = 24;
 
 export const PortfolioActionButtons = () => {
   const { push } = useHistory();
@@ -36,6 +36,14 @@ export const PortfolioActionButtons = () => {
           icon={<SendIcon size={ICON_SIZE} />}
           label="Send"
           onClick={() => push(getSendPath())}
+          sx={{
+            px: 1.5,
+            width: 60,
+            height: 60,
+            gap: 0,
+            justifyContent: 'space-between',
+            '& > span': { lineHeight: 1.2 },
+          }}
         />
       </Slide>
       <Slide direction="left" in timeout={600} easing="ease-out">

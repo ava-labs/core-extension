@@ -96,8 +96,8 @@ export const Confetti = forwardRef<ConfettiMethods>((_, ref) => {
       width={width}
       height={height}
       recycle={false}
-      numberOfPieces={200}
-      gravity={0.35}
+      numberOfPieces={250}
+      gravity={0.4}
       initialVelocityY={3}
       initialVelocityX={5}
       wind={0}
