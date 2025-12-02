@@ -10,6 +10,7 @@ import {
   AtomicBalances,
   Balances,
   ExtensionRequest,
+  TotalAtomicBalanceForWallet,
   TotalPriceChange,
 } from '@core/types';
 import { merge } from 'lodash';
@@ -38,6 +39,7 @@ import { useAccountsContext } from '../AccountsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
+import { GetTotalAtomicFundsForWalletHandler } from '~/services/balances/handlers/getTotalAtomicFundsForWallet';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -86,6 +88,11 @@ type BalanceAction =
       };
     };
 
+export type WalletAtomicBalanceState = Partial<TotalAtomicBalanceForWallet> & {
+  isLoading: boolean;
+  hasErrorOccurred: boolean;
+};
+
 const BalancesContext = createContext<{
   balances: BalancesState;
   refreshNftMetadata(
@@ -108,11 +115,9 @@ const BalancesContext = createContext<{
         priceChange: TotalPriceChange;
       }
     | undefined;
-  getAtomicBalanceForWallet: (walletId: string) =>
-    | {
-        sum: number | null;
-      }
-    | undefined;
+  getAtomicBalance: (
+    walletId: string | undefined,
+  ) => WalletAtomicBalanceState | undefined;
 }>({
   balances: { loading: true },
   getTokenPrice() {
@@ -127,7 +132,7 @@ const BalancesContext = createContext<{
   getTotalBalance() {
     return undefined;
   },
-  getAtomicBalanceForWallet() {
+  getAtomicBalance() {
     return undefined;
   },
 });
@@ -181,6 +186,10 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     loading: true,
     cached: true,
   });
+
+  const [walletAtomicBalances, setWalletAtomicBalances] = useState<
+    Record<string, WalletAtomicBalanceState>
+  >({});
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
 
@@ -241,9 +250,53 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     });
   }, [request]);
 
+  const fetchAtomicBalanceForWallet = useCallback(
+    async (walletId: string) => {
+      setWalletAtomicBalances((prevState) => ({
+        ...prevState,
+        [walletId]: {
+          ...prevState[walletId],
+          hasErrorOccurred: false,
+          isLoading: true,
+        },
+      }));
+      request<GetTotalAtomicFundsForWalletHandler>({
+        method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET,
+        params: {
+          walletId,
+        },
+      })
+        .then((atomicBalance) => {
+          setWalletAtomicBalances((prevState) => ({
+            ...prevState,
+            [walletId]: {
+              balanceDisplayValue: atomicBalance.sum,
+              hasErrorOccurred: false,
+              isLoading: false,
+            },
+          }));
+        })
+        .catch((_err) => {
+          setWalletAtomicBalances((prevState) => ({
+            ...prevState,
+            [walletId]: {
+              ...prevState[walletId],
+              hasErrorOccurred: true,
+              isLoading: false,
+            },
+          }));
+        });
+    },
+    [request],
+  );
+
   useEffect(() => {
     if (!activeAccount) {
       return;
+    }
+
+    if ('walletId' in activeAccount) {
+      fetchAtomicBalanceForWallet(activeAccount.walletId);
     }
 
     const tokenTypes = Object.entries(subscribers)
@@ -277,6 +330,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     network?.chainId,
     enabledNetworkIds,
     subscribers,
+    fetchAtomicBalanceForWallet,
   ]);
 
   const updateBalanceOnNetworks = useCallback(
@@ -344,26 +398,15 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     ],
   );
 
-  const getAtomicBalanceForWallet = useCallback(
-    (walletId: string) => {
-      console.log('getAtomicBalanceForWallet', {
-        walletId,
-        atomic: balances.atomic,
-      });
-      // TODO: Implementation
-      // const networks = chainIds.map(getNetwork).filter(isNotNullish);
-      //
-      // if (balances.tokens && network?.chainId) {
-      //   return calculateTotalBalance(
-      //     getAccount(addressC),
-      //     networks,
-      //     balances.tokens,
-      //   );
-      // }
+  const getAtomicBalance = useCallback(
+    (walletId: string | undefined) => {
+      if (!walletId) {
+        return undefined;
+      }
 
-      return undefined;
+      return walletAtomicBalances[walletId];
     },
-    [balances.atomic],
+    [walletAtomicBalances],
   );
 
   const getTokenPrice = useCallback(
@@ -412,7 +455,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           ? getTotalBalance(activeAccount.addressC)
           : undefined,
         getTotalBalance,
-        getAtomicBalanceForWallet,
+        getAtomicBalance,
       }}
     >
       {children}

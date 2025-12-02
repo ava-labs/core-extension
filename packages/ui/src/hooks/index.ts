@@ -76,4 +76,3 @@ export * from './useSolanaPublicKeys';
 export * from './useSeedlessActions';
 export * from './useDuplicatedWalletChecker';
 export * from './useDeriveMissingKeysForSeedless';
-export * from './useWalletTotalAtomicBalance';
