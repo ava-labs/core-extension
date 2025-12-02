@@ -5,11 +5,7 @@ import { WalletAccountsCard } from './WalletAccountsCard';
 import { getAccountAvatars } from '../utils/accountAvatars';
 import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
-import {
-  useAccountsContext,
-  useWalletTotalAtomicBalance,
-  useWalletTotalBalance,
-} from '@core/ui';
+import { useAccountsContext, useWalletTotalBalance } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
 import { getNetworkCount } from '../utils/networkCount';
@@ -28,7 +24,6 @@ export const WalletDetails = ({ wallet }: Props) => {
     balanceChange,
     percentageChange,
   } = useWalletTotalBalance(wallet.id);
-  const { balanceDisplayValue } = useWalletTotalAtomicBalance(wallet.id);
   const {
     selected: { name: userAvatarName },
   } = usePersonalAvatar();
@@ -50,7 +45,6 @@ export const WalletDetails = ({ wallet }: Props) => {
 
   return (
     <Stack p={1} mt={2} gap={1}>
-      balanceDisplayValue: {balanceDisplayValue}
       <WalletBalance
         walletType={wallet.type}
         walletAuthProvider={wallet.authProvider}

@@ -12,14 +12,12 @@ import {
   IMPORTED_ACCOUNTS_WALLET_ID,
   TotalBalanceForWallet,
   ExtensionRequest,
-  TotalAtomicBalanceForWallet,
 } from '@core/types';
 
 import { GetTotalBalanceForWalletHandler } from '@core/service-worker';
 import { useAccountsContext } from './AccountsProvider';
 import { useWalletContext } from './WalletProvider';
 import { useConnectionContext } from './ConnectionProvider';
-import { GetTotalAtomicFundsForWalletHandler } from '~/services/balances/handlers/getTotalAtomicFundsForWallet';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;
@@ -30,16 +28,10 @@ export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
   hasErrorOccurred: boolean;
 };
 
-export type WalletAtomicBalanceState = Partial<TotalAtomicBalanceForWallet> & {
-  isLoading: boolean;
-  hasErrorOccurred: boolean;
-};
-
 const WalletTotalBalanceContext = createContext<
   | {
       fetchBalanceForWallet(walletId: string): Promise<void>;
       walletBalances: Record<string, WalletTotalBalanceState>;
-      walletAtomicBalances: Record<string, WalletAtomicBalanceState>;
     }
   | undefined
 >(undefined);
@@ -61,50 +53,6 @@ export const WalletTotalBalanceProvider = ({
   const [walletBalances, setWalletBalances] = useState<
     Record<string, WalletTotalBalanceState>
   >({});
-
-  const [walletAtomicBalances, setWalletAtomicBalances] = useState<
-    Record<string, WalletAtomicBalanceState>
-  >({});
-
-  const fetchAtomicBalanceForWallet = useCallback(
-    async (walletId: string) => {
-      setWalletBalances((prevState) => ({
-        ...prevState,
-        [walletId]: {
-          ...prevState[walletId],
-          hasErrorOccurred: false,
-          isLoading: true,
-        },
-      }));
-      request<GetTotalAtomicFundsForWalletHandler>({
-        method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET,
-        params: {
-          walletId,
-        },
-      })
-        .then((atomicBalance) => {
-          setWalletAtomicBalances((prevState) => ({
-            ...prevState,
-            [walletId]: {
-              balanceDisplayValue: atomicBalance.sum,
-              hasErrorOccurred: false,
-              isLoading: false,
-            },
-          }));
-        })
-        .catch((_err) => {
-          setWalletAtomicBalances((prevState) => ({
-            ...prevState,
-            [walletId]: {
-              ...prevState[walletId],
-              hasErrorOccurred: true,
-              isLoading: false,
-            },
-          }));
-        });
-    },
-    [request],
-  );
 
   const fetchBalanceForWallet = useCallback(
     async (walletId: string) => {
@@ -152,10 +100,7 @@ export const WalletTotalBalanceProvider = ({
 
     const fetchWalletBalancesSequentially = async (walletIds: string[]) => {
       for (const walletId of walletIds) {
-        await Promise.allSettled([
-          fetchBalanceForWallet(walletId),
-          fetchAtomicBalanceForWallet(walletId),
-        ]);
+        await fetchBalanceForWallet(walletId);
         if (!isMounted) {
           return;
         }
@@ -172,19 +117,13 @@ export const WalletTotalBalanceProvider = ({
     return () => {
       isMounted = false;
     };
-  }, [
-    wallets,
-    hasImportedAccounts,
-    fetchBalanceForWallet,
-    fetchAtomicBalanceForWallet,
-  ]);
+  }, [wallets, hasImportedAccounts, fetchBalanceForWallet]);
 
   return (
     <WalletTotalBalanceContext.Provider
       value={{
         walletBalances,
         fetchBalanceForWallet,
-        walletAtomicBalances,
       }}
     >
       {children}

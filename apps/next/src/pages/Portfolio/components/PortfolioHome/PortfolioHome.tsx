@@ -1,3 +1,6 @@
+import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory, useLocation } from 'react-router-dom';
 import {
   alpha,
   CircularProgress,
@@ -12,16 +15,15 @@ import {
   useBalancesContext,
   useNetworkContext,
 } from '@core/ui';
-import { FC, useState } from 'react';
+
+import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { NoScrollStack } from '@/components/NoScrollStack';
+import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 
 import AccountInfo from './components/AccountInfo';
 import { EmptyState } from './components/EmptyState';
 import { PortfolioDetails } from './components/PortolioDetails';
-import { useTranslation } from 'react-i18next';
-import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
-import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
-import { useHistory, useLocation } from 'react-router-dom';
+import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 
 export type TabName = 'assets' | 'collectibles' | 'defi' | 'activity';
 
@@ -41,7 +43,11 @@ export const PortfolioHome: FC = () => {
     activeTabFromParams ?? 'assets',
   );
   const { networks, isDeveloperMode } = useNetworkContext();
-  const { totalBalance, balances } = useBalancesContext();
+  const { totalBalance, balances, getAtomicBalance } = useBalancesContext();
+  const walletId =
+    accounts.active?.type === 'primary' ? accounts.active.walletId : undefined;
+  const atomicBalance = getAtomicBalance(walletId);
+  const atomicBalanceExists = !!atomicBalance;
   const isLoading = !totalBalance;
   const isAccountEmpty =
     !hasAccountBalances(
@@ -90,6 +96,15 @@ export const PortfolioHome: FC = () => {
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}
           />
+          {!!walletId &&
+            atomicBalanceExists &&
+            (atomicBalance.isLoading ? (
+              <CenteredSpinner />
+            ) : (
+              <AtomicFundsBalance
+                atomicBalance={atomicBalance.balanceDisplayValue!}
+              />
+            ))}
           <Stack flexGrow={1} gap={2.5}>
             {isLoading ? (
               <CenteredSpinner />
