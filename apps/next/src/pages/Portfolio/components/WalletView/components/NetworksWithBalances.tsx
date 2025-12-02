@@ -1,5 +1,5 @@
 import { NetworkAvatar } from '@/pages/Settings/components/NetworkManagement/components/NetworkAvatar/NetworkAvatar';
-import { Avatar, Box, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import { Avatar, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { Network, NetworkWithCaipId } from '@core/types';
 import { FC } from 'react';
 import { isPchainNetwork, isXchainNetwork } from '@core/common';
@@ -9,6 +9,10 @@ import DarkP from '@/images/chain-logos/p_chain_dark.svg';
 import LightP from '@/images/chain-logos/p_chain_light.svg';
 import DarkX from '@/images/chain-logos/x_chain_dark.svg';
 import LightX from '@/images/chain-logos/x_chain_light.svg';
+import {
+  NetworksWithBalancesContainer,
+  NetworksWithBalancesItemContainer,
+} from './styled';
 
 interface Props {
   networksWithBalance: NetworkWithCaipId[];
@@ -60,30 +64,8 @@ export const NetworksWithBalances: FC<Props> = ({ networksWithBalance }) => {
         const shouldClip = hasNextIcon(index);
 
         return (
-          <Box
-            key={network.chainId}
-            sx={{
-              marginLeft: index > 0 ? '-5px' : 0,
-              position: 'relative',
-              zIndex: index + 1,
-            }}
-          >
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                overflow: 'hidden',
-                backgroundColor: 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                ...(shouldClip && {
-                  mask: 'url(#crescent-mask)',
-                  WebkitMask: 'url(#crescent-mask)',
-                }),
-              }}
-            >
+          <NetworksWithBalancesContainer key={network.chainId} index={index}>
+            <NetworksWithBalancesItemContainer shouldClip={shouldClip}>
               {isXPChain ? (
                 <Avatar
                   src={logoUri}
@@ -96,8 +78,8 @@ export const NetworksWithBalances: FC<Props> = ({ networksWithBalance }) => {
                   sx={{ width: 16, height: 16 }}
                 />
               )}
-            </Box>
-          </Box>
+            </NetworksWithBalancesItemContainer>
+          </NetworksWithBalancesContainer>
         );
       })}
       {remainingCount > 0 && (

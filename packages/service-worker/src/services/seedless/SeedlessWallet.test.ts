@@ -33,6 +33,8 @@ import {
   solanaKey,
   solanaKey2,
   anotherValidSolanaKey,
+  validKeySetWithNewAvalancheKeys,
+  avaKeyRemodelled,
 } from './fixtures/rawKeys';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessWallet } from './SeedlessWallet';
@@ -143,15 +145,15 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.getPublicKeys()).rejects.toThrow(
-          'Accounts not created',
+          'No mnemonics have been derived yet',
         );
       });
     });
 
-    describe('when ETH or Avalanche key is not returned', () => {
+    describe('when EVM key is not returned', () => {
       beforeEach(() => {
         jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
-          keys: jest.fn().mockResolvedValue([evmKey]),
+          keys: jest.fn().mockResolvedValue([avaKey]),
         } as any);
 
         wallet = new SeedlessWallet({ networkService, sessionStorage });
@@ -159,7 +161,7 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
 
       it('raises an error', async () => {
         await expect(wallet.getPublicKeys()).rejects.toThrow(
-          'Accounts keys missing',
+          'No valid accounts can be created',
         );
       });
     });
@@ -189,6 +191,41 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             key: strip0x(solanaKey.publicKey),
             derivationPath: solanaKey.derivation_info.derivation_path,
             curve: 'ed25519',
+          }).toJSON(),
+        ]);
+      });
+    });
+
+    describe('when additional, valid keys are returned', () => {
+      beforeEach(() => {
+        jest.mocked(cs.SignerSession.loadSignerSession).mockResolvedValueOnce({
+          keys: jest.fn().mockResolvedValue(validKeySetWithNewAvalancheKeys),
+        } as any);
+
+        wallet = new SeedlessWallet({ networkService, sessionStorage });
+      });
+
+      it('correctly extracts those additional keys as well', async () => {
+        expect(await wallet.getPublicKeys()).toEqual([
+          AddressPublicKey.fromJSON({
+            key: strip0x(evmKey.publicKey),
+            derivationPath: evmKey.derivation_info.derivation_path,
+            curve: 'secp256k1',
+          }).toJSON(),
+          AddressPublicKey.fromJSON({
+            key: strip0x(avaKey.publicKey),
+            derivationPath: avaKey.derivation_info.derivation_path,
+            curve: 'secp256k1',
+          }).toJSON(),
+          AddressPublicKey.fromJSON({
+            key: strip0x(solanaKey.publicKey),
+            derivationPath: solanaKey.derivation_info.derivation_path,
+            curve: 'ed25519',
+          }).toJSON(),
+          AddressPublicKey.fromJSON({
+            key: strip0x(avaKeyRemodelled.publicKey),
+            derivationPath: avaKeyRemodelled.derivation_info.derivation_path,
+            curve: 'secp256k1',
           }).toJSON(),
         ]);
       });
