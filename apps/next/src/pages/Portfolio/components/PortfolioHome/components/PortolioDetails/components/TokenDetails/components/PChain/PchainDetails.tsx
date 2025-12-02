@@ -47,11 +47,11 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
   }
 
   return (
-    <Stack gap={1}>
-      <Stack display={activeTab === 'assets' ? 'flex' : 'none'}>
+    <Stack height="100%" sx={{ overflowY: 'auto' }}>
+      <Stack gap={1} display={activeTab === 'assets' ? 'flex' : 'none'}>
         <Assets balances={pchainToken} />
       </Stack>
-      <Stack display={activeTab === 'activity' ? 'flex' : 'none'}>
+      <Stack gap={1} display={activeTab === 'activity' ? 'flex' : 'none'}>
         <GeneralTokenDetails networkId={networkId} tokenAddress={'AVAX'} />
       </Stack>
       <XPChainsTabs activeTab={activeTab} setActiveTab={activeTabOnSelect} />

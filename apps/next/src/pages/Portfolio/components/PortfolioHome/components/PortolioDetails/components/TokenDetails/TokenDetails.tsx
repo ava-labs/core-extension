@@ -32,7 +32,13 @@ export const TokenDetails = () => {
   const isXChain = isXchainNetworkId(preppedNetworkId);
 
   return (
-    <>
+    <Stack
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <PageTopBar
         showBack={true}
         showViewSwitcher={true}
@@ -40,7 +46,7 @@ export const TokenDetails = () => {
           push('/portfolio');
         }}
       />
-      <Stack pt={2} px={1.5}>
+      <Stack pt={2} px={1.5} sx={{ flex: '0 0 auto', mb: 1.75 }}>
         <Box flexShrink={0} mb={0.5}>
           <TokenAvatar token={token} size={32} badgeSize={16} />
         </Box>
@@ -64,7 +70,18 @@ export const TokenDetails = () => {
           </Typography>
         </Stack>
         <PortfolioActionButtons />
+      </Stack>
 
+      <Box
+        sx={{
+          flex: '1 1 auto',
+          minHeight: 0,
+          px: 1.5,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {isPChain ? (
           <PchainDetails networkId={preppedNetworkId} />
         ) : isXChain ? (
@@ -75,7 +92,7 @@ export const TokenDetails = () => {
             tokenAddress={tokenAddress}
           />
         )}
-      </Stack>
-    </>
+      </Box>
+    </Stack>
   );
 };

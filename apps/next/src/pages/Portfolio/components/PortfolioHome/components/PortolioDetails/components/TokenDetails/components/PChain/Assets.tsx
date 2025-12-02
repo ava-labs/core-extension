@@ -27,7 +27,7 @@ export const Assets: FC<Props> = ({ balances }) => {
     pendingStaked: t('Pending Staked'),
   };
   return (
-    <>
+    <Stack rowGap={1}>
       <UtxoBanner network="p-chain" />
       <StyledCardNoPaddingY>
         <Stack divider={<Divider />}>
@@ -49,6 +49,6 @@ export const Assets: FC<Props> = ({ balances }) => {
           })}
         </Stack>
       </StyledCardNoPaddingY>
-    </>
+    </Stack>
   );
 };

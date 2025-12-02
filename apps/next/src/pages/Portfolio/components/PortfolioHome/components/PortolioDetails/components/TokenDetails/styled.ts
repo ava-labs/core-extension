@@ -6,7 +6,6 @@ export const StyledCardNoPaddingY = styled(Card)(({ theme }) => ({
   paddingLeft: theme.spacing(1.5),
   backgroundColor: theme.palette.background.paper,
   backgroundImage: 'none',
-  marginTop: theme.spacing(2),
 }));
 
 export const StyledCard = styled(StyledCardNoPaddingY)(({ theme }) => ({

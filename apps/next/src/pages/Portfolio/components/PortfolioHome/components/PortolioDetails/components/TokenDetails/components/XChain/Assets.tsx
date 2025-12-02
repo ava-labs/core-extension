@@ -23,7 +23,7 @@ export const Assets: FC<Props> = ({ balances }) => {
     atomicMemoryUnlocked: t('Atomic Memory Unlocked'),
   };
   return (
-    <>
+    <Stack rowGap={1}>
       <UtxoBanner network="x-chain" />
       <StyledCardNoPaddingY>
         <Stack divider={<Divider />}>
@@ -45,6 +45,6 @@ export const Assets: FC<Props> = ({ balances }) => {
           })}
         </Stack>
       </StyledCardNoPaddingY>
-    </>
+    </Stack>
   );
 };

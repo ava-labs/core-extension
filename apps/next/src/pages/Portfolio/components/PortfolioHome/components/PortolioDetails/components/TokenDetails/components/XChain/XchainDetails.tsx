@@ -47,14 +47,16 @@ export const XchainDetails: FC<Props> = ({ networkId }) => {
   }
 
   return (
-    <Stack gap={1}>
-      <Stack display={activeTab === 'assets' ? 'flex' : 'none'}>
-        <Assets balances={xchainToken} />
-      </Stack>
-      <Stack display={activeTab === 'activity' ? 'flex' : 'none'}>
-        <GeneralTokenDetails networkId={networkId} tokenAddress={'AVAX'} />
+    <>
+      <Stack sx={{ flex: '1 1 auto' }}>
+        <Stack gap={1} display={activeTab === 'assets' ? 'flex' : 'none'}>
+          <Assets balances={xchainToken} />
+        </Stack>
+        <Stack gap={1} display={activeTab === 'activity' ? 'flex' : 'none'}>
+          <GeneralTokenDetails networkId={networkId} tokenAddress={'AVAX'} />
+        </Stack>
       </Stack>
       <XPChainsTabs activeTab={activeTab} setActiveTab={activeTabOnSelect} />
-    </Stack>
+    </>
   );
 };
