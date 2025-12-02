@@ -7,24 +7,19 @@ import {
 } from '@core/ui';
 import { FC, useState } from 'react';
 import { AssetsErrorState } from '../../../AssetsErrorState';
-import { useHistory, useLocation } from 'react-router-dom';
 import { Assets } from './Assets';
 import { GeneralTokenDetails } from '../GeneralTokenDetails';
 import { TabName, XPChainsTabs } from '../XPChains/Tabs';
 import { StyledXPChainDetails } from '../styled';
+import { useUrlState } from '../../hooks/useUrlState';
 
 type Props = {
   networkId: number;
 };
 export const PchainDetails: FC<Props> = ({ networkId }) => {
-  const history = useHistory();
-
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const activeTabFromParams = queryParams.get('pchainTab') as TabName;
-  const [activeTab, setActiveTab] = useState<TabName>(
-    activeTabFromParams ?? 'assets',
-  );
+  const urlState = useUrlState();
+  const initialTab = urlState.xpChainTab ?? 'assets';
+  const [activeTab, setActiveTab] = useState<TabName>(initialTab);
 
   const { getNetwork } = useNetworkContext();
   const { balances } = useBalancesContext();
@@ -40,11 +35,7 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
   const _isCorrectBalance = isTokenWithBalancePVM(pchainToken);
 
   const activeTabOnSelect = (newTab: TabName) => {
-    queryParams.set('pchainTab', newTab);
-    history.push({
-      pathname: location.pathname,
-      search: queryParams.toString(),
-    });
+    urlState.update(urlState.filter, networkId, 'AVAX', newTab);
     setActiveTab(newTab);
   };
 

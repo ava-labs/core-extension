@@ -1,12 +1,12 @@
 import { Slide, Stack } from '@avalabs/k2-alpine';
 import { ActivityFilterSelector } from '../../ActivityTab/components/ActivityFilterSelector';
-import { useUrlState } from '../../ActivityTab/hooks/useUrlState';
 
 import { FC, Suspense, useState } from 'react';
 import { ActivityFilter } from '../../ActivityTab/types';
 import { useTokenHistory } from '../hooks/useTokenHistory';
 import { TransactionListSkeleton } from '../../ActivityTab/components/TransactionList';
 import { HistoryList } from '../../ActivityTab/components/TransactionList/components/HistoryList';
+import { useUrlState } from '../hooks/useUrlState';
 
 type Props = {
   networkId: number;
@@ -14,10 +14,9 @@ type Props = {
 };
 export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
   const urlState = useUrlState();
+  const initialFilter = urlState.filter ?? 'All';
 
-  const [filter, setFilter] = useState<ActivityFilter>(
-    urlState.filter ?? 'All',
-  );
+  const [filter, setFilter] = useState<ActivityFilter>(initialFilter);
 
   const transactionHistory = useTokenHistory({
     networkId,
@@ -33,7 +32,7 @@ export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
             exclude={['NFTs']}
             onChange={(newFilter) => {
               setFilter(newFilter);
-              urlState.update(newFilter, networkId, tokenAddress);
+              urlState.update(newFilter, networkId, tokenAddress, 'activity');
             }}
           />
         </Slide>
