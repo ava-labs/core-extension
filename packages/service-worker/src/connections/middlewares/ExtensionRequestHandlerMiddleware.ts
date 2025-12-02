@@ -95,9 +95,8 @@ const handleRequest = async (
       method: context.request.params.request.method,
       params: context.request.params.request.params,
       context: {
-        currentAddress: context.currentAddress,
-        xpubXP: context.xpubXP,
         ...context.request.context,
+        account: context.account,
       },
     },
     context.network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types,
