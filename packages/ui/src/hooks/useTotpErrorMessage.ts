@@ -5,7 +5,7 @@ export const useTotpErrorMessage = (code?: AuthErrorCode): string => {
   const { t } = useTranslation();
 
   if (code === AuthErrorCode.InvalidTotpCode) {
-    return t('Invalid code. Please try again.');
+    return t('The code you entered is incorrect. Please try again');
   }
 
   if (code === AuthErrorCode.TotpVerificationError) {

@@ -97,6 +97,7 @@ export const SeedlessFidoSetupFlow: FC<SeedlessFidoSetupFlowProps> = ({
           isLoading={isLoading}
           onRetry={() => registerFidoKey(name)}
           onCancel={history.goBack}
+          error={error}
         />
       )}
       {step === 'verify' && (
