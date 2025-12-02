@@ -9,116 +9,11 @@ export type ClientOptions = {
  */
 export type GetBalancesRequestBody = {
   data: Array<
-    | {
-        /**
-         * The caip2 namespace for EVM chains
-         */
-        namespace: 'eip155';
-        /**
-         * The list of addresses we want to get aggregated balances for
-         */
-        addresses: Array<string>;
-        /**
-         * The reference part of the caip2 ID (Supports EVM chains only)
-         */
-        references: Array<string>;
-      }
-    | {
-        /**
-         * The caip2 namespace for BTC chains
-         */
-        namespace: 'bip122';
-        /**
-         * The list of addresses we want to get aggregated balances for
-         */
-        addresses: Array<string>;
-        /**
-         * The reference part of the caip2 ID (Supports BTC chains only)
-         */
-        references: Array<
-          | '000000000019d6689c085ae165831e93'
-          | '000000000933ea01ad0ee984209779ba'
-        >;
-      }
-    | {
-        /**
-         * The caip2 namespace for SVM chains
-         */
-        namespace: 'solana';
-        /**
-         * The list of addresses we want to get aggregated balances for
-         */
-        addresses: Array<string>;
-        /**
-         * The reference part of the caip2 ID (Supports SVM chains only)
-         */
-        references: Array<
-          | '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
-          | 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1'
-        >;
-      }
-    | {
-        /**
-         * The caip2 namespace for Avalanche chains
-         */
-        namespace: 'avax';
-        /**
-         * The reference part of the caip2 ID (Supports C chains only)
-         */
-        references: Array<
-          | '8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a'
-          | 'YRLfeDBJpfEqUWe2FYR1OpXsnDDZeKWd'
-        >;
-        addressDetails: Array<{
-          /**
-           * The wallet's unique identifier.
-           */
-          walletId: string;
-          /**
-           * The list of addresses we want to get aggregated balances for
-           */
-          addresses: Array<string>;
-        }>;
-      }
-    | {
-        /**
-         * The caip2 namespace for Avalanche chains
-         */
-        namespace: 'avax';
-        /**
-         * The reference part of the caip2 ID (Supports X and P chains only)
-         */
-        references: Array<
-          | 'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo'
-          | 'Sj7NVE3jXTbJvwFAiu7OEUo_8g8ctXMG'
-          | 'imji8papUf2EhV3le337w1vgFauqkJg-'
-          | '8AJTpRj3SAqv1e80Mtl9em08LhvKEbkl'
-        >;
-        addressDetails?: Array<{
-          /**
-           * The wallet's unique identifier.
-           */
-          walletId: string;
-          /**
-           * The list of addresses we want to get aggregated balances for
-           */
-          addresses: Array<string>;
-        }>;
-        extendedPublicKeyDetails?: Array<{
-          /**
-           * The wallet's unique identifier.
-           */
-          walletId: string;
-          /**
-           * The extended public key for X/P chains we want to get aggregated balances for
-           */
-          extendedPublicKey: string & string;
-        }>;
-        /**
-         * Whether to filter out dust UTXOs from the balance calculation. Default is true. Only supported on P-chain.
-         */
-        filterOutDustUtxos?: boolean;
-      }
+    | EvmGetBalancesRequestItem
+    | BtcGetBalancesRequestItem
+    | SvmGetBalancesRequestItem
+    | AvalancheCorethGetBalancesRequestItem
+    | AvalancheXpGetBalancesRequestItem
   >;
   currency?: Currency;
   /**
@@ -128,9 +23,147 @@ export type GetBalancesRequestBody = {
 };
 
 /**
+ * The request item for EVM chains
+ */
+export type EvmGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for EVM chains
+   */
+  namespace: 'eip155';
+  /**
+   * The list of addresses we want to get aggregated balances for
+   */
+  addresses: Array<string>;
+  /**
+   * The reference part of the caip2 ID (Supports EVM chains only)
+   */
+  references: Array<string>;
+};
+
+/**
+ * The request item for BTC chains
+ */
+export type BtcGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for BTC chains
+   */
+  namespace: 'bip122';
+  /**
+   * The list of addresses we want to get aggregated balances for
+   */
+  addresses: Array<string>;
+  /**
+   * The reference part of the caip2 ID (Supports BTC chains only)
+   */
+  references: Array<
+    '000000000019d6689c085ae165831e93' | '000000000933ea01ad0ee984209779ba'
+  >;
+};
+
+/**
+ * The request item for Solana chains
+ */
+export type SvmGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for SVM chains
+   */
+  namespace: 'solana';
+  /**
+   * The list of addresses we want to get aggregated balances for
+   */
+  addresses: Array<string>;
+  /**
+   * The reference part of the caip2 ID (Supports SVM chains only)
+   */
+  references: Array<
+    '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' | 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1'
+  >;
+};
+
+/**
+ * The request item for C-chain (coreth)
+ */
+export type AvalancheCorethGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for Avalanche chains
+   */
+  namespace: 'avax';
+  /**
+   * The reference part of the caip2 ID (Supports C chains only)
+   */
+  references: Array<
+    '8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a' | 'YRLfeDBJpfEqUWe2FYR1OpXsnDDZeKWd'
+  >;
+  addressDetails: Array<{
+    /**
+     * The wallet's unique identifier.
+     */
+    walletId: string;
+    /**
+     * The list of addresses we want to get aggregated balances for
+     */
+    addresses: Array<string>;
+  }>;
+};
+
+/**
+ * The request item for X/P chains
+ */
+export type AvalancheXpGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for Avalanche chains
+   */
+  namespace: 'avax';
+  /**
+   * The reference part of the caip2 ID (Supports X and P chains only)
+   */
+  references: Array<
+    | 'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo'
+    | 'Sj7NVE3jXTbJvwFAiu7OEUo_8g8ctXMG'
+    | 'imji8papUf2EhV3le337w1vgFauqkJg-'
+    | '8AJTpRj3SAqv1e80Mtl9em08LhvKEbkl'
+  >;
+  addressDetails?: Array<{
+    /**
+     * The wallet's unique identifier.
+     */
+    walletId: string;
+    /**
+     * The list of addresses we want to get aggregated balances for
+     */
+    addresses: Array<string>;
+  }>;
+  extendedPublicKeyDetails?: Array<{
+    /**
+     * The wallet's unique identifier.
+     */
+    walletId: string;
+    /**
+     * The extended public key for X/P chains we want to get aggregated balances for
+     */
+    extendedPublicKey: string & string;
+  }>;
+  /**
+   * Whether to filter out dust UTXOs from the balance calculation. Default is true. Only supported on P-chain.
+   */
+  filterOutDustUtxos?: boolean;
+};
+
+/**
  * The currency we are using for balance calculation
  */
-export type Currency = 'usd' | 'eur' | 'aud' | 'cad' | 'chf';
+export type Currency =
+  | 'usd'
+  | 'eur'
+  | 'aud'
+  | 'cad'
+  | 'chf'
+  | 'clp'
+  | 'czk'
+  | 'dkk'
+  | 'gbp'
+  | 'hkd'
+  | 'huf';
 
 /**
  * The request body for the get rewards endpoint
@@ -170,16 +203,7 @@ export type GetBalancesResponse =
   | ({
       networkType: 'coreth';
     } & CorethGetBalancesResponse)
-  | {
-      caip2Id: string;
-      /**
-       * The type of the network
-       */
-      networkType?: 'evm' | 'btc' | 'svm' | 'avm' | 'pvm' | 'coreth';
-      id: string;
-      balances: null;
-      error: string;
-    }
+  | GetBalancesResponseError
   | {
       error: string;
     };
@@ -399,6 +423,20 @@ export type CorethGetBalancesResponse = {
     };
   };
   error: null;
+};
+
+/**
+ * The error response if there was an error which got handled
+ */
+export type GetBalancesResponseError = {
+  caip2Id: string;
+  /**
+   * The type of the network
+   */
+  networkType?: 'evm' | 'btc' | 'svm' | 'avm' | 'pvm' | 'coreth';
+  id: string;
+  balances: null;
+  error: string;
 };
 
 /**

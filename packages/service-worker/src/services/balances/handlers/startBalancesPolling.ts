@@ -1,5 +1,6 @@
 import {
   Account,
+  AtomicBalances,
   Balances,
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -16,6 +17,7 @@ type HandlerType = ExtensionRequestHandler<
     balances: {
       tokens: Balances;
       nfts: Balances<NftTokenWithBalance>;
+      atomic: AtomicBalances;
     };
     isBalancesCached: boolean;
   },
@@ -44,7 +46,8 @@ export class StartBalancesPollingHandler implements HandlerType {
       );
     }
 
-    const { balances, nfts, isBalancesCached } = this.aggregatorService;
+    const { balances, nfts, isBalancesCached, atomicBalances } =
+      this.aggregatorService;
 
     return {
       ...request,
@@ -52,6 +55,7 @@ export class StartBalancesPollingHandler implements HandlerType {
         balances: {
           tokens: balances,
           nfts,
+          atomic: atomicBalances,
         },
         isBalancesCached,
       },

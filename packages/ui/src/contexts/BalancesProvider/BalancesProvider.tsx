@@ -6,7 +6,12 @@ import {
   StopBalancesPollingHandler,
   UpdateBalancesForNetworkHandler,
 } from '@core/service-worker';
-import { Balances, ExtensionRequest, TotalPriceChange } from '@core/types';
+import {
+  AtomicBalances,
+  Balances,
+  ExtensionRequest,
+  TotalPriceChange,
+} from '@core/types';
 import { merge } from 'lodash';
 import {
   createContext,
@@ -40,6 +45,7 @@ export interface BalancesState {
   loading: boolean;
   nfts?: Balances<NftTokenWithBalance>;
   tokens?: Balances;
+  atomic?: AtomicBalances;
   cached?: boolean;
   error?: string;
 }
@@ -65,6 +71,7 @@ type BalanceAction =
         balances?: {
           nfts: Balances<NftTokenWithBalance>;
           tokens: Balances;
+          atomic: AtomicBalances;
         };
         isBalancesCached?: boolean;
       };
@@ -101,6 +108,11 @@ const BalancesContext = createContext<{
         priceChange: TotalPriceChange;
       }
     | undefined;
+  getAtomicBalanceForWallet: (walletId: string) =>
+    | {
+        sum: number | null;
+      }
+    | undefined;
 }>({
   balances: { loading: true },
   getTokenPrice() {
@@ -113,6 +125,9 @@ const BalancesContext = createContext<{
   isTokensCached: true,
   totalBalance: undefined,
   getTotalBalance() {
+    return undefined;
+  },
+  getAtomicBalanceForWallet() {
     return undefined;
   },
 });
@@ -329,6 +344,28 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     ],
   );
 
+  const getAtomicBalanceForWallet = useCallback(
+    (walletId: string) => {
+      console.log('getAtomicBalanceForWallet', {
+        walletId,
+        atomic: balances.atomic,
+      });
+      // TODO: Implementation
+      // const networks = chainIds.map(getNetwork).filter(isNotNullish);
+      //
+      // if (balances.tokens && network?.chainId) {
+      //   return calculateTotalBalance(
+      //     getAccount(addressC),
+      //     networks,
+      //     balances.tokens,
+      //   );
+      // }
+
+      return undefined;
+    },
+    [balances.atomic],
+  );
+
   const getTokenPrice = useCallback(
     (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
@@ -375,6 +412,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           ? getTotalBalance(activeAccount.addressC)
           : undefined,
         getTotalBalance,
+        getAtomicBalanceForWallet,
       }}
     >
       {children}

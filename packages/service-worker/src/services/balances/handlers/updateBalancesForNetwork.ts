@@ -1,5 +1,6 @@
 import {
   Account,
+  AtomicBalances,
   Balances,
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -13,7 +14,11 @@ import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
-  { tokens: Balances; nfts: Balances<NftTokenWithBalance> },
+  {
+    tokens: Balances;
+    nfts: Balances<NftTokenWithBalance>;
+    atomic: AtomicBalances;
+  },
   [accounts?: Account[], networks?: number[]] | undefined
 >;
 
@@ -24,11 +29,11 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
   constructor(
     private networkBalancesService: BalanceAggregatorService,
     private accountsService: AccountsService,
-    private networkSerice: NetworkService,
+    private networkService: NetworkService,
   ) {}
 
   async #getDefaultNetworksToFetch(activeChainId: number) {
-    const favoriteNetworks = await this.networkSerice.getFavoriteNetworks();
+    const favoriteNetworks = await this.networkService.getFavoriteNetworks();
 
     return [...(activeChainId ? [activeChainId] : []), ...favoriteNetworks];
   }

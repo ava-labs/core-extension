@@ -153,6 +153,7 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
+import { GetTotalAtomicFundsForWalletHandler } from '~/services/balances/handlers/getTotalAtomicFundsForWallet';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -479,6 +480,10 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
   { token: 'ExtensionRequestHandler', useToken: GetTrendingTokensHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetTotalAtomicFundsForWalletHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
