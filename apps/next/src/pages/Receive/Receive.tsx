@@ -1,5 +1,5 @@
 import QRCodeSVG from 'qrcode.react';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { MdArrowBack } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory } from 'react-router-dom';
@@ -34,14 +34,9 @@ export const Receive = () => {
   } = useAccountsContext();
   const { capture } = useAnalyticsContext();
 
-  useEffect(() => {
-    capture('ReceivePageVisited');
-    // the event should be captured exactly once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const onAddressTypeChange = useCallback(
-    (type) => {
+    (type: AddressType) => {
+      capture('TokenReceiveClicked', { addressType: type });
       const newParams = new URLSearchParams(params);
 
       newParams.set('addressType', type);
@@ -51,7 +46,7 @@ export const Receive = () => {
         search: newParams.toString(),
       });
     },
-    [params, history],
+    [capture, params, history],
   );
 
   if (!active) {

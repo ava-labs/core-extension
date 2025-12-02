@@ -29,7 +29,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
         disabled={!account}
         size="small"
         onClick={() => {
-          capture('TokenReceiveClicked');
+          capture('TokenReceiveClicked', { addressType: 'C' });
           history.push(`/receive?accId=${account?.id}`);
         }}
       >
