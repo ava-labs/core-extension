@@ -139,8 +139,6 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}
             LoadingComponent={LoadingScreen}
