@@ -1,6 +1,10 @@
 import { Stack } from '@avalabs/k2-alpine';
 import { isTokenWithBalancePVM } from '@core/common';
-import { useNetworkContext, useTokensWithBalances } from '@core/ui';
+import {
+  useBalancesContext,
+  useNetworkContext,
+  useTokensWithBalances,
+} from '@core/ui';
 import { FC, useState } from 'react';
 import { AssetsErrorState } from '../../../AssetsErrorState';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -23,6 +27,7 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
   );
 
   const { getNetwork } = useNetworkContext();
+  const { balances } = useBalancesContext();
 
   const network = getNetwork(networkId);
 
@@ -43,6 +48,12 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
     setActiveTab(newTab);
   };
 
+  // Show nothing while balances are loading
+  if (balances.loading) {
+    return null;
+  }
+
+  // Show error state only after data has loaded but is invalid
   if (!_isCorrectBalance || !pchainToken) {
     return <AssetsErrorState />;
   }

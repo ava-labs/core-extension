@@ -15,6 +15,7 @@ import {
   StyledTokenDetailsContent,
   StyledTokenSummary,
 } from './styled';
+import { useBalancesContext } from '@core/ui';
 
 export const TokenDetails = () => {
   const { push } = useHistory();
@@ -25,10 +26,17 @@ export const TokenDetails = () => {
   }>();
 
   const preppedNetworkId = useMemo(() => Number(networkId), [networkId]);
+  const { balances } = useBalancesContext();
 
   const { token, tokenBalance, tokenBalanceInCurrency, currency } =
     useTokenDetails({ networkId, tokenAddress });
 
+  // Show nothing while balances are loading
+  if (balances.loading) {
+    return null;
+  }
+
+  // Show error state only after data has loaded but is invalid
   if (!token || !tokenBalance) {
     return <AssetsErrorState />;
   }
