@@ -793,11 +793,15 @@ export class WalletService implements OnUnlock {
 
     // Handle Avalanche transaction requests coming from the Avalanche Module
     if (isAvalancheModuleTransactionRequest(tx)) {
+      const isLedgerSigner =
+        wallet instanceof Avalanche.SimpleLedgerSigner ||
+        wallet instanceof Avalanche.LedgerSigner ||
+        wallet instanceof Avalanche.LedgerLiveSigner;
+
       if (
+        !isLedgerSigner &&
         !(wallet instanceof Avalanche.SimpleSigner) &&
         !(wallet instanceof Avalanche.StaticSigner) &&
-        !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
-        !(wallet instanceof Avalanche.LedgerSigner) &&
         !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
@@ -832,8 +836,7 @@ export class WalletService implements OnUnlock {
 
       const signRequest = {
         tx: unsignedTx,
-        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
-          wallet instanceof Avalanche.LedgerSigner) && {
+        ...(isLedgerSigner && {
           transport: this.ledgerService.recentTransport,
         }),
         externalIndices,
@@ -870,12 +873,15 @@ export class WalletService implements OnUnlock {
 
     // Handle Avalanche signing, X/P/CoreEth
     if ('tx' in tx) {
+      const isLedgerSigner =
+        wallet instanceof Avalanche.LedgerSigner ||
+        wallet instanceof Avalanche.LedgerLiveSigner ||
+        wallet instanceof Avalanche.SimpleLedgerSigner;
+
       if (
+        !isLedgerSigner &&
         !(wallet instanceof Avalanche.SimpleSigner) &&
         !(wallet instanceof Avalanche.StaticSigner) &&
-        !(wallet instanceof Avalanche.SimpleLedgerSigner) &&
-        !(wallet instanceof Avalanche.LedgerSigner) &&
-        !(wallet instanceof Avalanche.LedgerLiveSigner) &&
         !(wallet instanceof KeystoneWallet) &&
         !(wallet instanceof WalletConnectSigner) &&
         !(wallet instanceof SeedlessWallet)
@@ -885,9 +891,7 @@ export class WalletService implements OnUnlock {
 
       const txToSign = {
         tx: tx.tx,
-        ...((wallet instanceof Avalanche.SimpleLedgerSigner ||
-          wallet instanceof Avalanche.LedgerSigner ||
-          wallet instanceof Avalanche.LedgerLiveSigner) && {
+        ...(isLedgerSigner && {
           transport: this.ledgerService.recentTransport,
         }),
         externalIndices: tx.externalIndices,

@@ -2,7 +2,8 @@ import { Badge, BadgeProps, SxProps } from '@avalabs/k2-alpine';
 
 import { FungibleTokenBalance } from '@core/types';
 
-import { ChainBadge, SizedAvatar } from './components';
+import { ChainBadge } from '../ChainBadge';
+import { SizedAvatar } from '../SizedAvatar';
 
 type TokenAvatarProps = {
   size: number;

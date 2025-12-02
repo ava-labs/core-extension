@@ -45,8 +45,10 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
+import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 
 const pagesWithoutHeader = [
+  '/seedless-auth',
   '/account-management',
   '/settings',
   '/receive',
@@ -139,8 +141,6 @@ export function App() {
             OnboardingScreen={Onboarding}
           />,
           <AccountsContextProvider />,
-          <LedgerContextProvider />,
-          <KeystoneContextProvider />,
           <WalletContextProvider
             LockedComponent={LockScreen}
             LoadingComponent={LoadingScreen}
@@ -168,6 +168,7 @@ export function App() {
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
         <LedgerRegisterBtcWalletPolicy />
+        <SeedlessAuthPrompt />
       </>
     </Providers>
   );

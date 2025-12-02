@@ -1,75 +1,96 @@
-import { getHexAlpha, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { useAccountsContext } from '@core/ui';
-import { useState } from 'react';
-import { MdOutlineUnfoldMore } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
-import { PersonalAvatar } from '../PersonalAvatar';
-import { AddressList } from './AddressList';
+import { useAccountsContext, useWalletContext } from '@core/ui';
+import { useCallback, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { HeaderActions } from './components/HeaderActions';
 import {
   AccountInfo,
   AccountSelectContainer,
 } from './components/styledComponents';
 import { ConciergePrompt } from './ConciergePrompt';
+import { isImportedAccount, isPrimaryAccount } from '@core/common';
+import { AccountType, ImportedAccount } from '@core/types';
+import { HeaderWalletDetails } from './types';
+import { HeaderWallet } from './components/HeaderWallet';
+import { HeaderAccount } from './components/HeaderAccount';
+import { HeaderContainer, HeaderNavigationContainer } from './styled';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
+  const { t } = useTranslation();
+  const { getWallet } = useWalletContext();
   const activeAccount = accounts.active;
-  const theme = useTheme();
-  const [isAddressAppear, setIsAddressAppear] = useState(false);
+  const activeWallet = isPrimaryAccount(activeAccount)
+    ? getWallet(activeAccount.walletId)
+    : undefined;
+
+  const getImportedWalletName = useCallback(
+    (acct: ImportedAccount) => {
+      switch (acct.type) {
+        case AccountType.IMPORTED:
+          return t(`Imported`);
+        case AccountType.WALLET_CONNECT:
+          return t(`WalletConnect`);
+        case AccountType.FIREBLOCKS:
+          return t(`Fireblocks`);
+      }
+    },
+    [t],
+  );
+
+  const headerWalletDetails: HeaderWalletDetails = useMemo(() => {
+    const walletId = activeWallet
+      ? activeWallet.id
+      : isImportedAccount(activeAccount)
+        ? activeAccount.id
+        : '';
+
+    const walletName = activeWallet
+      ? (activeWallet?.name ?? '')
+      : isImportedAccount(activeAccount)
+        ? getImportedWalletName(activeAccount as ImportedAccount)
+        : '';
+
+    return {
+      id: walletId,
+      name: walletName,
+      isTrueWallet: !!activeWallet,
+      type: activeWallet?.type,
+      authProvider: activeWallet?.authProvider,
+    };
+  }, [activeAccount, getImportedWalletName, activeWallet]);
+  const location = useLocation();
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
-  const history = useHistory();
+
+  const isWalletView =
+    location.pathname === `/wallet/${headerWalletDetails.id}`;
 
   return (
-    <Stack
-      sx={{
-        position: 'relative',
-        top: 0,
-        left: 0,
-        width: '100%',
-        zIndex: theme.zIndex.appBar,
-        borderBottom: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
-      }}
-    >
-      <Stack
-        direction="row"
-        sx={{
-          background: theme.palette.background.default,
-          width: '100%',
-          height: '56px',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          px: 1,
-          zIndex: theme.zIndex.tooltip + 1,
-        }}
+    <HeaderContainer>
+      <HeaderNavigationContainer
         onMouseEnter={() => {
           setIsAIBackdropOpen(false);
         }}
       >
-        <AccountSelectContainer
-          onMouseOver={() => setIsAddressAppear(true)}
-          onMouseLeave={() => setIsAddressAppear(false)}
-          onClick={() => history.push('/account-management')}
-        >
+        <AccountSelectContainer>
           <AccountInfo>
-            <PersonalAvatar cached size="xsmall" sx={{ mr: 1 }} />
-            <Typography variant="body2">{activeAccount?.name}</Typography>
-            <MdOutlineUnfoldMore
-              size={24}
-              color={getHexAlpha(theme.palette.primary.main, 70)}
-            />
+            {isWalletView ? (
+              <HeaderWallet wallet={headerWalletDetails} />
+            ) : (
+              <HeaderAccount
+                wallet={headerWalletDetails}
+                isTrueWallet={headerWalletDetails.isTrueWallet}
+                account={activeAccount}
+              />
+            )}
           </AccountInfo>
-          <AddressList
-            isAddressAppear={isAddressAppear}
-            activeAccount={activeAccount}
-          />
         </AccountSelectContainer>
         <HeaderActions account={activeAccount} />
-      </Stack>
+      </HeaderNavigationContainer>
       <ConciergePrompt
         isAIBackdropOpen={isAIBackdropOpen}
         setIsAIBackdropOpen={setIsAIBackdropOpen}
       />
-    </Stack>
+    </HeaderContainer>
   );
 };
