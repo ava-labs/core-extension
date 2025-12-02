@@ -33,10 +33,13 @@ export const PortfolioActionButtons = () => {
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
 
+  let delay = 0;
+  const getDelay = () => (delay += 300);
+
   return (
     <Stack direction="row" gap={1} width="100%">
       {/* TODO: create the proper animation */}
-      <Slide direction="left" in timeout={300} easing="ease-out">
+      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
         <SquareButton
           variant="extension"
           icon={<SendIcon size={ICON_SIZE} />}
@@ -46,7 +49,7 @@ export const PortfolioActionButtons = () => {
       </Slide>
 
       {isSwapSupported && (
-        <Slide direction="left" in timeout={600} easing="ease-out">
+        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
             icon={<SwapIcon size={ICON_SIZE} />}
@@ -57,7 +60,7 @@ export const PortfolioActionButtons = () => {
       )}
 
       {isBuySupported && (
-        <Slide direction="left" in timeout={900} easing="ease-out">
+        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
             icon={<MdAdd size={ICON_SIZE} />}
@@ -66,7 +69,7 @@ export const PortfolioActionButtons = () => {
           />
         </Slide>
       )}
-      <Slide direction="left" in timeout={1200} easing="ease-out">
+      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
         <SquareButton
           variant="extension"
           icon={<BridgeIcon size={ICON_SIZE} />}

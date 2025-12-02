@@ -191,7 +191,6 @@ export const useIsFunctionAvailable = (
   functionName?: FunctionNames,
 ): FunctionIsAvailable => {
   const { network } = useNetworkContext();
-  console.log('network', network);
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
   const { isFlagEnabled } = useFeatureFlagContext();
 
