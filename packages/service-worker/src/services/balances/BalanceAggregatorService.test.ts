@@ -33,6 +33,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     getBalancesForNetwork: jest.fn(),
   } as any;
 
+  const featureFlagServiceMock = {
+    featureFlags: {},
+  } as any;
+
   const settingsServiceMock = {
     getSettings: () => ({ currency: 'USD' }),
   } as unknown as SettingsService;
@@ -205,6 +209,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         lockService,
         storageService,
         settingsServiceMock,
+        featureFlagServiceMock,
       );
     });
 
@@ -247,7 +252,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       );
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
-        1,
+        2,
       );
 
       expect(service.balances).toEqual({
@@ -432,6 +437,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         lockService,
         storageService,
         settingsServiceMock,
+        featureFlagServiceMock,
       );
     });
 

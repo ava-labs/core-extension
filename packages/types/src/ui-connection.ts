@@ -180,7 +180,7 @@ export enum ExtensionRequest {
   GASLESS_FUND_TX = 'gasless_fund_tx',
   GASLESS_GET_ELIGIBILITY = 'gasless_get_eligibility',
   GASLESS_SET_HEX_VALUES = 'gasless_set_hex_values',
-  GASLESS_SET_DEFAUlT_STATE_VALUES = 'gasless_set_default_state_values',
+  GASLESS_SET_DEFAULT_STATE_VALUES = 'gasless_set_default_state_values',
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
 
@@ -192,6 +192,8 @@ export enum ExtensionRequest {
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
 
   GET_TRENDING_TOKENS = 'get_trending_tokens',
+
+  GET_ATOMIC_FUNDS_FOR_WALLET = 'get_atomic_funds_for_wallet',
 }
 
 /* eslint-disable no-prototype-builtins */

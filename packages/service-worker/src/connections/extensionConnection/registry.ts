@@ -155,6 +155,7 @@ import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork'
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
 import { GetXPAddressesForAccountHandler } from '../../services/accounts/handlers/getXPAddressesForAccountIndex';
+import { GetTotalAtomicFundsForWalletHandler } from '~/services/balances/handlers/getTotalAtomicFundsForWallet';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -488,6 +489,10 @@ import { GetXPAddressesForAccountHandler } from '../../services/accounts/handler
   {
     token: 'ExtensionRequestHandler',
     useToken: MigrateMissingPublicKeysFromKeystoneHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetTotalAtomicFundsForWalletHandler,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}
