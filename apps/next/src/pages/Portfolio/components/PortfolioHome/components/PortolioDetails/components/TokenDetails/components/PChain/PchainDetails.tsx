@@ -7,6 +7,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { Assets } from './Assets';
 import { GeneralTokenDetails } from '../GeneralTokenDetails';
 import { TabName, XPChainsTabs } from '../XPChains/Tabs';
+import { StyledPChainDetails } from './styled';
 
 type Props = {
   networkId: number;
@@ -47,7 +48,7 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
   }
 
   return (
-    <Stack height="100%" sx={{ overflowY: 'auto' }}>
+    <StyledPChainDetails>
       <Stack gap={1} display={activeTab === 'assets' ? 'flex' : 'none'}>
         <Assets balances={pchainToken} />
       </Stack>
@@ -55,6 +56,6 @@ export const PchainDetails: FC<Props> = ({ networkId }) => {
         <GeneralTokenDetails networkId={networkId} tokenAddress={'AVAX'} />
       </Stack>
       <XPChainsTabs activeTab={activeTab} setActiveTab={activeTabOnSelect} />
-    </Stack>
+    </StyledPChainDetails>
   );
 };

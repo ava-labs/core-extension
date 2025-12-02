@@ -26,7 +26,7 @@ export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
 
   return (
     <>
-      <Stack direction="row" gap={1.25} mt={3} mb={2}>
+      <Stack direction="row" gap={1.25} mb={2}>
         <Slide direction="right" in>
           <ActivityFilterSelector
             selected={filter}
