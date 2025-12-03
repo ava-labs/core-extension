@@ -36,6 +36,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   const featureFlagServiceMock = {
     featureFlags: {},
   } as any;
+  const mockSecretsService = {
+    getAvalancheExtendedPublicKey: jest.fn(),
+  } as any;
 
   const settingsServiceMock = {
     getSettings: () => ({ currency: 'USD' }),
@@ -210,6 +213,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         storageService,
         settingsServiceMock,
         featureFlagServiceMock,
+        mockSecretsService,
       );
     });
 
@@ -441,6 +445,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         storageService,
         settingsServiceMock,
         featureFlagServiceMock,
+        mockSecretsService,
       );
     });
 
