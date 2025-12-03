@@ -21,11 +21,13 @@ export const AddressList = ({
   activeAccount,
   onMouseEnter,
   onMouseLeave,
+  top,
 }: {
   isAddressAppear: boolean;
   activeAccount?: Account;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  top?: number | string;
 }) => {
   const theme = useTheme();
   const listBackground =
@@ -41,7 +43,7 @@ export const AddressList = ({
         sx={{
           position: 'absolute',
           backdropFilter: 'blur(15px)',
-          top: theme.spacing(4.5),
+          top: top ?? theme.spacing(4.5),
           left: theme.spacing(0.5),
           width: '260px',
           background: listBackground,

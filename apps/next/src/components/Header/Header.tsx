@@ -1,5 +1,5 @@
 import { useAccountsContext, useWalletContext } from '@core/ui';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HeaderActions } from './components/HeaderActions';
@@ -14,11 +14,15 @@ import { HeaderWalletDetails } from './types';
 import { HeaderWallet } from './components/HeaderWallet';
 import { HeaderAccount } from './components/HeaderAccount';
 import { HeaderContainer, HeaderNavigationContainer } from './styled';
+import { useHeader } from './hooks/useHeader';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
   const { t } = useTranslation();
   const { getWallet } = useWalletContext();
+  const headerActionsRef = useRef<HTMLDivElement>(null);
+  const { headerInfoWidth, isAccountInfoVisible } = useHeader(headerActionsRef);
+  // TODO: Pass _headerInfoWidth to HeaderAccount to constrain its width
   const activeAccount = accounts.active;
   const activeWallet = isPrimaryAccount(activeAccount)
     ? getWallet(activeAccount.walletId)
@@ -78,13 +82,15 @@ export const Header = () => {
               <HeaderWallet wallet={headerWalletDetails} />
             ) : (
               <HeaderAccount
-                wallet={headerWalletDetails}
-                isTrueWallet={headerWalletDetails.isTrueWallet}
+                headerInfoWidth={headerInfoWidth}
+                isAccountInfoVisible={isAccountInfoVisible}
               />
             )}
           </AccountInfo>
         </AccountSelectContainer>
-        <HeaderActions account={activeAccount} />
+        <div ref={headerActionsRef}>
+          <HeaderActions account={activeAccount} />
+        </div>
       </HeaderNavigationContainer>
       <ConciergePrompt
         isAIBackdropOpen={isAIBackdropOpen}

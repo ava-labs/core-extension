@@ -7,6 +7,7 @@ import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
 import { WalletSummaryInfo } from './components/WalletSummaryInfo';
 import { AccountSummaryInfo } from './components/AccountSummaryInfo';
 import { Account } from '@core/types';
+import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
 
 type TotalBalance = ReturnType<typeof useBalancesContext>['totalBalance'];
 
@@ -32,6 +33,7 @@ export const AccountInfo: FC<Props> = ({
   const { walletSummary } = useActiveAccountInfo();
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
+  const { setAccountInfoElement } = useAccountInfoVisibility();
   const { sum, priceChange } = balance;
   const formattedSum = currencyFormatter(sum ?? 0).replace(
     /^(\D)0\.00$/,
@@ -39,7 +41,7 @@ export const AccountInfo: FC<Props> = ({
   );
 
   return (
-    <Stack spacing={0.5} mt={4.5}>
+    <Stack ref={setAccountInfoElement} spacing={0.5} mt={4.5}>
       <WalletSummaryInfo walletSummary={walletSummary} />
       <AccountSummaryInfo
         account={account}

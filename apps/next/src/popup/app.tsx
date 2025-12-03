@@ -28,6 +28,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
+import { AccountInfoVisibilityProvider } from '@/contexts/AccountInfoVisibilityContext';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
@@ -131,6 +132,7 @@ export function App() {
           />,
           <QueryClientProvider client={queryClient} />,
           <PersonalAvatarProvider />,
+          <AccountInfoVisibilityProvider />,
           <LedgerContextProvider />,
           <KeystoneContextProvider />,
           <OnboardingContextProvider
