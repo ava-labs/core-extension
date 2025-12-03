@@ -18,7 +18,7 @@ import { AVALANCHE_CHAIN_IDS } from '~/api-clients/constants';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET,
   { sum: number },
-  { walletId: string }
+  { accountId: string }
 >;
 
 type PvmCategoryWithNativeTokenBalance = PvmCategories & {
@@ -56,29 +56,36 @@ export class GetTotalAtomicFundsForWalletHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const { walletId } = request.params;
+    const { accountId } = request.params;
 
     const primaryAccounts = Object.values(
       (await this.accountsService.getAccounts()).primary,
     ).flat();
-    const accountsInWallet = primaryAccounts
-      .filter((account) => account.walletId === walletId)
-      .reduce<Record<string, boolean>>(
-        (accumulator, account) => ({
-          ...accumulator,
-          [account.addressCoreEth ?? '']: true,
-          [account.addressAVM ?? '']: true,
-          [account.addressPVM ?? '']: true,
-        }),
-        {},
-      );
+    const selectedAccount = primaryAccounts.find(
+      (account) => account.id === accountId,
+    );
+
+    if (!selectedAccount) {
+      return {
+        ...request,
+        result: {
+          sum: 0,
+        },
+      };
+    }
+
+    const accountsOfInterest = [
+      selectedAccount.addressCoreEth,
+      selectedAccount.addressAVM,
+      selectedAccount.addressPVM,
+    ];
 
     const { atomicBalances } = this.balanceAggregatorService;
     const atomicFundsSum = sum(
       Object.entries(atomicBalances).flatMap(([chainId, chainBalance]) => {
         return Object.entries(chainBalance).flatMap(
           ([accountAddress, atomicBalance]) => {
-            if (!accountsInWallet[accountAddress]) {
+            if (!accountsOfInterest.includes(accountAddress)) {
               return 0;
             }
             if (isCoreEthOrAvmAtomicBalance(chainId, atomicBalance)) {

@@ -147,7 +147,7 @@ export type TotalBalanceForWallet = {
   percentageChange?: number;
 };
 
-export type TotalAtomicBalanceForWallet = {
+export type TotalAtomicBalanceForAccount = {
   balanceDisplayValue: number;
 };
 

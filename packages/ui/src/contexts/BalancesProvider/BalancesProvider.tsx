@@ -10,7 +10,7 @@ import {
   AtomicBalances,
   Balances,
   ExtensionRequest,
-  TotalAtomicBalanceForWallet,
+  TotalAtomicBalanceForAccount,
   TotalPriceChange,
 } from '@core/types';
 import { merge } from 'lodash';
@@ -88,10 +88,11 @@ type BalanceAction =
       };
     };
 
-export type WalletAtomicBalanceState = Partial<TotalAtomicBalanceForWallet> & {
-  isLoading: boolean;
-  hasErrorOccurred: boolean;
-};
+export type AccountAtomicBalanceState =
+  Partial<TotalAtomicBalanceForAccount> & {
+    isLoading: boolean;
+    hasErrorOccurred: boolean;
+  };
 
 const BalancesContext = createContext<{
   balances: BalancesState;
@@ -116,8 +117,8 @@ const BalancesContext = createContext<{
       }
     | undefined;
   getAtomicBalance: (
-    walletId: string | undefined,
-  ) => WalletAtomicBalanceState | undefined;
+    accountId: string | undefined,
+  ) => AccountAtomicBalanceState | undefined;
 }>({
   balances: { loading: true },
   getTokenPrice() {
@@ -187,8 +188,8 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     cached: true,
   });
 
-  const [walletAtomicBalances, setWalletAtomicBalances] = useState<
-    Record<string, WalletAtomicBalanceState>
+  const [accountAtomicBalances, setAccountAtomicBalances] = useState<
+    Record<string, AccountAtomicBalanceState>
   >({});
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
@@ -250,12 +251,12 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     });
   }, [request]);
 
-  const fetchAtomicBalanceForWallet = useCallback(
-    async (walletId: string) => {
-      setWalletAtomicBalances((prevState) => ({
+  const fetchAtomicBalanceForAccount = useCallback(
+    async (accountId: string) => {
+      setAccountAtomicBalances((prevState) => ({
         ...prevState,
-        [walletId]: {
-          ...prevState[walletId],
+        [accountId]: {
+          ...prevState[accountId],
           hasErrorOccurred: false,
           isLoading: true,
         },
@@ -263,13 +264,13 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       request<GetTotalAtomicFundsForWalletHandler>({
         method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET,
         params: {
-          walletId,
+          accountId,
         },
       })
         .then((atomicBalance) => {
-          setWalletAtomicBalances((prevState) => ({
+          setAccountAtomicBalances((prevState) => ({
             ...prevState,
-            [walletId]: {
+            [accountId]: {
               balanceDisplayValue: atomicBalance.sum,
               hasErrorOccurred: false,
               isLoading: false,
@@ -277,10 +278,10 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           }));
         })
         .catch((_err) => {
-          setWalletAtomicBalances((prevState) => ({
+          setAccountAtomicBalances((prevState) => ({
             ...prevState,
-            [walletId]: {
-              ...prevState[walletId],
+            [accountId]: {
+              ...prevState[accountId],
               hasErrorOccurred: true,
               isLoading: false,
             },
@@ -295,9 +296,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    if ('walletId' in activeAccount) {
-      fetchAtomicBalanceForWallet(activeAccount.walletId);
-    }
+    fetchAtomicBalanceForAccount(activeAccount.id);
 
     const tokenTypes = Object.entries(subscribers)
       .filter(([, subscriberCount]) => subscriberCount > 0)
@@ -330,7 +329,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     network?.chainId,
     enabledNetworkIds,
     subscribers,
-    fetchAtomicBalanceForWallet,
+    fetchAtomicBalanceForAccount,
   ]);
 
   const updateBalanceOnNetworks = useCallback(
@@ -399,14 +398,14 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   );
 
   const getAtomicBalance = useCallback(
-    (walletId: string | undefined) => {
-      if (!walletId) {
+    (accountId: string | undefined) => {
+      if (!accountId) {
         return undefined;
       }
 
-      return walletAtomicBalances[walletId];
+      return accountAtomicBalances[accountId];
     },
-    [walletAtomicBalances],
+    [accountAtomicBalances],
   );
 
   const getTokenPrice = useCallback(

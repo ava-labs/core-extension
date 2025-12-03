@@ -279,10 +279,13 @@ export const createGetBalancePayload = async ({
               ...requestPayloadItem.references,
             ]),
           ),
-          extendedPublicKeyDetails: [
-            ...(accumulator.extendedPublicKeyDetails ?? []),
-            ...(requestPayloadItem.extendedPublicKeyDetails ?? []),
-          ],
+          extendedPublicKeyDetails: uniqBy(
+            [
+              ...(accumulator.extendedPublicKeyDetails ?? []),
+              ...(requestPayloadItem.extendedPublicKeyDetails ?? []),
+            ],
+            'walletId',
+          ),
         };
       },
       { namespace: 'avax', references: [], extendedPublicKeyDetails: [] },

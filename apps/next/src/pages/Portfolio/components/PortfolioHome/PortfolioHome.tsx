@@ -44,9 +44,9 @@ export const PortfolioHome: FC = () => {
   );
   const { networks, isDeveloperMode } = useNetworkContext();
   const { totalBalance, balances, getAtomicBalance } = useBalancesContext();
-  const walletId =
-    accounts.active?.type === 'primary' ? accounts.active.walletId : undefined;
-  const atomicBalance = getAtomicBalance(walletId);
+  const accountId =
+    accounts.active?.type === 'primary' ? accounts.active.id : undefined;
+  const atomicBalance = getAtomicBalance(accountId);
   const atomicBalanceExists = !!atomicBalance;
   const isLoading = !totalBalance;
   const isAccountEmpty =
@@ -96,7 +96,7 @@ export const PortfolioHome: FC = () => {
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}
           />
-          {!!walletId &&
+          {!!accountId &&
             atomicBalanceExists &&
             (atomicBalance.isLoading ? (
               <CenteredSpinner />
