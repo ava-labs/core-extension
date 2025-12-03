@@ -4,10 +4,8 @@ import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useKeystoneUsbContext } from '@core/ui';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-} from '@core/types';
+import { EVM_BASE_DERIVATION_PATH } from '@core/types';
+import { getAvalancheExtendedKeyPath } from '@core/common';
 
 import {
   UsbDerivationStatus,
@@ -31,51 +29,62 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher =
     const [error, setError] = useState<ErrorType>();
     const [status, setStatus] = useState<UsbDerivationStatus>('waiting');
 
-    const getKeysFromExtendedPublicKeys = useCallback(
+    const getExtendedPublicKeys = useCallback(
       async (indexes: number[]) => {
-        const evmExtendedPublicKey = await getExtendedPublicKey(ChainIDAlias.C);
-        const xpExtendedPublicKey = await getExtendedPublicKey(ChainIDAlias.X);
-
-        const keys: PublicKey[] = [];
+        const xpExtendedPublicKeys: { index: number; key: string }[] = [];
 
         for (const index of indexes) {
-          const evmKey = await getAddressPublicKeyFromXPub(
-            evmExtendedPublicKey,
+          xpExtendedPublicKeys.push({
             index,
-          );
-          keys.push({
+            key: await getExtendedPublicKey(ChainIDAlias.P, index),
+          });
+        }
+
+        return {
+          evm: await getExtendedPublicKey(ChainIDAlias.C, 0),
+          xp: xpExtendedPublicKeys,
+        };
+      },
+      [getExtendedPublicKey],
+    );
+
+    const getKeysFromExtendedPublicKeys = useCallback(
+      async (indexes: number[]) => {
+        const publicKeys: PublicKey[] = [];
+        const { evm, xp: xpExtendedKeys } =
+          await getExtendedPublicKeys(indexes);
+
+        for (const index of indexes) {
+          const evmKey = await getAddressPublicKeyFromXPub(evm, index);
+          publicKeys.push({
             index,
             vm: 'EVM',
             key: buildAddressPublicKey(evmKey, index, 'EVM'),
           });
+        }
 
-          const xpKey = await getAddressPublicKeyFromXPub(
-            xpExtendedPublicKey,
-            index,
-          );
-          keys.push({
+        for (const { key: xpubXP, index } of xpExtendedKeys) {
+          const addressPublicKey = await getAddressPublicKeyFromXPub(xpubXP, 0);
+
+          publicKeys.push({
             index,
             vm: 'AVM',
-            key: buildAddressPublicKey(xpKey, index, 'AVM'),
+            key: buildAddressPublicKey(addressPublicKey, index, 'AVM'),
           });
         }
 
         return {
           masterFingerprint: await getMasterFingerprint(),
           extendedPublicKeys: [
-            buildExtendedPublicKey(
-              evmExtendedPublicKey,
-              EVM_BASE_DERIVATION_PATH,
-            ),
-            buildExtendedPublicKey(
-              xpExtendedPublicKey,
-              AVALANCHE_BASE_DERIVATION_PATH,
+            buildExtendedPublicKey(evm, EVM_BASE_DERIVATION_PATH),
+            ...xpExtendedKeys.map(({ key, index }) =>
+              buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
             ),
           ],
-          addressPublicKeys: keys,
+          addressPublicKeys: publicKeys,
         };
       },
-      [getExtendedPublicKey, getMasterFingerprint],
+      [getExtendedPublicKeys, getMasterFingerprint],
     );
 
     const retrieveKeys = useCallback(

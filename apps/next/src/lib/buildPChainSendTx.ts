@@ -1,7 +1,7 @@
 import { utils } from '@avalabs/avalanchejs';
 
 import { getMaxUtxoSet } from '@core/common';
-import { NetworkWithCaipId, PvmCapableAccount } from '@core/types';
+import { NetworkWithCaipId, PvmCapableAccount, XPAddresses } from '@core/types';
 
 import { getAvalancheProvider } from '@/lib/getAvalancheProvider';
 import { getAvalancheWallet } from '@/lib/getAvalancheWallet';
@@ -13,6 +13,7 @@ type BuildPChainSendTxArgs = {
   to: string;
   network: NetworkWithCaipId;
   preloadedUtxoSet?: utils.UtxoSet;
+  addresses: XPAddresses;
 };
 
 export const buildPChainSendTx = async ({
@@ -22,13 +23,14 @@ export const buildPChainSendTx = async ({
   to,
   network,
   preloadedUtxoSet,
+  addresses,
 }: BuildPChainSendTxArgs) => {
   const provider = getAvalancheProvider(network);
-  const wallet = getAvalancheWallet(account, provider);
+  const wallet = await getAvalancheWallet(account, addresses, provider);
 
   const feeState = await provider.getApiP().getFeeState();
 
-  const { utxos } = await getMaxUtxoSet(
+  const { utxos, balance } = await getMaxUtxoSet(
     isLedgerWallet,
     provider,
     wallet,
@@ -36,6 +38,11 @@ export const buildPChainSendTx = async ({
     feeState,
     preloadedUtxoSet,
   );
+
+  if (balance.available < amount) {
+    throw new Error('Insufficient balance');
+  }
+
   const assetId = provider.getAvaxID();
   const changeAddressBytes = utils.parse(account.addressPVM)[2];
 

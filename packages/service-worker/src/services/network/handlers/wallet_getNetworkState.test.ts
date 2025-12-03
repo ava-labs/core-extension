@@ -154,6 +154,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
         mockFavoriteNetworks,
       );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
+        mockFavoriteNetworks,
+      );
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue(
           mockAllNetworks.reduce((acc, network) => {
@@ -224,6 +227,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
         favoritesWithoutActive,
       );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
+        favoritesWithoutActive,
+      );
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue(
           mockAllNetworks.reduce((acc, network) => {
@@ -251,6 +257,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
 
     it('handles networks without token visibility data', async () => {
       mockNetworkService.getFavoriteNetworks.mockResolvedValue([
+        ChainId.AVALANCHE_MAINNET_ID,
+      ]);
+      mockNetworkService.getEnabledNetworks.mockResolvedValue([
         ChainId.AVALANCHE_MAINNET_ID,
       ]);
       mockNetworkService.allNetworks = {
@@ -285,6 +294,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       mockNetworkService.getFavoriteNetworks.mockResolvedValue([
         ChainId.AVALANCHE_MAINNET_ID,
       ]);
+      mockNetworkService.getEnabledNetworks.mockResolvedValue([
+        ChainId.AVALANCHE_MAINNET_ID,
+      ]);
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue({
           [ChainId.AVALANCHE_MAINNET_ID]: networkWithoutOptionalFields,
@@ -314,6 +326,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       const favoritesWithActive = [ChainId.AVALANCHE_MAINNET_ID, 1];
 
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        favoritesWithActive,
+      );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
         favoritesWithActive,
       );
       mockNetworkService.allNetworks = {
@@ -350,6 +365,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
         favoritesWithMissingNetwork,
       );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
+        favoritesWithMissingNetwork,
+      );
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue({
           [ChainId.AVALANCHE_MAINNET_ID]: mockActiveNetwork,
@@ -373,6 +391,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
 
     it('returns error when no active network is available', async () => {
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        mockFavoriteNetworks,
+      );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
         mockFavoriteNetworks,
       );
       mockNetworkService.allNetworks = {
@@ -415,6 +436,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       mockNetworkService.getFavoriteNetworks.mockResolvedValue([
         ChainId.AVALANCHE_MAINNET_ID,
       ]);
+      mockNetworkService.getEnabledNetworks.mockResolvedValue([
+        ChainId.AVALANCHE_MAINNET_ID,
+      ]);
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue({
           [ChainId.AVALANCHE_MAINNET_ID]: mockActiveNetwork,
@@ -441,6 +465,7 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
 
     it('handles empty favorite networks array', async () => {
       mockNetworkService.getFavoriteNetworks.mockResolvedValue([]);
+      mockNetworkService.getEnabledNetworks.mockResolvedValue([]);
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue({
           [ChainId.AVALANCHE_MAINNET_ID]: mockActiveNetwork,
@@ -464,6 +489,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
 
     it('handles empty allNetworks object', async () => {
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        mockFavoriteNetworks,
+      );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
         mockFavoriteNetworks,
       );
       mockNetworkService.allNetworks = {
@@ -491,6 +519,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       ];
 
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        favoritesIncludingTestnets,
+      );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
         favoritesIncludingTestnets,
       );
       mockNetworkService.allNetworks = {
@@ -531,6 +562,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
         favoritesIncludingMainnets,
       );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
+        favoritesIncludingMainnets,
+      );
       mockNetworkService.allNetworks = {
         promisify: jest.fn().mockResolvedValue(
           mockAllNetworksWithTestnets.reduce((acc, network) => {
@@ -562,6 +596,9 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
       const favoritesWithoutActiveTestnet = [5]; // Only Ethereum testnet, not Avalanche testnet
 
       mockNetworkService.getFavoriteNetworks.mockResolvedValue(
+        favoritesWithoutActiveTestnet,
+      );
+      mockNetworkService.getEnabledNetworks.mockResolvedValue(
         favoritesWithoutActiveTestnet,
       );
       mockNetworkService.allNetworks = {

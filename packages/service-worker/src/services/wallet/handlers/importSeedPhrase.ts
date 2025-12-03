@@ -72,7 +72,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
     }
 
     const xpub = await getXpubFromMnemonic(mnemonic);
-    const xpubXP = Avalanche.getXpubFromMnemonic(mnemonic);
+    const xpubXP = Avalanche.getXpubFromMnemonic(mnemonic, 0);
 
     const id = await this.walletService.addPrimaryWallet({
       secretType: SecretType.Mnemonic,
