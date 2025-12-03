@@ -1,7 +1,7 @@
 import { FungibleTokenBalance, Network, TxHistoryItem } from '@core/types';
 import { useMemo } from 'react';
 import { useAccountHistory } from '../../ActivityTab/hooks';
-import { NetworkVMType, TokenType } from '@avalabs/vm-module-types';
+import { NetworkVMType } from '@avalabs/vm-module-types';
 import { useToken } from './useToken';
 
 type Props = {
@@ -11,18 +11,10 @@ type Props = {
 
 const tokenMatcher = (
   tx: TxHistoryItem<NetworkVMType>,
-  tokenAddress: string,
   token: FungibleTokenBalance,
 ) => {
   const matchedTokens = tx.tokens.filter((txToken) => {
-    if (txToken.type === TokenType.NATIVE) {
-      return txToken.symbol.toLowerCase() === tokenAddress.toLowerCase();
-    }
-
-    if (txToken.type === TokenType.ERC20) {
-      return token.symbol.toLowerCase() === token.symbol.toLowerCase();
-    }
-    return false;
+    return txToken.symbol.toLowerCase() === token.symbol.toLowerCase();
   });
 
   return matchedTokens.length > 0;
@@ -36,10 +28,8 @@ export const useTokenHistory = ({ networkId, tokenAddress }: Props) => {
     if (!token) {
       return [];
     }
-    return transactionHistory.filter((tx) =>
-      tokenMatcher(tx, tokenAddress, token),
-    );
-  }, [transactionHistory, tokenAddress, token]);
+    return transactionHistory.filter((tx) => tokenMatcher(tx, token));
+  }, [transactionHistory, token]);
 
   return filteredTransactionHistory;
 };
