@@ -46,6 +46,7 @@ import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
 
 const pagesWithoutHeader = [
+  '/seedless-auth',
   '/account-management',
   '/settings',
   '/receive',

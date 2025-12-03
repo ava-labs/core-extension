@@ -12,6 +12,8 @@ import {
 } from '@/components/FullscreenModal';
 import { TotpCodeField } from '@/components/TotpCodeField';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
+import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import { FiAlertCircle } from 'react-icons/fi';
 
 type SeedlessVerifyWithTotpProps = {
   onSubmit: (code: string) => void;
@@ -24,6 +26,7 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
   isLoading,
   error,
 }) => {
+  const theme = useTheme();
   const { t } = useTranslation();
   const [code, setCode] = useState<string>('');
 
@@ -41,11 +44,12 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
       </FullscreenModalDescription>
       <FullscreenModalContent
         {...keyboardShortcuts}
+        gap={2}
+        alignItems="center"
         sx={{ overflow: 'visible' }} // do not cut off the field when shaking
       >
         <TotpCodeField
           error={isSubmitted && !!totpError}
-          helperText={isSubmitted && totpError}
           onChange={(e) => {
             setCode(e.target.value);
             if (error && !isLoading) {
@@ -59,6 +63,18 @@ export const SeedlessVerifyWithTotp: FC<SeedlessVerifyWithTotpProps> = ({
             }
           }}
         />
+        {isSubmitted && totpError && (
+          <Stack direction="row" alignItems="center" gap={1}>
+            <FiAlertCircle size={20} color={theme.palette.error.main} />
+            <Typography
+              variant="subtitle1"
+              color="error.main"
+              textAlign="center"
+            >
+              {totpError}
+            </Typography>
+          </Stack>
+        )}
       </FullscreenModalContent>
       <FullscreenModalActions>
         <NavButton
