@@ -12,6 +12,9 @@ import {
 import { AddressItem } from '@/components/Address/AddressItem';
 import { Divider } from '@/pages/AccountManagement/components/Styled';
 import { Account } from '@core/types';
+import { UniqueIdIcon } from '@/components/UniqueIdIcon';
+
+//UniqueIdIcon is needed to avoid logo id conflicts which cause the logo to not be displayed
 
 export const AddressList = ({
   isAddressAppear,
@@ -44,35 +47,36 @@ export const AddressList = ({
           background: listBackground,
           border: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
           borderRadius: '10px',
+          isolation: 'isolate',
         }}
       >
         <AddressItem
           label="Avalanche C-Chain"
-          Icon={CChainIcon}
+          Icon={<UniqueIdIcon icon={<CChainIcon />} />}
           address={activeAccount?.addressC}
         />
         <Divider variant="inset" />
         <AddressItem
           label="Avalanche X/P-Chain"
-          Icon={XPChainIcon}
+          Icon={<UniqueIdIcon icon={<XPChainIcon />} />}
           address={activeAccount?.addressAVM}
         />
         <Divider variant="inset" />
         <AddressItem
           label="Bitcoin"
-          Icon={BitcoinColorIcon}
+          Icon={<UniqueIdIcon icon={<BitcoinColorIcon />} />}
           address={activeAccount?.addressBTC}
         />
         <Divider variant="inset" />
         <AddressItem
           label="Ethereum"
-          Icon={EthereumColorIcon}
+          Icon={<UniqueIdIcon icon={<EthereumColorIcon />} />}
           address={activeAccount?.addressC}
         />
         <Divider variant="inset" />
         <AddressItem
           label="Solana"
-          Icon={SolanaColorIcon}
+          Icon={<UniqueIdIcon icon={<SolanaColorIcon />} />}
           address={activeAccount?.addressSVM}
         />
       </Stack>
