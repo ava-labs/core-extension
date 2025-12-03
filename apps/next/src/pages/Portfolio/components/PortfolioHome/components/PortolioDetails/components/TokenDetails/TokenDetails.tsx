@@ -13,6 +13,7 @@ import { XchainDetails } from './components/XChain/XchainDetails';
 import {
   StyledTokenDetails,
   StyledTokenDetailsContent,
+  StyledTokenScrollContainer,
   StyledTokenSummary,
 } from './styled';
 import { useBalancesContext } from '@core/ui';
@@ -36,11 +37,6 @@ export const TokenDetails = () => {
     return null;
   }
 
-  // Show error state only after data has loaded but is invalid
-  if (!token || !tokenBalance) {
-    return <AssetsErrorState />;
-  }
-
   const isPChain = isPchainNetworkId(preppedNetworkId);
   const isXChain = isXchainNetworkId(preppedNetworkId);
 
@@ -53,44 +49,63 @@ export const TokenDetails = () => {
           push('/portfolio');
         }}
       />
-      <StyledTokenSummary>
-        <Box flexShrink={0} mb={0.5}>
-          <TokenAvatar token={token} size={32} badgeSize={16} />
-        </Box>
-        <Typography variant="h2" color="text.secondary">
-          {token.name}
-        </Typography>
-        <Stack
-          direction="row"
-          alignItems="flex-end"
-          gap={0.5}
-          color="text.primary"
-        >
-          <Typography variant="h2">
-            {tokenBalance.balanceDisplayValue}
-          </Typography>
-          <Typography variant="h7">{token.symbol}</Typography>
-        </Stack>
-        <Stack direction="row" alignItems="center" gap={0.5} my={0.5} mb={2}>
-          <Typography variant="body1" fontWeight={500} color="text.primary">
-            {tokenBalanceInCurrency} {currency}
-          </Typography>
-        </Stack>
-        <PortfolioActionButtons />
-      </StyledTokenSummary>
 
-      <StyledTokenDetailsContent>
-        {isPChain ? (
-          <PchainDetails networkId={preppedNetworkId} />
-        ) : isXChain ? (
-          <XchainDetails networkId={preppedNetworkId} />
+      <StyledTokenScrollContainer>
+        {!token || !tokenBalance ? (
+          <AssetsErrorState />
         ) : (
-          <GeneralTokenDetails
-            networkId={preppedNetworkId}
-            tokenAddress={tokenAddress}
-          />
+          <>
+            <StyledTokenSummary>
+              <Box flexShrink={0} mb={0.5}>
+                <TokenAvatar token={token} size={32} badgeSize={16} />
+              </Box>
+              <Typography variant="h2" color="text.secondary">
+                {token.name}
+              </Typography>
+              <Stack
+                direction="row"
+                alignItems="flex-end"
+                gap={0.5}
+                color="text.primary"
+              >
+                <Typography variant="h2">
+                  {tokenBalance.balanceDisplayValue}
+                </Typography>
+                <Typography variant="h7">{token.symbol}</Typography>
+              </Stack>
+              <Stack
+                direction="row"
+                alignItems="center"
+                gap={0.5}
+                my={0.5}
+                mb={2}
+              >
+                <Typography
+                  variant="body1"
+                  fontWeight={500}
+                  color="text.primary"
+                >
+                  {tokenBalanceInCurrency} {currency}
+                </Typography>
+              </Stack>
+              <PortfolioActionButtons />
+            </StyledTokenSummary>
+
+            <StyledTokenDetailsContent>
+              {isPChain ? (
+                <PchainDetails networkId={preppedNetworkId} />
+              ) : isXChain ? (
+                <XchainDetails networkId={preppedNetworkId} />
+              ) : (
+                <GeneralTokenDetails
+                  networkId={preppedNetworkId}
+                  tokenAddress={tokenAddress}
+                />
+              )}
+            </StyledTokenDetailsContent>
+          </>
         )}
-      </StyledTokenDetailsContent>
+      </StyledTokenScrollContainer>
     </StyledTokenDetails>
   );
 };

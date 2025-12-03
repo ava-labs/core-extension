@@ -24,7 +24,6 @@ export const Assets: FC<Props> = ({ balances }) => {
     atomicMemoryUnlocked: t('Atomic Memory Unlocked'),
     unlockedUnstaked: t('Unlocked Unstaked'),
     unlockedStaked: t('Unlocked Staked'),
-    pendingStaked: t('Pending Staked'),
   };
   return (
     <Stack rowGap={1}>
@@ -32,6 +31,11 @@ export const Assets: FC<Props> = ({ balances }) => {
       <StyledCardNoPaddingY>
         <Stack divider={<Divider />}>
           {Object.entries(balances.balancePerType).map(([type, balance]) => {
+            const displayName = _typeDisplayNames[type];
+            if (!displayName) {
+              return null;
+            }
+
             const displayBalance = new TokenUnit(
               balance,
               balances.decimals,
@@ -42,7 +46,7 @@ export const Assets: FC<Props> = ({ balances }) => {
             return (
               <BalanceLineItem
                 key={type}
-                title={_typeDisplayNames[type]}
+                title={displayName}
                 displayBalanceWithSymbol={displayBalanceWithSymbol}
               />
             );

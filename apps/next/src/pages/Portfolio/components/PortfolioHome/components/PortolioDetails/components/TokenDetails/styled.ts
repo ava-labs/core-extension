@@ -18,6 +18,14 @@ export const StyledTokenDetails = styled(Stack)(() => ({
   flexDirection: 'column',
 }));
 
+export const StyledTokenScrollContainer = styled(Box)(() => ({
+  flex: '1 1 auto',
+  minHeight: 0,
+  overflowY: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
 export const StyledTokenSummary = styled(Stack)(({ theme }) => ({
   flex: '0 0 auto',
   marginBottom: theme.spacing(1.75),
@@ -28,10 +36,8 @@ export const StyledTokenSummary = styled(Stack)(({ theme }) => ({
 
 export const StyledTokenDetailsContent = styled(Box)(({ theme }) => ({
   flex: '1 1 auto',
-  minHeight: 0,
   paddingRight: theme.spacing(1.5),
   paddingLeft: theme.spacing(1.5),
-  overflowY: 'auto',
   display: 'flex',
   flexDirection: 'column',
 }));

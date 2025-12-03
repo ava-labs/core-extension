@@ -1,5 +1,5 @@
 import { Network } from '@core/types';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAccountHistory } from '../../ActivityTab/hooks';
 import { TokenType, TxToken } from '@avalabs/vm-module-types';
 
@@ -19,8 +19,6 @@ const tokenMatcher = (token: TxToken, tokenAddress: string) => {
 };
 
 export const useTokenHistory = ({ networkId, tokenAddress }: Props) => {
-  console.log('tokenAddress', tokenAddress);
-  console.log('networkId', networkId);
   const transactionHistory = useAccountHistory(networkId);
 
   const filteredTransactionHistory = useMemo(() => {
@@ -30,12 +28,6 @@ export const useTokenHistory = ({ networkId, tokenAddress }: Props) => {
         0,
     );
   }, [transactionHistory, tokenAddress]);
-  useEffect(() => {
-    console.log('filteredTransactionHistory', filteredTransactionHistory);
-  }, [filteredTransactionHistory]);
-  useEffect(() => {
-    console.log('transactionHistory', transactionHistory);
-  }, [transactionHistory]);
 
   return filteredTransactionHistory;
 };
