@@ -94,6 +94,36 @@ describe('utils', () => {
       const expected = {
         data: [
           {
+            namespace: 'avax',
+            references: ['8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a'],
+            addressDetails: [
+              {
+                addresses: ['avax1aa'],
+                walletId: 'avax1aa',
+              },
+              {
+                addresses: ['avax1ab'],
+                walletId: 'avax1ab',
+              },
+              {
+                addresses: ['avax1ba'],
+                walletId: 'avax1ba',
+              },
+              {
+                addresses: ['avax1bb'],
+                walletId: 'avax1bb',
+              },
+              {
+                addresses: ['avax1bc'],
+                walletId: 'avax1bc',
+              },
+              {
+                addresses: ['avax1bd'],
+                walletId: 'avax1bd',
+              },
+            ],
+          },
+          {
             namespace: 'eip155',
             references: ['43114', '1'],
             addresses: ['0xa1', '0xa2', '0xb1', '0xb2', '0xb3', '0xb4'],
