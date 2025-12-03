@@ -104,7 +104,7 @@ const getChainSpecificPayloadObject = ({
         addressDetails: [
           {
             addresses: [normalizeXPAddress(address)],
-            walletId: normalizeXPAddress(address),
+            id: normalizeXPAddress(address),
           },
         ],
       } as AvalancheCorethGetBalancesRequestItem;
@@ -242,7 +242,7 @@ export const createGetBalancePayload = async ({
             references: [reference],
             extendedPublicKeyDetails: [
               {
-                walletId: normalizeXPAddress(address),
+                id: normalizeXPAddress(address),
                 extendedPublicKey: xpub.key,
               },
             ],
@@ -257,7 +257,7 @@ export const createGetBalancePayload = async ({
             references: [reference],
             addressDetails: [
               {
-                walletId: normalizeXPAddress(address),
+                id: normalizeXPAddress(address),
                 addresses: [address],
               },
             ],

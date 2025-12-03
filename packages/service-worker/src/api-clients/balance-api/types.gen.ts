@@ -98,7 +98,7 @@ export type AvalancheCorethGetBalancesRequestItem = {
     /**
      * The wallet's unique identifier.
      */
-    walletId: string;
+    id: string;
     /**
      * The list of addresses we want to get aggregated balances for
      */
@@ -127,7 +127,7 @@ export type AvalancheXpGetBalancesRequestItem = {
     /**
      * The wallet's unique identifier.
      */
-    walletId: string;
+    id: string;
     /**
      * The list of addresses we want to get aggregated balances for
      */
@@ -137,7 +137,7 @@ export type AvalancheXpGetBalancesRequestItem = {
     /**
      * The wallet's unique identifier.
      */
-    walletId: string;
+    id: string;
     /**
      * The extended public key for X/P chains we want to get aggregated balances for
      */
