@@ -241,6 +241,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     balanceAggregatorService.getPriceChangesData.mockResolvedValue({});
     balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
       nfts: {},
+      atomic: {},
       tokens: {
         [isMainnet
           ? ChainId.AVALANCHE_MAINNET_ID
@@ -663,6 +664,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage change: (10 / 90) * 100 = 11.11%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -684,6 +686,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage change: (-20 / 120) * 100 = -16.67%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -714,6 +717,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
             // First account
             return {
               nfts: {},
+              atomic: {},
               tokens: {
                 [ChainId.AVALANCHE_MAINNET_ID]: {
                   [ACCOUNT_SEED_0.addressC]: {
@@ -726,6 +730,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
             // Second account
             return {
               nfts: {},
+              atomic: {},
               tokens: {
                 [ChainId.AVALANCHE_MAINNET_ID]: {
                   [ACCOUNT_SEED_1.addressC]: {
@@ -748,6 +753,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('returns undefined for balanceChange when priceChange is 0', async () => {
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -767,6 +773,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('returns undefined for balanceChange when no priceChanges data exists', async () => {
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -786,6 +793,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('returns undefined for percentageChange when totalBalance is 0', async () => {
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -807,6 +815,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Cannot calculate percentage change from 0
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -831,6 +840,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage: (15 / 135) * 100 = 11.11%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -856,6 +866,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage: (10 / 190) * 100 = 5.26%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
