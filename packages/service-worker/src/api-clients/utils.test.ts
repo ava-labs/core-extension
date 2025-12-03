@@ -90,9 +90,71 @@ const payload = {
 
 describe('utils', () => {
   describe('createGetBalancePayload', () => {
-    it('Should return the expected payload', () => {
+    it('Should return the expected payload', async () => {
+      const mockSecretsService = { getAvalancheExtendedPublicKey: jest.fn() };
+      mockSecretsService.getAvalancheExtendedPublicKey.mockResolvedValue({
+        key: 'xpub1',
+      });
       const expected = {
         data: [
+          {
+            namespace: 'avax',
+            references: [
+              'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo',
+              'imji8papUf2EhV3le337w1vgFauqkJg-',
+            ],
+            extendedPublicKeyDetails: [
+              // all the items are doubled because of the references, but the xpubs are different in reality for the different chains
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax111',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax111',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax112',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax112',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax121',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax121',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax122',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax122',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax123',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax123',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax124',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                walletId: 'avax124',
+              },
+            ],
+          },
           {
             namespace: 'avax',
             references: ['8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a'],
@@ -129,39 +191,6 @@ describe('utils', () => {
             addresses: ['0xa1', '0xa2', '0xb1', '0xb2', '0xb3', '0xb4'],
           },
           {
-            namespace: 'avax',
-            references: [
-              'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo',
-              'imji8papUf2EhV3le337w1vgFauqkJg-',
-            ],
-            addressDetails: [
-              {
-                addresses: ['avax111'],
-                walletId: 'avax111',
-              },
-              {
-                addresses: ['avax112'],
-                walletId: 'avax112',
-              },
-              {
-                addresses: ['avax121'],
-                walletId: 'avax121',
-              },
-              {
-                addresses: ['avax122'],
-                walletId: 'avax122',
-              },
-              {
-                addresses: ['avax123'],
-                walletId: 'avax123',
-              },
-              {
-                addresses: ['avax124'],
-                walletId: 'avax124',
-              },
-            ],
-          },
-          {
             namespace: 'bip122',
             references: ['000000000019d6689c085ae165831e93'],
             addresses: ['bc111', 'bc112', 'bc121', 'bc122', 'bc123', 'bc124'],
@@ -175,10 +204,11 @@ describe('utils', () => {
         currency: 'usd',
       };
 
-      const actual = createGetBalancePayload(
-        payload.accounts as Account[],
-        payload.chainIds,
-      );
+      const actual = await createGetBalancePayload({
+        accounts: payload.accounts as Account[],
+        chainIds: payload.chainIds,
+        secretsService: mockSecretsService as any,
+      });
 
       expect(actual).toEqual(expected);
     });
