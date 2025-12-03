@@ -337,7 +337,20 @@ export type AvmGetBalancesResponse = {
   networkType: 'avm';
   id: string;
   balances: {
-    nativeTokenBalance: NativeTokenBalance;
+    nativeTokenBalance: {
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'native';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      assetId: string;
+    };
     /**
      * Total balance in given currency
      */
@@ -378,7 +391,20 @@ export type PvmGetBalancesResponse = {
   networkType: 'pvm';
   id: string;
   balances: {
-    nativeTokenBalance: NativeTokenBalance;
+    nativeTokenBalance: {
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'native';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      assetId: string;
+    };
     /**
      * Total balance in given currency
      */
@@ -408,7 +434,20 @@ export type CorethGetBalancesResponse = {
   networkType: 'coreth';
   id: string;
   balances: {
-    nativeTokenBalance: NativeTokenBalance;
+    nativeTokenBalance: {
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'native';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      assetId: string;
+    };
     /**
      * Total balance in given currency
      */
