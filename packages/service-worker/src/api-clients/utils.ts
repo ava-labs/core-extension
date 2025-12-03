@@ -1,11 +1,13 @@
-import { uniqBy, merge } from 'lodash';
+import { merge, uniqBy } from 'lodash';
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
-import { Account, AtomicBalances, Balances } from '@core/types';
+import { Account, AccountType, AtomicBalances, Balances } from '@core/types';
 import {
+  AvalancheCorethGetBalancesRequestItem,
   AvalancheXpGetBalancesRequestItem,
   AvmGetBalancesResponse,
   BtcGetBalancesRequestItem,
   BtcGetBalancesResponse,
+  CorethGetBalancesResponse,
   Currency,
   EvmGetBalancesResponse,
   GetBalancesRequestBody,
@@ -13,7 +15,6 @@ import {
   PvmGetBalancesResponse,
   SvmGetBalancesRequestItem,
   SvmGetBalancesResponse,
-  CorethGetBalancesResponse,
 } from '~/api-clients/balance-api';
 import {
   caipToChainId,
@@ -29,14 +30,15 @@ import {
 import { normalizeXPAddress } from '~/api-clients/helpers';
 import {
   mapErc20TokenBalance,
-  mapSplTokenBalance,
   mapNativeTokenBalance,
+  mapSplTokenBalance,
 } from '~/api-clients/mappers';
 import {
   AVALANCHE_CHAIN_IDS,
   Caip2IdAccountTypeMap,
   CORE_ETH_CAIP2ID,
 } from '~/api-clients/constants';
+import { SecretsService } from '~/services/secrets/SecretsService';
 
 export const isErrorResponse = (
   response: GetBalancesResponse,
@@ -105,7 +107,7 @@ const getChainSpecificPayloadObject = ({
             walletId: normalizeXPAddress(address),
           },
         ],
-      } as AvalancheXpGetBalancesRequestItem;
+      } as AvalancheCorethGetBalancesRequestItem;
     case 'solana':
       return {
         namespace: nameSpace,
@@ -127,11 +129,19 @@ const getChainSpecificPayloadObject = ({
   }
 };
 
-export const createGetBalancePayload = (
-  accounts: Account[],
-  chainIds: number[],
-  currency: Currency = 'usd',
-): GetBalancesRequestBody => {
+interface CreateGetBalancePayloadParams {
+  accounts: Account[];
+  chainIds: number[];
+  currency?: Currency;
+  secretsService: SecretsService;
+}
+
+export const createGetBalancePayload = async ({
+  accounts,
+  chainIds,
+  currency = 'usd',
+  secretsService,
+}: CreateGetBalancePayloadParams): Promise<GetBalancesRequestBody> => {
   // TODO: coreth caip2 ID from extension
   const caip2Ids = chainIds.map(chainIdToCaip);
   const partialGetBalancePayload = accounts.reduce<PartialGetBalancePayload>(
@@ -146,6 +156,14 @@ export const createGetBalancePayload = (
           !nameSpace ||
           !Caip2IdAccountTypeMap[caip2Id] ||
           !account[Caip2IdAccountTypeMap[caip2Id]]
+        ) {
+          return acc;
+        }
+
+        if (
+          [AvalancheCaip2ChainId.P, AvalancheCaip2ChainId.X].includes(
+            caip2Id as AvalancheCaip2ChainId,
+          )
         ) {
           return acc;
         }
@@ -172,28 +190,6 @@ export const createGetBalancePayload = (
           };
         }
 
-        if (nameSpace === 'avax') {
-          return {
-            ...acc,
-            [nameSpace]: {
-              references: Array.from(
-                new Set([...acc[nameSpace].references, reference]),
-              ),
-              addressDetails: uniqBy(
-                [
-                  ...((acc[nameSpace] as AvalancheXpGetBalancesRequestItem)
-                    .addressDetails ?? []),
-                  ...((
-                    chainSpecificRequestItem as AvalancheXpGetBalancesRequestItem
-                  ).addressDetails ?? []),
-                ],
-                'walletId',
-              ),
-              namespace: nameSpace,
-            },
-          } as PartialGetBalancePayload;
-        }
-
         return {
           ...acc,
           [nameSpace]: {
@@ -213,6 +209,84 @@ export const createGetBalancePayload = (
     },
     {},
   );
+
+  const coreXPGetBalancePayload = await Promise.all(
+    accounts.flatMap((account) => {
+      return caip2Ids.flatMap(async (caip2Id) => {
+        const nameSpace = getNameSpaceFromScope(caip2Id) as
+          | NameSpace
+          | null
+          | undefined;
+        if (
+          !nameSpace ||
+          nameSpace !== 'avax' ||
+          !Caip2IdAccountTypeMap[caip2Id] ||
+          !account[Caip2IdAccountTypeMap[caip2Id]]
+        ) {
+          return null;
+        }
+        const [, reference] = caip2Id.split(':');
+
+        if (account.type === AccountType.PRIMARY) {
+          const xpub = await secretsService.getAvalancheExtendedPublicKey(
+            account.walletId,
+            account.index,
+          );
+          const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
+          if (!xpub || !address) {
+            return null;
+          }
+
+          return {
+            namespace: nameSpace,
+            references: [reference],
+            extendedPublicKeyDetails: [
+              {
+                walletId: normalizeXPAddress(address),
+                extendedPublicKey: xpub.key,
+              },
+            ],
+          } as AvalancheXpGetBalancesRequestItem;
+        } else {
+          const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
+          if (!address) {
+            return null;
+          }
+          return {
+            namespace: nameSpace,
+            references: [reference],
+            addressDetails: [
+              {
+                walletId: normalizeXPAddress(address),
+                addresses: [address],
+              },
+            ],
+          } as AvalancheXpGetBalancesRequestItem;
+        }
+      });
+    }),
+  );
+
+  const avalancheXpGetBalancesRequestItem = coreXPGetBalancePayload
+    .filter((payloadItem) => !!payloadItem)
+    .reduce<AvalancheXpGetBalancesRequestItem>(
+      (accumulator, requestPayloadItem) => {
+        return {
+          namespace: 'avax',
+          references: Array.from(
+            new Set([
+              ...accumulator.references,
+              ...requestPayloadItem.references,
+            ]),
+          ),
+          extendedPublicKeyDetails: [
+            ...(accumulator.extendedPublicKeyDetails ?? []),
+            ...(requestPayloadItem.extendedPublicKeyDetails ?? []),
+          ],
+        };
+      },
+      { namespace: 'avax', references: [], extendedPublicKeyDetails: [] },
+    );
 
   const coreEthGetBalancePayload = accounts.reduce<PartialGetBalancePayload>(
     (accumulator, account) => {
@@ -261,10 +335,12 @@ export const createGetBalancePayload = (
             addressDetails: uniqBy(
               [
                 ...((
-                  accumulator[nameSpace] as AvalancheXpGetBalancesRequestItem
+                  accumulator[
+                    nameSpace
+                  ] as AvalancheCorethGetBalancesRequestItem
                 ).addressDetails ?? []),
                 ...((
-                  chainSpecificRequestItem as AvalancheXpGetBalancesRequestItem
+                  chainSpecificRequestItem as AvalancheCorethGetBalancesRequestItem
                 ).addressDetails ?? []),
               ],
               'walletId',
@@ -280,12 +356,17 @@ export const createGetBalancePayload = (
   );
   return {
     data: [
-      ...Object.entries(coreEthGetBalancePayload),
-      ...Object.entries(partialGetBalancePayload),
-    ].map(([nameSpace, { namespace, ...rest }]) => ({
-      namespace: nameSpace,
-      ...rest,
-    })),
+      avalancheXpGetBalancesRequestItem.references.length > 0
+        ? avalancheXpGetBalancesRequestItem
+        : null,
+      ...[
+        ...Object.entries(coreEthGetBalancePayload),
+        ...Object.entries(partialGetBalancePayload),
+      ].map(([nameSpace, { namespace, ...rest }]) => ({
+        namespace: nameSpace,
+        ...rest,
+      })),
+    ].filter(Boolean),
     currency,
   } as GetBalancesRequestBody;
 };

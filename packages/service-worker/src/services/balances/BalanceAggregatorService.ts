@@ -51,6 +51,7 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 import { SettingsService } from '../settings/SettingsService';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
+import { SecretsService } from '~/services/secrets/SecretsService';
 
 const NFT_TYPES = [TokenType.ERC721, TokenType.ERC1155];
 
@@ -85,6 +86,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     private storageService: StorageService,
     private settingsService: SettingsService,
     private featureFlagService: FeatureFlagService,
+    private secretsService: SecretsService,
   ) {}
 
   async #fetchBalances(
@@ -189,10 +191,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       ]
     ) {
       try {
-        const getBalancesRequestBody = createGetBalancePayload(
+        const getBalancesRequestBody = await createGetBalancePayload({
           accounts,
           chainIds,
-        );
+          secretsService: this.secretsService,
+        });
 
         const balanceResult = await postV1BalanceGetBalances({
           client: balanceApiClient,
@@ -470,6 +473,34 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     if (Object.keys(this.#balances).length) {
       return;
     }
+    // trying to get the balances of all the accounts upon unlock if we have the balance service integration turned on
+    if (
+      this.featureFlagService.featureFlags[
+        FeatureGates.BALANCE_SERVICE_INTEGRATION
+      ]
+    ) {
+      try {
+        const accountsService = container.resolve(AccountsService);
+        const networkService = container.resolve(NetworkService);
+
+        networkService.enabledNetworksUpdated.addOnce(async () => {
+          const [accounts, enabledNetworks] = await Promise.all([
+            accountsService.getAccounts(),
+            networkService.getEnabledNetworks(),
+          ]);
+          this.getBalancesForNetworks(
+            enabledNetworks,
+            [
+              ...Object.values(accounts.primary),
+              ...Object.values(accounts.imported),
+            ].flat(),
+            Object.values(TokenType),
+          );
+        });
+      } catch (_error) {
+        /* if there was an error just continue */
+      }
+    }
 
     const cachedBalance = await this.loadBalanceFromCache();
 
@@ -489,32 +520,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       },
       isBalancesCached: true,
     } as BalancesInfo);
-
-    // trying to get the balances of all the accounts upon unlock if we have the balance service integration turned on
-    if (
-      this.featureFlagService.featureFlags[
-        FeatureGates.BALANCE_SERVICE_INTEGRATION
-      ]
-    ) {
-      try {
-        const accountsService = container.resolve(AccountsService);
-        const networkService = container.resolve(NetworkService);
-
-        networkService.enabledNetworksUpdated.addOnce(async () => {
-          const [accounts, enabledNetworks] = await Promise.all([
-            accountsService.getAccounts(),
-            networkService.getEnabledNetworks(),
-          ]);
-          this.getBalancesForNetworks(
-            enabledNetworks,
-            Object.values(accounts.primary).flat(),
-            Object.values(TokenType),
-          );
-        });
-      } catch (_error) {
-        /* if there was an error just continue */
-      }
-    }
   }
 
   addListener<T = unknown>(

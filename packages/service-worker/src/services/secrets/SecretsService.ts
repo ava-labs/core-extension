@@ -276,7 +276,7 @@ export class SecretsService implements OnUnlock {
     await this.emitWalletsInfo();
   }
 
-  getWalletSecretsForAcount(
+  getWalletSecretsForAccount(
     walletKeys: WalletSecretInStorage,
     account: Account,
   ) {
@@ -296,7 +296,7 @@ export class SecretsService implements OnUnlock {
     if (!walletKeys) {
       return null;
     }
-    const activeWalletSecrets = this.getWalletSecretsForAcount(
+    const activeWalletSecrets = this.getWalletSecretsForAccount(
       walletKeys,
       activeAccount,
     );
@@ -350,7 +350,7 @@ export class SecretsService implements OnUnlock {
     const walletKeys = await this.#loadSecrets(true);
 
     if (account.type === AccountType.PRIMARY) {
-      const activeWalletSecrets = this.getWalletSecretsForAcount(
+      const activeWalletSecrets = this.getWalletSecretsForAccount(
         walletKeys,
         account,
       );
