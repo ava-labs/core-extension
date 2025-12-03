@@ -104,54 +104,9 @@ describe('utils', () => {
               'imji8papUf2EhV3le337w1vgFauqkJg-',
             ],
             extendedPublicKeyDetails: [
-              // all the items are doubled because of the references, but the xpubs are different in reality for the different chains
               {
                 extendedPublicKey: 'xpub1',
-                walletId: 'avax111',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax111',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax112',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax112',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax121',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax121',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax122',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax122',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax123',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax123',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax124',
-              },
-              {
-                extendedPublicKey: 'xpub1',
-                walletId: 'avax124',
+                id: 'avax111',
               },
             ],
           },
@@ -161,27 +116,7 @@ describe('utils', () => {
             addressDetails: [
               {
                 addresses: ['avax1aa'],
-                walletId: 'avax1aa',
-              },
-              {
-                addresses: ['avax1ab'],
-                walletId: 'avax1ab',
-              },
-              {
-                addresses: ['avax1ba'],
-                walletId: 'avax1ba',
-              },
-              {
-                addresses: ['avax1bb'],
-                walletId: 'avax1bb',
-              },
-              {
-                addresses: ['avax1bc'],
-                walletId: 'avax1bc',
-              },
-              {
-                addresses: ['avax1bd'],
-                walletId: 'avax1bd',
+                id: 'avax1aa',
               },
             ],
           },

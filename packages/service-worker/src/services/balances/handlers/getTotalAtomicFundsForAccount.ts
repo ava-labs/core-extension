@@ -16,7 +16,7 @@ import { AvalancheBalanceItem } from '~/api-clients/balance-api';
 import { AVALANCHE_CHAIN_IDS } from '~/api-clients/constants';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET,
+  ExtensionRequest.GET_ATOMIC_FUNDS_FOR_ACCOUNT,
   { sum: number },
   { accountId: string }
 >;
@@ -47,8 +47,8 @@ const isPvmAtomicBalance = (
 };
 
 @injectable()
-export class GetTotalAtomicFundsForWalletHandler implements HandlerType {
-  method = ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET as const;
+export class GetTotalAtomicFundsForAccountHandler implements HandlerType {
+  method = ExtensionRequest.GET_ATOMIC_FUNDS_FOR_ACCOUNT as const;
 
   constructor(
     private balanceAggregatorService: BalanceAggregatorService,

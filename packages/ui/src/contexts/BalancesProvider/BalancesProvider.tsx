@@ -39,7 +39,7 @@ import { useAccountsContext } from '../AccountsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
-import { GetTotalAtomicFundsForWalletHandler } from '~/services/balances/handlers/getTotalAtomicFundsForWallet';
+import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -261,8 +261,8 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           isLoading: true,
         },
       }));
-      request<GetTotalAtomicFundsForWalletHandler>({
-        method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET,
+      request<GetTotalAtomicFundsForAccountHandler>({
+        method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_ACCOUNT,
         params: {
           accountId,
         },

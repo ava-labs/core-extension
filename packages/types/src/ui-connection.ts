@@ -193,7 +193,7 @@ export enum ExtensionRequest {
 
   GET_TRENDING_TOKENS = 'get_trending_tokens',
 
-  GET_ATOMIC_FUNDS_FOR_WALLET = 'get_atomic_funds_for_wallet',
+  GET_ATOMIC_FUNDS_FOR_ACCOUNT = 'get_atomic_funds_for_account',
 }
 
 /* eslint-disable no-prototype-builtins */
