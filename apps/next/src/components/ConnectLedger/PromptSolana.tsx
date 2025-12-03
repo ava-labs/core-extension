@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-import { FC } from 'react';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
+import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   FullscreenModalActions,
@@ -9,8 +9,7 @@ import {
   FullscreenModalTitle,
 } from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
-
-import SolanaGlow from './images/SolanaGlow.png';
+import { SolanaGlowLogo } from './SolanaGlowLogo';
 
 type SolanaPromptProps = StackProps & {
   onNext: () => void;
@@ -34,14 +33,7 @@ export const PromptSolana: FC<SolanaPromptProps> = ({
         )}
       </FullscreenModalDescription>
       <FullscreenModalContent>
-        <Stack
-          flexGrow={1}
-          alignItems="center"
-          justifyContent="center"
-          height="100%"
-        >
-          <img src={SolanaGlow} alt="Solana Glowing Logo" height="270px" />
-        </Stack>
+        <SolanaGlowLogo />
       </FullscreenModalContent>
       <FullscreenModalActions>
         <NavButton color="secondary" onClick={onSkip}>
