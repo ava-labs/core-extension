@@ -56,7 +56,11 @@ export const XchainDetails: FC<Props> = ({ networkId }) => {
         <Stack gap={1} display={activeTab === 'assets' ? 'flex' : 'none'}>
           <Assets balances={xchainToken} />
         </Stack>
-        <Stack gap={1} display={activeTab === 'activity' ? 'flex' : 'none'}>
+        <Stack
+          gap={1}
+          display={activeTab === 'activity' ? 'flex' : 'none'}
+          sx={{ flex: '1 1 auto' }}
+        >
           <GeneralTokenDetails networkId={networkId} tokenAddress={'AVAX'} />
         </Stack>
       </StyledXPChainDetails>

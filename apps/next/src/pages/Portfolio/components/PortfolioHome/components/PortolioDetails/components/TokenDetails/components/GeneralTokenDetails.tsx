@@ -7,6 +7,7 @@ import { useTokenHistory } from '../hooks/useTokenHistory';
 import { TransactionListSkeleton } from '../../ActivityTab/components/TransactionList';
 import { HistoryList } from '../../ActivityTab/components/TransactionList/components/HistoryList';
 import { useUrlState } from '../hooks/useUrlState';
+import { NoTokenActivity } from './NoTokenActivity';
 
 type Props = {
   networkId: number;
@@ -22,6 +23,10 @@ export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
     networkId,
     tokenAddress,
   });
+
+  if (transactionHistory.length === 0) {
+    return <NoTokenActivity networkId={networkId} />;
+  }
 
   return (
     <>
