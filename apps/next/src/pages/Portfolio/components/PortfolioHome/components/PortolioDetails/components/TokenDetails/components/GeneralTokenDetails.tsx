@@ -8,12 +8,21 @@ import { TransactionListSkeleton } from '../../ActivityTab/components/Transactio
 import { HistoryList } from '../../ActivityTab/components/TransactionList/components/HistoryList';
 import { useUrlState } from '../hooks/useUrlState';
 import { NoTokenActivity } from './NoTokenActivity';
+import { NetworkWithCaipId } from '@core/types';
+import { ExplorerButton } from './ExplorerButton';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
-  networkId: number;
-  tokenAddress: string;
+  networkId: number; //From params
+  tokenAddress: string; //From params
+  network: NetworkWithCaipId;
 };
-export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
+export const GeneralTokenDetails: FC<Props> = ({
+  networkId,
+  tokenAddress,
+  network,
+}) => {
+  const { t } = useTranslation();
   const urlState = useUrlState();
   const initialFilter = urlState.filter ?? 'All';
 
@@ -25,7 +34,7 @@ export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
   });
 
   if (transactionHistory.length === 0) {
-    return <NoTokenActivity networkId={networkId} />;
+    return <NoTokenActivity network={network} />;
   }
 
   return (
@@ -44,6 +53,7 @@ export const GeneralTokenDetails: FC<Props> = ({ networkId, tokenAddress }) => {
       </Stack>
       <Suspense fallback={<TransactionListSkeleton />}>
         <HistoryList filter={filter} transactionHistory={transactionHistory} />
+        <ExplorerButton network={network} buttonText={t('View full history')} />
       </Suspense>
     </>
   );

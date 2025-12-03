@@ -16,10 +16,11 @@ import {
   StyledTokenScrollContainer,
   StyledTokenSummary,
 } from './styled';
-import { useBalancesContext } from '@core/ui';
+import { useBalancesContext, useNetworkContext } from '@core/ui';
 
 export const TokenDetails = () => {
   const { push } = useHistory();
+  const { getNetwork } = useNetworkContext();
 
   const { networkId, tokenAddress } = useParams<{
     networkId: string;
@@ -27,6 +28,8 @@ export const TokenDetails = () => {
   }>();
 
   const preppedNetworkId = useMemo(() => Number(networkId), [networkId]);
+  const network = getNetwork(preppedNetworkId);
+
   const { balances } = useBalancesContext();
 
   const { token, tokenBalance, tokenBalanceInCurrency, currency } =
@@ -51,7 +54,7 @@ export const TokenDetails = () => {
       />
 
       <StyledTokenScrollContainer>
-        {!token || !tokenBalance ? (
+        {!token || !tokenBalance || !network ? (
           <AssetsErrorState />
         ) : (
           <>
@@ -93,13 +96,14 @@ export const TokenDetails = () => {
 
             <StyledTokenDetailsContent>
               {isPChain ? (
-                <PchainDetails networkId={preppedNetworkId} />
+                <PchainDetails networkId={preppedNetworkId} network={network} />
               ) : isXChain ? (
-                <XchainDetails networkId={preppedNetworkId} />
+                <XchainDetails networkId={preppedNetworkId} network={network} />
               ) : (
                 <GeneralTokenDetails
                   networkId={preppedNetworkId}
                   tokenAddress={tokenAddress}
+                  network={network}
                 />
               )}
             </StyledTokenDetailsContent>
