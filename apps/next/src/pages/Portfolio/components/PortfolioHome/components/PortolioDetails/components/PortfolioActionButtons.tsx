@@ -33,41 +33,39 @@ export const PortfolioActionButtons = () => {
       <Slide direction="left" in timeout={300} easing="ease-out">
         <SquareButton
           variant="extension"
-          icon={<SendIcon size={ICON_SIZE} />}
-          label="Send"
-          onClick={() => push(getSendPath())}
-          sx={{
-            px: 1.5,
-            width: 60,
-            height: 60,
-            gap: 0,
-            justifyContent: 'space-between',
-            '& > span': { lineHeight: 1.2 },
-          }}
-        />
-      </Slide>
-      <Slide direction="left" in timeout={600} easing="ease-out">
-        <SquareButton
-          variant="extension"
           icon={<SwapIcon size={ICON_SIZE} />}
           label="Swap"
           onClick={() => push(getSwapPath())}
         />
       </Slide>
-      <Slide direction="left" in timeout={900} easing="ease-out">
-        <SquareButton
-          variant="extension"
-          icon={<MdAdd size={ICON_SIZE} />}
-          label="Buy"
-          onClick={onNotImplementedClick}
-        />
-      </Slide>
-      <Slide direction="left" in timeout={1200} easing="ease-out">
+      <Slide direction="left" in timeout={600} easing="ease-out">
         <SquareButton
           variant="extension"
           icon={<BridgeIcon size={ICON_SIZE} />}
           label="Bridge"
           onClick={() => push(getBridgePath())}
+        />
+      </Slide>
+      <Slide direction="left" in timeout={900} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<SendIcon size={ICON_SIZE} />}
+          label="Send"
+          onClick={() => push(getSendPath())}
+          sx={{
+            py: '9px',
+            width: 60,
+            height: 60,
+          }}
+        />
+      </Slide>
+
+      <Slide direction="left" in timeout={1200} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<MdAdd size={ICON_SIZE} />}
+          label="Buy"
+          onClick={onNotImplementedClick}
         />
       </Slide>
     </Stack>
