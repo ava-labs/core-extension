@@ -1,8 +1,10 @@
 import { injectable } from 'tsyringe';
 import { Network } from '@avalabs/glacier-sdk';
+import { hex } from '@scure/base';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   getAllAddressesForAccounts,
+  getAvalancheXpBasePath,
   getXPChainIds,
   isNotNullish,
 } from '@core/common';
@@ -29,6 +31,7 @@ import {
   calculateTotalBalanceForAccounts,
   getAccountsWithActivity,
   getIncludedNetworks,
+  removeChainPrefix,
 } from './helpers';
 import { getExtendedPublicKey } from '~/services/secrets/utils';
 
@@ -63,9 +66,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const derivedWalletAddresses = getAllAddressesForAccounts(
       derivedAccounts ?? [],
     );
-    const derivedAddressesUnprefixed = derivedWalletAddresses.map((addr) =>
-      addr.replace(/^[PXC]-/i, ''),
-    );
+    const derivedAddressesUnprefixed =
+      derivedWalletAddresses.map(removeChainPrefix);
 
     const extendedPublicKey =
       'extendedPublicKeys' in secrets
@@ -76,15 +78,31 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           )
         : null;
 
-    const underivedXPChainAddresses = extendedPublicKey
-      ? (
-          await getAccountsWithActivity(
-            extendedPublicKey.key,
-            await this.networkService.getAvalanceProviderXP(),
-            this.#getAddressesActivity,
-          )
-        ).filter((address) => !derivedAddressesUnprefixed.includes(address))
+    const xpPublicKeys = secrets.publicKeys.filter(
+      (key) =>
+        key.curve === 'secp256k1' &&
+        key.derivationPath.startsWith(getAvalancheXpBasePath()),
+    );
+
+    const providerXP = await this.networkService.getAvalanceProviderXP();
+    const addressesFromXpub = extendedPublicKey
+      ? await getAccountsWithActivity(
+          extendedPublicKey.key,
+          providerXP,
+          this.#getAddressesActivity,
+        )
       : [];
+
+    const addressesFromXpPublicKeys = xpPublicKeys
+      .map(({ key }) =>
+        providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
+      )
+      .map(removeChainPrefix);
+
+    const underivedXPChainAddresses = [
+      ...addressesFromXpub,
+      ...addressesFromXpPublicKeys,
+    ].filter((address) => !derivedAddressesUnprefixed.includes(address));
 
     return underivedXPChainAddresses.map<Partial<Account>>((address) => ({
       addressPVM: `P-${address}`,
@@ -120,7 +138,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       const networksIncludedInTotal = getIncludedNetworks(
         this.networkService.isMainnet(),
         await this.networkService.activeNetworks.promisify(),
-        await this.networkService.getFavoriteNetworks(),
+        await this.networkService.getEnabledNetworks(),
       );
 
       // Get balance for derived addresses

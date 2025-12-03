@@ -1,3 +1,4 @@
+import { AddressIndex } from '@avalabs/types';
 import { NetworkVMType, PartialBy } from '@avalabs/vm-module-types';
 
 import { PubKeyType } from './wallet';
@@ -154,6 +155,25 @@ export type AccountWithOptionalAddresses = PartialBy<
   Extract<keyof Account, `address${string}`>
 >;
 
+/**
+ * Generic utility type that extracts only properties starting with "address" from a given type
+ */
+export type AddressProperties<T> = {
+  [K in keyof T as K extends `address${string}` ? K : never]: T[K];
+};
+
+/**
+ * Generic utility type that overrides all property values to undefined
+ */
+export type MakeUndefined<T> = {
+  [K in keyof T]: undefined;
+};
+
+/**
+ * Type representing only the address properties from the Account type
+ */
+export type AccountAddresses = AddressProperties<Account>;
+
 export const IMPORTED_ACCOUNTS_WALLET_ID = '__IMPORTED__';
 
 export type AvmCapableAccount = EnsureDefined<
@@ -234,4 +254,9 @@ export const isVMCapableAccount = <V extends NetworkVMType>(
     default:
       return true;
   }
+};
+
+export type XPAddresses = {
+  externalAddresses: AddressIndex[];
+  internalAddresses: AddressIndex[];
 };

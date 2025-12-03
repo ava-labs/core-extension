@@ -153,8 +153,8 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
     });
 
     expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
-      addFirstAccount: true,
       walletId,
+      addFirstAccount: true,
     });
 
     expect(accountsService.activateAccount).toHaveBeenCalledTimes(1);

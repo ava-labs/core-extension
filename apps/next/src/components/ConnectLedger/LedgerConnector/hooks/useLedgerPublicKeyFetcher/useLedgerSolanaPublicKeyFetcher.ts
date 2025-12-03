@@ -35,7 +35,13 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher =
           'SVM',
         );
 
-        return buildAddressPublicKey(publicKey, 'SVM', accountIndex, 'ed25519');
+        return buildAddressPublicKey(
+          publicKey,
+          'SVM',
+          accountIndex,
+          'ed25519',
+          DerivationPath.LedgerLive,
+        );
       },
       [getPublicKey],
     );

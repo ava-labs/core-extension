@@ -34,7 +34,7 @@ import {
   solanaKey2,
   anotherValidSolanaKey,
   validKeySetWithNewAvalancheKeys,
-  avaKeyRemodelled,
+  avaExtraLegacyKey,
 } from './fixtures/rawKeys';
 import { SeedlessTokenStorage } from './SeedlessTokenStorage';
 import { SeedlessWallet } from './SeedlessWallet';
@@ -223,8 +223,8 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
             curve: 'ed25519',
           }).toJSON(),
           AddressPublicKey.fromJSON({
-            key: strip0x(avaKeyRemodelled.publicKey),
-            derivationPath: avaKeyRemodelled.derivation_info.derivation_path,
+            key: strip0x(avaExtraLegacyKey.publicKey),
+            derivationPath: avaExtraLegacyKey.derivation_info.derivation_path,
             curve: 'secp256k1',
           }).toJSON(),
         ]);
@@ -243,6 +243,11 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
       it(`sorts them by derivation path's account index`, async () => {
         expect(await wallet.getPublicKeys()).toEqual([
           AddressPublicKey.fromJSON({
+            key: strip0x(avaKey2.publicKey),
+            derivationPath: avaKey2.derivation_info.derivation_path,
+            curve: 'secp256k1',
+          }).toJSON(),
+          AddressPublicKey.fromJSON({
             key: strip0x(evmKey.publicKey),
             derivationPath: evmKey.derivation_info.derivation_path,
             curve: 'secp256k1',
@@ -260,11 +265,6 @@ describe('src/background/services/seedless/SeedlessWallet', () => {
           AddressPublicKey.fromJSON({
             key: strip0x(evmKey2.publicKey),
             derivationPath: evmKey2.derivation_info.derivation_path,
-            curve: 'secp256k1',
-          }).toJSON(),
-          AddressPublicKey.fromJSON({
-            key: strip0x(avaKey2.publicKey),
-            derivationPath: avaKey2.derivation_info.derivation_path,
             curve: 'secp256k1',
           }).toJSON(),
           AddressPublicKey.fromJSON({

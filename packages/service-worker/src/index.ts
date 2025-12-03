@@ -131,3 +131,5 @@ export type { StoreBtcWalletPolicyDetails } from './services/wallet/handlers/sto
 export type { EstablishRequiredSession } from './services/walletConnect/handlers/establishRequiredSession';
 export type { WalletConnectImportAccount } from './services/walletConnect/handlers/walletConnectImportAccount';
 export type { GetTrendingTokensHandler } from './services/trendingTokens/handlers/getTrendingTokens';
+export type { MigrateMissingPublicKeysFromKeystoneHandler } from './services/keystone/handlers/migrateMissingKeysFromKeystone';
+export type { GetXPAddressesForAccountHandler } from './services/accounts/handlers/getXPAddressesForAccountIndex';
