@@ -1032,7 +1032,7 @@ export class SecretsService implements OnUnlock {
       }
     }
 
-    if (newPublicKeys.length > 0) {
+    if (newPublicKeys.length > 0 || newExtendedPublicKeys.length > 0) {
       await this.updateSecrets(
         {
           publicKeys: [...secrets.publicKeys, ...newPublicKeys],

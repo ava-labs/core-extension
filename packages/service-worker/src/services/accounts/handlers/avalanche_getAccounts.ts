@@ -1,7 +1,6 @@
 import {
   DAppRequestHandler,
   DAppProviderRequest,
-  AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
 } from '@core/types';
 import { injectable } from 'tsyringe';
@@ -18,6 +17,7 @@ import {
   WalletType,
 } from '@avalabs/types';
 import { AddressResolver } from '~/services/secrets/AddressResolver';
+import { getAvalancheExtendedKeyPath } from '@core/common';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {
@@ -47,22 +47,26 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
           return [];
         }
 
-        const xpubXP =
-          'extendedPublicKeys' in secrets
-            ? getExtendedPublicKey(
-                secrets.extendedPublicKeys,
-                AVALANCHE_BASE_DERIVATION_PATH,
-                'secp256k1',
-              )
-            : null;
-
         return await Promise.all(
           walletAccounts.map(async (acc) => {
-            const externalXPAddresses =
-              await this.addressResolver.getXPAddressesForAccountIndex(
-                secrets.id,
-                acc.index,
-              );
+            // No need to fetch XP addresses if we have the xpubXP and if we don't have the xpubXP,
+            const xpubXP =
+              'extendedPublicKeys' in secrets
+                ? getExtendedPublicKey(
+                    secrets.extendedPublicKeys,
+                    getAvalancheExtendedKeyPath(acc.index),
+                    'secp256k1',
+                  )
+                : null;
+            // the getXpAddressesForAccountIndex will only return the legacy X/P addresses for public
+            // keys that have already been manually derived (so always external addresses only).
+            const xpAddresses = xpubXP
+              ? { externalAddresses: [], internalAddresses: [] }
+              : await this.addressResolver.getXPAddressesForAccountIndex(
+                  secrets.id,
+                  acc.index,
+                  'PVM',
+                );
 
             const primaryAccount: CorePrimaryAccount = {
               active: accounts.active?.id === acc.id,
@@ -75,7 +79,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
               name: acc.name,
               type: CoreAccountType.PRIMARY,
               id: acc.id,
-              xpAddresses: externalXPAddresses,
+              xpAddresses: xpAddresses.externalAddresses,
               xpubXP: xpubXP?.key,
               index: acc.index,
               walletType: this.#mapSecretTypeToWalletType(secrets.secretType),

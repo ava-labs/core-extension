@@ -154,6 +154,7 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
+import { GetXPAddressesForAccountHandler } from '../../services/accounts/handlers/getXPAddressesForAccountIndex';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -162,6 +163,10 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
  */
 @registry([
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetXPAddressesForAccountHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },

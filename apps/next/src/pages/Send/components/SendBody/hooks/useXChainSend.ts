@@ -16,6 +16,7 @@ import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 import { buildXChainSendTx } from '../lib/buildXChainSendTx';
+import { useGetXPAddresses } from '@/hooks/useGetXPAddresses';
 
 type UseXChainSendArgs = {
   token: XChainTokenBalance;
@@ -35,6 +36,7 @@ export const useXChainSend = ({
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();
+  const getXPAddressesFetcher = useGetXPAddresses();
 
   const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
@@ -82,6 +84,7 @@ export const useXChainSend = ({
         amount,
         to,
         network,
+        addresses: await getXPAddressesFetcher('AVM')(),
       });
       const hash = await request(
         {
@@ -110,6 +113,7 @@ export const useXChainSend = ({
     from,
     amount,
     network,
+    getXPAddressesFetcher,
   ]);
 
   return {

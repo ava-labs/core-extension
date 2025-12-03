@@ -2,7 +2,11 @@ import { singleton } from 'tsyringe';
 import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { SettingsService } from '../settings/SettingsService';
-import { getPriceChangeValues } from '@core/common';
+import {
+  getPriceChangeValues,
+  isNotNullish,
+  isPrimaryAccount,
+} from '@core/common';
 import * as Sentry from '@sentry/browser';
 import {
   Network,
@@ -11,6 +15,7 @@ import {
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
 import LRUCache from 'lru-cache';
+import { AddressResolver } from '../secrets/AddressResolver';
 
 const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
 
@@ -19,6 +24,7 @@ export class BalancesService {
   constructor(
     private settingsService: SettingsService,
     private moduleManager: ModuleManager,
+    private addressResolver: AddressResolver,
   ) {}
 
   async getBalancesForNetwork(
@@ -43,36 +49,63 @@ export class BalancesService {
       settings.customTokens[network.chainId] ?? {},
     ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
 
+    const addresses = await Promise.all(
+      accounts.map(async (account) => {
+        if (
+          isPrimaryAccount(account) &&
+          (network.vmName === NetworkVMType.AVM ||
+            network.vmName === NetworkVMType.PVM)
+        ) {
+          const firstAddress =
+            network.vmName === 'AVM' ? account.addressAVM : account.addressPVM;
+
+          if (!firstAddress) {
+            return [];
+          }
+
+          const additionalAddresses =
+            await this.addressResolver.getXPAddressesForAccountIndex(
+              account.walletId,
+              account.index,
+              network.vmName,
+            );
+
+          const x = [
+            firstAddress,
+            additionalAddresses.externalAddresses.map(
+              (address) => address.address,
+            ),
+            additionalAddresses.internalAddresses.map(
+              (address) => address.address,
+            ),
+          ].flat();
+
+          return x;
+        }
+
+        switch (network.vmName) {
+          case NetworkVMType.EVM:
+            return account.addressC;
+          case NetworkVMType.BITCOIN:
+            return account.addressBTC;
+          case NetworkVMType.AVM:
+            return account.addressAVM;
+          case NetworkVMType.PVM:
+            return account.addressPVM;
+          case NetworkVMType.CoreEth:
+            return account.addressCoreEth;
+          case NetworkVMType.HVM:
+            return account.addressHVM;
+          case NetworkVMType.SVM:
+            return account.addressSVM;
+          default:
+            return undefined;
+        }
+      }),
+    );
     const rawBalances = await module.getBalances({
       // TODO: Use public key and module.getAddress instead to make this more modular
-      addresses: accounts
-        .flatMap((account) => {
-          switch (network.vmName) {
-            case NetworkVMType.EVM:
-              return account.addressC;
-            case NetworkVMType.BITCOIN:
-              return account.addressBTC;
-            case NetworkVMType.AVM:
-              return [
-                account.addressAVM,
-                ...(account.xpAddresses?.map((xp) => xp.address) ?? []),
-              ];
-            case NetworkVMType.PVM:
-              return [
-                account.addressPVM,
-                ...(account.xpAddresses?.map((xp) => xp.address) ?? []),
-              ];
-            case NetworkVMType.CoreEth:
-              return account.addressCoreEth;
-            case NetworkVMType.HVM:
-              return account.addressHVM;
-            case NetworkVMType.SVM:
-              return account.addressSVM;
-            default:
-              return undefined;
-          }
-        })
-        .filter((address): address is string => !!address),
+      addresses: addresses.flat().filter(isNotNullish),
       network: network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types
       currency,
       customTokens,

@@ -22,6 +22,7 @@ export enum ExtensionRequest {
   ACCOUNT_SELECT = 'account_select',
   ACCOUNT_ADD = 'account_add',
   ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
+  ACCOUNT_GET_XP_ADDRESSES = 'account_get_xp_addresses',
 
   SECRETS_APPEND_SOLANA_PUBLIC_KEYS = 'secrets_append_solana_public_keys',
 

@@ -80,7 +80,6 @@ export interface AccountStorageItem {
   addressCoreEth?: string;
   addressHVM?: string;
   addressSVM?: string;
-  xpAddresses?: AddressIndex[];
   type?: AccountType;
 }
 
@@ -255,4 +254,9 @@ export const isVMCapableAccount = <V extends NetworkVMType>(
     default:
       return true;
   }
+};
+
+export type XPAddresses = {
+  externalAddresses: AddressIndex[];
+  internalAddresses: AddressIndex[];
 };

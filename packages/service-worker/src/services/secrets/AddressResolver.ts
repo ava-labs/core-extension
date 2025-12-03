@@ -12,13 +12,23 @@ import {
   CommonError,
   SecretsError,
 } from '@core/types';
-import { assertPresent, stripAddressPrefix } from '@core/common';
+import {
+  assertPresent,
+  getAvalancheXPub,
+  stripAddressPrefix,
+} from '@core/common';
 
 import { NetworkService } from '../network/NetworkService';
-import { emptyAddresses, emptyDerivationPaths } from './utils';
+import {
+  emptyAddresses,
+  emptyDerivationPaths,
+  isPrimaryWalletSecrets,
+} from './utils';
 import { SecretsService } from './SecretsService';
 import { hex } from '@scure/base';
 import { AddressIndex } from '@avalabs/types';
+import { profileApiClient } from '~/api-clients';
+import { postV1GetAddresses } from '~/api-clients/profile-api';
 
 @singleton()
 export class AddressResolver {
@@ -76,7 +86,59 @@ export class AddressResolver {
   async getXPAddressesForAccountIndex(
     secretId: string,
     accountIndex: number,
-  ): Promise<AddressIndex[]> {
+    vm: 'AVM' | 'PVM',
+  ): Promise<{
+    externalAddresses: AddressIndex[];
+    internalAddresses: AddressIndex[];
+  }> {
+    const secrets = await this.secretsService.getSecretsById(secretId);
+
+    if (!isPrimaryWalletSecrets(secrets)) {
+      return {
+        externalAddresses: [],
+        internalAddresses: [],
+      };
+    }
+
+    const avalancheXPub = getAvalancheXPub(secrets, accountIndex);
+    if (avalancheXPub) {
+      // If possible, use the Profile Service API
+
+      const body = {
+        extendedPublicKey: avalancheXPub.key,
+        isTestnet: !this.networkService.isMainnet(),
+        onlyWithActivity: true,
+      };
+      const { data: addresses, error: error } = await postV1GetAddresses({
+        client: profileApiClient,
+        body: {
+          ...body,
+          networkType: vm,
+        },
+      });
+
+      if (error) {
+        throw new Error('Failed to get XP addresses from extended public key');
+      }
+
+      const externalAddresses =
+        addresses?.externalAddresses?.map((address) => ({
+          address: address.address,
+          index: address.index,
+        })) ?? [];
+
+      const internalAddresses =
+        addresses?.internalAddresses?.map((address) => ({
+          address: address.address,
+          index: address.index,
+        })) ?? [];
+
+      return {
+        externalAddresses,
+        internalAddresses,
+      };
+    }
+
     const publicKeys = await this.secretsService.getAvalanchePublicKeys(
       secretId,
       accountIndex,
@@ -118,7 +180,10 @@ export class AddressResolver {
       });
     }
 
-    return addressIndices;
+    return {
+      externalAddresses: addressIndices,
+      internalAddresses: [],
+    };
   }
 
   async getAddressesForSecretId(

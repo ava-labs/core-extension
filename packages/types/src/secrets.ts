@@ -1,7 +1,6 @@
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { AddressIndex } from '@avalabs/types';
 
 import {
   FireblocksApiData,
@@ -162,7 +161,6 @@ export type DerivedAddresses = {
   addressCoreEth?: string;
   addressHVM?: string;
   addressSVM?: string;
-  xpAddresses?: AddressIndex[];
 };
 
 export type DerivationPathsMap = Record<
