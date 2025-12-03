@@ -26,6 +26,7 @@ import { getBtcMaxAmount } from './lib/getBtcMaxAmount';
 import { getXChainMaxAmount } from './lib/getXChainMaxAmount';
 import { getPChainMaxAmount } from './lib/getPChainMaxAmount';
 import { getSolanaMaxAmount } from './lib/getSolanaMaxAmount';
+import { useGetXPAddresses } from '../useGetXPAddresses';
 
 type MaxAmountInfo = {
   maxAmount: bigint;
@@ -40,6 +41,7 @@ export const useMaxAmountForTokenSend = (
   const { getNetwork } = useNetworkContext();
   const { getNetworkFee } = useNetworkFeeContext();
   const { isLedgerWallet } = useWalletContext();
+  const getXPAddresses = useGetXPAddresses();
 
   const [result, setResult] = useState<MaxAmountInfo>({
     maxAmount: 0n,
@@ -69,12 +71,14 @@ export const useMaxAmountForTokenSend = (
           getXChainMaxAmount(
             from,
             isLedgerWallet,
+            getXPAddresses('AVM'),
             getNetwork(token.coreChainId),
           ).then(setResult);
         } else if (isPvmCapableAccount(from) && isPChainToken(token)) {
           getPChainMaxAmount(
             from,
             isLedgerWallet,
+            getXPAddresses('PVM'),
             getNetwork(token.coreChainId),
           ).then(setResult);
         } else if (
@@ -96,7 +100,15 @@ export const useMaxAmountForTokenSend = (
           error,
         );
       });
-  }, [token, getNetworkFee, from, to, getNetwork, isLedgerWallet]);
+  }, [
+    token,
+    getNetworkFee,
+    from,
+    to,
+    getNetwork,
+    isLedgerWallet,
+    getXPAddresses,
+  ]);
 
   return result;
 };

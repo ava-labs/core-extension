@@ -5,10 +5,12 @@ import {
   AvmCapableAccount,
   isAvmCapableAccount,
   PvmCapableAccount,
+  XPAddresses,
 } from '@core/types';
 
-export const getAvalancheWallet = (
+export const getAvalancheWallet = async (
   account: AvmCapableAccount | PvmCapableAccount,
+  addresses: XPAddresses,
   provider: Avalanche.JsonRpcProvider,
 ) => {
   const xpAddress = isAvmCapableAccount(account)
@@ -18,7 +20,14 @@ export const getAvalancheWallet = (
   return new Avalanche.AddressWallet(
     account.addressC,
     stripAddressPrefix(account.addressCoreEth),
-    [stripAddressPrefix(xpAddress)],
+    [
+      ...addresses.externalAddresses.map(({ address }) =>
+        stripAddressPrefix(address),
+      ),
+      ...addresses.internalAddresses.map(({ address }) =>
+        stripAddressPrefix(address),
+      ),
+    ],
     stripAddressPrefix(xpAddress),
     provider,
   );

@@ -241,6 +241,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       secretType: SecretType.LedgerLive,
       publicKeys: pubKeysValue,
       derivationPathSpec: DerivationPath.LedgerLive,
+      extendedPublicKeys: [],
       id: walletId,
       name: nameValue,
     });
@@ -254,15 +255,14 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.LedgerLive,
+      extendedPublicKeys: [],
       publicKeys: [
         AddressPublicKey.fromJSON({
           key: 'pubKeyEvm',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
         }).toJSON(),
         AddressPublicKey.fromJSON({
           curve: 'ed25519',
@@ -307,6 +307,7 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       secretType: SecretType.LedgerLive,
       publicKeys: pubKeysValue,
       derivationPathSpec: DerivationPath.LedgerLive,
+      extendedPublicKeys: [],
       id: walletId,
       name: nameValue,
     });
@@ -320,15 +321,14 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
 
     expect(walletService.addPrimaryWallet).toHaveBeenCalledWith({
       secretType: SecretType.LedgerLive,
+      extendedPublicKeys: [],
       publicKeys: pubKeysValue.map((key, index) =>
         AddressPublicKey.fromJSON({
           key: key.evm,
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            index,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(index, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
         }).toJSON(),
       ),
       derivationPathSpec: DerivationPath.LedgerLive,

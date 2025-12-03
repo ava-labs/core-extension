@@ -93,6 +93,25 @@ export const avaKeyRemodelled = {
   materialId: 'avax1mrtwgj4qgexgde60vsn53gk83mghfmrpvqdtf1',
 };
 
+export const avaExtraLegacyKey = {
+  key_type: 'SecpAvaAddr',
+  key_id: 'Key#Ava_avax1mrtwgj4qgexgde60vsn53gk83mghfmrpvqdt01',
+  material_id: 'avax1mrtwgj4qgexgde60vsn53gk83mghfmrpvqdt01',
+  purpose: 'Ava',
+  enabled: true,
+  owner: 'User#users-uuid',
+  public_key: 'ValidTestAvaPublicExtraLegacyKey',
+  policy: ['AllowRawBlobSigning'],
+  derivation_info: {
+    mnemonic_id: validMnemonic.materialId,
+    derivation_path: "m/44'/9000'/0'/0/1",
+  },
+  id: 'Key#Ava_avax1mrtwgj4qgexgde60vsn53gk83mghfmrpvqdt01',
+  type: 'SecpAvaAddr',
+  publicKey: 'ValidTestAvaPublicExtraLegacyKey',
+  materialId: 'avax1mrtwgj4qgexgde60vsn53gk83mghfmrpvqdt01',
+};
+
 export const evmKey2 = {
   key_type: 'SecpEthAddr',
   key_id: 'Key#0x8152d4841e61f8b3803ef47626707cf6be56d521',
@@ -359,6 +378,7 @@ export const validKeySet = [
 export const validKeySetWithNewAvalancheKeys = [
   ...validKeySet,
   avaKeyRemodelled,
+  avaExtraLegacyKey,
 ];
 
 export const validKeySetWithTwoAccounts = [

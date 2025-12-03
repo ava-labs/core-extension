@@ -51,7 +51,7 @@ import { SecretsService } from '../secrets/SecretsService';
 import { Transaction } from 'bitcoinjs-lib';
 import { SeedlessSessionManager } from '../seedless/SeedlessSessionManager';
 import { Network } from '@core/types';
-import { decorateWithCaipId } from '@core/common';
+import { decorateWithCaipId, getLegacyXPDerivationPath } from '@core/common';
 import { AccountsService } from '../accounts/AccountsService';
 import { ed25519 } from '@noble/curves/ed25519';
 import { HVMWallet } from './HVMWallet';
@@ -104,7 +104,10 @@ describe('background/services/wallet/WalletService.ts', () => {
   let addressResolver: AddressResolver;
   let secretsService: jest.Mocked<SecretsService>;
   const accountsService: jest.Mocked<AccountsService> = {
-    getActiveAccount: async () => ({}),
+    getActiveAccount: async () => ({
+      type: AccountType.PRIMARY,
+      index: 0,
+    }),
   } as any;
 
   const privateKeyMock =
@@ -187,20 +190,16 @@ describe('background/services/wallet/WalletService.ts', () => {
         {
           key: 'evm',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.BIP44,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
         },
         {
           key: 'xp',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.BIP44,
-            'AVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'AVM', {
+            pathSpec: DerivationPath.BIP44,
+          }),
         },
       ],
       extendedPublicKeys: [],
@@ -235,21 +234,17 @@ describe('background/services/wallet/WalletService.ts', () => {
       publicKeys: [
         {
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           key: 'evm',
         },
         {
           key: 'xp',
           curve: 'secp256k1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'AVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
         },
       ],
       walletId: WALLET_ID,
@@ -329,10 +324,10 @@ describe('background/services/wallet/WalletService.ts', () => {
 
     jest
       .mocked(getAddressDerivationPath)
-      .mockImplementation((index, pathSpec, vm) => {
+      .mockImplementation((index, vm, options) => {
         const coin = vm === 'EVM' ? 60 : 9000;
 
-        return pathSpec === DerivationPath.BIP44
+        return options?.pathSpec === DerivationPath.BIP44
           ? `m/44'/${coin}'/0'/0/${index}`
           : `m/44'/${coin}'/${index}'/0/0`;
       });
@@ -1470,20 +1465,16 @@ describe('background/services/wallet/WalletService.ts', () => {
               {
                 key: evmPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.LedgerLive,
-                  'EVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'EVM', {
+                  pathSpec: DerivationPath.LedgerLive,
+                }),
               },
               {
                 key: xpPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.LedgerLive,
-                  'AVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'AVM', {
+                  pathSpec: DerivationPath.LedgerLive,
+                }),
               },
             ],
           },
@@ -1505,20 +1496,16 @@ describe('background/services/wallet/WalletService.ts', () => {
               {
                 key: evmPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.BIP44,
-                  'EVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'EVM', {
+                  pathSpec: DerivationPath.BIP44,
+                }),
               },
               {
                 key: xpPub,
                 curve: 'secp256k1',
-                derivationPath: getAddressDerivationPath(
-                  0,
-                  DerivationPath.BIP44,
-                  'AVM',
-                ),
+                derivationPath: getAddressDerivationPath(0, 'AVM', {
+                  pathSpec: DerivationPath.BIP44,
+                }),
               },
             ],
           },
@@ -1717,23 +1704,11 @@ describe('background/services/wallet/WalletService.ts', () => {
           publicKeys: [
             buildAddressPublicKey(
               '11111111',
-              getAddressDerivationPath(
-                0,
-                secretType === SecretType.LedgerLive
-                  ? DerivationPath.LedgerLive
-                  : DerivationPath.BIP44,
-                'PVM',
-              ),
+              getLegacyXPDerivationPath(0, false),
             ),
             buildAddressPublicKey(
               '22222222',
-              getAddressDerivationPath(
-                1,
-                secretType === SecretType.LedgerLive
-                  ? DerivationPath.LedgerLive
-                  : DerivationPath.BIP44,
-                'PVM',
-              ),
+              getLegacyXPDerivationPath(1, false),
             ),
           ],
         } as any);
@@ -1776,7 +1751,7 @@ describe('background/services/wallet/WalletService.ts', () => {
       expect(result).toStrictEqual([]);
     });
 
-    it('returns the correct list of addresses', async () => {
+    it('uses the extended public key if available', async () => {
       secretsService.getPrimaryAccountSecrets.mockResolvedValueOnce({
         derivationPathSpec: DerivationPath.BIP44,
         extendedPublicKeys: [

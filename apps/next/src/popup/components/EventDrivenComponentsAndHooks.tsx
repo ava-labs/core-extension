@@ -1,6 +1,11 @@
 import { FC } from 'react';
 
-import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger';
+import { useImportMissingKeysFromKeystone } from '@core/ui';
+
+import {
+  LedgerRegisterBtcWalletPolicy,
+  LedgerIncorrectDevice,
+} from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 
 /**
@@ -19,10 +24,12 @@ import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
  */
 export const EventDrivenComponentsAndHooks: FC = () => {
   useSeedlessMissingKeysDerivation();
+  useImportMissingKeysFromKeystone();
 
   return (
     <>
       <LedgerRegisterBtcWalletPolicy />
+      <LedgerIncorrectDevice />
     </>
   );
 };

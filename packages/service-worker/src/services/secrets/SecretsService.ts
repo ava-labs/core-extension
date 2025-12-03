@@ -1,5 +1,13 @@
 import { omit, pick, uniqBy } from 'lodash';
 import { singleton } from 'tsyringe';
+import { fromPublicKey } from 'bip32';
+
+import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
+import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
+import {
+  Curve as KeystoneCurve,
+  DerivationAlgorithm,
+} from '@keystonehq/bc-ur-registry';
 
 import EventEmitter from 'events';
 import {
@@ -22,12 +30,20 @@ import {
   WalletEvents,
   LedgerError,
   AccountWithSecrets,
+  ExtendedPublicKey,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
-import { assertPresent, mapVMAddresses, isPrimaryAccount } from '@core/common';
 import {
-  getPubKeyFromTransport,
+  assertPresent,
+  mapVMAddresses,
+  isPrimaryAccount,
+  getAvalancheXPub,
+  getAvalancheExtendedKeyPath,
+} from '@core/common';
+import {
+  Avalanche,
   DerivationPath,
+  getLedgerExtendedPublicKey,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { SeedlessWallet } from '../seedless/SeedlessWallet';
@@ -35,7 +51,11 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { OnUnlock } from '../../runtime/lifecycleCallbacks';
-import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
+import {
+  getExtendedPublicKey,
+  hasPublicKeyFor,
+  isPrimaryWalletSecrets,
+} from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
 import { callGetAddresses } from '~/api-clients';
@@ -149,6 +169,43 @@ export class SecretsService implements OnUnlock {
         derivationPath: wallet.derivationPathSpec as DerivationPath,
       };
     });
+  }
+
+  async getAvalanchePublicKeys(walletId: string, accountIndex: number) {
+    const storedSecrets = await this.getSecretsById(walletId);
+
+    if (!isPrimaryWalletSecrets(storedSecrets)) {
+      throw new Error('Cannot fetch public keys for a non-primary wallets');
+    }
+
+    const suffixedPath = `${getAvalancheExtendedKeyPath(accountIndex)}/`;
+
+    return storedSecrets.publicKeys.filter(
+      ({ derivationPath, curve }) =>
+        curve === 'secp256k1' && derivationPath.startsWith(suffixedPath),
+    );
+  }
+
+  async getAvalancheExtendedPublicKey(walletId: string, accountIndex: number) {
+    const storedSecrets = await this.getSecretsById(walletId);
+
+    if (!isPrimaryWalletSecrets(storedSecrets)) {
+      throw new Error(
+        'Cannot fetch extended public keys for a non-primary wallets',
+      );
+    }
+
+    if (!('extendedPublicKeys' in storedSecrets)) {
+      return undefined;
+    }
+
+    const derivationPath = getAvalancheExtendedKeyPath(accountIndex);
+
+    return getExtendedPublicKey(
+      storedSecrets.extendedPublicKeys,
+      derivationPath,
+      'secp256k1',
+    );
   }
 
   async appendPublicKeys(walletId: string, publicKeys: AddressPublicKeyJson[]) {
@@ -766,8 +823,12 @@ export class SecretsService implements OnUnlock {
     }
 
     const newPublicKeys: AddressPublicKeyJson[] = [];
+    const newExtendedPublicKeys: ExtendedPublicKey[] = [];
 
-    if (secrets.secretType === SecretType.LedgerLive) {
+    if (
+      secrets.secretType === SecretType.LedgerLive ||
+      secrets.secretType === SecretType.Ledger
+    ) {
       // Adding Solana public keys must be performed via separate flow,
       // as it requires a different app to be enabled on the device.
       if (!hasEVMPublicKey) {
@@ -775,23 +836,48 @@ export class SecretsService implements OnUnlock {
           ledgerService.recentTransport,
           LedgerError.TransportNotFound,
         );
-        const addressPublicKeyC = await getPubKeyFromTransport(
-          ledgerService.recentTransport,
-          index,
-          secrets.derivationPathSpec as DerivationPath,
-          'EVM',
+
+        const existingEvmXpub = secrets.extendedPublicKeys.find(
+          (key) => key.derivationPath === EVM_BASE_DERIVATION_PATH,
         );
-        assertPresent(
-          addressPublicKeyC,
-          LedgerError.NoPublicKeyReturned,
-          `EVM @ ${derivationPathEVM}`,
-        );
-        newPublicKeys.push({
-          curve: 'secp256k1',
-          derivationPath: derivationPathEVM,
-          key: addressPublicKeyC.toString('hex'),
-          type: 'address-pubkey',
-        });
+
+        if (existingEvmXpub) {
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              [existingEvmXpub],
+              'secp256k1',
+              derivationPathEVM,
+            ).toJSON(),
+          );
+        } else {
+          const evmXpubString = await getLedgerExtendedPublicKey(
+            ledgerService.recentTransport,
+            false,
+            EVM_BASE_DERIVATION_PATH,
+          );
+
+          assertPresent(
+            evmXpubString,
+            LedgerError.NoExtendedPublicKeyReturned,
+            `EVM @ ${EVM_BASE_DERIVATION_PATH}`,
+          );
+
+          const newEvmXpub: ExtendedPublicKey = {
+            type: 'extended-pubkey',
+            curve: 'secp256k1',
+            derivationPath: EVM_BASE_DERIVATION_PATH,
+            key: evmXpubString,
+          };
+
+          newExtendedPublicKeys.push(newEvmXpub);
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              [newEvmXpub],
+              'secp256k1',
+              derivationPathEVM,
+            ).toJSON(),
+          );
+        }
       }
 
       if (!hasAVMPublicKey) {
@@ -799,45 +885,52 @@ export class SecretsService implements OnUnlock {
           ledgerService.recentTransport,
           LedgerError.TransportNotFound,
         );
-        const addressPublicKeyXP = await getPubKeyFromTransport(
-          ledgerService.recentTransport,
-          index,
-          secrets.derivationPathSpec as DerivationPath,
-          'AVM',
-        );
-        assertPresent(
-          addressPublicKeyXP,
-          LedgerError.NoPublicKeyReturned,
-          `AVM @ ${derivationPathAVM}`,
-        );
-        newPublicKeys.push({
-          curve: 'secp256k1',
-          derivationPath: derivationPathAVM,
-          key: addressPublicKeyXP.toString('hex'),
-          type: 'address-pubkey',
-        });
-      }
-    } else if (secrets.secretType === SecretType.Ledger) {
-      // For Ledger, we can only use the extended public keys to
-      // derive EVM/Bitcoin & AVM public keys.
-      // Adding Solana public keys must be performed via separate flow,
-      // as it requires a different app to be enabled on the device.
-      if (!hasEVMPublicKey) {
-        const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathEVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyEVM);
-      }
 
-      if (!hasAVMPublicKey) {
-        const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathAVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyAVM);
+        const existingXPXpub = getAvalancheXPub(secrets, index);
+
+        if (existingXPXpub) {
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              [existingXPXpub],
+              'secp256k1',
+              derivationPathAVM,
+            ).toJSON(),
+          );
+        } else {
+          const avalancheXpubPath = getAvalancheExtendedKeyPath(index);
+          try {
+            const xpXpubString = await getLedgerExtendedPublicKey(
+              ledgerService.recentTransport,
+              false,
+              avalancheXpubPath,
+            );
+
+            assertPresent(
+              xpXpubString,
+              LedgerError.NoExtendedPublicKeyReturned,
+              `AVM @ ${avalancheXpubPath}`,
+            );
+
+            const newXPXpub: ExtendedPublicKey = {
+              type: 'extended-pubkey',
+              curve: 'secp256k1',
+              derivationPath: avalancheXpubPath,
+              key: xpXpubString,
+            };
+
+            newExtendedPublicKeys.push(newXPXpub);
+            newPublicKeys.push(
+              AddressPublicKey.fromExtendedPublicKeys(
+                [newXPXpub],
+                'secp256k1',
+                derivationPathAVM,
+              ).toJSON(),
+            );
+          } catch (error) {
+            console.error(error);
+            throw error;
+          }
+        }
       }
     } else if (secrets.secretType === SecretType.Mnemonic) {
       // For mnemonic, we can derive public keys for EVM/Bitcoin, X/P-Chains, HyperVM and Solana
@@ -873,6 +966,21 @@ export class SecretsService implements OnUnlock {
         );
         newPublicKeys.push(publicKeySVM.toJSON());
       }
+
+      const avalancheXPubPath = getAvalancheExtendedKeyPath(index);
+      const avalancheXPub = getExtendedPublicKey(
+        secrets.extendedPublicKeys,
+        avalancheXPubPath,
+        'secp256k1',
+      );
+      if (!avalancheXPub) {
+        newExtendedPublicKeys.push({
+          type: 'extended-pubkey',
+          curve: 'secp256k1',
+          derivationPath: avalancheXPubPath,
+          key: Avalanche.getXpubFromMnemonic(secrets.mnemonic, index),
+        });
+      }
     } else if (isKeystoneSecrets(secrets)) {
       if (!hasEVMPublicKey) {
         const publicKeyEVM = AddressPublicKey.fromExtendedPublicKeys(
@@ -882,20 +990,60 @@ export class SecretsService implements OnUnlock {
         ).toJSON();
         newPublicKeys.push(publicKeyEVM);
       }
+
       if (!hasAVMPublicKey && secrets.secretType === SecretType.Keystone3Pro) {
-        const publicKeyAVM = AddressPublicKey.fromExtendedPublicKeys(
-          secrets.extendedPublicKeys,
-          'secp256k1',
-          derivationPathAVM,
-        ).toJSON();
-        newPublicKeys.push(publicKeyAVM);
+        const existingXPXpub = getAvalancheXPub(secrets, index);
+
+        if (existingXPXpub) {
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              secrets.extendedPublicKeys,
+              'secp256k1',
+              derivationPathAVM,
+            ).toJSON(),
+          );
+        } else {
+          const app = new KeystoneUSBAvalancheSDK(
+            await createKeystoneTransport(),
+          );
+          const { publicKey, chainCode } = await app.getPubkey(
+            getAvalancheExtendedKeyPath(index),
+            KeystoneCurve.secp256k1,
+            DerivationAlgorithm.slip10,
+          );
+          const newXPXpub: ExtendedPublicKey = {
+            type: 'extended-pubkey',
+            curve: 'secp256k1',
+            derivationPath: getAvalancheExtendedKeyPath(index),
+            key: fromPublicKey(
+              Buffer.from(publicKey, 'hex'),
+              chainCode,
+            ).toBase58(),
+          };
+          newExtendedPublicKeys.push(newXPXpub);
+          newPublicKeys.push(
+            AddressPublicKey.fromExtendedPublicKeys(
+              [newXPXpub],
+              'secp256k1',
+              derivationPathAVM,
+            ).toJSON(),
+          );
+        }
       }
     }
 
-    if (newPublicKeys.length > 0) {
+    if (newPublicKeys.length > 0 || newExtendedPublicKeys.length > 0) {
       await this.updateSecrets(
         {
           publicKeys: [...secrets.publicKeys, ...newPublicKeys],
+          ...('extendedPublicKeys' in secrets
+            ? {
+                extendedPublicKeys: [
+                  ...secrets.extendedPublicKeys,
+                  ...newExtendedPublicKeys,
+                ],
+              }
+            : {}),
         },
         walletId,
       );
