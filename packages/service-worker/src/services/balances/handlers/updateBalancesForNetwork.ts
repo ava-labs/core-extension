@@ -28,9 +28,9 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
   ) {}
 
   async #getDefaultNetworksToFetch(activeChainId: number) {
-    const favoriteNetworks = await this.networkSerice.getFavoriteNetworks();
+    const enabledNetworks = await this.networkSerice.getEnabledNetworks(); // Enabled networks include the favorited networks from legacy
 
-    return [...(activeChainId ? [activeChainId] : []), ...favoriteNetworks];
+    return [...(activeChainId ? [activeChainId] : []), ...enabledNetworks];
   }
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {

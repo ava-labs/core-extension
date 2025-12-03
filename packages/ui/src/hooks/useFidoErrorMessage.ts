@@ -15,6 +15,10 @@ export const useFidoErrorMessage = (code?: AuthErrorCode): string => {
     );
   }
 
+  if (code === AuthErrorCode.FidoConfigurationError) {
+    return t('The operation was not completed. Please try again.');
+  }
+
   if (code === AuthErrorCode.UnknownError) {
     return t('An unexpected error occurred. Please try again.');
   }

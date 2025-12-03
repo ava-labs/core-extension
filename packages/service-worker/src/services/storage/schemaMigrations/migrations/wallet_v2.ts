@@ -21,7 +21,7 @@ const previousSchema = Joi.object();
 const up = async (walletStorage: PreviousSchema) => {
   // Generate xpub for XP if mnemonic exists
   const xpubXP = walletStorage.mnemonic
-    ? Avalanche.getXpubFromMnemonic(walletStorage.mnemonic)
+    ? Avalanche.getXpubFromMnemonic(walletStorage.mnemonic, 0)
     : undefined;
 
   return {

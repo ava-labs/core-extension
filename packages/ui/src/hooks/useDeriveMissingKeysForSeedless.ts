@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-import { toast } from '@avalabs/core-k2-components';
 import { storage } from 'webextension-polyfill';
 import { useCallback, useEffect, useMemo } from 'react';
 
@@ -12,8 +10,20 @@ import {
 import { ExtensionRequest, SecretType } from '@core/types';
 import type { DeriveMissingKeysHandler } from '@core/service-worker';
 
-export const useDeriveMissingKeysForSeedless = () => {
-  const { t } = useTranslation();
+type ToastCallbacks = {
+  // Display a loading toast
+  onLoading: () => void;
+  // Display a success toast
+  onSuccess: () => void;
+  // Dismiss a toast
+  onFailure: () => void;
+};
+
+export const useDeriveMissingKeysForSeedless = ({
+  onLoading,
+  onSuccess,
+  onFailure,
+}: ToastCallbacks) => {
   const { request } = useConnectionContext();
   const { walletDetails } = useWalletContext();
   const { isAuthPromptVisible } = useSeedlessAuthPromptState();
@@ -35,7 +45,9 @@ export const useDeriveMissingKeysForSeedless = () => {
 
     // When we detect some of the addresses are missing, we try to derive them.
     const accounts = primary[walletDetails.id] ?? [];
-    return accounts.some((acc) => !acc.addressSVM); // Currently only do it for Solana
+    return accounts.some(
+      (acc) => !acc.addressSVM || !acc.addressAVM || !acc.addressPVM,
+    ); // Currently only do it for Solana and X/P chains
   }, [primary, isAuthPromptVisible, walletDetails]);
 
   const deriveMissingKeys = useCallback(
@@ -62,26 +74,12 @@ export const useDeriveMissingKeysForSeedless = () => {
       return;
     }
 
-    let toastId: string | undefined;
-
-    const timer = setTimeout(() => {
-      // Only show the "Updating accounts..." message if it takes more than 5 seconds
-      toastId = toast.loading(t('Updating accounts...'));
-    }, 5_000);
+    // Only show the "Updating accounts..." message if it takes more than 5 seconds
+    const timer = setTimeout(onLoading, 5_000);
 
     deriveMissingKeys(walletDetails.id)
-      .then(() => {
-        if (toastId) {
-          toast.success(t('Accounts updated'), { id: toastId });
-        }
-      })
-      .catch(() => {
-        if (!toastId) {
-          // We don't show anything if it fails, as there is nothing the user can do.
-          // This will be retried automatically on the next extension load (with an anti-spam delay).
-          toast.dismiss(toastId);
-        }
-      })
+      .then(onSuccess)
+      .catch(onFailure)
       .finally(() => {
         clearTimeout(timer);
       });
@@ -89,7 +87,14 @@ export const useDeriveMissingKeysForSeedless = () => {
     return () => {
       clearTimeout(timer);
     };
-  }, [deriveMissingKeys, hasMissingAddresses, walletDetails?.id, t]);
+  }, [
+    deriveMissingKeys,
+    hasMissingAddresses,
+    walletDetails?.id,
+    onLoading,
+    onSuccess,
+    onFailure,
+  ]);
 };
 
 const STORAGE_KEY = 'missingKeysDerivationLastAttemptAt' as const;

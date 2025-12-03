@@ -37,7 +37,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
-import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger/LedgerRegisterBtcWalletPolicy';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import * as routes from '@/config/routes';
 import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
@@ -45,7 +44,7 @@ import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
-import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
+import { EventDrivenComponentsAndHooks } from './components';
 
 const pagesWithoutHeader = [
   '/seedless-auth',
@@ -167,8 +166,8 @@ export function App() {
         )}
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
-        <LedgerRegisterBtcWalletPolicy />
-        <SeedlessAuthPrompt />
+
+        <EventDrivenComponentsAndHooks />
       </>
     </Providers>
   );

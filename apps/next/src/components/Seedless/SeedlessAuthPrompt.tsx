@@ -1,11 +1,7 @@
 import { Button, DialogActions, Typography } from '@avalabs/k2-alpine';
 import { openExtensionNewWindow } from '@core/common';
 import { SecretType } from '@core/types';
-import {
-  useDeriveMissingKeysForSeedless,
-  useSeedlessAuthPromptState,
-  useWalletContext,
-} from '@core/ui';
+import { useSeedlessAuthPromptState, useWalletContext } from '@core/ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SlideUpDialog } from '@/components/Dialog';
@@ -23,8 +19,6 @@ export const SeedlessAuthPrompt = () => {
   const { walletDetails } = useWalletContext();
   const { isAuthPromptVisible } = useSeedlessAuthPromptState();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-
-  useDeriveMissingKeysForSeedless();
 
   const handleLogin = useCallback(async () => {
     const popup = await openExtensionNewWindow('seedless-auth');
