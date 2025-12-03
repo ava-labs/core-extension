@@ -80,7 +80,6 @@ export const Header = () => {
               <HeaderAccount
                 wallet={headerWalletDetails}
                 isTrueWallet={headerWalletDetails.isTrueWallet}
-                account={activeAccount}
               />
             )}
           </AccountInfo>
