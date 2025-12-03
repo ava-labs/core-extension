@@ -1,5 +1,6 @@
 import { sum } from 'lodash';
 import { injectable } from 'tsyringe';
+import { CorePrimaryAccount } from '@avalabs/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   ExtensionRequest,
@@ -7,6 +8,7 @@ import {
   PvmCategories,
   CoreEthCategories,
   AvmCategories,
+  Account,
 } from '@core/types';
 import { balanceToDecimal } from '@core/common';
 
@@ -46,6 +48,10 @@ const isPvmAtomicBalance = (
   );
 };
 
+const isCorePrimaryAccount = (
+  account: Account | CorePrimaryAccount,
+): account is CorePrimaryAccount => 'xpAddresses' in account;
+
 @injectable()
 export class GetTotalAtomicFundsForWalletHandler implements HandlerType {
   method = ExtensionRequest.GET_ATOMIC_FUNDS_FOR_WALLET as const;
@@ -58,14 +64,15 @@ export class GetTotalAtomicFundsForWalletHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const { accountId } = request.params;
 
+    // TODO: fix the type casting
     const primaryAccounts = Object.values(
       (await this.accountsService.getAccounts()).primary,
-    ).flat();
+    ).flat() as unknown as CorePrimaryAccount[];
     const selectedAccount = primaryAccounts.find(
       (account) => account.id === accountId,
     );
 
-    if (!selectedAccount) {
+    if (!selectedAccount || !isCorePrimaryAccount(selectedAccount)) {
       return {
         ...request,
         result: {
@@ -76,9 +83,11 @@ export class GetTotalAtomicFundsForWalletHandler implements HandlerType {
 
     const accountsOfInterest = [
       selectedAccount.addressCoreEth,
-      selectedAccount.addressAVM,
-      selectedAccount.addressPVM,
-    ];
+      selectedAccount.xpAddresses.flatMap(({ address }) => [
+        `P-${address}`,
+        `X-${address}`,
+      ]),
+    ].flat();
 
     const { atomicBalances } = this.balanceAggregatorService;
     const atomicFundsSum = sum(

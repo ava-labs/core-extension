@@ -495,19 +495,19 @@ export const convertBalanceResponsesToCacheBalanceObject = (
 
     if (isCorethGetBalancesResponse(balanceResponse) && chainId === 0) {
       const mainNetC = AVALANCHE_CHAIN_IDS.MAINNET_C;
+      const accountKey = `C-${balanceResponse.id}`;
       return {
         ...accumulator,
         [mainNetC]: {
           ...(accumulator[mainNetC] ?? {}),
-          [balanceResponse.id]: {
-            ...(accumulator[mainNetC]?.[balanceResponse.id] ?? {}),
+          [accountKey]: {
+            ...(accumulator[mainNetC]?.[accountKey] ?? {}),
             [balanceResponse.balances.nativeTokenBalance.symbol]:
               mapNativeTokenBalance(
                 balanceResponse.balances.nativeTokenBalance,
               ),
             categories: {
-              ...(accumulator[mainNetC]?.[balanceResponse.id]?.categories ??
-                {}),
+              ...(accumulator[mainNetC]?.[accountKey]?.categories ?? {}),
               ...balanceResponse.balances.categories,
             },
           },
