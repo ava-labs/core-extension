@@ -48,8 +48,8 @@ export const RecipientSelect: FC<RecipientSelectProps> = ({
       onQueryChange={onQueryChange}
       value={value}
       onValueChange={(recipient) => {
-        if (recipient && getType(recipient) === 'contact') {
-          capture('SendContactSelected', { contactSource: 'contacts' });
+        if (recipient) {
+          capture('SendContactSelected', { contactSource: getType(recipient) });
         }
         onValueChange(recipient);
       }}
