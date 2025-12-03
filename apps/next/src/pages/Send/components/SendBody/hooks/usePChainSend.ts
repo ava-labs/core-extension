@@ -92,6 +92,7 @@ export const usePChainSend = ({
         utxos: unsignedTx.utxos.map((utxo) =>
           utils.bufferToHex(utxo.toBytes(codec)),
         ),
+        externalIndices: from.xpAddresses?.map((xp) => xp.index) ?? [],
       };
 
       const hash = await request(

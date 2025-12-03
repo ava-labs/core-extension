@@ -46,16 +46,22 @@ export class BalancesService {
     const rawBalances = await module.getBalances({
       // TODO: Use public key and module.getAddress instead to make this more modular
       addresses: accounts
-        .map((account) => {
+        .flatMap((account) => {
           switch (network.vmName) {
             case NetworkVMType.EVM:
               return account.addressC;
             case NetworkVMType.BITCOIN:
               return account.addressBTC;
             case NetworkVMType.AVM:
-              return account.addressAVM;
+              return [
+                account.addressAVM,
+                ...(account.xpAddresses?.map((xp) => xp.address) ?? []),
+              ];
             case NetworkVMType.PVM:
-              return account.addressPVM;
+              return [
+                account.addressPVM,
+                ...(account.xpAddresses?.map((xp) => xp.address) ?? []),
+              ];
             case NetworkVMType.CoreEth:
               return account.addressCoreEth;
             case NetworkVMType.HVM:

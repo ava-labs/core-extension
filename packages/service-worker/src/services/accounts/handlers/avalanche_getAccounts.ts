@@ -3,7 +3,6 @@ import {
   DAppProviderRequest,
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
-  AddressPublicKeyJson,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
@@ -13,16 +12,12 @@ import {
   isPrimaryWalletSecrets,
 } from '~/services/secrets/utils';
 import {
-  AddressIndex,
   CoreAccountType,
   CoreImportedAccount,
   CorePrimaryAccount,
   WalletType,
 } from '@avalabs/types';
-import { NetworkService } from '~/services/network/NetworkService';
-import { Avalanche } from '@avalabs/core-wallets-sdk';
-import { hex } from '@scure/base';
-import { stripAddressPrefix } from '@core/common';
+import { AddressResolver } from '~/services/secrets/AddressResolver';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {
@@ -31,14 +26,13 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   constructor(
     private accountsService: AccountsService,
     private secretsService: SecretsService,
-    private networkService: NetworkService,
+    private addressResolver: AddressResolver,
   ) {
     super();
   }
 
   handleAuthenticated = async ({ request }) => {
     const accounts = await this.accountsService.getAccounts();
-    const providerXP = await this.networkService.getAvalanceProviderXP();
 
     const mappedPrimaryAccounts: CorePrimaryAccount[][] = await Promise.all(
       Object.keys(accounts.primary).map(async (walletId) => {
@@ -62,34 +56,36 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
               )
             : null;
 
-        return walletAccounts.map((acc) => {
-          const externalXPAddresses = this.#getXPAddressesForAccountIndex(
-            secrets.publicKeys,
-            acc.index,
-            providerXP,
-          );
+        return await Promise.all(
+          walletAccounts.map(async (acc) => {
+            const externalXPAddresses =
+              await this.addressResolver.getXPAddressesForAccountIndex(
+                secrets.id,
+                acc.index,
+              );
 
-          const primaryAccount: CorePrimaryAccount = {
-            active: accounts.active?.id === acc.id,
-            addressC: acc.addressC,
-            addressBTC: acc.addressBTC,
-            addressAVM: acc.addressAVM ?? '',
-            addressPVM: acc.addressPVM ?? '',
-            addressCoreEth: acc.addressCoreEth ?? '',
-            addressSVM: acc.addressSVM ?? '',
-            name: acc.name,
-            type: CoreAccountType.PRIMARY,
-            id: acc.id,
-            xpAddresses: externalXPAddresses,
-            xpubXP: xpubXP?.key,
-            index: acc.index,
-            walletType: this.#mapSecretTypeToWalletType(secrets.secretType),
-            walletId,
-            walletName: 'name' in secrets ? secrets.name : '',
-          };
+            const primaryAccount: CorePrimaryAccount = {
+              active: accounts.active?.id === acc.id,
+              addressC: acc.addressC,
+              addressBTC: acc.addressBTC,
+              addressAVM: acc.addressAVM ?? '',
+              addressPVM: acc.addressPVM ?? '',
+              addressCoreEth: acc.addressCoreEth ?? '',
+              addressSVM: acc.addressSVM ?? '',
+              name: acc.name,
+              type: CoreAccountType.PRIMARY,
+              id: acc.id,
+              xpAddresses: externalXPAddresses,
+              xpubXP: xpubXP?.key,
+              index: acc.index,
+              walletType: this.#mapSecretTypeToWalletType(secrets.secretType),
+              walletId,
+              walletName: 'name' in secrets ? secrets.name : '',
+            };
 
-          return primaryAccount;
-        });
+            return primaryAccount;
+          }),
+        );
       }),
     );
 
@@ -124,49 +120,6 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
       ...request,
       error: 'account not connected',
     };
-  };
-
-  #getXPAddressesForAccountIndex = (
-    publicKeys: AddressPublicKeyJson[],
-    accountIndex: number,
-    provider: Avalanche.JsonRpcProvider,
-  ) => {
-    const addressIndices: AddressIndex[] = [];
-
-    for (const { curve, derivationPath, key } of publicKeys) {
-      // Reject non-Secp256k1 keys
-      if (curve !== 'secp256k1') continue;
-
-      // Reject keys that are not for the given index
-      if (!derivationPath.startsWith(`m/44'/9000'/${accountIndex}'/`)) continue;
-
-      // Just some future-proofing - we expect the derivation path to have 6 segments,
-      // separated by '/':
-      const segments = derivationPath.split('/');
-      if (segments.length !== 6) {
-        throw new Error(
-          `Invalid derivation path for X/P public key: ${derivationPath}. Expected 6 segments, got ${segments.length}.`,
-        );
-      }
-
-      // Take the last index from the derivation path - this is our address index
-      const addressIndex = Number(segments.pop());
-
-      if (Number.isNaN(addressIndex) || !Number.isInteger(addressIndex)) {
-        throw new Error(
-          `Invalid address index obtained, expected an integer, got ${addressIndex}`,
-        );
-      }
-
-      addressIndices.push({
-        address: stripAddressPrefix(
-          provider.getAddress(Buffer.from(hex.decode(key)), 'P'),
-        ),
-        index: addressIndex,
-      });
-    }
-
-    return addressIndices;
   };
 
   #mapSecretTypeToWalletType = (secretType: SecretType) => {

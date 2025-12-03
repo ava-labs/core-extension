@@ -1,3 +1,4 @@
+import { AddressIndex } from '@avalabs/types';
 import { NetworkVMType, PartialBy } from '@avalabs/vm-module-types';
 
 import { PubKeyType } from './wallet';
@@ -79,6 +80,7 @@ export interface AccountStorageItem {
   addressCoreEth?: string;
   addressHVM?: string;
   addressSVM?: string;
+  xpAddresses?: AddressIndex[];
   type?: AccountType;
 }
 

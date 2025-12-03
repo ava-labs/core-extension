@@ -41,6 +41,7 @@ import {
   getAvalancheExtendedKeyPath,
 } from '@core/common';
 import {
+  Avalanche,
   DerivationPath,
   getLedgerExtendedPublicKey,
 } from '@avalabs/core-wallets-sdk';
@@ -50,7 +51,11 @@ import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
 import { LedgerService } from '../ledger/LedgerService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { OnUnlock } from '../../runtime/lifecycleCallbacks';
-import { hasPublicKeyFor, isPrimaryWalletSecrets } from './utils';
+import {
+  getExtendedPublicKey,
+  hasPublicKeyFor,
+  isPrimaryWalletSecrets,
+} from './utils';
 import { AddressPublicKey } from './AddressPublicKey';
 import { AddressResolver } from './AddressResolver';
 import { callGetAddresses } from '~/api-clients';
@@ -164,6 +169,43 @@ export class SecretsService implements OnUnlock {
         derivationPath: wallet.derivationPathSpec as DerivationPath,
       };
     });
+  }
+
+  async getAvalanchePublicKeys(walletId: string, accountIndex: number) {
+    const storedSecrets = await this.getSecretsById(walletId);
+
+    if (!isPrimaryWalletSecrets(storedSecrets)) {
+      throw new Error('Cannot fetch public keys for a non-primary wallets');
+    }
+
+    const suffixedPath = `${getAvalancheExtendedKeyPath(accountIndex)}/`;
+
+    return storedSecrets.publicKeys.filter(
+      ({ derivationPath, curve }) =>
+        curve === 'secp256k1' && derivationPath.startsWith(suffixedPath),
+    );
+  }
+
+  async getAvalancheExtendedPublicKey(walletId: string, accountIndex: number) {
+    const storedSecrets = await this.getSecretsById(walletId);
+
+    if (!isPrimaryWalletSecrets(storedSecrets)) {
+      throw new Error(
+        'Cannot fetch extended public keys for a non-primary wallets',
+      );
+    }
+
+    if (!('extendedPublicKeys' in storedSecrets)) {
+      return undefined;
+    }
+
+    const derivationPath = getAvalancheExtendedKeyPath(accountIndex);
+
+    return getExtendedPublicKey(
+      storedSecrets.extendedPublicKeys,
+      derivationPath,
+      'secp256k1',
+    );
   }
 
   async appendPublicKeys(walletId: string, publicKeys: AddressPublicKeyJson[]) {
@@ -923,6 +965,21 @@ export class SecretsService implements OnUnlock {
           derivationPathSVM,
         );
         newPublicKeys.push(publicKeySVM.toJSON());
+      }
+
+      const avalancheXPubPath = getAvalancheExtendedKeyPath(index);
+      const avalancheXPub = getExtendedPublicKey(
+        secrets.extendedPublicKeys,
+        avalancheXPubPath,
+        'secp256k1',
+      );
+      if (!avalancheXPub) {
+        newExtendedPublicKeys.push({
+          type: 'extended-pubkey',
+          curve: 'secp256k1',
+          derivationPath: avalancheXPubPath,
+          key: Avalanche.getXpubFromMnemonic(secrets.mnemonic, index),
+        });
       }
     } else if (isKeystoneSecrets(secrets)) {
       if (!hasEVMPublicKey) {

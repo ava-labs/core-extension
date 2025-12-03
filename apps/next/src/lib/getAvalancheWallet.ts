@@ -18,7 +18,9 @@ export const getAvalancheWallet = (
   return new Avalanche.AddressWallet(
     account.addressC,
     stripAddressPrefix(account.addressCoreEth),
-    [stripAddressPrefix(xpAddress)],
+    Array.isArray(account.xpAddresses) && account.xpAddresses?.length > 0
+      ? account.xpAddresses.map((xp) => stripAddressPrefix(xp.address))
+      : [stripAddressPrefix(xpAddress)],
     stripAddressPrefix(xpAddress),
     provider,
   );

@@ -294,7 +294,13 @@ export class AccountsService implements OnLock, OnUnlock {
         AccountError.EVMAddressNotFound,
       );
 
-      return mapVMAddresses(addresses);
+      return {
+        ...mapVMAddresses(addresses),
+        xpAddresses: await this.addressResolver.getXPAddressesForAccountIndex(
+          secrets.id,
+          account.index,
+        ),
+      };
     }
     const addresses = await this.addressResolver.getAddressesForSecretId(
       account.id,
