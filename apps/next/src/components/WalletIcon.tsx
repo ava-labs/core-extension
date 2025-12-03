@@ -11,7 +11,7 @@ import { FaApple, FaGoogle } from 'react-icons/fa';
 export type WalletIconProps = {
   expanded?: boolean;
   size?: number;
-} & Pick<WalletDetails, 'type' | 'authProvider'>;
+} & Partial<Pick<WalletDetails, 'type' | 'authProvider'>>;
 
 export const WalletIcon: FC<WalletIconProps> = ({
   type,

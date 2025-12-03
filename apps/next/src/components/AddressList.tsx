@@ -32,6 +32,7 @@ export const AddressList = ({
   return (
     <Grow in={isAddressAppear}>
       <Stack
+        zIndex={theme.zIndex.tooltip}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         sx={{

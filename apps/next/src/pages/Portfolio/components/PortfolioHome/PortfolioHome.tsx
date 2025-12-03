@@ -15,7 +15,7 @@ import {
 import { FC, useState } from 'react';
 import { NoScrollStack } from '@/components/NoScrollStack';
 
-import AccountInfo from './components/AccountInfo';
+import AccountInfo from './components/AccountInfo/AccountInfo';
 import { EmptyState } from './components/EmptyState';
 import { PortfolioDetails } from './components/PortolioDetails';
 import { useTranslation } from 'react-i18next';
@@ -86,7 +86,7 @@ export const PortfolioHome: FC = () => {
       >
         <Stack gap={1.5} px={1.5} flexGrow={1}>
           <AccountInfo
-            accountName={accounts.active?.name ?? ''}
+            account={accounts.active}
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}
           />

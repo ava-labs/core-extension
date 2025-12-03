@@ -2,12 +2,16 @@ import { Stack, Typography, WaterDropIcon } from '@avalabs/k2-alpine';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BalanceChange } from '../../BalanceChange';
+import { BalanceChange } from '../../../BalanceChange';
+import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
+import { WalletSummaryInfo } from './components/WalletSummaryInfo';
+import { AccountSummaryInfo } from './components/AccountSummaryInfo';
+import { Account } from '@core/types';
 
 type TotalBalance = ReturnType<typeof useBalancesContext>['totalBalance'];
 
 type Props = {
-  accountName: string;
+  account?: Account;
   balance: TotalBalance;
   isDeveloperMode: boolean;
 };
@@ -21,10 +25,11 @@ const fallbackTotalBalance: TotalBalance = {
 };
 
 export const AccountInfo: FC<Props> = ({
-  accountName,
+  account,
   balance = fallbackTotalBalance,
   isDeveloperMode,
 }) => {
+  const { walletSummary } = useActiveAccountInfo();
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
   const { sum, priceChange } = balance;
@@ -35,13 +40,13 @@ export const AccountInfo: FC<Props> = ({
 
   return (
     <Stack spacing={0.5} mt={4.5}>
-      <Typography variant="h2" color="text.secondary">
-        {accountName}
-      </Typography>
-      <Stack direction="row" alignItems="baseline" gap={0.5}>
-        <Typography variant="h2">{formattedSum}</Typography>
-        <Typography variant="body3">{currency}</Typography>
-      </Stack>
+      <WalletSummaryInfo walletSummary={walletSummary} />
+      <AccountSummaryInfo
+        account={account}
+        accountName={account?.name ?? ''}
+        formattedSum={formattedSum}
+        currency={currency}
+      />
       {isDeveloperMode ? (
         <Stack
           direction="row"

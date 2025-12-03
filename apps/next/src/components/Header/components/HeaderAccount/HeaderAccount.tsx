@@ -3,7 +3,7 @@ import { FC, useRef } from 'react';
 import { MdNavigateNext } from 'react-icons/md';
 import { HeaderWalletDetails } from '../../types';
 import { WalletTotalBalanceProvider } from '@core/ui';
-import { AddressList } from '../../AddressList';
+import { AddressList } from '@/components/AddressList';
 import { useHeaderAccount } from './hooks/useHeaderAccount';
 import { WalletSection } from './components/WalletSection';
 import { Container, IconWrapper } from './styled';
