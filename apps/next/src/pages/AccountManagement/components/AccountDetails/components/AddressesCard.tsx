@@ -1,3 +1,4 @@
+import { SolanaAddressEnabler } from '@/components/Address';
 import { AddressItem } from '@/components/Address/AddressItem';
 import {
   BitcoinColorIcon,
@@ -84,6 +85,7 @@ export const AddressesCard: FC<Props> = ({ account }) => {
             address={account.addressSVM}
             copyActionVisibility="always"
             truncate={TRUNCATE_LENGTH}
+            AddressEnabler={SolanaAddressEnabler}
           />
         </List>
       </Styled.CardContent>
