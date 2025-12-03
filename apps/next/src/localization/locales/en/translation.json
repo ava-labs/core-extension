@@ -127,7 +127,7 @@
   "Buy and bridge USD and other currencies directly to L1s using Halliday": "Buy and bridge USD and other currencies directly to L1s using Halliday",
   "Buy crypto": "Buy crypto",
   "Buy tokens such as AVAX with a debit card or your bank account": "Buy tokens such as AVAX with a debit card or your bank account",
-  "By using this application, you agree to the <termsLink>Terms of Use</termsLink> and <policyLink>Privacy Policy</policyLink>": "By using this application, you agree to the <termsLink>Terms of Use</termsLink> and <policyLink>Privacy Policy</policyLink>",
+  "By using this application, you agree to the <br/> <termsLink>Terms of Use</termsLink> and <policyLink>Privacy Policy</policyLink>": "By using this application, you agree to the <br/> <termsLink>Terms of Use</termsLink> and <policyLink>Privacy Policy</policyLink>",
   "Camera access": "Camera access",
   "Cancel": "Cancel",
   "Cancel Export": "Cancel Export",
@@ -888,6 +888,6 @@
   "{{received}} out of {{required}}": "{{received}} out of {{required}}",
   "{{sitesCount}} Connected sites": "{{sitesCount}} Connected sites",
   "{{token}} bridge {{action}}": "{{token}} bridge {{action}}",
-  "© 2025 Ava Labs All rights reserved. {{version}}": "© 2025 Ava Labs All rights reserved. {{version}}",
+  "© 2025 Ava Labs – All rights reserved. {{version}}": "© 2025 Ava Labs – All rights reserved. {{version}}",
   "🚧 Placeholder - needs implementation 🚧": "🚧 Placeholder - needs implementation 🚧"
 }
