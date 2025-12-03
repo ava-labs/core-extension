@@ -1,13 +1,9 @@
-import {
-  AccountType,
-  SecretType,
-  DAppProviderRequest,
-  AVALANCHE_BASE_DERIVATION_PATH,
-} from '@core/types';
+import { AccountType, SecretType, DAppProviderRequest } from '@core/types';
 import { AvalancheGetAccountsHandler } from './avalanche_getAccounts';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../AccountsService';
+import { getAvalancheExtendedKeyPath } from '@core/common';
 
 jest.mock('../../secrets/SecretsService');
 jest.mock('../../network/NetworkService');
@@ -24,19 +20,19 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     primary: {
       ['walletId1']: [
         {
-          index: 1,
+          index: 0,
           id: 'uuid1',
           addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
         },
         {
-          index: 2,
+          index: 1,
           id: 'uuid2',
           addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
         },
         {
-          index: 3,
+          index: 2,
           id: 'uuid3',
           addressC: '0x222222eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           type: AccountType.PRIMARY,
@@ -81,8 +77,8 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
   );
 
   const secretsService = new SecretsService({} as any);
-  const networkService = {
-    getAvalanceProviderXP: jest.fn(),
+  const addressResolver = {
+    getXPAddressesForAccountIndex: jest.fn(),
   } as any;
   const request = {
     id: '123',
@@ -91,12 +87,28 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
 
   beforeEach(() => {
     jest.resetAllMocks();
-    jest.mocked(networkService.getAvalanceProviderXP).mockResolvedValue({
-      getAddress: jest
-        .fn()
-        .mockReturnValueOnce('P-seedless1')
-        .mockReturnValueOnce('P-seedless2'),
-    });
+    jest
+      .mocked(addressResolver.getXPAddressesForAccountIndex)
+      .mockImplementation((walletId) =>
+        walletId === 'walletId3'
+          ? Promise.resolve({
+              externalAddresses: [
+                {
+                  address: 'seedless1',
+                  index: 0,
+                },
+                {
+                  address: 'seedless2',
+                  index: 1,
+                },
+              ],
+              internalAddresses: [],
+            })
+          : Promise.resolve({
+              externalAddresses: [],
+              internalAddresses: [],
+            }),
+      );
     jest
       .mocked(secretsService.getSecretsById)
       .mockResolvedValueOnce({
@@ -105,8 +117,20 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
         name: 'Mnemonic Wallet',
         extendedPublicKeys: [
           {
-            key: 'xpubXP',
-            derivationPath: AVALANCHE_BASE_DERIVATION_PATH,
+            key: 'xpubXP0',
+            derivationPath: getAvalancheExtendedKeyPath(0),
+            curve: 'secp256k1',
+            type: 'extended-pubkey',
+          },
+          {
+            key: 'xpubXP1',
+            derivationPath: getAvalancheExtendedKeyPath(1),
+            curve: 'secp256k1',
+            type: 'extended-pubkey',
+          },
+          {
+            key: 'xpubXP2',
+            derivationPath: getAvalancheExtendedKeyPath(2),
             curve: 'secp256k1',
             type: 'extended-pubkey',
           },
@@ -147,7 +171,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     const handler = new AvalancheGetAccountsHandler(
       accountsService,
       secretsService,
-      networkService,
+      addressResolver,
     );
     const result = await handler.handleAuthenticated(buildRpcCall(request));
 
@@ -155,7 +179,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
       ...request,
       result: [
         {
-          index: 1,
+          index: 0,
           id: 'uuid1',
           addressC: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           addressAVM: '',
@@ -170,10 +194,10 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           walletType: SecretType.Mnemonic,
           walletName: 'Mnemonic Wallet',
           active: false,
-          xpubXP: 'xpubXP',
+          xpubXP: 'xpubXP0',
         },
         {
-          index: 2,
+          index: 1,
           id: 'uuid2',
           addressC: '0x11111eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           addressAVM: '',
@@ -188,10 +212,10 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           walletType: SecretType.Mnemonic,
           walletName: 'Mnemonic Wallet',
           active: true,
-          xpubXP: 'xpubXP',
+          xpubXP: 'xpubXP1',
         },
         {
-          index: 3,
+          index: 2,
           id: 'uuid3',
           addressC: '0x222222eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
           addressAVM: '',
@@ -206,7 +230,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
           walletType: SecretType.Mnemonic,
           walletName: 'Mnemonic Wallet',
           active: false,
-          xpubXP: 'xpubXP',
+          xpubXP: 'xpubXP2',
         },
         {
           active: false,
@@ -274,7 +298,7 @@ describe('background/services/accounts/handlers/avalanche_getAccounts.ts', () =>
     const handler = new AvalancheGetAccountsHandler(
       accountsService,
       secretsService,
-      networkService,
+      addressResolver,
     );
     const result = await handler.handleUnauthenticated(buildRpcCall(request));
 

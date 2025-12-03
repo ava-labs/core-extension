@@ -123,13 +123,13 @@ export class AddressResolver {
 
       const externalAddresses =
         addresses?.externalAddresses?.map((address) => ({
-          address: address.address,
+          address: stripAddressPrefix(address.address),
           index: address.index,
         })) ?? [];
 
       const internalAddresses =
         addresses?.internalAddresses?.map((address) => ({
-          address: address.address,
+          address: stripAddressPrefix(address.address),
           index: address.index,
         })) ?? [];
 
