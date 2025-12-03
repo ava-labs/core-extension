@@ -13,6 +13,7 @@ import {
   BalanceServiceEvents,
   BalancesInfo,
   CachedBalancesInfo,
+  FeatureGates,
   priceChangeRefreshRate,
   PriceChangesData,
   TOKENS_PRICE_DATA,
@@ -182,7 +183,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       return { tokens: {}, atomic: {} };
     }
 
-    if (this.featureFlagService.featureFlags['balance-service-integration']) {
+    if (
+      this.featureFlagService.featureFlags[
+        FeatureGates.BALANCE_SERVICE_INTEGRATION
+      ]
+    ) {
       try {
         const getBalancesRequestBody = createGetBalancePayload(
           accounts,
@@ -489,7 +494,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     } as BalancesInfo);
 
     // trying to get the balances of all the accounts upon unlock if we have the balance service integration turned on
-    if (this.featureFlagService.featureFlags['balance-service-integration']) {
+    if (
+      this.featureFlagService.featureFlags[
+        FeatureGates.BALANCE_SERVICE_INTEGRATION
+      ]
+    ) {
       try {
         const accountsService = container.resolve(AccountsService);
         const networkService = container.resolve(NetworkService);
