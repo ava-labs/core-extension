@@ -1,4 +1,4 @@
-import { isEqual, partition, pick, merge } from 'lodash';
+import { isEqual, partition, get, merge } from 'lodash';
 import { container, singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
@@ -293,8 +293,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         return Object.keys(networkBalances).some((fetchedAddress) => {
           const pathToCheck = [chainId, fetchedAddress];
           return !isEqual(
-            pick(this.balances, pathToCheck),
-            pick(freshBalances.tokens, pathToCheck),
+            get(this.balances, pathToCheck),
+            get(freshBalances.tokens, pathToCheck),
           );
         });
       },
@@ -304,14 +304,15 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         return Object.keys(balances).some((fetchedAddress) => {
           const pathToCheck = [chainId, fetchedAddress];
           return !isEqual(
-            pick(this.atomicBalances, pathToCheck),
-            pick(freshBalances.atomic, pathToCheck),
+            get(this.atomicBalances, pathToCheck),
+            get(freshBalances.atomic, pathToCheck),
           );
         });
       },
     );
     const hasNftChanges = !isEqual(aggregatedNfts, this.nfts);
-    const hasChanges = hasBalanceChanges || hasNftChanges;
+    const hasChanges =
+      hasBalanceChanges || hasNftChanges || hasAtomicBalanceChanges;
 
     const aggregatedBalances = { ...this.balances };
     if (hasBalanceChanges) {
@@ -345,11 +346,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       }
     }
 
-    if (
-      cacheResponse &&
-      (hasChanges || hasAtomicBalanceChanges) &&
-      !this.lockService.locked
-    ) {
+    if (cacheResponse && hasChanges && !this.lockService.locked) {
       this.#balances = aggregatedBalances;
       this.#nfts = aggregatedNfts;
       this.#atomicBalances = aggregatedAtomicBalances;
