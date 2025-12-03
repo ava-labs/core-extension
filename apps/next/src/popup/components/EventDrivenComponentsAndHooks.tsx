@@ -7,6 +7,7 @@ import {
   LedgerIncorrectDevice,
 } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
+import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 
 /**
  * This is a container component where you can place event-driven global components
@@ -30,6 +31,7 @@ export const EventDrivenComponentsAndHooks: FC = () => {
     <>
       <LedgerRegisterBtcWalletPolicy />
       <LedgerIncorrectDevice />
+      <SeedlessAuthPrompt />
     </>
   );
 };
