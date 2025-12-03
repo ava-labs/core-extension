@@ -40,4 +40,5 @@ export const StyledTokenDetailsContent = styled(Box)(({ theme }) => ({
   paddingLeft: theme.spacing(1.5),
   display: 'flex',
   flexDirection: 'column',
+  marginBottom: theme.spacing(1.75),
 }));

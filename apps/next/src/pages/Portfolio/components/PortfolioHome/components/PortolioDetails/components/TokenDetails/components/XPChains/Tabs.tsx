@@ -18,6 +18,10 @@ const XPChainTabBar = styled(TabBar)(({ theme }) => ({
   },
 }));
 
+const StyledTabsContainer = styled(TabsContainer)(({ theme }) => ({
+  marginBottom: theme.spacing(-1.75),
+}));
+
 type Props = {
   activeTab: TabName;
   setActiveTab: (tab: TabName) => void;
@@ -38,13 +42,13 @@ export const XPChainsTabs: FC<Props> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <TabsContainer>
+    <StyledTabsContainer>
       <XPChainTabBar
         tabBarItems={TABS}
         value={activeTab}
         onChange={(_, val) => setActiveTab(val)}
         size="extension"
       />
-    </TabsContainer>
+    </StyledTabsContainer>
   );
 };

@@ -30,7 +30,7 @@ export const TokenDetails = () => {
   const { balances } = useBalancesContext();
 
   const { token, tokenBalance, tokenBalanceInCurrency, currency } =
-    useTokenDetails({ networkId, tokenAddress });
+    useTokenDetails({ networkId: preppedNetworkId, tokenAddress });
 
   // Show nothing while balances are loading
   if (balances.loading) {

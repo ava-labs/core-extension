@@ -1,5 +1,4 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { getAddressForChain } from '@core/common';
 import {
   useAccountsContext,
@@ -8,12 +7,14 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useMemo } from 'react';
+import { useToken } from './useToken';
+import { Network } from '@core/types';
 
 export function useTokenDetails({
   networkId,
   tokenAddress,
 }: {
-  networkId: string;
+  networkId: Network['chainId'];
   tokenAddress: string;
 }) {
   const {
@@ -21,22 +22,18 @@ export function useTokenDetails({
   } = useAccountsContext();
   const { balances } = useBalancesContext();
   const { getNetwork } = useNetworkContext();
+  const token = useToken(tokenAddress, networkId);
   const network = getNetwork(Number(networkId));
 
   const address = getAddressForChain(network, activeAccount);
-  const assets = useAllTokensFromEnabledNetworks(true, true);
   const { currencyFormatter, currency } = useSettingsContext();
 
-  const token = assets.find((asset) =>
-    asset.coreChainId === Number(networkId) && asset.type === TokenType.ERC20
-      ? asset.symbol.toLowerCase() === tokenAddress.toLowerCase()
-      : asset.coreChainId === Number(networkId) &&
-          asset.type === TokenType.NATIVE
-        ? asset.symbol.toLowerCase() === tokenAddress.toLowerCase()
-        : false,
-  );
+  const addressKey =
+    token?.type === TokenType.NATIVE
+      ? tokenAddress
+      : tokenAddress.toLowerCase();
 
-  const tokenBalance = balances.tokens?.[networkId]?.[address]?.[tokenAddress];
+  const tokenBalance = balances.tokens?.[networkId]?.[address]?.[addressKey];
 
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),
