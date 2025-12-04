@@ -5,9 +5,8 @@ export const Container = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(0.5),
-  width: '128px',
   minWidth: 0,
-  overflow: 'visible',
+  overflow: 'hidden',
 }));
 
 export const WalletSectionContainer = styled('div')<{
@@ -125,4 +124,12 @@ export const Label = styled(Typography)(() => ({
   whiteSpace: 'nowrap',
   zIndex: 1000,
   pointerEvents: 'none',
+}));
+
+// Text that fades out instead of showing ellipsis
+export const FadingText = styled(Typography)(() => ({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  maskImage: 'linear-gradient(to right, black 80%, transparent 100%)',
+  WebkitMaskImage: 'linear-gradient(to right, black 80%, transparent 100%)',
 }));

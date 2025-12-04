@@ -1,73 +1,27 @@
-import { useAccountsContext, useWalletContext } from '@core/ui';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useAccountsContext } from '@core/ui';
+import { useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { HeaderActions } from './components/HeaderActions';
 import {
   AccountInfo,
   AccountSelectContainer,
 } from './components/styledComponents';
 import { ConciergePrompt } from './ConciergePrompt';
-import { isImportedAccount, isPrimaryAccount } from '@core/common';
-import { AccountType, ImportedAccount } from '@core/types';
-import { HeaderWalletDetails } from './types';
-import { HeaderWallet } from './components/HeaderWallet';
 import { HeaderAccount } from './components/HeaderAccount';
 import { HeaderContainer, HeaderNavigationContainer } from './styled';
 import { useHeader } from './hooks/useHeader';
+import { PersonalAvatar } from '../PersonalAvatar';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
-  const { t } = useTranslation();
-  const { getWallet } = useWalletContext();
   const headerActionsRef = useRef<HTMLDivElement>(null);
   const { headerInfoWidth, isAccountInfoVisible } = useHeader(headerActionsRef);
-  // TODO: Pass _headerInfoWidth to HeaderAccount to constrain its width
   const activeAccount = accounts.active;
-  const activeWallet = isPrimaryAccount(activeAccount)
-    ? getWallet(activeAccount.walletId)
-    : undefined;
 
-  const getImportedWalletName = useCallback(
-    (acct: ImportedAccount) => {
-      switch (acct.type) {
-        case AccountType.IMPORTED:
-          return t(`Imported`);
-        case AccountType.WALLET_CONNECT:
-          return t(`WalletConnect`);
-        case AccountType.FIREBLOCKS:
-          return t(`Fireblocks`);
-      }
-    },
-    [t],
-  );
-
-  const headerWalletDetails: HeaderWalletDetails = useMemo(() => {
-    const walletId = activeWallet
-      ? activeWallet.id
-      : isImportedAccount(activeAccount)
-        ? activeAccount.id
-        : '';
-
-    const walletName = activeWallet
-      ? (activeWallet?.name ?? '')
-      : isImportedAccount(activeAccount)
-        ? getImportedWalletName(activeAccount as ImportedAccount)
-        : '';
-
-    return {
-      id: walletId,
-      name: walletName,
-      isTrueWallet: !!activeWallet,
-      type: activeWallet?.type,
-      authProvider: activeWallet?.authProvider,
-    };
-  }, [activeAccount, getImportedWalletName, activeWallet]);
   const location = useLocation();
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
 
-  const isWalletView =
-    location.pathname === `/wallet/${headerWalletDetails.id}`;
+  const isAccountView = location.pathname === `/portfolio`;
 
   return (
     <HeaderContainer>
@@ -78,13 +32,13 @@ export const Header = () => {
       >
         <AccountSelectContainer>
           <AccountInfo>
-            {isWalletView ? (
-              <HeaderWallet wallet={headerWalletDetails} />
-            ) : (
+            {isAccountView ? (
               <HeaderAccount
                 headerInfoWidth={headerInfoWidth}
                 isAccountInfoVisible={isAccountInfoVisible}
               />
+            ) : (
+              <PersonalAvatar size="xsmall" sx={{ mr: 1 }} />
             )}
           </AccountInfo>
         </AccountSelectContainer>

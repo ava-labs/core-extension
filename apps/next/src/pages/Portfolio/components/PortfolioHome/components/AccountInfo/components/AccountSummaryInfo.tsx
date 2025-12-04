@@ -4,13 +4,14 @@ import { useHistory } from 'react-router-dom';
 import { ClickableStack } from '../styled';
 import { AddressList } from '@/components/AddressList';
 import { Account } from '@core/types';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type Props = {
   account?: Account;
   accountName: string;
   formattedSum: string;
   currency: string;
+  onWidthChange?: (width: number) => void;
 };
 
 export const AccountSummaryInfo = ({
@@ -18,13 +19,37 @@ export const AccountSummaryInfo = ({
   accountName,
   formattedSum,
   currency,
+  onWidthChange,
 }: Props) => {
   const history = useHistory();
   const theme = useTheme();
   const [isAddressListHovered, setIsAddressListHovered] = useState(false);
   const [isAccountHovered, setIsAccountHovered] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element || !onWidthChange) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        onWidthChange(Math.ceil(entry.contentRect.width));
+      }
+    });
+
+    observer.observe(element);
+    onWidthChange(Math.ceil(element.getBoundingClientRect().width));
+
+    return () => observer.disconnect();
+  }, [onWidthChange]);
+
   return (
-    <Stack position="relative" overflow="visible">
+    <Stack
+      ref={containerRef}
+      position="relative"
+      overflow="visible"
+      sx={{ width: 'fit-content' }}
+    >
       <ClickableStack
         onClick={() => {
           history.push('/account-management');

@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { ClickableStack } from '../../PortfolioHome/components/AccountInfo/styled';
 import { useHistory } from 'react-router-dom';
+import { useWalletIconSize } from '@/hooks/useWalletIconSize';
 
 type Props = {
   walletType?: SecretType;
@@ -38,17 +39,7 @@ export const WalletBalance = ({
   const history = useHistory();
   const { currencyFormatter, currency } = useSettingsContext();
 
-  const walletIconSize = useMemo(() => {
-    if (!walletType) return 19;
-    return walletType === SecretType.LedgerLive ||
-      walletType === SecretType.Ledger ||
-      walletType === SecretType.Seedless
-      ? 19
-      : walletType === SecretType.Keystone ||
-          walletType === SecretType.Keystone3Pro
-        ? 17.6
-        : 26.5;
-  }, [walletType]);
+  const walletIconSize = useWalletIconSize(walletType, 'walletView');
 
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),
@@ -69,7 +60,7 @@ export const WalletBalance = ({
   ]);
 
   return (
-    <Stack ml={0.5} mb={1}>
+    <Stack mb={1}>
       <ClickableStack
         onClick={() => {
           history.push('/account-management');
