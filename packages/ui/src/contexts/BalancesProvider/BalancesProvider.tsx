@@ -282,6 +282,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
                 isLoading: false,
               },
             }));
+            return;
           }
 
           setAccountAtomicBalances((prevState) => ({
