@@ -191,7 +191,7 @@ export function NetworkFeeContextProvider({ children }: PropsWithChildren) {
     setIsGaslessEligible(false);
     setIsGaslessOn(false);
     return request<SetDefaultStateValuesHandler>({
-      method: ExtensionRequest.GASLESS_SET_DEFAUlT_STATE_VALUES,
+      method: ExtensionRequest.GASLESS_SET_DEFAULT_STATE_VALUES,
     });
   }, [request]);
 

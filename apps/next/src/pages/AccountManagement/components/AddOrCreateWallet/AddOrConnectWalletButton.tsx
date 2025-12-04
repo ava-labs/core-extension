@@ -1,7 +1,7 @@
+import AddIcon from '@/components/AddIcon';
 import { IconButton } from '@avalabs/k2-alpine';
 import { useAccountManager } from '@core/ui';
 import { FC } from 'react';
-import { MdAdd } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 
 export const AddOrConnectWalletButton: FC = () => {
@@ -16,8 +16,9 @@ export const AddOrConnectWalletButton: FC = () => {
     <IconButton
       size="medium"
       onClick={() => push('/account-management/add-wallet')}
+      color="primary"
     >
-      <MdAdd size={24} />
+      <AddIcon />
     </IconButton>
   );
 };

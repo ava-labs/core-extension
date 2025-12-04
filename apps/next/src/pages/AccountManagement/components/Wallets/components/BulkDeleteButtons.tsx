@@ -22,6 +22,7 @@ export const BulkDeleteButtons: FC = () => {
             variant="contained"
             size="xsmall"
             color="secondary"
+            sx={{ fontSize: '11px' }}
             onClick={() => {
               toggleManageMode();
               setShowButtons(true);

@@ -24,7 +24,9 @@ export const SettingsCard: FC<SettingsCardProps> = ({
         )}
       </Stack>
 
-      <List component="nav">{children}</List>
+      <List component="nav" sx={{ paddingBottom: 0 }}>
+        {children}
+      </List>
     </StyledCard>
   );
 };
