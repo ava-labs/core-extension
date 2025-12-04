@@ -350,9 +350,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/k2-alpine@npm:1.235.0":
-  version: 1.235.0
-  resolution: "@avalabs/k2-alpine@npm:1.235.0"
+"@avalabs/k2-alpine@npm:0.0.0-main-1bf4d66":
+  version: 0.0.0-main-1bf4d66
+  resolution: "@avalabs/k2-alpine@npm:0.0.0-main-1bf4d66"
   dependencies:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
@@ -361,14 +361,14 @@ __metadata:
     dayjs: "npm:^1.11.13"
     lodash-es: "npm:4.17.21"
     react-country-flag: "npm:3.1.0"
-    react-day-picker: "npm:^9.7.0"
+    react-day-picker: "npm:^9.9.0"
     sonner: "npm:^2.0.3"
   peerDependencies:
     motion: ^12.5.0
     react: ^19.0.0
     react-dom: ^19.0.0
     react-icons: ^5.4.0
-  checksum: 10c0/707eced8a96663c839569ab5f1714094d15eaa915fd4091ab449f398b0c85583b0814428aeca8f96401062137ec2db73bd98db7e96a1a4abf5e15137c0f2945a
+  checksum: 10c0/aef22c22fe6626c8f50ae3338a8d84ccd0c38cc972a171889a71d2223df052897a4d120db1982def4c5dfc6434544268a6c96191cbf23c58195eba55a4aa4f98
   languageName: node
   linkType: hard
 
@@ -3866,7 +3866,7 @@ __metadata:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.67"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.67"
-    "@avalabs/k2-alpine": "npm:1.235.0"
+    "@avalabs/k2-alpine": "npm:0.0.0-main-1bf4d66"
     "@avalabs/types": "npm:3.1.0-alpha.67"
     "@avalabs/vm-module-types": "npm:2.2.1"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
@@ -4642,10 +4642,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@date-fns/tz@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@date-fns/tz@npm:1.2.0"
-  checksum: 10c0/411e9d4303b10951f6fd0189d18fb845f0d934a575df2176bc10daf664282c765fb6b057a977e446bbb1229151d89e7788978600a019f1fc24b5c75276d496bd
+"@date-fns/tz@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "@date-fns/tz@npm:1.4.1"
+  checksum: 10c0/9033fdc4682fe3d4d147625ce04fa88a8792653594e2de8d5a438c8f3bfc0990ee28fe773f91cac6810b06d818b5b281ae0608752ba8337257d0279ded3f019a
   languageName: node
   linkType: hard
 
@@ -30118,16 +30118,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:^9.7.0":
-  version: 9.8.1
-  resolution: "react-day-picker@npm:9.8.1"
+"react-day-picker@npm:^9.9.0":
+  version: 9.11.3
+  resolution: "react-day-picker@npm:9.11.3"
   dependencies:
-    "@date-fns/tz": "npm:^1.2.0"
+    "@date-fns/tz": "npm:^1.4.1"
     date-fns: "npm:^4.1.0"
     date-fns-jalali: "npm:^4.1.0-0"
   peerDependencies:
     react: ">=16.8.0"
-  checksum: 10c0/389b5f120cc3d8588d5e3e7bdb1973ac4b4610781ec9c2fc2d7c340ce558e1338487742609222da89cd07334afafd366fa8ec04ac7b75224612c201f02a510c1
+  checksum: 10c0/762ff93d9a143d6e52b5839991fea5ed038073dbca263e57e2f28c26a783864589c1ff31744a835f388e8c1af328392131702397be0ffd048d8255297aa78a48
   languageName: node
   linkType: hard
 

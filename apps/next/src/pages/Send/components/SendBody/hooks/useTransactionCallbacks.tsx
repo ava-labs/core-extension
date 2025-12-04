@@ -48,7 +48,7 @@ const ExplorerLink = ({
 }) => (
   <IconButton
     size="small"
-    sx={{ color: 'background.default' }}
+    sx={{ color: 'background.default', padding: 0 }}
     onClick={() => {
       toast.dismiss(TOAST_ID);
       openNewTab({
@@ -56,6 +56,6 @@ const ExplorerLink = ({
       });
     }}
   >
-    <ChevronRightIcon />
+    <ChevronRightIcon size={18} />
   </IconButton>
 );

@@ -44,7 +44,7 @@ export const useSwapCallbacks = () => {
         action: (
           <IconButton
             size="small"
-            sx={{ color: 'background.default' }}
+            sx={{ color: 'background.default', padding: 0 }}
             onClick={() => {
               toast.dismiss(RESULT_TOAST_ID);
               openNewTab({
@@ -52,7 +52,7 @@ export const useSwapCallbacks = () => {
               });
             }}
           >
-            <ChevronRightIcon />
+            <ChevronRightIcon size={18} />
           </IconButton>
         ),
       });

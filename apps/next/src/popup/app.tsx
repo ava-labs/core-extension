@@ -129,6 +129,7 @@ export function App() {
         Children.toArray([
           <ThemeProvider
             theme={isDeveloperMode ? 'dark' : preferredColorScheme}
+            toastVariant="extension"
           />,
           <QueryClientProvider client={queryClient} />,
           <ConfettiProvider />,
