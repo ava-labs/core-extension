@@ -19,8 +19,6 @@ const HeaderAccountContent: FC<Props> = ({
   headerInfoWidth,
   isAccountInfoVisible,
 }) => {
-  console.log('headerInfoWidth', headerInfoWidth);
-  console.log('isAccountInfoVisible', isAccountInfoVisible);
   const theme = useTheme();
   const history = useHistory();
   const { walletSummary, account } = useActiveAccountInfo();
@@ -52,7 +50,7 @@ const HeaderAccountContent: FC<Props> = ({
           sx={{
             p: 0.5,
             backgroundColor: 'background.navBarItem',
-            borderRadius: 2,
+            borderRadius: 1,
             my: 0.5,
             maxWidth: '100%',
             overflow: 'hidden',
@@ -79,13 +77,13 @@ const HeaderAccountContent: FC<Props> = ({
               <FadingText
                 variant="caption2"
                 color="text.secondary"
-                sx={{ lineHeight: 1.2 }}
+                sx={{ lineHeight: 1 }}
               >
                 {walletSummary.name}
               </FadingText>
             </Stack>
 
-            <FadingText variant="body2" sx={{ lineHeight: 1.2 }}>
+            <FadingText variant="body2" sx={{ lineHeight: 1, mt: -0.25 }}>
               {account?.name}
             </FadingText>
           </Stack>

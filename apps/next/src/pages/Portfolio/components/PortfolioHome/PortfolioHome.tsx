@@ -84,7 +84,7 @@ export const PortfolioHome: FC = () => {
           isDeveloperMode ? TESTNET_MODE_BACKGROUND_COLOR : 'background.default'
         }
       >
-        <Stack gap={1.5} px={1.5} flexGrow={1}>
+        <Stack gap={2.5} px={1.5} flexGrow={1}>
           <AccountInfo
             account={accounts.active}
             balance={totalBalance}
