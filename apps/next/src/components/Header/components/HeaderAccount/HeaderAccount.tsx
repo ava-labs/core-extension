@@ -4,11 +4,10 @@ import { AddressList } from '@/components/AddressList';
 import { Container, FadingText } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 import { Stack, useTheme } from '@avalabs/k2-alpine';
 import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
-import { useWalletIconSize } from '@/hooks/useWalletIconSize';
 
 type Props = {
   headerInfoWidth: number;
@@ -23,7 +22,6 @@ const HeaderAccountContent: FC<Props> = ({
   const history = useHistory();
   const { walletSummary, account } = useActiveAccountInfo();
   const containerRef = useRef<HTMLDivElement>(null);
-  const walletIconSize = useWalletIconSize(walletSummary?.type, 'header');
 
   const [isAccountHovered, setIsAccountHovered] = useState(false);
   const [isAddressListHovered, setIsAddressListHovered] = useState(false);
@@ -40,7 +38,9 @@ const HeaderAccountContent: FC<Props> = ({
       ref={containerRef}
       sx={{ maxWidth: headerInfoWidth, width: 'fit-content' }}
     >
-      {isAccountInfoVisible && <PersonalAvatar size="xsmall" sx={{ mr: 1 }} />}
+      {isAccountInfoVisible && (
+        <PersonalAvatar size="xsmall" sx={{ mr: 1, ml: 0.5 }} />
+      )}
 
       {walletSummary && account && !isAccountInfoVisible && (
         <Stack
@@ -69,9 +69,11 @@ const HeaderAccountContent: FC<Props> = ({
             <Stack direction="row" alignItems="center" gap={0.5}>
               <div style={{ flexShrink: 0 }}>
                 <WalletIcon
-                  size={walletIconSize}
+                  size={16}
                   type={walletSummary.type}
                   authProvider={walletSummary.authProvider}
+                  color={theme.palette.text.secondary}
+                  expanded={true}
                 />
               </div>
               <FadingText

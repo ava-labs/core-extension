@@ -18,7 +18,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { RenamableTitle } from '../../pages/AccountManagement/components/RenamableTitle';
 import * as Styled from './Styled';
-import { WalletIconProps } from '@/components/WalletIcon';
+import { WalletIconProps } from '@/components/WalletIcon/WalletIcon';
 import { useHistory } from 'react-router-dom';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 interface WalletCardProps extends PropsWithChildren {

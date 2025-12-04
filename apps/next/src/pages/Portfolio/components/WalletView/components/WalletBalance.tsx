@@ -1,4 +1,4 @@
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 import {
   CircularProgress,
   Stack,
@@ -8,16 +8,14 @@ import {
 import { BalanceChange } from '../../BalanceChange';
 import { MdError, MdUnfoldMore } from 'react-icons/md';
 import { Trans } from 'react-i18next';
-import { SecretType, SeedlessAuthProvider } from '@core/types';
+import { SecretType } from '@core/types';
 import { useMemo } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { ClickableStack } from '../../PortfolioHome/components/AccountInfo/styled';
 import { useHistory } from 'react-router-dom';
-import { useWalletIconSize } from '@/hooks/useWalletIconSize';
 
 type Props = {
   walletType?: SecretType;
-  walletAuthProvider?: SeedlessAuthProvider;
   walletName?: string;
   isLoading: boolean;
   hasErrorOccurred: boolean;
@@ -27,7 +25,6 @@ type Props = {
 };
 export const WalletBalance = ({
   walletType,
-  walletAuthProvider,
   walletName,
   isLoading,
   hasErrorOccurred,
@@ -38,8 +35,6 @@ export const WalletBalance = ({
   const theme = useTheme();
   const history = useHistory();
   const { currencyFormatter, currency } = useSettingsContext();
-
-  const walletIconSize = useWalletIconSize(walletType, 'walletView');
 
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),
@@ -71,16 +66,11 @@ export const WalletBalance = ({
         <Stack
           direction="row"
           alignItems="center"
-          gap={1}
           color="text.secondary"
           sx={{ minWidth: 0 }}
         >
-          <div style={{ flexShrink: 0 }}>
-            <WalletIcon
-              size={walletIconSize}
-              type={walletType}
-              authProvider={walletAuthProvider}
-            />
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+            <WalletIcon size={27} type={walletType} expanded={true} />
           </div>
 
           <Typography

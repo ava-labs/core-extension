@@ -5,7 +5,7 @@ import {
   TextWrapper,
   WalletSectionContainer,
 } from '../styled';
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 import { useTranslation } from 'react-i18next';
 import { FC } from 'react';
 import { HeaderWalletDetails } from '../../../types';

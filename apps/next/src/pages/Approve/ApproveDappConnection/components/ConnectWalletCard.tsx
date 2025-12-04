@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 import { WalletCard } from '@/components/WalletCard/WalletCard';
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 
 import { ConnectWalletCardProps, WalletToConnectState } from '../types';
 import {

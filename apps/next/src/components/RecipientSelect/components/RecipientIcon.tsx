@@ -5,7 +5,7 @@ import { SecretType } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
 import { useWalletContext } from '@core/ui';
 
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 import { HexagonalIcon } from '@/components/HexagonalIcon';
 
 import { Recipient } from '../types';

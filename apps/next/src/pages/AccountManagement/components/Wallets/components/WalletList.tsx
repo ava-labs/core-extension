@@ -4,7 +4,7 @@ import { FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountListItem } from './AccountListItem';
 import { WalletCard } from '@/components/WalletCard';
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 import * as Styled from './Styled';
 import { useLedgerContext } from '@core/ui';
 import { AddAccountButton } from '../../AddOrCreateWallet/AddAccountButton';

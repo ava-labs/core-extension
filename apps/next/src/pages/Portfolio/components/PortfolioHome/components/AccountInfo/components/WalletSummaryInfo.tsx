@@ -2,10 +2,9 @@ import { Typography, useTheme } from '@avalabs/k2-alpine';
 import { WalletSummary } from '@/hooks/useActiveAccountInfo';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { WalletIcon } from '@/components/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
 import { MdNavigateNext } from 'react-icons/md';
 import { ClickableStack } from '../styled';
-import { useWalletIconSize } from '@/hooks/useWalletIconSize';
 
 type Props = {
   walletSummary?: WalletSummary;
@@ -16,7 +15,6 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
   const history = useHistory();
   const theme = useTheme();
   const [isWalletHovered, setIsWalletHovered] = useState(false);
-  const walletIconSize = useWalletIconSize(walletSummary?.type, 'header');
 
   if (!walletSummary) return null;
 
@@ -33,11 +31,20 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
         history.push(`/wallet/${walletSummary.id}`);
       }}
     >
-      <div style={{ flexShrink: 0, height: 16, marginRight: 4 }}>
+      <div
+        style={{
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+          marginRight: 4,
+        }}
+      >
         <WalletIcon
-          size={walletIconSize}
+          size={16}
           type={walletSummary.type}
           authProvider={walletSummary.authProvider}
+          color={theme.palette.text.secondary}
+          expanded={true}
         />
       </div>
       <Typography
