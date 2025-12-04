@@ -1,8 +1,8 @@
+import CheckIcon from '@/components/CheckIcon';
 import { Checkbox as K2Checkbox, Slide } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { useAccountManager } from '@core/ui';
 import { FC, useState } from 'react';
-import { MdCheck } from 'react-icons/md';
 
 interface Props {
   account: Account;
@@ -40,7 +40,7 @@ export const AccountListCheckbox: FC<Props> = ({ account, active }) => {
         unmountOnExit
         onExited={() => setShowCheckbox(true)}
       >
-        <MdCheck size={20} color={active ? 'currentColor' : 'transparent'} />
+        <CheckIcon size={11} color={active ? 'currentColor' : 'transparent'} />
       </Slide>
     </>
   );
