@@ -56,7 +56,7 @@ export const SelectButton = <T,>({
         onClick={handleClick}
         data-testid={dataTestId}
         endIcon={
-          <MdOutlineUnfoldMore size={16} color={theme.palette.text.secondary} />
+          <MdOutlineUnfoldMore size={20} color={theme.palette.text.secondary} />
         }
         {...props}
         sx={{
