@@ -97,6 +97,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     },
     getFavoriteNetworks: () => [2, 3, 4],
   } as any;
+  const addressResolverMock = {} as any;
 
   const account1: Account = {
     id: 'account1-id',
@@ -214,6 +215,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         settingsServiceMock,
         featureFlagServiceMock,
         mockSecretsService,
+        addressResolverMock,
       );
     });
 
@@ -446,6 +448,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         settingsServiceMock,
         featureFlagServiceMock,
         mockSecretsService,
+        addressResolverMock,
       );
     });
 
