@@ -19,7 +19,7 @@ const AccountInfoVisibilityContext =
 export const AccountInfoVisibilityProvider = ({
   children,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
 }) => {
   const [isAccountInfoVisible, setIsAccountInfoVisible] = useState(false);
   const [element, setElement] = useState<HTMLDivElement | null>(null);
