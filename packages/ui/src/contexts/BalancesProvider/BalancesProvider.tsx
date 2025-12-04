@@ -273,6 +273,17 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         },
       })
         .then((atomicBalance) => {
+          if (!atomicBalance) {
+            setAccountAtomicBalances((prevState) => ({
+              ...prevState,
+              [accountId]: {
+                ...prevState[accountId],
+                hasErrorOccurred: false,
+                isLoading: false,
+              },
+            }));
+          }
+
           setAccountAtomicBalances((prevState) => ({
             ...prevState,
             [accountId]: {
