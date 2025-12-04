@@ -1,4 +1,5 @@
 import { useLocalStorage } from '@core/ui';
+import { omit } from 'lodash';
 import { useCallback } from 'react';
 
 const STORAGE_KEY = 'dapp-scan-cache';
@@ -6,29 +7,38 @@ const STORAGE_KEY = 'dapp-scan-cache';
 export const useDappScansCache = () => {
   const { get, set } = useLocalStorage();
 
-  const getResult = useCallback(
-    async (dAppURL: string) => {
+  const isMaliciousDapp = useCallback(
+    async (dappDomain: string) => {
       const results =
-        await get<Record<string, { isMalicious: boolean }>>(STORAGE_KEY);
+        await get<Record<string, boolean | undefined>>(STORAGE_KEY);
 
-      return results?.[dAppURL];
+      return Boolean(results?.[dappDomain]);
     },
     [get],
   );
 
-  const setResult = useCallback(
-    async (dAppURL: string, isMalicious: boolean) => {
+  const removeMaliciousDappDomain = useCallback(
+    async (dappDomain: string) => {
+      const results = await get<Record<string, boolean>>(STORAGE_KEY);
+      await set(STORAGE_KEY, omit(results, dappDomain));
+    },
+    [get, set],
+  );
+
+  const storeMaliciousDappDomain = useCallback(
+    async (dappDomain: string) => {
       const results = await get<Record<string, boolean>>(STORAGE_KEY);
 
       await set(STORAGE_KEY, {
         ...results,
-        [dAppURL]: isMalicious,
+        [dappDomain]: true,
       });
     },
     [get, set],
   );
   return {
-    setResult,
-    getResult,
+    isMaliciousDapp,
+    removeMaliciousDappDomain,
+    storeMaliciousDappDomain,
   };
 };

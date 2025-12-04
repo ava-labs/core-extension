@@ -2,7 +2,6 @@ import { useConnectedSites } from '@/hooks/useConnectedSites';
 import {
   Button,
   Divider,
-  getHexAlpha,
   IconButton,
   Popover,
   Stack,
@@ -12,17 +11,16 @@ import {
 import { getAllAddressesForAccount } from '@core/common';
 import { Account } from '@core/types';
 import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  MdCheckCircle,
   MdChevronRight,
   MdError,
   MdOutlineRemoveModerator,
-  MdOutlineUnpublished,
 } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { StackRow } from '../StackRow';
+import { useDappScansCache } from '@/hooks/useDappScansCache';
 
 interface ConnectedSitesProps {
   activeAccount?: Account;
@@ -33,6 +31,7 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
   const domain = useCurrentDomain();
   const { disconnectSite, connectedSites, isDomainConnectedToAccount } =
     useConnectedSites();
+  const { isMaliciousDapp } = useDappScansCache();
 
   const theme = useTheme();
   const { t } = useTranslation();
@@ -57,24 +56,26 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
   const connectedSitesPopoverOpen = !!connectedSitesAnchorEl;
   const popoverHeadline =
     theme.palette.mode === 'dark'
-      ? theme.palette.common['white_10']
-      : theme.palette.neutral['850_10'];
+      ? theme.palette.neutral['50']
+      : theme.palette.neutral['900'];
 
-  const popoverBackground =
-    theme.palette.mode === 'dark'
-      ? theme.palette.neutral['850_90']
-      : theme.palette.common['white_60'];
+  const [isDomainMalicious, setIsDomainMalicious] = useState(false);
 
-  // TODO: implement a getter for the dApp property `isDomainMalicious`
-  const isDomainMalicious = false;
+  useEffect(() => {
+    if (!domain || !activeAccount) {
+      return;
+    }
+
+    isMaliciousDapp(domain).then(setIsDomainMalicious);
+  }, [domain, activeAccount, isMaliciousDapp]);
+
+  if (!isDomainMalicious || !isConnected) {
+    return null;
+  }
 
   return (
     <Stack>
       <IconButton size="small" onClick={handleConnectedSitesClick}>
-        {isConnected && !isDomainMalicious && (
-          <MdCheckCircle size={24} color={theme.palette.success.main} />
-        )}
-        {!isConnected && <MdOutlineUnpublished size={24} />}
         {isConnected && isDomainMalicious && (
           <MdError size={24} color={theme.palette.error.main} />
         )}
@@ -95,90 +96,51 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
           paper: {
             style: {
               width: '300px',
-              background: popoverBackground,
-              border: `1px solid ${getHexAlpha(theme.palette.primary.main, 10)}`,
+              backgroundColor: theme.palette.text.primary,
             },
           },
         }}
       >
         <Stack width={1}>
-          {isConnected && isDomainMalicious && (
-            <StackRow
-              sx={{
-                padding: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: popoverHeadline,
-                gap: 1,
+          <StackRow
+            sx={{
+              padding: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              background: popoverHeadline,
+              gap: 1,
+            }}
+            color="error.main"
+          >
+            <MdOutlineRemoveModerator color="currentColor" size={18} />
+            <Typography variant="subtitle3">
+              {t('Flagged as malicious. Disconnect now!')}
+            </Typography>
+          </StackRow>
+          <StackRow
+            sx={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: 1.2,
+            }}
+          >
+            <Typography variant="subtitle3" color="text.primary">
+              {domain}
+            </Typography>
+            <Button
+              variant="contained"
+              size="xsmall"
+              color="error"
+              onClick={() => {
+                disconnectSite(domain!, activeAccount);
               }}
             >
-              <MdOutlineRemoveModerator
-                color={theme.palette.error.light}
-                size={18}
-              />
-              <Typography color={theme.palette.error.light}>
-                {t('Flagged as malicious. Disconnect now!')}
-              </Typography>
-            </StackRow>
-          )}
-          {isConnected && (
-            <StackRow
-              sx={{
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: 1.2,
-              }}
-            >
-              <Stack>
-                <Typography color={theme.palette.text.primary}>
-                  {domain}
-                </Typography>
-                <Typography color={theme.palette.success.light}>
-                  {t('Connected')}
-                </Typography>
-              </Stack>
-              <Button
-                onClick={() => {
-                  disconnectSite(domain!, activeAccount);
-                }}
-                sx={{
-                  '&.MuiButton-root.MuiButton-text': {
-                    background: theme.palette.error.main,
-                    color: theme.palette.common.white,
-                    '&:hover': {
-                      background: getHexAlpha(theme.palette.error.main, 80),
-                    },
-                  },
-                }}
-              >
+              <Typography variant="subtitle3" color="text.primary">
                 {t('Disconnect')}
-              </Button>
-            </StackRow>
-          )}
-          {!isConnected && (
-            <StackRow
-              sx={{
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: 1.2,
-              }}
-            >
-              <Stack>
-                <Typography color={theme.palette.text.primary}>
-                  {domain}
-                </Typography>
-                <Typography color={theme.palette.text.secondary}>
-                  {t('Locate the connect button on their site')}
-                </Typography>
-                <Typography color={theme.palette.error.light}>
-                  {t('Not connected')}
-                </Typography>
-              </Stack>
-            </StackRow>
-          )}
-          <Divider
-            sx={{ borderColor: getHexAlpha(theme.palette.primary.main, 10) }}
-          />
+              </Typography>
+            </Button>
+          </StackRow>
+          <Divider />
           <StackRow
             onClick={() => push('/settings/connected-sites')}
             role="button"
@@ -191,12 +153,12 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
               alignItems: 'center',
             }}
           >
-            <Typography color={theme.palette.text.primary}>
+            <Typography color="text.primary">
               {t('View All Connected Sites')}
             </Typography>
             <StackRow
               sx={{
-                color: theme.palette.text.primary,
+                color: 'text.primary',
                 alignItems: 'center',
               }}
             >

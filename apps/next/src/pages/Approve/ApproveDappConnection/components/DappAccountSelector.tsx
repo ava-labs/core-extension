@@ -41,7 +41,7 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
     accountSettings,
     numberOfSelectedAccounts,
   } = useDappPermissionsState(activeAccount, permissions, action.displayData);
-  const { setResult } = useDappScansCache();
+  const { storeMaliciousDappDomain } = useDappScansCache();
 
   const onApproveClicked = useCallback(async () => {
     if (!numberOfSelectedAccounts) {
@@ -54,7 +54,7 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
 
     // If the app is malicious, save this data for later use.
     if (action.displayData.isMalicious) {
-      setResult(action.displayData.dappUrl, true);
+      storeMaliciousDappDomain(action.displayData.dappDomain);
     }
 
     updateAction({
@@ -67,9 +67,9 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
     accountSettings,
     updateAction,
     action.actionId,
-    action.displayData.dappUrl,
+    action.displayData.dappDomain,
     action.displayData.isMalicious,
-    setResult,
+    storeMaliciousDappDomain,
   ]);
 
   return (

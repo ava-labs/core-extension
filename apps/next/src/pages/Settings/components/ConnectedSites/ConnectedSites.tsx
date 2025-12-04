@@ -9,6 +9,7 @@ import { useConnectedSites } from '@/hooks/useConnectedSites';
 import { useUrlPersistedQuery } from '@/hooks/useUrlPersistedQuery';
 import { Account } from '@core/types';
 import { ConnectedSiteItem, EmptyConnectedSites, Styled } from './components';
+import { useDappScansCache } from '@/hooks/useDappScansCache';
 
 export const ConnectedSites: FC = () => {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export const ConnectedSites: FC = () => {
 
   const { selectedAccount, connectedSites, selectAccount, disconnectSite } =
     useConnectedSites();
+  const { removeMaliciousDappDomain } = useDappScansCache();
 
   const filteredSites = useMemo(() => {
     if (!searchQuery?.trim()) {
@@ -43,13 +45,14 @@ export const ConnectedSites: FC = () => {
     async (domain: string) => {
       try {
         await disconnectSite(domain, selectedAccount);
+        await removeMaliciousDappDomain(domain);
         toast.success(t('Disconnected from {{domain}}', { domain }));
       } catch (error) {
         console.error('Failed to disconnect:', error);
         toast.error(t('Failed to disconnect from site'));
       }
     },
-    [disconnectSite, selectedAccount, t],
+    [disconnectSite, selectedAccount, t, removeMaliciousDappDomain],
   );
 
   const connectedSitesCount = connectedSites.length;
