@@ -33,9 +33,9 @@ export const AccountRecipientItem: FC<AccountRecipientItemProps> = ({
 }) => {
   const { t } = useTranslation();
   const { getWallet } = useWalletContext();
-
-  const { accounts } = useAccountsContext();
-  const activeAccount = accounts.active;
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
   const activeWalletId = isPrimaryAccount(activeAccount)
     ? activeAccount.walletId
     : null;

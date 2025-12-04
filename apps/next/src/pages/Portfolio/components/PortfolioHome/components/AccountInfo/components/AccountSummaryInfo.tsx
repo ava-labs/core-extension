@@ -74,6 +74,7 @@ export const AccountSummaryInfo = ({
         activeAccount={account}
         onMouseEnter={() => setIsAddressListHovered(true)}
         onMouseLeave={() => setIsAddressListHovered(false)}
+        top="100%"
       />
     </Stack>
   );

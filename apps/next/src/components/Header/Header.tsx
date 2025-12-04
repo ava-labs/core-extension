@@ -20,9 +20,10 @@ export const Header = () => {
 
   const location = useLocation();
   const [isAIBackdropOpen, setIsAIBackdropOpen] = useState(false);
-
   const isAccountView =
-    location.pathname === '/' || location.pathname === '/portfolio';
+    location.pathname === '/' ||
+    location.pathname === '/portfolio' ||
+    location.pathname === '/home';
 
   return (
     <HeaderContainer>
