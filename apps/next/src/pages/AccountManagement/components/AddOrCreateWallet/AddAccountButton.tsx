@@ -1,8 +1,8 @@
 import { Button, Stack, toast } from '@avalabs/k2-alpine';
 import { FC } from 'react';
-import { MdAdd } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { useAccountsContext } from '@core/ui';
+import AddIcon from '@/components/AddIcon';
 
 export const AddAccountButton: FC = () => {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export const AddAccountButton: FC = () => {
             })
         }
       >
-        <MdAdd size={20} />
+        <AddIcon size={12} />
         {t('Add account')}
       </Button>
     </Stack>
