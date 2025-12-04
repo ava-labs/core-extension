@@ -92,6 +92,7 @@ describe('utils', () => {
   describe('createGetBalancePayload', () => {
     it('Should return the expected payload', async () => {
       const mockSecretsService = { getAvalancheExtendedPublicKey: jest.fn() };
+      const mockAddressResolver = { getXPAddressesForAccountIndex: jest.fn() };
       mockSecretsService.getAvalancheExtendedPublicKey.mockResolvedValue({
         key: 'xpub1',
       });
@@ -103,10 +104,31 @@ describe('utils', () => {
               'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo',
               'imji8papUf2EhV3le337w1vgFauqkJg-',
             ],
+            addressDetails: [],
             extendedPublicKeyDetails: [
               {
                 extendedPublicKey: 'xpub1',
                 id: 'avax111',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                id: 'avax112',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                id: 'avax121',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                id: 'avax122',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                id: 'avax123',
+              },
+              {
+                extendedPublicKey: 'xpub1',
+                id: 'avax124',
               },
             ],
           },
@@ -117,6 +139,26 @@ describe('utils', () => {
               {
                 addresses: ['avax1aa'],
                 id: 'avax1aa',
+              },
+              {
+                addresses: ['avax1ab'],
+                id: 'avax1ab',
+              },
+              {
+                addresses: ['avax1ba'],
+                id: 'avax1ba',
+              },
+              {
+                addresses: ['avax1bb'],
+                id: 'avax1bb',
+              },
+              {
+                addresses: ['avax1bc'],
+                id: 'avax1bc',
+              },
+              {
+                addresses: ['avax1bd'],
+                id: 'avax1bd',
               },
             ],
           },
@@ -143,6 +185,7 @@ describe('utils', () => {
         accounts: payload.accounts as Account[],
         chainIds: payload.chainIds,
         secretsService: mockSecretsService as any,
+        addressResolver: mockAddressResolver as any,
       });
 
       expect(actual).toEqual(expected);
