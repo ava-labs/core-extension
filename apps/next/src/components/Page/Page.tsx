@@ -55,7 +55,14 @@ export const Page = ({
         title={title}
       />
       <NoScrollStack>
-        <Stack px={px ?? 1.5} pb={1.5} gap={3} flexGrow={1} {...containerProps}>
+        <Stack
+          px={px ?? 1.5}
+          pb={1.5}
+          gap={3}
+          mt={3}
+          flexGrow={1}
+          {...containerProps}
+        >
           {title && (
             <Stack gap={1}>
               <Stack

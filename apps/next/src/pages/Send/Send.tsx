@@ -121,6 +121,7 @@ export const Send = () => {
           onQueryChange={(q) =>
             updateQueryParam(searchParams, { fromQuery: q })
           }
+          isBalanceVisible={false}
         />
         <Card>
           <TokenAmountInput

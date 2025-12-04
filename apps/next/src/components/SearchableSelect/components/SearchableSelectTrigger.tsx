@@ -1,10 +1,10 @@
 import {
   Box,
-  ChevronRightIcon,
   Stack,
   StackProps,
   styled,
   Typography,
+  ArrowRightIcon,
 } from '@avalabs/k2-alpine';
 
 import { Card } from '@/components/Card';
@@ -26,7 +26,7 @@ export function SearchableSelectTrigger<T>({
           {renderValue(value)}
         </LabelAndValueWrapper>
         <Box display="flex" flexShrink={0} lineHeight={1}>
-          <ChevronRightIcon size={20} />
+          <ArrowRightIcon size={20} color="text.secondary" />
         </Box>
       </Container>
     </Card>

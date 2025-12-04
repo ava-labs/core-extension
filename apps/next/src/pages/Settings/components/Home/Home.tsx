@@ -78,9 +78,6 @@ export const SettingsHomePage = () => {
       description={t(
         'Manage and customize your Core experience to your liking.',
       )}
-      containerProps={{
-        mt: 3,
-      }}
       withBackButton
       onBack={() => {
         push('/');
