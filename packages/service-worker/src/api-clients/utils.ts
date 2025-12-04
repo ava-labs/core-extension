@@ -29,8 +29,10 @@ import {
   NotAvalancheRequestItem,
 } from '~/api-clients/types';
 import {
+  mapAvmTokenBalance,
   mapErc20TokenBalance,
   mapNativeTokenBalance,
+  mapPvmTokenBalance,
   mapSplTokenBalance,
 } from '~/api-clients/mappers';
 import {
@@ -243,7 +245,6 @@ export const createGetBalancePayload = async ({
                 'AVM',
               );
           const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
-          console.log('DEBUG', account, address);
 
           if (!xpub && !address && !legacyAddresses.externalAddresses.length) {
             return null;
@@ -463,9 +464,7 @@ export const convertBalanceResponsesToCacheBalanceObject = (
           [accountKey]: {
             ...(accumulator[chainId]?.[accountKey] ?? {}),
             [balanceResponse.balances.nativeTokenBalance.symbol]:
-              mapNativeTokenBalance(
-                balanceResponse.balances.nativeTokenBalance,
-              ),
+              mapPvmTokenBalance(balanceResponse),
           },
         },
       };
@@ -481,9 +480,7 @@ export const convertBalanceResponsesToCacheBalanceObject = (
           [accountKey]: {
             ...(accumulator[chainId]?.[accountKey] ?? {}),
             [balanceResponse.balances.nativeTokenBalance.symbol]:
-              mapNativeTokenBalance(
-                balanceResponse.balances.nativeTokenBalance,
-              ),
+              mapAvmTokenBalance(balanceResponse),
           },
         },
       };
