@@ -11,6 +11,7 @@ import {
   LoadingWalletCard,
   ReadyWalletCard,
 } from './wallet-cards';
+import { useAccountsContext } from '@core/ui';
 
 const ComponentByState: Record<
   WalletToConnectState,
@@ -25,6 +26,13 @@ const ComponentByState: Record<
 
 export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
   const { wallet, initiallyExpanded } = props;
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+
+  const isActiveWallet = wallet.accounts.some(
+    (account) => account.id === activeAccount?.id,
+  );
 
   const ContentComponent = ComponentByState[wallet.state];
 
@@ -35,7 +43,12 @@ export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
       id={wallet.id}
       name={wallet.name}
       icon={
-        <WalletIcon type={wallet.type} authProvider={wallet.authProvider} />
+        <WalletIcon
+          type={wallet.type}
+          authProvider={wallet.authProvider}
+          size={21}
+          expanded={isActiveWallet}
+        />
       }
       initialExpanded={initiallyExpanded}
       disableRename

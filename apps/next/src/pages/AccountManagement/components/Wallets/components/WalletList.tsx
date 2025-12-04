@@ -41,6 +41,7 @@ export const WalletList: FC = () => {
               <WalletIcon
                 type={wallet.type}
                 authProvider={wallet.authProvider}
+                size={24}
               />
             }
             showActiveIndicator={isActiveWallet}
@@ -90,7 +91,7 @@ export const WalletList: FC = () => {
             id={account.id}
             disableRename
             name={t('Imported wallet')}
-            icon={<WalletIcon type={SecretType.PrivateKey} />}
+            icon={<WalletIcon type={SecretType.PrivateKey} size={24} />}
             showActiveIndicator={isActiveAccountInWallet}
             initialExpanded={isActiveAccountInWallet}
           >
