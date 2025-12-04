@@ -1,5 +1,4 @@
 import {
-  alpha,
   CircularProgress,
   Stack,
   styled,
@@ -22,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { useHistory, useLocation } from 'react-router-dom';
+import { TabsContainer } from './styled';
 
 export type TabName = 'assets' | 'collectibles' | 'defi' | 'activity';
 
@@ -123,18 +123,6 @@ export const PortfolioHome: FC = () => {
     </>
   );
 };
-
-const TabsContainer = styled(Stack)(({ theme }) => ({
-  position: 'sticky',
-  bottom: 0,
-  paddingTop: theme.spacing(1),
-  zIndex: theme.zIndex.appBar,
-  background: `linear-gradient(180deg, ${alpha(theme.palette.background.default, 0)} 0%, ${theme.palette.background.default} 16px)`,
-
-  '> div': {
-    background: 'unset',
-  },
-}));
 
 const CenteredSpinner = styled(CircularProgress)({
   margin: 'auto',

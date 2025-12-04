@@ -62,6 +62,7 @@ const pagesWithoutHeader = [
   routes.getSendPath(),
   routes.getSwapPath(),
   routes.getBridgePath(),
+  '/asset', // Token details path
 ];
 
 // Create a client for React Query
