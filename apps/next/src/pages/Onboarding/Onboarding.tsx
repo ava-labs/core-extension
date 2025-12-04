@@ -15,7 +15,8 @@ import { FcGoogle } from 'react-icons/fc';
 
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
-import { CoreSplash } from '@/components/CoreSplash';
+// import { CoreSplash } from '@/components/CoreSplash';
+
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
 
@@ -25,6 +26,7 @@ import { CreateNewWalletFlow } from './flows/CreateNewWallet';
 import { SeedlessSignInButton } from './components/SeedlessSignInButton';
 import { SeedlessAuthProvider } from '@core/types';
 import { SeedlessFlow } from './flows/SeedlessFlow';
+import { CoreSplashStatic } from '@/components/CoreSplashStatic';
 
 export function Onboarding() {
   const { t } = useTranslation();
@@ -58,6 +60,16 @@ export function Onboarding() {
     return () => window.removeEventListener('hashchange', maybeReset);
   }, [resetStates]);
 
+  // TODO: Add back the animated logo once the background is fixed
+  const ANIMATION_DURATION = 1000;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setHasLogoAnimationEnded(true);
+    }, ANIMATION_DURATION);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <FullscreenAnimatedBackground />
@@ -77,11 +89,14 @@ export function Onboarding() {
         </Box>
         <Column>
           <Stack direction="row" justifyContent="center" alignItems="center">
-            <CoreSplash
+            <CoreSplashStatic style={{ marginTop: theme.spacing(-5) }} />
+            {/* TODO: Add back the animated logo once the background is fixed
+						
+						<CoreSplash
               size="big"
               onGifEnd={() => setHasLogoAnimationEnded(true)}
               style={{ marginTop: theme.spacing(-5), transform: 'scale(0.75)' }}
-            />
+            /> */}
           </Stack>
           <Collapse in={hasLogoAnimationEnded}>
             <Stack
