@@ -52,6 +52,7 @@ import { StorageService } from '../storage/StorageService';
 import { SettingsService } from '../settings/SettingsService';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 import { SecretsService } from '~/services/secrets/SecretsService';
+import { AddressResolver } from '../secrets/AddressResolver';
 
 const NFT_TYPES = [TokenType.ERC721, TokenType.ERC1155];
 
@@ -87,6 +88,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     private settingsService: SettingsService,
     private featureFlagService: FeatureFlagService,
     private secretsService: SecretsService,
+    private addressResolver: AddressResolver,
   ) {}
 
   async #fetchBalances(
@@ -195,6 +197,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           accounts,
           chainIds,
           secretsService: this.secretsService,
+          addressResolver: this.addressResolver,
         });
 
         const balanceResult = await postV1BalanceGetBalances({
