@@ -15,6 +15,7 @@ import { ConnectDappDisplayData } from '../types';
 import { useDappPermissionsState } from '../hooks';
 import { ConnectWalletCard, SizedAvatar } from '../components';
 import { AlertType } from '@avalabs/vm-module-types';
+import { isPrimaryAccount } from '@core/common';
 
 type DappAccountSelectorProps = {
   activeAccount: Account;
@@ -114,6 +115,10 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
             isSelected={isSelected}
             toggleAccount={toggleAccount}
             isLoading={isLoading}
+            isActiveWallet={
+              isPrimaryAccount(activeAccount) &&
+              wallet.id === activeAccount.walletId
+            }
           />
         ))}
       </Stack>

@@ -35,6 +35,7 @@ export type DappPermissionsState = {
 export type ConnectWalletCardProps = Omit<DappPermissionsState, 'wallets'> & {
   wallet: WalletToConnect;
   initiallyExpanded: boolean;
+  isActiveWallet: boolean;
 };
 
 export type ConnectDappDisplayData = {
