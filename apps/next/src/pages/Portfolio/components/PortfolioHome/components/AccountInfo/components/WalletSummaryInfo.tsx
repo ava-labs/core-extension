@@ -24,15 +24,16 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
     <ClickableStack
       direction="row"
       alignItems="center"
-      gap={0.5}
-      sx={{ maxWidth: maxWidth ? `${maxWidth}px` : '100%', overflow: 'hidden' }}
+      sx={{
+        maxWidth: maxWidth ? `${maxWidth}px` : '100%',
+      }}
       onMouseEnter={() => setIsWalletHovered(true)}
       onMouseLeave={() => setIsWalletHovered(false)}
       onClick={() => {
         history.push(`/wallet/${walletSummary.id}`);
       }}
     >
-      <div style={{ flexShrink: 0 }}>
+      <div style={{ flexShrink: 0, height: 16, marginRight: 4 }}>
         <WalletIcon
           size={walletIconSize}
           type={walletSummary.type}
@@ -43,12 +44,15 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
         variant="body3"
         color="text.secondary"
         noWrap
-        sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+        fontWeight="semibold"
+        sx={{ overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1 }}
       >
         {walletSummary.name}
       </Typography>
       {isWalletHovered && (
-        <MdNavigateNext size={16} color={theme.palette.text.secondary} />
+        <div style={{ flexShrink: 0, height: 16 }}>
+          <MdNavigateNext size={16} color={theme.palette.text.secondary} />
+        </div>
       )}
     </ClickableStack>
   );

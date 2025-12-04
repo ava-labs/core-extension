@@ -78,12 +78,17 @@ const HeaderAccountContent: FC<Props> = ({
                 variant="caption2"
                 color="text.secondary"
                 sx={{ lineHeight: 1 }}
+                fontWeight="medium"
               >
                 {walletSummary.name}
               </FadingText>
             </Stack>
 
-            <FadingText variant="body2" sx={{ lineHeight: 1, mt: -0.25 }}>
+            <FadingText
+              variant="body2"
+              sx={{ lineHeight: 1, mt: -0.25 }}
+              color="text.primary"
+            >
               {account?.name}
             </FadingText>
           </Stack>

@@ -1,14 +1,13 @@
 import { SecretType } from '@core/types';
 
 const HEADER_SIZES = {
-  DEFAULT: 11.5,
   LEDGER_SEEDLESS: 11.5,
   KEYSTONE: 10.6,
   MNEMONIC: 16,
 };
 
 const getHeaderSize = (walletType?: SecretType): number => {
-  if (!walletType) return HEADER_SIZES.DEFAULT;
+  if (!walletType) return HEADER_SIZES.MNEMONIC;
   return walletType === SecretType.LedgerLive ||
     walletType === SecretType.Ledger ||
     walletType === SecretType.Seedless
@@ -20,14 +19,13 @@ const getHeaderSize = (walletType?: SecretType): number => {
 };
 
 const WALLET_VIEW_SIZES = {
-  DEFAULT: 19,
   LEDGER_SEEDLESS: 19,
   KEYSTONE: 17.6,
   MNEMONIC: 26.5,
 };
 
 const getWalletViewSize = (walletType?: SecretType): number => {
-  if (!walletType) return WALLET_VIEW_SIZES.DEFAULT;
+  if (!walletType) return WALLET_VIEW_SIZES.MNEMONIC;
   return walletType === SecretType.LedgerLive ||
     walletType === SecretType.Ledger ||
     walletType === SecretType.Seedless

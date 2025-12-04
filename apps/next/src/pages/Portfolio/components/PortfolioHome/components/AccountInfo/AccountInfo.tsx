@@ -46,7 +46,7 @@ export const AccountInfo: FC<Props> = ({
   }, []);
 
   return (
-    <Stack ref={setAccountInfoElement} gap={0.25} sx={{ mt: 2.5 }}>
+    <Stack ref={setAccountInfoElement} gap={0.25} sx={{ mt: 3.4 }}>
       <WalletSummaryInfo
         walletSummary={walletSummary}
         maxWidth={accountSummaryWidth || undefined}

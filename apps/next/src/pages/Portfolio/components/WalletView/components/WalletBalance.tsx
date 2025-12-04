@@ -72,13 +72,11 @@ export const WalletBalance = ({
           gap={1}
           color="text.secondary"
         >
-          {walletType && (
-            <WalletIcon
-              size={walletIconSize}
-              type={walletType}
-              authProvider={walletAuthProvider}
-            />
-          )}
+          <WalletIcon
+            size={walletIconSize}
+            type={walletType}
+            authProvider={walletAuthProvider}
+          />
 
           <Typography variant="h2">{walletName}</Typography>
           <MdUnfoldMore size={16} color={theme.palette.text.secondary} />
