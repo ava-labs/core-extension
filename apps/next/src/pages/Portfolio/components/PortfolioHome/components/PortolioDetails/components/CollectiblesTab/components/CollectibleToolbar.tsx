@@ -25,13 +25,12 @@ export const CollectibleToolbar = ({
   const { t } = useTranslation();
   return (
     <Stack
-      spacing={1}
       direction="row"
       justifyContent="space-between"
       alignItems="center"
       width="100%"
     >
-      <Stack direction="row" spacing={1}>
+      <Stack direction="row" gap={1}>
         <CollectiblesFilter
           typeFilter={mediaFilters}
           onTypeChange={toggleMediaFilter}
@@ -44,7 +43,7 @@ export const CollectibleToolbar = ({
       <Button
         variant="contained"
         color="secondary"
-        size="small"
+        size="xsmall"
         onClick={toggleOpenManageDialog}
       >
         {t('Manage')}

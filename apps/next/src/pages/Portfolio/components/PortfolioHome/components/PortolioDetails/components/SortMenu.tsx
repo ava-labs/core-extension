@@ -1,31 +1,17 @@
-import {
-  List,
-  ListItemButton,
-  ListItemText,
-  Popover,
-} from '@avalabs/k2-alpine';
+import { PopoverItem } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdCheck } from 'react-icons/md';
 import { AssetSortOption } from '../utils/assetSorting';
+import { DropdownMenu } from '@/components/DropdownMenu';
+import { Box } from '@avalabs/k2-alpine';
 
 export type SortMenuProps = {
   id: string;
-  anchorEl: HTMLButtonElement | null;
-  open: boolean;
-  onClose: () => void;
   sort: AssetSortOption | null;
   onSortChange: (sort: AssetSortOption | null) => void;
 };
 
-export const SortMenu: FC<SortMenuProps> = ({
-  id,
-  anchorEl,
-  open,
-  onClose,
-  sort,
-  onSortChange,
-}) => {
+export const SortMenu: FC<SortMenuProps> = ({ id, sort, onSortChange }) => {
   const { t } = useTranslation();
 
   const sortOptions: { label: string; value: AssetSortOption }[] = [
@@ -38,33 +24,23 @@ export const SortMenu: FC<SortMenuProps> = ({
   ];
 
   return (
-    <Popover id={id} open={open} anchorEl={anchorEl} onClose={onClose}>
-      <List sx={{ width: '210px' }}>
+    <Box id={id}>
+      <DropdownMenu label={t('Sort')}>
         {sortOptions.map((option) => (
-          <ListItemButton
+          <PopoverItem
             key={option.value}
-            dense
-            sx={{
-              paddingY: 0.5,
-              borderRadius: 1,
-            }}
             onClick={() => {
               onSortChange(option.value);
-              onClose();
             }}
             selected={
               sort === option.value ||
               (sort === null && option.value === 'default')
             }
           >
-            <ListItemText primary={option.label} />
-            {(sort === option.value ||
-              (sort === null && option.value === 'default')) && (
-              <MdCheck size={16} />
-            )}
-          </ListItemButton>
+            {option.label}
+          </PopoverItem>
         ))}
-      </List>
-    </Popover>
+      </DropdownMenu>
+    </Box>
   );
 };

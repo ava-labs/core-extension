@@ -42,6 +42,8 @@ import { SecretsService } from '../secrets/SecretsService';
 import { StorageService } from '../storage/StorageService';
 import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { uniq } from 'lodash';
+import { omitUndefinedAddresses } from './utils/omitUndefinedAddresses';
+import { emptyAccountAddresses } from './utils/emptyAccountAddresses';
 
 type AddAccountParams = {
   walletId: string;
@@ -108,7 +110,7 @@ export class AccountsService implements OnLock, OnUnlock {
   ) {}
 
   async onUnlock(): Promise<void> {
-    await this.init();
+    await this.init(true);
 
     // refresh addresses so in case the user switches to testnet mode,
     // as the BTC address needs to be updated
@@ -224,12 +226,13 @@ export class AccountsService implements OnLock, OnUnlock {
           return account;
         }
 
-        const addresses = await this.getAddressesForAccount(account);
+        const freshAddresses = await this.getAddressesForAccount(account);
 
-        return {
+        return omitUndefinedAddresses({
           ...account,
-          ...addresses,
-        };
+          ...emptyAccountAddresses(), // Ensure we do not keep any stale addresses in the account object.
+          ...freshAddresses,
+        });
       };
 
       const [

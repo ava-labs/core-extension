@@ -33,6 +33,13 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     getBalancesForNetwork: jest.fn(),
   } as any;
 
+  const featureFlagServiceMock = {
+    featureFlags: {},
+  } as any;
+  const mockSecretsService = {
+    getAvalancheExtendedPublicKey: jest.fn(),
+  } as any;
+
   const settingsServiceMock = {
     getSettings: () => ({ currency: 'USD' }),
   } as unknown as SettingsService;
@@ -90,6 +97,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     },
     getFavoriteNetworks: () => [2, 3, 4],
   } as any;
+  const addressResolverMock = {} as any;
 
   const account1: Account = {
     id: 'account1-id',
@@ -205,6 +213,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         lockService,
         storageService,
         settingsServiceMock,
+        featureFlagServiceMock,
+        mockSecretsService,
+        addressResolverMock,
       );
     });
 
@@ -243,7 +254,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       await service.getBalancesForNetworks(
         [network1.chainId],
         [account2],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+        [TokenType.NATIVE, TokenType.ERC20],
       );
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
@@ -262,7 +273,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       await service.getBalancesForNetworks(
         [network1.chainId],
         [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+        [TokenType.NATIVE, TokenType.ERC20],
       );
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
@@ -286,7 +297,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         [account1],
         [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
       );
-      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
+      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(4);
       const expected = {
         tokens: {
           [network1.chainId]: {
@@ -296,6 +307,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           },
           [network2.chainId]: balanceForNetwork2,
         },
+        atomic: {},
         nfts: {
           [network1.chainId]: {
             [account1.addressC]: {
@@ -318,6 +330,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       );
 
       const expected = {
+        atomic: {},
         tokens: {
           [network1.chainId]: balanceForTwoAccounts,
           [network2.chainId]: balanceForTwoAccounts,
@@ -381,7 +394,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
       );
 
-      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
+      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(4);
       const expectedTokens = {
         [network1.chainId]: {
           [account1.addressC]: {
@@ -405,6 +418,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith({
         balances: {
+          atomic: {},
           tokens: expectedTokens,
           nfts: {
             [network1.chainId]: {
@@ -432,6 +446,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         lockService,
         storageService,
         settingsServiceMock,
+        featureFlagServiceMock,
+        mockSecretsService,
+        addressResolverMock,
       );
     });
 

@@ -185,6 +185,9 @@ describe('src/background/services/balances/BalancesService.ts', () => {
   const settingsService: SettingsService = {
     getSettings: jest.fn(),
   } as any;
+  const addressResolver = {
+    getXPAddressesForAccountIndex: jest.fn(),
+  } as any;
   beforeEach(() => {
     jest.resetAllMocks();
 
@@ -199,7 +202,18 @@ describe('src/background/services/balances/BalancesService.ts', () => {
     jest
       .mocked(settingsService.getSettings)
       .mockResolvedValue({ currency: 'EUR', customTokens: {} } as any);
-    service = new BalancesService(settingsService, moduleManager);
+
+    jest
+      .mocked(addressResolver.getXPAddressesForAccountIndex)
+      .mockResolvedValue({
+        externalAddresses: [],
+        internalAddresses: [],
+      });
+    service = new BalancesService(
+      settingsService,
+      moduleManager,
+      addressResolver,
+    );
   });
 
   describe('getBalancesForNetwork', () => {

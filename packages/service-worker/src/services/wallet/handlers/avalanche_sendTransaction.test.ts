@@ -29,6 +29,7 @@ jest.mock('@core/common', () => {
     end: jest.fn(),
   };
   return {
+    ...jest.requireActual('@core/common'),
     measureDuration: () => measureDurationMock,
   };
 });
@@ -129,6 +130,7 @@ describe('src/background/services/wallet/handlers/avalanche_sendTransaction.ts',
   beforeEach(() => {
     jest.resetAllMocks();
 
+    getAddressesByIndicesMock.mockResolvedValue([]);
     (UnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     (EVMUnsignedTx.fromJSON as jest.Mock).mockReturnValue(unsignedTxMock);
     signMock.mockReturnValue({ signedTx: 'baz' });

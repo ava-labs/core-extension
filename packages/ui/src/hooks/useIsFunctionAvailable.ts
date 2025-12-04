@@ -168,7 +168,7 @@ const enabledFeatures = {
     ChainId.ETHEREUM_HOMESTEAD,
     ChainId.SOLANA_MAINNET_ID,
   ],
-  Buy: [ChainId.AVALANCHE_MAINNET_ID, ChainId.AVALANCHE_TESTNET_ID],
+  Buy: [ChainId.AVALANCHE_MAINNET_ID],
 };
 
 /**

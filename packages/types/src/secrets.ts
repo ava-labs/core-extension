@@ -100,6 +100,7 @@ export interface LedgerSecrets extends PrimarySecretsBase {
 
 export interface LedgerLiveSecrets extends PrimarySecretsBase {
   secretType: SecretType.LedgerLive;
+  extendedPublicKeys: ExtendedPublicKey[];
   derivationPathSpec: DerivationPath.LedgerLive;
 }
 
@@ -159,6 +160,7 @@ export type DerivedAddresses = {
   addressPVM?: string;
   addressCoreEth?: string;
   addressHVM?: string;
+  addressSVM?: string;
 };
 
 export type DerivationPathsMap = Record<

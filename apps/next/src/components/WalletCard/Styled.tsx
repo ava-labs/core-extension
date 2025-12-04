@@ -12,7 +12,7 @@ import { MdError } from 'react-icons/md';
 export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
   borderRadius: theme.shape.mediumBorderRadius,
-  boxShadow: '0px 5px 30px 0px rgba(0, 0, 0, 0.15)',
+  boxShadow: '0 5px 30px 0 rgba(0, 0, 0, 0.15)',
   backgroundColor:
     theme.palette.mode === 'light'
       ? theme.palette.surface.primary
@@ -45,6 +45,9 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
     display: 'flex',
     margin: 0,
     lineHeight: 1,
+    minWidth: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   [`& .${accordionSummaryClasses.content}`]: {
     margin: 0,
@@ -54,6 +57,9 @@ export const AccordionSummary = styled(K2AccordionSummary)(({ theme }) => ({
   },
   [`& .${accordionSummaryClasses.expandIconWrapper}`]: {
     color: theme.palette.text.disabled,
+    width: '15px',
+    height: '15px',
+    margin: '5px',
   },
 }));
 

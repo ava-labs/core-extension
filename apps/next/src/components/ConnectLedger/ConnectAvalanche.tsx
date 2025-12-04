@@ -69,7 +69,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           onStatusChange={setStatus}
           setDerivationPathSpec={setDerivationPathSpec}
           derivationPathSpec={derivationPathSpec}
-          numberOfKeys={3}
+          numberOfKeys={1}
         />
       </FullscreenModalContent>
       <FullscreenModalActions>

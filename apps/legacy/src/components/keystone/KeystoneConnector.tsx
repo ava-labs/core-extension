@@ -90,8 +90,8 @@ export function KeystoneConnector({ onSuccess }: KeystoneConnectorProps) {
   const getXPublicKey = useCallback(async () => {
     try {
       const mfp = await getMasterFingerprint();
-      const xpubValue = await getExtendedPublicKey();
-      const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X);
+      const xpubValue = await getExtendedPublicKey(ChainIDAlias.C, 0);
+      const xpubXPValue = await getExtendedPublicKey(ChainIDAlias.X, 0);
       capture('OnboardingKeystone3Connected');
       onSuccess({
         xpub: xpubValue,

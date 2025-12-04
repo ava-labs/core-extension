@@ -21,6 +21,7 @@ type AccountSelectProps = {
   onValueChange: (account: Account) => void;
   query?: string;
   onQueryChange: (query: string) => void;
+  isBalanceVisible?: boolean;
 };
 
 export const AccountSelect: FC<AccountSelectProps> = ({
@@ -29,6 +30,7 @@ export const AccountSelect: FC<AccountSelectProps> = ({
   onValueChange,
   query,
   onQueryChange,
+  isBalanceVisible = true,
 }) => {
   const { t } = useTranslation();
   const { allAccounts } = useAccountsContext();
@@ -50,7 +52,10 @@ export const AccountSelect: FC<AccountSelectProps> = ({
       label={t('Account')}
       renderValue={(val) =>
         val ? (
-          <SelectedAccount accountId={val.id} />
+          <SelectedAccount
+            accountId={val.id}
+            isBalanceVisible={isBalanceVisible}
+          />
         ) : (
           <Typography variant="caption">{t('Choose')}</Typography>
         )

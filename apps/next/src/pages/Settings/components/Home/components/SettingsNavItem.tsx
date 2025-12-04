@@ -5,6 +5,8 @@ import {
   ListItemText,
   OutboundIcon,
   styled,
+  Stack,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
@@ -31,7 +33,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   ...props
 }) => {
   const history = useHistory();
-
+  const theme = useTheme();
   const hasLink = !!href;
   const isOutbound = hasLink && href.startsWith('https://');
 
@@ -41,7 +43,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
       isOutbound ? (
         <OutboundIcon size={16} />
       ) : (
-        <ChevronRightIcon size={16} />
+        <ChevronRightIcon size={20} color={theme.palette.text.secondary} />
       )
     ) : null);
 
@@ -58,7 +60,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
           history.push(href);
         }
       }}
-      secondaryAction={endIcon}
+      secondaryAction={<Stack>{endIcon}</Stack>}
       {...props}
     >
       <ListItemText

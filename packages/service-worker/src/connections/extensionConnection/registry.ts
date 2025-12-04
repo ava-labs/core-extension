@@ -139,6 +139,7 @@ import { StoreBtcWalletPolicyDetails } from '../../services/wallet/handlers/stor
 import { WalletConnectEvents } from '../../services/walletConnect/events/walletConnectEvents';
 import { EstablishRequiredSession } from '../../services/walletConnect/handlers/establishRequiredSession';
 import { WalletConnectImportAccount } from '../../services/walletConnect/handlers/walletConnectImportAccount';
+import { MigrateMissingPublicKeysFromKeystoneHandler } from '../../services/keystone/handlers/migrateMissingKeysFromKeystone';
 
 import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/keystoneOnboardingHandlerNew';
 import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
@@ -153,6 +154,8 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
+import { GetXPAddressesForAccountHandler } from '../../services/accounts/handlers/getXPAddressesForAccountIndex';
+import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -161,6 +164,10 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
  */
 @registry([
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetXPAddressesForAccountHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
@@ -479,6 +486,14 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
   { token: 'ExtensionRequestHandler', useToken: GetTrendingTokensHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MigrateMissingPublicKeysFromKeystoneHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetTotalAtomicFundsForAccountHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
