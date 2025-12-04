@@ -39,6 +39,7 @@ export type ConnectWalletCardProps = Omit<DappPermissionsState, 'wallets'> & {
 
 export type ConnectDappDisplayData = {
   addressVM: NetworkVMType;
+  isMalicious: boolean;
   dappUrl: string;
   dappIcon: string;
   dappDomain: string;

@@ -18,6 +18,7 @@ import {
   getLegacyDappConnector,
   ResultType,
 } from './utils/connectToDapp';
+import { scanDapp } from './utils/scanDapp';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -129,6 +130,8 @@ export class RequestAccountPermissionHandler
       }
     }
 
+    const scanResult = await scanDapp(request.site.domain);
+
     await openApprovalWindow(
       {
         ...request,
@@ -136,6 +139,7 @@ export class RequestAccountPermissionHandler
         type: ActionType.Single,
         displayData: {
           addressVM: request.params?.addressVM || NetworkVMType.EVM, // Default to EVM
+          isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,

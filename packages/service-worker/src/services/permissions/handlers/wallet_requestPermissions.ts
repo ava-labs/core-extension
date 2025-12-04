@@ -16,6 +16,7 @@ import {
 } from '~/services/web3/handlers/utils/connectToDapp';
 import { canSkipApproval } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
+import { scanDapp } from '~/services/web3/handlers/utils/scanDapp';
 
 @injectable()
 export class WalletRequestPermissionsHandler extends DAppRequestHandler {
@@ -69,11 +70,14 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       }
     }
 
+    const scanResult = await scanDapp(request.site.domain);
+
     await openApprovalWindow(
       {
         ...request,
         displayData: {
           addressVM: NetworkVMType.EVM,
+          isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,

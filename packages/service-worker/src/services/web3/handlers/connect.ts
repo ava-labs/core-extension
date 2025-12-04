@@ -15,6 +15,7 @@ import {
   getLegacyDappConnector,
 } from './utils/connectToDapp';
 import { canSkipApproval } from '@core/common';
+import { scanDapp } from './utils/scanDapp';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -92,11 +93,14 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       }
     }
 
+    const scanResult = await scanDapp(request.site.domain);
+
     await openApprovalWindow(
       {
         ...request,
         displayData: {
           addressVM: NetworkVMType.EVM,
+          isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,

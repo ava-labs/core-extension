@@ -10,7 +10,7 @@ import {
 import { mapAddressesToVMs } from '@core/common';
 import { ActionStatus, DAppProviderRequest } from '@core/types';
 
-import { LoadingScreen, Styled } from '../components';
+import { LoadingScreen, MaliciousDappOverlay, Styled } from '../components';
 
 import { isDappConnectAction } from './lib';
 import { DappAccountSelector } from './components';
@@ -79,6 +79,12 @@ export const ApproveDappConnection: FC = () => {
   return (
     <WalletTotalBalanceProvider>
       <Styled.ApprovalScreenPage>
+        {action.displayData.isMalicious && (
+          <MaliciousDappOverlay
+            open={action.displayData.isMalicious}
+            cancelHandler={cancelHandler}
+          />
+        )}
         <DappAccountSelector
           action={action}
           activeAccount={activeAccount}
