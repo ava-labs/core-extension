@@ -5,31 +5,22 @@ import {
   SquareButton,
   Stack,
   SwapIcon,
-  toast,
 } from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 
 import { getBridgePath, getSendPath, getSwapPath } from '@/config/routes';
 import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
-
-const onNotImplementedClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.preventDefault();
-  toast.info(
-    `🚧 The ${e.currentTarget.innerText} feature is coming soon! Stay tuned for updates! ✨🚀`,
-    {
-      id: 'not-implemented-toast',
-      duration: 1000,
-    },
-  );
-};
+import { getCoreWebUrl } from '@core/common/src/utils/getCoreWebUrl';
+import { openNewTab } from '@core/common/src/utils/extensionUtils';
+import { useTranslation } from 'react-i18next';
 
 const ICON_SIZE = 19.2;
 
 export const PortfolioActionButtons = () => {
   const { push } = useHistory();
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
-
+  const { t } = useTranslation();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
 
@@ -43,7 +34,7 @@ export const PortfolioActionButtons = () => {
         <SquareButton
           variant="extension"
           icon={<SendIcon size={ICON_SIZE} />}
-          label="Send"
+          label={t('Send')}
           onClick={() => push(getSendPath())}
         />
       </Slide>
@@ -53,7 +44,7 @@ export const PortfolioActionButtons = () => {
           <SquareButton
             variant="extension"
             icon={<SwapIcon size={ICON_SIZE} />}
-            label="Swap"
+            label={t('Swap')}
             onClick={() => push(getSwapPath())}
           />
         </Slide>
@@ -64,8 +55,10 @@ export const PortfolioActionButtons = () => {
           <SquareButton
             variant="extension"
             icon={<MdAdd size={ICON_SIZE} />}
-            label="Buy"
-            onClick={onNotImplementedClick}
+            label={t('Buy')}
+            onClick={() => {
+              openNewTab({ url: `${getCoreWebUrl()}/buy` });
+            }}
           />
         </Slide>
       )}
@@ -73,7 +66,7 @@ export const PortfolioActionButtons = () => {
         <SquareButton
           variant="extension"
           icon={<BridgeIcon size={ICON_SIZE} />}
-          label="Bridge"
+          label={t('Bridge')}
           onClick={() => push(getBridgePath())}
         />
       </Slide>
