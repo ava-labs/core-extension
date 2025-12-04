@@ -46,7 +46,7 @@ export const AccountInfoVisibilityProvider = ({
 
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
-        setIsAccountInfoVisible(entry.isIntersecting);
+        setIsAccountInfoVisible(entry?.isIntersecting ?? false);
       },
       { threshold: 0 },
     );

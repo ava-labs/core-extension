@@ -60,8 +60,10 @@ export const WalletBalance = ({
   ]);
 
   return (
-    <Stack mb={1}>
+    <Stack mb={1} width="100%">
       <ClickableStack
+        width="fit-content"
+        maxWidth="50%"
         onClick={() => {
           history.push('/account-management');
         }}
@@ -71,15 +73,28 @@ export const WalletBalance = ({
           alignItems="center"
           gap={1}
           color="text.secondary"
+          sx={{ minWidth: 0 }}
         >
-          <WalletIcon
-            size={walletIconSize}
-            type={walletType}
-            authProvider={walletAuthProvider}
-          />
+          <div style={{ flexShrink: 0 }}>
+            <WalletIcon
+              size={walletIconSize}
+              type={walletType}
+              authProvider={walletAuthProvider}
+            />
+          </div>
 
-          <Typography variant="h2">{walletName}</Typography>
-          <MdUnfoldMore size={16} color={theme.palette.text.secondary} />
+          <Typography
+            variant="h2"
+            noWrap
+            sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+          >
+            {walletName}
+          </Typography>
+          <MdUnfoldMore
+            size={16}
+            color={theme.palette.text.secondary}
+            style={{ flexShrink: 0 }}
+          />
         </Stack>
         <Stack direction="row" alignItems="baseline" gap={0.5} ml={0.5}>
           <Typography variant="h2">{balanceToDisplay}</Typography>

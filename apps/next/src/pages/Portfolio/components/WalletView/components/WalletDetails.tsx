@@ -44,7 +44,7 @@ export const WalletDetails = ({ wallet }: Props) => {
   }, [networksWithBalance]);
 
   return (
-    <Stack p={1} mt={2} gap={1}>
+    <Stack p={1} mt={2} gap={1} width="100%">
       <WalletBalance
         walletType={wallet.type}
         walletAuthProvider={wallet.authProvider}

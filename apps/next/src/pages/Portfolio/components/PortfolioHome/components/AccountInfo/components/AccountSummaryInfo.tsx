@@ -48,7 +48,7 @@ export const AccountSummaryInfo = ({
       ref={containerRef}
       position="relative"
       overflow="visible"
-      sx={{ width: 'fit-content' }}
+      sx={{ maxWidth: '75%', width: 'fit-content' }}
     >
       <ClickableStack
         onClick={() => {
@@ -58,7 +58,7 @@ export const AccountSummaryInfo = ({
         onMouseLeave={() => setIsAccountHovered(false)}
       >
         <Stack direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="h2" color="text.secondary">
+          <Typography noWrap variant="h2" color="text.secondary">
             {accountName}
           </Typography>
           <MdUnfoldMore size={16} color={theme.palette.text.secondary} />
