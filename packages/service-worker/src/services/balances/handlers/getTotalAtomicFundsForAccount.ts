@@ -1,4 +1,3 @@
-import { sum } from 'lodash';
 import { injectable } from 'tsyringe';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import {
@@ -8,12 +7,12 @@ import {
   CoreEthCategories,
   AvmCategories,
 } from '@core/types';
-import { balanceToDecimal } from '@core/common';
 
 import { BalanceAggregatorService } from '~/services/balances/BalanceAggregatorService';
 import { AccountsService } from '~/services/accounts/AccountsService';
 import { AvalancheBalanceItem } from '~/api-clients/balance-api';
 import { AVALANCHE_CHAIN_IDS } from '~/api-clients/constants';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GET_ATOMIC_FUNDS_FOR_ACCOUNT,
@@ -81,44 +80,52 @@ export class GetTotalAtomicFundsForAccountHandler implements HandlerType {
     ];
 
     const { atomicBalances } = this.balanceAggregatorService;
-    const atomicFundsSum = sum(
-      Object.entries(atomicBalances).flatMap(([chainId, chainBalance]) => {
-        return Object.entries(chainBalance).flatMap(
-          ([accountAddress, atomicBalance]) => {
+
+    const tokenUnit = Object.entries(atomicBalances).reduce(
+      (bigAcc, [chainId, chainBalance]) => {
+        return Object.entries(chainBalance).reduce(
+          (acc, [accountAddress, atomicBalance]) => {
             if (!accountsOfInterest.includes(accountAddress)) {
-              return 0;
+              return acc;
             }
+            let tempAcc = acc;
             if (isCoreEthOrAvmAtomicBalance(chainId, atomicBalance)) {
-              return sum(
-                Object.values(atomicBalance.atomicMemoryUnlocked).flatMap(
-                  (atomicBalanceItems: AvalancheBalanceItem[]) =>
-                    atomicBalanceItems.flatMap((item) =>
-                      balanceToDecimal(item.balance, item.decimals),
-                    ),
-                ),
+              Object.values(atomicBalance.atomicMemoryUnlocked).map(
+                (atomicBalanceItems: AvalancheBalanceItem[]) => {
+                  atomicBalanceItems.map((item) => {
+                    tempAcc = tempAcc.add(
+                      new TokenUnit(item.balance, item.decimals, item.symbol),
+                    );
+                  });
+                },
               );
             }
             if (isPvmAtomicBalance(chainId, atomicBalance)) {
-              return sum(
-                Object.values(atomicBalance.atomicMemoryUnlocked).flatMap(
-                  (balance) =>
-                    balanceToDecimal(
+              Object.values(atomicBalance.atomicMemoryUnlocked).map(
+                (balance) => {
+                  tempAcc = tempAcc.add(
+                    new TokenUnit(
                       balance,
                       atomicBalance.nativeTokenBalance.decimals,
+                      '',
                     ),
-                ),
+                  );
+                },
               );
             }
-            return 0;
+            return tempAcc;
           },
+          bigAcc,
         );
-      }),
+      },
+      // TODO: we could pass in the Token symbol as a param for the handler
+      new TokenUnit('0', 18, 'N/A'),
     );
 
     return {
       ...request,
       result: {
-        sum: atomicFundsSum,
+        sum: tokenUnit.toDisplay({ asNumber: true }),
       },
     };
   };

@@ -17,7 +17,7 @@ import {
 import { SplTokenBalance } from '~/api-clients/types';
 import { Erc20TokenBalance as GlacierSdkErc20TokenBalance } from '@avalabs/glacier-sdk';
 import tokenReputation = GlacierSdkErc20TokenBalance.tokenReputation;
-import { balanceToDecimal } from '@core/common';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 interface TokenBalance {
   internalId?: string;
@@ -50,12 +50,11 @@ const getBaseTokenBalance = (tokenBalance: TokenBalance): BaseTokenBalance => {
     balanceCurrencyDisplayValue: tokenBalance.balanceInCurrency
       ?.toFixed(3)
       .slice(0, -1),
-    balanceDisplayValue: balanceToDecimal(
+    balanceDisplayValue: new TokenUnit(
       tokenBalance.balance,
       tokenBalance.decimals,
-    )
-      .toFixed(5)
-      .slice(0, -1),
+      tokenBalance.symbol,
+    ).toString(),
     balanceInCurrency: Number(
       tokenBalance.balanceInCurrency?.toFixed(3).slice(0, -1) ?? '0',
     ),

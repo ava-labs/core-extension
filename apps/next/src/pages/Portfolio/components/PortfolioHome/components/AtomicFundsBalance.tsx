@@ -57,7 +57,7 @@ export const AtomicFundsBalance: FC<Props> = ({ atomicBalance }) => {
               );
             }}
           >
-            {t('Claim')}
+            {t('Recover')}
           </Button>
         </Stack>
       </Stack>
