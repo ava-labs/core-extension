@@ -2,8 +2,10 @@ import {
   ListItem,
   ListItemText,
   ListItemTextProps,
+  Stack,
   SxProps,
   Theme,
+  Typography,
 } from '@avalabs/k2-alpine';
 import { TxHistoryItem } from '@core/types';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
@@ -14,6 +16,7 @@ import { TransactionIcon } from './TransactionIcon';
 
 import * as Styled from './Styled';
 import { ViewInExplorerButton } from './ViewInExplorerButton';
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 type Props = {
   transaction: TxHistoryItem;
@@ -31,6 +34,7 @@ const receivedAmountSlotProps: ListItemTextProps['slotProps'] = {
   primary: {
     variant: 'subtitle3',
     whiteSpace: 'nowrap',
+    display: 'flex',
   },
   secondary: {
     variant: 'body3',
@@ -98,11 +102,19 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
         <TransactionIcon transaction={transaction} />
       </Styled.ListItemIcon>
       <ListItemText
-        primary={t('{{amount}} {{symbol}} {{direction}}', {
-          amount: token?.amount,
-          symbol: token?.symbol,
-          direction: transaction.isSender ? t('sent') : t('received'),
-        })}
+        primary={
+          <Stack direction="row" alignItems="flex-start" gap={0.5}>
+            <CollapsedTokenAmount
+              amount={token?.amount?.toString() ?? '0'}
+              regularProps={{ variant: 'body3' }}
+              overlineProps={{ variant: 'caption2' }}
+            />
+            <Typography variant="body3">{token?.symbol}</Typography>
+            <Typography variant="body3">
+              {transaction.isSender ? t('sent') : t('received')}
+            </Typography>
+          </Stack>
+        }
         secondary={currencyFormatter(usdValue)}
         slotProps={
           transaction.isSender ? sentAmountSlotProps : receivedAmountSlotProps

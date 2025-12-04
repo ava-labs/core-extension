@@ -1,13 +1,12 @@
 import { DropdownMenu } from '@/components/DropdownMenu';
-import { Box, MenuItem, styled } from '@avalabs/k2-alpine';
-import { FC, RefObject } from 'react';
-import { MdCheck } from 'react-icons/md';
+import { Box, PopoverItem } from '@avalabs/k2-alpine';
+import { FC } from 'react';
 import { ActivityFilter } from '../types';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   selected: ActivityFilter;
   onChange(filter: ActivityFilter): void;
-  ref?: RefObject<HTMLElement>;
 };
 
 const ACTIVITY_FILTERS: ActivityFilter[] = [
@@ -20,32 +19,21 @@ const ACTIVITY_FILTERS: ActivityFilter[] = [
   'NFTs',
 ];
 
-export const ActivityFilterSelector: FC<Props> = ({
-  selected,
-  onChange,
-  ref,
-}) => {
+export const ActivityFilterSelector: FC<Props> = ({ selected, onChange }) => {
+  const { t } = useTranslation();
   return (
-    <Box ref={ref}>
-      <DropdownMenu
-        label={selected === 'All' ? 'Filter' : selected.replace('_', ' ')}
-      >
+    <Box>
+      <DropdownMenu label={t('Filter')}>
         {ACTIVITY_FILTERS.map((filterName) => (
-          <StyledMenuItem
+          <PopoverItem
             key={filterName}
             onClick={() => onChange(filterName)}
-            dense
+            selected={filterName === selected}
           >
             {filterName.replace('_', ' ')}
-            {filterName === selected && <MdCheck size={16} />}
-          </StyledMenuItem>
+          </PopoverItem>
         ))}
       </DropdownMenu>
     </Box>
   );
 };
-
-const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
-  justifyContent: 'space-between',
-  gap: theme.spacing(1),
-}));

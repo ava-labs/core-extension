@@ -99,7 +99,7 @@ export function CollectiblesTab() {
         direction="row"
         alignItems="center"
         justifyContent="space-between"
-        sx={{ mb: 1, width: '100%' }}
+        sx={{ width: '100%' }}
       >
         {collectibles.length > 0 && (
           <CollectibleToolbar
