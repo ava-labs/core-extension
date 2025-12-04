@@ -172,11 +172,12 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
       tokenTypes.reduce<BalanceSubscribers>(
-        (newSubscribers, tokenType) => ({
-          ...newSubscribers,
-          [tokenType]: (newSubscribers[tokenType] ?? 0) + 1,
-        }),
-        oldSubscribers,
+        (newSubscribers, tokenType) => {
+          newSubscribers[tokenType] ??= 0;
+          newSubscribers[tokenType]++;
+          return newSubscribers;
+        },
+        { ...oldSubscribers },
       ),
     );
   }, []);
@@ -184,11 +185,15 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   const unregisterSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
       tokenTypes.reduce(
-        (newSubscribers, tokenType) => ({
-          ...newSubscribers,
-          [tokenType]: Math.max((newSubscribers[tokenType] ?? 0) - 1, 0),
-        }),
-        oldSubscribers,
+        (newSubscribers, tokenType) => {
+          newSubscribers[tokenType] ??= 0;
+          newSubscribers[tokenType] = Math.max(
+            newSubscribers[tokenType] - 1,
+            0,
+          );
+          return newSubscribers;
+        },
+        { ...oldSubscribers },
       ),
     );
   }, []);
