@@ -10,14 +10,15 @@ import { ProfitAndLoss } from './ProfitAndLoss';
 import { FungibleTokenBalance } from '@core/types';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { Card } from '@/components/Card';
+import { useHistory } from 'react-router-dom';
+import { TokenType } from '@avalabs/vm-module-types';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
-  onClick?: () => void;
 }
 
-const AVATAR_SIZE = 40;
-const BADGE_SIZE = 18;
+const AVATAR_SIZE = 32;
+const BADGE_SIZE = 16;
 const CHEVRON_SIZE = 20;
 const CARD_BORDER_RADIUS = 2;
 const CARD_GAP = 1.5;
@@ -34,14 +35,14 @@ const formatTokenBalance = (balance: string, symbol: string): string => {
   return `${balance} ${symbol}`;
 };
 
-export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
+export const AssetCard = ({ asset }: AssetCardProps) => {
   const theme = useTheme();
+  const history = useHistory();
 
   const handleClick = () => {
-    onClick?.();
-    // TODO: Navigate to asset details page when route is available
-    // const history = useHistory();
-    // history.push(`/asset/${asset.symbol}`);
+    const tokenAddress =
+      asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
+    history.push(`/asset/${asset.coreChainId}/${tokenAddress}`);
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);
@@ -51,7 +52,13 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
   );
 
   return (
-    <Card sx={{ width: '100%', borderRadius: CARD_BORDER_RADIUS }}>
+    <Card
+      sx={{
+        width: '100%',
+        borderRadius: CARD_BORDER_RADIUS,
+        backgroundColor: 'background.paper',
+      }}
+    >
       <Stack
         role="button"
         onClick={handleClick}
@@ -59,7 +66,7 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
         alignItems="center"
         gap={CARD_GAP}
         sx={{
-          cursor: onClick ? 'pointer' : 'default',
+          cursor: 'pointer',
           px: theme.spacing(CARD_PADDING_X),
           py: theme.spacing(CARD_PADDING_Y),
         }}
@@ -75,7 +82,7 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
           />
         </Box>
 
-        <Stack flexGrow={1} minWidth={0}>
+        <Stack flexGrow={1} minWidth={0} gap={0}>
           <Typography
             variant="subtitle3"
             noWrap

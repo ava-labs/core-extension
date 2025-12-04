@@ -69,10 +69,12 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
         isContainerHovered={isContainerHovered}
       />
 
-      {/* Navigation Arrow */}
-      <IconWrapper shouldShift={false}>
-        <MdNavigateNext />
-      </IconWrapper>
+      {/* Navigation Arrow: Waiting for account to be visible */}
+      {account && (
+        <IconWrapper shouldShift={false}>
+          <MdNavigateNext />
+        </IconWrapper>
+      )}
 
       {/* Account Name */}
       <AccountSection

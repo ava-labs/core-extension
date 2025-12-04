@@ -1,12 +1,14 @@
 import { DropdownMenu } from '@/components/DropdownMenu';
 import { Box, PopoverItem } from '@avalabs/k2-alpine';
-import { FC } from 'react';
+import { FC, RefObject, useMemo } from 'react';
 import { ActivityFilter } from '../types';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
   selected: ActivityFilter;
   onChange(filter: ActivityFilter): void;
+  ref?: RefObject<HTMLElement>;
+  exclude?: ActivityFilter[];
 };
 
 const ACTIVITY_FILTERS: ActivityFilter[] = [
@@ -19,12 +21,21 @@ const ACTIVITY_FILTERS: ActivityFilter[] = [
   'NFTs',
 ];
 
-export const ActivityFilterSelector: FC<Props> = ({ selected, onChange }) => {
+export const ActivityFilterSelector: FC<Props> = ({
+  selected,
+  onChange,
+  ref,
+  exclude,
+}) => {
   const { t } = useTranslation();
+  const filteredActivityFilters = useMemo(() => {
+    return ACTIVITY_FILTERS.filter((filter) => !exclude?.includes(filter));
+  }, [exclude]);
+
   return (
-    <Box>
+    <Box ref={ref}>
       <DropdownMenu label={t('Filter')}>
-        {ACTIVITY_FILTERS.map((filterName) => (
+        {filteredActivityFilters.map((filterName) => (
           <PopoverItem
             key={filterName}
             onClick={() => onChange(filterName)}
