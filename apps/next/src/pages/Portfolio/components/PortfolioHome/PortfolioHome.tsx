@@ -1,31 +1,25 @@
 import { FC, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useHistory, useLocation } from 'react-router-dom';
-import {
-  CircularProgress,
-  Stack,
-  styled,
-  TabBar,
-  TabBarItemProps,
-} from '@avalabs/k2-alpine';
-import { hasAccountBalances } from '@core/common';
+import { NoScrollStack } from '@/components/NoScrollStack';
+import { Stack, TabBar, TabBarItemProps } from '@avalabs/k2-alpine';
+import { isEmptyAccount } from '@core/common';
 import {
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
 } from '@core/ui';
 
-import { NoScrollStack } from '@/components/NoScrollStack';
-
+import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
+import { useTranslation } from 'react-i18next';
+import { useHistory, useLocation } from 'react-router-dom';
 import AccountInfo from './components/AccountInfo';
 import { EmptyState } from './components/EmptyState';
+import { LoadingState } from './components/LoadingState';
 import { PortfolioDetails } from './components/PortolioDetails';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
-import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { TabsContainer } from './styled';
 
-export type TabName = 'assets' | 'collectibles' | 'defi' | 'activity';
+import { TabName } from './types';
 
 export const PortfolioHome: FC = () => {
   const { t } = useTranslation();
@@ -48,13 +42,10 @@ export const PortfolioHome: FC = () => {
     accounts.active?.type === 'primary' ? accounts.active.id : undefined;
   const atomicBalance = getAtomicBalance(accountId);
   const atomicBalanceExists = !!atomicBalance;
-  const isLoading = !totalBalance;
+
+  const isLoading = balances.loading || !totalBalance;
   const isAccountEmpty =
-    !hasAccountBalances(
-      balances.tokens ?? {},
-      accounts.active ?? {},
-      networks.map((n) => n.chainId),
-    ) && !isLoading;
+    !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
 
   const TABS: TabBarItemProps[] = [
     {
@@ -99,7 +90,7 @@ export const PortfolioHome: FC = () => {
           {!!accountId &&
             atomicBalanceExists &&
             (atomicBalance.isLoading ? (
-              <CenteredSpinner />
+              <LoadingState />
             ) : (
               <AtomicFundsBalance
                 atomicBalance={atomicBalance.balanceDisplayValue!}
@@ -107,7 +98,7 @@ export const PortfolioHome: FC = () => {
             ))}
           <Stack flexGrow={1} gap={2.5}>
             {isLoading ? (
-              <CenteredSpinner />
+              <LoadingState />
             ) : (
               <PortfolioContent tab={activeTab} />
             )}
@@ -138,7 +129,3 @@ export const PortfolioHome: FC = () => {
     </>
   );
 };
-
-const CenteredSpinner = styled(CircularProgress)({
-  margin: 'auto',
-});
