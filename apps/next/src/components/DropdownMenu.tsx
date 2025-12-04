@@ -20,7 +20,7 @@ type DropdownMenuProps = PropsWithChildren<{
 const defaultSlotProps: DropdownMenuProps['slotProps'] = {
   button: {
     variant: 'contained',
-    size: 'small',
+    size: 'xsmall',
     color: 'secondary',
   },
   popover: {
@@ -75,7 +75,7 @@ const StyledButton = styled(Button)({
 
 const StyledIcon = styled(ChevronDownIcon)<{ open: boolean }>(
   ({ theme, open }) => ({
-    color: 'text.secondary',
+    color: theme.palette.text.secondary,
     transition: theme.transitions.create('transform'),
     transform: open ? 'rotateX(180deg)' : 'none',
   }),

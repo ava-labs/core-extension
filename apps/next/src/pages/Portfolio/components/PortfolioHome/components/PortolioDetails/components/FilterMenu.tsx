@@ -1,19 +1,11 @@
-import {
-  List,
-  ListItemButton,
-  ListItemText,
-  Popover,
-} from '@avalabs/k2-alpine';
+import { PopoverItem, Box } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdCheck } from 'react-icons/md';
 import { NetworkWithCaipId } from '@core/types';
+import { DropdownMenu } from '@/components/DropdownMenu';
 
 export type FilterMenuProps = {
   id: string;
-  anchorEl: HTMLButtonElement | null;
-  open: boolean;
-  onClose: () => void;
   selected: Set<number>;
   onChange: (networks: Set<NetworkWithCaipId['chainId']>) => void;
   networks: NetworkWithCaipId[];
@@ -21,9 +13,6 @@ export type FilterMenuProps = {
 
 export const FilterMenu: FC<FilterMenuProps> = ({
   id,
-  anchorEl,
-  open,
-  onClose,
   selected,
   onChange,
   networks,
@@ -47,39 +36,24 @@ export const FilterMenu: FC<FilterMenuProps> = ({
   const isAllSelected = selected.size === 0;
 
   return (
-    <Popover id={id} open={open} anchorEl={anchorEl} onClose={onClose}>
-      <List sx={{ width: '210px' }}>
-        <ListItemButton
-          dense
-          sx={{
-            paddingY: 0.5,
-            borderRadius: 1,
-          }}
-          onClick={handleSelectAll}
-          selected={isAllSelected}
-        >
-          <ListItemText primary={t('All Networks')} />
-          {isAllSelected && <MdCheck size={16} />}
-        </ListItemButton>
+    <Box id={id}>
+      <DropdownMenu label={t('Filter')}>
+        <PopoverItem onClick={handleSelectAll} selected={isAllSelected}>
+          {t('All Networks')}
+        </PopoverItem>
         {networks.map((network) => {
           const isSelected = selected.has(network.chainId);
           return (
-            <ListItemButton
+            <PopoverItem
               key={network.chainId}
-              dense
-              sx={{
-                paddingY: 0.5,
-                borderRadius: 1,
-              }}
               onClick={() => handleNetworkToggle(network.chainId)}
               selected={isSelected}
             >
-              <ListItemText primary={network.chainName} />
-              {isSelected && <MdCheck size={16} />}
-            </ListItemButton>
+              {network.chainName}
+            </PopoverItem>
           );
         })}
-      </List>
-    </Popover>
+      </DropdownMenu>
+    </Box>
   );
 };
