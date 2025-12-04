@@ -14,6 +14,7 @@ import {
   getDappConnector,
   getLegacyDappConnector,
 } from './utils/connectToDapp';
+import { canSkipApproval } from '@core/common';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -54,11 +55,41 @@ export class ConnectRequestHandler implements DAppRequestHandler {
   handleUnauthenticated = async (rpcCall) => {
     const { request } = rpcCall;
 
-    if (!request.site?.domain) {
+    if (!request.site?.domain || !request.site?.tabId) {
       return {
         ...request,
         error: ethErrors.rpc.invalidRequest('domain unknown'),
       };
+    }
+
+    const withoutApproval = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
+
+    if (withoutApproval) {
+      const allAccounts = await this.accountsService.getAccountList();
+
+      try {
+        const result = await new Promise((resolve, reject) => {
+          this.onActionApproved(
+            request,
+            allAccounts.map(({ id }) => ({ id, enabled: true })),
+            resolve,
+            reject,
+          );
+        });
+
+        return {
+          ...request,
+          result,
+        };
+      } catch (error) {
+        return {
+          ...request,
+          error,
+        };
+      }
     }
 
     await openApprovalWindow(
@@ -77,7 +108,6 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       },
       `permissions`,
     );
-
     return { ...request, result: DEFERRED_RESPONSE };
   };
 
