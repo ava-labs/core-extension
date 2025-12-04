@@ -8,6 +8,7 @@ import {
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
+import { AvalancheBalanceItem } from '@core/service-worker/src/api-clients/balance-api';
 
 import { EnsureDefined } from './util-types';
 
@@ -50,10 +51,45 @@ export interface Balances<TokenTypes = TokenWithBalance> {
     };
   };
 }
+
+export interface PvmCategories {
+  unlockedStaked: string;
+  unlockedUnstaked: string;
+  lockedStaked: string;
+  lockedPlatform: string;
+  lockedStakeable: string;
+  atomicMemoryLocked: {
+    [avalancheChainId: string]: string;
+  };
+  atomicMemoryUnlocked: {
+    [avalancheChainId: string]: string;
+  };
+}
+
+export interface CoreEthCategories {
+  atomicMemoryUnlocked: {
+    [avalancheChainId: string]: AvalancheBalanceItem[];
+  };
+  atomicMemoryLocked: {
+    [avalancheChainId: string]: AvalancheBalanceItem[];
+  };
+}
+
+export interface AvmCategories extends CoreEthCategories {
+  unlocked: AvalancheBalanceItem[];
+  locked: AvalancheBalanceItem[];
+}
+
+export interface AtomicBalances {
+  [networkId: string | number]: {
+    [accountAddress: string]: PvmCategories | CoreEthCategories | AvmCategories;
+  };
+}
 export interface BalancesInfo {
   balances: {
     tokens: Balances;
     nfts: Balances<NftTokenWithBalance>;
+    atomic: AtomicBalances;
   };
   isBalancesCached: boolean;
 }
@@ -61,6 +97,7 @@ export interface BalancesInfo {
 export interface CachedBalancesInfo {
   totalBalance?: TotalBalance;
   balances?: Balances;
+  atomicBalances?: AtomicBalances;
   lastUpdated?: number;
 }
 
@@ -108,6 +145,10 @@ export type TotalBalanceForWallet = {
   hasBalanceOnUnderivedAccounts: boolean;
   balanceChange?: number;
   percentageChange?: number;
+};
+
+export type TotalAtomicBalanceForAccount = {
+  balanceDisplayValue: number;
 };
 
 export type NonFungibleAssetType = 'evm_erc721' | 'evm_erc1155';

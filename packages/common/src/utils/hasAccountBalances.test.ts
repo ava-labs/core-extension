@@ -1,9 +1,9 @@
 import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
+import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 import { Account, AccountType, Balances } from '@core/types';
 import { hasAccountBalances } from './hasAccountBalances';
-import { NetworkTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
-describe('utils/calculateTotalBalance', () => {
+describe('utils/hasAccountBalances', () => {
   const account1: Account = {
     id: 'account1 ID',
     name: 'account1 name',

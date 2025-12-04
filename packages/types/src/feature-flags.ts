@@ -58,6 +58,7 @@ export enum FeatureGates {
   SOLANA_LAUNCH_MODAL = 'solana-launch-modal',
   CORE_ASSISTANT = 'core-assistant',
   SWAP_USE_MARKR = 'swap-use-markr',
+  BALANCE_SERVICE_INTEGRATION = 'balance-service-integration',
 }
 
 export enum FeatureVars {

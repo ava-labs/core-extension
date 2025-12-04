@@ -45,6 +45,7 @@ export const Unlock: React.FC<Props> = ({
   return (
     <Stack direction="column" width="100cqw" px="20px" mt={8}>
       <PasswordField
+        autoFocus
         onChange={(e) => setPassword(e.target.value)}
         onKeyDown={shortcuts.onKeyDown}
         error={!!error}
