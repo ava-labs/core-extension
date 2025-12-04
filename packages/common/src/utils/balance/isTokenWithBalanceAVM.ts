@@ -10,5 +10,8 @@ export const isTokenWithBalanceAVM = (
     return false;
   }
 
-  return 'balancePerType' in balance && 'locked' in balance.balancePerType;
+  return (
+    'balancePerType' in balance &&
+    ('locked' in balance.balancePerType || 'unlocked' in balance.balancePerType)
+  );
 };

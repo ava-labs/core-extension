@@ -1,3 +1,4 @@
+import { FC, useState } from 'react';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { Stack, TabBar, TabBarItemProps } from '@avalabs/k2-alpine';
 import { isEmptyAccount } from '@core/common';
@@ -6,16 +7,16 @@ import {
   useBalancesContext,
   useNetworkContext,
 } from '@core/ui';
-import { FC, useState } from 'react';
 
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
-import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import AccountInfo from './components/AccountInfo';
 import { EmptyState } from './components/EmptyState';
 import { LoadingState } from './components/LoadingState';
 import { PortfolioDetails } from './components/PortolioDetails';
+import { AtomicFundsBalance } from './components/AtomicFundsBalance';
+import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { TabsContainer } from './styled';
 
 import { TabName } from './types';
@@ -36,7 +37,11 @@ export const PortfolioHome: FC = () => {
     activeTabFromParams ?? 'assets',
   );
   const { networks, isDeveloperMode } = useNetworkContext();
-  const { totalBalance, balances } = useBalancesContext();
+  const { totalBalance, balances, getAtomicBalance } = useBalancesContext();
+  const accountId =
+    accounts.active?.type === 'primary' ? accounts.active.id : undefined;
+  const atomicBalance = getAtomicBalance(accountId);
+  const atomicBalanceExists = !!atomicBalance;
 
   const isLoading = balances.loading || !totalBalance;
   const isAccountEmpty =
@@ -82,6 +87,15 @@ export const PortfolioHome: FC = () => {
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}
           />
+          {!!accountId &&
+            atomicBalanceExists &&
+            (atomicBalance.isLoading ? (
+              <LoadingState />
+            ) : (
+              <AtomicFundsBalance
+                atomicBalance={atomicBalance.balanceDisplayValue!}
+              />
+            ))}
           <Stack flexGrow={1} gap={2.5}>
             {isLoading ? (
               <LoadingState />
