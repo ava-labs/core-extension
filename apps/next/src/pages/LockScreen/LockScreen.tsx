@@ -57,7 +57,7 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
         </WarningMessage>
       )}
 
-      <Collapse in={isUIReady}>
+      <Collapse in={isUIReady} mountOnEnter unmountOnExit>
         <Unlock
           onUnlock={unlockWallet}
           onForgotPasswordClick={showForgotPasswordModal}
