@@ -16,7 +16,7 @@ export const convertStreamToArray = async (
   if (!stream) {
     return { balances: [], errors: [] };
   }
-  let next = await stream?.next();
+  let next = await stream.next();
 
   const balances: BalanceResponse[] = [];
   const errors: GetBalancesResponseError[] = [];
