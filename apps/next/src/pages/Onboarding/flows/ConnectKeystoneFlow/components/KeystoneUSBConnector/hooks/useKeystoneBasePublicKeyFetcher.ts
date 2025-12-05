@@ -98,10 +98,9 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
       for (const index of startingIndexes) {
         const publicKey = await getAddressPublicKeyFromXpub(evmXpub, index);
         publicKeys.push(publicKey);
-        if (publicKey.hasActivity) {
-          onActivePublicKeysDiscovered?.(publicKeys);
-        }
       }
+
+      onActivePublicKeysDiscovered?.(publicKeys);
 
       let currentIndex = startingIndexes.at(-1)!;
 

@@ -35,6 +35,7 @@ const MAX_ACCOUNTS = 10;
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
+  onActivePublicKeysDiscovered,
 ) => {
   if (!derivationPathSpec) {
     throw new Error('Derivation path spec is required');
@@ -206,6 +207,8 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         startingIndexes,
       );
 
+      onActivePublicKeysDiscovered?.(evmPublicKeys);
+
       await assertUniqueWallet(evmExtendedPublicKeys.get(0)!);
 
       let currentIndex = startingIndexes.at(-1)!;
@@ -220,11 +223,15 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           );
         }
 
-        evmPublicKeys.push(
-          ...(await getEvmPublicKeysFromXpubs(evmExtendedPublicKeys, [
-            currentIndex,
-          ])),
+        const newEvmKeys = await getEvmPublicKeysFromXpubs(
+          evmExtendedPublicKeys,
+          [currentIndex],
         );
+        evmPublicKeys.push(...newEvmKeys);
+
+        if (newEvmKeys.some(({ hasActivity }) => hasActivity)) {
+          onActivePublicKeysDiscovered?.(evmPublicKeys);
+        }
       }
 
       // Remove trailing public keys if they do not have activity
@@ -247,6 +254,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       derivationPathSpec,
       shouldContinue,
       getExtendedPublicKey,
+      onActivePublicKeysDiscovered,
     ],
   );
 
@@ -260,6 +268,8 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         { length: minNumberOfKeys },
         (_, i) => i,
       );
+
+      onActivePublicKeysDiscovered?.([]); // Clear the active public keys
 
       try {
         const {
@@ -291,7 +301,12 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         throw err;
       }
     },
-    [popDeviceSelection, retrieveEvmKeys, getXpPublicKeys],
+    [
+      popDeviceSelection,
+      retrieveEvmKeys,
+      getXpPublicKeys,
+      onActivePublicKeysDiscovered,
+    ],
   );
 
   // Attempt to automatically connect as soon as we establish the transport.

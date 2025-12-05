@@ -30,6 +30,7 @@ export type UseLedgerPublicKeyFetcherResult = {
 
 export type UseLedgerPublicKeyFetcher = (
   derivationPathSpec?: DerivationPath,
+  onActivePublicKeysDiscovered?: (publicKeys: PublicKey[]) => void,
 ) => UseLedgerPublicKeyFetcherResult;
 
 export type ConnectorCallbacks = {

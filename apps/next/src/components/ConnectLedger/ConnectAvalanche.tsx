@@ -83,6 +83,9 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           <NavButton
             disabled={!isValid}
             color="primary"
+            loading={
+              status === 'ready' && derivedKeys.addressPublicKeys.length === 0
+            }
             onClick={() => onNext(derivedKeys)}
           >
             {t('Next')}
