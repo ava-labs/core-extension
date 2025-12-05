@@ -79,7 +79,7 @@ export const DerivedAddresses = ({
               fontFamily="monospace"
               color="text.primary"
             >
-              {truncateAddress(address)}
+              {truncateAddress(address, 14)}
             </Typography>
           </Stack>
           <Stack direction="row" gap={1.5} alignItems="center">

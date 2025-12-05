@@ -18,6 +18,8 @@ import {
   isLedgerVersionCompatible,
 } from '@core/common';
 
+import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
+
 import {
   DerivationStatus,
   DerivedKeys,
@@ -28,7 +30,6 @@ import {
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
-import { useCheckAddressActivity } from './useCheckAddressActivity';
 
 const MAX_ACCOUNTS = 10;
 
@@ -190,7 +191,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     if (evmPublicKeys.length >= MAX_ACCOUNTS) {
       return false;
     }
-    // If one of the last two addresses have activity, we need to continue looking
+    // If one of the last two addresses has activity, we need to continue looking
     return evmPublicKeys.slice(-2).some(({ hasActivity }) => hasActivity);
   }, []);
 
@@ -251,7 +252,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   const retrieveKeys = useCallback(
     async (minNumberOfKeys: number) => {
-      if (minNumberOfKeys === 0) {
+      if (minNumberOfKeys < 1) {
         throw new Error('Min number of keys must be greater than 0');
       }
 
