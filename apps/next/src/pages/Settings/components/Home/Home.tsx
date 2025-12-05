@@ -5,10 +5,8 @@ import {
   Switch,
   toast,
   Typography,
-  useMediaQuery,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
@@ -34,7 +32,7 @@ import {
 } from '@/config';
 
 import { getContactsPath } from '@/config/routes';
-import { FeatureGates, SecretType } from '@core/types';
+import { AnalyticsConsent, FeatureGates, SecretType } from '@core/types';
 import {
   AvatarButton,
   Footer,
@@ -59,18 +57,17 @@ export const SettingsHomePage = () => {
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
 
-  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const {
     showTrendingTokens,
     setShowTrendingTokens,
     coreAssistant,
     setCoreAssistant,
+    analyticsConsent,
+    setAnalyticsConsent,
   } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
   const isMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
-
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Page
@@ -84,9 +81,9 @@ export const SettingsHomePage = () => {
       }}
     >
       <Stack direction="row" gap={1.5} width="100%">
-        <Stack width="50%">
+        <Stack width="100%">
           <SwitchCard
-            titleSize="small"
+            titleSize="large"
             checked={isDeveloperMode}
             onChange={() => {
               setDeveloperMode(!isDeveloperMode);
@@ -100,10 +97,12 @@ export const SettingsHomePage = () => {
             description={t(
               'Enable a sandbox environment for testing without using real funds',
             )}
-            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+            orientation="horizontal"
           />
         </Stack>
-        <Stack width="50%">
+        {/* 
+				TODO: Uncomment this when we have a privacy mode is implemented: CP-11873
+				<Stack width="50%">
           <SwitchCard
             titleSize="small"
             checked={isPrivacyMode}
@@ -114,7 +113,7 @@ export const SettingsHomePage = () => {
               'Hide your wallet balance on the portfolio screen for added privacy',
             )}
           />
-        </Stack>
+        </Stack> */}
       </Stack>
 
       {isMfaSetupPromptVisible && (
@@ -297,7 +296,20 @@ export const SettingsHomePage = () => {
           sx={{
             pb: 0,
           }}
-          secondaryAction={<Switch size="small" />}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={analyticsConsent === AnalyticsConsent.Approved}
+              onChange={() => {
+                const newValue =
+                  analyticsConsent === AnalyticsConsent.Approved ? false : true;
+                capture('AnalyticsConsentSettingChanged', {
+                  showTrendingTokens: newValue,
+                });
+                setAnalyticsConsent(newValue);
+              }}
+            />
+          }
         />
       </SettingsCard>
       <SettingsCard title={t('Contacts')}>
