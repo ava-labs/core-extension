@@ -10,6 +10,7 @@ import { NetworkDetails } from './NetworkDetails';
 import { NetworkDeleteConfirmation } from './Confirmations/NetworkDeleteConfirmation';
 import { NetworkNotFound } from './NetworkNotFound';
 import { useEditNetwork } from '../hooks/useEditNetwork';
+import { useAnalyticsContext } from '@core/ui';
 
 type NetworkDetailsParams = {
   networkId: string;
@@ -19,6 +20,7 @@ export const NetworkDetailsFlow = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { networkId } = useParams<NetworkDetailsParams>();
+  const { capture } = useAnalyticsContext();
 
   const [view, setView] = useState<EditNetworkFormView>('details');
 
@@ -67,6 +69,7 @@ export const NetworkDetailsFlow = () => {
     try {
       await removeCustomNetwork(Number(networkId));
       toast.success(t('Network deleted'));
+      capture('CustomNetworkDeleted');
       history.goBack();
     } catch (error) {
       console.error(error);

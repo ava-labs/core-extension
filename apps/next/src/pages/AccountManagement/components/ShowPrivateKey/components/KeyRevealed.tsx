@@ -13,6 +13,7 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
+import { useAnalyticsContext } from '@core/ui';
 
 type Props = {
   privateKey: string;
@@ -30,6 +31,7 @@ const StyledInput = styled(OutlinedInput)(({ theme }) => ({
 export const KeyRevealed: FC<Props> = ({ privateKey }) => {
   const { t } = useTranslation();
   const { goBack } = useHistory();
+  const { capture } = useAnalyticsContext();
 
   return (
     <Stack height={1} gap={1}>
@@ -72,6 +74,7 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
           size="xsmall"
           onClick={() => {
             navigator.clipboard.writeText(privateKey);
+            capture('ExportPrivateKeyCopied');
             toast.success(t('Private key copied!'), {
               id: 'private-key-copied',
             });
@@ -87,7 +90,10 @@ export const KeyRevealed: FC<Props> = ({ privateKey }) => {
           color="secondary"
           size="extension"
           fullWidth
-          onClick={goBack}
+          onClick={() => {
+            capture('ExportPrivateKeyCancelled');
+            goBack();
+          }}
         >
           {t('Done')}
         </Button>

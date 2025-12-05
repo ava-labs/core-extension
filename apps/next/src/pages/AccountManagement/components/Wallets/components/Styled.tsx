@@ -18,8 +18,8 @@ export const ListItemButton = styled(K2ListItemButton)(({ theme }) => ({
   height: '40px',
   paddingBlock: theme.spacing(1),
   paddingLeft: theme.spacing(1),
-  paddingRight: theme.spacing(2),
-  borderRadius: theme.spacing(1.5),
+  paddingRight: theme.spacing(2.5),
+  borderRadius: theme.spacing(1),
 
   [`&.${listItemButtonClasses.selected}`]: {
     backgroundColor: theme.palette.background.paper,

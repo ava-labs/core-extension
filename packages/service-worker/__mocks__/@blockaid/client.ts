@@ -5,4 +5,14 @@
  * To avoid errors, make sure we mock this library everywhere.
  */
 
-export default {};
+export default class {
+  constructor() {
+    return {
+      site: {
+        scan: jest.fn().mockResolvedValue({
+          status: 'miss',
+        }),
+      },
+    };
+  }
+}

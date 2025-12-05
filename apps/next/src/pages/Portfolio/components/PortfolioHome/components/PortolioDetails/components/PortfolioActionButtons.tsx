@@ -8,6 +8,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
+import { useAnalyticsContext } from '@core/ui';
 
 import { getBridgePath, getSendPath, getSwapPath } from '@/config/routes';
 import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
@@ -19,6 +20,7 @@ const ICON_SIZE = 19.2;
 
 export const PortfolioActionButtons = () => {
   const { push } = useHistory();
+  const { capture } = useAnalyticsContext();
   const { checkIsFunctionSupported } = useIsFunctionAvailable();
   const { t } = useTranslation();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
@@ -35,7 +37,10 @@ export const PortfolioActionButtons = () => {
           variant="extension"
           icon={<SendIcon size={ICON_SIZE} />}
           label={t('Send')}
-          onClick={() => push(getSendPath())}
+          onClick={() => {
+            capture('TokenSendClicked');
+            push(getSendPath());
+          }}
         />
       </Slide>
 
@@ -45,7 +50,10 @@ export const PortfolioActionButtons = () => {
             variant="extension"
             icon={<SwapIcon size={ICON_SIZE} />}
             label={t('Swap')}
-            onClick={() => push(getSwapPath())}
+            onClick={() => {
+              capture('TokenSwapClicked');
+              push(getSwapPath());
+            }}
           />
         </Slide>
       )}
@@ -57,6 +65,7 @@ export const PortfolioActionButtons = () => {
             icon={<MdAdd size={ICON_SIZE} />}
             label={t('Buy')}
             onClick={() => {
+              capture('TokenBuyClicked');
               openNewTab({ url: `${getCoreWebUrl()}/buy` });
             }}
           />
@@ -67,7 +76,10 @@ export const PortfolioActionButtons = () => {
           variant="extension"
           icon={<BridgeIcon size={ICON_SIZE} />}
           label={t('Bridge')}
-          onClick={() => push(getBridgePath())}
+          onClick={() => {
+            capture('TokenBridgeClicked');
+            push(getBridgePath());
+          }}
         />
       </Slide>
     </Stack>
