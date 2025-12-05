@@ -16,7 +16,7 @@ import { getCoreWebUrl } from '@core/common/src/utils/getCoreWebUrl';
 import { openNewTab } from '@core/common/src/utils/extensionUtils';
 import { useTranslation } from 'react-i18next';
 
-const ICON_SIZE = 19.2;
+const ICON_SIZE = 24;
 
 export const PortfolioActionButtons = () => {
   const { push } = useHistory();
@@ -32,17 +32,6 @@ export const PortfolioActionButtons = () => {
   return (
     <Stack direction="row" gap={1} width="100%">
       {/* TODO: create the proper animation */}
-      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-        <SquareButton
-          variant="extension"
-          icon={<SendIcon size={ICON_SIZE} />}
-          label={t('Send')}
-          onClick={() => {
-            capture('TokenSendClicked');
-            push(getSendPath());
-          }}
-        />
-      </Slide>
 
       {isSwapSupported && (
         <Slide direction="left" in timeout={getDelay()} easing="ease-out">
@@ -58,6 +47,30 @@ export const PortfolioActionButtons = () => {
         </Slide>
       )}
 
+      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<BridgeIcon size={ICON_SIZE} />}
+          label={t('Bridge')}
+          onClick={() => {
+            capture('TokenBridgeClicked');
+            push(getBridgePath());
+          }}
+        />
+      </Slide>
+
+      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <SquareButton
+          variant="extension"
+          icon={<SendIcon size={ICON_SIZE} />}
+          label={t('Send')}
+          onClick={() => {
+            capture('TokenSendClicked');
+            push(getSendPath());
+          }}
+        />
+      </Slide>
+
       {isBuySupported && (
         <Slide direction="left" in timeout={getDelay()} easing="ease-out">
           <SquareButton
@@ -71,17 +84,6 @@ export const PortfolioActionButtons = () => {
           />
         </Slide>
       )}
-      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-        <SquareButton
-          variant="extension"
-          icon={<BridgeIcon size={ICON_SIZE} />}
-          label={t('Bridge')}
-          onClick={() => {
-            capture('TokenBridgeClicked');
-            push(getBridgePath());
-          }}
-        />
-      </Slide>
     </Stack>
   );
 };
