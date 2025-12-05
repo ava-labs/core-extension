@@ -6,14 +6,22 @@ import {
   useSettingsContext,
 } from '@core/ui';
 
-export const SelectedAccount = ({ accountId }: { accountId: string }) => {
+type SelectedAccountProps = {
+  accountId: string;
+  isBalanceVisible: boolean;
+};
+
+export const SelectedAccount = ({
+  accountId,
+  isBalanceVisible,
+}: SelectedAccountProps) => {
   const { getAccountById } = useAccountsContext();
   const { currencyFormatter } = useSettingsContext();
   const fromAccountBalance = useBalanceTotalInCurrency(
     getAccountById(accountId),
   );
   return (
-    <Stack textAlign="end">
+    <Stack textAlign="end" py={!isBalanceVisible ? 1 : 0}>
       <Typography
         variant="body3"
         color="text.primary"
@@ -21,11 +29,13 @@ export const SelectedAccount = ({ accountId }: { accountId: string }) => {
       >
         {getAccountById(accountId)?.name}
       </Typography>
-      <Typography variant="caption" color="text.secondary">
-        {typeof fromAccountBalance?.sum === 'number'
-          ? currencyFormatter(fromAccountBalance.sum)
-          : '-'}
-      </Typography>
+      {isBalanceVisible && (
+        <Typography variant="caption" color="text.secondary">
+          {typeof fromAccountBalance?.sum === 'number'
+            ? currencyFormatter(fromAccountBalance.sum)
+            : '-'}
+        </Typography>
+      )}
     </Stack>
   );
 };

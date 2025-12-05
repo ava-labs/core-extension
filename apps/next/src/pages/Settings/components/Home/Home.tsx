@@ -5,6 +5,7 @@ import {
   Switch,
   toast,
   Typography,
+  useMediaQuery,
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useState } from 'react';
@@ -69,6 +70,8 @@ export const SettingsHomePage = () => {
   const isMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
 
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Page
       title={t('Settings')}
@@ -80,32 +83,38 @@ export const SettingsHomePage = () => {
         push('/');
       }}
     >
-      <Stack direction="row" justifyContent="space-between" gap={1.5}>
-        <SwitchCard
-          titleSize="small"
-          checked={isDeveloperMode}
-          onChange={() => {
-            setDeveloperMode(!isDeveloperMode);
-            toast.info(
-              isDeveloperMode
-                ? t('Testnet mode is off')
-                : t('Testnet mode is on'),
-            );
-          }}
-          title={t('Testnet mode')}
-          description={t(
-            'Enable a sandbox environment for testing without using real funds',
-          )}
-        />
-        <SwitchCard
-          titleSize="small"
-          checked={isPrivacyMode}
-          onChange={() => setIsPrivacyMode((is) => !is)}
-          title={t('Privacy mode')}
-          description={t(
-            'Hide your wallet balance on the portfolio screen for added privacy',
-          )}
-        />
+      <Stack direction="row" gap={1.5} width="100%">
+        <Stack width="50%">
+          <SwitchCard
+            titleSize="small"
+            checked={isDeveloperMode}
+            onChange={() => {
+              setDeveloperMode(!isDeveloperMode);
+              toast.info(
+                isDeveloperMode
+                  ? t('Testnet mode is off')
+                  : t('Testnet mode is on'),
+              );
+            }}
+            title={t('Testnet mode')}
+            description={t(
+              'Enable a sandbox environment for testing without using real funds',
+            )}
+            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+          />
+        </Stack>
+        <Stack width="50%">
+          <SwitchCard
+            titleSize="small"
+            checked={isPrivacyMode}
+            onChange={() => setIsPrivacyMode((is) => !is)}
+            title={t('Privacy mode')}
+            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+            description={t(
+              'Hide your wallet balance on the portfolio screen for added privacy',
+            )}
+          />
+        </Stack>
       </Stack>
 
       {isMfaSetupPromptVisible && (
@@ -173,7 +182,13 @@ export const SettingsHomePage = () => {
           divider
           secondaryAction={
             <ThemeSelector
-              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+              sx={{
+                px: 1,
+                mr: -0.5,
+                gap: 0,
+                color: 'text.secondary',
+                justifyContent: 'flex-end',
+              }}
             />
           }
         />
@@ -197,6 +212,9 @@ export const SettingsHomePage = () => {
           description={t(
             'Display the shortcut to tokens that are trending in the last 24 hours',
           )}
+          sx={{
+            pb: 0,
+          }}
           secondaryAction={
             <Switch
               size="small"
@@ -213,16 +231,19 @@ export const SettingsHomePage = () => {
         />
       </SettingsCard>
       {featureFlags[FeatureGates.CORE_ASSISTANT] && (
-        <SwitchCard
-          title={t('Core Concierge')}
-          titleSize="large"
-          orientation="horizontal"
-          description={t(
-            'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
-          )}
-          checked={coreAssistant}
-          onChange={() => setCoreAssistant(!coreAssistant)}
-        />
+        <Stack width="100%">
+          <SwitchCard
+            title={t('Core Concierge')}
+            titleSize="large"
+            orientation="horizontal"
+            descriptionColor="text.primary"
+            description={t(
+              'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
+            )}
+            checked={coreAssistant}
+            onChange={() => setCoreAssistant(!coreAssistant)}
+          />
+        </Stack>
       )}
       <SettingsCard
         title={t('Privacy and security')}
@@ -273,6 +294,9 @@ export const SettingsHomePage = () => {
           description={t(
             'Core Analytics will collect anonymous interaction data. Core is committed to protecting your privacy. We will never sell or share your data.',
           )}
+          sx={{
+            pb: 0,
+          }}
           secondaryAction={<Switch size="small" />}
         />
       </SettingsCard>
@@ -280,12 +304,18 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           label={t('Saved addresses')}
           href={getContactsPath('list')}
+          sx={{
+            py: 0,
+          }}
           secondaryAction={
             <Stack direction="row" gap={0.5} alignItems="center">
               <Typography variant="body3" color="text.secondary">
                 {contacts.length}
               </Typography>
-              <ChevronRightIcon size={20} />
+              <ChevronRightIcon
+                size={20}
+                color={theme.palette.text.secondary}
+              />
             </Stack>
           }
         />
@@ -316,12 +346,14 @@ export const SettingsHomePage = () => {
         />
         <SettingsNavItem
           label={t('Help center')}
+          sx={{ py: 0, mt: 0.75 }}
           href={CORE_SUPPORT_URL}
           onClick={() => capture('HelpCenterClicked')}
         />
       </SettingsCard>
       <Button
         size="small"
+        sx={{ minWidth: '120px' }}
         variant="contained"
         color="secondary"
         onClick={lockWallet}

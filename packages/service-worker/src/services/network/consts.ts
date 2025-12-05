@@ -6,6 +6,8 @@ export const defaultEnabledNetworks = [
   ChainId.AVALANCHE_TESTNET_ID,
   ChainId.AVALANCHE_P,
   ChainId.AVALANCHE_TEST_P,
+  ChainId.AVALANCHE_X,
+  ChainId.AVALANCHE_TEST_X,
   ChainId.BITCOIN,
   ChainId.BITCOIN_TESTNET,
   ChainId.ETHEREUM_HOMESTEAD,

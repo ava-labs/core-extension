@@ -18,36 +18,38 @@ export const Footer = (props: StackProps) => {
   return (
     <FooterContainer {...props}>
       <CoreIcon opacity={0.5} />
-      <Typography variant="caption" color="text.secondary">
-        <Trans
-          i18nKey="By using this application, you agree to the <termsLink>Terms of Use</termsLink> and <policyLink>Privacy Policy</policyLink>"
-          components={{
-            termsLink: (
-              <InTextLink
-                sx={{ ml: 0.25 }}
-                target="_blank"
-                href="https://core.app/terms/core"
-                rel="noreferrer"
-                onClick={() => capture('TermsOfUseClicked')}
-              />
-            ),
-            policyLink: (
-              <InTextLink
-                sx={{ ml: 0.25 }}
-                target="_blank"
-                href="https://www.avalabs.org/privacy-policy"
-                rel="noreferrer"
-                onClick={() => capture('PrivacyPolicyClicked')}
-              />
-            ),
-          }}
-        />
-      </Typography>
-      <Typography variant="caption" color="text.secondary">
-        {t('© 2025 Ava Labs All rights reserved. {{version}}', {
-          version: `v${runtime.getManifest().version}`,
-        })}
-      </Typography>
+      <Stack>
+        <Typography variant="caption" color="text.secondary">
+          <Trans
+            i18nKey="By using this application, you agree to the <br/> <termsLink>Terms of Use</termsLink> and <policyLink>Privacy Policy</policyLink>"
+            components={{
+              termsLink: (
+                <InTextLink
+                  sx={{ ml: 0.25 }}
+                  target="_blank"
+                  href="https://core.app/terms/core"
+                  rel="noreferrer"
+                  onClick={() => capture('TermsOfUseClicked')}
+                />
+              ),
+              policyLink: (
+                <InTextLink
+                  sx={{ ml: 0.25 }}
+                  target="_blank"
+                  href="https://www.avalabs.org/privacy-policy"
+                  rel="noreferrer"
+                  onClick={() => capture('PrivacyPolicyClicked')}
+                />
+              ),
+            }}
+          />
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {t('© 2025 Ava Labs – All rights reserved. {{version}}', {
+            version: `v${runtime.getManifest().version}`,
+          })}
+        </Typography>
+      </Stack>
     </FooterContainer>
   );
 };

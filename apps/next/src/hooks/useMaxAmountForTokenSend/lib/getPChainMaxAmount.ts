@@ -2,7 +2,7 @@ import { UnsignedTx } from '@avalabs/avalanchejs';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
 import { getMaxUtxoSet } from '@core/common';
-import { NetworkWithCaipId, PvmCapableAccount } from '@core/types';
+import { NetworkWithCaipId, PvmCapableAccount, XPAddresses } from '@core/types';
 
 import { buildPChainSendTx } from '@/lib/buildPChainSendTx';
 import { getAvalancheWallet } from '@/lib/getAvalancheWallet';
@@ -17,6 +17,7 @@ const ARBITRARY_FEE = 10_000_000n;
 export const getPChainMaxAmount = async (
   from: PvmCapableAccount,
   isLedgerWallet: boolean,
+  getAddresses: () => Promise<XPAddresses>,
   network?: NetworkWithCaipId,
 ) => {
   if (!network) {
@@ -28,7 +29,7 @@ export const getPChainMaxAmount = async (
 
   const provider = getAvalancheProvider(network);
   const feeState = await provider.getApiP().getFeeState();
-  const wallet = getAvalancheWallet(from, provider);
+  const wallet = await getAvalancheWallet(from, await getAddresses(), provider);
   const utxos = await getMaxUtxoSet(
     isLedgerWallet,
     provider,
@@ -73,6 +74,10 @@ const getFeeForMinimalTx = async ({
     amount: 1n, // Minimum possible amount to send
     to: from.addressPVM,
     network,
+    addresses: {
+      externalAddresses: [],
+      internalAddresses: [],
+    },
   });
 
   // Parse transaction to estimate the fee

@@ -6,7 +6,13 @@ import {
   StopBalancesPollingHandler,
   UpdateBalancesForNetworkHandler,
 } from '@core/service-worker';
-import { Balances, ExtensionRequest, TotalPriceChange } from '@core/types';
+import {
+  AtomicBalances,
+  Balances,
+  ExtensionRequest,
+  TotalAtomicBalanceForAccount,
+  TotalPriceChange,
+} from '@core/types';
 import { merge } from 'lodash';
 import {
   createContext,
@@ -33,6 +39,7 @@ import { useAccountsContext } from '../AccountsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
+import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -40,6 +47,7 @@ export interface BalancesState {
   loading: boolean;
   nfts?: Balances<NftTokenWithBalance>;
   tokens?: Balances;
+  atomic?: AtomicBalances;
   cached?: boolean;
   error?: string;
 }
@@ -65,6 +73,7 @@ type BalanceAction =
         balances?: {
           nfts: Balances<NftTokenWithBalance>;
           tokens: Balances;
+          atomic: AtomicBalances;
         };
         isBalancesCached?: boolean;
       };
@@ -78,6 +87,12 @@ type BalanceAction =
         updates: Erc721Token | Erc1155Token;
       };
     };
+
+export type AccountAtomicBalanceState =
+  Partial<TotalAtomicBalanceForAccount> & {
+    isLoading: boolean;
+    hasErrorOccurred: boolean;
+  };
 
 const BalancesContext = createContext<{
   balances: BalancesState;
@@ -101,6 +116,9 @@ const BalancesContext = createContext<{
         priceChange: TotalPriceChange;
       }
     | undefined;
+  getAtomicBalance: (
+    accountId: string | undefined,
+  ) => AccountAtomicBalanceState | undefined;
 }>({
   balances: { loading: true },
   getTokenPrice() {
@@ -113,6 +131,9 @@ const BalancesContext = createContext<{
   isTokensCached: true,
   totalBalance: undefined,
   getTotalBalance() {
+    return undefined;
+  },
+  getAtomicBalance() {
     return undefined;
   },
 });
@@ -167,16 +188,21 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     cached: true,
   });
 
+  const [accountAtomicBalances, setAccountAtomicBalances] = useState<
+    Record<string, AccountAtomicBalanceState>
+  >({});
+
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
 
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
       tokenTypes.reduce<BalanceSubscribers>(
-        (newSubscribers, tokenType) => ({
-          ...newSubscribers,
-          [tokenType]: (newSubscribers[tokenType] ?? 0) + 1,
-        }),
-        oldSubscribers,
+        (newSubscribers, tokenType) => {
+          newSubscribers[tokenType] ??= 0;
+          newSubscribers[tokenType]++;
+          return newSubscribers;
+        },
+        { ...oldSubscribers },
       ),
     );
   }, []);
@@ -184,11 +210,15 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   const unregisterSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
       tokenTypes.reduce(
-        (newSubscribers, tokenType) => ({
-          ...newSubscribers,
-          [tokenType]: Math.max((newSubscribers[tokenType] ?? 0) - 1, 0),
-        }),
-        oldSubscribers,
+        (newSubscribers, tokenType) => {
+          newSubscribers[tokenType] ??= 0;
+          newSubscribers[tokenType] = Math.max(
+            newSubscribers[tokenType] - 1,
+            0,
+          );
+          return newSubscribers;
+        },
+        { ...oldSubscribers },
       ),
     );
   }, []);
@@ -226,10 +256,64 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     });
   }, [request]);
 
+  const fetchAtomicBalanceForAccount = useCallback(
+    async (accountId: string) => {
+      setAccountAtomicBalances((prevState) => ({
+        ...prevState,
+        [accountId]: {
+          ...prevState[accountId],
+          hasErrorOccurred: false,
+          isLoading: true,
+        },
+      }));
+      request<GetTotalAtomicFundsForAccountHandler>({
+        method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_ACCOUNT,
+        params: {
+          accountId,
+        },
+      })
+        .then((atomicBalance) => {
+          if (!atomicBalance) {
+            setAccountAtomicBalances((prevState) => ({
+              ...prevState,
+              [accountId]: {
+                ...prevState[accountId],
+                hasErrorOccurred: false,
+                isLoading: false,
+              },
+            }));
+            return;
+          }
+
+          setAccountAtomicBalances((prevState) => ({
+            ...prevState,
+            [accountId]: {
+              balanceDisplayValue: atomicBalance.sum,
+              hasErrorOccurred: false,
+              isLoading: false,
+            },
+          }));
+        })
+        .catch((_err) => {
+          setAccountAtomicBalances((prevState) => ({
+            ...prevState,
+            [accountId]: {
+              ...prevState[accountId],
+              hasErrorOccurred: true,
+              isLoading: false,
+            },
+          }));
+        });
+    },
+    [request],
+  );
+
   useEffect(() => {
     if (!activeAccount) {
       return;
     }
+
+    fetchAtomicBalanceForAccount(activeAccount.id);
 
     const tokenTypes = Object.entries(subscribers)
       .filter(([, subscriberCount]) => subscriberCount > 0)
@@ -262,6 +346,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     network?.chainId,
     enabledNetworkIds,
     subscribers,
+    fetchAtomicBalanceForAccount,
   ]);
 
   const updateBalanceOnNetworks = useCallback(
@@ -329,6 +414,17 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     ],
   );
 
+  const getAtomicBalance = useCallback(
+    (accountId: string | undefined) => {
+      if (!accountId) {
+        return undefined;
+      }
+
+      return accountAtomicBalances[accountId];
+    },
+    [accountAtomicBalances],
+  );
+
   const getTokenPrice = useCallback(
     (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
@@ -375,6 +471,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           ? getTotalBalance(activeAccount.addressC)
           : undefined,
         getTotalBalance,
+        getAtomicBalance,
       }}
     >
       {children}

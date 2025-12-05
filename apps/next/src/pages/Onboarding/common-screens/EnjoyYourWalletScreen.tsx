@@ -80,7 +80,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             </Stack>
             <Typography variant="body1">
               {t(
-                'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees',
+                'You can now start buying, swapping, sending, receiving crypto and collectibles',
               )}
             </Typography>
           </Stack>

@@ -15,6 +15,7 @@ import {
   Balances,
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
+  AddressPublicKeyJson,
 } from '@core/types';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import type { SecretsService } from '~/services/secrets/SecretsService';
@@ -28,6 +29,7 @@ import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
+import { hex } from '@scure/base';
 
 jest.mock('./helpers/getAccountsWithActivity');
 
@@ -42,7 +44,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
   const networkService: jest.Mocked<NetworkService> = {
     getAvalanceProviderXP: jest.fn(),
-    getFavoriteNetworks: jest.fn(),
+    getEnabledNetworks: jest.fn(),
     getNetwork: jest.fn(),
     isMainnet: jest.fn(),
     activeNetworks: {
@@ -65,7 +67,9 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     ChainId.ETHEREUM_HOMESTEAD,
     ChainId.ETHEREUM_TEST_SEPOLIA,
   ];
-  const PROVIDER_XP = {} as any;
+  const PROVIDER_XP = {
+    getAddress: jest.fn(),
+  } as any;
 
   const MAINNETS = {
     [ChainId.AVALANCHE_MAINNET_ID]: {
@@ -144,9 +148,13 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     accountsService.getAccounts.mockResolvedValue(accounts);
   };
 
-  const mockSecrets = (xpubXP?: string) => {
+  const mockSecrets = (
+    xpubXP?: string,
+    xpPublicKeys?: AddressPublicKeyJson[],
+  ) => {
     secretsService.getWalletAccountsSecretsById.mockResolvedValueOnce({
       secretType: SecretType.Mnemonic,
+      publicKeys: xpPublicKeys ?? [],
       extendedPublicKeys: xpubXP
         ? [buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH)]
         : [],
@@ -241,6 +249,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     balanceAggregatorService.getPriceChangesData.mockResolvedValue({});
     balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
       nfts: {},
+      atomic: {},
       tokens: {
         [isMainnet
           ? ChainId.AVALANCHE_MAINNET_ID
@@ -301,7 +310,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   beforeEach(() => {
     jest.resetAllMocks();
 
-    networkService.getFavoriteNetworks.mockResolvedValue(FAVORITE_NETWORKS);
+    networkService.getEnabledNetworks.mockResolvedValue(FAVORITE_NETWORKS);
     networkService.getNetwork.mockImplementation(
       (chainId) => MAINNETS[chainId] ?? TESTNETS[chainId],
     );
@@ -372,7 +381,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     });
   });
 
-  describe('when requested wallet does not include XP public key', () => {
+  describe('when requested wallet does not include xpubXP or any XP public keys', () => {
     beforeEach(() => {
       mockEnv(true);
       mockAccounts();
@@ -650,6 +659,56 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       });
     });
   });
+  describe('when requested wallet does has additional XP public keys for some accounts', () => {
+    const keys = ['00000001', '00000002'];
+    const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
+      type: 'address-pubkey',
+      key,
+      derivationPath: `m/44'/9000'/0'/0/${index + 1}`,
+      curve: 'secp256k1',
+    }));
+
+    beforeEach(() => {
+      mockEnv(true);
+      mockAccounts();
+      mockBalances(true);
+      mockSecrets(undefined, additionalXPKeys); // We've got additional XP public keys
+
+      PROVIDER_XP.getAddress.mockImplementation(
+        (key) => `X-${hex.encode(Uint8Array.from(key))}`,
+      );
+    });
+
+    it('fetches balances for the additional XP public keys', async () => {
+      const unresolvedAddresses = [
+        'avaxUnresolvedAddress-1',
+        'avaxUnresolvedAddress-2',
+      ];
+      mockAccountsWithActivity(unresolvedAddresses);
+
+      const response = await handleRequest('seedphrase');
+      expect(response.error).toBeUndefined();
+      expect(getAccountsWithActivity).not.toHaveBeenCalled();
+
+      additionalXPKeys.forEach((key, index) => {
+        expect(PROVIDER_XP.getAddress).toHaveBeenNthCalledWith(
+          index + 1,
+          Buffer.from(hex.decode(key.key)),
+          'X',
+        );
+      });
+
+      // Expect calls for X/P balances of the addresses derived from the additional X/P keys
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenCalledWith(
+        expect.arrayContaining([ChainId.AVALANCHE_X, ChainId.AVALANCHE_P]),
+        keys.map((key) => ({ addressPVM: `P-${key}`, addressAVM: `X-${key}` })),
+        [TokenType.NATIVE],
+        false,
+      );
+    });
+  });
 
   describe('balance change and percentage change calculations', () => {
     beforeEach(() => {
@@ -663,6 +722,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage change: (10 / 90) * 100 = 11.11%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -684,6 +744,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage change: (-20 / 120) * 100 = -16.67%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -714,6 +775,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
             // First account
             return {
               nfts: {},
+              atomic: {},
               tokens: {
                 [ChainId.AVALANCHE_MAINNET_ID]: {
                   [ACCOUNT_SEED_0.addressC]: {
@@ -726,6 +788,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
             // Second account
             return {
               nfts: {},
+              atomic: {},
               tokens: {
                 [ChainId.AVALANCHE_MAINNET_ID]: {
                   [ACCOUNT_SEED_1.addressC]: {
@@ -748,6 +811,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('returns undefined for balanceChange when priceChange is 0', async () => {
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -767,6 +831,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('returns undefined for balanceChange when no priceChanges data exists', async () => {
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -786,6 +851,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('returns undefined for percentageChange when totalBalance is 0', async () => {
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -807,6 +873,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Cannot calculate percentage change from 0
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -831,6 +898,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage: (15 / 135) * 100 = 11.11%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {
@@ -856,6 +924,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Percentage: (10 / 190) * 100 = 5.26%
       balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
         nfts: {},
+        atomic: {},
         tokens: {
           [ChainId.AVALANCHE_MAINNET_ID]: {
             [ACCOUNT_SEEDLESS.addressC]: {

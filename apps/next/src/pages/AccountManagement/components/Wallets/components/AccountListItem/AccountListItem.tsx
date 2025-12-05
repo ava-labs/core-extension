@@ -102,6 +102,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
               variant="subtitle3"
               component="span"
               fontWeight={active ? 600 : 400}
+              marginLeft="6px"
             >
               {account.name}
             </RenamableTitle>

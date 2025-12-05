@@ -1,41 +1,75 @@
-import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
-import { singleton } from 'tsyringe';
+import { isEqual, partition, get, merge } from 'lodash';
+import { container, singleton } from 'tsyringe';
+import { EventEmitter } from 'events';
+import * as Sentry from '@sentry/browser';
+import { resolve } from '@avalabs/core-utils-sdk';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+
 import {
   Account,
+  AtomicBalances,
   Balances,
-  BalancesInfo,
-  BalanceServiceEvents,
   BALANCES_CACHE_KEY,
+  BalanceServiceEvents,
+  BalancesInfo,
   CachedBalancesInfo,
+  FeatureGates,
+  priceChangeRefreshRate,
   PriceChangesData,
   TOKENS_PRICE_DATA,
   TokensPriceChangeData,
   TokensPriceShortData,
-  priceChangeRefreshRate,
 } from '@core/types';
+import {
+  caipToChainId,
+  groupTokensByType,
+  isFulfilled,
+  watchlistTokens,
+  Monitoring,
+} from '@core/common';
+
+import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
+import { balanceApiClient } from '~/api-clients';
+import {
+  GetBalancesResponseError,
+  postV1BalanceGetBalances,
+} from '~/api-clients/balance-api';
+import {
+  convertStreamToArray,
+  reconstructAccountFromError,
+} from '~/api-clients/helpers';
+import {
+  convertBalanceResponsesToCacheBalanceObject,
+  convertBalanceResponseToAtomicCacheBalanceObject,
+  createGetBalancePayload,
+} from '~/api-clients/utils';
+import { AccountsService } from '~/services/accounts/AccountsService';
+
 import { BalancesService } from './BalancesService';
 import { NetworkService } from '../network/NetworkService';
-import { EventEmitter } from 'events';
-import * as Sentry from '@sentry/browser';
-import { isEqual, omit, pick } from 'lodash';
-
 import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
-import { resolve } from '@avalabs/core-utils-sdk';
 import { SettingsService } from '../settings/SettingsService';
-import { isFulfilled, watchlistTokens } from '@core/common';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
-import { groupTokensByType } from '@core/common';
+import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
+import { SecretsService } from '~/services/secrets/SecretsService';
+import { AddressResolver } from '../secrets/AddressResolver';
+
+const NFT_TYPES = [TokenType.ERC721, TokenType.ERC1155];
 
 @singleton()
 export class BalanceAggregatorService implements OnLock, OnUnlock {
   #eventEmitter = new EventEmitter();
   #balances: Balances = {};
+  #atomicBalances: AtomicBalances = {};
   #nfts: Balances<NftTokenWithBalance> = {};
   #isBalancesCached = true;
 
   get balances() {
     return this.#balances;
+  }
+
+  get atomicBalances() {
+    return this.#atomicBalances;
   }
 
   get nfts() {
@@ -52,18 +86,16 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     private lockService: LockService,
     private storageService: StorageService,
     private settingsService: SettingsService,
+    private featureFlagService: FeatureFlagService,
+    private secretsService: SecretsService,
+    private addressResolver: AddressResolver,
   ) {}
 
-  async getBalancesForNetworks(
+  async #fetchBalances(
     chainIds: number[],
     accounts: Account[],
     tokenTypes: TokenType[],
-    cacheResponse = true,
   ): Promise<{ tokens: Balances; nfts: Balances<NftTokenWithBalance> }> {
-    const sentryTracker = Sentry.startTransaction({
-      name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
-    });
-
     const networks = Object.values(
       await this.networkService.activeNetworks.promisify(),
     ).filter((network) => chainIds.includes(network.chainId));
@@ -91,22 +123,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       .filter(isFulfilled)
       .map(({ value }) => value);
 
-    const networksWithChanges = updatedNetworks
-      .filter(({ chainId, networkBalances }) => {
-        // We may have balances of other accounts cached for this chain ID,
-        // so to check for updates we need to only compare against a subsection
-        // of the cached balances.
-        const fetchedAddresses = Object.keys(networkBalances);
-        const cachedBalances = pick(
-          this.balances[chainId] ?? {},
-          fetchedAddresses,
-        );
-
-        return !isEqual(networkBalances, cachedBalances);
-      })
-      .map(({ chainId }) => chainId);
-
-    const freshBalances = updatedNetworks.reduce<{
+    return updatedNetworks.reduce<{
       nfts: Balances<NftTokenWithBalance>;
       tokens: Balances;
     }>(
@@ -121,21 +138,187 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       },
       { tokens: {}, nfts: {} },
     );
+  }
+
+  async #getNftBalances(
+    chainIds: number[],
+    accounts: Account[],
+    tokenTypes: TokenType[],
+  ): Promise<Balances<NftTokenWithBalance>> {
+    if (!tokenTypes.some((tokenType) => NFT_TYPES.includes(tokenType))) {
+      return {};
+    }
+
+    const balances = await this.#fetchBalances(chainIds, accounts, tokenTypes);
+
+    return balances.nfts;
+  }
+
+  async #fallbackOnBalanceServiceErrors(
+    errors: GetBalancesResponseError[],
+    tokenTypes: TokenType[],
+  ): Promise<Balances> {
+    if (errors.length === 0) {
+      return {};
+    }
+
+    // TODO: if we need to differentiate between chains we can filter based on the networkType
+    const accounts = errors.map(reconstructAccountFromError);
+    const chainIds = errors.map(({ caip2Id }) => caipToChainId(caip2Id));
+
+    try {
+      const { tokens } = await this.#fetchBalances(
+        Array.from(new Set(chainIds)),
+        accounts,
+        tokenTypes,
+      );
+      return tokens;
+    } catch (_error) {
+      return {};
+    }
+  }
+
+  async #getTokenBalances(
+    chainIds: number[],
+    accounts: Account[],
+    tokenTypes: TokenType[],
+  ): Promise<{ tokens: Balances; atomic: AtomicBalances }> {
+    if (tokenTypes.some((tokenType) => NFT_TYPES.includes(tokenType))) {
+      return { tokens: {}, atomic: {} };
+    }
+
+    if (
+      this.featureFlagService.featureFlags[
+        FeatureGates.BALANCE_SERVICE_INTEGRATION
+      ]
+    ) {
+      try {
+        const getBalancesRequestBody = await createGetBalancePayload({
+          accounts,
+          chainIds,
+          secretsService: this.secretsService,
+          addressResolver: this.addressResolver,
+        });
+
+        const balanceResult = await postV1BalanceGetBalances({
+          client: balanceApiClient,
+          body: getBalancesRequestBody,
+        });
+
+        const { balances, errors } = await convertStreamToArray(
+          balanceResult.stream,
+        );
+
+        const fallbackBalanceResponse =
+          await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
+
+        const cacheBalanceObject =
+          convertBalanceResponsesToCacheBalanceObject(balances);
+        const atomicCachedBalanceObject =
+          convertBalanceResponseToAtomicCacheBalanceObject(balances);
+
+        return {
+          tokens: merge(cacheBalanceObject, fallbackBalanceResponse),
+          atomic: atomicCachedBalanceObject,
+        };
+      } catch (err) {
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.BALANCES,
+        );
+      }
+    }
+
+    // if there was an error with querying the balance service, or the feature flag is off, we're getting balances through vm modules
+    const balances = await this.#fetchBalances(chainIds, accounts, tokenTypes);
+
+    return { tokens: balances.tokens, atomic: {} };
+  }
+
+  async getBalancesForNetworks(
+    chainIds: number[],
+    accounts: Account[],
+    tokenTypes: TokenType[],
+    cacheResponse = true,
+  ): Promise<{
+    tokens: Balances;
+    nfts: Balances<NftTokenWithBalance>;
+    atomic: AtomicBalances;
+  }> {
+    const sentryTracker = Sentry.startTransaction({
+      name: 'BalanceAggregatorService: getBatchedUpdatedBalancesForNetworks',
+    });
+
+    const [nftTokenTypes, notNftTokenTypes] = partition(
+      tokenTypes,
+      (tokenType) => NFT_TYPES.includes(tokenType),
+    );
+
+    const [nfts, { tokens, atomic }] = (
+      await Promise.allSettled([
+        this.#getNftBalances(chainIds, accounts, nftTokenTypes),
+        this.#getTokenBalances(chainIds, accounts, notNftTokenTypes),
+      ])
+    ).map((promiseResolve) =>
+      promiseResolve.status === 'rejected' ? null : promiseResolve.value,
+    ) as [
+      Balances<NftTokenWithBalance>,
+      { tokens: Balances; atomic: AtomicBalances },
+    ];
+
+    const freshBalances = {
+      nfts: (nfts ?? {}) as Balances<NftTokenWithBalance>,
+      tokens: (tokens ?? {}) as Balances,
+      atomic: (atomic ?? {}) as AtomicBalances,
+    };
 
     // NFTs don't have balance = 0, if they are sent they should be removed
     // from the list, hence deep merge doesn't work
-    const hasFetchedNfts =
-      tokenTypes.includes(TokenType.ERC721) ||
-      tokenTypes.includes(TokenType.ERC1155);
+    const hasFetchedNfts = tokenTypes.some((tokenType) =>
+      NFT_TYPES.includes(tokenType),
+    );
     const aggregatedNfts = hasFetchedNfts
       ? {
           ...this.nfts,
           ...freshBalances.nfts,
         }
       : this.nfts;
-    const hasBalanceChanges = networksWithChanges.length > 0;
+    /*
+     * {
+     *   1: {
+     *     0xa81e63fC485Dd1263D35d55D88422215884C6430: {
+     *       ETH: {
+     *        // the token properties
+     *       }
+     *     }
+     *   }
+     * }
+     * */
+    const hasBalanceChanges = Object.entries(freshBalances.tokens).some(
+      ([chainId, networkBalances]) => {
+        return Object.keys(networkBalances).some((fetchedAddress) => {
+          const pathToCheck = [chainId, fetchedAddress];
+          return !isEqual(
+            get(this.balances, pathToCheck),
+            get(freshBalances.tokens, pathToCheck),
+          );
+        });
+      },
+    );
+    const hasAtomicBalanceChanges = Object.entries(freshBalances.atomic).some(
+      ([chainId, balances]) => {
+        return Object.keys(balances).some((fetchedAddress) => {
+          const pathToCheck = [chainId, fetchedAddress];
+          return !isEqual(
+            get(this.atomicBalances, pathToCheck),
+            get(freshBalances.atomic, pathToCheck),
+          );
+        });
+      },
+    );
     const hasNftChanges = !isEqual(aggregatedNfts, this.nfts);
-    const hasChanges = hasBalanceChanges || hasNftChanges;
+    const hasChanges =
+      hasBalanceChanges || hasNftChanges || hasAtomicBalanceChanges;
 
     const aggregatedBalances = { ...this.balances };
     if (hasBalanceChanges) {
@@ -146,9 +329,24 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       for (const [chainId, chainBalances] of freshData) {
         for (const [address, addressBalance] of Object.entries(chainBalances)) {
           aggregatedBalances[chainId] = {
-            ...omit(aggregatedBalances[chainId], address), // Keep cached balances for other accounts
+            ...aggregatedBalances[chainId], // Keep cached balances for other accounts
             ...chainBalances,
             [address]: addressBalance,
+          };
+        }
+      }
+    }
+
+    const aggregatedAtomicBalances = { ...this.atomicBalances };
+    if (hasAtomicBalanceChanges) {
+      const freshData = Object.entries(freshBalances.atomic);
+
+      for (const [chainId, chainBalances] of freshData) {
+        for (const [address, addressBalance] of Object.entries(chainBalances)) {
+          aggregatedAtomicBalances[chainId] = {
+            ...aggregatedAtomicBalances[chainId], // Keep cached balances for other accounts
+            ...chainBalances,
+            [address]: { ...addressBalance },
           };
         }
       }
@@ -157,11 +355,13 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     if (cacheResponse && hasChanges && !this.lockService.locked) {
       this.#balances = aggregatedBalances;
       this.#nfts = aggregatedNfts;
+      this.#atomicBalances = aggregatedAtomicBalances;
 
       this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
         balances: {
           tokens: aggregatedBalances,
           nfts: aggregatedNfts,
+          atomic: aggregatedAtomicBalances,
         },
         isBalancesCached: false,
       } as BalancesInfo);
@@ -175,6 +375,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     return {
       tokens: aggregatedBalances,
       nfts: aggregatedNfts,
+      atomic: aggregatedAtomicBalances,
     };
   }
 
@@ -260,11 +461,13 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   async #updateCachedBalancesInfo() {
     return this.storageService.save<CachedBalancesInfo>(BALANCES_CACHE_KEY, {
       balances: this.#balances,
+      atomicBalances: this.#atomicBalances,
     });
   }
 
   onLock() {
     this.#balances = {};
+    this.#atomicBalances = {};
     this.#isBalancesCached = true;
   }
 
@@ -272,6 +475,34 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     // Do not set state from cache if we already have something in memory
     if (Object.keys(this.#balances).length) {
       return;
+    }
+    // trying to get the balances of all the accounts upon unlock if we have the balance service integration turned on
+    if (
+      this.featureFlagService.featureFlags[
+        FeatureGates.BALANCE_SERVICE_INTEGRATION
+      ]
+    ) {
+      try {
+        const accountsService = container.resolve(AccountsService);
+        const networkService = container.resolve(NetworkService);
+
+        networkService.enabledNetworksUpdated.addOnce(async () => {
+          const [accounts, enabledNetworks] = await Promise.all([
+            accountsService.getAccounts(),
+            networkService.getEnabledNetworks(),
+          ]);
+          this.getBalancesForNetworks(
+            enabledNetworks,
+            [
+              ...Object.values(accounts.primary),
+              ...Object.values(accounts.imported),
+            ].flat(),
+            Object.values(TokenType),
+          );
+        });
+      } catch (_error) {
+        /* if there was an error just continue */
+      }
     }
 
     const cachedBalance = await this.loadBalanceFromCache();
@@ -281,12 +512,14 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     }
 
     this.#balances = cachedBalance.balances;
+    this.#atomicBalances = cachedBalance.atomicBalances ?? {};
     this.#isBalancesCached = true;
 
     this.#eventEmitter.emit(BalanceServiceEvents.UPDATED, {
       balances: {
         tokens: this.#balances,
         nfts: this.#nfts,
+        atomic: this.#atomicBalances,
       },
       isBalancesCached: true,
     } as BalancesInfo);

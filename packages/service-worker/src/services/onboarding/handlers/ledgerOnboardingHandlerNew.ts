@@ -81,6 +81,7 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
         secretType: SecretType.LedgerLive,
         publicKeys: addressPublicKeys,
         derivationPathSpec: DerivationPath.LedgerLive,
+        extendedPublicKeys: [],
         name: walletName,
       });
     }

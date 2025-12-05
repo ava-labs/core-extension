@@ -1,17 +1,6 @@
 import { FC, useMemo, useState } from 'react';
-import { MdCheck, MdKeyboardArrowDown } from 'react-icons/md';
 import { useDefiContext, useFeatureFlagContext } from '@core/ui';
-import {
-  Button,
-  ButtonProps,
-  CircularProgress,
-  List,
-  ListItemText,
-  Stack,
-  styled,
-  Popover,
-  ListItemButton,
-} from '@avalabs/k2-alpine';
+import { CircularProgress, Stack, PopoverItem, Box } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 import { DeFiZeroState } from './components/DeFiZeroState';
@@ -21,31 +10,18 @@ import { DeFiProtocolList } from './components/DeFiProtocolList';
 import { DefiProtocol, FeatureGates } from '@core/types';
 import { DeFiSortOption, sortProtocols } from './utils/sortProtocols';
 import { DeFiCommonContent } from './components/DeFiCommonContent';
+import { DropdownMenu } from '@/components/DropdownMenu';
 
 export const DeFi: FC = () => {
   const { portfolio, hasError, isLoading } = useDefiContext();
-  const [filterMenu, setFilterMenu] = useState<HTMLButtonElement | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
-  const [sortMenu, setSortMenu] = useState<HTMLButtonElement | null>(null);
   const [sort, setSort] = useState<DeFiSortOption | null>(null);
 
   const { featureFlags } = useFeatureFlagContext();
 
-  const handleFilterMenuClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    setFilterMenu(event.currentTarget);
-  };
-
-  const handleFilterMenuClose = () => {
-    setFilterMenu(null);
-  };
-
   const hasProtocols = portfolio.protocols.length > 0;
   const isProperlyLoaded = !isLoading && !hasError;
   const isZeroState = isProperlyLoaded && !hasProtocols;
-
-  const { t } = useTranslation();
 
   const filteredProtocols = useMemo(() => {
     return portfolio.protocols.filter(
@@ -60,14 +36,6 @@ export const DeFi: FC = () => {
   const sortedProtocols = useMemo(() => {
     return sortProtocols(filteredProtocols, sort);
   }, [filteredProtocols, sort]);
-
-  const handleSortMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setSortMenu(event.currentTarget);
-  };
-
-  const handleSortMenuClose = () => {
-    setSortMenu(null);
-  };
 
   if (!featureFlags[FeatureGates.DEFI]) {
     return <DeFiPortfolioFeatureDisabled />;
@@ -85,73 +53,34 @@ export const DeFi: FC = () => {
       {hasError && <DeFiErrorState />}
       {!hasError && hasProtocols && (
         <>
-          <Stack direction="row" gap={1.25}>
-            <StyledButton
-              endIcon={<MdKeyboardArrowDown size={20} />}
-              onClick={handleFilterMenuClick}
-            >
-              {t('Filter')}
-            </StyledButton>
-            <StyledButton
-              endIcon={<MdKeyboardArrowDown size={20} />}
-              onClick={handleSortMenuClick}
-            >
-              {t('Sort')}
-            </StyledButton>
+          <Stack direction="row" gap={1}>
+            <FilterMenu
+              id="filter-menu"
+              protocols={portfolio.protocols}
+              setFilter={setFilter}
+              filter={filter}
+            />
+            <SortMenu id="sort-menu" sort={sort} setSort={setSort} />
           </Stack>
           <DeFiProtocolList protocols={sortedProtocols} />
-          <FilterMenu
-            id="filter-menu"
-            anchorEl={filterMenu}
-            protocols={portfolio.protocols}
-            setFilter={setFilter}
-            filter={filter}
-            open={Boolean(filterMenu)}
-            onClose={handleFilterMenuClose}
-          />
-          <SortMenu
-            id="sort-menu"
-            anchorEl={sortMenu}
-            sort={sort}
-            setSort={setSort}
-            open={Boolean(sortMenu)}
-            onClose={handleSortMenuClose}
-          />
         </>
       )}
     </Stack>
   );
 };
 
-const StyledButton = styled((buttonProps: ButtonProps) => (
-  <Button
-    variant="contained"
-    color="secondary"
-    size="xsmall"
-    {...buttonProps}
-  />
-))(({ theme }) => ({
-  paddingInline: theme.spacing(1.5),
-}));
-
 type FilterMenuProps = {
   id: string;
-  anchorEl: HTMLButtonElement | null;
   protocols: DefiProtocol[];
   setFilter: (id: string | null) => void;
   filter: string | null;
-  open: boolean;
-  onClose: () => void;
 };
 
 const FilterMenu: FC<FilterMenuProps> = ({
   id,
-  anchorEl,
   protocols,
   setFilter,
   filter,
-  open,
-  onClose,
 }) => {
   const { t } = useTranslation();
 
@@ -168,74 +97,34 @@ const FilterMenu: FC<FilterMenuProps> = ({
   }, [protocols]);
 
   return (
-    <Popover
-      id={id}
-      open={open}
-      anchorEl={anchorEl}
-      onClose={onClose}
-      slotProps={{
-        paper: {
-          sx: {
-            minWidth: 200,
-            paddingX: 1,
-          },
-        },
-      }}
-    >
-      <List>
-        <ListItemButton
-          dense
-          sx={{
-            paddingY: 0.5,
-            borderRadius: 1,
-          }}
-          onClick={() => {
-            setFilter(null);
-            onClose();
-          }}
-          selected={filter === null}
-        >
-          <ListItemText primary={t('All')} />
-        </ListItemButton>
+    <Box id={id}>
+      <DropdownMenu label={t('Filter')}>
+        <PopoverItem onClick={() => setFilter(null)} selected={filter === null}>
+          {t('All')}
+        </PopoverItem>
         {protocolTypeNames.map((typeName) => (
-          <ListItemButton
+          <PopoverItem
             key={typeName}
-            dense
-            sx={{
-              paddingY: 0.5,
-              borderRadius: 1,
-            }}
             onClick={() => {
               setFilter(typeName);
-              onClose();
             }}
+            selected={filter === typeName}
           >
-            <ListItemText primary={typeName} />
-            {filter === typeName && <MdCheck size={16} />}
-          </ListItemButton>
+            {typeName}
+          </PopoverItem>
         ))}
-      </List>
-    </Popover>
+      </DropdownMenu>
+    </Box>
   );
 };
 
 type SortMenuProps = {
   id: string;
-  anchorEl: HTMLButtonElement | null;
-  open: boolean;
-  onClose: () => void;
   sort: DeFiSortOption | null;
   setSort: (sort: DeFiSortOption | null) => void;
 };
 
-const SortMenu: FC<SortMenuProps> = ({
-  id,
-  anchorEl,
-  open,
-  onClose,
-  sort,
-  setSort,
-}) => {
+const SortMenu: FC<SortMenuProps> = ({ id, sort, setSort }) => {
   const { t } = useTranslation();
 
   const sortOptions: { label: string; value: DeFiSortOption }[] = [
@@ -247,28 +136,19 @@ const SortMenu: FC<SortMenuProps> = ({
   ] as const;
 
   return (
-    <Popover id={id} open={open} anchorEl={anchorEl} onClose={onClose}>
-      <List>
+    <Box id={id}>
+      <DropdownMenu label={t('Sort')}>
         {sortOptions.map((option) => (
-          <ListItemButton
+          <PopoverItem
             key={option.value}
-            dense
-            sx={{
-              paddingY: 0.5,
-              borderRadius: 1,
-            }}
-            onClick={() => {
-              setSort(option.value);
-              onClose();
-            }}
+            onClick={() => setSort(option.value)}
             selected={sort === option.value}
           >
-            <ListItemText primary={option.label} />
-            {sort === option.value && <MdCheck size={16} />}
-          </ListItemButton>
+            {option.label}
+          </PopoverItem>
         ))}
-      </List>
-    </Popover>
+      </DropdownMenu>
+    </Box>
   );
 };
 

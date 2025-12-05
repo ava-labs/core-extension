@@ -5,7 +5,7 @@ export const getNetworkStateWithTokenvisibility = async (
   networkService: NetworkService,
   settingsService: SettingsService,
 ) => {
-  const favoriteNetworks = await networkService.getFavoriteNetworks();
+  const enabledNetworks = await networkService.getEnabledNetworks(); // Enabled networks include the favorited networks from legacy
   const allNetworks = Object.values(
     await networkService.allNetworks.promisify(),
   );
@@ -17,7 +17,7 @@ export const getNetworkStateWithTokenvisibility = async (
 
   const tokenVisibility = await settingsService.getTokensVisibility();
 
-  return Array.from(new Set([activeNetwork.chainId, ...favoriteNetworks]))
+  return Array.from(new Set([activeNetwork.chainId, ...enabledNetworks]))
     .map((chainId) =>
       allNetworks.find((network) => network.chainId === chainId),
     )

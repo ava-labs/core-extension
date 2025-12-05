@@ -1,6 +1,12 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
-export const getLegacyXPAddressIndexFromPath = (path: string) => {
+import {
+  EVM_BASE_DERIVATION_PATH,
+  ExtendedPublicKey,
+  PrimaryWalletSecrets,
+} from '@core/types';
+
+export const getLegacyXPAddressIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
   const [, , , , addressIndex] = unprefixed.split('/');
 
@@ -11,7 +17,7 @@ export const getLegacyXPAddressIndexFromPath = (path: string) => {
   return parseInt(addressIndex);
 };
 
-export const getSolanaAccountIndexFromPath = (path: string) => {
+export const getSolanaAccountIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
   const [, , accountIndex] = unprefixed.split('/');
 
@@ -22,7 +28,7 @@ export const getSolanaAccountIndexFromPath = (path: string) => {
   return parseInt(accountIndex);
 };
 
-export const getXPAccountIndexFromPath = (path: string) => {
+export const getXPAccountIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
   const [, , accountIndex] = unprefixed.split('/');
 
@@ -33,7 +39,7 @@ export const getXPAccountIndexFromPath = (path: string) => {
   return parseInt(accountIndex);
 };
 
-export const getEvmAccountIndexFromPath = (path: string) => {
+export const getEvmAccountIndexFromPath = (path: string): number => {
   const lastSegment = path.split('/').pop();
 
   if (!lastSegment) {
@@ -43,14 +49,45 @@ export const getEvmAccountIndexFromPath = (path: string) => {
   return parseInt(lastSegment);
 };
 
-export const getAddressIndexFromPath = (vm: NetworkVMType, path: string) => {
+export const getAddressIndexFromPath = (
+  vm: NetworkVMType,
+  path: string,
+): number => {
   switch (vm) {
     case NetworkVMType.AVM:
     case NetworkVMType.PVM:
-      return getLegacyXPAddressIndexFromPath(path);
+      return getXPAccountIndexFromPath(path);
     case NetworkVMType.SVM:
       return getSolanaAccountIndexFromPath(path);
     default:
       return getEvmAccountIndexFromPath(path);
   }
 };
+
+export const getAvalancheXPub = (
+  secrets: PrimaryWalletSecrets,
+  accountIndex: number,
+): ExtendedPublicKey | undefined => {
+  if (!secrets || !('extendedPublicKeys' in secrets)) {
+    return;
+  }
+
+  return secrets.extendedPublicKeys.find(
+    (key) =>
+      key.curve === 'secp256k1' &&
+      key.derivationPath === getAvalancheExtendedKeyPath(accountIndex),
+  );
+};
+
+export const getEvmExtendedKeyPath = (): string => EVM_BASE_DERIVATION_PATH;
+
+export const getAvalancheXpBasePath = (): string => `m/44'/9000'/`;
+
+export const getAvalancheExtendedKeyPath = (accountIndex: number): string =>
+  `${getAvalancheXpBasePath()}${accountIndex}'`;
+
+export const getLegacyXPDerivationPath = (
+  addressIndex: number,
+  isChange = false,
+): string =>
+  `${getAvalancheExtendedKeyPath(0)}/${isChange ? '1' : '0'}/${addressIndex}`;

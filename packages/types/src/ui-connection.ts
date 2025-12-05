@@ -22,6 +22,7 @@ export enum ExtensionRequest {
   ACCOUNT_SELECT = 'account_select',
   ACCOUNT_ADD = 'account_add',
   ACCOUNT_GET_PRIVATEKEY = 'account_get_privatekey',
+  ACCOUNT_GET_XP_ADDRESSES = 'account_get_xp_addresses',
 
   SECRETS_APPEND_SOLANA_PUBLIC_KEYS = 'secrets_append_solana_public_keys',
 
@@ -115,6 +116,7 @@ export enum ExtensionRequest {
   KEYSTONE_INIT_TRANSPORT = 'keystone_init_transport',
   KEYSTONE_CLOSE_TRANSPORT = 'keystone_close_transport',
   KEYSTONE_SUBMIT_SIGNATURE = 'keystone_submit_signature',
+  KEYSTONE_MIGRATE_MISSING_PUBKEYS = 'keystone_migrate_missing_pubkeys',
 
   NAVIGATION_HISTORY_GET = 'navigation_history_get',
   NAVIGATION_HISTORY_SET = 'navigation_history_set',
@@ -178,7 +180,7 @@ export enum ExtensionRequest {
   GASLESS_FUND_TX = 'gasless_fund_tx',
   GASLESS_GET_ELIGIBILITY = 'gasless_get_eligibility',
   GASLESS_SET_HEX_VALUES = 'gasless_set_hex_values',
-  GASLESS_SET_DEFAUlT_STATE_VALUES = 'gasless_set_default_state_values',
+  GASLESS_SET_DEFAULT_STATE_VALUES = 'gasless_set_default_state_values',
   GASLESS_CREATE_OFFSCREEN = 'gasless_create_offscreen',
   GASLESS_CLOSE_OFFSCREEN = 'gasless_close_offscreen',
 
@@ -190,6 +192,8 @@ export enum ExtensionRequest {
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
 
   GET_TRENDING_TOKENS = 'get_trending_tokens',
+
+  GET_ATOMIC_FUNDS_FOR_ACCOUNT = 'get_atomic_funds_for_account',
 }
 
 /* eslint-disable no-prototype-builtins */

@@ -94,7 +94,7 @@ export class KeystoneOnboardingHandler implements HandlerType {
       };
     }
 
-    await addAllAccountsWithHistory({ walletId, addFirstAccount: true });
+    await addAllAccountsWithHistory({ walletId });
 
     await finalizeOnboarding({
       walletId,
