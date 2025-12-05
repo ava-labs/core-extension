@@ -1,5 +1,4 @@
 import {
-  Divider,
   Popover,
   PopoverContent,
   PopoverProps,
@@ -36,7 +35,7 @@ export const NoScrollPopoverContent = styled(PopoverContent)({
 });
 
 export const SearchableSelectListBox = styled((props: StackProps) => (
-  <Stack component="ul" divider={<Divider />} {...props} />
+  <Stack component="ul" {...props} />
 ))(({ theme }) => ({
   width: '100%',
   paddingBottom: theme.spacing(1),

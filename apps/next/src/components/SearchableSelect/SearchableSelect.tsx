@@ -1,4 +1,11 @@
-import { Divider, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  Divider,
+  getHexAlpha,
+  SearchInput,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import {
   ComponentProps,
   FC,
@@ -84,6 +91,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
     ...hookProps
   } = props;
 
+  const theme = useTheme();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const triggerElement = useRef<HTMLDivElement | null>(null);
@@ -151,7 +159,14 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
               slotProps={{ htmlInput: getSearchInputProps() }}
               {...searchInputProps}
             />
-            <Divider />
+            <Divider
+              sx={{
+                backgroundColor: getHexAlpha(
+                  theme.palette.background.default,
+                  30,
+                ),
+              }}
+            />
             {groupedOptions.every((group) => group.options.length === 0) && (
               <Stack
                 direction="row"
@@ -170,6 +185,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
             )}
             <SearchableSelectListBox>
               {groupedOptions.map((group, index, { length }) => {
+                console.log('group', group);
                 // If there is only one group and it's not narrowed down via search,
                 // render a flat list of options.
                 if (
