@@ -7,7 +7,7 @@ import {
   PopoverPosition,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { useAccountManager } from '@core/ui';
+import { useAccountManager, useAnalyticsContext } from '@core/ui';
 import { DOMAttributes, FC, MouseEventHandler, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -34,6 +34,7 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
     selectedAccounts,
   } = useAccountManager();
   const [isHovered, setIsHovered] = useState(false);
+  const { capture } = useAnalyticsContext();
   const [position, setPosition] = useState<PopoverPosition | undefined>(
     undefined,
   );
@@ -60,6 +61,9 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
     : {
         onClick: () => {
           onSelect(account.id);
+          capture('AccountSwitched', {
+            type: account.type,
+          });
           history.push('/portfolio');
         },
         onMouseEnter: () => setIsHovered(true),

@@ -162,6 +162,7 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <CurrencySelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+              onClick={() => capture('CurrencySettingClicked')}
             />
           }
         />
@@ -204,6 +205,7 @@ export const SettingsHomePage = () => {
           label={t('Networks')}
           href={`${path}/network-management`}
           divider
+          onClick={() => capture('ManageNetworksClicked')}
         />
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
@@ -253,11 +255,13 @@ export const SettingsHomePage = () => {
           label={t('Connected sites')}
           href={`${path}/connected-sites`}
           divider
+          onClick={() => capture('ConnectedSitesClicked')}
         />
         <SettingsNavItem
           label={t('Change password')}
           divider
           href={`${path}/change-password`}
+          onClick={() => capture('ChangePasswordClicked')}
         />
         {!isMfaSetupPromptVisible &&
           (walletDetails?.type === SecretType.Mnemonic ||
@@ -266,9 +270,14 @@ export const SettingsHomePage = () => {
               label={t('Show recovery phrase')}
               href={`${path}/recovery-phrase/show-phrase`}
               divider
+              onClick={() => capture('RecoveryPhraseClicked')}
             />
           )}
-        <SettingsNavItem label={t('Reset recovery phrase')} divider />
+        <SettingsNavItem
+          label={t('Reset recovery phrase')}
+          divider
+          onClick={() => capture('RecoveryPhraseResetClicked')}
+        />
 
         {walletDetails?.type === SecretType.Seedless &&
           isMfaSettingsAvailable && (
@@ -276,6 +285,7 @@ export const SettingsHomePage = () => {
               label={t('Recovery methods')}
               divider
               href={`${path}/recovery-methods`}
+              onClick={() => capture('RecoveryMethodsClicked')}
             />
           )}
 
@@ -320,21 +330,25 @@ export const SettingsHomePage = () => {
           label={t('Bug bounties')}
           href={BUG_BOUNTIES_URL}
           divider
+          onClick={() => capture('ReportBugClicked')}
         />
         <SettingsNavItem
           label={t('Request a feature')}
           href={CORE_FEATURE_REQUEST_URL}
           divider
+          onClick={() => capture('ProductFeatureRequestClicked')}
         />
         <SettingsNavItem
           label={t('Send feedback')}
           href={CORE_FEEDBACK_URL}
           divider
+          onClick={() => capture('ProductFeedbackClicked')}
         />
         <SettingsNavItem
           label={t('Help center')}
           sx={{ py: 0, mt: 0.75 }}
           href={CORE_SUPPORT_URL}
+          onClick={() => capture('HelpCenterClicked')}
         />
       </SettingsCard>
       <Button

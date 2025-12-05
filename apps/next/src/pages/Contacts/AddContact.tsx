@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
 import { isContactValid } from '@core/common';
-import { useContactsContext } from '@core/ui';
+import { useContactsContext, useAnalyticsContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
@@ -39,6 +39,7 @@ export const AddContact = () => {
   const { goBack, replace } = useHistory();
 
   const { createContact } = useContactsContext();
+  const { capture } = useAnalyticsContext();
 
   const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -52,6 +53,7 @@ export const AddContact = () => {
   const saveContact = useCallback(
     async (payload: Omit<Contact, 'id'>) => {
       setIsSaving(true);
+      capture('AddContactClicked');
       try {
         const id = crypto.randomUUID();
         await createContact({
@@ -59,15 +61,17 @@ export const AddContact = () => {
           ...payload,
         });
         toast.success(t('Contact created'));
+        capture('AddContactSucceeded');
         replace(getContactsPath('details', { id }));
       } catch (error) {
         console.error(error);
         toast.error(t('Failed to save contact'));
+        capture('AddContactFailed');
       } finally {
         setIsSaving(false);
       }
     },
-    [createContact, t, replace],
+    [createContact, t, replace, capture],
   );
 
   const { valid: isValid } = isContactValid({
