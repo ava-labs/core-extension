@@ -17,6 +17,7 @@ import { TransactionIcon } from './TransactionIcon';
 import * as Styled from './Styled';
 import { ViewInExplorerButton } from './ViewInExplorerButton';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { TokenType } from '@avalabs/vm-module-types';
 
 type Props = {
   transaction: TxHistoryItem;
@@ -80,10 +81,15 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
   const isDateYesterday = isYesterday(transaction.timestamp);
   const formattedTime = format(transaction.timestamp, TIME_FORMAT);
 
-  const tokenPrice = token ? (getTokenPrice(token.symbol) ?? 0) : 0;
+  const tokenPrice = token
+    ? (getTokenPrice(
+        token.type === TokenType.NATIVE ? token.symbol : token.address,
+      ) ?? null)
+    : null;
   const directionModifier = transaction.isSender ? -1 : 1;
-  const usdValue =
-    tokenPrice * (Number(token?.amount) || 0) * directionModifier;
+  const usdValue = tokenPrice
+    ? tokenPrice * (Number(token?.amount) || 0) * directionModifier
+    : null;
 
   return (
     <ListItem
@@ -115,7 +121,7 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
             </Typography>
           </Stack>
         }
-        secondary={currencyFormatter(usdValue)}
+        secondary={usdValue ? currencyFormatter(usdValue) : ''}
         slotProps={
           transaction.isSender ? sentAmountSlotProps : receivedAmountSlotProps
         }
