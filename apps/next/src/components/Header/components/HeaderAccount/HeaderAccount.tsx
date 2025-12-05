@@ -1,13 +1,14 @@
 import { FC, useEffect, useRef, useState } from 'react';
 import { WalletTotalBalanceProvider } from '@core/ui';
 import { AddressList } from '@/components/AddressList';
-import { Container, FadingText } from './styled';
+import { Container } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
 import { WalletIcon } from '@/components/WalletIcon';
 import { Stack, useTheme } from '@avalabs/k2-alpine';
 import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
+import { FadingText } from '../FadingText';
 
 type Props = {
   isAccountInfoVisible: boolean;
