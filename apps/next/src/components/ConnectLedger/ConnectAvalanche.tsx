@@ -69,7 +69,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           onStatusChange={setStatus}
           setDerivationPathSpec={setDerivationPathSpec}
           derivationPathSpec={derivationPathSpec}
-          numberOfKeys={1}
+          minNumberOfKeys={1}
         />
       </FullscreenModalContent>
       <FullscreenModalActions>
@@ -83,6 +83,9 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           <NavButton
             disabled={!isValid}
             color="primary"
+            loading={
+              status === 'ready' && derivedKeys.addressPublicKeys.length === 0
+            }
             onClick={() => onNext(derivedKeys)}
           >
             {t('Next')}

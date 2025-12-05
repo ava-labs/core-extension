@@ -678,7 +678,8 @@ export class SecretsService implements OnUnlock {
       return secrets.wallets.some((wallet) => {
         return (
           wallet.secretType === SecretType.LedgerLive &&
-          wallet.publicKeys.some((pub) => pub.key === secret)
+          (wallet.publicKeys.some((pub) => pub.key === secret) ||
+            wallet.extendedPublicKeys.some((pub) => pub.key === secret))
         );
       });
     }

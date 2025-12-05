@@ -30,13 +30,13 @@ import { QRCodeScannerContainer } from './QRCodeScannerContainer';
 type KeystoneQRConnectorProps = {
   onQRCodeScanned: (info: DerivedKeys) => void;
   onUnreadableQRCode?: (isDimensionsError: boolean) => void;
-  accountIndexes: number[];
+  minNumberOfKeys: number;
 };
 
 export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
   onQRCodeScanned,
   onUnreadableQRCode,
-  accountIndexes,
+  minNumberOfKeys,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -47,7 +47,11 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
   const getAddressPublicKeys = useCallback(
     async (extendedPublicKeyHex: string) => {
       const keys: PublicKey[] = [];
-      for (const index of accountIndexes) {
+      const startingIndexes = Array.from(
+        { length: minNumberOfKeys },
+        (_, i) => i,
+      );
+      for (const index of startingIndexes) {
         const evmKey = await getAddressPublicKeyFromXPub(
           extendedPublicKeyHex,
           index,
@@ -61,7 +65,7 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
 
       return keys;
     },
-    [accountIndexes],
+    [minNumberOfKeys],
   );
 
   const handleUnreadableQRCode = useCallback(

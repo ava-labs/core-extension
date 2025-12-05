@@ -1,6 +1,8 @@
+import { hex } from '@scure/base';
 import { WalletType } from '@avalabs/types';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
+import { getEvmAddressFromPubKey } from '@avalabs/core-wallets-sdk';
 
 import {
   useAnalyticsContext,
@@ -15,12 +17,12 @@ import {
   SelectAvatarScreen,
 } from '../../common-screens';
 import { ConnectKeystoneScreen, ConnectKeystoneScreenViaQR } from './screens';
-import { ConnectorCallbacks, DerivedKeys, Device } from './types';
+import { ConnectorCallbacks, DerivedKeys, Device, PublicKey } from './types';
 import { FeatureGates } from '@core/types';
 
 const BASE_PATH = '/onboarding/import/keystone';
 const TOTAL_STEPS = 7;
-const ACCOUNTS_TO_DERIVE = [0, 1, 2];
+const MIN_NUMBER_OF_KEYS = 1;
 
 export const ConnectKeystoneFlow = () => {
   const history = useHistory();
@@ -41,6 +43,7 @@ export const ConnectKeystoneFlow = () => {
     isKeystoneUsbSupported ? 'keystone-usb' : 'keystone-qr',
   );
   const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>();
+  const [addresses, setAddresses] = useState<string[]>([]);
 
   useEffect(() => {
     if (!addressPublicKeys?.length && !onboardingState.isOnBoarded) {
@@ -79,6 +82,9 @@ export const ConnectKeystoneFlow = () => {
       },
       onConnectionFailed: () => capture('OnboardingKeystone3ConnectionFailed'),
       onConnectionRetry: () => capture('OnboardingKeystone3Retry'),
+      onActivePublicKeysDiscovered: (publicKeys: PublicKey[]) => {
+        setAddresses(deriveAddresses(publicKeys));
+      },
     }),
     [capture, history],
   );
@@ -90,6 +96,7 @@ export const ConnectKeystoneFlow = () => {
   const onDeviceChange = useCallback(
     (newDevice: Device) => {
       setDevice(newDevice);
+      setAddresses([]);
 
       // Reset the whole state when device changes
       setDerivedKeys(undefined);
@@ -132,14 +139,15 @@ export const ConnectKeystoneFlow = () => {
           onScan={onScan}
           derivedInfo={derivedKeys}
           usbCallbacks={usbConnectorCallbacks}
-          accountIndexes={ACCOUNTS_TO_DERIVE}
+          minNumberOfKeys={MIN_NUMBER_OF_KEYS}
+          addresses={addresses}
         />
       </Route>
       <Route path={`${BASE_PATH}/scan-qr`}>
         <ConnectKeystoneScreenViaQR
           step={step++}
           totalSteps={TOTAL_STEPS}
-          accountIndexes={ACCOUNTS_TO_DERIVE}
+          minNumberOfKeys={MIN_NUMBER_OF_KEYS}
           onSuccess={onQRCodeScanned}
           onFailure={(isDimensionsError) => {
             if (isDimensionsError) {
@@ -177,3 +185,11 @@ export const ConnectKeystoneFlow = () => {
     </Switch>
   );
 };
+
+const deriveAddresses = (keys: PublicKey[]) =>
+  keys
+    .filter(({ vm }) => vm === 'EVM')
+    .map(({ key }) => key.key)
+    .map((publicKeyHex) =>
+      getEvmAddressFromPubKey(Buffer.from(hex.decode(publicKeyHex))),
+    );
