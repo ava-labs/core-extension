@@ -32,7 +32,7 @@ export const WalletAccount: FC<Props> = ({
 
   const history = useHistory();
   const { selectAccount, isActiveAccount } = useAccountsContext();
-  const { getTotalBalance } = useBalancesContext();
+  const { getTotalBalance, getAtomicBalance } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
 
   const clickHandler = useCallback(() => {
@@ -41,6 +41,7 @@ export const WalletAccount: FC<Props> = ({
   }, [history, selectAccount, account.id]);
 
   const balance = getTotalBalance(account.addressC);
+  const atomicBalance = getAtomicBalance(account.id);
 
   return (
     <Stack
@@ -79,7 +80,9 @@ export const WalletAccount: FC<Props> = ({
       <Stack direction="row" alignItems="center" gap={0.5}>
         <Stack alignItems="flex-end">
           <Typography variant="subtitle3">
-            {currencyFormatter(balance?.sum ?? 0)}
+            {currencyFormatter(
+              (balance?.sum ?? 0) + (atomicBalance?.balanceInCurrency ?? 0),
+            )}
           </Typography>
           <BalanceChange balanceChange={balance?.priceChange.value ?? 0} />
         </Stack>

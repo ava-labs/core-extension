@@ -149,6 +149,7 @@ export type TotalBalanceForWallet = {
 
 export type TotalAtomicBalanceForAccount = {
   balanceDisplayValue: number;
+  balanceInCurrency: number;
 };
 
 export type NonFungibleAssetType = 'evm_erc721' | 'evm_erc1155';
