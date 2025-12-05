@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { MigrateMissingPublicKeysFromLedgerHandler } from '@core/service-worker';
 import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '../contexts';
-import { isPrimaryAccount } from '@core/common';
 
 export const useIsIncorrectDevice = () => {
   const [isIncorrectDevice, setIsIncorrectDevice] = useState<boolean>(false);
@@ -20,12 +19,10 @@ export const useIsIncorrectDevice = () => {
     masterFingerprint,
   } = useLedgerContext();
   const { accounts } = useAccountsContext();
-  const activeAccountWalletId = isPrimaryAccount(accounts.active)
-    ? accounts.active.walletId
-    : null;
+  const activeWalletAccount = accounts.active?.id;
 
   const firstAccount =
-    activeAccountWalletId && accounts.primary[activeAccountWalletId];
+    activeWalletAccount && accounts.primary[activeWalletAccount];
 
   const firstAddress =
     firstAccount && firstAccount[0] && firstAccount[0].addressC;

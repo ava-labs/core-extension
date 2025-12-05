@@ -6,7 +6,11 @@ import { toast } from '@avalabs/k2-alpine';
 import { useCallback, useState } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 
-import { useErrorMessage, useImportSeedphrase } from '@core/ui';
+import {
+  useErrorMessage,
+  useImportSeedphrase,
+  useAnalyticsContext,
+} from '@core/ui';
 
 import { useOpenApp } from '@/hooks/useOpenApp';
 import { FullscreenModal } from '@/components/FullscreenModal';
@@ -24,6 +28,7 @@ export const ImportSeedphraseFlow = () => {
   const history = useHistory();
   const gerErrorMessage = useErrorMessage();
   const { importSeedphrase, isImporting } = useImportSeedphrase();
+  const { capture } = useAnalyticsContext();
   const openApp = useOpenApp();
 
   const [phrase, setPhrase] = useState<string>('');
@@ -32,6 +37,7 @@ export const ImportSeedphraseFlow = () => {
 
   const onPhraseEntered = useCallback(
     async (seedphrase: string) => {
+      capture('SeedphraseImportStarted');
       setPhrase(seedphrase);
       setIsCalculatingAddresses(true);
 
@@ -48,6 +54,7 @@ export const ImportSeedphraseFlow = () => {
 
         history.push('/import-wallet/seedphrase/confirm');
       } catch (error) {
+        capture('SeedphraseImportFailure');
         const { title, hint } = gerErrorMessage(error);
         toast.error(title, {
           description: hint,
@@ -58,7 +65,7 @@ export const ImportSeedphraseFlow = () => {
         setIsCalculatingAddresses(false);
       }
     },
-    [history, gerErrorMessage],
+    [history, gerErrorMessage, capture],
   );
 
   const onConfirm = useCallback(async () => {
@@ -72,10 +79,11 @@ export const ImportSeedphraseFlow = () => {
           mnemonic: phrase,
           name,
         });
-
+        capture('SeedphraseImportSuccess');
         openApp();
         window.close();
       } catch (error) {
+        capture('SeedphraseImportFailure');
         const { title, hint } = gerErrorMessage(error);
         toast.error(title, {
           description: hint,
@@ -84,7 +92,7 @@ export const ImportSeedphraseFlow = () => {
         throw error;
       }
     },
-    [importSeedphrase, phrase, gerErrorMessage, openApp],
+    [importSeedphrase, phrase, gerErrorMessage, openApp, capture],
   );
 
   return (
