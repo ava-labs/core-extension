@@ -15,6 +15,7 @@ export const ImportPrivateKey: FC = () => {
   const { capture } = useAnalyticsContext();
 
   const { selectAccount } = useAccountsContext();
+
   const { isImporting: isImportLoading, importPrivateKey } =
     useImportPrivateKey();
 
@@ -23,6 +24,7 @@ export const ImportPrivateKey: FC = () => {
     useState(false);
 
   const handleImport = useCallback(async () => {
+    capture('ImportPrivateKeyClicked');
     try {
       const importedAccountId = await importPrivateKey(privateKey);
       await selectAccount(importedAccountId);

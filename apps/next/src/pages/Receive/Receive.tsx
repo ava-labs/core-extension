@@ -14,7 +14,11 @@ import {
 
 import { AddressType } from '@core/types';
 import { stripAddressPrefix } from '@core/common';
-import { useAccountsContext, useQueryParams } from '@core/ui';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useQueryParams,
+} from '@core/ui';
 
 import { CChainAddressDisclaimer } from '@/components/CChainAddressDisclaimer';
 import { AddressSelector } from '@/components/AddressSelector';
@@ -28,9 +32,11 @@ export const Receive = () => {
   const {
     accounts: { active },
   } = useAccountsContext();
+  const { capture } = useAnalyticsContext();
 
   const onAddressTypeChange = useCallback(
-    (type) => {
+    (type: AddressType) => {
+      capture('TokenReceiveClicked', { addressType: type });
       const newParams = new URLSearchParams(params);
 
       newParams.set('addressType', type);
@@ -40,7 +46,7 @@ export const Receive = () => {
         search: newParams.toString(),
       });
     },
-    [params, history],
+    [capture, params, history],
   );
 
   if (!active) {

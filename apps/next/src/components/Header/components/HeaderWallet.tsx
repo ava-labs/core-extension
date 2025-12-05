@@ -4,6 +4,7 @@ import { HeaderWalletDetails } from '../types';
 import { useHistory } from 'react-router-dom';
 import { styled } from '@avalabs/k2-alpine';
 import { TruncatedText } from './styledComponents';
+import { useAnalyticsContext } from '@core/ui';
 
 type Props = {
   wallet: HeaderWalletDetails;
@@ -34,6 +35,7 @@ const WalletNameContainer = styled('div')({
 
 export const HeaderWallet: FC<Props> = ({ wallet }) => {
   const history = useHistory();
+  const { capture } = useAnalyticsContext();
   const [isWalletTruncated, setIsWalletTruncated] = useState(false);
   const walletTextRef = useRef<HTMLSpanElement>(null);
 
@@ -52,7 +54,12 @@ export const HeaderWallet: FC<Props> = ({ wallet }) => {
   }, [wallet.name]);
 
   return (
-    <Container onClick={() => history.push('/account-management')}>
+    <Container
+      onClick={() => {
+        capture('AccountSelectorOpened');
+        history.push('/account-management');
+      }}
+    >
       <PersonalAvatar cached size="xsmall" />
       <WalletNameContainer>
         <TruncatedText

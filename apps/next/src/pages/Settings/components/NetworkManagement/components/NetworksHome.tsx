@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Tab, TabMenu } from '@/components/TabMenu';
 import { getHexAlpha, IconButton, Stack, useTheme } from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
-import { useNetworkContext } from '@core/ui';
+import { useAnalyticsContext, useNetworkContext } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { SearchInput } from './SearchInput';
 import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
@@ -16,6 +16,7 @@ export const NetworksHome: FC = () => {
   const theme = useTheme();
   const history = useHistory();
   const { networks, customNetworks } = useNetworkContext();
+  const { capture } = useAnalyticsContext();
   const [activeTab, setActiveTab] = useState<Tab>('all');
 
   const [filter, setFilter] = useState('');
@@ -79,7 +80,14 @@ export const NetworksHome: FC = () => {
         <TabMenu
           size="small"
           value={activeTab}
-          onChange={(_, value) => setActiveTab(value)}
+          onChange={(_, value) => {
+            setActiveTab(value);
+            if (value === 'all') {
+              capture('NetworkNetworksTabClicked');
+            } else if (value === 'custom') {
+              capture('NetworkCustomTabClicked');
+            }
+          }}
           slotProps={{
             root: {
               style: {

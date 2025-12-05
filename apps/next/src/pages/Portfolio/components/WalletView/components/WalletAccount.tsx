@@ -6,6 +6,7 @@ import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 import { Account, NetworkWithCaipId } from '@core/types';
 import {
   useAccountsContext,
+  useAnalyticsContext,
   useBalancesContext,
   useSettingsContext,
 } from '@core/ui';
@@ -34,11 +35,16 @@ export const WalletAccount: FC<Props> = ({
   const { selectAccount, isActiveAccount } = useAccountsContext();
   const { getTotalBalance } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
-
+  const { capture } = useAnalyticsContext();
   const clickHandler = useCallback(() => {
     selectAccount(account.id);
+
+    capture('AccountSelectorAccountSwitched', {
+      type: account.type,
+    });
+
     history.push(`/portfolio`);
-  }, [history, selectAccount, account.id]);
+  }, [selectAccount, account.id, account.type, history, capture]);
 
   const balance = getTotalBalance(account.addressC);
 

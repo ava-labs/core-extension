@@ -6,7 +6,9 @@ import { AccountsService } from '~/services/accounts/AccountsService';
 import { PermissionsService } from '~/services/permissions/PermissionsService';
 import { getPermissionsConvertedToMetaMaskStructure } from '~/services/permissions/utils/getPermissionsConvertedToMetaMaskStructure';
 
-type ResultType = string[] | { invoker: string; parentCapability: string }[];
+export type ResultType =
+  | string[]
+  | { invoker: string; parentCapability: string }[];
 type BaseCallbackArgs<T> = {
   pendingAction: Action;
   result: T;

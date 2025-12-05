@@ -5,10 +5,8 @@ import {
   Switch,
   toast,
   Typography,
-  useMediaQuery,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
@@ -34,7 +32,7 @@ import {
 } from '@/config';
 
 import { getContactsPath } from '@/config/routes';
-import { FeatureGates, SecretType } from '@core/types';
+import { AnalyticsConsent, FeatureGates, SecretType } from '@core/types';
 import {
   AvatarButton,
   Footer,
@@ -59,18 +57,17 @@ export const SettingsHomePage = () => {
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
 
-  const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const {
     showTrendingTokens,
     setShowTrendingTokens,
     coreAssistant,
     setCoreAssistant,
+    analyticsConsent,
+    setAnalyticsConsent,
   } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
   const isMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
-
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Page
@@ -84,9 +81,9 @@ export const SettingsHomePage = () => {
       }}
     >
       <Stack direction="row" gap={1.5} width="100%">
-        <Stack width="50%">
+        <Stack width="100%">
           <SwitchCard
-            titleSize="small"
+            titleSize="large"
             checked={isDeveloperMode}
             onChange={() => {
               setDeveloperMode(!isDeveloperMode);
@@ -100,10 +97,12 @@ export const SettingsHomePage = () => {
             description={t(
               'Enable a sandbox environment for testing without using real funds',
             )}
-            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
+            orientation="horizontal"
           />
         </Stack>
-        <Stack width="50%">
+        {/* 
+				TODO: Uncomment this when we have a privacy mode is implemented: CP-11873
+				<Stack width="50%">
           <SwitchCard
             titleSize="small"
             checked={isPrivacyMode}
@@ -114,7 +113,7 @@ export const SettingsHomePage = () => {
               'Hide your wallet balance on the portfolio screen for added privacy',
             )}
           />
-        </Stack>
+        </Stack> */}
       </Stack>
 
       {isMfaSetupPromptVisible && (
@@ -162,6 +161,7 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <CurrencySelector
               sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+              onClick={() => capture('CurrencySettingClicked')}
             />
           }
         />
@@ -204,6 +204,7 @@ export const SettingsHomePage = () => {
           label={t('Networks')}
           href={`${path}/network-management`}
           divider
+          onClick={() => capture('ManageNetworksClicked')}
         />
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
@@ -253,11 +254,13 @@ export const SettingsHomePage = () => {
           label={t('Connected sites')}
           href={`${path}/connected-sites`}
           divider
+          onClick={() => capture('ConnectedSitesClicked')}
         />
         <SettingsNavItem
           label={t('Change password')}
           divider
           href={`${path}/change-password`}
+          onClick={() => capture('ChangePasswordClicked')}
         />
         {!isMfaSetupPromptVisible &&
           (walletDetails?.type === SecretType.Mnemonic ||
@@ -266,9 +269,14 @@ export const SettingsHomePage = () => {
               label={t('Show recovery phrase')}
               href={`${path}/recovery-phrase/show-phrase`}
               divider
+              onClick={() => capture('RecoveryPhraseClicked')}
             />
           )}
-        <SettingsNavItem label={t('Reset recovery phrase')} divider />
+        <SettingsNavItem
+          label={t('Reset recovery phrase')}
+          divider
+          onClick={() => capture('RecoveryPhraseResetClicked')}
+        />
 
         {walletDetails?.type === SecretType.Seedless &&
           isMfaSettingsAvailable && (
@@ -276,6 +284,7 @@ export const SettingsHomePage = () => {
               label={t('Recovery methods')}
               divider
               href={`${path}/recovery-methods`}
+              onClick={() => capture('RecoveryMethodsClicked')}
             />
           )}
 
@@ -287,7 +296,20 @@ export const SettingsHomePage = () => {
           sx={{
             pb: 0,
           }}
-          secondaryAction={<Switch size="small" />}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={analyticsConsent === AnalyticsConsent.Approved}
+              onChange={() => {
+                const newValue =
+                  analyticsConsent === AnalyticsConsent.Approved ? false : true;
+                capture('AnalyticsConsentSettingChanged', {
+                  showTrendingTokens: newValue,
+                });
+                setAnalyticsConsent(newValue);
+              }}
+            />
+          }
         />
       </SettingsCard>
       <SettingsCard title={t('Contacts')}>
@@ -320,21 +342,25 @@ export const SettingsHomePage = () => {
           label={t('Bug bounties')}
           href={BUG_BOUNTIES_URL}
           divider
+          onClick={() => capture('ReportBugClicked')}
         />
         <SettingsNavItem
           label={t('Request a feature')}
           href={CORE_FEATURE_REQUEST_URL}
           divider
+          onClick={() => capture('ProductFeatureRequestClicked')}
         />
         <SettingsNavItem
           label={t('Send feedback')}
           href={CORE_FEEDBACK_URL}
           divider
+          onClick={() => capture('ProductFeedbackClicked')}
         />
         <SettingsNavItem
           label={t('Help center')}
           sx={{ py: 0, mt: 0.75 }}
           href={CORE_SUPPORT_URL}
+          onClick={() => capture('HelpCenterClicked')}
         />
       </SettingsCard>
       <Button
