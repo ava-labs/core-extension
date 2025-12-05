@@ -14,6 +14,7 @@ export const AccountInfo = styled(Stack)`
     theme.transitions.create(['background', 'opacity'])};
   flex-direction: row;
   align-items: center;
+  min-width: 0;
   & > svg {
     opacity: 0;
   }
@@ -22,7 +23,7 @@ export const AccountInfo = styled(Stack)`
 export const AccountSelectContainer = styled(Stack)`
   cursor: pointer;
   position: relative;
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   overflow: hidden;
 `;

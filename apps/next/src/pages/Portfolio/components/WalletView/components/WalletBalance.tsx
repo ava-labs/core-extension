@@ -59,7 +59,7 @@ export const WalletBalance = ({
     <Stack mb={1} width="100%">
       <ClickableStack
         width="fit-content"
-        maxWidth="50%"
+        maxWidth="75%"
         onClick={() => {
           history.push('/account-management');
         }}
