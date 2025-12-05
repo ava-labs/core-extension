@@ -3,11 +3,11 @@ import {
   AvmCategories,
   CoreEthCategories,
   PvmCategories,
+  AvalancheBalanceItem,
 } from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { AVALANCHE_CHAIN_IDS } from './constants';
-import { AvalancheBalanceItem } from '@core/service-worker/src/api-clients';
 
 type PvmCategoryWithNativeTokenBalance = PvmCategories & {
   nativeTokenBalance: { decimals: number; price: number };

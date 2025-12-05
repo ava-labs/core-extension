@@ -8,7 +8,6 @@ import {
   TokenWithBalanceSPL,
   TokenWithBalanceSVM,
 } from '@avalabs/vm-module-types';
-import { AvalancheBalanceItem } from '@core/service-worker/src/api-clients/balance-api';
 
 import { EnsureDefined } from './util-types';
 
@@ -64,6 +63,15 @@ export interface PvmCategories {
   atomicMemoryUnlocked: {
     [avalancheChainId: string]: string;
   };
+}
+
+export interface AvalancheBalanceItem {
+  assetId: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  balance: string;
+  type: 'native' | 'unknown';
 }
 
 export interface CoreEthCategories {
