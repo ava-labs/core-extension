@@ -3,7 +3,6 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useRef,
   useState,
 } from 'react';
 import ConfettiLib from 'react-confetti';
@@ -37,7 +36,7 @@ const useWindowSize = () => {
 };
 
 export const Confetti = forwardRef<ConfettiMethods>((_, ref) => {
-  const confettiRef = useRef<any>(null);
+  const [key, setKey] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [opacity, setOpacity] = useState(1);
   const { width, height } = useWindowSize();
@@ -45,11 +44,8 @@ export const Confetti = forwardRef<ConfettiMethods>((_, ref) => {
   const restart = useCallback(() => {
     setShowConfetti(false);
     setOpacity(1);
-    // Force a re-render by toggling
-    setTimeout(() => {
-      setShowConfetti(true);
-      setOpacity(1);
-    }, 10);
+    setKey((v) => v + 1);
+    setShowConfetti(true);
   }, []);
 
   useEffect(() => {
@@ -92,7 +88,7 @@ export const Confetti = forwardRef<ConfettiMethods>((_, ref) => {
 
   return (
     <ConfettiLib
-      ref={confettiRef}
+      key={key}
       width={width}
       height={height}
       recycle={false}

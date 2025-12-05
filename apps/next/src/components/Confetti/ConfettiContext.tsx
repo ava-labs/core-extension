@@ -1,34 +1,33 @@
-import React, { useCallback, useRef, ReactNode, useEffect } from 'react';
+import React, {
+  useCallback,
+  useRef,
+  ReactNode,
+  createContext,
+  use,
+} from 'react';
 import { Confetti, ConfettiMethods } from './Confetti';
 
-// Global ref to store confetti instance - works without React context
-let globalConfettiRef: React.RefObject<ConfettiMethods | null> | null = null;
+const ConfettiMethodsContext = createContext<
+  React.RefObject<ConfettiMethods | null>
+>({ current: null });
 
 export const ConfettiProvider: React.FC<{ children?: ReactNode }> = ({
   children,
 }) => {
   const confettiRef = useRef<ConfettiMethods>(null);
 
-  // Register the ref globally when component mounts
-  useEffect(() => {
-    globalConfettiRef = confettiRef;
-    return () => {
-      globalConfettiRef = null;
-    };
-  }, []);
-
   return (
-    <>
+    <ConfettiMethodsContext.Provider value={confettiRef}>
       {children}
       <Confetti ref={confettiRef} />
-    </>
+    </ConfettiMethodsContext.Provider>
   );
 };
 
 export function useConfettiContext() {
+  const methodsRef = use(ConfettiMethodsContext);
   const triggerConfetti = useCallback(() => {
-    globalConfettiRef?.current?.restart();
-  }, []);
-
+    methodsRef.current?.restart();
+  }, [methodsRef]);
   return { triggerConfetti };
 }
