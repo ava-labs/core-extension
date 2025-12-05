@@ -1,5 +1,5 @@
 import { useAccountsContext } from '@core/ui';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { HeaderActions } from './components/HeaderActions';
 import {
@@ -9,13 +9,12 @@ import {
 import { ConciergePrompt } from './ConciergePrompt';
 import { HeaderAccount } from './components/HeaderAccount';
 import { HeaderContainer, HeaderNavigationContainer } from './styled';
-import { useHeader } from './hooks/useHeader';
+import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
 import { PersonalAvatar } from '../PersonalAvatar';
 
 export const Header = () => {
   const { accounts } = useAccountsContext();
-  const headerActionsRef = useRef<HTMLDivElement>(null);
-  const { headerInfoWidth, isAccountInfoVisible } = useHeader(headerActionsRef);
+  const { isAccountInfoVisible } = useAccountInfoVisibility();
   const activeAccount = accounts.active;
 
   const location = useLocation();
@@ -35,16 +34,13 @@ export const Header = () => {
         <AccountSelectContainer>
           <AccountInfo>
             {isAccountView ? (
-              <HeaderAccount
-                headerInfoWidth={headerInfoWidth}
-                isAccountInfoVisible={isAccountInfoVisible}
-              />
+              <HeaderAccount isAccountInfoVisible={isAccountInfoVisible} />
             ) : (
               <PersonalAvatar size="xsmall" sx={{ mr: 1 }} />
             )}
           </AccountInfo>
         </AccountSelectContainer>
-        <div ref={headerActionsRef}>
+        <div style={{ flexShrink: 0 }}>
           <HeaderActions account={activeAccount} />
         </div>
       </HeaderNavigationContainer>

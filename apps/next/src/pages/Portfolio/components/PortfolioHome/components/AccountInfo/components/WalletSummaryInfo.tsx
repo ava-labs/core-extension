@@ -1,8 +1,7 @@
 import { Typography, useTheme } from '@avalabs/k2-alpine';
 import { WalletSummary } from '@/hooks/useActiveAccountInfo';
-import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon';
 import { MdNavigateNext } from 'react-icons/md';
 import { ClickableStack } from '../styled';
 
@@ -14,7 +13,6 @@ type Props = {
 export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
   const history = useHistory();
   const theme = useTheme();
-  const [isWalletHovered, setIsWalletHovered] = useState(false);
 
   if (!walletSummary) return null;
 
@@ -24,9 +22,13 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
       alignItems="center"
       sx={{
         maxWidth: maxWidth ? `${maxWidth}px` : '100%',
+        '& .hover-arrow': {
+          opacity: 0,
+        },
+        '&:hover .hover-arrow': {
+          opacity: 1,
+        },
       }}
-      onMouseEnter={() => setIsWalletHovered(true)}
-      onMouseLeave={() => setIsWalletHovered(false)}
       onClick={() => {
         history.push(`/wallet/${walletSummary.id}`);
       }}
@@ -56,11 +58,9 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
       >
         {walletSummary.name}
       </Typography>
-      {isWalletHovered && (
-        <div style={{ flexShrink: 0, height: 16 }}>
-          <MdNavigateNext size={16} color={theme.palette.text.secondary} />
-        </div>
-      )}
+      <div className="hover-arrow" style={{ flexShrink: 0, height: 16 }}>
+        <MdNavigateNext size={16} color={theme.palette.text.secondary} />
+      </div>
     </ClickableStack>
   );
 };

@@ -7,7 +7,7 @@ import { useAccountsContext, useWalletContext } from '@core/ui';
 import { AddressType, SecretType } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
 
-import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon';
 import { HexagonalIcon } from '@/components/HexagonalIcon';
 import { getAddressByType } from '@/utils/getAddressByType';
 

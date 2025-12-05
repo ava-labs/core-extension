@@ -4,20 +4,16 @@ import { AddressList } from '@/components/AddressList';
 import { Container, FadingText } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
-import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon';
 import { Stack, useTheme } from '@avalabs/k2-alpine';
 import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 
 type Props = {
-  headerInfoWidth: number;
   isAccountInfoVisible: boolean;
 };
 
-const HeaderAccountContent: FC<Props> = ({
-  headerInfoWidth,
-  isAccountInfoVisible,
-}) => {
+const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
   const theme = useTheme();
   const history = useHistory();
   const { walletSummary, account } = useActiveAccountInfo();
@@ -34,10 +30,7 @@ const HeaderAccountContent: FC<Props> = ({
   }, []);
 
   return (
-    <Container
-      ref={containerRef}
-      sx={{ maxWidth: headerInfoWidth, width: 'fit-content' }}
-    >
+    <Container ref={containerRef}>
       {isAccountInfoVisible && (
         <PersonalAvatar size="xsmall" sx={{ mr: 1, ml: 0.5 }} />
       )}
@@ -113,16 +106,10 @@ const HeaderAccountContent: FC<Props> = ({
   );
 };
 
-export const HeaderAccount: FC<Props> = ({
-  headerInfoWidth,
-  isAccountInfoVisible,
-}) => {
+export const HeaderAccount: FC<Props> = ({ isAccountInfoVisible }) => {
   return (
     <WalletTotalBalanceProvider>
-      <HeaderAccountContent
-        headerInfoWidth={headerInfoWidth}
-        isAccountInfoVisible={isAccountInfoVisible}
-      />
+      <HeaderAccountContent isAccountInfoVisible={isAccountInfoVisible} />
     </WalletTotalBalanceProvider>
   );
 };

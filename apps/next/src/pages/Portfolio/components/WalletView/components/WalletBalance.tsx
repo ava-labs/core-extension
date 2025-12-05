@@ -1,5 +1,6 @@
-import { WalletIcon } from '@/components/WalletIcon/WalletIcon';
+import { WalletIcon } from '@/components/WalletIcon';
 import {
+  Box,
   CircularProgress,
   Stack,
   Typography,
@@ -69,9 +70,9 @@ export const WalletBalance = ({
           color="text.secondary"
           sx={{ minWidth: 0 }}
         >
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+          <Box flexShrink={0} display="flex" alignItems="center">
             <WalletIcon size={27} type={walletType} expanded={true} />
-          </div>
+          </Box>
 
           <Typography
             variant="h2"

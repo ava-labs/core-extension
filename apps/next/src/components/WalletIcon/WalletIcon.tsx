@@ -16,13 +16,12 @@ export const WalletIcon: FC<WalletIconProps> = ({
   expanded,
   size = 16,
 }) => {
-  if (type === SecretType.Ledger || type === SecretType.LedgerLive) {
-    return <LedgerIcon size={size} color={color} />;
-  }
+  const Icon =
+    type === SecretType.Ledger || type === SecretType.LedgerLive
+      ? LedgerIcon
+      : expanded
+        ? WalletOpenIcon
+        : WalletClosedIcon;
 
-  return expanded ? (
-    <WalletOpenIcon size={size} color={color} />
-  ) : (
-    <WalletClosedIcon size={size} color={color} />
-  );
+  return <Icon size={size} color={color} />;
 };

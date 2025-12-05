@@ -2,10 +2,10 @@ import {
   createContext,
   useContext,
   useState,
-  useCallback,
   useRef,
   useEffect,
   ReactNode,
+  useMemo,
 } from 'react';
 
 type AccountInfoVisibilityContextType = {
@@ -25,12 +25,7 @@ export const AccountInfoVisibilityProvider = ({
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  const setAccountInfoElement = useCallback(
-    (newElement: HTMLDivElement | null) => {
-      setElement(newElement);
-    },
-    [],
-  );
+  const setAccountInfoElement = setElement;
 
   useEffect(() => {
     // Clean up previous observer
@@ -60,21 +55,25 @@ export const AccountInfoVisibilityProvider = ({
     };
   }, [element]);
 
+  const value = useMemo(
+    () => ({ isAccountInfoVisible, setAccountInfoElement }),
+    [isAccountInfoVisible, setAccountInfoElement],
+  );
+
   return (
-    <AccountInfoVisibilityContext.Provider
-      value={{ isAccountInfoVisible, setAccountInfoElement }}
-    >
+    <AccountInfoVisibilityContext.Provider value={value}>
       {children}
     </AccountInfoVisibilityContext.Provider>
   );
 };
 
+const defaultContextValue: AccountInfoVisibilityContextType = {
+  isAccountInfoVisible: false,
+  setAccountInfoElement: () => {},
+};
+
 export const useAccountInfoVisibility = () => {
   const context = useContext(AccountInfoVisibilityContext);
-  if (!context) {
-    throw new Error(
-      'useAccountInfoVisibility must be used within AccountInfoVisibilityProvider',
-    );
-  }
-  return context;
+  // Return default value if context is not available (e.g., during initial render)
+  return context ?? defaultContextValue;
 };

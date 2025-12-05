@@ -22,6 +22,9 @@ export const AccountInfo = styled(Stack)`
 export const AccountSelectContainer = styled(Stack)`
   cursor: pointer;
   position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 export const promptTextAnimation = keyframes`
