@@ -19,6 +19,7 @@ import { OverflowingTypography } from '@/components/OverflowingTypography';
 
 import { ConnectWalletCardProps } from '../../types';
 import { AccountDivider } from '../Styled';
+import CheckIcon from '@/components/CheckIcon';
 
 export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
   wallet,
@@ -36,10 +37,14 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
     <Stack px={0.5} divider={<AccountDivider />}>
       {wallet.accounts.map((account) => {
         const balance = getTotalBalance(account.address)?.sum;
-        const isDisabled = account.id === activeAccount?.id;
+        const isActive = account.id === activeAccount?.id;
 
         return (
           <Stack key={account.id} direction="row" alignItems="center" gap={1.5}>
+            <CheckIcon
+              size={11}
+              color={isActive ? 'currentColor' : 'transparent'}
+            />
             <Stack flexGrow={1}>
               <OverflowingTypography variant="subtitle3" fontWeight={500}>
                 {account.name}
@@ -53,14 +58,14 @@ export const ReadyWalletCard: FC<ConnectWalletCardProps> = ({
             </Typography>
             <Tooltip
               title={
-                isDisabled ? t('Active account is accessible by default') : ''
+                isActive ? t('Active account is accessible by default') : ''
               }
             >
-              <Box sx={{ cursor: isDisabled ? 'not-allowed' : 'pointer' }}>
+              <Box sx={{ cursor: isActive ? 'not-allowed' : 'pointer' }}>
                 <Switch
                   checked={isSelected(account.id)}
-                  readOnly={isDisabled}
-                  disabled={isDisabled}
+                  readOnly={isActive}
+                  disabled={isActive}
                   onChange={() => toggleAccount(account.id)}
                   size="small"
                 />

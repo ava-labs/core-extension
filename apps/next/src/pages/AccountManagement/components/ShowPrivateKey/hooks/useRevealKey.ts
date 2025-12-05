@@ -5,7 +5,7 @@ import {
   PrivateKeyChain,
   SecretType,
 } from '@core/types';
-import { useConnectionContext } from '@core/ui';
+import { useAnalyticsContext, useConnectionContext } from '@core/ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GetPrivateKeyHandler } from '~/services/accounts/handlers/getPrivateKey';
@@ -13,7 +13,11 @@ import { GetPrivateKeyHandler } from '~/services/accounts/handlers/getPrivateKey
 export const useRevealKey = () => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
+  const { capture } = useAnalyticsContext();
   const [error, setError] = useState('');
+  const [errorType, setErrorType] = useState<GetPrivateKeyErrorTypes | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const revealKey = useCallback(
@@ -25,14 +29,17 @@ export const useRevealKey = () => {
       id: string,
     ): Promise<string | null> => {
       if (!type) {
+        capture('ExportPrivateKeyErrorInvalidType');
         throw new Error('Invalid type!');
       }
       setIsLoading(true);
+      setErrorType(null);
       return request<GetPrivateKeyHandler>({
         method: ExtensionRequest.ACCOUNT_GET_PRIVATEKEY,
         params: [{ type, index, id, password, chain }],
       })
         .catch((e: { type: GetPrivateKeyErrorTypes; message: string }) => {
+          setErrorType(e.type);
           if (e.type === GetPrivateKeyErrorTypes.Password) {
             setError(t('Invalid Password'));
           } else if (e.type === GetPrivateKeyErrorTypes.Chain) {
@@ -47,8 +54,8 @@ export const useRevealKey = () => {
           setIsLoading(false);
         });
     },
-    [request, t],
+    [capture, request, t],
   );
 
-  return { error, isLoading, revealKey };
+  return { error, errorType, isLoading, revealKey };
 };

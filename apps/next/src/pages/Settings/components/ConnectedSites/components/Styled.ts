@@ -33,9 +33,11 @@ export const Avatar = styled(K2Avatar, {
   shouldForwardProp: (propName) =>
     propName !== ('error' satisfies keyof CustomAvatarProps),
 })<CustomAvatarProps>(({ theme, error }) => ({
+  width: 32,
+  height: 32,
   ...(error && {
     backgroundColor: theme.palette.neutral['850_10'],
     border: '1px solid',
-    borderColor: theme.palette.neutral['850_30'],
+    borderColor: getHexAlpha(theme.palette.text.primary, 10),
   }),
 }));

@@ -1,5 +1,5 @@
 import { toast } from '@avalabs/k2-alpine';
-import { ExportState } from '@core/ui';
+import { ExportState, useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -17,6 +17,7 @@ export const WaitingLounge: FC<StageProps> = ({
 }) => {
   const { t } = useTranslation();
   const { replace } = useHistory();
+  const { capture } = useAnalyticsContext();
 
   const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
   const showCountDown =
@@ -38,6 +39,7 @@ export const WaitingLounge: FC<StageProps> = ({
       {showCancelConfirmation && state === ExportState.Pending && (
         <CancellationScreen
           onApprove={async () => {
+            capture('RecoveryPhraseResetApproved');
             setShowCancelConfirmation(false);
             await cancelExport();
             toast.error(t('Export Cancelled'));
@@ -48,6 +50,7 @@ export const WaitingLounge: FC<StageProps> = ({
             }
           }}
           onCancel={() => {
+            capture('RecoveryPhraseResetDeclined');
             setShowCancelConfirmation(false);
           }}
         />
@@ -59,6 +62,7 @@ export const WaitingLounge: FC<StageProps> = ({
           timeLeft={timeLeft}
           fullScreen={fullscreen}
           onCancel={() => {
+            capture('RecoveryPhraseResetClicked');
             setShowCancelConfirmation(true);
           }}
         />

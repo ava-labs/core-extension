@@ -4,6 +4,7 @@ import {
   useBalancesContext,
   useBalanceTotalInCurrency,
   useSettingsContext,
+  useAnalyticsContext,
 } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,7 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
   const balance = useBalanceTotalInCurrency(account);
   const { isTokensCached, updateBalanceOnNetworks } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
+  const { capture } = useAnalyticsContext();
 
   return (
     <header>
@@ -37,7 +39,12 @@ export const AccountDetailsHeader: FC<Props> = ({ account }) => {
             variant="contained"
             size="small"
             color="secondary"
-            onClick={() => updateBalanceOnNetworks([account])}
+            onClick={() => {
+              capture('AccountSelectorRefreshBalanceClicked', {
+                type: account.type,
+              });
+              updateBalanceOnNetworks([account]);
+            }}
           >
             {t('Refresh')}
           </EndAction>

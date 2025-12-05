@@ -5,6 +5,7 @@ import { Account } from '@core/types';
 import { FC } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
+import { useAnalyticsContext } from '@core/ui';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 
@@ -15,6 +16,7 @@ type Props = {
 export const HeaderActions: FC<Props> = ({ account }) => {
   const history = useHistory();
   const theme = useTheme();
+  const { capture } = useAnalyticsContext();
   const {
     state: { pendingTransfers },
   } = useNextUnifiedBridgeContext();
@@ -26,7 +28,10 @@ export const HeaderActions: FC<Props> = ({ account }) => {
       <IconButton
         disabled={!account}
         size="small"
-        onClick={() => history.push(`/receive?accId=${account?.id}`)}
+        onClick={() => {
+          capture('TokenReceiveClicked', { addressType: 'C' });
+          history.push(`/receive?accId=${account?.id}`);
+        }}
       >
         <QrCodeIcon fill={theme.palette.text.primary} size={24} />
       </IconButton>
