@@ -412,6 +412,7 @@ export type PvmGetBalancesResponse = {
     categories: {
       unlockedStaked: string;
       unlockedUnstaked: string;
+      unlockedUnstakedMultiSig: string;
       lockedStaked: string;
       lockedPlatform: string;
       lockedStakeable: string;

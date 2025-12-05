@@ -3,7 +3,7 @@ import { FaCheck } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
 import { Fade, Stack, truncateAddress, Typography } from '@avalabs/k2-alpine';
 
-import { useWalletContext } from '@core/ui';
+import { useAccountsContext, useWalletContext } from '@core/ui';
 import { AddressType, SecretType } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
 
@@ -33,6 +33,12 @@ export const AccountRecipientItem: FC<AccountRecipientItemProps> = ({
 }) => {
   const { t } = useTranslation();
   const { getWallet } = useWalletContext();
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const activeWalletId = isPrimaryAccount(activeAccount)
+    ? activeAccount.walletId
+    : null;
 
   const wallet = isPrimaryAccount(recipient.account)
     ? getWallet(recipient.account.walletId)
@@ -50,6 +56,11 @@ export const AccountRecipientItem: FC<AccountRecipientItemProps> = ({
             20,
           );
 
+  const isActiveWallet =
+    activeWalletId && isPrimaryAccount(recipient.account)
+      ? activeWalletId === recipient.account.walletId
+      : false;
+
   return (
     <StyledMenuItem value={recipient.id} {...rest}>
       <Stack
@@ -63,6 +74,8 @@ export const AccountRecipientItem: FC<AccountRecipientItemProps> = ({
           <WalletIcon
             type={wallet?.type ?? SecretType.PrivateKey}
             authProvider={wallet?.authProvider}
+            expanded={isActiveWallet}
+            size={20}
           />
         </HexagonalIcon>
         <Stack gap={0.25} flexGrow={1}>
