@@ -67,13 +67,6 @@ export const AccountInfoVisibilityProvider = ({
   );
 };
 
-const defaultContextValue: AccountInfoVisibilityContextType = {
-  isAccountInfoVisible: false,
-  setAccountInfoElement: () => {},
-};
-
 export const useAccountInfoVisibility = () => {
-  const context = useContext(AccountInfoVisibilityContext);
-  // Return default value if context is not available (e.g., during initial render)
-  return context ?? defaultContextValue;
+  return useContext(AccountInfoVisibilityContext);
 };
