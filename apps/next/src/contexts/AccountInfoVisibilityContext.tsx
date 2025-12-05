@@ -13,8 +13,13 @@ type AccountInfoVisibilityContextType = {
   setAccountInfoElement: (element: HTMLDivElement | null) => void;
 };
 
+const defaultContextValue: AccountInfoVisibilityContextType = {
+  isAccountInfoVisible: false,
+  setAccountInfoElement: () => {},
+};
+
 const AccountInfoVisibilityContext =
-  createContext<AccountInfoVisibilityContextType | null>(null);
+  createContext<AccountInfoVisibilityContextType>(defaultContextValue);
 
 export const AccountInfoVisibilityProvider = ({
   children,
@@ -67,6 +72,7 @@ export const AccountInfoVisibilityProvider = ({
   );
 };
 
-export const useAccountInfoVisibility = () => {
-  return useContext(AccountInfoVisibilityContext);
-};
+export const useAccountInfoVisibility =
+  (): AccountInfoVisibilityContextType => {
+    return useContext(AccountInfoVisibilityContext);
+  };
