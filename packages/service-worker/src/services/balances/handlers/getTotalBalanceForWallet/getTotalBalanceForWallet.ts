@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import { injectable } from 'tsyringe';
 import { Network } from '@avalabs/glacier-sdk';
 import { hex } from '@scure/base';
@@ -257,9 +258,9 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       return {
         ...request,
         result: {
-          totalBalanceInCurrency: totalBalanceInCurrency
-            ? totalBalanceInCurrency + avaxPrice * atomicFundsForAccount
-            : undefined,
+          totalBalanceInCurrency: isNil(totalBalanceInCurrency)
+            ? undefined
+            : totalBalanceInCurrency + avaxPrice * atomicFundsForAccount,
           hasBalanceOnUnderivedAccounts,
           balanceChange,
           percentageChange,
