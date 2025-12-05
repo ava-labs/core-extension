@@ -2,7 +2,6 @@ import { Account } from '@core/types';
 import { FC, useRef } from 'react';
 import { MdNavigateNext } from 'react-icons/md';
 import { HeaderWalletDetails } from '../../types';
-import { WalletTotalBalanceProvider } from '@core/ui';
 import { AddressList } from '../../AddressList';
 import { useHeaderAccount } from './hooks/useHeaderAccount';
 import { WalletSection } from './components/WalletSection';
@@ -97,12 +96,10 @@ const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
 
 export const HeaderAccount: FC<Props> = ({ wallet, isTrueWallet, account }) => {
   return (
-    <WalletTotalBalanceProvider>
-      <HeaderAccountContent
-        wallet={wallet}
-        isTrueWallet={isTrueWallet}
-        account={account}
-      />
-    </WalletTotalBalanceProvider>
+    <HeaderAccountContent
+      wallet={wallet}
+      isTrueWallet={isTrueWallet}
+      account={account}
+    />
   );
 };

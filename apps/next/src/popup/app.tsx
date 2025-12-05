@@ -24,6 +24,7 @@ import {
   usePageHistory,
   usePreferredColorScheme,
   WalletContextProvider,
+  WalletTotalBalanceProvider,
 } from '@core/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -153,6 +154,7 @@ export function App() {
           <DefiContextProvider />,
           <FirebaseContextProvider />,
           <NextUnifiedBridgeProvider />,
+          <WalletTotalBalanceProvider />,
         ]) as ReactElement[]
       }
     >
