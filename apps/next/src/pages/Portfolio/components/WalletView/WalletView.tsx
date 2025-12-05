@@ -1,9 +1,5 @@
 import { useParams } from 'react-router-dom';
-import {
-  useAccountsContext,
-  useWalletContext,
-  WalletTotalBalanceProvider,
-} from '@core/ui';
+import { useAccountsContext, useWalletContext } from '@core/ui';
 import { WalletDetails } from './components/WalletDetails';
 import { ImportedAccountDetails } from './components/ImportedAccoutDetails';
 import { isImportedAccount } from '@core/common';
@@ -26,9 +22,5 @@ const WalletViewContent = () => {
 };
 
 export const WalletView = () => {
-  return (
-    <WalletTotalBalanceProvider>
-      <WalletViewContent />
-    </WalletTotalBalanceProvider>
-  );
+  return <WalletViewContent />;
 };
