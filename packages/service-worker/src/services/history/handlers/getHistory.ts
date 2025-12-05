@@ -9,7 +9,8 @@ import { NetworkService } from '../../network/NetworkService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.HISTORY_GET,
-  TxHistoryItem[]
+  TxHistoryItem[],
+  [address: string] | undefined
 >;
 
 @injectable()
@@ -31,7 +32,10 @@ export class GetHistoryHandler implements HandlerType {
       };
     }
 
-    const history = await this.historyService.getTxHistory(network);
+    const history = await this.historyService.getTxHistory(
+      network,
+      request.params?.[0],
+    );
 
     return {
       ...request,

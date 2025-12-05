@@ -15,7 +15,7 @@ import {
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
   onStatusChange: (status: 'waiting' | 'ready' | 'error') => void;
-  numberOfKeys: number;
+  minNumberOfKeys: number;
   onTroubleshoot: () => void;
   deriveAddresses: (keys: PublicKey[]) => string[];
   derivedAddressesChainCaipId: string;
@@ -48,7 +48,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
     onSuccess,
     onStatusChange,
     onTroubleshoot,
-    numberOfKeys,
+    minNumberOfKeys,
     useLedgerPublicKeyFetcher,
     deriveAddresses,
     derivedAddressesChainCaipId,
@@ -63,10 +63,8 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
   const [isRetrieving, setIsRetrieving] = useState(false);
 
   const fetchKeys = useCallback(async () => {
-    const accountIndexes = Array.from({ length: numberOfKeys }, (_, i) => i);
-
     setIsRetrieving(true);
-    retrieveKeys(accountIndexes)
+    retrieveKeys(minNumberOfKeys)
       .then((retrievedKeys) => {
         setKeys(retrievedKeys.addressPublicKeys);
         onSuccess(retrievedKeys);
@@ -79,7 +77,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
       .finally(() => {
         setIsRetrieving(false);
       });
-  }, [numberOfKeys, retrieveKeys, onSuccess, callbacks]);
+  }, [minNumberOfKeys, retrieveKeys, onSuccess, callbacks]);
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
@@ -113,7 +111,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
               />
             )}
             {keys.length === 0 ? (
-              <Styled.ObtainedAddressesSkeleton count={numberOfKeys} />
+              <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
             ) : (
               <DerivedAddresses
                 addresses={addresses}
@@ -127,7 +125,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
             {withDerivationPathSpec && (
               <Styled.DerivationPathSelectorSkeleton />
             )}
-            <Styled.ObtainedAddressesSkeleton count={numberOfKeys} />
+            <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
           </>
         )}
       </Stack>

@@ -48,8 +48,9 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher =
 
     // With Solana, we can only query for specific address' public key. No extended public keys are available.
     const retrieveKeys = useCallback(
-      async (indexes: number[]) => {
+      async (numberOfKeys: number) => {
         try {
+          const indexes = Array.from({ length: numberOfKeys }, (_, i) => i);
           const keys: PublicKey[] = [];
 
           // We cannot send multiple requests to the ledger at once, so we need to do one at a time
