@@ -203,6 +203,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         const balanceResult = await postV1BalanceGetBalances({
           client: balanceApiClient,
           body: getBalancesRequestBody,
+          onSseError: (error) => {
+            throw error;
+          },
         });
 
         const { balances, errors } = await convertStreamToArray(
