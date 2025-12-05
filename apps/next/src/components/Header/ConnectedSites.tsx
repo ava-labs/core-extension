@@ -132,7 +132,7 @@ export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
               size="xsmall"
               color="error"
               onClick={() => {
-                disconnectSite(domain!, activeAccount);
+                disconnectSite(domain, activeAccount);
               }}
             >
               <Typography variant="subtitle3" color="text.primary">
