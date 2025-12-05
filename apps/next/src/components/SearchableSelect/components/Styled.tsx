@@ -10,7 +10,7 @@ import {
 
 export const SearchableSelectMenuRoot = styled(Stack)({
   width: 'calc(100vw - 32px)',
-  height: 'calc(100vh - 64px)',
+  height: 'calc(100vh - 96px)',
   overflow: 'hidden',
   ul: { paddingInline: 0 },
 });

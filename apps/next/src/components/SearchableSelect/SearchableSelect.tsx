@@ -135,6 +135,13 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
         open={isOpen}
         onClose={() => setIsOpen(false)}
         anchorEl={triggerElement.current}
+        slotProps={{
+          paper: {
+            sx: {
+              marginTop: 6,
+            },
+          },
+        }}
       >
         <NoScrollPopoverContent>
           <SearchableSelectMenuRoot ref={setRoot} {...getRootProps()}>
