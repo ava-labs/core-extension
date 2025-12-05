@@ -108,3 +108,4 @@ export * from './truncateAddress';
 export * from './typeUtils';
 export * from './updateIfDifferent';
 export * from './walletConnectEventFilters';
+export * from './calculateTotalAtomicFundsForAccounts';

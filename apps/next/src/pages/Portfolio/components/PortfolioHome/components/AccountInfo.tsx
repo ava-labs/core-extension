@@ -1,5 +1,9 @@
 import { Stack, Typography, WaterDropIcon } from '@avalabs/k2-alpine';
-import { useBalancesContext, useSettingsContext } from '@core/ui';
+import {
+  AccountAtomicBalanceState,
+  useBalancesContext,
+  useSettingsContext,
+} from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BalanceChange } from '../../BalanceChange';
@@ -9,6 +13,7 @@ type TotalBalance = ReturnType<typeof useBalancesContext>['totalBalance'];
 type Props = {
   accountName: string;
   balance: TotalBalance;
+  atomicBalance?: AccountAtomicBalanceState;
   isDeveloperMode: boolean;
 };
 
@@ -23,15 +28,15 @@ const fallbackTotalBalance: TotalBalance = {
 export const AccountInfo: FC<Props> = ({
   accountName,
   balance = fallbackTotalBalance,
+  atomicBalance,
   isDeveloperMode,
 }) => {
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
   const { sum, priceChange } = balance;
-  const formattedSum = currencyFormatter(sum ?? 0).replace(
-    /^(\D)0\.00$/,
-    '$1–',
-  );
+  const formattedSum = currencyFormatter(
+    (sum ?? 0) + (atomicBalance?.balanceInCurrency ?? 0),
+  ).replace(/^(\D)0\.00$/, '$1–');
 
   return (
     <Stack spacing={0.5} mt={4.5}>

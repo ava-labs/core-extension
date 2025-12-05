@@ -21,6 +21,7 @@ import {
   chainIdToCaip,
   getNameSpaceFromScope,
   stripAddressPrefix,
+  AVALANCHE_CHAIN_IDS,
 } from '@core/common';
 import {
   BalanceResponse,
@@ -36,7 +37,6 @@ import {
   mapSplTokenBalance,
 } from '~/api-clients/mappers';
 import {
-  AVALANCHE_CHAIN_IDS,
   Caip2IdAccountTypeMap,
   CORE_ETH_CAIP2ID,
 } from '~/api-clients/constants';

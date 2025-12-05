@@ -289,6 +289,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
             ...prevState,
             [accountId]: {
               balanceDisplayValue: atomicBalance.sum,
+              balanceInCurrency: atomicBalance.sumInCurrency,
               hasErrorOccurred: false,
               isLoading: false,
             },
