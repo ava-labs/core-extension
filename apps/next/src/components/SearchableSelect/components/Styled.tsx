@@ -41,4 +41,10 @@ export const SearchableSelectListBox = styled((props: StackProps) => (
   width: '100%',
   paddingBottom: theme.spacing(1),
   flexGrow: 1,
+  minHeight: 0,
+  overflowY: 'auto',
+  scrollbarWidth: 'none',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
 }));
