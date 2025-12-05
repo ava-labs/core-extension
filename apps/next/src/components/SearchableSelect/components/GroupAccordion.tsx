@@ -57,12 +57,7 @@ export const GroupAccordion = ({
             </Stack>
           </ListItemButton>
         )}
-        <Collapse
-          in={isGroupOpen || skipHeader}
-          mountOnEnter
-          unmountOnExit
-          className="group-accordion-content"
-        >
+        <Collapse in={isGroupOpen || skipHeader} mountOnEnter unmountOnExit>
           <Stack py={0.5} component="ul">
             {children}
           </Stack>
