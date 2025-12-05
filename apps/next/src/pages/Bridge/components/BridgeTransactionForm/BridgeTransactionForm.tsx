@@ -84,11 +84,7 @@ export const BridgeTransactionForm: FC<Props> = ({
     minTransferAmount &&
     minTransferAmount <= stringToBigint(amount, asset.decimals);
   const isBridgeButtonDisabled = Boolean(
-    !canExecuteBridge ||
-      error ||
-      isFeeLoading ||
-      !isAmountCorrect ||
-      isBridgeExecuting,
+    !canExecuteBridge || isFeeLoading || !isAmountCorrect || isBridgeExecuting,
   );
   return (
     <>
