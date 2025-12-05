@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 type Props = {
   top: ActionButtonProps;
-  bottom: ActionButtonProps;
+  bottom?: ActionButtonProps;
 };
 
 type ActionButtonProps = Omit<ButtonProps, 'children'> & {
@@ -15,7 +15,7 @@ export const ActionButtons: FC<Props> = ({ top, bottom }) => {
   return (
     <Stack mt="auto" gap={1}>
       <ActionButton {...top} />
-      <ActionButton {...bottom} />
+      {bottom && <ActionButton {...bottom} />}
     </Stack>
   );
 };
