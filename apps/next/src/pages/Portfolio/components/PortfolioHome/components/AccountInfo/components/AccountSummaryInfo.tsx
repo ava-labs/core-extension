@@ -48,7 +48,8 @@ export const AccountSummaryInfo = ({
       ref={containerRef}
       position="relative"
       overflow="visible"
-      sx={{ maxWidth: '75%', width: 'fit-content' }}
+      maxWidth="75%"
+      width="fit-content"
     >
       <ClickableStack
         onClick={() => {
