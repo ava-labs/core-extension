@@ -187,6 +187,26 @@ const BridgeTransactionStatus = () => {
 
   const hasOffBoardingDelay = typeof offboardingDelay === 'number';
 
+  /**
+   * For Unified Bridge, the source transfer is complete when the source
+   * confirmation count is greater than or equal to the source required
+   * confirmation count. This is because it can much longer for the target
+   * transaction to be created so we can't rely on targetStartedAt
+   */
+  const isBridgeSourceTransferComplete = useMemo(() => {
+    if (!bridgeTransaction) {
+      return false;
+    }
+    if (isUnifiedBridgeTransfer(bridgeTransaction)) {
+      return (
+        bridgeTransaction.sourceConfirmationCount >=
+        bridgeTransaction.sourceRequiredConfirmationCount
+      );
+    }
+
+    return Boolean(bridgeTransaction.targetStartedAt);
+  }, [bridgeTransaction]);
+
   if (!activeAccount) {
     history.push('/home');
     return null;
@@ -277,7 +297,7 @@ const BridgeTransactionStatus = () => {
             </Card>
             <BridgeCard // from chain (Middle Card)
               isWaiting={false} // starts immediately
-              isDone={Boolean(bridgeTransaction.targetStartedAt)}
+              isDone={isBridgeSourceTransferComplete}
               isTransferComplete={isComplete}
             >
               <Stack
