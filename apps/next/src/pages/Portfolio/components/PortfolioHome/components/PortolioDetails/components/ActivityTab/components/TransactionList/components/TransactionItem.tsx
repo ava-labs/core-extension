@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { TxHistoryItem } from '@core/types';
-import { useBalancesContext, useSettingsContext } from '@core/ui';
+import { useSettingsContext, useTokenPrice } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +72,6 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
 
 export const TransactionItem: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
-  const { getTokenPrice } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
 
   const [token] = transaction.tokens;
@@ -80,13 +79,12 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
   const isDateToday = isToday(transaction.timestamp);
   const isDateYesterday = isYesterday(transaction.timestamp);
   const formattedTime = format(transaction.timestamp, TIME_FORMAT);
-
-  const tokenPrice = token
-    ? (getTokenPrice(
-        token.type === TokenType.NATIVE ? token.symbol : token.address,
-      ) ?? null)
-    : null;
   const directionModifier = transaction.isSender ? -1 : 1;
+
+  const tokenPrice = useTokenPrice(
+    token?.type === TokenType.NATIVE ? token?.symbol : token?.address,
+  );
+
   const usdValue = tokenPrice
     ? tokenPrice * (Number(token?.amount) || 0) * directionModifier
     : null;

@@ -34,6 +34,7 @@ export enum ExtensionRequest {
   NFT_BALANCES_GET = 'nft_balances_get',
   NFT_REFRESH_METADATA = 'nft_refresh_metadata',
   TOKEN_PRICE_GET = 'token_price_get',
+  TOKEN_PRICE_GET_BY_ADDRESS = 'token_price_get_by_address',
   BALANCE_NATIVE_GET = 'balance_native_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
