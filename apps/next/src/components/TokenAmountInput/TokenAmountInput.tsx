@@ -1,6 +1,13 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
-import { FC, FocusEventHandler, useCallback, useMemo } from 'react';
+import {
+  FC,
+  FocusEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
@@ -61,11 +68,23 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 }) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
+  const amountInputRef = useRef<HTMLInputElement>(null);
 
   const token = useMemo(
     () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
     [tokensForAccount, tokenId],
   );
+
+  // Auto-focus the input when a token is selected
+  useEffect(() => {
+    if (token && amountInputRef.current) {
+      // Use a small delay to ensure the Grow animation has started
+      const timeoutId = setTimeout(() => {
+        amountInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [token]);
 
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
@@ -126,7 +145,10 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           id={`${id}-token-select`}
           tokenId={tokenId}
           tokenList={tokensForAccount}
-          onValueChange={onTokenChange}
+          onValueChange={(selectedTokenId) => {
+            onTokenChange(selectedTokenId);
+            amountInputRef.current?.focus();
+          }}
           query={tokenQuery}
           onQueryChange={onQueryChange}
           hint={tokenHint}
@@ -142,6 +164,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
             }
             slotProps={{
+              htmlInput: {
+                ref: amountInputRef,
+              },
               input: {
                 readOnly: isLoading,
                 onFocus,
