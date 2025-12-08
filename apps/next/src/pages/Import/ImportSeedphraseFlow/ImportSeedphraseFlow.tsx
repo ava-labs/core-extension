@@ -75,12 +75,15 @@ export const ImportSeedphraseFlow = () => {
   const onSave = useCallback(
     async (name: string) => {
       try {
-        await importSeedphrase({
+        const imported = await importSeedphrase({
           mnemonic: phrase,
           name,
         });
         capture('SeedphraseImportSuccess');
-        await openApp({ closeWindow: true, navigateTo: '/' });
+        await openApp({
+          closeWindow: true,
+          navigateTo: `/wallet/${imported.id}`,
+        });
       } catch (error) {
         capture('SeedphraseImportFailure');
         const { title, hint } = gerErrorMessage(error);

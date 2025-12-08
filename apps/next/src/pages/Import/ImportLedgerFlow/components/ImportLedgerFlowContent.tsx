@@ -102,12 +102,15 @@ export const ImportLedgerFlowContent = () => {
   const onSave = useCallback(
     async (name: string) => {
       try {
-        await importLedger({
+        const imported = await importLedger({
           name,
           addressPublicKeys: publicKeys,
           extendedPublicKeys: extPublicKeys,
         });
-        await openApp({ closeWindow: true, navigateTo: '/' });
+        await openApp({
+          closeWindow: true,
+          navigateTo: `/wallet/${imported.id}`,
+        });
       } catch (err) {
         toast.error(t('Unknown error has occurred. Please try again later.'));
         console.error(err);
