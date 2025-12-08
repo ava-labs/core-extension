@@ -23,7 +23,7 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.69",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.69",
-    "@avalabs/vm-module-types": "0.0.0-fix-add-address-for-non-native-20251205135223",
+    "@avalabs/vm-module-types": "3.0.1",
     "@blockaid/client": "0.10.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@ethereumjs/common": "2.6.5",

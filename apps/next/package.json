@@ -22,7 +22,7 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.69",
     "@avalabs/k2-alpine": "1.235.0",
     "@avalabs/types": "3.1.0-alpha.69",
-    "@avalabs/vm-module-types": "0.0.0-fix-add-address-for-non-native-20251205135223",
+    "@avalabs/vm-module-types": "3.0.1",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",
