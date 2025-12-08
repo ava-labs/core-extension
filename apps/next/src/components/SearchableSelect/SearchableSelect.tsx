@@ -161,7 +161,11 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
                 </Typography>
               </Stack>
             )}
-            <SearchableSelectListBox>
+            <SearchableSelectListBox
+              sx={{
+                overflow: suppressFlattening ? 'auto' : 'hidden',
+              }}
+            >
               {groupedOptions.map((group, index, { length }) => {
                 // If there is only one group and it's not narrowed down via search,
                 // render a flat list of options.

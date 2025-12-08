@@ -1,105 +1,111 @@
-import { Account } from '@core/types';
-import { FC, useRef } from 'react';
-import { MdNavigateNext } from 'react-icons/md';
-import { HeaderWalletDetails } from '../../types';
-import { AddressList } from '../../AddressList';
-import { useHeaderAccount } from './hooks/useHeaderAccount';
-import { WalletSection } from './components/WalletSection';
-import { Container, IconWrapper } from './styled';
-import { AccountSection } from './components/AccountSection';
+import { FC, useEffect, useRef, useState } from 'react';
+import { AddressList } from '@/components/AddressList';
+import { Container } from './styled';
+import { PersonalAvatar } from '@/components/PersonalAvatar';
+import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
+import { WalletIcon } from '@/components/WalletIcon';
+import { Stack, useTheme } from '@avalabs/k2-alpine';
+import { MdUnfoldMore } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
+import { FadingText } from '../FadingText';
 
 type Props = {
-  wallet: HeaderWalletDetails;
-  isTrueWallet: boolean;
-  account?: Account;
+  isAccountInfoVisible: boolean;
 };
 
-const HeaderAccountContent: FC<Props> = ({ wallet, isTrueWallet, account }) => {
-  // DOM refs for measuring
-  const walletTextRef = useRef<HTMLSpanElement>(null);
-  const accountTextRef = useRef<HTMLSpanElement>(null);
+const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
+  const theme = useTheme();
+  const history = useHistory();
+  const { walletSummary, account } = useActiveAccountInfo();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const {
-    isWalletHovered,
-    setIsWalletHovered,
-    isAccountHovered,
-    setIsAccountHovered,
-    isAddressListHovered,
-    setIsAddressListHovered,
-    isContainerHovered,
-    setIsContainerHovered,
-    showWalletIcon,
-    shouldTruncateWallet,
-    walletMaxWidth,
-    isAccountTruncated,
-    tooltipLeftPosition,
-    walletTotalBalance,
-    isBalanceLoading,
-    shouldExpandWallet,
-  } = useHeaderAccount({
-    walletId: wallet.id,
-    walletName: wallet.name,
-    accountName: account?.name || '',
-    isTrueWallet,
-    accountTextRef,
-    containerRef,
-  });
+  const [isAccountHovered, setIsAccountHovered] = useState(false);
+  const [isAddressListHovered, setIsAddressListHovered] = useState(false);
+  const [hoverEnabled, setHoverEnabled] = useState(false);
+
+  // Delay enabling hover to prevent flash when navigating back
+  useEffect(() => {
+    const timer = setTimeout(() => setHoverEnabled(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <Container
-      ref={containerRef}
-      onMouseEnter={() => setIsContainerHovered(true)}
-      onMouseLeave={() => setIsContainerHovered(false)}
-    >
-      {/* Wallet Name or Icon */}
-      <WalletSection
-        showWalletIcon={showWalletIcon}
-        shouldTruncateWallet={shouldTruncateWallet}
-        walletMaxWidth={walletMaxWidth}
-        shouldExpandWallet={shouldExpandWallet}
-        setIsWalletHovered={setIsWalletHovered}
-        isWalletHovered={isWalletHovered}
-        tooltipLeftPosition={tooltipLeftPosition}
-        isBalanceLoading={isBalanceLoading}
-        walletTotalBalance={walletTotalBalance}
-        wallet={wallet}
-        walletTextRef={walletTextRef}
-        isContainerHovered={isContainerHovered}
-      />
-
-      {/* Navigation Arrow: Waiting for account to be visible */}
-      {account && (
-        <IconWrapper shouldShift={false}>
-          <MdNavigateNext />
-        </IconWrapper>
+    <Container ref={containerRef}>
+      {isAccountInfoVisible && (
+        <PersonalAvatar size="xsmall" sx={{ mr: 1, ml: 0.5 }} />
       )}
 
-      {/* Account Name */}
-      <AccountSection
-        setIsAccountHovered={setIsAccountHovered}
-        accountTextRef={accountTextRef}
-        isAccountTruncated={isAccountTruncated}
-        accountName={account?.name || ''}
-        isContainerHovered={isContainerHovered}
-      />
+      {walletSummary && account && !isAccountInfoVisible && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap={0.5}
+          sx={{
+            p: 0.5,
+            backgroundColor: 'background.navBarItem',
+            borderRadius: 1,
+            my: 0.5,
+            maxWidth: '100%',
+            overflow: 'hidden',
+          }}
+          onClick={() => {
+            setIsAccountHovered(false);
+            setIsAddressListHovered(false);
+            history.push('/account-management');
+          }}
+          onMouseEnter={() => hoverEnabled && setIsAccountHovered(true)}
+          onMouseLeave={() => setIsAccountHovered(false)}
+        >
+          <PersonalAvatar size="xsmall" sx={{ mr: 1, flexShrink: 0 }} />
+
+          <Stack sx={{ minWidth: 0, flex: 1, gap: 0 }}>
+            <Stack direction="row" alignItems="center" gap={0.5}>
+              <div style={{ flexShrink: 0 }}>
+                <WalletIcon
+                  size={16}
+                  type={walletSummary.type}
+                  authProvider={walletSummary.authProvider}
+                  color={theme.palette.text.secondary}
+                  expanded={true}
+                />
+              </div>
+              <FadingText
+                variant="caption2"
+                color="text.secondary"
+                sx={{ lineHeight: 1 }}
+                fontWeight="medium"
+              >
+                {walletSummary.name}
+              </FadingText>
+            </Stack>
+
+            <FadingText
+              variant="body2"
+              sx={{ lineHeight: 1, mt: -0.25 }}
+              color="text.primary"
+            >
+              {account?.name}
+            </FadingText>
+          </Stack>
+          <MdUnfoldMore
+            size={16}
+            color={theme.palette.text.secondary}
+            style={{ flexShrink: 0 }}
+          />
+        </Stack>
+      )}
 
       <AddressList
         isAddressAppear={isAccountHovered || isAddressListHovered}
         activeAccount={account}
-        onMouseEnter={() => setIsAddressListHovered(true)}
+        onMouseEnter={() => hoverEnabled && setIsAddressListHovered(true)}
         onMouseLeave={() => setIsAddressListHovered(false)}
+        top={56}
       />
     </Container>
   );
 };
 
-export const HeaderAccount: FC<Props> = ({ wallet, isTrueWallet, account }) => {
-  return (
-    <HeaderAccountContent
-      wallet={wallet}
-      isTrueWallet={isTrueWallet}
-      account={account}
-    />
-  );
+export const HeaderAccount: FC<Props> = ({ isAccountInfoVisible }) => {
+  return <HeaderAccountContent isAccountInfoVisible={isAccountInfoVisible} />;
 };
