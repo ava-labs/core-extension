@@ -1,4 +1,4 @@
-import { Typography, useTheme } from '@avalabs/k2-alpine';
+import { Box, Typography, useTheme } from '@avalabs/k2-alpine';
 import { WalletSummary } from '@/hooks/useActiveAccountInfo';
 import { useHistory } from 'react-router-dom';
 import { WalletIcon } from '@/components/WalletIcon';
@@ -9,6 +9,8 @@ type Props = {
   walletSummary?: WalletSummary;
   maxWidth?: number;
 };
+
+const HOVER_ARROW_CLASS = 'hover-arrow';
 
 export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
   const history = useHistory();
@@ -22,10 +24,10 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
       alignItems="center"
       sx={{
         maxWidth: maxWidth ? `${maxWidth}px` : '100%',
-        '& .hover-arrow': {
+        [`& .${HOVER_ARROW_CLASS}`]: {
           opacity: 0,
         },
-        '&:hover .hover-arrow': {
+        [`&:hover .${HOVER_ARROW_CLASS}`]: {
           opacity: 1,
         },
       }}
@@ -33,14 +35,7 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
         history.push(`/wallet/${walletSummary.id}`);
       }}
     >
-      <div
-        style={{
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-          marginRight: 4,
-        }}
-      >
+      <Box flexShrink={0} display="flex" alignItems="center" marginRight={0.5}>
         <WalletIcon
           size={16}
           type={walletSummary.type}
@@ -48,7 +43,7 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
           color={theme.palette.text.secondary}
           expanded={true}
         />
-      </div>
+      </Box>
       <Typography
         variant="body3"
         color="text.secondary"
@@ -58,9 +53,9 @@ export const WalletSummaryInfo = ({ walletSummary, maxWidth }: Props) => {
       >
         {walletSummary.name}
       </Typography>
-      <div className="hover-arrow" style={{ flexShrink: 0, height: 16 }}>
+      <Box className={HOVER_ARROW_CLASS} flexShrink={0} height={16}>
         <MdNavigateNext size={16} color={theme.palette.text.secondary} />
-      </div>
+      </Box>
     </ClickableStack>
   );
 };
