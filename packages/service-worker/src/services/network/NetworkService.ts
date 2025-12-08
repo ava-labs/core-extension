@@ -265,6 +265,10 @@ export class NetworkService implements OnLock, OnStorageReady {
     return this._customNetworks;
   }
 
+  /**
+   * @deprecated
+   * TODO: remove
+   */
   async addFavoriteNetwork(chainId?: number) {
     const storedFavoriteNetworks = this._favoriteNetworks;
     if (
@@ -276,8 +280,6 @@ export class NetworkService implements OnLock, OnStorageReady {
       return storedFavoriteNetworks;
     }
     this.favoriteNetworks = [...storedFavoriteNetworks, chainId];
-    this.updateNetworkState();
-
     // This keeps the favorite and enabled networks in sync
     await this.enableNetwork(chainId);
 
@@ -298,18 +300,20 @@ export class NetworkService implements OnLock, OnStorageReady {
         isEnabled: true,
       },
     };
-    this.updateNetworkState();
+    await this.updateNetworkState();
     return this._enabledNetworks;
   }
 
+  /**
+   * @deprecated
+   * TODO: remove
+   */
   async removeFavoriteNetwork(chainId: number) {
     const storedFavoriteNetworks = this._favoriteNetworks;
     this.favoriteNetworks = storedFavoriteNetworks.filter(
       (storedFavoriteNetworkChainId) =>
         storedFavoriteNetworkChainId !== chainId,
     );
-    this.updateNetworkState();
-
     // This keeps the favorite and enabled networks in sync
     await this.disableNetwork(chainId);
 
@@ -323,7 +327,7 @@ export class NetworkService implements OnLock, OnStorageReady {
         isEnabled: false,
       },
     };
-    this.updateNetworkState();
+    await this.updateNetworkState();
     return this._enabledNetworks;
   }
 
@@ -685,7 +689,6 @@ export class NetworkService implements OnLock, OnStorageReady {
       ...chainlist,
       ...this._customNetworks,
     });
-    this.updateNetworkState();
 
     // Automatically favorite the newly added network
     await this.addFavoriteNetwork(chainId);
@@ -773,10 +776,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       }
     }
 
-    this.removeFavoriteNetwork(chainID);
-
-    // Update storage
-    this.updateNetworkState();
+    await this.removeFavoriteNetwork(chainID);
   }
 
   async getUnknownUsedNetwork(addressC: string) {

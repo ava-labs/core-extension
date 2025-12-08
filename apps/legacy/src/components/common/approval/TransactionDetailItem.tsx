@@ -16,11 +16,10 @@ import {
   FundsRecipientItem,
 } from '@avalabs/vm-module-types';
 
-import { useSettingsContext } from '@core/ui';
+import { useSettingsContext, useTokenPrice } from '@core/ui';
 import { AccountDetails } from '@/pages/SignTransaction/components/ApprovalTxDetails';
 
 import { useAccountsContext } from '@core/ui';
-import { useBalancesContext } from '@core/ui';
 import { useContactsContext } from '@core/ui';
 import { truncateAddress } from '@core/common';
 import { runtime } from 'webextension-polyfill';
@@ -113,10 +112,9 @@ const FundsRecipientInfo = ({ item }: { item: FundsRecipientItem }) => {
   const { currencyFormatter } = useSettingsContext();
   const { getContactByAddress } = useContactsContext();
   const { getAccount } = useAccountsContext();
-  const { getTokenPrice } = useBalancesContext();
 
   const token = new TokenUnit(item.amount, item.maxDecimals, item.symbol);
-  const tokenPrice = getTokenPrice(item.symbol);
+  const tokenPrice = useTokenPrice(item.symbol);
   const contact = getAccount(item.label) ?? getContactByAddress(item.label);
 
   return (
@@ -159,9 +157,8 @@ const FundsRecipientInfo = ({ item }: { item: FundsRecipientItem }) => {
 
 const CurrencyInfo = ({ item }: { item: CurrencyItem }) => {
   const { currencyFormatter } = useSettingsContext();
-  const { getTokenPrice } = useBalancesContext();
   const token = new TokenUnit(item.value, item.maxDecimals, item.symbol);
-  const tokenPrice = getTokenPrice(item.symbol);
+  const tokenPrice = useTokenPrice(item.symbol);
 
   return (
     <TxDetailsRow label={item.label}>

@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { TxHistoryItem } from '@core/types';
-import { useBalancesContext, useSettingsContext } from '@core/ui';
+import { useSettingsContext, useTokenPrice } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +17,7 @@ import { TransactionIcon } from './TransactionIcon';
 import * as Styled from './Styled';
 import { ViewInExplorerButton } from './ViewInExplorerButton';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { TokenType } from '@avalabs/vm-module-types';
 
 type Props = {
   transaction: TxHistoryItem;
@@ -71,7 +72,6 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
 
 export const TransactionItem: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
-  const { getTokenPrice } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
 
   const [token] = transaction.tokens;
@@ -79,11 +79,15 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
   const isDateToday = isToday(transaction.timestamp);
   const isDateYesterday = isYesterday(transaction.timestamp);
   const formattedTime = format(transaction.timestamp, TIME_FORMAT);
-
-  const tokenPrice = token ? (getTokenPrice(token.symbol) ?? 0) : 0;
   const directionModifier = transaction.isSender ? -1 : 1;
-  const usdValue =
-    tokenPrice * (Number(token?.amount) || 0) * directionModifier;
+
+  const tokenPrice = useTokenPrice(
+    token?.type === TokenType.NATIVE ? token?.symbol : token?.address,
+  );
+
+  const usdValue = tokenPrice
+    ? tokenPrice * (Number(token?.amount) || 0) * directionModifier
+    : null;
 
   return (
     <ListItem
@@ -115,7 +119,7 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
             </Typography>
           </Stack>
         }
-        secondary={currencyFormatter(usdValue)}
+        secondary={usdValue ? currencyFormatter(usdValue) : ''}
         slotProps={
           transaction.isSender ? sentAmountSlotProps : receivedAmountSlotProps
         }

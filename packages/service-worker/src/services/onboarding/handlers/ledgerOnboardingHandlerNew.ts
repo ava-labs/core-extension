@@ -17,6 +17,7 @@ import { WalletService } from '../../wallet/WalletService';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { OnboardingService } from '../OnboardingService';
 import { startOnboarding } from '../startOnboarding';
+import { getEvmBasePath } from '@core/common';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT_NEW,
@@ -66,22 +67,27 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
       analyticsConsent,
     });
 
-    let walletId = '';
+    const evmXPubs = extendedPublicKeys.filter(({ derivationPath }) =>
+      derivationPath.startsWith(getEvmBasePath()),
+    );
 
-    if (extendedPublicKeys.length > 0) {
+    const isLedgerLive = evmXPubs.length > 1;
+
+    let walletId = '';
+    if (isLedgerLive) {
+      walletId = await this.walletService.init({
+        secretType: SecretType.LedgerLive,
+        extendedPublicKeys,
+        publicKeys: addressPublicKeys,
+        derivationPathSpec: DerivationPath.LedgerLive,
+        name: walletName,
+      });
+    } else {
       walletId = await this.walletService.init({
         secretType: SecretType.Ledger,
         extendedPublicKeys,
         publicKeys: addressPublicKeys,
         derivationPathSpec: DerivationPath.BIP44,
-        name: walletName,
-      });
-    } else {
-      walletId = await this.walletService.init({
-        secretType: SecretType.LedgerLive,
-        publicKeys: addressPublicKeys,
-        derivationPathSpec: DerivationPath.LedgerLive,
-        extendedPublicKeys: [],
         name: walletName,
       });
     }
