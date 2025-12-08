@@ -15,6 +15,7 @@ import { MdCircle, MdNavigateNext } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { BalanceChange } from '../../BalanceChange';
 import { NetworksWithBalances } from './NetworksWithBalances';
+import { TruncatedText } from '@/components/Header/components/styledComponents';
 
 type Props = {
   account: Account;
@@ -64,7 +65,12 @@ export const WalletAccount: FC<Props> = ({
         }),
       }}
     >
-      <Stack direction="row" alignItems="center" gap={1}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={1}
+        sx={{ minWidth: 0, flex: 1 }}
+      >
         {isActiveAccount(account.id) && (
           <MdCircle
             size={6}
@@ -75,14 +81,25 @@ export const WalletAccount: FC<Props> = ({
             }}
           />
         )}
-        <PersonalAvatar name={avatarName} size="xsmall" sx={{ mr: 1 }} />
-        <Stack gap={0.5}>
-          <Typography variant="subtitle3">{account.name}</Typography>
+        <PersonalAvatar
+          name={avatarName}
+          size="xsmall"
+          sx={{ mr: 1, flexShrink: 0 }}
+        />
+        <Stack gap={0.5} sx={{ minWidth: 0 }}>
+          <TruncatedText variant="subtitle3" showEllipsis>
+            {account.name}
+          </TruncatedText>
           <NetworksWithBalances networksWithBalance={networksWithBalance} />
         </Stack>
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap={0.5}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        gap={0.5}
+        sx={{ flexShrink: 0 }}
+      >
         <Stack alignItems="flex-end">
           <Typography variant="subtitle3">
             {currencyFormatter(balance?.sum ?? 0)}

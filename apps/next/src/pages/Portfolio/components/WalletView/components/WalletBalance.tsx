@@ -14,6 +14,7 @@ import { useMemo } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { ClickableStack } from '../../PortfolioHome/components/AccountInfo/styled';
 import { useHistory } from 'react-router-dom';
+import { TruncatedText } from '@/components/Header/components/styledComponents';
 
 type Props = {
   walletType?: SecretType;
@@ -60,6 +61,7 @@ export const WalletBalance = ({
       <ClickableStack
         width="fit-content"
         maxWidth="75%"
+        rowGap={0.5}
         onClick={() => {
           history.push('/account-management');
         }}
@@ -68,19 +70,22 @@ export const WalletBalance = ({
           direction="row"
           alignItems="center"
           color="text.secondary"
-          sx={{ minWidth: 0 }}
+          height={theme.spacing(3.7)}
+          minWidth={0}
         >
-          <Box flexShrink={0} display="flex" alignItems="center">
+          <Box flexShrink={0} display="flex" alignItems="center" mr={0.5}>
             <WalletIcon size={27} type={walletType} expanded={true} />
           </Box>
 
-          <Typography
+          <TruncatedText
             variant="h2"
             noWrap
+            lineHeight={3.7}
             sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+            showEllipsis
           >
             {walletName}
-          </Typography>
+          </TruncatedText>
           <MdUnfoldMore
             size={16}
             color={theme.palette.text.secondary}
