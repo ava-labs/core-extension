@@ -8,10 +8,13 @@ export type ErrorType =
   | 'unsupported-version'
   | 'duplicated-wallet';
 export type PublicKey = {
+  hasActivity?: boolean;
   key: AddressPublicKeyJson;
   vm: VM | 'SVM';
   index: number;
 };
+
+export type ExtendedPublicKeyMap = Map<number, string>;
 
 export type DerivedKeys = {
   addressPublicKeys: PublicKey[];
@@ -21,12 +24,13 @@ export type DerivedKeys = {
 export type UseLedgerPublicKeyFetcherResult = {
   status: DerivationStatus;
   error?: ErrorType;
-  retrieveKeys: (indexes: number[]) => Promise<DerivedKeys>;
+  retrieveKeys: (minNumberOfKeys: number) => Promise<DerivedKeys>;
   onRetry: () => Promise<void>;
 };
 
 export type UseLedgerPublicKeyFetcher = (
   derivationPathSpec?: DerivationPath,
+  onActivePublicKeysDiscovered?: (publicKeys: PublicKey[]) => void,
 ) => UseLedgerPublicKeyFetcherResult;
 
 export type ConnectorCallbacks = {

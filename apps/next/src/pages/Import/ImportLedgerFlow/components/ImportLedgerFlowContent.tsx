@@ -17,6 +17,7 @@ import {
 import { useOpenApp } from '@/hooks/useOpenApp';
 
 import { NameYourWalletScreen } from '../../common-screens';
+import { isAvalancheExtendedKey } from '@core/common';
 
 type ImportPhase = 'connect-avax' | 'prompt-solana' | 'connect-solana' | 'name';
 
@@ -96,6 +97,8 @@ export const ImportLedgerFlowContent = () => {
     [capture],
   );
 
+  const numberOfAccounts = extPublicKeys.filter(isAvalancheExtendedKey).length;
+
   const onSave = useCallback(
     async (name: string) => {
       try {
@@ -144,6 +147,7 @@ export const ImportLedgerFlowContent = () => {
       </Route>
       <Route path={`${BASE_PATH}/connect-solana`}>
         <ConnectSolana
+          numberOfKeys={numberOfAccounts}
           connectorCallbacks={solanaConnectorCallbacks}
           onNext={({ addressPublicKeys }) => {
             setPublicKeys((prev) => [

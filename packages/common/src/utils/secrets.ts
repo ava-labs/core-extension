@@ -1,10 +1,6 @@
 import { NetworkVMType } from '@avalabs/vm-module-types';
 
-import {
-  EVM_BASE_DERIVATION_PATH,
-  ExtendedPublicKey,
-  PrimaryWalletSecrets,
-} from '@core/types';
+import { ExtendedPublicKey, PrimaryWalletSecrets } from '@core/types';
 
 export const getLegacyXPAddressIndexFromPath = (path: string): number => {
   const unprefixed = path.replace('m/', '');
@@ -78,8 +74,10 @@ export const getAvalancheXPub = (
       key.derivationPath === getAvalancheExtendedKeyPath(accountIndex),
   );
 };
+export const getEvmBasePath = (): string => `m/44'/60'/`;
 
-export const getEvmExtendedKeyPath = (): string => EVM_BASE_DERIVATION_PATH;
+export const getEvmExtendedKeyPath = (index: number): string =>
+  `${getEvmBasePath()}${index}'`;
 
 export const getAvalancheXpBasePath = (): string => `m/44'/9000'/`;
 
@@ -91,3 +89,9 @@ export const getLegacyXPDerivationPath = (
   isChange = false,
 ): string =>
   `${getAvalancheExtendedKeyPath(0)}/${isChange ? '1' : '0'}/${addressIndex}`;
+
+export const isAvalancheExtendedKey = ({
+  derivationPath,
+  curve,
+}: ExtendedPublicKey): boolean =>
+  derivationPath.startsWith(getAvalancheXpBasePath()) && curve === 'secp256k1';
