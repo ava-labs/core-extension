@@ -544,10 +544,10 @@ describe('background/services/network/NetworkService', () => {
       expect(savedActiveNetwork?.rpcUrl).toBe(newRpcUrl);
     });
 
-    it('should call `updateNetworkState`', async () => {
-      service.updateNetworkState = jest.fn();
-      await service.saveCustomNetwork(customNetwork);
-      expect(service.updateNetworkState).toHaveBeenCalled();
+    it('should call `addFavoriteNetwork`', async () => {
+      jest.spyOn(service, 'addFavoriteNetwork');
+      await service.addFavoriteNetwork(customNetwork);
+      expect(service.addFavoriteNetwork).toHaveBeenCalled();
     });
 
     it('should preserve customRpcHeaders when saving a network', async () => {
