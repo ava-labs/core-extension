@@ -3958,7 +3958,7 @@ __metadata:
     postinstall-postinstall: "npm:2.1.0"
     prettier: "npm:3.4.2"
     react: "npm:19.0.0"
-    react-confetti: "npm:^6.4.0"
+    react-confetti: "npm:6.4.0"
     react-custom-scrollbars-2: "npm:4.5.0"
     react-dom: "npm:19.0.0"
     react-i18next: "npm:11.18.6"
@@ -30070,7 +30070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-confetti@npm:^6.4.0":
+"react-confetti@npm:6.4.0":
   version: 6.4.0
   resolution: "react-confetti@npm:6.4.0"
   dependencies:
