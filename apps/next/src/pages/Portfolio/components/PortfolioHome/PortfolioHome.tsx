@@ -85,8 +85,6 @@ export const PortfolioHome: FC = () => {
       >
         <Stack gap={2.5} px={1.5} flexGrow={1}>
           <AccountInfo
-            atomicBalance={atomicBalance}
-            accountName={accounts.active?.name ?? ''}
             account={accounts.active}
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}

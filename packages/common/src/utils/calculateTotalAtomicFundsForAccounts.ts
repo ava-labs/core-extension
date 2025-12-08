@@ -7,7 +7,7 @@ import {
 } from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { AVALANCHE_CHAIN_IDS } from './constants';
+import { AVALANCHE_BLOCKCHAIN_IDS } from './constants';
 
 type PvmCategoryWithNativeTokenBalance = PvmCategories & {
   nativeTokenBalance: { decimals: number; price: number };
@@ -19,7 +19,7 @@ const isCoreEthOrAvmAtomicBalance = (
   chainId: string | number,
   atomicBalance: Categories,
 ): atomicBalance is CoreEthCategories | AvmCategories =>
-  (AVALANCHE_CHAIN_IDS.MAINNET_C === chainId ||
+  (AVALANCHE_BLOCKCHAIN_IDS.MAINNET_C === chainId ||
     ChainId.AVALANCHE_X === Number(chainId)) &&
   'atomicMemoryUnlocked' in atomicBalance;
 

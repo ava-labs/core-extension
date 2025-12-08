@@ -21,7 +21,7 @@ import {
   chainIdToCaip,
   getNameSpaceFromScope,
   stripAddressPrefix,
-  AVALANCHE_CHAIN_IDS,
+  AVALANCHE_BLOCKCHAIN_IDS,
 } from '@core/common';
 import {
   BalanceResponse,
@@ -528,7 +528,7 @@ export const convertBalanceResponsesToCacheBalanceObject = (
     }
 
     if (isCorethGetBalancesResponse(balanceResponse) && chainId === 0) {
-      const mainNetC = AVALANCHE_CHAIN_IDS.MAINNET_C;
+      const mainNetC = AVALANCHE_BLOCKCHAIN_IDS.MAINNET_C;
       const accountKey = `C-${balanceResponse.id}`;
       return {
         ...accumulator,
@@ -607,7 +607,7 @@ export const convertBalanceResponseToAtomicCacheBalanceObject = (
       }
 
       if (isCorethGetBalancesResponse(balanceResponse) && chainId === 0) {
-        const mainNetC = AVALANCHE_CHAIN_IDS.MAINNET_C;
+        const mainNetC = AVALANCHE_BLOCKCHAIN_IDS.MAINNET_C;
         const accountKey = `C-${balanceResponse.id}`;
         const mergedAccountObject = merge(
           accumulator[mainNetC]?.[accountKey] ?? {},

@@ -1,9 +1,5 @@
 import { Stack, Typography, WaterDropIcon } from '@avalabs/k2-alpine';
-import {
-  AccountAtomicBalanceState,
-  useBalancesContext,
-  useSettingsContext,
-} from '@core/ui';
+import { useBalancesContext, useSettingsContext } from '@core/ui';
 import { FC, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BalanceChange } from '../../../BalanceChange';
@@ -18,7 +14,6 @@ type TotalBalance = ReturnType<typeof useBalancesContext>['totalBalance'];
 type Props = {
   account?: Account;
   balance: TotalBalance;
-  atomicBalance?: AccountAtomicBalanceState;
   isDeveloperMode: boolean;
 };
 
@@ -33,7 +28,6 @@ const fallbackTotalBalance: TotalBalance = {
 export const AccountInfo: FC<Props> = ({
   account,
   balance = fallbackTotalBalance,
-  atomicBalance,
   isDeveloperMode,
 }) => {
   const { walletSummary } = useActiveAccountInfo();
@@ -42,9 +36,10 @@ export const AccountInfo: FC<Props> = ({
   const { setAccountInfoElement } = useAccountInfoVisibility();
   const [accountSummaryWidth, setAccountSummaryWidth] = useState<number>(0);
   const { sum, priceChange } = balance;
-  const formattedSum = currencyFormatter(
-    (sum ?? 0) + (atomicBalance?.balanceInCurrency ?? 0),
-  ).replace(/^(\D)0\.00$/, '$1–');
+  const formattedSum = currencyFormatter(sum ?? 0).replace(
+    /^(\D)0\.00$/,
+    '$1–',
+  );
 
   const handleWidthChange = useCallback((width: number) => {
     setAccountSummaryWidth(width);
