@@ -25,7 +25,7 @@ export const AccountSelectContainer = styled(Stack)`
   position: relative;
   flex: 0 1 auto;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 `;
 
 export const promptTextAnimation = keyframes`

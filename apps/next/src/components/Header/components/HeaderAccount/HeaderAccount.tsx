@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { AddressList } from '@/components/AddressList';
 import { Container } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
@@ -6,14 +6,25 @@ import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
 import { WalletIcon } from '@/components/WalletIcon';
 import { Box, Stack, useTheme } from '@avalabs/k2-alpine';
 import { MdUnfoldMore } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { FadingText } from '../FadingText';
+import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
 
-type Props = {
-  isAccountInfoVisible: boolean;
-};
+/**
+ * This component is used to display the header account information.
+ * When the user is on the wallet view, the personal avatar is displayed by default. And when the user hovers over the container, the account information is displayed.
+ * When the user is on the account view, it will behave the same way as wallet view. But when the user scroll down far enough and account information is not visible, then the account info is displayed.
+ **/
 
-const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
+export const HeaderAccount = () => {
+  const { isAccountInfoVisible } = useAccountInfoVisibility();
+
+  const location = useLocation();
+  const isAccountView =
+    location.pathname === '/' ||
+    location.pathname === '/portfolio' ||
+    location.pathname === '/home';
+
   const theme = useTheme();
   const history = useHistory();
   const { walletSummary, account } = useActiveAccountInfo();
@@ -21,18 +32,18 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
   const [isContainerHovered, setIsContainerHovered] = useState(false);
 
   const hasAccountData = walletSummary && account;
-  const showAccountInfoByDefault = hasAccountData && !isAccountInfoVisible;
+  const showAccountInfoByDefault = isAccountView
+    ? hasAccountData && !isAccountInfoVisible
+    : false;
 
   return (
     <Container
       onMouseEnter={() => setIsContainerHovered(true)}
       onMouseLeave={() => setIsContainerHovered(false)}
       sx={{
-        // Avatar: visible by default when isAccountInfoVisible, hidden on container hover
         '& .avatar-only': {
           display: showAccountInfoByDefault ? 'none' : 'block',
         },
-        // Account info: hidden by default when isAccountInfoVisible, visible on container hover
         '& .account-info': {
           display: showAccountInfoByDefault ? 'flex' : 'none',
         },
@@ -45,7 +56,7 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
       }}
     >
       {hasAccountData && (
-        <Box sx={{ position: 'relative' }}>
+        <Box position="relative" minWidth={0} overflow="hidden">
           <Box className="avatar-only" sx={{ cursor: 'pointer' }}>
             <PersonalAvatar size="xsmall" sx={{ mr: 1, ml: 0.5 }} />
           </Box>
@@ -54,26 +65,30 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
             className="account-info"
             direction="row"
             alignItems="center"
-            gap={0.5}
+            onClick={() => history.push('/account-management')}
             sx={{
               p: 0.5,
-              backgroundColor: 'background.navBarItem',
               borderRadius: 1,
+              backgroundColor: 'background.navBarItem',
               my: 0.5,
-              maxWidth: '100%',
-              overflow: 'hidden',
               cursor: 'pointer',
             }}
-            onClick={() => history.push('/account-management')}
           >
             <PersonalAvatar
               size="xsmall"
-              sx={{ mr: 1, flexShrink: 0, cursor: 'pointer' }}
+              sx={{ flexShrink: 0, cursor: 'pointer' }}
             />
 
-            <Stack sx={{ minWidth: 0, flex: 1, gap: 0 }}>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <div style={{ flexShrink: 0 }}>
+            <Stack
+              sx={{ minWidth: 0, flex: 1, gap: 0, overflow: 'hidden', mx: 1 }}
+            >
+              <Stack
+                direction="row"
+                alignItems="center"
+                gap={0.5}
+                sx={{ minWidth: 0, overflow: 'hidden' }}
+              >
+                <Box sx={{ flexShrink: 0 }}>
                   <WalletIcon
                     size={16}
                     type={walletSummary?.type}
@@ -81,11 +96,11 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
                     color={theme.palette.text.secondary}
                     expanded={true}
                   />
-                </div>
+                </Box>
                 <FadingText
                   variant="caption2"
                   color="text.secondary"
-                  sx={{ lineHeight: 1 }}
+                  sx={{ lineHeight: 1, minWidth: 0 }}
                   fontWeight="medium"
                 >
                   {walletSummary?.name}
@@ -94,7 +109,7 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
 
               <FadingText
                 variant="body2"
-                sx={{ lineHeight: 1, mt: -0.25 }}
+                sx={{ lineHeight: 1, mt: -0.25, minWidth: 0 }}
                 color="text.primary"
               >
                 {account?.name}
@@ -116,8 +131,4 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
       />
     </Container>
   );
-};
-
-export const HeaderAccount: FC<Props> = ({ isAccountInfoVisible }) => {
-  return <HeaderAccountContent isAccountInfoVisible={isAccountInfoVisible} />;
 };

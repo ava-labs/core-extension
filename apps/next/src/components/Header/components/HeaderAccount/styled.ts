@@ -6,7 +6,7 @@ export const Container = styled('div')(({ theme }) => ({
   alignItems: 'center',
   gap: theme.spacing(0.5),
   minWidth: 0,
-  overflow: 'hidden',
+  overflow: 'visible',
 }));
 
 export const WalletSectionContainer = styled('div')<{
