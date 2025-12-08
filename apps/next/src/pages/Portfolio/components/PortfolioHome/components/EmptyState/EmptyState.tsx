@@ -6,7 +6,6 @@ import {
   ListItemText,
   ListItemTextProps,
   Stack,
-  toast,
   Typography,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
@@ -14,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { MdAdd, MdSwapHoriz } from 'react-icons/md';
 import { AvaGradient } from './components/AvaGradient';
 import * as Styled from './components/Styled';
+import { useHistory } from 'react-router-dom';
+import { useAccountsContext, useAnalyticsContext } from '@core/ui';
 
 const navigateToBuyPage = () => {
   window.open(`${CORE_WEB_BASE_URL}/buy`, '_blank');
@@ -30,6 +31,10 @@ const optionSlotProps: ListItemTextProps['slotProps'] = {
 
 export const EmptyState: FC = () => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
+  const history = useHistory();
+  const { accounts } = useAccountsContext();
+  const activeAccount = accounts.active;
 
   return (
     <Styled.Root>
@@ -41,13 +46,13 @@ export const EmptyState: FC = () => {
         alignItems="end"
       >
         <AvaGradient />
-        <Box pl={2}>
+      </Stack>
+      <Box marginBlock="auto" pb={3}>
+        <Box pl={2} mb={3}>
           <Typography variant="h3">
             {t('Get started by adding crypto to your wallet')}
           </Typography>
         </Box>
-      </Stack>
-      <Box marginBlock="auto">
         <List disablePadding>
           <Styled.ListItemButton onClick={navigateToBuyPage}>
             <Styled.ListItemStartIcon>
@@ -67,14 +72,15 @@ export const EmptyState: FC = () => {
           <Styled.Divider variant="inset" />
           <Styled.ListItemButton
             onClick={() => {
-              toast.info('Coming soon');
+              capture('TokenReceiveClicked', { addressType: 'C' });
+              history.push(`/receive?accId=${activeAccount?.id}`);
             }}
           >
             <Styled.ListItemStartIcon>
               <MdSwapHoriz size={19.2} />
             </Styled.ListItemStartIcon>
             <ListItemText
-              primary={t('Transfer crypto')}
+              primary={t('Receive crypto')}
               secondary={t('Move funds from another wallet or exchange')}
               slotProps={optionSlotProps}
             />
