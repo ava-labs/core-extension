@@ -5,9 +5,8 @@ export const Container = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(0.5),
-  width: '128px',
   minWidth: 0,
-  overflow: 'visible',
+  overflow: 'hidden',
 }));
 
 export const WalletSectionContainer = styled('div')<{

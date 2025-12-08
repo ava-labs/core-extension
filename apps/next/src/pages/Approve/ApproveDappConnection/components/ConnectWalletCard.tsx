@@ -36,7 +36,12 @@ export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
       name={wallet.name}
       showActiveIndicator={isActiveWallet}
       icon={
-        <WalletIcon type={wallet.type} authProvider={wallet.authProvider} />
+        <WalletIcon
+          type={wallet.type}
+          authProvider={wallet.authProvider}
+          size={21}
+          expanded={isActiveWallet}
+        />
       }
       initialExpanded={initiallyExpanded}
       disableRename
