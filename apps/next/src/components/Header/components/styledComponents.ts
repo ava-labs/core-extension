@@ -154,24 +154,29 @@ export const getClassSelector = (
   return stateClass;
 };
 
-// Text that truncates with a fade gradient effect
-export const TruncatedText = styled(Typography)<{ showFade?: boolean }>(
-  ({ theme, showFade }) => ({
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    position: 'relative',
-    display: 'block',
-    '&::after': showFade
-      ? {
-          content: '""',
-          position: 'absolute',
-          right: 0,
-          top: 0,
-          bottom: 0,
-          width: '24px',
-          background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
-          pointerEvents: 'none',
-        }
-      : {},
+// Text that truncates with a fade gradient effect or ellipsis
+export const TruncatedText = styled(Typography)<{
+  showFade?: boolean;
+  showEllipsis?: boolean;
+}>(({ theme, showFade, showEllipsis }) => ({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  position: 'relative',
+  display: 'block',
+  minWidth: 0,
+  ...(showEllipsis && {
+    textOverflow: 'ellipsis',
   }),
-);
+  '&::after': showFade
+    ? {
+        content: '""',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: '24px',
+        background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
+        pointerEvents: 'none',
+      }
+    : {},
+}));
