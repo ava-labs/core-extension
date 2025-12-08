@@ -1,14 +1,18 @@
-import { injectable } from 'tsyringe';
+import { singleton } from 'tsyringe';
 import { StorageService } from '../storage/StorageService';
 import {
   NAVIGATION_HISTORY_STORAGE_KEY,
   NavigationHistoryState,
   NavigationHistoryStorage,
   NavigationHistoryDataState,
+  NavigationHistoryEvents,
 } from '@core/types';
+import { EventEmitter } from 'events';
 
-@injectable()
+@singleton()
 export class NavigationHistoryService {
+  #eventEmitter = new EventEmitter();
+
   private excludedPathNames = [
     '/send/confirm',
     '/collectible/send/confirm',
@@ -86,5 +90,23 @@ export class NavigationHistoryService {
     });
 
     return data;
+  }
+
+  async requestNavigation(path: string) {
+    const current = await this.getHistory();
+    // store request in history as well in case the window is not opened
+    this.setHistory({
+      ...current,
+      location: { pathname: path, hash: '', search: '' },
+    } as NavigationHistoryState);
+
+    this.#eventEmitter.emit(
+      NavigationHistoryEvents.NAVIGATION_HISTORY_REQUEST_NAVIGATION_EVENT,
+      { path },
+    );
+  }
+
+  addListener<T>(event: NavigationHistoryEvents, callback: (data: T) => void) {
+    this.#eventEmitter.on(event, callback);
   }
 }

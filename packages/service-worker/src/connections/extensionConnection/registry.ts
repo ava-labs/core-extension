@@ -157,6 +157,8 @@ import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwor
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
 import { GetXPAddressesForAccountHandler } from '../../services/accounts/handlers/getXPAddressesForAccountIndex';
 import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
+import { NavigationRequestEvents } from '~/services/navigationHistory/events/navigationRequestEvents';
+import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/requestNavigation';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -218,6 +220,7 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
     token: 'ExtensionRequestHandler',
     useToken: SetNavigationHistoryDataHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: RequestNavigationHandler },
   { token: 'ExtensionRequestHandler', useToken: SaveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateDefaultNetworkHandler },
@@ -531,5 +534,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
   { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
+  { token: 'ExtensionEventEmitter', useToken: NavigationRequestEvents },
 ])
 export class ExtensionEventEmitterRegistry {}
