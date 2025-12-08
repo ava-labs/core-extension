@@ -35,10 +35,10 @@ export const EnjoyYourWalletScreen: FC = () => {
     setTotal(0);
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
-  const openWallet = () => {
-    openApp().finally(() => {
-      window.close();
-    });
+  const openWallet = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    openApp({ closeWindow: true });
   };
 
   const [openWalletButtonRef, keyboardHandlers] = useSubmitButton();

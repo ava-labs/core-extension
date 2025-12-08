@@ -1,4 +1,5 @@
 export enum ExtensionRequest {
+  OPEN_EXTENSION_POPUP_WINDOW = 'open_extension_popup_window',
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SUBMIT = 'onboarding_submit',
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',

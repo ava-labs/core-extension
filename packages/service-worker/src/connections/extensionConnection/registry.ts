@@ -86,6 +86,7 @@ import { UpdateDefaultNetworkHandler } from '../../services/network/handlers/upd
 import { GetNetworkFeeHandler } from '../../services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '../../services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '../../services/onboarding/handlers/getIsOnBoarded';
+import { OpenExtensionPopupWindowHandler } from '../../services/onboarding/handlers/openExtensionPopupWindow';
 import { KeystoneOnboardingHandler } from '../../services/onboarding/handlers/keystoneOnboardingHandler';
 import { LedgerOnboardingHandler } from '../../services/onboarding/handlers/ledgerOnboardingHandler';
 import { MnemonicOnboardingHandler } from '../../services/onboarding/handlers/mnemonicOnboardingHandler';
@@ -251,6 +252,10 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
   },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: OpenExtensionPopupWindowHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: MnemonicOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },

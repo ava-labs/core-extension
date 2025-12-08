@@ -104,8 +104,7 @@ export const ImportLedgerFlowContent = () => {
           addressPublicKeys: publicKeys,
           extendedPublicKeys: extPublicKeys,
         });
-        openApp();
-        window.close();
+        openApp({ closeWindow: true });
       } catch (err) {
         toast.error(t('Unknown error has occurred. Please try again later.'));
         console.error(err);

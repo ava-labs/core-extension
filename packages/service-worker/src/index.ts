@@ -78,6 +78,7 @@ export type { GetNotificationSubscriptions } from './services/notifications/hand
 export type { SubscribeToNotification } from './services/notifications/handlers/subscribe';
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';
 export type { GetIsOnboardedHandler } from './services/onboarding/handlers/getIsOnBoarded';
+export type { OpenExtensionPopupWindowHandler } from './services/onboarding/handlers/openExtensionPopupWindow';
 export type { KeystoneOnboardingHandler } from './services/onboarding/handlers/keystoneOnboardingHandler';
 export type { KeystoneOnboardingHandlerNew } from './services/onboarding/handlers/keystoneOnboardingHandlerNew';
 export type { LedgerOnboardingHandler } from './services/onboarding/handlers/ledgerOnboardingHandler';
