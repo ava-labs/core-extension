@@ -4,13 +4,14 @@ import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { findMatchingBridgeAsset } from '@core/common';
 import { useBridgeAmounts } from '@core/ui';
 import Big from 'big.js';
-import { FC, useMemo } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails, TransactionFailure } from './components';
 import { useUntrackTransaction } from './hooks/useUntrackTransaction';
+import { useConfettiContext } from '@/components/Confetti';
 
 type Props = {
   transfer: BridgeTransfer;
@@ -20,6 +21,7 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
   const { t } = useTranslation();
   const { push, goBack } = useHistory();
   const { sourceTokens } = useBridgeState();
+  const { triggerConfetti } = useConfettiContext();
 
   const token = useMemo(() => {
     if (!pendingTransfer?.asset) {
@@ -38,6 +40,12 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
   } = useBridgeAmounts(pendingTransfer);
 
   const untrackTransaction = useUntrackTransaction();
+
+  useEffect(() => {
+    if (pendingTransfer.completedAt && !pendingTransfer.errorCode) {
+      triggerConfetti();
+    }
+  }, [pendingTransfer.completedAt, pendingTransfer.errorCode, triggerConfetti]);
 
   if (!pendingTransfer) {
     return null;

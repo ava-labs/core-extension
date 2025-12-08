@@ -32,7 +32,7 @@ export const RecoveryMethodsFullScreen = () => {
         withLanguageSelector
         onBack={async () => {
           if (location.pathname === homeURL) {
-            openApp();
+            openApp({ closeWindow: false });
           }
           history.push(homeURL);
         }}

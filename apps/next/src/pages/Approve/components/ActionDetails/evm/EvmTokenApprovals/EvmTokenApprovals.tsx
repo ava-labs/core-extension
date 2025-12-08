@@ -3,7 +3,7 @@ import { FC, useRef } from 'react';
 import { DisplayData } from '@avalabs/vm-module-types';
 
 import { Action, EnsureDefined } from '@core/types';
-import { useBalancesContext } from '@core/ui';
+import { useTokenPrice } from '@core/ui';
 
 import { DetailsSection } from '../../generic/DetailsSection';
 import { getApprovalValue, isUnlimitedApproval } from './lib';
@@ -14,8 +14,6 @@ type EvmTokenApprovalsProps = {
 };
 
 export const EvmTokenApprovals: FC<EvmTokenApprovalsProps> = ({ action }) => {
-  const { getTokenPrice } = useBalancesContext();
-
   const { tokenApprovals } = action.displayData;
 
   const requestedApprovalRef = useRef(tokenApprovals.approvals[0]);
@@ -23,10 +21,15 @@ export const EvmTokenApprovals: FC<EvmTokenApprovalsProps> = ({ action }) => {
     tokenApprovals.approvals.length === 1 && tokenApprovals.isEditable;
 
   const firstApproval = tokenApprovals.approvals[0];
+  const firstApprovalTokenPrice = useTokenPrice(firstApproval?.token.address);
   const currentApprovalValue = firstApproval
-    ? getApprovalValue(firstApproval, getTokenPrice)
+    ? getApprovalValue(firstApproval, firstApprovalTokenPrice)
     : null;
+
   const requestedApproval = requestedApprovalRef.current;
+  const requestedApprovalTokenPrice = useTokenPrice(
+    requestedApproval?.token.address,
+  );
 
   if (!currentApprovalValue || !requestedApproval) {
     return null;
@@ -34,7 +37,7 @@ export const EvmTokenApprovals: FC<EvmTokenApprovalsProps> = ({ action }) => {
 
   const requestedApprovalValue = getApprovalValue(
     requestedApproval,
-    getTokenPrice,
+    requestedApprovalTokenPrice,
   );
 
   if (!requestedApprovalValue) {

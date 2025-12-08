@@ -1,6 +1,7 @@
 import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
 import {
   GetBalancesHandler,
+  GetTokenPriceByAddressHandler,
   RefreshNftMetadataHandler,
   StartBalancesPollingHandler,
   StopBalancesPollingHandler,
@@ -101,7 +102,10 @@ const BalancesContext = createContext<{
     chainId: string,
     tokenId: string,
   ): Promise<void>;
-  getTokenPrice(addressOrSymbol: string): number | undefined;
+  getTokenPrice(
+    addressOrSymbol: string,
+    lookupNetwork?: NetworkWithCaipId,
+  ): Promise<number | undefined>;
   updateBalanceOnNetworks: (
     accounts: Account[],
     chainIds?: number[],
@@ -121,7 +125,7 @@ const BalancesContext = createContext<{
   ) => AccountAtomicBalanceState | undefined;
 }>({
   balances: { loading: true },
-  getTokenPrice() {
+  async getTokenPrice() {
     return undefined;
   },
   async refreshNftMetadata() {},
@@ -426,7 +430,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   );
 
   const getTokenPrice = useCallback(
-    (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
+    async (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
         return;
       }
@@ -452,9 +456,31 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         // Native token symbols are not lower-cased by the balance services.
         accountBalances?.[addressOrSymbol.toLowerCase()];
 
-      return token?.priceInCurrency;
+      if (token?.priceInCurrency !== undefined) {
+        return token.priceInCurrency;
+      }
+
+      // Fallback: fetch price by address if we have the required coingecko info
+      const coingeckoInfo = tokenNetwork.pricingProviders?.coingecko;
+      if (coingeckoInfo?.assetPlatformId && coingeckoInfo?.nativeTokenId) {
+        try {
+          const prices = await request<GetTokenPriceByAddressHandler>({
+            method: ExtensionRequest.TOKEN_PRICE_GET_BY_ADDRESS,
+            params: [
+              addressOrSymbol,
+              coingeckoInfo.assetPlatformId,
+              coingeckoInfo.nativeTokenId,
+            ],
+          });
+          return prices[addressOrSymbol.toLowerCase()];
+        } catch {
+          return undefined;
+        }
+      }
+
+      return undefined;
     },
-    [balances.tokens, activeAccount, network],
+    [balances.tokens, activeAccount, network, request],
   );
 
   return (

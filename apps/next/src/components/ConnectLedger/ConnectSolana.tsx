@@ -21,9 +21,11 @@ type ConnectionStepProps = StackProps & {
   onNext: (keys: DerivedKeys) => void;
   onTroubleshoot: () => void;
   connectorCallbacks?: ConnectorCallbacks;
+  numberOfKeys: number;
 };
 
 export const ConnectSolana: FC<ConnectionStepProps> = ({
+  numberOfKeys,
   onNext,
   onTroubleshoot,
   connectorCallbacks,
@@ -51,7 +53,7 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
           onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={setStatus}
-          numberOfKeys={3}
+          minNumberOfKeys={numberOfKeys}
         />
       </FullscreenModalContent>
       <FullscreenModalActions>

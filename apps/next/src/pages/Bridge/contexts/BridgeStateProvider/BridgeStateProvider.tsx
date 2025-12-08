@@ -19,6 +19,7 @@ import {
   useTokenLookup,
 } from './hooks';
 import { checkIfXorPChain } from './utils/checkIfXOrPChain';
+import { useNetworkFeeContext } from '@core/ui';
 
 type UnifiedBridgeContext = ReturnType<typeof useNextUnifiedBridgeContext>;
 
@@ -35,6 +36,7 @@ const BridgeStateContext = createContext<
       fee: bigint | undefined;
       minTransferAmount: bigint | undefined;
       requiredGas: bigint;
+      requiredNetworkFee: bigint;
       isBridgeSupported: boolean;
       sourceToken: FungibleTokenBalance | undefined;
       sourceTokens: FungibleTokenBalance[];
@@ -50,7 +52,10 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     sourceToken: sourceTokenId,
     targetNetwork: targetNetworkId,
   } = query;
+  const { getNetworkFee } = useNetworkFeeContext();
+
   const [requiredGas, setRequiredGas] = useState<bigint>(0n);
+  const [requiredNetworkFee, setRequiredNetworkFee] = useState<bigint>(0n);
 
   const {
     getTransferableAssets,
@@ -74,7 +79,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
   const { amountAfterFee, fee } = useAmountAfterFee(
     asset,
     sourceToken?.balance,
-    requiredGas,
+    requiredNetworkFee,
     amount,
     sourceNetworkId,
     targetNetworkId,
@@ -111,6 +116,17 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
     }
   }, [amount, sourceNetworkId, targetNetworkId, estimateTransferGas, asset]);
 
+  useEffect(() => {
+    getNetworkFee(sourceNetworkId).then((networkFee) => {
+      if (!networkFee || !requiredGas) {
+        setRequiredNetworkFee(0n);
+        return;
+      }
+
+      setRequiredNetworkFee(networkFee.low.maxFeePerGas * requiredGas);
+    });
+  }, [sourceNetworkId, requiredGas, getNetworkFee]);
+
   return (
     <BridgeStateContext
       value={{
@@ -121,6 +137,7 @@ export const BridgeStateProvider: FC<PropsWithChildren> = ({ children }) => {
         minTransferAmount,
         query,
         requiredGas,
+        requiredNetworkFee,
         isBridgeSupported: Boolean(
           sourceNetworkId && checkIfXorPChain(caipToChainId(sourceNetworkId)),
         ),

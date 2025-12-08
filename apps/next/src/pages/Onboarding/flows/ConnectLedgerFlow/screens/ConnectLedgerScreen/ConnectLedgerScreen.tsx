@@ -2,6 +2,7 @@ import { useHistory } from 'react-router-dom';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { WalletType } from '@avalabs/types';
 
+import { isAvalancheExtendedKey } from '@core/common';
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import { useModalPageControl } from '@/components/FullscreenModal';
@@ -36,6 +37,7 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
     setAddressPublicKeys,
     setExtendedPublicKeys,
     setOnboardingWalletType,
+    extendedPublicKeys: addedXPubs,
   } = useOnboardingContext();
   const { capture } = useAnalyticsContext();
 
@@ -93,6 +95,9 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
     );
   }, [phase, registerBackButtonHandler, history.goBack]);
 
+  const numberOfAccounts =
+    addedXPubs?.filter(isAvalancheExtendedKey).length ?? 1;
+
   return (
     <>
       {phase === 'connect-avax' && (
@@ -123,6 +128,7 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
       )}
       {phase === 'connect-solana' && (
         <ConnectSolana
+          numberOfKeys={numberOfAccounts}
           connectorCallbacks={solanaConnectorCallbacks}
           onNext={({ addressPublicKeys }) => {
             setAddressPublicKeys((prev) => [

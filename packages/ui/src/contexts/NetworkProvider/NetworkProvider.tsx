@@ -135,7 +135,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         : networks
             .filter(({ chainId }) => enabledNetworks.includes(chainId))
             .filter(
-              (networkItem) => network?.isTestnet === networkItem.isTestnet,
+              (networkItem) =>
+                Boolean(network?.isTestnet) === Boolean(networkItem.isTestnet),
             ),
     [enabledNetworks, network?.isTestnet, networks],
   );

@@ -1,4 +1,5 @@
 import {
+  Box,
   IconButton,
   OutboundIcon,
   Skeleton,
@@ -17,6 +18,7 @@ import { useCallback, useEffect, useState } from 'react';
 type DerivedAddressesProps = {
   addresses: string[];
   chainCaipId: string;
+  addLoadingRow?: boolean;
 };
 
 type BalanceInfo = {
@@ -29,6 +31,7 @@ type BalanceInfoMap = Map<string, BalanceInfo>;
 export const DerivedAddresses = ({
   addresses,
   chainCaipId,
+  addLoadingRow = false,
 }: DerivedAddressesProps) => {
   const { fetchBalance } = useNativeBalanceFetcher(chainCaipId);
 
@@ -79,7 +82,7 @@ export const DerivedAddresses = ({
               fontFamily="monospace"
               color="text.primary"
             >
-              {truncateAddress(address)}
+              {truncateAddress(address, 14)}
             </Typography>
           </Stack>
           <Stack direction="row" gap={1.5} alignItems="center">
@@ -107,6 +110,29 @@ export const DerivedAddresses = ({
           </Stack>
         </SectionRow>
       ))}
+      {addLoadingRow && (
+        <SectionRow
+          sx={{
+            gap: 'unset',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            py: 1.25,
+          }}
+        >
+          <Stack direction="row" gap={1.5} alignItems="center">
+            <Typography variant="body2" color="text.secondary">
+              {sortedAddresses.length + 1}
+            </Typography>
+            <Skeleton variant="text" width="150px" animation="wave" />
+          </Stack>
+          <Stack direction="row" gap={1.5} alignItems="center">
+            <Skeleton variant="text" width="100px" animation="wave" />
+            <Box width={32}>
+              <Skeleton variant="circular" width="24px" height="24px" />
+            </Box>
+          </Stack>
+        </SectionRow>
+      )}
     </Section>
   );
 };

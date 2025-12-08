@@ -1,5 +1,5 @@
 import { SelectButton } from '@/components/SelectButton';
-import { openView } from '@/utils/openView';
+import { useOpenApp } from '@/hooks/useOpenApp';
 import { ButtonProps, Typography } from '@avalabs/k2-alpine';
 import { ViewMode } from '@core/types';
 import { useAnalyticsContext, useSettingsContext } from '@core/ui';
@@ -9,6 +9,7 @@ export const ViewPreferenceSelector = (props: ButtonProps) => {
   const { preferredView, setPreferredView } = useSettingsContext();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
+  const openApp = useOpenApp();
 
   const selectedView =
     preferredView === 'floating' ? t('Floating') : t('Sidebar');
@@ -18,8 +19,7 @@ export const ViewPreferenceSelector = (props: ButtonProps) => {
     capture('ViewModeSwitched', {
       viewMode: view,
     });
-    window.close();
-    await openView(view);
+    openApp({ closeWindow: true, viewMode: view });
   };
 
   return (
