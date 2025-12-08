@@ -4,6 +4,7 @@ import { WalletDetails } from './components/WalletDetails';
 import { ImportedAccountDetails } from './components/ImportedAccoutDetails';
 import { isImportedAccount } from '@core/common';
 import { WalletError } from './components/WalletError';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 const WalletViewContent = () => {
   const { walletId } = useParams<{ walletId: string }>();
@@ -11,6 +12,11 @@ const WalletViewContent = () => {
   const { getAccountById } = useAccountsContext();
 
   const wallet = getWallet(walletId);
+
+  if (!wallet) {
+    return <LoadingScreen />;
+  }
+
   if (wallet) {
     return <WalletDetails wallet={wallet} />;
   }
