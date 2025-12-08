@@ -80,8 +80,7 @@ export const ImportSeedphraseFlow = () => {
           name,
         });
         capture('SeedphraseImportSuccess');
-        openApp();
-        window.close();
+        await openApp({ closeWindow: true, navigateTo: '/' });
       } catch (error) {
         capture('SeedphraseImportFailure');
         const { title, hint } = gerErrorMessage(error);
@@ -92,7 +91,7 @@ export const ImportSeedphraseFlow = () => {
         throw error;
       }
     },
-    [importSeedphrase, phrase, gerErrorMessage, openApp, capture],
+    [importSeedphrase, phrase, capture, openApp, gerErrorMessage],
   );
 
   return (

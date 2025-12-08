@@ -1,4 +1,5 @@
 export enum ExtensionRequest {
+  OPEN_EXTENSION_POPUP_WINDOW = 'open_extension_popup_window',
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SUBMIT = 'onboarding_submit',
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
@@ -123,6 +124,7 @@ export enum ExtensionRequest {
   NAVIGATION_HISTORY_SET = 'navigation_history_set',
   NAVIGATION_HISTORY_DATA_GET = 'navigation_history_data_get',
   NAVIGATION_HISTORY_DATA_SET = 'navigation_history_data_set',
+  NAVIGATION_HISTORY_REQUEST_NAVIGATION = 'navigation_history_request_navigation',
 
   ANALYTICS_INIT_IDS = 'analytics_init_ids',
   ANALYTICS_STORE_IDS = 'analytics_store_ids',
