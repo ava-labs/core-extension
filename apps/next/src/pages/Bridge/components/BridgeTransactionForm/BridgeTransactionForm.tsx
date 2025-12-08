@@ -45,6 +45,7 @@ export const BridgeTransactionForm: FC<Props> = ({
     },
     fee,
     minTransferAmount,
+    amountAfterFee,
   } = useBridgeState();
 
   const canExecuteBridge = asset && amount && targetNetworkId;
@@ -83,8 +84,14 @@ export const BridgeTransactionForm: FC<Props> = ({
     canExecuteBridge &&
     minTransferAmount &&
     minTransferAmount <= stringToBigint(amount, asset.decimals);
+  const isReceiveAmountCorrect =
+    typeof amountAfterFee === 'bigint' && amountAfterFee > 0n;
   const isBridgeButtonDisabled = Boolean(
-    !canExecuteBridge || isFeeLoading || !isAmountCorrect || isBridgeExecuting,
+    !canExecuteBridge ||
+      isFeeLoading ||
+      !isAmountCorrect ||
+      isBridgeExecuting ||
+      !isReceiveAmountCorrect,
   );
   return (
     <>

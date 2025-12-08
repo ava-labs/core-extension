@@ -6,8 +6,10 @@ import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
 import { DetailsView } from './components/DetailsView';
 import { ActionButtons } from '@/components/ActionButtons';
 import { useTranslation } from 'react-i18next';
-import { useAccountManager } from '@core/ui';
+import { useAccountManager, useWalletContext } from '@core/ui';
 import { URL_SEARCH_TOKENS } from '../../utils/searchParams';
+import { isPrimaryAccount } from '@core/common';
+import { SecretType } from '@core/types';
 
 const toastOptions: ToastOptions = {
   id: 'account-details-guard',
@@ -21,6 +23,7 @@ export const AccountDetails: FC = () => {
   } = useHistory();
   const { t } = useTranslation();
   const { isAccountSelectable } = useAccountManager();
+  const { getWallet } = useWalletContext();
 
   const switchTo = useMemo(
     () => ({
@@ -48,6 +51,10 @@ export const AccountDetails: FC = () => {
 
   const { account } = accountParams;
 
+  const isSeedlessWalletAccount =
+    isPrimaryAccount(account) &&
+    getWallet(account.walletId)?.type === SecretType.Seedless;
+
   return (
     <Page
       withBackButton
@@ -67,13 +74,17 @@ export const AccountDetails: FC = () => {
             onClick: switchTo.rename,
             color: 'secondary',
           }}
-          bottom={{
-            label: t('Remove account'),
-            onClick: switchTo.remove,
-            color: 'secondary',
-            panic: true,
-            disabled: !isAccountSelectable(account),
-          }}
+          bottom={
+            isSeedlessWalletAccount
+              ? undefined
+              : {
+                  label: t('Remove account'),
+                  onClick: switchTo.remove,
+                  color: 'secondary',
+                  panic: true,
+                  disabled: !isAccountSelectable(account),
+                }
+          }
         />
       </ActionButtonsContainer>
     </Page>
