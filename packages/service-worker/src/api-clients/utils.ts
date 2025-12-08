@@ -166,9 +166,12 @@ export const createGetBalancePayload = async ({
         }
 
         if (
-          [AvalancheCaip2ChainId.P, AvalancheCaip2ChainId.X].includes(
-            caip2Id as AvalancheCaip2ChainId,
-          )
+          [
+            AvalancheCaip2ChainId.P,
+            AvalancheCaip2ChainId.X,
+            AvalancheCaip2ChainId.P_TESTNET,
+            AvalancheCaip2ChainId.X_TESTNET,
+          ].includes(caip2Id as AvalancheCaip2ChainId)
         ) {
           return acc;
         }
