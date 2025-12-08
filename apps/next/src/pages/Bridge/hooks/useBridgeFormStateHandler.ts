@@ -1,19 +1,21 @@
 import { bigIntToString } from '@avalabs/core-utils-sdk';
-import { isAddressBlockedError, stringToBigint } from '@core/common';
-import { useCallback, useMemo, useState } from 'react';
+import { stringToBigint } from '@core/common';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../contexts';
 
-export const useBridgeErrorHandler = () => {
+export const useBridgeFormStateHandler = () => {
   const { t } = useTranslation();
-  const [bridgeError, setBridgeError] = useState<string>('');
-  const [isAddressBlocked, setIsAddressBlocked] = useState(false);
   const {
+    asset,
     minTransferAmount,
-    query: { amount },
+    query: { amount, targetNetwork: targetNetworkId },
     sourceToken,
     requiredNetworkFee,
+    fee,
+    amountAfterFee,
   } = useBridgeState();
+  const [isBridgeExecuting, setIsBridgeExecuting] = useState(false);
 
   const amountBigInt =
     sourceToken && amount ? stringToBigint(amount, sourceToken.decimals) : 0n;
@@ -55,7 +57,7 @@ export const useBridgeErrorHandler = () => {
       !requiredNetworkFee ||
       !minTransferAmount ||
       !hasEnoughBalanceForTransfer ||
-      hasInsufficientBalance
+      !hasInsufficientBalance
     ) {
       return '';
     }
@@ -78,28 +80,29 @@ export const useBridgeErrorHandler = () => {
     t,
   ]);
 
-  const clearError = useCallback(() => {
-    setBridgeError('');
-  }, []);
+  const isFeeLoading = fee === undefined;
+  const canExecuteBridge = asset && amount && targetNetworkId;
+  const isAmountCorrect =
+    canExecuteBridge && minTransferAmount && !minAmountError && !maxAmountError;
 
-  const onBridgeError = useCallback((err: unknown, fallbackMessage: string) => {
-    if (isAddressBlockedError(err)) {
-      setIsAddressBlocked(true);
-    } else if (err instanceof Error) {
-      setBridgeError(err.message);
-    } else if (typeof err === 'string') {
-      setBridgeError(err);
-    } else {
-      setBridgeError(fallbackMessage);
-    }
-  }, []);
+  const isReceiveAmountCorrect =
+    typeof amountAfterFee === 'bigint' && amountAfterFee > 0n;
+
+  const isBridgeButtonDisabled = Boolean(
+    !canExecuteBridge ||
+      isFeeLoading ||
+      !isAmountCorrect ||
+      isBridgeExecuting ||
+      !isReceiveAmountCorrect ||
+      hasInsufficientBalance,
+  );
 
   return {
     error: hasInsufficientBalance
       ? t('Insufficient balance')
-      : minAmountError || maxAmountError || bridgeError,
-    clearError,
-    onBridgeError,
-    isAddressBlocked,
+      : minAmountError || maxAmountError,
+    setIsBridgeExecuting,
+    isBridgeButtonDisabled,
+    canExecuteBridge,
   };
 };

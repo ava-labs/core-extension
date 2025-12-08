@@ -15,7 +15,7 @@ import {
   useBridgeQuery,
   useNextUnifiedBridgeContext,
 } from './contexts';
-import { useBridgeErrorHandler, useBridgeTxHandlers } from './hooks';
+import { useBridgeTxHandlers } from './hooks';
 import { getPageContentProps } from './lib/getPageContentProps';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
@@ -26,11 +26,9 @@ const BridgePage: FC = () => {
   const { state } = useNextUnifiedBridgeContext();
   const { transactionId } = useBridgeQuery();
 
-  const errorHandler = useBridgeErrorHandler();
+  const txHandlers = useBridgeTxHandlers();
 
-  const txHandlers = useBridgeTxHandlers(errorHandler);
-
-  if (errorHandler.isAddressBlocked) {
+  if (txHandlers.isAddressBlocked) {
     return <BridgeSanctions />;
   }
 
@@ -56,7 +54,7 @@ const BridgePage: FC = () => {
         <BridgeInProgress transfer={pendingTransfer} />
       ) : (
         <BridgeTransactionForm
-          error={errorHandler.error}
+          transactionError={txHandlers.error}
           onSuccess={txHandlers.onSuccess}
           onRejected={txHandlers.onRejected}
           onFailure={txHandlers.onFailure}
