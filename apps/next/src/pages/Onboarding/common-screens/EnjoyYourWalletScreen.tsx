@@ -35,9 +35,7 @@ export const EnjoyYourWalletScreen: FC = () => {
     setTotal(0);
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
-  const openWallet = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const openWallet = () => {
     openApp({ closeWindow: true });
   };
 
