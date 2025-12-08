@@ -5,22 +5,20 @@ import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { filter } from 'rxjs';
 
+/* The list of contexts that should support navigation history */
+const supportedContexts = [ContextContainer.POPUP, ContextContainer.SIDE_PANEL];
+
 export const useNavigationRequests = () => {
   const { events } = useConnectionContext();
   const history = useHistory();
 
   useEffect(() => {
-    /* The list of contexts that should support navigation history */
-    const supportedContexts = [
-      ContextContainer.POPUP,
-      ContextContainer.SIDE_PANEL,
-    ];
     if (!supportedContexts.some(isSpecificContextContainer)) {
       return;
     }
     const eventsSubscription = events()
       .pipe(filter(isNavigationHistoryRequestEvent))
-      .subscribe(async (event) => {
+      .subscribe((event) => {
         if (history.location.pathname !== event.value.path) {
           history.push(event.value.path);
         }
