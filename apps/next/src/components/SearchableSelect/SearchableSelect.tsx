@@ -53,6 +53,7 @@ type SearchableSelectOwnProps<T> = {
   skipGroupingEntirely?: boolean;
   searchInputProps?: Omit<ComponentProps<typeof SearchInput>, 'slotProps'>;
   disabled?: boolean;
+  renderChips?: ReactNode;
 };
 interface SearchableSelectSlots<T> {
   groupAccordion?: JSXElementConstructor<
@@ -88,6 +89,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
     skipGroupingEntirely,
     searchInputProps,
     disabled,
+    renderChips,
     ...hookProps
   } = props;
 
@@ -167,6 +169,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
                 ),
               }}
             />
+            {renderChips}
             {groupedOptions.every((group) => group.options.length === 0) && (
               <Stack
                 direction="row"
@@ -185,7 +188,6 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
             )}
             <SearchableSelectListBox>
               {groupedOptions.map((group, index, { length }) => {
-                console.log('group', group);
                 // If there is only one group and it's not narrowed down via search,
                 // render a flat list of options.
                 if (
