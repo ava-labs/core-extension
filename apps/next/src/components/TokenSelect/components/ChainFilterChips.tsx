@@ -1,46 +1,20 @@
-import {
-  Avatar,
-  Badge,
-  BadgeProps,
-  Button,
-  Stack,
-  styled,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Avatar, Button, Stack, styled } from '@avalabs/k2-alpine';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { NetworkVMType } from '@avalabs/vm-module-types';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useNetworkContext } from '@core/ui';
-import { isPchainNetwork, isXchainNetwork } from '@core/common';
-
-import DarkP from '@/images/chain-logos/p_chain_dark.svg';
-import LightP from '@/images/chain-logos/p_chain_light.svg';
-import DarkX from '@/images/chain-logos/x_chain_dark.svg';
-import LightX from '@/images/chain-logos/x_chain_light.svg';
 
 type ChainOption = {
-  chainId: number;
+  chainId: number | 'avalanche';
   chainName: string;
 };
 
 type ChainFilterChipsProps = {
   chainOptions: ChainOption[];
-  selectedChainId: number | null;
-  onChainSelect: (chainId: number | null) => void;
+  selectedChainId: number | 'avalanche' | null;
+  onChainSelect: (chainId: number | 'avalanche' | null) => void;
 };
-
-const XP_LOGOS = {
-  dark: {
-    [NetworkVMType.AVM]: DarkX,
-    [NetworkVMType.PVM]: DarkP,
-  },
-  light: {
-    [NetworkVMType.AVM]: LightX,
-    [NetworkVMType.PVM]: LightP,
-  },
-} as const;
 
 const ChipsContainer = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(1, 2),
@@ -63,6 +37,7 @@ const FilterChip = styled(Button)<{ selected?: boolean }>(
       ? theme.palette.primary.contrastText
       : theme.palette.text.primary,
     gap: theme.spacing(0.5),
+    border: '0px solid transparent',
     display: 'flex',
     alignItems: 'center',
     '&:hover': {
@@ -79,74 +54,40 @@ const ChainLogo = styled(Avatar)({
   backgroundColor: 'transparent',
 });
 
-const ChainBadgeLogo = styled(Avatar)(({ theme }) => ({
-  width: 10,
-  height: 10,
-  backgroundColor: 'transparent',
-  borderWidth: '1px',
-  borderStyle: 'solid',
-  borderColor: theme.palette.background.paper,
-}));
-
-const badgeProps: BadgeProps = {
-  overlap: 'circular',
-  anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
-};
-
 export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
   chainOptions,
   selectedChainId,
   onChainSelect,
 }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { getNetwork } = useNetworkContext();
 
-  // Get Avalanche C-Chain network for the main logo
+  // Get Avalanche C-Chain network for the main logo (for c-x-p merged network)
   const avalancheCChain =
     getNetwork(ChainId.AVALANCHE_MAINNET_ID) ||
     getNetwork(ChainId.AVALANCHE_TESTNET_ID);
 
-  const getChainLogo = (chainId: number) => {
-    const network = getNetwork(chainId);
-    if (!network) return { mainLogo: undefined, badgeLogo: undefined };
-
-    // For X and P chains, use Avalanche logo with badge
-    if (isPchainNetwork(network) || isXchainNetwork(network)) {
-      const badgeLogo = XP_LOGOS[theme.palette.mode][network.vmName];
+  const renderChainLogo = (
+    chainId: number | 'avalanche',
+    chainName: string,
+  ) => {
+    // Special handling for Avalanche (merged networks - c-x-p)
+    if (chainId === 'avalanche') {
       const mainLogo = avalancheCChain?.logoUri;
-      return { mainLogo, badgeLogo };
+      if (!mainLogo) {
+        return null;
+      }
+      return <ChainLogo src={mainLogo} alt={chainName} variant="circular" />;
     }
 
-    // For other chains, just use their logo
-    return { mainLogo: network.logoUri, badgeLogo: undefined };
-  };
+    const network = getNetwork(chainId);
+    const logoUri = network?.logoUri;
 
-  const renderChainLogo = (chainId: number, chainName: string) => {
-    const { mainLogo, badgeLogo } = getChainLogo(chainId);
-
-    if (!mainLogo) return null;
-
-    // If there's a badge (X or P chain), render with Badge component
-    if (badgeLogo) {
-      return (
-        <Badge
-          {...badgeProps}
-          badgeContent={
-            <ChainBadgeLogo
-              src={badgeLogo}
-              alt={chainName}
-              variant="circular"
-            />
-          }
-        >
-          <ChainLogo src={mainLogo} alt={chainName} variant="circular" />
-        </Badge>
-      );
+    if (!logoUri) {
+      return null;
     }
 
-    // For other chains, just show the logo
-    return <ChainLogo src={mainLogo} alt={chainName} variant="circular" />;
+    return <ChainLogo src={logoUri} alt={chainName} variant="circular" />;
   };
 
   return (

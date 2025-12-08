@@ -1,8 +1,13 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { useNetworkContext } from '@core/ui';
+import {
+  isAvalancheChainId,
+  isPchainNetwork,
+  isXchainNetwork,
+} from '@core/common';
 
 import { SearchableSelect } from '../SearchableSelect';
 import {
@@ -37,21 +42,61 @@ function TokenSelectRaw({
 }: TokenSelectProps) {
   const { t } = useTranslation();
   const { getNetwork } = useNetworkContext();
-  const [selectedChainId, setSelectedChainId] = useState<number | null>(null);
+  const [selectedChainId, setSelectedChainId] = useState<
+    number | 'avalanche' | null
+  >(null);
 
-  // Extract unique chain IDs from token list
-  const availableChainIds = useMemo(() => {
+  // Helper to check if a chain ID is any Avalanche network (C, X, or P)
+  const isAnyAvalancheNetwork = useCallback(
+    (chainId: number): boolean => {
+      const network = getNetwork(chainId);
+      return (
+        isAvalancheChainId(chainId) ||
+        isXchainNetwork(network) ||
+        isPchainNetwork(network)
+      );
+    },
+    [getNetwork],
+  );
+
+  // Extract unique chain IDs from token list and group Avalanche networks
+  const { availableChainIds, hasAvalancheNetworks } = useMemo(() => {
     const chainIds = new Set(tokenList.map((token) => token.coreChainId));
-    return Array.from(chainIds).sort((a, b) => a - b);
-  }, [tokenList]);
+    const allChainIds = Array.from(chainIds);
+
+    // Separate Avalanche and non-Avalanche networks
+    const avalancheChainIds: number[] = [];
+    const nonAvalancheChainIds: number[] = [];
+
+    allChainIds.forEach((chainId) => {
+      if (isAnyAvalancheNetwork(chainId)) {
+        avalancheChainIds.push(chainId);
+      } else {
+        nonAvalancheChainIds.push(chainId);
+      }
+    });
+
+    // Sort non-Avalanche chains
+    nonAvalancheChainIds.sort((a, b) => a - b);
+
+    return {
+      availableChainIds: nonAvalancheChainIds,
+      hasAvalancheNetworks: avalancheChainIds.length > 0,
+    };
+  }, [tokenList, isAnyAvalancheNetwork]);
 
   // Filter token list based on selected chain
   const filteredTokenList = useMemo(() => {
     if (selectedChainId === null) {
       return tokenList;
     }
+    if (selectedChainId === 'avalanche') {
+      return tokenList.filter((token) =>
+        isAnyAvalancheNetwork(token.coreChainId),
+      );
+    }
     return tokenList.filter((token) => token.coreChainId === selectedChainId);
-  }, [tokenList, selectedChainId]);
+  }, [tokenList, selectedChainId, isAnyAvalancheNetwork]);
 
   const selectedToken = filteredTokenList.find(
     (token) => getUniqueTokenId(token) === tokenId,
@@ -59,14 +104,30 @@ function TokenSelectRaw({
 
   // Get chain names for chips
   const chainOptions = useMemo(() => {
-    return availableChainIds.map((chainId) => {
+    const options: Array<{
+      chainId: number | 'avalanche';
+      chainName: string;
+    }> = [];
+
+    // Add Avalanche option if there are Avalanche networks
+    if (hasAvalancheNetworks) {
+      options.push({
+        chainId: 'avalanche',
+        chainName: 'Avalanche',
+      });
+    }
+
+    // Add other chain options
+    availableChainIds.forEach((chainId) => {
       const network = getNetwork(chainId);
-      return {
+      options.push({
         chainId,
         chainName: network?.chainName ?? `Chain ${chainId}`,
-      };
+      });
     });
-  }, [availableChainIds, getNetwork]);
+
+    return options;
+  }, [availableChainIds, hasAvalancheNetworks, getNetwork]);
 
   return (
     <SearchableSelect<FungibleTokenBalance>
@@ -102,7 +163,7 @@ function TokenSelectRaw({
         />
       )}
       renderChips={
-        availableChainIds.length > 1 ? (
+        chainOptions.length > 1 ? (
           <ChainFilterChips
             chainOptions={chainOptions}
             selectedChainId={selectedChainId}
