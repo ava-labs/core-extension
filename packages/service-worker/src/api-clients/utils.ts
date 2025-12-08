@@ -39,6 +39,7 @@ import {
   AVALANCHE_CHAIN_IDS,
   Caip2IdAccountTypeMap,
   CORE_ETH_CAIP2ID,
+  NameSpaceAccountTypeMap,
 } from '~/api-clients/constants';
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { AddressResolver } from '~/services/secrets/AddressResolver';
@@ -140,6 +141,30 @@ interface CreateGetBalancePayloadParams {
   addressResolver: AddressResolver;
 }
 
+interface GetAccountAddressFromCaip2IdOrNamesSpaceProps {
+  account: Account;
+  caip2Id: string;
+  nameSpace?: string;
+}
+const getAccountAddressFromCaip2IdOrNamesSpace = ({
+  account,
+  caip2Id,
+  nameSpace,
+}: GetAccountAddressFromCaip2IdOrNamesSpaceProps): string | null => {
+  if (!nameSpace) {
+    return null;
+  }
+
+  if (
+    !!Caip2IdAccountTypeMap[caip2Id] &&
+    !!account[Caip2IdAccountTypeMap[caip2Id]]
+  ) {
+    return account[Caip2IdAccountTypeMap[caip2Id]] ?? null;
+  }
+
+  return NameSpaceAccountTypeMap[nameSpace] ?? null;
+};
+
 export const createGetBalancePayload = async ({
   accounts,
   chainIds,
@@ -152,19 +177,6 @@ export const createGetBalancePayload = async ({
   const partialGetBalancePayload = accounts.reduce<PartialGetBalancePayload>(
     (accumulator, account) => {
       return caip2Ids.reduce<PartialGetBalancePayload>((acc, caip2Id) => {
-        // when we don't have an address for the given account for the given chain, there is nothing to query
-        const nameSpace = getNameSpaceFromScope(caip2Id) as
-          | NameSpace
-          | null
-          | undefined;
-        if (
-          !nameSpace ||
-          !Caip2IdAccountTypeMap[caip2Id] ||
-          !account[Caip2IdAccountTypeMap[caip2Id]]
-        ) {
-          return acc;
-        }
-
         if (
           [
             AvalancheCaip2ChainId.P,
@@ -176,7 +188,26 @@ export const createGetBalancePayload = async ({
           return acc;
         }
 
-        const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
+        const nameSpace = getNameSpaceFromScope(caip2Id) as
+          | NameSpace
+          | null
+          | undefined;
+
+        if (!nameSpace) {
+          return acc;
+        }
+
+        const address = getAccountAddressFromCaip2IdOrNamesSpace({
+          account,
+          nameSpace,
+          caip2Id,
+        });
+
+        // when we don't have an address for the given account for the given chain, there is nothing to query
+        if (!address) {
+          return acc;
+        }
+
         const [, reference] = caip2Id.split(':');
         // if the caip2Id is "malformed" we skip it
         if (!reference) {
@@ -225,12 +256,7 @@ export const createGetBalancePayload = async ({
           | NameSpace
           | null
           | undefined;
-        if (
-          !nameSpace ||
-          nameSpace !== 'avax' ||
-          !Caip2IdAccountTypeMap[caip2Id] ||
-          !account[Caip2IdAccountTypeMap[caip2Id]]
-        ) {
+        if (!nameSpace || nameSpace !== 'avax') {
           return null;
         }
         const [, reference] = caip2Id.split(':');
@@ -247,9 +273,16 @@ export const createGetBalancePayload = async ({
                 account.index,
                 'AVM',
               );
-          const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
+          const address = getAccountAddressFromCaip2IdOrNamesSpace({
+            account,
+            caip2Id,
+            nameSpace,
+          });
 
-          if (!xpub && !address && !legacyAddresses.externalAddresses.length) {
+          if (
+            (!xpub && !legacyAddresses.externalAddresses.length) ||
+            !address
+          ) {
             return null;
           }
 
@@ -277,7 +310,12 @@ export const createGetBalancePayload = async ({
                 : undefined,
           } as AvalancheXpGetBalancesRequestItem;
         } else {
-          const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
+          const address = getAccountAddressFromCaip2IdOrNamesSpace({
+            account,
+            caip2Id,
+            nameSpace,
+          });
+
           if (!address) {
             return null;
           }
@@ -339,18 +377,18 @@ export const createGetBalancePayload = async ({
         | NameSpace
         | null
         | undefined;
-      if (
-        !nameSpace ||
-        !Caip2IdAccountTypeMap[caip2Id] ||
-        !account[Caip2IdAccountTypeMap[caip2Id]]
-      ) {
+      if (!nameSpace) {
         return accumulator;
       }
 
-      const address = account[Caip2IdAccountTypeMap[caip2Id]]!;
+      const address = getAccountAddressFromCaip2IdOrNamesSpace({
+        account,
+        caip2Id,
+        nameSpace,
+      });
       const [, reference] = caip2Id.split(':');
       // if the caip2Id is "malformed" we skip it
-      if (!reference) {
+      if (!reference || !address) {
         return accumulator;
       }
 

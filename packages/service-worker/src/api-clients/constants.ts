@@ -32,3 +32,8 @@ export const Caip2IdAccountTypeMap: Record<string, AccountTypes> = {
   'eip155:1': 'addressC',
   'eip155:11155111': 'addressC',
 };
+
+export const NameSpaceAccountTypeMap: Record<string, AccountTypes> =
+  Object.freeze({
+    eip155: 'addressC',
+  });

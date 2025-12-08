@@ -199,7 +199,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           addressResolver: this.addressResolver,
         });
 
-        const balanceResult = await postV1BalanceGetBalances({
+        const balanceServiceResponse = await postV1BalanceGetBalances({
           client: balanceApiClient,
           body: getBalancesRequestBody,
           onSseError: (error) => {
@@ -207,21 +207,23 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           },
         });
 
-        const { balances, errors } = await convertStreamToArray(
-          balanceResult.stream,
-        );
+        const { balances: balanceServiceResponseArray, errors } =
+          await convertStreamToArray(balanceServiceResponse.stream);
 
         const fallbackBalanceResponse =
           await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
 
-        const cacheBalanceObject =
-          convertBalanceResponsesToCacheBalanceObject(balances);
-        const atomicCachedBalanceObject =
-          convertBalanceResponseToAtomicCacheBalanceObject(balances);
+        const balanceObject = convertBalanceResponsesToCacheBalanceObject(
+          balanceServiceResponseArray,
+        );
+        const atomicBalanceObject =
+          convertBalanceResponseToAtomicCacheBalanceObject(
+            balanceServiceResponseArray,
+          );
 
         return {
-          tokens: merge(cacheBalanceObject, fallbackBalanceResponse),
-          atomic: atomicCachedBalanceObject,
+          tokens: merge(balanceObject, fallbackBalanceResponse),
+          atomic: atomicBalanceObject,
         };
       } catch (err) {
         Monitoring.sentryCaptureException(
