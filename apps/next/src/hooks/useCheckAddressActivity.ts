@@ -14,7 +14,7 @@ export const useCheckAddressActivity = () => {
       const history = await request<GetHistoryHandler>(
         {
           method: ExtensionRequest.HISTORY_GET,
-          params: [address],
+          params: { address },
         },
         {
           scope: 'eip155:43114',

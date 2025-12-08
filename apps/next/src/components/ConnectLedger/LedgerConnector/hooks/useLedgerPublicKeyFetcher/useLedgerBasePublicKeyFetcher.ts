@@ -18,6 +18,7 @@ import {
   isLedgerVersionCompatible,
 } from '@core/common';
 
+import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 
 import {
@@ -30,8 +31,6 @@ import {
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
-
-const MAX_ACCOUNTS = 10;
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
@@ -189,7 +188,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   const shouldContinue = useCallback((evmPublicKeys: PublicKey[]) => {
     // Do not derive more than 10.
-    if (evmPublicKeys.length >= MAX_ACCOUNTS) {
+    if (evmPublicKeys.length >= MAX_ACCOUNTS_TO_CREATE) {
       return false;
     }
     // If one of the last two addresses has activity, we need to continue looking

@@ -7,6 +7,7 @@ import { useKeystoneUsbContext } from '@core/ui';
 import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
 import { getAvalancheExtendedKeyPath } from '@core/common';
 
+import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 
 import {
@@ -16,8 +17,6 @@ import {
   UseKeystonePublicKeyFetcher,
 } from '../../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../../util';
-
-const MAX_ACCOUNTS = 10;
 
 export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   onActivePublicKeysDiscovered,
@@ -81,7 +80,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
 
   const shouldContinue = useCallback((evmPublicKeys: PublicKey[]) => {
     // Do not derive more than 10.
-    if (evmPublicKeys.length >= MAX_ACCOUNTS) {
+    if (evmPublicKeys.length >= MAX_ACCOUNTS_TO_CREATE) {
       return false;
     }
 
