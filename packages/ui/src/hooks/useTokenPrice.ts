@@ -34,18 +34,11 @@ export function useTokenPrice(
   const [tokenPrice, setTokenPrice] = useState<number | null>(null);
 
   useEffect(() => {
-    let ignore = false;
-
     if (!addressOrSymbol) return;
 
     getTokenPrice(addressOrSymbol, network).then((price) => {
-      if (!ignore) {
-        setTokenPrice(price ?? null);
-      }
+      setTokenPrice(price ?? null);
     });
-    return () => {
-      ignore = true;
-    };
   }, [getTokenPrice, addressOrSymbol, network]);
 
   return tokenPrice;
