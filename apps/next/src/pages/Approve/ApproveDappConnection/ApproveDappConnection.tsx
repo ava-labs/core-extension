@@ -77,8 +77,8 @@ export const ApproveDappConnection: FC = () => {
   }
 
   return (
-    <WalletTotalBalanceProvider>
-      <Styled.ApprovalScreenPage>
+    <Styled.ApprovalScreenPage>
+      <WalletTotalBalanceProvider>
         {action.displayData.isMalicious && (
           <MaliciousDappOverlay
             open={action.displayData.isMalicious}
@@ -93,7 +93,7 @@ export const ApproveDappConnection: FC = () => {
           cancelHandler={cancelHandler}
           error={error}
         />
-      </Styled.ApprovalScreenPage>
-    </WalletTotalBalanceProvider>
+      </WalletTotalBalanceProvider>
+    </Styled.ApprovalScreenPage>
   );
 };

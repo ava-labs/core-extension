@@ -1,5 +1,4 @@
 import { FC, useEffect, useRef, useState } from 'react';
-import { WalletTotalBalanceProvider } from '@core/ui';
 import { AddressList } from '@/components/AddressList';
 import { Container } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
@@ -108,9 +107,5 @@ const HeaderAccountContent: FC<Props> = ({ isAccountInfoVisible }) => {
 };
 
 export const HeaderAccount: FC<Props> = ({ isAccountInfoVisible }) => {
-  return (
-    <WalletTotalBalanceProvider>
-      <HeaderAccountContent isAccountInfoVisible={isAccountInfoVisible} />
-    </WalletTotalBalanceProvider>
-  );
+  return <HeaderAccountContent isAccountInfoVisible={isAccountInfoVisible} />;
 };
