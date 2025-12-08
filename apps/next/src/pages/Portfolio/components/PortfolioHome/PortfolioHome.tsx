@@ -9,10 +9,10 @@ import {
   useAnalyticsContext,
 } from '@core/ui';
 
+import AccountInfo from './components/AccountInfo/AccountInfo';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
-import AccountInfo from './components/AccountInfo';
 import { EmptyState } from './components/EmptyState';
 import { LoadingState } from './components/LoadingState';
 import { PortfolioDetails } from './components/PortolioDetails';
@@ -83,10 +83,11 @@ export const PortfolioHome: FC = () => {
           isDeveloperMode ? TESTNET_MODE_BACKGROUND_COLOR : 'background.default'
         }
       >
-        <Stack gap={1.5} px={1.5} flexGrow={1}>
+        <Stack gap={2.5} px={1.5} flexGrow={1}>
           <AccountInfo
             atomicBalance={atomicBalance}
             accountName={accounts.active?.name ?? ''}
+            account={accounts.active}
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}
           />
