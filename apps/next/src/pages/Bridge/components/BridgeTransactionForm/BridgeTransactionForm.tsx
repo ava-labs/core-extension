@@ -34,7 +34,6 @@ export const BridgeTransactionForm: FC<Props> = ({
   } = useAccountsContext();
 
   const [accountQuery, setAccountQuery] = useState('');
-  const [isBridgeExecuting, setIsBridgeExecuting] = useState(false);
   const {
     transferAsset,
     asset,
@@ -46,7 +45,12 @@ export const BridgeTransactionForm: FC<Props> = ({
     },
   } = useBridgeState();
 
-  const { isBridgeButtonDisabled, error } = useBridgeFormStateHandler();
+  const {
+    isBridgeButtonDisabled,
+    error,
+    isBridgeExecuting,
+    setIsBridgeExecuting,
+  } = useBridgeFormStateHandler();
 
   const performBridge = async () => {
     const canExecuteBridge = asset && amount && targetNetworkId;

@@ -57,7 +57,7 @@ export const useBridgeFormStateHandler = () => {
       !requiredNetworkFee ||
       !minTransferAmount ||
       !hasEnoughBalanceForTransfer ||
-      !hasInsufficientBalance
+      hasInsufficientBalance
     ) {
       return '';
     }
@@ -103,6 +103,6 @@ export const useBridgeFormStateHandler = () => {
       : minAmountError || maxAmountError,
     setIsBridgeExecuting,
     isBridgeButtonDisabled,
-    canExecuteBridge,
+    isBridgeExecuting,
   };
 };
