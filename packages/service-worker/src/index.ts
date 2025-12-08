@@ -21,6 +21,7 @@ export type { StoreAnalyticsIdsHandler } from './services/analytics/handlers/sto
 export type { GetBalancesHandler } from './services/balances/handlers/getBalances';
 export type { GetNativeBalanceHandler } from './services/balances/handlers/getNativeBalance';
 export type { GetTokenPriceHandler } from './services/balances/handlers/getTokenPrice';
+export type { GetTokenPriceByAddressHandler } from './services/balances/handlers/getTokenPriceByAddress';
 export type { GetTotalBalanceForWalletHandler } from './services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 export type { RefreshNftMetadataHandler } from './services/balances/handlers/refreshNftMetadata';
 export type { StartBalancesPollingHandler } from './services/balances/handlers/startBalancesPolling';

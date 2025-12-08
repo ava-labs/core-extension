@@ -18,6 +18,7 @@ import { BalancesUpdatedEvents } from '../../services/balances/events/balancesUp
 import { GetBalancesHandler } from '../../services/balances/handlers/getBalances';
 import { GetNativeBalanceHandler } from '../../services/balances/handlers/getNativeBalance';
 import { GetTokenPriceHandler } from '../../services/balances/handlers/getTokenPrice';
+import { GetTokenPriceByAddressHandler } from '../../services/balances/handlers/getTokenPriceByAddress';
 import { GetTotalBalanceForWalletHandler } from '../../services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refreshNftMetadata';
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
@@ -282,6 +283,7 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
   },
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetTokenPriceByAddressHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNativeBalanceHandler },
