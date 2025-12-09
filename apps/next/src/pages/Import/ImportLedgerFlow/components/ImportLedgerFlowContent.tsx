@@ -18,7 +18,7 @@ import { useOpenApp } from '@/hooks/useOpenApp';
 
 import { NameYourWalletScreen } from '../../common-screens';
 import { isAvalancheExtendedKey } from '@core/common';
-import { WALLET_VIEW_URL_SEARCH_TOKENS } from '@/pages/Portfolio/components/WalletView/utils/searchParams';
+import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
 
 type ImportPhase = 'connect-avax' | 'prompt-solana' | 'connect-solana' | 'name';
 
@@ -112,7 +112,7 @@ export const ImportLedgerFlowContent = () => {
           closeWindow: true,
           navigateTo: {
             pathname: `/wallet/${imported.id}`,
-            search: `${WALLET_VIEW_URL_SEARCH_TOKENS.showImportSuccess}=true`,
+            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
           },
         });
       } catch (err) {

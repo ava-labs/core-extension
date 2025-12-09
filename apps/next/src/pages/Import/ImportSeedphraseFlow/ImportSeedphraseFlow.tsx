@@ -20,7 +20,7 @@ import {
   NameYourWalletScreen,
 } from '../common-screens';
 import { EnterRecoveryPhraseScreen } from './screens';
-import { WALLET_VIEW_URL_SEARCH_TOKENS } from '@/pages/Portfolio/components/WalletView/utils/searchParams';
+import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
 const TOTAL_STEPS = 3;
@@ -85,7 +85,7 @@ export const ImportSeedphraseFlow = () => {
           closeWindow: true,
           navigateTo: {
             pathname: `/wallet/${imported.id}`,
-            search: `${WALLET_VIEW_URL_SEARCH_TOKENS.showImportSuccess}=true`,
+            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
           },
         });
       } catch (error) {
