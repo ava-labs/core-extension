@@ -19,9 +19,8 @@ export const useNavigationRequests = () => {
     const eventsSubscription = events()
       .pipe(filter(isNavigationHistoryRequestEvent))
       .subscribe((event) => {
-        console.log('event', event);
-        if (history.location.pathname !== event.value.path) {
-          history.push(event.value.path);
+        if (history.location.pathname !== event.value.pathname) {
+          history.push(event.value);
         }
       });
 
