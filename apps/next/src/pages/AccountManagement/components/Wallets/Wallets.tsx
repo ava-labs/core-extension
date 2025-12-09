@@ -2,7 +2,11 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
-import { useWalletContext, useWalletTotalBalance } from '@core/ui';
+import {
+  useWalletContext,
+  useWalletTotalBalance,
+  WalletTotalBalanceProvider,
+} from '@core/ui';
 import { BulkDeleteButtons } from './components/BulkDeleteButtons';
 import { WalletList } from './components/WalletList';
 import * as Styled from './components/Styled';
@@ -21,47 +25,49 @@ export const WalletsHomePage: FC = () => {
   );
 
   return (
-    <Page
-      title={t('My wallets')}
-      titleAction={<AddOrConnectWalletButton />}
-      description={t('An overview of your wallets and associated accounts')}
-      descriptionProps={{ color: 'text.secondary' }}
-      containerProps={{
-        gap: 2,
-      }}
-      withBackButton
-      contentProps={{
-        alignItems: 'stretch',
-        justifyContent: 'flex-start',
-        position: 'relative',
-      }}
-    >
-      <Stack gap={1.5} flexGrow={1}>
-        {!isLoading && hasErrorOccurred && (
-          <Stack
-            direction="row"
-            alignItems="center"
-            gap={1}
-            justifyContent="space-between"
-          >
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Styled.ErrorIcon size={24} />
-              <Typography
-                variant="h6"
-                color="error"
-                fontSize="14px"
-                whiteSpace="nowrap"
-                id="error-message"
-              >
-                {t('Unable to load balances')}
-              </Typography>
+    <WalletTotalBalanceProvider>
+      <Page
+        title={t('My wallets')}
+        titleAction={<AddOrConnectWalletButton />}
+        description={t('An overview of your wallets and associated accounts')}
+        descriptionProps={{ color: 'text.secondary' }}
+        containerProps={{
+          gap: 2,
+        }}
+        withBackButton
+        contentProps={{
+          alignItems: 'stretch',
+          justifyContent: 'flex-start',
+          position: 'relative',
+        }}
+      >
+        <Stack gap={1.5} flexGrow={1}>
+          {!isLoading && hasErrorOccurred && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={1}
+              justifyContent="space-between"
+            >
+              <Stack direction="row" alignItems="center" gap={1}>
+                <Styled.ErrorIcon size={24} />
+                <Typography
+                  variant="h6"
+                  color="error"
+                  fontSize="14px"
+                  whiteSpace="nowrap"
+                  id="error-message"
+                >
+                  {t('Unable to load balances')}
+                </Typography>
+              </Stack>
             </Stack>
-          </Stack>
-        )}
-        <WalletList />
-      </Stack>
+          )}
+          <WalletList />
+        </Stack>
 
-      <BulkDeleteButtons />
-    </Page>
+        <BulkDeleteButtons />
+      </Page>
+    </WalletTotalBalanceProvider>
   );
 };
