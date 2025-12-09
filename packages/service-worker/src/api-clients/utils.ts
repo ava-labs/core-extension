@@ -162,7 +162,7 @@ const getAccountAddressFromCaip2IdOrNamesSpace = ({
     return account[Caip2IdAccountTypeMap[caip2Id]] ?? null;
   }
 
-  return NameSpaceAccountTypeMap[nameSpace] ?? null;
+  return account[NameSpaceAccountTypeMap[nameSpace] ?? ''] ?? null;
 };
 
 export const createGetBalancePayload = async ({
