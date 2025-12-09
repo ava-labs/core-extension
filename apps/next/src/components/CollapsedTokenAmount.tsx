@@ -92,7 +92,7 @@ export const CollapsedTokenAmount = ({
     return (
       <Tooltip title={amount}>
         <Typography {...finalRegularProps}>
-          ~{integer}.{fraction.substring(0, MAX_FRACTION_SIZE)}
+          {integer}.{fraction.substring(0, MAX_FRACTION_SIZE)}
         </Typography>
       </Tooltip>
     );

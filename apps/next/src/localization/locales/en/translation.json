@@ -890,6 +890,7 @@
   "in progress...": "in progress...",
   "network": "network",
   "networks": "networks",
+  "on {{networkName}}": "on {{networkName}}",
   "received": "received",
   "sent": "sent",
   "the selected network's": "the selected network's",

@@ -107,7 +107,6 @@ const ERC20ApprovalHeader = ({
   const { currencyFormatter, currency } = useSettingsContext();
 
   const { tokenValue, isUnlimited, currencyValue } = approvalValue;
-
   return (
     <Stack width="100%" textAlign="center">
       <Stack
@@ -115,6 +114,7 @@ const ERC20ApprovalHeader = ({
         alignItems="start"
         justifyContent="center"
         textAlign="center"
+        gap={0.5}
       >
         {isUnlimited ? (
           <InfinitySymbol symbolSize="large" />

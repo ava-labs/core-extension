@@ -83,7 +83,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
 
   return (
     <Styled.ApprovalScreenPage>
-      <NoScrollStack>
+      <NoScrollStack sx={{ mt: 6 }}>
         <ApprovalScreenTitle title={action.displayData.title} />
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
