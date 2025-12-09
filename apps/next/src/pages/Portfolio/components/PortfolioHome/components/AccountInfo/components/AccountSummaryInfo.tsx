@@ -1,23 +1,28 @@
-import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import { Stack, styled, Typography, useTheme } from '@avalabs/k2-alpine';
 import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { ClickableStack } from '../styled';
 import { Account } from '@core/types';
-import { TruncatedText } from '@/components/Header/components/styledComponents';
-
 type Props = {
   account?: Account;
   accountName: string;
   formattedSum: string;
   currency: string;
-  // onWidthChange?: (width: number) => void;
 };
+
+const AccountName = styled(Typography)({
+  lineHeight: 1,
+  minWidth: 0,
+  flex: '0 1 auto',
+  textOverflow: 'ellipsis',
+  overflowX: 'clip',
+  overflowY: 'visible',
+});
 
 export const AccountSummaryInfo = ({
   accountName,
   formattedSum,
   currency,
-  // onWidthChange,
 }: Props) => {
   const history = useHistory();
   const theme = useTheme();
@@ -28,22 +33,15 @@ export const AccountSummaryInfo = ({
       overflow="visible"
       maxWidth="75%"
       width="fit-content"
+      rowGap={0.25}
       onClick={() => {
         history.push('/account-management');
       }}
     >
-      <Stack direction="row" alignItems="center">
-        <TruncatedText
-          noWrap
-          variant="h2"
-          color="text.secondary"
-          lineHeight={1.2}
-          minWidth={0}
-          flex="0 1 auto"
-          showEllipsis
-        >
+      <Stack direction="row" alignItems="center" mt={-0.5}>
+        <AccountName noWrap variant="h2" color="text.secondary">
           {accountName}
-        </TruncatedText>
+        </AccountName>
         <MdUnfoldMore
           size={22}
           color={theme.palette.text.secondary}
