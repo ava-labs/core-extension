@@ -42,7 +42,6 @@ export const RecoveryMethodList = ({
       (card.method === 'authenticator' && hasTotpConfigured) || card.isOn,
   );
 
-  console.log('recoveryMethodCards', recoveryMethodCards);
   return (
     <>
       <Paper
