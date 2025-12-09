@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Card, Stack, Typography } from '@avalabs/k2-alpine';
+import { Card, Stack, SxProps, Typography } from '@avalabs/k2-alpine';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { ActionStatus } from '@core/types';
@@ -11,7 +11,7 @@ import { SizedAvatar } from '@/components/SizedAvatar';
 import { sanitizeDappUrl } from './ApproveDappConnection/lib';
 import { TxDetailsRow } from './components/ActionDetails/generic/DetailsItem/items/DetailRow';
 
-const rowStyles = {
+const rowStyles: SxProps = {
   borderBottom: '1px solid',
   borderColor: 'divider',
   px: 0,
@@ -40,12 +40,10 @@ export const NetworkAddApprovalScreen = () => {
       <NoScrollStack>
         <Stack px={2} flexGrow={1}>
           <Stack
-            sx={{
-              flexGrow: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 2,
-            }}
+            flexGrow={1}
+            alignItems="center"
+            justifyContent="center"
+            gap={2}
           >
             <SizedAvatar size={80} src={action.site?.icon} />
             <Typography variant="h2" mx={5} textAlign="center">

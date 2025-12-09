@@ -32,12 +32,10 @@ export const NetworkSwitchApprovalScreen = () => {
       <NoScrollStack>
         <Stack px={2} flexGrow={1}>
           <Stack
-            sx={{
-              flexGrow: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 2,
-            }}
+            flexGrow={1}
+            alignItems="center"
+            justifyContent="center"
+            gap={2}
           >
             <Stack direction="row" alignItems="center" gap={1}>
               <NetworkAvatar
