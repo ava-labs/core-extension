@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 import { NoScrollStack } from '@/components/NoScrollStack';
-import { Stack, TabBar, TabBarItemProps } from '@avalabs/k2-alpine';
+import { Stack, TabBarItemProps } from '@avalabs/k2-alpine';
 import { isEmptyAccount } from '@core/common';
 import {
   useAccountsContext,
@@ -18,7 +18,7 @@ import { LoadingState } from './components/LoadingState';
 import { PortfolioDetails } from './components/PortolioDetails';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
-import { TabsContainer } from './styled';
+import { TabsContainer, TabBar } from './styled';
 
 import { TabName } from './types';
 
