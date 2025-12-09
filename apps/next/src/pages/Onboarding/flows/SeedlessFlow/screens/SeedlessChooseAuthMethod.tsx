@@ -32,7 +32,10 @@ export const SeedlessChooseAuthMethod: FC<SeedlessChooseAuthMethodProps> = ({
         {t(`Choose a recovery method associated with your wallet.`)}
       </FullscreenModalDescription>
       <FullscreenModalContent>
-        <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
+        <CardMenu
+          sx={{ padding: 0, overflow: 'hidden' }}
+          divider={<Divider sx={{ ml: 8, mr: 3, my: '0 !important' }} />}
+        >
           {methods.map((mfa, index) => {
             if (mfa.type === 'totp') {
               return (

@@ -1,7 +1,13 @@
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { EncryptedIcon, Divider, LedgerIcon, Stack } from '@avalabs/k2-alpine';
+import {
+  EncryptedIcon,
+  Divider,
+  LedgerIcon,
+  Stack,
+  KeystoneIcon,
+} from '@avalabs/k2-alpine';
 
 import { useAnalyticsContext } from '@core/ui';
 
@@ -31,8 +37,8 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
       </FullscreenModalTitle>
       <FullscreenModalContent>
         <CardMenu
-          sx={{ width: 1, flex: '0 0 auto' }}
-          divider={<Divider sx={{ ml: 8, mr: 3 }} />}
+          sx={{ width: 1, flex: '0 0 auto', padding: 0, overflow: 'hidden' }}
+          divider={<Divider sx={{ ml: 8, mr: 3, my: '0 !important' }} />}
         >
           <CardMenuItem
             data-testid="import-recovery-phrase-option"
@@ -54,7 +60,7 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
           />
           <CardMenuItem
             data-testid="import-keystone-option"
-            icon={<LedgerIcon size={24} />} // TODO: Add Keystone icon
+            icon={<KeystoneIcon size={24} />} // TODO: Add Keystone icon
             text={t('Add using Keystone')}
             onClick={() => {
               capture('OnboardingKeystoneSelected');

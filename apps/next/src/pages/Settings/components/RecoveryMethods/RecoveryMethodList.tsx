@@ -55,7 +55,10 @@ export const RecoveryMethodList = ({
         }}
       >
         {!noMFAMethodsAvailable && (
-          <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
+          <CardMenu
+            sx={{ padding: 0 }}
+            divider={<Divider sx={{ ml: 8, mr: 3, my: '0 !important' }} />}
+          >
             {recoveryMethodCards.map((card, idx) => {
               return (
                 <CardMenuItem
