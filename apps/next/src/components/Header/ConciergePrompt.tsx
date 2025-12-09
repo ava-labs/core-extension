@@ -65,7 +65,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
       <Stack
         sx={{
           width: '100%',
-          height: '40px',
+          height: '24px',
           position: 'absolute',
           top: '56px',
           zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip - 1,
@@ -143,7 +143,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
                 position: 'absolute',
                 top: '56px',
                 width: '100%',
-                height: '40px',
+                height: '24px',
                 px: 1.5,
               }}
             >

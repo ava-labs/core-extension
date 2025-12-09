@@ -31,6 +31,7 @@ export const AccountInfo: FC<Props> = ({
   isDeveloperMode,
 }) => {
   const { walletSummary } = useActiveAccountInfo();
+  const { coreAssistant } = useSettingsContext();
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
   const { setAccountInfoElement } = useAccountInfoVisibility();
@@ -41,7 +42,13 @@ export const AccountInfo: FC<Props> = ({
   );
 
   return (
-    <Stack ref={setAccountInfoElement} gap={0.25} width="100%" mt={4}>
+    <Stack
+      ref={setAccountInfoElement}
+      gap={0.25}
+      width="100%"
+      mt={coreAssistant ? 3 : 1}
+      pt={1}
+    >
       <WalletSummaryInfo walletSummary={walletSummary} />
       <AccountSummaryInfo
         accountName={account?.name ?? ''}

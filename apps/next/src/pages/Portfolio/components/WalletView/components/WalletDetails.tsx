@@ -5,7 +5,11 @@ import { WalletAccountsCard } from './WalletAccountsCard';
 import { getAccountAvatars } from '../utils/accountAvatars';
 import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
-import { useAccountsContext, useWalletTotalBalance } from '@core/ui';
+import {
+  useAccountsContext,
+  useSettingsContext,
+  useWalletTotalBalance,
+} from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
 import { getNetworkCount } from '../utils/networkCount';
@@ -15,6 +19,9 @@ type Props = {
 };
 export const WalletDetails = ({ wallet }: Props) => {
   const { getAccountsByWalletId } = useAccountsContext();
+
+  const { coreAssistant } = useSettingsContext();
+
   const accountsInWallet = getAccountsByWalletId(wallet.id);
   const networksWithBalance = useNetworksWithBalance({ walletId: wallet.id });
   const {
@@ -44,7 +51,7 @@ export const WalletDetails = ({ wallet }: Props) => {
   }, [networksWithBalance]);
 
   return (
-    <Stack p={1} mt={2} gap={1} width="100%">
+    <Stack p={1} mt={coreAssistant ? 3 : 1} gap={1} width="100%">
       <WalletBalance
         walletType={wallet.type}
         walletName={wallet.name}
