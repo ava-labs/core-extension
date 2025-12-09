@@ -1,5 +1,6 @@
 import {
   getUniqueTokenIdGeneric,
+  getUniqueTokenId,
   TrendingToken,
   TrendingTokensNetwork,
 } from '@core/types';
@@ -14,6 +15,7 @@ import { useHistory } from 'react-router-dom';
 import { getSwapPath } from '@/config/routes';
 import { TokenType } from '@avalabs/vm-module-types';
 import { ChainId } from '@avalabs/core-chains-sdk';
+import { useSwapTokens } from '@/pages/Swap/hooks';
 
 type TokenCardProps = {
   token: TrendingToken;
@@ -35,6 +37,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const { currency } = useSettingsContext();
   const { t } = useTranslation();
   const { push } = useHistory();
+  const { targetTokens } = useSwapTokens();
 
   const [showBuyButton, setShowBuyButton] = useState(false);
 
@@ -42,7 +45,6 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
     ? Math.abs(token.price24hChangePercent)?.toFixed(2).toString() + '%'
     : undefined;
 
-  console.log({ token });
   const formattedPrice = token.price
     ? formatCurrency({
         amount: token.price,
@@ -75,6 +77,12 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
     });
   }, [token, network]);
 
+  const isBuyable = useMemo(() => {
+    return targetTokens.some(
+      (targetToken) => getUniqueTokenId(targetToken) === uniqueTokenId,
+    );
+  }, [targetTokens, uniqueTokenId]);
+
   return (
     <Stack
       width="100%"
@@ -82,8 +90,8 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       alignItems="center"
       justifyContent="space-between"
       pt={1}
-      onMouseEnter={() => setShowBuyButton(true)}
-      onMouseLeave={() => setShowBuyButton(false)}
+      onMouseEnter={() => isBuyable && setShowBuyButton(true)}
+      onMouseLeave={() => isBuyable && setShowBuyButton(false)}
     >
       {/* Left side - Avatar */}
       <Box position="relative" sx={{ transform: 'translateY(-4px)' }}>
