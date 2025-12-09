@@ -541,7 +541,7 @@ export const BridgeForm = ({
 
               <BridgeEstimatedTimeWarning
                 bridgeType={bridgeType}
-                targetChain={targetChain}
+                targetChainName={targetChain?.chainName}
               />
             </Stack>
           </Stack>

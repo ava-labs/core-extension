@@ -6,18 +6,17 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/core-k2-components';
-import { NetworkWithCaipId } from '@core/types';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface BridgeTimeWarningProps {
   bridgeType?: BridgeType;
-  targetChain?: NetworkWithCaipId;
+  targetChainName?: string;
 }
 
 export const BridgeEstimatedTimeWarning = ({
   bridgeType,
-  targetChain,
+  targetChainName,
 }: BridgeTimeWarningProps) => {
   const { t } = useTranslation();
   const [estimatedTime, setEstimatedTime] = useState<number>();
@@ -29,7 +28,7 @@ export const BridgeEstimatedTimeWarning = ({
     }
   }, [bridgeType]);
 
-  if (!bridgeType || !estimatedTime || !targetChain) {
+  if (!bridgeType || !estimatedTime || !targetChainName) {
     return null;
   }
 
@@ -39,7 +38,7 @@ export const BridgeEstimatedTimeWarning = ({
         {t(
           'Bridging to {{targetChain}} can take up to {{estimatedTime}} hours',
           {
-            targetChain: targetChain?.chainName,
+            targetChain: targetChainName,
             estimatedTime,
           },
         )}

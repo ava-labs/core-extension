@@ -51,6 +51,7 @@ import { OffloadTimerTooltip } from './components/OffloadTimerTooltip';
 import { usePendingBridgeTransactions } from '@core/ui';
 import { useUnifiedBridgeContext } from '@core/ui';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { BridgeEstimatedTimeWarning } from './components/BridgeEstimatedTimeWarning';
 
 const BridgeTransactionStatus = () => {
   const { t } = useTranslation();
@@ -710,6 +711,13 @@ const BridgeTransactionStatus = () => {
                 </>
               )}
             </BridgeCard>
+
+            {isUnifiedBridgeTransfer(bridgeTransaction) ? (
+              <BridgeEstimatedTimeWarning
+                bridgeType={bridgeTransaction.type}
+                targetChainName={bridgeTransaction.targetChain.chainName}
+              />
+            ) : null}
           </Stack>
         </Scrollbars>
       )}
