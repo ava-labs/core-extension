@@ -82,7 +82,7 @@ export const Drawer = styled(Stack)(({ theme }) => ({
   width: '100%',
   position: 'sticky',
   bottom: 0,
-  zIndex: 100,
+  zIndex: theme.zIndex.drawer,
   paddingTop: theme.spacing(3),
   paddingBottom: theme.spacing(2),
   paddingInline: theme.spacing(2),
