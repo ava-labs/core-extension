@@ -7,7 +7,7 @@ type HandlerType = ExtensionRequestHandler<
   true,
   {
     navigateTo?: {
-      path: string;
+      pathname: string;
       search?: string;
     };
   }
@@ -26,7 +26,7 @@ export class OpenExtensionPopupWindowHandler implements HandlerType {
 
     if (request.params.navigateTo) {
       this.navigationHistoryService.requestNavigation(
-        request.params.navigateTo.path,
+        request.params.navigateTo.pathname,
         request.params.navigateTo.search,
       );
     }

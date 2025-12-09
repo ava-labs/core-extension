@@ -5,6 +5,15 @@ import { OpenExtensionPopupWindowHandler } from '~/services/onboarding/handlers/
 import browser from 'webextension-polyfill';
 import { RequestNavigationHandler } from '~/index';
 
+type OpenAppParams = {
+  closeWindow?: boolean;
+  viewMode?: ViewMode;
+  navigateTo?: {
+    pathname: string;
+    search?: string;
+  };
+};
+
 const viewInSidePanel = async () => {
   const currentWindow = await browser.windows.getCurrent({ populate: true });
   if (currentWindow?.id) {
@@ -19,18 +28,7 @@ export const useOpenApp = () => {
   const { request } = useConnectionContext();
 
   return useCallback(
-    async ({
-      closeWindow = true,
-      viewMode,
-      navigateTo,
-    }: {
-      closeWindow?: boolean;
-      viewMode?: ViewMode;
-      navigateTo?: {
-        path: string;
-        search?: string;
-      };
-    }) => {
+    async ({ closeWindow = true, viewMode, navigateTo }: OpenAppParams) => {
       const viewToOpen = viewMode || preferredView;
 
       if (viewToOpen === 'sidebar') {
