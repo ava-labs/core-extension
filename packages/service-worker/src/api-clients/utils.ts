@@ -21,6 +21,7 @@ import {
   chainIdToCaip,
   getNameSpaceFromScope,
   stripAddressPrefix,
+  AVALANCHE_BLOCKCHAIN_IDS,
 } from '@core/common';
 import {
   BalanceResponse,
@@ -36,7 +37,6 @@ import {
   mapSplTokenBalance,
 } from '~/api-clients/mappers';
 import {
-  AVALANCHE_CHAIN_IDS,
   Caip2IdAccountTypeMap,
   CORE_ETH_CAIP2ID,
   NameSpaceAccountTypeMap,
@@ -569,7 +569,7 @@ export const convertBalanceResponsesToCacheBalanceObject = (
     }
 
     if (isCorethGetBalancesResponse(balanceResponse) && chainId === 0) {
-      const mainNetC = AVALANCHE_CHAIN_IDS.MAINNET_C;
+      const mainNetC = AVALANCHE_BLOCKCHAIN_IDS.MAINNET_C;
       const accountKey = `C-${balanceResponse.id}`;
       return {
         ...accumulator,
@@ -648,7 +648,7 @@ export const convertBalanceResponseToAtomicCacheBalanceObject = (
       }
 
       if (isCorethGetBalancesResponse(balanceResponse) && chainId === 0) {
-        const mainNetC = AVALANCHE_CHAIN_IDS.MAINNET_C;
+        const mainNetC = AVALANCHE_BLOCKCHAIN_IDS.MAINNET_C;
         const accountKey = `C-${balanceResponse.id}`;
         const mergedAccountObject = merge(
           accumulator[mainNetC]?.[accountKey] ?? {},

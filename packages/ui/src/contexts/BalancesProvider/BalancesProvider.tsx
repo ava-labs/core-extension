@@ -293,6 +293,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
             ...prevState,
             [accountId]: {
               balanceDisplayValue: atomicBalance.sum,
+              balanceInCurrency: atomicBalance.sumInCurrency,
               hasErrorOccurred: false,
               isLoading: false,
             },
@@ -399,11 +400,20 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       const networks = chainIds.map(getNetwork).filter(isNotNullish);
 
       if (balances.tokens && network?.chainId) {
-        return calculateTotalBalance(
-          getAccount(addressC),
+        const cChainAccount = getAccount(addressC);
+        const atomicBalanceInCurrency =
+          accountAtomicBalances[cChainAccount?.id ?? '']?.balanceInCurrency ??
+          0;
+
+        const totalBalance = calculateTotalBalance(
+          cChainAccount,
           networks,
           balances.tokens,
         );
+        return {
+          ...totalBalance,
+          sum: (totalBalance.sum ?? 0) + atomicBalanceInCurrency,
+        };
       }
 
       return undefined;
@@ -415,6 +425,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       network?.chainId,
       network?.isTestnet,
       balances.tokens,
+      accountAtomicBalances,
     ],
   );
 

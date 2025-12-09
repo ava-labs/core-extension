@@ -35,6 +35,7 @@ import {
 import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
 import { balanceApiClient } from '~/api-clients';
 import {
+  Currency,
   GetBalancesResponseError,
   postV1BalanceGetBalances,
 } from '~/api-clients/balance-api';
@@ -229,10 +230,14 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         FeatureGates.BALANCE_SERVICE_INTEGRATION
       ]
     ) {
+      const selectedCurrency = (
+        await this.settingsService.getSettings()
+      ).currency.toLowerCase();
       try {
         const getBalancesRequestBody = await createGetBalancePayload({
           accounts,
           chainIds,
+          currency: selectedCurrency as Currency,
           secretsService: this.secretsService,
           addressResolver: this.addressResolver,
         });
