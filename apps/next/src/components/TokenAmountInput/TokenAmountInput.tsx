@@ -137,8 +137,8 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       <Stack
         id={id}
         display="grid"
-        gridTemplateColumns={token ? 'auto minmax(50%, 1fr)' : '1fr'}
-        gap={2}
+        gridTemplateColumns={token ? 'auto minmax(35%, 1fr)' : '1fr'}
+        gap={1}
         width="100%"
       >
         <TokenSelect
