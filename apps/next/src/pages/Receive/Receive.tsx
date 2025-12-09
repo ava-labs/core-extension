@@ -71,7 +71,16 @@ export const Receive = () => {
           type={addressType}
           onChange={onAddressTypeChange}
         />
-        <Box p={1} bgcolor="#fff" borderRadius={theme.shape.mediumBorderRadius}>
+        <Box
+          p={1}
+          bgcolor="#fff"
+          borderRadius={theme.shape.mediumBorderRadius}
+          sx={{
+            svg: {
+              display: 'block',
+            },
+          }}
+        >
           <QRCodeSVG
             renderAs="svg"
             level="H"
