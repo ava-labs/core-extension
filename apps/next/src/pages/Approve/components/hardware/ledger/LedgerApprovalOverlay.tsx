@@ -11,6 +11,7 @@ import {
   IncorrectVersion,
   Loading,
   PendingApproval,
+  BtcPolicyNeeded,
 } from './components';
 import { LedgerApprovalState, StateComponentProps } from './types';
 
@@ -30,6 +31,7 @@ const ComponentPerState: Record<
   disconnected: Disconnected,
   'incorrect-app': IncorrectApp,
   'incorrect-version': IncorrectVersion,
+  'btc-policy-needed': BtcPolicyNeeded,
 };
 
 export const LedgerApprovalOverlay: FC<LedgerApprovalOverlayProps> = ({

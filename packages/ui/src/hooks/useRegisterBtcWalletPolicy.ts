@@ -1,16 +1,11 @@
 import { useAccountsContext } from '../contexts';
 import { useConnectionContext } from '../contexts';
-import { LedgerAppType, useLedgerContext } from '../contexts';
+import { useLedgerContext } from '../contexts';
 import { useWalletContext } from '../contexts';
 import { useIsUsingLedgerWallet } from './useIsUsingLedgerWallet';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { GetBtcWalletPolicyDetails } from '@core/service-worker';
-import {
-  AccountType,
-  ExtensionRequest,
-  PrimaryAccount,
-  WalletDetails,
-} from '@core/types';
+import { AccountType, ExtensionRequest } from '@core/types';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useRegisterBtcWalletPolicy = () => {
@@ -24,7 +19,7 @@ export const useRegisterBtcWalletPolicy = () => {
     string | undefined
   >();
   const { walletDetails } = useWalletContext();
-  const { appType, setMasterFingerprint } = useLedgerContext();
+  const { setMasterFingerprint } = useLedgerContext();
   const { accounts } = useAccountsContext();
   const { request } = useConnectionContext();
   const activeAccount = accounts.active;
@@ -34,31 +29,7 @@ export const useRegisterBtcWalletPolicy = () => {
     setShouldRegisterBtcWalletPolicy(false);
   }, [setMasterFingerprint]);
 
-  useEffect(() => {
-    const fetchWalletPolicyDetails = async (
-      account: PrimaryAccount,
-      details: WalletDetails,
-    ) => {
-      const { masterFingerprint } =
-        (await request<GetBtcWalletPolicyDetails>({
-          method: ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,
-        })) ?? {};
-
-      setMasterFingerprint(masterFingerprint);
-
-      if (!masterFingerprint) {
-        if (details.derivationPath === DerivationPath.LedgerLive) {
-          setWalletPolicyName(`Core - ${account.name}`);
-          setWalletPolicyDerivationpath(`44'/60'/${account.index}'`);
-        } else if (details.derivationPath === DerivationPath.BIP44) {
-          setWalletPolicyName('Core');
-          setWalletPolicyDerivationpath(`44'/60'/0'`);
-        }
-
-        setShouldRegisterBtcWalletPolicy(true);
-      }
-    };
-
+  const check = useCallback(async () => {
     if (activeAccount?.type !== AccountType.PRIMARY || !walletDetails) {
       return;
     }
@@ -72,23 +43,45 @@ export const useRegisterBtcWalletPolicy = () => {
 
     reset();
 
-    if (isUsingLedgerWallet && appType === LedgerAppType.BITCOIN) {
-      fetchWalletPolicyDetails(activeAccount, walletDetails);
+    const { masterFingerprint } =
+      (await request<GetBtcWalletPolicyDetails>({
+        method: ExtensionRequest.WALLET_GET_BTC_WALLET_POLICY_DETAILS,
+      })) ?? {};
+
+    setMasterFingerprint(masterFingerprint);
+
+    if (!masterFingerprint) {
+      if (walletDetails.derivationPath === DerivationPath.LedgerLive) {
+        setWalletPolicyName(`Core - ${activeAccount.name}`);
+        setWalletPolicyDerivationpath(`44'/60'/${activeAccount.index}'`);
+      } else if (walletDetails.derivationPath === DerivationPath.BIP44) {
+        setWalletPolicyName('Core');
+        setWalletPolicyDerivationpath(`44'/60'/0'`);
+      }
+
+      setShouldRegisterBtcWalletPolicy(true);
     }
   }, [
-    activeAccount,
-    appType,
-    walletDetails,
-    isUsingLedgerWallet,
     request,
     setMasterFingerprint,
+    setWalletPolicyName,
+    setWalletPolicyDerivationpath,
+    activeAccount,
+    walletDetails,
     reset,
   ]);
+
+  useEffect(() => {
+    if (isUsingLedgerWallet) {
+      check();
+    }
+  }, [isUsingLedgerWallet, check]);
 
   return {
     shouldRegisterBtcWalletPolicy,
     walletPolicyName,
     walletPolicyDerivationpath,
     reset,
+    check,
   };
 };

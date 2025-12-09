@@ -1,4 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  createContext,
+  PropsWithChildren,
+  useContext,
+} from 'react';
 
 import {
   LedgerAppType,
@@ -9,9 +17,42 @@ import {
 import { ExtensionRequest } from '@core/types';
 import { type StoreBtcWalletPolicyDetails } from '@core/service-worker';
 
-import { PolicyRegistrationState, Status } from '../types';
+type PublicKeyStatus = `pubkey:${GenericStatus}`;
+type PolicyStatus = `policy:${GenericStatus | IncorrectDeviceStatus}`;
 
-export const usePolicyRegistrationState = (): PolicyRegistrationState => {
+type IncorrectDeviceStatus = `incorrect-device`;
+type GenericStatus = 'pending' | 'success' | 'error';
+
+export type PhaseStatus = GenericStatus | IncorrectDeviceStatus;
+
+export type Status = 'idle' | 'dismissed' | PublicKeyStatus | PolicyStatus;
+
+export type PolicyRegistrationState = {
+  policyName?: string;
+  policyDerivationPath?: string;
+  status: Status;
+  dismiss: () => void;
+  xpub?: string;
+  retry: () => Promise<void>;
+  shouldRegisterBtcWalletPolicy: boolean;
+};
+
+const defaultContextValue: PolicyRegistrationState = {
+  policyName: undefined,
+  policyDerivationPath: undefined,
+  status: 'idle',
+  dismiss: () => {},
+  xpub: undefined,
+  retry: () => Promise.resolve(),
+  shouldRegisterBtcWalletPolicy: false,
+};
+
+const LedgerPolicyRegistrationStateContext =
+  createContext<PolicyRegistrationState>(defaultContextValue);
+
+export const LedgerPolicyRegistrationStateProvider = ({
+  children,
+}: PropsWithChildren) => {
   const { request } = useConnectionContext();
   const {
     appType,
@@ -25,7 +66,6 @@ export const usePolicyRegistrationState = (): PolicyRegistrationState => {
     shouldRegisterBtcWalletPolicy,
     walletPolicyName,
     walletPolicyDerivationpath,
-    reset,
     check,
   } = useRegisterBtcWalletPolicy();
 
@@ -42,13 +82,15 @@ export const usePolicyRegistrationState = (): PolicyRegistrationState => {
   const dismiss = useCallback(async () => {
     const previousStatus = status;
 
-    setStatus('idle');
-    reset();
-
     if (previousStatus.endsWith(':error')) {
-      await closeCurrentApp();
+      closeCurrentApp().finally(() => {
+        // We don't want to set the idle status too early to avoid flickering
+        setStatus('idle');
+      });
+    } else {
+      setStatus('idle');
     }
-  }, [status, reset, closeCurrentApp]);
+  }, [status, closeCurrentApp]);
 
   const fetchExtendedPublicKey = useCallback(async () => {
     try {
@@ -135,12 +177,25 @@ export const usePolicyRegistrationState = (): PolicyRegistrationState => {
     status,
   ]);
 
-  return {
-    dismiss,
-    retry,
-    status,
-    xpub,
-    policyName: walletPolicyName,
-    policyDerivationPath: walletPolicyDerivationpath,
-  };
+  return (
+    <LedgerPolicyRegistrationStateContext.Provider
+      value={{
+        dismiss,
+        retry,
+        status,
+        xpub,
+        policyName: walletPolicyName,
+        policyDerivationPath: walletPolicyDerivationpath,
+        shouldRegisterBtcWalletPolicy,
+      }}
+    >
+      {children}
+    </LedgerPolicyRegistrationStateContext.Provider>
+  );
+};
+
+export const useLedgerPolicyRegistrationState = () => {
+  const context = useContext(LedgerPolicyRegistrationStateContext);
+  // Return default value if context is not available (e.g., during initial render)
+  return context;
 };

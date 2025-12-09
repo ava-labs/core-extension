@@ -57,6 +57,19 @@ export const isUserRejectionError = (err: any) => {
   return false;
 };
 
+export const isMissingBtcWalletPolicyError = (err: any) => {
+  if (!err) {
+    return false;
+  }
+
+  if (typeof err === 'object') {
+    const message = err.data?.originalError || err.message;
+    return message?.includes('Error while parsing wallet policy');
+  }
+
+  return false;
+};
+
 export const isSwapTxBuildError = (err: unknown) => {
   if (!err) {
     return false;

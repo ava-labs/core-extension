@@ -4,6 +4,7 @@ import { ChevronRightIcon, IconButton, toast } from '@avalabs/k2-alpine';
 
 import {
   getExplorerAddressByNetwork,
+  isMissingBtcWalletPolicyError,
   isUserRejectionError,
   openNewTab,
 } from '@core/common';
@@ -31,6 +32,10 @@ export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
     // When transaction could not be sent to the network or failed immediately
     onSendFailure: (err: unknown) => {
       console.error('Failed to send transaction:', err);
+
+      if (isMissingBtcWalletPolicyError(err)) {
+        toast.error(t('Missing Bitcoin wallet policy'), { id: TOAST_ID });
+      }
 
       if (!isUserRejectionError(err)) {
         toast.error(t('Failed to send the transaction'), { id: TOAST_ID });

@@ -12,6 +12,7 @@ export type LedgerApprovalState =
     }
   | {
       state: 'disconnected';
+      requiredApp: LedgerAppType;
     }
   | {
       state: 'incorrect-app';
@@ -26,4 +27,7 @@ export type LedgerApprovalState =
       state: 'pending';
       requiredApp: LedgerAppType;
       requiredVersion: string;
+    }
+  | {
+      state: 'btc-policy-needed';
     };

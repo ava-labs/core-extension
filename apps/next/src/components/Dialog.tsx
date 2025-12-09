@@ -19,16 +19,24 @@ export const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
 type SlideUpDialogProps = PropsWithChildren<{
   open: boolean;
   onClose?: () => void;
+  zIndex?: number;
 }>;
 
 export const SlideUpDialog = ({
   open,
   onClose,
   children,
+  zIndex,
 }: SlideUpDialogProps) => {
   const goBack = useGoBack();
   return (
-    <Dialog {...dialogSlots} open={open} onClose={onClose || goBack} fullScreen>
+    <Dialog
+      {...dialogSlots}
+      sx={{ zIndex }}
+      open={open}
+      onClose={onClose || goBack}
+      fullScreen
+    >
       {children}
     </Dialog>
   );
