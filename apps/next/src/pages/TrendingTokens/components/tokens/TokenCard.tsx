@@ -42,6 +42,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
     ? Math.abs(token.price24hChangePercent)?.toFixed(2).toString() + '%'
     : undefined;
 
+  console.log({ token });
   const formattedPrice = token.price
     ? formatCurrency({
         amount: token.price,
@@ -56,10 +57,20 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       : downIcon;
 
   const uniqueTokenId = useMemo(() => {
+    // Normalize symbol and address to lowercase for ERC20 tokens to match getUniqueTokenId behavior
+    // getUniqueTokenId lowercases symbols for EVM fungible tokens (ERC20)
+    const isErc20 = !token.isNative;
+    const normalizedSymbol = isErc20
+      ? token.symbol.toLowerCase()
+      : token.symbol;
+    const normalizedAddress = isErc20
+      ? token.address?.toLowerCase()
+      : token.address;
+
     return getUniqueTokenIdGeneric({
-      type: token.isNative ? TokenType.NATIVE : TokenType.ERC20,
-      symbol: token.symbol,
-      address: token.isNative ? undefined : token.address,
+      type: isErc20 ? TokenType.ERC20 : TokenType.NATIVE,
+      symbol: normalizedSymbol,
+      address: token.isNative ? undefined : normalizedAddress,
       coreChainId: getCoreChainId(network),
     });
   }, [token, network]);
