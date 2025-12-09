@@ -12,25 +12,24 @@ import {
   useSettingsContext,
 } from '@core/ui';
 
-import { openView } from '@/utils/openView';
-
 import { MultiIconButton } from '../MultiIconButton';
+import { useOpenApp } from '@/hooks/useOpenApp';
 
 export const ViewModeSwitcher: FC = () => {
   const { setPreferredView } = useSettingsContext();
   const { capture } = useAnalyticsContext();
   const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
+  const openApp = useOpenApp();
 
   const DockIcon = isSidePanel ? SidebarUndockIcon : SidebarDockIcon;
 
   const onSidebarIconClick = async () => {
     const requestedView = isSidePanel ? 'floating' : 'sidebar';
-    setPreferredView(requestedView);
+    await setPreferredView(requestedView);
     capture('ViewModeSwitched', {
       viewMode: requestedView,
     });
-    window.close();
-    await openView(requestedView);
+    openApp({ closeWindow: true, viewMode: requestedView });
   };
 
   return (

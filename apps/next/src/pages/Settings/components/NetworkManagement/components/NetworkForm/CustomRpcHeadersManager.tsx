@@ -78,7 +78,7 @@ export const CustomRpcHeadersManager = ({
     >
       <Stack rowGap={1} sx={{ flex: 1, px: 1.5, width: '100%' }}>
         {readonly && headerList.length === 1 ? (
-          <Stack width="100%" gap={1} sx={{ mt: 'auto' }}>
+          <Stack width="100%" gap={1}>
             <Typography variant="body1">
               {t('No custom headers are configured.')}
             </Typography>

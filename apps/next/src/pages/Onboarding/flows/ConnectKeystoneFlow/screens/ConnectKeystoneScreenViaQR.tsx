@@ -16,12 +16,12 @@ import { DerivedKeys } from '../types';
 type ConnectKeystoneScreenViaQRProps = OnboardingScreenProps & {
   onSuccess: (derivedInfo: DerivedKeys) => void;
   onFailure: (isDimensionsError: boolean) => void;
-  accountIndexes: number[];
+  minNumberOfKeys: number;
 };
 
 export const ConnectKeystoneScreenViaQR: FC<
   ConnectKeystoneScreenViaQRProps
-> = ({ step, totalSteps, onSuccess, onFailure, accountIndexes }) => {
+> = ({ step, totalSteps, onSuccess, onFailure, minNumberOfKeys }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
 
@@ -40,7 +40,7 @@ export const ConnectKeystoneScreenViaQR: FC<
         <KeystoneQRConnector
           onQRCodeScanned={onSuccess}
           onUnreadableQRCode={onFailure}
-          accountIndexes={accountIndexes}
+          minNumberOfKeys={minNumberOfKeys}
         />
       </FullscreenModalContent>
       <FullscreenModalActions sx={{ justifyContent: 'center' }}>

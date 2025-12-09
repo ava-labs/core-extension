@@ -3,6 +3,7 @@ import {
   GetNavigationHistoryHandler,
   SetNavigationHistoryDataHandler,
   SetNavigationHistoryHandler,
+  RequestNavigationHandler,
 } from '@core/service-worker';
 import { useConnectionContext } from '../contexts';
 import {
@@ -71,6 +72,17 @@ export function usePageHistory() {
     return historyState;
   }, [historyState]);
 
+  // Use this method to trigger a navigation on the popup or sidebar from external pages
+  const requestNavigation = useCallback(
+    (path: string) => {
+      request<RequestNavigationHandler>({
+        method: ExtensionRequest.NAVIGATION_HISTORY_REQUEST_NAVIGATION,
+        params: { path },
+      });
+    },
+    [request],
+  );
+
   return {
     getNavigationHistoryData,
     setNavigationHistoryData,
@@ -78,5 +90,6 @@ export function usePageHistory() {
     getPageHistoryData,
     setNavigationHistory,
     getNavigationHistoryState,
+    requestNavigation,
   };
 }

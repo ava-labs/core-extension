@@ -1,4 +1,5 @@
 export enum ExtensionRequest {
+  OPEN_EXTENSION_POPUP_WINDOW = 'open_extension_popup_window',
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
   ONBOARDING_SUBMIT = 'onboarding_submit',
   ONBOARDING_INITIAL_WALLET_OPEN = 'onboarding_initial_wallet_open',
@@ -34,6 +35,7 @@ export enum ExtensionRequest {
   NFT_BALANCES_GET = 'nft_balances_get',
   NFT_REFRESH_METADATA = 'nft_refresh_metadata',
   TOKEN_PRICE_GET = 'token_price_get',
+  TOKEN_PRICE_GET_BY_ADDRESS = 'token_price_get_by_address',
   BALANCE_NATIVE_GET = 'balance_native_get',
 
   BRIDGE_GET_CONFIG = 'bridge_get_config',
@@ -122,6 +124,7 @@ export enum ExtensionRequest {
   NAVIGATION_HISTORY_SET = 'navigation_history_set',
   NAVIGATION_HISTORY_DATA_GET = 'navigation_history_data_get',
   NAVIGATION_HISTORY_DATA_SET = 'navigation_history_data_set',
+  NAVIGATION_HISTORY_REQUEST_NAVIGATION = 'navigation_history_request_navigation',
 
   ANALYTICS_INIT_IDS = 'analytics_init_ids',
   ANALYTICS_STORE_IDS = 'analytics_store_ids',

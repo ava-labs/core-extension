@@ -29,6 +29,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { AccountInfoVisibilityProvider } from '@/contexts/AccountInfoVisibilityContext';
+import { ConfettiProvider } from '@/components/Confetti';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
@@ -128,8 +129,10 @@ export function App() {
         Children.toArray([
           <ThemeProvider
             theme={isDeveloperMode ? 'dark' : preferredColorScheme}
+            toastVariant="extension"
           />,
           <QueryClientProvider client={queryClient} />,
+          <ConfettiProvider />,
           <PersonalAvatarProvider />,
           <AccountInfoVisibilityProvider />,
           <LedgerContextProvider />,
