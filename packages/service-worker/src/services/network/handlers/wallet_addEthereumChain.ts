@@ -148,6 +148,7 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
         scope,
         displayData: {
           network: customNetwork,
+          currentNetwork: currentActiveNetwork,
         },
       });
 

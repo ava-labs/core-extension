@@ -7,6 +7,7 @@ import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection/App
 import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionApprovalScreen';
 import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 import { NetworkAddApprovalScreen } from '@/pages/Approve/NetworkAddApprovalScreen';
+import { NetworkSwitchApprovalScreen } from '@/pages/Approve/NetworkSwitchApprovalScreen';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -22,22 +23,17 @@ export const ApprovalRoutes = (props: SwitchProps) => (
     }
   >
     <Switch {...props}>
-      <Route path={['/network/switch', '/sign']}>
+      <Route path={['/sign']}>
         <ExtensionActionApprovalScreen />
+      </Route>
+      <Route path="/approve/set-developer-mode"></Route>
+      <Route path="/network/switch">
+        <NetworkSwitchApprovalScreen />
       </Route>
       <Route path="/networks/add-popup">
         <NetworkAddApprovalScreen />
       </Route>
-      <Route
-        path={[
-          '/approve/generic',
-          // The avalanche transaction requests are still handled by our internal
-          // handlers instead of VM Modules, resulting in a different URL.
-          // This will change with this ticket:
-          // https://ava-labs.atlassian.net/browse/CP-11826
-          '/approve/avalancheSignTx',
-        ]}
-      >
+      <Route path={'/approve/generic'}>
         <GenericApprovalScreen />
       </Route>
       <Route path="/permissions">
