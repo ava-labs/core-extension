@@ -6,7 +6,6 @@ import {
 import { resolve } from '@core/common';
 import { injectable } from 'tsyringe';
 import { NetworkService } from '../NetworkService';
-import { runtime } from 'webextension-polyfill';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_SAVE_CUSTOM,
@@ -51,8 +50,6 @@ export class SaveCustomNetworkHandler implements HandlerType {
         error: err?.toString() ?? 'Adding custom network failed',
       };
     }
-
-    await this.networkService.setNetwork(runtime.id, addedNetwork.caipId);
 
     return {
       ...request,

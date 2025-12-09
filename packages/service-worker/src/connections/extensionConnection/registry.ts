@@ -18,6 +18,7 @@ import { BalancesUpdatedEvents } from '../../services/balances/events/balancesUp
 import { GetBalancesHandler } from '../../services/balances/handlers/getBalances';
 import { GetNativeBalanceHandler } from '../../services/balances/handlers/getNativeBalance';
 import { GetTokenPriceHandler } from '../../services/balances/handlers/getTokenPrice';
+import { GetTokenPriceByAddressHandler } from '../../services/balances/handlers/getTokenPriceByAddress';
 import { GetTotalBalanceForWalletHandler } from '../../services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refreshNftMetadata';
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
@@ -86,6 +87,7 @@ import { UpdateDefaultNetworkHandler } from '../../services/network/handlers/upd
 import { GetNetworkFeeHandler } from '../../services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '../../services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '../../services/onboarding/handlers/getIsOnBoarded';
+import { OpenExtensionPopupWindowHandler } from '../../services/onboarding/handlers/openExtensionPopupWindow';
 import { KeystoneOnboardingHandler } from '../../services/onboarding/handlers/keystoneOnboardingHandler';
 import { LedgerOnboardingHandler } from '../../services/onboarding/handlers/ledgerOnboardingHandler';
 import { MnemonicOnboardingHandler } from '../../services/onboarding/handlers/mnemonicOnboardingHandler';
@@ -156,6 +158,8 @@ import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwor
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
 import { GetXPAddressesForAccountHandler } from '../../services/accounts/handlers/getXPAddressesForAccountIndex';
 import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
+import { NavigationRequestEvents } from '~/services/navigationHistory/events/navigationRequestEvents';
+import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/requestNavigation';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -217,6 +221,7 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
     token: 'ExtensionRequestHandler',
     useToken: SetNavigationHistoryDataHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: RequestNavigationHandler },
   { token: 'ExtensionRequestHandler', useToken: SaveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateDefaultNetworkHandler },
@@ -251,6 +256,10 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
   },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: OpenExtensionPopupWindowHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: MnemonicOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
@@ -282,6 +291,7 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
   },
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetTokenPriceByAddressHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNativeBalanceHandler },
@@ -526,5 +536,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
   { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
+  { token: 'ExtensionEventEmitter', useToken: NavigationRequestEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

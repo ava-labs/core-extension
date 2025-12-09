@@ -8,6 +8,7 @@ import {
 } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
+import { useNavigationRequests } from '@/hooks/useNavigationRequests';
 
 /**
  * This is a container component where you can place event-driven global components
@@ -26,6 +27,7 @@ import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 export const EventDrivenComponentsAndHooks: FC = () => {
   useSeedlessMissingKeysDerivation();
   useImportMissingKeysFromKeystone();
+  useNavigationRequests();
 
   return (
     <>

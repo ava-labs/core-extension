@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack } from '@avalabs/k2-alpine';
 
@@ -11,11 +11,12 @@ import {
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
+import { sortBy } from 'lodash';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
   onStatusChange: (status: 'waiting' | 'ready' | 'error') => void;
-  numberOfKeys: number;
+  minNumberOfKeys: number;
   onTroubleshoot: () => void;
   deriveAddresses: (keys: PublicKey[]) => string[];
   derivedAddressesChainCaipId: string;
@@ -48,25 +49,25 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
     onSuccess,
     onStatusChange,
     onTroubleshoot,
-    numberOfKeys,
+    minNumberOfKeys,
     useLedgerPublicKeyFetcher,
     deriveAddresses,
     derivedAddressesChainCaipId,
     callbacks,
   } = props;
   const { t } = useTranslation();
+  const [activePublicKeys, setActivePublicKeys] = useState<PublicKey[]>([]);
   const withDerivationPathSpec = isWithDerivationPathSpec(props);
   const { status, error, onRetry, retrieveKeys } = useLedgerPublicKeyFetcher(
     withDerivationPathSpec ? props.derivationPathSpec : undefined,
+    (publicKeys) => setActivePublicKeys(sortBy(publicKeys, 'index')),
   );
   const [keys, setKeys] = useState<PublicKey[]>([]);
   const [isRetrieving, setIsRetrieving] = useState(false);
 
   const fetchKeys = useCallback(async () => {
-    const accountIndexes = Array.from({ length: numberOfKeys }, (_, i) => i);
-
     setIsRetrieving(true);
-    retrieveKeys(accountIndexes)
+    retrieveKeys(minNumberOfKeys)
       .then((retrievedKeys) => {
         setKeys(retrievedKeys.addressPublicKeys);
         onSuccess(retrievedKeys);
@@ -79,7 +80,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
       .finally(() => {
         setIsRetrieving(false);
       });
-  }, [numberOfKeys, retrieveKeys, onSuccess, callbacks]);
+  }, [minNumberOfKeys, retrieveKeys, onSuccess, callbacks]);
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {
@@ -92,10 +93,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
     onStatusChange(status);
   }, [status, onStatusChange]);
 
-  const addresses = useMemo(
-    () => deriveAddresses(keys),
-    [deriveAddresses, keys],
-  );
+  const addresses = deriveAddresses(activePublicKeys);
 
   return (
     <>
@@ -112,12 +110,13 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
                 }}
               />
             )}
-            {keys.length === 0 ? (
-              <Styled.ObtainedAddressesSkeleton count={numberOfKeys} />
+            {addresses.length === 0 ? (
+              <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
             ) : (
               <DerivedAddresses
                 addresses={addresses}
                 chainCaipId={derivedAddressesChainCaipId}
+                addLoadingRow={isRetrieving}
               />
             )}
           </>
@@ -127,7 +126,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
             {withDerivationPathSpec && (
               <Styled.DerivationPathSelectorSkeleton />
             )}
-            <Styled.ObtainedAddressesSkeleton count={numberOfKeys} />
+            <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
           </>
         )}
       </Stack>
