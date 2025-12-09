@@ -6,6 +6,7 @@ import { GenericApprovalScreen } from '@/pages/Approve/GenericApprovalScreen';
 import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection/ApproveDappConnection';
 import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionApprovalScreen';
 import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
+import { NetworkAddApprovalScreen } from '@/pages/Approve/NetworkAddApprovalScreen';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -23,6 +24,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
     <Switch {...props}>
       <Route path={['/network/switch', '/sign']}>
         <ExtensionActionApprovalScreen />
+      </Route>
+      <Route path="/networks/add-popup">
+        <NetworkAddApprovalScreen />
       </Route>
       <Route
         path={[
