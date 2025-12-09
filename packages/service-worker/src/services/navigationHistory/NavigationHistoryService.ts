@@ -92,17 +92,17 @@ export class NavigationHistoryService {
     return data;
   }
 
-  async requestNavigation(path: string) {
+  async requestNavigation(pathname: string, search = '') {
     const current = await this.getHistory();
     // store request in history as well in case the window is not opened
     this.setHistory({
       ...current,
-      location: { pathname: path, hash: '', search: '' },
+      location: { pathname, hash: '', search },
     } as NavigationHistoryState);
 
     this.#eventEmitter.emit(
       NavigationHistoryEvents.NAVIGATION_HISTORY_REQUEST_NAVIGATION_EVENT,
-      { path },
+      { pathname, search },
     );
   }
 

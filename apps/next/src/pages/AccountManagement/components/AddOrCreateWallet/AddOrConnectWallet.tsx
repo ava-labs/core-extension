@@ -53,7 +53,6 @@ export const AddOrConnectWallet: FC = () => {
             onClick={() => {
               capture('AddWalletWithSeedphrase_Clicked');
               openFullscreenTab('import-wallet/seedphrase');
-              push('/'); // Push homepage to the history stack so it becomes the active screen when user returns from the import flow
               window.close();
             }}
           />
@@ -65,7 +64,6 @@ export const AddOrConnectWallet: FC = () => {
             onClick={() => {
               capture('AddWalletWithLedger_Clicked');
               openFullscreenTab('import-wallet/ledger');
-              push('/'); // Push homepage to the history stack so it becomes the active screen when user returns from the import flow
               window.close();
             }}
           />
