@@ -109,7 +109,10 @@ export const ImportLedgerFlowContent = () => {
         });
         await openApp({
           closeWindow: true,
-          navigateTo: `/wallet/${imported.id}`,
+          navigateTo: {
+            path: `/wallet/${imported.id}`,
+            search: 'showImportSuccess=true',
+          },
         });
       } catch (err) {
         toast.error(t('Unknown error has occurred. Please try again later.'));

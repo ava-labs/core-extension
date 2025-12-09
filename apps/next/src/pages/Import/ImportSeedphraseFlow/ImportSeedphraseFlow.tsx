@@ -82,7 +82,10 @@ export const ImportSeedphraseFlow = () => {
         capture('SeedphraseImportSuccess');
         await openApp({
           closeWindow: true,
-          navigateTo: `/wallet/${imported.id}`,
+          navigateTo: {
+            path: `/wallet/${imported.id}`,
+            search: 'showImportSuccess=true',
+          },
         });
       } catch (error) {
         capture('SeedphraseImportFailure');

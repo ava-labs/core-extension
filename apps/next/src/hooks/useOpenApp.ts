@@ -26,7 +26,10 @@ export const useOpenApp = () => {
     }: {
       closeWindow?: boolean;
       viewMode?: ViewMode;
-      navigateTo?: string;
+      navigateTo?: {
+        path: string;
+        search?: string;
+      };
     }) => {
       const viewToOpen = viewMode || preferredView;
 
@@ -40,13 +43,15 @@ export const useOpenApp = () => {
         if (navigateTo) {
           request<RequestNavigationHandler>({
             method: ExtensionRequest.NAVIGATION_HISTORY_REQUEST_NAVIGATION,
-            params: { path: navigateTo },
+            params: navigateTo,
           });
         }
       } else {
         request<OpenExtensionPopupWindowHandler>({
           method: ExtensionRequest.OPEN_EXTENSION_POPUP_WINDOW,
-          params: { navigateTo },
+          params: {
+            navigateTo,
+          },
         });
       }
 
