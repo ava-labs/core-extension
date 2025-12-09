@@ -7,6 +7,7 @@ import {
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { PermissionsService } from '../../permissions/PermissionsService';
+import { LockService } from '../../lock/LockService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
@@ -33,6 +34,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
   constructor(
     private accountsService: AccountsService,
     private permissionsService: PermissionsService,
+    private lockService: LockService,
   ) {}
 
   async handleAuthenticated(rpcCall) {
@@ -68,7 +70,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       request.site.tabId,
     );
 
-    if (withoutApproval) {
+    if (withoutApproval && !this.lockService.locked) {
       const allAccounts = await this.accountsService.getAccountList();
 
       try {

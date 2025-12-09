@@ -7,6 +7,7 @@ import {
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { PermissionsService } from '../PermissionsService';
+import { LockService } from '../../lock/LockService';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import {
@@ -25,6 +26,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
   constructor(
     private permissionsService: PermissionsService,
     private accountsService: AccountsService,
+    private lockService: LockService,
   ) {
     super();
   }
@@ -45,7 +47,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       request.site.tabId,
     );
 
-    if (withoutApproval) {
+    if (withoutApproval && !this.lockService.locked) {
       const allAccounts = await this.accountsService.getAccountList();
 
       try {
@@ -57,12 +59,12 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
             reject,
           );
         });
-
         return {
           ...request,
           result,
         };
       } catch (error) {
+        console.log('error', error);
         return {
           ...request,
           error,
