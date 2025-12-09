@@ -60,7 +60,7 @@ export const OnboardingStrategyChoiceScreen: FC = () => {
           />
           <CardMenuItem
             data-testid="import-keystone-option"
-            icon={<KeystoneIcon size={24} />} // TODO: Add Keystone icon
+            icon={<KeystoneIcon size={24} />}
             text={t('Add using Keystone')}
             onClick={() => {
               capture('OnboardingKeystoneSelected');
