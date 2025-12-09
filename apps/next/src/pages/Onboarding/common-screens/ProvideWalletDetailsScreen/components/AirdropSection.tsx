@@ -1,10 +1,4 @@
-import {
-  combineSx,
-  Stack,
-  StackProps,
-  Switch,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Stack, Switch, Typography } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,58 +10,42 @@ import {
   SectionRow,
 } from '@/pages/Onboarding/components/Section';
 
-export const AirdropSection: FC<StackProps> = ({ sx, ...props }) => {
+export const AirdropSection: FC = () => {
   const { t } = useTranslation();
   const { analyticsConsent, setAnalyticsConsent } = useOnboardingContext();
   const { capture, stopDataCollection } = useAnalyticsContext();
 
   return (
-    <Stack sx={combineSx({ gap: 1 }, sx)} {...props}>
-      <Section component="label" sx={{ cursor: 'pointer' }}>
-        <SectionRow>
-          <Stack sx={{ gap: 0.5 }}>
-            <SectionLabel>{t('Unlock airdrops')}</SectionLabel>
-            <Typography variant="caption" color="text.secondary">
-              {t(
-                'As a Core user, you have the option to opt-in for airdrop rewards based on your activity and engagement. Core will collect anonymous interaction data to power this feature.',
-              )}
-            </Typography>
-          </Stack>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
+    <Section component="label" sx={{ cursor: 'pointer' }}>
+      <SectionRow>
+        <Stack gap={0.5}>
+          <SectionLabel>{t('Unlock airdrops')}</SectionLabel>
+          <Typography variant="caption" color="text.secondary">
+            {t(
+              'Opt-in for airdrop rewards based on your activity and engagement. Core will collect anonymous interaction data to power this feature.',
+            )}
+          </Typography>
+        </Stack>
+        <Stack flexDirection="row" justifyContent="flex-end">
+          <Switch
+            id="airdrop-switch"
+            size="small"
+            checked={analyticsConsent}
+            onChange={(e) => {
+              const isAccepted = e.target.checked;
+
+              if (isAccepted) {
+                capture('OnboardingAnalyticsAccepted');
+              } else {
+                capture('OnboardingAnalyticsRejected');
+                stopDataCollection();
+              }
+
+              setAnalyticsConsent(isAccepted);
             }}
-          >
-            <Switch
-              id="airdrop-switch"
-              size="small"
-              checked={analyticsConsent}
-              onChange={(e) => {
-                const isAccepted = e.target.checked;
-
-                if (isAccepted) {
-                  capture('OnboardingAnalyticsAccepted');
-                } else {
-                  capture('OnboardingAnalyticsRejected');
-                  stopDataCollection();
-                }
-
-                setAnalyticsConsent(isAccepted);
-              }}
-            />
-          </Stack>
-        </SectionRow>
-      </Section>
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ maxWidth: '75%' }}
-      >
-        {t(
-          'Core is committed to protecting your privacy. We will never sell or share your data. If you wish, you can disable this at any time in the settings menu.',
-        )}
-      </Typography>
-    </Stack>
+          />
+        </Stack>
+      </SectionRow>
+    </Section>
   );
 };
