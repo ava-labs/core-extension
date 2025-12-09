@@ -409,7 +409,7 @@
   "Login": "Login",
   "Logo URL": "Logo URL",
   "Losing this phrase will result in lost funds": "Losing this phrase will result in lost funds",
-  "Make sure you have written down your recovery phrase. Without it you will not be able to access the current wallet and could result in lost funds": "Make sure you have written down your recovery phrase. Without it you will not be able to access the current wallet and could result in lost funds",
+  "Make sure you have written down your recovery phrase or stored your login credentials. Failure to do this may result in lost funds.": "Make sure you have written down your recovery phrase or stored your login credentials. Failure to do this may result in lost funds.",
   "Make sure your device is connected and you have granted Keystone browser permissions.": "Make sure your device is connected and you have granted Keystone browser permissions.",
   "Manage": "Manage",
   "Manage Collectibles": "Manage Collectibles",
