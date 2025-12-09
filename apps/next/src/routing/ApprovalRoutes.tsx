@@ -8,6 +8,7 @@ import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionAp
 import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 import { NetworkAddApprovalScreen } from '@/pages/Approve/NetworkAddApprovalScreen';
 import { NetworkSwitchApprovalScreen } from '@/pages/Approve/NetworkSwitchApprovalScreen';
+import { DeveloperModeApprovalScreen } from '@/pages/Approve/DeveloperModeApprovalScreen';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -26,7 +27,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       <Route path={['/sign']}>
         <ExtensionActionApprovalScreen />
       </Route>
-      <Route path="/approve/set-developer-mode"></Route>
+      <Route path="/approve/set-developer-mode">
+        <DeveloperModeApprovalScreen />
+      </Route>
       <Route path="/network/switch">
         <NetworkSwitchApprovalScreen />
       </Route>
