@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AddressList } from '@/components/AddressList';
-import { Container } from './styled';
+import { AccountInfoClickableStack, Container } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
 import { WalletIcon } from '@/components/WalletIcon';
@@ -58,35 +58,29 @@ export const HeaderAccount = () => {
       {hasAccountData && (
         <Box position="relative" minWidth={0} overflow="hidden">
           <Box className="avatar-only" sx={{ cursor: 'pointer' }}>
-            <PersonalAvatar size="xsmall" sx={{ mr: 1, ml: 0.5 }} />
+            <PersonalAvatar size="xsmall" mr={1} ml={0.5} />
           </Box>
 
-          <Stack
+          <AccountInfoClickableStack
             className="account-info"
             direction="row"
             alignItems="center"
             onClick={() => history.push('/account-management')}
-            sx={{
-              p: 0.5,
-              borderRadius: 1,
-              backgroundColor: 'background.navBarItem',
-              my: 0.5,
-              cursor: 'pointer',
-            }}
           >
             <PersonalAvatar
               size="xsmall"
-              sx={{ flexShrink: 0, cursor: 'pointer' }}
+              flexShrink={0}
+              sx={{ cursor: 'pointer' }}
             />
 
-            <Stack
-              sx={{ minWidth: 0, flex: 1, gap: 0, overflow: 'hidden', mx: 1 }}
-            >
+            <Stack minWidth={0} flex={1} gap={0} overflow="hidden" mx={1}>
               <Stack
                 direction="row"
                 alignItems="center"
                 gap={0.5}
-                sx={{ minWidth: 0, overflow: 'hidden' }}
+                flexShrink={0}
+                minWidth={0}
+                overflow="hidden"
               >
                 <Box sx={{ flexShrink: 0 }}>
                   <WalletIcon
@@ -100,7 +94,8 @@ export const HeaderAccount = () => {
                 <FadingText
                   variant="caption2"
                   color="text.secondary"
-                  sx={{ lineHeight: 1, minWidth: 0 }}
+                  lineHeight={1}
+                  minWidth={0}
                   fontWeight="medium"
                 >
                   {walletSummary?.name}
@@ -109,7 +104,9 @@ export const HeaderAccount = () => {
 
               <FadingText
                 variant="body2"
-                sx={{ lineHeight: 1, mt: -0.25, minWidth: 0 }}
+                lineHeight={1}
+                minWidth={0}
+                mt={-0.25}
                 color="text.primary"
               >
                 {account?.name}
@@ -120,7 +117,7 @@ export const HeaderAccount = () => {
               color={theme.palette.text.secondary}
               style={{ flexShrink: 0 }}
             />
-          </Stack>
+          </AccountInfoClickableStack>
         </Box>
       )}
 

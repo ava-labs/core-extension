@@ -19,9 +19,7 @@ type Props = {
 };
 export const WalletDetails = ({ wallet }: Props) => {
   const { getAccountsByWalletId } = useAccountsContext();
-
   const { coreAssistant } = useSettingsContext();
-
   const accountsInWallet = getAccountsByWalletId(wallet.id);
   const networksWithBalance = useNetworksWithBalance({ walletId: wallet.id });
   const {
