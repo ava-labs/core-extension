@@ -61,7 +61,6 @@ export const WalletBalance = ({
       <ClickableStack
         width="fit-content"
         maxWidth="75%"
-        rowGap={0.5}
         onClick={() => {
           history.push('/account-management');
         }}
@@ -70,7 +69,6 @@ export const WalletBalance = ({
           direction="row"
           alignItems="center"
           color="text.secondary"
-          height={theme.spacing(3.7)}
           minWidth={0}
         >
           <Box flexShrink={0} display="flex" alignItems="center" mr={0.5}>
@@ -80,7 +78,7 @@ export const WalletBalance = ({
           <TruncatedText
             variant="h2"
             noWrap
-            lineHeight={3.7}
+            lineHeight={1.2}
             sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
             showEllipsis
           >

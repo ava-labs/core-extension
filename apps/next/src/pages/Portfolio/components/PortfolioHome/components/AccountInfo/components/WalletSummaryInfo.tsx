@@ -21,7 +21,9 @@ export const WalletSummaryInfo = ({ walletSummary }: Props) => {
       direction="row"
       alignItems="center"
       maxWidth="75%"
-      onClick={() => {
+      position="relative"
+      onClick={(e) => {
+        e.stopPropagation();
         history.push(`/wallet/${walletSummary.id}`);
       }}
     >

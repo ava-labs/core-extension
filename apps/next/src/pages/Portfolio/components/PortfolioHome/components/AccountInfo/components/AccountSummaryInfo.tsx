@@ -28,18 +28,18 @@ export const AccountSummaryInfo = ({
       overflow="visible"
       maxWidth="75%"
       width="fit-content"
-      rowGap={0.5}
       onClick={() => {
         history.push('/account-management');
       }}
     >
-      <Stack direction="row" alignItems="center" height={theme.spacing(3.7)}>
+      <Stack direction="row" alignItems="center">
         <TruncatedText
           noWrap
           variant="h2"
           color="text.secondary"
-          lineHeight={3.7}
-          sx={{ minWidth: 0, flex: '0 1 auto' }}
+          lineHeight={1.2}
+          minWidth={0}
+          flex="0 1 auto"
           showEllipsis
         >
           {accountName}

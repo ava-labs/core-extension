@@ -41,7 +41,7 @@ export const AccountInfo: FC<Props> = ({
   );
 
   return (
-    <Stack ref={setAccountInfoElement} gap={0.25} mt={5} width="100%">
+    <Stack ref={setAccountInfoElement} gap={0.25} width="100%" mt={4}>
       <WalletSummaryInfo walletSummary={walletSummary} />
       <AccountSummaryInfo
         accountName={account?.name ?? ''}
