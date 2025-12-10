@@ -1,20 +1,28 @@
+import { AddressItem, SolanaAddressEnabler } from '@/components/Address';
+import { UniqueIdIcon } from '@/components/UniqueIdIcon';
+import { Divider } from '@/pages/AccountManagement/components/Styled';
 import {
+  BitcoinColorIcon,
+  CChainIcon,
+  EthereumColorIcon,
+  getHexAlpha,
+  Grow,
+  SolanaColorIcon,
   Stack,
   useTheme,
-  getHexAlpha,
-  CChainIcon,
   XPChainIcon,
-  SolanaColorIcon,
-  EthereumColorIcon,
-  BitcoinColorIcon,
-  Grow,
 } from '@avalabs/k2-alpine';
-import { AddressItem } from '@/components/Address/AddressItem';
-import { Divider } from '@/pages/AccountManagement/components/Styled';
 import { Account } from '@core/types';
-import { UniqueIdIcon } from '@/components/UniqueIdIcon';
 
 //UniqueIdIcon is needed to avoid logo id conflicts which cause the logo to not be displayed
+
+type Props = {
+  isAddressAppear: boolean;
+  activeAccount?: Account;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  top?: number | string;
+};
 
 export const AddressList = ({
   isAddressAppear,
@@ -22,13 +30,7 @@ export const AddressList = ({
   onMouseEnter,
   onMouseLeave,
   top,
-}: {
-  isAddressAppear: boolean;
-  activeAccount?: Account;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  top?: number | string;
-}) => {
+}: Props) => {
   const theme = useTheme();
   const listBackground =
     theme.palette.mode === 'dark'
@@ -80,6 +82,7 @@ export const AddressList = ({
           label="Solana"
           Icon={<UniqueIdIcon icon={<SolanaColorIcon />} />}
           address={activeAccount?.addressSVM}
+          AddressEnabler={SolanaAddressEnabler}
         />
       </Stack>
     </Grow>
