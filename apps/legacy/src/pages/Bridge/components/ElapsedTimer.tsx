@@ -50,10 +50,18 @@ export function ElapsedTimer({
     offsetTimestamp: padTimeElapsed(startTime, endTime),
   });
 
-  // Stop the timer when we know the endTime
+  // Start the timer when we have a startTime but no endTime yet
   useEffect(() => {
     if (startTime && !endTime && !isRunning) {
       reset(padTimeElapsed(startTime, endTime), true);
+    }
+  }, [endTime, startTime, reset, isRunning]);
+
+  // Stop the timer when endTime becomes available (bridge completed)
+  useEffect(() => {
+    if (endTime && isRunning) {
+      // Reset to final elapsed time and pause
+      reset(padTimeElapsed(startTime, endTime), false);
     }
   }, [endTime, startTime, reset, isRunning]);
 
