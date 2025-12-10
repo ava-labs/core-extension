@@ -21,7 +21,7 @@ type Props = {
   walletName?: string;
   isLoading: boolean;
   hasErrorOccurred: boolean;
-  totalBalanceInCurrency?: number;
+  totalBalanceInCurrency?: number | null;
   balanceChange?: number;
   percentageChange?: number;
 };
@@ -46,7 +46,7 @@ export const WalletBalance = ({
   const balanceToDisplay = useMemo(() => {
     return isLoading
       ? placeholderTotalBalance
-      : totalBalanceInCurrency !== undefined
+      : totalBalanceInCurrency !== undefined && totalBalanceInCurrency !== null
         ? currencyFormatter(totalBalanceInCurrency)
         : placeholderTotalBalance;
   }, [
