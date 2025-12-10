@@ -193,6 +193,7 @@
   "Core has entered an unexpected state. Please restart the browser if the issue persists.": "Core has entered an unexpected state. Please restart the browser if the issue persists.",
   "Core is committed to protecting your privacy. We will never sell or share your data. If you wish, you can disable this at any time in the settings menu.": "Core is committed to protecting your privacy. We will never sell or share your data. If you wish, you can disable this at any time in the settings menu.",
   "Core is no longer connected to your Keystone device. Reconnect to continue.": "Core is no longer connected to your Keystone device. Reconnect to continue.",
+  "Core was unable to fund the gas. You will need to pay the fee for this transaction.": "Core was unable to fund the gas. You will need to pay the fee for this transaction.",
   "Core.app": "Core.app",
   "Could not connect.": "Could not connect.",
   "Could not find the wallet you are looking for. \n Please select a different wallet.": "Could not find the wallet you are looking for. \n Please select a different wallet.",
