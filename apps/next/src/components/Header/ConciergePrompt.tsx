@@ -143,8 +143,8 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
                 position: 'absolute',
                 top: '56px',
                 width: '100%',
-                height: '24px',
                 px: 1.5,
+                zIndex: theme.zIndex.appBar + 3,
               }}
             >
               <AnimatedButton
@@ -177,6 +177,23 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
           </CSSTransition>
         </Stack>
       </TransitionGroup>
+      {/* CANCEL ZONE - 24px below header */}
+      {isAIBackdropOpen && (
+        <Stack
+          sx={{
+            position: 'fixed',
+            top: '80px', // 56px (header) + 24px
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: theme.zIndex.appBar + 2,
+          }}
+          onMouseEnter={() => {
+            setIsAIBackdropOpen(false);
+            setIsHoverAreaHidden(false);
+          }}
+        />
+      )}
     </>
   );
 };

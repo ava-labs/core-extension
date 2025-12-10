@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { AddressList } from '@/components/AddressList';
 import { AccountInfoClickableStack, Container } from './styled';
 import { PersonalAvatar } from '@/components/PersonalAvatar';
@@ -9,6 +8,10 @@ import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FadingText } from '../FadingText';
 import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
+
+const AVATAR_ONLY_CLASS = 'avatar-only';
+const ACCOUNT_INFO_CLASS = 'account-info';
+const ADDRESS_LIST_CLASS = 'address-list';
 
 /**
  * This component is used to display the header account information.
@@ -29,40 +32,26 @@ export const HeaderAccount = () => {
   const history = useHistory();
   const { walletSummary, account } = useActiveAccountInfo();
 
-  const [isContainerHovered, setIsContainerHovered] = useState(false);
-
   const hasAccountData = walletSummary && account;
   const showAccountInfoByDefault = isAccountView
-    ? hasAccountData && !isAccountInfoVisible
+    ? !!(hasAccountData && !isAccountInfoVisible)
     : false;
 
   return (
     <Container
-      onMouseEnter={() => setIsContainerHovered(true)}
-      onMouseLeave={() => setIsContainerHovered(false)}
-      sx={{
-        '& .avatar-only': {
-          display: showAccountInfoByDefault ? 'none' : 'block',
-        },
-        '& .account-info': {
-          display: showAccountInfoByDefault ? 'flex' : 'none',
-        },
-        '&:hover .avatar-only': {
-          display: 'none',
-        },
-        '&:hover .account-info': {
-          display: 'flex',
-        },
-      }}
+      showAccountInfoByDefault={showAccountInfoByDefault}
+      avatarOnlyClass={AVATAR_ONLY_CLASS}
+      accountInfoClass={ACCOUNT_INFO_CLASS}
+      addressListClass={ADDRESS_LIST_CLASS}
     >
       {hasAccountData && (
-        <Box position="relative" minWidth={0} overflow="hidden">
-          <Box className="avatar-only" sx={{ cursor: 'pointer' }}>
+        <Box position="relative" minWidth={0} overflow="visible">
+          <Box className={AVATAR_ONLY_CLASS} sx={{ cursor: 'pointer' }}>
             <PersonalAvatar size="xsmall" mr={1} ml={0.5} />
           </Box>
 
           <AccountInfoClickableStack
-            className="account-info"
+            className={ACCOUNT_INFO_CLASS}
             direction="row"
             alignItems="center"
             onClick={() => history.push('/account-management')}
@@ -73,14 +62,20 @@ export const HeaderAccount = () => {
               sx={{ cursor: 'pointer' }}
             />
 
-            <Stack minWidth={0} flex={1} gap={0} overflow="hidden" mx={1}>
+            <Stack
+              minWidth={0}
+              flex={1}
+              gap={0}
+              sx={{ overflowX: 'hidden' }}
+              mx={1}
+            >
               <Stack
                 direction="row"
                 alignItems="center"
                 gap={0.5}
                 flexShrink={0}
                 minWidth={0}
-                overflow="hidden"
+                sx={{ overflowX: 'hidden' }}
               >
                 <Box sx={{ flexShrink: 0 }}>
                   <WalletIcon
@@ -88,13 +83,13 @@ export const HeaderAccount = () => {
                     type={walletSummary?.type}
                     authProvider={walletSummary?.authProvider}
                     color={theme.palette.text.secondary}
-                    expanded={true}
+                    expanded
                   />
                 </Box>
                 <FadingText
                   variant="caption2"
                   color="text.secondary"
-                  lineHeight={1}
+                  lineHeight={1.2}
                   minWidth={0}
                   fontWeight="medium"
                 >
@@ -104,9 +99,8 @@ export const HeaderAccount = () => {
 
               <FadingText
                 variant="body2"
-                lineHeight={1}
+                lineHeight={1.2}
                 minWidth={0}
-                mt={-0.25}
                 color="text.primary"
               >
                 {account?.name}
@@ -122,7 +116,7 @@ export const HeaderAccount = () => {
       )}
 
       <AddressList
-        isAddressAppear={isContainerHovered}
+        className={ADDRESS_LIST_CLASS}
         activeAccount={account}
         top={56}
       />
