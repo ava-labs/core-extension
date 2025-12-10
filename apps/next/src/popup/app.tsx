@@ -65,6 +65,7 @@ const pagesWithoutHeader = [
   routes.getSwapPath(),
   routes.getBridgePath(),
   '/asset', // Token details path
+  '/networks/add-popup',
 ];
 
 const queryClient = new QueryClient({
