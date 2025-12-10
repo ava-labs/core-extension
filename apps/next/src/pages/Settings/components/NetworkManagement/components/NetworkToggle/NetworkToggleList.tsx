@@ -4,11 +4,13 @@ import { NetworkWithCaipId } from '@core/types';
 import { defaultEnabledNetworks } from '~/services/network/consts';
 import { useHistory } from 'react-router-dom';
 import { NetworkToggleListItem } from './NetworkToggleListItem';
+import { useMemo } from 'react';
 
 type NetworkToggleListProps = {
   networks: NetworkWithCaipId[];
 };
 
+const defaultNetworkSet = new Set(defaultEnabledNetworks);
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   const { enabledNetworks, enableNetwork, disableNetwork } =
     useNetworkContext();
@@ -16,6 +18,15 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
 
   const enabledNetworksArray =
     enabledNetworks.map((network) => network.chainId) || [];
+
+  const sortedNetworks = useMemo(() => {
+    return [...networks].sort((a, b) => {
+      return (
+        Number(defaultNetworkSet.has(b.chainId)) -
+        Number(defaultNetworkSet.has(a.chainId))
+      );
+    });
+  }, [networks]);
 
   return (
     <Stack
@@ -32,7 +43,7 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
         },
       }}
     >
-      {networks.map((network) => (
+      {sortedNetworks.map((network) => (
         <NetworkToggleListItem
           key={network.chainId}
           network={network}
