@@ -1,8 +1,12 @@
 import { Stack, Typography } from '@avalabs/k2-alpine';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
-import { useWalletContext, useWalletTotalBalance } from '@core/ui';
+import {
+  useWalletContext,
+  useWalletTotalBalance,
+  useWalletTotalBalanceContext,
+} from '@core/ui';
 import { BulkDeleteButtons } from './components/BulkDeleteButtons';
 import { WalletList } from './components/WalletList';
 import * as Styled from './components/Styled';
@@ -16,9 +20,14 @@ export const WalletsHomePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
   const { walletDetails } = useWalletContext();
+  const { fetchWalletBalancesSequentially } = useWalletTotalBalanceContext();
   const { isLoading, hasErrorOccurred } = useWalletTotalBalance(
     walletDetails?.id,
   );
+
+  useEffect(() => {
+    fetchWalletBalancesSequentially();
+  }, [fetchWalletBalancesSequentially]);
 
   return (
     <Page
