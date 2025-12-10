@@ -23,12 +23,15 @@ export class FundTxHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const [data, challengeHex, solutionHex, fromAddress] = request.params;
     try {
-      await this.gasStationService.fundTx({
+      const response = await this.gasStationService.fundTx({
         data,
         challengeHex,
         solutionHex,
         fromAddress,
       });
+      if (response?.message === 'UNAUTHORIZED') {
+        throw new Error('Gasless funding unauthorized');
+      }
       return {
         ...request,
         result: undefined,
