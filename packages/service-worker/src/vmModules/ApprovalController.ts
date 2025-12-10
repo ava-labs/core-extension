@@ -190,7 +190,7 @@ export class ApprovalController implements BatchApprovalController {
           error: rpcErrors.internal({
             message: 'Unable to sign the message',
             data: {
-              originalError: err,
+              originalError: err instanceof Error ? err.message : err,
             },
           }),
         });

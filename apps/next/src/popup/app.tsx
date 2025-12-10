@@ -46,6 +46,7 @@ import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
+import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
 
 const pagesWithoutHeader = [
   '/seedless-auth',
@@ -159,6 +160,7 @@ export function App() {
           <DefiContextProvider />,
           <FirebaseContextProvider />,
           <NextUnifiedBridgeProvider />,
+          <LedgerPolicyRegistrationStateProvider />,
         ]) as ReactElement[]
       }
     >
