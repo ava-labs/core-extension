@@ -86,7 +86,7 @@ export const useBridgeFormStateHandler = () => {
     canExecuteBridge && minTransferAmount && !minAmountError && !maxAmountError;
 
   const isReceiveAmountCorrect =
-    typeof amountAfterFee === 'bigint' && amountAfterFee > 0n;
+    typeof amountAfterFee === 'bigint' && amountAfterFee >= 0n;
 
   const isBridgeButtonDisabled = Boolean(
     !canExecuteBridge ||
