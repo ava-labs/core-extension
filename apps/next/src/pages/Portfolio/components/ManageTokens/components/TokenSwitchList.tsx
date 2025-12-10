@@ -16,7 +16,8 @@ interface Props {
 
 export const TokenSwitchList: FC<Props> = ({ filter, spam }) => {
   const [height, containerRef] = useContainerHeight<HTMLDivElement>(400);
-  const tokensWithBalances = useAllTokensFromEnabledNetworks(false, !spam);
+  const tokensWithBalances = useAllTokensFromEnabledNetworks(true, !spam);
+
   const { t } = useTranslation();
   const filteredTokensList = useMemo(
     () =>

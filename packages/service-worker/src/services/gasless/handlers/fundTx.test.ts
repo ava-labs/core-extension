@@ -38,4 +38,18 @@ describe('src/background/services/gasless/handlers/fundTx', () => {
       fromAddress: 'fromAddress',
     });
   });
+
+  it('Should return the error message if the fund request returns UNAUTHORIZED', async () => {
+    gasStationServiceMock.fundTx.mockReturnValue({
+      message: 'UNAUTHORIZED',
+    });
+
+    const response = await handler.handle(buildRpcCall(request) as any);
+
+    expect(response).toEqual(
+      expect.objectContaining({
+        error: 'Error: Gasless funding unauthorized',
+      }),
+    );
+  });
 });
