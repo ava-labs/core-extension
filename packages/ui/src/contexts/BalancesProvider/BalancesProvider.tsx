@@ -154,7 +154,7 @@ function balancesReducer(
         return { ...state };
       }
 
-      // Only set loading to false when we actually have token data
+      // Only set loading to false when we actually have token data because the cached data might be empty for a new user
       const hasTokenData =
         action.payload.balances?.tokens &&
         Object.keys(action.payload.balances.tokens).length > 0;
