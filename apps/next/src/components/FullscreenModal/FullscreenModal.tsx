@@ -38,12 +38,12 @@ export const FullscreenModal: FC<FullscreenModalProps> = ({
   return (
     <StyledModal fullScreen open={open} onClose={onClose}>
       {withCoreLogo && (
-        <Box position="fixed" top={32} left={32}>
+        <Box position="fixed" top={28} left={28}>
           <CoreIcon opacity={0.1} />
         </Box>
       )}
       {withLanguageSelector && (
-        <Box position="fixed" top={32} right={32}>
+        <Box position="fixed" top={28} right={28}>
           <LanguageSelector
             dataTestId="settings-language-selector"
             onSelectEventName="AppLanguageChanged"
