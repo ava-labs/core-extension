@@ -100,6 +100,7 @@ const LedgerContext = createContext<{
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
+  refreshActiveApp: () => Promise<void>;
 }>({} as any);
 
 export function LedgerContextProvider({ children }: PropsWithChildren) {
@@ -313,6 +314,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     };
   }, [initialized, initLedgerApp, request]);
 
+  const refreshActiveApp = useCallback(async () => {
+    initLedgerApp(transportRef.current);
+  }, [initLedgerApp]);
+
   /**
    * Get the extended public key for the given path (m/44'/60'/0' by default)
    * @returns Promise<extended public key>
@@ -396,6 +401,8 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       await getLedgerAppInfo(transportRef.current);
       // quit the app: https://developers.ledger.com/docs/transport/open-close-info-on-apps/#quit-application
       await quitLedgerApp(transportRef.current);
+      setAppType(LedgerAppType.UNKNOWN);
+      setApp(undefined);
     }
   }, [transportRef]);
 
@@ -514,6 +521,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
         closeCurrentApp,
+        refreshActiveApp,
       }}
     >
       {children}

@@ -26,6 +26,9 @@ export const DeFiCommonContent: FC<DeFiCommonContentProps> = ({
         height={1}
         alignItems="center"
         justifyContent="center"
+        sx={{
+          backgroundColor: 'background.default',
+        }}
       >
         {icon && <Typography fontSize="32px">{icon}</Typography>}
         <Typography variant="body3" fontWeight="bold">

@@ -4,6 +4,7 @@ import {
   OutboundIcon,
   Skeleton,
   Stack,
+  Tooltip,
   truncateAddress,
   Typography,
 } from '@avalabs/k2-alpine';
@@ -77,13 +78,15 @@ export const DerivedAddresses = ({
             <Typography variant="subtitle1" color="text.secondary" width={10}>
               {index + 1}
             </Typography>
-            <Typography
-              variant="subtitle1"
-              fontFamily="monospace"
-              color="text.primary"
-            >
-              {truncateAddress(address, 14)}
-            </Typography>
+            <Tooltip title={address}>
+              <Typography
+                variant="subtitle1"
+                fontFamily="monospace"
+                color="text.primary"
+              >
+                {truncateAddress(address, 14)}
+              </Typography>
+            </Tooltip>
           </Stack>
           <Stack direction="row" gap={1.5} alignItems="center">
             {isLoading ? (

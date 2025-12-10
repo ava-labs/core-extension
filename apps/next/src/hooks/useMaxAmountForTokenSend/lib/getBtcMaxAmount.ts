@@ -4,14 +4,13 @@ import {
   getMaxTransferAmount,
 } from '@avalabs/core-wallets-sdk';
 
-import { getBtcInputUtxos } from '@core/common';
 import { BtcTokenBalance, NetworkFee, NetworkWithCaipId } from '@core/types';
 
 import { getBtcProvider } from '@/lib/getBtcProvider';
 
 export const getBtcMaxAmount = async (
   networkFee: NetworkFee,
-  token: BtcTokenBalance,
+  _: BtcTokenBalance,
   from: string,
   to: string,
   network?: NetworkWithCaipId,
@@ -25,7 +24,7 @@ export const getBtcMaxAmount = async (
 
   const feeRate = Number(networkFee.low.maxFeePerGas);
   const provider = getBtcProvider(network);
-  const utxos = await getBtcInputUtxos(provider, token, feeRate);
+  const { utxos } = await provider.getUtxoBalance(from, true);
   const maxTransferAmount = getMaxTransferAmount(utxos, to, from, feeRate);
 
   const { fee } = createTransferTx(
@@ -33,7 +32,7 @@ export const getBtcMaxAmount = async (
     from,
     maxTransferAmount,
     feeRate,
-    token.utxos as BitcoinInputUTXO[],
+    utxos as BitcoinInputUTXO[],
     provider.getNetwork(),
   );
 

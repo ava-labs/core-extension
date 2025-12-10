@@ -8,8 +8,6 @@ import { useTranslation } from 'react-i18next';
 type ChainAvatarProps = {
   network: Network;
   sx?: SxProps;
-  avatarSx?: SxProps;
-  badgeSx?: SxProps;
 };
 
 /**

@@ -43,7 +43,7 @@ const ChainAvatar = ({ coreChainId, ...props }: ChainAvatarProps) => {
 };
 
 export const ChainBadge = styled(ChainAvatar)(({ theme }) => ({
-  borderWidth: '1px',
+  borderWidth: '2px',
   borderStyle: 'solid',
   borderColor: theme.palette.background.paper,
   backgroundColor: 'transparent',

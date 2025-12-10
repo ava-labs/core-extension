@@ -166,6 +166,7 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           divider
           label={t('Currency')}
+          onClick={() => capture('CurrencySettingClicked')}
           secondaryAction={
             <CurrencySelector
               sx={navItemActionCommonSx}
