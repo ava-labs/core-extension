@@ -52,6 +52,7 @@ import { usePendingBridgeTransactions } from '@core/ui';
 import { useUnifiedBridgeContext } from '@core/ui';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { BridgeEstimatedTimeWarning } from './components/BridgeEstimatedTimeWarning';
+import { useSourceConfirmationsEndTime } from './hooks/useSourceConfirmationsEndTime';
 
 const BridgeTransactionStatus = () => {
   const { t } = useTranslation();
@@ -148,6 +149,16 @@ const BridgeTransactionStatus = () => {
     targetCurrentConfirmations,
     targetRequiredConfirmations,
   } = useBridgeTransferStatus(bridgeTransaction);
+
+  const isSourceConfirmationsComplete =
+    sourceCurrentConfirmations >= sourceRequiredConfirmations ||
+    Boolean(bridgeTransaction?.targetStartedAt);
+
+  const sourceConfirmationsEndTime = useSourceConfirmationsEndTime(
+    bridgeTransaction,
+    isSourceConfirmationsComplete,
+    isComplete,
+  );
 
   const errorCode = isUnifiedBridgeTransfer(bridgeTransaction)
     ? bridgeTransaction.errorCode
@@ -383,7 +394,7 @@ const BridgeTransactionStatus = () => {
                     </Typography>
                     <ElapsedTimer
                       startTime={bridgeTransaction.sourceStartedAt}
-                      endTime={bridgeTransaction.targetStartedAt}
+                      endTime={sourceConfirmationsEndTime}
                       hasError={hasError}
                     />
                   </Stack>
@@ -415,7 +426,7 @@ const BridgeTransactionStatus = () => {
                       </Typography>
                       <ElapsedTimer
                         startTime={bridgeTransaction.sourceStartedAt}
-                        endTime={bridgeTransaction.targetStartedAt}
+                        endTime={sourceConfirmationsEndTime}
                         hasError={hasError}
                       />
                     </Stack>
@@ -474,7 +485,7 @@ const BridgeTransactionStatus = () => {
               )}
             </BridgeCard>
             <BridgeCard // to chain (Bottom Card)
-              isWaiting={!bridgeTransaction.targetStartedAt}
+              isWaiting={!isSourceConfirmationsComplete}
               isDone={isComplete}
               isTransferComplete={isComplete}
             >
