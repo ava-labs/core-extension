@@ -17,6 +17,7 @@ import {
 import { SearchableSelect } from '../SearchableSelect';
 import {
   ChainFilterChips,
+  ChainOption,
   SelectedToken,
   TokenMenuItem,
   TokenSelectPrompt,
@@ -24,6 +25,7 @@ import {
 } from './components';
 import { compareTokens, searchTokens } from './lib/utils';
 import { isAvaxToken } from '@/hooks/useTokensForAccount';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 type TokenSelectProps = {
   id: string;
@@ -90,7 +92,6 @@ function TokenSelectRaw({
   // Filter token list based on selected chain and sort by balance
   const filteredTokenList = useMemo(() => {
     let filtered: FungibleTokenBalance[];
-
     if (selectedChainId === null) {
       filtered = tokenList;
     } else if (selectedChainId === 'avalanche') {
@@ -127,7 +128,7 @@ function TokenSelectRaw({
       if (balanceA < balanceB) return 1;
       return 0;
     });
-  }, [tokenList, selectedChainId, isAnyAvalancheNetwork]);
+  }, [isAnyAvalancheNetwork, selectedChainId, tokenList]);
 
   const selectedToken = filteredTokenList.find(
     (token) => getUniqueTokenId(token) === tokenId,
@@ -135,16 +136,14 @@ function TokenSelectRaw({
 
   // Get chain names for chips
   const chainOptions = useMemo(() => {
-    const options: Array<{
-      chainId: number | 'avalanche';
-      chainName: string;
-    }> = [];
+    const options: Array<ChainOption> = [];
 
     // Add Avalanche option if there are Avalanche networks
     if (hasAvalancheNetworks) {
       options.push({
         chainId: 'avalanche',
         chainName: 'Avalanche',
+        logoUri: getNetwork(ChainId.AVALANCHE_MAINNET_ID)?.logoUri ?? '',
       });
     }
 
@@ -154,6 +153,7 @@ function TokenSelectRaw({
       options.push({
         chainId,
         chainName: network?.chainName ?? `Chain ${chainId}`,
+        logoUri: network?.logoUri,
       });
     });
 

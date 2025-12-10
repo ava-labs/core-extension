@@ -1,13 +1,11 @@
 import { Avatar, Button, Stack, styled } from '@avalabs/k2-alpine';
-import { ChainId } from '@avalabs/core-chains-sdk';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useNetworkContext } from '@core/ui';
-
-type ChainOption = {
+export type ChainOption = {
   chainId: number | 'avalanche';
   chainName: string;
+  logoUri?: string;
 };
 
 type ChainFilterChipsProps = {
@@ -60,12 +58,6 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
   onChainSelect,
 }) => {
   const { t } = useTranslation();
-  const { getNetwork } = useNetworkContext();
-
-  // Get Avalanche C-Chain network for the main logo (for c-x-p merged network)
-  const avalancheCChain =
-    getNetwork(ChainId.AVALANCHE_MAINNET_ID) ||
-    getNetwork(ChainId.AVALANCHE_TESTNET_ID);
 
   const renderChainLogo = (
     chainId: number | 'avalanche',
@@ -73,15 +65,18 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
   ) => {
     // Special handling for Avalanche (merged networks - c-x-p)
     if (chainId === 'avalanche') {
-      const mainLogo = avalancheCChain?.logoUri;
+      const mainLogo = chainOptions.find(
+        (option) => option.chainId === 'avalanche',
+      )?.logoUri;
       if (!mainLogo) {
         return null;
       }
       return <ChainLogo src={mainLogo} alt={chainName} variant="circular" />;
     }
 
-    const network = getNetwork(chainId);
-    const logoUri = network?.logoUri;
+    const logoUri = chainOptions.find(
+      (option) => option.chainId === chainId,
+    )?.logoUri;
 
     if (!logoUri) {
       return null;

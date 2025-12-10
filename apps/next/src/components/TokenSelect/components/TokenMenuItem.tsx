@@ -23,7 +23,7 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const truncatedAddress =
     token.type !== TokenType.NATIVE && 'address' in token && token.address
-      ? truncateAddress(token.address, 5)
+      ? truncateAddress(token.address, 5, 4)
       : null;
 
   return (
