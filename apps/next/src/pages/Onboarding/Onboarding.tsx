@@ -81,7 +81,7 @@ export function Onboarding() {
         alignItems="center"
         position="relative"
       >
-        <Box position="fixed" top={32} right={32}>
+        <Box position="fixed" top={28} right={28}>
           <LanguageSelector
             dataTestId="onboarding-language-selector"
             onSelectEventName="OnboardingLanguageChanged"

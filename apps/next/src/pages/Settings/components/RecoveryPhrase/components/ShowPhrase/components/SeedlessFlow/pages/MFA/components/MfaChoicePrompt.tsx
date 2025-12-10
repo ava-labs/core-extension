@@ -48,7 +48,12 @@ export const MfaChoicePrompt: FC<MfaChoicePromptProps> = ({
         )}
       </FullscreenModalDescription>
       <FullscreenModalContent>
-        <CardMenu divider={<Divider variant="inset" sx={{ mr: 3 }} />}>
+        <CardMenu
+          sx={{ padding: 0, overflow: 'hidden' }}
+          divider={
+            <Divider variant="inset" sx={{ mr: 3, my: '0 !important' }} />
+          }
+        >
           {mfaChoice.availableMethods.map((method) => (
             <CardMenuItem
               key={method.type === 'fido' ? method.id : 'authenticator'}
