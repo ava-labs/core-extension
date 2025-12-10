@@ -30,8 +30,17 @@ import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
 import { hex } from '@scure/base';
+import { calculateTotalAtomicFundsForAccounts } from '@core/common';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 jest.mock('./helpers/getAccountsWithActivity');
+jest.mock('@core/common', () => {
+  const actual = jest.requireActual('@core/common');
+  return {
+    ...actual,
+    calculateTotalAtomicFundsForAccounts: jest.fn(),
+  };
+});
 
 describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts', () => {
   const secretsService: jest.Mocked<SecretsService> = {
@@ -59,6 +68,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   const balanceAggregatorService: jest.Mocked<BalanceAggregatorService> = {
     getBalancesForNetworks: jest.fn(),
     getPriceChangesData: jest.fn(),
+    atomicBalances: {},
   } as any;
 
   const FAVORITE_NETWORKS = [
@@ -310,6 +320,9 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   beforeEach(() => {
     jest.resetAllMocks();
 
+    jest
+      .mocked(calculateTotalAtomicFundsForAccounts)
+      .mockImplementation(() => new TokenUnit('0', 18, 'N/A'));
     networkService.getEnabledNetworks.mockResolvedValue(FAVORITE_NETWORKS);
     networkService.getNetwork.mockImplementation(
       (chainId) => MAINNETS[chainId] ?? TESTNETS[chainId],

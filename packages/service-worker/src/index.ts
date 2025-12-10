@@ -21,6 +21,7 @@ export type { StoreAnalyticsIdsHandler } from './services/analytics/handlers/sto
 export type { GetBalancesHandler } from './services/balances/handlers/getBalances';
 export type { GetNativeBalanceHandler } from './services/balances/handlers/getNativeBalance';
 export type { GetTokenPriceHandler } from './services/balances/handlers/getTokenPrice';
+export type { GetTokenPriceByAddressHandler } from './services/balances/handlers/getTokenPriceByAddress';
 export type { GetTotalBalanceForWalletHandler } from './services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 export type { RefreshNftMetadataHandler } from './services/balances/handlers/refreshNftMetadata';
 export type { StartBalancesPollingHandler } from './services/balances/handlers/startBalancesPolling';
@@ -63,6 +64,7 @@ export type { GetNavigationHistoryHandler } from './services/navigationHistory/h
 export type { GetNavigationHistoryDataHandler } from './services/navigationHistory/handlers/getNavigationHistoryData';
 export type { SetNavigationHistoryHandler } from './services/navigationHistory/handlers/setNavigationHistory';
 export type { SetNavigationHistoryDataHandler } from './services/navigationHistory/handlers/setNavigationHistoryData';
+export type { RequestNavigationHandler } from './services/navigationHistory/handlers/requestNavigation';
 export type { AddFavoriteNetworkHandler } from './services/network/handlers/addFavoriteNetwork';
 export type { EnableNetworkHandler as AddEnabledNetworkHandler } from './services/network/handlers/enableNetwork';
 export type { GetNetworksStateHandler } from './services/network/handlers/getNetworkState';
@@ -78,6 +80,7 @@ export type { GetNotificationSubscriptions } from './services/notifications/hand
 export type { SubscribeToNotification } from './services/notifications/handlers/subscribe';
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';
 export type { GetIsOnboardedHandler } from './services/onboarding/handlers/getIsOnBoarded';
+export type { OpenExtensionPopupWindowHandler } from './services/onboarding/handlers/openExtensionPopupWindow';
 export type { KeystoneOnboardingHandler } from './services/onboarding/handlers/keystoneOnboardingHandler';
 export type { KeystoneOnboardingHandlerNew } from './services/onboarding/handlers/keystoneOnboardingHandlerNew';
 export type { LedgerOnboardingHandler } from './services/onboarding/handlers/ledgerOnboardingHandler';

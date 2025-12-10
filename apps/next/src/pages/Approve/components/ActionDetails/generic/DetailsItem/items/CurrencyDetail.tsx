@@ -2,7 +2,7 @@ import { CurrencyItem } from '@avalabs/vm-module-types';
 import { Stack, Typography } from '@avalabs/k2-alpine';
 
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { useBalancesContext, useSettingsContext } from '@core/ui';
+import { useSettingsContext, useTokenPrice } from '@core/ui';
 
 import { TxDetailsRow } from './DetailRow';
 
@@ -12,12 +12,11 @@ type CurrencyDetailProps = {
 };
 
 export const CurrencyDetail = ({ item, customLabel }: CurrencyDetailProps) => {
-  const { getTokenPrice } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
   const { label, symbol, maxDecimals, value } = item;
 
   const token = new TokenUnit(value, maxDecimals, symbol);
-  const price = getTokenPrice(symbol);
+  const price = useTokenPrice(symbol);
 
   return (
     <TxDetailsRow label={customLabel ?? label}>

@@ -33,7 +33,7 @@ export const FullscreenModalHeader = ({
           sx={{ position: 'absolute', left: '-8px' }}
           onClick={onBackHandler ?? onBack}
         >
-          <FiArrowLeft />
+          <FiArrowLeft size={24} />
         </IconButton>
       )}
       {total > 1 && (

@@ -1,5 +1,6 @@
 import {
   getUniqueTokenIdGeneric,
+  getUniqueTokenId,
   TrendingToken,
   TrendingTokensNetwork,
 } from '@core/types';
@@ -14,6 +15,7 @@ import { useHistory } from 'react-router-dom';
 import { getSwapPath } from '@/config/routes';
 import { TokenType } from '@avalabs/vm-module-types';
 import { ChainId } from '@avalabs/core-chains-sdk';
+import { useSwapTokens } from '@/pages/Swap/hooks';
 
 type TokenCardProps = {
   token: TrendingToken;
@@ -35,6 +37,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const { currency } = useSettingsContext();
   const { t } = useTranslation();
   const { push } = useHistory();
+  const { targetTokens } = useSwapTokens();
 
   const [showBuyButton, setShowBuyButton] = useState(false);
 
@@ -56,13 +59,29 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       : downIcon;
 
   const uniqueTokenId = useMemo(() => {
+    // Normalize symbol and address to lowercase for ERC20 tokens to match getUniqueTokenId behavior
+    // getUniqueTokenId lowercases symbols for EVM fungible tokens (ERC20)
+    const isErc20 = !token.isNative;
+    const normalizedSymbol = isErc20
+      ? token.symbol.toLowerCase()
+      : token.symbol;
+    const normalizedAddress = isErc20
+      ? token.address?.toLowerCase()
+      : token.address;
+
     return getUniqueTokenIdGeneric({
-      type: token.isNative ? TokenType.NATIVE : TokenType.ERC20,
-      symbol: token.symbol,
-      address: token.isNative ? undefined : token.address,
+      type: isErc20 ? TokenType.ERC20 : TokenType.NATIVE,
+      symbol: normalizedSymbol,
+      address: token.isNative ? undefined : normalizedAddress,
       coreChainId: getCoreChainId(network),
     });
   }, [token, network]);
+
+  const isBuyable = useMemo(() => {
+    return targetTokens.some(
+      (targetToken) => getUniqueTokenId(targetToken) === uniqueTokenId,
+    );
+  }, [targetTokens, uniqueTokenId]);
 
   return (
     <Stack
@@ -71,8 +90,8 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       alignItems="center"
       justifyContent="space-between"
       pt={1}
-      onMouseEnter={() => setShowBuyButton(true)}
-      onMouseLeave={() => setShowBuyButton(false)}
+      onMouseEnter={() => isBuyable && setShowBuyButton(true)}
+      onMouseLeave={() => isBuyable && setShowBuyButton(false)}
     >
       {/* Left side - Avatar */}
       <Box position="relative" sx={{ transform: 'translateY(-4px)' }}>

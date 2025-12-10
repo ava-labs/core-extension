@@ -17,6 +17,8 @@ import {
 import { useOpenApp } from '@/hooks/useOpenApp';
 
 import { NameYourWalletScreen } from '../../common-screens';
+import { isAvalancheExtendedKey } from '@core/common';
+import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
 
 type ImportPhase = 'connect-avax' | 'prompt-solana' | 'connect-solana' | 'name';
 
@@ -96,16 +98,23 @@ export const ImportLedgerFlowContent = () => {
     [capture],
   );
 
+  const numberOfAccounts = extPublicKeys.filter(isAvalancheExtendedKey).length;
+
   const onSave = useCallback(
     async (name: string) => {
       try {
-        await importLedger({
+        const imported = await importLedger({
           name,
           addressPublicKeys: publicKeys,
           extendedPublicKeys: extPublicKeys,
         });
-        openApp();
-        window.close();
+        await openApp({
+          closeWindow: true,
+          navigateTo: {
+            pathname: `/wallet/${imported.id}`,
+            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
+          },
+        });
       } catch (err) {
         toast.error(t('Unknown error has occurred. Please try again later.'));
         console.error(err);
@@ -144,6 +153,7 @@ export const ImportLedgerFlowContent = () => {
       </Route>
       <Route path={`${BASE_PATH}/connect-solana`}>
         <ConnectSolana
+          numberOfKeys={numberOfAccounts}
           connectorCallbacks={solanaConnectorCallbacks}
           onNext={({ addressPublicKeys }) => {
             setPublicKeys((prev) => [

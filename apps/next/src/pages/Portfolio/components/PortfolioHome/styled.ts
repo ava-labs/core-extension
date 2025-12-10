@@ -1,4 +1,10 @@
-import { alpha, Stack, styled } from '@avalabs/k2-alpine';
+import {
+  alpha,
+  Stack,
+  styled,
+  TabBar as K2_TabBar,
+  tabClasses,
+} from '@avalabs/k2-alpine';
 
 export const TabsContainer = styled(Stack)(({ theme }) => ({
   position: 'sticky',
@@ -9,5 +15,13 @@ export const TabsContainer = styled(Stack)(({ theme }) => ({
 
   '> div': {
     background: 'unset',
+    paddingBottom: '13px',
+  },
+}));
+
+export const TabBar = styled(K2_TabBar)(() => ({
+  maxHeight: '32px',
+  [`& .${tabClasses.root}`]: {
+    maxHeight: '32px',
   },
 }));

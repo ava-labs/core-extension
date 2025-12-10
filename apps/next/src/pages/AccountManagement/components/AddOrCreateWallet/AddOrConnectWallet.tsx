@@ -53,6 +53,7 @@ export const AddOrConnectWallet: FC = () => {
             onClick={() => {
               capture('AddWalletWithSeedphrase_Clicked');
               openFullscreenTab('import-wallet/seedphrase');
+              window.close();
             }}
           />
           <Divider />
@@ -63,6 +64,7 @@ export const AddOrConnectWallet: FC = () => {
             onClick={() => {
               capture('AddWalletWithLedger_Clicked');
               openFullscreenTab('import-wallet/ledger');
+              window.close();
             }}
           />
           <Divider />

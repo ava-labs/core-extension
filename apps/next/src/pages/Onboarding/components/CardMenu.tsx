@@ -62,6 +62,7 @@ export const CardMenuItem: FC<CardMenuItemProps> = ({
       onClick={onClick}
       data-testid={dataTestId}
       sx={{
+        paddingY: theme.spacing(1),
         gap: theme.spacing(size === 'small' ? 1.5 : 3),
         paddingX: theme.spacing(size === 'small' ? 1.5 : 2.5),
       }}
