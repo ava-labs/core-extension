@@ -17,6 +17,7 @@ import {
   StyledTokenSummary,
 } from './styled';
 import { useBalancesContext, useNetworkContext } from '@core/ui';
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 export const TokenDetails = () => {
   const { push } = useHistory();
@@ -71,9 +72,13 @@ export const TokenDetails = () => {
                 gap={0.5}
                 color="text.primary"
               >
-                <Typography variant="h2">
-                  {tokenBalance.balanceDisplayValue}
-                </Typography>
+                <CollapsedTokenAmount
+                  amount={tokenBalance.balanceDisplayValue}
+                  showApproximationSign={false}
+                  showTooltip={false}
+                  regularProps={{ variant: 'h2' }}
+                  overlineProps={{ variant: 'caption2' }}
+                />
                 <Typography variant="h7">{token.symbol}</Typography>
               </Stack>
               <Stack
