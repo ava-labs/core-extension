@@ -1,24 +1,26 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useEffect, useRef } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
 import { useLiveBalance } from '@core/ui';
+import { useTranslation } from 'react-i18next';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
+import { SimulationAlertBox } from '@/components/SimulationAlertBox';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 
 import {
   ActionDetails,
   ActionDrawer,
   ApprovalScreenTitle,
-  Styled,
+  HardwareApprovalOverlay,
   MaliciousTxOverlay,
   NoteWarning,
-  HardwareApprovalOverlay,
+  Styled,
 } from './components';
 import { hasNoteWarning, hasOverlayWarning } from './lib';
-import { useGasless, useApprovalHelpers } from './hooks';
+import { useApprovalHelpers, useGasless } from './hooks';
 import {
   ActionError,
   CancelActionFn,
@@ -43,6 +45,8 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
   cancelHandler,
   error,
 }) => {
+  const { t } = useTranslation();
+  const gaslessUnavailable = useRef<boolean>(false);
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
@@ -77,9 +81,17 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
       onReject: cancel,
     });
 
+  useEffect(() => {
+    if (gaslessPhase === GaslessPhase.ERROR) {
+      gaslessUnavailable.current = true;
+    }
+  }, [gaslessPhase]);
+
   const isProcessing =
     action.status === ActionStatus.SUBMITTING ||
     gaslessPhase === GaslessPhase.FUNDING_IN_PROGRESS;
+  const showGaslessErrorMessage =
+    gaslessPhase === GaslessPhase.ERROR || gaslessUnavailable.current;
 
   return (
     <Styled.ApprovalScreenPage>
@@ -87,6 +99,17 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
         <ApprovalScreenTitle title={action.displayData.title} />
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
+        )}
+        {showGaslessErrorMessage && (
+          <Stack px={2} mt={1.5} mb={1.5}>
+            <SimulationAlertBox
+              textLines={[
+                t(
+                  'Core was unable to fund the gas. You will need to pay the fee for this transaction.',
+                ),
+              ]}
+            />
+          </Stack>
         )}
         <Stack flexGrow={1} px={2}>
           <ActionDetails
