@@ -47,6 +47,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
 }) => {
   const { t } = useTranslation();
   const gaslessUnavailable = useRef<boolean>(false);
+
   useLiveBalance(POLLED_BALANCES);
 
   const { isUsingHardwareWallet, deviceType } = useIsUsingHardwareWallet();
@@ -56,16 +57,14 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
   });
 
   const approve = useCallback(async () => {
-    tryFunding(() => {
-      updateAction(
-        {
-          status: ActionStatus.SUBMITTING,
-          id: action.actionId,
-        },
-        isUsingHardwareWallet,
-      );
-    });
-  }, [updateAction, action.actionId, tryFunding, isUsingHardwareWallet]);
+    updateAction(
+      {
+        status: ActionStatus.SUBMITTING,
+        id: action.actionId,
+      },
+      isUsingHardwareWallet,
+    );
+  }, [updateAction, action.actionId, isUsingHardwareWallet]);
 
   const cancel = useCallback(() => {
     // Reset the gasless state
@@ -121,7 +120,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
         </Stack>
         <ActionDrawer
           open
-          approve={handleApproval}
+          approve={() => tryFunding(handleApproval)}
           reject={handleRejection}
           isProcessing={isProcessing}
           withConfirmationSwitch={hasOverlayWarning(action)}
