@@ -34,21 +34,34 @@ export const useBridgeFormStateHandler = () => {
       !amountBigInt ||
       minTransferAmount == null ||
       !sourceToken ||
-      hasInsufficientBalance
+      hasInsufficientBalance ||
+      amountAfterFee === undefined
     ) {
       return '';
     }
 
     if (
       amountBigInt < minTransferAmount ||
-      minTransferAmount > sourceToken.balance
+      minTransferAmount > sourceToken.balance ||
+      amountAfterFee <= 0n
     ) {
-      return t('Minimum transfer amount is {{limit}}', {
-        limit: bigIntToString(minTransferAmount, sourceToken.decimals),
-      });
+      return t(
+        'The transfer amount needs to be greater than {{limit}}\u00A0{{symbol}}',
+        {
+          limit: bigIntToString(minTransferAmount, sourceToken.decimals),
+          symbol: sourceToken.symbol,
+        },
+      );
     }
     return '';
-  }, [amountBigInt, hasInsufficientBalance, minTransferAmount, sourceToken, t]);
+  }, [
+    amountBigInt,
+    hasInsufficientBalance,
+    minTransferAmount,
+    sourceToken,
+    t,
+    amountAfterFee,
+  ]);
 
   const maxAmountError = useMemo(() => {
     if (
@@ -64,7 +77,7 @@ export const useBridgeFormStateHandler = () => {
 
     const maxAvailable = sourceToken.balance - requiredNetworkFee;
     if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
-      return t('Maximum available after fees is {{balance}} {{symbol}}', {
+      return t('Maximum available after fees is {{balance}}\u00A0{{symbol}}', {
         balance: bigIntToString(maxAvailable, sourceToken.decimals),
         symbol: sourceToken.symbol,
       });
@@ -85,8 +98,7 @@ export const useBridgeFormStateHandler = () => {
   const isAmountCorrect =
     canExecuteBridge && minTransferAmount && !minAmountError && !maxAmountError;
 
-  const isReceiveAmountCorrect =
-    typeof amountAfterFee === 'bigint' && amountAfterFee >= 0n;
+  const isReceiveAmountCorrect = typeof amountAfterFee === 'bigint';
 
   const isBridgeButtonDisabled = Boolean(
     !canExecuteBridge ||
