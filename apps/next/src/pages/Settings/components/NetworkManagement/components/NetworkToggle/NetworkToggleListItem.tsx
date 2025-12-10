@@ -41,13 +41,15 @@ export const NetworkToggleListItem = ({
         />
       </ListItemIcon>
       <ListItemText primary={network.chainName} />
-      <Switch
-        size="small"
-        checked={isEnabled}
-        disabled={isDefault}
-        onChange={onToggle}
-        onClick={(e) => e.stopPropagation()}
-      />
+      {isDefault ? null : (
+        <Switch
+          size="small"
+          checked={isEnabled}
+          disabled={isDefault}
+          onChange={onToggle}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
     </ListItem>
   );
 };

@@ -14,13 +14,14 @@ import { useMemo } from 'react';
 import { useSettingsContext } from '@core/ui';
 import { ClickableStack } from '../../PortfolioHome/components/AccountInfo/styled';
 import { useHistory } from 'react-router-dom';
+import { TruncatedText } from '@/components/Header/components/styledComponents';
 
 type Props = {
   walletType?: SecretType;
   walletName?: string;
   isLoading: boolean;
   hasErrorOccurred: boolean;
-  totalBalanceInCurrency?: number;
+  totalBalanceInCurrency?: number | null;
   balanceChange?: number;
   percentageChange?: number;
 };
@@ -45,7 +46,7 @@ export const WalletBalance = ({
   const balanceToDisplay = useMemo(() => {
     return isLoading
       ? placeholderTotalBalance
-      : totalBalanceInCurrency !== undefined
+      : totalBalanceInCurrency !== undefined && totalBalanceInCurrency !== null
         ? currencyFormatter(totalBalanceInCurrency)
         : placeholderTotalBalance;
   }, [
@@ -68,19 +69,21 @@ export const WalletBalance = ({
           direction="row"
           alignItems="center"
           color="text.secondary"
-          sx={{ minWidth: 0 }}
+          minWidth={0}
         >
-          <Box flexShrink={0} display="flex" alignItems="center">
+          <Box flexShrink={0} display="flex" alignItems="center" mr={0.5}>
             <WalletIcon size={27} type={walletType} expanded={true} />
           </Box>
 
-          <Typography
+          <TruncatedText
             variant="h2"
             noWrap
+            lineHeight={1.2}
             sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+            showEllipsis
           >
             {walletName}
-          </Typography>
+          </TruncatedText>
           <MdUnfoldMore
             size={16}
             color={theme.palette.text.secondary}
