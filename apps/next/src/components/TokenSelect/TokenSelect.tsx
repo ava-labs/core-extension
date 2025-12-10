@@ -206,4 +206,45 @@ function TokenSelectRaw({
   );
 }
 
-export const TokenSelect = memo(TokenSelectRaw);
+// Custom comparison function to prevent rerenders when tokenList reference changes
+const areTokenListsEqual = (
+  prevProps: TokenSelectProps,
+  nextProps: TokenSelectProps,
+) => {
+  // Compare all props except tokenList
+  if (
+    prevProps.id !== nextProps.id ||
+    prevProps.tokenId !== nextProps.tokenId ||
+    prevProps.query !== nextProps.query ||
+    prevProps.hint !== nextProps.hint ||
+    prevProps.disabled !== nextProps.disabled
+  ) {
+    return false;
+  }
+
+  // Compare tokenList by token IDs rather than reference
+  if (prevProps.tokenList.length !== nextProps.tokenList.length) {
+    return false;
+  }
+
+  const prevTokenIds = new Set(
+    prevProps.tokenList.map((token) => getUniqueTokenId(token)),
+  );
+  const nextTokenIds = new Set(
+    nextProps.tokenList.map((token) => getUniqueTokenId(token)),
+  );
+
+  if (prevTokenIds.size !== nextTokenIds.size) {
+    return false;
+  }
+
+  for (const id of prevTokenIds) {
+    if (!nextTokenIds.has(id)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const TokenSelect = memo(TokenSelectRaw, areTokenListsEqual);
