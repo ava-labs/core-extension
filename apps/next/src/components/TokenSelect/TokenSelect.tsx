@@ -1,12 +1,17 @@
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
+import {
+  FungibleTokenBalance,
+  getUniqueTokenId,
+  isPChainToken,
+  isXChainToken,
+} from '@core/types';
 import { useNetworkContext } from '@core/ui';
 import {
   isAvalancheChainId,
-  isPchainNetwork,
-  isXchainNetwork,
+  isPchainNetworkId,
+  isXchainNetworkId,
 } from '@core/common';
 
 import { SearchableSelect } from '../SearchableSelect';
@@ -18,6 +23,7 @@ import {
   TokenSelectTrigger,
 } from './components';
 import { compareTokens, searchTokens } from './lib/utils';
+import { isAvaxToken } from '@/hooks/useTokensForAccount';
 
 type TokenSelectProps = {
   id: string;
@@ -47,17 +53,13 @@ function TokenSelectRaw({
   >(null);
 
   // Helper to check if a chain ID is any Avalanche network (C, X, or P)
-  const isAnyAvalancheNetwork = useCallback(
-    (chainId: number): boolean => {
-      const network = getNetwork(chainId);
-      return (
-        isAvalancheChainId(chainId) ||
-        isXchainNetwork(network) ||
-        isPchainNetwork(network)
-      );
-    },
-    [getNetwork],
-  );
+  const isAnyAvalancheNetwork = useCallback((chainId: number): boolean => {
+    const isAvalancheNetwork =
+      isAvalancheChainId(chainId) ||
+      isPchainNetworkId(chainId) ||
+      isXchainNetworkId(chainId);
+    return isAvalancheNetwork;
+  }, []);
 
   // Extract unique chain IDs from token list and group Avalanche networks
   const { availableChainIds, hasAvalancheNetworks } = useMemo(() => {
@@ -85,17 +87,46 @@ function TokenSelectRaw({
     };
   }, [tokenList, isAnyAvalancheNetwork]);
 
-  // Filter token list based on selected chain
+  // Filter token list based on selected chain and sort by balance
   const filteredTokenList = useMemo(() => {
+    let filtered: FungibleTokenBalance[];
+
     if (selectedChainId === null) {
-      return tokenList;
-    }
-    if (selectedChainId === 'avalanche') {
-      return tokenList.filter((token) =>
+      filtered = tokenList;
+    } else if (selectedChainId === 'avalanche') {
+      filtered = tokenList.filter((token) =>
         isAnyAvalancheNetwork(token.coreChainId),
       );
+    } else {
+      filtered = tokenList.filter(
+        (token) => token.coreChainId === selectedChainId,
+      );
     }
-    return tokenList.filter((token) => token.coreChainId === selectedChainId);
+
+    // Sort by balance in descending order (highest balance first)
+    return [...filtered].sort((a, b) => {
+      const isAvaxA = isAvaxToken(a);
+      const isAvaxB = isAvaxToken(b);
+
+      // AVAX tokens always come first
+      if (isAvaxA && !isAvaxB) return -1;
+      if (!isAvaxA && isAvaxB) return 1;
+
+      // Get balance using the same logic as getAvailableBalance
+      const balanceA =
+        isPChainToken(a) || isXChainToken(a)
+          ? (a.available ?? a.balance)
+          : a.balance;
+      const balanceB =
+        isPChainToken(b) || isXChainToken(b)
+          ? (b.available ?? b.balance)
+          : b.balance;
+
+      // Sort in descending order (highest balance first)
+      if (balanceA > balanceB) return -1;
+      if (balanceA < balanceB) return 1;
+      return 0;
+    });
   }, [tokenList, selectedChainId, isAnyAvalancheNetwork]);
 
   const selectedToken = filteredTokenList.find(
