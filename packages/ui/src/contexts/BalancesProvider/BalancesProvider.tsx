@@ -154,9 +154,14 @@ function balancesReducer(
         return { ...state };
       }
 
+      // Only set loading to false when we actually have token data
+      const hasTokenData =
+        action.payload.balances?.tokens &&
+        Object.keys(action.payload.balances.tokens).length > 0;
+
       return {
         ...state,
-        loading: false,
+        loading: hasTokenData ? false : state.loading,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         tokens: merge({}, state.tokens, action.payload.balances?.tokens),
