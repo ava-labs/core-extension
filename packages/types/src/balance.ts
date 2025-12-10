@@ -10,6 +10,7 @@ import {
 } from '@avalabs/vm-module-types';
 
 import { EnsureDefined } from './util-types';
+import { isNil } from 'lodash';
 
 export const BALANCES_CACHE_KEY = 'balances-service-cache';
 
@@ -271,7 +272,10 @@ export const getUniqueTokenIdGeneric = ({
   address?: string;
   coreChainId: number;
 }) => {
-  return `${type}:${symbol}:${address ?? '-'}:${coreChainId}`;
+  // For native tokens, use symbol; for non-native tokens, use address
+  const identifier =
+    type === TokenType.NATIVE || isNil(address) ? symbol : address;
+  return `${type}:${identifier}:${coreChainId}`;
 };
 
 export const isNativeToken = (

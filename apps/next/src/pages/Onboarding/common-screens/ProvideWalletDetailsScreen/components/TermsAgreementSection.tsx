@@ -1,9 +1,8 @@
 import { Trans } from 'react-i18next';
-import { Checkbox, combineSx, StackProps } from '@avalabs/k2-alpine';
+import { Checkbox, combineSx, Stack, StackProps } from '@avalabs/k2-alpine';
 import { FC, useState } from 'react';
 
 import {
-  Section,
   SectionLabel,
   SectionRow,
 } from '@/pages/Onboarding/components/Section';
@@ -21,14 +20,14 @@ export const TermsAgreementSection: FC<Props> = ({
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
   return (
-    <Section sx={combineSx({ py: 1.5 }, sx)} {...props}>
+    <Stack sx={combineSx(sx)} {...props}>
       <SectionRow
         component="label"
         sx={{
           cursor: 'pointer',
           textAlign: 'center',
           justifyContent: 'center',
-          gap: 0,
+          gap: 0.5,
           py: 0,
         }}
       >
@@ -55,6 +54,6 @@ export const TermsAgreementSection: FC<Props> = ({
           />
         </SectionLabel>
       </SectionRow>
-    </Section>
+    </Stack>
   );
 };
