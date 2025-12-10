@@ -1,21 +1,19 @@
-import { Account, AccountType, SecretType } from '@core/types';
-import { LedgerAppType, useAccountsContext, useWalletContext } from '@core/ui';
-import { FC, Fragment } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AccountListItem } from './AccountListItem';
 import { WalletCard } from '@/components/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
+import { Account, AccountType, SecretType } from '@core/types';
+import { useAccountsContext, useWalletContext } from '@core/ui';
+import { FC, Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AddAccountButton } from '../../AddOrCreateWallet';
+import { AccountListItem } from './AccountListItem';
 import * as Styled from './Styled';
-import { useLedgerContext } from '@core/ui';
-import { AddAccountButton } from '../../AddOrCreateWallet/AddAccountButton';
 
 export const WalletList: FC = () => {
   const { t } = useTranslation();
-  const { wallets, isLedgerWallet } = useWalletContext();
+  const { wallets } = useWalletContext();
   const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
   const importedAccounts = Object.values(accounts.imported);
   const renderAccount = getAccountRenderer(isActiveAccount, selectAccount);
-  const { hasLedgerTransport, appType } = useLedgerContext();
 
   return (
     <>
@@ -27,9 +25,6 @@ export const WalletList: FC = () => {
 
         const isActiveWallet = walletAccounts.some(isActiveAccount);
         const isPrimaryAccount = accounts.active?.type === AccountType.PRIMARY;
-        const canAddNewAccount =
-          !isLedgerWallet ||
-          (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
 
         return (
           <WalletCard
@@ -75,9 +70,7 @@ export const WalletList: FC = () => {
                 </Fragment>
               );
             })}
-            {isActiveWallet && isPrimaryAccount && canAddNewAccount && (
-              <AddAccountButton />
-            )}
+            {isActiveWallet && isPrimaryAccount && <AddAccountButton />}
           </WalletCard>
         );
       })}
