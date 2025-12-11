@@ -31,6 +31,7 @@ import { AddressDetail } from './components/ActionDetails/generic/DetailsItem/it
 import { getAddressByVMType } from '@core/common';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 import { useApprovalHelpers } from './hooks';
+import { sanitizeDappUrl } from './ApproveDappConnection/lib';
 
 type MessageApprovalScreenProps = {
   action: MessageSigningRequest;
@@ -119,11 +120,11 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
             />
             <Typography variant="body3">
               <Trans
-                i18nKey={`<b>{{dappName}}</b> is requesting to sign the following message`}
+                i18nKey={`<b>{{dappUrl}}</b> is requesting to sign the following message`}
                 components={{
                   b: <b />,
                 }}
-                values={{ dappName: action.dappInfo.name }}
+                values={{ dappUrl: sanitizeDappUrl(action.dappInfo.url) }}
               />
             </Typography>
           </Stack>
