@@ -1,4 +1,4 @@
-import { FC, useCallback } from 'react';
+import { FC, useCallback, useEffect } from 'react';
 import { Stack, Typography } from '@avalabs/k2-alpine';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -7,7 +7,7 @@ import { Account, Action, ActionStatus, Permissions } from '@core/types';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { useDappScansCache } from '@/hooks/useDappScansCache';
 
-import { ActionDrawer, NoteWarning } from '../../components';
+import { ActionDrawer, LoadingScreen, NoteWarning } from '../../components';
 import { ActionError, CancelActionFn, UpdateActionFn } from '../../types';
 
 import { sanitizeDappUrl } from '../lib';
@@ -72,6 +72,16 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
     action.displayData.isMalicious,
     storeMaliciousDappDomain,
   ]);
+
+  useEffect(() => {
+    if (action.displayData.canSkipApproval) {
+      onApproveClicked();
+    }
+  }, [action.displayData.canSkipApproval, onApproveClicked]);
+
+  if (action.displayData.canSkipApproval) {
+    return <LoadingScreen />;
+  }
 
   return (
     <NoScrollStack mt={5}>

@@ -64,7 +64,6 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
           result,
         };
       } catch (error) {
-        console.log('error', error);
         return {
           ...request,
           error,
@@ -78,6 +77,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
       {
         ...request,
         displayData: {
+          canSkipApproval: withoutApproval,
           addressVM: NetworkVMType.EVM,
           isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app

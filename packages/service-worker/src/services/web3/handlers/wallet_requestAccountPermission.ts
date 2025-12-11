@@ -140,6 +140,7 @@ export class RequestAccountPermissionHandler
         scope,
         type: ActionType.Single,
         displayData: {
+          canSkipApproval: withoutApproval,
           addressVM: request.params?.addressVM || NetworkVMType.EVM, // Default to EVM
           isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app

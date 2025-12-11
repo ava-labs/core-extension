@@ -101,6 +101,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
       {
         ...request,
         displayData: {
+          canSkipApproval: withoutApproval,
           addressVM: NetworkVMType.EVM,
           isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app
