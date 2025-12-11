@@ -1,4 +1,9 @@
-import { DisplayData, RpcMethod } from '@avalabs/vm-module-types';
+import {
+  DisplayData,
+  RpcMethod,
+  TokenDiff,
+  TokenType,
+} from '@avalabs/vm-module-types';
 
 import {
   isBitcoinNetwork,
@@ -13,7 +18,10 @@ import {
 } from '@core/ui';
 import { Action, NetworkWithCaipId } from '@core/types';
 
-import { isMessageApproval } from '@/pages/Approve/types';
+import {
+  isMessageApproval,
+  isTransactionApproval,
+} from '@/pages/Approve/types';
 import { useLedgerPolicyRegistrationState } from '@/contexts';
 
 import { LedgerApprovalState } from './types';
@@ -24,6 +32,31 @@ type UseLedgerApprovalState = (
   action: Action<DisplayData>,
 ) => LedgerApprovalState;
 
+const isErc20TokenDiff = (tokenDiff: TokenDiff) => {
+  return (
+    tokenDiff.token &&
+    'type' in tokenDiff.token &&
+    tokenDiff.token.type === TokenType.ERC20
+  );
+};
+
+const requiresBlindSigning = (
+  network: NetworkWithCaipId,
+  action: Action<DisplayData>,
+) => {
+  if (!isEthereumNetwork(network) || !isTransactionApproval(action)) {
+    return false;
+  }
+
+  // Ethereum app often requires blind signing for ERC20 token transfers
+  return (
+    action.displayData.balanceChange?.outs.some(isErc20TokenDiff) ||
+    action.displayData.balanceChange?.ins.some(isErc20TokenDiff) ||
+    action.displayData.tokenApprovals?.approvals.some(
+      ({ token }) => token.type === TokenType.ERC20,
+    )
+  );
+};
 export const useLedgerApprovalState: UseLedgerApprovalState = (
   network,
   action,
@@ -34,14 +67,19 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     appType,
     avaxAppVersion,
     refreshActiveApp,
+    appConfig,
   } = useLedgerContext();
   const { shouldRegisterBtcWalletPolicy } = useLedgerPolicyRegistrationState();
 
   const requiredApp = getRequiredApp(network, action);
+  const isBlindSigningRequired = requiresBlindSigning(network, action);
   const interalRef = useRef<NodeJS.Timeout | null>(null);
+  const isRequiredApp = appType === requiredApp;
+  const isRequiredConfig =
+    !isBlindSigningRequired || appConfig?.isBlindSigningEnabled;
 
   useEffect(() => {
-    if (appType === requiredApp && interalRef.current) {
+    if (isRequiredApp && isRequiredConfig && interalRef.current) {
       clearInterval(interalRef.current);
       return;
     }
@@ -55,7 +93,7 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
         clearInterval(interalRef.current);
       }
     };
-  }, [refreshActiveApp, requiredApp, appType]);
+  }, [refreshActiveApp, requiredApp, isRequiredApp, isRequiredConfig]);
 
   if (!wasTransportAttempted) {
     return { state: 'loading' };
@@ -83,6 +121,13 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
   if (appType === LedgerAppType.BITCOIN && shouldRegisterBtcWalletPolicy) {
     return {
       state: 'btc-policy-needed',
+    };
+  }
+
+  if (!isRequiredConfig) {
+    return {
+      state: 'blind-signing-required',
+      requiredApp,
     };
   }
 
