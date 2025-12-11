@@ -576,22 +576,31 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
     it('fetches XP balances for underived accounts with activity and do that with two batches (two different calls)', async () => {
       const xpAddress = 'ledger-2-address';
-      const underivedAddresses = [xpAddress]; // One underived account with activity
-      underivedAddresses.length = 100;
-      underivedAddresses.fill(xpAddress, 1, 100); // plus 99 more to trigger batching
+      const underivedAddresses = [
+        xpAddress,
+        ...new Array(99).fill('').map((_, index) => `${xpAddress}-${index}`),
+      ];
 
       mockAccountsWithActivity(underivedAddresses);
 
+      const buildBalanceObject = (prefix: string, balance: number) => {
+        return underivedAddresses.reduce(
+          (accumulator, address) => ({
+            ...accumulator,
+            [`${prefix}-${address}`]: {
+              ...buildBalance('AVAX', balance),
+            },
+          }),
+          {},
+        );
+      };
+
       mockBalances(true, {
         X: {
-          [`X-${xpAddress}`]: {
-            ...buildBalance('AVAX', 100),
-          },
+          ...buildBalanceObject('X', 100),
         },
         P: {
-          [`P-${xpAddress}`]: {
-            ...buildBalance('AVAX', 900),
-          },
+          ...buildBalanceObject('P', 900),
         },
       });
 
@@ -636,14 +645,21 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
       // Call 2: Fetching XP balances of underived accounts, without caching
       // expecting two calls because of batching (64+36)
-      const expectedBatch = new Array(64).fill({
-        addressPVM: `P-${xpAddress}`,
-        addressAVM: `X-${xpAddress}`,
-      });
-      const expectedBatch2 = new Array(36).fill({
-        addressPVM: `P-${xpAddress}`,
-        addressAVM: `X-${xpAddress}`,
-      });
+      const expectedBatch = [
+        {
+          addressPVM: `P-${xpAddress}`,
+          addressAVM: `X-${xpAddress}`,
+        },
+        ...new Array(63).fill('').map((_, index) => ({
+          addressPVM: `P-${xpAddress}-${index}`,
+          addressAVM: `X-${xpAddress}-${index}`,
+        })),
+      ];
+      const expectedBatch2 = new Array(36).fill('').map((_, index) => ({
+        // 63 is the offset from the previous batch
+        addressPVM: `P-${xpAddress}-${index + 63}`,
+        addressAVM: `X-${xpAddress}-${index + 63}`,
+      }));
       expect(
         balanceAggregatorService.getBalancesForNetworks,
       ).toHaveBeenNthCalledWith(
