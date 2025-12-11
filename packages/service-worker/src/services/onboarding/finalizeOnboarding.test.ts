@@ -5,7 +5,7 @@ import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
 import { addChainsToFavoriteIfNeeded } from './utils/addChainsToFavoriteIfNeeded';
-import { NETWORKS_ENABLED_BY_DEFAULT } from '../network/consts';
+import { NETWORKS_ENABLED_BY_DEFAULT } from '@core/types';
 
 jest.mock('./utils/addChainsToFavoriteIfNeeded');
 

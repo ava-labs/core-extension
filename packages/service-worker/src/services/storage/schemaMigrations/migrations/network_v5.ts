@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { Network } from '@avalabs/core-chains-sdk';
-import { NETWORKS_ENABLED_FOREVER } from '~/services/network/consts';
+import { NETWORKS_ENABLED_FOREVER } from '@core/types';
 const VERSION = 5;
 
 export const defaultEnableNetworksDeletable = [

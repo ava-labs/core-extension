@@ -16,6 +16,7 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
+  NETWORKS_ENABLED_FOREVER,
 } from '@core/types';
 import {
   AVALANCHE_XP_NETWORK,
@@ -50,7 +51,6 @@ import {
   isSyncDomain,
 } from '@core/common';
 import { isSolanaNetwork } from '@core/common';
-import { NETWORKS_ENABLED_FOREVER } from './consts';
 import { GlacierService } from '../glacier/GlacierService';
 
 @singleton()

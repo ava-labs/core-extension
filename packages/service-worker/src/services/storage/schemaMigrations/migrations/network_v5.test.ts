@@ -1,6 +1,6 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import network_v5, { defaultEnableNetworksDeletable } from './network_v5';
-import { NETWORKS_ENABLED_FOREVER } from '~/services/network/consts';
+import { NETWORKS_ENABLED_FOREVER } from '@core/types';
 
 describe('background/services/storage/schemaMigrations/migrations/network_v5', () => {
   const baseNetworkStorage = {
