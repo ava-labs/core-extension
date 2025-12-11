@@ -5,7 +5,6 @@ import { hex } from '@scure/base';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   getAllAddressesForAccounts,
-  getAvalancheXpBasePath,
   getXPChainIds,
   isNotNullish,
   calculateTotalAtomicFundsForAccounts,
@@ -74,17 +73,16 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       derivedWalletAddresses.map(removeChainPrefix);
 
     const providerXP = await this.networkService.getAvalanceProviderXP();
-    const xpPublicKeys = secrets.publicKeys.filter(
-      (key) =>
-        key.curve === 'secp256k1' &&
-        key.derivationPath.startsWith(getAvalancheXpBasePath()),
-    );
 
     const underivedAddresses = (
       await Promise.allSettled(
         derivedAccounts.flatMap(async (derivedAccount) => {
+          if (!('index' in derivedAccount)) {
+            return [];
+          }
+
           const extendedPublicKey =
-            'extendedPublicKeys' in secrets && 'index' in derivedAccount
+            'extendedPublicKeys' in secrets
               ? getExtendedPublicKey(
                   secrets.extendedPublicKeys,
                   getAvalancheExtendedKeyPath(derivedAccount.index),
@@ -98,6 +96,13 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
               this.#getAddressesActivity,
             );
           } else {
+            const xpPublicKeys = secrets.publicKeys.filter(
+              (key) =>
+                key.curve === 'secp256k1' &&
+                key.derivationPath.startsWith(
+                  `${getAvalancheExtendedKeyPath(derivedAccount.index)}/`,
+                ),
+            );
             return xpPublicKeys
               .map(({ key }) =>
                 providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
