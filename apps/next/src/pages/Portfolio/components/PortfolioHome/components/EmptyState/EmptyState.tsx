@@ -26,6 +26,6 @@ const tabConfig: Record<Exclude<TabName, 'activity'>, TabConfig> = {
 };
 
 export const EmptyState: FC<Props> = ({ tab }) => {
-  const { TabComponent } = tabConfig[tab];
+  const { TabComponent } = tabConfig[tab ?? 'assets'];
   return <TabComponent />;
 };
