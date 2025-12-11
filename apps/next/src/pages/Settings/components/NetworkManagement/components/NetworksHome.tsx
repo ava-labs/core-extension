@@ -1,13 +1,20 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabMenu } from '@/components/TabMenu';
-import { getHexAlpha, IconButton, Stack, useTheme } from '@avalabs/k2-alpine';
+import {
+  getHexAlpha,
+  IconButton,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
 import { useAnalyticsContext, useNetworkContext } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { SearchInput } from './SearchInput';
 import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
 import { Page } from '@/components/Page';
+import { isEmpty } from 'lodash';
 
 type Tab = 'all' | 'custom';
 
@@ -39,6 +46,11 @@ export const NetworksHome: FC = () => {
     });
   }, [customNetworks, filter]);
 
+  const currentNetworks = useMemo(
+    () => (activeTab === 'all' ? filteredNetworks : filteredCustomNetworks),
+    [activeTab, filteredNetworks, filteredCustomNetworks],
+  );
+
   return (
     <Page
       title={t('Networks')}
@@ -59,11 +71,29 @@ export const NetworksHome: FC = () => {
       </Stack>
 
       {/* Content Area */}
-      <NetworkToggleList
-        networks={
-          activeTab === 'all' ? filteredNetworks : filteredCustomNetworks
-        }
-      />
+      {isEmpty(currentNetworks) && filter ? (
+        <Stack
+          sx={{
+            height: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexGrow: 1,
+          }}
+        >
+          <Typography
+            variant="h1"
+            component="span"
+            sx={{ mb: 2, fontWeight: 'medium' }}
+          >
+            🌵
+          </Typography>
+          <Typography variant="body3" sx={{ fontWeight: 600 }}>
+            {t('No results found')}
+          </Typography>
+        </Stack>
+      ) : (
+        <NetworkToggleList networks={currentNetworks} />
+      )}
       {/* Sticky Bottom Tab Menu */}
       <Stack
         width="calc(100% + 24px)" // Compensate for container padding which we don't want applied here.
