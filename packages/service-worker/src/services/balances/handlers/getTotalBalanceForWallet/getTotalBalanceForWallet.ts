@@ -9,9 +9,9 @@ import {
   getXPChainIds,
   isNotNullish,
   calculateTotalAtomicFundsForAccounts,
+  getAvalancheExtendedKeyPath,
 } from '@core/common';
 import {
-  AVALANCHE_BASE_DERIVATION_PATH,
   Account,
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -73,40 +73,44 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const derivedAddressesUnprefixed =
       derivedWalletAddresses.map(removeChainPrefix);
 
-    const extendedPublicKey =
-      'extendedPublicKeys' in secrets
-        ? getExtendedPublicKey(
-            secrets.extendedPublicKeys,
-            AVALANCHE_BASE_DERIVATION_PATH,
-            'secp256k1',
-          )
-        : null;
-
+    const providerXP = await this.networkService.getAvalanceProviderXP();
     const xpPublicKeys = secrets.publicKeys.filter(
       (key) =>
         key.curve === 'secp256k1' &&
         key.derivationPath.startsWith(getAvalancheXpBasePath()),
     );
 
-    const providerXP = await this.networkService.getAvalanceProviderXP();
-    const addressesFromXpub = extendedPublicKey
-      ? await getAccountsWithActivity(
-          extendedPublicKey.key,
-          providerXP,
-          this.#getAddressesActivity,
-        )
-      : [];
-
-    const addressesFromXpPublicKeys = xpPublicKeys
-      .map(({ key }) =>
-        providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
+    const underivedAddresses = (
+      await Promise.all(
+        derivedAccounts.flatMap(async (derivedAccount) => {
+          const insideExtendedPublicKey =
+            'extendedPublicKeys' in secrets && 'index' in derivedAccount
+              ? getExtendedPublicKey(
+                  secrets.extendedPublicKeys,
+                  getAvalancheExtendedKeyPath(derivedAccount.index),
+                  'secp256k1',
+                )
+              : null;
+          if (insideExtendedPublicKey) {
+            return await getAccountsWithActivity(
+              insideExtendedPublicKey.key,
+              providerXP,
+              this.#getAddressesActivity,
+            );
+          } else {
+            return xpPublicKeys
+              .map(({ key }) =>
+                providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
+              )
+              .map(removeChainPrefix);
+          }
+        }),
       )
-      .map(removeChainPrefix);
+    ).flat();
 
-    const underivedXPChainAddresses = [
-      ...addressesFromXpub,
-      ...addressesFromXpPublicKeys,
-    ].filter((address) => !derivedAddressesUnprefixed.includes(address));
+    const underivedXPChainAddresses = Array.from(
+      new Set(underivedAddresses),
+    ).filter((address) => !derivedAddressesUnprefixed.includes(address));
 
     return underivedXPChainAddresses.map<Partial<Account>>((address) => ({
       addressPVM: `P-${address}`,
