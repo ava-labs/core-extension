@@ -1,12 +1,4 @@
-import {
-  BridgeIcon,
-  SendIcon,
-  Slide,
-  SquareButton,
-  Stack,
-  SwapIcon,
-} from '@avalabs/k2-alpine';
-import { MdAdd } from 'react-icons/md';
+import { Slide, SquareButton, Stack } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@core/ui';
 
@@ -15,8 +7,12 @@ import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
 import { getCoreWebUrl } from '@core/common/src/utils/getCoreWebUrl';
 import { openNewTab } from '@core/common/src/utils/extensionUtils';
 import { useTranslation } from 'react-i18next';
+import { SendIcon } from '@/components/SendIcon';
+import { SwapIcon } from '@/components/SwapIcon';
+import { BridgeIcon } from '@/components/BridgeIcon';
+import { BuyIcon } from '@/components/BuyIcon';
 
-const ICON_SIZE = 24;
+const ICON_SIZE = 20;
 
 export const PortfolioActionButtons = () => {
   const { push } = useHistory();
@@ -75,7 +71,7 @@ export const PortfolioActionButtons = () => {
         <Slide direction="left" in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
-            icon={<MdAdd size={ICON_SIZE} />}
+            icon={<BuyIcon size={ICON_SIZE} />}
             label={t('Buy')}
             onClick={() => {
               capture('TokenBuyClicked');

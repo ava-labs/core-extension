@@ -4,7 +4,7 @@ import { NavigationHistoryService } from '../NavigationHistoryService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NAVIGATION_HISTORY_REQUEST_NAVIGATION,
   true,
-  { path: string }
+  { pathname: string; search?: string }
 >;
 
 @injectable()
@@ -14,7 +14,10 @@ export class RequestNavigationHandler implements HandlerType {
   constructor(private navigationHistoryService: NavigationHistoryService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    this.navigationHistoryService.requestNavigation(request.params.path);
+    this.navigationHistoryService.requestNavigation(
+      request.params.pathname,
+      request.params.search,
+    );
     return {
       ...request,
       result: true,

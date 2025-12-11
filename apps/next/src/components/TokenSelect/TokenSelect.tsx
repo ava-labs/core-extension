@@ -1,27 +1,25 @@
-import { memo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 
 import { SearchableSelect } from '../SearchableSelect';
 import {
+  ChainFilterChips,
   SelectedToken,
   TokenMenuItem,
   TokenSelectPrompt,
   TokenSelectTrigger,
 } from './components';
 import { compareTokens, searchTokens } from './lib/utils';
-
-type TokenSelectProps = {
-  id: string;
-  tokenId: string;
-  tokenList: FungibleTokenBalance[];
-  onValueChange: (tokenId: string) => void;
-  query: string;
-  onQueryChange: (query: string) => void;
-  hint?: string;
-  disabled?: boolean;
-};
+import {
+  useChainIds,
+  useChainOptions,
+  useFilteredTokenList,
+  useIsAnyAvalancheNetwork,
+} from './hooks';
+import { TokenSelectProps } from './types';
+import { areTokenListsEqual } from './utils';
 
 function TokenSelectRaw({
   id,
@@ -34,16 +32,33 @@ function TokenSelectRaw({
   disabled,
 }: TokenSelectProps) {
   const { t } = useTranslation();
+  const [selectedChainId, setSelectedChainId] = useState<
+    number | 'avalanche' | null
+  >(null);
 
-  const selectedToken = tokenList.find(
-    (token) => getUniqueTokenId(token) === tokenId,
+  const isAnyAvalancheNetwork = useIsAnyAvalancheNetwork();
+  const { availableChainIds, hasAvalancheNetworks } = useChainIds(
+    tokenList,
+    isAnyAvalancheNetwork,
+  );
+  const filteredTokenList = useFilteredTokenList(
+    tokenList,
+    selectedChainId,
+    isAnyAvalancheNetwork,
+  );
+  const chainOptions = useChainOptions(availableChainIds, hasAvalancheNetworks);
+
+  const selectedToken = useMemo(
+    () =>
+      filteredTokenList.find((token) => getUniqueTokenId(token) === tokenId),
+    [filteredTokenList, tokenId],
   );
 
   return (
     <SearchableSelect<FungibleTokenBalance>
       id={id}
       disabled={disabled}
-      options={tokenList}
+      options={filteredTokenList}
       getOptionId={getUniqueTokenId}
       groupBy={() => ''} // No grouping
       getGroupLabel={() => ''}
@@ -72,8 +87,17 @@ function TokenSelectRaw({
           token={token}
         />
       )}
+      renderChips={
+        chainOptions.length > 1 ? (
+          <ChainFilterChips
+            chainOptions={chainOptions}
+            selectedChainId={selectedChainId}
+            onChainSelect={setSelectedChainId}
+          />
+        ) : undefined
+      }
     />
   );
 }
 
-export const TokenSelect = memo(TokenSelectRaw);
+export const TokenSelect = memo(TokenSelectRaw, areTokenListsEqual);

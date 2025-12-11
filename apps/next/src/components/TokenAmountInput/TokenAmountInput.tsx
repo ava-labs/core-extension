@@ -1,6 +1,13 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
-import { FC, FocusEventHandler, useCallback, useMemo } from 'react';
+import {
+  FC,
+  FocusEventHandler,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { stringToBigint } from '@core/common';
@@ -61,11 +68,31 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 }) => {
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  const previousTokenIdRef = useRef<string>(tokenId);
 
   const token = useMemo(
     () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
     [tokensForAccount, tokenId],
   );
+
+  // Auto-focus the input when a token is selected for THIS specific component
+  // Only focus when tokenId changes (not just when token exists)
+  useEffect(() => {
+    const tokenIdChanged = previousTokenIdRef.current !== tokenId;
+    if (tokenIdChanged && token && amountInputRef.current) {
+      // Use a small delay to ensure the Grow animation has started (the props seem to be not fix the issue)
+      const timeoutId = setTimeout(() => {
+        if (amountInputRef.current) {
+          amountInputRef.current.focus();
+        }
+      }, 100);
+      previousTokenIdRef.current = tokenId;
+      return () => clearTimeout(timeoutId);
+    } else if (tokenIdChanged) {
+      previousTokenIdRef.current = tokenId;
+    }
+  }, [tokenId, token]);
 
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
@@ -118,15 +145,17 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       <Stack
         id={id}
         display="grid"
-        gridTemplateColumns={token ? 'auto minmax(50%, 1fr)' : '1fr'}
-        gap={2}
+        gridTemplateColumns={token ? 'auto minmax(35%, 1fr)' : '1fr'}
+        gap={1}
         width="100%"
       >
         <TokenSelect
           id={`${id}-token-select`}
           tokenId={tokenId}
           tokenList={tokensForAccount}
-          onValueChange={onTokenChange}
+          onValueChange={(selectedTokenId) => {
+            onTokenChange(selectedTokenId);
+          }}
           query={tokenQuery}
           onQueryChange={onQueryChange}
           hint={tokenHint}
@@ -142,6 +171,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
             }
             slotProps={{
+              htmlInput: {
+                ref: amountInputRef,
+              },
               input: {
                 readOnly: isLoading,
                 onFocus,

@@ -147,7 +147,8 @@ export class WalletAddEthereumChainHandler extends DAppRequestHandler<
       const actionData = buildActionForRequest(request, {
         scope,
         displayData: {
-          network: customNetwork,
+          network: chains[requestedChainId.toString()],
+          currentNetwork: currentActiveNetwork,
         },
       });
 

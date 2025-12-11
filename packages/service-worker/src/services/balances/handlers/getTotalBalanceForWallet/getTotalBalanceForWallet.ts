@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import { injectable } from 'tsyringe';
 import { Network } from '@avalabs/glacier-sdk';
 import { hex } from '@scure/base';
@@ -7,14 +8,16 @@ import {
   getAvalancheXpBasePath,
   getXPChainIds,
   isNotNullish,
+  calculateTotalAtomicFundsForAccounts,
 } from '@core/common';
-
 import {
   AVALANCHE_BASE_DERIVATION_PATH,
   Account,
   ExtensionRequest,
   ExtensionRequestHandler,
   TotalBalanceForWallet,
+  ImportedAccount,
+  PrimaryAccount,
 } from '@core/types';
 
 import { SecretsService } from '~/services/secrets/SecretsService';
@@ -22,6 +25,8 @@ import { AccountsService } from '~/services/accounts/AccountsService';
 import { GlacierService } from '~/services/glacier/GlacierService';
 import { NetworkService } from '~/services/network/NetworkService';
 import { BalanceAggregatorService } from '~/services/balances/BalanceAggregatorService';
+import { getExtendedPublicKey } from '~/services/secrets/utils';
+import { getAvaxPrice } from '~/services/balances/handlers/helpers';
 
 import {
   GetTotalBalanceForWalletParams,
@@ -33,7 +38,6 @@ import {
   getIncludedNetworks,
   removeChainPrefix,
 } from './helpers';
-import { getExtendedPublicKey } from '~/services/secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
@@ -145,6 +149,26 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       let totalBalanceInCurrency: undefined | number = undefined;
       let totalPriceChangeValue = 0;
 
+      const { atomicBalances } = this.balanceAggregatorService;
+      // TODO: Handle when atomic funds isn't only in AVAX
+      const avaxPrice = getAvaxPrice(atomicBalances);
+      const totalAtomicFundsForActiveAccount =
+        calculateTotalAtomicFundsForAccounts(
+          atomicBalances,
+          derivedAccounts.flatMap(
+            (account: ImportedAccount | PrimaryAccount) => [
+              account?.addressCoreEth,
+              account?.addressAVM,
+              account?.addressPVM,
+            ],
+          ),
+        );
+
+      // TODO: Handle if we need to handle other tokens than AVAX
+      const atomicFundsForAccount = totalAtomicFundsForActiveAccount.toDisplay({
+        asNumber: true,
+      });
+
       for (const account of derivedAccounts) {
         const { tokens: derivedAddressesBalances } =
           await this.balanceAggregatorService.getBalancesForNetworks(
@@ -234,7 +258,9 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       return {
         ...request,
         result: {
-          totalBalanceInCurrency,
+          totalBalanceInCurrency: isNil(totalBalanceInCurrency)
+            ? undefined
+            : totalBalanceInCurrency + avaxPrice * atomicFundsForAccount,
           hasBalanceOnUnderivedAccounts,
           balanceChange,
           percentageChange,

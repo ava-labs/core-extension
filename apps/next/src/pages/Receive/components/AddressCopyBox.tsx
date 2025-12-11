@@ -1,5 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, toast, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  Stack,
+  toast,
+  Typography,
+  TypographyProps,
+} from '@avalabs/k2-alpine';
 
 import { AddressType } from '@core/types';
 
@@ -9,9 +15,10 @@ import { getChainLabelAndIconByAddressType } from '@/utils/getChainLabelAndIconB
 type Props = {
   address: string;
   addressType: AddressType;
+  textProps?: TypographyProps;
 };
 
-export const AddressCopyBox = ({ address, addressType }: Props) => {
+export const AddressCopyBox = ({ address, addressType, textProps }: Props) => {
   const { t } = useTranslation();
 
   const { label: chainLabel, Icon: ChainIcon } =
@@ -38,7 +45,11 @@ export const AddressCopyBox = ({ address, addressType }: Props) => {
           <ChainIcon size={32} />
           <Stack>
             <Typography variant="subtitle3">{chainLabel}</Typography>
-            <Typography variant="mono2" sx={{ wordBreak: 'break-all' }}>
+            <Typography
+              variant="mono2"
+              sx={{ wordBreak: 'break-all' }}
+              {...textProps}
+            >
               {address}
             </Typography>
           </Stack>

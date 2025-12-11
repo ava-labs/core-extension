@@ -4,11 +4,12 @@ import { AvatarSelector } from './components/AvatarSelector';
 import { ChangePassword } from './components/ChangePassword';
 import { ConnectedSites } from './components/ConnectedSites';
 import { SettingsHomePage } from './components/Home';
-import { RecoveryPhrase } from './components/RecoveryPhrase';
+import { NetworkManagement } from './components/NetworkManagement';
 import { RecoveryMethods } from './components/RecoveryMethods';
 import { Authenticator } from './components/RecoveryMethods/Authenticator';
 import { FIDO } from './components/RecoveryMethods/FIDO/FIDO';
-import { NetworkManagement } from './components/NetworkManagement';
+import { RecoveryPhrase } from './components/RecoveryPhrase';
+import { ResetRecoveryPhrase } from './components/ResetRecoveryPhrase';
 
 export const Settings: FC = () => {
   const { path } = useRouteMatch();
@@ -32,6 +33,7 @@ export const Settings: FC = () => {
         path={`${path}/network-management`}
         component={NetworkManagement}
       />
+      <Route path={`${path}/reset`} component={ResetRecoveryPhrase} />
       <Route path={path} component={SettingsHomePage} />
     </Switch>
   );

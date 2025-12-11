@@ -98,3 +98,10 @@ export const getBridgePath = (query?: Partial<BridgeQueryTokens>) => {
   const search = new URLSearchParams(query);
   return search.size === 0 ? pathname : `${pathname}?${search}`;
 };
+
+/**
+ * Wallet View
+ **/
+export const WALLET_VIEW_QUERY_TOKENS = {
+  showImportSuccess: 'showImportSuccess',
+} as const;

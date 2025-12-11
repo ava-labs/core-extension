@@ -20,6 +20,7 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
 
 import { ErrorType } from './LedgerConnector/types';
+import { PendingLedgerCircles } from '../PendingCircles';
 
 type DerivationPathSelectorProps = {
   derivationPathSpec: DerivationPath;
@@ -80,6 +81,35 @@ export const LedgerConnectionError = ({
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
           {t('Retry')}
+        </NavButton>
+      </Stack>
+    </Stack>
+  );
+};
+
+type LedgerClickToConnectMessageProps = {
+  onConnect: () => void;
+};
+
+export const LedgerClickToConnectMessage = ({
+  onConnect,
+}: LedgerClickToConnectMessageProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Stack
+      width="100%"
+      gap={6}
+      textAlign="center"
+      flexGrow={1}
+      justifyContent="center"
+      alignItems="center"
+      maxWidth="340px"
+    >
+      <PendingLedgerCircles startImmediately />
+      <Stack direction="row" justifyContent="center">
+        <NavButton size="medium" color="primary" onClick={onConnect}>
+          {t('Connect')}
         </NavButton>
       </Stack>
     </Stack>

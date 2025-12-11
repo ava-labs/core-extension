@@ -460,7 +460,11 @@ export class WalletService implements OnUnlock {
         );
       }
 
-      const derivationPath = getAddressDerivationPath(accountIndexToUse, 'EVM');
+      const derivationPath = getAddressDerivationPath(
+        accountIndexToUse,
+        'EVM',
+        { pathSpec: secrets.derivationPathSpec },
+      );
       const publicKey = getPublicKeyFor(secrets, derivationPath, 'secp256k1');
 
       assertPresent(publicKey, SecretsError.PublicKeyNotFound);

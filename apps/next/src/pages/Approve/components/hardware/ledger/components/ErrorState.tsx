@@ -29,7 +29,7 @@ export const ErrorState = ({ title, description, action }: ErrorStateProps) => {
           <Typography variant="caption">{description}</Typography>
         </Stack>
       </Stack>
-      {action && <Stack>{action}</Stack>}
+      {action && <Stack gap={0.5}>{action}</Stack>}
     </Stack>
   );
 };

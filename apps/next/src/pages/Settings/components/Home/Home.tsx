@@ -3,6 +3,7 @@ import {
   ChevronRightIcon,
   Stack,
   Switch,
+  SxProps,
   toast,
   Typography,
   useTheme,
@@ -15,9 +16,9 @@ import {
   useContactsContext,
   useFeatureFlagContext,
   useNetworkContext,
+  useSeedlessMfaManager,
   useSettingsContext,
   useWalletContext,
-  useSeedlessMfaManager,
 } from '@core/ui';
 
 import { LanguageSelector } from '@/components/LanguageSelector';
@@ -31,19 +32,26 @@ import {
   CORE_WEB_BASE_URL,
 } from '@/config';
 
+import { Card } from '@/components/Card';
+import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { getContactsPath } from '@/config/routes';
 import { AnalyticsConsent, FeatureGates, SecretType } from '@core/types';
+import { CurrencySelector } from '../CurrencySelector';
+import { ThemeSelector } from '../ThemeSelector';
+import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 import {
   AvatarButton,
   Footer,
   SettingsCard,
   SettingsNavItem,
 } from './components';
-import { CurrencySelector } from '../CurrencySelector';
-import { ThemeSelector } from '../ThemeSelector';
-import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
-import { Card } from '@/components/Card';
-import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
+
+const navItemActionCommonSx: SxProps = {
+  px: 1,
+  mr: -0.5,
+  gap: 0,
+  color: 'text.secondary',
+};
 
 export const SettingsHomePage = () => {
   const theme = useTheme();
@@ -158,12 +166,8 @@ export const SettingsHomePage = () => {
         <SettingsNavItem
           divider
           label={t('Currency')}
-          secondaryAction={
-            <CurrencySelector
-              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
-              onClick={() => capture('CurrencySettingClicked')}
-            />
-          }
+          onClick={() => capture('CurrencySettingClicked')}
+          secondaryAction={<CurrencySelector sx={navItemActionCommonSx} />}
         />
         <SettingsNavItem
           divider
@@ -172,7 +176,7 @@ export const SettingsHomePage = () => {
             <LanguageSelector
               dataTestId="settings-language-selector"
               onSelectEventName="AppLanguageChanged"
-              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+              sx={navItemActionCommonSx}
             />
           }
         />
@@ -182,10 +186,7 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <ThemeSelector
               sx={{
-                px: 1,
-                mr: -0.5,
-                gap: 0,
-                color: 'text.secondary',
+                ...navItemActionCommonSx,
                 justifyContent: 'flex-end',
               }}
             />
@@ -195,9 +196,7 @@ export const SettingsHomePage = () => {
           label={t('View preference')}
           divider
           secondaryAction={
-            <ViewPreferenceSelector
-              sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
-            />
+            <ViewPreferenceSelector sx={navItemActionCommonSx} />
           }
         />
         <SettingsNavItem
@@ -276,6 +275,7 @@ export const SettingsHomePage = () => {
           label={t('Reset recovery phrase')}
           divider
           onClick={() => capture('RecoveryPhraseResetClicked')}
+          href={`${path}/reset`}
         />
 
         {walletDetails?.type === SecretType.Seedless &&

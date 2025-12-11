@@ -6,8 +6,8 @@ import { Page } from '@/components/Page';
 import { SlideUpDialog } from '@/components/Dialog';
 
 import { PolicyRegistrationState } from './types';
-import { usePolicyRegistrationState } from './hooks';
 import { ConfirmPublicKey, SetupWalletPolicy } from './components';
+import { useLedgerPolicyRegistrationState } from '@/contexts';
 
 const pageProps = {
   descriptionProps: {
@@ -22,8 +22,8 @@ const pageProps = {
 export const LedgerRegisterBtcWalletPolicy: FC = () => {
   const { t } = useTranslation();
 
-  const { status, xpub, dismiss, policyName, policyDerivationPath } =
-    usePolicyRegistrationState();
+  const { status, xpub, dismiss, policyName, policyDerivationPath, retry } =
+    useLedgerPolicyRegistrationState();
 
   const isPubkeyPhase = status.startsWith('pubkey:');
   const phase = isPubkeyPhase ? 'pubkey' : 'policy';
@@ -31,7 +31,10 @@ export const LedgerRegisterBtcWalletPolicy: FC = () => {
   const Content = ComponentByPhase[phase];
 
   return (
-    <SlideUpDialog open={status !== 'idle' && status !== 'dismissed'}>
+    <SlideUpDialog
+      open={status !== 'idle' && status !== 'dismissed'}
+      zIndex={10000}
+    >
       <Page
         withBackButton
         onBack={dismiss}
@@ -55,6 +58,7 @@ export const LedgerRegisterBtcWalletPolicy: FC = () => {
           policyName={policyName}
           policyDerivationPath={policyDerivationPath}
           dismiss={dismiss}
+          retry={retry}
         />
         <Button
           variant="contained"

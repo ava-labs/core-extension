@@ -5,7 +5,12 @@ import { NavigationHistoryService } from '~/services/navigationHistory/Navigatio
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.OPEN_EXTENSION_POPUP_WINDOW,
   true,
-  { navigateTo?: string }
+  {
+    navigateTo?: {
+      pathname: string;
+      search?: string;
+    };
+  }
 >;
 
 @injectable()
@@ -21,7 +26,8 @@ export class OpenExtensionPopupWindowHandler implements HandlerType {
 
     if (request.params.navigateTo) {
       this.navigationHistoryService.requestNavigation(
-        request.params.navigateTo,
+        request.params.navigateTo.pathname,
+        request.params.navigateTo.search,
       );
     }
 

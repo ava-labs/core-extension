@@ -30,7 +30,11 @@ const TextDetailVertical = ({ item }: TextItemProps) => (
       {item.label}
     </Typography>
     <NoScrollStack mt={0}>
-      <Typography variant="mono2" color="text.primary" component="pre">
+      <Typography
+        variant="mono2"
+        color="text.primary"
+        sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+      >
         {item.value}
       </Typography>
     </NoScrollStack>

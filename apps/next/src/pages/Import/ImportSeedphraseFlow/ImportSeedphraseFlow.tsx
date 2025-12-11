@@ -20,6 +20,7 @@ import {
   NameYourWalletScreen,
 } from '../common-screens';
 import { EnterRecoveryPhraseScreen } from './screens';
+import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
 const TOTAL_STEPS = 3;
@@ -75,12 +76,18 @@ export const ImportSeedphraseFlow = () => {
   const onSave = useCallback(
     async (name: string) => {
       try {
-        await importSeedphrase({
+        const imported = await importSeedphrase({
           mnemonic: phrase,
           name,
         });
         capture('SeedphraseImportSuccess');
-        await openApp({ closeWindow: true, navigateTo: '/' });
+        await openApp({
+          closeWindow: true,
+          navigateTo: {
+            pathname: `/wallet/${imported.id}`,
+            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
+          },
+        });
       } catch (error) {
         capture('SeedphraseImportFailure');
         const { title, hint } = gerErrorMessage(error);

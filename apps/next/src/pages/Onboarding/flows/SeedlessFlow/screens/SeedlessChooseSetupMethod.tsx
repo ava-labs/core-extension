@@ -50,7 +50,10 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
         )}
       </FullscreenModalDescription>
       <FullscreenModalContent>
-        <CardMenu divider={<Divider sx={{ ml: 8, mr: 3 }} />}>
+        <CardMenu
+          sx={{ padding: 0, overflow: 'hidden' }}
+          divider={<Divider sx={{ ml: 8, mr: 3, my: '0 !important' }} />}
+        >
           <CardMenuItem
             onClick={() => onMethodChosen('passkey')}
             icon={<MdOutlinePassword size={24} />}

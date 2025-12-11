@@ -1,9 +1,13 @@
 import { isEqual, partition, get, merge } from 'lodash';
-import { singleton } from 'tsyringe';
+import { container, singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
 import { resolve } from '@avalabs/core-utils-sdk';
-import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import {
+  NftTokenWithBalance,
+  TokenType,
+  TokenWithBalance,
+} from '@avalabs/vm-module-types';
 
 import {
   Account,
@@ -31,6 +35,7 @@ import {
 import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
 import { balanceApiClient } from '~/api-clients';
 import {
+  Currency,
   GetBalancesResponseError,
   postV1BalanceGetBalances,
 } from '~/api-clients/balance-api';
@@ -52,6 +57,41 @@ import { SettingsService } from '../settings/SettingsService';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { AddressResolver } from '../secrets/AddressResolver';
+import { AccountsService } from '~/services/accounts/AccountsService';
+
+interface MergeWithNewSettingMissingTokenToZeroProps {
+  cachedAccountBalance: {
+    [p: string]: TokenWithBalance;
+  };
+  newAccountBalance: {
+    [p: string]: TokenWithBalance;
+  };
+}
+const mergeWithNewSettingMissingTokenToZero = ({
+  cachedAccountBalance,
+  newAccountBalance,
+}: MergeWithNewSettingMissingTokenToZeroProps): {
+  [p: string]: TokenWithBalance;
+} => {
+  const tempAccountBalance = newAccountBalance;
+  Object.entries(cachedAccountBalance).map(([tokenAddress, tokenBalance]) => {
+    // if we have the given token in the new balance, we are using that
+    if (tempAccountBalance[tokenAddress]) {
+      return;
+    }
+
+    // if we don't have it in the new balance but had some previously, we need to return zero for the old account
+    tempAccountBalance[tokenAddress] = {
+      ...tokenBalance,
+      balance: 0n,
+      balanceCurrencyDisplayValue: '0.00',
+      balanceDisplayValue: '0',
+      balanceInCurrency: 0,
+      priceChanges: {},
+    };
+  });
+  return tempAccountBalance;
+};
 
 const NFT_TYPES = [TokenType.ERC721, TokenType.ERC1155];
 
@@ -191,15 +231,19 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         FeatureGates.BALANCE_SERVICE_INTEGRATION
       ]
     ) {
+      const selectedCurrency = (
+        await this.settingsService.getSettings()
+      ).currency.toLowerCase();
       try {
         const getBalancesRequestBody = await createGetBalancePayload({
           accounts,
           chainIds,
+          currency: selectedCurrency as Currency,
           secretsService: this.secretsService,
           addressResolver: this.addressResolver,
         });
 
-        const balanceResult = await postV1BalanceGetBalances({
+        const balanceServiceResponse = await postV1BalanceGetBalances({
           client: balanceApiClient,
           body: getBalancesRequestBody,
           onSseError: (error) => {
@@ -207,21 +251,23 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           },
         });
 
-        const { balances, errors } = await convertStreamToArray(
-          balanceResult.stream,
-        );
+        const { balances: balanceServiceResponseArray, errors } =
+          await convertStreamToArray(balanceServiceResponse.stream);
 
         const fallbackBalanceResponse =
           await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
 
-        const cacheBalanceObject =
-          convertBalanceResponsesToCacheBalanceObject(balances);
-        const atomicCachedBalanceObject =
-          convertBalanceResponseToAtomicCacheBalanceObject(balances);
+        const balanceObject = convertBalanceResponsesToCacheBalanceObject(
+          balanceServiceResponseArray,
+        );
+        const atomicBalanceObject =
+          convertBalanceResponseToAtomicCacheBalanceObject(
+            balanceServiceResponseArray,
+          );
 
         return {
-          tokens: merge(cacheBalanceObject, fallbackBalanceResponse),
-          atomic: atomicCachedBalanceObject,
+          tokens: merge(balanceObject, fallbackBalanceResponse),
+          atomic: atomicBalanceObject,
         };
       } catch (err) {
         Monitoring.sentryCaptureException(
@@ -333,7 +379,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           aggregatedBalances[chainId] = {
             ...aggregatedBalances[chainId], // Keep cached balances for other accounts
             ...chainBalances,
-            [address]: addressBalance,
+            [address]: mergeWithNewSettingMissingTokenToZero({
+              newAccountBalance: addressBalance,
+              cachedAccountBalance:
+                aggregatedBalances[chainId]?.[address] ?? {},
+            }),
           };
         }
       }
@@ -477,6 +527,30 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     // Do not set state from cache if we already have something in memory
     if (Object.keys(this.#balances).length) {
       return;
+    }
+
+    if (this.featureFlagService[FeatureGates.BALANCE_SERVICE_INTEGRATION]) {
+      try {
+        const accountsService = container.resolve(AccountsService);
+        const networkService = container.resolve(NetworkService);
+
+        networkService.enabledNetworksUpdated.addOnce(async () => {
+          const [accounts, enabledNetworks] = await Promise.all([
+            accountsService.getAccounts(),
+            networkService.getEnabledNetworks(),
+          ]);
+          this.getBalancesForNetworks(
+            enabledNetworks,
+            [
+              ...Object.values(accounts.primary),
+              ...Object.values(accounts.imported),
+            ].flat(),
+            Object.values(TokenType),
+          );
+        });
+      } catch (_error) {
+        /* if there was an error just continue */
+      }
     }
 
     const cachedBalance = await this.loadBalanceFromCache();

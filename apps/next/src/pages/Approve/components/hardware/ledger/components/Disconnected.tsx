@@ -41,7 +41,10 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
   return (
     <ErrorState
       title={t('Ledger disconnected')}
-      description={t('Reconnect your Ledger device to continue')}
+      description={t(
+        'Reconnect your Ledger device and open the {{appName}} app to continue',
+        { appName: state.requiredApp ?? 'Avalanche' },
+      )}
       action={
         <Button
           variant="contained"

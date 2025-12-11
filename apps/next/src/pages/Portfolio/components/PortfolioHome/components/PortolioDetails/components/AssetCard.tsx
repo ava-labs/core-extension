@@ -12,6 +12,7 @@ import { TokenAvatar } from '@/components/TokenAvatar';
 import { Card } from '@/components/Card';
 import { useHistory } from 'react-router-dom';
 import { TokenType } from '@avalabs/vm-module-types';
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
@@ -31,10 +32,6 @@ const getBadgeBorderColor = (theme: Theme): string => {
     : theme.palette.surface.primary;
 };
 
-const formatTokenBalance = (balance: string, symbol: string): string => {
-  return `${balance} ${symbol}`;
-};
-
 export const AssetCard = ({ asset }: AssetCardProps) => {
   const theme = useTheme();
   const history = useHistory();
@@ -46,10 +43,6 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);
-  const tokenBalanceText = formatTokenBalance(
-    asset.balanceDisplayValue,
-    asset.symbol,
-  );
 
   return (
     <Card
@@ -91,9 +84,23 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
           >
             {asset.name}
           </Typography>
-          <Typography color="text.primary" variant="body3" noWrap>
-            {tokenBalanceText}
-          </Typography>
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={0.5}
+            width="max-content"
+            justifyContent="flex-start"
+          >
+            <CollapsedTokenAmount
+              amount={asset.balanceDisplayValue}
+              showApproximationSign={false}
+              regularProps={{ variant: 'body3' }}
+              overlineProps={{ variant: 'caption2' }}
+            />
+            <Typography color="text.primary" variant="body3">
+              {asset.symbol}
+            </Typography>
+          </Stack>
         </Stack>
 
         <Stack alignItems="flex-end" flexShrink={0}>

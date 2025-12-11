@@ -154,9 +154,14 @@ function balancesReducer(
         return { ...state };
       }
 
+      // Only set loading to false when we actually have token data because the cached data might be empty for a new user
+      const hasTokenData =
+        action.payload.balances?.tokens &&
+        Object.keys(action.payload.balances.tokens).length > 0;
+
       return {
         ...state,
-        loading: false,
+        loading: hasTokenData ? false : state.loading,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         tokens: merge({}, state.tokens, action.payload.balances?.tokens),
@@ -293,6 +298,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
             ...prevState,
             [accountId]: {
               balanceDisplayValue: atomicBalance.sum,
+              balanceInCurrency: atomicBalance.sumInCurrency,
               hasErrorOccurred: false,
               isLoading: false,
             },
@@ -399,11 +405,20 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       const networks = chainIds.map(getNetwork).filter(isNotNullish);
 
       if (balances.tokens && network?.chainId) {
-        return calculateTotalBalance(
-          getAccount(addressC),
+        const cChainAccount = getAccount(addressC);
+        const atomicBalanceInCurrency =
+          accountAtomicBalances[cChainAccount?.id ?? '']?.balanceInCurrency ??
+          0;
+
+        const totalBalance = calculateTotalBalance(
+          cChainAccount,
           networks,
           balances.tokens,
         );
+        return {
+          ...totalBalance,
+          sum: (totalBalance.sum ?? 0) + atomicBalanceInCurrency,
+        };
       }
 
       return undefined;
@@ -415,6 +430,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       network?.chainId,
       network?.isTestnet,
       balances.tokens,
+      accountAtomicBalances,
     ],
   );
 
