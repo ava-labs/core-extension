@@ -13,6 +13,7 @@ import { getPermissionsConvertedToMetaMaskStructure } from '../utils/getPermissi
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { LockService } from '~/services/lock/LockService';
 
 jest.mock('~/runtime/openApprovalWindow');
 jest.mock('../utils/getPermissionsConvertedToMetaMaskStructure');
@@ -25,6 +26,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
         {
           getActiveAccount: jest.fn(),
         } as unknown as AccountsService,
+        {} as LockService,
       );
       const handleUnauthenticatedSpy = jest.spyOn(
         handler,
@@ -52,6 +54,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       const handler = new WalletRequestPermissionsHandler(
         {} as PermissionsService,
         {} as AccountsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -121,6 +124,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
         accountsServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -143,6 +147,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
         accountsServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -183,6 +188,7 @@ describe('background/services/permissions/handlers/wallet_requestPermissions.ts'
       const handler = new WalletRequestPermissionsHandler(
         permissionServiceMock as any,
         accountsServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
