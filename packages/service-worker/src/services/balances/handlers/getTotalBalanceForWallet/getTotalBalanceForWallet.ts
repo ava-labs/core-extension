@@ -1,6 +1,5 @@
 import { isNil } from 'lodash';
 import { injectable } from 'tsyringe';
-import { Network } from '@avalabs/glacier-sdk';
 import { hex } from '@scure/base';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
@@ -33,7 +32,6 @@ import {
 } from './models';
 import {
   calculateTotalBalanceForAccounts,
-  getAccountsWithActivity,
   getIncludedNetworks,
   removeChainPrefix,
 } from './helpers';
@@ -55,12 +53,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     private accountsService: AccountsService,
     private balanceAggregatorService: BalanceAggregatorService,
   ) {}
-
-  #getAddressesActivity = (addresses: string[]) =>
-    this.glacierService.getChainIdsForAddresses({
-      addresses,
-      network: this.networkService.isMainnet() ? Network.MAINNET : Network.FUJI,
-    });
 
   async #findUnderivedAccounts(walletId: string, derivedAccounts: Account[]) {
     const secrets =
@@ -90,11 +82,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
                 )
               : null;
           if (extendedPublicKey) {
-            return await getAccountsWithActivity(
-              extendedPublicKey.key,
-              providerXP,
-              this.#getAddressesActivity,
-            );
+            // If we have the extended public key, the balance for its account already includes the balance for the underived accounts
+            return [];
           } else {
             const xpPublicKeys = secrets.publicKeys.filter(
               (key) =>
