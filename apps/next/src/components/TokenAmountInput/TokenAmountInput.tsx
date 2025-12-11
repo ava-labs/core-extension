@@ -69,22 +69,30 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   const { t } = useTranslation();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
   const amountInputRef = useRef<HTMLInputElement>(null);
+  const previousTokenIdRef = useRef<string>(tokenId);
 
   const token = useMemo(
     () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
     [tokensForAccount, tokenId],
   );
 
-  // Auto-focus the input when a token is selected
+  // Auto-focus the input when a token is selected for THIS specific component
+  // Only focus when tokenId changes (not just when token exists)
   useEffect(() => {
-    if (token && amountInputRef.current) {
-      // Use a small delay to ensure the Grow animation has started
+    const tokenIdChanged = previousTokenIdRef.current !== tokenId;
+    if (tokenIdChanged && token && amountInputRef.current) {
+      // Use a small delay to ensure the Grow animation has started (the props seem to be not fix the issue)
       const timeoutId = setTimeout(() => {
-        amountInputRef.current?.focus();
+        if (amountInputRef.current) {
+          amountInputRef.current.focus();
+        }
       }, 100);
+      previousTokenIdRef.current = tokenId;
       return () => clearTimeout(timeoutId);
+    } else if (tokenIdChanged) {
+      previousTokenIdRef.current = tokenId;
     }
-  }, [token]);
+  }, [tokenId, token]);
 
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
@@ -147,7 +155,6 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           tokenList={tokensForAccount}
           onValueChange={(selectedTokenId) => {
             onTokenChange(selectedTokenId);
-            amountInputRef.current?.focus();
           }}
           query={tokenQuery}
           onQueryChange={onQueryChange}
