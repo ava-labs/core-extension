@@ -1,4 +1,3 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
 import { finalizeOnboarding } from './finalizeOnboarding';
 import { OnboardingService } from './OnboardingService';
 import { LockService } from '../lock/LockService';
@@ -6,6 +5,7 @@ import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
 import { addChainsToFavoriteIfNeeded } from './utils/addChainsToFavoriteIfNeeded';
+import { NETWORKS_ENABLED_BY_DEFAULT } from '../network/consts';
 
 jest.mock('./utils/addChainsToFavoriteIfNeeded');
 
@@ -41,7 +41,7 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
   } as unknown as AccountsService;
   const networkServiceMock = {
     setNetwork: jest.fn(),
-    addFavoriteNetwork: jest.fn(),
+    enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
   } as unknown as NetworkService;
 
@@ -74,14 +74,12 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
       password: 'password',
     });
 
-    expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
-      1,
-      ChainId.BITCOIN,
-    );
-    expect(networkServiceMock.addFavoriteNetwork).toHaveBeenNthCalledWith(
-      2,
-      ChainId.ETHEREUM_HOMESTEAD,
-    );
+    NETWORKS_ENABLED_BY_DEFAULT.forEach((chainId, index) => {
+      expect(networkServiceMock.enableNetwork).toHaveBeenNthCalledWith(
+        index + 1,
+        chainId,
+      );
+    });
     expect(accountsServiceMock.activateAccount).toHaveBeenCalledWith(
       accountMock.id,
     );

@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { Network } from '@avalabs/core-chains-sdk';
-import { defaultEnabledNetworks } from '~/services/network/consts';
+import { NETWORKS_ENABLED_FOREVER } from '~/services/network/consts';
 const VERSION = 5;
 
 export const defaultEnableNetworksDeletable = [
@@ -22,7 +22,7 @@ const up = async (networkStorage: PreviousSchema) => {
   const enabledNetworks = favoriteNetworks
     .filter(
       (network) =>
-        !defaultEnabledNetworks.includes(network) &&
+        !NETWORKS_ENABLED_FOREVER.includes(network) &&
         !defaultEnableNetworksDeletable.includes(network),
     )
     .concat(defaultEnableNetworksDeletable);
