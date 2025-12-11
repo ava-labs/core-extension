@@ -283,12 +283,17 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     return { tokens: balances.tokens, atomic: {} };
   }
 
-  async getBalancesForNetworks(
-    chainIds: number[],
-    accounts: Account[],
-    tokenTypes: TokenType[],
+  async getBalancesForNetworks({
+    chainIds,
+    accounts,
+    tokenTypes,
     cacheResponse = true,
-  ): Promise<{
+  }: {
+    chainIds: number[];
+    accounts: Account[];
+    tokenTypes: TokenType[];
+    cacheResponse?: boolean;
+  }): Promise<{
     tokens: Balances;
     nfts: Balances<NftTokenWithBalance>;
     atomic: AtomicBalances;
@@ -539,14 +544,14 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             accountsService.getAccounts(),
             networkService.getEnabledNetworks(),
           ]);
-          this.getBalancesForNetworks(
-            enabledNetworks,
-            [
+          this.getBalancesForNetworks({
+            chainIds: enabledNetworks,
+            accounts: [
               ...Object.values(accounts.primary),
               ...Object.values(accounts.imported),
             ].flat(),
-            Object.values(TokenType),
-          );
+            tokenTypes: Object.values(TokenType),
+          });
         });
       } catch (_error) {
         /* if there was an error just continue */

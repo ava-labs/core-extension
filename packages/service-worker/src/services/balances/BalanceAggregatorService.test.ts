@@ -220,11 +220,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
 
     it('calls BalancesService.getBalancesForNetwork() with proper params', async () => {
-      await service.getBalancesForNetworks(
-        [network1.chainId],
-        [account1],
-        [TokenType.NATIVE],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE],
+      });
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(1);
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledWith(
         network1,
@@ -251,11 +251,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         });
 
       // Get balances for the `account2` so they get cached
-      await service.getBalancesForNetworks(
-        [network1.chainId],
-        [account2],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account2],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+      });
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
         1,
@@ -270,11 +270,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       });
 
       // Now get the balances for the first account and verify the `account2` balances are kept in cache
-      await service.getBalancesForNetworks(
-        [network1.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+      });
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
         2,
@@ -292,11 +292,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
 
     it('can fetch the balance for multiple networks and one account', async () => {
-      const balances = await service.getBalancesForNetworks(
-        [network1.chainId, network2.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      const balances = await service.getBalancesForNetworks({
+        chainIds: [network1.chainId, network2.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(4);
       const expected = {
         tokens: {
@@ -323,11 +323,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
 
     it('fetches the balances for multiple networks and accounts', async () => {
-      const result = await service.getBalancesForNetworks(
-        [network1.chainId, network2.chainId],
-        [account1, account2],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      const result = await service.getBalancesForNetworks({
+        chainIds: [network1.chainId, network2.chainId],
+        accounts: [account1, account2],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
 
       const expected = {
         atomic: {},
@@ -366,11 +366,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         ),
       );
 
-      const updatePromise = service.getBalancesForNetworks(
-        [network1.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      const updatePromise = service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -388,11 +388,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const eventListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, eventListener);
 
-      await service.getBalancesForNetworks(
-        [network1.chainId, network2.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId, network2.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
 
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(4);
       const expectedTokens = {
@@ -483,7 +483,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         balances: cachedBalances,
       });
 
-      await service.getBalancesForNetworks([network2.chainId], [account1], []);
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId],
+        accounts: [account1],
+        tokenTypes: [],
+      });
 
       await service.onUnlock();
 
@@ -523,7 +527,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const updatesListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, updatesListener);
 
-      await service.getBalancesForNetworks([network2.chainId], [account2], []);
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId],
+        accounts: [account2],
+        tokenTypes: [],
+      });
       await new Promise(process.nextTick);
 
       // The fresh balances include new information, therefore an event should be emitted.
@@ -553,7 +561,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const updatesListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, updatesListener);
 
-      await service.getBalancesForNetworks([network2.chainId], [account1], []);
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId],
+        accounts: [account1],
+        tokenTypes: [],
+      });
       await new Promise(process.nextTick);
 
       // Cached & fresh balances as a whole are different,

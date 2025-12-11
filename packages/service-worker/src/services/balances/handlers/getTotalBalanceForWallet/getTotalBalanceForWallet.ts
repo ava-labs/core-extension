@@ -171,11 +171,11 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
 
       for (const account of derivedAccounts) {
         const { tokens: derivedAddressesBalances } =
-          await this.balanceAggregatorService.getBalancesForNetworks(
-            networksIncludedInTotal.map((network) => network.chainId),
-            [account],
-            [TokenType.NATIVE, TokenType.ERC20],
-          );
+          await this.balanceAggregatorService.getBalancesForNetworks({
+            chainIds: networksIncludedInTotal.map((network) => network.chainId),
+            accounts: [account],
+            tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+          });
 
         const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
           derivedAddressesBalances,
@@ -211,12 +211,12 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         for (let i = 0; i < underivedAccounts.length; i += batchSize) {
           const accountsBatch = underivedAccounts.slice(i, i + batchSize);
           const { tokens: underivedAddressesBalances } =
-            await this.balanceAggregatorService.getBalancesForNetworks(
-              getXPChainIds(this.networkService.isMainnet()),
-              accountsBatch as Account[],
-              [TokenType.NATIVE],
-              false, // Don't cache this
-            );
+            await this.balanceAggregatorService.getBalancesForNetworks({
+              chainIds: getXPChainIds(this.networkService.isMainnet()),
+              accounts: accountsBatch as Account[],
+              tokenTypes: [TokenType.NATIVE],
+              cacheResponse: false, // Don't cache this
+            });
 
           const { balance: underivedAccountsTotal, priceChangeValue } =
             calculateTotalBalanceForAccounts(
