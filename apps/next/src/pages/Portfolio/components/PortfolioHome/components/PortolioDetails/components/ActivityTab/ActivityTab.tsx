@@ -18,7 +18,7 @@ export const ActivityTab: FC = () => {
   const [filter, setFilter] = useState<ActivityFilter>(
     urlState.filter ?? 'All',
   );
-  const [network, setNetwork] = useState<Network['chainId']>(
+  const [networkChainId, setNetworkChainId] = useState<Network['chainId']>(
     urlState.network ||
       (isMainnet ? ChainId.AVALANCHE_MAINNET_ID : ChainId.AVALANCHE_TESTNET_ID),
   );
@@ -30,20 +30,20 @@ export const ActivityTab: FC = () => {
           selected={filter}
           onChange={(newFilter) => {
             setFilter(newFilter);
-            urlState.update(newFilter, network);
+            urlState.update(newFilter, networkChainId);
           }}
         />
 
         <NetworkFilterSelector
-          selected={network}
-          onChange={(newNetwork) => {
-            setNetwork(newNetwork);
-            urlState.update(filter, newNetwork);
+          selected={networkChainId}
+          onChange={(newNetworkChainId) => {
+            setNetworkChainId(newNetworkChainId);
+            urlState.update(filter, newNetworkChainId);
           }}
         />
       </Stack>
       <Suspense fallback={<TransactionListSkeleton />}>
-        <TransactionList filter={filter} network={network} />
+        <TransactionList filter={filter} networkChainId={networkChainId} />
       </Suspense>
     </Stack>
   );
