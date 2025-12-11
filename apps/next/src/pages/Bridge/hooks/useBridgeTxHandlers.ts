@@ -1,7 +1,9 @@
 import { handleTxOutcome, isAddressBlockedError } from '@core/common';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBridgeQuery } from '../contexts';
+import { useBridgeQuery, useBridgeState } from '../contexts';
+import { FungibleTokenBalance } from '@core/types';
+import { isEqual } from 'lodash';
 
 export type TransferResult = Awaited<
   ReturnType<typeof handleTxOutcome<string>>
@@ -11,12 +13,34 @@ export const useBridgeTxHandlers = () => {
   const [bridgeError, setBridgeError] = useState<string>('');
   const [isAddressBlocked, setIsAddressBlocked] = useState(false);
 
-  const { updateQuery } = useBridgeQuery();
+  const { updateQuery, amount } = useBridgeQuery();
+  const { sourceToken } = useBridgeState();
   const { t } = useTranslation();
+
+  const [selectedSourceToken, setSelectedSourceToken] =
+    useState<FungibleTokenBalance>();
+  const [selectedAmount, setSelectedAmount] = useState<string>('');
+
+  useEffect(() => {
+    if (isEqual(sourceToken, selectedSourceToken)) {
+      setSelectedSourceToken(sourceToken);
+    }
+  }, [sourceToken, selectedSourceToken]);
+
+  useEffect(() => {
+    if (amount !== selectedAmount) {
+      setSelectedAmount(amount);
+    }
+  }, [amount, selectedAmount]);
 
   const clearError = useCallback(() => {
     setBridgeError('');
   }, []);
+
+  useEffect(() => {
+    //Clear the transaction error when the source token or amount changes
+    clearError();
+  }, [selectedSourceToken, selectedAmount, clearError]);
 
   const onBridgeError = useCallback((err: unknown, fallbackMessage: string) => {
     if (isAddressBlockedError(err)) {
