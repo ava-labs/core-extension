@@ -14,8 +14,10 @@ import {
 import { Action, NetworkWithCaipId } from '@core/types';
 
 import { isMessageApproval } from '@/pages/Approve/types';
+import { useLedgerPolicyRegistrationState } from '@/contexts';
 
 import { LedgerApprovalState } from './types';
+import { useEffect, useRef } from 'react';
 
 type UseLedgerApprovalState = (
   network: NetworkWithCaipId,
@@ -26,18 +28,42 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
   network,
   action,
 ) => {
-  const { hasLedgerTransport, wasTransportAttempted, appType, avaxAppVersion } =
-    useLedgerContext();
+  const {
+    hasLedgerTransport,
+    wasTransportAttempted,
+    appType,
+    avaxAppVersion,
+    refreshActiveApp,
+  } = useLedgerContext();
+  const { shouldRegisterBtcWalletPolicy } = useLedgerPolicyRegistrationState();
+
+  const requiredApp = getRequiredApp(network, action);
+  const interalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (appType === requiredApp && interalRef.current) {
+      clearInterval(interalRef.current);
+      return;
+    }
+
+    interalRef.current = setInterval(() => {
+      refreshActiveApp();
+    }, 1500);
+
+    return () => {
+      if (interalRef.current) {
+        clearInterval(interalRef.current);
+      }
+    };
+  }, [refreshActiveApp, requiredApp, appType]);
 
   if (!wasTransportAttempted) {
     return { state: 'loading' };
   }
 
   if (!hasLedgerTransport) {
-    return { state: 'disconnected' };
+    return { state: 'disconnected', requiredApp };
   }
-
-  const requiredApp = getRequiredApp(network, action);
 
   if (appType !== requiredApp) {
     return { state: 'incorrect-app', requiredApp };
@@ -51,6 +77,12 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
       state: 'incorrect-version',
       requiredVersion: REQUIRED_LEDGER_VERSION,
       requiredApp,
+    };
+  }
+
+  if (appType === LedgerAppType.BITCOIN && shouldRegisterBtcWalletPolicy) {
+    return {
+      state: 'btc-policy-needed',
     };
   }
 

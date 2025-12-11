@@ -1,6 +1,6 @@
 import { Stack, Typography, WaterDropIcon } from '@avalabs/k2-alpine';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
-import { FC, useState, useCallback } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BalanceChange } from '../../../BalanceChange';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
@@ -31,32 +31,29 @@ export const AccountInfo: FC<Props> = ({
   isDeveloperMode,
 }) => {
   const { walletSummary } = useActiveAccountInfo();
+  const { coreAssistant } = useSettingsContext();
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
   const { setAccountInfoElement } = useAccountInfoVisibility();
-  const [accountSummaryWidth, setAccountSummaryWidth] = useState<number>(0);
   const { sum, priceChange } = balance;
   const formattedSum = currencyFormatter(sum ?? 0).replace(
     /^(\D)0\.00$/,
     '$1–',
   );
 
-  const handleWidthChange = useCallback((width: number) => {
-    setAccountSummaryWidth(width);
-  }, []);
-
   return (
-    <Stack ref={setAccountInfoElement} gap={0.25} mt={5} width="100%">
-      <WalletSummaryInfo
-        walletSummary={walletSummary}
-        maxWidth={accountSummaryWidth || undefined}
-      />
+    <Stack
+      ref={setAccountInfoElement}
+      gap={0.25}
+      width="100%"
+      mt={coreAssistant ? 3 : 1}
+      pt={1}
+    >
+      <WalletSummaryInfo walletSummary={walletSummary} />
       <AccountSummaryInfo
-        account={account}
         accountName={account?.name ?? ''}
         formattedSum={formattedSum}
         currency={currency}
-        onWidthChange={handleWidthChange}
       />
       {isDeveloperMode ? (
         <Stack

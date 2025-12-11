@@ -14,4 +14,5 @@ export type PolicyRegistrationState = {
   status: Status;
   dismiss: () => void;
   xpub?: string;
+  retry: () => Promise<void>;
 };

@@ -15,6 +15,8 @@ import { MdCircle, MdNavigateNext } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { BalanceChange } from '../../BalanceChange';
 import { NetworksWithBalances } from './NetworksWithBalances';
+import { TruncatedText } from '@/components/Header/components/styledComponents';
+import { ClickableStack } from '../../PortfolioHome/components/AccountInfo/styled';
 
 type Props = {
   account: Account;
@@ -49,22 +51,17 @@ export const WalletAccount: FC<Props> = ({
   const balance = getTotalBalance(account.addressC);
 
   return (
-    <Stack
+    <ClickableStack
       direction="row"
       alignItems="center"
       justifyContent="space-between"
       gap={1}
       onClick={() => clickHandler()}
       py={1}
-      sx={{
-        cursor: 'pointer',
-        position: 'relative',
-        ...(!isFirst && {
-          borderTop: `1px solid ${theme.palette.divider}`,
-        }),
-      }}
+      position="relative"
+      borderTop={isFirst ? 'none' : `1px solid ${theme.palette.divider}`}
     >
-      <Stack direction="row" alignItems="center" gap={1}>
+      <Stack direction="row" alignItems="center" gap={1} minWidth={0} flex={1}>
         {isActiveAccount(account.id) && (
           <MdCircle
             size={6}
@@ -75,14 +72,22 @@ export const WalletAccount: FC<Props> = ({
             }}
           />
         )}
-        <PersonalAvatar name={avatarName} size="xsmall" sx={{ mr: 1 }} />
-        <Stack gap={0.5}>
-          <Typography variant="subtitle3">{account.name}</Typography>
+        <PersonalAvatar
+          name={avatarName}
+          size="xsmall"
+          mr={1}
+          flexShrink={0}
+          sx={{ cursor: 'pointer' }}
+        />
+        <Stack gap={0.5} minWidth={0}>
+          <TruncatedText variant="subtitle3" showEllipsis>
+            {account.name}
+          </TruncatedText>
           <NetworksWithBalances networksWithBalance={networksWithBalance} />
         </Stack>
       </Stack>
 
-      <Stack direction="row" alignItems="center" gap={0.5}>
+      <Stack direction="row" alignItems="center" gap={0.5} flexShrink={0}>
         <Stack alignItems="flex-end">
           <Typography variant="subtitle3">
             {currencyFormatter(balance?.sum ?? 0)}
@@ -91,6 +96,6 @@ export const WalletAccount: FC<Props> = ({
         </Stack>
         <MdNavigateNext size={16} color={theme.palette.text.secondary} />
       </Stack>
-    </Stack>
+    </ClickableStack>
   );
 };

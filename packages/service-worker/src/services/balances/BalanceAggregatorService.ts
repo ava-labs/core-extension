@@ -1,5 +1,5 @@
 import { isEqual, partition, get, merge } from 'lodash';
-import { singleton } from 'tsyringe';
+import { container, singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
 import { resolve } from '@avalabs/core-utils-sdk';
@@ -57,6 +57,7 @@ import { SettingsService } from '../settings/SettingsService';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { AddressResolver } from '../secrets/AddressResolver';
+import { AccountsService } from '~/services/accounts/AccountsService';
 
 interface MergeWithNewSettingMissingTokenToZeroProps {
   cachedAccountBalance: {
@@ -526,6 +527,30 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     // Do not set state from cache if we already have something in memory
     if (Object.keys(this.#balances).length) {
       return;
+    }
+
+    if (this.featureFlagService[FeatureGates.BALANCE_SERVICE_INTEGRATION]) {
+      try {
+        const accountsService = container.resolve(AccountsService);
+        const networkService = container.resolve(NetworkService);
+
+        networkService.enabledNetworksUpdated.addOnce(async () => {
+          const [accounts, enabledNetworks] = await Promise.all([
+            accountsService.getAccounts(),
+            networkService.getEnabledNetworks(),
+          ]);
+          this.getBalancesForNetworks(
+            enabledNetworks,
+            [
+              ...Object.values(accounts.primary),
+              ...Object.values(accounts.imported),
+            ].flat(),
+            Object.values(TokenType),
+          );
+        });
+      } catch (_error) {
+        /* if there was an error just continue */
+      }
     }
 
     const cachedBalance = await this.loadBalanceFromCache();

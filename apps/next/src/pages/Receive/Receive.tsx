@@ -1,16 +1,8 @@
 import QRCodeSVG from 'qrcode.react';
 import { useCallback } from 'react';
-import { MdArrowBack } from 'react-icons/md';
 import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory } from 'react-router-dom';
-import {
-  Box,
-  Collapse,
-  IconButton,
-  Stack,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Box, Collapse, Stack, useTheme } from '@avalabs/k2-alpine';
 
 import { AddressType } from '@core/types';
 import { stripAddressPrefix } from '@core/common';
@@ -23,6 +15,7 @@ import {
 import { CChainAddressDisclaimer } from '@/components/CChainAddressDisclaimer';
 import { AddressSelector } from '@/components/AddressSelector';
 import { AddressCopyBox } from './components';
+import { Page } from '@/components/Page';
 
 export const Receive = () => {
   const theme = useTheme();
@@ -57,53 +50,55 @@ export const Receive = () => {
   const address = stripAddressPrefix(active[`address${addressType}`] ?? '');
 
   return (
-    <Stack gap={2} height="100cqh" width={1} bgcolor="background.backdrop">
-      <Stack direction="row" justifyContent="space-between" px={1} py={2}>
-        <IconButton size="small" onClick={history.goBack}>
-          <MdArrowBack size={24} />
-        </IconButton>
-      </Stack>
-      <Stack px={1.5} flexGrow={1} pb={1.5}>
-        <Stack gap={1}>
-          <Typography variant="h2">{t('Receive crypto')}</Typography>
-          <Typography variant="caption">
-            {t(
-              'To receive funds you can choose to share your unique QR code or address below with the sender.',
-            )}
-          </Typography>
-        </Stack>
-        <Stack
-          px={2}
-          flexGrow={1}
-          alignItems="center"
-          justifyContent="center"
-          gap={1.5}
+    <Page
+      title={t('Receive crypto')}
+      withBackButton
+      contentProps={{ justifyContent: 'flex-start' }}
+      description={t(
+        'To receive funds you can choose to share your unique QR code or address below with the sender.',
+      )}
+      descriptionProps={{ maxWidth: '100%' }}
+    >
+      <Stack
+        px={2}
+        flexGrow={1}
+        alignItems="center"
+        justifyContent="center"
+        gap={1.5}
+      >
+        <AddressSelector
+          account={active}
+          type={addressType}
+          onChange={onAddressTypeChange}
+        />
+        <Box
+          p={1}
+          bgcolor="#fff"
+          borderRadius={theme.shape.mediumBorderRadius}
+          sx={{
+            svg: {
+              display: 'block',
+            },
+          }}
         >
-          <AddressSelector
-            account={active}
-            type={addressType}
-            onChange={onAddressTypeChange}
+          <QRCodeSVG
+            renderAs="svg"
+            level="H"
+            size={158}
+            bgColor="#fff"
+            fgColor={theme.palette.neutral['850']}
+            value={address}
           />
-          <Box
-            p={1}
-            bgcolor="#fff"
-            borderRadius={theme.shape.mediumBorderRadius}
-          >
-            <QRCodeSVG
-              renderAs="svg"
-              level="H"
-              size={158}
-              bgColor="#fff"
-              fgColor={theme.palette.neutral['850']}
-              value={address}
-            />
-          </Box>
-          <Collapse in={addressType === 'C'}>
-            <CChainAddressDisclaimer />
-          </Collapse>
-        </Stack>
-        <AddressCopyBox address={address} addressType={addressType} />
+        </Box>
+        <Collapse in={addressType === 'C'}>
+          <CChainAddressDisclaimer />
+        </Collapse>
       </Stack>
-    </Stack>
+      <AddressCopyBox
+        address={address}
+        addressType={addressType}
+        textProps={{ color: 'text.secondary' }}
+      />
+    </Page>
   );
 };

@@ -66,7 +66,7 @@ export const NetworksHome: FC = () => {
       />
       {/* Sticky Bottom Tab Menu */}
       <Stack
-        width="calc(100% + 32px)" // Compensate for container padding which we don't want applied here.
+        width="calc(100% + 24px)" // Compensate for container padding which we don't want applied here.
         gap={1}
         position="sticky"
         bottom={0}

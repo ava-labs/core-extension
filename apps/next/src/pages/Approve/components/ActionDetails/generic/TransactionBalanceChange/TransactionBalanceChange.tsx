@@ -10,7 +10,7 @@ import {
   BatchTokenBalanceChange,
   SingleTokenBalanceChange,
 } from './components';
-import { SimulationAlertBox } from './components/SimulationAlertBox';
+import { SimulationAlertBox } from '@/components/SimulationAlertBox';
 import { useTranslation } from 'react-i18next';
 
 type TransactionBalanceChangeProps = BalanceChange & {

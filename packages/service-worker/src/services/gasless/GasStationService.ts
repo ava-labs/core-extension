@@ -185,6 +185,10 @@ export class GasStationService {
       this.setDefaultStateValues({ fundTxDoNotRetryError: true });
       this.#attempt = 0;
       this.#fundDataPipeline = [];
+
+      if (result.error.message === 'UNAUTHORIZED') {
+        return result.error;
+      }
       return;
     }
     if (!result.txHash) {
