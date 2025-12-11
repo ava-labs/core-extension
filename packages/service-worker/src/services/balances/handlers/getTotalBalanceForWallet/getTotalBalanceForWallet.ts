@@ -81,7 +81,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     );
 
     const underivedAddresses = (
-      await Promise.all(
+      await Promise.allSettled(
         derivedAccounts.flatMap(async (derivedAccount) => {
           const insideExtendedPublicKey =
             'extendedPublicKeys' in secrets && 'index' in derivedAccount
@@ -106,7 +106,10 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           }
         }),
       )
-    ).flat();
+    )
+      .filter((promiseResponse) => promiseResponse.status === 'fulfilled')
+      .map((promiseResponse) => promiseResponse.value)
+      .flat();
 
     const underivedXPChainAddresses = Array.from(
       new Set(underivedAddresses),
