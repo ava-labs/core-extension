@@ -732,7 +732,6 @@
   "This token contract is missing a required method.": "This token contract is missing a required method.",
   "This transaction has been flagged as malicious. <span>I understand the risk and want to proceed anyway.</span>": "This transaction has been flagged as malicious. <span>I understand the risk and want to proceed anyway.</span>",
   "This transaction has been rejected": "This transaction has been rejected",
-  "This transaction has failed": "This transaction has failed",
   "This transaction would likely fail": "This transaction would likely fail",
   "This wallet does not support the requested network": "This wallet does not support the requested network",
   "This wallet has {{accountCount}} {{accountUnit}} over {{networkCount}} {{networkUnit}}": "This wallet has {{accountCount}} {{accountUnit}} over {{networkCount}} {{networkUnit}}",
