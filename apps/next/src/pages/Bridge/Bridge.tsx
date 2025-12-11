@@ -54,7 +54,6 @@ const BridgePage: FC = () => {
         <BridgeInProgress transfer={pendingTransfer} />
       ) : (
         <BridgeTransactionForm
-          transactionError={txHandlers.error}
           onSuccess={txHandlers.onSuccess}
           onRejected={txHandlers.onRejected}
           onFailure={txHandlers.onFailure}

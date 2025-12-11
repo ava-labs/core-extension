@@ -15,14 +15,12 @@ import {
 } from './components';
 
 type Props = {
-  transactionError: string;
   onSuccess(result: TransferResult): void;
   onRejected(result: TransferResult): void;
   onFailure(error: unknown): void;
 };
 
 export const BridgeTransactionForm: FC<Props> = ({
-  transactionError,
   onSuccess,
   onRejected,
   onFailure,
@@ -101,10 +99,7 @@ export const BridgeTransactionForm: FC<Props> = ({
         />
         <BridgeControls />
       </Stack>
-      <BridgeErrorMessage
-        formError={error}
-        transactionError={transactionError}
-      />
+      <BridgeErrorMessage formError={error} />
       <BitcoinBridgeInfo />
       <Stack
         width="100%"

@@ -2,14 +2,13 @@ import { Collapse, Typography, useTheme } from '@avalabs/k2-alpine';
 
 type Props = {
   formError: string;
-  transactionError: string;
 };
 
-export const BridgeErrorMessage = ({ formError, transactionError }: Props) => {
+export const BridgeErrorMessage = ({ formError }: Props) => {
   const theme = useTheme();
 
   return (
-    <Collapse in={Boolean(formError || transactionError)}>
+    <Collapse in={Boolean(formError)}>
       <Typography
         component="p"
         color="error.main"
@@ -17,7 +16,7 @@ export const BridgeErrorMessage = ({ formError, transactionError }: Props) => {
         variant="caption"
         height={theme.typography.caption.lineHeight}
       >
-        {formError ? formError : transactionError ? transactionError : ' '}
+        {formError ? formError : ' '}
       </Typography>
     </Collapse>
   );
