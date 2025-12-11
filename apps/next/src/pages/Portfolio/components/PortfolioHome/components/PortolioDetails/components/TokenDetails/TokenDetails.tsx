@@ -68,8 +68,10 @@ export const TokenDetails = () => {
               </Typography>
               <Stack
                 direction="row"
+                justifyContent="flex-start"
                 alignItems="flex-end"
                 gap={0.5}
+                width="max-content"
                 color="text.primary"
               >
                 <CollapsedTokenAmount
