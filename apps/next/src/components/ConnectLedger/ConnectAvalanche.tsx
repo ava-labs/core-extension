@@ -59,7 +59,13 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           ? t(
               'Please connect your device, open the Avalanche application, and connect the wallet with the Ledger option to continue.',
             )
-          : t('Select the derivation path type to see your derived addresses.')}
+          : status === 'needs-user-gesture'
+            ? t(
+                'Please make sure your device is connected and unlocked, then click the button below.',
+              )
+            : t(
+                'Make sure the Avalanche application is open on your device. Then, select the derivation path type to see your derived addresses.',
+              )}
       </FullscreenModalDescription>
       <FullscreenModalContent sx={{ gap: 3, alignItems: 'center' }}>
         <AvalancheLedgerConnector
