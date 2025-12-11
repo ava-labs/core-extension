@@ -11,6 +11,7 @@ import {
 
 type DropdownMenuProps = PropsWithChildren<{
   label: string;
+  closeOnItemClick?: boolean;
   slotProps?: {
     button?: Omit<ButtonProps, 'ref'>;
     popover?: Omit<PopoverProps, 'open'>;
@@ -34,6 +35,7 @@ const defaultSlotProps: DropdownMenuProps['slotProps'] = {
 export const DropdownMenu: FC<DropdownMenuProps> = ({
   children,
   label,
+  closeOnItemClick = true,
   slotProps = defaultSlotProps,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -60,7 +62,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        onClick={() => setAnchorEl(null)}
+        onClick={closeOnItemClick ? () => setAnchorEl(null) : undefined}
         {...slotProps?.popover}
       >
         <PopoverContent>{children}</PopoverContent>
