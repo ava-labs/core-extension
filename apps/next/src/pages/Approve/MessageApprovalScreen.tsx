@@ -146,6 +146,7 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
                     type: DetailItemType.ADDRESS,
                     value: address,
                   }}
+                  network={network}
                 />
               )}
               {action.displayData.network && (
