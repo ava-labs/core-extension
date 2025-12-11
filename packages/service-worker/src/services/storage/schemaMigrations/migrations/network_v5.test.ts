@@ -52,7 +52,7 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
       });
     });
 
-    it('should filter out defaultEnabledNetworks from favoriteNetworks but include defaultEnableNetworksDeletable', async () => {
+    it('should filter out NETWORKS_ENABLED_FOREVER from favoriteNetworks but include defaultEnableNetworksDeletable', async () => {
       const customNetworkIds = [9999, 8888];
       const input = {
         ...baseNetworkStorage,
@@ -79,7 +79,7 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
         });
       });
 
-      // Should NOT include defaultEnabledNetworks
+      // Should NOT include NETWORKS_ENABLED_FOREVER
       NETWORKS_ENABLED_FOREVER.forEach((networkId) => {
         expect(result.networkAvailability[networkId]).toBeUndefined();
       });
@@ -101,7 +101,7 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
   });
 
   describe('edge cases', () => {
-    it('should handle favoriteNetworks with only defaultEnabledNetworks', async () => {
+    it('should handle favoriteNetworks with only NETWORKS_ENABLED_FOREVER', async () => {
       const input = {
         ...baseNetworkStorage,
         favoriteNetworks: [...NETWORKS_ENABLED_FOREVER],
