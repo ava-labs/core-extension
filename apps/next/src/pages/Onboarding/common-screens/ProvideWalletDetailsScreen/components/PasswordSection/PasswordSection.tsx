@@ -2,7 +2,7 @@ import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useOnboardingContext, useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
 import { BorderlessTextField } from '@/components/BorderlessTextField';
 import {
@@ -47,17 +47,11 @@ export const PasswordSection: FC<Props> = ({
   }, [passwordsMetadata?.isValid, onValidityChange, capture]);
 
   return (
-    <Stack sx={{ gap: 0.5 }} {...props}>
+    <Stack gap={0.5} {...props}>
       <Section>
         <SectionRow component="label">
           <SectionLabel>{t('Enter a password')}</SectionLabel>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              flexGrow: 1,
-            }}
-          >
+          <Stack flexDirection="row" justifyContent="flex-end" flexGrow={1}>
             <BorderlessTextField
               type="password"
               size="small"
@@ -79,13 +73,7 @@ export const PasswordSection: FC<Props> = ({
         </SectionRow>
         <SectionRow component="label">
           <SectionLabel>{t('Confirm password')}</SectionLabel>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              flexGrow: 1,
-            }}
-          >
+          <Stack flexDirection="row" justifyContent="flex-end" flexGrow={1}>
             <BorderlessTextField
               type="password"
               size="small"
