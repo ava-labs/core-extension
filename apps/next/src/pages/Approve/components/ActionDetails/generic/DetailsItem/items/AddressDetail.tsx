@@ -52,23 +52,25 @@ export const AddressDetail = ({ item, network }: AddressDetailProps) => {
             {account.name}
           </OverflowingTypography>
         )}
-        <Typography variant="mono" color="text.secondary">
-          {truncateAddress(item.value, 10)}
-        </Typography>
-        {!account && (
-          <Tooltip title={t('View in Explorer')} arrow>
-            <IconButton
-              sx={{ padding: 0.25 }}
-              size="small"
-              onClick={async () => {
-                window.open(explorerLink, '_blank', 'noreferrer');
-              }}
-              data-testid="explorer-link"
-            >
-              <OutboundIcon size={16} viewBox="0 0 24 24" />
-            </IconButton>
-          </Tooltip>
-        )}
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Typography variant="mono" color="text.secondary">
+            {truncateAddress(item.value, 10)}
+          </Typography>
+          {!account && (
+            <Tooltip title={t('View in Explorer')} arrow>
+              <IconButton
+                sx={{ padding: 0.25 }}
+                size="small"
+                onClick={async () => {
+                  window.open(explorerLink, '_blank', 'noreferrer');
+                }}
+                data-testid="explorer-link"
+              >
+                <OutboundIcon size={16} viewBox="0 0 24 24" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
       </Stack>
     </TxDetailsRow>
   );
