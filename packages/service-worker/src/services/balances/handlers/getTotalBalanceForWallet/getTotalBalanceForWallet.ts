@@ -83,7 +83,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const underivedAddresses = (
       await Promise.allSettled(
         derivedAccounts.flatMap(async (derivedAccount) => {
-          const insideExtendedPublicKey =
+          const extendedPublicKey =
             'extendedPublicKeys' in secrets && 'index' in derivedAccount
               ? getExtendedPublicKey(
                   secrets.extendedPublicKeys,
@@ -91,9 +91,9 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
                   'secp256k1',
                 )
               : null;
-          if (insideExtendedPublicKey) {
+          if (extendedPublicKey) {
             return await getAccountsWithActivity(
-              insideExtendedPublicKey.key,
+              extendedPublicKey.key,
               providerXP,
               this.#getAddressesActivity,
             );
