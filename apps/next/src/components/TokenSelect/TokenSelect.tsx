@@ -17,7 +17,7 @@ import {
   useChainOptions,
   useFilteredTokenList,
   useIsAnyAvalancheNetwork,
-} from './TokenSelect.hooks';
+} from './hooks';
 import { TokenSelectProps } from './types';
 import { areTokenListsEqual } from './utils';
 
