@@ -101,6 +101,7 @@ export const NetworkDetails = ({
         fieldInfo={fieldInfo}
         canResetRpcUrl={canResetRpcUrl}
         readOnly={!isCustom || !isEditing}
+        isEditing={isEditing}
         pageType={pageType}
       />
 
@@ -133,7 +134,10 @@ export const NetworkDetails = ({
               size="small"
               fullWidth
               disabled={!isValid}
-              onClick={onSubmit}
+              onClick={() => {
+                onSubmit();
+                setIsEditing(false);
+              }}
             >
               {t('Save')}
             </Button>

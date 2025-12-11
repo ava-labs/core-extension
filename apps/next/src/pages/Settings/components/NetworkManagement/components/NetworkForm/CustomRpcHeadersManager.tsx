@@ -1,11 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  getHexAlpha,
-  Stack,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Button, getHexAlpha, Stack, useTheme } from '@avalabs/k2-alpine';
 import { Network } from '@core/types';
 import { useMemo, useState } from 'react';
 import { useAnalyticsContext } from '@core/ui';
@@ -26,13 +20,14 @@ type CustomRpcHeadersManagerProps = {
   setNetwork: (network: Network) => void;
   network: Network;
   readonly: boolean;
+  onSave?: (network: Network) => Promise<void>;
 };
 
 export const CustomRpcHeadersManager = ({
   setView,
   setNetwork,
   network,
-  readonly,
+  onSave,
 }: CustomRpcHeadersManagerProps) => {
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
@@ -41,21 +36,33 @@ export const CustomRpcHeadersManager = ({
     return network?.customRpcHeaders ?? {};
   }, [network]);
 
-  const [headerList, setHeaderList] = useState<KeyValueHeader[]>(
-    getKeyValueHeaderList(rpcHeaders),
+  const initialHeaderList = useMemo(
+    () => getKeyValueHeaderList(rpcHeaders),
+    [rpcHeaders],
   );
 
+  const [headerList, setHeaderList] =
+    useState<KeyValueHeader[]>(initialHeaderList);
+
   const isValid = isReadyToStore(headerList);
+
+  // Check if there are changes compared to initial state
+  const hasChanges = useMemo(() => {
+    return (
+      JSON.stringify(prepToStoreCustomRpcHeaders(headerList)) !==
+      JSON.stringify(prepToStoreCustomRpcHeaders(initialHeaderList))
+    );
+  }, [headerList, initialHeaderList]);
 
   const handleBack = () => {
     setView('details');
   };
 
   const handleCancel = () => {
-    handleBack();
+    setHeaderList(initialHeaderList);
   };
 
-  const save = () => {
+  const handleSave = async () => {
     if (!network) return;
     const headersToStore = prepToStoreCustomRpcHeaders(headerList);
 
@@ -66,7 +73,14 @@ export const CustomRpcHeadersManager = ({
 
     setNetwork(updatedNetwork);
     capture('CustomNetworkEdited');
-    return handleBack();
+
+    // Editing a network: custom RPC header changes are saved here.
+    // Creating a new network: custom headers are saved in the previous step.
+    if (onSave) {
+      await onSave(updatedNetwork);
+    }
+
+    handleBack();
   };
 
   return (
@@ -77,48 +91,40 @@ export const CustomRpcHeadersManager = ({
       title={t('Define custom RPC headers')}
     >
       <Stack rowGap={1} sx={{ flex: 1, px: 1.5, width: '100%' }}>
-        {readonly && headerList.length === 1 ? (
-          <Stack width="100%" gap={1}>
-            <Typography variant="body1">
-              {t('No custom headers are configured.')}
-            </Typography>
-          </Stack>
-        ) : (
-          headerList.map((listItem, index) => (
-            <Card key={`keyValueFormField-${index}`} sx={{ px: 1 }}>
-              <KeyValueFormField
-                labels={{
-                  key: t('Header name'),
-                  value: t('Value'),
-                }}
-                placeholders={{
-                  key: t('Enter header name'),
-                  value: t('Enter a value'),
-                }}
-                prompt={t('Add next')}
-                values={{
-                  key: listItem.key,
-                  value: listItem.value,
-                }}
-                onChange={(newKeyValue) =>
-                  setHeaderList(
-                    updateKeyValueList(
-                      headerList,
-                      {
-                        key: newKeyValue.key,
-                        value: newKeyValue.value,
-                      },
-                      index,
-                    ),
-                  )
-                }
-                readonly={readonly}
-              />
-            </Card>
-          ))
-        )}
+        {headerList.map((listItem, index) => (
+          <Card key={`keyValueFormField-${index}`} sx={{ px: 1 }}>
+            <KeyValueFormField
+              labels={{
+                key: t('Header name'),
+                value: t('Value'),
+              }}
+              placeholders={{
+                key: t('Enter header name'),
+                value: t('Enter a value'),
+              }}
+              prompt={t('Add next')}
+              values={{
+                key: listItem.key,
+                value: listItem.value,
+              }}
+              onChange={(newKeyValue) =>
+                setHeaderList(
+                  updateKeyValueList(
+                    headerList,
+                    {
+                      key: newKeyValue.key,
+                      value: newKeyValue.value,
+                    },
+                    index,
+                  ),
+                )
+              }
+              readonly={false}
+            />
+          </Card>
+        ))}
       </Stack>
-      {!readonly && (
+      {hasChanges && (
         <Stack
           width="100%"
           gap={1}
@@ -136,7 +142,7 @@ export const CustomRpcHeadersManager = ({
             size="small"
             fullWidth
             disabled={!isValid}
-            onClick={save}
+            onClick={handleSave}
           >
             {t('Save')}
           </Button>
