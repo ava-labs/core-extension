@@ -31,6 +31,7 @@ import {
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
+import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
@@ -54,6 +55,8 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<DerivationStatus>('waiting');
+  const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
+    useState(false);
 
   const getEvmExtendedPublicKeys = useCallback(
     async (indexes: number[]) => {
@@ -312,7 +315,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   useEffect(() => {
     // If we have a duplicated wallet error, always wait for user action,
     // do not attempt a reconnection.
-    if (error === 'duplicated-wallet') {
+    if (error === 'duplicated-wallet' || status === 'needs-user-gesture') {
       return;
     }
 
@@ -332,7 +335,15 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       }
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
-    } else if (!hasLedgerTransport) {
+    } else if (!hasLedgerTransport && !wasManualConnectionAttempted) {
+      getLedgerTransport().then((transport) => {
+        if (!transport) {
+          // If it fails, it's either disconnected or the call was not triggered by user gesture.
+          setStatus('needs-user-gesture');
+          setWasManualConnectionAttempted(true);
+        }
+      });
+    } else {
       const timer = setTimeout(() => {
         setStatus('error');
         setError('unable-to-connect');
@@ -350,13 +361,14 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     popDeviceSelection,
     error,
+    wasManualConnectionAttempted,
   ]);
 
   const onRetry = useCallback(async () => {
     try {
-      setError(undefined);
       await popDeviceSelection();
       await initLedgerTransport();
+      setError(undefined);
       setStatus('waiting');
     } catch {
       setStatus('error');

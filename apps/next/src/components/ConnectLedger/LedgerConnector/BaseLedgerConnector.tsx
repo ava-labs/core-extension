@@ -15,7 +15,9 @@ import { sortBy } from 'lodash';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
-  onStatusChange: (status: 'waiting' | 'ready' | 'error') => void;
+  onStatusChange: (
+    status: 'waiting' | 'ready' | 'error' | 'needs-user-gesture',
+  ) => void;
   minNumberOfKeys: number;
   onTroubleshoot: () => void;
   deriveAddresses: (keys: PublicKey[]) => string[];
@@ -130,6 +132,14 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
           </>
         )}
       </Stack>
+      {status === 'needs-user-gesture' && (
+        <Styled.LedgerClickToConnectMessage
+          onConnect={() => {
+            callbacks?.onConnectionRetry();
+            onRetry();
+          }}
+        />
+      )}
       {status === 'error' && error && (
         <Styled.LedgerConnectionError
           errorType={error}
