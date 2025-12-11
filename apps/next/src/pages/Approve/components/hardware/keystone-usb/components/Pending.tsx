@@ -3,7 +3,7 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 import { Action, ActionStatus } from '@core/types';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { StateComponentProps } from '../types';
-import { PendingKeystoneCircles } from './PendingKeystoneCircles';
+import { PendingKeystoneCircles } from '@/components/PendingCircles';
 import { useTranslation } from 'react-i18next';
 import { useKeystoneUsbContext } from '@core/ui';
 
