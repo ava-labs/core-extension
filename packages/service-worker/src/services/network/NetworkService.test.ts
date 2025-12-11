@@ -804,8 +804,9 @@ describe('background/services/network/NetworkService', () => {
       it('should not add networks that are already in defaultEnabledNetworks', async () => {
         // Mock defaultEnabledNetworks to include a specific chainId
         const defaultChainId = 43114; // Avalanche Mainnet
-        jest.doMock('./consts', () => ({
-          defaultEnabledNetworks: [defaultChainId],
+        jest.doMock('@core/types', () => ({
+          ...jest.requireActual('@core/types'),
+          NETWORKS_ENABLED_FOREVER: [defaultChainId],
         }));
 
         const initialLength = service['_enabledNetworks'].length;

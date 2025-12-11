@@ -76,7 +76,7 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     setAnalyticsConsent: jest.fn(),
   } as unknown as SettingsService;
   const networkServiceMock = {
-    addFavoriteNetwork: jest.fn(),
+    enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;

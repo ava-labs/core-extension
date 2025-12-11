@@ -16,6 +16,7 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
+  NETWORKS_ENABLED_FOREVER,
 } from '@core/types';
 import {
   AVALANCHE_XP_NETWORK,
@@ -50,7 +51,6 @@ import {
   isSyncDomain,
 } from '@core/common';
 import { isSolanaNetwork } from '@core/common';
-import { defaultEnabledNetworks } from './consts';
 import { GlacierService } from '../glacier/GlacierService';
 
 @singleton()
@@ -61,7 +61,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   private _chainListFetched = new Signal<ChainList>();
 
   // Complete list of enabled networks ID
-  private _enabledNetworks: number[] = [...defaultEnabledNetworks];
+  private _enabledNetworks: number[] = [...NETWORKS_ENABLED_FOREVER];
   // Network data that is stored in storage
   private _networkAvailability: Record<number, { isEnabled: boolean }> = {};
 
@@ -238,7 +238,7 @@ export class NetworkService implements OnLock, OnStorageReady {
 
   private set enabledNetworks(networkIds: number[]) {
     const uniqueNetworkIds = [
-      ...new Set([...defaultEnabledNetworks, ...networkIds]),
+      ...new Set([...NETWORKS_ENABLED_FOREVER, ...networkIds]),
     ];
 
     this._enabledNetworks = uniqueNetworkIds;
@@ -289,7 +289,7 @@ export class NetworkService implements OnLock, OnStorageReady {
   async enableNetwork(chainId: number) {
     if (
       this._enabledNetworks.includes(chainId) ||
-      defaultEnabledNetworks.includes(chainId)
+      NETWORKS_ENABLED_FOREVER.includes(chainId)
     ) {
       return this._enabledNetworks;
     }
@@ -792,7 +792,7 @@ export class NetworkService implements OnLock, OnStorageReady {
       .filter(
         (chainId) =>
           this._networkAvailability[chainId] === undefined &&
-          !defaultEnabledNetworks.includes(Number(chainId)),
+          !NETWORKS_ENABLED_FOREVER.includes(Number(chainId)),
       )
       .map(Number);
     unknownChains.forEach((chainId) => {
