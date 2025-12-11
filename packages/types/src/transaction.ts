@@ -193,7 +193,6 @@ export interface Transaction {
   displayValues: TransactionDisplayValues;
   displayOptions?: TxDisplayOptions;
 }
-
 export interface EthSendTransactionParams {
   from: string;
   to?: string;
@@ -229,3 +228,15 @@ export type TxDisplayOptions = {
     notice?: string;
   };
 };
+
+export enum TransactionStatusEvents {
+  PENDING = 'TransactionStatusEvents:pending',
+  CONFIRMED = 'TransactionStatusEvents:confirmed',
+  REVERTED = 'TransactionStatusEvents:reverted',
+}
+
+export interface TransactionStatusInfo {
+  txHash: string;
+  chainId: number;
+  context?: Record<string, unknown>;
+}

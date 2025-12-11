@@ -17,7 +17,7 @@ import { useIsSpecificContextContainer } from '@core/ui';
 import { useOnline } from '@core/ui';
 import { usePageHistory } from '@core/ui';
 
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { OfflineContent } from './OfflineContent';
 import { useTranslation } from 'react-i18next';
@@ -41,8 +41,6 @@ import { NetworkFeeContextProvider } from '@core/ui';
 import LedgerSolanaAddressPrompt from '@/pages/Ledger/LedgerSolanaAddressPrompt';
 import { FirebaseContextProvider } from '@core/ui';
 import { NotificationsContextProvider } from '@core/ui';
-import { SwapPendingToast } from '@/pages/Swap/components/SwapPendingToast';
-import { toastCardWithLink } from '@/components/common/toastCardWithLink';
 import { WalletLocked } from '@/pages/Wallet/WalletLocked';
 import { Onboarding } from '@/pages/Onboarding/Onboarding';
 import { LoadingContent } from './LoadingContent';
@@ -105,19 +103,6 @@ export function Popup() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMiniMode, navigationHistoryState]);
 
-  const showPendingToast = useCallback(() => {
-    const toastId = toast.custom(
-      <SwapPendingToast onDismiss={() => toast.remove(toastId)}>
-        {t('Swap pending...')}
-      </SwapPendingToast>,
-      {
-        duration: Infinity,
-      },
-    );
-
-    return toastId;
-  }, [t]);
-
   if (!isOnline) {
     return (
       <OfflineContent
@@ -164,12 +149,7 @@ export function Popup() {
                       <CurrenciesContextProvider>
                         <BalancesProvider>
                           <DefiContextProvider>
-                            <SwapContextProvider
-                              removeToast={toast.remove}
-                              showErrorToast={toast.error}
-                              showPendingToast={showPendingToast}
-                              showToastWithLink={toastCardWithLink}
-                            >
+                            <SwapContextProvider>
                               <UnifiedBridgeProvider>
                                 <BridgeProvider>
                                   <ContactsContextProvider>

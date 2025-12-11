@@ -32,7 +32,7 @@ export const useEvmNativeSend = ({
   const { getNetworkFee } = useNetworkFeeContext();
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
-  const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
+  const { onSendFailure } = useTransactionCallbacks(network);
 
   const [error, setError] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -68,7 +68,8 @@ export const useEvmNativeSend = ({
         },
       );
 
-      onSendSuccess(hash);
+      // Transaction status will be handled by the TransactionStatusProvider
+      // so we don't need to listen for events here
 
       return hash;
     } catch (err) {
@@ -79,7 +80,6 @@ export const useEvmNativeSend = ({
     }
   }, [
     request,
-    onSendSuccess,
     onSendFailure,
     token.coreChainId,
     from.addressC,

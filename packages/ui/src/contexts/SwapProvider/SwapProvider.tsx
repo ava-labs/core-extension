@@ -15,11 +15,7 @@ import { BehaviorSubject, debounceTime } from 'rxjs';
 import browser from 'webextension-polyfill';
 
 import { useTokensWithBalances } from '../../hooks/useTokensWithBalances';
-import {
-  Monitoring,
-  getExplorerAddressByNetwork,
-  isSolanaNetwork,
-} from '@core/common';
+import { Monitoring, isSolanaNetwork } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 
 import { useAccountsContext } from '../AccountsProvider';
@@ -51,24 +47,7 @@ import { SWAP_REFRESH_INTERVAL } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
-type SwapContextProviderProps = PropsWithChildren<{
-  removeToast: (toastId: string) => void;
-  showErrorToast: (message: string) => void;
-  showPendingToast: () => string;
-  showToastWithLink: (options: {
-    title: string;
-    url: string;
-    label: string;
-  }) => void;
-}>;
-
-export function SwapContextProvider({
-  children,
-  removeToast,
-  showErrorToast,
-  showPendingToast,
-  showToastWithLink,
-}: SwapContextProviderProps) {
+export function SwapContextProvider({ children }: PropsWithChildren) {
   const { network: activeNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },
@@ -116,7 +95,6 @@ export function SwapContextProvider({
   const notifyOnSwapResult: OnTransactionReceiptCallback = useCallback(
     async ({
       isSuccessful,
-      pendingToastId,
       txHash,
       chainId,
       userAddress,
@@ -146,21 +124,6 @@ export function SwapContextProvider({
         ? t('Swap transaction succeeded! 🎉')
         : t('Swap transaction failed! ❌');
 
-      removeToast(pendingToastId);
-
-      if (isSuccessful) {
-        showToastWithLink({
-          title: notificationText,
-          url: getExplorerAddressByNetwork(
-            swapNetwork as NetworkWithCaipId,
-            txHash,
-          ),
-          label: t('View in Explorer'),
-        });
-      } else {
-        showErrorToast(notificationText);
-      }
-
       browser.notifications.create({
         type: 'basic',
         title: notificationText,
@@ -187,15 +150,7 @@ export function SwapContextProvider({
             ),
       });
     },
-    [
-      swapNetwork,
-      captureEncrypted,
-      findSymbol,
-      t,
-      showToastWithLink,
-      removeToast,
-      showErrorToast,
-    ],
+    [captureEncrypted, findSymbol, t],
   );
 
   const { getRate: getEvmRate, swap: evmSwap } = useEvmSwap(
@@ -206,7 +161,6 @@ export function SwapContextProvider({
     },
     {
       onTransactionReceipt: notifyOnSwapResult,
-      showPendingToast,
     },
   );
   const { getRate: getSvmRate, swap: svmSwap } = useSolanaSwap(
@@ -216,7 +170,6 @@ export function SwapContextProvider({
     },
     {
       onTransactionReceipt: notifyOnSwapResult,
-      showPendingToast,
     },
   );
 

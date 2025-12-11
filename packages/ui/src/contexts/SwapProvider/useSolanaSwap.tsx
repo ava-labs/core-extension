@@ -31,7 +31,7 @@ import { NormalizedTransactionParams } from './types';
 
 export const useSolanaSwap: SwapAdapter<SvmSwapQuote> = (
   { account, network },
-  { onTransactionReceipt, showPendingToast },
+  { onTransactionReceipt },
 ) => {
   const { request } = useConnectionContext();
   const { capture } = useAnalyticsContext();
@@ -183,8 +183,6 @@ export const useSolanaSwap: SwapAdapter<SvmSwapQuote> = (
         isOneClickSwapEnabled: false,
       });
 
-      const pendingToastId = showPendingToast();
-
       waitForTransaction(txHash).then(({ success, error }) => {
         if (error) {
           console.error(error);
@@ -192,7 +190,6 @@ export const useSolanaSwap: SwapAdapter<SvmSwapQuote> = (
 
         onTransactionReceipt({
           isSuccessful: success,
-          pendingToastId,
           userAddress: userPublicKey,
           txHash: txHash,
           chainId: network.chainId,
@@ -212,7 +209,6 @@ export const useSolanaSwap: SwapAdapter<SvmSwapQuote> = (
       capture,
       onTransactionReceipt,
       waitForTransaction,
-      showPendingToast,
       isFlagEnabled,
     ],
   );

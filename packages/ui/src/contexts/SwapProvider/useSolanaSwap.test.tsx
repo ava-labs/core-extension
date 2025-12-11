@@ -63,7 +63,6 @@ describe('contexts/SwapProvider/useSolanaSwap', () => {
   } as NetworkWithCaipId;
 
   const onTransactionReceipt = jest.fn();
-  const showPendingToast = jest.fn();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -100,7 +99,6 @@ describe('contexts/SwapProvider/useSolanaSwap', () => {
       useSolanaSwap(walletState, {
         onTransactionReceipt:
           methods?.onTransactionReceipt ?? onTransactionReceipt,
-        showPendingToast: methods?.showPendingToast ?? showPendingToast,
       }),
     );
 

@@ -235,7 +235,6 @@ export type TransactionResult = {
 
 export type OnTransactionReceiptCallback = (params: {
   isSuccessful: boolean;
-  pendingToastId: string;
   txHash: string;
   chainId: number;
   userAddress: string;
@@ -271,7 +270,6 @@ export type MarkrTransaction = {
 
 export type SwapAdapterMethods = {
   onTransactionReceipt: OnTransactionReceiptCallback;
-  showPendingToast: () => string;
 };
 
 export type SwapAdapter<T extends SwapQuote> = (
