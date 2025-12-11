@@ -905,6 +905,7 @@
   "networks": "networks",
   "off": "off",
   "on": "on",
+  "on {{networkName}}": "on {{networkName}}",
   "received": "received",
   "sent": "sent",
   "the selected network's": "the selected network's",

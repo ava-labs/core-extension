@@ -30,7 +30,7 @@ export const GroupAccordion = ({
       <Stack width="100%">
         {!skipHeader && (
           <ListItemButton
-            sx={{ height: '40px' }}
+            sx={{ height: '32px', py: 0 }}
             onClick={(ev) => {
               ev.stopPropagation();
               setIsGroupOpen((prev) => !prev);
