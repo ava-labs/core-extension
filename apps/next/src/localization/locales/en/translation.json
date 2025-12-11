@@ -6,7 +6,7 @@
   "25%": "25%",
   "50%": "50%",
   "<Bold>{{firstToken}}</Bold>, <Bold>{{secondToken}}</Bold>, <Bold>{{thirdToken}}</Bold> are trending today": "<Bold>{{firstToken}}</Bold>, <Bold>{{secondToken}}</Bold>, <Bold>{{thirdToken}}</Bold> are trending today",
-  "<b>{{dappName}}</b> is requesting to sign the following message": "<b>{{dappName}}</b> is requesting to sign the following message",
+  "<b>{{dappUrl}}</b> is requesting to sign the following message": "<b>{{dappUrl}}</b> is requesting to sign the following message",
   "A few more details are needed before getting any further with your wallet creation": "A few more details are needed before getting any further with your wallet creation",
   "About & support": "About & support",
   "Access an existing wallet with your recovery phrase. You can paste your entire phrase in the first field, or use the tab key to jump to the next field": "Access an existing wallet with your recovery phrase. You can paste your entire phrase in the first field, or use the tab key to jump to the next field",
