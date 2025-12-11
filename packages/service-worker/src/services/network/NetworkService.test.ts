@@ -801,8 +801,8 @@ describe('background/services/network/NetworkService', () => {
         expect(occurrences).toBe(1);
       });
 
-      it('should not add networks that are already in defaultEnabledNetworks', async () => {
-        // Mock defaultEnabledNetworks to include a specific chainId
+      it('should not add networks that are already in NETWORKS_ENABLED_FOREVER', async () => {
+        // Mock NETWORKS_ENABLED_FOREVER to include a specific chainId
         const defaultChainId = 43114; // Avalanche Mainnet
         jest.doMock('@core/types', () => ({
           ...jest.requireActual('@core/types'),
@@ -965,18 +965,18 @@ describe('background/services/network/NetworkService', () => {
         expect(enabledNetworks).not.toContain(1338);
       });
 
-      it('should include defaultEnabledNetworks in the result', async () => {
+      it('should include NETWORKS_ENABLED_FOREVER in the result', async () => {
         // Mock isMainnet to return true
         jest.spyOn(service, 'isMainnet').mockReturnValue(true);
 
         const enabledNetworks = await service.getEnabledNetworks();
 
-        // Should include networks from defaultEnabledNetworks
+        // Should include networks from NETWORKS_ENABLED_FOREVER
         expect(enabledNetworks.length).toBeGreaterThan(0);
       });
 
-      it('should remove duplicates when combining with defaultEnabledNetworks', async () => {
-        const defaultChainId = 43114; // Assuming this is in defaultEnabledNetworks
+      it('should remove duplicates when combining with NETWORKS_ENABLED_FOREVER', async () => {
+        const defaultChainId = 43114; // Assuming this is in NETWORKS_ENABLED_FOREVER
         jest.spyOn(service, 'isMainnet').mockReturnValue(true);
 
         await service.enableNetwork(defaultChainId);

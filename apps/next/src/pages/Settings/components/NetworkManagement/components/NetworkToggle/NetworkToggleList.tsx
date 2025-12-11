@@ -10,7 +10,7 @@ type NetworkToggleListProps = {
   networks: NetworkWithCaipId[];
 };
 
-const defaultNetworkSet = new Set(defaultEnabledNetworks);
+const defaultNetworkSet = new Set(NETWORKS_ENABLED_FOREVER);
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   const { enabledNetworks, enableNetwork, disableNetwork } =
     useNetworkContext();
