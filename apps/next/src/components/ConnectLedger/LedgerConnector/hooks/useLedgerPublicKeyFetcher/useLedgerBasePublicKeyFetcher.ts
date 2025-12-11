@@ -343,13 +343,6 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setWasManualConnectionAttempted(true);
         }
       });
-    } else {
-      const timer = setTimeout(() => {
-        setStatus('error');
-        setError('unable-to-connect');
-      }, 5_000); // Wait 5 seconds to obtain the connection, then show an error message with some instructions
-
-      return () => clearTimeout(timer);
     }
   }, [
     appType,
