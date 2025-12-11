@@ -6,7 +6,7 @@ import { DeFiTab } from '../PortolioDetails/components/DeFiTab';
 import { TabName } from '../../types';
 
 type Props = {
-  tab: TabName;
+  tab?: TabName;
 };
 
 type TabConfig = {
