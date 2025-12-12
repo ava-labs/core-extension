@@ -24,6 +24,7 @@ type NetworkFormProps = {
   canResetRpcUrl: boolean;
   fieldInfo: { [key in NetworkFormFields]?: FieldInfo };
   readOnly: boolean;
+  isEditing?: boolean;
   pageType: 'add' | 'edit';
 };
 
@@ -34,6 +35,7 @@ export const NetworkForm = ({
   canResetRpcUrl,
   fieldInfo,
   readOnly,
+  isEditing,
   pageType,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
@@ -41,6 +43,9 @@ export const NetworkForm = ({
   const convertChainIdToString = (chainId: number) => {
     return chainId === 0 ? '' : chainId.toString();
   };
+
+  // RPC URL should be editable for default networks when editing
+  const isRpcUrlReadOnly = readOnly && !(canResetRpcUrl && isEditing);
 
   return (
     <Card sx={{ width: '100%', px: 2 }}>
@@ -51,7 +56,7 @@ export const NetworkForm = ({
         required={fieldInfo.rpcUrl?.required}
         canResetRpcUrl={canResetRpcUrl}
         resetAction={fieldInfo.rpcUrl?.resetAction ?? (() => {})}
-        readOnly={readOnly}
+        readOnly={isRpcUrlReadOnly}
       />
       <Divider />
       <ChainIdField

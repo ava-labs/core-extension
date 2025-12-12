@@ -43,20 +43,25 @@ export const useEditNetwork = ({
     setNetwork(original);
   }, [original, setNetwork]);
 
-  const submit = useCallback(async () => {
-    if (!network) {
-      return;
-    }
+  const submit = useCallback(
+    async (networkToSubmit?: Network) => {
+      const networkForSubmit = networkToSubmit ?? network;
 
-    if (isCustom) {
-      await saveCustomNetwork(network);
-      capture('CustomNetworkEdited');
-      return;
-    }
+      if (!networkForSubmit) {
+        return;
+      }
 
-    await updateDefaultNetwork(network);
-    capture('DefaultNetworkRPCEdited');
-  }, [capture, isCustom, network, saveCustomNetwork, updateDefaultNetwork]);
+      if (isCustom) {
+        await saveCustomNetwork(networkForSubmit);
+        capture('CustomNetworkEdited');
+        return;
+      }
+
+      await updateDefaultNetwork(networkForSubmit);
+      capture('DefaultNetworkRPCEdited');
+    },
+    [capture, isCustom, network, saveCustomNetwork, updateDefaultNetwork],
+  );
 
   const resetRpcUrl = useCallback(async () => {
     if (!network) return;
