@@ -37,7 +37,7 @@ export const FilterMenu: FC<FilterMenuProps> = ({
 
   return (
     <Box id={id}>
-      <DropdownMenu label={t('Filter')}>
+      <DropdownMenu label={t('Filter')} closeOnItemClick={false}>
         <PopoverItem onClick={handleSelectAll} selected={isAllSelected}>
           {t('All Networks')}
         </PopoverItem>
