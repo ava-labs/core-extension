@@ -5,6 +5,7 @@ import {
   Grow,
   Stack,
   styled,
+  toast,
   Typography,
   TypographyProps,
   useTheme,
@@ -144,7 +145,10 @@ export const FormField = ({
           variant="contained"
           size="small"
           color="secondary"
-          onClick={() => navigator.clipboard.writeText(value)}
+          onClick={() => {
+            toast.success(t('Copied!'));
+            navigator.clipboard.writeText(value);
+          }}
         >
           {t('Copy')}
         </Button>
