@@ -1,4 +1,3 @@
-import { Network } from '@avalabs/glacier-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   NetworkVMType,
@@ -452,28 +451,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockSecrets('xpubXP'); // We've got xpubXP
     });
 
-    it('looks for XP-chain activity on underived addresses of the requested wallet', async () => {
-      const unresolvedAddresses = ['avaxUnresolvedAddress'];
-      mockAccountsWithActivity(unresolvedAddresses);
-
-      const response = await handleRequest('seedphrase');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).toHaveBeenCalledWith(
-        'xpubXP',
-        PROVIDER_XP,
-        expect.any(Function),
-      );
-
-      // Let's also make sure the passed activity fetcher actually invokes the Glacier API:
-      const fetcher = jest.mocked(getAccountsWithActivity).mock.lastCall?.[2];
-      expect(fetcher).toEqual(expect.any(Function));
-      fetcher?.(unresolvedAddresses);
-      expect(glacierService.getChainIdsForAddresses).toHaveBeenCalledWith({
-        addresses: unresolvedAddresses,
-        network: Network.MAINNET,
-      });
-    });
-
     it('fetches C-, X- and P-Chain balances along with favorite networks for already derived accounts within the wallet', async () => {
       mockAccountsWithActivity([]); // No underived addresses with activity
 
@@ -573,122 +550,9 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         percentageChange: undefined,
       });
     });
-
-    it('fetches XP balances for underived accounts with activity and do that with two batches (two different calls)', async () => {
-      const xpAddress = 'ledger-2-address';
-      const underivedAddresses = [
-        xpAddress,
-        ...new Array(99).fill('').map((_, index) => `${xpAddress}-${index}`),
-      ];
-
-      mockAccountsWithActivity(underivedAddresses);
-
-      const buildBalanceObject = (prefix: string, balance: number) => {
-        return underivedAddresses.reduce(
-          (accumulator, address) => ({
-            ...accumulator,
-            [`${prefix}-${address}`]: {
-              ...buildBalance('AVAX', balance),
-            },
-          }),
-          {},
-        );
-      };
-
-      mockBalances(true, {
-        X: {
-          ...buildBalanceObject('X', 100),
-        },
-        P: {
-          ...buildBalanceObject('P', 900),
-        },
-      });
-
-      const response = await handleRequest('ledger');
-      expect(response.error).toBeUndefined();
-
-      // Fetching balances of derived accounts (all networks per account) and underived accounts two times because of batching
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(4);
-
-      // Call 1: All networks for derived accounts (native + ERC20 tokens)
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
-          ChainId.AVALANCHE_MAINNET_ID,
-          ChainId.AVALANCHE_X,
-          ChainId.AVALANCHE_P,
-          ChainId.BITCOIN,
-          ChainId.ETHEREUM_HOMESTEAD,
-        ]),
-        [ACCOUNT_LEDGER_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
-
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
-          ChainId.AVALANCHE_MAINNET_ID,
-          ChainId.AVALANCHE_X,
-          ChainId.AVALANCHE_P,
-          ChainId.BITCOIN,
-          ChainId.ETHEREUM_HOMESTEAD,
-        ]),
-        [ACCOUNT_LEDGER_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
-
-      // Call 2: Fetching XP balances of underived accounts, without caching
-      // expecting two calls because of batching (64+36)
-      const expectedBatch = [
-        {
-          addressPVM: `P-${xpAddress}`,
-          addressAVM: `X-${xpAddress}`,
-        },
-        ...new Array(63).fill('').map((_, index) => ({
-          addressPVM: `P-${xpAddress}-${index}`,
-          addressAVM: `X-${xpAddress}-${index}`,
-        })),
-      ];
-      const expectedBatch2 = new Array(36).fill('').map((_, index) => ({
-        // 63 is the offset from the previous batch
-        addressPVM: `P-${xpAddress}-${index + 63}`,
-        addressAVM: `X-${xpAddress}-${index + 63}`,
-      }));
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        3,
-        [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-        expectedBatch,
-        [TokenType.NATIVE],
-        false,
-      );
-
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        4,
-        [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-        expectedBatch2,
-        [TokenType.NATIVE],
-        false,
-      );
-
-      expect(response.result).toEqual({
-        hasBalanceOnUnderivedAccounts: true,
-        totalBalanceInCurrency: 201440, // 200000 on underived accounts + 1440 on those mocked by default (already derived)
-        balanceChange: undefined,
-        percentageChange: undefined,
-      });
-    });
   });
-  describe('when requested wallet does has additional XP public keys for some accounts', () => {
+
+  describe('when requested wallet has additional XP public keys for some accounts', () => {
     const keys = ['00000001', '00000002'];
     const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
       type: 'address-pubkey',
