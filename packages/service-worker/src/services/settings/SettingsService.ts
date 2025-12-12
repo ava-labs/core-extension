@@ -24,7 +24,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   currency: 'USD',
   customTokens: {},
   showTokensWithoutBalances: false,
-  theme: 'DARK',
+  theme: 'SYSTEM',
   tokensVisibility: {},
   collectiblesVisibility: {},
   analyticsConsent: AnalyticsConsent.Approved,
