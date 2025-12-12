@@ -171,7 +171,6 @@ const StyledTypography = styled(Typography)({
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
 });
 
 const TransactionDescriptionContainer = ({
