@@ -5,7 +5,7 @@ import { useAccountsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../../contexts';
-import { TransferResult } from '../../hooks';
+import { TransferResult, useBridgeFormStateHandler } from '../../hooks';
 import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
 import {
   BannerTop,
@@ -15,14 +15,12 @@ import {
 } from './components';
 
 type Props = {
-  error: string;
   onSuccess(result: TransferResult): void;
   onRejected(result: TransferResult): void;
   onFailure(error: unknown): void;
 };
 
 export const BridgeTransactionForm: FC<Props> = ({
-  error,
   onSuccess,
   onRejected,
   onFailure,
@@ -32,8 +30,8 @@ export const BridgeTransactionForm: FC<Props> = ({
     accounts: { active },
     selectAccount,
   } = useAccountsContext();
+
   const [accountQuery, setAccountQuery] = useState('');
-  const [isBridgeExecuting, setIsBridgeExecuting] = useState(false);
   const {
     transferAsset,
     asset,
@@ -43,14 +41,18 @@ export const BridgeTransactionForm: FC<Props> = ({
       sourceNetwork: sourceNetworkId,
       targetNetwork: targetNetworkId,
     },
-    fee,
-    minTransferAmount,
-    amountAfterFee,
   } = useBridgeState();
 
-  const canExecuteBridge = asset && amount && targetNetworkId;
+  const {
+    isBridgeButtonDisabled,
+    error,
+    isBridgeExecuting,
+    setIsBridgeExecuting,
+  } = useBridgeFormStateHandler();
 
   const performBridge = async () => {
+    const canExecuteBridge = asset && amount && targetNetworkId;
+
     if (!canExecuteBridge) {
       return;
     }
@@ -79,21 +81,6 @@ export const BridgeTransactionForm: FC<Props> = ({
     }
   };
 
-  const isFeeLoading = fee === undefined;
-  const isAmountCorrect =
-    canExecuteBridge &&
-    minTransferAmount &&
-    minTransferAmount <= stringToBigint(amount, asset.decimals);
-  const isReceiveAmountCorrect =
-    typeof amountAfterFee === 'bigint' && amountAfterFee > 0n;
-  const isBridgeButtonDisabled = Boolean(
-    !canExecuteBridge ||
-      error ||
-      isFeeLoading ||
-      !isAmountCorrect ||
-      isBridgeExecuting ||
-      !isReceiveAmountCorrect,
-  );
   return (
     <>
       <Stack gap={1}>
@@ -112,7 +99,7 @@ export const BridgeTransactionForm: FC<Props> = ({
         />
         <BridgeControls />
       </Stack>
-      <BridgeErrorMessage error={error} />
+      <BridgeErrorMessage formError={error} />
       <BitcoinBridgeInfo />
       <Stack
         width="100%"

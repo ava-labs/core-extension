@@ -1,32 +1,59 @@
-import { handleTxOutcome } from '@core/common';
-import { useMemo } from 'react';
+import { handleTxOutcome, isAddressBlockedError } from '@core/common';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeQuery } from '../contexts';
-import { useBridgeErrorHandler } from './useBridgeErrorHandler';
+import { toast } from '@avalabs/k2-alpine';
+import { useErrorMessage } from '@core/ui';
 
 export type TransferResult = Awaited<
   ReturnType<typeof handleTxOutcome<string>>
 >;
+const TOAST_ID = 'bridge-result';
 
-export const useBridgeTxHandlers = ({
-  clearError,
-  onBridgeError,
-}: ReturnType<typeof useBridgeErrorHandler>) => {
+export const useBridgeTxHandlers = () => {
+  const [isAddressBlocked, setIsAddressBlocked] = useState(false);
+  const getTranslatedError = useErrorMessage();
+
   const { updateQuery } = useBridgeQuery();
   const { t } = useTranslation();
-  return useMemo(
-    () => ({
-      onSuccess: (result: Extract<TransferResult, { hasError: false }>) => {
-        updateQuery({ transactionId: result.result });
-        clearError();
-      },
-      onRejected: (result: Extract<TransferResult, { hasError: true }>) => {
-        onBridgeError(result.error, t('This transaction has been rejected'));
-      },
-      onFailure: (error: unknown) => {
-        onBridgeError(error, t('This transaction has failed'));
-      },
-    }),
-    [clearError, onBridgeError, t, updateQuery],
+
+  const onBridgeError = useCallback(
+    (err: unknown) => {
+      if (isAddressBlockedError(err)) {
+        setIsAddressBlocked(true);
+      } else {
+        const { title, hint } = getTranslatedError(err);
+        toast.error(title, {
+          description: hint,
+          id: TOAST_ID,
+        });
+      }
+    },
+    [getTranslatedError],
   );
+
+  const onSuccess = useCallback(
+    (result: Extract<TransferResult, { hasError: false }>) => {
+      updateQuery({ transactionId: result.result });
+    },
+    [updateQuery],
+  );
+
+  const onRejected = useCallback(() => {
+    toast.error(t('This transaction has been rejected'), { id: TOAST_ID });
+  }, [t]);
+
+  const onFailure = useCallback(
+    (error: unknown) => {
+      onBridgeError(error);
+    },
+    [onBridgeError],
+  );
+
+  return {
+    isAddressBlocked,
+    onSuccess,
+    onRejected,
+    onFailure,
+  };
 };

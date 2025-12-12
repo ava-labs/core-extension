@@ -114,10 +114,9 @@ export const PortfolioHome: FC = () => {
             tabBarItems={TABS}
             value={activeTabFromParams ?? activeTab}
             onChange={(_, val) => {
-              queryParams.set('activeTab', val);
               history.push({
                 pathname: location.pathname,
-                search: queryParams.toString(),
+                search: `?activeTab=${val}`, // Reset any params other than activeTab
               });
               setActiveTab(val as TabName);
               if (val === 'assets') {
