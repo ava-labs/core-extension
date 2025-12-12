@@ -2,10 +2,8 @@ import {
   ListItem,
   ListItemText,
   ListItemTextProps,
-  Stack,
   SxProps,
   Theme,
-  Typography,
 } from '@avalabs/k2-alpine';
 import { TxHistoryItem } from '@core/types';
 import { useSettingsContext, useTokenPrice } from '@core/ui';
@@ -16,8 +14,8 @@ import { TransactionIcon } from './TransactionIcon';
 
 import * as Styled from './Styled';
 import { ViewInExplorerButton } from './ViewInExplorerButton';
-import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TokenType } from '@avalabs/vm-module-types';
+import { TransactionDescription } from './TransactionIcon/components/TransactionDescription';
 
 type Props = {
   transaction: TxHistoryItem;
@@ -107,17 +105,18 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
       </Styled.ListItemIcon>
       <ListItemText
         primary={
-          <Stack direction="row" alignItems="flex-start" gap={0.5}>
-            <CollapsedTokenAmount
-              amount={token?.amount?.toString() ?? '0'}
-              regularProps={{ variant: 'body3' }}
-              overlineProps={{ variant: 'caption2' }}
-            />
-            <Typography variant="body3">{token?.symbol}</Typography>
-            <Typography variant="body3">
-              {transaction.isSender ? t('sent') : t('received')}
-            </Typography>
-          </Stack>
+          <TransactionDescription transaction={transaction} />
+          // <Stack direction="row" alignItems="flex-start" gap={0.5}>
+          //   <CollapsedTokenAmount
+          //     amount={token?.amount?.toString() ?? '0'}
+          //     regularProps={{ variant: 'body3' }}
+          //     overlineProps={{ variant: 'caption2' }}
+          //   />
+          //   <Typography variant="body3">{token?.symbol}</Typography>
+          //   <Typography variant="body3">
+          //     {transaction.isSender ? t('sent') : t('received')}
+          //   </Typography>
+          // </Stack>
         }
         secondary={usdValue ? currencyFormatter(usdValue) : ''}
         slotProps={

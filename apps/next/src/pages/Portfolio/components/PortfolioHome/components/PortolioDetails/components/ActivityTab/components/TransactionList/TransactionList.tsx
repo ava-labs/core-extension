@@ -12,7 +12,7 @@ type Props = {
 
 const TransactionList: FC<Props> = ({ filter, network }) => {
   const transactionHistory = useAccountHistory(network);
-
+  console.log({ transactionHistory });
   return (
     <HistoryList filter={filter} transactionHistory={transactionHistory} />
   );
