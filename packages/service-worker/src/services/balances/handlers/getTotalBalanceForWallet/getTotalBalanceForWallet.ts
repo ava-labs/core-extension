@@ -175,6 +175,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             chainIds: networksIncludedInTotal.map((network) => network.chainId),
             accounts: [account],
             tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+            requestId: walletId,
           });
 
         const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(

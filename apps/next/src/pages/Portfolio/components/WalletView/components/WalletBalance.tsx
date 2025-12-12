@@ -21,6 +21,7 @@ type Props = {
   walletName?: string;
   isLoading: boolean;
   hasErrorOccurred: boolean;
+  hasBalanceServiceErrorOccurred: boolean;
   totalBalanceInCurrency?: number | null;
   balanceChange?: number;
   percentageChange?: number;
@@ -30,6 +31,7 @@ export const WalletBalance = ({
   walletName,
   isLoading,
   hasErrorOccurred,
+  hasBalanceServiceErrorOccurred,
   totalBalanceInCurrency,
   balanceChange,
   percentageChange,
@@ -106,7 +108,15 @@ export const WalletBalance = ({
         />
       )}
 
-      {hasErrorOccurred && (
+      {hasBalanceServiceErrorOccurred && (
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <MdError size={20} color={theme.palette.error.main} />
+          <Typography variant="subtitle4" color="error">
+            {<Trans i18nKey="Unable to load all network balances" />}
+          </Typography>
+        </Stack>
+      )}
+      {hasErrorOccurred && !hasBalanceServiceErrorOccurred && (
         <Stack direction="row" alignItems="center" gap={0.5}>
           <MdError size={20} color={theme.palette.error.main} />
           <Typography variant="subtitle4" color="error">

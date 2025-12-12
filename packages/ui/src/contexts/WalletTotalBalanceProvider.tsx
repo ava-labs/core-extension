@@ -13,6 +13,7 @@ import {
   IMPORTED_ACCOUNTS_WALLET_ID,
   TotalBalanceForWallet,
   ExtensionRequest,
+  BalanceAggregatorServiceErrors,
 } from '@core/types';
 
 import { GetTotalBalanceForWalletHandler } from '@core/service-worker';
@@ -27,6 +28,7 @@ interface WalletTotalBalanceContextProps {
 export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
   isLoading: boolean;
   hasErrorOccurred: boolean;
+  hasBalanceServiceErrorOccurred: boolean;
 };
 
 const WalletTotalBalanceContext = createContext<
@@ -37,6 +39,26 @@ const WalletTotalBalanceContext = createContext<
     }
   | undefined
 >(undefined);
+
+const checkAndCleanupPossibleError = async (walletId: string) => {
+  const sessionStorage = chrome.storage.session;
+
+  const possibleBalanceServiceError: { [key: string]: string } =
+    await sessionStorage.get(walletId);
+  let hasErrorOccurred = false;
+  if (
+    possibleBalanceServiceError &&
+    possibleBalanceServiceError[walletId] ===
+      BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE
+  ) {
+    hasErrorOccurred = true;
+  }
+
+  if (hasErrorOccurred) {
+    await sessionStorage.remove([walletId]);
+  }
+  return hasErrorOccurred;
+};
 
 export const WalletTotalBalanceProvider = ({
   children,
@@ -65,6 +87,7 @@ export const WalletTotalBalanceProvider = ({
         [walletId]: {
           ...prevState[walletId],
           hasErrorOccurred: false,
+          hasBalanceServiceErrorOccurred: false,
           isLoading: true,
         },
       }));
@@ -75,23 +98,29 @@ export const WalletTotalBalanceProvider = ({
           walletId,
         },
       })
-        .then((walletBalanceInfo) => {
+        .then(async (walletBalanceInfo) => {
+          const hasBalanceServiceErrorOccurred =
+            await checkAndCleanupPossibleError(walletId);
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
               ...walletBalanceInfo,
               hasErrorOccurred: false,
+              hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
         })
-        .catch((err) => {
+        .catch(async (err) => {
           console.log('Error while fetching total balance for wallet', err);
+          const hasBalanceServiceErrorOccurred =
+            await checkAndCleanupPossibleError(walletId);
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
               ...prevState[walletId],
               hasErrorOccurred: true,
+              hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
