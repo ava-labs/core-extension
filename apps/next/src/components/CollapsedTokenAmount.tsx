@@ -1,5 +1,4 @@
 import {
-  Box,
   Stack,
   StackProps,
   Tooltip,
@@ -14,13 +13,6 @@ type CollapsedTokenAmountProps = {
   stackProps?: StackProps;
   showApproximationSign?: boolean;
   showTooltip?: boolean;
-  justifyContent?:
-    | 'flex-end'
-    | 'flex-start'
-    | 'center'
-    | 'space-between'
-    | 'space-around'
-    | 'space-evenly';
 };
 
 const defaultOverlineProps: TypographyProps = {
@@ -57,7 +49,6 @@ export const CollapsedTokenAmount = ({
   stackProps,
   showApproximationSign = true,
   showTooltip = true,
-  justifyContent = 'flex-end',
 }: CollapsedTokenAmountProps) => {
   const finalOverlineProps = { ...defaultOverlineProps, ...overlineProps };
   const finalRegularProps = { ...defaultRegularProps, ...regularProps };
@@ -77,9 +68,13 @@ export const CollapsedTokenAmount = ({
   const zeroCount = fraction.slice(0, indexOfNonZero).length;
 
   if (fraction && indexOfNonZero >= CONSECUTIVE_ZEROES_THRESHOLD) {
-    const isInline = regularProps?.component === 'span';
-    const collapsedContent = (
-      <>
+    const content = (
+      <Stack
+        direction="row"
+        width="100%"
+        justifyContent="flex-end"
+        {...stackProps}
+      >
         <Typography {...finalRegularProps}>{integer}.0</Typography>
         <Typography {...finalOverlineProps}>{zeroCount}</Typography>
         <Typography {...finalRegularProps}>
@@ -88,21 +83,6 @@ export const CollapsedTokenAmount = ({
             indexOfNonZero + MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES,
           )}
         </Typography>
-      </>
-    );
-
-    const content = isInline ? (
-      <Box component="span" sx={{ display: 'inline' }}>
-        {collapsedContent}
-      </Box>
-    ) : (
-      <Stack
-        direction="row"
-        width="fit-content"
-        justifyContent={justifyContent}
-        {...stackProps}
-      >
-        {collapsedContent}
       </Stack>
     );
 

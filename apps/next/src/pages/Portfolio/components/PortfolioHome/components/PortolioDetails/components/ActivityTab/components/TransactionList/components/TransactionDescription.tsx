@@ -1,4 +1,4 @@
-import { Typography } from '@avalabs/k2-alpine';
+import { Box, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TxHistoryItem } from '@core/types';
 import { useTranslation } from 'react-i18next';
@@ -25,12 +25,21 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
 
   const amount = useMemo(
     () => (
-      <CollapsedTokenAmount
-        amount={mainToken?.amount?.toString() ?? '0'}
-        regularProps={{ variant: 'body3', component: 'span' }}
-        overlineProps={{ variant: 'caption2', component: 'span' }}
-        justifyContent="flex-start"
-      />
+      <Box
+        component="span"
+        sx={{ display: 'inline', '& *': { display: 'inline' } }}
+      >
+        <CollapsedTokenAmount
+          amount={mainToken?.amount?.toString() ?? '0'}
+          regularProps={{ variant: 'body3' }}
+          overlineProps={{ variant: 'caption2' }}
+          stackProps={{
+            justifyContent: 'flex-start',
+            width: 'fit-content',
+            display: 'inline',
+          }}
+        />
+      </Box>
     ),
     [mainToken],
   );
@@ -73,12 +82,21 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       );
       return (
         <TransactionDescriptionContainer>
-          <CollapsedTokenAmount
-            amount={sourceToken?.amount?.toString() ?? '0'}
-            regularProps={{ variant: 'body3', component: 'span' }}
-            overlineProps={{ variant: 'caption2', component: 'span' }}
-            justifyContent="flex-start"
-          />{' '}
+          <Box
+            component="span"
+            sx={{ display: 'inline', '& *': { display: 'inline' } }}
+          >
+            <CollapsedTokenAmount
+              amount={sourceToken?.amount?.toString() ?? '0'}
+              regularProps={{ variant: 'body3' }}
+              overlineProps={{ variant: 'caption2' }}
+              stackProps={{
+                justifyContent: 'flex-start',
+                width: 'fit-content',
+                display: 'inline',
+              }}
+            />
+          </Box>{' '}
           {sourceToken?.symbol} {t('swapped for')} {targetToken?.symbol}
         </TransactionDescriptionContainer>
       );
@@ -157,6 +175,7 @@ const TransactionDescriptionContainer = ({
     <Typography
       variant="body3"
       component="span"
+      justifyContent="flex-start"
       sx={{
         display: '-webkit-box',
         WebkitLineClamp: 2,
