@@ -31,6 +31,7 @@ import {
   isFulfilled,
   watchlistTokens,
   Monitoring,
+  setErrorForRequestInSessionStorage,
 } from '@core/common';
 
 import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
@@ -278,7 +279,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         };
       } catch (err) {
         if (requestId) {
-          await this.storageService.saveToSessionStorage(
+          await setErrorForRequestInSessionStorage(
             requestId,
             BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
           );

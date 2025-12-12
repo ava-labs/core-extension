@@ -8,19 +8,18 @@ import {
   useRef,
 } from 'react';
 import { isString } from 'lodash';
-import browser from 'webextension-polyfill';
 
 import {
   IMPORTED_ACCOUNTS_WALLET_ID,
   TotalBalanceForWallet,
   ExtensionRequest,
-  BalanceAggregatorServiceErrors,
 } from '@core/types';
 
 import { GetTotalBalanceForWalletHandler } from '@core/service-worker';
 import { useAccountsContext } from './AccountsProvider';
 import { useWalletContext } from './WalletProvider';
 import { useConnectionContext } from './ConnectionProvider';
+import { checkAndCleanupPossibleErrorForRequestInSessionStorage } from '@core/common';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;
@@ -40,27 +39,6 @@ const WalletTotalBalanceContext = createContext<
     }
   | undefined
 >(undefined);
-
-const checkAndCleanupPossibleError = async (walletId: string) => {
-  const sessionStorage = browser?.storage?.session ?? null;
-
-  if (!sessionStorage) {
-    return false;
-  }
-
-  const possibleBalanceServiceError: { [key: string]: string } =
-    await sessionStorage.get(walletId);
-  if (
-    !possibleBalanceServiceError ||
-    possibleBalanceServiceError[walletId] !==
-      BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE
-  ) {
-    return false;
-  }
-
-  await sessionStorage.remove([walletId]);
-  return true;
-};
 
 export const WalletTotalBalanceProvider = ({
   children,
@@ -102,7 +80,9 @@ export const WalletTotalBalanceProvider = ({
       })
         .then(async (walletBalanceInfo) => {
           const hasBalanceServiceErrorOccurred =
-            await checkAndCleanupPossibleError(walletId);
+            await checkAndCleanupPossibleErrorForRequestInSessionStorage(
+              walletId,
+            );
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
@@ -116,7 +96,9 @@ export const WalletTotalBalanceProvider = ({
         .catch(async (err) => {
           console.log('Error while fetching total balance for wallet', err);
           const hasBalanceServiceErrorOccurred =
-            await checkAndCleanupPossibleError(walletId);
+            await checkAndCleanupPossibleErrorForRequestInSessionStorage(
+              walletId,
+            );
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
