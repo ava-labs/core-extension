@@ -19,8 +19,6 @@ const TransactionList: FC<Props> = ({ filter, networkChainId }) => {
     [networkChainId, getNetwork],
   );
 
-  console.log({ transactionHistory });
-
   return (
     <HistoryList
       filter={filter}
