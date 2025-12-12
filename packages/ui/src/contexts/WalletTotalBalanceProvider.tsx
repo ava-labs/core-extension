@@ -19,6 +19,7 @@ import { GetTotalBalanceForWalletHandler } from '@core/service-worker';
 import { useAccountsContext } from './AccountsProvider';
 import { useWalletContext } from './WalletProvider';
 import { useConnectionContext } from './ConnectionProvider';
+import { checkAndCleanupPossibleErrorForRequestInSessionStorage } from '@core/common';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;
@@ -27,6 +28,7 @@ interface WalletTotalBalanceContextProps {
 export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
   isLoading: boolean;
   hasErrorOccurred: boolean;
+  hasBalanceServiceErrorOccurred: boolean;
 };
 
 const WalletTotalBalanceContext = createContext<
@@ -65,6 +67,7 @@ export const WalletTotalBalanceProvider = ({
         [walletId]: {
           ...prevState[walletId],
           hasErrorOccurred: false,
+          hasBalanceServiceErrorOccurred: false,
           isLoading: true,
         },
       }));
@@ -75,23 +78,33 @@ export const WalletTotalBalanceProvider = ({
           walletId,
         },
       })
-        .then((walletBalanceInfo) => {
+        .then(async (walletBalanceInfo) => {
+          const hasBalanceServiceErrorOccurred =
+            await checkAndCleanupPossibleErrorForRequestInSessionStorage(
+              walletId,
+            );
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
               ...walletBalanceInfo,
               hasErrorOccurred: false,
+              hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
         })
-        .catch((err) => {
+        .catch(async (err) => {
           console.log('Error while fetching total balance for wallet', err);
+          const hasBalanceServiceErrorOccurred =
+            await checkAndCleanupPossibleErrorForRequestInSessionStorage(
+              walletId,
+            );
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
               ...prevState[walletId],
               hasErrorOccurred: true,
+              hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));

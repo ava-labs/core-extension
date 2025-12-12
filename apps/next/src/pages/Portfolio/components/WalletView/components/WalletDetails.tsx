@@ -25,6 +25,7 @@ export const WalletDetails = ({ wallet }: Props) => {
   const {
     isLoading,
     hasErrorOccurred,
+    hasBalanceServiceErrorOccurred,
     totalBalanceInCurrency,
     balanceChange,
     percentageChange,
@@ -55,6 +56,7 @@ export const WalletDetails = ({ wallet }: Props) => {
         walletName={wallet.name}
         isLoading={isLoading}
         hasErrorOccurred={hasErrorOccurred}
+        hasBalanceServiceErrorOccurred={hasBalanceServiceErrorOccurred}
         totalBalanceInCurrency={totalBalanceInCurrency}
         balanceChange={balanceChange}
         percentageChange={percentageChange}

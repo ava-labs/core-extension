@@ -18,6 +18,10 @@ export enum BalanceServiceEvents {
   UPDATED = 'BalanceServiceEvents:updated',
 }
 
+export enum BalanceAggregatorServiceErrors {
+  ERROR_WHILE_CALLING_BALANCE__SERVICE = 'ErrorWhileCallingBalanceService',
+}
+
 export type RawTokenAttribute = {
   value: string;
 } & (

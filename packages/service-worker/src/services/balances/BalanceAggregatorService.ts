@@ -12,6 +12,7 @@ import {
 import {
   Account,
   AtomicBalances,
+  BalanceAggregatorServiceErrors,
   Balances,
   BALANCES_CACHE_KEY,
   BalanceServiceEvents,
@@ -30,6 +31,7 @@ import {
   isFulfilled,
   watchlistTokens,
   Monitoring,
+  setErrorForRequestInSessionStorage,
 } from '@core/common';
 
 import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
@@ -217,11 +219,17 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     }
   }
 
-  async #getTokenBalances(
-    chainIds: number[],
-    accounts: Account[],
-    tokenTypes: TokenType[],
-  ): Promise<{ tokens: Balances; atomic: AtomicBalances }> {
+  async #getTokenBalances({
+    chainIds,
+    accounts,
+    tokenTypes,
+    requestId,
+  }: {
+    chainIds: number[];
+    accounts: Account[];
+    tokenTypes: TokenType[];
+    requestId?: string;
+  }): Promise<{ tokens: Balances; atomic: AtomicBalances }> {
     if (tokenTypes.some((tokenType) => NFT_TYPES.includes(tokenType))) {
       return { tokens: {}, atomic: {} };
     }
@@ -270,6 +278,12 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           atomic: atomicBalanceObject,
         };
       } catch (err) {
+        if (requestId) {
+          await setErrorForRequestInSessionStorage(
+            requestId,
+            BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
+          );
+        }
         Monitoring.sentryCaptureException(
           err as Error,
           Monitoring.SentryExceptionTypes.BALANCES,
@@ -283,12 +297,19 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     return { tokens: balances.tokens, atomic: {} };
   }
 
-  async getBalancesForNetworks(
-    chainIds: number[],
-    accounts: Account[],
-    tokenTypes: TokenType[],
+  async getBalancesForNetworks({
+    chainIds,
+    accounts,
+    tokenTypes,
     cacheResponse = true,
-  ): Promise<{
+    requestId,
+  }: {
+    chainIds: number[];
+    accounts: Account[];
+    tokenTypes: TokenType[];
+    cacheResponse?: boolean;
+    requestId?: string;
+  }): Promise<{
     tokens: Balances;
     nfts: Balances<NftTokenWithBalance>;
     atomic: AtomicBalances;
@@ -305,7 +326,12 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     const [nfts, { tokens, atomic }] = (
       await Promise.allSettled([
         this.#getNftBalances(chainIds, accounts, nftTokenTypes),
-        this.#getTokenBalances(chainIds, accounts, notNftTokenTypes),
+        this.#getTokenBalances({
+          chainIds,
+          accounts,
+          tokenTypes: notNftTokenTypes,
+          requestId,
+        }),
       ])
     ).map((promiseResolve) =>
       promiseResolve.status === 'rejected' ? null : promiseResolve.value,
@@ -539,14 +565,14 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             accountsService.getAccounts(),
             networkService.getEnabledNetworks(),
           ]);
-          this.getBalancesForNetworks(
-            enabledNetworks,
-            [
+          this.getBalancesForNetworks({
+            chainIds: enabledNetworks,
+            accounts: [
               ...Object.values(accounts.primary),
               ...Object.values(accounts.imported),
             ].flat(),
-            Object.values(TokenType),
-          );
+            tokenTypes: Object.values(TokenType),
+          });
         });
       } catch (_error) {
         /* if there was an error just continue */

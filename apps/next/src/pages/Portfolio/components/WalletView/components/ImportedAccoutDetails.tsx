@@ -55,6 +55,7 @@ export const ImportedAccountDetails = ({ account }: Props) => {
         walletName={t('Imported')}
         isLoading={false}
         hasErrorOccurred={false}
+        hasBalanceServiceErrorOccurred={false}
         totalBalanceInCurrency={balance?.sum ?? undefined}
         balanceChange={balance?.priceChange?.value}
         percentageChange={percentageChange}

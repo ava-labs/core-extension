@@ -8,7 +8,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { BalanceChange } from '../../BalanceChange';
 import { MdError, MdUnfoldMore } from 'react-icons/md';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { SecretType } from '@core/types';
 import { useMemo } from 'react';
 import { useSettingsContext } from '@core/ui';
@@ -21,6 +21,7 @@ type Props = {
   walletName?: string;
   isLoading: boolean;
   hasErrorOccurred: boolean;
+  hasBalanceServiceErrorOccurred: boolean;
   totalBalanceInCurrency?: number | null;
   balanceChange?: number;
   percentageChange?: number;
@@ -30,12 +31,14 @@ export const WalletBalance = ({
   walletName,
   isLoading,
   hasErrorOccurred,
+  hasBalanceServiceErrorOccurred,
   totalBalanceInCurrency,
   balanceChange,
   percentageChange,
 }: Props) => {
   const theme = useTheme();
   const history = useHistory();
+  const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
 
   const placeholderTotalBalance = useMemo(
@@ -106,7 +109,15 @@ export const WalletBalance = ({
         />
       )}
 
-      {hasErrorOccurred && (
+      {hasBalanceServiceErrorOccurred && (
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <MdError size={20} color={theme.palette.error.main} />
+          <Typography variant="subtitle4" color="error">
+            {t('Unable to load all network balances')}
+          </Typography>
+        </Stack>
+      )}
+      {hasErrorOccurred && !hasBalanceServiceErrorOccurred && (
         <Stack direction="row" alignItems="center" gap={0.5}>
           <MdError size={20} color={theme.palette.error.main} />
           <Typography variant="subtitle4" color="error">

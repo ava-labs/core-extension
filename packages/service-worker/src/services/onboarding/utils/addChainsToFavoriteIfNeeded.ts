@@ -18,11 +18,15 @@ export const addChainsToFavoriteIfNeeded = async (
   const balanceService = container.resolve(BalanceAggregatorService);
   const networkService = container.resolve(NetworkService);
   const historyService = container.resolve(HistoryService);
-  const balances = await balanceService.getBalancesForNetworks(
-    [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X, ChainId.SOLANA_MAINNET_ID],
+  const balances = await balanceService.getBalancesForNetworks({
+    chainIds: [
+      ChainId.AVALANCHE_P,
+      ChainId.AVALANCHE_X,
+      ChainId.SOLANA_MAINNET_ID,
+    ],
     accounts,
-    [TokenType.NATIVE],
-  );
+    tokenTypes: [TokenType.NATIVE],
+  });
 
   if (hasBalance(balances.tokens, accounts, ChainId.AVALANCHE_P)) {
     await networkService.addFavoriteNetwork(ChainId.AVALANCHE_P);
