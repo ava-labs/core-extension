@@ -43,7 +43,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   const {
     appType,
-    avaxAppVersion,
+    appVersion,
     popDeviceSelection,
     hasLedgerTransport,
     wasTransportAttempted,
@@ -320,10 +320,8 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     }
 
     if (hasLedgerTransport) {
-      if (appType === LedgerAppType.AVALANCHE && avaxAppVersion) {
-        if (
-          isLedgerVersionCompatible(avaxAppVersion, REQUIRED_LEDGER_VERSION)
-        ) {
+      if (appType === LedgerAppType.AVALANCHE && appVersion) {
+        if (isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)) {
           setStatus('ready');
           setError(undefined);
         } else {
@@ -346,7 +344,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     }
   }, [
     appType,
-    avaxAppVersion,
+    appVersion,
     hasLedgerTransport,
     initLedgerTransport,
     status,

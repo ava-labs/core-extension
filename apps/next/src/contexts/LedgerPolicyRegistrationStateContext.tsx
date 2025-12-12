@@ -10,12 +10,14 @@ import {
 
 import {
   LedgerAppType,
+  MAX_BITCOIN_APP_VERSION,
   useConnectionContext,
   useLedgerContext,
   useRegisterBtcWalletPolicy,
 } from '@core/ui';
 import { ExtensionRequest } from '@core/types';
 import { type StoreBtcWalletPolicyDetails } from '@core/service-worker';
+import { isLedgerVersionCompatible } from '@core/common';
 
 type PublicKeyStatus = `pubkey:${GenericStatus}`;
 type PolicyStatus = `policy:${GenericStatus | IncorrectDeviceStatus}`;
@@ -56,6 +58,7 @@ export const LedgerPolicyRegistrationStateProvider = ({
   const { request } = useConnectionContext();
   const {
     appType,
+    appVersion,
     getBtcExtendedPublicKey,
     getMasterFingerprint,
     registerBtcWalletPolicy,
@@ -159,7 +162,17 @@ export const LedgerPolicyRegistrationStateProvider = ({
   ]);
 
   useEffect(() => {
-    if (appType !== LedgerAppType.BITCOIN || inProgress.current) {
+    const isCompatibleBitcoinApp =
+      appType === LedgerAppType.BITCOIN_RECOVERY ||
+      (appType === LedgerAppType.BITCOIN &&
+        appVersion &&
+        isLedgerVersionCompatible(
+          appVersion,
+          MAX_BITCOIN_APP_VERSION,
+          'maximum',
+        ));
+
+    if (!isCompatibleBitcoinApp || inProgress.current) {
       return;
     }
 
@@ -170,6 +183,7 @@ export const LedgerPolicyRegistrationStateProvider = ({
     }
   }, [
     appType,
+    appVersion,
     shouldRegisterBtcWalletPolicy,
     fetchExtendedPublicKey,
     registerWalletPolicy,
