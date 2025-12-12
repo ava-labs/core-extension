@@ -1,13 +1,5 @@
 import { omit, pick, uniqBy } from 'lodash';
 import { singleton } from 'tsyringe';
-import { fromPublicKey } from 'bip32';
-
-import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
-import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
-import {
-  Curve as KeystoneCurve,
-  DerivationAlgorithm,
-} from '@keystonehq/bc-ur-registry';
 
 import EventEmitter from 'events';
 import {
@@ -24,7 +16,6 @@ import {
   ImportType,
   BtcWalletPolicyDetails,
   WalletSecretInStorage,
-  // WALLET_STORAGE_KEY,
   AddPrimaryWalletSecrets,
   WalletDetails,
   WalletEvents,
@@ -1004,31 +995,18 @@ export class SecretsService implements OnUnlock {
             ).toJSON(),
           );
         } else {
-          const app = new KeystoneUSBAvalancheSDK(
-            await createKeystoneTransport(),
-          );
-          const { publicKey, chainCode } = await app.getPubkey(
-            getAvalancheExtendedKeyPath(index),
-            KeystoneCurve.secp256k1,
-            DerivationAlgorithm.slip10,
-          );
-          const newXPXpub: ExtendedPublicKey = {
-            type: 'extended-pubkey',
-            curve: 'secp256k1',
-            derivationPath: getAvalancheExtendedKeyPath(index),
-            key: fromPublicKey(
-              Buffer.from(publicKey, 'hex'),
-              chainCode,
-            ).toBase58(),
-          };
-          newExtendedPublicKeys.push(newXPXpub);
-          newPublicKeys.push(
-            AddressPublicKey.fromExtendedPublicKeys(
-              [newXPXpub],
-              'secp256k1',
-              derivationPathAVM,
-            ).toJSON(),
-          );
+          // TODO: uncomment when new SDK is released:
+          // https://ava-labs.atlassian.net/browse/CP-12875
+          // const newXPXpub =
+          //   await getAvalancheExtendedPublicKeyFromKeystoneUsb(index);
+          // newExtendedPublicKeys.push(newXPXpub);
+          // newPublicKeys.push(
+          //   AddressPublicKey.fromExtendedPublicKeys(
+          //     [newXPXpub],
+          //     'secp256k1',
+          //     derivationPathAVM,
+          //   ).toJSON(),
+          // );
         }
       }
     }

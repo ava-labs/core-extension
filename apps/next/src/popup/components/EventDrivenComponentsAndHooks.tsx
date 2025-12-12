@@ -1,7 +1,5 @@
 import { FC } from 'react';
 
-import { useImportMissingKeysFromKeystone } from '@core/ui';
-
 import {
   LedgerRegisterBtcWalletPolicy,
   LedgerIncorrectDevice,
@@ -26,7 +24,9 @@ import { useNavigationRequests } from '@/hooks/useNavigationRequests';
  */
 export const EventDrivenComponentsAndHooks: FC = () => {
   useSeedlessMissingKeysDerivation();
-  useImportMissingKeysFromKeystone();
+  // TODO: enable after Keystone releases new SDK version
+  // https://ava-labs.atlassian.net/browse/CP-12875
+  // useImportMissingKeysFromKeystone();
   useNavigationRequests();
 
   return (

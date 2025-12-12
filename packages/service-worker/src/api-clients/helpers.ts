@@ -55,6 +55,7 @@ export const reconstructAccountFromError = (
     // these will be overwritten if the error happened with the respective chain
     addressBTC: 'N/A',
     addressC: 'N/A',
+    addressCoreEth: 'N/A',
     // the id in the error is the account address
     [Caip2IdAccountTypeMap[error.caip2Id] ?? '']: error.id,
   };
