@@ -4,6 +4,7 @@ import { TokenType } from '@avalabs/vm-module-types';
 import { CollectiblesTab } from '../PortolioDetails/components/CollectiblesTab';
 import { DeFiTab } from '../PortolioDetails/components/DeFiTab';
 import { TabName } from '../../types';
+import { useLiveBalance } from '@core/ui';
 
 type Props = {
   tab?: TabName;
@@ -26,6 +27,8 @@ const tabConfig: Record<Exclude<TabName, 'activity'>, TabConfig> = {
 };
 
 export const EmptyState: FC<Props> = ({ tab }) => {
-  const { TabComponent } = tabConfig[tab ?? 'assets'];
+  const { TabComponent, balancesFor } = tabConfig[tab ?? 'assets'];
+  useLiveBalance(balancesFor);
+
   return <TabComponent />;
 };
