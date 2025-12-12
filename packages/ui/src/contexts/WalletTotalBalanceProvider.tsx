@@ -41,7 +41,11 @@ const WalletTotalBalanceContext = createContext<
 >(undefined);
 
 const checkAndCleanupPossibleError = async (walletId: string) => {
-  const sessionStorage = chrome.storage.session;
+  const sessionStorage = chrome?.storage?.session ?? null;
+
+  if (!sessionStorage) {
+    return false;
+  }
 
   const possibleBalanceServiceError: { [key: string]: string } =
     await sessionStorage.get(walletId);
