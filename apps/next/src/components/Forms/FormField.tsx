@@ -75,13 +75,14 @@ export const FormField = ({
     allowCopy && !error && !!value && !isEditing && isHovered;
 
   const onActionClick = useCallback(() => {
+    if (readOnly) return;
     if (showPrompt) {
       setIsEditing(false);
       onChange('');
     } else {
       setIsEditing(true);
     }
-  }, [showPrompt, onChange]);
+  }, [readOnly, showPrompt, onChange]);
 
   return (
     <FieldContainer
@@ -111,7 +112,13 @@ export const FormField = ({
             width="100%"
             justifyContent="space-between"
           >
-            <Stack component="label" onClick={() => setIsEditing(true)}>
+            <Stack
+              component="label"
+              onClick={() => !readOnly && setIsEditing(true)}
+              sx={{
+                pointerEvents: readOnly ? 'none' : 'auto',
+              }}
+            >
               <InvisibleFieldInput
                 type={type}
                 ref={ref}
@@ -136,7 +143,12 @@ export const FormField = ({
           </Stack>
         </Fade>
         <Fade in={!showPrompt} mountOnEnter unmountOnExit>
-          <AddPrompt onClick={() => setIsEditing(true)}>{prompt}</AddPrompt>
+          <AddPrompt
+            readOnly={readOnly}
+            onClick={() => !readOnly && setIsEditing(true)}
+          >
+            {prompt}
+          </AddPrompt>
         </Fade>
       </InputContainer>
       <Grow in={showCopyButton} mountOnEnter unmountOnExit>
@@ -169,11 +181,12 @@ const InputContainer = styled(Stack)({
   alignItems: 'center',
 });
 
-const AddPrompt = styled((props: TypographyProps) => (
+const AddPrompt = styled((props: TypographyProps & { readOnly?: boolean }) => (
   <Typography {...props} variant="subtitle3" role="button" />
-))(({ theme }) => ({
+))<{ readOnly?: boolean }>(({ theme, readOnly }) => ({
   position: 'absolute',
   cursor: 'pointer',
+  pointerEvents: readOnly ? 'none' : 'auto',
   userSelect: 'none',
   '&:hover': { color: theme.palette.text.secondary },
 }));

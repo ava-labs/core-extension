@@ -11,6 +11,7 @@ import { NetworkDeleteConfirmation } from './Confirmations/NetworkDeleteConfirma
 import { NetworkNotFound } from './NetworkNotFound';
 import { useEditNetwork } from '../hooks/useEditNetwork';
 import { useAnalyticsContext } from '@core/ui';
+import { Network } from '@core/types';
 
 type NetworkDetailsParams = {
   networkId: string;
@@ -54,9 +55,9 @@ export const NetworkDetailsFlow = () => {
     }
   };
 
-  const saveHandler = async () => {
+  const saveHandler = async (networkToSave: Network) => {
     try {
-      await submit();
+      await submit(networkToSave);
       toast.success(t('Network updated'));
       setView('details');
     } catch (error) {
@@ -109,6 +110,7 @@ export const NetworkDetailsFlow = () => {
           setView={setView}
           setNetwork={setNetwork}
           readonly={!isEditing}
+          onSave={saveHandler}
         />
       );
     case 'rpc-url-reset':
@@ -122,7 +124,7 @@ export const NetworkDetailsFlow = () => {
       return (
         <NetworkUpdateConfirmation
           onBack={() => setView('details')}
-          onSubmit={saveHandler}
+          onSubmit={() => saveHandler(network)}
         />
       );
     case 'delete':
