@@ -9,6 +9,7 @@ import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 import { NetworkAddApprovalScreen } from '@/pages/Approve/NetworkAddApprovalScreen';
 import { NetworkSwitchApprovalScreen } from '@/pages/Approve/NetworkSwitchApprovalScreen';
 import { DeveloperModeApprovalScreen } from '@/pages/Approve/DeveloperModeApprovalScreen';
+import { SelectWalletApprovalScreen } from '@/pages/Approve/SelectWalletApprovalScreen';
 
 export const ApprovalRoutes = (props: SwitchProps) => (
   <Suspense
@@ -29,6 +30,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path="/approve/set-developer-mode">
         <DeveloperModeApprovalScreen />
+      </Route>
+      <Route path="/approve/select-wallet">
+        <SelectWalletApprovalScreen />
       </Route>
       <Route path="/network/switch">
         <NetworkSwitchApprovalScreen />

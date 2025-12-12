@@ -20,7 +20,7 @@ export const TotalFeeAmount: FC<TotalFeeAmountProps> = ({
   const { currencyFormatter } = useSettingsContext();
 
   return (
-    <TxDetailsRow alignItems="start" label={t('Network fee amount')}>
+    <TxDetailsRow alignItems="start" label={t('Total network fee')}>
       <Stack textAlign="end">
         <Stack direction="row" alignItems="center" gap={0.5}>
           <CollapsedTokenAmount

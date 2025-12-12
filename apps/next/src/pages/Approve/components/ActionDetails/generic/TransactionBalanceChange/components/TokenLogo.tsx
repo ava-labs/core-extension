@@ -43,4 +43,5 @@ const Logo = styled('img', {
 })<Pick<LogoAreaProps, 'size'>>(({ size }) => ({
   width: size,
   height: size,
+  borderRadius: '50%',
 }));
