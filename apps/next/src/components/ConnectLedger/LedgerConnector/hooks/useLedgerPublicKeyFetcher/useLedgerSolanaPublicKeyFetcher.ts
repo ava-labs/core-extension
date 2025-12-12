@@ -16,7 +16,6 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher =
   () => {
     const {
       appType,
-      avaxAppVersion,
       popDeviceSelection,
       hasLedgerTransport,
       wasTransportAttempted,
@@ -96,7 +95,6 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher =
       }
     }, [
       appType,
-      avaxAppVersion,
       hasLedgerTransport,
       initLedgerTransport,
       status,

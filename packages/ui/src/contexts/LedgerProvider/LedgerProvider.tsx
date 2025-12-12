@@ -59,7 +59,8 @@ import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
-  BITCOIN = 'Bitcoin',
+  BITCOIN = 'Bitcoin', // Works up to 2.4.2 version. 2.4.3 prevents from using non-standard derivation paths.
+  BITCOIN_RECOVERY = 'Bitcoin Recovery', // Can be used by people who updated the Bitcoin app to 2.4.3+.
   ETHEREUM = 'Ethereum',
   SOLANA = 'Solana',
   UNKNOWN = 'UNKNOWN',
@@ -67,6 +68,7 @@ export enum LedgerAppType {
 
 export const REQUIRED_LEDGER_VERSION = '0.7.3';
 export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
+export const MAX_BITCOIN_APP_VERSION = '2.4.2';
 
 /**
  * Run this here since each new window will have a different id
@@ -91,6 +93,7 @@ const LedgerContext = createContext<{
     vm?: VM | 'SVM',
   ): Promise<Buffer>;
   avaxAppVersion: string | null;
+  appVersion: string | null;
   masterFingerprint: string | undefined;
   setMasterFingerprint: (masterFingerprint?: string) => void;
   getMasterFingerprint(): Promise<string>;
@@ -115,7 +118,17 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
-  const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
+  const [
+    /**
+     * @deprecated Use `appVersion` instead
+     */
+    avaxAppVersion,
+    /**
+     * @deprecated Use `setAppVersion` instead
+     */
+    setAvaxAppVersion,
+  ] = useState<string | null>(null);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
   const [masterFingerprint, setMasterFingerprint] = useState<
     string | undefined
   >();
@@ -230,12 +243,14 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         if (!appVersionError) {
           if (config.appName === LedgerAppType.AVALANCHE) {
             setAvaxAppVersion(config.appVersion);
+            setAppVersion(config.appVersion);
             setApp(avaxAppInstance);
             setAppType(LedgerAppType.AVALANCHE);
             setAppConfig(null);
             return avaxAppInstance;
           } else if (config.appName === LedgerAppType.ETHEREUM) {
             const ethAppInstance = new Eth(transport);
+            setAppVersion(config.appVersion);
             setApp(ethAppInstance);
             setAppType(LedgerAppType.ETHEREUM);
             const ethConfig = await ethAppInstance.getAppConfiguration();
@@ -253,12 +268,16 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       if (btcAppInstance) {
         const appInfo = await getLedgerAppInfo(transport);
 
-        if (
-          LedgerAppType.BITCOIN === (appInfo.applicationName as LedgerAppType)
-        ) {
+        if (LedgerAppType.BITCOIN === appInfo.applicationName) {
+          setAppVersion(appInfo.version);
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
           setAppConfig(null);
+          return btcAppInstance;
+        } else if (LedgerAppType.BITCOIN_RECOVERY === appInfo.applicationName) {
+          setAppVersion(appInfo.version);
+          setApp(btcAppInstance);
+          setAppType(LedgerAppType.BITCOIN_RECOVERY);
           return btcAppInstance;
         }
       }
@@ -267,9 +286,8 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       if (solanaAppInstance) {
         const appInfo = await getLedgerAppInfo(transport);
 
-        if (
-          LedgerAppType.SOLANA === (appInfo.applicationName as LedgerAppType)
-        ) {
+        if (LedgerAppType.SOLANA === appInfo.applicationName) {
+          setAppVersion(appInfo.version);
           setApp(solanaAppInstance);
           setAppType(LedgerAppType.SOLANA);
           setAppConfig(null);
@@ -528,6 +546,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         appType,
         appConfig,
         getPublicKey,
+        appVersion,
         avaxAppVersion,
         masterFingerprint,
         setMasterFingerprint,
