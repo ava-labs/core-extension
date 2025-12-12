@@ -76,7 +76,7 @@ const TokenBalance: FC<{ token: FungibleTokenBalance }> = ({ token }) => {
           color="text.secondary"
           whiteSpace="nowrap"
         >
-          {balanceDisplay} {token.symbol}
+          {balanceDisplay} {token.symbol.toUpperCase()}
         </Typography>
       </Tooltip>
       {networkName && (
