@@ -783,6 +783,7 @@
   "Unable to connect?": "Unable to connect?",
   "Unable to estimate gas": "Unable to estimate gas",
   "Unable to estimate the network fee.": "Unable to estimate the network fee.",
+  "Unable to load all network balances": "Unable to load all network balances",
   "Unable to load all network balances, <br /> total may be incomplete": "Unable to load all network balances, <br /> total may be incomplete",
   "Unable to load balances": "Unable to load balances",
   "Unable to set TOTP configuration": "Unable to set TOTP configuration",
