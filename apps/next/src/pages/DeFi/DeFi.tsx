@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo } from 'react';
 import { useDefiContext, useFeatureFlagContext } from '@core/ui';
 import { CircularProgress, Stack, PopoverItem, Box } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
@@ -11,11 +11,11 @@ import { DefiProtocol, FeatureGates } from '@core/types';
 import { DeFiSortOption, sortProtocols } from './utils/sortProtocols';
 import { DeFiCommonContent } from './components/DeFiCommonContent';
 import { DropdownMenu } from '@/components/DropdownMenu';
+import { useDeFiQueryParams } from './hooks/useDefiQueryParams';
 
 export const DeFi: FC = () => {
   const { portfolio, hasError, isLoading } = useDefiContext();
-  const [filter, setFilter] = useState<string | null>(null);
-  const [sort, setSort] = useState<DeFiSortOption | null>(null);
+  const { filter, sort, setFilter, setSort } = useDeFiQueryParams();
 
   const { featureFlags } = useFeatureFlagContext();
 
