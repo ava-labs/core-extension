@@ -29,5 +29,9 @@ export type LedgerApprovalState =
       requiredVersion: string;
     }
   | {
+      state: 'blind-signing-required';
+      requiredApp: LedgerAppType;
+    }
+  | {
       state: 'btc-policy-needed';
     };

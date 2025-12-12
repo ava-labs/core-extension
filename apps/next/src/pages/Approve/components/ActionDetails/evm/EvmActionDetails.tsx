@@ -30,7 +30,7 @@ export const EvmActionDetails = ({
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, index) => (
-            <DetailsItem key={index} item={item} />
+            <DetailsItem key={index} item={item} network={network} />
           ))}
         </DetailsSection>
       ))}

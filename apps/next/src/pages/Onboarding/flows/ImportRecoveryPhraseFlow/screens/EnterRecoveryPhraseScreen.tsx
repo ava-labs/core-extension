@@ -52,7 +52,9 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
 
   return (
     <>
-      <FullscreenModalTitle>{t('Import Recovery Phrase')}</FullscreenModalTitle>
+      <FullscreenModalTitle>
+        {t('Enter your recovery phrase')}
+      </FullscreenModalTitle>
       <FullscreenModalDescription>
         {t(
           'Access an existing wallet with your recovery phrase. You can paste your entire phrase in the first field, or use the tab key to jump to the next field',
