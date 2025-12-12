@@ -8,6 +8,7 @@ import {
   useRef,
 } from 'react';
 import { isString } from 'lodash';
+import browser from 'webextension-polyfill';
 
 import {
   IMPORTED_ACCOUNTS_WALLET_ID,
@@ -41,7 +42,7 @@ const WalletTotalBalanceContext = createContext<
 >(undefined);
 
 const checkAndCleanupPossibleError = async (walletId: string) => {
-  const sessionStorage = chrome?.storage?.session ?? null;
+  const sessionStorage = browser?.storage?.session ?? null;
 
   if (!sessionStorage) {
     return false;
@@ -49,19 +50,16 @@ const checkAndCleanupPossibleError = async (walletId: string) => {
 
   const possibleBalanceServiceError: { [key: string]: string } =
     await sessionStorage.get(walletId);
-  let hasErrorOccurred = false;
   if (
-    possibleBalanceServiceError &&
-    possibleBalanceServiceError[walletId] ===
+    !possibleBalanceServiceError ||
+    possibleBalanceServiceError[walletId] !==
       BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE
   ) {
-    hasErrorOccurred = true;
+    return false;
   }
 
-  if (hasErrorOccurred) {
-    await sessionStorage.remove([walletId]);
-  }
-  return hasErrorOccurred;
+  await sessionStorage.remove([walletId]);
+  return true;
 };
 
 export const WalletTotalBalanceProvider = ({
