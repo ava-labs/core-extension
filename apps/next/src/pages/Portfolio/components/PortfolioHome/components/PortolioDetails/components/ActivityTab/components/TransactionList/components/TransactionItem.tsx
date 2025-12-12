@@ -5,7 +5,7 @@ import {
   SxProps,
   Theme,
 } from '@avalabs/k2-alpine';
-import { TxHistoryItem } from '@core/types';
+import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { useSettingsContext, useTokenPrice } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
 import { FC } from 'react';
@@ -19,6 +19,7 @@ import { TransactionDescription } from './TransactionIcon/components/Transaction
 
 type Props = {
   transaction: TxHistoryItem;
+  network?: NetworkWithCaipId;
 };
 
 const TIME_FORMAT = 'HH:mm a';
@@ -68,7 +69,7 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
   },
 };
 
-export const TransactionItem: FC<Props> = ({ transaction }) => {
+export const TransactionItem: FC<Props> = ({ transaction, network }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
 
@@ -81,6 +82,7 @@ export const TransactionItem: FC<Props> = ({ transaction }) => {
 
   const tokenPrice = useTokenPrice(
     token?.type === TokenType.NATIVE ? token?.symbol : token?.address,
+    network,
   );
 
   const usdValue = tokenPrice

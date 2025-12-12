@@ -1,10 +1,19 @@
+import { memoize } from 'lodash';
 import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 
-import { useAnalyticsContext, useImportLedger } from '@core/ui';
-import { AddressPublicKeyJson, ExtendedPublicKey } from '@core/types';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useImportLedger,
+} from '@core/ui';
+import {
+  AddressPublicKeyJson,
+  ExtendedPublicKey,
+  FeatureGates,
+} from '@core/types';
 
 import { useModalPageControl } from '@/components/FullscreenModal';
 import {
@@ -34,16 +43,23 @@ const CONNECT_AVAX_PATHS = [
   `${BASE_PATH}/connect-avax`,
 ] as const;
 
-const PHASE_TO_STEP_NUMBER: Record<ImportPhase, number> = {
-  'connect-avax': 1,
-  'prompt-solana': 2,
-  'connect-solana': 3,
-  name: 4,
-} as const;
-
-const TOTAL_STEPS = Object.keys(PHASE_TO_STEP_NUMBER).length;
-
 const ANALYTICS_EVENT_PREFIX = 'WalletImport_Ledger_';
+
+const getPhaseToStepMap = memoize((isSolanaSupported: boolean) => {
+  if (!isSolanaSupported) {
+    return {
+      'connect-avax': 1,
+      name: 2,
+    };
+  }
+
+  return {
+    'connect-avax': 1,
+    'prompt-solana': 2,
+    'connect-solana': 3,
+    name: 4,
+  };
+});
 
 export const ImportLedgerFlowContent = () => {
   const history = useHistory();
@@ -51,19 +67,23 @@ export const ImportLedgerFlowContent = () => {
   const { capture } = useAnalyticsContext();
   const { setCurrent, setTotal, setIsBackButtonVisible } =
     useModalPageControl();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { phase = 'connect-avax' } = useParams<{ phase: ImportRoute }>();
   const { importLedger, isImporting } = useImportLedger();
   const openApp = useOpenApp();
 
   const [publicKeys, setPublicKeys] = useState<AddressPublicKeyJson[]>([]);
   const [extPublicKeys, setExtPublicKeys] = useState<ExtendedPublicKey[]>([]);
+  const isSolanaSupported = isFlagEnabled(FeatureGates.SOLANA_SUPPORT);
+  const stepsMap = getPhaseToStepMap(isSolanaSupported);
+  const totalSteps = Object.keys(stepsMap).length;
 
   useEffect(() => {
-    const step = PHASE_TO_STEP_NUMBER[phase];
+    const step = stepsMap[phase];
 
     if (step) {
       setCurrent(step);
-      setTotal(TOTAL_STEPS);
+      setTotal(totalSteps);
 
       // We don't want to display the back button on the first screen
       // (it won't do anything, since history state is empty)
@@ -72,7 +92,14 @@ export const ImportLedgerFlowContent = () => {
       // If we're on troubleshooting screens, hide the page indicator
       setTotal(0);
     }
-  }, [phase, setCurrent, setIsBackButtonVisible, setTotal]);
+  }, [
+    phase,
+    setCurrent,
+    setIsBackButtonVisible,
+    setTotal,
+    stepsMap,
+    totalSteps,
+  ]);
 
   const avalancheConnectorCallbacks = useMemo(
     () => ({
@@ -131,7 +158,11 @@ export const ImportLedgerFlowContent = () => {
           onNext={({ addressPublicKeys, extendedPublicKeys }) => {
             setPublicKeys(addressPublicKeys.map(({ key }) => key));
             setExtPublicKeys(extendedPublicKeys ?? []);
-            history.push('/import-wallet/ledger/prompt-solana');
+            if (isSolanaSupported) {
+              history.push('/import-wallet/ledger/prompt-solana');
+            } else {
+              history.push(`${BASE_PATH}/name`);
+            }
           }}
           onTroubleshoot={() => {
             capture(`${ANALYTICS_EVENT_PREFIX}TroubleshootingAvalanche`);
@@ -188,8 +219,8 @@ export const ImportLedgerFlowContent = () => {
       </Route>
       <Route path={`${BASE_PATH}/name`}>
         <NameYourWalletScreen
-          step={PHASE_TO_STEP_NUMBER['name']}
-          totalSteps={TOTAL_STEPS}
+          step={stepsMap['name']}
+          totalSteps={totalSteps}
           isSaving={isImporting}
           onNext={onSave}
         />

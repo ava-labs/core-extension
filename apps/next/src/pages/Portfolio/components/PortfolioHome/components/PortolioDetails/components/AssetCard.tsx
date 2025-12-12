@@ -84,14 +84,20 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
           >
             {asset.name}
           </Typography>
-          <Stack direction="row" alignItems="center" gap={0.5}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={0.5}
+            width="max-content"
+            justifyContent="flex-start"
+          >
             <CollapsedTokenAmount
               amount={asset.balanceDisplayValue}
               showApproximationSign={false}
               regularProps={{ variant: 'body3' }}
               overlineProps={{ variant: 'caption2' }}
             />
-            <Typography color="text.primary" variant="body3" noWrap>
+            <Typography color="text.primary" variant="body3">
               {asset.symbol}
             </Typography>
           </Stack>

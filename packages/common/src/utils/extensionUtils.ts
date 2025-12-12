@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextContainer } from '@core/types';
 
-const NOTIFICATION_WIDTH = 375;
+const NOTIFICATION_WIDTH = 320;
 const NOTIFICATION_HEIGHT = 668;
 const WINDOWS_SCROLLBAR_WIDTH = 26;
 const contextToOpenIn = ContextContainer.CONFIRM;

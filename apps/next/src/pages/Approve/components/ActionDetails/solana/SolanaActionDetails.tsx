@@ -11,7 +11,10 @@ type SolanaActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: SolanaNetwork;
 };
 
-export const SolanaActionDetails = ({ action }: SolanaActionDetailsProps) => {
+export const SolanaActionDetails = ({
+  action,
+  network,
+}: SolanaActionDetailsProps) => {
   return (
     <Stack gap={1}>
       <TransactionBalanceChange
@@ -22,7 +25,7 @@ export const SolanaActionDetails = ({ action }: SolanaActionDetailsProps) => {
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, itemIndex) => (
-            <DetailsItem key={itemIndex} item={item} />
+            <DetailsItem key={itemIndex} item={item} network={network} />
           ))}
         </DetailsSection>
       ))}

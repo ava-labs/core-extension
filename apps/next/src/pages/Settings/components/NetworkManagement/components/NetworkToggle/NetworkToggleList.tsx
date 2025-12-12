@@ -1,7 +1,7 @@
 import { Stack } from '@avalabs/k2-alpine';
 import { useNetworkContext } from '@core/ui';
 import { NetworkWithCaipId } from '@core/types';
-import { defaultEnabledNetworks } from '~/services/network/consts';
+import { NETWORKS_ENABLED_FOREVER } from '@core/types';
 import { useHistory } from 'react-router-dom';
 import { NetworkToggleListItem } from './NetworkToggleListItem';
 import { useMemo } from 'react';
@@ -10,7 +10,7 @@ type NetworkToggleListProps = {
   networks: NetworkWithCaipId[];
 };
 
-const defaultNetworkSet = new Set(defaultEnabledNetworks);
+const defaultNetworkSet = new Set(NETWORKS_ENABLED_FOREVER);
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   const { enabledNetworks, enableNetwork, disableNetwork } =
     useNetworkContext();
@@ -48,7 +48,7 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
           key={network.chainId}
           network={network}
           isEnabled={enabledNetworksArray.includes(network.chainId)}
-          isDefault={defaultEnabledNetworks.includes(network.chainId)}
+          isDefault={NETWORKS_ENABLED_FOREVER.includes(network.chainId)}
           onToggle={() => {
             if (enabledNetworksArray.includes(network.chainId)) {
               disableNetwork(network.chainId);

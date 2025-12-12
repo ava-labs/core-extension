@@ -6,6 +6,7 @@ import {
   useAnalyticsContext,
   useLedgerContext,
   useWalletContext,
+  useWalletTotalBalanceContext,
 } from '@core/ui';
 import { FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,7 @@ export const AddAccountButton: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { addAccount, selectAccount } = useAccountsContext();
+  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
   const { walletDetails, isLedgerWallet } = useWalletContext();
   const { hasLedgerTransport, appType } = useLedgerContext();
 
@@ -36,6 +38,9 @@ export const AddAccountButton: FC = () => {
             addAccount()
               .then(selectAccount)
               .then(() => {
+                if (walletDetails?.id) {
+                  fetchBalanceForWallet(walletDetails.id);
+                }
                 toast.success(t('Account created successfully'));
                 capture('CreatedANewAccountSuccessfully', {
                   walletType: walletDetails?.type,

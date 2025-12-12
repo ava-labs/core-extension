@@ -1,5 +1,3 @@
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Button,
   DialogContent,
@@ -8,14 +6,16 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { useConnectionContext } from '@core/ui';
 import { ExtensionRequest } from '@core/types';
+import { useConnectionContext } from '@core/ui';
 import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExtensionState';
 
-import { WarningMessage } from '@/components/WarningMessage';
-import { PageTopBar } from '@/components/PageTopBar';
 import { SlideUpDialog } from '@/components/Dialog';
+import { PageTopBar } from '@/components/PageTopBar';
+import { WarningMessage } from '@/components/WarningMessage';
 
 type Props = {
   open: boolean;
@@ -61,7 +61,7 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
           </Typography>
           <WarningMessage>
             {t(
-              'Make sure you have written down your recovery phrase. Without it you will not be able to access the current wallet and could result in lost funds',
+              'Make sure you have written down your recovery phrase or stored your login credentials. Failure to do this may result in lost funds.',
             )}
           </WarningMessage>
         </Stack>

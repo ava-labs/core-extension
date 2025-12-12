@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdOutlineRemoveModerator } from 'react-icons/md';
 import { Stack, Box, Typography, Button } from '@avalabs/k2-alpine';
 
 import { SlideUpDialog } from '@/components/Dialog';
 
 import { Drawer } from '../ActionDrawer';
+import { ModeratorIcon } from '@/components/ModeratorIcon';
 
 type MaliciousDappOverlayProps = {
   open: boolean;
@@ -35,17 +35,21 @@ export const MaliciousDappOverlay = ({
         gap={2}
       >
         <Box width={48} height={48}>
-          <MdOutlineRemoveModerator size={48} />
+          <ModeratorIcon color="error.main" size={48} />
         </Box>
-        <Typography variant="h4" fontWeight={700}>
-          {t('Scam Application')}
+        <Typography variant="h4" fontWeight={700} maxWidth={160}>
+          {t('Scam application')}
         </Typography>
         <Stack>
           <Typography variant="body1" color="text.primary">
-            {t('This application is malicious.')}
+            {t('This application is malicious')}
           </Typography>
-          <Typography variant="body1" color="text.primary">
-            {t('Do not proceed')}.
+          <Typography
+            variant="body1"
+            color="text.primary"
+            sx={{ textDecoration: 'underline' }}
+          >
+            {t('do not proceed')}
           </Typography>
         </Stack>
       </Stack>

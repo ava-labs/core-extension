@@ -1,4 +1,4 @@
-import { ChainId } from '@avalabs/core-chains-sdk';
+import { NETWORKS_ENABLED_BY_DEFAULT } from '@core/types';
 import { NetworkService } from '../network/NetworkService';
 import { AccountsService } from '../accounts/AccountsService';
 import { OnboardingService } from './OnboardingService';
@@ -23,8 +23,9 @@ export async function finalizeOnboarding({
   lockService,
   password,
 }: FinalizeOnboardingParams) {
-  await networkService.addFavoriteNetwork(ChainId.BITCOIN);
-  await networkService.addFavoriteNetwork(ChainId.ETHEREUM_HOMESTEAD);
+  for (const chainId of NETWORKS_ENABLED_BY_DEFAULT) {
+    await networkService.enableNetwork(chainId);
+  }
 
   const cChain = await networkService.getAvalancheNetwork();
   await networkService.setNetwork(runtime.id, cChain.caipId);

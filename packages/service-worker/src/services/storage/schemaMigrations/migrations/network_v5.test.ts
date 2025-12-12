@@ -1,6 +1,6 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import network_v5, { defaultEnableNetworksDeletable } from './network_v5';
-import { defaultEnabledNetworks } from '~/services/network/consts';
+import { NETWORKS_ENABLED_FOREVER } from '@core/types';
 
 describe('background/services/storage/schemaMigrations/migrations/network_v5', () => {
   const baseNetworkStorage = {
@@ -36,7 +36,7 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
       const customNetworkIds = [9999, 8888];
       const input = {
         ...baseNetworkStorage,
-        favoriteNetworks: [...customNetworkIds, ...defaultEnabledNetworks],
+        favoriteNetworks: [...customNetworkIds, ...NETWORKS_ENABLED_FOREVER],
       };
 
       const result = await network_v5.up(input);
@@ -52,13 +52,13 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
       });
     });
 
-    it('should filter out defaultEnabledNetworks from favoriteNetworks but include defaultEnableNetworksDeletable', async () => {
+    it('should filter out NETWORKS_ENABLED_FOREVER from favoriteNetworks but include defaultEnableNetworksDeletable', async () => {
       const customNetworkIds = [9999, 8888];
       const input = {
         ...baseNetworkStorage,
         favoriteNetworks: [
           ...customNetworkIds,
-          ...defaultEnabledNetworks,
+          ...NETWORKS_ENABLED_FOREVER,
           ...defaultEnableNetworksDeletable,
         ],
       };
@@ -79,8 +79,8 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
         });
       });
 
-      // Should NOT include defaultEnabledNetworks
-      defaultEnabledNetworks.forEach((networkId) => {
+      // Should NOT include NETWORKS_ENABLED_FOREVER
+      NETWORKS_ENABLED_FOREVER.forEach((networkId) => {
         expect(result.networkAvailability[networkId]).toBeUndefined();
       });
     });
@@ -101,10 +101,10 @@ describe('background/services/storage/schemaMigrations/migrations/network_v5', (
   });
 
   describe('edge cases', () => {
-    it('should handle favoriteNetworks with only defaultEnabledNetworks', async () => {
+    it('should handle favoriteNetworks with only NETWORKS_ENABLED_FOREVER', async () => {
       const input = {
         ...baseNetworkStorage,
-        favoriteNetworks: [...defaultEnabledNetworks],
+        favoriteNetworks: [...NETWORKS_ENABLED_FOREVER],
       };
 
       const result = await network_v5.up(input);

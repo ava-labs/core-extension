@@ -74,6 +74,10 @@ export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
  */
 const LEDGER_INSTANCE_UUID = crypto.randomUUID();
 
+type AppConfig = {
+  isBlindSigningEnabled: boolean;
+};
+
 const LedgerContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
   getExtendedPublicKey(path?: string): Promise<string>;
@@ -101,6 +105,7 @@ const LedgerContext = createContext<{
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
   refreshActiveApp: () => Promise<void>;
+  appConfig: null | { isBlindSigningEnabled: boolean };
 }>({} as any);
 
 export function LedgerContextProvider({ children }: PropsWithChildren) {
@@ -116,6 +121,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   >();
   const [ledgerVersionWarningClosed, setLedgerVersionWarningClosed] =
     useState<boolean>();
+  const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
 
   /**
    * Listen for send events to a ledger instance
@@ -226,11 +232,16 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
             setAvaxAppVersion(config.appVersion);
             setApp(avaxAppInstance);
             setAppType(LedgerAppType.AVALANCHE);
+            setAppConfig(null);
             return avaxAppInstance;
           } else if (config.appName === LedgerAppType.ETHEREUM) {
             const ethAppInstance = new Eth(transport);
             setApp(ethAppInstance);
             setAppType(LedgerAppType.ETHEREUM);
+            const ethConfig = await ethAppInstance.getAppConfiguration();
+            setAppConfig({
+              isBlindSigningEnabled: !!ethConfig.arbitraryDataEnabled,
+            });
             return ethAppInstance;
           }
         }
@@ -247,6 +258,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         ) {
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
+          setAppConfig(null);
           return btcAppInstance;
         }
       }
@@ -260,6 +272,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         ) {
           setApp(solanaAppInstance);
           setAppType(LedgerAppType.SOLANA);
+          setAppConfig(null);
           return solanaAppInstance;
         }
       }
@@ -299,6 +312,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
             tap(() => {
               setApp(undefined);
               setAppType(LedgerAppType.UNKNOWN);
+              setAppConfig(null);
               throw new Error('Ledger device disconnected');
             }),
           ),
@@ -403,6 +417,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       await quitLedgerApp(transportRef.current);
       setAppType(LedgerAppType.UNKNOWN);
       setApp(undefined);
+      setAppConfig(null);
     }
   }, [transportRef]);
 
@@ -511,6 +526,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         hasLedgerTransport: !!app,
         wasTransportAttempted,
         appType,
+        appConfig,
         getPublicKey,
         avaxAppVersion,
         masterFingerprint,

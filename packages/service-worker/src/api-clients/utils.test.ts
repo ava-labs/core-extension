@@ -133,6 +133,36 @@ describe('utils', () => {
             ],
           },
           {
+            addressDetails: [
+              {
+                addresses: ['avax1aa'],
+                id: 'avax1aa',
+              },
+              {
+                addresses: ['avax1ab'],
+                id: 'avax1ab',
+              },
+              {
+                addresses: ['avax1ba'],
+                id: 'avax1ba',
+              },
+              {
+                addresses: ['avax1bb'],
+                id: 'avax1bb',
+              },
+              {
+                addresses: ['avax1bc'],
+                id: 'avax1bc',
+              },
+              {
+                addresses: ['avax1bd'],
+                id: 'avax1bd',
+              },
+            ],
+            namespace: 'avax',
+            references: ['8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a'],
+          },
+          {
             namespace: 'eip155',
             references: ['43114', '1'],
             addresses: ['0xa1', '0xa2', '0xb1', '0xb2', '0xb3', '0xb4'],
