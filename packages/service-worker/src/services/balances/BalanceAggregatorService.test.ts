@@ -4,8 +4,10 @@ import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   Account,
   AccountType,
+  BalanceAggregatorServiceErrors,
   BALANCES_CACHE_KEY,
   BalanceServiceEvents,
+  FeatureGates,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
 import { SettingsService } from '../settings/SettingsService';
@@ -17,10 +19,12 @@ import {
   NftTokenWithBalance,
   TokenType,
 } from '@avalabs/vm-module-types';
+import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
 jest.mock('../storage/StorageService');
+jest.mock('~/api-clients/balance-api');
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   global.fetch = jest.fn().mockImplementation(
@@ -572,6 +576,52 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       // but the fresh balances do not include any new information,
       // therefore no event should be emitted.
       expect(updatesListener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('error scenarios', () => {
+    let service: BalanceAggregatorService;
+
+    beforeEach(() => {
+      service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        settingsServiceMock,
+        {
+          featureFlags: {
+            [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+          },
+        } as any,
+        mockSecretsService,
+        addressResolverMock,
+      );
+    });
+
+    it('Should save to session storage that there was an error if for a given wallet there is an error with balance service', async () => {
+      const walletId = 'wallet-id';
+
+      jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
+        throw new Error('So long and thanks for all the fish');
+      });
+
+      const storageServiceSpy = jest.spyOn(
+        storageService,
+        'saveToSessionStorage',
+      );
+
+      await service.getBalancesForNetworks({
+        chainIds: [43114],
+        accounts: [account1],
+        tokenTypes: [TokenType.ERC20],
+        requestId: walletId,
+      });
+
+      expect(storageServiceSpy).toHaveBeenCalledWith(
+        walletId,
+        BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
+      );
     });
   });
 });
