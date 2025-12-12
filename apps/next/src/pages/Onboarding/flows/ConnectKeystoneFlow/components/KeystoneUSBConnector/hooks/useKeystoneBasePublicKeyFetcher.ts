@@ -154,7 +154,10 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
           extendedPublicKeys: evmExtendedPublicKeys,
         } = await retrieveEvmKeys(startingIndexes);
 
-        const xpIndexes = evmAddressPublicKeys.map(({ index }) => index);
+        // TODO: derive X/P addresses for all accounts after Keystone releases new SDK version.
+        // https://ava-labs.atlassian.net/browse/CP-12875
+        // const xpIndexes = evmAddressPublicKeys.map(({ index }) => index);
+        const xpIndexes = [0];
 
         const {
           addressPublicKeys: xpAddressPublicKeys,
