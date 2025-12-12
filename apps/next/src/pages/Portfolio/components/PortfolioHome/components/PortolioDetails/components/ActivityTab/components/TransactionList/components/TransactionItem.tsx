@@ -2,10 +2,8 @@ import {
   ListItem,
   ListItemText,
   ListItemTextProps,
-  Stack,
   SxProps,
   Theme,
-  Typography,
 } from '@avalabs/k2-alpine';
 import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { useSettingsContext, useTokenPrice } from '@core/ui';
@@ -16,8 +14,8 @@ import { TransactionIcon } from './TransactionIcon';
 
 import * as Styled from './Styled';
 import { ViewInExplorerButton } from './ViewInExplorerButton';
-import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TokenType } from '@avalabs/vm-module-types';
+import { TransactionDescription } from './TransactionDescription';
 
 type Props = {
   transaction: TxHistoryItem;
@@ -33,10 +31,16 @@ const listItemSx: SxProps<Theme> = (theme) => ({
 });
 
 const receivedAmountSlotProps: ListItemTextProps['slotProps'] = {
+  root: {
+    sx: {
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+      overflow: 'hidden',
+    },
+  },
   primary: {
     variant: 'subtitle3',
-    whiteSpace: 'nowrap',
-    display: 'flex',
   },
   secondary: {
     variant: 'body3',
@@ -55,6 +59,7 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
   root: {
     sx: {
       flexGrow: 0,
+      flexShrink: 0,
     },
   },
   primary: {
@@ -108,19 +113,7 @@ export const TransactionItem: FC<Props> = ({ transaction, network }) => {
         <TransactionIcon transaction={transaction} />
       </Styled.ListItemIcon>
       <ListItemText
-        primary={
-          <Stack direction="row" alignItems="flex-start" gap={0.5}>
-            <CollapsedTokenAmount
-              amount={token?.amount?.toString() ?? '0'}
-              regularProps={{ variant: 'body3' }}
-              overlineProps={{ variant: 'caption2' }}
-            />
-            <Typography variant="body3">{token?.symbol}</Typography>
-            <Typography variant="body3">
-              {transaction.isSender ? t('sent') : t('received')}
-            </Typography>
-          </Stack>
-        }
+        primary={<TransactionDescription transaction={transaction} />}
         secondary={usdValue ? currencyFormatter(usdValue) : ''}
         slotProps={
           transaction.isSender ? sentAmountSlotProps : receivedAmountSlotProps
