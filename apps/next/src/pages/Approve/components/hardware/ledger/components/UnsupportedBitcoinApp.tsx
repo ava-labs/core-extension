@@ -4,6 +4,7 @@ import { Button, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { StateComponentProps } from '../types';
 import { ErrorState } from './ErrorState';
+import { FiExternalLink } from 'react-icons/fi';
 
 export const UnsupportedBitcoinApp: FC<StateComponentProps> = ({ state }) => {
   const { t } = useTranslation();
@@ -14,36 +15,42 @@ export const UnsupportedBitcoinApp: FC<StateComponentProps> = ({ state }) => {
 
   return (
     <ErrorState
-      px={0}
-      title={t('Unsupported Bitcoin app')}
+      px={2}
+      title={t('Unsupported Ledger application')}
       description={
         <Stack gap={1} pt={2}>
           <Typography variant="caption">
             {t(
-              'This version of the Bitcoin app ({{ currentVersion }}) is not supported.',
+              'Due to changes from Ledger, your current Bitcoin app (version {{currentVersion}}) is not supported by Core.',
               { currentVersion: state.currentVersion },
             )}
           </Typography>
           <Typography variant="caption">
             <Trans
-              i18nKey="You will need to use the backward-compatible<br> <b>Bitcoin Recovery</b> app."
-              components={{ b: <b />, br: <br /> }}
+              i18nKey="To continue you will need to use the backward compatible <b>Bitcoin Recovery</b> app."
+              components={{ b: <b /> }}
+              values={{
+                currentVersion: state.currentVersion,
+              }}
             />
-          </Typography>
-          <Typography variant="caption" mt={2}>
-            <Trans i18nKey="Click the button below to understand why and what to do." />
           </Typography>
         </Stack>
       }
       action={
-        <Button
-          size="small"
-          variant="contained"
-          color="primary"
-          onClick={() => alert('link to support page?')}
-        >
-          {t('Bitcoin Recovery app')}
-        </Button>
+        <Stack gap={0.5}>
+          <Button
+            component="a"
+            target="_blank"
+            rel="noreferrer"
+            size="extension"
+            variant="contained"
+            color="primary"
+            endIcon={<FiExternalLink size={14} />}
+            href="https://support.core.app/en/articles/13145665-why-doesn-t-my-bitcoin-ledger-application-work-with-core"
+          >
+            {t('Learn more')}
+          </Button>
+        </Stack>
       }
     />
   );
