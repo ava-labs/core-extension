@@ -16,6 +16,7 @@ type ActionDrawerProps = StackProps & {
   approve?: () => void;
   approveText?: string;
   reject?: () => void;
+  rejectText?: string;
   withConfirmationSwitch?: boolean;
   isProcessing: boolean;
   isDisabled?: boolean;
@@ -26,6 +27,7 @@ export const ActionDrawer = ({
   approve,
   approveText,
   reject,
+  rejectText,
   withConfirmationSwitch,
   isProcessing,
   isDisabled = false,
@@ -69,7 +71,7 @@ export const ActionDrawer = ({
               onClick={reject}
               disabled={isProcessing}
             >
-              {t('Reject')}
+              {rejectText || t('Reject')}
             </Button>
           )}
         </Stack>

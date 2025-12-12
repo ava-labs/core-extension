@@ -1,17 +1,15 @@
 import { isNil } from 'lodash';
 import { injectable } from 'tsyringe';
-import { Network } from '@avalabs/glacier-sdk';
 import { hex } from '@scure/base';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   getAllAddressesForAccounts,
-  getAvalancheXpBasePath,
   getXPChainIds,
   isNotNullish,
   calculateTotalAtomicFundsForAccounts,
+  getAvalancheExtendedKeyPath,
 } from '@core/common';
 import {
-  AVALANCHE_BASE_DERIVATION_PATH,
   Account,
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -34,7 +32,6 @@ import {
 } from './models';
 import {
   calculateTotalBalanceForAccounts,
-  getAccountsWithActivity,
   getIncludedNetworks,
   removeChainPrefix,
 } from './helpers';
@@ -57,12 +54,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     private balanceAggregatorService: BalanceAggregatorService,
   ) {}
 
-  #getAddressesActivity = (addresses: string[]) =>
-    this.glacierService.getChainIdsForAddresses({
-      addresses,
-      network: this.networkService.isMainnet() ? Network.MAINNET : Network.FUJI,
-    });
-
   async #findUnderivedAccounts(walletId: string, derivedAccounts: Account[]) {
     const secrets =
       await this.secretService.getWalletAccountsSecretsById(walletId);
@@ -73,40 +64,50 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const derivedAddressesUnprefixed =
       derivedWalletAddresses.map(removeChainPrefix);
 
-    const extendedPublicKey =
-      'extendedPublicKeys' in secrets
-        ? getExtendedPublicKey(
-            secrets.extendedPublicKeys,
-            AVALANCHE_BASE_DERIVATION_PATH,
-            'secp256k1',
-          )
-        : null;
-
-    const xpPublicKeys = secrets.publicKeys.filter(
-      (key) =>
-        key.curve === 'secp256k1' &&
-        key.derivationPath.startsWith(getAvalancheXpBasePath()),
-    );
-
     const providerXP = await this.networkService.getAvalanceProviderXP();
-    const addressesFromXpub = extendedPublicKey
-      ? await getAccountsWithActivity(
-          extendedPublicKey.key,
-          providerXP,
-          this.#getAddressesActivity,
-        )
-      : [];
 
-    const addressesFromXpPublicKeys = xpPublicKeys
-      .map(({ key }) =>
-        providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
+    const underivedAddresses = (
+      await Promise.allSettled(
+        derivedAccounts.flatMap(async (derivedAccount) => {
+          if (!('index' in derivedAccount)) {
+            return [];
+          }
+
+          const extendedPublicKey =
+            'extendedPublicKeys' in secrets
+              ? getExtendedPublicKey(
+                  secrets.extendedPublicKeys,
+                  getAvalancheExtendedKeyPath(derivedAccount.index),
+                  'secp256k1',
+                )
+              : null;
+          if (extendedPublicKey) {
+            // If we have the extended public key, the balance for its account already includes the balance for the underived accounts
+            return [];
+          } else {
+            const xpPublicKeys = secrets.publicKeys.filter(
+              (key) =>
+                key.curve === 'secp256k1' &&
+                key.derivationPath.startsWith(
+                  `${getAvalancheExtendedKeyPath(derivedAccount.index)}/`,
+                ),
+            );
+            return xpPublicKeys
+              .map(({ key }) =>
+                providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
+              )
+              .map(removeChainPrefix);
+          }
+        }),
       )
-      .map(removeChainPrefix);
+    )
+      .filter((promiseResponse) => promiseResponse.status === 'fulfilled')
+      .map((promiseResponse) => promiseResponse.value)
+      .flat();
 
-    const underivedXPChainAddresses = [
-      ...addressesFromXpub,
-      ...addressesFromXpPublicKeys,
-    ].filter((address) => !derivedAddressesUnprefixed.includes(address));
+    const underivedXPChainAddresses = Array.from(
+      new Set(underivedAddresses),
+    ).filter((address) => !derivedAddressesUnprefixed.includes(address));
 
     return underivedXPChainAddresses.map<Partial<Account>>((address) => ({
       addressPVM: `P-${address}`,

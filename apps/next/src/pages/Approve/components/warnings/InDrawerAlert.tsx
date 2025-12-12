@@ -6,9 +6,9 @@ import {
   useTheme,
   Switch,
 } from '@avalabs/k2-alpine';
-import { MdOutlineRemoveModerator } from 'react-icons/md';
 import { Trans } from 'react-i18next';
 import { Dispatch, FC, SetStateAction } from 'react';
+import { ModeratorIcon } from '@/components/ModeratorIcon';
 
 type InDrawerAlertProps = {
   isConfirmed: boolean;
@@ -24,7 +24,7 @@ export const InDrawerAlert: FC<InDrawerAlertProps> = ({
     <Wrapper>
       <Stack direction="row" gap={1} alignItems="start">
         <Box flexShrink={0} color="error.main" pl={0.5}>
-          <MdOutlineRemoveModerator size={24} />
+          <ModeratorIcon color="error.main" size={24} />
         </Box>
         <Typography variant="caption" component="p">
           <Trans

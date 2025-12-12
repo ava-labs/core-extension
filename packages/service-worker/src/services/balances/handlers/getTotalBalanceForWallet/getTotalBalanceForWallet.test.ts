@@ -1,4 +1,3 @@
-import { Network } from '@avalabs/glacier-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   NetworkVMType,
@@ -452,28 +451,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockSecrets('xpubXP'); // We've got xpubXP
     });
 
-    it('looks for XP-chain activity on underived addresses of the requested wallet', async () => {
-      const unresolvedAddresses = ['avaxUnresolvedAddress'];
-      mockAccountsWithActivity(unresolvedAddresses);
-
-      const response = await handleRequest('seedphrase');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).toHaveBeenCalledWith(
-        'xpubXP',
-        PROVIDER_XP,
-        expect.any(Function),
-      );
-
-      // Let's also make sure the passed activity fetcher actually invokes the Glacier API:
-      const fetcher = jest.mocked(getAccountsWithActivity).mock.lastCall?.[2];
-      expect(fetcher).toEqual(expect.any(Function));
-      fetcher?.(unresolvedAddresses);
-      expect(glacierService.getChainIdsForAddresses).toHaveBeenCalledWith({
-        addresses: unresolvedAddresses,
-        network: Network.MAINNET,
-      });
-    });
-
     it('fetches C-, X- and P-Chain balances along with favorite networks for already derived accounts within the wallet', async () => {
       mockAccountsWithActivity([]); // No underived addresses with activity
 
@@ -670,7 +647,8 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       });
     });
   });
-  describe('when requested wallet does has additional XP public keys for some accounts', () => {
+
+  describe('when requested wallet has additional XP public keys for some accounts', () => {
     const keys = ['00000001', '00000002'];
     const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
       type: 'address-pubkey',

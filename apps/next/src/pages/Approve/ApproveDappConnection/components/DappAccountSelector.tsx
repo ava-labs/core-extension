@@ -105,7 +105,7 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
             alert={{
               type: AlertType.DANGER,
               details: {
-                title: t('Scam Application'),
+                title: t('Scam application'),
                 description: t(
                   'Use caution, this application was recognized as malicious.',
                 ),

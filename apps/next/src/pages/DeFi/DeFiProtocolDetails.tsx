@@ -54,7 +54,7 @@ export const DeFiProtocolDetails: FC = () => {
     <Page
       withBackButton
       withViewSwitcher
-      onBack={() => history.push('/?activeTab=defi')}
+      onBack={history.goBack}
       contentProps={{
         justifyContent: 'flex-start',
         mt: 4.5,

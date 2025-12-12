@@ -20,10 +20,18 @@ import {
   TokenType,
 } from '@avalabs/vm-module-types';
 import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
+import { setErrorForRequestInSessionStorage } from '@core/common';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
 jest.mock('../storage/StorageService');
+jest.mock('@core/common', () => {
+  const actualImport = jest.requireActual('@core/common');
+  return {
+    ...actualImport,
+    setErrorForRequestInSessionStorage: jest.fn(),
+  };
+});
 jest.mock('~/api-clients/balance-api');
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
@@ -606,11 +614,6 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         throw new Error('So long and thanks for all the fish');
       });
 
-      const storageServiceSpy = jest.spyOn(
-        storageService,
-        'saveToSessionStorage',
-      );
-
       await service.getBalancesForNetworks({
         chainIds: [43114],
         accounts: [account1],
@@ -618,7 +621,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         requestId: walletId,
       });
 
-      expect(storageServiceSpy).toHaveBeenCalledWith(
+      expect(
+        jest.mocked(setErrorForRequestInSessionStorage),
+      ).toHaveBeenCalledWith(
         walletId,
         BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
       );

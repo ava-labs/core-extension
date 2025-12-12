@@ -10,12 +10,14 @@ import { FundsRecipientDetail } from './items/FundsRecipientDetail';
 import { CurrencyDetail } from './items/CurrencyDetail';
 import { NodeIdDetail } from './items/NodeIdDetail';
 import { DateDetail } from './items/DateDetail';
+import { NetworkWithCaipId } from '@core/types';
 
 type DetailsItemProps = {
   item: DetailItem;
+  network: NetworkWithCaipId;
 };
 
-export const DetailsItem = ({ item }: DetailsItemProps) => {
+export const DetailsItem = ({ item, network }: DetailsItemProps) => {
   if (typeof item === 'string') {
     return <PlainTextDetail item={item} />;
   }
@@ -25,7 +27,7 @@ export const DetailsItem = ({ item }: DetailsItemProps) => {
       return <TextDetail item={item} />;
 
     case DetailItemType.ADDRESS:
-      return <AddressDetail item={item} />;
+      return <AddressDetail item={item} network={network} />;
 
     case DetailItemType.LINK:
       return <LinkDetail item={item} />;

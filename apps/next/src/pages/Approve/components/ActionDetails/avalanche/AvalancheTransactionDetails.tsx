@@ -13,13 +13,13 @@ type AvalancheTransactionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
 
 export const AvalancheTransactionDetails: FC<
   AvalancheTransactionDetailsProps
-> = ({ action }) => {
+> = ({ action, network }) => {
   return (
     <Stack gap={1}>
       {action.displayData.details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, index) => (
-            <DetailsItem key={index} item={item} />
+            <DetailsItem key={index} item={item} network={network} />
           ))}
         </DetailsSection>
       ))}

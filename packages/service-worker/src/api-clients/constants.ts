@@ -17,6 +17,7 @@ export const Caip2IdAccountTypeMap: Record<string, AccountTypes> = {
   [AvalancheCaip2ChainId.P_TESTNET]: 'addressPVM',
   [AvalancheCaip2ChainId.X]: 'addressAVM',
   [AvalancheCaip2ChainId.X_TESTNET]: 'addressAVM',
+  [AvalancheCaip2ChainId.C]: 'addressCoreEth',
   [AvalancheCaip2ChainId.C_TESTNET]: 'addressCoreEth',
   'eip155:43114': 'addressC',
   'eip155:43113': 'addressC',

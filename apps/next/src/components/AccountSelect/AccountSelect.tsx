@@ -53,6 +53,7 @@ export const AccountSelect: FC<AccountSelectProps> = ({
       query={query}
       onQueryChange={onQueryChange}
       value={value}
+      suppressFlattening
       onValueChange={(newAccount) => {
         if (newAccount.id !== value?.id) {
           capture('AccountSelectorAccountSwitched', {
