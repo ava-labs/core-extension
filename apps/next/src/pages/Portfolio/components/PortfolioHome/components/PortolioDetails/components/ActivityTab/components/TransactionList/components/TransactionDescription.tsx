@@ -1,4 +1,4 @@
-import { Box, Typography } from '@avalabs/k2-alpine';
+import { Box, styled, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TxHistoryItem } from '@core/types';
 import { useTranslation } from 'react-i18next';
@@ -166,25 +166,26 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   }
 };
 
+const StyledTypography = styled(Typography)({
+  display: '-webkit-box',
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
 const TransactionDescriptionContainer = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
   return (
-    <Typography
+    <StyledTypography
       variant="body3"
       component="span"
       justifyContent="flex-start"
-      sx={{
-        display: '-webkit-box',
-        WebkitLineClamp: 2,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      }}
     >
       {children}
-    </Typography>
+    </StyledTypography>
   );
 };
