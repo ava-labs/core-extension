@@ -6,7 +6,7 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { Trans } from 'react-i18next';
 
 import { OverflowingTypography } from '@/components/OverflowingTypography';
@@ -66,6 +66,15 @@ const TokenBalance: FC<{ token: FungibleTokenBalance }> = ({ token }) => {
   const network = getNetwork(token.coreChainId);
   const networkName = network?.chainName ?? '';
 
+  const formattedSymbol = useMemo(() => {
+    return token.symbol
+      .split('.')
+      .map((part, index) =>
+        index === 0 ? part.toUpperCase() : part.toLowerCase(),
+      )
+      .join('.');
+  }, [token.symbol]);
+
   return (
     <Stack>
       <Tooltip
@@ -76,7 +85,7 @@ const TokenBalance: FC<{ token: FungibleTokenBalance }> = ({ token }) => {
           color="text.secondary"
           whiteSpace="nowrap"
         >
-          {balanceDisplay} {token.symbol.toUpperCase()}
+          {balanceDisplay} {formattedSymbol}
         </Typography>
       </Tooltip>
       {networkName && (
