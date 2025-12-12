@@ -35,6 +35,8 @@ import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
 } from './models';
+import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
+import { caipToChainId } from '@core/common';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -57,6 +59,7 @@ export class ApprovalController implements BatchApprovalController {
   #walletService: WalletService;
   #networkService: NetworkService;
   #secretsService: SecretsService;
+  #transactionStatusEvents: TransactionStatusEvents;
 
   #requests = new Map<string, ActionToRequest[keyof ActionToRequest]>();
 
@@ -64,22 +67,54 @@ export class ApprovalController implements BatchApprovalController {
     secretsService: SecretsService,
     walletService: WalletService,
     networkService: NetworkService,
+    transactionStatusEvents: TransactionStatusEvents,
   ) {
     this.#secretsService = secretsService;
     this.#walletService = walletService;
     this.#networkService = networkService;
+    this.#transactionStatusEvents = transactionStatusEvents;
   }
 
-  onTransactionPending = () => {
-    // Transaction Pending. Show a toast? Trigger browser notification?',
+  onTransactionPending = async ({
+    txHash,
+    request,
+  }: {
+    txHash: string;
+    request: { chainId: string };
+  }) => {
+    const chainId = caipToChainId(request.chainId);
+    this.#transactionStatusEvents.emitPending(txHash, chainId, {
+      requestId: request.chainId,
+    });
   };
 
-  onTransactionConfirmed = () => {
-    // Transaction Confirmed. Show a toast? Trigger browser notification?',
+  onTransactionConfirmed = async ({
+    txHash,
+    explorerLink,
+    request,
+  }: {
+    txHash: string;
+    explorerLink: string;
+    request: { chainId: string };
+  }) => {
+    const chainId = caipToChainId(request.chainId);
+    this.#transactionStatusEvents.emitConfirmed(txHash, chainId, {
+      explorerLink,
+      requestId: request.chainId,
+    });
   };
 
-  onTransactionReverted = () => {
-    // Transaction Reverted. Show a toast? Trigger browser notification?',
+  onTransactionReverted = async ({
+    txHash,
+    request,
+  }: {
+    txHash: string;
+    request: { chainId: string };
+  }) => {
+    const chainId = caipToChainId(request.chainId);
+    this.#transactionStatusEvents.emitReverted(txHash, chainId, {
+      requestId: request.chainId,
+    });
   };
 
   async requestPublicKey({

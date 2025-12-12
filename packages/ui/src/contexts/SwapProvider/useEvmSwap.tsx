@@ -49,7 +49,7 @@ const getSwapProviderByName = (name: string): SwapProvider => {
 
 export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
   { account, network, walletDetails },
-  { onTransactionReceipt, showPendingToast },
+  { onTransactionReceipt },
 ) => {
   const { request } = useConnectionContext();
   const { isFlagEnabled, selectFeatureFlag } = useFeatureFlagContext();
@@ -232,8 +232,6 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         ),
       });
 
-      const pendingToastId = showPendingToast();
-
       retry<TransactionReceipt | null>({
         operation: async () => rpcProvider.getTransactionReceipt(txHash),
         isSuccess: (r): r is TransactionReceipt => !!r, // success when receipt is present (>= 1 confirmation)
@@ -243,7 +241,6 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         const isSuccessful = Boolean(receipt?.status === 1);
         onTransactionReceipt({
           isSuccessful,
-          pendingToastId,
           txHash: txHash,
           chainId: network.chainId,
           userAddress,
@@ -261,7 +258,6 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       account,
       network,
       rpcProvider,
-      showPendingToast,
       onTransactionReceipt,
       isFlagEnabled,
       selectFeatureFlag,

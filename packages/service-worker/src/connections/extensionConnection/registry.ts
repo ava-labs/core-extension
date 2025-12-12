@@ -15,6 +15,7 @@ import { InitAnalyticsIdsHandler } from '../../services/analytics/handlers/initA
 import { StoreAnalyticsIdsHandler } from '../../services/analytics/handlers/storeAnalyticsIds';
 import { ApprovalEvents } from '../../services/approvals/events/approvalEvents';
 import { BalancesUpdatedEvents } from '../../services/balances/events/balancesUpdatedEvent';
+import { TransactionStatusEvents } from '../../services/transactions/events/transactionStatusEvents';
 import { GetBalancesHandler } from '../../services/balances/handlers/getBalances';
 import { GetNativeBalanceHandler } from '../../services/balances/handlers/getNativeBalance';
 import { GetTokenPriceHandler } from '../../services/balances/handlers/getTokenPrice';
@@ -537,5 +538,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
   { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: NavigationRequestEvents },
+  { token: 'ExtensionEventEmitter', useToken: TransactionStatusEvents },
 ])
 export class ExtensionEventEmitterRegistry {}
