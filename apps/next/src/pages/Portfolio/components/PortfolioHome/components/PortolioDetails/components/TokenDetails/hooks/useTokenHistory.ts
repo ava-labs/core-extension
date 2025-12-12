@@ -28,7 +28,7 @@ export const useTokenHistory = ({ networkId, tokenAddress }: Props) => {
     if (!token) {
       return [];
     }
-    return transactionHistory.filter((tx) => tokenMatcher(tx, token));
+    return transactionHistory?.filter((tx) => tokenMatcher(tx, token)) ?? [];
   }, [transactionHistory, token]);
 
   return filteredTransactionHistory;

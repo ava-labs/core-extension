@@ -1,19 +1,21 @@
 import { bigIntToString } from '@avalabs/core-utils-sdk';
-import { isAddressBlockedError, stringToBigint } from '@core/common';
-import { useCallback, useMemo, useState } from 'react';
+import { stringToBigint } from '@core/common';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../contexts';
 
-export const useBridgeErrorHandler = () => {
+export const useBridgeFormStateHandler = () => {
   const { t } = useTranslation();
-  const [bridgeError, setBridgeError] = useState<string>('');
-  const [isAddressBlocked, setIsAddressBlocked] = useState(false);
   const {
+    asset,
     minTransferAmount,
-    query: { amount },
+    query: { amount, targetNetwork: targetNetworkId },
     sourceToken,
     requiredNetworkFee,
+    fee,
+    amountAfterFee,
   } = useBridgeState();
+  const [isBridgeExecuting, setIsBridgeExecuting] = useState(false);
 
   const amountBigInt =
     sourceToken && amount ? stringToBigint(amount, sourceToken.decimals) : 0n;
@@ -32,21 +34,34 @@ export const useBridgeErrorHandler = () => {
       !amountBigInt ||
       minTransferAmount == null ||
       !sourceToken ||
-      hasInsufficientBalance
+      hasInsufficientBalance ||
+      amountAfterFee === undefined
     ) {
       return '';
     }
 
     if (
       amountBigInt < minTransferAmount ||
-      minTransferAmount > sourceToken.balance
+      minTransferAmount > sourceToken.balance ||
+      amountAfterFee <= 0n
     ) {
-      return t('Minimum transfer amount is {{limit}}', {
-        limit: bigIntToString(minTransferAmount, sourceToken.decimals),
-      });
+      return t(
+        'The transfer amount needs to be greater than {{limit}}\u00A0{{symbol}}',
+        {
+          limit: bigIntToString(minTransferAmount, sourceToken.decimals),
+          symbol: sourceToken.symbol,
+        },
+      );
     }
     return '';
-  }, [amountBigInt, hasInsufficientBalance, minTransferAmount, sourceToken, t]);
+  }, [
+    amountBigInt,
+    hasInsufficientBalance,
+    minTransferAmount,
+    sourceToken,
+    t,
+    amountAfterFee,
+  ]);
 
   const maxAmountError = useMemo(() => {
     if (
@@ -62,7 +77,7 @@ export const useBridgeErrorHandler = () => {
 
     const maxAvailable = sourceToken.balance - requiredNetworkFee;
     if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
-      return t('Maximum available after fees is {{balance}} {{symbol}}', {
+      return t('Maximum available after fees is {{balance}}\u00A0{{symbol}}', {
         balance: bigIntToString(maxAvailable, sourceToken.decimals),
         symbol: sourceToken.symbol,
       });
@@ -78,28 +93,28 @@ export const useBridgeErrorHandler = () => {
     t,
   ]);
 
-  const clearError = useCallback(() => {
-    setBridgeError('');
-  }, []);
+  const isFeeLoading = fee === undefined;
+  const canExecuteBridge = asset && amount && targetNetworkId;
+  const isAmountCorrect =
+    canExecuteBridge && minTransferAmount && !minAmountError && !maxAmountError;
 
-  const onBridgeError = useCallback((err: unknown, fallbackMessage: string) => {
-    if (isAddressBlockedError(err)) {
-      setIsAddressBlocked(true);
-    } else if (err instanceof Error) {
-      setBridgeError(err.message);
-    } else if (typeof err === 'string') {
-      setBridgeError(err);
-    } else {
-      setBridgeError(fallbackMessage);
-    }
-  }, []);
+  const isReceiveAmountCorrect = typeof amountAfterFee === 'bigint';
+
+  const isBridgeButtonDisabled = Boolean(
+    !canExecuteBridge ||
+      isFeeLoading ||
+      !isAmountCorrect ||
+      isBridgeExecuting ||
+      !isReceiveAmountCorrect ||
+      hasInsufficientBalance,
+  );
 
   return {
     error: hasInsufficientBalance
       ? t('Insufficient balance')
-      : minAmountError || maxAmountError || bridgeError,
-    clearError,
-    onBridgeError,
-    isAddressBlocked,
+      : minAmountError || maxAmountError,
+    setIsBridgeExecuting,
+    isBridgeButtonDisabled,
+    isBridgeExecuting,
   };
 };
