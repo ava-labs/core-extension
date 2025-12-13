@@ -65,8 +65,12 @@ export const ImportLedgerFlowContent = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
-  const { setCurrent, setTotal, setIsBackButtonVisible } =
-    useModalPageControl();
+  const {
+    setCurrent,
+    setTotal,
+    setIsBackButtonVisible,
+    registerBackButtonHandler,
+  } = useModalPageControl();
   const { isFlagEnabled } = useFeatureFlagContext();
   const { phase = 'connect-avax' } = useParams<{ phase: ImportRoute }>();
   const { importLedger, isImporting } = useImportLedger();
@@ -85,15 +89,28 @@ export const ImportLedgerFlowContent = () => {
       setCurrent(step);
       setTotal(totalSteps);
 
-      // We don't want to display the back button on the first screen
-      // (it won't do anything, since history state is empty)
-      setIsBackButtonVisible(step > 1);
+      setIsBackButtonVisible(true);
+      if (step > 1) {
+        registerBackButtonHandler(() => history.goBack());
+      } else {
+        registerBackButtonHandler(() =>
+          openApp({
+            closeWindow: true,
+            navigateTo: {
+              pathname: `/wallets/import`,
+            },
+          }),
+        );
+      }
     } else {
       // If we're on troubleshooting screens, hide the page indicator
       setTotal(0);
     }
   }, [
+    history,
+    openApp,
     phase,
+    registerBackButtonHandler,
     setCurrent,
     setIsBackButtonVisible,
     setTotal,
