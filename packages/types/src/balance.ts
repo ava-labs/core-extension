@@ -55,6 +55,7 @@ export interface Balances<TokenTypes = TokenWithBalance> {
 export interface PvmCategories {
   unlockedStaked: string;
   unlockedUnstaked: string;
+  unlockedUnstakedMultiSig: string;
   lockedStaked: string;
   lockedPlatform: string;
   lockedStakeable: string;
