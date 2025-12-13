@@ -58,6 +58,15 @@ export const calculateTotalAtomicFundsForAccounts = (
             );
           }
           if (isPvmAtomicBalance(chainId, atomicBalance)) {
+            if (atomicBalance.unlockedUnstakedMultiSig) {
+              tempAcc = tempAcc.add(
+                new TokenUnit(
+                  atomicBalance.unlockedUnstakedMultiSig,
+                  atomicBalance.nativeTokenBalance.decimals,
+                  '',
+                ),
+              );
+            }
             Object.values(atomicBalance.atomicMemoryUnlocked).map((balance) => {
               tempAcc = tempAcc.add(
                 new TokenUnit(
