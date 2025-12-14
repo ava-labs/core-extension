@@ -16,11 +16,12 @@ import {
   TotalBalanceForWallet,
   ImportedAccount,
   PrimaryAccount,
+  NetworkWithCaipId,
+  FeatureGates,
 } from '@core/types';
 
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { AccountsService } from '~/services/accounts/AccountsService';
-import { GlacierService } from '~/services/glacier/GlacierService';
 import { NetworkService } from '~/services/network/NetworkService';
 import { BalanceAggregatorService } from '~/services/balances/BalanceAggregatorService';
 import { getExtendedPublicKey } from '~/services/secrets/utils';
@@ -35,6 +36,7 @@ import {
   getIncludedNetworks,
   removeChainPrefix,
 } from './helpers';
+import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
@@ -48,11 +50,76 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
 
   constructor(
     private secretService: SecretsService,
-    private glacierService: GlacierService,
     private networkService: NetworkService,
     private accountsService: AccountsService,
     private balanceAggregatorService: BalanceAggregatorService,
+    private featureFlagService: FeatureFlagService,
   ) {}
+
+  async #queryAccountsSequentially(
+    accounts: ImportedAccount[] | PrimaryAccount[],
+    networksIncludedInTotal: NetworkWithCaipId[],
+  ): Promise<{
+    totalBalanceInCurrency: number | undefined;
+    totalPriceChangeValue: number;
+  }> {
+    let totalBalanceInCurrency: undefined | number = undefined;
+    let totalPriceChangeValue = 0;
+
+    for (const account of accounts) {
+      const { tokens: derivedAddressesBalances } =
+        await this.balanceAggregatorService.getBalancesForNetworks(
+          networksIncludedInTotal.map((network) => network.chainId),
+          [account],
+          [TokenType.NATIVE, TokenType.ERC20],
+        );
+
+      const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
+        derivedAddressesBalances,
+        [account],
+        networksIncludedInTotal,
+      );
+
+      if (totalBalanceInCurrency === undefined) {
+        totalBalanceInCurrency = balance;
+        totalPriceChangeValue = priceChangeValue;
+        continue;
+      }
+      totalBalanceInCurrency += balance;
+      totalPriceChangeValue += priceChangeValue;
+    }
+
+    return {
+      totalBalanceInCurrency,
+      totalPriceChangeValue,
+    };
+  }
+
+  async #queryTotalBalanceInOneRoundTrip(
+    accounts: ImportedAccount[] | PrimaryAccount[],
+    networksIncludedInTotal: NetworkWithCaipId[],
+  ): Promise<{
+    totalBalanceInCurrency: number | undefined;
+    totalPriceChangeValue: number;
+  }> {
+    const { tokens: derivedAddressesBalances } =
+      await this.balanceAggregatorService.getBalancesForNetworks(
+        networksIncludedInTotal.map((network) => network.chainId),
+        accounts,
+        [TokenType.NATIVE, TokenType.ERC20],
+      );
+
+    const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
+      derivedAddressesBalances,
+      accounts,
+      networksIncludedInTotal,
+    );
+
+    return {
+      totalBalanceInCurrency: balance,
+      totalPriceChangeValue: priceChangeValue,
+    };
+  }
 
   async #findUnderivedAccounts(walletId: string, derivedAccounts: Account[]) {
     const secrets =
@@ -170,28 +237,26 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         asNumber: true,
       });
 
-      for (const account of derivedAccounts) {
-        const { tokens: derivedAddressesBalances } =
-          await this.balanceAggregatorService.getBalancesForNetworks(
-            networksIncludedInTotal.map((network) => network.chainId),
-            [account],
-            [TokenType.NATIVE, TokenType.ERC20],
+      const isBalanceServiceIntegrationOn =
+        this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ];
+
+      const {
+        totalBalanceInCurrency: totalBalanceInCurrencyForDerivedAccounts,
+        totalPriceChangeValue: totalPriceChangeValueForDerivedAccounts,
+      } = isBalanceServiceIntegrationOn
+        ? await this.#queryTotalBalanceInOneRoundTrip(
+            derivedAccounts,
+            networksIncludedInTotal,
+          )
+        : await this.#queryAccountsSequentially(
+            derivedAccounts,
+            networksIncludedInTotal,
           );
 
-        const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
-          derivedAddressesBalances,
-          [account],
-          networksIncludedInTotal,
-        );
-
-        if (totalBalanceInCurrency === undefined) {
-          totalBalanceInCurrency = balance;
-          totalPriceChangeValue = priceChangeValue;
-          continue;
-        }
-        totalBalanceInCurrency += balance;
-        totalPriceChangeValue += priceChangeValue;
-      }
+      totalBalanceInCurrency ??= totalBalanceInCurrencyForDerivedAccounts;
+      totalPriceChangeValue += totalPriceChangeValueForDerivedAccounts;
       let hasBalanceOnUnderivedAccounts = false;
 
       if (underivedAccounts.length > 0) {
@@ -209,30 +274,48 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             ),
           )
         ).filter(isNotNullish);
-        for (let i = 0; i < underivedAccounts.length; i += batchSize) {
-          const accountsBatch = underivedAccounts.slice(i, i + batchSize);
-          const { tokens: underivedAddressesBalances } =
-            await this.balanceAggregatorService.getBalancesForNetworks(
-              getXPChainIds(this.networkService.isMainnet()),
-              accountsBatch as Account[],
-              [TokenType.NATIVE],
-              false, // Don't cache this
-            );
-
-          const { balance: underivedAccountsTotal, priceChangeValue } =
-            calculateTotalBalanceForAccounts(
-              underivedAddressesBalances,
-              underivedAccounts,
-              xpChains,
-            );
+        if (isBalanceServiceIntegrationOn) {
+          const {
+            totalBalanceInCurrency: totalBalanceInCurrencyForUnderivedAccounts,
+            totalPriceChangeValue: totalPriceChangeValueForUnderivedAccounts,
+          } = await this.#queryTotalBalanceInOneRoundTrip(
+            underivedAccounts as ImportedAccount[] | PrimaryAccount[],
+            xpChains,
+          );
           if (totalBalanceInCurrency === undefined) {
-            totalBalanceInCurrency = underivedAccountsTotal;
-            totalPriceChangeValue = priceChangeValue;
+            totalBalanceInCurrency = totalBalanceInCurrencyForUnderivedAccounts;
+            totalPriceChangeValue = totalPriceChangeValueForUnderivedAccounts;
           } else {
-            totalBalanceInCurrency += underivedAccountsTotal;
-            totalPriceChangeValue += priceChangeValue;
+            totalBalanceInCurrency +=
+              totalBalanceInCurrencyForUnderivedAccounts ?? 0;
+            totalPriceChangeValue += totalPriceChangeValueForUnderivedAccounts;
           }
-          hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+        } else {
+          for (let i = 0; i < underivedAccounts.length; i += batchSize) {
+            const accountsBatch = underivedAccounts.slice(i, i + batchSize);
+            const { tokens: underivedAddressesBalances } =
+              await this.balanceAggregatorService.getBalancesForNetworks(
+                getXPChainIds(this.networkService.isMainnet()),
+                accountsBatch as Account[],
+                [TokenType.NATIVE],
+                false, // Don't cache this
+              );
+
+            const { balance: underivedAccountsTotal, priceChangeValue } =
+              calculateTotalBalanceForAccounts(
+                underivedAddressesBalances,
+                underivedAccounts,
+                xpChains,
+              );
+            if (totalBalanceInCurrency === undefined) {
+              totalBalanceInCurrency = underivedAccountsTotal;
+              totalPriceChangeValue = priceChangeValue;
+            } else {
+              totalBalanceInCurrency += underivedAccountsTotal;
+              totalPriceChangeValue += priceChangeValue;
+            }
+            hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+          }
         }
       }
 
