@@ -59,6 +59,7 @@ export enum FeatureGates {
   CORE_ASSISTANT = 'core-assistant',
   SWAP_USE_MARKR = 'swap-use-markr',
   BALANCE_SERVICE_INTEGRATION = 'balance-service-integration',
+  LANGUAGES = 'languages',
 }
 
 export enum FeatureVars {

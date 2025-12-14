@@ -14,6 +14,8 @@ import { type PageControlData } from '../PageControl';
 import { AppInfoFooter } from './AppInfoFooter';
 import { FullscreenModalHeader } from './FullscreenModalHeader';
 import { FullscreenModalContentRoot } from './FullscreenModalContentRoot';
+import { useFeatureFlagContext } from '@core/ui';
+import { FeatureGates } from '@core/types';
 
 export interface FullscreenModalProps {
   children: ReactNode;
@@ -35,6 +37,7 @@ export const FullscreenModal: FC<FullscreenModalProps> = ({
   withAppInfo,
   withLanguageSelector,
 }) => {
+  const { featureFlags } = useFeatureFlagContext();
   return (
     <StyledModal fullScreen open={open} onClose={onClose}>
       {withCoreLogo && (
@@ -42,7 +45,7 @@ export const FullscreenModal: FC<FullscreenModalProps> = ({
           <CoreIcon opacity={0.1} />
         </Box>
       )}
-      {withLanguageSelector && (
+      {withLanguageSelector && featureFlags[FeatureGates.LANGUAGES] && (
         <Box position="fixed" top={28} right={28}>
           <LanguageSelector
             dataTestId="settings-language-selector"

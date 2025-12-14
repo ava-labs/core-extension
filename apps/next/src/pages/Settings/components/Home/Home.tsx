@@ -169,17 +169,19 @@ export const SettingsHomePage = () => {
           onClick={() => capture('CurrencySettingClicked')}
           secondaryAction={<CurrencySelector sx={navItemActionCommonSx} />}
         />
-        <SettingsNavItem
-          divider
-          label={t('Language')}
-          secondaryAction={
-            <LanguageSelector
-              dataTestId="settings-language-selector"
-              onSelectEventName="AppLanguageChanged"
-              sx={navItemActionCommonSx}
-            />
-          }
-        />
+        {featureFlags[FeatureGates.LANGUAGES] && (
+          <SettingsNavItem
+            divider
+            label={t('Language')}
+            secondaryAction={
+              <LanguageSelector
+                dataTestId="settings-language-selector"
+                onSelectEventName="AppLanguageChanged"
+                sx={navItemActionCommonSx}
+              />
+            }
+          />
+        )}
         <SettingsNavItem
           label={t('Theme')}
           divider
