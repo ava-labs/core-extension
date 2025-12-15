@@ -113,7 +113,10 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
           alignItems="center"
           justifyContent="center"
         >
-          <ChevronRightIcon size={CHEVRON_SIZE} color="text.secondary" />
+          <ChevronRightIcon
+            size={CHEVRON_SIZE}
+            sx={{ color: 'text.secondary' }}
+          />
         </Box>
       </Stack>
     </Card>
