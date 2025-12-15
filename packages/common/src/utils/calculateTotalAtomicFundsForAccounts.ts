@@ -34,11 +34,9 @@ const isPvmAtomicBalance = (
   );
 };
 
-// for wallet total balance we need to add the multisig UTXOs, but for "stuck" atomic funds we shouldn't
 export const calculateTotalAtomicFundsForAccounts = (
   atomicBalances: AtomicBalances,
   accounts: Array<string | undefined>,
-  shouldAddMultiSig: boolean = false,
 ): TokenUnit => {
   return Object.entries(atomicBalances).reduce(
     (baseAccumulator, [chainId, chainBalance]) => {
@@ -60,15 +58,6 @@ export const calculateTotalAtomicFundsForAccounts = (
             );
           }
           if (isPvmAtomicBalance(chainId, atomicBalance)) {
-            if (shouldAddMultiSig && atomicBalance.unlockedUnstakedMultiSig) {
-              tempAcc = tempAcc.add(
-                new TokenUnit(
-                  atomicBalance.unlockedUnstakedMultiSig,
-                  atomicBalance.nativeTokenBalance.decimals,
-                  '',
-                ),
-              );
-            }
             Object.values(atomicBalance.atomicMemoryUnlocked).map((balance) => {
               tempAcc = tempAcc.add(
                 new TokenUnit(

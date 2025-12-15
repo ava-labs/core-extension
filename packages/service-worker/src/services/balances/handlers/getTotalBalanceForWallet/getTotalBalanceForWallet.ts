@@ -163,7 +163,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
               account?.addressPVM,
             ],
           ),
-          true,
         );
 
       // TODO: Handle if we need to handle other tokens than AVAX
