@@ -15,7 +15,7 @@ import { getTokenMapper } from './lib/getTokenMapper';
 
 export const useAllTokens = (
   networks: NetworkWithCaipId[],
-  hideMalicious = true,
+  forceShowAllTokens?: boolean,
 ) => {
   const {
     accounts: { active },
@@ -42,7 +42,7 @@ export const useAllTokens = (
 
   const tokensForAccount = useTokensForAccount(active, {
     networks,
-    hideMalicious,
+    forceShowAllTokens,
   });
 
   return useMemo<FungibleTokenBalance[]>(

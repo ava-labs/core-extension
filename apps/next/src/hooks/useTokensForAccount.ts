@@ -6,26 +6,30 @@ import {
 } from '@avalabs/vm-module-types';
 import { orderBy } from 'lodash';
 
-import { getAllAddressesForAccount } from '@core/common';
+import { chainIdToCaip, getAllAddressesForAccount } from '@core/common';
 import {
   Account,
   FungibleAssetType,
   FungibleTokenBalance,
   NetworkWithCaipId,
 } from '@core/types';
-import { useBalancesContext, useNetworkContext } from '@core/ui';
+import {
+  useBalancesContext,
+  useNetworkContext,
+  useSettingsContext,
+} from '@core/ui';
 import { useMemo } from 'react';
 
 type UseTokensForAccountOptions = {
-  // If set to true, malicious tokens will not be listed.
-  hideMalicious?: boolean;
   // If omitted, all networks will be used.
   networks?: NetworkWithCaipId[];
+  // If true, all tokens will be shown, regardless of their visibility settings.
+  forceShowAllTokens?: boolean;
 };
 
 const DEFAULT_OPTIONS: UseTokensForAccountOptions = {
-  hideMalicious: true,
   networks: [],
+  forceShowAllTokens: false,
 };
 
 export const useTokensForAccount = (
@@ -35,6 +39,7 @@ export const useTokensForAccount = (
   const {
     balances: { tokens: tokensByChain },
   } = useBalancesContext();
+  const { getTokenVisibility } = useSettingsContext();
   const { getNetwork } = useNetworkContext();
 
   return useMemo(() => {
@@ -66,23 +71,27 @@ export const useTokensForAccount = (
           continue;
         }
 
-        const nonMaliciousTokens = Object.values(addressBalances)
-          .filter(options.hideMalicious ? isNotKnownMalicious : () => true)
-          .filter(isFungibleToken);
+        const fungiblesTokens =
+          Object.values(addressBalances).filter(isFungibleToken);
 
-        for (const balance of nonMaliciousTokens) {
+        for (const balance of fungiblesTokens) {
           tokens.push(decorateWithAssetTypeAndChainId(balance, network));
         }
       }
     }
 
-    return sortTokens(tokens);
+    return sortTokens(
+      options.forceShowAllTokens
+        ? tokens
+        : tokens.filter(getIsTokenVisible(getTokenVisibility)),
+    );
   }, [
     account,
     tokensByChain,
     getNetwork,
     options.networks,
-    options.hideMalicious,
+    getTokenVisibility,
+    options.forceShowAllTokens,
   ]);
 };
 
@@ -127,8 +136,15 @@ const isFungibleToken = (
 ): balance is FungibleTokenBalance =>
   balance.type !== TokenType.ERC721 && balance.type !== TokenType.ERC1155;
 
-const isNotKnownMalicious = (balance: TokenWithBalance) =>
-  balance.type !== TokenType.ERC20 || balance.reputation !== 'Malicious';
+type TokenVisibilityChecker = (
+  token: TokenWithBalance,
+  caipId?: string,
+) => boolean;
+
+const getIsTokenVisible =
+  (getTokenVisibility: TokenVisibilityChecker) =>
+  (token: FungibleTokenBalance) =>
+    getTokenVisibility(token, chainIdToCaip(token.coreChainId));
 
 const hasCurrencyValue = (
   token: FungibleTokenBalance,
