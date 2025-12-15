@@ -62,11 +62,14 @@ export const PortfolioHome: FC = () => {
       id: 'defi',
       label: t('DeFi'),
     },
-    {
+  ];
+
+  if (!isAccountEmpty) {
+    TABS.push({
       id: 'activity',
       label: t('Activity'),
-    },
-  ];
+    });
+  }
 
   const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
 
