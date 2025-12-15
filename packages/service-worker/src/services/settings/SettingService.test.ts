@@ -7,6 +7,7 @@ import {
 import {
   AnalyticsConsent,
   CollectiblesVisibility,
+  FeatureGates,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -61,6 +62,12 @@ describe('background/services/settings/SettingsService.ts', () => {
     getNetwork: jest.fn(),
   } as any;
 
+  const featureFlagServiceMock = {
+    featureFlags: {
+      [FeatureGates.LANGUAGES]: true,
+    },
+  } as any;
+
   const storedSettings: SettingsState = {
     currency: 'EUR',
     customTokens: {},
@@ -105,11 +112,12 @@ describe('background/services/settings/SettingsService.ts', () => {
       storedUnencryptedSettings,
     );
     (isTokenSupported as jest.Mock).mockResolvedValue(false);
+    featureFlagServiceMock.featureFlags[FeatureGates.LANGUAGES] = true;
     service = new SettingsService(
       storageServiceMock,
       networkServiceMock,
-      {} as any,
-    ) as jest.Mocked<SettingsService>;
+      featureFlagServiceMock,
+    );
 
     jest.mocked(networkServiceMock.getNetwork).mockResolvedValue(testNetwork);
   });
@@ -209,7 +217,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       const eventListener = jest.fn();
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-      await service.addCustomToken(customToken, testNetwork);
+      await service.addCustomToken(customToken);
 
       expect(storageServiceMock.saveUnencrypted).toBeCalledWith(
         SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -242,7 +250,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
       try {
-        await service.addCustomToken(customToken, testNetwork);
+        await service.addCustomToken(customToken);
         fail('Should have thrown an error');
       } catch (e) {
         expect(e).toEqual(new Error('Token already exists in the wallet.'));
