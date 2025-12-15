@@ -2,10 +2,13 @@ import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { useAllTokensFromEnabledNetworks } from '@/hooks/useAllTokensFromEnabledNetworks';
 import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 import { getUniqueTokenId } from '@core/types';
-import { useNetworkContext, useBalancesContext } from '@core/ui';
+import {
+  useNetworkContext,
+  useBalancesContext,
+  useAccountsContext,
+} from '@core/ui';
 
 import { AssetCard } from './AssetCard';
 import {
@@ -17,18 +20,22 @@ import { SortMenu } from './SortMenu';
 import { AssetSortOption, sortAssets } from '../utils/assetSorting';
 import { AssetsEmptyState } from './AssetsEmptyState';
 import { AssetsErrorState } from './AssetsErrorState';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
   const { getNetwork } = useNetworkContext();
+  const {
+    accounts: { active: account },
+  } = useAccountsContext();
   const { balances } = useBalancesContext();
   const [sort, setSort] = useState<AssetSortOption | null>(null);
   const [selectedNetworks, setSelectedNetworks] = useState<Set<number>>(
     new Set(),
   );
 
-  const assets = useAllTokensFromEnabledNetworks(true, true);
+  const assets = useTokensForAccount(account);
   const hasError = !!balances.error;
 
   const availableNetworks = useMemo(

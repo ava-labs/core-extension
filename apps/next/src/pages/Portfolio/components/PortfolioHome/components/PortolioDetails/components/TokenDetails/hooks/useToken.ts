@@ -6,7 +6,7 @@ export const useToken = (
   tokenAddress: string,
   networkId: Network['chainId'],
 ) => {
-  const assets = useAllTokensFromEnabledNetworks(true, true);
+  const assets = useAllTokensFromEnabledNetworks(true);
   const token = assets.find((asset) => {
     if (asset.coreChainId !== networkId) {
       return false;
