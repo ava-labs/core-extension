@@ -52,7 +52,7 @@ export const WalletCard: FC<WalletCardProps> = ({
     width: 1,
     variant: 'h6',
     fontFamily: 'Aeonik',
-    lineHeight: 1,
+    lineHeight: 1.5,
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
