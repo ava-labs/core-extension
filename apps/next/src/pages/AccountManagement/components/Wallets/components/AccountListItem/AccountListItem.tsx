@@ -5,10 +5,16 @@ import {
   ListItemIcon,
   ListItemText,
   PopoverPosition,
+  Tooltip,
 } from '@avalabs/k2-alpine';
-import { Account } from '@core/types';
-import { useAccountManager, useAnalyticsContext } from '@core/ui';
-import { DOMAttributes, FC, MouseEventHandler, useState } from 'react';
+import { Account, AccountType, SecretType } from '@core/types';
+import { isPrimaryAccount } from '@core/common';
+import {
+  useAccountManager,
+  useAnalyticsContext,
+  useWalletContext,
+} from '@core/ui';
+import { DOMAttributes, FC, MouseEventHandler, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { RenamableTitle } from '../../../RenamableTitle';
@@ -33,11 +39,37 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
     deselectAccount,
     selectedAccounts,
   } = useAccountManager();
+  const { getWallet } = useWalletContext();
   const [isHovered, setIsHovered] = useState(false);
   const { capture } = useAnalyticsContext();
   const [position, setPosition] = useState<PopoverPosition | undefined>(
     undefined,
   );
+
+  const isSelectable = isAccountSelectable(account);
+
+  const nonSelectableHint = useMemo(() => {
+    if (isSelectable) {
+      return '';
+    }
+
+    // Check if it's a seedless account
+    if (isPrimaryAccount(account)) {
+      const wallet = getWallet(account.walletId);
+      if (wallet?.type === SecretType.Seedless) {
+        return t('You cannot delete a seedless account.');
+      }
+    }
+
+    // Check if it's the last account
+    if (account.type === AccountType.PRIMARY && account.index === 0) {
+      return t('Removing the last account is not possible.');
+    }
+
+    return t(
+      'To remove this account, you must also remove all accounts that follow.',
+    );
+  }, [isSelectable, account, getWallet, t]);
   const navigateToAccount: MouseEventHandler = (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -87,53 +119,57 @@ export const AccountListItem: FC<Props> = ({ account, active, onSelect }) => {
 
   return (
     <ListItem disablePadding className="account-item">
-      <Styled.ListItemButton
-        disabled={isManageMode && !isAccountSelectable(account)}
-        selected={!isManageMode && active}
-        {...domEventHandlers}
-      >
-        <ListItemIcon sx={{ minWidth: 'unset ' }}>
-          <AccountListCheckbox account={account} active={active} />
-        </ListItemIcon>
-        <ListItemText
-          primary={
-            <RenamableTitle
-              onRename={handleRename}
-              variant="subtitle3"
-              component="span"
-              fontWeight={active ? 600 : 400}
-              marginLeft="6px"
-            >
-              {account.name}
-            </RenamableTitle>
-          }
-        />
-        <ListItemText
-          className="secondary-text"
-          primary={
-            <>
-              {isHovered ? (
-                <Button
-                  sx={{
-                    position: 'absolute',
-                    right: (theme) => theme.spacing(1.5),
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                  }}
-                  size="xsmall"
-                  color="secondary"
-                  variant="contained"
-                  onClick={navigateToAccount}
+      <Tooltip title={isManageMode ? nonSelectableHint : ''}>
+        <span style={{ width: '100%' }}>
+          <Styled.ListItemButton
+            disabled={isManageMode && !isSelectable}
+            selected={!isManageMode && active}
+            {...domEventHandlers}
+          >
+            <ListItemIcon sx={{ minWidth: 'unset ' }}>
+              <AccountListCheckbox account={account} active={active} />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <RenamableTitle
+                  onRename={handleRename}
+                  variant="subtitle3"
+                  component="span"
+                  fontWeight={active ? 600 : 400}
+                  marginLeft="6px"
                 >
-                  {t('Options')}
-                </Button>
-              ) : (
-                <AccountBalance account={account} selected={active} />
-              )}
-            </>
-          }
-        />
-      </Styled.ListItemButton>
+                  {account.name}
+                </RenamableTitle>
+              }
+            />
+            <ListItemText
+              className="secondary-text"
+              primary={
+                <>
+                  {isHovered ? (
+                    <Button
+                      sx={{
+                        position: 'absolute',
+                        right: (theme) => theme.spacing(1.5),
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                      }}
+                      size="xsmall"
+                      color="secondary"
+                      variant="contained"
+                      onClick={navigateToAccount}
+                    >
+                      {t('Options')}
+                    </Button>
+                  ) : (
+                    <AccountBalance account={account} selected={active} />
+                  )}
+                </>
+              }
+            />
+          </Styled.ListItemButton>
+        </span>
+      </Tooltip>
       <AccountContextMenu
         account={account}
         position={position}
