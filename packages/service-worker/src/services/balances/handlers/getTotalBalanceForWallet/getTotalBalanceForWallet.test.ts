@@ -31,7 +31,6 @@ import { calculateTotalAtomicFundsForAccounts } from '@core/common';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 
-jest.mock('./helpers/getAccountsWithActivity');
 jest.mock('@core/common', () => {
   const actual = jest.requireActual('@core/common');
   return {
