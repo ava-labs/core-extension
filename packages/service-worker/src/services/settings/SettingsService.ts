@@ -4,6 +4,7 @@ import {
   CollectiblesVisibility,
   ColorTheme,
   EnsureDefined,
+  FeatureGates,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -16,6 +17,7 @@ import { EventEmitter } from 'events';
 import { changeLanguage } from 'i18next';
 import { singleton } from 'tsyringe';
 import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
@@ -43,6 +45,7 @@ export class SettingsService implements OnStorageReady, OnLock {
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
+    private featureFlagService: FeatureFlagService,
   ) {
     this.networkService.uiActiveNetworkChanged.add(() => {
       this.applySettings();
@@ -71,6 +74,13 @@ export class SettingsService implements OnStorageReady, OnLock {
 
   async getSettings(): Promise<SettingsState> {
     if (this._cachedSettings && !this.needToRetryFetch) {
+      // If language feature flag is disabled, force English even for cached settings
+      if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
+        return {
+          ...this._cachedSettings,
+          language: Languages.EN,
+        };
+      }
       return this._cachedSettings;
     }
 
@@ -88,6 +98,11 @@ export class SettingsService implements OnStorageReady, OnLock {
         ...state,
       };
 
+      // If language feature flag is disabled, force English
+      if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
+        settings.language = Languages.EN;
+      }
+
       this.needToRetryFetch = false;
       this._cachedSettings = settings;
 
@@ -103,6 +118,11 @@ export class SettingsService implements OnStorageReady, OnLock {
         ...DEFAULT_SETTINGS_STATE,
         ...unEncryptedState,
       };
+
+      // If language feature flag is disabled, force English
+      if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
+        settings.language = Languages.EN;
+      }
 
       this._cachedSettings = settings;
 
