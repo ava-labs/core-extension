@@ -105,7 +105,11 @@ describe('background/services/settings/SettingsService.ts', () => {
       storedUnencryptedSettings,
     );
     (isTokenSupported as jest.Mock).mockResolvedValue(false);
-    service = new SettingsService(storageServiceMock, networkServiceMock);
+    service = new SettingsService(
+      storageServiceMock,
+      networkServiceMock,
+      {} as any,
+    ) as jest.Mocked<SettingsService>;
 
     jest.mocked(networkServiceMock.getNetwork).mockResolvedValue(testNetwork);
   });
