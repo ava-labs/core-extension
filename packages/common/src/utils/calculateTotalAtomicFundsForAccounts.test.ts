@@ -122,7 +122,6 @@ describe('calculateTotalAtomicFundsForAccounts', () => {
           nativeTokenBalance: {
             decimals: 2,
           },
-          unlockedUnstakedMultiSig: '20',
           atomicMemoryUnlocked: {
             [ChainId.AVALANCHE_P]: '20',
           },
@@ -131,7 +130,6 @@ describe('calculateTotalAtomicFundsForAccounts', () => {
           nativeTokenBalance: {
             decimals: 2,
           },
-          unlockedUnstakedMultiSig: '30',
           atomicMemoryUnlocked: {
             [ChainId.AVALANCHE_P]: '30',
           },
@@ -139,16 +137,10 @@ describe('calculateTotalAtomicFundsForAccounts', () => {
       },
     } as unknown as AtomicBalances;
 
-    const resultWithMultiSig = calculateTotalAtomicFundsForAccounts(
-      atomicBalances,
-      accounts,
-      true,
-    );
-    expect(resultWithMultiSig.toDisplay({ asNumber: true })).toEqual(2.5);
-    const resultWithoutMultiSig = calculateTotalAtomicFundsForAccounts(
+    const result = calculateTotalAtomicFundsForAccounts(
       atomicBalances,
       accounts,
     );
-    expect(resultWithoutMultiSig.toDisplay({ asNumber: true })).toEqual(2);
+    expect(result.toDisplay({ asNumber: true })).toEqual(2);
   });
 });
