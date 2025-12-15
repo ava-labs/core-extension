@@ -16,6 +16,7 @@ type ActionDrawerProps = StackProps & {
   approve?: () => void;
   approveText?: string;
   reject?: () => void;
+  rejectText?: string;
   withConfirmationSwitch?: boolean;
   isProcessing: boolean;
   isDisabled?: boolean;
@@ -26,6 +27,7 @@ export const ActionDrawer = ({
   approve,
   approveText,
   reject,
+  rejectText,
   withConfirmationSwitch,
   isProcessing,
   isDisabled = false,
@@ -69,7 +71,7 @@ export const ActionDrawer = ({
               onClick={reject}
               disabled={isProcessing}
             >
-              {t('Reject')}
+              {rejectText || t('Reject')}
             </Button>
           )}
         </Stack>
@@ -82,6 +84,7 @@ export const Drawer = styled(Stack)(({ theme }) => ({
   width: '100%',
   position: 'sticky',
   bottom: 0,
+  zIndex: theme.zIndex.drawer,
   paddingTop: theme.spacing(3),
   paddingBottom: theme.spacing(2),
   paddingInline: theme.spacing(2),

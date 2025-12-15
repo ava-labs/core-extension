@@ -12,6 +12,7 @@ import { buildRpcCall } from '@shared/tests/test-utils';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { RequestAccountPermissionHandler } from './wallet_requestAccountPermission';
+import { LockService } from '~/services/lock/LockService';
 
 jest.mock('~/runtime/openApprovalWindow');
 
@@ -24,6 +25,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         { getActiveAccount: async () => undefined } as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -48,6 +50,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
           }),
         } as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -72,6 +75,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         {} as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -91,6 +95,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         {} as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -171,6 +176,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -193,6 +199,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -226,6 +233,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
           }),
         } as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -261,6 +269,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -297,6 +306,7 @@ describe('background/services/web3/handlers/wallet_requestAccountPermission', ()
       const handler = new RequestAccountPermissionHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(

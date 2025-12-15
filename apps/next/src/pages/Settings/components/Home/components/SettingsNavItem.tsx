@@ -5,6 +5,8 @@ import {
   ListItemText,
   OutboundIcon,
   styled,
+  Stack,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 
@@ -17,6 +19,7 @@ type OwnProps = {
   description?: string;
   labelVariant?: 'subtitle3';
   descriptionVariant?: 'caption2';
+  onClick?: () => void;
 };
 type SettingsNavItemProps = Omit<ListItemProps, 'onClick'> & OwnProps;
 
@@ -28,10 +31,11 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   secondaryAction,
   labelVariant,
   descriptionVariant,
+  onClick,
   ...props
 }) => {
   const history = useHistory();
-
+  const theme = useTheme();
   const hasLink = !!href;
   const isOutbound = hasLink && href.startsWith('https://');
 
@@ -41,13 +45,14 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
       isOutbound ? (
         <OutboundIcon size={16} />
       ) : (
-        <ChevronRightIcon size={16} />
+        <ChevronRightIcon size={20} color={theme.palette.text.secondary} />
       )
     ) : null);
 
   return (
     <StyledListItem
       onClick={() => {
+        onClick?.();
         if (!hasLink) {
           return;
         }
@@ -58,7 +63,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
           history.push(href);
         }
       }}
-      secondaryAction={endIcon}
+      secondaryAction={<Stack>{endIcon}</Stack>}
       {...props}
     >
       <ListItemText

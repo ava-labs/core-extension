@@ -68,7 +68,7 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     setAnalyticsConsent: jest.fn(),
   } as unknown as SettingsService;
   const networkServiceMock = {
-    addFavoriteNetwork: jest.fn(),
+    enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
@@ -156,7 +156,6 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     });
     expect(addAllAccountsWithHistory).toHaveBeenCalledWith({
       walletId: WALLET_ID,
-      addFirstAccount: true,
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(false);

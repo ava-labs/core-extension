@@ -3,7 +3,6 @@ import {
   DerivationPath,
   getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { VM } from '@avalabs/avalanchejs';
 
 import {
   LedgerAppType,
@@ -11,158 +10,130 @@ import {
   useLedgerContext,
   useDuplicatedWalletChecker,
 } from '@core/ui';
+import { LedgerError, SecretType } from '@core/types';
 import {
-  AddressPublicKeyJson,
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-  SecretType,
-} from '@core/types';
-import { isLedgerVersionCompatible } from '@core/common';
+  assert,
+  getAvalancheExtendedKeyPath,
+  getEvmExtendedKeyPath,
+  isLedgerVersionCompatible,
+} from '@core/common';
+
+import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
+import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 
 import {
   DerivationStatus,
   DerivedKeys,
   ErrorType,
+  ExtendedPublicKeyMap,
   PublicKey,
   UseLedgerPublicKeyFetcher,
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
+import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
+  onActivePublicKeysDiscovered,
 ) => {
+  if (!derivationPathSpec) {
+    throw new Error('Derivation path spec is required');
+  }
+
   const {
     appType,
-    avaxAppVersion,
+    appVersion,
     popDeviceSelection,
     hasLedgerTransport,
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
-    getPublicKey,
   } = useLedgerContext();
   const checkIfWalletExists = useDuplicatedWalletChecker();
+  const checkAddressActivity = useCheckAddressActivity();
 
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<DerivationStatus>('waiting');
+  const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
+    useState(false);
 
-  const getPublicKeyFromLedger = useCallback(
-    async (accountIndex: number, vm: VM): Promise<AddressPublicKeyJson> => {
-      const publicKey = await getPublicKey(
-        accountIndex,
-        DerivationPath.LedgerLive,
-        vm,
-      );
+  const getEvmExtendedPublicKeys = useCallback(
+    async (indexes: number[]) => {
+      const evmExtendedPublicKeys: ExtendedPublicKeyMap = new Map();
 
-      return buildAddressPublicKey(publicKey, vm, accountIndex, 'secp256k1');
+      for (const index of indexes) {
+        evmExtendedPublicKeys.set(
+          index,
+          await getExtendedPublicKey(getEvmExtendedKeyPath(index)),
+        );
+      }
+
+      return evmExtendedPublicKeys;
     },
-    [getPublicKey],
+    [getExtendedPublicKey],
   );
 
-  // Used with LedgerLive derivation path, as with such we cannot use the extended public keys
-  const getKeysDirectlyFromLedger = useCallback(
+  const getXpExtendedPublicKeys = useCallback(
     async (indexes: number[]) => {
-      const keys: PublicKey[] = [];
+      const xpExtendedPublicKeys: { index: number; key: string }[] = [];
 
-      // We cannot send multiple requests to the ledger at once, so we need to do one at a time
       for (const index of indexes) {
-        const evmKey = await getPublicKeyFromLedger(index, 'EVM');
-        keys.push({
+        xpExtendedPublicKeys.push({
           index,
-          vm: 'EVM',
-          key: evmKey,
-        });
-
-        const xpKey = await getPublicKeyFromLedger(index, 'AVM');
-        keys.push({
-          index,
-          vm: 'AVM',
-          key: xpKey,
+          key: await getExtendedPublicKey(getAvalancheExtendedKeyPath(index)),
         });
       }
 
-      return {
-        addressPublicKeys: keys,
-      };
+      return xpExtendedPublicKeys;
     },
-    [getPublicKeyFromLedger],
+    [getExtendedPublicKey],
   );
 
-  // Used with BIP44 derivation path, as it's way faster to get the keys from the extended public keys
-  // and derive address public keys from them than to query the device many times more.
-  //
-  // Having the extended public keys also allows us to derive further addresses without connecting the device
-  // later on.
-  const getKeysFromExtendedPublicKeys = useCallback(
+  const getXpPublicKeys = useCallback(
     async (indexes: number[]) => {
-      const evmExtendedPublicKey = await getExtendedPublicKey(
-        EVM_BASE_DERIVATION_PATH,
-      );
-      const xpExtendedPublicKey = await getExtendedPublicKey(
-        AVALANCHE_BASE_DERIVATION_PATH,
-      );
+      const publicKeys: PublicKey[] = [];
+      const xpExtendedKeys = await getXpExtendedPublicKeys(indexes);
 
-      const keys: PublicKey[] = [];
+      for (const { key: xpubXP, index } of xpExtendedKeys) {
+        const addressPublicKey = await getAddressPublicKeyFromXPub(xpubXP, 0);
 
-      // We cannot send multiple requests to the ledger at once, so we need to do one at a time
-      for (const index of indexes) {
-        const evmKey = await getAddressPublicKeyFromXPub(
-          evmExtendedPublicKey,
-          index,
-        );
-        keys.push({
-          index,
-          vm: 'EVM',
-          key: buildAddressPublicKey(evmKey, 'EVM', index, 'secp256k1'),
-        });
-
-        const xpKey = await getAddressPublicKeyFromXPub(
-          xpExtendedPublicKey,
-          index,
-        );
-        keys.push({
+        publicKeys.push({
           index,
           vm: 'AVM',
-          key: buildAddressPublicKey(xpKey, 'AVM', index, 'secp256k1'),
+          key: buildAddressPublicKey(
+            addressPublicKey,
+            'AVM',
+            index,
+            'secp256k1',
+            derivationPathSpec,
+          ),
         });
       }
 
       return {
         extendedPublicKeys: [
-          buildExtendedPublicKey(
-            evmExtendedPublicKey,
-            EVM_BASE_DERIVATION_PATH,
-          ),
-          buildExtendedPublicKey(
-            xpExtendedPublicKey,
-            AVALANCHE_BASE_DERIVATION_PATH,
+          ...xpExtendedKeys.map(({ key, index }) =>
+            buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
           ),
         ],
-        addressPublicKeys: keys,
+        addressPublicKeys: publicKeys,
       };
     },
-    [getExtendedPublicKey],
+    [getXpExtendedPublicKeys, derivationPathSpec],
   );
 
   const assertUniqueWallet = useCallback(
-    async (derivedKeys: DerivedKeys) => {
+    async (firstXpub: string) => {
       let isDuplicated = false;
 
       if (derivationPathSpec === DerivationPath.LedgerLive) {
-        const [addressKeyInfo] = derivedKeys.addressPublicKeys;
-
         isDuplicated = await checkIfWalletExists(
           SecretType.LedgerLive,
-          addressKeyInfo!.key.key,
+          firstXpub,
         );
       } else {
-        const [extKeyInfo] = derivedKeys.extendedPublicKeys!;
-
-        isDuplicated = await checkIfWalletExists(
-          SecretType.Ledger,
-          extKeyInfo!.key,
-        );
+        isDuplicated = await checkIfWalletExists(SecretType.Ledger, firstXpub);
       }
 
       if (isDuplicated) {
@@ -174,17 +145,158 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     [derivationPathSpec, checkIfWalletExists],
   );
 
+  const getEvmPublicKeysFromXpubs = useCallback(
+    async (xpubs: ExtendedPublicKeyMap, indexes: number[]) => {
+      const evmPublicKeys: PublicKey[] = [];
+      for (const index of indexes) {
+        // For BIP44 paths, we need to use the XPUB for account index 0
+        // For LedgerLive, we need to use the XPUB for the account index we're interested in
+        const xpubIndex =
+          derivationPathSpec === DerivationPath.BIP44 ? 0 : index;
+
+        // For BIP44 paths, we need to use the address index we're interested in
+        // For LedgerLive, we need to use the address index 0
+        const addressIndex =
+          derivationPathSpec === DerivationPath.BIP44 ? index : 0;
+
+        const xpub = xpubs.get(xpubIndex);
+
+        assert(xpub, LedgerError.NoExtendedPublicKeyReturned);
+
+        const addressPublicKey = await getAddressPublicKeyFromXPub(
+          xpub,
+          addressIndex,
+        );
+
+        evmPublicKeys.push({
+          index,
+          hasActivity: await checkAddressActivity(addressPublicKey).catch(
+            () => false, // Default to false, make sure we don't block the flow if the check fails
+          ),
+          vm: 'EVM',
+          key: buildAddressPublicKey(
+            addressPublicKey,
+            'EVM',
+            index,
+            'secp256k1',
+            derivationPathSpec,
+          ),
+        });
+      }
+
+      return evmPublicKeys;
+    },
+    [derivationPathSpec, checkAddressActivity],
+  );
+
+  const shouldContinue = useCallback((evmPublicKeys: PublicKey[]) => {
+    // Do not derive more than 10.
+    if (evmPublicKeys.length >= MAX_ACCOUNTS_TO_CREATE) {
+      return false;
+    }
+    // If one of the last two addresses has activity, we need to continue looking
+    return evmPublicKeys.slice(-2).some(({ hasActivity }) => hasActivity);
+  }, []);
+
+  const retrieveEvmKeys = useCallback(
+    async (startingIndexes: number[]) => {
+      const minNumberOfKeys = startingIndexes.length;
+      const evmExtendedPublicKeys = await getEvmExtendedPublicKeys(
+        derivationPathSpec === DerivationPath.BIP44 ? [0] : startingIndexes, // For BIP44, we only need to get the EVM extended public key for account index 0
+      );
+      const evmPublicKeys = await getEvmPublicKeysFromXpubs(
+        evmExtendedPublicKeys,
+        startingIndexes,
+      );
+
+      onActivePublicKeysDiscovered?.(evmPublicKeys);
+
+      await assertUniqueWallet(evmExtendedPublicKeys.get(0)!);
+
+      let currentIndex = startingIndexes.at(-1)!;
+
+      while (shouldContinue(evmPublicKeys)) {
+        currentIndex += 1;
+
+        if (derivationPathSpec === DerivationPath.LedgerLive) {
+          evmExtendedPublicKeys.set(
+            currentIndex,
+            await getExtendedPublicKey(getEvmExtendedKeyPath(currentIndex)),
+          );
+        }
+
+        const newEvmKeys = await getEvmPublicKeysFromXpubs(
+          evmExtendedPublicKeys,
+          [currentIndex],
+        );
+        evmPublicKeys.push(...newEvmKeys);
+
+        if (newEvmKeys.some(({ hasActivity }) => hasActivity)) {
+          onActivePublicKeysDiscovered?.(evmPublicKeys);
+        }
+      }
+
+      // Remove trailing public keys if they do not have activity
+      while (
+        evmPublicKeys.length > minNumberOfKeys &&
+        !evmPublicKeys.at(-1)?.hasActivity
+      ) {
+        evmPublicKeys.pop();
+      }
+
+      return {
+        extendedPublicKeys: evmExtendedPublicKeys,
+        addressPublicKeys: evmPublicKeys,
+      };
+    },
+    [
+      getEvmExtendedPublicKeys,
+      getEvmPublicKeysFromXpubs,
+      assertUniqueWallet,
+      derivationPathSpec,
+      shouldContinue,
+      getExtendedPublicKey,
+      onActivePublicKeysDiscovered,
+    ],
+  );
+
   const retrieveKeys = useCallback(
-    async (indexes: number[]) => {
+    async (minNumberOfKeys: number) => {
+      if (minNumberOfKeys < 1) {
+        throw new Error('Min number of keys must be greater than 0');
+      }
+
+      const startingIndexes = Array.from(
+        { length: minNumberOfKeys },
+        (_, i) => i,
+      );
+
+      onActivePublicKeysDiscovered?.([]); // Clear the active public keys
+
       try {
-        const isLedgerLive = derivationPathSpec === DerivationPath.LedgerLive;
-        const keys = isLedgerLive
-          ? await getKeysDirectlyFromLedger(indexes)
-          : await getKeysFromExtendedPublicKeys(indexes);
+        const {
+          addressPublicKeys: evmAddressPublicKeys,
+          extendedPublicKeys: evmExtendedPublicKeys,
+        } = await retrieveEvmKeys(startingIndexes);
 
-        await assertUniqueWallet(keys);
+        const xpIndexes = evmAddressPublicKeys.map(({ index }) => index);
 
-        return keys;
+        const {
+          addressPublicKeys: xpAddressPublicKeys,
+          extendedPublicKeys: xpExtendedPublicKeys,
+        } = await getXpPublicKeys(xpIndexes);
+
+        return {
+          addressPublicKeys: [...evmAddressPublicKeys, ...xpAddressPublicKeys],
+          extendedPublicKeys: [
+            ...evmExtendedPublicKeys
+              .entries()
+              .map(([index, value]) =>
+                buildExtendedPublicKey(value, getEvmExtendedKeyPath(index)),
+              ),
+            ...xpExtendedPublicKeys,
+          ],
+        } satisfies DerivedKeys;
       } catch (err) {
         console.error(err);
         popDeviceSelection();
@@ -192,11 +304,10 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       }
     },
     [
-      derivationPathSpec,
-      getKeysDirectlyFromLedger,
-      getKeysFromExtendedPublicKeys,
       popDeviceSelection,
-      assertUniqueWallet,
+      retrieveEvmKeys,
+      getXpPublicKeys,
+      onActivePublicKeysDiscovered,
     ],
   );
 
@@ -204,15 +315,13 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   useEffect(() => {
     // If we have a duplicated wallet error, always wait for user action,
     // do not attempt a reconnection.
-    if (error === 'duplicated-wallet') {
+    if (error === 'duplicated-wallet' || status === 'needs-user-gesture') {
       return;
     }
 
     if (hasLedgerTransport) {
-      if (appType === LedgerAppType.AVALANCHE && avaxAppVersion) {
-        if (
-          isLedgerVersionCompatible(avaxAppVersion, REQUIRED_LEDGER_VERSION)
-        ) {
+      if (appType === LedgerAppType.AVALANCHE && appVersion) {
+        if (isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)) {
           setStatus('ready');
           setError(undefined);
         } else {
@@ -224,17 +333,18 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       }
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
-    } else if (!hasLedgerTransport) {
-      const timer = setTimeout(() => {
-        setStatus('error');
-        setError('unable-to-connect');
-      }, 20_000); // Give the user 20 seconds to connect their ledger, then show an error message with some instructions
-
-      return () => clearTimeout(timer);
+    } else if (!hasLedgerTransport && !wasManualConnectionAttempted) {
+      getLedgerTransport().then((transport) => {
+        if (!transport) {
+          // If it fails, it's either disconnected or the call was not triggered by user gesture.
+          setStatus('needs-user-gesture');
+          setWasManualConnectionAttempted(true);
+        }
+      });
     }
   }, [
     appType,
-    avaxAppVersion,
+    appVersion,
     hasLedgerTransport,
     initLedgerTransport,
     status,
@@ -242,13 +352,14 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     wasTransportAttempted,
     popDeviceSelection,
     error,
+    wasManualConnectionAttempted,
   ]);
 
   const onRetry = useCallback(async () => {
     try {
-      setError(undefined);
       await popDeviceSelection();
       await initLedgerTransport();
+      setError(undefined);
       setStatus('waiting');
     } catch {
       setStatus('error');

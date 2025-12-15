@@ -11,4 +11,4 @@ const ADDRESS_PROP_BY_TYPE: Record<AddressType, keyof Account> = {
 };
 
 export const getAddressByType = (account: Account, type: AddressType) =>
-  account[ADDRESS_PROP_BY_TYPE[type]];
+  account[ADDRESS_PROP_BY_TYPE[type]] as string | undefined;

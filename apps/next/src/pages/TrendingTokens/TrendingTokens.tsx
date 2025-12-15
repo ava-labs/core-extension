@@ -2,15 +2,17 @@ import { Page } from '@/components/Page';
 import { Button, Stack, useTheme } from '@avalabs/k2-alpine';
 import { useTrendingTokens } from './hooks/useTrendingTokens';
 import { TokenCard } from './components/tokens/TokenCard';
-import { TrendingTokensNetwork } from '@core/types';
+import { FeatureGates, TrendingTokensNetwork } from '@core/types';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useFeatureFlagContext } from '@core/ui';
 
 export const TrendingTokens = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const { updateTrendingTokens, trendingTokens } = useTrendingTokens();
   const [network, setNetwork] = useState<TrendingTokensNetwork>('avalanche');
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const updateRef = useRef(updateTrendingTokens);
   updateRef.current = updateTrendingTokens;
@@ -54,14 +56,16 @@ export const TrendingTokens = () => {
         >
           {t('Avalanche')}
         </Button>
-        <Button
-          size="xsmall"
-          variant="contained"
-          color={network == 'solana' ? 'primary' : 'secondary'}
-          onClick={() => handleNetworkChange('solana')}
-        >
-          {t('Solana')}
-        </Button>
+        {isFlagEnabled(FeatureGates.SOLANA_SUPPORT) && (
+          <Button
+            size="xsmall"
+            variant="contained"
+            color={network == 'solana' ? 'primary' : 'secondary'}
+            onClick={() => handleNetworkChange('solana')}
+          >
+            {t('Solana')}
+          </Button>
+        )}
       </Stack>
 
       <Stack width="100%" flexGrow={1}>

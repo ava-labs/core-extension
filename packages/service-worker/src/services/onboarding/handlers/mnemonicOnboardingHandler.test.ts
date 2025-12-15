@@ -68,7 +68,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     setAnalyticsConsent: jest.fn(),
   } as unknown as SettingsService;
   const networkServiceMock = {
-    addFavoriteNetwork: jest.fn(),
+    enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
@@ -138,6 +138,7 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(getXpubFromMnemonic).toHaveBeenCalledWith(mnemonic.toLowerCase());
     expect(Avalanche.getXpubFromMnemonic).toHaveBeenCalledWith(
       mnemonic.toLowerCase(),
+      0,
     );
 
     expect(result).toEqual({

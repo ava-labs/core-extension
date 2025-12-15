@@ -1,4 +1,9 @@
-import { DisplayData, RpcMethod } from '@avalabs/vm-module-types';
+import {
+  DisplayData,
+  RpcMethod,
+  TokenDiff,
+  TokenType,
+} from '@avalabs/vm-module-types';
 
 import {
   isBitcoinNetwork,
@@ -8,44 +13,105 @@ import {
 } from '@core/common';
 import {
   LedgerAppType,
+  MAX_BITCOIN_APP_VERSION,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
 } from '@core/ui';
 import { Action, NetworkWithCaipId } from '@core/types';
 
-import { isMessageApproval } from '@/pages/Approve/types';
+import {
+  isMessageApproval,
+  isTransactionApproval,
+} from '@/pages/Approve/types';
+import { useLedgerPolicyRegistrationState } from '@/contexts';
 
 import { LedgerApprovalState } from './types';
+import { useEffect, useRef } from 'react';
 
 type UseLedgerApprovalState = (
   network: NetworkWithCaipId,
   action: Action<DisplayData>,
 ) => LedgerApprovalState;
 
+const isErc20TokenDiff = (tokenDiff: TokenDiff) => {
+  return (
+    tokenDiff.token &&
+    'type' in tokenDiff.token &&
+    tokenDiff.token.type === TokenType.ERC20
+  );
+};
+
+const requiresBlindSigning = (
+  network: NetworkWithCaipId,
+  action: Action<DisplayData>,
+) => {
+  if (!isEthereumNetwork(network) || !isTransactionApproval(action)) {
+    return false;
+  }
+
+  // Ethereum app often requires blind signing for ERC20 token transfers
+  return (
+    action.displayData.balanceChange?.outs.some(isErc20TokenDiff) ||
+    action.displayData.balanceChange?.ins.some(isErc20TokenDiff) ||
+    action.displayData.tokenApprovals?.approvals.some(
+      ({ token }) => token.type === TokenType.ERC20,
+    )
+  );
+};
 export const useLedgerApprovalState: UseLedgerApprovalState = (
   network,
   action,
 ) => {
-  const { hasLedgerTransport, wasTransportAttempted, appType, avaxAppVersion } =
-    useLedgerContext();
+  const {
+    hasLedgerTransport,
+    wasTransportAttempted,
+    appType,
+    appVersion,
+    refreshActiveApp,
+    appConfig,
+  } = useLedgerContext();
+  const { shouldRegisterBtcWalletPolicy } = useLedgerPolicyRegistrationState();
+
+  const requiredApp = getRequiredApp(network, action);
+  const isBlindSigningRequired = requiresBlindSigning(network, action);
+  const interalRef = useRef<NodeJS.Timeout | null>(null);
+  const isRequiredApp = isCompatibleApp(requiredApp, appType, appVersion);
+  const isRequiredConfig =
+    !isBlindSigningRequired || appConfig?.isBlindSigningEnabled;
+
+  useEffect(() => {
+    if (isRequiredApp && isRequiredConfig && interalRef.current) {
+      clearInterval(interalRef.current);
+      return;
+    }
+
+    interalRef.current = setInterval(() => {
+      refreshActiveApp();
+    }, 1500);
+
+    return () => {
+      if (interalRef.current) {
+        clearInterval(interalRef.current);
+      }
+    };
+  }, [refreshActiveApp, requiredApp, isRequiredApp, isRequiredConfig]);
 
   if (!wasTransportAttempted) {
     return { state: 'loading' };
   }
 
   if (!hasLedgerTransport) {
-    return { state: 'disconnected' };
+    return { state: 'disconnected', requiredApp };
   }
 
-  const requiredApp = getRequiredApp(network, action);
-
-  if (appType !== requiredApp) {
+  if (!isCompatibleApp(requiredApp, appType, appVersion)) {
     return { state: 'incorrect-app', requiredApp };
   }
 
   if (
-    avaxAppVersion &&
-    !isLedgerVersionCompatible(avaxAppVersion, REQUIRED_LEDGER_VERSION)
+    appVersion &&
+    appType === LedgerAppType.AVALANCHE &&
+    !isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)
   ) {
     return {
       state: 'incorrect-version',
@@ -54,11 +120,62 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     };
   }
 
+  if (
+    appVersion &&
+    appType === LedgerAppType.BITCOIN &&
+    !isLedgerVersionCompatible(appVersion, MAX_BITCOIN_APP_VERSION, 'maximum')
+  ) {
+    return {
+      state: 'unsupported-btc-version',
+      currentVersion: appVersion,
+      maximumVersion: MAX_BITCOIN_APP_VERSION,
+    };
+  }
+
+  if (
+    [LedgerAppType.BITCOIN, LedgerAppType.BITCOIN_RECOVERY].includes(appType) &&
+    shouldRegisterBtcWalletPolicy
+  ) {
+    return {
+      state: 'btc-policy-needed',
+    };
+  }
+
+  if (!isRequiredConfig) {
+    return {
+      state: 'blind-signing-required',
+      requiredApp,
+    };
+  }
+
   return {
     state: 'pending',
     requiredApp,
-    requiredVersion: REQUIRED_LEDGER_VERSION,
   };
+};
+
+const isCompatibleApp = (
+  requiredApp: LedgerAppType,
+  appType: LedgerAppType,
+  appVersion: string | null,
+) => {
+  if (
+    requiredApp === LedgerAppType.BITCOIN &&
+    appType === LedgerAppType.BITCOIN_RECOVERY
+  ) {
+    return true;
+  }
+
+  if (
+    requiredApp === LedgerAppType.BITCOIN &&
+    appType === LedgerAppType.BITCOIN &&
+    appVersion &&
+    isLedgerVersionCompatible(appVersion, MAX_BITCOIN_APP_VERSION, 'maximum')
+  ) {
+    return true;
+  }
+
+  return requiredApp === appType;
 };
 
 const getRequiredApp = (

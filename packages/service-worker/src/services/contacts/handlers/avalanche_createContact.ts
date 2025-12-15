@@ -1,15 +1,9 @@
-import {
-  Action,
-  DAppRequestHandler,
-  DAppProviderRequest,
-  DEFERRED_RESPONSE,
-} from '@core/types';
+import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
 
-import { isContactValid } from '@core/common';
+import { canSkipApproval, isContactValid } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
-import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 
 @injectable()
 export class AvalancheCreateContactHandler extends DAppRequestHandler {
@@ -31,17 +25,27 @@ export class AvalancheCreateContactHandler extends DAppRequestHandler {
       };
     }
 
-    // Generate random id
-    contact.id = crypto.randomUUID();
+    const canCreate = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
 
-    const actionData = {
+    if (!canCreate) {
+      return {
+        ...request,
+        error: ethErrors.provider.unauthorized(),
+      };
+    }
+
+    await this.contactsService.addContact({
+      ...contact,
+      id: crypto.randomUUID(),
+    });
+
+    return {
       ...request,
-      displayData: {
-        contact,
-      },
+      result: null,
     };
-    await openApprovalWindow(actionData, `approve/createContact`);
-    return { ...request, result: DEFERRED_RESPONSE };
   };
 
   handleUnauthenticated = ({ request }) => {
@@ -49,22 +53,5 @@ export class AvalancheCreateContactHandler extends DAppRequestHandler {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
-  };
-
-  onActionApproved = async (
-    pendingAction: Action,
-    _result,
-    onSuccess,
-    onError,
-  ) => {
-    try {
-      const {
-        displayData: { contact },
-      } = pendingAction;
-      await this.contactsService.addContact(contact);
-      onSuccess(null);
-    } catch (e) {
-      onError(e);
-    }
   };
 }

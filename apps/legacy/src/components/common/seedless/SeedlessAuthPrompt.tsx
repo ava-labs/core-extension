@@ -13,6 +13,7 @@ import { useDeriveMissingKeysForSeedless, useWalletContext } from '@core/ui';
 import { openExtensionNewWindow } from '@core/common';
 import { useSeedlessAuthPromptState } from '@core/ui';
 import { SecretType } from '@core/types';
+import { useMissingKeysDerivationCallbacks } from './hooks/useMissingKeysDerivationCallbacks';
 
 export const SeedlessAuthPrompt = () => {
   const { t } = useTranslation();
@@ -20,7 +21,8 @@ export const SeedlessAuthPrompt = () => {
   const { isAuthPromptVisible } = useSeedlessAuthPromptState();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  useDeriveMissingKeysForSeedless();
+  const derivationCallbacks = useMissingKeysDerivationCallbacks();
+  useDeriveMissingKeysForSeedless(derivationCallbacks);
 
   const handleLogin = useCallback(async () => {
     const popup = await openExtensionNewWindow('seedless-auth');

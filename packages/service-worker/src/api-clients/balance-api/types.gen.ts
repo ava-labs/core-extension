@@ -8,27 +8,162 @@ export type ClientOptions = {
  * The request body for the get-balances endpoint
  */
 export type GetBalancesRequestBody = {
-  data: Array<{
+  data: Array<
+    | EvmGetBalancesRequestItem
+    | BtcGetBalancesRequestItem
+    | SvmGetBalancesRequestItem
+    | AvalancheCorethGetBalancesRequestItem
+    | AvalancheXpGetBalancesRequestItem
+  >;
+  currency?: Currency;
+  /**
+   * Whether to show untrusted tokens in the balance response. Defaults to false.
+   */
+  showUntrustedTokens?: boolean;
+};
+
+/**
+ * The request item for EVM chains
+ */
+export type EvmGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for EVM chains
+   */
+  namespace: 'eip155';
+  /**
+   * The list of addresses we want to get aggregated balances for
+   */
+  addresses: Array<string>;
+  /**
+   * The reference part of the caip2 ID (Supports EVM chains only)
+   */
+  references: Array<string>;
+};
+
+/**
+ * The request item for BTC chains
+ */
+export type BtcGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for BTC chains
+   */
+  namespace: 'bip122';
+  /**
+   * The list of addresses we want to get aggregated balances for
+   */
+  addresses: Array<string>;
+  /**
+   * The reference part of the caip2 ID (Supports BTC chains only)
+   */
+  references: Array<
+    '000000000019d6689c085ae165831e93' | '000000000933ea01ad0ee984209779ba'
+  >;
+};
+
+/**
+ * The request item for Solana chains
+ */
+export type SvmGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for SVM chains
+   */
+  namespace: 'solana';
+  /**
+   * The list of addresses we want to get aggregated balances for
+   */
+  addresses: Array<string>;
+  /**
+   * The reference part of the caip2 ID (Supports SVM chains only)
+   */
+  references: Array<
+    '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' | 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1'
+  >;
+};
+
+/**
+ * The request item for C-chain (coreth)
+ */
+export type AvalancheCorethGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for Avalanche chains
+   */
+  namespace: 'avax';
+  /**
+   * The reference part of the caip2 ID (Supports C chains only)
+   */
+  references: Array<
+    '8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a' | 'YRLfeDBJpfEqUWe2FYR1OpXsnDDZeKWd'
+  >;
+  addressDetails: Array<{
     /**
-     * The caip2 namespace
+     * The wallet's unique identifier.
      */
-    namespace: string;
+    id: string;
     /**
-     * The addresses we want to get and sum up the balances for
+     * The list of addresses we want to get aggregated balances for
      */
     addresses: Array<string>;
-    /**
-     * The second part for the caip2 chain ID
-     */
-    references: Array<string>;
   }>;
-  currency?: Currency;
+};
+
+/**
+ * The request item for X/P chains
+ */
+export type AvalancheXpGetBalancesRequestItem = {
+  /**
+   * The caip2 namespace for Avalanche chains
+   */
+  namespace: 'avax';
+  /**
+   * The reference part of the caip2 ID (Supports X and P chains only)
+   */
+  references: Array<
+    | 'Rr9hnPVPxuUvrdCul-vjEsU1zmqKqRDo'
+    | 'Sj7NVE3jXTbJvwFAiu7OEUo_8g8ctXMG'
+    | 'imji8papUf2EhV3le337w1vgFauqkJg-'
+    | '8AJTpRj3SAqv1e80Mtl9em08LhvKEbkl'
+  >;
+  addressDetails?: Array<{
+    /**
+     * The wallet's unique identifier.
+     */
+    id: string;
+    /**
+     * The list of addresses we want to get aggregated balances for
+     */
+    addresses: Array<string>;
+  }>;
+  extendedPublicKeyDetails?: Array<{
+    /**
+     * The wallet's unique identifier.
+     */
+    id: string;
+    /**
+     * The extended public key for X/P chains we want to get aggregated balances for
+     */
+    extendedPublicKey: string & string;
+  }>;
+  /**
+   * Whether to filter out dust UTXOs from the balance calculation. Default is true. Only supported on P-chain.
+   */
+  filterOutDustUtxos?: boolean;
 };
 
 /**
  * The currency we are using for balance calculation
  */
-export type Currency = 'usd' | 'eur' | 'aud' | 'cad' | 'chf';
+export type Currency =
+  | 'usd'
+  | 'eur'
+  | 'aud'
+  | 'cad'
+  | 'chf'
+  | 'clp'
+  | 'czk'
+  | 'dkk'
+  | 'gbp'
+  | 'hkd'
+  | 'huf';
 
 /**
  * The request body for the get rewards endpoint
@@ -36,7 +171,7 @@ export type Currency = 'usd' | 'eur' | 'aud' | 'cad' | 'chf';
 export type GetStakeRewardsRequestBody =
   | {
       /**
-       * The extended public key for P-chain
+       * The extended public key for X / P chain
        */
       extendedPublicKey: string & string;
       isTestnet: boolean;
@@ -50,36 +185,25 @@ export type GetStakeRewardsRequestBody =
  * Get balances response
  */
 export type GetBalancesResponse =
-  | EvmGetBalancesResponse
-  | BtcGetBalancesResponse
-  | {
-      caip2Id: string;
+  | ({
+      networkType: 'evm';
+    } & EvmGetBalancesResponse)
+  | ({
+      networkType: 'btc';
+    } & BtcGetBalancesResponse)
+  | ({
       networkType: 'svm';
-      address: string;
-      balances: {
-        nativeTokenBalance: NativeTokenBalance;
-        /**
-         * Total balance in given currency
-         */
-        totalBalanceInCurrency?: number;
-        splTokenBalances: Array<{
-          internalId?: string;
-          name: string;
-          symbol: string;
-          type: 'spl';
-          decimals: number;
-          logoUri?: string;
-          balance: string;
-          balanceInCurrency?: number;
-          price?: number;
-          priceChange24h?: number;
-          priceChangePercentage24h?: number;
-          address: string;
-          scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
-        }>;
-      };
-      error: string | null;
-    }
+    } & SvmGetBalancesResponse)
+  | ({
+      networkType: 'avm';
+    } & AvmGetBalancesResponse)
+  | ({
+      networkType: 'pvm';
+    } & PvmGetBalancesResponse)
+  | ({
+      networkType: 'coreth';
+    } & CorethGetBalancesResponse)
+  | GetBalancesResponseError
   | {
       error: string;
     };
@@ -90,7 +214,7 @@ export type GetBalancesResponse =
 export type EvmGetBalancesResponse = {
   caip2Id: string;
   networkType: 'evm';
-  address: string;
+  id: string;
   balances: {
     nativeTokenBalance: NativeTokenBalance;
     /**
@@ -99,7 +223,7 @@ export type EvmGetBalancesResponse = {
     totalBalanceInCurrency?: number;
     erc20TokenBalances: Array<Erc20TokenBalance>;
   };
-  error: string | null;
+  error: null;
 };
 
 /**
@@ -148,7 +272,7 @@ export type Erc20TokenBalance = {
 export type BtcGetBalancesResponse = {
   caip2Id: string;
   networkType: 'btc';
-  address: string;
+  id: string;
   balances: {
     nativeTokenBalance: {
       internalId?: string;
@@ -170,7 +294,189 @@ export type BtcGetBalancesResponse = {
      */
     totalBalanceInCurrency?: number;
   };
-  error: string | null;
+  error: null;
+};
+
+/**
+ * The balance response for SVM chains
+ */
+export type SvmGetBalancesResponse = {
+  caip2Id: string;
+  networkType: 'svm';
+  id: string;
+  balances: {
+    nativeTokenBalance: NativeTokenBalance;
+    /**
+     * Total balance in given currency
+     */
+    totalBalanceInCurrency?: number;
+    splTokenBalances: Array<{
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'spl';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      address: string;
+      scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
+    }>;
+  };
+  error: null;
+};
+
+/**
+ * The balance response for X-chain
+ */
+export type AvmGetBalancesResponse = {
+  caip2Id: string;
+  networkType: 'avm';
+  id: string;
+  balances: {
+    nativeTokenBalance: {
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'native';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      assetId: string;
+    };
+    /**
+     * Total balance in given currency
+     */
+    totalBalanceInCurrency?: number;
+    categories: {
+      unlocked: Array<AvalancheBalanceItem>;
+      locked: Array<AvalancheBalanceItem>;
+      atomicMemoryUnlocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+      atomicMemoryLocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+    };
+  };
+  error: null;
+};
+
+/**
+ * Avalanche Balance Item
+ *
+ * The balance for a given Avalanche asset
+ */
+export type AvalancheBalanceItem = {
+  assetId: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  balance: string;
+  type: 'native' | 'unknown';
+};
+
+/**
+ * The balance response for P-chain
+ */
+export type PvmGetBalancesResponse = {
+  caip2Id: string;
+  networkType: 'pvm';
+  id: string;
+  balances: {
+    nativeTokenBalance: {
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'native';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      assetId: string;
+    };
+    /**
+     * Total balance in given currency
+     */
+    totalBalanceInCurrency?: number;
+    categories: {
+      unlockedStaked: string;
+      unlockedUnstaked: string;
+      unlockedUnstakedMultiSig: string;
+      lockedStaked: string;
+      lockedPlatform: string;
+      lockedStakeable: string;
+      atomicMemoryLocked: {
+        [key: string]: string;
+      };
+      atomicMemoryUnlocked: {
+        [key: string]: string;
+      };
+    };
+  };
+  error: null;
+};
+
+/**
+ * The balance response for C-chain
+ */
+export type CorethGetBalancesResponse = {
+  caip2Id: string;
+  networkType: 'coreth';
+  id: string;
+  balances: {
+    nativeTokenBalance: {
+      internalId?: string;
+      name: string;
+      symbol: string;
+      type: 'native';
+      decimals: number;
+      logoUri?: string;
+      balance: string;
+      balanceInCurrency?: number;
+      price?: number;
+      priceChange24h?: number;
+      priceChangePercentage24h?: number;
+      assetId: string;
+    };
+    /**
+     * Total balance in given currency
+     */
+    totalBalanceInCurrency?: number;
+    categories: {
+      atomicMemoryUnlocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+      atomicMemoryLocked: {
+        [key: string]: Array<AvalancheBalanceItem>;
+      };
+    };
+  };
+  error: null;
+};
+
+/**
+ * The error response if there was an error which got handled
+ */
+export type GetBalancesResponseError = {
+  caip2Id: string;
+  /**
+   * The type of the network
+   */
+  networkType?: 'evm' | 'btc' | 'svm' | 'avm' | 'pvm' | 'coreth';
+  id: string;
+  balances: null;
+  error: string;
 };
 
 /**

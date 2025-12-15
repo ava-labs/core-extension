@@ -16,7 +16,7 @@ const DEFAULT_STATE: FeeState = {
 export function useAmountAfterFee(
   asset: BridgeAsset | undefined,
   balance: bigint | undefined,
-  requiredGas: bigint,
+  requiredNetworkFee: bigint,
   amount: string,
   sourceNetworkId: string,
   targetNetworkId: string | undefined,
@@ -31,7 +31,7 @@ export function useAmountAfterFee(
       !asset ||
       !amount ||
       !targetNetworkId ||
-      requiredGas == null ||
+      requiredNetworkFee == null ||
       balance == null
     ) {
       return;
@@ -55,7 +55,7 @@ export function useAmountAfterFee(
     targetNetworkId,
     getFee,
     sourceNetworkId,
-    requiredGas,
+    requiredNetworkFee,
     balance,
   ]);
 

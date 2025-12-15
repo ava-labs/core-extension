@@ -8,10 +8,10 @@ import {
   ListItemTextProps,
   Switch,
 } from '@avalabs/k2-alpine';
-import { TokenWithBalance } from '@avalabs/vm-module-types';
-import { isTokenMalicious } from '@core/common';
+import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
+import { chainIdToCaip, isTokenMalicious } from '@core/common';
 import { FungibleTokenBalance } from '@core/types';
-import { useNetworkContext, useSettingsContext } from '@core/ui';
+import { useSettingsContext } from '@core/ui';
 import { FC, ReactElement } from 'react';
 
 interface Props {
@@ -38,19 +38,24 @@ const listItemTextProps: ListItemTextProps = {
 
 export const TokenListItem: FC<Props> = ({ token }) => {
   const { getTokenVisibility, toggleTokenVisibility } = useSettingsContext();
-  const { network } = useNetworkContext();
+
+  // Only ERC20 and SPL tokens can be toggled (native tokens cannot)
+  const canToggle =
+    token.type === TokenType.ERC20 || token.type === TokenType.SPL;
+
+  const caipId = chainIdToCaip(token.coreChainId);
 
   return (
     <ListItem
       key={token.name}
       secondaryAction={
-        <Switch
-          checked={getTokenVisibility(token, network?.caipId)}
-          onChange={() =>
-            network && toggleTokenVisibility(token, network.caipId)
-          }
-          size="small"
-        />
+        canToggle ? (
+          <Switch
+            checked={getTokenVisibility(token, caipId)}
+            onChange={() => toggleTokenVisibility(token, caipId)}
+            size="small"
+          />
+        ) : undefined
       }
       {...listItemProps}
     >

@@ -12,6 +12,7 @@ import { ConnectRequestHandler } from './connect';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
+import { LockService } from '~/services/lock/LockService';
 
 jest.mock('~/runtime/openApprovalWindow');
 
@@ -21,6 +22,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         { getActiveAccount: async () => undefined } as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -45,6 +47,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
           }),
         } as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -66,6 +69,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         {} as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -85,6 +89,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         {} as AccountsService,
         {} as PermissionsService,
+        {} as LockService,
       );
 
       const mockRequest = {
@@ -159,6 +164,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -181,6 +187,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -213,6 +220,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
           }),
         } as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -250,6 +258,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(
@@ -287,6 +296,7 @@ describe('background/services/web3/handlers/connect.ts', () => {
       const handler = new ConnectRequestHandler(
         accountsServiceMock as any,
         permissionServiceMock as any,
+        {} as LockService,
       );
 
       await handler.onActionApproved(

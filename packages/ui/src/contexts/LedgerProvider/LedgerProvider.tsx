@@ -59,7 +59,8 @@ import { shouldUseWebHID } from '../utils/shouldUseWebHID';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
-  BITCOIN = 'Bitcoin',
+  BITCOIN = 'Bitcoin', // Works up to 2.4.2 version. 2.4.3 prevents from using non-standard derivation paths.
+  BITCOIN_RECOVERY = 'Bitcoin Recovery', // Can be used by people who updated the Bitcoin app to 2.4.3+.
   ETHEREUM = 'Ethereum',
   SOLANA = 'Solana',
   UNKNOWN = 'UNKNOWN',
@@ -67,12 +68,17 @@ export enum LedgerAppType {
 
 export const REQUIRED_LEDGER_VERSION = '0.7.3';
 export const LEDGER_VERSION_WITH_EIP_712 = '0.8.0';
+export const MAX_BITCOIN_APP_VERSION = '2.4.2';
 
 /**
  * Run this here since each new window will have a different id
  * this is used to track the transport and close on window close
  */
 const LEDGER_INSTANCE_UUID = crypto.randomUUID();
+
+type AppConfig = {
+  isBlindSigningEnabled: boolean;
+};
 
 const LedgerContext = createContext<{
   popDeviceSelection(): Promise<boolean>;
@@ -87,6 +93,7 @@ const LedgerContext = createContext<{
     vm?: VM | 'SVM',
   ): Promise<Buffer>;
   avaxAppVersion: string | null;
+  appVersion: string | null;
   masterFingerprint: string | undefined;
   setMasterFingerprint: (masterFingerprint?: string) => void;
   getMasterFingerprint(): Promise<string>;
@@ -100,6 +107,8 @@ const LedgerContext = createContext<{
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
+  refreshActiveApp: () => Promise<void>;
+  appConfig: null | { isBlindSigningEnabled: boolean };
 }>({} as any);
 
 export function LedgerContextProvider({ children }: PropsWithChildren) {
@@ -109,12 +118,23 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
   const { request, events } = useConnectionContext();
   const transportRef = useRef<Transport | null>(null);
-  const [avaxAppVersion, setAvaxAppVersion] = useState<string | null>(null);
+  const [
+    /**
+     * @deprecated Use `appVersion` instead
+     */
+    avaxAppVersion,
+    /**
+     * @deprecated Use `setAppVersion` instead
+     */
+    setAvaxAppVersion,
+  ] = useState<string | null>(null);
+  const [appVersion, setAppVersion] = useState<string | null>(null);
   const [masterFingerprint, setMasterFingerprint] = useState<
     string | undefined
   >();
   const [ledgerVersionWarningClosed, setLedgerVersionWarningClosed] =
     useState<boolean>();
+  const [appConfig, setAppConfig] = useState<AppConfig | null>(null);
 
   /**
    * Listen for send events to a ledger instance
@@ -223,13 +243,20 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         if (!appVersionError) {
           if (config.appName === LedgerAppType.AVALANCHE) {
             setAvaxAppVersion(config.appVersion);
+            setAppVersion(config.appVersion);
             setApp(avaxAppInstance);
             setAppType(LedgerAppType.AVALANCHE);
+            setAppConfig(null);
             return avaxAppInstance;
           } else if (config.appName === LedgerAppType.ETHEREUM) {
             const ethAppInstance = new Eth(transport);
+            setAppVersion(config.appVersion);
             setApp(ethAppInstance);
             setAppType(LedgerAppType.ETHEREUM);
+            const ethConfig = await ethAppInstance.getAppConfiguration();
+            setAppConfig({
+              isBlindSigningEnabled: !!ethConfig.arbitraryDataEnabled,
+            });
             return ethAppInstance;
           }
         }
@@ -241,11 +268,16 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       if (btcAppInstance) {
         const appInfo = await getLedgerAppInfo(transport);
 
-        if (
-          LedgerAppType.BITCOIN === (appInfo.applicationName as LedgerAppType)
-        ) {
+        if (LedgerAppType.BITCOIN === appInfo.applicationName) {
+          setAppVersion(appInfo.version);
           setApp(btcAppInstance);
           setAppType(LedgerAppType.BITCOIN);
+          setAppConfig(null);
+          return btcAppInstance;
+        } else if (LedgerAppType.BITCOIN_RECOVERY === appInfo.applicationName) {
+          setAppVersion(appInfo.version);
+          setApp(btcAppInstance);
+          setAppType(LedgerAppType.BITCOIN_RECOVERY);
           return btcAppInstance;
         }
       }
@@ -254,11 +286,11 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       if (solanaAppInstance) {
         const appInfo = await getLedgerAppInfo(transport);
 
-        if (
-          LedgerAppType.SOLANA === (appInfo.applicationName as LedgerAppType)
-        ) {
+        if (LedgerAppType.SOLANA === appInfo.applicationName) {
+          setAppVersion(appInfo.version);
           setApp(solanaAppInstance);
           setAppType(LedgerAppType.SOLANA);
+          setAppConfig(null);
           return solanaAppInstance;
         }
       }
@@ -298,6 +330,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
             tap(() => {
               setApp(undefined);
               setAppType(LedgerAppType.UNKNOWN);
+              setAppConfig(null);
               throw new Error('Ledger device disconnected');
             }),
           ),
@@ -312,6 +345,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       subscription.unsubscribe();
     };
   }, [initialized, initLedgerApp, request]);
+
+  const refreshActiveApp = useCallback(async () => {
+    initLedgerApp(transportRef.current);
+  }, [initLedgerApp]);
 
   /**
    * Get the extended public key for the given path (m/44'/60'/0' by default)
@@ -396,6 +433,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       await getLedgerAppInfo(transportRef.current);
       // quit the app: https://developers.ledger.com/docs/transport/open-close-info-on-apps/#quit-application
       await quitLedgerApp(transportRef.current);
+      setAppType(LedgerAppType.UNKNOWN);
+      setApp(undefined);
+      setAppConfig(null);
     }
   }, [transportRef]);
 
@@ -504,7 +544,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         hasLedgerTransport: !!app,
         wasTransportAttempted,
         appType,
+        appConfig,
         getPublicKey,
+        appVersion,
         avaxAppVersion,
         masterFingerprint,
         setMasterFingerprint,
@@ -514,6 +556,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
         closeCurrentApp,
+        refreshActiveApp,
       }}
     >
       {children}

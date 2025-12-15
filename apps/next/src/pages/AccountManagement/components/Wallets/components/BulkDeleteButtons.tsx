@@ -1,6 +1,13 @@
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 import { alpha, Box, Button, Slide, Stack, styled } from '@avalabs/k2-alpine';
-import { useAccountManager } from '@core/ui';
+import { isPrimaryAccount } from '@core/common';
+import { IMPORTED_ACCOUNTS_WALLET_ID, SecretType } from '@core/types';
+import {
+  useAccountManager,
+  useAccountsContext,
+  useAnalyticsContext,
+  useWalletContext,
+} from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -9,8 +16,20 @@ export const BulkDeleteButtons: FC = () => {
   const { t } = useTranslation();
   const { isManageMode, toggleManageMode, exitManageMode, selectedAccounts } =
     useAccountManager();
+  const { allAccounts } = useAccountsContext();
+  const { capture } = useAnalyticsContext();
+  const { getWallet } = useWalletContext();
   const [showButtons, setShowButtons] = useState(isManageMode);
   const { push } = useHistory();
+
+  const hasSeedlessAccount = selectedAccounts.some((id) => {
+    const account = allAccounts.find((acc) => acc.id === id);
+    if (!account || !isPrimaryAccount(account)) {
+      return false;
+    }
+    const wallet = getWallet(account.walletId);
+    return wallet?.type === SecretType.Seedless;
+  });
 
   return (
     <BulkDeleteButtonsContainer
@@ -22,6 +41,7 @@ export const BulkDeleteButtons: FC = () => {
             variant="contained"
             size="xsmall"
             color="secondary"
+            sx={{ fontSize: '11px' }}
             onClick={() => {
               toggleManageMode();
               setShowButtons(true);
@@ -44,8 +64,19 @@ export const BulkDeleteButtons: FC = () => {
             color="primary"
             size="extension"
             fullWidth
-            disabled={selectedAccounts.length === 0}
+            disabled={selectedAccounts.length === 0 || hasSeedlessAccount}
             onClick={() => {
+              const selectedAccountsData = selectedAccounts
+                .map((id) => allAccounts.find((acc) => acc.id === id))
+                .filter(isPrimaryAccount);
+              const hasImportedAccount = selectedAccountsData.some(
+                (account) =>
+                  'walletId' in account &&
+                  account.walletId === IMPORTED_ACCOUNTS_WALLET_ID,
+              );
+              if (hasImportedAccount) {
+                capture('ImportedAccountDeleteClicked');
+              }
               const params = new URLSearchParams(
                 selectedAccounts.map((id) => [URL_SEARCH_TOKENS.account, id]),
               );

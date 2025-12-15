@@ -2,7 +2,12 @@ import { useHistory } from 'react-router-dom';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { WalletType } from '@avalabs/types';
 
-import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
+import { isAvalancheExtendedKey } from '@core/common';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useOnboardingContext,
+} from '@core/ui';
 
 import { useModalPageControl } from '@/components/FullscreenModal';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
@@ -12,6 +17,7 @@ import {
   PromptSolana,
   Troubleshooting,
 } from '@/components/ConnectLedger';
+import { FeatureGates } from '@core/types';
 
 type ImportPhase =
   | 'connect-avax'
@@ -32,12 +38,16 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
   const history = useHistory();
   const { setCurrent, setTotal, registerBackButtonHandler } =
     useModalPageControl();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const {
     setAddressPublicKeys,
     setExtendedPublicKeys,
     setOnboardingWalletType,
+    extendedPublicKeys: addedXPubs,
   } = useOnboardingContext();
   const { capture } = useAnalyticsContext();
+
+  const isSolanaSupported = isFlagEnabled(FeatureGates.SOLANA_SUPPORT);
 
   useEffect(() => {
     setCurrent(step);
@@ -93,6 +103,9 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
     );
   }, [phase, registerBackButtonHandler, history.goBack]);
 
+  const numberOfAccounts =
+    addedXPubs?.filter(isAvalancheExtendedKey).length ?? 1;
+
   return (
     <>
       {phase === 'connect-avax' && (
@@ -101,7 +114,11 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
           onNext={({ addressPublicKeys, extendedPublicKeys }) => {
             setAddressPublicKeys(addressPublicKeys.map(({ key }) => key));
             setExtendedPublicKeys(extendedPublicKeys ?? []);
-            setPhase('prompt-solana');
+            if (isSolanaSupported) {
+              setPhase('prompt-solana');
+            } else {
+              onNext();
+            }
           }}
           onTroubleshoot={() => {
             capture('OnboardingLedgerTroubleshootingAvalanche');
@@ -123,6 +140,7 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
       )}
       {phase === 'connect-solana' && (
         <ConnectSolana
+          numberOfKeys={numberOfAccounts}
           connectorCallbacks={solanaConnectorCallbacks}
           onNext={({ addressPublicKeys }) => {
             setAddressPublicKeys((prev) => [

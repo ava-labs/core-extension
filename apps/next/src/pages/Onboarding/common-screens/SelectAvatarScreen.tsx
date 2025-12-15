@@ -78,7 +78,6 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
               flexGrow={1}
               pt={6}
               pb={2}
-              overflow="hidden"
             >
               <PersonalAvatar name={selectedAvatar} size="large" isGlowing />
             </Stack>

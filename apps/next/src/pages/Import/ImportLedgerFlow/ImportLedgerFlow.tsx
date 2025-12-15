@@ -7,7 +7,6 @@ import { ImportLedgerFlowContent } from './components/ImportLedgerFlowContent';
 
 export const ImportLedgerFlow = () => {
   const history = useHistory();
-
   return (
     <>
       <FullscreenAnimatedBackground sx={{ backgroundSize: '80% 60%' }} />

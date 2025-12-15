@@ -1,7 +1,5 @@
-import { z } from 'zod';
 import {
   Checkbox,
-  combineSx,
   Divider,
   Fade,
   Stack,
@@ -10,6 +8,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { z } from 'zod';
 
 import { useAnalyticsContext, useOnboardingContext } from '@core/ui';
 
@@ -19,8 +18,8 @@ import {
   SectionRow,
 } from '@/pages/Onboarding/components/Section';
 
-import { InTextLink } from '@/components/InTextLink';
 import { BorderlessTextField } from '@/components/BorderlessTextField';
+import { InTextLink } from '@/components/InTextLink';
 
 type Props = StackProps & {
   onValidityChange: (isValid: boolean) => void;
@@ -50,9 +49,9 @@ export const MarketingAgreementSection: FC<Props> = ({
   }, [isValid, onValidityChange]);
 
   return (
-    <Stack sx={combineSx({ gap: 0.5 }, sx)} {...props}>
-      <Section divider={false}>
-        <SectionRow sx={{ gap: 0.75, cursor: 'pointer' }} component="label">
+    <Stack gap={0.5} sx={sx} {...props}>
+      <Section pr={3.25} divider={false}>
+        <SectionRow gap={0.75} sx={{ cursor: 'pointer' }} component="label">
           <Checkbox
             sx={{ ml: -0.75 }}
             checked={isNewsletterEnabled}
@@ -89,15 +88,13 @@ export const MarketingAgreementSection: FC<Props> = ({
         {isNewsletterEnabled && (
           <>
             <Divider />
-            <Stack sx={{ gap: 0.5 }}>
+            <Stack gap={0.5}>
               <SectionRow component="label">
                 <SectionLabel>{t('Email address')}</SectionLabel>
                 <Stack
-                  sx={{
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
-                    flexGrow: 1,
-                  }}
+                  flexDirection="row"
+                  justifyContent="flex-end"
+                  flexGrow={1}
                 >
                   <BorderlessTextField
                     required

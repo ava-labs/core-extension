@@ -10,6 +10,8 @@ import { NetworkDetails } from './NetworkDetails';
 import { NetworkDeleteConfirmation } from './Confirmations/NetworkDeleteConfirmation';
 import { NetworkNotFound } from './NetworkNotFound';
 import { useEditNetwork } from '../hooks/useEditNetwork';
+import { useAnalyticsContext } from '@core/ui';
+import { Network } from '@core/types';
 
 type NetworkDetailsParams = {
   networkId: string;
@@ -19,6 +21,7 @@ export const NetworkDetailsFlow = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const { networkId } = useParams<NetworkDetailsParams>();
+  const { capture } = useAnalyticsContext();
 
   const [view, setView] = useState<EditNetworkFormView>('details');
 
@@ -52,9 +55,9 @@ export const NetworkDetailsFlow = () => {
     }
   };
 
-  const saveHandler = async () => {
+  const saveHandler = async (networkToSave: Network) => {
     try {
-      await submit();
+      await submit(networkToSave);
       toast.success(t('Network updated'));
       setView('details');
     } catch (error) {
@@ -67,6 +70,7 @@ export const NetworkDetailsFlow = () => {
     try {
       await removeCustomNetwork(Number(networkId));
       toast.success(t('Network deleted'));
+      capture('CustomNetworkDeleted');
       history.goBack();
     } catch (error) {
       console.error(error);
@@ -106,6 +110,7 @@ export const NetworkDetailsFlow = () => {
           setView={setView}
           setNetwork={setNetwork}
           readonly={!isEditing}
+          onSave={saveHandler}
         />
       );
     case 'rpc-url-reset':
@@ -119,7 +124,7 @@ export const NetworkDetailsFlow = () => {
       return (
         <NetworkUpdateConfirmation
           onBack={() => setView('details')}
-          onSubmit={saveHandler}
+          onSubmit={() => saveHandler(network)}
         />
       );
     case 'delete':

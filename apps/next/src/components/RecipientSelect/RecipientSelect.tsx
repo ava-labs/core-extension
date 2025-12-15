@@ -3,6 +3,7 @@ import { Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 import { AddressType } from '@core/types';
+import { useAnalyticsContext } from '@core/ui';
 
 import { SearchableSelect } from '@/components/SearchableSelect';
 
@@ -30,6 +31,7 @@ export const RecipientSelect: FC<RecipientSelectProps> = ({
   onQueryChange,
 }) => {
   const { t } = useTranslation();
+  const { capture } = useAnalyticsContext();
 
   const getGroupLabel = useGroupLabel();
 
@@ -45,7 +47,12 @@ export const RecipientSelect: FC<RecipientSelectProps> = ({
       query={query}
       onQueryChange={onQueryChange}
       value={value}
-      onValueChange={onValueChange}
+      onValueChange={(recipient) => {
+        if (recipient) {
+          capture('SendContactSelected', { contactSource: getType(recipient) });
+        }
+        onValueChange(recipient);
+      }}
       label={t('Send to')}
       renderValue={(val) =>
         val ? (

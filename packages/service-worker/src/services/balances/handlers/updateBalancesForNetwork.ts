@@ -1,5 +1,6 @@
 import {
   Account,
+  AtomicBalances,
   Balances,
   ExtensionRequest,
   ExtensionRequestHandler,
@@ -13,7 +14,11 @@ import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.NETWORK_BALANCES_UPDATE,
-  { tokens: Balances; nfts: Balances<NftTokenWithBalance> },
+  {
+    tokens: Balances;
+    nfts: Balances<NftTokenWithBalance>;
+    atomic: AtomicBalances;
+  },
   [accounts?: Account[], networks?: number[]] | undefined
 >;
 
@@ -24,13 +29,13 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
   constructor(
     private networkBalancesService: BalanceAggregatorService,
     private accountsService: AccountsService,
-    private networkSerice: NetworkService,
+    private networkService: NetworkService,
   ) {}
 
   async #getDefaultNetworksToFetch(activeChainId: number) {
-    const favoriteNetworks = await this.networkSerice.getFavoriteNetworks();
+    const enabledNetworks = await this.networkService.getEnabledNetworks(); // Enabled networks include the favorited networks from legacy
 
-    return [...(activeChainId ? [activeChainId] : []), ...favoriteNetworks];
+    return [...(activeChainId ? [activeChainId] : []), ...enabledNetworks];
   }
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
@@ -63,9 +68,11 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
 
     try {
       const balances = await this.networkBalancesService.getBalancesForNetworks(
-        networksToFetch,
-        accountsToFetch,
-        [TokenType.NATIVE, TokenType.ERC20],
+        {
+          chainIds: networksToFetch,
+          accounts: accountsToFetch,
+          tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        },
       );
       return {
         ...request,

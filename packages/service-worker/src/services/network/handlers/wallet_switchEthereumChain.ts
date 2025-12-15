@@ -88,6 +88,7 @@ export class WalletSwitchEthereumChainHandler extends DAppRequestHandler<
         scope,
         displayData: {
           network: supportedNetwork,
+          currentNetwork: currentActiveNetwork,
         },
       });
       await openApprovalWindow(actionData, `network/switch`);

@@ -15,9 +15,11 @@ import { InitAnalyticsIdsHandler } from '../../services/analytics/handlers/initA
 import { StoreAnalyticsIdsHandler } from '../../services/analytics/handlers/storeAnalyticsIds';
 import { ApprovalEvents } from '../../services/approvals/events/approvalEvents';
 import { BalancesUpdatedEvents } from '../../services/balances/events/balancesUpdatedEvent';
+import { TransactionStatusEvents } from '../../services/transactions/events/transactionStatusEvents';
 import { GetBalancesHandler } from '../../services/balances/handlers/getBalances';
 import { GetNativeBalanceHandler } from '../../services/balances/handlers/getNativeBalance';
 import { GetTokenPriceHandler } from '../../services/balances/handlers/getTokenPrice';
+import { GetTokenPriceByAddressHandler } from '../../services/balances/handlers/getTokenPriceByAddress';
 import { GetTotalBalanceForWalletHandler } from '../../services/balances/handlers/getTotalBalanceForWallet/getTotalBalanceForWallet';
 import { RefreshNftMetadataHandler } from '../../services/balances/handlers/refreshNftMetadata';
 import { StartBalancesPollingHandler } from '../../services/balances/handlers/startBalancesPolling';
@@ -86,6 +88,7 @@ import { UpdateDefaultNetworkHandler } from '../../services/network/handlers/upd
 import { GetNetworkFeeHandler } from '../../services/networkFee/handlers/getNetworkFee';
 import { OnboardingUpdatedEvents } from '../../services/onboarding/events/onboardingUpdatedEvent';
 import { GetIsOnboardedHandler } from '../../services/onboarding/handlers/getIsOnBoarded';
+import { OpenExtensionPopupWindowHandler } from '../../services/onboarding/handlers/openExtensionPopupWindow';
 import { KeystoneOnboardingHandler } from '../../services/onboarding/handlers/keystoneOnboardingHandler';
 import { LedgerOnboardingHandler } from '../../services/onboarding/handlers/ledgerOnboardingHandler';
 import { MnemonicOnboardingHandler } from '../../services/onboarding/handlers/mnemonicOnboardingHandler';
@@ -139,6 +142,7 @@ import { StoreBtcWalletPolicyDetails } from '../../services/wallet/handlers/stor
 import { WalletConnectEvents } from '../../services/walletConnect/events/walletConnectEvents';
 import { EstablishRequiredSession } from '../../services/walletConnect/handlers/establishRequiredSession';
 import { WalletConnectImportAccount } from '../../services/walletConnect/handlers/walletConnectImportAccount';
+import { MigrateMissingPublicKeysFromKeystoneHandler } from '../../services/keystone/handlers/migrateMissingKeysFromKeystone';
 
 import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/keystoneOnboardingHandlerNew';
 import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
@@ -153,6 +157,10 @@ import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setSh
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
+import { GetXPAddressesForAccountHandler } from '../../services/accounts/handlers/getXPAddressesForAccountIndex';
+import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
+import { NavigationRequestEvents } from '~/services/navigationHistory/events/navigationRequestEvents';
+import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/requestNavigation';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -161,6 +169,10 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
  */
 @registry([
   { token: 'ExtensionRequestHandler', useToken: AddAccountHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetXPAddressesForAccountHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: GetAccountsHandler },
   { token: 'ExtensionRequestHandler', useToken: SelectAccountHandler },
   { token: 'ExtensionRequestHandler', useToken: GetActionHandler },
@@ -210,6 +222,7 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
     token: 'ExtensionRequestHandler',
     useToken: SetNavigationHistoryDataHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: RequestNavigationHandler },
   { token: 'ExtensionRequestHandler', useToken: SaveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: RemoveCustomNetworkHandler },
   { token: 'ExtensionRequestHandler', useToken: UpdateDefaultNetworkHandler },
@@ -244,6 +257,10 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
   },
   { token: 'ExtensionRequestHandler', useToken: GetNetworkFeeHandler },
   { token: 'ExtensionRequestHandler', useToken: GetIsOnboardedHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: OpenExtensionPopupWindowHandler,
+  },
   { token: 'ExtensionRequestHandler', useToken: MnemonicOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: SeedlessOnboardingHandler },
   { token: 'ExtensionRequestHandler', useToken: KeystoneOnboardingHandler },
@@ -275,6 +292,7 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
   },
   { token: 'ExtensionRequestHandler', useToken: ResetExtensionStateHandler },
   { token: 'ExtensionRequestHandler', useToken: GetTokenPriceHandler },
+  { token: 'ExtensionRequestHandler', useToken: GetTokenPriceByAddressHandler },
   { token: 'ExtensionRequestHandler', useToken: GetHistoryHandler },
   { token: 'ExtensionRequestHandler', useToken: GetFeatureFlagsHandler },
   { token: 'ExtensionRequestHandler', useToken: GetNativeBalanceHandler },
@@ -479,6 +497,14 @@ import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/get
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },
   { token: 'ExtensionRequestHandler', useToken: GetTrendingTokensHandler },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MigrateMissingPublicKeysFromKeystoneHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetTotalAtomicFundsForAccountHandler,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -511,5 +537,7 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: ApprovalEvents },
   { token: 'ExtensionEventEmitter', useToken: GaslessChallangeUpdateEvent },
   { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
+  { token: 'ExtensionEventEmitter', useToken: NavigationRequestEvents },
+  { token: 'ExtensionEventEmitter', useToken: TransactionStatusEvents },
 ])
 export class ExtensionEventEmitterRegistry {}

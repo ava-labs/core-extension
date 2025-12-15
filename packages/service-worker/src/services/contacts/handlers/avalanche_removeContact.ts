@@ -1,13 +1,8 @@
-import {
-  Action,
-  DAppRequestHandler,
-  DAppProviderRequest,
-  DEFERRED_RESPONSE,
-} from '@core/types';
+import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
-import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
+import { canSkipApproval } from '@core/common';
 
 @injectable()
 export class AvalancheRemoveContactHandler extends DAppRequestHandler {
@@ -31,14 +26,25 @@ export class AvalancheRemoveContactHandler extends DAppRequestHandler {
         error: ethErrors.rpc.invalidParams('contact not found'),
       };
     }
-    const actionData = {
+
+    const canRemove = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
+
+    if (!canRemove) {
+      return {
+        ...request,
+        error: ethErrors.provider.unauthorized(),
+      };
+    }
+
+    await this.contactsService.remove(contact);
+
+    return {
       ...request,
-      displayData: {
-        contact: existing,
-      },
+      result: null,
     };
-    await openApprovalWindow(actionData, `approve/removeContact`);
-    return { ...request, result: DEFERRED_RESPONSE };
   };
 
   handleUnauthenticated = ({ request }) => {
@@ -46,22 +52,5 @@ export class AvalancheRemoveContactHandler extends DAppRequestHandler {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
-  };
-
-  onActionApproved = async (
-    pendingAction: Action,
-    _result,
-    onSuccess,
-    onError,
-  ) => {
-    try {
-      const {
-        displayData: { contact },
-      } = pendingAction;
-      await this.contactsService.remove(contact);
-      onSuccess(null);
-    } catch (e) {
-      onError(e);
-    }
   };
 }

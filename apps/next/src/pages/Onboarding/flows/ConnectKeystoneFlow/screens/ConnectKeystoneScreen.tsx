@@ -1,8 +1,6 @@
-import { hex } from '@scure/base';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { useTranslation } from 'react-i18next';
-import { FC, useEffect, useState } from 'react';
-import { getEvmAddressFromPubKey } from '@avalabs/core-wallets-sdk';
+import { FC, useEffect } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 
 import {
@@ -15,8 +13,9 @@ import {
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
+import { useAnalyticsContext } from '@core/ui';
 
-import { Device, PublicKey, DerivedKeys, ConnectorCallbacks } from '../types';
+import { Device, DerivedKeys, ConnectorCallbacks } from '../types';
 import {
   KeystoneSupportButton,
   KeystoneDeviceSelect,
@@ -26,13 +25,14 @@ import {
 
 type ChooseKeystoneScreenProps = OnboardingScreenProps & {
   onConfirm: () => void;
-  accountIndexes: number[];
+  minNumberOfKeys: number;
   onScan: () => void;
   device: Device;
   setDevice: (device: Device) => void;
   isKeystoneUsbSupported: boolean;
   derivedInfo?: DerivedKeys;
   usbCallbacks?: ConnectorCallbacks;
+  addresses: string[];
 };
 
 export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
@@ -41,16 +41,16 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
   device,
   setDevice,
   onConfirm,
-  accountIndexes,
+  minNumberOfKeys,
   onScan,
   derivedInfo,
   isKeystoneUsbSupported,
   usbCallbacks,
+  addresses,
 }) => {
   const { t } = useTranslation();
   const { setCurrent, setTotal } = useModalPageControl();
-
-  const [addresses, setAddresses] = useState<string[]>([]);
+  const { capture } = useAnalyticsContext();
 
   useEffect(() => {
     setCurrent(step);
@@ -58,12 +58,13 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
   }, [setCurrent, setTotal, step, totalSteps]);
 
   useEffect(() => {
-    if (derivedInfo) {
-      setAddresses(deriveAddresses(derivedInfo.addressPublicKeys));
-    } else {
-      setAddresses([]);
+    if (derivedInfo?.addressPublicKeys.length) {
+      capture('OnboardingKeystoneHasAddresses');
     }
-  }, [derivedInfo]);
+  }, [derivedInfo, capture]);
+
+  const isDiscoveringAddresses =
+    device === 'keystone-usb' && addresses.length > 0 && !derivedInfo;
 
   return (
     <>
@@ -91,7 +92,7 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
           <>
             {device === 'keystone-usb' && (
               <KeystoneUSBConnector
-                accountIndexes={accountIndexes}
+                minNumberOfKeys={minNumberOfKeys}
                 callbacks={usbCallbacks}
               />
             )}
@@ -105,6 +106,7 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
       <FullscreenModalActions>
         <NavButton
           color="primary"
+          loading={isDiscoveringAddresses}
           // For USB devices, "Next" is only active once keys are obtained
           // For QR-code devices, "Next" jumps to the QR-code screen if keys are not obtained yet
           // and confirms keys if they are obtained
@@ -121,11 +123,3 @@ export const ConnectKeystoneScreen: FC<ChooseKeystoneScreenProps> = ({
 };
 
 const AVALANCHE_C_CHAIN_CAIP_ID = `eip155:${ChainId.AVALANCHE_MAINNET_ID}`;
-
-const deriveAddresses = (keys: PublicKey[]) =>
-  keys
-    .filter(({ vm }) => vm === 'EVM')
-    .map(({ key }) => key.key)
-    .map((publicKeyHex) =>
-      getEvmAddressFromPubKey(Buffer.from(hex.decode(publicKeyHex))),
-    );

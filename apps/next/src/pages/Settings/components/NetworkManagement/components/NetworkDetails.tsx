@@ -90,7 +90,7 @@ export const NetworkDetails = ({
           autoFocus={autoFocus}
           error={fieldInfo.chainName?.error}
           required={!!fieldInfo.chainName?.required}
-          readOnly={!isEditing}
+          readOnly={!isCustom || !isEditing}
         />
       </Stack>
 
@@ -100,7 +100,8 @@ export const NetworkDetails = ({
         setView={setView}
         fieldInfo={fieldInfo}
         canResetRpcUrl={canResetRpcUrl}
-        readOnly={!isEditing}
+        readOnly={!isCustom || !isEditing}
+        isEditing={isEditing}
         pageType={pageType}
       />
 
@@ -133,7 +134,10 @@ export const NetworkDetails = ({
               size="small"
               fullWidth
               disabled={!isValid}
-              onClick={onSubmit}
+              onClick={() => {
+                onSubmit();
+                setIsEditing(false);
+              }}
             >
               {t('Save')}
             </Button>

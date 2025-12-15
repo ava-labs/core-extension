@@ -242,9 +242,13 @@ export const useSeedlessAuth = ({
         const token = await getSignerToken(oidcAuthResponse);
 
         if (!token) {
-          capture('TotpNoToken');
+          capture('SeedlessAuthenticatorVerificationFailed', {
+            method: 'totp',
+          });
           return false;
         }
+
+        capture('SeedlessAuthenticatorVerificationSuccess', { method: 'totp' });
 
         if (!userId) {
           setError(AuthErrorCode.MissingUserId);
@@ -255,8 +259,8 @@ export const useSeedlessAuth = ({
         capture('TotpVaridationSuccess');
         return true;
       } catch (err) {
+        capture('SeedlessAuthenticatorVerificationFailed', { method: 'totp' });
         setError(AuthErrorCode.UnknownError);
-        capture('TotpVaridationFailed');
         Monitoring.sentryCaptureException(
           err as Error,
           Monitoring.SentryExceptionTypes.SEEDLESS,
@@ -305,6 +309,7 @@ export const useSeedlessAuth = ({
         );
         mfaInfo = await challenge.answer(answer);
       } catch {
+        capture('SeedlessAuthenticatorVerificationFailed', { method: 'fido' });
         setError(AuthErrorCode.FidoChallengeFailed);
         return false;
       }
@@ -325,6 +330,7 @@ export const useSeedlessAuth = ({
       });
 
       if (authResponse.requiresMfa()) {
+        capture('SeedlessAuthenticatorVerificationFailed', { method: 'fido' });
         setIsLoading(false);
         setError(AuthErrorCode.UnknownError);
         Monitoring.sentryCaptureException(
@@ -344,8 +350,10 @@ export const useSeedlessAuth = ({
         email,
         userId,
       );
+      capture('SeedlessAuthenticatorVerificationSuccess', { method: 'fido' });
       return true;
     } catch (err) {
+      capture('SeedlessAuthenticatorVerificationFailed', { method: 'fido' });
       setError(AuthErrorCode.UnknownError);
       Monitoring.sentryCaptureException(
         err as Error,
@@ -357,6 +365,7 @@ export const useSeedlessAuth = ({
       setIsLoading(false);
     }
   }, [
+    capture,
     email,
     mfaId,
     oidcToken,

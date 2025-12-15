@@ -7,22 +7,22 @@ import { ConnectorCallbacks, PublicKey } from '../../types';
 import { useKeystoneBasePublicKeyFetcher } from './hooks';
 
 type Props = {
-  accountIndexes: number[];
+  minNumberOfKeys: number;
   callbacks?: ConnectorCallbacks;
 };
 
 export const KeystoneUSBConnector: FC<Props> = ({
   callbacks,
-  accountIndexes,
+  minNumberOfKeys,
 }) => {
   const { status, error, onRetry, retrieveKeys } =
-    useKeystoneBasePublicKeyFetcher();
+    useKeystoneBasePublicKeyFetcher(callbacks?.onActivePublicKeysDiscovered);
   const [keys, setKeys] = useState<PublicKey[]>([]);
   const [isRetrieving, setIsRetrieving] = useState(false);
 
   const fetchKeys = useCallback(async () => {
     setIsRetrieving(true);
-    retrieveKeys(accountIndexes)
+    retrieveKeys(minNumberOfKeys)
       .then((retrievedKeys) => {
         setKeys(retrievedKeys.addressPublicKeys);
         callbacks?.onConnectionSuccess(retrievedKeys);
@@ -34,7 +34,7 @@ export const KeystoneUSBConnector: FC<Props> = ({
       .finally(() => {
         setIsRetrieving(false);
       });
-  }, [accountIndexes, retrieveKeys, callbacks]);
+  }, [minNumberOfKeys, retrieveKeys, callbacks]);
 
   // Attempt to automatically connect as soon as we establish the transport.
   useEffect(() => {

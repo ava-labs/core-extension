@@ -26,12 +26,7 @@ const getSwapProvider = async (): Promise<SwapContextAPI> => {
 
   await act(async () => {
     render(
-      <SwapContextProvider
-        showPendingToast={jest.fn()}
-        showToastWithLink={jest.fn()}
-        removeToast={jest.fn()}
-        showErrorToast={jest.fn()}
-      >
+      <SwapContextProvider>
         <TestConsumerComponent ref={ref} />
       </SwapContextProvider>,
     );

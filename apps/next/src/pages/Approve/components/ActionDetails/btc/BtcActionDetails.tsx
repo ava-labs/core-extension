@@ -27,7 +27,7 @@ export const BtcActionDetails = ({
       {details.map((section) => (
         <DetailsSection key={section.title}>
           {section.items.map((item, itemIndex) => (
-            <DetailsItem key={itemIndex} item={item} />
+            <DetailsItem key={itemIndex} item={item} network={network} />
           ))}
         </DetailsSection>
       ))}

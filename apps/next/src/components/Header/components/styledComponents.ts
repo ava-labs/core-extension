@@ -1,9 +1,9 @@
 import {
   Button,
-  getHexAlpha,
   keyframes,
   Stack,
   styled,
+  Typography,
 } from '@avalabs/k2-alpine';
 
 export const AccountInfo = styled(Stack)`
@@ -14,6 +14,7 @@ export const AccountInfo = styled(Stack)`
     theme.transitions.create(['background', 'opacity'])};
   flex-direction: row;
   align-items: center;
+  min-width: 0;
   & > svg {
     opacity: 0;
   }
@@ -22,12 +23,9 @@ export const AccountInfo = styled(Stack)`
 export const AccountSelectContainer = styled(Stack)`
   cursor: pointer;
   position: relative;
-  &:hover > div:first-of-type {
-    background: ${({ theme }) => getHexAlpha(theme.palette.primary.main, 10)};
-    & > svg {
-      opacity: 1;
-    }
-  }
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: visible;
 `;
 
 export const promptTextAnimation = keyframes`
@@ -155,3 +153,30 @@ export const getClassSelector = (
   }
   return stateClass;
 };
+
+// Text that truncates with a fade gradient effect or ellipsis
+export const TruncatedText = styled(Typography)<{
+  showFade?: boolean;
+  showEllipsis?: boolean;
+}>(({ theme, showFade, showEllipsis }) => ({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  position: 'relative',
+  display: 'block',
+  minWidth: 0,
+  ...(showEllipsis && {
+    textOverflow: 'ellipsis',
+  }),
+  '&::after': showFade
+    ? {
+        content: '""',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        bottom: 0,
+        width: '24px',
+        background: `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
+        pointerEvents: 'none',
+      }
+    : {},
+}));

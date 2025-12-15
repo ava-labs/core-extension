@@ -75,7 +75,7 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   const formattedPriceChange = currencyFormatter(priceChanges.value);
 
   return (
-    <Stack alignItems="flex-end" gap={0.5}>
+    <Stack alignItems="flex-end" gap={0}>
       <Typography variant="subtitle3" color="text.primary">
         {formattedBalance}
       </Typography>

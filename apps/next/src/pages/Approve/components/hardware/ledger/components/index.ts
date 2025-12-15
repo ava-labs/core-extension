@@ -3,3 +3,6 @@ export * from './Disconnected';
 export * from './IncorrectApp';
 export * from './IncorrectVersion';
 export * from './PendingApproval';
+export * from './BtcPolicyNeeded';
+export * from './BlindSigningRequired';
+export * from './UnsupportedBitcoinApp';

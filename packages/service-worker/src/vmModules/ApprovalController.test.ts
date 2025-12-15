@@ -7,6 +7,7 @@ import { chainIdToCaip, getProviderForNetwork } from '@core/common';
 
 import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';
+import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 
 import {
@@ -200,6 +201,7 @@ describe('src/background/vmModules/ApprovalController', () => {
   let walletService: jest.Mocked<WalletService>;
   let networkService: jest.Mocked<NetworkService>;
   let secretsService: jest.Mocked<SecretsService>;
+  let transactionStatusEvents: jest.Mocked<TransactionStatusEvents>;
   let controller: ApprovalController;
 
   beforeEach(() => {
@@ -216,10 +218,19 @@ describe('src/background/vmModules/ApprovalController', () => {
       derivePublicKey: jest.fn(),
     } as any;
 
+    transactionStatusEvents = {
+      emitPending: jest.fn(),
+      emitConfirmed: jest.fn(),
+      emitReverted: jest.fn(),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+    } as any;
+
     controller = new ApprovalController(
       secretsService,
       walletService,
       networkService,
+      transactionStatusEvents,
     );
 
     jest.mocked(networkService.getNetwork).mockResolvedValue(btcNetwork);

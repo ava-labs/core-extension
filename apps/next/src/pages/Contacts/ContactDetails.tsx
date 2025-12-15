@@ -12,7 +12,7 @@ import { Redirect, useHistory, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
-import { useContactsContext } from '@core/ui';
+import { useContactsContext, useFeatureFlagContext } from '@core/ui';
 import { isContactValid, noop } from '@core/common';
 
 import { Page } from '@/components/Page';
@@ -26,6 +26,7 @@ import {
   XPAddressField,
   ContactNameField,
 } from './components';
+import { FeatureGates } from '@core/types';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -40,7 +41,7 @@ export const ContactDetails = () => {
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const id = searchParams.get(CONTACTS_QUERY_TOKENS.id);
-
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { getContactById, updateContact } = useContactsContext();
 
   const contact = id ? getContactById(id) : undefined;
@@ -112,12 +113,16 @@ export const ContactDetails = () => {
           onChange={setAddressBTC}
           allowCopy
         />
-        <Divider />
-        <SVMAddressField
-          value={addressSVM}
-          onChange={setAddressSVM}
-          allowCopy
-        />
+        {isFlagEnabled(FeatureGates.SOLANA_SUPPORT) && (
+          <>
+            <Divider />
+            <SVMAddressField
+              value={addressSVM}
+              onChange={setAddressSVM}
+              allowCopy
+            />
+          </>
+        )}
       </AddressesCard>
       <Stack width="100%" gap={1} minHeight={100} justifyContent="flex-end">
         {hasChanges ? (

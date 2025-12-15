@@ -1,13 +1,20 @@
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tab, TabMenu } from '@/components/TabMenu';
-import { getHexAlpha, IconButton, Stack, useTheme } from '@avalabs/k2-alpine';
+import {
+  getHexAlpha,
+  IconButton,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { MdAdd } from 'react-icons/md';
-import { useNetworkContext } from '@core/ui';
+import { useAnalyticsContext, useNetworkContext } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { SearchInput } from './SearchInput';
 import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
 import { Page } from '@/components/Page';
+import { isEmpty } from 'lodash';
 
 type Tab = 'all' | 'custom';
 
@@ -16,6 +23,7 @@ export const NetworksHome: FC = () => {
   const theme = useTheme();
   const history = useHistory();
   const { networks, customNetworks } = useNetworkContext();
+  const { capture } = useAnalyticsContext();
   const [activeTab, setActiveTab] = useState<Tab>('all');
 
   const [filter, setFilter] = useState('');
@@ -38,6 +46,11 @@ export const NetworksHome: FC = () => {
     });
   }, [customNetworks, filter]);
 
+  const currentNetworks = useMemo(
+    () => (activeTab === 'all' ? filteredNetworks : filteredCustomNetworks),
+    [activeTab, filteredNetworks, filteredCustomNetworks],
+  );
+
   return (
     <Page
       title={t('Networks')}
@@ -58,14 +71,32 @@ export const NetworksHome: FC = () => {
       </Stack>
 
       {/* Content Area */}
-      <NetworkToggleList
-        networks={
-          activeTab === 'all' ? filteredNetworks : filteredCustomNetworks
-        }
-      />
+      {isEmpty(currentNetworks) && filter ? (
+        <Stack
+          sx={{
+            height: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexGrow: 1,
+          }}
+        >
+          <Typography
+            variant="h1"
+            component="span"
+            sx={{ mb: 2, fontWeight: 'medium' }}
+          >
+            🌵
+          </Typography>
+          <Typography variant="body3" sx={{ fontWeight: 600 }}>
+            {t('No results found')}
+          </Typography>
+        </Stack>
+      ) : (
+        <NetworkToggleList networks={currentNetworks} />
+      )}
       {/* Sticky Bottom Tab Menu */}
       <Stack
-        width="calc(100% + 32px)" // Compensate for container padding which we don't want applied here.
+        width="calc(100% + 24px)" // Compensate for container padding which we don't want applied here.
         gap={1}
         position="sticky"
         bottom={0}
@@ -79,7 +110,14 @@ export const NetworksHome: FC = () => {
         <TabMenu
           size="small"
           value={activeTab}
-          onChange={(_, value) => setActiveTab(value)}
+          onChange={(_, value) => {
+            setActiveTab(value);
+            if (value === 'all') {
+              capture('NetworkNetworksTabClicked');
+            } else if (value === 'custom') {
+              capture('NetworkCustomTabClicked');
+            }
+          }}
           slotProps={{
             root: {
               style: {

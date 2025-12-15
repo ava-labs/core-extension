@@ -85,7 +85,6 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
   } as any;
 
   const onTransactionReceipt = jest.fn();
-  const showPendingToast = jest.fn();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -119,7 +118,6 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
       useEvmSwap(walletState, {
         onTransactionReceipt:
           methods?.onTransactionReceipt ?? onTransactionReceipt,
-        showPendingToast: methods?.showPendingToast ?? showPendingToast,
       }),
     );
 
@@ -986,15 +984,6 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
           request: requestMock,
           events: jest.fn(),
         } as any);
-      });
-
-      it('triggers a "Swap is pending" toast', async () => {
-        const { swap } = await buildAdapter(buildWalletState());
-
-        await act(async () => {
-          await swap(getSwapParams({ srcToken: 'JEWEL' }));
-          expect(showPendingToast).toHaveBeenCalled();
-        });
       });
 
       it('resolves', async () => {

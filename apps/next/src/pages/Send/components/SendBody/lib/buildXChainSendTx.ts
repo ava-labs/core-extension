@@ -1,7 +1,7 @@
 import { utils } from '@avalabs/avalanchejs';
 
-import { getMaxUtxoSet } from '@core/common';
-import { AvmCapableAccount, NetworkWithCaipId } from '@core/types';
+import { getMaxUtxoSet, stripAddressPrefix } from '@core/common';
+import { AvmCapableAccount, NetworkWithCaipId, XPAddresses } from '@core/types';
 
 import { getAvalancheProvider } from '@/lib/getAvalancheProvider';
 import { getAvalancheWallet } from '@/lib/getAvalancheWallet';
@@ -12,6 +12,7 @@ type BuildXChainSendTxArgs = {
   amount: bigint;
   to: string;
   network: NetworkWithCaipId;
+  addresses: XPAddresses;
 };
 
 export const buildXChainSendTx = async ({
@@ -20,9 +21,10 @@ export const buildXChainSendTx = async ({
   amount,
   to,
   network,
+  addresses,
 }: BuildXChainSendTxArgs) => {
   const provider = getAvalancheProvider(network);
-  const wallet = getAvalancheWallet(account, provider);
+  const wallet = await getAvalancheWallet(account, addresses, provider);
 
   const { utxos } = await getMaxUtxoSet(
     isLedgerWallet,
@@ -47,6 +49,31 @@ export const buildXChainSendTx = async ({
 
   const manager = utils.getManagerForVM(unsignedTx.getVM());
   const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
+  const utxosAddrs = new Set(
+    unsignedTx.utxos.flatMap((utxo) =>
+      utxo.getOutputOwners().addrs.map(String),
+    ),
+  );
+  const externalIndices = addresses.externalAddresses.reduce(
+    (indices, addy) => {
+      if (utxosAddrs.has(stripAddressPrefix(addy.address))) {
+        indices.push(addy.index);
+      }
+
+      return indices;
+    },
+    [] as number[],
+  );
+  const internalIndices = addresses.internalAddresses.reduce(
+    (indices, addy) => {
+      if (utxosAddrs.has(stripAddressPrefix(addy.address))) {
+        indices.push(addy.index);
+      }
+
+      return indices;
+    },
+    [] as number[],
+  );
 
   return {
     transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
@@ -54,6 +81,8 @@ export const buildXChainSendTx = async ({
     utxos: unsignedTx.utxos.map((utxo) =>
       utils.bufferToHex(utxo.toBytes(codec)),
     ),
+    externalIndices,
+    internalIndices,
   };
 };
 

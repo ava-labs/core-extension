@@ -13,7 +13,11 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
 import { isContactValid } from '@core/common';
-import { useContactsContext } from '@core/ui';
+import {
+  useContactsContext,
+  useAnalyticsContext,
+  useFeatureFlagContext,
+} from '@core/ui';
 
 import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
@@ -26,6 +30,7 @@ import {
   XPAddressField,
   ContactNameField,
 } from './components';
+import { FeatureGates } from '@core/types';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -37,8 +42,10 @@ const contentProps: StackProps = {
 export const AddContact = () => {
   const { t } = useTranslation();
   const { goBack, replace } = useHistory();
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const { createContact } = useContactsContext();
+  const { capture } = useAnalyticsContext();
 
   const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -52,6 +59,7 @@ export const AddContact = () => {
   const saveContact = useCallback(
     async (payload: Omit<Contact, 'id'>) => {
       setIsSaving(true);
+      capture('AddContactClicked');
       try {
         const id = crypto.randomUUID();
         await createContact({
@@ -59,15 +67,17 @@ export const AddContact = () => {
           ...payload,
         });
         toast.success(t('Contact created'));
+        capture('AddContactSucceeded');
         replace(getContactsPath('details', { id }));
       } catch (error) {
         console.error(error);
         toast.error(t('Failed to save contact'));
+        capture('AddContactFailed');
       } finally {
         setIsSaving(false);
       }
     },
-    [createContact, t, replace],
+    [createContact, t, replace, capture],
   );
 
   const { valid: isValid } = isContactValid({
@@ -98,8 +108,12 @@ export const AddContact = () => {
           <XPAddressField value={addressXP} onChange={setAddressXP} />
           <Divider />
           <BTCAddressField value={addressBTC} onChange={setAddressBTC} />
-          <Divider />
-          <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
+          {isFlagEnabled(FeatureGates.SOLANA_SUPPORT) && (
+            <>
+              <Divider />
+              <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
+            </>
+          )}
         </AddressesCard>
       </Stack>
       <Stack width="100%" gap={1}>

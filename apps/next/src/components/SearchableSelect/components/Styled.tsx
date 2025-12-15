@@ -1,5 +1,4 @@
 import {
-  Divider,
   Popover,
   PopoverContent,
   PopoverProps,
@@ -10,11 +9,8 @@ import {
 
 export const SearchableSelectMenuRoot = styled(Stack)({
   width: 'calc(100vw - 32px)',
-  height: 'calc(100vh - 64px)',
-  overflow: 'auto',
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
+  height: 'calc(100vh - 96px)',
+  overflow: 'hidden',
   ul: { paddingInline: 0 },
 });
 
@@ -35,16 +31,17 @@ export const SearchableSelectPopover = (props: PopoverProps) => (
 );
 
 export const NoScrollPopoverContent = styled(PopoverContent)({
-  overflow: 'auto',
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
+  overflow: 'hidden',
 });
 
 export const SearchableSelectListBox = styled((props: StackProps) => (
-  <Stack component="ul" divider={<Divider />} {...props} />
+  <Stack component="ul" {...props} />
 ))(({ theme }) => ({
   width: '100%',
   paddingBottom: theme.spacing(1),
   flexGrow: 1,
+  scrollbarWidth: 'none',
+  '&::-webkit-scrollbar': {
+    display: 'none',
+  },
 }));

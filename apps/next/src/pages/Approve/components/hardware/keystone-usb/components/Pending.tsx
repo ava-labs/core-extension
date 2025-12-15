@@ -3,11 +3,9 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 import { Action, ActionStatus } from '@core/types';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { StateComponentProps } from '../types';
-import { PendingKeystoneCircles } from './PendingKeystoneCircles';
+import { PendingKeystoneCircles } from '@/components/PendingCircles';
 import { useTranslation } from 'react-i18next';
 import { useKeystoneUsbContext } from '@core/ui';
-import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
-import { resolve } from '@core/common';
 
 type PendingProps = StateComponentProps & {
   action: Action<DisplayData>;
@@ -31,12 +29,6 @@ export const Pending: FC<PendingProps> = ({ state, approve, action }) => {
       // This ensures the device can handle signing requests
       const verifyAndApprove = async () => {
         try {
-          // Make sure that the transport is available and the device is ready
-          const [usbTransport] = await resolve(createKeystoneTransport());
-          if (!usbTransport) {
-            throw new Error('Transport not available');
-          }
-
           // Device is ready, now call approve
           hasApprovedRef.current = true;
           await approve();

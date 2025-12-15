@@ -2,9 +2,9 @@ import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@avalabs/k2-alpine';
 
-import { StateComponentProps } from '../types';
+import { PendingLedgerCircles } from '@/components/PendingCircles';
 
-import { PendingLedgerCircles } from './PendingLedgerCircles';
+import { StateComponentProps } from '../types';
 
 export const PendingApproval: FC<StateComponentProps> = ({ state }) => {
   const { t } = useTranslation();

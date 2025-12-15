@@ -7,12 +7,17 @@ import {
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../../accounts/AccountsService';
 import { PermissionsService } from '../PermissionsService';
+import { LockService } from '../../lock/LockService';
 import { openApprovalWindow } from '../../../runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import {
   getDappConnector,
   getLegacyDappConnector,
+  ResultType,
 } from '~/services/web3/handlers/utils/connectToDapp';
+import { canSkipApproval } from '@core/common';
+import { ethErrors } from 'eth-rpc-errors';
+import { scanDapp } from '~/services/web3/handlers/utils/scanDapp';
 
 @injectable()
 export class WalletRequestPermissionsHandler extends DAppRequestHandler {
@@ -21,6 +26,7 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
   constructor(
     private permissionsService: PermissionsService,
     private accountsService: AccountsService,
+    private lockService: LockService,
   ) {
     super();
   }
@@ -28,11 +34,52 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
   handleUnauthenticated = async (rpcCall) => {
     const { request } = rpcCall;
 
+    if (!request.site?.domain || !request.site?.tabId) {
+      return {
+        ...request,
+        error: ethErrors.rpc.invalidRequest('Missing dApp domain information'),
+      };
+    }
+
+    // No approval needed for Core suite
+    const withoutApproval = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
+
+    if (withoutApproval && !this.lockService.locked) {
+      const allAccounts = await this.accountsService.getAccountList();
+
+      try {
+        const result = await new Promise((resolve, reject) => {
+          this.onActionApproved(
+            request,
+            allAccounts.map(({ id }) => ({ id, enabled: true })),
+            resolve,
+            reject,
+          );
+        });
+        return {
+          ...request,
+          result,
+        };
+      } catch (error) {
+        return {
+          ...request,
+          error,
+        };
+      }
+    }
+
+    const scanResult = await scanDapp(request.site.domain);
+
     await openApprovalWindow(
       {
         ...request,
         displayData: {
+          canSkipApproval: withoutApproval,
           addressVM: NetworkVMType.EVM,
+          isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
@@ -55,8 +102,8 @@ export class WalletRequestPermissionsHandler extends DAppRequestHandler {
   onActionApproved = async (
     pendingAction: Action,
     result: string | { id: string; enabled: boolean }[],
-    onSuccess: (result: unknown) => Promise<void>,
-    onError: (error: Error) => Promise<void>,
+    onSuccess: (result: ResultType) => void,
+    onError: (error: Error) => void,
   ) => {
     const connectorArgs = {
       accountsService: this.accountsService,

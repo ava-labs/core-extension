@@ -1,13 +1,6 @@
 import { FaQuestion } from 'react-icons/fa6';
 import { AvatarHex, Box } from '@avalabs/k2-alpine';
-
-import { SecretType } from '@core/types';
-import { isPrimaryAccount } from '@core/common';
-import { useWalletContext } from '@core/ui';
-
-import { WalletIcon } from '@/components/WalletIcon';
 import { HexagonalIcon } from '@/components/HexagonalIcon';
-
 import { Recipient } from '../types';
 
 type RecipientIconProps = {
@@ -15,20 +8,11 @@ type RecipientIconProps = {
 };
 
 export const RecipientIcon = ({ recipient }: RecipientIconProps) => {
-  const { getWallet } = useWalletContext();
-
   switch (recipient.type) {
     case 'account': {
-      const wallet = isPrimaryAccount(recipient.account)
-        ? getWallet(recipient.account.walletId)
-        : null;
-
       return (
         <HexagonalIcon size={36}>
-          <WalletIcon
-            type={wallet?.type ?? SecretType.PrivateKey}
-            authProvider={wallet?.authProvider}
-          />
+          {/* Blank icon until we get the avatars assigned to each account */}
         </HexagonalIcon>
       );
     }

@@ -10,14 +10,16 @@ import { ProfitAndLoss } from './ProfitAndLoss';
 import { FungibleTokenBalance } from '@core/types';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { Card } from '@/components/Card';
+import { useHistory } from 'react-router-dom';
+import { TokenType } from '@avalabs/vm-module-types';
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
-  onClick?: () => void;
 }
 
-const AVATAR_SIZE = 40;
-const BADGE_SIZE = 18;
+const AVATAR_SIZE = 32;
+const BADGE_SIZE = 16;
 const CHEVRON_SIZE = 20;
 const CARD_BORDER_RADIUS = 2;
 const CARD_GAP = 1.5;
@@ -30,28 +32,26 @@ const getBadgeBorderColor = (theme: Theme): string => {
     : theme.palette.surface.primary;
 };
 
-const formatTokenBalance = (balance: string, symbol: string): string => {
-  return `${balance} ${symbol}`;
-};
-
-export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
+export const AssetCard = ({ asset }: AssetCardProps) => {
   const theme = useTheme();
+  const history = useHistory();
 
   const handleClick = () => {
-    onClick?.();
-    // TODO: Navigate to asset details page when route is available
-    // const history = useHistory();
-    // history.push(`/asset/${asset.symbol}`);
+    const tokenAddress =
+      asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
+    history.push(`/asset/${asset.coreChainId}/${tokenAddress}`);
   };
 
   const badgeBorderColor = getBadgeBorderColor(theme);
-  const tokenBalanceText = formatTokenBalance(
-    asset.balanceDisplayValue,
-    asset.symbol,
-  );
 
   return (
-    <Card sx={{ width: '100%', borderRadius: CARD_BORDER_RADIUS }}>
+    <Card
+      sx={{
+        width: '100%',
+        borderRadius: CARD_BORDER_RADIUS,
+        backgroundColor: 'background.paper',
+      }}
+    >
       <Stack
         role="button"
         onClick={handleClick}
@@ -59,7 +59,7 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
         alignItems="center"
         gap={CARD_GAP}
         sx={{
-          cursor: onClick ? 'pointer' : 'default',
+          cursor: 'pointer',
           px: theme.spacing(CARD_PADDING_X),
           py: theme.spacing(CARD_PADDING_Y),
         }}
@@ -75,7 +75,7 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
           />
         </Box>
 
-        <Stack flexGrow={1} minWidth={0}>
+        <Stack flexGrow={1} minWidth={0} gap={0}>
           <Typography
             variant="subtitle3"
             noWrap
@@ -84,9 +84,23 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
           >
             {asset.name}
           </Typography>
-          <Typography color="text.primary" variant="body3" noWrap>
-            {tokenBalanceText}
-          </Typography>
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={0.5}
+            width="max-content"
+            justifyContent="flex-start"
+          >
+            <CollapsedTokenAmount
+              amount={asset.balanceDisplayValue}
+              showApproximationSign={false}
+              regularProps={{ variant: 'body3' }}
+              overlineProps={{ variant: 'caption2' }}
+            />
+            <Typography color="text.primary" variant="body3">
+              {asset.symbol}
+            </Typography>
+          </Stack>
         </Stack>
 
         <Stack alignItems="flex-end" flexShrink={0}>
@@ -99,7 +113,10 @@ export const AssetCard = ({ asset, onClick }: AssetCardProps) => {
           alignItems="center"
           justifyContent="center"
         >
-          <ChevronRightIcon size={CHEVRON_SIZE} color="text.secondary" />
+          <ChevronRightIcon
+            size={CHEVRON_SIZE}
+            sx={{ color: 'text.secondary' }}
+          />
         </Box>
       </Stack>
     </Card>

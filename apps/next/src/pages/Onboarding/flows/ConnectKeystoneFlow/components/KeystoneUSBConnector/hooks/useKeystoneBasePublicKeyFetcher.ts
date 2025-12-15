@@ -4,10 +4,11 @@ import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 import { useCallback, useEffect, useState } from 'react';
 
 import { useKeystoneUsbContext } from '@core/ui';
-import {
-  AVALANCHE_BASE_DERIVATION_PATH,
-  EVM_BASE_DERIVATION_PATH,
-} from '@core/types';
+import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
+import { getAvalancheExtendedKeyPath } from '@core/common';
+
+import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
+import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 
 import {
   UsbDerivationStatus,
@@ -17,137 +18,231 @@ import {
 } from '../../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../../util';
 
-export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher =
-  () => {
-    const {
-      getMasterFingerprint,
-      hasKeystoneTransport,
-      initKeystoneTransport,
-      popDeviceSelection,
-      wasTransportAttempted,
-      getExtendedPublicKey,
-    } = useKeystoneUsbContext();
+export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
+  onActivePublicKeysDiscovered,
+) => {
+  const {
+    getMasterFingerprint,
+    hasKeystoneTransport,
+    initKeystoneTransport,
+    popDeviceSelection,
+    wasTransportAttempted,
+    getExtendedPublicKey,
+  } = useKeystoneUsbContext();
 
-    const [error, setError] = useState<ErrorType>();
-    const [status, setStatus] = useState<UsbDerivationStatus>('waiting');
+  const [error, setError] = useState<ErrorType>();
+  const [status, setStatus] = useState<UsbDerivationStatus>('waiting');
+  const checkAddressActivity = useCheckAddressActivity();
 
-    const getKeysFromExtendedPublicKeys = useCallback(
-      async (indexes: number[]) => {
-        const evmExtendedPublicKey = await getExtendedPublicKey(ChainIDAlias.C);
-        const xpExtendedPublicKey = await getExtendedPublicKey(ChainIDAlias.X);
+  const retrieveXpKeys = useCallback(
+    async (indexes: number[]) => {
+      const addressPublicKeys: PublicKey[] = [];
+      const extendedPublicKeys: ExtendedPublicKey[] = [];
 
-        const keys: PublicKey[] = [];
-
-        for (const index of indexes) {
-          const evmKey = await getAddressPublicKeyFromXPub(
-            evmExtendedPublicKey,
+      for (const index of indexes) {
+        const extendedPublicKey = buildExtendedPublicKey(
+          await getExtendedPublicKey(ChainIDAlias.P, index),
+          getAvalancheExtendedKeyPath(index),
+        );
+        extendedPublicKeys.push(extendedPublicKey);
+        addressPublicKeys.push({
+          index,
+          vm: 'AVM',
+          key: buildAddressPublicKey(
+            await getAddressPublicKeyFromXPub(extendedPublicKey.key, 0),
             index,
-          );
-          keys.push({
-            index,
-            vm: 'EVM',
-            key: buildAddressPublicKey(evmKey, index, 'EVM'),
-          });
+            'AVM',
+          ),
+        });
+      }
 
-          const xpKey = await getAddressPublicKeyFromXPub(
-            xpExtendedPublicKey,
-            index,
-          );
-          keys.push({
-            index,
-            vm: 'AVM',
-            key: buildAddressPublicKey(xpKey, index, 'AVM'),
-          });
+      return {
+        extendedPublicKeys,
+        addressPublicKeys,
+      };
+    },
+    [getExtendedPublicKey],
+  );
+
+  const getAddressPublicKeyFromXpub = useCallback(
+    async (xpub: string, index: number): Promise<PublicKey> => {
+      const evmKey = await getAddressPublicKeyFromXPub(xpub, index);
+
+      return {
+        index,
+        vm: 'EVM',
+        key: buildAddressPublicKey(evmKey, index, 'EVM'),
+        hasActivity: await checkAddressActivity(evmKey).catch(() => false),
+      };
+    },
+    [checkAddressActivity],
+  );
+
+  const shouldContinue = useCallback((evmPublicKeys: PublicKey[]) => {
+    // Do not derive more than 10.
+    if (evmPublicKeys.length >= MAX_ACCOUNTS_TO_CREATE) {
+      return false;
+    }
+
+    // If one of the last two addresses has activity, we need to continue looking
+    return evmPublicKeys.slice(-2).some(({ hasActivity }) => hasActivity);
+  }, []);
+
+  const retrieveEvmKeys = useCallback(
+    async (startingIndexes: number[]) => {
+      const minNumberOfKeys = startingIndexes.length;
+      const evmXpub = await getExtendedPublicKey(ChainIDAlias.C, 0);
+      const publicKeys: PublicKey[] = [];
+
+      for (const index of startingIndexes) {
+        const publicKey = await getAddressPublicKeyFromXpub(evmXpub, index);
+        publicKeys.push(publicKey);
+      }
+
+      onActivePublicKeysDiscovered?.(publicKeys);
+
+      let currentIndex = startingIndexes.at(-1)!;
+
+      while (shouldContinue(publicKeys)) {
+        const publicKey = await getAddressPublicKeyFromXpub(
+          evmXpub,
+          ++currentIndex,
+        );
+        publicKeys.push(publicKey);
+        if (publicKey.hasActivity) {
+          onActivePublicKeysDiscovered?.(publicKeys);
         }
+      }
+
+      // Remove trailing public keys if they do not have activity
+      while (
+        publicKeys.length > minNumberOfKeys &&
+        !publicKeys.at(-1)?.hasActivity
+      ) {
+        publicKeys.pop();
+      }
+
+      return {
+        extendedPublicKeys: [
+          buildExtendedPublicKey(evmXpub, EVM_BASE_DERIVATION_PATH),
+        ],
+        addressPublicKeys: publicKeys,
+      };
+    },
+    [
+      getAddressPublicKeyFromXpub,
+      shouldContinue,
+      getExtendedPublicKey,
+      onActivePublicKeysDiscovered,
+    ],
+  );
+
+  const retrieveKeys = useCallback(
+    async (minNumberOfKeys: number) => {
+      if (minNumberOfKeys < 1) {
+        throw new Error('Min number of keys must be greater than 0');
+      }
+
+      const startingIndexes = Array.from(
+        { length: minNumberOfKeys },
+        (_, i) => i,
+      );
+
+      try {
+        const {
+          addressPublicKeys: evmAddressPublicKeys,
+          extendedPublicKeys: evmExtendedPublicKeys,
+        } = await retrieveEvmKeys(startingIndexes);
+
+        // TODO: derive X/P addresses for all accounts after Keystone releases new SDK version.
+        // https://ava-labs.atlassian.net/browse/CP-12875
+        // const xpIndexes = evmAddressPublicKeys.map(({ index }) => index);
+        const xpIndexes = [0];
+
+        const {
+          addressPublicKeys: xpAddressPublicKeys,
+          extendedPublicKeys: xpExtendedPublicKeys,
+        } = await retrieveXpKeys(xpIndexes);
 
         return {
           masterFingerprint: await getMasterFingerprint(),
+          addressPublicKeys: [...evmAddressPublicKeys, ...xpAddressPublicKeys],
           extendedPublicKeys: [
-            buildExtendedPublicKey(
-              evmExtendedPublicKey,
-              EVM_BASE_DERIVATION_PATH,
-            ),
-            buildExtendedPublicKey(
-              xpExtendedPublicKey,
-              AVALANCHE_BASE_DERIVATION_PATH,
-            ),
+            ...evmExtendedPublicKeys,
+            ...xpExtendedPublicKeys,
           ],
-          addressPublicKeys: keys,
         };
-      },
-      [getExtendedPublicKey, getMasterFingerprint],
-    );
+      } catch (err) {
+        setStatus('error');
 
-    const retrieveKeys = useCallback(
-      async (indexes: number[]) => {
-        try {
-          return await getKeysFromExtendedPublicKeys(indexes);
-        } catch (err) {
-          setStatus('error');
-
-          if (isUserRejectedError(err)) {
-            setError('user-rejected');
-          } else {
-            setError('unable-to-connect');
-          }
-
-          throw err;
-        }
-      },
-      [getKeysFromExtendedPublicKeys, setError, setStatus],
-    );
-
-    useEffect(() => {
-      // If the user previously rejected the request to connect,
-      // do not attempt to connect again unless they retry manually.
-      if (error == 'user-rejected') {
-        return;
-      }
-
-      // Attempt to automatically connect as soon as we establish the transport.
-      if (hasKeystoneTransport) {
-        setStatus('ready');
-        setError(undefined);
-      } else if (!hasKeystoneTransport && !wasTransportAttempted) {
-        popDeviceSelection();
-        initKeystoneTransport();
-      } else if (!hasKeystoneTransport) {
-        const timer = setTimeout(() => {
-          setStatus('error');
+        if (isUserRejectedError(err)) {
+          setError('user-rejected');
+        } else {
           setError('unable-to-connect');
-        }, 20_000); // Give the user 20 seconds to connect their keystone, then show an error message with some instructions
+        }
 
-        return () => clearTimeout(timer);
+        throw err;
       }
-    }, [
-      error,
-      status,
-      retrieveKeys,
-      wasTransportAttempted,
-      hasKeystoneTransport,
-      initKeystoneTransport,
-      popDeviceSelection,
-    ]);
+    },
+    [
+      setError,
+      setStatus,
+      getMasterFingerprint,
+      retrieveEvmKeys,
+      retrieveXpKeys,
+    ],
+  );
 
-    const onRetry = useCallback(async () => {
-      try {
-        await popDeviceSelection();
-        await initKeystoneTransport();
-        setError(undefined);
-        setStatus('waiting');
-      } catch {
+  useEffect(() => {
+    // If the user previously rejected the request to connect,
+    // do not attempt to connect again unless they retry manually.
+    if (error == 'user-rejected') {
+      return;
+    }
+
+    // Attempt to automatically connect as soon as we establish the transport.
+    if (hasKeystoneTransport) {
+      setStatus('ready');
+      setError(undefined);
+    } else if (!hasKeystoneTransport && !wasTransportAttempted) {
+      popDeviceSelection().then(initKeystoneTransport);
+    } else if (!hasKeystoneTransport) {
+      const timer = setTimeout(() => {
         setStatus('error');
         setError('unable-to-connect');
-      }
-    }, [popDeviceSelection, initKeystoneTransport]);
+      }, 5_000); // Wait 5 seconds to obtain the connection, then show an error message with some instructions
 
-    return {
-      status,
-      error,
-      retrieveKeys,
-      onRetry,
-    };
+      return () => clearTimeout(timer);
+    }
+  }, [
+    error,
+    status,
+    retrieveKeys,
+    wasTransportAttempted,
+    hasKeystoneTransport,
+    initKeystoneTransport,
+    popDeviceSelection,
+  ]);
+
+  const onRetry = useCallback(async () => {
+    try {
+      await popDeviceSelection();
+      await initKeystoneTransport();
+      setError(undefined);
+      setStatus('waiting');
+    } catch {
+      setStatus('error');
+      setError('unable-to-connect');
+    }
+  }, [popDeviceSelection, initKeystoneTransport]);
+
+  return {
+    status,
+    error,
+    retrieveKeys,
+    onRetry,
   };
+};
 
 const isUserRejectedError = (err: unknown) => {
   return (

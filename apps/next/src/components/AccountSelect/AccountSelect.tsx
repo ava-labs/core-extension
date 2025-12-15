@@ -3,7 +3,11 @@ import { Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
 import { Account, AddressType } from '@core/types';
-import { useAccountsContext, useWalletContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useAnalyticsContext,
+  useWalletContext,
+} from '@core/ui';
 
 import { SearchableSelect } from '@/components/SearchableSelect';
 
@@ -21,6 +25,7 @@ type AccountSelectProps = {
   onValueChange: (account: Account) => void;
   query?: string;
   onQueryChange: (query: string) => void;
+  isBalanceVisible?: boolean;
 };
 
 export const AccountSelect: FC<AccountSelectProps> = ({
@@ -29,10 +34,12 @@ export const AccountSelect: FC<AccountSelectProps> = ({
   onValueChange,
   query,
   onQueryChange,
+  isBalanceVisible = true,
 }) => {
   const { t } = useTranslation();
   const { allAccounts } = useAccountsContext();
   const { getWallet } = useWalletContext();
+  const { capture } = useAnalyticsContext();
 
   return (
     <SearchableSelect<Account>
@@ -46,11 +53,22 @@ export const AccountSelect: FC<AccountSelectProps> = ({
       query={query}
       onQueryChange={onQueryChange}
       value={value}
-      onValueChange={onValueChange}
+      suppressFlattening
+      onValueChange={(newAccount) => {
+        if (newAccount.id !== value?.id) {
+          capture('AccountSelectorAccountSwitched', {
+            type: newAccount.type,
+          });
+        }
+        onValueChange(newAccount);
+      }}
       label={t('Account')}
       renderValue={(val) =>
         val ? (
-          <SelectedAccount accountId={val.id} />
+          <SelectedAccount
+            accountId={val.id}
+            isBalanceVisible={isBalanceVisible}
+          />
         ) : (
           <Typography variant="caption">{t('Choose')}</Typography>
         )

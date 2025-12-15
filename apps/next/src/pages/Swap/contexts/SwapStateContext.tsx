@@ -155,6 +155,11 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       const quoteToUse = specificQuote ?? quotes.selected.quote;
       const providerToUse = specificProvider ?? quotes.provider;
 
+      captureEncrypted('SwapReviewOrder', {
+        provider: providerToUse,
+        slippage,
+      });
+
       try {
         await swap({
           srcToken: fromTokenAddress,

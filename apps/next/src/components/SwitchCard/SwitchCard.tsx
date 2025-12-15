@@ -3,6 +3,7 @@ import {
   styled,
   Switch,
   Typography,
+  TypographyProps,
   TypographyVariant,
 } from '@avalabs/k2-alpine';
 
@@ -18,12 +19,11 @@ interface SwitchCardProps {
   disabled?: boolean;
   onChange: () => void;
   titleSize: 'small' | 'large';
+  descriptionColor?: TypographyProps['color'];
 }
 const titleStyles = {
   small: {
     variant: 'subtitle3' as TypographyVariant,
-    // TODO: fix it after a proper k2 release
-    fontWeight: 600,
   },
   large: {
     variant: 'h5' as TypographyVariant,
@@ -38,13 +38,14 @@ export const SwitchCard = ({
   checked,
   disabled,
   onChange,
+  descriptionColor = 'text.secondary',
   titleSize = 'small',
 }: SwitchCardProps) => {
   return (
     <StyledSwitchCard orientation={orientation}>
-      <Stack gap={0.5}>
+      <Stack>
         <Typography {...titleStyles[titleSize]}>{title}</Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color={descriptionColor}>
           {description}
         </Typography>
       </Stack>
@@ -66,7 +67,7 @@ const StyledSwitchCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== 'orientation',
 })<SwitchCardStyleProps>(({ orientation, theme }) => ({
   padding: theme.spacing(1.5),
-  gap: theme.spacing(2.5),
+  gap: theme.spacing(0.5),
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: orientation === 'horizontal' ? 'center' : 'flex-start',

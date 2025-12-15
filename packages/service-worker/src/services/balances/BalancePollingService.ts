@@ -74,11 +74,11 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     ]);
 
     try {
-      await this.balanceAggregator.getBalancesForNetworks(
+      await this.balanceAggregator.getBalancesForNetworks({
         chainIds,
-        [account],
+        accounts: [account],
         tokenTypes,
-      );
+      });
     } catch {
       // Do nothing, just schedule another attempt
     }

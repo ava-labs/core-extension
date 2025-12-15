@@ -16,6 +16,7 @@ import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
 import { buildXChainSendTx } from '../lib/buildXChainSendTx';
+import { useGetXPAddresses } from '@/hooks/useGetXPAddresses';
 
 type UseXChainSendArgs = {
   token: XChainTokenBalance;
@@ -35,8 +36,9 @@ export const useXChainSend = ({
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();
+  const getXPAddressesFetcher = useGetXPAddresses();
 
-  const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
+  const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -82,6 +84,7 @@ export const useXChainSend = ({
         amount,
         to,
         network,
+        addresses: await getXPAddressesFetcher('AVM')(),
       });
       const hash = await request(
         {
@@ -92,7 +95,11 @@ export const useXChainSend = ({
           scope: network.caipId,
         },
       );
-      onSendSuccess(hash);
+
+      // Transaction status will be handled by the TransactionStatusProvider
+      // so we don't need to listen for events here
+
+      return hash;
     } catch (err) {
       console.error(err);
       onSendFailure(err);
@@ -104,12 +111,12 @@ export const useXChainSend = ({
     to,
     request,
     t,
-    onSendSuccess,
     onSendFailure,
     isLedgerWallet,
     from,
     amount,
     network,
+    getXPAddressesFetcher,
   ]);
 
   return {

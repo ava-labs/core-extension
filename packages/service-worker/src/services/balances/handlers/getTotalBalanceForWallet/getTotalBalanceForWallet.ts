@@ -1,18 +1,21 @@
+import { isNil } from 'lodash';
 import { injectable } from 'tsyringe';
-import { Network } from '@avalabs/glacier-sdk';
+import { hex } from '@scure/base';
 import { TokenType } from '@avalabs/vm-module-types';
 import {
   getAllAddressesForAccounts,
   getXPChainIds,
   isNotNullish,
+  calculateTotalAtomicFundsForAccounts,
+  getAvalancheExtendedKeyPath,
 } from '@core/common';
-
 import {
-  AVALANCHE_BASE_DERIVATION_PATH,
   Account,
   ExtensionRequest,
   ExtensionRequestHandler,
   TotalBalanceForWallet,
+  ImportedAccount,
+  PrimaryAccount,
 } from '@core/types';
 
 import { SecretsService } from '~/services/secrets/SecretsService';
@@ -20,6 +23,8 @@ import { AccountsService } from '~/services/accounts/AccountsService';
 import { GlacierService } from '~/services/glacier/GlacierService';
 import { NetworkService } from '~/services/network/NetworkService';
 import { BalanceAggregatorService } from '~/services/balances/BalanceAggregatorService';
+import { getExtendedPublicKey } from '~/services/secrets/utils';
+import { getAvaxPrice } from '~/services/balances/handlers/helpers';
 
 import {
   GetTotalBalanceForWalletParams,
@@ -27,10 +32,9 @@ import {
 } from './models';
 import {
   calculateTotalBalanceForAccounts,
-  getAccountsWithActivity,
   getIncludedNetworks,
+  removeChainPrefix,
 } from './helpers';
-import { getExtendedPublicKey } from '~/services/secrets/utils';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
@@ -50,12 +54,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     private balanceAggregatorService: BalanceAggregatorService,
   ) {}
 
-  #getAddressesActivity = (addresses: string[]) =>
-    this.glacierService.getChainIdsForAddresses({
-      addresses,
-      network: this.networkService.isMainnet() ? Network.MAINNET : Network.FUJI,
-    });
-
   async #findUnderivedAccounts(walletId: string, derivedAccounts: Account[]) {
     const secrets =
       await this.secretService.getWalletAccountsSecretsById(walletId);
@@ -63,28 +61,53 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     const derivedWalletAddresses = getAllAddressesForAccounts(
       derivedAccounts ?? [],
     );
-    const derivedAddressesUnprefixed = derivedWalletAddresses.map((addr) =>
-      addr.replace(/^[PXC]-/i, ''),
-    );
+    const derivedAddressesUnprefixed =
+      derivedWalletAddresses.map(removeChainPrefix);
 
-    const extendedPublicKey =
-      'extendedPublicKeys' in secrets
-        ? getExtendedPublicKey(
-            secrets.extendedPublicKeys,
-            AVALANCHE_BASE_DERIVATION_PATH,
-            'secp256k1',
-          )
-        : null;
+    const providerXP = await this.networkService.getAvalanceProviderXP();
 
-    const underivedXPChainAddresses = extendedPublicKey
-      ? (
-          await getAccountsWithActivity(
-            extendedPublicKey.key,
-            await this.networkService.getAvalanceProviderXP(),
-            this.#getAddressesActivity,
-          )
-        ).filter((address) => !derivedAddressesUnprefixed.includes(address))
-      : [];
+    const underivedAddresses = (
+      await Promise.allSettled(
+        derivedAccounts.flatMap(async (derivedAccount) => {
+          if (!('index' in derivedAccount)) {
+            return [];
+          }
+
+          const extendedPublicKey =
+            'extendedPublicKeys' in secrets
+              ? getExtendedPublicKey(
+                  secrets.extendedPublicKeys,
+                  getAvalancheExtendedKeyPath(derivedAccount.index),
+                  'secp256k1',
+                )
+              : null;
+          if (extendedPublicKey) {
+            // If we have the extended public key, the balance for its account already includes the balance for the underived accounts
+            return [];
+          } else {
+            const xpPublicKeys = secrets.publicKeys.filter(
+              (key) =>
+                key.curve === 'secp256k1' &&
+                key.derivationPath.startsWith(
+                  `${getAvalancheExtendedKeyPath(derivedAccount.index)}/`,
+                ),
+            );
+            return xpPublicKeys
+              .map(({ key }) =>
+                providerXP.getAddress(Buffer.from(hex.decode(key)), 'X'),
+              )
+              .map(removeChainPrefix);
+          }
+        }),
+      )
+    )
+      .filter((promiseResponse) => promiseResponse.status === 'fulfilled')
+      .map((promiseResponse) => promiseResponse.value)
+      .flat();
+
+    const underivedXPChainAddresses = Array.from(
+      new Set(underivedAddresses),
+    ).filter((address) => !derivedAddressesUnprefixed.includes(address));
 
     return underivedXPChainAddresses.map<Partial<Account>>((address) => ({
       addressPVM: `P-${address}`,
@@ -107,6 +130,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           result: {
             totalBalanceInCurrency: 0,
             hasBalanceOnUnderivedAccounts: false,
+            balanceChange: undefined,
+            percentageChange: undefined,
           },
         };
       }
@@ -118,32 +143,55 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       const networksIncludedInTotal = getIncludedNetworks(
         this.networkService.isMainnet(),
         await this.networkService.activeNetworks.promisify(),
-        await this.networkService.getFavoriteNetworks(),
+        await this.networkService.getEnabledNetworks(),
       );
 
       // Get balance for derived addresses
       let totalBalanceInCurrency: undefined | number = undefined;
+      let totalPriceChangeValue = 0;
+
+      const { atomicBalances } = this.balanceAggregatorService;
+      // TODO: Handle when atomic funds isn't only in AVAX
+      const avaxPrice = getAvaxPrice(atomicBalances);
+      const totalAtomicFundsForActiveAccount =
+        calculateTotalAtomicFundsForAccounts(
+          atomicBalances,
+          derivedAccounts.flatMap(
+            (account: ImportedAccount | PrimaryAccount) => [
+              account?.addressCoreEth,
+              account?.addressAVM,
+              account?.addressPVM,
+            ],
+          ),
+        );
+
+      // TODO: Handle if we need to handle other tokens than AVAX
+      const atomicFundsForAccount = totalAtomicFundsForActiveAccount.toDisplay({
+        asNumber: true,
+      });
+
       for (const account of derivedAccounts) {
         const { tokens: derivedAddressesBalances } =
-          await this.balanceAggregatorService.getBalancesForNetworks(
-            networksIncludedInTotal.map((network) => network.chainId),
-            [account],
-            [TokenType.NATIVE, TokenType.ERC20],
-          );
+          await this.balanceAggregatorService.getBalancesForNetworks({
+            chainIds: networksIncludedInTotal.map((network) => network.chainId),
+            accounts: [account],
+            tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+            requestId: walletId,
+          });
 
-        if (totalBalanceInCurrency === undefined) {
-          totalBalanceInCurrency = calculateTotalBalanceForAccounts(
-            derivedAddressesBalances,
-            [account],
-            networksIncludedInTotal,
-          );
-          continue;
-        }
-        totalBalanceInCurrency += calculateTotalBalanceForAccounts(
+        const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
           derivedAddressesBalances,
           [account],
           networksIncludedInTotal,
         );
+
+        if (totalBalanceInCurrency === undefined) {
+          totalBalanceInCurrency = balance;
+          totalPriceChangeValue = priceChangeValue;
+          continue;
+        }
+        totalBalanceInCurrency += balance;
+        totalPriceChangeValue += priceChangeValue;
       }
       let hasBalanceOnUnderivedAccounts = false;
 
@@ -165,32 +213,59 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         for (let i = 0; i < underivedAccounts.length; i += batchSize) {
           const accountsBatch = underivedAccounts.slice(i, i + batchSize);
           const { tokens: underivedAddressesBalances } =
-            await this.balanceAggregatorService.getBalancesForNetworks(
-              getXPChainIds(this.networkService.isMainnet()),
-              accountsBatch as Account[],
-              [TokenType.NATIVE],
-              false, // Don't cache this
-            );
+            await this.balanceAggregatorService.getBalancesForNetworks({
+              chainIds: getXPChainIds(this.networkService.isMainnet()),
+              accounts: accountsBatch as Account[],
+              tokenTypes: [TokenType.NATIVE],
+              cacheResponse: false, // Don't cache this
+            });
 
-          const underivedAccountsTotal = calculateTotalBalanceForAccounts(
-            underivedAddressesBalances,
-            underivedAccounts,
-            xpChains,
-          );
+          const { balance: underivedAccountsTotal, priceChangeValue } =
+            calculateTotalBalanceForAccounts(
+              underivedAddressesBalances,
+              underivedAccounts,
+              xpChains,
+            );
           if (totalBalanceInCurrency === undefined) {
             totalBalanceInCurrency = underivedAccountsTotal;
+            totalPriceChangeValue = priceChangeValue;
           } else {
             totalBalanceInCurrency += underivedAccountsTotal;
+            totalPriceChangeValue += priceChangeValue;
           }
           hasBalanceOnUnderivedAccounts = underivedAccountsTotal > 0;
+        }
+      }
+
+      // Calculate balance change and percentage change
+      // If there's no price change data, return undefined instead of 0
+
+      const balanceChange =
+        totalPriceChangeValue !== 0 ? totalPriceChangeValue : undefined;
+      let percentageChange: number | undefined = undefined;
+
+      if (
+        totalBalanceInCurrency !== undefined &&
+        totalBalanceInCurrency > 0 &&
+        balanceChange !== undefined &&
+        balanceChange !== 0
+      ) {
+        // Calculate the previous balance: current balance - change = previous balance
+        const previousBalance = totalBalanceInCurrency - balanceChange;
+        if (previousBalance > 0) {
+          percentageChange = (balanceChange / previousBalance) * 100;
         }
       }
 
       return {
         ...request,
         result: {
-          totalBalanceInCurrency,
+          totalBalanceInCurrency: isNil(totalBalanceInCurrency)
+            ? undefined
+            : totalBalanceInCurrency + avaxPrice * atomicFundsForAccount,
           hasBalanceOnUnderivedAccounts,
+          balanceChange,
+          percentageChange,
         },
       };
     } catch (e: any) {

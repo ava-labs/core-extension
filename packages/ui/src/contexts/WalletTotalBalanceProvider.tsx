@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useRef,
 } from 'react';
 import { isString } from 'lodash';
 
@@ -18,6 +19,7 @@ import { GetTotalBalanceForWalletHandler } from '@core/service-worker';
 import { useAccountsContext } from './AccountsProvider';
 import { useWalletContext } from './WalletProvider';
 import { useConnectionContext } from './ConnectionProvider';
+import { checkAndCleanupPossibleErrorForRequestInSessionStorage } from '@core/common';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;
@@ -26,12 +28,14 @@ interface WalletTotalBalanceContextProps {
 export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
   isLoading: boolean;
   hasErrorOccurred: boolean;
+  hasBalanceServiceErrorOccurred: boolean;
 };
 
 const WalletTotalBalanceContext = createContext<
   | {
       fetchBalanceForWallet(walletId: string): Promise<void>;
       walletBalances: Record<string, WalletTotalBalanceState>;
+      fetchWalletBalancesSequentially: () => Promise<void>;
     }
   | undefined
 >(undefined);
@@ -44,6 +48,8 @@ export const WalletTotalBalanceProvider = ({
   } = useAccountsContext();
   const { wallets } = useWalletContext();
   const { request } = useConnectionContext();
+  const isMounted = useRef<boolean>(false);
+  const isSyncingBalances = useRef<boolean>(false);
 
   const hasImportedAccounts = useMemo(
     () => Object.keys(imported).length > 0,
@@ -61,6 +67,7 @@ export const WalletTotalBalanceProvider = ({
         [walletId]: {
           ...prevState[walletId],
           hasErrorOccurred: false,
+          hasBalanceServiceErrorOccurred: false,
           isLoading: true,
         },
       }));
@@ -71,23 +78,33 @@ export const WalletTotalBalanceProvider = ({
           walletId,
         },
       })
-        .then((walletBalanceInfo) => {
+        .then(async (walletBalanceInfo) => {
+          const hasBalanceServiceErrorOccurred =
+            await checkAndCleanupPossibleErrorForRequestInSessionStorage(
+              walletId,
+            );
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
               ...walletBalanceInfo,
               hasErrorOccurred: false,
+              hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
         })
-        .catch((err) => {
+        .catch(async (err) => {
           console.log('Error while fetching total balance for wallet', err);
+          const hasBalanceServiceErrorOccurred =
+            await checkAndCleanupPossibleErrorForRequestInSessionStorage(
+              walletId,
+            );
           setWalletBalances((prevState) => ({
             ...prevState,
             [walletId]: {
               ...prevState[walletId],
               hasErrorOccurred: true,
+              hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
@@ -95,35 +112,45 @@ export const WalletTotalBalanceProvider = ({
     },
     [request],
   );
-  useEffect(() => {
-    let isMounted = true;
 
-    const fetchWalletBalancesSequentially = async (walletIds: string[]) => {
-      for (const walletId of walletIds) {
-        await fetchBalanceForWallet(walletId);
-        if (!isMounted) {
-          return;
-        }
-      }
-    };
+  const fetchWalletBalancesSequentially = useCallback(async () => {
+    if (isSyncingBalances.current) {
+      return;
+    }
+
+    isSyncingBalances.current = true;
 
     const walletIds = [
       ...wallets.map(({ id }) => id),
       hasImportedAccounts ? IMPORTED_ACCOUNTS_WALLET_ID : undefined,
     ].filter(isString);
 
-    fetchWalletBalancesSequentially(walletIds);
+    for (const walletId of walletIds) {
+      await fetchBalanceForWallet(walletId);
+      if (!isMounted.current) {
+        return;
+      }
+    }
+
+    isSyncingBalances.current = false;
+  }, [wallets, hasImportedAccounts, fetchBalanceForWallet]);
+
+  useEffect(() => {
+    isMounted.current = true;
+
+    fetchWalletBalancesSequentially();
 
     return () => {
-      isMounted = false;
+      isMounted.current = false;
     };
-  }, [wallets, hasImportedAccounts, fetchBalanceForWallet]);
+  }, [wallets, fetchWalletBalancesSequentially]);
 
   return (
     <WalletTotalBalanceContext.Provider
       value={{
         walletBalances,
         fetchBalanceForWallet,
+        fetchWalletBalancesSequentially,
       }}
     >
       {children}

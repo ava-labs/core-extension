@@ -11,6 +11,7 @@ import {
 
 type DropdownMenuProps = PropsWithChildren<{
   label: string;
+  closeOnItemClick?: boolean;
   slotProps?: {
     button?: Omit<ButtonProps, 'ref'>;
     popover?: Omit<PopoverProps, 'open'>;
@@ -20,7 +21,7 @@ type DropdownMenuProps = PropsWithChildren<{
 const defaultSlotProps: DropdownMenuProps['slotProps'] = {
   button: {
     variant: 'contained',
-    size: 'small',
+    size: 'xsmall',
     color: 'secondary',
   },
   popover: {
@@ -34,6 +35,7 @@ const defaultSlotProps: DropdownMenuProps['slotProps'] = {
 export const DropdownMenu: FC<DropdownMenuProps> = ({
   children,
   label,
+  closeOnItemClick = true,
   slotProps = defaultSlotProps,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -60,7 +62,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        onClick={() => setAnchorEl(null)}
+        onClick={closeOnItemClick ? () => setAnchorEl(null) : undefined}
         {...slotProps?.popover}
       >
         <PopoverContent>{children}</PopoverContent>
@@ -75,7 +77,7 @@ const StyledButton = styled(Button)({
 
 const StyledIcon = styled(ChevronDownIcon)<{ open: boolean }>(
   ({ theme, open }) => ({
-    color: 'text.secondary',
+    color: theme.palette.text.secondary,
     transition: theme.transitions.create('transform'),
     transform: open ? 'rotateX(180deg)' : 'none',
   }),

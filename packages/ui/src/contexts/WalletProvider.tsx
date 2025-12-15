@@ -2,11 +2,16 @@ import {
   AccountType,
   DAppProviderRequest,
   ExtensionRequest,
+  NetworkWithCaipId,
   SecretType,
   TxHistoryItem,
   WalletDetails,
 } from '@core/types';
 
+import {
+  isLockStateChangedEvent,
+  isWalletStateUpdateEvent,
+} from '@core/common';
 import {
   AvalancheRenameWalletHandler,
   GetHistoryHandler,
@@ -30,15 +35,12 @@ import { filter, map } from 'rxjs';
 import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useLedgerContext } from './LedgerProvider';
-import {
-  isLockStateChangedEvent,
-  isWalletStateUpdateEvent,
-} from '@core/common';
 
 type WalletStateAndMethods = {
   isWalletLoading: boolean;
   isWalletLocked: boolean;
   isLedgerWallet: boolean;
+  isKeystoneUsbWallet: boolean;
   walletDetails: WalletDetails | undefined;
   wallets: WalletDetails[];
   changeWalletPassword(
@@ -47,7 +49,9 @@ type WalletStateAndMethods = {
   ): Promise<boolean>;
   getWallet(id: string): WalletDetails | undefined;
   getUnencryptedMnemonic(password: string): Promise<string>;
-  getTransactionHistory(): Promise<TxHistoryItem[]>;
+  getTransactionHistory(
+    networkId?: NetworkWithCaipId['chainId'],
+  ): Promise<TxHistoryItem[]>;
   renameWallet(id: string, name: string): Promise<any>;
 };
 
@@ -90,6 +94,8 @@ export function WalletContextProvider({
       walletDetails?.type === SecretType.LedgerLive
     );
   }, [walletDetails]);
+
+  const isKeystoneUsbWallet = walletDetails?.type === SecretType.Keystone3Pro;
 
   useEffect(() => {
     if (activeAccount?.type === AccountType.PRIMARY) {
@@ -186,11 +192,19 @@ export function WalletContextProvider({
     [request],
   );
 
-  const getTransactionHistory = useCallback(() => {
-    return request<GetHistoryHandler>({
-      method: ExtensionRequest.HISTORY_GET,
-    });
-  }, [request]);
+  const getTransactionHistory = useCallback(
+    (networkId?: NetworkWithCaipId['chainId']) => {
+      return request<GetHistoryHandler>(
+        {
+          method: ExtensionRequest.HISTORY_GET,
+        },
+        {
+          scope: networkId as string | undefined,
+        },
+      );
+    },
+    [request],
+  );
 
   const renameWallet = useCallback(
     (id: string, name: string) => {
@@ -221,6 +235,7 @@ export function WalletContextProvider({
         isWalletLoading,
         isWalletLocked,
         isLedgerWallet,
+        isKeystoneUsbWallet,
         walletDetails,
         wallets,
         changeWalletPassword,

@@ -32,14 +32,15 @@ export const PageTopBar: FC<Props> = ({
       px={1.5}
       py={2}
       gap={1}
-      borderBottom={
-        !isObserving || isIntersecting
-          ? 'none'
-          : `1px solid ${theme.palette.divider}`
-      }
       width="100%"
       overflow="hidden"
       minHeight={56}
+      sx={{
+        boxShadow:
+          !isObserving || isIntersecting
+            ? 'none'
+            : `0 1px 0 0 ${theme.palette.divider}`,
+      }}
     >
       {showBack && (
         <Box
@@ -62,9 +63,7 @@ export const PageTopBar: FC<Props> = ({
         unmountOnExit
         appear={false}
       >
-        <OverflowingTypography variant="h6" lineHeight="1">
-          {title}
-        </OverflowingTypography>
+        <OverflowingTypography variant="h6">{title}</OverflowingTypography>
       </Fade>
       {showViewSwitcher && (
         <Box ml="auto">

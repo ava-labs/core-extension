@@ -4,7 +4,7 @@ import { TokenApproval, TokenType } from '@avalabs/vm-module-types';
 
 export const getApprovalValue = (
   approval: TokenApproval,
-  getTokenPrice: (symbolOrAddress: string) => number | undefined,
+  tokenPrice: number | null,
 ) => {
   if (!approval.value) {
     return null;
@@ -20,7 +20,6 @@ export const getApprovalValue = (
     approval.token.type !== TokenType.ERC20 ? 0 : approval.token.decimals,
     '',
   );
-  const tokenPrice = getTokenPrice(approval.token.address);
   const isUnlimited = tokenAmount.toSubUnit() === MaxUint256;
 
   return {

@@ -24,7 +24,7 @@ const ComponentByState: Record<
 };
 
 export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
-  const { wallet, initiallyExpanded } = props;
+  const { wallet, initiallyExpanded, isActiveWallet } = props;
 
   const ContentComponent = ComponentByState[wallet.state];
 
@@ -34,8 +34,14 @@ export const ConnectWalletCard: FC<ConnectWalletCardProps> = (props) => {
       key={wallet.id}
       id={wallet.id}
       name={wallet.name}
+      showActiveIndicator={isActiveWallet}
       icon={
-        <WalletIcon type={wallet.type} authProvider={wallet.authProvider} />
+        <WalletIcon
+          type={wallet.type}
+          authProvider={wallet.authProvider}
+          size={21}
+          expanded={isActiveWallet}
+        />
       }
       initialExpanded={initiallyExpanded}
       disableRename

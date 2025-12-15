@@ -11,6 +11,8 @@ type CollapsedTokenAmountProps = {
   overlineProps?: TypographyProps;
   regularProps?: TypographyProps;
   stackProps?: StackProps;
+  showApproximationSign?: boolean;
+  showTooltip?: boolean;
 };
 
 const defaultOverlineProps: TypographyProps = {
@@ -45,6 +47,8 @@ export const CollapsedTokenAmount = ({
   overlineProps,
   regularProps,
   stackProps,
+  showApproximationSign = true,
+  showTooltip = true,
 }: CollapsedTokenAmountProps) => {
   const finalOverlineProps = { ...defaultOverlineProps, ...overlineProps };
   const finalRegularProps = { ...defaultRegularProps, ...regularProps };
@@ -64,38 +68,40 @@ export const CollapsedTokenAmount = ({
   const zeroCount = fraction.slice(0, indexOfNonZero).length;
 
   if (fraction && indexOfNonZero >= CONSECUTIVE_ZEROES_THRESHOLD) {
-    return (
-      <Tooltip title={amount}>
-        <Stack
-          direction="row"
-          width="100%"
-          justifyContent="flex-end"
-          {...stackProps}
-        >
-          <Typography {...finalRegularProps}>{integer}.0</Typography>
-          <Typography {...finalOverlineProps}>{zeroCount}</Typography>
-          <Typography {...finalRegularProps}>
-            {fraction.slice(
-              indexOfNonZero,
-              indexOfNonZero + MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES,
-            )}
-          </Typography>
-        </Stack>
-      </Tooltip>
+    const content = (
+      <Stack
+        direction="row"
+        width="100%"
+        justifyContent="flex-end"
+        {...stackProps}
+      >
+        <Typography {...finalRegularProps}>{integer}.0</Typography>
+        <Typography {...finalOverlineProps}>{zeroCount}</Typography>
+        <Typography {...finalRegularProps}>
+          {fraction.slice(
+            indexOfNonZero,
+            indexOfNonZero + MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES,
+          )}
+        </Typography>
+      </Stack>
     );
+
+    return showTooltip ? <Tooltip title={amount}>{content}</Tooltip> : content;
   }
 
   // If the fraction is longer than the max fraction size, but we can't collapse
   // the zeroes, let's truncate the amount and show an approximation with the
   // exact amount in a tooltip.
   if (fraction && fraction.length > MAX_FRACTION_SIZE) {
-    return (
-      <Tooltip title={amount}>
-        <Typography {...finalRegularProps}>
-          ~{integer}.{fraction.substring(0, MAX_FRACTION_SIZE)}
-        </Typography>
-      </Tooltip>
+    const approximationSign = showApproximationSign ? '~' : '';
+    const content = (
+      <Typography {...finalRegularProps}>
+        {approximationSign}
+        {integer}.{fraction.substring(0, MAX_FRACTION_SIZE)}
+      </Typography>
     );
+
+    return showTooltip ? <Tooltip title={amount}>{content}</Tooltip> : content;
   }
 
   return <Typography {...finalRegularProps}>{amount}</Typography>;

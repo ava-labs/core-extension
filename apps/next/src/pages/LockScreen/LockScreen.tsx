@@ -1,16 +1,17 @@
-import { ComponentProps, FC, useState } from 'react';
+import { ComponentProps, FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Collapse, Stack, styled } from '@avalabs/k2-alpine';
+import { Box, Collapse, Stack, styled } from '@avalabs/k2-alpine';
 
 import { useOnline, WalletContextProviderProps } from '@core/ui';
 
-import { CoreSplash } from '@/components/CoreSplash';
+// import { CoreSplash } from '@/components/CoreSplash';
 import { WarningMessage } from '@/components/WarningMessage';
 
 import { ForgotPassword } from './components/ForgotPassword';
 import { PageTopBar } from '../../components/PageTopBar';
 import { Unlock } from './components/Unlock';
 import { UserAvatar } from './components/UserAvatar';
+import { CoreSplashStatic } from '@/components/CoreSplashStatic';
 
 type Props = {
   unlockWallet: ComponentProps<
@@ -28,9 +29,9 @@ const Root = styled(Stack)({
   alignItems: 'center',
 });
 
-const CenteredCoreSplash = styled(CoreSplash)({
-  marginBlock: 'auto',
-});
+// const CenteredCoreSplash = styled(CoreSplash)({
+//   marginBlock: 'auto',
+// });
 
 export const LockScreen: FC<Props> = ({ unlockWallet }) => {
   const { t } = useTranslation();
@@ -43,10 +44,32 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
 
   const isUIReady = isOnline && showUnlockForm;
 
+  // TODO: Add back the animated logo once the background is fixed
+  const ANIMATION_DURATION = 1000;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowUnlockForm(true);
+    }, ANIMATION_DURATION);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Root>
       <PageTopBar onBackClicked={hideForgotPasswordModal} />
-      <CenteredCoreSplash onGifEnd={() => setShowUnlockForm(true)} />
+
+      {/* TODO: Add back the animated logo once the background is fixed
+      <CenteredCoreSplash onGifEnd={() => setShowUnlockForm(true)} /> */}
+
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        paddingY={2}
+        marginBlock="auto"
+      >
+        <CoreSplashStatic height="35px" />
+      </Box>
+
       <UserAvatar faded={!isOnline} suppressMargin={isUIReady} />
 
       {!isOnline && (
@@ -57,7 +80,7 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
         </WarningMessage>
       )}
 
-      <Collapse in={isUIReady}>
+      <Collapse in={isUIReady} mountOnEnter unmountOnExit>
         <Unlock
           onUnlock={unlockWallet}
           onForgotPasswordClick={showForgotPasswordModal}

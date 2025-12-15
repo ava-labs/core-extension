@@ -36,8 +36,7 @@ export const EnjoyYourWalletScreen: FC = () => {
   }, [setCurrent, setTotal, setIsBackButtonVisible]);
 
   const openWallet = () => {
-    openApp();
-    window.close();
+    openApp({ closeWindow: true });
   };
 
   const [openWalletButtonRef, keyboardHandlers] = useSubmitButton();
@@ -80,7 +79,7 @@ export const EnjoyYourWalletScreen: FC = () => {
             </Stack>
             <Typography variant="body1">
               {t(
-                'You can now start buying, swapping, sending, receiving crypto and collectibles with no added fees',
+                'You can now start buying, swapping, sending, receiving crypto and collectibles',
               )}
             </Typography>
           </Stack>

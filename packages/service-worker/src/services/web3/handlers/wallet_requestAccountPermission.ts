@@ -9,14 +9,17 @@ import {
 import { AccountsService } from '../../accounts/AccountsService';
 import { injectable } from 'tsyringe';
 import { PermissionsService } from '../../permissions/PermissionsService';
+import { LockService } from '../../lock/LockService';
 import { ethErrors } from 'eth-rpc-errors';
 import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { getAddressByVMType } from '@core/common';
+import { canSkipApproval, getAddressByVMType } from '@core/common';
 import {
   getDappConnector,
   getLegacyDappConnector,
+  ResultType,
 } from './utils/connectToDapp';
+import { scanDapp } from './utils/scanDapp';
 
 /**
  * This is called when the user requests to connect the via dapp. We need
@@ -43,6 +46,7 @@ export class RequestAccountPermissionHandler
   constructor(
     private accountsService: AccountsService,
     private permissionsService: PermissionsService,
+    private lockService: LockService,
   ) {}
 
   async handleAuthenticated(
@@ -84,7 +88,7 @@ export class RequestAccountPermissionHandler
   ) => {
     const { request, scope } = rpcCall;
 
-    if (!request.site?.domain) {
+    if (!request.site?.domain || !request.site?.tabId) {
       return {
         ...request,
         error: ethErrors.rpc.invalidRequest('Unspecified dApp domain'),
@@ -98,13 +102,47 @@ export class RequestAccountPermissionHandler
       };
     }
 
+    const withoutApproval = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
+
+    if (withoutApproval && !this.lockService.locked) {
+      const allAccounts = await this.accountsService.getAccountList();
+
+      try {
+        const result = await new Promise((resolve, reject) => {
+          this.onActionApproved(
+            request as Action,
+            allAccounts.map(({ id }) => ({ id, enabled: true })),
+            resolve,
+            reject,
+          );
+        });
+
+        return {
+          ...request,
+          result,
+        };
+      } catch (error: any) {
+        return {
+          ...request,
+          error,
+        };
+      }
+    }
+
+    const scanResult = await scanDapp(request.site.domain);
+
     await openApprovalWindow(
       {
         ...request,
         scope,
         type: ActionType.Single,
         displayData: {
+          canSkipApproval: withoutApproval,
           addressVM: request.params?.addressVM || NetworkVMType.EVM, // Default to EVM
+          isMalicious: scanResult === 'malicious',
           // TODO: clean up domain* props for Legacy app
           domainName: request.site?.name,
           domainUrl: request.site?.domain,
@@ -123,8 +161,8 @@ export class RequestAccountPermissionHandler
   onActionApproved = async (
     pendingAction: Action,
     result: string | { id: string; enabled: boolean }[],
-    onSuccess: (result: unknown) => Promise<void>,
-    onError: (error: Error) => Promise<void>,
+    onSuccess: (result: ResultType) => void,
+    onError: (error: Error) => void,
   ) => {
     const connectorArgs = {
       accountsService: this.accountsService,

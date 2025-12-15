@@ -1,7 +1,7 @@
 import { Network } from '@avalabs/core-chains-sdk';
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
 import { GetTokenPriceHandler } from '@core/service-worker';
-import { useConnectionContext } from '../contexts';
+import { useBalancesContext, useConnectionContext } from '../contexts';
 import { useEffect, useState } from 'react';
 
 export function useNativeTokenPrice(network?: Network) {
@@ -24,4 +24,22 @@ export function useNativeTokenPrice(network?: Network) {
   }, [network, request]);
 
   return price;
+}
+
+export function useTokenPrice(
+  addressOrSymbol?: string,
+  network?: NetworkWithCaipId,
+) {
+  const { getTokenPrice } = useBalancesContext();
+  const [tokenPrice, setTokenPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!addressOrSymbol) return;
+
+    getTokenPrice(addressOrSymbol, network).then((price) => {
+      setTokenPrice(price ?? null);
+    });
+  }, [getTokenPrice, addressOrSymbol, network]);
+
+  return tokenPrice;
 }

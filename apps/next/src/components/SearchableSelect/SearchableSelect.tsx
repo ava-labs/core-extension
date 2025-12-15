@@ -1,4 +1,11 @@
-import { Divider, SearchInput, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  Divider,
+  getHexAlpha,
+  SearchInput,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import {
   ComponentProps,
   FC,
@@ -46,6 +53,7 @@ type SearchableSelectOwnProps<T> = {
   skipGroupingEntirely?: boolean;
   searchInputProps?: Omit<ComponentProps<typeof SearchInput>, 'slotProps'>;
   disabled?: boolean;
+  renderChips?: ReactNode;
 };
 interface SearchableSelectSlots<T> {
   groupAccordion?: JSXElementConstructor<
@@ -81,9 +89,11 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
     skipGroupingEntirely,
     searchInputProps,
     disabled,
+    renderChips,
     ...hookProps
   } = props;
 
+  const theme = useTheme();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const triggerElement = useRef<HTMLDivElement | null>(null);
@@ -135,6 +145,13 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
         open={isOpen}
         onClose={() => setIsOpen(false)}
         anchorEl={triggerElement.current}
+        slotProps={{
+          paper: {
+            sx: {
+              marginTop: 6,
+            },
+          },
+        }}
       >
         <NoScrollPopoverContent>
           <SearchableSelectMenuRoot ref={setRoot} {...getRootProps()}>
@@ -144,8 +161,16 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
               slotProps={{ htmlInput: getSearchInputProps() }}
               {...searchInputProps}
             />
-            <Divider />
-            {groupedOptions.length === 0 && (
+            <Divider
+              sx={{
+                backgroundColor: getHexAlpha(
+                  theme.palette.background.default,
+                  30,
+                ),
+              }}
+            />
+            {renderChips}
+            {groupedOptions.every((group) => group.options.length === 0) && (
               <Stack
                 direction="row"
                 px={2}
@@ -161,7 +186,11 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
                 </Typography>
               </Stack>
             )}
-            <SearchableSelectListBox>
+            <SearchableSelectListBox
+              sx={{
+                overflow: suppressFlattening ? 'auto' : 'hidden',
+              }}
+            >
               {groupedOptions.map((group, index, { length }) => {
                 // If there is only one group and it's not narrowed down via search,
                 // render a flat list of options.

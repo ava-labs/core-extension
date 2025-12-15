@@ -1,4 +1,3 @@
-import { Network } from '@avalabs/glacier-sdk';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import {
   NetworkVMType,
@@ -15,6 +14,7 @@ import {
   Balances,
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
+  AddressPublicKeyJson,
 } from '@core/types';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import type { SecretsService } from '~/services/secrets/SecretsService';
@@ -28,8 +28,18 @@ import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
+import { hex } from '@scure/base';
+import { calculateTotalAtomicFundsForAccounts } from '@core/common';
+import { TokenUnit } from '@avalabs/core-utils-sdk';
 
 jest.mock('./helpers/getAccountsWithActivity');
+jest.mock('@core/common', () => {
+  const actual = jest.requireActual('@core/common');
+  return {
+    ...actual,
+    calculateTotalAtomicFundsForAccounts: jest.fn(),
+  };
+});
 
 describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts', () => {
   const secretsService: jest.Mocked<SecretsService> = {
@@ -42,7 +52,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
   const networkService: jest.Mocked<NetworkService> = {
     getAvalanceProviderXP: jest.fn(),
-    getFavoriteNetworks: jest.fn(),
+    getEnabledNetworks: jest.fn(),
     getNetwork: jest.fn(),
     isMainnet: jest.fn(),
     activeNetworks: {
@@ -57,6 +67,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   const balanceAggregatorService: jest.Mocked<BalanceAggregatorService> = {
     getBalancesForNetworks: jest.fn(),
     getPriceChangesData: jest.fn(),
+    atomicBalances: {},
   } as any;
 
   const FAVORITE_NETWORKS = [
@@ -65,7 +76,9 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     ChainId.ETHEREUM_HOMESTEAD,
     ChainId.ETHEREUM_TEST_SEPOLIA,
   ];
-  const PROVIDER_XP = {} as any;
+  const PROVIDER_XP = {
+    getAddress: jest.fn(),
+  } as any;
 
   const MAINNETS = {
     [ChainId.AVALANCHE_MAINNET_ID]: {
@@ -144,9 +157,13 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     accountsService.getAccounts.mockResolvedValue(accounts);
   };
 
-  const mockSecrets = (xpubXP?: string) => {
+  const mockSecrets = (
+    xpubXP?: string,
+    xpPublicKeys?: AddressPublicKeyJson[],
+  ) => {
     secretsService.getWalletAccountsSecretsById.mockResolvedValueOnce({
       secretType: SecretType.Mnemonic,
+      publicKeys: xpPublicKeys ?? [],
       extendedPublicKeys: xpubXP
         ? [buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH)]
         : [],
@@ -215,8 +232,20 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     },
   };
 
-  const buildBalance = (symbolOrAddress: string, value: number) => ({
-    [symbolOrAddress]: { balanceInCurrency: value } as TokenWithBalance,
+  const buildBalance = (
+    symbolOrAddress: string,
+    value: number,
+    priceChangeValue?: number,
+  ) => ({
+    [symbolOrAddress]: {
+      balanceInCurrency: value,
+      ...(priceChangeValue !== undefined && {
+        priceChanges: {
+          value: priceChangeValue,
+          percentage: 0, // Not used in the calculation, but required by type
+        },
+      }),
+    } as TokenWithBalance,
   });
 
   const mockBalances = (
@@ -229,6 +258,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     balanceAggregatorService.getPriceChangesData.mockResolvedValue({});
     balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
       nfts: {},
+      atomic: {},
       tokens: {
         [isMainnet
           ? ChainId.AVALANCHE_MAINNET_ID
@@ -289,7 +319,10 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   beforeEach(() => {
     jest.resetAllMocks();
 
-    networkService.getFavoriteNetworks.mockResolvedValue(FAVORITE_NETWORKS);
+    jest
+      .mocked(calculateTotalAtomicFundsForAccounts)
+      .mockImplementation(() => new TokenUnit('0', 18, 'N/A'));
+    networkService.getEnabledNetworks.mockResolvedValue(FAVORITE_NETWORKS);
     networkService.getNetwork.mockImplementation(
       (chainId) => MAINNETS[chainId] ?? TESTNETS[chainId],
     );
@@ -320,33 +353,33 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for first derived account (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_IMPORTED_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_IMPORTED_0],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: '__IMPORTED__',
+      });
 
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(2, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_IMPORTED_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_IMPORTED_1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: '__IMPORTED__',
+      });
     });
 
     it('returns the correct total balance for imported accounts', async () => {
@@ -354,11 +387,13 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 125,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
   });
 
-  describe('when requested wallet does not include XP public key', () => {
+  describe('when requested wallet does not include xpubXP or any XP public keys', () => {
     beforeEach(() => {
       mockEnv(true);
       mockAccounts();
@@ -383,18 +418,18 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for derived accounts (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_SEEDLESS],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEEDLESS],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedless',
+      });
     });
 
     it('returns the correct total balance for already derived accounts', async () => {
@@ -402,6 +437,8 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 43750,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
   });
@@ -412,28 +449,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockAccounts();
       mockBalances(true);
       mockSecrets('xpubXP'); // We've got xpubXP
-    });
-
-    it('looks for XP-chain activity on underived addresses of the requested wallet', async () => {
-      const unresolvedAddresses = ['avaxUnresolvedAddress'];
-      mockAccountsWithActivity(unresolvedAddresses);
-
-      const response = await handleRequest('seedphrase');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).toHaveBeenCalledWith(
-        'xpubXP',
-        PROVIDER_XP,
-        expect.any(Function),
-      );
-
-      // Let's also make sure the passed activity fetcher actually invokes the Glacier API:
-      const fetcher = jest.mocked(getAccountsWithActivity).mock.lastCall?.[2];
-      expect(fetcher).toEqual(expect.any(Function));
-      fetcher?.(unresolvedAddresses);
-      expect(glacierService.getChainIdsForAddresses).toHaveBeenCalledWith({
-        addresses: unresolvedAddresses,
-        network: Network.MAINNET,
-      });
     });
 
     it('fetches C-, X- and P-Chain balances along with favorite networks for already derived accounts within the wallet', async () => {
@@ -449,37 +464,39 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for first derived account (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_SEED_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_0],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(2, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_SEED_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 17510,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
 
@@ -498,134 +515,336 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for first derived account (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_TESTNET_ID,
           ChainId.AVALANCHE_TEST_X,
           ChainId.AVALANCHE_TEST_P,
           ChainId.BITCOIN_TESTNET,
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ]),
-        [ACCOUNT_SEED_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_0],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(2, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_TESTNET_ID,
           ChainId.AVALANCHE_TEST_X,
           ChainId.AVALANCHE_TEST_P,
           ChainId.BITCOIN_TESTNET,
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ]),
-        [ACCOUNT_SEED_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
         totalBalanceInCurrency: 17510,
+        balanceChange: undefined,
+        percentageChange: undefined,
       });
     });
+  });
 
-    it('fetches XP balances for underived accounts with activity and do that with two batches (two different calls)', async () => {
-      const xpAddress = 'ledger-2-address';
-      const underivedAddresses = [xpAddress]; // One underived account with activity
-      underivedAddresses.length = 100;
-      underivedAddresses.fill(xpAddress, 1, 100); // plus 99 more to trigger batching
+  describe('when requested wallet has additional XP public keys for some accounts', () => {
+    const keys = ['00000001', '00000002'];
+    const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
+      type: 'address-pubkey',
+      key,
+      derivationPath: `m/44'/9000'/0'/0/${index + 1}`,
+      curve: 'secp256k1',
+    }));
 
-      mockAccountsWithActivity(underivedAddresses);
+    beforeEach(() => {
+      mockEnv(true);
+      mockAccounts();
+      mockBalances(true);
+      mockSecrets(undefined, additionalXPKeys); // We've got additional XP public keys
 
-      mockBalances(true, {
-        X: {
-          [`X-${xpAddress}`]: {
-            ...buildBalance('AVAX', 100),
-          },
-        },
-        P: {
-          [`P-${xpAddress}`]: {
-            ...buildBalance('AVAX', 900),
-          },
-        },
-      });
+      PROVIDER_XP.getAddress.mockImplementation(
+        (key) => `X-${hex.encode(Uint8Array.from(key))}`,
+      );
+    });
 
-      const response = await handleRequest('ledger');
+    it('fetches balances for the additional XP public keys', async () => {
+      const unresolvedAddresses = [
+        'avaxUnresolvedAddress-1',
+        'avaxUnresolvedAddress-2',
+      ];
+      mockAccountsWithActivity(unresolvedAddresses);
+
+      const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
+      expect(getAccountsWithActivity).not.toHaveBeenCalled();
 
-      // Fetching balances of derived accounts (all networks per account) and underived accounts two times because of batching
+      additionalXPKeys.forEach((key, index) => {
+        expect(PROVIDER_XP.getAddress).toHaveBeenNthCalledWith(
+          index + 1,
+          Buffer.from(hex.decode(key.key)),
+          'X',
+        );
+      });
+
+      // Expect calls for X/P balances of the addresses derived from the additional X/P keys
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledTimes(4);
-
-      // Call 1: All networks for derived accounts (native + ERC20 tokens)
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
-          ChainId.AVALANCHE_MAINNET_ID,
+      ).toHaveBeenCalledWith({
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
-          ChainId.BITCOIN,
-          ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_LEDGER_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
-
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
-          ChainId.AVALANCHE_MAINNET_ID,
-          ChainId.AVALANCHE_X,
-          ChainId.AVALANCHE_P,
-          ChainId.BITCOIN,
-          ChainId.ETHEREUM_HOMESTEAD,
-        ]),
-        [ACCOUNT_LEDGER_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
-
-      // Call 2: Fetching XP balances of underived accounts, without caching
-      // expecting two calls because of batching (64+36)
-      const expectedBatch = new Array(64).fill({
-        addressPVM: `P-${xpAddress}`,
-        addressAVM: `X-${xpAddress}`,
+        accounts: keys.map((key) => ({
+          addressPVM: `P-${key}`,
+          addressAVM: `X-${key}`,
+        })),
+        tokenTypes: [TokenType.NATIVE],
+        cacheResponse: false,
       });
-      const expectedBatch2 = new Array(36).fill({
-        addressPVM: `P-${xpAddress}`,
-        addressAVM: `X-${xpAddress}`,
+    });
+  });
+
+  describe('balance change and percentage change calculations', () => {
+    beforeEach(() => {
+      mockEnv(true);
+      mockAccounts();
+      mockSecrets(undefined); // No XP for simplicity
+    });
+
+    it('calculates positive balance change and percentage correctly', async () => {
+      // Current balance: 100, Price change: +10 => Previous balance: 90
+      // Percentage change: (10 / 90) * 100 = 11.11%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, 10), // balance: 100, priceChange: +10
+            },
+          },
+        },
       });
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        3,
-        [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-        expectedBatch,
-        [TokenType.NATIVE],
-        false,
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeCloseTo(11.11, 2);
+    });
+
+    it('calculates negative balance change and percentage correctly', async () => {
+      // Current balance: 100, Price change: -20 => Previous balance: 120
+      // Percentage change: (-20 / 120) * 100 = -16.67%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, -20), // balance: 100, priceChange: -20
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBe(-20);
+      expect(response.result?.percentageChange).toBeCloseTo(-16.67, 2);
+    });
+
+    it('aggregates price changes across multiple accounts correctly', async () => {
+      // Account 0: balance 100, change +10
+      // Account 1: balance 200, change -30
+      // Total: balance 300, change -20
+      // Previous balance: 320
+      // Percentage: (-20 / 320) * 100 = -6.25%
+      let callCount = 0;
+      balanceAggregatorService.getBalancesForNetworks.mockImplementation(
+        async () => {
+          callCount++;
+          if (callCount === 1) {
+            // First account
+            return {
+              nfts: {},
+              atomic: {},
+              tokens: {
+                [ChainId.AVALANCHE_MAINNET_ID]: {
+                  [ACCOUNT_SEED_0.addressC]: {
+                    ...buildBalance('AVAX', 100, 10),
+                  },
+                },
+              },
+            };
+          } else {
+            // Second account
+            return {
+              nfts: {},
+              atomic: {},
+              tokens: {
+                [ChainId.AVALANCHE_MAINNET_ID]: {
+                  [ACCOUNT_SEED_1.addressC]: {
+                    ...buildBalance('AVAX', 200, -30),
+                  },
+                },
+              },
+            };
+          }
+        },
       );
 
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        4,
-        [ChainId.AVALANCHE_P, ChainId.AVALANCHE_X],
-        expectedBatch2,
-        [TokenType.NATIVE],
-        false,
-      );
+      const response = await handleRequest('seedphrase');
 
-      expect(response.result).toEqual({
-        hasBalanceOnUnderivedAccounts: true,
-        totalBalanceInCurrency: 201440, // 200000 on underived accounts + 1440 on those mocked by default (already derived)
+      expect(response.result?.totalBalanceInCurrency).toBe(300);
+      expect(response.result?.balanceChange).toBe(-20);
+      expect(response.result?.percentageChange).toBeCloseTo(-6.25, 2);
+    });
+
+    it('returns undefined for balanceChange when priceChange is 0', async () => {
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, 0), // No price change
+            },
+          },
+        },
       });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBeUndefined();
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('returns undefined for balanceChange when no priceChanges data exists', async () => {
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100), // No priceChanges field
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(100);
+      expect(response.result?.balanceChange).toBeUndefined();
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('returns undefined for percentageChange when totalBalance is 0', async () => {
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 0, 10),
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(0);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('returns undefined for percentageChange when previous balance is 0 or negative', async () => {
+      // Current balance: 10, Price change: +10 => Previous balance: 0
+      // Cannot calculate percentage change from 0
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 10, 10),
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(10);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeUndefined();
+    });
+
+    it('aggregates price changes across multiple tokens in same account', async () => {
+      // AVAX: balance 100, change +10
+      // BTC: balance 50, change +5
+      // Total: balance 150, change +15
+      // Previous balance: 135
+      // Percentage: (15 / 135) * 100 = 11.11%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              ...buildBalance('AVAX', 100, 10),
+              ...buildBalance('BTC.b', 50, 5),
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(150);
+      expect(response.result?.balanceChange).toBe(15);
+      expect(response.result?.percentageChange).toBeCloseTo(11.11, 2);
+    });
+
+    it('handles mixed positive and negative price changes on same network', async () => {
+      // C-Chain AVAX: balance 100, change +20
+      // C-Chain USDC: balance 100, change -10
+      // Total: balance 200, change +10 (20 + (-10))
+      // Previous balance: 190 (200 - 10)
+      // Percentage: (10 / 190) * 100 = 5.26%
+      balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
+        nfts: {},
+        atomic: {},
+        tokens: {
+          [ChainId.AVALANCHE_MAINNET_ID]: {
+            [ACCOUNT_SEEDLESS.addressC]: {
+              AVAX: {
+                balanceInCurrency: 100,
+                priceChanges: { value: 20, percentage: 0 },
+              } as TokenWithBalance,
+              USDC: {
+                balanceInCurrency: 100,
+                priceChanges: { value: -10, percentage: 0 },
+              } as TokenWithBalance,
+            },
+          },
+        },
+      });
+
+      const response = await handleRequest('seedless');
+
+      expect(response.result?.totalBalanceInCurrency).toBe(200);
+      expect(response.result?.balanceChange).toBe(10);
+      expect(response.result?.percentageChange).toBeCloseTo(5.26, 2);
     });
   });
 });

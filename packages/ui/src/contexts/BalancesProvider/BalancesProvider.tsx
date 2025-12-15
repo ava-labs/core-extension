@@ -1,12 +1,19 @@
 import { Erc1155Token, Erc721Token } from '@avalabs/glacier-sdk';
 import {
   GetBalancesHandler,
+  GetTokenPriceByAddressHandler,
   RefreshNftMetadataHandler,
   StartBalancesPollingHandler,
   StopBalancesPollingHandler,
   UpdateBalancesForNetworkHandler,
 } from '@core/service-worker';
-import { Balances, ExtensionRequest, TotalPriceChange } from '@core/types';
+import {
+  AtomicBalances,
+  Balances,
+  ExtensionRequest,
+  TotalAtomicBalanceForAccount,
+  TotalPriceChange,
+} from '@core/types';
 import { merge } from 'lodash';
 import {
   createContext,
@@ -33,6 +40,7 @@ import { useAccountsContext } from '../AccountsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
+import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -40,6 +48,7 @@ export interface BalancesState {
   loading: boolean;
   nfts?: Balances<NftTokenWithBalance>;
   tokens?: Balances;
+  atomic?: AtomicBalances;
   cached?: boolean;
   error?: string;
 }
@@ -65,6 +74,7 @@ type BalanceAction =
         balances?: {
           nfts: Balances<NftTokenWithBalance>;
           tokens: Balances;
+          atomic: AtomicBalances;
         };
         isBalancesCached?: boolean;
       };
@@ -79,6 +89,12 @@ type BalanceAction =
       };
     };
 
+export type AccountAtomicBalanceState =
+  Partial<TotalAtomicBalanceForAccount> & {
+    isLoading: boolean;
+    hasErrorOccurred: boolean;
+  };
+
 const BalancesContext = createContext<{
   balances: BalancesState;
   refreshNftMetadata(
@@ -86,7 +102,10 @@ const BalancesContext = createContext<{
     chainId: string,
     tokenId: string,
   ): Promise<void>;
-  getTokenPrice(addressOrSymbol: string): number | undefined;
+  getTokenPrice(
+    addressOrSymbol: string,
+    lookupNetwork?: NetworkWithCaipId,
+  ): Promise<number | undefined>;
   updateBalanceOnNetworks: (
     accounts: Account[],
     chainIds?: number[],
@@ -101,9 +120,12 @@ const BalancesContext = createContext<{
         priceChange: TotalPriceChange;
       }
     | undefined;
+  getAtomicBalance: (
+    accountId: string | undefined,
+  ) => AccountAtomicBalanceState | undefined;
 }>({
   balances: { loading: true },
-  getTokenPrice() {
+  async getTokenPrice() {
     return undefined;
   },
   async refreshNftMetadata() {},
@@ -113,6 +135,9 @@ const BalancesContext = createContext<{
   isTokensCached: true,
   totalBalance: undefined,
   getTotalBalance() {
+    return undefined;
+  },
+  getAtomicBalance() {
     return undefined;
   },
 });
@@ -129,9 +154,14 @@ function balancesReducer(
         return { ...state };
       }
 
+      // Only set loading to false when we actually have token data because the cached data might be empty for a new user
+      const hasTokenData =
+        action.payload.balances?.tokens &&
+        Object.keys(action.payload.balances.tokens).length > 0;
+
       return {
         ...state,
-        loading: false,
+        loading: hasTokenData ? false : state.loading,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         tokens: merge({}, state.tokens, action.payload.balances?.tokens),
@@ -167,16 +197,21 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     cached: true,
   });
 
+  const [accountAtomicBalances, setAccountAtomicBalances] = useState<
+    Record<string, AccountAtomicBalanceState>
+  >({});
+
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
 
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
       tokenTypes.reduce<BalanceSubscribers>(
-        (newSubscribers, tokenType) => ({
-          ...newSubscribers,
-          [tokenType]: (newSubscribers[tokenType] ?? 0) + 1,
-        }),
-        oldSubscribers,
+        (newSubscribers, tokenType) => {
+          newSubscribers[tokenType] ??= 0;
+          newSubscribers[tokenType]++;
+          return newSubscribers;
+        },
+        { ...oldSubscribers },
       ),
     );
   }, []);
@@ -184,11 +219,15 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   const unregisterSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
       tokenTypes.reduce(
-        (newSubscribers, tokenType) => ({
-          ...newSubscribers,
-          [tokenType]: Math.max((newSubscribers[tokenType] ?? 0) - 1, 0),
-        }),
-        oldSubscribers,
+        (newSubscribers, tokenType) => {
+          newSubscribers[tokenType] ??= 0;
+          newSubscribers[tokenType] = Math.max(
+            newSubscribers[tokenType] - 1,
+            0,
+          );
+          return newSubscribers;
+        },
+        { ...oldSubscribers },
       ),
     );
   }, []);
@@ -226,10 +265,65 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     });
   }, [request]);
 
+  const fetchAtomicBalanceForAccount = useCallback(
+    async (accountId: string) => {
+      setAccountAtomicBalances((prevState) => ({
+        ...prevState,
+        [accountId]: {
+          ...prevState[accountId],
+          hasErrorOccurred: false,
+          isLoading: true,
+        },
+      }));
+      request<GetTotalAtomicFundsForAccountHandler>({
+        method: ExtensionRequest.GET_ATOMIC_FUNDS_FOR_ACCOUNT,
+        params: {
+          accountId,
+        },
+      })
+        .then((atomicBalance) => {
+          if (!atomicBalance) {
+            setAccountAtomicBalances((prevState) => ({
+              ...prevState,
+              [accountId]: {
+                ...prevState[accountId],
+                hasErrorOccurred: false,
+                isLoading: false,
+              },
+            }));
+            return;
+          }
+
+          setAccountAtomicBalances((prevState) => ({
+            ...prevState,
+            [accountId]: {
+              balanceDisplayValue: atomicBalance.sum,
+              balanceInCurrency: atomicBalance.sumInCurrency,
+              hasErrorOccurred: false,
+              isLoading: false,
+            },
+          }));
+        })
+        .catch((_err) => {
+          setAccountAtomicBalances((prevState) => ({
+            ...prevState,
+            [accountId]: {
+              ...prevState[accountId],
+              hasErrorOccurred: true,
+              isLoading: false,
+            },
+          }));
+        });
+    },
+    [request],
+  );
+
   useEffect(() => {
     if (!activeAccount) {
       return;
     }
+
+    fetchAtomicBalanceForAccount(activeAccount.id);
 
     const tokenTypes = Object.entries(subscribers)
       .filter(([, subscriberCount]) => subscriberCount > 0)
@@ -262,6 +356,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     network?.chainId,
     enabledNetworkIds,
     subscribers,
+    fetchAtomicBalanceForAccount,
   ]);
 
   const updateBalanceOnNetworks = useCallback(
@@ -310,11 +405,20 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       const networks = chainIds.map(getNetwork).filter(isNotNullish);
 
       if (balances.tokens && network?.chainId) {
-        return calculateTotalBalance(
-          getAccount(addressC),
+        const cChainAccount = getAccount(addressC);
+        const atomicBalanceInCurrency =
+          accountAtomicBalances[cChainAccount?.id ?? '']?.balanceInCurrency ??
+          0;
+
+        const totalBalance = calculateTotalBalance(
+          cChainAccount,
           networks,
           balances.tokens,
         );
+        return {
+          ...totalBalance,
+          sum: (totalBalance.sum ?? 0) + atomicBalanceInCurrency,
+        };
       }
 
       return undefined;
@@ -326,11 +430,23 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       network?.chainId,
       network?.isTestnet,
       balances.tokens,
+      accountAtomicBalances,
     ],
   );
 
+  const getAtomicBalance = useCallback(
+    (accountId: string | undefined) => {
+      if (!accountId) {
+        return undefined;
+      }
+
+      return accountAtomicBalances[accountId];
+    },
+    [accountAtomicBalances],
+  );
+
   const getTokenPrice = useCallback(
-    (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
+    async (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
         return;
       }
@@ -356,9 +472,31 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         // Native token symbols are not lower-cased by the balance services.
         accountBalances?.[addressOrSymbol.toLowerCase()];
 
-      return token?.priceInCurrency;
+      if (token?.priceInCurrency !== undefined) {
+        return token.priceInCurrency;
+      }
+
+      // Fallback: fetch price by address if we have the required coingecko info
+      const coingeckoInfo = tokenNetwork.pricingProviders?.coingecko;
+      if (coingeckoInfo?.assetPlatformId && coingeckoInfo?.nativeTokenId) {
+        try {
+          const prices = await request<GetTokenPriceByAddressHandler>({
+            method: ExtensionRequest.TOKEN_PRICE_GET_BY_ADDRESS,
+            params: [
+              addressOrSymbol,
+              coingeckoInfo.assetPlatformId,
+              coingeckoInfo.nativeTokenId,
+            ],
+          });
+          return prices[addressOrSymbol.toLowerCase()];
+        } catch {
+          return undefined;
+        }
+      }
+
+      return undefined;
     },
-    [balances.tokens, activeAccount, network],
+    [balances.tokens, activeAccount, network, request],
   );
 
   return (
@@ -375,6 +513,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           ? getTotalBalance(activeAccount.addressC)
           : undefined,
         getTotalBalance,
+        getAtomicBalance,
       }}
     >
       {children}

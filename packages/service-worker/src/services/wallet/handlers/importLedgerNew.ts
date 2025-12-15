@@ -71,6 +71,7 @@ export class ImportLedgerHandlerNew implements HandlerType {
         : await this.walletService.addPrimaryWallet({
             secretType,
             derivationPathSpec: DerivationPath.LedgerLive,
+            extendedPublicKeys: [],
             publicKeys: addressPublicKeys,
             name,
           });

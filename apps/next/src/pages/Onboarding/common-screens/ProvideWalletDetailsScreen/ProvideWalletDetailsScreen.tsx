@@ -1,9 +1,9 @@
-import { useTranslation } from 'react-i18next';
 import { Stack, styled } from '@avalabs/k2-alpine';
 import { FC, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { useKeyboardShortcuts } from '@core/ui';
 import { isNewsletterConfigured } from '@core/common';
+import { useKeyboardShortcuts } from '@core/ui';
 
 import {
   FullscreenModalActions,
@@ -15,11 +15,11 @@ import {
 import { OnboardingScreenProps } from '@/pages/Onboarding/types';
 
 import { NavButton } from '../../components/NavButton';
-import { PasswordSection } from './components/PasswordSection';
 import { AirdropSection } from './components/AirdropSection';
-import { WalletNameSection } from './components/WalletNameSection';
-import { TermsAgreementSection } from './components/TermsAgreementSection';
 import { MarketingAgreementSection } from './components/MarketingAgreementSection';
+import { PasswordSection } from './components/PasswordSection';
+import { TermsAgreementSection } from './components/TermsAgreementSection';
+import { WalletNameSection } from './components/WalletNameSection';
 
 type SectionsValidity = {
   password: boolean;
@@ -68,17 +68,16 @@ export const ProvideWalletDetailsScreen: FC<
 
   const isFormValid = Object.values(sectionsValidity).every(Boolean);
 
-  const handleNextClick = () => onNext();
-
   const keyboardHandlers = useKeyboardShortcuts({
-    Enter: isFormValid ? handleNextClick : undefined,
+    Enter: isFormValid ? onNext : undefined,
   });
 
   return (
     <>
       <Stack
+        pb={1.5}
+        overflow="auto"
         sx={{
-          overflow: 'auto',
           '&::-webkit-scrollbar': {
             display: 'none',
           },
@@ -88,42 +87,31 @@ export const ProvideWalletDetailsScreen: FC<
         <FullscreenModalTitle>
           {t('Fill out your wallet details')}
         </FullscreenModalTitle>
-        <FullscreenModalDescription>
+        <FullscreenModalDescription maxWidth={360}>
           {t(
             'A few more details are needed before getting any further with your wallet creation',
           )}
         </FullscreenModalDescription>
-        <FullscreenModalContent sx={{ overflow: 'unset' }}>
-          <Stack
-            sx={{ flexGrow: 1, height: 1, justifyContent: 'space-between' }}
-          >
-            <Stack
-              sx={{
-                gap: 1.5,
-                flexGrow: 1,
-              }}
-            >
-              <WalletNameSection />
-              <AirdropSection />
-              <PasswordSection onValidityChange={onPasswordValidityChange} />
-              {isNewsletterConfigured() && (
-                <MarketingAgreementSection
-                  onValidityChange={onNewsletterValidityChange}
-                />
-              )}
-            </Stack>
-          </Stack>
+        <FullscreenModalContent
+          sx={{ overflow: 'unset' }}
+          gap={2}
+          justifyContent="space-between"
+        >
+          <WalletNameSection />
+          <PasswordSection onValidityChange={onPasswordValidityChange} />
+          <AirdropSection />
+          {isNewsletterConfigured() && (
+            <MarketingAgreementSection
+              onValidityChange={onNewsletterValidityChange}
+            />
+          )}
         </FullscreenModalContent>
       </Stack>
-      <FooterSection sx={{ py: 1.5 }} {...keyboardHandlers}>
+      <FooterSection py={2} {...keyboardHandlers}>
         <TermsAgreementSection onValidityChange={onTermsValidityChange} />
       </FooterSection>
       <FullscreenModalActions>
-        <NavButton
-          disabled={!isFormValid}
-          color="primary"
-          onClick={handleNextClick}
-        >
+        <NavButton disabled={!isFormValid} color="primary" onClick={onNext}>
           {t('Next')}
         </NavButton>
       </FullscreenModalActions>

@@ -1,10 +1,11 @@
 import {
   Box,
-  ChevronRightIcon,
   Stack,
   StackProps,
   styled,
   Typography,
+  ArrowRightIcon,
+  useTheme,
 } from '@avalabs/k2-alpine';
 
 import { Card } from '@/components/Card';
@@ -18,6 +19,7 @@ export function SearchableSelectTrigger<T>({
   renderValue,
   onClick,
 }: SearchableSelectTriggerProps<T>) {
+  const theme = useTheme();
   return (
     <Card>
       <Container ref={ref} onClick={onClick}>
@@ -26,7 +28,7 @@ export function SearchableSelectTrigger<T>({
           {renderValue(value)}
         </LabelAndValueWrapper>
         <Box display="flex" flexShrink={0} lineHeight={1}>
-          <ChevronRightIcon size={20} />
+          <ArrowRightIcon size={20} color={theme.palette.text.secondary} />
         </Box>
       </Container>
     </Card>

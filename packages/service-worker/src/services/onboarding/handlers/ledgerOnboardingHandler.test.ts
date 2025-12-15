@@ -70,7 +70,7 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     setAnalyticsConsent: jest.fn(),
   } as unknown as SettingsService;
   const networkServiceMock = {
-    addFavoriteNetwork: jest.fn(),
+    enableNetwork: jest.fn(),
     getAvalancheNetwork: jest.fn(),
     setNetwork: jest.fn(),
   } as unknown as NetworkService;
@@ -253,45 +253,38 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
       'password',
     );
     expect(walletServiceMock.init).toHaveBeenCalledWith({
+      extendedPublicKeys: [],
       publicKeys: [
         {
           curve: 'secp256k1',
           key: 'evm1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           type: 'address-pubkey',
         },
         {
           curve: 'secp256k1',
           key: 'xp1',
-          derivationPath: getAddressDerivationPath(
-            0,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
+          derivationPath: getAddressDerivationPath(0, 'AVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           type: 'address-pubkey',
         },
         {
           curve: 'secp256k1',
           key: 'evm2',
-          derivationPath: getAddressDerivationPath(
-            1,
-            DerivationPath.LedgerLive,
-            'EVM',
-          ),
+          derivationPath: getAddressDerivationPath(1, 'EVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           type: 'address-pubkey',
         },
         {
           curve: 'secp256k1',
           key: 'xp2',
-          derivationPath: getAddressDerivationPath(
-            1,
-            DerivationPath.LedgerLive,
-            'AVM',
-          ),
+          derivationPath: getAddressDerivationPath(1, 'AVM', {
+            pathSpec: DerivationPath.LedgerLive,
+          }),
           type: 'address-pubkey',
         },
       ],

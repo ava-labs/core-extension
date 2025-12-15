@@ -1,14 +1,15 @@
 import { useTranslation } from 'react-i18next';
-import { Box, ChevronRightIcon, Typography } from '@avalabs/k2-alpine';
+import { Box, ArrowRightIcon, Typography, useTheme } from '@avalabs/k2-alpine';
 
 export const TokenSelectPrompt = () => {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   return (
     <>
       <Typography variant="subtitle3">{t('Select token')}</Typography>
-      <Box width={16} height={16} display="flex" flexShrink={0}>
-        <ChevronRightIcon size={16} />
+      <Box width={20} height={20} display="flex" flexShrink={0}>
+        <ArrowRightIcon size={20} color={theme.palette.text.secondary} />
       </Box>
     </>
   );

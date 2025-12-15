@@ -5,6 +5,7 @@ import {
   ListItemText,
   Switch,
 } from '@avalabs/k2-alpine';
+import { useAnalyticsContext } from '@core/ui';
 import { NetworkAvatar } from '../NetworkAvatar/NetworkAvatar';
 
 type NetworkToggleListItemProps = {
@@ -22,8 +23,17 @@ export const NetworkToggleListItem = ({
   onToggle,
   onClick,
 }: NetworkToggleListItemProps) => {
+  const { capture } = useAnalyticsContext();
+
   return (
-    <ListItem sx={{ px: 0 }} onClick={onClick} style={{ cursor: 'pointer' }}>
+    <ListItem
+      sx={{ px: 0 }}
+      onClick={() => {
+        capture('NetworkDetailsClicked', { chainId: network.chainId });
+        onClick();
+      }}
+      style={{ cursor: 'pointer' }}
+    >
       <ListItemIcon>
         <NetworkAvatar
           network={network}
@@ -31,13 +41,15 @@ export const NetworkToggleListItem = ({
         />
       </ListItemIcon>
       <ListItemText primary={network.chainName} />
-      <Switch
-        size="small"
-        checked={isEnabled}
-        disabled={isDefault}
-        onChange={onToggle}
-        onClick={(e) => e.stopPropagation()}
-      />
+      {isDefault ? null : (
+        <Switch
+          size="small"
+          checked={isEnabled}
+          disabled={isDefault}
+          onChange={onToggle}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
     </ListItem>
   );
 };

@@ -11,9 +11,10 @@ import {
   PvmCapableAccount,
 } from '@core/types';
 import { useConnectionContext, useWalletContext } from '@core/ui';
-import { isValidPvmAddress } from '@core/common';
+import { isValidPvmAddress, stripAddressPrefix } from '@core/common';
 
 import { buildPChainSendTx } from '@/lib/buildPChainSendTx';
+import { useGetXPAddresses } from '@/hooks/useGetXPAddresses';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
 
 import { useTransactionCallbacks } from './useTransactionCallbacks';
@@ -36,8 +37,9 @@ export const usePChainSend = ({
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();
+  const getXPAddressesFetcher = useGetXPAddresses();
 
-  const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
+  const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -77,21 +79,39 @@ export const usePChainSend = ({
     setIsSending(true);
 
     try {
+      const addresses = await getXPAddressesFetcher('PVM')();
       const unsignedTx = await buildPChainSendTx({
         isLedgerWallet,
         account: from,
         amount,
         to,
         network,
+        addresses,
       });
       const manager = utils.getManagerForVM(unsignedTx.getVM());
       const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
+      const utxosAddrs = new Set(
+        unsignedTx.utxos.flatMap((utxo) =>
+          utxo.getOutputOwners().addrs.map(String),
+        ),
+      );
+      const externalIndices = addresses.externalAddresses.reduce(
+        (indices, addy) => {
+          if (utxosAddrs.has(stripAddressPrefix(addy.address))) {
+            indices.push(addy.index);
+          }
+
+          return indices;
+        },
+        [] as number[],
+      );
       const params = {
         transactionHex: Buffer.from(unsignedTx.toBytes()).toString('hex'),
         chainAlias: 'P',
         utxos: unsignedTx.utxos.map((utxo) =>
           utils.bufferToHex(utxo.toBytes(codec)),
         ),
+        externalIndices,
       };
 
       const hash = await request(
@@ -103,7 +123,11 @@ export const usePChainSend = ({
           scope: network.caipId,
         },
       );
-      onSendSuccess(hash);
+
+      // Transaction status will be handled by the TransactionStatusProvider
+      // so we don't need to listen for events here
+
+      return hash;
     } catch (err) {
       console.error(err);
       onSendFailure(err);
@@ -115,12 +139,12 @@ export const usePChainSend = ({
     to,
     request,
     t,
-    onSendSuccess,
     onSendFailure,
     isLedgerWallet,
     from,
     amount,
     network,
+    getXPAddressesFetcher,
   ]);
 
   return {

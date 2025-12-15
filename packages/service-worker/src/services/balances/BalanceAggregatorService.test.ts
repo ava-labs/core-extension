@@ -4,8 +4,10 @@ import { Network, NetworkToken, NetworkVMType } from '@avalabs/core-chains-sdk';
 import {
   Account,
   AccountType,
+  BalanceAggregatorServiceErrors,
   BALANCES_CACHE_KEY,
   BalanceServiceEvents,
+  FeatureGates,
 } from '@core/types';
 import { StorageService } from '../storage/StorageService';
 import { SettingsService } from '../settings/SettingsService';
@@ -17,10 +19,20 @@ import {
   NftTokenWithBalance,
   TokenType,
 } from '@avalabs/vm-module-types';
+import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
+import { setErrorForRequestInSessionStorage } from '@core/common';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
 jest.mock('../storage/StorageService');
+jest.mock('@core/common', () => {
+  const actualImport = jest.requireActual('@core/common');
+  return {
+    ...actualImport,
+    setErrorForRequestInSessionStorage: jest.fn(),
+  };
+});
+jest.mock('~/api-clients/balance-api');
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   global.fetch = jest.fn().mockImplementation(
@@ -31,6 +43,13 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   );
   const balancesServiceMock = {
     getBalancesForNetwork: jest.fn(),
+  } as any;
+
+  const featureFlagServiceMock = {
+    featureFlags: {},
+  } as any;
+  const mockSecretsService = {
+    getAvalancheExtendedPublicKey: jest.fn(),
   } as any;
 
   const settingsServiceMock = {
@@ -90,6 +109,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     },
     getFavoriteNetworks: () => [2, 3, 4],
   } as any;
+  const addressResolverMock = {} as any;
 
   const account1: Account = {
     id: 'account1-id',
@@ -205,15 +225,18 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         lockService,
         storageService,
         settingsServiceMock,
+        featureFlagServiceMock,
+        mockSecretsService,
+        addressResolverMock,
       );
     });
 
     it('calls BalancesService.getBalancesForNetwork() with proper params', async () => {
-      await service.getBalancesForNetworks(
-        [network1.chainId],
-        [account1],
-        [TokenType.NATIVE],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE],
+      });
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(1);
       expect(balancesServiceMock.getBalancesForNetwork).toBeCalledWith(
         network1,
@@ -240,11 +263,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         });
 
       // Get balances for the `account2` so they get cached
-      await service.getBalancesForNetworks(
-        [network1.chainId],
-        [account2],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account2],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+      });
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
         1,
@@ -259,11 +282,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       });
 
       // Now get the balances for the first account and verify the `account2` balances are kept in cache
-      await service.getBalancesForNetworks(
-        [network1.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+      });
 
       expect(balancesServiceMock.getBalancesForNetwork).toHaveBeenCalledTimes(
         2,
@@ -281,12 +304,12 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
 
     it('can fetch the balance for multiple networks and one account', async () => {
-      const balances = await service.getBalancesForNetworks(
-        [network1.chainId, network2.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
-      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
+      const balances = await service.getBalancesForNetworks({
+        chainIds: [network1.chainId, network2.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
+      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(4);
       const expected = {
         tokens: {
           [network1.chainId]: {
@@ -296,6 +319,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
           },
           [network2.chainId]: balanceForNetwork2,
         },
+        atomic: {},
         nfts: {
           [network1.chainId]: {
             [account1.addressC]: {
@@ -311,13 +335,14 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     });
 
     it('fetches the balances for multiple networks and accounts', async () => {
-      const result = await service.getBalancesForNetworks(
-        [network1.chainId, network2.chainId],
-        [account1, account2],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      const result = await service.getBalancesForNetworks({
+        chainIds: [network1.chainId, network2.chainId],
+        accounts: [account1, account2],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
 
       const expected = {
+        atomic: {},
         tokens: {
           [network1.chainId]: balanceForTwoAccounts,
           [network2.chainId]: balanceForTwoAccounts,
@@ -353,11 +378,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         ),
       );
 
-      const updatePromise = service.getBalancesForNetworks(
-        [network1.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      const updatePromise = service.getBalancesForNetworks({
+        chainIds: [network1.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
 
       // eslint-disable-next-line
       // @ts-expect-error
@@ -375,13 +400,13 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const eventListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, eventListener);
 
-      await service.getBalancesForNetworks(
-        [network1.chainId, network2.chainId],
-        [account1],
-        [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
-      );
+      await service.getBalancesForNetworks({
+        chainIds: [network1.chainId, network2.chainId],
+        accounts: [account1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20, TokenType.ERC721],
+      });
 
-      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(2);
+      expect(balancesServiceMock.getBalancesForNetwork).toBeCalledTimes(4);
       const expectedTokens = {
         [network1.chainId]: {
           [account1.addressC]: {
@@ -405,6 +430,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       expect(eventListener).toHaveBeenCalledTimes(1);
       expect(eventListener).toHaveBeenCalledWith({
         balances: {
+          atomic: {},
           tokens: expectedTokens,
           nfts: {
             [network1.chainId]: {
@@ -432,6 +458,9 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         lockService,
         storageService,
         settingsServiceMock,
+        featureFlagServiceMock,
+        mockSecretsService,
+        addressResolverMock,
       );
     });
 
@@ -466,7 +495,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         balances: cachedBalances,
       });
 
-      await service.getBalancesForNetworks([network2.chainId], [account1], []);
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId],
+        accounts: [account1],
+        tokenTypes: [],
+      });
 
       await service.onUnlock();
 
@@ -506,7 +539,11 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const updatesListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, updatesListener);
 
-      await service.getBalancesForNetworks([network2.chainId], [account2], []);
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId],
+        accounts: [account2],
+        tokenTypes: [],
+      });
       await new Promise(process.nextTick);
 
       // The fresh balances include new information, therefore an event should be emitted.
@@ -536,13 +573,60 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const updatesListener = jest.fn();
       service.addListener(BalanceServiceEvents.UPDATED, updatesListener);
 
-      await service.getBalancesForNetworks([network2.chainId], [account1], []);
+      await service.getBalancesForNetworks({
+        chainIds: [network2.chainId],
+        accounts: [account1],
+        tokenTypes: [],
+      });
       await new Promise(process.nextTick);
 
       // Cached & fresh balances as a whole are different,
       // but the fresh balances do not include any new information,
       // therefore no event should be emitted.
       expect(updatesListener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('error scenarios', () => {
+    let service: BalanceAggregatorService;
+
+    beforeEach(() => {
+      service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        settingsServiceMock,
+        {
+          featureFlags: {
+            [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+          },
+        } as any,
+        mockSecretsService,
+        addressResolverMock,
+      );
+    });
+
+    it('Should save to session storage that there was an error if for a given wallet there is an error with balance service', async () => {
+      const walletId = 'wallet-id';
+
+      jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
+        throw new Error('So long and thanks for all the fish');
+      });
+
+      await service.getBalancesForNetworks({
+        chainIds: [43114],
+        accounts: [account1],
+        tokenTypes: [TokenType.ERC20],
+        requestId: walletId,
+      });
+
+      expect(
+        jest.mocked(setErrorForRequestInSessionStorage),
+      ).toHaveBeenCalledWith(
+        walletId,
+        BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
+      );
     });
   });
 });

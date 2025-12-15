@@ -1,6 +1,6 @@
 import { Card, Divider, LedgerIcon, List, toast } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useFeatureFlagContext } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
@@ -9,11 +9,13 @@ import { MdKey, MdList, MdTopic } from 'react-icons/md';
 import { SiWalletconnect } from 'react-icons/si';
 import { useHistory } from 'react-router-dom';
 import { AccountListItem } from './components/AccountListItem';
+import { FeatureGates } from '@core/types';
 
 const underDevelopmentClick = () => toast.error('Under development');
 
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
 
   const { push } = useHistory();
@@ -50,22 +52,37 @@ export const AddOrConnectWallet: FC = () => {
             Icon={MdList}
             primary={t('Import a recovery phrase')}
             secondary={t('Enter your recovery phrase to import a wallet')}
-            onClick={() => openFullscreenTab('import-wallet/seedphrase')}
+            onClick={() => {
+              capture('AddWalletWithSeedphrase_Clicked');
+              openFullscreenTab('import-wallet/seedphrase');
+              window.close();
+            }}
           />
           <Divider />
           <AccountListItem
             Icon={LedgerIcon}
             primary={t('Import Ledger wallet')}
             secondary={t('Use Ledger to connect')}
-            onClick={() => openFullscreenTab('import-wallet/ledger')}
+            onClick={() => {
+              capture('AddWalletWithLedger_Clicked');
+              openFullscreenTab('import-wallet/ledger');
+              window.close();
+            }}
           />
-          <Divider />
-          <AccountListItem
-            Icon={SiWalletconnect}
-            primary={t('Connect with WalletConnect')}
-            secondary={t('Scan QR code to connect your wallet')}
-            onClick={underDevelopmentClick}
-          />
+          {isFlagEnabled(FeatureGates.IMPORT_WALLET_CONNECT) && (
+            <>
+              <Divider />
+              <AccountListItem
+                Icon={SiWalletconnect}
+                primary={t('Connect with WalletConnect')}
+                secondary={t('Scan QR code to connect your wallet')}
+                onClick={() => {
+                  capture('ImportWithWalletConnect_Clicked');
+                  underDevelopmentClick();
+                }}
+              />
+            </>
+          )}
           <Divider />
           <AccountListItem
             Icon={MdTopic}
@@ -73,13 +90,20 @@ export const AddOrConnectWallet: FC = () => {
             secondary={t('Upload a JSON file to import')}
             onClick={goToImportKeystoreFileScreen}
           />
-          <Divider />
-          <AccountListItem
-            Icon={FaSquareCaretUp}
-            primary={t('Import with Fireblocks account')}
-            secondary={t('Manually enter your private key to import')}
-            onClick={underDevelopmentClick}
-          />
+          {isFlagEnabled(FeatureGates.IMPORT_FIREBLOCKS) && (
+            <>
+              <Divider />
+              <AccountListItem
+                Icon={FaSquareCaretUp}
+                primary={t('Import with Fireblocks account')}
+                secondary={t('Manually enter your private key to import')}
+                onClick={() => {
+                  capture('ImportWithFireblocks_Clicked');
+                  underDevelopmentClick();
+                }}
+              />
+            </>
+          )}
         </List>
       </Card>
     </Page>

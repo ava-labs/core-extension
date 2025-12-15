@@ -1,12 +1,23 @@
 import {
   DAppRequestHandler,
   DAppProviderRequest,
-  AVALANCHE_BASE_DERIVATION_PATH,
+  SecretType,
 } from '@core/types';
 import { injectable } from 'tsyringe';
 import { AccountsService } from '../AccountsService';
 import { SecretsService } from '../../secrets/SecretsService';
-import { getExtendedPublicKey } from '~/services/secrets/utils';
+import {
+  getExtendedPublicKey,
+  isPrimaryWalletSecrets,
+} from '~/services/secrets/utils';
+import {
+  CoreAccountType,
+  CoreImportedAccount,
+  CorePrimaryAccount,
+  WalletType,
+} from '@avalabs/types';
+import { AddressResolver } from '~/services/secrets/AddressResolver';
+import { getAvalancheExtendedKeyPath } from '@core/common';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {
@@ -15,6 +26,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   constructor(
     private accountsService: AccountsService,
     private secretsService: SecretsService,
+    private addressResolver: AddressResolver,
   ) {
     super();
   }
@@ -22,7 +34,7 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
   handleAuthenticated = async ({ request }) => {
     const accounts = await this.accountsService.getAccounts();
 
-    const mappedPrimaryAccounts = await Promise.all(
+    const mappedPrimaryAccounts: CorePrimaryAccount[][] = await Promise.all(
       Object.keys(accounts.primary).map(async (walletId) => {
         const walletAccounts = accounts.primary[walletId];
         if (!walletAccounts) {
@@ -30,41 +42,74 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
         }
 
         const secrets = await this.secretsService.getSecretsById(walletId);
-        const xpubXP =
-          'extendedPublicKeys' in secrets
-            ? getExtendedPublicKey(
-                secrets.extendedPublicKeys,
-                AVALANCHE_BASE_DERIVATION_PATH,
-                'secp256k1',
-              )
-            : null;
 
-        return walletAccounts.map((acc) => {
-          const active = accounts.active?.id === acc.id;
-          return {
-            ...acc,
-            walletType: secrets.secretType,
-            walletName: 'name' in secrets ? secrets.name : undefined,
-            xpubXP: xpubXP?.key,
-            active,
-          };
-        });
+        if (!isPrimaryWalletSecrets(secrets)) {
+          return [];
+        }
+
+        return await Promise.all(
+          walletAccounts.map(async (acc) => {
+            // No need to fetch XP addresses if we have the xpubXP and if we don't have the xpubXP,
+            const xpubXP =
+              'extendedPublicKeys' in secrets
+                ? getExtendedPublicKey(
+                    secrets.extendedPublicKeys,
+                    getAvalancheExtendedKeyPath(acc.index),
+                    'secp256k1',
+                  )
+                : null;
+            // the getXpAddressesForAccountIndex will only return the legacy X/P addresses for public
+            // keys that have already been manually derived (so always external addresses only).
+            const xpAddresses = xpubXP
+              ? { externalAddresses: [], internalAddresses: [] }
+              : await this.addressResolver.getXPAddressesForAccountIndex(
+                  secrets.id,
+                  acc.index,
+                  'PVM',
+                );
+
+            const primaryAccount: CorePrimaryAccount = {
+              active: accounts.active?.id === acc.id,
+              addressC: acc.addressC,
+              addressBTC: acc.addressBTC,
+              addressAVM: acc.addressAVM,
+              addressPVM: acc.addressPVM,
+              addressCoreEth: acc.addressCoreEth!,
+              addressSVM: acc.addressSVM,
+              name: acc.name,
+              type: CoreAccountType.PRIMARY,
+              id: acc.id,
+              xpAddresses: xpAddresses.externalAddresses,
+              xpubXP: xpubXP?.key,
+              index: acc.index,
+              walletType: this.#mapSecretTypeToWalletType(secrets.secretType),
+              walletId,
+              walletName: 'name' in secrets ? secrets.name : '',
+            };
+
+            return primaryAccount;
+          }),
+        );
       }),
     );
 
-    const mappedImportedAccounts = await Promise.all(
-      Object.values(accounts.imported).map(async (importedAccount) => {
-        const secrets = await this.secretsService.getImportedAccountSecrets(
-          importedAccount.id,
-        );
-        const active = accounts.active?.id === importedAccount.id;
-        return {
-          ...importedAccount,
-          walletType: secrets.secretType,
-          walletName: undefined,
-          xpubXP: undefined,
-          active,
+    const mappedImportedAccounts: CoreImportedAccount[] = await Promise.all(
+      Object.values(accounts.imported).map(async (acc) => {
+        const importedAccount: CoreImportedAccount = {
+          id: acc.id,
+          active: accounts.active?.id === acc.id,
+          addressC: acc.addressC,
+          addressBTC: acc.addressBTC ?? '',
+          addressAVM: acc.addressAVM,
+          addressPVM: acc.addressPVM,
+          addressCoreEth: acc.addressCoreEth ?? '',
+          addressSVM: acc.addressSVM,
+          name: acc.name,
+          type: CoreAccountType.IMPORTED,
+          xpAddresses: [],
         };
+
+        return importedAccount;
       }),
     );
 
@@ -79,5 +124,23 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
       ...request,
       error: 'account not connected',
     };
+  };
+
+  #mapSecretTypeToWalletType = (secretType: SecretType) => {
+    switch (secretType) {
+      case SecretType.Mnemonic:
+        return WalletType.Mnemonic;
+      case SecretType.Ledger:
+        return WalletType.Ledger;
+      case SecretType.LedgerLive:
+        return WalletType.LedgerLive;
+      case SecretType.Keystone:
+      case SecretType.Keystone3Pro:
+        return WalletType.Keystone;
+      case SecretType.Seedless:
+        return WalletType.Seedless;
+      default:
+        throw new Error(`Unknown primary account secret type: ${secretType}`);
+    }
   };
 }
