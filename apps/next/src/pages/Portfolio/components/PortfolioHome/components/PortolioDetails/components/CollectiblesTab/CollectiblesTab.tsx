@@ -1,6 +1,11 @@
 import { Box, CircularProgress, Stack } from '@avalabs/k2-alpine';
-import { NftTokenWithBalance } from '@avalabs/vm-module-types';
-import { useAccountsContext, useNetworkContext, useNfts } from '@core/ui';
+import { NftTokenWithBalance, TokenType } from '@avalabs/vm-module-types';
+import {
+  useAccountsContext,
+  useLiveBalance,
+  useNetworkContext,
+  useNfts,
+} from '@core/ui';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -27,8 +32,9 @@ export type FormattedCollectible = NftTokenWithBalance & {
   unreachable?: boolean;
   coreCollectibleUrl?: string;
 };
-
+const POLLED_BALANCES: TokenType[] = [TokenType.ERC721, TokenType.ERC1155];
 export function CollectiblesTab() {
+  useLiveBalance(POLLED_BALANCES);
   const { collectibles, loading } = useNfts();
   const { t } = useTranslation();
   const { isDeveloperMode } = useNetworkContext();

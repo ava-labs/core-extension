@@ -46,6 +46,7 @@ export const IPFS_URL = 'https://ipfs.io';
 
 export interface BalancesState {
   loading: boolean;
+  nftsLoading: boolean;
   nfts?: Balances<NftTokenWithBalance>;
   tokens?: Balances;
   atomic?: AtomicBalances;
@@ -124,7 +125,7 @@ const BalancesContext = createContext<{
     accountId: string | undefined,
   ) => AccountAtomicBalanceState | undefined;
 }>({
-  balances: { loading: true },
+  balances: { loading: true, nftsLoading: true },
   async getTokenPrice() {
     return undefined;
   },
@@ -154,14 +155,18 @@ function balancesReducer(
         return { ...state };
       }
 
-      // Only set loading to false when we actually have token data because the cached data might be empty for a new user
+      // Set loading states independently when responses are received (even if empty {})
       const hasTokenData =
         action.payload.balances?.tokens &&
         Object.keys(action.payload.balances.tokens).length > 0;
+      const hasNftsData =
+        action.payload.balances?.nfts &&
+        Object.keys(action.payload.balances.nfts).length > 0;
 
       return {
         ...state,
         loading: hasTokenData ? false : state.loading,
+        nftsLoading: hasNftsData ? false : state.nftsLoading,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         tokens: merge({}, state.tokens, action.payload.balances?.tokens),
@@ -194,6 +199,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
 
   const [balances, dispatch] = useReducer(balancesReducer, {
     loading: true,
+    nftsLoading: true,
     cached: true,
   });
 
