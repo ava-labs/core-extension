@@ -72,6 +72,7 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
     mockSettingsService = new SettingsService(
       {} as any,
       {} as any,
+      {} as any,
     ) as jest.Mocked<SettingsService>;
 
     // Mock the favoriteNetworksUpdated signal

@@ -140,6 +140,7 @@ describe('background/services/network/handlers/wallet_getNetworkState.ts', () =>
     mockSettingsService = new SettingsService(
       {} as any,
       {} as any,
+      {} as any,
     ) as jest.Mocked<SettingsService>;
 
     handler = new WalletGetNetworkStateHandler(
