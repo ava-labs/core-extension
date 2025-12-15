@@ -123,7 +123,8 @@ export const mapPvmTokenBalance = (
           : undefined,
       unlockedUnstaked:
         unlockedUnstaked || unlockedUnstakedMultiSig
-          ? BigInt(unlockedUnstaked) + BigInt(unlockedUnstakedMultiSig)
+          ? BigInt(unlockedUnstaked ?? 0) +
+            BigInt(unlockedUnstakedMultiSig ?? 0)
           : undefined,
       unlockedStaked: unlockedStaked ? BigInt(unlockedStaked) : undefined,
     },
