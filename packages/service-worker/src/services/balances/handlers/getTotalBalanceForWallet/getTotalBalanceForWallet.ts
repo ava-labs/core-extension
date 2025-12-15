@@ -298,7 +298,6 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
                 getXPChainIds(this.networkService.isMainnet()),
                 accountsBatch as Account[],
                 [TokenType.NATIVE],
-                false, // Don't cache this
               );
 
             const { balance: underivedAccountsTotal, priceChangeValue } =
