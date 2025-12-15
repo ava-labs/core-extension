@@ -1,23 +1,22 @@
-import { useTranslation } from 'react-i18next';
-import { FC, useCallback, useEffect, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack } from '@avalabs/k2-alpine';
+import { ComponentProps, FC, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
+import { sortBy } from 'lodash';
 import * as Styled from '../Styled';
 import {
   ConnectorCallbacks,
+  DerivationStatus,
   DerivedKeys,
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
-import { sortBy } from 'lodash';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
-  onStatusChange: (
-    status: 'waiting' | 'ready' | 'error' | 'needs-user-gesture',
-  ) => void;
+  onStatusChange: (status: DerivationStatus) => void;
   minNumberOfKeys: number;
   onTroubleshoot: () => void;
   deriveAddresses: (keys: PublicKey[]) => string[];
@@ -36,7 +35,17 @@ type PropsWithoutDerivationPathSpec = CommonProps & {
   setDerivationPathSpec?: never;
 };
 
-type Props = PropsWithDerivationPathSpec | PropsWithoutDerivationPathSpec;
+type Props = (PropsWithDerivationPathSpec | PropsWithoutDerivationPathSpec) &
+  LedgerConnectorOverrides;
+
+export type LedgerConnectorOverrides = {
+  overrides?: {
+    PathSelector?: Pick<
+      ComponentProps<typeof Styled.DerivationPathSelector>,
+      'labels'
+    >;
+  };
+};
 
 const isWithDerivationPathSpec = (
   props: Props,
@@ -46,7 +55,9 @@ const isWithDerivationPathSpec = (
   props.derivationPathSpec !== undefined &&
   props.setDerivationPathSpec !== undefined;
 
-export const BaseLedgerConnector: FC<Props> = (props) => {
+export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
+  props,
+) => {
   const {
     onSuccess,
     onStatusChange,
@@ -110,6 +121,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
                   setKeys([]);
                   onStatusChange('waiting');
                 }}
+                labels={props.overrides?.PathSelector?.labels}
               />
             )}
             {addresses.length === 0 ? (

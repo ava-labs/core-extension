@@ -10,7 +10,6 @@ import {
   SecretType,
 } from '@core/types';
 
-import { getEvmBasePath } from '@core/common';
 import { AccountsService } from '../../accounts/AccountsService';
 import { SecretsService } from '../../secrets/SecretsService';
 import { WalletService } from '../WalletService';
@@ -46,7 +45,8 @@ export class ImportLedgerHandlerNew implements HandlerType {
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [{ addressPublicKeys, extendedPublicKeys, name }] = request.params;
+    const [{ addressPublicKeys, extendedPublicKeys, name, secretType }] =
+      request.params;
 
     if (!addressPublicKeys.length) {
       return {
@@ -55,22 +55,18 @@ export class ImportLedgerHandlerNew implements HandlerType {
       };
     }
 
-    const evmXPubs = extendedPublicKeys.filter(({ derivationPath }) =>
-      derivationPath.startsWith(getEvmBasePath()),
-    );
-
-    const isLedgerLive = evmXPubs.length > 1;
+    const isLedgerLive = SecretType.LedgerLive === secretType;
 
     const id = isLedgerLive
       ? await this.walletService.addPrimaryWallet({
-          secretType: SecretType.LedgerLive,
+          secretType,
           derivationPathSpec: DerivationPath.LedgerLive,
           extendedPublicKeys,
           publicKeys: addressPublicKeys,
           name,
         })
       : await this.walletService.addPrimaryWallet({
-          secretType: SecretType.Ledger,
+          secretType,
           derivationPathSpec: DerivationPath.BIP44,
           extendedPublicKeys,
           publicKeys: addressPublicKeys,

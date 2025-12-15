@@ -9,7 +9,7 @@ export const AvalancheAppNote: FC = () => {
     <Stack gap={1} px={2}>
       <Typography variant="caption">
         {t(
-          'If you do not have the Avalanche app on your Ledger, please add it through Ledger live app manager.',
+          'If you do not have the Avalanche app on your Ledger, please add it through Ledger Wallet app manager.',
         )}
       </Typography>
       <Typography variant="caption">
