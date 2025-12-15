@@ -25,10 +25,8 @@ import { buildExtendedPublicKey } from '~/services/secrets/utils';
 
 import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 
-import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
-import { hex } from '@scure/base';
 import { calculateTotalAtomicFundsForAccounts } from '@core/common';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
@@ -173,10 +171,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         ? [buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH)]
         : [],
     } as any);
-  };
-
-  const mockAccountsWithActivity = (addresses: string[]) => {
-    jest.mocked(getAccountsWithActivity).mockResolvedValue(addresses);
   };
 
   const buildAccount = <T = PrimaryAccount>({ id, ...opts }) =>
@@ -341,12 +335,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockBalances(true);
     });
 
-    it('does not look for underived addresses', async () => {
-      const response = await handleRequest(IMPORTED_ACCOUNTS_WALLET_ID);
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).not.toHaveBeenCalled();
-    });
-
     it('only fetches balances for the imported accounts', async () => {
       const response = await handleRequest(IMPORTED_ACCOUNTS_WALLET_ID);
       expect(response.error).toBeUndefined();
@@ -406,12 +394,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockSecrets(undefined); // No xpubXP
     });
 
-    it('does not look for underived addresses', async () => {
-      const response = await handleRequest('seedless');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).not.toHaveBeenCalled();
-    });
-
     it('only fetches balances for already derived accounts', async () => {
       const response = await handleRequest('seedless');
       expect(response.error).toBeUndefined();
@@ -457,8 +439,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     });
 
     it('fetches C-, X- and P-Chain balances along with favorite networks for already derived accounts within the wallet', async () => {
-      mockAccountsWithActivity([]); // No underived addresses with activity
-
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
       // Now expects 2 calls: all networks per derived account
@@ -508,7 +488,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('works with testnets', async () => {
       mockEnv(false);
       mockBalances(false);
-      mockAccountsWithActivity([]); // No underived addresses with activity
 
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
@@ -554,57 +533,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         balanceChange: undefined,
         percentageChange: undefined,
       });
-    });
-  });
-
-  describe('when requested wallet has additional XP public keys for some accounts', () => {
-    const keys = ['00000001', '00000002'];
-    const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
-      type: 'address-pubkey',
-      key,
-      derivationPath: `m/44'/9000'/0'/0/${index + 1}`,
-      curve: 'secp256k1',
-    }));
-
-    beforeEach(() => {
-      mockEnv(true);
-      mockAccounts();
-      mockBalances(true);
-      mockSecrets(undefined, additionalXPKeys); // We've got additional XP public keys
-
-      PROVIDER_XP.getAddress.mockImplementation(
-        (key) => `X-${hex.encode(Uint8Array.from(key))}`,
-      );
-    });
-
-    it('fetches balances for the additional XP public keys', async () => {
-      const unresolvedAddresses = [
-        'avaxUnresolvedAddress-1',
-        'avaxUnresolvedAddress-2',
-      ];
-      mockAccountsWithActivity(unresolvedAddresses);
-
-      const response = await handleRequest('seedphrase');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).not.toHaveBeenCalled();
-
-      additionalXPKeys.forEach((key, index) => {
-        expect(PROVIDER_XP.getAddress).toHaveBeenNthCalledWith(
-          index + 1,
-          Buffer.from(hex.decode(key.key)),
-          'X',
-        );
-      });
-
-      // Expect calls for X/P balances of the addresses derived from the additional X/P keys
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledWith(
-        expect.arrayContaining([ChainId.AVALANCHE_X, ChainId.AVALANCHE_P]),
-        keys.map((key) => ({ addressPVM: `P-${key}`, addressAVM: `X-${key}` })),
-        [TokenType.NATIVE],
-        false,
-      );
     });
   });
 
