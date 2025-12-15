@@ -1,0 +1,6 @@
+<!-- This is a temporary logo for the Hungarian Forint until k2-alpine is ready -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 18">
+	<rect fill="#436F4D" width="30" height="18"/>
+	<rect fill="#FFF" width="30" height="12"/>
+	<rect fill="#CD2A3E" width="30" height="6"/>
+</svg>

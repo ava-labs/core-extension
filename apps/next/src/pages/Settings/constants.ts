@@ -39,4 +39,24 @@ export const currencies: Currency[] = [
     label: 'Hong Kong Dollar',
     countryCode: 'hk',
   },
+  {
+    symbol: CURRENCIES.CLP,
+    label: 'Chilean Peso',
+    countryCode: 'cl',
+  },
+  {
+    symbol: CURRENCIES.CZK,
+    label: 'Czech Crown',
+    countryCode: 'cz',
+  },
+  {
+    symbol: CURRENCIES.DKK,
+    label: 'Danish Krone',
+    countryCode: 'dk',
+  },
+  {
+    symbol: CURRENCIES.HUF,
+    label: 'Hungarian Forint',
+    countryCode: 'hu',
+  },
 ];
