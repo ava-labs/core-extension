@@ -3,8 +3,8 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { toast } from '@avalabs/k2-alpine';
-import { useCallback, useState } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { useCallback, useState, useMemo } from 'react';
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 
 import {
   useErrorMessage,
@@ -27,6 +27,7 @@ const TOTAL_STEPS = 3;
 
 export const ImportSeedphraseFlow = () => {
   const history = useHistory();
+  const location = useLocation();
   const gerErrorMessage = useErrorMessage();
   const { importSeedphrase, isImporting } = useImportSeedphrase();
   const { capture } = useAnalyticsContext();
@@ -35,6 +36,19 @@ export const ImportSeedphraseFlow = () => {
   const [phrase, setPhrase] = useState<string>('');
   const [isCalculatingAddresses, setIsCalculatingAddresses] = useState(false);
   const [addresses, setAddresses] = useState<string[]>(EMPTY_ADDRESSES);
+
+  const currentStep = useMemo(() => {
+    if (location.pathname === '/import-wallet/seedphrase') {
+      return 1;
+    }
+    if (location.pathname === '/import-wallet/seedphrase/confirm') {
+      return 2;
+    }
+    if (location.pathname === '/import-wallet/seedphrase/name') {
+      return 3;
+    }
+    return 1;
+  }, [location.pathname]);
 
   const onPhraseEntered = useCallback(
     async (seedphrase: string) => {
@@ -73,6 +87,15 @@ export const ImportSeedphraseFlow = () => {
     history.push('/import-wallet/seedphrase/name');
   }, [history]);
 
+  const onCancel = useCallback(async () => {
+    await openApp({
+      closeWindow: true,
+      navigateTo: {
+        pathname: `/wallets/import`,
+      },
+    });
+  }, [openApp]);
+
   const onSave = useCallback(
     async (name: string) => {
       try {
@@ -109,12 +132,12 @@ export const ImportSeedphraseFlow = () => {
         withCoreLogo
         withAppInfo
         withLanguageSelector
-        onBack={history.goBack}
+        onBack={currentStep > 1 ? history.goBack : onCancel}
       >
         <Switch>
           <Route exact path="/import-wallet/seedphrase">
             <EnterRecoveryPhraseScreen
-              step={1}
+              step={currentStep}
               totalSteps={TOTAL_STEPS}
               onNext={onPhraseEntered}
               isCalculating={isCalculatingAddresses}
@@ -122,7 +145,7 @@ export const ImportSeedphraseFlow = () => {
           </Route>
           <Route path="/import-wallet/seedphrase/confirm">
             <ConfirmAddressesScreen
-              step={2}
+              step={currentStep}
               totalSteps={TOTAL_STEPS}
               addresses={addresses}
               chainCaipId="eip155:43114" // Avalanche C-Chain
@@ -132,7 +155,7 @@ export const ImportSeedphraseFlow = () => {
           </Route>
           <Route path="/import-wallet/seedphrase/name">
             <NameYourWalletScreen
-              step={3}
+              step={currentStep}
               totalSteps={TOTAL_STEPS}
               isSaving={isImporting}
               onNext={onSave}
