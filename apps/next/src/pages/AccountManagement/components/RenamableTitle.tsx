@@ -24,17 +24,14 @@ const RenameButton = styled(IconButton)(({ theme }) => ({
     {
       opacity: 1,
       marginLeft: theme.spacing(1),
-      width: 'auto',
+      width: '16px',
+      height: '16px',
     },
 }));
 
 const TitleContainer = styled(Box)(({ theme }) => ({
   maxWidth: '100%',
   transition: theme.transitions.create(['max-width']),
-  [`.${listItemClasses.root}:hover &, .${accordionSummaryClasses.root}:hover &`]:
-    {
-      maxWidth: '130px',
-    },
 }));
 
 export const RenamableTitle: FC<Props> = ({
@@ -47,6 +44,7 @@ export const RenamableTitle: FC<Props> = ({
     <TitleContainer
       display="flex"
       flexDirection="row"
+      alignItems="center"
       width={width ?? 1}
       overflow="hidden"
     >
