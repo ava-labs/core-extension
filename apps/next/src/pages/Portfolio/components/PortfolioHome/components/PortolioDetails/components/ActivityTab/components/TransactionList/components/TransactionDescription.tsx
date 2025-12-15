@@ -1,7 +1,7 @@
-import { Box, styled, Typography } from '@avalabs/k2-alpine';
+import { styled, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TxHistoryItem } from '@core/types';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
@@ -25,28 +25,28 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
 
   const amount = useMemo(
     () => (
-      <Box
-        component="span"
-        sx={{ display: 'inline', '& *': { display: 'inline' } }}
-      >
-        <CollapsedTokenAmount
-          amount={mainToken?.amount?.toString() ?? '0'}
-          regularProps={{ variant: 'body3' }}
-          overlineProps={{ variant: 'caption2' }}
-          stackProps={{
-            justifyContent: 'flex-start',
-            width: 'fit-content',
-            display: 'inline',
-          }}
-        />
-      </Box>
+      <CollapsedTokenAmount
+        amount={mainToken?.amount?.toString() ?? '0'}
+        regularProps={{ variant: 'body3', component: 'span' }}
+        overlineProps={{ variant: 'caption2', component: 'span' }}
+        stackProps={{
+          justifyContent: 'flex-start',
+          width: 'fit-content',
+          display: 'inline-flex',
+          component: 'span',
+        }}
+      />
     ),
     [mainToken],
   );
   if (transaction.bridgeAnalysis.isBridgeTx) {
     return (
       <TransactionDescriptionContainer>
-        {amount} {mainToken?.symbol} {t('bridged')}
+        <Trans
+          i18nKey="<amount /> {{symbol}} bridged"
+          values={{ symbol: mainToken?.symbol }}
+          components={{ amount }}
+        />
       </TransactionDescriptionContainer>
     );
   }
@@ -57,7 +57,11 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   ) {
     return (
       <TransactionDescriptionContainer>
-        {amount} {mainToken?.symbol} {t('Contract\u00A0Call')}
+        <Trans
+          i18nKey={`<amount /> {{symbol}} Contract${'\u00A0'}Call`}
+          values={{ symbol: mainToken?.symbol }}
+          components={{ amount }}
+        />
       </TransactionDescriptionContainer>
     );
   }
@@ -66,7 +70,11 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     case TransactionType.BRIDGE: {
       return (
         <TransactionDescriptionContainer>
-          {amount} {mainToken?.symbol} {t('bridged')}
+          <Trans
+            i18nKey="<amount /> {{symbol}} bridged"
+            values={{ symbol: mainToken?.symbol }}
+            components={{ amount }}
+          />
         </TransactionDescriptionContainer>
       );
     }
@@ -80,38 +88,52 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
         (token) =>
           token.to?.address && userAddresses.includes(token.to.address),
       );
+
+      const sourceAmount = (
+        <CollapsedTokenAmount
+          amount={sourceToken?.amount?.toString() ?? '0'}
+          regularProps={{ variant: 'body3', component: 'span' }}
+          overlineProps={{ variant: 'caption2', component: 'span' }}
+          stackProps={{
+            justifyContent: 'flex-start',
+            width: 'fit-content',
+            display: 'inline-flex',
+            component: 'span',
+          }}
+        />
+      );
       return (
         <TransactionDescriptionContainer>
-          <Box
-            component="span"
-            sx={{ display: 'inline', '& *': { display: 'inline' } }}
-          >
-            <CollapsedTokenAmount
-              amount={sourceToken?.amount?.toString() ?? '0'}
-              regularProps={{ variant: 'body3' }}
-              overlineProps={{ variant: 'caption2' }}
-              stackProps={{
-                justifyContent: 'flex-start',
-                width: 'fit-content',
-                display: 'inline',
-              }}
-            />
-          </Box>{' '}
-          {sourceToken?.symbol} {t('swapped for')} {targetToken?.symbol}
+          <Trans
+            i18nKey="<sourceAmount /> {{sourceSymbol}} swapped for {{targetSymbol}}"
+            values={{
+              sourceSymbol: sourceToken?.symbol,
+              targetSymbol: targetToken?.symbol,
+            }}
+            components={{ sourceAmount }}
+          />
         </TransactionDescriptionContainer>
       );
     }
     case TransactionType.SEND: {
       return (
         <TransactionDescriptionContainer>
-          {amount} {mainToken?.symbol} {t('sent')}
+          <Trans
+            i18nKey="<amount /> {{symbol}} sent"
+            values={{ symbol: mainToken?.symbol }}
+            components={{ amount }}
+          />
         </TransactionDescriptionContainer>
       );
     }
     case TransactionType.RECEIVE: {
       return (
         <TransactionDescriptionContainer>
-          {amount} {mainToken?.symbol} {t('received')}
+          <Trans
+            i18nKey="<amount /> {{symbol}} received"
+            values={{ symbol: mainToken?.symbol }}
+            components={{ amount }}
+          />
         </TransactionDescriptionContainer>
       );
     }
@@ -144,7 +166,11 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       ) {
         return (
           <TransactionDescriptionContainer>
-            {amount} {mainToken?.symbol} {t('Contract\u00A0Call')}
+            <Trans
+              i18nKey={`<amount /> {{symbol}} Contract${'\u00A0'}Call`}
+              values={{ symbol: mainToken?.symbol }}
+              components={{ amount }}
+            />
           </TransactionDescriptionContainer>
         );
       }
@@ -154,13 +180,21 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   if (transaction.isSender) {
     return (
       <TransactionDescriptionContainer>
-        {amount} {mainToken?.symbol} {t('sent')}
+        <Trans
+          i18nKey="<amount /> {{symbol}} sent"
+          values={{ symbol: mainToken?.symbol }}
+          components={{ amount }}
+        />
       </TransactionDescriptionContainer>
     );
   } else {
     return (
       <TransactionDescriptionContainer>
-        {amount} {mainToken?.symbol} {t('received')}
+        <Trans
+          i18nKey="<amount /> {{symbol}} received"
+          values={{ symbol: mainToken?.symbol }}
+          components={{ amount }}
+        />
       </TransactionDescriptionContainer>
     );
   }
