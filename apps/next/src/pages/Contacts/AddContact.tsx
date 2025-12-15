@@ -13,7 +13,11 @@ import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
 import { isContactValid } from '@core/common';
-import { useContactsContext, useAnalyticsContext } from '@core/ui';
+import {
+  useContactsContext,
+  useAnalyticsContext,
+  useFeatureFlagContext,
+} from '@core/ui';
 
 import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
@@ -26,6 +30,7 @@ import {
   XPAddressField,
   ContactNameField,
 } from './components';
+import { FeatureGates } from '@core/types';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -37,6 +42,7 @@ const contentProps: StackProps = {
 export const AddContact = () => {
   const { t } = useTranslation();
   const { goBack, replace } = useHistory();
+  const { isFlagEnabled } = useFeatureFlagContext();
 
   const { createContact } = useContactsContext();
   const { capture } = useAnalyticsContext();
@@ -102,8 +108,13 @@ export const AddContact = () => {
           <XPAddressField value={addressXP} onChange={setAddressXP} />
           <Divider />
           <BTCAddressField value={addressBTC} onChange={setAddressBTC} />
+          {isFlagEnabled(FeatureGates.SOLANA_SUPPORT) && (
+            <>
+              <Divider />
+              <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
+            </>
+          )}
           <Divider />
-          <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
         </AddressesCard>
       </Stack>
       <Stack width="100%" gap={1}>
