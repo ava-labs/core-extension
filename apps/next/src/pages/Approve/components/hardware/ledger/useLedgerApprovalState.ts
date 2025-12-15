@@ -13,6 +13,7 @@ import {
 } from '@core/common';
 import {
   LedgerAppType,
+  MAX_BITCOIN_APP_VERSION,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
 } from '@core/ui';
@@ -65,7 +66,7 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     hasLedgerTransport,
     wasTransportAttempted,
     appType,
-    avaxAppVersion,
+    appVersion,
     refreshActiveApp,
     appConfig,
   } = useLedgerContext();
@@ -74,7 +75,7 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
   const requiredApp = getRequiredApp(network, action);
   const isBlindSigningRequired = requiresBlindSigning(network, action);
   const interalRef = useRef<NodeJS.Timeout | null>(null);
-  const isRequiredApp = appType === requiredApp;
+  const isRequiredApp = isCompatibleApp(requiredApp, appType, appVersion);
   const isRequiredConfig =
     !isBlindSigningRequired || appConfig?.isBlindSigningEnabled;
 
@@ -103,13 +104,14 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     return { state: 'disconnected', requiredApp };
   }
 
-  if (appType !== requiredApp) {
+  if (!isCompatibleApp(requiredApp, appType, appVersion)) {
     return { state: 'incorrect-app', requiredApp };
   }
 
   if (
-    avaxAppVersion &&
-    !isLedgerVersionCompatible(avaxAppVersion, REQUIRED_LEDGER_VERSION)
+    appVersion &&
+    appType === LedgerAppType.AVALANCHE &&
+    !isLedgerVersionCompatible(appVersion, REQUIRED_LEDGER_VERSION)
   ) {
     return {
       state: 'incorrect-version',
@@ -118,7 +120,22 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     };
   }
 
-  if (appType === LedgerAppType.BITCOIN && shouldRegisterBtcWalletPolicy) {
+  if (
+    appVersion &&
+    appType === LedgerAppType.BITCOIN &&
+    !isLedgerVersionCompatible(appVersion, MAX_BITCOIN_APP_VERSION, 'maximum')
+  ) {
+    return {
+      state: 'unsupported-btc-version',
+      currentVersion: appVersion,
+      maximumVersion: MAX_BITCOIN_APP_VERSION,
+    };
+  }
+
+  if (
+    [LedgerAppType.BITCOIN, LedgerAppType.BITCOIN_RECOVERY].includes(appType) &&
+    shouldRegisterBtcWalletPolicy
+  ) {
     return {
       state: 'btc-policy-needed',
     };
@@ -134,8 +151,31 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
   return {
     state: 'pending',
     requiredApp,
-    requiredVersion: REQUIRED_LEDGER_VERSION,
   };
+};
+
+const isCompatibleApp = (
+  requiredApp: LedgerAppType,
+  appType: LedgerAppType,
+  appVersion: string | null,
+) => {
+  if (
+    requiredApp === LedgerAppType.BITCOIN &&
+    appType === LedgerAppType.BITCOIN_RECOVERY
+  ) {
+    return true;
+  }
+
+  if (
+    requiredApp === LedgerAppType.BITCOIN &&
+    appType === LedgerAppType.BITCOIN &&
+    appVersion &&
+    isLedgerVersionCompatible(appVersion, MAX_BITCOIN_APP_VERSION, 'maximum')
+  ) {
+    return true;
+  }
+
+  return requiredApp === appType;
 };
 
 const getRequiredApp = (

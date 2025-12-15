@@ -41,12 +41,12 @@ import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import * as routes from '@/config/routes';
 import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
-import { useSwapCallbacks } from '@/pages/Swap';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
 import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
 import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
+import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
 
 const pagesWithoutHeader = [
   '/seedless-auth',
@@ -92,8 +92,6 @@ export function App() {
   const isAppContext =
     isSpecificContextContainer(ContextContainer.POPUP) ||
     isSpecificContextContainer(ContextContainer.SIDE_PANEL);
-
-  const swapToastCallbacks = useSwapCallbacks();
 
   useEffect(() => {
     /* The list of contexts that should support navigation history */
@@ -156,11 +154,12 @@ export function App() {
           <CurrenciesContextProvider />,
           <NetworkFeeContextProvider />,
           <ApprovalsContextProvider />,
-          <SwapContextProvider {...swapToastCallbacks} />,
+          <SwapContextProvider />,
           <DefiContextProvider />,
           <FirebaseContextProvider />,
           <NextUnifiedBridgeProvider />,
           <LedgerPolicyRegistrationStateProvider />,
+          <TransactionStatusProviderWithConfetti />,
         ]) as ReactElement[]
       }
     >

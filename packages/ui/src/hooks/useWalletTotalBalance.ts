@@ -1,11 +1,12 @@
 import {
   WalletTotalBalanceState,
   useWalletTotalBalanceContext,
-} from '../contexts/WalletTotalBalanceProvider';
+} from '../contexts';
 
 const fallbackBalance: WalletTotalBalanceState = {
   isLoading: false,
   hasErrorOccurred: false,
+  hasBalanceServiceErrorOccurred: false,
 };
 
 export const useWalletTotalBalance = (walletId?: string) => {

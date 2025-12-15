@@ -1,14 +1,8 @@
-import {
-  Action,
-  DAppRequestHandler,
-  DAppProviderRequest,
-  DEFERRED_RESPONSE,
-} from '@core/types';
-import { isContactValid } from '@core/common';
+import { DAppRequestHandler, DAppProviderRequest } from '@core/types';
+import { canSkipApproval, isContactValid } from '@core/common';
 import { ethErrors } from 'eth-rpc-errors';
 import { injectable } from 'tsyringe';
 import { ContactsService } from '../ContactsService';
-import { openApprovalWindow } from '~/runtime/openApprovalWindow';
 
 @injectable()
 export class AvalancheUpdateContactHandler extends DAppRequestHandler {
@@ -30,19 +24,25 @@ export class AvalancheUpdateContactHandler extends DAppRequestHandler {
       };
     }
 
-    const { contacts } = await this.contactsService.getContacts();
+    // We're only allowing contacts to be updated if the request comes from a Core suite app.
+    const canUpdate = await canSkipApproval(
+      request.site.domain,
+      request.site.tabId,
+    );
 
-    const existing = contacts.find((c) => c.id === contact.id);
+    if (!canUpdate) {
+      return {
+        ...request,
+        error: ethErrors.provider.unauthorized(),
+      };
+    }
 
-    const actionData = {
+    await this.contactsService.updateContact(contact);
+
+    return {
       ...request,
-      displayData: {
-        existing,
-        contact,
-      },
+      result: null,
     };
-    await openApprovalWindow(actionData, `approve/updateContact`);
-    return { ...request, result: DEFERRED_RESPONSE };
   };
 
   handleUnauthenticated = ({ request }) => {
@@ -50,22 +50,5 @@ export class AvalancheUpdateContactHandler extends DAppRequestHandler {
       ...request,
       error: ethErrors.provider.unauthorized(),
     };
-  };
-
-  onActionApproved = async (
-    pendingAction: Action,
-    _result,
-    onSuccess,
-    onError,
-  ) => {
-    try {
-      const {
-        displayData: { contact },
-      } = pendingAction;
-      await this.contactsService.updateContact(contact);
-      onSuccess(null);
-    } catch (e) {
-      onError(e);
-    }
   };
 }

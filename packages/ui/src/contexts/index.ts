@@ -15,6 +15,7 @@ export * from './LedgerProvider';
 export * from './NetworkFeeProvider';
 export * from './NetworkProvider';
 export * from './NotificationsProvider';
+export * from './TransactionStatusProvider';
 export * from './OnboardingProvider';
 export * from './PermissionsProvider';
 export * from './SeedlessMfaManagementProvider';

@@ -7,6 +7,7 @@ import {
 } from '@core/types';
 import { useMemo } from 'react';
 import { useNetworkTokens } from './useNetworkTokens';
+import { useSettingsContext } from '@core/ui';
 
 type LookupValue = { asset: BridgeAsset; token: FungibleTokenBalance };
 
@@ -15,6 +16,7 @@ export function useTokenLookup(
   assets: BridgeAsset[],
 ) {
   const tokens = useNetworkTokens(networkId);
+  const { getTokenVisibility } = useSettingsContext();
 
   const tokenAndAssetLookup = useMemo(() => {
     return tokens.reduce((lookup, token) => {
@@ -28,11 +30,11 @@ export function useTokenLookup(
 
   return useMemo(
     () => ({
-      tokens: Array.from(tokenAndAssetLookup.values()).map(
-        ({ token }) => token,
-      ),
+      tokens: Array.from(tokenAndAssetLookup.values())
+        .map(({ token }) => token)
+        .filter((token) => getTokenVisibility(token, networkId)),
       get: (tokenId: string) => tokenAndAssetLookup.get(tokenId),
     }),
-    [tokenAndAssetLookup],
+    [tokenAndAssetLookup, getTokenVisibility, networkId],
   );
 }

@@ -1,74 +1,36 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { NoScrollStack } from '@/components/NoScrollStack';
-import { Stack, TabBarItemProps } from '@avalabs/k2-alpine';
-import { isEmptyAccount } from '@core/common';
+import { Stack } from '@avalabs/k2-alpine';
 import {
+  AccountAtomicBalanceState,
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
-  useAnalyticsContext,
 } from '@core/ui';
 
 import AccountInfo from './components/AccountInfo/AccountInfo';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
-import { useTranslation } from 'react-i18next';
-import { useHistory, useLocation } from 'react-router-dom';
-import { EmptyState } from './components/EmptyState';
-import { LoadingState } from './components/LoadingState';
-import { PortfolioDetails } from './components/PortolioDetails';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
-import { TabsContainer, TabBar } from './styled';
+import { PortfolioTabs } from './components/PortfolioTabs';
+import { EnsureDefined } from '@core/types';
 
-import { TabName } from './types';
+const hasAtomicBalance = (
+  atomicBalance?: AccountAtomicBalanceState,
+): atomicBalance is EnsureDefined<
+  AccountAtomicBalanceState,
+  'balanceDisplayValue'
+> => {
+  return Boolean(atomicBalance && atomicBalance.balanceDisplayValue);
+};
 
 export const PortfolioHome: FC = () => {
-  const { t } = useTranslation();
-
-  /**
-   * TODO: This is a temporary solution to get the active tab from the URL.
-   */
-  const { search } = useLocation();
-  const queryParams = new URLSearchParams(search);
-  const activeTabFromParams = queryParams.get('activeTab') as TabName;
-  const history = useHistory();
-  const { capture } = useAnalyticsContext();
-
   const { accounts } = useAccountsContext();
-  const [activeTab, setActiveTab] = useState<TabName>(
-    activeTabFromParams ?? 'assets',
-  );
-  const { networks, isDeveloperMode } = useNetworkContext();
-  const { totalBalance, balances, getAtomicBalance } = useBalancesContext();
+  const { isDeveloperMode } = useNetworkContext();
+  const { totalBalance, getAtomicBalance } = useBalancesContext();
   const accountId =
     accounts.active?.type === 'primary' ? accounts.active.id : undefined;
   const atomicBalance = getAtomicBalance(accountId);
-  const atomicBalanceExists = !!atomicBalance;
-
-  const isLoading = balances.loading || !totalBalance;
-  const isAccountEmpty =
-    !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
-
-  const TABS: TabBarItemProps[] = [
-    {
-      id: 'assets',
-      label: t('Assets'),
-    },
-    {
-      id: 'collectibles',
-      label: t('Collectibles'),
-    },
-    {
-      id: 'defi',
-      label: t('DeFi'),
-    },
-    {
-      id: 'activity',
-      label: t('Activity'),
-    },
-  ];
-
-  const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
 
   return (
     <>
@@ -82,56 +44,27 @@ export const PortfolioHome: FC = () => {
         bgcolor={
           isDeveloperMode ? TESTNET_MODE_BACKGROUND_COLOR : 'background.default'
         }
+        gap={2.5}
       >
-        <Stack gap={2.5} px={1.5} flexGrow={1}>
+        <Stack gap={2.5} px={1.5}>
           <AccountInfo
             account={accounts.active}
             balance={totalBalance}
             isDeveloperMode={isDeveloperMode}
           />
-          {!!accountId &&
-            atomicBalanceExists &&
-            (atomicBalance.isLoading ? (
-              <LoadingState />
-            ) : (
-              <AtomicFundsBalance
-                atomicBalance={atomicBalance.balanceDisplayValue!}
-              />
-            ))}
-          <Stack flexGrow={1} gap={2.5}>
-            {isLoading ? (
-              <LoadingState />
-            ) : (
-              <PortfolioContent tab={activeTab} />
-            )}
-          </Stack>
+
+          {hasAtomicBalance(atomicBalance) && (
+            <AtomicFundsBalance
+              atomicBalance={atomicBalance.balanceDisplayValue}
+            />
+          )}
         </Stack>
-        <TabsContainer>
-          <TabBar
-            tabBarItems={TABS}
-            value={activeTabFromParams ?? activeTab}
-            onChange={(_, val) => {
-              history.push({
-                pathname: location.pathname,
-                search: `?activeTab=${val}`, // Reset any params other than activeTab
-              });
-              setActiveTab(val as TabName);
-              if (val === 'assets') {
-                capture('PortfolioAssetsClicked');
-              } else if (val === 'collectibles') {
-                capture('PortfolioCollectiblesClicked');
-              } else if (val === 'defi') {
-                capture('PortfolioDefiClicked');
-              }
-            }}
-            size="extension"
-          />
-        </TabsContainer>
+        <PortfolioTabs />
       </NoScrollStack>
       {isDeveloperMode && (
         <TestnetModeOverlay
           verticalLines={[12, -12]}
-          horizontalLines={[56, 116, 150, 170]}
+          horizontalLines={[56, 128, 160, 178]}
         />
       )}
     </>

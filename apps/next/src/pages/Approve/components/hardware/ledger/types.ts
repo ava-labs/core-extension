@@ -24,9 +24,13 @@ export type LedgerApprovalState =
       requiredApp: LedgerAppType;
     }
   | {
+      state: 'unsupported-btc-version';
+      maximumVersion: string;
+      currentVersion: string;
+    }
+  | {
       state: 'pending';
       requiredApp: LedgerAppType;
-      requiredVersion: string;
     }
   | {
       state: 'blind-signing-required';

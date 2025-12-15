@@ -39,7 +39,7 @@ export const usePChainSend = ({
   const { isLedgerWallet } = useWalletContext();
   const getXPAddressesFetcher = useGetXPAddresses();
 
-  const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
+  const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -123,7 +123,11 @@ export const usePChainSend = ({
           scope: network.caipId,
         },
       );
-      onSendSuccess(hash);
+
+      // Transaction status will be handled by the TransactionStatusProvider
+      // so we don't need to listen for events here
+
+      return hash;
     } catch (err) {
       console.error(err);
       onSendFailure(err);
@@ -135,7 +139,6 @@ export const usePChainSend = ({
     to,
     request,
     t,
-    onSendSuccess,
     onSendFailure,
     isLedgerWallet,
     from,

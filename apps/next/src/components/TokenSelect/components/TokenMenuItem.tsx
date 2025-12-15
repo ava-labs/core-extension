@@ -9,6 +9,7 @@ import CheckIcon from '@/components/CheckIcon';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { OptionProps } from '@/components/SearchableSelect';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
+import { OverflowingTypography } from '@/components/OverflowingTypography';
 
 type TokenMenuItemProps = OptionProps & {
   token: FungibleTokenBalance;
@@ -35,8 +36,10 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
     >
       <Stack width="100%" direction="row" alignItems="center" gap={1.5}>
         <TokenAvatar token={token} size={24} badgeSize={12} />
-        <Stack flexGrow={1}>
-          <Typography variant="body3">{token.name}</Typography>
+        <Stack flexGrow={1} overflow="hidden" textOverflow="ellipsis">
+          <OverflowingTypography variant="body3">
+            {token.name}
+          </OverflowingTypography>
           <Typography variant="caption" color="text.secondary">
             {balanceDisplay} {token.symbol}
           </Typography>

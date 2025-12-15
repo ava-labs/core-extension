@@ -61,7 +61,7 @@ export const ManageTokens: FC = () => {
           onChange={(_, checked) => setHideSpamTokens(checked)}
         />
       </Stack>
-      <TokenSwitchList filter={query} spam={!hideSpamTokens} />
+      <TokenSwitchList filter={query} includeSpamTokens={!hideSpamTokens} />
     </Page>
   );
 };

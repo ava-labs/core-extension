@@ -76,7 +76,11 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
     it('polls for active and favorite networks on the first run', () => {
       expect(
         aggregatorServiceMock.getBalancesForNetworks,
-      ).toHaveBeenLastCalledWith([1, 2, 3, 4], expect.anything(), tokenTypes);
+      ).toHaveBeenLastCalledWith({
+        chainIds: [1, 2, 3, 4],
+        accounts: expect.anything(),
+        tokenTypes,
+      });
     });
 
     it('polls for active network on every run', () => {
@@ -85,7 +89,7 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       expect(
         (
           aggregatorServiceMock.getBalancesForNetworks as jest.Mock
-        ).mock.calls.every(([chainIds]) => chainIds.includes(1)),
+        ).mock.calls.every(([{ chainIds }]) => chainIds.includes(1)),
       ).toBe(true);
     });
 
@@ -96,16 +100,16 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
         aggregatorServiceMock.getBalancesForNetworks as jest.Mock;
 
       // On first run, loads active + 1st non-active, favorite network and all other favorite networks
-      expect(getFetchedNetworksForCall(mock, 0)).toEqual([1, 2, 3, 4]);
+      expect(getFetchedNetworksForCall(mock, 0).chainIds).toEqual([1, 2, 3, 4]);
 
       // On second run, loads active + 2nd non-active, favorite network
-      expect(getFetchedNetworksForCall(mock, 1)).toEqual([1, 3]);
+      expect(getFetchedNetworksForCall(mock, 1).chainIds).toEqual([1, 3]);
 
       // On third run, loads active + 3rd non-active, favorite network
-      expect(getFetchedNetworksForCall(mock, 2)).toEqual([1, 4]);
+      expect(getFetchedNetworksForCall(mock, 2).chainIds).toEqual([1, 4]);
 
       // Every 15th run, the cycle repeats (without loading all networks at the same time)
-      expect(getFetchedNetworksForCall(mock, 15)).toEqual([1, 2]);
+      expect(getFetchedNetworksForCall(mock, 15).chainIds).toEqual([1, 2]);
     });
   });
 });

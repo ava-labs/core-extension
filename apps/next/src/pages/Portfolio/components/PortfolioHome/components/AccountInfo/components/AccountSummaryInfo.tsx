@@ -3,6 +3,7 @@ import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { ClickableStack } from '../styled';
 import { Account } from '@core/types';
+import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
 type Props = {
   account?: Account;
   accountName: string;
@@ -26,6 +27,7 @@ export const AccountSummaryInfo = ({
 }: Props) => {
   const history = useHistory();
   const theme = useTheme();
+  const { setAccountInfoElement } = useAccountInfoVisibility();
 
   return (
     <ClickableStack
@@ -39,7 +41,12 @@ export const AccountSummaryInfo = ({
       }}
     >
       <Stack direction="row" alignItems="center" mt={-0.5}>
-        <AccountName noWrap variant="h2" color="text.secondary">
+        <AccountName
+          noWrap
+          variant="h2"
+          color="text.secondary"
+          ref={setAccountInfoElement}
+        >
           {accountName}
         </AccountName>
         <MdUnfoldMore

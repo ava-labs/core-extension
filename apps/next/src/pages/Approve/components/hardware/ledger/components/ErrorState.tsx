@@ -1,13 +1,18 @@
-import { Box, Stack, Typography } from '@avalabs/k2-alpine';
+import { Box, Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 import { FiAlertCircle } from 'react-icons/fi';
 
-type ErrorStateProps = {
+type ErrorStateProps = StackProps & {
   title: string;
-  description: string;
+  description: string | React.ReactNode;
   action?: React.ReactNode;
 };
 
-export const ErrorState = ({ title, description, action }: ErrorStateProps) => {
+export const ErrorState = ({
+  title,
+  description,
+  action,
+  ...props
+}: ErrorStateProps) => {
   return (
     <Stack width="100%" height="100%" gap={2}>
       <Stack
@@ -18,6 +23,7 @@ export const ErrorState = ({ title, description, action }: ErrorStateProps) => {
         justifyContent="center"
         textAlign="center"
         px={5}
+        {...props}
       >
         <Box flexShrink={0}>
           <FiAlertCircle size={24} />
@@ -26,7 +32,11 @@ export const ErrorState = ({ title, description, action }: ErrorStateProps) => {
           <Typography variant="body3" fontWeight={500}>
             {title}
           </Typography>
-          <Typography variant="caption">{description}</Typography>
+          {typeof description === 'string' ? (
+            <Typography variant="caption">{description}</Typography>
+          ) : (
+            description
+          )}
         </Stack>
       </Stack>
       {action && <Stack gap={0.5}>{action}</Stack>}
