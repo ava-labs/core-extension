@@ -7,9 +7,10 @@ import {
 } from 'react';
 
 import { isPrimaryAccount } from '@core/common';
-import { Account, FeatureGates } from '@core/types';
+import { Account, FeatureGates, SecretType } from '@core/types';
 import { useAccountsContext } from './AccountsProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
+import { useWalletContext } from './WalletProvider';
 
 interface AccountManagerContextProps {
   children?: React.ReactNode;
@@ -46,11 +47,20 @@ export const AccountManagerProvider = ({
 }: AccountManagerContextProps) => {
   const { accounts } = useAccountsContext();
   const { featureFlags } = useFeatureFlagContext();
+  const { getWallet } = useWalletContext();
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [isManageMode, setIsManageMode] = useState(false);
 
   const isAccountSelectable = useCallback(
     (account: Account) => {
+      // Seedless accounts cannot be selected for deletion
+      if (isPrimaryAccount(account)) {
+        const wallet = getWallet(account.walletId);
+        if (wallet?.type === SecretType.Seedless) {
+          return false;
+        }
+      }
+
       if (
         !featureFlags[FeatureGates.PRIMARY_ACCOUNT_REMOVAL] ||
         !isPrimaryAccount(account)
@@ -81,7 +91,13 @@ export const AccountManagerProvider = ({
 
       return false;
     },
-    [featureFlags, selectedAccounts, accounts.primary, accounts.imported],
+    [
+      featureFlags,
+      selectedAccounts,
+      accounts.primary,
+      accounts.imported,
+      getWallet,
+    ],
   );
 
   const selectAccount = useCallback((accountId: string) => {
