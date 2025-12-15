@@ -114,7 +114,6 @@ export const AddContact = () => {
               <SVMAddressField value={addressSVM} onChange={setAddressSVM} />
             </>
           )}
-          <Divider />
         </AddressesCard>
       </Stack>
       <Stack width="100%" gap={1}>

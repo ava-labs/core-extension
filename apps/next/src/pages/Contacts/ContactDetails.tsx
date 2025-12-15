@@ -123,7 +123,6 @@ export const ContactDetails = () => {
             />
           </>
         )}
-        <Divider />
       </AddressesCard>
       <Stack width="100%" gap={1} minHeight={100} justifyContent="flex-end">
         {hasChanges ? (
