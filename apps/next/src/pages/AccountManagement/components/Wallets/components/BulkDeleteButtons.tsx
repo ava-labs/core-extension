@@ -1,5 +1,13 @@
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
-import { alpha, Box, Button, Slide, Stack, styled } from '@avalabs/k2-alpine';
+import {
+  alpha,
+  Box,
+  Button,
+  Slide,
+  Stack,
+  styled,
+  Tooltip,
+} from '@avalabs/k2-alpine';
 import { isPrimaryAccount } from '@core/common';
 import { IMPORTED_ACCOUNTS_WALLET_ID, SecretType } from '@core/types';
 import {
@@ -59,36 +67,50 @@ export const BulkDeleteButtons: FC = () => {
         onExited={() => exitManageMode()}
       >
         <Stack direction="column" gap={1} marginTop="auto">
-          <Button
-            variant="contained"
-            color="primary"
-            size="extension"
-            fullWidth
-            disabled={selectedAccounts.length === 0 || hasSeedlessAccount}
-            onClick={() => {
-              const selectedAccountsData = selectedAccounts
-                .map((id) => allAccounts.find((acc) => acc.id === id))
-                .filter(isPrimaryAccount);
-              const hasImportedAccount = selectedAccountsData.some(
-                (account) =>
-                  'walletId' in account &&
-                  account.walletId === IMPORTED_ACCOUNTS_WALLET_ID,
-              );
-              if (hasImportedAccount) {
-                capture('ImportedAccountDeleteClicked');
-              }
-              const params = new URLSearchParams(
-                selectedAccounts.map((id) => [URL_SEARCH_TOKENS.account, id]),
-              );
-              params.set(URL_SEARCH_TOKENS.bulkMode, 'true');
-              push({
-                pathname: '/account-management/delete-account',
-                search: params.toString(),
-              });
-            }}
+          <Tooltip
+            title={
+              hasSeedlessAccount
+                ? t('Seedless accounts are unable to be deleted')
+                : ''
+            }
+            placement="top"
           >
-            {t('Delete selected')}
-          </Button>
+            <Box>
+              <Button
+                variant="contained"
+                color="primary"
+                size="extension"
+                fullWidth
+                disabled={selectedAccounts.length === 0 || hasSeedlessAccount}
+                onClick={() => {
+                  const selectedAccountsData = selectedAccounts
+                    .map((id) => allAccounts.find((acc) => acc.id === id))
+                    .filter(isPrimaryAccount);
+                  const hasImportedAccount = selectedAccountsData.some(
+                    (account) =>
+                      'walletId' in account &&
+                      account.walletId === IMPORTED_ACCOUNTS_WALLET_ID,
+                  );
+                  if (hasImportedAccount) {
+                    capture('ImportedAccountDeleteClicked');
+                  }
+                  const params = new URLSearchParams(
+                    selectedAccounts.map((id) => [
+                      URL_SEARCH_TOKENS.account,
+                      id,
+                    ]),
+                  );
+                  params.set(URL_SEARCH_TOKENS.bulkMode, 'true');
+                  push({
+                    pathname: '/account-management/delete-account',
+                    search: params.toString(),
+                  });
+                }}
+              >
+                {t('Delete selected')}
+              </Button>
+            </Box>
+          </Tooltip>
           <Button
             variant="contained"
             color="secondary"
