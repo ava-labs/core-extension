@@ -98,7 +98,7 @@ export const WalletCard: FC<WalletCardProps> = ({
             alignItems="center"
             width="calc(100% - 32px)"
             justifyContent="space-between"
-            gap={1}
+            gap={2}
             mr={1}
           >
             {disableRename ? (
