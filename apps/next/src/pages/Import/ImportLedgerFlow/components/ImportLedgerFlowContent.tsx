@@ -91,9 +91,9 @@ export const ImportLedgerFlowContent = () => {
 
       setIsBackButtonVisible(true);
       if (step > 1) {
-        registerBackButtonHandler(() => history.goBack());
+        return registerBackButtonHandler(() => history.goBack());
       } else {
-        registerBackButtonHandler(() =>
+        return registerBackButtonHandler(() =>
           openApp({
             closeWindow: true,
             navigateTo: {
