@@ -26,7 +26,7 @@ export const AccountInfoVisibilityProvider = ({
 }: {
   children?: ReactNode;
 }) => {
-  const [isAccountInfoVisible, setIsAccountInfoVisible] = useState(false);
+  const [isAccountInfoVisible, setIsAccountInfoVisible] = useState(true);
   const [element, setElement] = useState<HTMLDivElement | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -40,7 +40,7 @@ export const AccountInfoVisibilityProvider = ({
     }
 
     if (!element) {
-      setIsAccountInfoVisible(false);
+      setIsAccountInfoVisible(true);
       return;
     }
 

@@ -376,7 +376,7 @@ export const SettingsHomePage = () => {
       {isDeveloperMode && (
         <TestnetModeOverlay
           verticalLines={[12, -12]}
-          horizontalLines={[80, 102, 116]}
+          horizontalLines={[102, 126, 140]}
         />
       )}
     </Page>
