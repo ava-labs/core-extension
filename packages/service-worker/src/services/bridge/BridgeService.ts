@@ -188,9 +188,11 @@ export class BridgeService implements OnLock, OnStorageReady {
       }
 
       const balances = await this.networkBalancesService.getBalancesForNetworks(
-        [btcNetwork.chainId],
-        [activeAccount],
-        [TokenType.NATIVE], // We only care about BTC here, which is a native token
+        {
+          chainIds: [btcNetwork.chainId],
+          accounts: [activeAccount],
+          tokenTypes: [TokenType.NATIVE], // We only care about BTC here, which is a native token
+        },
       );
 
       const token = balances.tokens[btcNetwork.chainId]?.[addressBtc]?.[
