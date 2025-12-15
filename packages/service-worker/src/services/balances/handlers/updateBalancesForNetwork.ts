@@ -68,9 +68,11 @@ export class UpdateBalancesForNetworkHandler implements HandlerType {
 
     try {
       const balances = await this.networkBalancesService.getBalancesForNetworks(
-        networksToFetch,
-        accountsToFetch,
-        [TokenType.NATIVE, TokenType.ERC20],
+        {
+          chainIds: networksToFetch,
+          accounts: accountsToFetch,
+          tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        },
       );
       return {
         ...request,

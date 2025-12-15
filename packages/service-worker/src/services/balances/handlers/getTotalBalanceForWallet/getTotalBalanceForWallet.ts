@@ -57,6 +57,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
   ) {}
 
   async #queryAccountsSequentially(
+    walletId: string,
     accounts: ImportedAccount[] | PrimaryAccount[],
     networksIncludedInTotal: NetworkWithCaipId[],
   ): Promise<{
@@ -68,11 +69,12 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
 
     for (const account of accounts) {
       const { tokens: derivedAddressesBalances } =
-        await this.balanceAggregatorService.getBalancesForNetworks(
-          networksIncludedInTotal.map((network) => network.chainId),
-          [account],
-          [TokenType.NATIVE, TokenType.ERC20],
-        );
+        await this.balanceAggregatorService.getBalancesForNetworks({
+          chainIds: networksIncludedInTotal.map((network) => network.chainId),
+          accounts: [account],
+          tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+          requestId: walletId,
+        });
 
       const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
         derivedAddressesBalances,
@@ -96,6 +98,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
   }
 
   async #queryTotalBalanceInOneRoundTrip(
+    walletId: string,
     accounts: ImportedAccount[] | PrimaryAccount[],
     networksIncludedInTotal: NetworkWithCaipId[],
   ): Promise<{
@@ -103,11 +106,12 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     totalPriceChangeValue: number;
   }> {
     const { tokens: derivedAddressesBalances } =
-      await this.balanceAggregatorService.getBalancesForNetworks(
-        networksIncludedInTotal.map((network) => network.chainId),
+      await this.balanceAggregatorService.getBalancesForNetworks({
+        chainIds: networksIncludedInTotal.map((network) => network.chainId),
         accounts,
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: walletId,
+      });
 
     const { balance, priceChangeValue } = calculateTotalBalanceForAccounts(
       derivedAddressesBalances,
@@ -247,10 +251,12 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         totalPriceChangeValue: totalPriceChangeValueForDerivedAccounts,
       } = isBalanceServiceIntegrationOn
         ? await this.#queryTotalBalanceInOneRoundTrip(
+            walletId,
             derivedAccounts,
             networksIncludedInTotal,
           )
         : await this.#queryAccountsSequentially(
+            walletId,
             derivedAccounts,
             networksIncludedInTotal,
           );
@@ -279,6 +285,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             totalBalanceInCurrency: totalBalanceInCurrencyForUnderivedAccounts,
             totalPriceChangeValue: totalPriceChangeValueForUnderivedAccounts,
           } = await this.#queryTotalBalanceInOneRoundTrip(
+            walletId,
             underivedAccounts as ImportedAccount[] | PrimaryAccount[],
             xpChains,
           );
@@ -294,11 +301,11 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
           for (let i = 0; i < underivedAccounts.length; i += batchSize) {
             const accountsBatch = underivedAccounts.slice(i, i + batchSize);
             const { tokens: underivedAddressesBalances } =
-              await this.balanceAggregatorService.getBalancesForNetworks(
-                getXPChainIds(this.networkService.isMainnet()),
-                accountsBatch as Account[],
-                [TokenType.NATIVE],
-              );
+              await this.balanceAggregatorService.getBalancesForNetworks({
+                chainIds: getXPChainIds(this.networkService.isMainnet()),
+                accounts: accountsBatch as Account[],
+                tokenTypes: [TokenType.NATIVE],
+              });
 
             const { balance: underivedAccountsTotal, priceChangeValue } =
               calculateTotalBalanceForAccounts(

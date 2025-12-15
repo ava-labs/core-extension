@@ -4,7 +4,7 @@ import { NetworkVMType } from '@avalabs/vm-module-types';
 import { FC, Fragment } from 'react';
 import { useGroupedHistory } from '../../../hooks';
 import { List, ListItem, Typography } from '@avalabs/k2-alpine';
-import { EmptyState } from '@/pages/Portfolio/components/PortfolioHome/components/EmptyState';
+import { EmptyState } from '../../EmptyState';
 import * as Styled from './Styled';
 import { TransactionItem } from './TransactionItem';
 import { TransactionListSkeleton } from '../Skeleton';

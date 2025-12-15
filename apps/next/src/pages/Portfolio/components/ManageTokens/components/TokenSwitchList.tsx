@@ -8,30 +8,33 @@ import { Divider } from './Divider';
 import { TokenListItem } from './TokenListItem';
 import { isEmpty } from 'lodash';
 import { useTranslation } from 'react-i18next';
+import { isTokenMalicious } from '@core/common';
 
 interface Props {
   filter: string;
-  spam: boolean;
+  includeSpamTokens: boolean;
 }
 
-export const TokenSwitchList: FC<Props> = ({ filter, spam }) => {
+export const TokenSwitchList: FC<Props> = ({ filter, includeSpamTokens }) => {
   const [height, containerRef] = useContainerHeight<HTMLDivElement>(400);
-  const tokensWithBalances = useAllTokensFromEnabledNetworks(true, !spam);
+  const tokensWithBalances = useAllTokensFromEnabledNetworks(true);
 
   const { t } = useTranslation();
-  const filteredTokensList = useMemo(
-    () =>
-      filter
-        ? tokensWithBalances.filter((token) => {
-            const normalizedFilter = filter.toLowerCase();
-            return (
-              token.name.toLowerCase().includes(normalizedFilter) ||
-              token.symbol.toLowerCase().includes(normalizedFilter)
-            );
-          })
-        : tokensWithBalances,
-    [filter, tokensWithBalances],
-  );
+  const filteredTokensList = useMemo(() => {
+    const list = filter
+      ? tokensWithBalances.filter((token) => {
+          const normalizedFilter = filter.toLowerCase();
+          return (
+            token.name.toLowerCase().includes(normalizedFilter) ||
+            token.symbol.toLowerCase().includes(normalizedFilter)
+          );
+        })
+      : tokensWithBalances;
+
+    return includeSpamTokens
+      ? list
+      : list.filter((token) => !isTokenMalicious(token));
+  }, [filter, tokensWithBalances, includeSpamTokens]);
 
   return (
     <Box height={1} ref={containerRef}>

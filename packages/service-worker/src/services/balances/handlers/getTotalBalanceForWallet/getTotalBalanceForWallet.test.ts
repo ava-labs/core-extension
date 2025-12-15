@@ -345,33 +345,33 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for first derived account (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_IMPORTED_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_IMPORTED_0],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: '__IMPORTED__',
+      });
 
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(2, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_IMPORTED_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_IMPORTED_1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: '__IMPORTED__',
+      });
     });
 
     it('returns the correct total balance for imported accounts', async () => {
@@ -404,18 +404,18 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for derived accounts (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_SEEDLESS],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEEDLESS],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedless',
+      });
     });
 
     it('returns the correct total balance for already derived accounts', async () => {
@@ -448,33 +448,33 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for first derived account (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_SEED_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_0],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(2, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_MAINNET_ID,
           ChainId.AVALANCHE_X,
           ChainId.AVALANCHE_P,
           ChainId.BITCOIN,
           ChainId.ETHEREUM_HOMESTEAD,
         ]),
-        [ACCOUNT_SEED_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
@@ -498,33 +498,33 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       // Call 1: All networks for first derived account (native + ERC20 tokens)
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_TESTNET_ID,
           ChainId.AVALANCHE_TEST_X,
           ChainId.AVALANCHE_TEST_P,
           ChainId.BITCOIN_TESTNET,
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ]),
-        [ACCOUNT_SEED_0],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_0],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        2,
-        expect.arrayContaining([
+      ).toHaveBeenNthCalledWith(2, {
+        chainIds: expect.arrayContaining([
           ChainId.AVALANCHE_TESTNET_ID,
           ChainId.AVALANCHE_TEST_X,
           ChainId.AVALANCHE_TEST_P,
           ChainId.BITCOIN_TESTNET,
           ChainId.ETHEREUM_TEST_SEPOLIA,
         ]),
-        [ACCOUNT_SEED_1],
-        [TokenType.NATIVE, TokenType.ERC20],
-      );
+        accounts: [ACCOUNT_SEED_1],
+        tokenTypes: [TokenType.NATIVE, TokenType.ERC20],
+        requestId: 'seedphrase',
+      });
 
       expect(response.result).toEqual({
         hasBalanceOnUnderivedAccounts: false,
@@ -810,18 +810,20 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       ).toHaveBeenCalledTimes(1);
       expect(
         balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenNthCalledWith(
-        1,
-        [43114, 4503599627370471, 4503599627370469, 4503599627370475, 1],
-        [
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: [
+          43114, 4503599627370471, 4503599627370469, 4503599627370475, 1,
+        ],
+        accounts: [
           ACCOUNT_SEED_0,
           ACCOUNT_SEED_1,
           ACCOUNT_LEDGER_0,
           ACCOUNT_LEDGER_1,
           ACCOUNT_SEEDLESS,
         ],
-        ['NATIVE', 'ERC20'],
-      );
+        tokenTypes: ['NATIVE', 'ERC20'],
+        requestId: 'testing',
+      });
     });
   });
 });
