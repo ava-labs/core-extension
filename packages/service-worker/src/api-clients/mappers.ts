@@ -49,10 +49,15 @@ const isTokenEnabled = (
   tokenBalance: Erc20TokenBalance | SplTokenBalance,
   enabledTokens: Record<string, boolean> | undefined,
 ): boolean => {
+  const addressMapper =
+    tokenBalance.type === 'erc20'
+      ? (address: string) => address.toLowerCase()
+      : (address: string) => address;
+
   return (
     isNil(tokenBalance.scanResult) ||
     ['Benign', 'Warning'].includes(tokenBalance.scanResult) ||
-    Boolean(enabledTokens?.[tokenBalance.address])
+    Boolean(enabledTokens?.[addressMapper(tokenBalance.address)])
   );
 };
 
