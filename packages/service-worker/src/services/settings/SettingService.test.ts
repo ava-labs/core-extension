@@ -284,12 +284,12 @@ describe('background/services/settings/SettingsService.ts', () => {
       });
     });
 
-    describe('setCurrencty', () => {
-      it('should save the new value for curency properly', async () => {
+    describe('setCurrency', () => {
+      it('should save the new value for currency properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-        await service.setCurrencty('CHF');
+        await service.setCurrency('CHF');
 
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
@@ -299,13 +299,13 @@ describe('background/services/settings/SettingsService.ts', () => {
 
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
-          await service.setCurrencty('CHF');
+          await service.setCurrency('CHF');
         });
       });
     });
 
     describe('setShowTokensWithNoBalance', () => {
-      it('should save the new value for show tolens with no balance properly', async () => {
+      it('should save the new value for show tokens with no balance properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
