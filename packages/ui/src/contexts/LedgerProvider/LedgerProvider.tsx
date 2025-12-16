@@ -239,6 +239,14 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         throw new Error('Ledger not connected');
       }
 
+      // If data is being exchanged right now, wait for it to complete.
+      if (transportRef.current?.exchangeBusyPromise) {
+        await withTimeout(
+          transportRef.current.exchangeBusyPromise,
+          1_500, // Usually the conflicting exchange will be us querying for the device status, which is pretty fast.
+        );
+      }
+
       // first try to get the avalanche App instance
       const avaxAppInstance = new AppAvalanche(transport);
       if (avaxAppInstance) {

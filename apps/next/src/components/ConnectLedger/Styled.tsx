@@ -69,13 +69,14 @@ type LedgerConnectionErrorProps = {
   errorType: ErrorType;
   onTroubleshoot: () => void;
   onRetry: () => void;
-  overrideErrorScreens?: Record<ErrorType, React.ReactNode>;
+  retryLabel?: string;
 };
 
 export const LedgerConnectionError = ({
   errorType,
   onRetry,
   onTroubleshoot,
+  retryLabel,
 }: LedgerConnectionErrorProps) => {
   const { t } = useTranslation();
 
@@ -98,7 +99,7 @@ export const LedgerConnectionError = ({
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
-          {t('Retry')}
+          {retryLabel ?? t('Retry')}
         </NavButton>
       </Stack>
     </Stack>

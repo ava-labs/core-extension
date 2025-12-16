@@ -108,10 +108,13 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
 
   const addresses = deriveAddresses(activePublicKeys);
 
+  const isDuplicatedWalletError =
+    status === 'error' && error === 'duplicated-wallet';
+
   return (
     <>
       <Stack gap={3} width="100%">
-        {status === 'ready' && (
+        {(status === 'ready' || isDuplicatedWalletError) && (
           <>
             {withDerivationPathSpec && (
               <Styled.DerivationPathSelector
@@ -124,7 +127,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
                 labels={props.overrides?.PathSelector?.labels}
               />
             )}
-            {addresses.length === 0 ? (
+            {isDuplicatedWalletError ? null : addresses.length === 0 ? (
               <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
             ) : (
               <DerivedAddresses
@@ -157,9 +160,29 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
           errorType={error}
           onTroubleshoot={onTroubleshoot}
           onRetry={() => {
+            if (isDuplicatedWalletError) {
+              props.setDerivationPathSpec?.(
+                props.derivationPathSpec === DerivationPath.BIP44
+                  ? DerivationPath.LedgerLive
+                  : DerivationPath.BIP44,
+              );
+              setKeys([]);
+              onStatusChange('waiting');
+            }
+
             callbacks?.onConnectionRetry();
             onRetry();
           }}
+          retryLabel={
+            isDuplicatedWalletError
+              ? t('Connect with {{spec}} derivation paths', {
+                  spec:
+                    props.derivationPathSpec === DerivationPath.BIP44
+                      ? 'LedgerLive'
+                      : 'BIP44',
+                })
+              : t('Retry')
+          }
         />
       )}
       {status !== 'error' && (

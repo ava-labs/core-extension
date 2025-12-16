@@ -180,6 +180,7 @@
   "Connect the Ledger device to your computer": "Connect the Ledger device to your computer",
   "Connect the Ledger device to your computer.": "Connect the Ledger device to your computer.",
   "Connect with WalletConnect": "Connect with WalletConnect",
+  "Connect with {{spec}} derivation paths": "Connect with {{spec}} derivation paths",
   "Connect your Keystone": "Connect your Keystone",
   "Connect your Ledger": "Connect your Ledger",
   "Connect your Ledger device and open the Avalanche app to add an account.": "Connect your Ledger device and open the Avalanche app to add an account.",
