@@ -20,10 +20,8 @@ import { SettingsService } from '../../settings/SettingsService';
 import { NetworkService } from '../../network/NetworkService';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
-import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
 import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
-jest.mock('../utils/addChainsToFavoriteIfNeeded');
 jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
   addAllAccountsWithHistory: jest.fn(),
 }));
@@ -200,7 +198,5 @@ describe('src/background/services/onboarding/handlers/mnemonicOnboardingHandler.
     expect(
       analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
-
-    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

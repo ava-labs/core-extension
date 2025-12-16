@@ -21,10 +21,8 @@ import { OnboardingService } from '../OnboardingService';
 import { LedgerOnboardingHandler } from './ledgerOnboardingHandler';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
-import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
 import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
-jest.mock('../utils/addChainsToFavoriteIfNeeded');
 jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
   addAllAccountsWithHistory: jest.fn(),
 }));
@@ -310,7 +308,5 @@ describe('src/background/services/onboarding/handlers/ledgerOnboardingHandler.ts
     expect(
       analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
-
-    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

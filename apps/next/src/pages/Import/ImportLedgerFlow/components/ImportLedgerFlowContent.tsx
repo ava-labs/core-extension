@@ -2,6 +2,7 @@ import { toast } from '@avalabs/k2-alpine';
 import { memoize } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 
 import {
@@ -177,8 +178,15 @@ export const ImportLedgerFlowContent = () => {
       <Route exact path={CONNECT_AVAX_PATHS}>
         <ConnectAvalanche
           connectorCallbacks={avalancheConnectorCallbacks}
-          onNext={({ addressPublicKeys, extendedPublicKeys }, secretType) => {
-            setLedgerSecretType(secretType);
+          onNext={(
+            { addressPublicKeys, extendedPublicKeys },
+            derivationPathSpec,
+          ) => {
+            setLedgerSecretType(
+              derivationPathSpec === DerivationPath.BIP44
+                ? SecretType.Ledger
+                : SecretType.LedgerLive,
+            );
             setPublicKeys(addressPublicKeys.map(({ key }) => key));
             setExtPublicKeys(extendedPublicKeys ?? []);
             if (isSolanaSupported) {
