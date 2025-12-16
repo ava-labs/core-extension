@@ -1,6 +1,8 @@
 <!-- This is a temporary logo for the Danish Krone until k2-alpine is ready -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 280">
-	<rect width="370" height="280" fill="#c60c30"/>
-	<rect width="40" height="280" x="120" fill="#fff"/>
-	<rect width="370" height="40" y="120" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128.0922 128.03" width="128.092px" height="128.03px">
+	<g transform="matrix(0.3461950123310089, 0, 0, 0.45725002884864807, 2.842170943040401e-14, -0.0000010000001111620804)" style="">
+		<rect width="370" height="280" fill="#c60c30"/>
+		<rect width="40" height="280" x="120" fill="#fff"/>
+		<rect width="370" height="40" y="120" fill="#fff"/>
+	</g>
 </svg>

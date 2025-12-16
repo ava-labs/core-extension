@@ -1,6 +1,8 @@
 <!-- This is a temporary logo for the Czech Crown until k2-alpine is ready -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
-	<rect width="900" height="600" fill="#d7141a"/>
-	<rect width="900" height="300" fill="#fff"/>
-	<path d="M 450,300 0,0 V 600 z" fill="#11457e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128.0232 128.0058" width="128px" height="128px">
+	<g transform="matrix(0.1422480046749115, 0, 0, 0.21334300935268402, 0.000005000001010557753, 0.000004000000444648322)" style="">
+		<rect width="900" height="600" fill="#d7141a"/>
+		<rect width="900" height="300" fill="#fff"/>
+		<path d="M 450,300 0,0 V 600 z" fill="#11457e"/>
+	</g>
 </svg>
