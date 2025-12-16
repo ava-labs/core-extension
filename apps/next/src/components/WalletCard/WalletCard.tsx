@@ -6,7 +6,7 @@ import {
   TypographyProps,
 } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
-import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
+import { useBalancesContext, useSettingsContext } from '@core/ui';
 import {
   cloneElement,
   FC,
@@ -43,8 +43,9 @@ export const WalletCard: FC<WalletCardProps> = ({
 }) => {
   const { t } = useTranslation();
   const { push } = useHistory();
+  const { getWalletTotalBalance } = useBalancesContext();
   const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
-    useWalletTotalBalance(id);
+    getWalletTotalBalance(id);
   const { currencyFormatter } = useSettingsContext();
 
   const [isExpanded, setIsExpanded] = useState(initialExpanded);

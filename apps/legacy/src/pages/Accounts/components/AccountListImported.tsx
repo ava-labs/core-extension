@@ -1,13 +1,15 @@
 import { Collapse, Stack } from '@avalabs/core-k2-components';
 import { useState } from 'react';
 
-import { useAccountsContext } from '@core/ui';
+import {
+  useAccountsContext,
+  useBalancesContext,
+  SelectionMode,
+} from '@core/ui';
 import { Account, IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { isImportedAccount } from '@core/common';
 
 import { useTranslation } from 'react-i18next';
-import { useWalletTotalBalance } from '@core/ui';
-import { SelectionMode } from '@core/ui';
 import { AccountItem } from './AccountItem';
 import WalletHeader from './WalletHeader';
 
@@ -21,8 +23,9 @@ export const AccountListImported = ({ accounts }: AccountListProps) => {
   } = useAccountsContext();
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
+  const { getWalletTotalBalance } = useBalancesContext();
   const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
-    useWalletTotalBalance(IMPORTED_ACCOUNTS_WALLET_ID);
+    getWalletTotalBalance(IMPORTED_ACCOUNTS_WALLET_ID);
 
   return (
     <Stack sx={{ pt: 0.75, width: 1 }}>

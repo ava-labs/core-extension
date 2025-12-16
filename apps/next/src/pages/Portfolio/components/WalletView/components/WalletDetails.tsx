@@ -7,8 +7,8 @@ import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
 import {
   useAccountsContext,
+  useBalancesContext,
   useSettingsContext,
-  useWalletTotalBalance,
 } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
@@ -22,13 +22,14 @@ export const WalletDetails = ({ wallet }: Props) => {
   const { coreAssistant } = useSettingsContext();
   const accountsInWallet = getAccountsByWalletId(wallet.id);
   const networksWithBalance = useNetworksWithBalance({ walletId: wallet.id });
+  const { getWalletTotalBalance } = useBalancesContext();
   const {
     isLoading,
     hasErrorOccurred,
     totalBalanceInCurrency,
     balanceChange,
     percentageChange,
-  } = useWalletTotalBalance(wallet.id);
+  } = getWalletTotalBalance(wallet.id);
   const {
     selected: { name: userAvatarName },
   } = usePersonalAvatar();

@@ -51,7 +51,6 @@ export * from './useTotpErrorMessage';
 export * from './useWillSwitchToPrimaryAccount';
 export * from './useWindowGetsClosedOrHidden';
 export * from './useWalletName';
-export * from './useWalletTotalBalance';
 export * from './usePrivateKeyImport';
 export * from './usePrivateKeyExport';
 export * from './useKeystoreFileImport';

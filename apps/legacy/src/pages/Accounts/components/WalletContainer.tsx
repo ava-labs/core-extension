@@ -1,17 +1,9 @@
 import { useState } from 'react';
-import {
-  Button,
-  Collapse,
-  Grow,
-  OutboundIcon,
-  Stack,
-} from '@avalabs/core-k2-components';
-import { useTranslation } from 'react-i18next';
+import { Collapse, Stack } from '@avalabs/core-k2-components';
 
 import { SecretType, WalletDetails, PrimaryAccount } from '@core/types';
 
-import { useWalletTotalBalance } from '@core/ui';
-import { SelectionMode } from '@core/ui';
+import { useBalancesContext, SelectionMode } from '@core/ui';
 import { AccountItem } from './AccountItem';
 import WalletHeader from './WalletHeader';
 
@@ -25,14 +17,10 @@ export const WalletContainer = ({
   isActive: boolean;
   accounts: PrimaryAccount[];
 }) => {
-  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(true);
-  const {
-    isLoading,
-    hasErrorOccurred,
-    totalBalanceInCurrency,
-    hasBalanceOnUnderivedAccounts,
-  } = useWalletTotalBalance(walletDetails.id);
+  const { getWalletTotalBalance } = useBalancesContext();
+  const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
+    getWalletTotalBalance(walletDetails.id);
 
   return (
     <Stack sx={{ pt: 0.75, width: 1 }}>
@@ -60,31 +48,6 @@ export const WalletContainer = ({
             />
           ))}
         </Stack>
-        <Grow in={isActive && hasBalanceOnUnderivedAccounts}>
-          <Stack
-            sx={{
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              px: 2,
-              mt: 1,
-            }}
-          >
-            <Button
-              size="small"
-              variant="text"
-              onClick={() => {
-                window.open(
-                  `${process.env.CORE_WEB_BASE_URL}/portfolio/wallet/p-chain/assets`,
-                  '_blank',
-                  'noreferrer',
-                );
-              }}
-              endIcon={<OutboundIcon />}
-            >
-              {t('View P-Chain Details')}
-            </Button>
-          </Stack>
-        </Grow>
       </Collapse>
     </Stack>
   );

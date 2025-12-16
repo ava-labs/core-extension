@@ -5,7 +5,6 @@ import {
   useApproveAction,
   useGetRequestId,
   usePermissionContext,
-  WalletTotalBalanceProvider,
 } from '@core/ui';
 import { mapAddressesToVMs } from '@core/common';
 import { ActionStatus, DAppProviderRequest } from '@core/types';
@@ -78,22 +77,20 @@ export const ApproveDappConnection: FC = () => {
 
   return (
     <Styled.ApprovalScreenPage>
-      <WalletTotalBalanceProvider>
-        {action.displayData.isMalicious && (
-          <MaliciousDappOverlay
-            open={action.displayData.isMalicious}
-            cancelHandler={cancelHandler}
-          />
-        )}
-        <DappAccountSelector
-          action={action}
-          activeAccount={activeAccount}
-          permissions={permissions}
-          updateAction={updateAction}
+      {action.displayData.isMalicious && (
+        <MaliciousDappOverlay
+          open={action.displayData.isMalicious}
           cancelHandler={cancelHandler}
-          error={error}
         />
-      </WalletTotalBalanceProvider>
+      )}
+      <DappAccountSelector
+        action={action}
+        activeAccount={activeAccount}
+        permissions={permissions}
+        updateAction={updateAction}
+        cancelHandler={cancelHandler}
+        error={error}
+      />
     </Styled.ApprovalScreenPage>
   );
 };

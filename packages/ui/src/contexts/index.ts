@@ -25,5 +25,4 @@ export * from './UnifiedBridgeProvider';
 export * from './utils/getCurrencyFormatter';
 export * from './WalletConnectContextProvider';
 export * from './WalletProvider';
-export * from './WalletTotalBalanceProvider';
 export * from './AccountManagerProvider';

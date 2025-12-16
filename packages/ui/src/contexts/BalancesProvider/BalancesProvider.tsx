@@ -13,15 +13,18 @@ import {
   ExtensionRequest,
   TotalAtomicBalanceForAccount,
   TotalPriceChange,
+  IMPORTED_ACCOUNTS_WALLET_ID,
 } from '@core/types';
-import { merge } from 'lodash';
+import { merge, isString } from 'lodash';
 import {
   createContext,
   PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
@@ -39,6 +42,7 @@ import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import { useAccountsContext } from '../AccountsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
+import { useWalletContext } from '../WalletProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
 import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
 
@@ -95,6 +99,14 @@ export type AccountAtomicBalanceState =
     hasErrorOccurred: boolean;
   };
 
+export type WalletTotalBalanceState = {
+  totalBalanceInCurrency?: number;
+  balanceChange?: number;
+  percentageChange?: number;
+  isLoading: boolean;
+  hasErrorOccurred: boolean;
+};
+
 const BalancesContext = createContext<{
   balances: BalancesState;
   refreshNftMetadata(
@@ -123,6 +135,11 @@ const BalancesContext = createContext<{
   getAtomicBalance: (
     accountId: string | undefined,
   ) => AccountAtomicBalanceState | undefined;
+  // Wallet total balance functions
+  walletBalances: Record<string, WalletTotalBalanceState>;
+  fetchBalanceForWallet: (walletId: string) => Promise<void>;
+  fetchWalletBalancesSequentially: () => Promise<void>;
+  getWalletTotalBalance: (walletId?: string) => WalletTotalBalanceState;
 }>({
   balances: { loading: true },
   async getTokenPrice() {
@@ -139,6 +156,13 @@ const BalancesContext = createContext<{
   },
   getAtomicBalance() {
     return undefined;
+  },
+  // Wallet total balance defaults
+  walletBalances: {},
+  async fetchBalanceForWallet() {},
+  async fetchWalletBalancesSequentially() {},
+  getWalletTotalBalance() {
+    return { isLoading: false, hasErrorOccurred: false };
   },
 });
 
@@ -188,9 +212,11 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
   const {
-    accounts: { active: activeAccount },
+    accounts: { active: activeAccount, imported: importedAccounts },
     getAccount,
+    getAccountsByWalletId,
   } = useAccountsContext();
+  const { wallets } = useWalletContext();
 
   const [balances, dispatch] = useReducer(balancesReducer, {
     loading: true,
@@ -202,6 +228,18 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   >({});
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
+
+  // Wallet total balance state
+  const [walletBalances, setWalletBalances] = useState<
+    Record<string, WalletTotalBalanceState>
+  >({});
+  const isMounted = useRef<boolean>(false);
+  const isSyncingBalances = useRef<boolean>(false);
+
+  const hasImportedAccounts = useMemo(
+    () => Object.keys(importedAccounts).length > 0,
+    [importedAccounts],
+  );
 
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
@@ -445,6 +483,231 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     [accountAtomicBalances],
   );
 
+  // Calculate wallet total balance from account balances
+  const calculateWalletTotalBalance = useCallback(
+    (
+      walletId: string,
+    ): Omit<WalletTotalBalanceState, 'isLoading' | 'hasErrorOccurred'> => {
+      const accounts = getAccountsByWalletId(walletId);
+
+      if (!accounts.length || !balances.tokens) {
+        return {
+          totalBalanceInCurrency: undefined,
+          balanceChange: undefined,
+          percentageChange: undefined,
+        };
+      }
+
+      const chainIds = [
+        network?.chainId,
+        ...getDefaultChainIds(!network?.isTestnet),
+        ...enabledNetworkIds,
+      ].filter(isNotNullish);
+      const networks = chainIds.map(getNetwork).filter(isNotNullish);
+
+      let totalBalanceInCurrency = 0;
+      let totalPriceChangeValue = 0;
+
+      for (const account of accounts) {
+        const accountBalance = calculateTotalBalance(
+          account,
+          networks,
+          balances.tokens,
+        );
+        if (accountBalance.sum !== null) {
+          totalBalanceInCurrency += accountBalance.sum;
+        }
+        totalPriceChangeValue += accountBalance.priceChange?.value ?? 0;
+
+        // Add atomic balance for this account
+        const atomicBalance =
+          accountAtomicBalances[account.id]?.balanceInCurrency ?? 0;
+        totalBalanceInCurrency += atomicBalance;
+      }
+
+      const balanceChange =
+        totalPriceChangeValue !== 0 ? totalPriceChangeValue : undefined;
+      let percentageChange: number | undefined = undefined;
+
+      if (
+        totalBalanceInCurrency > 0 &&
+        balanceChange !== undefined &&
+        balanceChange !== 0
+      ) {
+        const previousBalance = totalBalanceInCurrency - balanceChange;
+        if (previousBalance > 0) {
+          percentageChange = (balanceChange / previousBalance) * 100;
+        }
+      }
+
+      return {
+        totalBalanceInCurrency,
+        balanceChange,
+        percentageChange,
+      };
+    },
+    [
+      getAccountsByWalletId,
+      balances.tokens,
+      network?.chainId,
+      network?.isTestnet,
+      enabledNetworkIds,
+      getNetwork,
+      accountAtomicBalances,
+    ],
+  );
+
+  // Fetch balances for all accounts in a wallet and update wallet total
+  const fetchBalanceForWallet = useCallback(
+    async (walletId: string) => {
+      const accounts = getAccountsByWalletId(walletId);
+
+      if (!accounts.length) {
+        setWalletBalances((prevState) => ({
+          ...prevState,
+          [walletId]: {
+            totalBalanceInCurrency: 0,
+            balanceChange: undefined,
+            percentageChange: undefined,
+            isLoading: false,
+            hasErrorOccurred: false,
+          },
+        }));
+        return;
+      }
+
+      // Set loading state
+      setWalletBalances((prevState) => ({
+        ...prevState,
+        [walletId]: {
+          ...prevState[walletId],
+          hasErrorOccurred: false,
+          isLoading: true,
+        },
+      }));
+
+      try {
+        // Fetch balances for all accounts in the wallet in a single request
+        const chainIds = [
+          network?.chainId,
+          ...getDefaultChainIds(!network?.isTestnet),
+          ...enabledNetworkIds,
+        ].filter(isNotNullish);
+
+        const updatedBalances = await request<UpdateBalancesForNetworkHandler>({
+          method: ExtensionRequest.NETWORK_BALANCES_UPDATE,
+          params: [accounts, chainIds],
+        });
+
+        // Update balances state
+        dispatch({
+          type: BalanceActionType.UPDATE_BALANCES,
+          payload: { balances: updatedBalances, isBalancesCached: false },
+        });
+
+        // Calculate wallet total from the updated balances
+        const walletTotal = calculateWalletTotalBalance(walletId);
+
+        setWalletBalances((prevState) => ({
+          ...prevState,
+          [walletId]: {
+            ...walletTotal,
+            hasErrorOccurred: false,
+            isLoading: false,
+          },
+        }));
+      } catch (err) {
+        console.log('Error while fetching balances for wallet', err);
+        setWalletBalances((prevState) => ({
+          ...prevState,
+          [walletId]: {
+            ...prevState[walletId],
+            hasErrorOccurred: true,
+            isLoading: false,
+          },
+        }));
+      }
+    },
+    [
+      getAccountsByWalletId,
+      network?.chainId,
+      network?.isTestnet,
+      enabledNetworkIds,
+      request,
+      calculateWalletTotalBalance,
+    ],
+  );
+
+  // Fetch wallet balances sequentially for all wallets
+  const fetchWalletBalancesSequentially = useCallback(async () => {
+    if (isSyncingBalances.current) {
+      return;
+    }
+
+    isSyncingBalances.current = true;
+
+    const walletIds = [
+      ...wallets.map(({ id }) => id),
+      hasImportedAccounts ? IMPORTED_ACCOUNTS_WALLET_ID : undefined,
+    ].filter(isString);
+
+    for (const walletId of walletIds) {
+      await fetchBalanceForWallet(walletId);
+      if (!isMounted.current) {
+        return;
+      }
+    }
+
+    isSyncingBalances.current = false;
+  }, [wallets, hasImportedAccounts, fetchBalanceForWallet]);
+
+  // Get wallet total balance
+  const getWalletTotalBalance = useCallback(
+    (walletId?: string): WalletTotalBalanceState => {
+      if (!walletId || !walletBalances[walletId]) {
+        return { isLoading: false, hasErrorOccurred: false };
+      }
+      return walletBalances[walletId];
+    },
+    [walletBalances],
+  );
+
+  // Update wallet balances when account balances change
+  useEffect(() => {
+    isMounted.current = true;
+
+    // Recalculate wallet balances when account balances are updated
+    if (!balances.loading && balances.tokens) {
+      const walletIds = [
+        ...wallets.map(({ id }) => id),
+        hasImportedAccounts ? IMPORTED_ACCOUNTS_WALLET_ID : undefined,
+      ].filter(isString);
+
+      setWalletBalances((prevState) => {
+        const newState = { ...prevState };
+        for (const walletId of walletIds) {
+          const walletTotal = calculateWalletTotalBalance(walletId);
+          newState[walletId] = {
+            ...walletTotal,
+            isLoading: prevState[walletId]?.isLoading ?? false,
+            hasErrorOccurred: prevState[walletId]?.hasErrorOccurred ?? false,
+          };
+        }
+        return newState;
+      });
+    }
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, [
+    balances.loading,
+    balances.tokens,
+    wallets,
+    hasImportedAccounts,
+    calculateWalletTotalBalance,
+  ]);
+
   const getTokenPrice = useCallback(
     async (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
@@ -514,6 +777,11 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           : undefined,
         getTotalBalance,
         getAtomicBalance,
+        // Wallet total balance
+        walletBalances,
+        fetchBalanceForWallet,
+        fetchWalletBalancesSequentially,
+        getWalletTotalBalance,
       }}
     >
       {children}

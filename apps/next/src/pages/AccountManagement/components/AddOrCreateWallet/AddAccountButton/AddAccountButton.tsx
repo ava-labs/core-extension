@@ -4,9 +4,9 @@ import {
   LedgerAppType,
   useAccountsContext,
   useAnalyticsContext,
+  useBalancesContext,
   useLedgerContext,
   useWalletContext,
-  useWalletTotalBalanceContext,
 } from '@core/ui';
 import { FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,7 @@ export const AddAccountButton: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { addAccount, selectAccount } = useAccountsContext();
-  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
+  const { fetchBalanceForWallet } = useBalancesContext();
   const { walletDetails, isLedgerWallet } = useWalletContext();
   const { hasLedgerTransport, appType } = useLedgerContext();
 

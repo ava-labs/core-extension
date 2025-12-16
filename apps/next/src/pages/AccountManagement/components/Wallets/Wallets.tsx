@@ -2,16 +2,11 @@ import { Stack, Typography } from '@avalabs/k2-alpine';
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
-import {
-  useWalletContext,
-  useWalletTotalBalance,
-  useWalletTotalBalanceContext,
-} from '@core/ui';
+import { useBalancesContext, useLiveBalance, useWalletContext } from '@core/ui';
 import { BulkDeleteButtons } from './components/BulkDeleteButtons';
 import { WalletList } from './components/WalletList';
 import * as Styled from './components/Styled';
 import { TokenType } from '@avalabs/vm-module-types';
-import { useLiveBalance } from '@core/ui';
 import { AddOrConnectWalletButton } from '../AddOrCreateWallet';
 
 const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
@@ -20,8 +15,9 @@ export const WalletsHomePage: FC = () => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
   const { walletDetails } = useWalletContext();
-  const { fetchWalletBalancesSequentially } = useWalletTotalBalanceContext();
-  const { isLoading, hasErrorOccurred } = useWalletTotalBalance(
+  const { fetchWalletBalancesSequentially, getWalletTotalBalance } =
+    useBalancesContext();
+  const { isLoading, hasErrorOccurred } = getWalletTotalBalance(
     walletDetails?.id,
   );
 

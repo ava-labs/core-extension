@@ -22,6 +22,7 @@ import {
   useBalancesContext,
   useSettingsContext,
   useWalletContext,
+  useAccountManager,
 } from '@core/ui';
 import { AccountType } from '@core/types';
 import { isPrimaryAccount } from '@core/common';
@@ -37,9 +38,6 @@ import { AccountListPrimary } from './components/AccountListPrimary';
 import { AccountsActionButton } from './components/AccountsActionButton';
 import { OverflowingTypography } from './components/OverflowingTypography';
 import { useAccountRemoval } from './hooks/useAccountRemoval';
-import { useWalletTotalBalance } from '@core/ui';
-import { useAccountManager } from '@core/ui';
-import { useWalletTotalBalanceContext } from '@core/ui';
 
 export function Accounts() {
   const { t } = useTranslation();
@@ -60,14 +58,14 @@ export function Accounts() {
   const theme = useTheme();
   const history = useHistory();
   const { walletDetails } = useWalletContext();
+  const { getTotalBalance, fetchBalanceForWallet, getWalletTotalBalance } =
+    useBalancesContext();
   const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
-    useWalletTotalBalance(
+    getWalletTotalBalance(
       isPrimaryAccount(active) ? active.walletId : undefined,
     );
-  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
 
   const canCreateAccount = active?.type === AccountType.PRIMARY;
-  const { getTotalBalance } = useBalancesContext();
 
   const activeAccountBalance = useMemo(
     () => (active?.addressC ? getTotalBalance(active.addressC) : null),

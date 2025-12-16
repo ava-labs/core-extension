@@ -13,10 +13,11 @@ import { SettingsMenu } from '@/components/settings/SettingsMenu';
 import {
   SettingsPages,
   useAccountsContext,
+  useBalancesContext,
   useNetworkContext,
   usePermissionContext,
   useSettingsContext,
-  useWalletTotalBalance,
+  useWalletContext,
 } from '@core/ui';
 import { useCurrentDomain } from '@core/ui/src/hooks/useCurrentDomain';
 
@@ -26,7 +27,6 @@ import {
   isPrimaryAccount,
 } from '@core/common';
 import { AccountType } from '@core/types';
-import { useWalletContext } from '@core/ui';
 import { AccountSelectorButton } from '../account/AccountSelectorButton';
 import { ConnectionIndicatorK2 } from '../ConnectionIndicatorK2';
 import { WalletChip } from '../WalletChip';
@@ -43,8 +43,9 @@ export function Header() {
   const { walletDetails, wallets } = useWalletContext();
 
   const { currencyFormatter } = useSettingsContext();
+  const { getWalletTotalBalance } = useBalancesContext();
   const { isLoading, totalBalanceInCurrency: activeWalletTotalBalance } =
-    useWalletTotalBalance(
+    getWalletTotalBalance(
       isPrimaryAccount(activeAccount) ? activeAccount.walletId : undefined,
     );
 
