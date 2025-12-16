@@ -15,7 +15,7 @@ import { SearchableSelect } from '@/components/SearchableSelect';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
 import { useConnectionContext, useNetworkContext } from '@core/ui';
-import { FC, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useAddCustomToken } from './hooks/useAddCustomToken';
@@ -53,34 +53,61 @@ export const AddCustomToken: FC = () => {
 
   const selectedNetwork = evmOnly.find((n) => n.caipId === chainId);
 
+  const validateTokenData = useCallback(
+    async (address: string, networkCaipId?: NetworkWithCaipId['caipId']) => {
+      if (!address.length) {
+        setError('');
+        return;
+      }
+
+      if (isTokenExists(address)) {
+        setError(t('Token already exists in the wallet.'));
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const data = await request<GetTokenDataHandler>({
+          method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
+          params: [address, networkCaipId],
+        });
+
+        if (!data) {
+          setError(t('Not a valid ERC-20 token address.'));
+        } else {
+          setError('');
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : t('Not a valid ERC-20 token address.'),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isTokenExists, request, t],
+  );
+
   const handleTokenAddressChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const newAddress = e.target.value;
-    if (newAddress.length && isTokenExists(newAddress)) {
-      setError(t('Token already exists in the wallet.'));
-    } else {
-      setError('');
-    }
-    const getTokenData = async () => {
-      setIsLoading(true);
-      const data = await request<GetTokenDataHandler>({
-        method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
-        params: [newAddress, selectedNetwork?.caipId],
-      });
-      setIsLoading(false);
-
-      if (!data) {
-        setError(t('Not a valid ERC-20 token address.'));
-        return;
-      }
-      setError('');
-      setTokenAddress(newAddress);
-    };
-
-    getTokenData();
     setTokenAddress(newAddress);
+    validateTokenData(newAddress, selectedNetwork?.caipId);
   };
+
+  const handleNetworkChange = (network: NetworkWithCaipId) => {
+    setChainId(network.caipId);
+  };
+
+  // Re-validate token when network changes
+  useEffect(() => {
+    if (tokenAddress && chainId) {
+      validateTokenData(tokenAddress, chainId);
+    }
+  }, [chainId, tokenAddress, validateTokenData]);
 
   return (
     <Page title={t('Add Custom Token')} contentProps={contentProps}>
@@ -94,7 +121,7 @@ export const AddCustomToken: FC = () => {
         value={selectedNetwork}
         query={networkQuery}
         skipGroupingEntirely
-        onValueChange={(network) => setChainId(network.caipId)}
+        onValueChange={handleNetworkChange}
         onQueryChange={setNetworkQuery}
         searchFn={(network, query) =>
           query
