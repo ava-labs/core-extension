@@ -469,6 +469,7 @@ export const createGetBalancePayload = async ({
   return {
     data: splitRequestItemsBasedOnReferencesLength(payload),
     currency,
+    showUntrustedTokens: true,
   } as GetBalancesRequestBody;
 };
 
@@ -503,10 +504,17 @@ export const convertBalanceResponsesToCacheBalanceObject = (
                 balanceResponse.balances.nativeTokenBalance,
               ),
             ...balanceResponse.balances.erc20TokenBalances.reduce(
-              (acc, tokenBalance) => ({
-                ...acc,
-                [tokenBalance.address]: tokenBalanceMapper(tokenBalance),
-              }),
+              (acc, tokenBalance) => {
+                const mappedTokenBalance = tokenBalanceMapper(tokenBalance);
+
+                if (!mappedTokenBalance) {
+                  return acc;
+                }
+                return {
+                  ...acc,
+                  [tokenBalance.address]: mappedTokenBalance,
+                };
+              },
               {},
             ),
           },
@@ -575,9 +583,14 @@ export const convertBalanceResponsesToCacheBalanceObject = (
               ),
             ...balanceResponse.balances.splTokenBalances.reduce(
               (acc, tokenBalance) => {
+                const mappedTokenBalance = mapSplTokenBalance(tokenBalance);
+
+                if (!mappedTokenBalance) {
+                  return acc;
+                }
                 return {
                   ...acc,
-                  [tokenBalance.address]: mapSplTokenBalance(tokenBalance),
+                  [tokenBalance.address]: mappedTokenBalance,
                 };
               },
               {},
