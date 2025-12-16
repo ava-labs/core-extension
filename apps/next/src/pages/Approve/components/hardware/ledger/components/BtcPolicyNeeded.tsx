@@ -33,7 +33,7 @@ export const BtcPolicyNeeded: FC<StateComponentProps> = ({ state }) => {
       )}
       action={
         <Button
-          size="small"
+          size="extension"
           variant="contained"
           color="primary"
           onClick={handleRetry}

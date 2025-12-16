@@ -26,7 +26,7 @@ export const IncorrectApp: FC<StateComponentProps> = ({ state }) => {
       )}
       action={
         <Button
-          size="xsmall"
+          size="extension"
           variant="contained"
           color="primary"
           onClick={refreshActiveApp}

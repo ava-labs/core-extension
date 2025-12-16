@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
-import browser from 'webextension-polyfill';
+import { sidePanel, windows, runtime } from 'webextension-polyfill';
 
 import { openExtensionNewWindow } from '@core/common';
 import { Action, ApprovalEvent, MultiTxAction } from '@core/types';
@@ -11,16 +11,25 @@ import { ActionsService } from '../actions/ActionsService';
 export class ApprovalService {
   #eventEmitter = new EventEmitter();
 
-  constructor(private actionsService: ActionsService) {}
+  #sidePanelWindowIds = new Set<number>();
+
+  constructor(private actionsService: ActionsService) {
+    sidePanel.onOpened.addListener(({ windowId }) => {
+      this.#sidePanelWindowIds.add(windowId);
+    });
+    sidePanel.onClosed.addListener(({ windowId }) => {
+      this.#sidePanelWindowIds.delete(windowId);
+    });
+  }
 
   #isInAppRequest(action: Action | MultiTxAction): boolean {
-    if (action.site?.domain === browser.runtime.id) {
+    if (action.site?.domain === runtime.id) {
       return true;
     }
 
     if (action.dappInfo) {
       const vmModuleDappUrl = new URL(action.dappInfo.url);
-      return vmModuleDappUrl.hostname === browser.runtime.id;
+      return vmModuleDappUrl.hostname === runtime.id;
     }
 
     return false;
@@ -31,9 +40,19 @@ export class ApprovalService {
   ): Promise<Action | MultiTxAction> {
     const url = `${route}?actionId=${action.actionId}`;
 
-    if (this.#isInAppRequest(action)) {
+    const currentWindow = await windows.getCurrent();
+    const isComingFromCurrentWindowWithSidePanelOpen =
+      currentWindow.id && this.#sidePanelWindowIds.has(currentWindow.id);
+
+    if (
+      this.#isInAppRequest(action) ||
+      isComingFromCurrentWindowWithSidePanelOpen
+    ) {
       this.#eventEmitter.emit(ApprovalEvent.ApprovalRequested, {
-        action,
+        action: {
+          ...action,
+          windowId: currentWindow.id,
+        },
         url,
       });
 
