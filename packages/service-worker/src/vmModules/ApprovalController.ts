@@ -10,6 +10,7 @@ import {
   EvmTxUpdateFn,
   RequestPublicKeyParams,
   RpcMethod,
+  RpcRequest,
   SigningData,
   SigningData_EthSendTx,
   SigningRequest,
@@ -80,11 +81,12 @@ export class ApprovalController implements BatchApprovalController {
     request,
   }: {
     txHash: string;
-    request: { chainId: string };
+    request: RpcRequest;
   }) => {
     const chainId = caipToChainId(request.chainId);
     this.#transactionStatusEvents.emitPending(txHash, chainId, {
       requestId: request.chainId,
+      ...request.context,
     });
   };
 
@@ -95,12 +97,13 @@ export class ApprovalController implements BatchApprovalController {
   }: {
     txHash: string;
     explorerLink: string;
-    request: { chainId: string };
+    request: RpcRequest;
   }) => {
     const chainId = caipToChainId(request.chainId);
     this.#transactionStatusEvents.emitConfirmed(txHash, chainId, {
       explorerLink,
       requestId: request.chainId,
+      ...request.context,
     });
   };
 
@@ -109,11 +112,12 @@ export class ApprovalController implements BatchApprovalController {
     request,
   }: {
     txHash: string;
-    request: { chainId: string };
+    request: RpcRequest;
   }) => {
     const chainId = caipToChainId(request.chainId);
     this.#transactionStatusEvents.emitReverted(txHash, chainId, {
       requestId: request.chainId,
+      ...request.context,
     });
   };
 

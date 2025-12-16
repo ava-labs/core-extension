@@ -57,6 +57,12 @@ export function TransactionStatusProvider({
         if (statusInfo.txHash) {
           switch (evt.name) {
             case TransactionStatusEventNames.PENDING: {
+              // Skip success callback and toast for approval transactions
+              // (e.g., ERC-20 spend approvals before swaps)
+              if (statusInfo.context?.isApproval) {
+                break;
+              }
+
               toast.pending(t('Transaction pending...'), {
                 id: `${PENDING_TOAST_ID}-${statusInfo.txHash}`,
               });
@@ -65,6 +71,13 @@ export function TransactionStatusProvider({
 
             case TransactionStatusEventNames.CONFIRMED: {
               toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
+
+              // Skip success callback and toast for approval transactions
+              // (e.g., ERC-20 spend approvals before swaps)
+              if (statusInfo.context?.isApproval) {
+                break;
+              }
+
               const explorerLink =
                 network && renderExplorerLink
                   ? renderExplorerLink({
