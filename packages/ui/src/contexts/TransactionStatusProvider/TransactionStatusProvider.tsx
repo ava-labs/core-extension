@@ -33,7 +33,7 @@ export type TransactionStatusProviderProps = PropsWithChildren<{
     onDismiss: () => void;
   }) => ReactNode;
   onPending?: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (context?: TransactionStatusInfo['context']) => void;
   onReverted?: () => void;
 }>;
 
@@ -57,9 +57,12 @@ export function TransactionStatusProvider({
         if (statusInfo.txHash) {
           switch (evt.name) {
             case TransactionStatusEventNames.PENDING: {
-              // Skip success callback and toast for approval transactions
-              // (e.g., ERC-20 spend approvals before swaps)
-              if (statusInfo.context?.isApproval) {
+              // Skip pending toast for intermediate transactions or bridge transactions
+              // (e.g., ERC-20 spend approvals before swaps/bridges)
+              if (
+                statusInfo.context?.isIntermediateTransaction ||
+                statusInfo.context?.isBridge
+              ) {
                 break;
               }
 
@@ -72,9 +75,13 @@ export function TransactionStatusProvider({
             case TransactionStatusEventNames.CONFIRMED: {
               toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
 
-              // Skip success callback and toast for approval transactions
-              // (e.g., ERC-20 spend approvals before swaps)
-              if (statusInfo.context?.isApproval) {
+              // Skip success callback and toast for intermediate transactions
+              // For bridge transactions, we take the user to the bridge transaction status page instead
+              // (e.g., ERC-20 spend approvals before swaps/bridges)
+              if (
+                statusInfo.context?.isIntermediateTransaction ||
+                statusInfo.context?.isBridge
+              ) {
                 break;
               }
 
