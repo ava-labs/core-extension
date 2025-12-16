@@ -55,9 +55,7 @@ const getBaseTokenBalance = (tokenBalance: TokenBalance): BaseTokenBalance => {
       tokenBalance.decimals,
       tokenBalance.symbol,
     ).toString(),
-    balanceInCurrency: Number(
-      tokenBalance.balanceInCurrency?.toFixed(3).slice(0, -1) ?? '0',
-    ),
+    balanceInCurrency: Number(tokenBalance.balanceInCurrency ?? '0'),
     priceChanges: {
       percentage: tokenBalance.priceChangePercentage24h,
       value:
