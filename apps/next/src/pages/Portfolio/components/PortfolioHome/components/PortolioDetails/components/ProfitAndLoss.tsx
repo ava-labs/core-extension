@@ -55,13 +55,7 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   const priceChanges = asset.priceChanges;
   const balanceInCurrency = asset.balanceInCurrency;
 
-  if (
-    !priceChanges ||
-    priceChanges.percentage === undefined ||
-    priceChanges.percentage === null ||
-    priceChanges.value === undefined ||
-    balanceInCurrency === undefined
-  ) {
+  if (balanceInCurrency === undefined) {
     return null;
   }
 
@@ -72,22 +66,24 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
   const totalBalance =
     balanceInCurrency + (getUnconfirmedBalanceInCurrency(asset) ?? 0);
   const formattedBalance = currencyFormatter(totalBalance);
-  const formattedPriceChange = currencyFormatter(priceChanges.value);
+  const formattedPriceChange = currencyFormatter(priceChanges?.value ?? 0);
 
   return (
     <Stack alignItems="flex-end" gap={0}>
       <Typography variant="subtitle3" color="text.primary">
         {formattedBalance}
       </Typography>
-      <Stack
-        direction="row"
-        alignItems="center"
-        gap={0.5}
-        sx={{ color: trendColor }}
-      >
-        <Typography variant="subtitle3">{formattedPriceChange}</Typography>
-        {trendIcon}
-      </Stack>
+      {!!priceChanges?.value && !!priceChanges?.percentage && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          gap={0.5}
+          sx={{ color: trendColor }}
+        >
+          <Typography variant="subtitle3">{formattedPriceChange}</Typography>
+          {trendIcon}
+        </Stack>
+      )}
     </Stack>
   );
 };
