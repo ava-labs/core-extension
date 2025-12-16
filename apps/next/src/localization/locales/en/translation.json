@@ -512,6 +512,7 @@
   "No saved addresses": "No saved addresses",
   "No thanks": "No thanks",
   "Normal": "Normal",
+  "Not a valid ERC-20 token address.": "Not a valid ERC-20 token address.",
   "Notify me when it’s done": "Notify me when it’s done",
   "On-ramp using Core in two minutes": "On-ramp using Core in two minutes",
   "Only Keystore files from the Avalanche Wallet are supported": "Only Keystore files from the Avalanche Wallet are supported",
