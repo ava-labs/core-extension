@@ -1,6 +1,6 @@
 import AppAvalanche from '@avalabs/hw-app-avalanche';
 import { ExtensionRequest } from '@core/types';
-import { isLockStateChangedEvent, resolve } from '@core/common';
+import { isLockStateChangedEvent, resolve, withTimeout } from '@core/common';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import {
   AppClient as Btc,
@@ -148,6 +148,14 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       .subscribe(async (res) => {
         if (res.value.method === 'SEND') {
           try {
+            // If data is being exchanged right now, wait for it to complete.
+            if (transportRef.current?.exchangeBusyPromise) {
+              await withTimeout(
+                transportRef.current.exchangeBusyPromise,
+                1_500, // Usually the conflicting exchange will be us querying for the device status, which is pretty fast.
+              );
+            }
+
             const { cla, ins, p1, p2, data, statusList } = res.value.params;
             const result = await transportRef.current?.send(
               cla,
@@ -307,7 +315,9 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         switchMap(() =>
           request<CloseLedgerTransportHandler>({
             method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-            params: [],
+            params: {
+              currentTransportUUID: LEDGER_INSTANCE_UUID,
+            },
           }),
         ),
         switchMap(() => getLedgerTransport()),
@@ -443,14 +453,13 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     const subscription = events()
       .pipe(
         filter((evt) => evt.name === LedgerEvent.TRANSPORT_CLOSE_REQUEST),
-        filter(
-          () =>
-            // check if there if the window is claiming interface index 2. We should close the window
-            // which would clean up the claimed interfaces, thereby releasing it to the new window
-
-            // In windows where this interface wasnt claimed the values here will be false
-            Boolean(app) && Boolean(transportRef.current?.deviceModel?.id),
-        ),
+        filter((evt) => {
+          // Only the window that most recently requested a USB transport will remain open.
+          // This is to avoid the issue where a window is opened, the transport is claimed, and then another window is opened.
+          // The second window will then be unable to claim the transport because it is already claimed by the first window.
+          // This is a workaround to avoid the issue.
+          return evt.value.currentTransportUUID !== LEDGER_INSTANCE_UUID;
+        }),
       )
       .subscribe(() => {
         window.close();
@@ -534,6 +543,30 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     });
     setLedgerVersionWarningClosed(result);
   }, [request]);
+
+  // Refresh active app every 2 seconds
+  useEffect(() => {
+    let timeout: NodeJS.Timeout | null = null;
+
+    const scheduleRefresh = () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+
+      timeout = setTimeout(async () => {
+        await refreshActiveApp();
+        scheduleRefresh();
+      }, 2_000);
+    };
+
+    scheduleRefresh();
+
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  });
 
   return (
     <LedgerContext.Provider

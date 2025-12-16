@@ -26,7 +26,6 @@ import {
 import { useLedgerPolicyRegistrationState } from '@/contexts';
 
 import { LedgerApprovalState } from './types';
-import { useEffect, useRef } from 'react';
 
 type UseLedgerApprovalState = (
   network: NetworkWithCaipId,
@@ -67,34 +66,14 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
     wasTransportAttempted,
     appType,
     appVersion,
-    refreshActiveApp,
     appConfig,
   } = useLedgerContext();
   const { shouldRegisterBtcWalletPolicy } = useLedgerPolicyRegistrationState();
 
   const requiredApp = getRequiredApp(network, action);
   const isBlindSigningRequired = requiresBlindSigning(network, action);
-  const interalRef = useRef<NodeJS.Timeout | null>(null);
-  const isRequiredApp = isCompatibleApp(requiredApp, appType, appVersion);
   const isRequiredConfig =
     !isBlindSigningRequired || appConfig?.isBlindSigningEnabled;
-
-  useEffect(() => {
-    if (isRequiredApp && isRequiredConfig && interalRef.current) {
-      clearInterval(interalRef.current);
-      return;
-    }
-
-    interalRef.current = setInterval(() => {
-      refreshActiveApp();
-    }, 1500);
-
-    return () => {
-      if (interalRef.current) {
-        clearInterval(interalRef.current);
-      }
-    };
-  }, [refreshActiveApp, requiredApp, isRequiredApp, isRequiredConfig]);
 
   if (!wasTransportAttempted) {
     return { state: 'loading' };
