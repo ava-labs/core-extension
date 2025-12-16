@@ -13,8 +13,8 @@ import {
 } from '@avalabs/k2-alpine';
 import { SearchableSelect } from '@/components/SearchableSelect';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types';
-import { useNetworkContext } from '@core/ui';
+import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
+import { useConnectionContext, useNetworkContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -22,6 +22,7 @@ import { useAddCustomToken } from './hooks/useAddCustomToken';
 import { useTokenLookup } from './hooks/useTokenLookup';
 import * as Styled from './Styled';
 import { FaCheck } from 'react-icons/fa';
+import { GetTokenDataHandler } from '~/services/settings/handlers/getTokenDataByAddress';
 
 const contentProps: StackProps = {
   gap: 2,
@@ -41,6 +42,7 @@ export const AddCustomToken: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [networkQuery, setNetworkQuery] = useState<string>('');
+  const { request } = useConnectionContext();
 
   const evmOnly = networks.filter(
     (network) => network.vmName === NetworkVMType.EVM,
@@ -50,6 +52,35 @@ export const AddCustomToken: FC = () => {
   const isTokenExists = useTokenLookup();
 
   const selectedNetwork = evmOnly.find((n) => n.caipId === chainId);
+
+  const handleTokenAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const newAddress = e.target.value;
+    if (newAddress.length && isTokenExists(newAddress)) {
+      setError(t('Token already exists in the wallet.'));
+    } else {
+      setError('');
+    }
+    const getTokenData = async () => {
+      setIsLoading(true);
+      const data = await request<GetTokenDataHandler>({
+        method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
+        params: [newAddress, selectedNetwork?.caipId],
+      });
+      setIsLoading(false);
+
+      if (!data) {
+        setError(t('Not a valid ERC-20 token address.'));
+        return;
+      }
+      setError('');
+      setTokenAddress(newAddress);
+    };
+
+    getTokenData();
+    setTokenAddress(newAddress);
+  };
 
   return (
     <Page title={t('Add Custom Token')} contentProps={contentProps}>
@@ -121,15 +152,7 @@ export const AddCustomToken: FC = () => {
           size="small"
           label={t('Token contract address')}
           value={tokenAddress}
-          onChange={(e) => {
-            const newAddress = e.target.value;
-            if (newAddress.length && isTokenExists(newAddress)) {
-              setError(t('Token already exists in the wallet.'));
-            } else {
-              setError('');
-            }
-            setTokenAddress(newAddress);
-          }}
+          onChange={handleTokenAddressChange}
           placeholder={t('Type in or paste token contract address')}
           multiline
           minRows={6}
