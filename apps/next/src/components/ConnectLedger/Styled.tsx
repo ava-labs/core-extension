@@ -1,3 +1,4 @@
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   Box,
   Button,
@@ -11,24 +12,30 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
-import { FiAlertCircle } from 'react-icons/fi';
 import { Trans, useTranslation } from 'react-i18next';
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { FiAlertCircle } from 'react-icons/fi';
 
 import { InTextLink } from '@/components/InTextLink';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
 
-import { ErrorType } from './LedgerConnector/types';
 import { PendingLedgerCircles } from '../PendingCircles';
+import { ErrorType } from './LedgerConnector/types';
+
+const defaultLabels: DerivationPathSelectorProps['labels'] = {
+  [DerivationPath.BIP44]: { text: 'BIP 44 (Default)', disabled: false },
+  [DerivationPath.LedgerLive]: { text: 'Ledger Live', disabled: false },
+};
 
 type DerivationPathSelectorProps = {
   derivationPathSpec: DerivationPath;
   onSelect: (derivationPathSpec: DerivationPath) => void;
+  labels?: Record<DerivationPath, { text: string; disabled: boolean }>;
 };
 export const DerivationPathSelector = ({
   onSelect,
   derivationPathSpec,
+  labels = defaultLabels,
 }: DerivationPathSelectorProps) => (
   <Section width="100%">
     <Select
@@ -42,8 +49,18 @@ export const DerivationPathSelector = ({
       }}
       sx={{ py: 0.75 }}
     >
-      <MenuItem value={DerivationPath.BIP44}>BIP 44 (Default)</MenuItem>
-      <MenuItem value={DerivationPath.LedgerLive}>Ledger Live</MenuItem>
+      <MenuItem
+        value={DerivationPath.BIP44}
+        disabled={labels[DerivationPath.BIP44].disabled}
+      >
+        {labels[DerivationPath.BIP44].text}
+      </MenuItem>
+      <MenuItem
+        value={DerivationPath.LedgerLive}
+        disabled={labels[DerivationPath.LedgerLive].disabled}
+      >
+        {labels[DerivationPath.LedgerLive].text}
+      </MenuItem>
     </Select>
   </Section>
 );
@@ -52,6 +69,7 @@ type LedgerConnectionErrorProps = {
   errorType: ErrorType;
   onTroubleshoot: () => void;
   onRetry: () => void;
+  overrideErrorScreens?: Record<ErrorType, React.ReactNode>;
 };
 
 export const LedgerConnectionError = ({

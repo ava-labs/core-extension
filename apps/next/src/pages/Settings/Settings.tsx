@@ -1,5 +1,6 @@
 import { FC } from 'react';
 import { Route, Switch, useRouteMatch } from 'react-router-dom';
+import { LedgerDeviceStatus } from '../Ledger';
 import { AvatarSelector } from './components/AvatarSelector';
 import { ChangePassword } from './components/ChangePassword';
 import { ConnectedSites } from './components/ConnectedSites';
@@ -34,6 +35,10 @@ export const Settings: FC = () => {
         component={NetworkManagement}
       />
       <Route path={`${path}/reset`} component={ResetRecoveryPhrase} />
+      <Route
+        path={`${path}/ledger-device-status`}
+        component={LedgerDeviceStatus}
+      />
       <Route path={path} component={SettingsHomePage} />
     </Switch>
   );
