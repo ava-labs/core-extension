@@ -48,7 +48,6 @@ interface BaseTokenBalance {
 const isTokenEnabled = (
   tokenBalance: Erc20TokenBalance | SplTokenBalance,
   enabledTokens: Record<string, boolean> | undefined,
-  // TODO: get the list of enabled tokens from the settings
 ): boolean => {
   return (
     isNil(tokenBalance.scanResult) ||
