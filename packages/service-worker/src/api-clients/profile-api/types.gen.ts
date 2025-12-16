@@ -24,7 +24,7 @@ export type GetAddressesRequestBody = {
    */
   onlyWithActivity?: boolean;
   /**
-   * Whether the response should include 5 extra external addresses after the last index with activity. Cannot be used together with `onlyWithActivity`.
+   * Whether the response should include 20 extra external addresses after the last index with activity.
    */
   withExtraAddresses?: boolean;
 };

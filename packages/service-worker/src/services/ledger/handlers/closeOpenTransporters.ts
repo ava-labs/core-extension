@@ -5,7 +5,7 @@ import { LedgerService } from '../LedgerService';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
   true,
-  []
+  { currentTransportUUID: string }
 >;
 
 @injectable()
@@ -15,7 +15,9 @@ export class CloseLedgerTransportHandler implements HandlerType {
   constructor(private ledgerService: LedgerService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    await this.ledgerService.closeOpenedTransport();
+    await this.ledgerService.closeOpenedTransport(
+      request.params.currentTransportUUID,
+    );
     return {
       result: true,
       ...request,

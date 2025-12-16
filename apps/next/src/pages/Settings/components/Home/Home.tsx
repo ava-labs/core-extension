@@ -58,7 +58,7 @@ export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
-  const { walletDetails } = useWalletContext();
+  const { walletDetails, isLedgerWallet } = useWalletContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
@@ -207,6 +207,13 @@ export const SettingsHomePage = () => {
           divider
           onClick={() => capture('ManageNetworksClicked')}
         />
+        {isLedgerWallet && (
+          <SettingsNavItem
+            label={t('Ledger')}
+            href={`${path}/ledger-device-status`}
+            divider
+          />
+        )}
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
           description={t(

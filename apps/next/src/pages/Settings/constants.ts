@@ -3,7 +3,7 @@ import { Currency } from './types';
 
 export const MIN_PASSWORD_LENGTH = 8;
 
-export const currencies: Currency[] = [
+const currencies: Currency[] = [
   {
     symbol: CURRENCIES.USD,
     label: 'United States Dollar',
@@ -40,3 +40,33 @@ export const currencies: Currency[] = [
     countryCode: 'hk',
   },
 ];
+
+const balanceServiceCurrencies: Currency[] = [
+  ...currencies,
+  {
+    symbol: CURRENCIES.CLP,
+    label: 'Chilean Peso',
+    countryCode: 'cl',
+  },
+  {
+    symbol: CURRENCIES.CZK,
+    label: 'Czech Crown',
+    countryCode: 'cz',
+  },
+  {
+    symbol: CURRENCIES.DKK,
+    label: 'Danish Krone',
+    countryCode: 'dk',
+  },
+  {
+    symbol: CURRENCIES.HUF,
+    label: 'Hungarian Forint',
+    countryCode: 'hu',
+  },
+];
+
+// TODO: once the feature flag is removed this can be turned back into a simple array
+export const getCurrencies = (
+  isBalanceServiceIntegrationOn: boolean,
+): Currency[] =>
+  isBalanceServiceIntegrationOn ? balanceServiceCurrencies : currencies;

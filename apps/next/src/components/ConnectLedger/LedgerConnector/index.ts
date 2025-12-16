@@ -1,7 +1,8 @@
 export * from './AvalancheLedgerConnector';
+export type { LedgerConnectorOverrides } from './BaseLedgerConnector';
 export * from './SolanaLedgerConnector';
 export {
-  type DerivationStatus,
-  type ConnectorCallbacks,
   WalletExistsError,
+  type ConnectorCallbacks,
+  type DerivationStatus,
 } from './types';

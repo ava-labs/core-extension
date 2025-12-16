@@ -125,6 +125,8 @@ const renderTestComponent = (...args: unknown[]) => {
   );
 };
 
+const MOCKED_TRANSPORT_UUID = '00000000-0000-0000-0000-000000000000';
+
 describe('src/contexts/LedgerProvider.tsx', () => {
   const refMock = {
     send: jest.fn(),
@@ -415,34 +417,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       });
     });
 
-    it('does not the close window if app is not initialized', async () => {
-      jest.spyOn(window, 'close');
-      (React.useRef as jest.Mock).mockReturnValue({
-        current: {
-          deviceModel: {
-            id: '1',
-          },
-        },
-      });
-      const eventSubject = new Subject();
-      const connectionMocks = useConnectionContext();
-      (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-
-      renderTestComponent();
-
-      eventSubject.next({
-        name: LedgerEvent.TRANSPORT_CLOSE_REQUEST,
-        value: {
-          connectionUUID: '1',
-        },
-      });
-
-      await waitFor(() => {
-        expect(window.close).not.toHaveBeenCalled();
-      });
-    });
-
-    it('does not close the window if transport is not used', async () => {
+    it('does not close the window if it is the most recent one with the transport', async () => {
       jest.spyOn(window, 'close');
       const eventSubject = new Subject();
       const connectionMocks = useConnectionContext();
@@ -469,7 +444,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       eventSubject.next({
         name: LedgerEvent.TRANSPORT_CLOSE_REQUEST,
         value: {
-          connectionUUID: '1',
+          currentTransportUUID: MOCKED_TRANSPORT_UUID,
         },
       });
 
@@ -483,11 +458,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       const eventSubject = new Subject();
       const connectionMocks = useConnectionContext();
       (connectionMocks.events as jest.Mock).mockReturnValue(eventSubject);
-      const transportMock = {
-        deviceModel: {
-          id: '1',
-        },
-      };
+      const transportMock = { foo: 'bar' };
       const avalancheAppMock = {
         name: 'Avalanche',
         getAppInfo: jest.fn().mockResolvedValue({
@@ -531,7 +502,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
       });
 
@@ -539,12 +512,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
         expect(getLedgerTransport).toHaveBeenCalled();
       });
 
-      // Clear the AppAvalanche mock to ignore heartbeat calls
-      (AppAvalanche as unknown as jest.Mock).mockClear();
-
-      await waitFor(() => {
-        expect(AppAvalanche).not.toHaveBeenCalled();
-      });
+      expect(AppAvalanche).not.toHaveBeenCalled();
 
       jest.clearAllMocks();
       jest.advanceTimersByTime(2000);
@@ -552,7 +520,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).not.toHaveBeenCalled();
@@ -592,7 +562,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
@@ -605,7 +577,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
@@ -642,7 +616,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
@@ -680,7 +656,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
@@ -723,7 +701,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);
@@ -769,7 +749,9 @@ describe('src/contexts/LedgerProvider.tsx', () => {
       await waitFor(() => {
         expect(connectionMocks.request).toHaveBeenCalledWith({
           method: ExtensionRequest.LEDGER_CLOSE_TRANSPORT,
-          params: [],
+          params: {
+            currentTransportUUID: MOCKED_TRANSPORT_UUID,
+          },
         });
         expect(getLedgerTransport).toHaveBeenCalled();
         expect(AppAvalanche).toHaveBeenCalledWith(transportMock);

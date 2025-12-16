@@ -42,6 +42,7 @@ import { NetworkStateChangedEvents } from '~/services/network/events/networkStat
 import { SettingsUpdatedEventsCore } from '~/services/settings/events/settingsUpdatedEventCore';
 import { WalletSetSettingsHandler } from '~/services/settings/handlers/wallet_setSettings';
 import { WalletGetSettingsHandler } from '~/services/settings/handlers/wallet_getSettings';
+import { WalletGetCapabilitiesHandler } from '../../services/web3/handlers/wallet_getCapabilities';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -93,6 +94,7 @@ const SHARED_HANDLERS = [
   },
   { token: 'DAppRequestHandler', useToken: WalletGetSettingsHandler },
   { token: 'DAppRequestHandler', useToken: WalletSetSettingsHandler },
+  { token: 'DAppRequestHandler', useToken: WalletGetCapabilitiesHandler },
 ];
 
 const LEGACY_REQUEST_HANDLERS = [

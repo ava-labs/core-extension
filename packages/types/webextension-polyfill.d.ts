@@ -4,7 +4,22 @@ import '@types/webextension-polyfill';
 // https://github.com/mozilla/webextension-polyfill/issues/424
 
 declare module 'webextension-polyfill' {
-  const sidePanel: typeof chrome.sidePanel;
+  type OnSidePanelOpenedEvent = {
+    windowId: number;
+  };
+  type OnSidePanelClosedEvent = {
+    windowId: number;
+  };
+  const sidePanel: typeof chrome.sidePanel & {
+    onOpened: {
+      addListener: (callback: (evt: OnSidePanelOpenedEvent) => void) => void;
+      removeListener: (callback: (evt: OnSidePanelOpenedEvent) => void) => void;
+    };
+    onClosed: {
+      addListener: (callback: (evt: OnSidePanelClosedEvent) => void) => void;
+      removeListener: (callback: (evt: OnSidePanelClosedEvent) => void) => void;
+    };
+  };
   const offscreen: typeof chrome.offscreen;
 
   namespace Storage {

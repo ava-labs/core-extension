@@ -43,6 +43,7 @@ type ActionBase<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   popupWindowId?: number;
   inAppPromptId?: number;
   actionId?: string;
+  windowId?: number;
   displayData: DisplayData;
 };
 

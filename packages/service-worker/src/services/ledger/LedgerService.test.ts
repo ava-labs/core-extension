@@ -113,13 +113,13 @@ describe('src/background/services/ledger/LedgerService.ts', () => {
 
   it('closes a transport correctly', async () => {
     jest.useFakeTimers();
-    const promise = ledgerService.closeOpenedTransport();
+    const promise = ledgerService.closeOpenedTransport('id');
     jest.advanceTimersByTime(100);
 
     await expect(promise).resolves.toBe(true);
     expect(eventEmitterMock.emit).toHaveBeenCalledWith(
       LedgerEvent.TRANSPORT_CLOSE_REQUEST,
-      {},
+      'id',
     );
     jest.useRealTimers();
   });

@@ -11,6 +11,7 @@ import {
 import {
   LedgerAppType,
   MAX_BITCOIN_APP_VERSION,
+  useActiveLedgerAppInfo,
   useConnectionContext,
   useLedgerContext,
   useRegisterBtcWalletPolicy,
@@ -57,13 +58,12 @@ export const LedgerPolicyRegistrationStateProvider = ({
 }: PropsWithChildren) => {
   const { request } = useConnectionContext();
   const {
-    appType,
-    appVersion,
     getBtcExtendedPublicKey,
     getMasterFingerprint,
     registerBtcWalletPolicy,
     closeCurrentApp,
   } = useLedgerContext();
+  const { appType, appVersion } = useActiveLedgerAppInfo();
 
   const {
     shouldRegisterBtcWalletPolicy,
