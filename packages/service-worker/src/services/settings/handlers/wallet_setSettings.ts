@@ -103,7 +103,7 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
       }
 
       if (validatedSettings.currency !== undefined) {
-        await this.settingsService.setCurrencty(validatedSettings.currency);
+        await this.settingsService.setCurrency(validatedSettings.currency);
       }
 
       if (validatedSettings.showTokensWithoutBalances !== undefined) {

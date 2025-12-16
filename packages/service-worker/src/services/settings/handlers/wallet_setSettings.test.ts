@@ -30,7 +30,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
   const settingsServiceMock = {
     getSettings: getSettingsMock,
     setLanguage: setLanguageMock,
-    setCurrencty: setCurrencyMock,
+    setCurrency: setCurrencyMock,
     setShowTokensWithNoBalance: setShowTokensWithNoBalanceMock,
     setTheme: setThemeMock,
     setTokensVisibility: setTokensVisibilityMock,

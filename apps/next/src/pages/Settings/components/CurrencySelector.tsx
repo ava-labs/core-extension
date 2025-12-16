@@ -1,15 +1,26 @@
 import { Avatar, ButtonProps, Stack, Typography } from '@avalabs/k2-alpine';
-import { useAnalyticsContext } from '@core/ui/src/contexts/AnalyticsProvider';
-import { useSettingsContext } from '@core/ui/src/contexts/SettingsProvider';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useSettingsContext,
+} from '@core/ui';
+import { FeatureGates } from '@core/types';
 import { useTranslation } from 'react-i18next';
 import { runtime } from 'webextension-polyfill';
-import { SelectButton } from '../../../components/SelectButton';
-import { currencies } from '../constants';
+import { SelectButton } from '@/components/SelectButton';
+import { getCurrencies } from '../constants';
 
 export const CurrencySelector = (props: ButtonProps) => {
   const { updateCurrencySetting, currency } = useSettingsContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
+
+  const isBalanceServiceIntegrationOn = isFlagEnabled(
+    FeatureGates.BALANCE_SERVICE_INTEGRATION,
+  );
+
+  const currencies = getCurrencies(isBalanceServiceIntegrationOn);
 
   const selectedCurrency = currencies.find((c) => c.symbol === currency);
 
