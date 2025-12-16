@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { AddressPublicKeyJson } from '@core/types';
-import { LedgerAppType, useLedgerContext } from '@core/ui';
+import {
+  LedgerAppType,
+  useActiveLedgerAppInfo,
+  useLedgerContext,
+} from '@core/ui';
 
 import {
   DerivationStatus,
@@ -15,13 +19,13 @@ import { buildAddressPublicKey } from '../../util';
 export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher =
   () => {
     const {
-      appType,
       popDeviceSelection,
       hasLedgerTransport,
       wasTransportAttempted,
       initLedgerTransport,
       getPublicKey,
     } = useLedgerContext();
+    const { appType } = useActiveLedgerAppInfo();
 
     const [error, setError] = useState<ErrorType>();
     const [status, setStatus] = useState<DerivationStatus>('waiting');

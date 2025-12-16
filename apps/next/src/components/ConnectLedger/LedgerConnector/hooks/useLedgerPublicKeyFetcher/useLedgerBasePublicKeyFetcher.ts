@@ -5,18 +5,19 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 
 import {
+  LedgerAppType,
+  REQUIRED_LEDGER_VERSION,
+  useLedgerContext,
+  useDuplicatedWalletChecker,
+  useActiveLedgerAppInfo,
+} from '@core/ui';
+import { LedgerError, SecretType } from '@core/types';
+import {
   assert,
   getAvalancheExtendedKeyPath,
   getEvmExtendedKeyPath,
   isLedgerVersionCompatible,
 } from '@core/common';
-import { LedgerError, SecretType } from '@core/types';
-import {
-  LedgerAppType,
-  REQUIRED_LEDGER_VERSION,
-  useDuplicatedWalletChecker,
-  useLedgerContext,
-} from '@core/ui';
 
 import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
@@ -42,14 +43,13 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   }
 
   const {
-    appType,
-    appVersion,
     popDeviceSelection,
     hasLedgerTransport,
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
   } = useLedgerContext();
+  const { appType, appVersion } = useActiveLedgerAppInfo();
   const checkIfWalletExists = useDuplicatedWalletChecker();
   const checkAddressActivity = useCheckAddressActivity();
 

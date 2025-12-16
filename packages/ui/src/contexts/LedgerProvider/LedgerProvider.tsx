@@ -243,7 +243,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       if (transportRef.current?.exchangeBusyPromise) {
         await withTimeout(
           transportRef.current.exchangeBusyPromise,
-          1_500, // Usually the conflicting exchange will be us querying for the device status, which is pretty fast.
+          15_000, // Usually the conflicting exchange here will be a signing request, which may take a while.
         );
       }
 
@@ -551,30 +551,6 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     });
     setLedgerVersionWarningClosed(result);
   }, [request]);
-
-  // Refresh active app every 2 seconds
-  useEffect(() => {
-    let timeout: NodeJS.Timeout | null = null;
-
-    const scheduleRefresh = () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-
-      timeout = setTimeout(async () => {
-        await refreshActiveApp();
-        scheduleRefresh();
-      }, 2_000);
-    };
-
-    scheduleRefresh();
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  });
 
   return (
     <LedgerContext.Provider

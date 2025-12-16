@@ -15,6 +15,7 @@ import {
   LedgerAppType,
   MAX_BITCOIN_APP_VERSION,
   REQUIRED_LEDGER_VERSION,
+  useActiveLedgerAppInfo,
   useLedgerContext,
 } from '@core/ui';
 import { Action, NetworkWithCaipId } from '@core/types';
@@ -61,13 +62,8 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
   network,
   action,
 ) => {
-  const {
-    hasLedgerTransport,
-    wasTransportAttempted,
-    appType,
-    appVersion,
-    appConfig,
-  } = useLedgerContext();
+  const { hasLedgerTransport, wasTransportAttempted } = useLedgerContext();
+  const { appType, appVersion, appConfig } = useActiveLedgerAppInfo();
   const { shouldRegisterBtcWalletPolicy } = useLedgerPolicyRegistrationState();
 
   const requiredApp = getRequiredApp(network, action);
