@@ -1,7 +1,7 @@
-import { FC, useState } from 'react';
-import { Stack, StackProps } from '@avalabs/k2-alpine';
-import { useTranslation } from 'react-i18next';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { Stack, StackProps } from '@avalabs/k2-alpine';
+import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   FullscreenModalActions,
@@ -11,16 +11,20 @@ import {
 } from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
-import * as Styled from './Styled';
+import { SecretType } from '@core/types';
 import {
-  type DerivationStatus,
   type ConnectorCallbacks,
+  type DerivationStatus,
   AvalancheLedgerConnector,
 } from './LedgerConnector';
 import { DerivedKeys } from './LedgerConnector/types';
+import * as Styled from './Styled';
 
 type ConnectionStepProps = StackProps & {
-  onNext: (keys: DerivedKeys) => void;
+  onNext: (
+    keys: DerivedKeys,
+    secretType: SecretType.Ledger | SecretType.LedgerLive,
+  ) => void;
   onTroubleshoot: () => void;
   connectorCallbacks?: ConnectorCallbacks;
 };
@@ -92,7 +96,14 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
             loading={
               status === 'ready' && derivedKeys.addressPublicKeys.length === 0
             }
-            onClick={() => onNext(derivedKeys)}
+            onClick={() =>
+              onNext(
+                derivedKeys,
+                derivationPathSpec === DerivationPath.BIP44
+                  ? SecretType.Ledger
+                  : SecretType.LedgerLive,
+              )
+            }
           >
             {t('Next')}
           </NavButton>

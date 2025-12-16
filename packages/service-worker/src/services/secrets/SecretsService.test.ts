@@ -4,32 +4,32 @@ import {
   getLedgerExtendedPublicKey,
   getPubKeyFromTransport,
 } from '@avalabs/core-wallets-sdk';
-import { CallbackManager } from '~/runtime/CallbackManager';
+import { NetworkVMType } from '@avalabs/vm-module-types';
+import { getEvmExtendedKeyPath, mapVMAddresses } from '@core/common';
 import {
   Account,
   AccountType,
-  ImportType,
-  PrimaryAccount,
   AVALANCHE_BASE_DERIVATION_PATH,
   EVM_BASE_DERIVATION_PATH,
+  ImportType,
+  LedgerError,
+  PrimaryAccount,
+  SecretType,
   WALLET_STORAGE_KEY,
   WalletEvents,
-  LedgerError,
-  SecretType,
 } from '@core/types';
-import { StorageService } from '../storage/StorageService';
-import { SecretsService } from './SecretsService';
-import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { expectToThrowErrorCode } from '@shared/tests/test-utils';
+import { CallbackManager } from '~/runtime/CallbackManager';
 import { LedgerService } from '../ledger/LedgerService';
 import { LedgerTransport } from '../ledger/LedgerTransport';
-import { SeedlessWallet } from '../seedless/SeedlessWallet';
 import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
-import * as utils from './utils';
-import { expectToThrowErrorCode } from '@shared/tests/test-utils';
-import { AddressResolver } from './AddressResolver';
-import { getAvalancheExtendedKeyPath, mapVMAddresses } from '@core/common';
-import { NetworkVMType } from '@avalabs/vm-module-types';
+import { SeedlessWallet } from '../seedless/SeedlessWallet';
+import { StorageService } from '../storage/StorageService';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
 import { AddressPublicKey } from './AddressPublicKey';
+import { AddressResolver } from './AddressResolver';
+import { SecretsService } from './SecretsService';
+import * as utils from './utils';
 
 jest.mock('../storage/StorageService');
 jest.mock('../walletConnect/WalletConnectService');
@@ -85,7 +85,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
-    getAddressMock = jest.fn().mockImplementation((_pubkey, chain) => {
+    getAddressMock = jest.fn((_pubkey, chain) => {
       return `${chain}-`;
     });
 
@@ -387,8 +387,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         eventListener,
       );
 
-      const uuid = 'uuid';
-      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const uuid = 'uuid-test-5678-9012-345678901234';
+      jest.mocked(crypto.randomUUID).mockReturnValueOnce(uuid);
       const existingWallets = [
         {
           isActive: true,
@@ -426,8 +426,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('should save a new wallet to the `wallets` array with default name when name is missing', async () => {
-      const uuid = 'uuid';
-      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const uuid = 'uuid-test-5678-9012-345678901234';
+      jest.mocked(crypto.randomUUID).mockReturnValueOnce(uuid);
       const existingWallets = [
         {
           isActive: true,
@@ -463,8 +463,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     });
 
     it('should save a new wallet to the `wallets` array with the next index', async () => {
-      const uuid = 'uuid';
-      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const uuid = 'uuid-test-5678-9012-345678901234';
+      jest.mocked(crypto.randomUUID).mockReturnValueOnce(uuid);
       const existingSecrets = {
         wallets: [
           {
@@ -1249,9 +1249,9 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           .spyOn(ledgerService, 'recentTransport', 'get')
           .mockReturnValue(transportMock);
 
-        (getPubKeyFromTransport as jest.Mock).mockReturnValueOnce(
-          Buffer.from(''),
-        );
+        jest
+          .mocked(getPubKeyFromTransport)
+          .mockReturnValueOnce(Promise.resolve(Buffer.from('')));
 
         await expectToThrowErrorCode(
           secretsService.addAddress({
@@ -1265,7 +1265,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
           transportMock,
           false,
-          EVM_BASE_DERIVATION_PATH,
+          getEvmExtendedKeyPath(1),
         );
       });
 
@@ -1286,7 +1286,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           .spyOn(ledgerService, 'recentTransport', 'get')
           .mockReturnValue(transportMock);
 
-        (getLedgerExtendedPublicKey as jest.Mock).mockResolvedValueOnce('');
+        jest.mocked(getLedgerExtendedPublicKey).mockResolvedValueOnce('');
 
         jest
           .spyOn(AddressPublicKey, 'fromExtendedPublicKeys')
@@ -1304,7 +1304,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         expect(getLedgerExtendedPublicKey).toHaveBeenCalledWith(
           transportMock,
           false,
-          getAvalancheExtendedKeyPath(1),
+          getEvmExtendedKeyPath(1),
         );
       });
 
@@ -1447,8 +1447,8 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
     it('saves the secret in storage', async () => {
       secretsService.saveImportedWallet = jest.fn();
 
-      const uuid = 'some unique id';
-      (crypto.randomUUID as jest.Mock).mockReturnValueOnce(uuid);
+      const uuid = 'some-unique-id-test-1234';
+      jest.mocked(crypto.randomUUID).mockReturnValueOnce(uuid);
       mockMnemonicWallet({
         imported: {},
       });

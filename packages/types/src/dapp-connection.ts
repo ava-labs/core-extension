@@ -49,6 +49,7 @@ export enum DAppProviderRequest {
   WALLET_GET_NETWORK_STATE = 'wallet_getNetworkState',
   WALLET_GET_SETTINGS = 'wallet_getSettings',
   WALLET_SET_SETTINGS = 'wallet_setSettings',
+  WALLET_GET_CAPABILITIES = 'wallet_getCapabilities',
 }
 
 export enum Web3Event {
