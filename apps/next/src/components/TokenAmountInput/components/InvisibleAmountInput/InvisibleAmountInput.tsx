@@ -79,6 +79,7 @@ export const InvisibleAmountInput = styled(
 
   [`.${formHelperTextClasses.root}`]: {
     textAlign: 'right',
+    marginTop: 0,
   },
 }));
 

@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from 'react';
@@ -57,6 +58,7 @@ type SwapState = QueryState &
     performSwap: () => Promise<void>;
     slippage: number;
     setSlippage: Dispatch<SetStateAction<number>>;
+    swapDisabled: boolean;
   };
 
 const SwapStateContext = createContext<SwapState | undefined>(undefined);
@@ -293,6 +295,28 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
     }
   }, [fromToken?.coreChainId, setSwapNetwork, getNetwork]);
 
+  const swapDisabled = useMemo(() => {
+    return (
+      !fromToken?.coreChainId ||
+      !fromTokenAddress ||
+      !toTokenAddress ||
+      !fromTokenDecimals ||
+      !toTokenDecimals ||
+      !fromAmount ||
+      !toAmount ||
+      !quotes
+    );
+  }, [
+    fromToken?.coreChainId,
+    fromTokenAddress,
+    toTokenAddress,
+    fromTokenDecimals,
+    toTokenDecimals,
+    fromAmount,
+    toAmount,
+    quotes,
+  ]);
+
   return (
     <SwapStateContext.Provider
       value={{
@@ -322,6 +346,7 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
         performSwap,
         slippage,
         setSlippage,
+        swapDisabled,
       }}
     >
       {children}
