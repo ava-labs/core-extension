@@ -1,10 +1,6 @@
 import { DEFAULT_FLAGS } from '@core/common';
+import { GetFeatureFlagsHandler } from '@core/service-worker';
 import {
-  GetFeatureFlagsHandler,
-  type UpdateCurrencyHandler,
-} from '@core/service-worker';
-import {
-  CURRENCIES,
   ExtensionRequest,
   FeatureFlags,
   FeatureGates,
@@ -53,17 +49,6 @@ export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
           if (isEqual(prevFlags, result)) {
             // Prevent re-renders when nothing changed
             return prevFlags;
-          }
-          // When the balance service integration is just turned off
-          if (
-            !result[FeatureGates.BALANCE_SERVICE_INTEGRATION] &&
-            prevFlags[FeatureGates.BALANCE_SERVICE_INTEGRATION]
-          ) {
-            // The reason we need to do this here is because otherwise we need to rearrange the providers and that resulted in faulty behavior in many levels
-            request<UpdateCurrencyHandler>({
-              method: ExtensionRequest.SETTINGS_UPDATE_CURRENCY,
-              params: [CURRENCIES.USD],
-            });
           }
           return result;
         });

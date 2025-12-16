@@ -3,6 +3,7 @@ import {
   AnalyticsConsent,
   CollectiblesVisibility,
   ColorTheme,
+  CURRENCIES,
   EnsureDefined,
   FeatureGates,
   Languages,
@@ -74,14 +75,26 @@ export class SettingsService implements OnStorageReady, OnLock {
 
   async getSettings(): Promise<SettingsState> {
     if (this._cachedSettings && !this.needToRetryFetch) {
+      let settingsToReturn = this._cachedSettings;
       // If language feature flag is disabled, force English even for cached settings
       if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
-        return {
-          ...this._cachedSettings,
+        settingsToReturn = {
+          ...settingsToReturn,
           language: Languages.EN,
         };
       }
-      return this._cachedSettings;
+      // If balance service integration feature flag is disabled, force USD even for cached settings
+      if (
+        !this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ]
+      ) {
+        settingsToReturn = {
+          ...settingsToReturn,
+          currency: CURRENCIES.USD,
+        };
+      }
+      return settingsToReturn;
     }
 
     try {
@@ -103,6 +116,15 @@ export class SettingsService implements OnStorageReady, OnLock {
         settings.language = Languages.EN;
       }
 
+      // If balance service integration feature flag is disabled, force USD
+      if (
+        !this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ]
+      ) {
+        settings.currency = CURRENCIES.USD;
+      }
+
       this.needToRetryFetch = false;
       this._cachedSettings = settings;
 
@@ -122,6 +144,15 @@ export class SettingsService implements OnStorageReady, OnLock {
       // If language feature flag is disabled, force English
       if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
         settings.language = Languages.EN;
+      }
+
+      // If balance service integration feature flag is disabled, force USD
+      if (
+        !this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ]
+      ) {
+        settings.currency = CURRENCIES.USD;
       }
 
       this._cachedSettings = settings;
