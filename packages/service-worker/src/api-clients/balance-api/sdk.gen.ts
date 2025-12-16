@@ -4,6 +4,7 @@ import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
 import type {
   PostV1BalanceGetBalancesData,
+  PostV1BalanceGetBalancesErrors,
   PostV1BalanceGetBalancesResponses,
   PostV1StakeGetRewardsData,
   PostV1StakeGetRewardsResponses,
@@ -31,7 +32,7 @@ export const postV1BalanceGetBalances = <ThrowOnError extends boolean = false>(
 ) => {
   return (options.client ?? client).sse.post<
     PostV1BalanceGetBalancesResponses,
-    unknown,
+    PostV1BalanceGetBalancesErrors,
     ThrowOnError
   >({
     security: [
