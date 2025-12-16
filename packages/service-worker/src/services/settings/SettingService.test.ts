@@ -65,6 +65,7 @@ describe('background/services/settings/SettingsService.ts', () => {
   const featureFlagServiceMock = {
     featureFlags: {
       [FeatureGates.LANGUAGES]: true,
+      [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
     },
   } as any;
 
