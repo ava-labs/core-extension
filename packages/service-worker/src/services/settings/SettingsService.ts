@@ -172,7 +172,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setCurrencty(currency: string) {
+  async setCurrency(currency: string) {
     const settings = await this.getSettings();
 
     await this.saveSettings({
