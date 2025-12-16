@@ -49,7 +49,10 @@ const isTokenEnabled = (
   tokenBalance: Erc20TokenBalance | SplTokenBalance,
   // TODO: get the list of enabled tokens from the settings
 ): boolean => {
-  return isNil(tokenBalance.scanResult) || tokenBalance.scanResult === 'Benign';
+  return (
+    isNil(tokenBalance.scanResult) ||
+    ['Benign', 'Warning'].includes(tokenBalance.scanResult)
+  );
 };
 
 const getBaseTokenBalance = (tokenBalance: TokenBalance): BaseTokenBalance => {
