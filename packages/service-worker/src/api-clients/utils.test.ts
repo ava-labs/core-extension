@@ -178,6 +178,7 @@ describe('utils', () => {
             addresses: ['AAA', 'AAB', 'BBA', 'BBB', 'BBC', 'BBD'],
           },
         ],
+        showUntrustedTokens: true,
         currency: 'usd',
       };
 
@@ -277,6 +278,7 @@ describe('utils', () => {
             ],
           },
         ],
+        showUntrustedTokens: true,
       };
 
       expect(actual).toEqual(expected);
