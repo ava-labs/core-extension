@@ -47,11 +47,13 @@ interface BaseTokenBalance {
 
 const isTokenEnabled = (
   tokenBalance: Erc20TokenBalance | SplTokenBalance,
+  enabledTokens: Record<string, boolean> | undefined,
   // TODO: get the list of enabled tokens from the settings
 ): boolean => {
   return (
     isNil(tokenBalance.scanResult) ||
-    ['Benign', 'Warning'].includes(tokenBalance.scanResult)
+    ['Benign', 'Warning'].includes(tokenBalance.scanResult) ||
+    Boolean(enabledTokens?.[tokenBalance.address])
   );
 };
 
@@ -180,8 +182,11 @@ export const mapAvmTokenBalance = (
 
 export const mapErc20TokenBalance =
   (chainId: number) =>
-  (tokenBalance: Erc20TokenBalance): TokenWithBalanceERC20 | undefined => {
-    if (!isTokenEnabled(tokenBalance)) {
+  (
+    tokenBalance: Erc20TokenBalance,
+    enabledTokens: Record<string, boolean> | undefined,
+  ): TokenWithBalanceERC20 | undefined => {
+    if (!isTokenEnabled(tokenBalance, enabledTokens)) {
       return undefined;
     }
 
@@ -200,8 +205,9 @@ export const mapErc20TokenBalance =
 
 export const mapSplTokenBalance = (
   tokenBalance: SplTokenBalance,
+  enabledTokens: Record<string, boolean> | undefined,
 ): TokenWithBalanceSPL | undefined => {
-  if (!isTokenEnabled(tokenBalance)) {
+  if (!isTokenEnabled(tokenBalance, enabledTokens)) {
     return undefined;
   }
 
