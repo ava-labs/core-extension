@@ -42,7 +42,7 @@ export const DetailsItem = ({ item, network }: DetailsItemProps) => {
       return <FundsRecipientDetail item={item} />;
 
     case DetailItemType.CURRENCY:
-      return <CurrencyDetail item={item} />;
+      return <CurrencyDetail item={item} network={network} />;
 
     case DetailItemType.NODE_ID:
       return <NodeIdDetail item={item} />;
