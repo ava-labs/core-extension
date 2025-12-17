@@ -22,7 +22,7 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.71",
     "@avalabs/k2-alpine": "1.251.2",
     "@avalabs/types": "3.1.0-alpha.71",
-    "@avalabs/vm-module-types": "3.0.5",
+    "@avalabs/vm-module-types": "0.0.0-fix-remove-from-param-for-aval-20251217202931",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/service-worker": "workspace:*",
