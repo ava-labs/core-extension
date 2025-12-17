@@ -30,6 +30,7 @@ import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
 import { calculateTotalAtomicFundsForAccounts } from '@core/common';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
+import { SettingsService } from '~/services/settings/SettingsService';
 
 jest.mock('@core/common', () => {
   const actual = jest.requireActual('@core/common');
@@ -61,6 +62,10 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
   const balanceAggregatorService: jest.Mocked<BalanceAggregatorService> = {
     getBalancesForNetworks: jest.fn(),
     atomicBalances: {},
+  } as any;
+
+  const settingsService: jest.Mocked<SettingsService> = {
+    getTokensVisibility: jest.fn().mockResolvedValue({}),
   } as any;
 
   const FAVORITE_NETWORKS = [
@@ -134,6 +139,7 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         : {
             featureFlags: { [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false },
           }) as FeatureFlagService,
+      settingsService,
     );
 
   const handleRequest = (walletId: string) =>
