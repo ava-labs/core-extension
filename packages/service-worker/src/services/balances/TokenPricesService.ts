@@ -1,52 +1,120 @@
 import { singleton } from 'tsyringe';
-import { SimplePriceInCurrency } from '@avalabs/core-coingecko-sdk';
-import { SettingsService } from '../settings/SettingsService';
-import { getTokensPrice } from '@avalabs/core-token-prices-sdk';
 import {
-  simplePrice,
-  getBasicCoingeckoHttp,
-} from '@avalabs/core-coingecko-sdk';
-import LRUCache from 'lru-cache';
-
-/**
- * Keeping a cache of responses for ttl. This will allow future calls to utilize
- * previous responses for a given amount of time. Coin gecko rate limits for users that
- * have many accounts and this should help with the rate limiting
- *
- * Side note: A race condition can exist where multiple accounts are asking for the same
- * prices up front. Right now we dont create a cache until the response is returned. However,
- * the cache could hold a promise and this promise would handed to future requests. The issue
- * right now is we dont store into the cache until we recieve a response which could allow several
- *
- *
- */
-const tokenPriceResponseCache = new LRUCache({ max: 100, ttl: 60 * 1000 });
+  NetworkWithCaipId,
+  priceChangeRefreshRate,
+  PriceChangesData,
+  TOKENS_PRICE_DATA,
+  TOKENS_PRICE_DATA_VERSION,
+  TokensPriceChangeData,
+  TokensPriceShortData,
+} from '@core/types';
+import { SettingsService } from '../settings/SettingsService';
+import { StorageService } from '../storage/StorageService';
+import { resolve, watchlistTokens } from '@core/common';
 
 @singleton()
 export class TokenPricesService {
-  constructor(private settingsService: SettingsService) {}
-  /**
-   * Call this to get the native token price
-   * @param coinId the coin id ie avalanche-2 for avax
-   * @param selectedCurrency the currency selected
-   * @returns the native token price
-   */
-  async getPriceByCoinId(
-    coinId: string,
-    selectedCurrency: string,
-  ): Promise<number | undefined> {
-    const currencyCode = selectedCurrency.toLowerCase() as any;
-    const cacheKey = `getPriceByCoinId-${coinId}-${selectedCurrency}`;
-    const cacheResult = tokenPriceResponseCache.get<number>(cacheKey);
-    if (cacheResult) return cacheResult;
-    const coinPriceResult = await simplePrice(getBasicCoingeckoHttp(), {
-      coinIds: [coinId],
-      currencies: [currencyCode],
-    });
-    const result = coinPriceResult[coinId]?.[currencyCode]?.price;
-    tokenPriceResponseCache.set(cacheKey, result);
-    return result;
-  }
+  #pendingPriceChangesRequest: Promise<
+    TokensPriceShortData | undefined
+  > | null = null;
+
+  constructor(
+    private settingsService: SettingsService,
+    private storageService: StorageService,
+  ) {}
+
+  getPriceChangesData = async (): Promise<TokensPriceShortData | undefined> => {
+    // If there's already an in-flight request, return that promise to avoid duplicate network calls
+    if (this.#pendingPriceChangesRequest) {
+      return this.#pendingPriceChangesRequest;
+    }
+
+    this.#pendingPriceChangesRequest = this.#fetchPriceChangesData();
+
+    try {
+      return await this.#pendingPriceChangesRequest;
+    } finally {
+      this.#pendingPriceChangesRequest = null;
+    }
+  };
+
+  #fetchPriceChangesData = async (): Promise<
+    TokensPriceShortData | undefined
+  > => {
+    const selectedCurrency = (await this.settingsService.getSettings())
+      .currency;
+    const changesData =
+      await this.storageService.loadUnencrypted<TokensPriceChangeData>(
+        `${TOKENS_PRICE_DATA}-${selectedCurrency}`,
+      );
+
+    const lastUpdated = changesData?.lastUpdatedAt;
+
+    let priceChangesData = changesData?.priceChanges || {};
+
+    // Check if cached data has currentPrice field, if not fetch fresh data
+    const hasCurrentPrice = Object.values(priceChangesData).some(
+      (token: any) =>
+        token && typeof token === 'object' && 'currentPrice' in token,
+    );
+
+    if (
+      !priceChangesData ||
+      changesData?.version !== TOKENS_PRICE_DATA_VERSION ||
+      !Object.keys(priceChangesData).length ||
+      !hasCurrentPrice ||
+      (lastUpdated && lastUpdated + priceChangeRefreshRate < Date.now())
+    ) {
+      const [
+        [priceChangesResult, priceChangeResultError],
+        [priceResult, priceResultError],
+      ] = await Promise.all([
+        resolve(
+          fetch(
+            `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
+          ),
+        ),
+        resolve(fetch(`${process.env.PROXY_URL}/watchlist/price`)),
+      ]);
+
+      if ((priceResultError && priceChangeResultError) || !priceChangesResult) {
+        return;
+      }
+      const priceChanges: PriceChangesData[] = await priceChangesResult.json();
+      const price = priceResult ? await priceResult.json() : {};
+      const tokensData: TokensPriceShortData = priceChanges.reduce(
+        (acc: TokensPriceShortData, data: PriceChangesData) => {
+          return {
+            ...acc,
+            [data.internalId]: {
+              internalId: data.internalId,
+              symbol: data.symbol,
+              platforms: data.platforms,
+              priceChange: data.price_change_24h,
+              priceChangePercentage: data.price_change_percentage_24h,
+              currentPrice: watchlistTokens.includes(data.symbol.toLowerCase())
+                ? (price[data.symbol] ?? data.current_price)
+                : data.current_price,
+            },
+          };
+        },
+        {},
+      );
+
+      priceChangesData = { ...tokensData };
+
+      this.storageService.saveUnencrypted<TokensPriceChangeData>(
+        `${TOKENS_PRICE_DATA}-${selectedCurrency}`,
+        {
+          version: TOKENS_PRICE_DATA_VERSION,
+          priceChanges: tokensData,
+          lastUpdatedAt: Date.now(),
+          currency: selectedCurrency,
+        },
+      );
+    }
+    return priceChangesData;
+  };
 
   /**
    *
@@ -57,58 +125,49 @@ export class TokenPricesService {
    */
   async getTokenPriceByAddress(
     address: string,
-    assetPlatformId: string,
-    coinId: string,
-  ): Promise<Record<string, number>> {
-    const selectedCurrency = (await this.settingsService.getSettings())
-      .currency;
-    const cacheKey = `getTokenPriceByAddress-${coinId}-${selectedCurrency}-${address}`;
-    const cacheResult =
-      tokenPriceResponseCache.get<SimplePriceInCurrency>(cacheKey);
-    if (cacheResult) return cacheResult;
-    const avaxPrice = await this.getPriceByCoinId(coinId, selectedCurrency);
-    const result = await getTokensPrice(
-      [address],
-      selectedCurrency.toLowerCase(),
-      avaxPrice || 0,
-      assetPlatformId,
+    network: NetworkWithCaipId,
+  ): Promise<Record<string, number | null>> {
+    const lowercasedAddress = address.toLowerCase();
+    const tokenId = `${network.caipId}-${lowercasedAddress}`;
+
+    const tokens = await this.getPriceChangesData();
+
+    if (!tokens) {
+      return {
+        [address]: null,
+      };
+    }
+
+    // try to find the token by internalId first
+    const priceDataByInternalId = tokens?.[tokenId];
+
+    if (priceDataByInternalId) {
+      return {
+        [address]: priceDataByInternalId.currentPrice ?? null,
+      };
+    }
+
+    const priceData = Object.values(tokens).find(
+      (token) => token.platforms?.[network.caipId] === lowercasedAddress,
     );
-    tokenPriceResponseCache.set(cacheKey, result);
-    return result;
+
+    return {
+      [address]: priceData?.currentPrice ?? null,
+    };
   }
+
   /**
    *
-   * @param tokens the tokens with addresses
+   * @param address the address of the token needing proce for
    * @param assetPlatformId The platform id for the native token
    * @param coinId the coin id of the native token
-   * @returns
+   * @returns the price in avax of the token address
    */
-  async getTokenPricesByAddresses(
-    tokens: { address: string }[],
-    assetPlatformId: string,
-    coinId: string,
-  ): Promise<Record<string, number>> {
-    const selectedCurrency = (await this.settingsService.getSettings())
-      .currency;
-    const cacheKey = `getTokenPricesByAddresses-${coinId}-${selectedCurrency}-${assetPlatformId}-${tokens.map(
-      ({ address }) => address,
-    )}`;
-    const cacheResult =
-      tokenPriceResponseCache.get<Record<string, number>>(cacheKey);
-    if (cacheResult) return cacheResult;
-    const nativeTokenPrice = await this.getPriceByCoinId(
-      coinId,
-      selectedCurrency,
-    );
-    const tokenAddys = tokens.map((token) => token.address);
-    const currency = selectedCurrency.toLocaleLowerCase();
-    const result = await getTokensPrice(
-      tokenAddys,
-      currency,
-      nativeTokenPrice || 0,
-      assetPlatformId,
-    );
-    tokenPriceResponseCache.set(cacheKey, result);
-    return result;
+  async getNativeTokenPrice(symbol: string): Promise<number | null> {
+    const tokenId = `NATIVE-${symbol.toLowerCase()}`;
+    const tokens = await this.getPriceChangesData();
+    const priceData = tokens?.[tokenId];
+
+    return priceData?.currentPrice ?? null;
   }
 }

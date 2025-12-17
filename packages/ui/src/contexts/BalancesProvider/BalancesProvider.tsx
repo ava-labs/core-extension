@@ -103,9 +103,9 @@ const BalancesContext = createContext<{
     tokenId: string,
   ): Promise<void>;
   getTokenPrice(
-    addressOrSymbol: string,
+    address: string,
     lookupNetwork?: NetworkWithCaipId,
-  ): Promise<number | undefined>;
+  ): Promise<number | null>;
   updateBalanceOnNetworks: (
     accounts: Account[],
     chainIds?: number[],
@@ -126,7 +126,7 @@ const BalancesContext = createContext<{
 }>({
   balances: { loading: true },
   async getTokenPrice() {
-    return undefined;
+    return null;
   },
   async refreshNftMetadata() {},
   async updateBalanceOnNetworks() {},
@@ -446,31 +446,31 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   );
 
   const getTokenPrice = useCallback(
-    async (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
+    async (address: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
-        return;
+        return null;
       }
 
       const tokenNetwork = lookupNetwork ?? network;
 
       if (!tokenNetwork) {
-        return;
+        return null;
       }
 
       const addressForChain = getAddressForChain(tokenNetwork, activeAccount);
 
       if (!addressForChain) {
-        return;
+        return null;
       }
 
       const accountBalances =
         balances.tokens?.[tokenNetwork.chainId]?.[addressForChain];
 
       const token =
-        accountBalances?.[addressOrSymbol] ??
+        accountBalances?.[address] ??
         // Also try lower-cased.
         // Native token symbols are not lower-cased by the balance services.
-        accountBalances?.[addressOrSymbol.toLowerCase()];
+        accountBalances?.[address.toLowerCase()];
 
       if (token?.priceInCurrency !== undefined) {
         return token.priceInCurrency;
@@ -482,19 +482,18 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         try {
           const prices = await request<GetTokenPriceByAddressHandler>({
             method: ExtensionRequest.TOKEN_PRICE_GET_BY_ADDRESS,
-            params: [
-              addressOrSymbol,
-              coingeckoInfo.assetPlatformId,
-              coingeckoInfo.nativeTokenId,
-            ],
+            params: {
+              address,
+              caipId: tokenNetwork.caipId,
+            },
           });
-          return prices[addressOrSymbol.toLowerCase()];
+          return prices[address.toLowerCase()] ?? null;
         } catch {
-          return undefined;
+          return null;
         }
       }
 
-      return undefined;
+      return null;
     },
     [balances.tokens, activeAccount, network, request],
   );

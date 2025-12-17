@@ -60,7 +60,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
   const balanceAggregatorService: jest.Mocked<BalanceAggregatorService> = {
     getBalancesForNetworks: jest.fn(),
-    getPriceChangesData: jest.fn(),
     atomicBalances: {},
   } as any;
 
@@ -253,7 +252,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       X: Balances[keyof Balances];
     },
   ) => {
-    balanceAggregatorService.getPriceChangesData.mockResolvedValue({});
     balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
       nfts: {},
       atomic: {},
