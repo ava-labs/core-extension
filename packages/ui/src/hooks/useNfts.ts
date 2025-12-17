@@ -20,7 +20,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
     if (!balances.nfts || !activeAccount) {
       return {
         collectibles: [],
-        loading: balances.loading,
+        loading: balances.nftsLoading,
         error: balances.error,
       };
     }
@@ -31,7 +31,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
       if (!userAddress) {
         return {
           collectibles: [],
-          loading: balances.loading,
+          loading: balances.nftsLoading,
           error: balances.error,
         };
       }
@@ -40,7 +40,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
         collectibles: Object.values(
           balances.nfts?.[network.chainId]?.[userAddress] ?? {},
         ),
-        loading: balances.loading,
+        loading: balances.nftsLoading,
         error: balances.error,
       };
     }
@@ -60,7 +60,7 @@ export const useNfts = (network?: NetworkWithCaipId) => {
       collectibles: Object.values(
         balances.nfts?.[activeChainId]?.[userAddress] ?? {},
       ),
-      loading: balances.loading,
+      loading: balances.nftsLoading,
       error: balances.error,
     };
   }, [network, balances, activeAccount, currentNetwork]);
