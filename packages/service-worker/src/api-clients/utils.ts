@@ -492,31 +492,32 @@ export const convertBalanceResponsesToCacheBalanceObject = (
 
     if (isEvmGetBalancesResponse(balanceResponse) && chainId !== 0) {
       const tokenBalanceMapper = mapErc20TokenBalance(chainId);
-      const mappedBalance = {
-        ...(accumulator[chainId]?.[balanceResponse.id] ?? {}),
-        [balanceResponse.balances.nativeTokenBalance.symbol]:
-          mapNativeTokenBalance(balanceResponse.balances.nativeTokenBalance),
-        ...balanceResponse.balances.erc20TokenBalances.reduce(
-          (acc, tokenBalance) => {
-            const mappedTokenBalance = tokenBalanceMapper(tokenBalance);
-
-            if (!mappedTokenBalance) {
-              return acc;
-            }
-            return {
-              ...acc,
-              [tokenBalance.address]: mappedTokenBalance,
-            };
-          },
-          {},
-        ),
-      };
 
       return {
         ...accumulator,
         [chainId]: {
           ...(accumulator[chainId] ?? {}),
-          [balanceResponse.id]: mappedBalance,
+          [balanceResponse.id]: {
+            ...(accumulator[chainId]?.[balanceResponse.id] ?? {}),
+            [balanceResponse.balances.nativeTokenBalance.symbol]:
+              mapNativeTokenBalance(
+                balanceResponse.balances.nativeTokenBalance,
+              ),
+            ...balanceResponse.balances.erc20TokenBalances.reduce(
+              (acc, tokenBalance) => {
+                const mappedTokenBalance = tokenBalanceMapper(tokenBalance);
+
+                if (!mappedTokenBalance) {
+                  return acc;
+                }
+                return {
+                  ...acc,
+                  [tokenBalance.address]: mappedTokenBalance,
+                };
+              },
+              {},
+            ),
+          },
         },
       };
     }
