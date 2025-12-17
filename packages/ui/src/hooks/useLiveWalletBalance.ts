@@ -18,6 +18,13 @@ export const useLiveWalletBalance = (walletId: string) => {
     if (!walletId || !isBalanceServiceIntegrationOn) {
       return;
     }
+    if (!isSyncing.current) {
+      isSyncing.current = true;
+
+      fetchBalanceForWallet(walletId, true).finally(() => {
+        isSyncing.current = false;
+      });
+    }
 
     const pollingIntervalId = setInterval(() => {
       if (isSyncing.current) {
