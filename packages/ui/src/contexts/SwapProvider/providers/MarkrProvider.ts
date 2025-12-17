@@ -263,7 +263,7 @@ export const MarkrProvider: SwapProvider = {
     };
 
     let swapGasLimit: bigint | null = null;
-    let swapGasLimitError: Error | null = null;
+    let swapGasLimitError: unknown = null;
 
     if (isGaslessOn) {
       // When gasless is enabled, use state override to simulate the user having enough balance

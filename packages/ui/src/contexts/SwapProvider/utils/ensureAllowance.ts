@@ -70,7 +70,7 @@ export async function buildApprovalTx({
   };
 
   let approvalGasLimit: bigint | null = null;
-  let approvalGasLimitError: Error | null = null;
+  let approvalGasLimitError: unknown = null;
 
   if (isGaslessOn) {
     // When gasless is enabled, use state override to simulate the user having enough balance
