@@ -215,15 +215,3 @@ export const mapSplTokenBalance = (
     ...getBaseTokenBalance(tokenBalance),
   };
 };
-
-// const addressMapper =
-//   tokenBalance.type === 'erc20'
-//     ? (address: string) => address.toLowerCase()
-//     : (address: string) => address;
-//
-// if (
-//   enabledTokens?.[addressMapper(tokenBalance.address)] !== undefined &&
-//   !enabledTokens[addressMapper(tokenBalance.address)]
-// ) {
-//   return false;
-// }
