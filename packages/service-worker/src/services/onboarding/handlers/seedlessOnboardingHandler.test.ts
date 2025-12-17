@@ -19,9 +19,6 @@ import {
   SignerSessionData,
 } from '@cubist-labs/cubesigner-sdk';
 import { buildRpcCall } from '@shared/tests/test-utils';
-import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
-
-jest.mock('../utils/addChainsToFavoriteIfNeeded');
 
 jest.mock('@cubist-labs/cubesigner-sdk');
 const mockrMemorySession = {
@@ -197,7 +194,5 @@ describe('src/background/services/onboarding/handlers/seedlessOnboardingHandler.
     });
 
     expect(settingsServiceMock.setAnalyticsConsent).toHaveBeenCalledWith(true);
-
-    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

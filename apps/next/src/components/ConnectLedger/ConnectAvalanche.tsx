@@ -11,7 +11,6 @@ import {
 } from '@/components/FullscreenModal';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
-import { SecretType } from '@core/types';
 import {
   type ConnectorCallbacks,
   type DerivationStatus,
@@ -21,10 +20,7 @@ import { DerivedKeys } from './LedgerConnector/types';
 import * as Styled from './Styled';
 
 type ConnectionStepProps = StackProps & {
-  onNext: (
-    keys: DerivedKeys,
-    secretType: SecretType.Ledger | SecretType.LedgerLive,
-  ) => void;
+  onNext: (keys: DerivedKeys, derivationPathSpec: DerivationPath) => void;
   onTroubleshoot: () => void;
   connectorCallbacks?: ConnectorCallbacks;
 };
@@ -96,14 +92,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
             loading={
               status === 'ready' && derivedKeys.addressPublicKeys.length === 0
             }
-            onClick={() =>
-              onNext(
-                derivedKeys,
-                derivationPathSpec === DerivationPath.BIP44
-                  ? SecretType.Ledger
-                  : SecretType.LedgerLive,
-              )
-            }
+            onClick={() => onNext(derivedKeys, derivationPathSpec)}
           >
             {t('Next')}
           </NavButton>
