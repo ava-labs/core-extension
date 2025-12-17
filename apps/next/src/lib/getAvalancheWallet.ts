@@ -1,6 +1,6 @@
 import { Avalanche } from '@avalabs/core-wallets-sdk';
 
-import { stripAddressPrefix } from '@core/common';
+import { isPrimaryAccount, stripAddressPrefix } from '@core/common';
 import {
   AvmCapableAccount,
   isAvmCapableAccount,
@@ -17,17 +17,21 @@ export const getAvalancheWallet = async (
     ? account.addressAVM
     : account.addressPVM;
 
+  const addressesToUse = isPrimaryAccount(account)
+    ? [
+        ...addresses.externalAddresses.map(({ address }) =>
+          stripAddressPrefix(address),
+        ),
+        ...addresses.internalAddresses.map(({ address }) =>
+          stripAddressPrefix(address),
+        ),
+      ]
+    : [stripAddressPrefix(xpAddress)];
+
   return new Avalanche.AddressWallet(
     account.addressC,
     stripAddressPrefix(account.addressCoreEth),
-    [
-      ...addresses.externalAddresses.map(({ address }) =>
-        stripAddressPrefix(address),
-      ),
-      ...addresses.internalAddresses.map(({ address }) =>
-        stripAddressPrefix(address),
-      ),
-    ],
+    addressesToUse,
     stripAddressPrefix(xpAddress),
     provider,
   );

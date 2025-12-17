@@ -11,7 +11,7 @@ import { Account } from '@core/types';
 import {
   useAnalyticsContext,
   useBalancesContext,
-  useBalanceTotalInCurrency,
+  useNetworkContext,
   useSettingsContext,
 } from '@core/ui';
 import {
@@ -22,6 +22,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import { calculateTotalBalance } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { useImportPrivateKey } from '../hooks/useImportPrivateKey';
 import { DerivedAddresses } from '../types';
@@ -45,7 +46,8 @@ export const ImportPrivateKeyForm = ({
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
 
-  const { updateBalanceOnNetworks } = useBalancesContext();
+  const { updateBalanceOnNetworks, balances } = useBalancesContext();
+  const { enabledNetworks } = useNetworkContext();
   const { currency, currencyFormatter } = useSettingsContext();
 
   const { getDerivedAddresses } = useImportPrivateKey();
@@ -55,7 +57,11 @@ export const ImportPrivateKeyForm = ({
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [error, setError] = useState('');
 
-  const balance = useBalanceTotalInCurrency(derivedAddresses as Account);
+  const balance = calculateTotalBalance(
+    derivedAddresses,
+    enabledNetworks,
+    balances.tokens,
+  );
 
   useEffect(() => {
     if (derivedAddresses && updateBalanceOnNetworks) {
@@ -140,8 +146,8 @@ export const ImportPrivateKeyForm = ({
                 <Typography variant="caption">
                   {isBalanceLoading ? (
                     <CircularProgress size={16} />
-                  ) : balance !== null && balance?.sum ? (
-                    currencyFormatter(balance?.sum).replace(currency, '')
+                  ) : balance !== null ? (
+                    currencyFormatter(balance?.sum ?? 0).replace(currency, '')
                   ) : (
                     '-'
                   )}

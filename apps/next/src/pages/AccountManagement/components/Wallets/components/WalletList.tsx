@@ -1,6 +1,11 @@
 import { WalletCard } from '@/components/WalletCard';
 import { WalletIcon } from '@/components/WalletIcon';
-import { Account, AccountType, SecretType } from '@core/types';
+import {
+  Account,
+  AccountType,
+  IMPORTED_ACCOUNTS_WALLET_ID,
+  SecretType,
+} from '@core/types';
 import { useAccountsContext, useWalletContext } from '@core/ui';
 import { FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -81,9 +86,9 @@ export const WalletList: FC = () => {
           <WalletCard
             key={account.id}
             accountsNumber={1}
-            id={account.id}
+            id={IMPORTED_ACCOUNTS_WALLET_ID}
             disableRename
-            name={t('Imported wallet')}
+            name={t('Imported accounts')}
             icon={<WalletIcon type={SecretType.PrivateKey} size={24} />}
             showActiveIndicator={isActiveAccountInWallet}
             initialExpanded={isActiveAccountInWallet}

@@ -28,9 +28,7 @@ export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const { isDeveloperMode } = useNetworkContext();
   const { totalBalance, getAtomicBalance } = useBalancesContext();
-  const accountId =
-    accounts.active?.type === 'primary' ? accounts.active.id : undefined;
-  const atomicBalance = getAtomicBalance(accountId);
+  const atomicBalance = getAtomicBalance(accounts.active?.id);
 
   return (
     <>
