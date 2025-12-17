@@ -13,6 +13,7 @@ import {
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
+import { LedgerAppType } from '@core/ui';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
@@ -23,6 +24,7 @@ type CommonProps = {
   derivedAddressesChainCaipId: string;
   useLedgerPublicKeyFetcher: UseLedgerPublicKeyFetcher;
   callbacks?: ConnectorCallbacks;
+  requiredApp: LedgerAppType;
 };
 
 type PropsWithDerivationPathSpec = CommonProps & {
@@ -55,6 +57,8 @@ const isWithDerivationPathSpec = (
   props.derivationPathSpec !== undefined &&
   props.setDerivationPathSpec !== undefined;
 
+const EMPTY_KEYS: PublicKey[] = [];
+
 export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   props,
 ) => {
@@ -67,6 +71,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
     deriveAddresses,
     derivedAddressesChainCaipId,
     callbacks,
+    requiredApp,
   } = props;
   const { t } = useTranslation();
   const [activePublicKeys, setActivePublicKeys] = useState<PublicKey[]>([]);
@@ -75,7 +80,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
     withDerivationPathSpec ? props.derivationPathSpec : undefined,
     (publicKeys) => setActivePublicKeys(sortBy(publicKeys, 'index')),
   );
-  const [keys, setKeys] = useState<PublicKey[]>([]);
+  const [keys, setKeys] = useState<PublicKey[]>(EMPTY_KEYS);
   const [isRetrieving, setIsRetrieving] = useState(false);
 
   const fetchKeys = useCallback(async () => {
@@ -99,6 +104,8 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   useEffect(() => {
     if (status === 'ready' && !keys.length && !isRetrieving) {
       fetchKeys();
+    } else if (status === 'error') {
+      setKeys(EMPTY_KEYS);
     }
   }, [fetchKeys, status, keys, isRetrieving]);
 
@@ -158,6 +165,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
       {status === 'error' && error && (
         <Styled.LedgerConnectionError
           errorType={error}
+          requiredApp={requiredApp}
           onTroubleshoot={onTroubleshoot}
           onRetry={() => {
             if (isDuplicatedWalletError) {

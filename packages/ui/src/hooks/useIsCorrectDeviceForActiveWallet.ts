@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   LedgerAppType,
   useAccountsContext,
+  useActiveLedgerAppInfo,
   useLedgerContext,
   useWalletContext,
 } from '../contexts';
@@ -12,7 +13,8 @@ type Result = 'correct' | 'incorrect' | 'checking';
 export const useIsCorrectDeviceForActiveWallet = () => {
   const [isCorrectDevice, setIsCorrectDevice] = useState<Result>('checking');
   const { isWalletLocked, walletDetails, isLedgerWallet } = useWalletContext();
-  const { hasLedgerTransport, getPublicKey, appType } = useLedgerContext();
+  const { hasLedgerTransport, getPublicKey } = useLedgerContext();
+  const { appType } = useActiveLedgerAppInfo();
   const { accounts } = useAccountsContext();
 
   const [firstAccount] =

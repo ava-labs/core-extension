@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
@@ -40,6 +40,15 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
   });
 
   const isValid = derivedKeys.addressPublicKeys.length > 0;
+
+  useEffect(() => {
+    if (status === 'error') {
+      setDerivedKeys({
+        addressPublicKeys: [],
+        extendedPublicKeys: [],
+      });
+    }
+  }, [status]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
