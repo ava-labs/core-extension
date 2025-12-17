@@ -33,7 +33,10 @@ export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
 
 const WalletTotalBalanceContext = createContext<
   | {
-      fetchBalanceForWallet(walletId: string): Promise<void>;
+      fetchBalanceForWallet(
+        walletId: string,
+        shouldFetchSilently?: boolean,
+      ): Promise<void>;
       walletBalances: Record<string, WalletTotalBalanceState>;
       fetchWalletBalancesSequentially: () => Promise<void>;
     }
@@ -61,14 +64,14 @@ export const WalletTotalBalanceProvider = ({
   >({});
 
   const fetchBalanceForWallet = useCallback(
-    async (walletId: string) => {
+    async (walletId: string, shouldFetchSilently: boolean = false) => {
       setWalletBalances((prevState) => ({
         ...prevState,
         [walletId]: {
           ...prevState[walletId],
           hasErrorOccurred: false,
           hasBalanceServiceErrorOccurred: false,
-          isLoading: true,
+          isLoading: !shouldFetchSilently,
         },
       }));
 
@@ -88,7 +91,9 @@ export const WalletTotalBalanceProvider = ({
             [walletId]: {
               ...walletBalanceInfo,
               hasErrorOccurred: false,
-              hasBalanceServiceErrorOccurred,
+              hasBalanceServiceErrorOccurred: shouldFetchSilently
+                ? false
+                : hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
@@ -103,8 +108,10 @@ export const WalletTotalBalanceProvider = ({
             ...prevState,
             [walletId]: {
               ...prevState[walletId],
-              hasErrorOccurred: true,
-              hasBalanceServiceErrorOccurred,
+              hasErrorOccurred: shouldFetchSilently ? false : true,
+              hasBalanceServiceErrorOccurred: shouldFetchSilently
+                ? false
+                : hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
