@@ -8,9 +8,11 @@ import { Account, FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { getEvmProvider } from '@/lib/getEvmProvider';
 
 import { asHex } from '../lib/asHex';
 import { useTransactionCallbacks } from './useTransactionCallbacks';
+import { estimateGasWithStateOverride } from '../lib/estimateGasWithStateOverride';
 
 type UseEvmNativeSendArgs = {
   token: FungibleTokenBalance;
@@ -29,7 +31,9 @@ export const useEvmNativeSend = ({
 }: UseEvmNativeSendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
-  const { getNetworkFee } = useNetworkFeeContext();
+  const { getNetworkFee, isGaslessOn } = useNetworkFeeContext();
+
+  const provider = getEvmProvider(network);
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
   const { onSendFailure } = useTransactionCallbacks(network);
@@ -47,21 +51,30 @@ export const useEvmNativeSend = ({
         throw new Error('Network fee not found');
       }
 
+      const txParams: Record<string, string | undefined> = {
+        from: from.addressC,
+        to,
+        value: asHex(amount),
+        chainId: asHex(token.coreChainId),
+        maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
+        maxPriorityFeePerGas: asHex(networkFee.high.maxPriorityFeePerGas ?? 1n),
+      };
+
+      // When gasless is enabled, estimate gas with state override to avoid
+      // "insufficient funds for gas" errors for users with 0 native balance
+      if (isGaslessOn) {
+        const gasLimit = await estimateGasWithStateOverride(
+          provider,
+          { to, value: amount },
+          from.addressC,
+        );
+        txParams.gas = asHex(gasLimit);
+      }
+
       const hash = await request(
         {
           method: RpcMethod.ETH_SEND_TRANSACTION,
-          params: [
-            {
-              from: from.addressC,
-              to,
-              value: asHex(amount),
-              chainId: asHex(token.coreChainId),
-              maxFeePerGas: asHex(networkFee.high.maxFeePerGas),
-              maxPriorityFeePerGas: asHex(
-                networkFee.high.maxPriorityFeePerGas ?? 1n,
-              ),
-            },
-          ],
+          params: [txParams],
         },
         {
           scope: chainIdToCaip(token.coreChainId),
@@ -86,6 +99,8 @@ export const useEvmNativeSend = ({
     to,
     amount,
     getNetworkFee,
+    isGaslessOn,
+    provider,
   ]);
 
   useEffect(() => {
