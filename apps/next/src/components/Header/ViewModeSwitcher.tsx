@@ -39,6 +39,7 @@ export const ViewModeSwitcher: FC = () => {
       size="small"
       onClick={onSidebarIconClick}
       color="primary"
+      sx={{ padding: '0 5px' }}
     />
   );
 };
