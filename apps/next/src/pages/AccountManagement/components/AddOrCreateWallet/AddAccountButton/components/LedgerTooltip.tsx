@@ -11,7 +11,7 @@ export const LedgerTooltip: FC<Props> = ({ children }) => {
   return (
     <Tooltip
       title={t(
-        'Connect your Ledger device and open the Avalanche app to add an account.',
+        'Connect your Ledger device and open the Avalanche app to add an account. Make sure you connect the device that you used to create this wallet.',
       )}
     >
       {children}

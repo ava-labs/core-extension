@@ -5,6 +5,7 @@ import { PublicKey } from './types';
 import { BaseLedgerConnector } from './BaseLedgerConnector';
 import { useLedgerSolanaPublicKeyFetcher } from './hooks/useLedgerPublicKeyFetcher';
 import { SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
+import { LedgerAppType } from '@core/ui';
 
 type SolanaLedgerConnectorProps = Omit<
   Extract<
@@ -14,6 +15,7 @@ type SolanaLedgerConnectorProps = Omit<
   | 'deriveAddresses'
   | 'useLedgerPublicKeyFetcher'
   | 'derivedAddressesChainCaipId'
+  | 'requiredApp'
 >;
 
 const deriveAddresses = (keys: PublicKey[]) =>
@@ -26,6 +28,7 @@ export const SolanaLedgerConnector = (props: SolanaLedgerConnectorProps) => {
   return (
     <BaseLedgerConnector
       {...props}
+      requiredApp={LedgerAppType.SOLANA}
       deriveAddresses={deriveAddresses}
       useLedgerPublicKeyFetcher={useLedgerSolanaPublicKeyFetcher}
       derivedAddressesChainCaipId={SolanaCaip2ChainId.MAINNET}

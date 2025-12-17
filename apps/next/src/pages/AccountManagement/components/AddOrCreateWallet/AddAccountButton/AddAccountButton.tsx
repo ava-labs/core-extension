@@ -5,6 +5,7 @@ import {
   useAccountsContext,
   useActiveLedgerAppInfo,
   useAnalyticsContext,
+  useIsCorrectDeviceForActiveWallet,
   useLedgerContext,
   useWalletContext,
 } from '@core/ui';
@@ -19,10 +20,13 @@ export const AddAccountButton: FC = () => {
   const { walletDetails, isLedgerWallet } = useWalletContext();
   const { hasLedgerTransport } = useLedgerContext();
   const { appType } = useActiveLedgerAppInfo();
+  const status = useIsCorrectDeviceForActiveWallet();
 
   const canAddNewAccount =
     !isLedgerWallet ||
-    (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
+    (hasLedgerTransport &&
+      appType === LedgerAppType.AVALANCHE &&
+      status === 'correct');
 
   const TooltipWrapper = canAddNewAccount ? Fragment : LedgerTooltip;
 

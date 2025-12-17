@@ -7,23 +7,20 @@ import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
 import {
   useAccountsContext,
-  useLiveBalance,
+  useLiveWalletBalance,
   useSettingsContext,
   useWalletTotalBalance,
 } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { WalletDetails as WalletDetailsType } from '@core/types';
 import { getNetworkCount } from '../utils/networkCount';
-import { TokenType } from '@avalabs/vm-module-types';
 
 type Props = {
   wallet: WalletDetailsType;
 };
 
-const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
-
 export const WalletDetails = ({ wallet }: Props) => {
-  useLiveBalance(POLLED_BALANCES); // Make sure we always use the latest balances.
+  useLiveWalletBalance(wallet.id);
 
   const { getAccountsByWalletId } = useAccountsContext();
   const { coreAssistant } = useSettingsContext();
