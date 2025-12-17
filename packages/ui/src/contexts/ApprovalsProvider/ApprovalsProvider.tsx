@@ -6,9 +6,11 @@ import {
   useState,
 } from 'react';
 import { filter } from 'rxjs';
+import Browser from 'webextension-polyfill';
 
-import { ApprovalRequest } from '@core/types';
+import { ApprovalRequest, ContextContainer } from '@core/types';
 
+import { isSpecificContextContainer } from '../../utils';
 import { useConnectionContext } from '../ConnectionProvider';
 import { isApprovalRequest } from './isApprovalRequest';
 import { isActionsUpdate } from './isActionsUpdate';
@@ -27,11 +29,22 @@ export function ApprovalsContextProvider({ children }: PropsWithChildren) {
     const approvalRequests = events()
       .pipe(filter(isApprovalRequest))
       .subscribe(async (event) => {
-        if (tabId !== event.value.action.tabId) {
-          return;
-        }
+        const windowId = (await Browser.windows.getCurrent()).id;
+        const comesFromSameExtensionWindow = tabId === event.value.action.tabId;
+        const comesFromSameWindow = event.value.action.windowId === windowId;
+        const isSidepanelView = isSpecificContextContainer(
+          ContextContainer.SIDE_PANEL,
+        );
 
-        setApproval(event.value);
+        const isComingFromSameWindowWithSidepanel =
+          isSidepanelView && comesFromSameWindow;
+
+        if (
+          comesFromSameExtensionWindow ||
+          isComingFromSameWindowWithSidepanel
+        ) {
+          setApproval(event.value);
+        }
       });
 
     return () => {

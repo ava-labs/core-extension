@@ -6,6 +6,8 @@ import {
   useBalancesContext,
   useNetworkContext,
   useAnalyticsContext,
+  useWalletContext,
+  useWalletTotalBalance,
 } from '@core/ui';
 
 import { useTranslation } from 'react-i18next';
@@ -36,9 +38,14 @@ export const PortfolioTabs: FC = () => {
   const { networks } = useNetworkContext();
   const { totalBalance, balances } = useBalancesContext();
 
-  const isLoading = balances.loading || !totalBalance;
+  const { walletDetails } = useWalletContext();
+  const { totalBalanceInCurrency, isLoading: isWalletLoading } =
+    useWalletTotalBalance(walletDetails?.id);
+
+  const isLoading = balances.loading || !totalBalance || isWalletLoading;
   const isAccountEmpty =
     !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
+  const isWalletEmpty = !totalBalanceInCurrency || totalBalanceInCurrency === 0;
 
   const TABS: TabBarItemProps[] = [
     {
@@ -62,7 +69,7 @@ export const PortfolioTabs: FC = () => {
     });
   }
 
-  const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
+  const PortfolioContent = isWalletEmpty ? EmptyState : PortfolioDetails;
 
   return (
     <Stack gap={2.5} px={1.5} flexGrow={1}>

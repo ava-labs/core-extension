@@ -12,11 +12,13 @@ import type {
 const CONNECT_METHODS = [
   'eth_requestAccounts',
   'wallet_requestAccountPermission',
+  'wallet_requestPermissions',
 ] as const as DAppProviderRequest[];
 
 export class MultiWalletProviderProxy extends EventEmitter {
   #_providers: EVMProvider[] = [];
   #isWalletSelected = false;
+  #isWalletSelectionPending = false;
   #defaultProvider;
 
   public get defaultProvider() {
@@ -81,23 +83,33 @@ export class MultiWalletProviderProxy extends EventEmitter {
 
   async #toggleWalletSelection(): Promise<void> {
     // no need to select a wallet when there is only one
-    if (this.#_providers.length === 1 || this.#isWalletSelected) {
+    if (
+      this.#_providers.length === 1 ||
+      this.#isWalletSelected ||
+      this.#isWalletSelectionPending
+    ) {
       return;
     }
 
+    this.#isWalletSelectionPending = true;
+
     // get users wallet selection
-    const selectedIndex = await this.coreProvider.request({
-      method: 'avalanche_selectWallet',
-      params: [
-        // using any since we don't really know what kind of provider they are
-        this.#_providers.map((p: any, i) => {
-          return {
-            index: i,
-            info: p.info,
-          };
-        }),
-      ],
-    });
+    const selectedIndex = await this.coreProvider
+      .request({
+        method: 'avalanche_selectWallet',
+        params: [
+          // using any since we don't really know what kind of provider they are
+          this.#_providers.map((p: any, i) => {
+            return {
+              index: i,
+              info: p.info,
+            };
+          }),
+        ],
+      })
+      .catch(() => {
+        this.#isWalletSelectionPending = false;
+      });
 
     if (
       selectedIndex === undefined ||
@@ -110,13 +122,12 @@ export class MultiWalletProviderProxy extends EventEmitter {
     if (selectedIndex !== 0) {
       // Migrate event subscription to the new event provider
       this.#defaultProvider.removeAllListeners();
-
       this.eventNames().forEach((event) => {
         if (event === 'newListener') {
           return;
         }
 
-        (this.#_providers[selectedIndex] as any)?.addListener(
+        (this.#_providers[selectedIndex] as any)?.addListener?.(
           event,
           (...args: any[]) => {
             this.emit(event as string, ...args);
@@ -134,6 +145,8 @@ export class MultiWalletProviderProxy extends EventEmitter {
     // set default wallet for this connection
     this.#defaultProvider =
       this.#_providers[selectedIndex] || this.#defaultProvider;
+
+    this.#isWalletSelectionPending = false;
   }
 
   private async _request<T>(args): Promise<Maybe<T>> {

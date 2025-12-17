@@ -205,6 +205,7 @@ describe('contexts/BridgeProvider', () => {
           {
             context: {
               customApprovalScreenTitle: 'Confirm Bridge',
+              isBridge: true,
               alert: {
                 type: 'info',
                 title: 'This operation requires {{total}} approvals.',
@@ -234,6 +235,7 @@ describe('contexts/BridgeProvider', () => {
           {
             context: {
               customApprovalScreenTitle: 'Confirm Bridge',
+              isBridge: true,
             },
           },
         );

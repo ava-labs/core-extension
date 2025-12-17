@@ -2,7 +2,6 @@ import { isEqual, partition, get, merge } from 'lodash';
 import { container, singleton } from 'tsyringe';
 import { EventEmitter } from 'events';
 import * as Sentry from '@sentry/browser';
-import { resolve } from '@avalabs/core-utils-sdk';
 import {
   NftTokenWithBalance,
   TokenType,
@@ -19,17 +18,11 @@ import {
   BalancesInfo,
   CachedBalancesInfo,
   FeatureGates,
-  priceChangeRefreshRate,
-  PriceChangesData,
-  TOKENS_PRICE_DATA,
-  TokensPriceChangeData,
-  TokensPriceShortData,
 } from '@core/types';
 import {
   caipToChainId,
   groupTokensByType,
   isFulfilled,
-  watchlistTokens,
   Monitoring,
   setErrorForRequestInSessionStorage,
 } from '@core/common';
@@ -60,6 +53,7 @@ import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 import { SecretsService } from '~/services/secrets/SecretsService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { AccountsService } from '~/services/accounts/AccountsService';
+import { TokenPricesService } from './TokenPricesService';
 
 interface MergeWithNewSettingMissingTokenToZeroProps {
   cachedAccountBalance: {
@@ -130,6 +124,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     private featureFlagService: FeatureFlagService,
     private secretsService: SecretsService,
     private addressResolver: AddressResolver,
+    private tokenPricesService: TokenPricesService,
   ) {}
 
   async #fetchBalances(
@@ -141,7 +136,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       await this.networkService.activeNetworks.promisify(),
     ).filter((network) => chainIds.includes(network.chainId));
 
-    const priceChangesData = await this.getPriceChangesData();
+    const priceChangesData =
+      await this.tokenPricesService.getPriceChangesData();
 
     const updateRequests = await Promise.allSettled(
       networks.map(async (network) => {
@@ -259,6 +255,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           },
         });
 
+        const tokenVisibility =
+          await this.settingsService.getTokensVisibility();
+
         const { balances: balanceServiceResponseArray, errors } =
           await convertStreamToArray(balanceServiceResponse.stream);
 
@@ -267,6 +266,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
         const balanceObject = convertBalanceResponsesToCacheBalanceObject(
           balanceServiceResponseArray,
+          tokenVisibility,
         );
         const atomicBalanceObject =
           convertBalanceResponseToAtomicCacheBalanceObject(
@@ -456,77 +456,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       atomic: aggregatedAtomicBalances,
     };
   }
-
-  getPriceChangesData = async () => {
-    const selectedCurrency = (await this.settingsService.getSettings())
-      .currency;
-    const changesData =
-      await this.storageService.loadUnencrypted<TokensPriceChangeData>(
-        `${TOKENS_PRICE_DATA}-${selectedCurrency}`,
-      );
-
-    const lastUpdated = changesData?.lastUpdatedAt;
-
-    let priceChangesData = changesData?.priceChanges || {};
-
-    // Check if cached data has currentPrice field, if not fetch fresh data
-    const hasCurrentPrice = Object.values(priceChangesData).some(
-      (token: any) =>
-        token && typeof token === 'object' && 'currentPrice' in token,
-    );
-
-    if (
-      !priceChangesData ||
-      !Object.keys(priceChangesData).length ||
-      !hasCurrentPrice ||
-      (lastUpdated && lastUpdated + priceChangeRefreshRate < Date.now())
-    ) {
-      const [
-        [priceChangesResult, priceChangeResultError],
-        [priceResult, priceResultError],
-      ] = await Promise.all([
-        resolve(
-          fetch(
-            `${process.env.PROXY_URL}/watchlist/tokens?currency=${selectedCurrency}`,
-          ),
-        ),
-        resolve(fetch(`${process.env.PROXY_URL}/watchlist/price`)),
-      ]);
-
-      if ((priceResultError && priceChangeResultError) || !priceChangesResult) {
-        return;
-      }
-      const priceChanges: PriceChangesData[] = await priceChangesResult.json();
-      const price = priceResult ? await priceResult.json() : {};
-      const tokensData: TokensPriceShortData = priceChanges.reduce(
-        (acc: TokensPriceShortData, data: PriceChangesData) => {
-          return {
-            ...acc,
-            [data.symbol]: {
-              priceChange: data.price_change_24h,
-              priceChangePercentage: data.price_change_percentage_24h,
-              currentPrice: watchlistTokens.includes(data.symbol.toLowerCase())
-                ? (price[data.symbol] ?? data.current_price)
-                : data.current_price,
-            },
-          };
-        },
-        {},
-      );
-
-      priceChangesData = { ...tokensData };
-
-      this.storageService.saveUnencrypted<TokensPriceChangeData>(
-        `${TOKENS_PRICE_DATA}-${selectedCurrency}`,
-        {
-          priceChanges: tokensData,
-          lastUpdatedAt: Date.now(),
-          currency: selectedCurrency,
-        },
-      );
-    }
-    return priceChangesData;
-  };
 
   async loadBalanceFromCache() {
     if (this.lockService.locked) {

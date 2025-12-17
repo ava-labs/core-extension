@@ -11,12 +11,20 @@ import { LedgerService } from '../LedgerService';
 export class LedgerCloseTransportEvent implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
   constructor(private ledgerService: LedgerService) {
-    this.ledgerService.addListener(LedgerEvent.TRANSPORT_CLOSE_REQUEST, () => {
-      this.eventEmitter.emit('update', {
-        name: LedgerEvent.TRANSPORT_CLOSE_REQUEST,
-        value: {},
-      });
-    });
+    this.ledgerService.addListener(
+      LedgerEvent.TRANSPORT_CLOSE_REQUEST,
+      (data: unknown) => {
+        if (typeof data !== 'string') {
+          return;
+        }
+        this.eventEmitter.emit('update', {
+          name: LedgerEvent.TRANSPORT_CLOSE_REQUEST,
+          value: {
+            currentTransportUUID: data,
+          },
+        });
+      },
+    );
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

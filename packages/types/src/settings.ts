@@ -94,6 +94,10 @@ export enum CURRENCIES {
   CAD = 'CAD',
   CHF = 'CHF',
   HKD = 'HKD',
+  CLP = 'CLP',
+  CZK = 'CZK',
+  DKK = 'DKK',
+  HUF = 'HUF',
   // JPY: 'JPY',
   // CNH: 'CNH',
   // NZD: 'NZD'

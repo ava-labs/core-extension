@@ -250,6 +250,8 @@ function InnerBridgeProvider({ children }: { children: any }) {
             {
               context: {
                 customApprovalScreenTitle: t('Confirm Bridge'),
+                // Mark as bridge to skip toast/confetti (bridge has its own status tracking)
+                isBridge: true,
                 alert:
                   requiredSignatures > currentSignature
                     ? {

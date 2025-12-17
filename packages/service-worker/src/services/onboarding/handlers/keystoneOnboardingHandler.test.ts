@@ -20,10 +20,8 @@ import { NetworkService } from '../../network/NetworkService';
 import { KeystoneOnboardingHandler } from './keystoneOnboardingHandler';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import { buildExtendedPublicKey } from '../../secrets/utils';
-import { addChainsToFavoriteIfNeeded } from '../utils/addChainsToFavoriteIfNeeded';
 import { addAllAccountsWithHistory } from '~/services/accounts/utils/addAllAccountsWithHistory';
 
-jest.mock('../utils/addChainsToFavoriteIfNeeded');
 jest.mock('~/services/accounts/utils/addAllAccountsWithHistory', () => ({
   addAllAccountsWithHistory: jest.fn(),
 }));
@@ -163,8 +161,6 @@ describe('src/background/services/onboarding/handlers/keystoneOnboardingHandler.
     expect(
       analyticsServiceMock.saveTemporaryAnalyticsIds,
     ).not.toHaveBeenCalled();
-
-    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
 
     const result2 = await handler.handle(buildRpcCall(keystone3request));
 

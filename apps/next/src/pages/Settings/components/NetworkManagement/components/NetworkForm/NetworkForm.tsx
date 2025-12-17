@@ -3,6 +3,7 @@ import {
   Divider,
   Stack,
   Typography,
+  useTheme,
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import {
@@ -39,7 +40,7 @@ export const NetworkForm = ({
   pageType,
 }: NetworkFormProps) => {
   const { t } = useTranslation();
-
+  const theme = useTheme();
   const convertChainIdToString = (chainId: number) => {
     return chainId === 0 ? '' : chainId.toString();
   };
@@ -114,12 +115,18 @@ export const NetworkForm = ({
       <Stack
         direction="row"
         spacing={2}
+        alignItems="center"
         justifyContent="space-between"
         onClick={() => setView('rpc-headers')}
-        p={1.5}
+        py={0.75}
+        sx={{
+          cursor: 'pointer',
+        }}
       >
-        <Typography>{t('Custom RPC Headers')}</Typography>
-        <ChevronRightIcon size={16} />
+        <Typography variant="body2" fontSize={12} fontWeight={500}>
+          {t('Custom RPC Headers')}
+        </Typography>
+        <ChevronRightIcon color={theme.palette.text.secondary} size={24} />
       </Stack>
     </Card>
   );

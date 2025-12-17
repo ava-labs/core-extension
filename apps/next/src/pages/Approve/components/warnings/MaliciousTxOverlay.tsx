@@ -22,6 +22,13 @@ export const MaliciousTxOverlay = ({
   const { t } = useTranslation();
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(open);
 
+  const description = alert.details.body
+    ? alert.details.body[0]
+    : alert.details.description;
+  const descriptionSecondLine = alert.details.body
+    ? alert.details.body[1]
+    : null;
+
   return (
     <SlideUpDialog
       open={isAlertDialogOpen}
@@ -43,9 +50,20 @@ export const MaliciousTxOverlay = ({
         <Typography variant="h4" fontWeight={700} maxWidth={160}>
           {alert.details.title}
         </Typography>
-        <Typography variant="body1" color="text.primary">
-          {alert.details.description}
-        </Typography>
+        <Stack>
+          <Typography variant="body1" color="text.primary">
+            {description}
+          </Typography>
+          {descriptionSecondLine && (
+            <Typography
+              variant="body1"
+              color="text.primary"
+              sx={{ textDecoration: 'underline' }}
+            >
+              {descriptionSecondLine}
+            </Typography>
+          )}
+        </Stack>
       </Stack>
 
       <Drawer>

@@ -1,7 +1,8 @@
 export const TOKENS_PRICE_DATA = 'tokens-price-data';
+export const TOKENS_PRICE_DATA_VERSION = 2;
 
 export interface PriceChangesData {
-  id: string;
+  internalId: string;
   symbol: string;
   name: string;
   image: string;
@@ -30,21 +31,27 @@ export interface PriceChangesData {
     currency: string;
     percentage: number;
   };
+  platforms: Record<string, string>;
   last_updated: string;
 }
 
-export interface TokensPriceChangeData {
-  currency: string;
-  lastUpdatedAt: number;
-  priceChanges: TokensPriceShortData;
-}
-
-export interface TokensPriceShortData {
-  [symbol: string]: {
+type InternalId = string;
+export type TokensPriceShortData = Record<
+  InternalId,
+  {
+    internalId: string;
+    symbol: string;
+    platforms: Record<string, string>;
     priceChange?: number;
     priceChangePercentage?: number;
     currentPrice?: number;
-  };
+  }
+>;
+export interface TokensPriceChangeData {
+  currency: string;
+  lastUpdatedAt: number;
+  version?: number;
+  priceChanges: TokensPriceShortData;
 }
 
 export interface TokenPriceChanges {

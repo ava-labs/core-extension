@@ -8,6 +8,7 @@ import {
   useNetworkContext,
   useBalancesContext,
   useAccountsContext,
+  useBalanceTotalInCurrency,
 } from '@core/ui';
 
 import { AssetCard } from './AssetCard';
@@ -34,6 +35,8 @@ export const AssetsTab: FC = () => {
   const [selectedNetworks, setSelectedNetworks] = useState<Set<number>>(
     new Set(),
   );
+
+  const accountBalance = useBalanceTotalInCurrency(account);
 
   const assets = useTokensForAccount(account);
   const hasError = !!balances.error;
@@ -78,7 +81,7 @@ export const AssetsTab: FC = () => {
       <Stack width="100%" flexGrow={1} gap={1}>
         {hasError ? (
           <AssetsErrorState />
-        ) : sortedAssets.length === 0 ? (
+        ) : sortedAssets.length === 0 || accountBalance?.sum === 0 ? (
           <AssetsEmptyState />
         ) : (
           sortedAssets.map((token) => (
