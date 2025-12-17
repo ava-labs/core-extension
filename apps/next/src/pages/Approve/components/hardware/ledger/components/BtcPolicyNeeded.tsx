@@ -1,9 +1,6 @@
-import { FC, useCallback } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@avalabs/k2-alpine';
-import { wait } from '@avalabs/core-utils-sdk';
-
-import { useLedgerContext } from '@core/ui';
 
 import { useLedgerPolicyRegistrationState } from '@/contexts';
 
@@ -12,14 +9,7 @@ import { ErrorState } from './ErrorState';
 
 export const BtcPolicyNeeded: FC<StateComponentProps> = ({ state }) => {
   const { t } = useTranslation();
-  const { refreshActiveApp } = useLedgerContext();
   const { retry } = useLedgerPolicyRegistrationState();
-
-  const handleRetry = useCallback(async () => {
-    await refreshActiveApp();
-    await wait(500); // Wait for the state to be updated
-    await retry();
-  }, [refreshActiveApp, retry]);
 
   if (state.state !== 'btc-policy-needed') {
     return null;
@@ -36,7 +26,7 @@ export const BtcPolicyNeeded: FC<StateComponentProps> = ({ state }) => {
           size="extension"
           variant="contained"
           color="primary"
-          onClick={handleRetry}
+          onClick={retry}
         >
           {t('Retry')}
         </Button>

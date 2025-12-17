@@ -16,16 +16,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  delay,
-  filter,
-  fromEventPattern,
-  map,
-  of,
-  retryWhen,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { filter, fromEventPattern, map, of, switchMap, tap } from 'rxjs';
 import AppSolana from '@ledgerhq/hw-app-solana';
 
 import { VM } from '@avalabs/avalanchejs';
@@ -56,6 +47,7 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { getLedgerTransport } from '../utils/getLedgerTransport';
 import TransportWebHID from '@ledgerhq/hw-transport-webhid';
 import { shouldUseWebHID } from '../utils/shouldUseWebHID';
+import { wait } from '@avalabs/core-utils-sdk';
 
 export enum LedgerAppType {
   AVALANCHE = 'Avalanche',
@@ -107,12 +99,19 @@ const LedgerContext = createContext<{
   updateLedgerVersionWarningClosed(): Promise<void>;
   ledgerVersionWarningClosed: boolean | undefined;
   closeCurrentApp: () => Promise<void>;
-  refreshActiveApp: () => Promise<void>;
+  /**
+   * Do not use it directly unless necessary. Use `useActiveLedgerAppInfo()` hook instead.
+   */
+  registerSubscriber: () => void;
+  /**
+   * Do not use it directly unless necessary. Use `useActiveLedgerAppInfo()` hook instead.
+   */
+  unregisterSubscriber: () => void;
   appConfig: null | { isBlindSigningEnabled: boolean };
 }>({} as any);
 
 export function LedgerContextProvider({ children }: PropsWithChildren) {
-  const [initialized, setInialized] = useState(false);
+  const [initialized, setInitialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [app, setApp] = useState<Btc | AppAvalanche | Eth | AppSolana>();
   const [appType, setAppType] = useState<LedgerAppType>(LedgerAppType.UNKNOWN);
@@ -239,14 +238,6 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         throw new Error('Ledger not connected');
       }
 
-      // If data is being exchanged right now, wait for it to complete.
-      if (transportRef.current?.exchangeBusyPromise) {
-        await withTimeout(
-          transportRef.current.exchangeBusyPromise,
-          15_000, // Usually the conflicting exchange here will be a signing request, which may take a while.
-        );
-      }
-
       // first try to get the avalanche App instance
       const avaxAppInstance = new AppAvalanche(transport);
       if (avaxAppInstance) {
@@ -329,12 +320,16 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
           }),
         ),
         switchMap(() => getLedgerTransport()),
-        switchMap((transport) => {
-          transportRef.current = transport;
-          return initLedgerApp(transport);
-        }),
         tap(() => {
           setWasTransportAttempted(true);
+        }),
+        switchMap((transport) => {
+          transportRef.current = transport;
+          if (transport) {
+            return initLedgerApp(transport);
+          }
+
+          return Promise.resolve(null);
         }),
         switchMap(() =>
           fromEventPattern(
@@ -353,10 +348,6 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
             }),
           ),
         ),
-        retryWhen((errors) => {
-          setWasTransportAttempted(true);
-          return errors.pipe(delay(2000));
-        }),
       )
       .subscribe();
     return () => {
@@ -364,10 +355,66 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     };
   }, [initialized, initLedgerApp, request]);
 
+  const [subscribers, setSubscribers] = useState(0);
+  const registerSubscriber = useCallback(() => {
+    setSubscribers((oldSubscribers) => oldSubscribers + 1);
+  }, []);
+
+  const unregisterSubscriber = useCallback(() => {
+    setSubscribers((oldSubscribers) => Math.max(0, oldSubscribers - 1));
+  }, []);
+
   const refreshActiveApp = useCallback(async () => {
-    initLedgerApp(transportRef.current);
+    if (transportRef.current) {
+      await initLedgerApp(transportRef.current).catch((err) => {
+        // Most likely signing is in progress, we ignore this error.
+        if (err?.message?.includes('action was already pending')) {
+          return;
+        }
+
+        if (err?.message?.includes('disconnected')) {
+          transportRef.current = null;
+        }
+
+        // In case of error, reset the app state and rethrow the error for clients to handle.
+        setAppType(LedgerAppType.UNKNOWN);
+        setApp(undefined);
+        setAppConfig(null);
+      });
+    } else {
+      setInitialized(false);
+      await wait(200).finally(() => {
+        setInitialized(true);
+      });
+    }
   }, [initLedgerApp]);
 
+  // Refresh active app every 2 seconds if there are components who need the transport.
+  useEffect(() => {
+    let timeout: NodeJS.Timeout | null = null;
+
+    const cleanup = () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+
+    if (subscribers === 0) {
+      return cleanup;
+    }
+
+    const refreshAndScheduleNextCheck = () =>
+      refreshActiveApp().finally(scheduleNextCheck);
+
+    const scheduleNextCheck = () => {
+      cleanup();
+      timeout = setTimeout(refreshAndScheduleNextCheck, 2_000);
+    };
+
+    refreshAndScheduleNextCheck();
+
+    return cleanup;
+  }, [refreshActiveApp, subscribers]);
   /**
    * Get the extended public key for the given path (m/44'/60'/0' by default)
    * @returns Promise<extended public key>
@@ -442,7 +489,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
       method: ExtensionRequest.LEDGER_INIT_TRANSPORT,
       params: [LEDGER_INSTANCE_UUID],
     });
-    setInialized(true);
+    setInitialized(true);
   }, [initialized, request]);
 
   const closeCurrentApp = useCallback(async () => {
@@ -558,7 +605,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         popDeviceSelection,
         getExtendedPublicKey,
         initLedgerTransport,
-        hasLedgerTransport: !!app,
+        hasLedgerTransport: !!transportRef.current,
         wasTransportAttempted,
         appType,
         appConfig,
@@ -573,7 +620,8 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         updateLedgerVersionWarningClosed,
         ledgerVersionWarningClosed,
         closeCurrentApp,
-        refreshActiveApp,
+        registerSubscriber,
+        unregisterSubscriber,
       }}
     >
       {children}

@@ -149,6 +149,8 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
           paper: {
             sx: {
               marginTop: 6,
+              width: 'calc(100vw - 50px)',
+              left: '25px !important',
               ul: {
                 paddingTop: '0 !important',
               },

@@ -6,6 +6,7 @@ import { getEvmAddressFromPubKey } from '@avalabs/core-wallets-sdk';
 import { PublicKey } from './types';
 import { BaseLedgerConnector } from './BaseLedgerConnector';
 import { useLedgerBasePublicKeyFetcher } from './hooks/useLedgerPublicKeyFetcher';
+import { LedgerAppType } from '@core/ui';
 
 type AvalancheLedgerConnectorProps = Omit<
   Exclude<
@@ -15,6 +16,7 @@ type AvalancheLedgerConnectorProps = Omit<
   | 'deriveAddresses'
   | 'useLedgerPublicKeyFetcher'
   | 'derivedAddressesChainCaipId'
+  | 'requiredApp'
 >;
 
 const AVALANCHE_C_CHAIN_CAIP_ID = `eip155:${ChainId.AVALANCHE_MAINNET_ID}`;
@@ -33,6 +35,7 @@ export const AvalancheLedgerConnector = (
   return (
     <BaseLedgerConnector
       {...props}
+      requiredApp={LedgerAppType.AVALANCHE}
       deriveAddresses={deriveAddresses}
       useLedgerPublicKeyFetcher={useLedgerBasePublicKeyFetcher}
       derivedAddressesChainCaipId={AVALANCHE_C_CHAIN_CAIP_ID}

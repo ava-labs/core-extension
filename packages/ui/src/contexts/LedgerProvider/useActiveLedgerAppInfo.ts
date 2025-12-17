@@ -1,35 +1,30 @@
 import { useEffect } from 'react';
 import { useLedgerContext } from './LedgerProvider';
+import { useWalletContext } from '../WalletProvider';
 
-const DEFAULT_REFRESH_INTERVAL = 2_000;
-
+/**
+ * When your component needs to know the active app on the Ledger device, register it as a subscriber.
+ * This will cause the active app to be refreshed every 2 seconds.
+ */
 export const useActiveLedgerAppInfo = () => {
-  const { refreshActiveApp, appType, appVersion, appConfig } =
-    useLedgerContext();
+  const {
+    appType,
+    appVersion,
+    appConfig,
+    registerSubscriber,
+    unregisterSubscriber,
+  } = useLedgerContext();
+  const { isLedgerWallet } = useWalletContext();
 
-  // Refresh active app every 2 seconds
   useEffect(() => {
-    let timeout: NodeJS.Timeout | null = null;
+    if (!isLedgerWallet) {
+      return;
+    }
 
-    const scheduleRefresh = () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
+    registerSubscriber();
 
-      timeout = setTimeout(async () => {
-        await refreshActiveApp();
-        scheduleRefresh();
-      }, DEFAULT_REFRESH_INTERVAL);
-    };
-
-    scheduleRefresh();
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [refreshActiveApp]);
+    return unregisterSubscriber;
+  }, [isLedgerWallet, registerSubscriber, unregisterSubscriber]);
 
   return {
     appType,

@@ -8,8 +8,8 @@ import {
 } from '@avalabs/k2-alpine';
 
 export const SearchableSelectMenuRoot = styled(Stack)({
-  width: 'calc(100vw - 32px)',
-  height: 'calc(100vh - 96px)',
+  width: 'calc(100vw - 50px)',
+  height: 'calc(100vh - 112px)',
   overflow: 'hidden',
   ul: { paddingInline: 0 },
 });
