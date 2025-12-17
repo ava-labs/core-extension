@@ -15,17 +15,20 @@ export const useLiveWalletBalance = (walletId: string) => {
   const isSyncing = useRef<boolean>(false);
 
   useEffect(() => {
-    if (!walletId || !isBalanceServiceIntegrationOn) {
-      return;
-    }
     if (!isSyncing.current) {
       isSyncing.current = true;
 
-      fetchBalanceForWallet(walletId, true).finally(() => {
+      fetchBalanceForWallet(walletId).finally(() => {
         isSyncing.current = false;
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- We want the first call to be a "visible" update
+  }, []);
 
+  useEffect(() => {
+    if (!walletId || !isBalanceServiceIntegrationOn) {
+      return;
+    }
     const pollingIntervalId = setInterval(() => {
       if (isSyncing.current) {
         return;
