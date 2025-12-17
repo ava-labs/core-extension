@@ -1,35 +1,24 @@
 import { useEffect } from 'react';
 import { useLedgerContext } from './LedgerProvider';
 
-const DEFAULT_REFRESH_INTERVAL = 2_000;
-
+/**
+ * When your component needs to know the active app on the Ledger device, register it as a subscriber.
+ * This will cause the active app to be refreshed every 2 seconds.
+ */
 export const useActiveLedgerAppInfo = () => {
-  const { refreshActiveApp, appType, appVersion, appConfig } =
-    useLedgerContext();
+  const {
+    appType,
+    appVersion,
+    appConfig,
+    registerSubscriber,
+    unregisterSubscriber,
+  } = useLedgerContext();
 
-  // Refresh active app every 2 seconds
   useEffect(() => {
-    let timeout: NodeJS.Timeout | null = null;
+    registerSubscriber();
 
-    const scheduleRefresh = () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-
-      timeout = setTimeout(async () => {
-        await refreshActiveApp();
-        scheduleRefresh();
-      }, DEFAULT_REFRESH_INTERVAL);
-    };
-
-    scheduleRefresh();
-
-    return () => {
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    };
-  }, [refreshActiveApp]);
+    return unregisterSubscriber;
+  }, [registerSubscriber, unregisterSubscriber]);
 
   return {
     appType,

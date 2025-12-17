@@ -10,6 +10,7 @@ export type DerivationStatus =
 export type ErrorType =
   | 'unable-to-connect'
   | 'unsupported-version'
+  | 'incorrect-app'
   | 'duplicated-wallet';
 export type PublicKey = {
   hasActivity?: boolean;

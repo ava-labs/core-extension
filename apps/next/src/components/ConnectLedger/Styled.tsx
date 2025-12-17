@@ -21,6 +21,7 @@ import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
 
 import { PendingLedgerCircles } from '../PendingCircles';
 import { ErrorType } from './LedgerConnector/types';
+import { LedgerAppType } from '@core/ui';
 
 const defaultLabels: DerivationPathSelectorProps['labels'] = {
   [DerivationPath.BIP44]: { text: 'BIP 44 (Default)', disabled: false },
@@ -70,6 +71,7 @@ type LedgerConnectionErrorProps = {
   onTroubleshoot: () => void;
   onRetry: () => void;
   retryLabel?: string;
+  requiredApp: LedgerAppType;
 };
 
 export const LedgerConnectionError = ({
@@ -77,6 +79,7 @@ export const LedgerConnectionError = ({
   onRetry,
   onTroubleshoot,
   retryLabel,
+  requiredApp,
 }: LedgerConnectionErrorProps) => {
   const { t } = useTranslation();
 
@@ -96,6 +99,9 @@ export const LedgerConnectionError = ({
         )}
         {errorType === 'unsupported-version' && <UnsupportedVersionMessage />}
         {errorType === 'duplicated-wallet' && <DuplicatedWalletMessage />}
+        {errorType === 'incorrect-app' && (
+          <IncorrectAppMessage requiredApp={requiredApp} />
+        )}
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
@@ -132,6 +138,22 @@ export const LedgerClickToConnectMessage = ({
         </NavButton>
       </Stack>
     </Stack>
+  );
+};
+
+type IncorrectAppMessageProps = {
+  requiredApp: LedgerAppType;
+};
+const IncorrectAppMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t(
+        'Please switch to {{requiredApp}} on your Ledger device to continue.',
+        { requiredApp },
+      )}
+    </Typography>
   );
 };
 

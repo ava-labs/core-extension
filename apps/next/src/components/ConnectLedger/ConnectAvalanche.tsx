@@ -1,6 +1,6 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -50,6 +50,15 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
             derivedKeys.extendedPublicKeys?.length,
         )
       : derivedKeys.addressPublicKeys.length > 0;
+
+  useEffect(() => {
+    if (status === 'error') {
+      setDerivedKeys({
+        addressPublicKeys: [],
+        extendedPublicKeys: [],
+      });
+    }
+  }, [status]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>

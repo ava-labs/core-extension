@@ -328,8 +328,9 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setStatus('error');
           setError('unsupported-version');
         }
-      } else {
-        setStatus('waiting');
+      } else if (status !== 'error') {
+        setStatus('error');
+        setError('incorrect-app');
       }
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
