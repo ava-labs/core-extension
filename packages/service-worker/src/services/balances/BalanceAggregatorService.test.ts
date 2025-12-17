@@ -111,6 +111,10 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   } as any;
   const addressResolverMock = {} as any;
 
+  const tokenPricesServiceMock = {
+    getPriceChangesData: jest.fn().mockResolvedValue({}),
+  } as any;
+
   const account1: Account = {
     id: 'account1-id',
     name: 'account1 name',
@@ -228,6 +232,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         featureFlagServiceMock,
         mockSecretsService,
         addressResolverMock,
+        tokenPricesServiceMock,
       );
     });
 
@@ -461,6 +466,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         featureFlagServiceMock,
         mockSecretsService,
         addressResolverMock,
+        tokenPricesServiceMock,
       );
     });
 
@@ -604,6 +610,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         } as any,
         mockSecretsService,
         addressResolverMock,
+        tokenPricesServiceMock,
       );
     });
 

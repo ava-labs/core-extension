@@ -378,6 +378,11 @@ describe('src/background/services/balances/BalancesService.ts', () => {
         [],
         {
           test2: {
+            internalId: 'test2',
+            symbol: 'TEST2',
+            platforms: {
+              evm: 'addressC',
+            },
             priceChangePercentage: 25,
             currentPrice: 5,
           },
