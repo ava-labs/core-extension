@@ -1,34 +1,25 @@
 import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 import { injectable } from 'tsyringe';
-import { SettingsService } from '~/services/settings/SettingsService';
 import { TokenPricesService } from '~/services/balances/TokenPricesService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.TOKEN_PRICE_GET,
-  number | undefined,
-  [tokenId: string]
+  ExtensionRequest.TOKEN_PRICE_GET_NATIVE,
+  number | null,
+  [symbol: string]
 >;
 
 @injectable()
 export class GetTokenPriceHandler implements HandlerType {
-  method = ExtensionRequest.TOKEN_PRICE_GET as const;
+  method = ExtensionRequest.TOKEN_PRICE_GET_NATIVE as const;
 
-  constructor(
-    private tokenPricesService: TokenPricesService,
-    private settingsService: SettingsService,
-  ) {}
+  constructor(private tokenPricesService: TokenPricesService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [tokenId] = request.params;
-
-    const settings = await this.settingsService.getSettings();
+    const [symbol] = request.params;
 
     return {
       ...request,
-      result: await this.tokenPricesService.getPriceByCoinId(
-        tokenId,
-        settings.currency,
-      ),
+      result: await this.tokenPricesService.getNativeTokenPrice(symbol),
     };
   };
 }
