@@ -365,6 +365,10 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   }, [initialized, initLedgerApp, request]);
 
   const refreshActiveApp = useCallback(async () => {
+    if (!transportRef.current) {
+      return;
+    }
+
     initLedgerApp(transportRef.current);
   }, [initLedgerApp]);
 
