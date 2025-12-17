@@ -56,9 +56,7 @@ jest.mock('../ConnectionProvider', () => ({ useConnectionContext: jest.fn() }));
 jest.mock('../FeatureFlagsProvider', () => ({
   useFeatureFlagContext: jest.fn(),
 }));
-jest.mock('../NetworkFeeProvider', () => ({
-  useNetworkFeeContext: jest.fn(),
-}));
+jest.mock('../NetworkFeeProvider');
 
 describe('contexts/SwapProvider/useEvmSwap', () => {
   const connectionContext = {
@@ -102,7 +100,7 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
     } as any);
     jest.mocked(useNetworkFeeContext).mockReturnValue({
       isGaslessOn: false,
-    } as any);
+    } as ReturnType<typeof useNetworkFeeContext>);
     jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
     rpcProvider.waitForTransaction.mockResolvedValue({
       status: 1,
