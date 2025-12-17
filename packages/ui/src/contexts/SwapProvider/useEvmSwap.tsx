@@ -19,6 +19,7 @@ import { SwapSide } from '@paraswap/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
+import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { WAVAX_ADDRESS, WETH_ADDRESS } from './constants';
 import { EvmSwapQuote, GetRateParams, SwapAdapter, SwapParams } from './models';
 import { swapError } from './swap-utils';
@@ -53,6 +54,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
 ) => {
   const { request } = useConnectionContext();
   const { isFlagEnabled, selectFeatureFlag } = useFeatureFlagContext();
+  const { isGaslessOn } = useNetworkFeeContext();
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
@@ -232,6 +234,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         markrSwapGasBuffer: parseFloat(
           selectFeatureFlag(FeatureVars.MARKR_SWAP_GAS_BUFFER),
         ),
+        isGaslessOn,
       });
 
       retry<TransactionReceipt | null>({
@@ -264,6 +267,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       isFlagEnabled,
       selectFeatureFlag,
       walletDetails?.type,
+      isGaslessOn,
     ],
   );
 

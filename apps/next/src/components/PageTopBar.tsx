@@ -1,8 +1,8 @@
 import { ViewModeSwitcher } from '@/components/Header/ViewModeSwitcher';
-import { Box, Fade, Stack, useTheme } from '@avalabs/k2-alpine';
+import { Box, Fade, Stack, useTheme, ArrowBackIcon } from '@avalabs/k2-alpine';
 import { useGoBack } from '@core/ui';
 import { FC } from 'react';
-import { MdArrowBack } from 'react-icons/md';
+
 import { OverflowingTypography } from './OverflowingTypography';
 
 type Props = {
@@ -45,13 +45,13 @@ export const PageTopBar: FC<Props> = ({
       {showBack && (
         <Box
           flexShrink={0}
-          height={24}
-          width={24}
+          height={20}
+          width={20}
           lineHeight="1"
           data-testid="page-back-button"
         >
-          <MdArrowBack
-            size={24}
+          <ArrowBackIcon
+            size={20}
             onClick={onBackClicked || goBack}
             cursor="pointer"
           />

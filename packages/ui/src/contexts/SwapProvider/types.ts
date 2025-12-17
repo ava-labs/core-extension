@@ -112,6 +112,7 @@ export type PerformSwapParams = {
   feeAccount?: string;
   isOneClickSwapEnabled: boolean;
   markrSwapGasBuffer?: number;
+  isGaslessOn?: boolean;
 };
 
 export function isEvmWrapQuote(quote: SwapQuote): quote is EvmWrapQuote {

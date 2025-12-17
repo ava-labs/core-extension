@@ -39,16 +39,22 @@ export const AssetsTab: FC = () => {
   const accountBalance = useBalanceTotalInCurrency(account);
 
   const assets = useTokensForAccount(account);
+
+  //Only show assets with balances
+  const assetsWithBalances = useMemo(() => {
+    return assets.filter((asset) => asset.balance > 0);
+  }, [assets]);
+
   const hasError = !!balances.error;
 
   const availableNetworks = useMemo(
-    () => getAvailableNetworksFromAssets(assets, getNetwork),
-    [assets, getNetwork],
+    () => getAvailableNetworksFromAssets(assetsWithBalances, getNetwork),
+    [assetsWithBalances, getNetwork],
   );
 
   const filteredAssets = useMemo(
-    () => filterAssetsByNetworks(assets, selectedNetworks),
-    [assets, selectedNetworks],
+    () => filterAssetsByNetworks(assetsWithBalances, selectedNetworks),
+    [assetsWithBalances, selectedNetworks],
   );
 
   const sortedAssets = useMemo(

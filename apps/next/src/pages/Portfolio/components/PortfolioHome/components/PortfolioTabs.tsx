@@ -1,14 +1,14 @@
 import { FC, useState } from 'react';
 import { Stack, TabBarItemProps } from '@avalabs/k2-alpine';
-import { isEmptyAccount } from '@core/common';
+import { isEmptyAccount, isPrimaryAccount } from '@core/common';
 import {
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
   useAnalyticsContext,
-  useWalletContext,
   useWalletTotalBalance,
 } from '@core/ui';
+import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -38,9 +38,12 @@ export const PortfolioTabs: FC = () => {
   const { networks } = useNetworkContext();
   const { totalBalance, balances } = useBalancesContext();
 
-  const { walletDetails } = useWalletContext();
   const { totalBalanceInCurrency, isLoading: isWalletLoading } =
-    useWalletTotalBalance(walletDetails?.id);
+    useWalletTotalBalance(
+      isPrimaryAccount(accounts.active)
+        ? accounts.active.walletId
+        : IMPORTED_ACCOUNTS_WALLET_ID,
+    );
 
   const isLoading = balances.loading || !totalBalance || isWalletLoading;
   const isAccountEmpty =

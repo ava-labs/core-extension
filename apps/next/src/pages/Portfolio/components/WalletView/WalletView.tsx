@@ -3,7 +3,6 @@ import { useAccountsContext, useWalletContext } from '@core/ui';
 import { WalletDetails } from './components/WalletDetails';
 import { ImportedAccountDetails } from './components/ImportedAccoutDetails';
 import { isImportedAccount } from '@core/common';
-import { WalletError } from './components/WalletError';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
@@ -31,19 +30,17 @@ const WalletViewContent = () => {
   }, [t, search, history]);
 
   const wallet = getWallet(walletId);
-
-  if (!wallet) {
-    return <LoadingScreen />;
-  }
+  const account = getAccountById(walletId);
 
   if (wallet) {
     return <WalletDetails wallet={wallet} />;
   }
-  const account = getAccountById(walletId);
+
   if (isImportedAccount(account)) {
     return <ImportedAccountDetails account={account} />;
   }
-  return <WalletError />;
+
+  return <LoadingScreen />;
 };
 
 export const WalletView = () => {

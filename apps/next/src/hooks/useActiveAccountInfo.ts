@@ -45,7 +45,7 @@ export const useActiveAccountInfo = (): ActiveAccountInfo => {
       }
       switch (accountType) {
         case AccountType.IMPORTED:
-          return t(`Imported`);
+          return t(`Imported accounts`);
         case AccountType.WALLET_CONNECT:
           return t(`WalletConnect`);
         case AccountType.FIREBLOCKS:
