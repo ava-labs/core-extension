@@ -39,7 +39,7 @@ export const DetailsItem = ({ item, network }: DetailsItemProps) => {
       return <RawDataDetail item={item} />;
 
     case DetailItemType.FUNDS_RECIPIENT:
-      return <FundsRecipientDetail item={item} />;
+      return <FundsRecipientDetail item={item} network={network} />;
 
     case DetailItemType.CURRENCY:
       return <CurrencyDetail item={item} network={network} />;
