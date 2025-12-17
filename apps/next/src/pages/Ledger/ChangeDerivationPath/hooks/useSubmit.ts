@@ -1,42 +1,51 @@
 import { DerivedKeys } from '@/components/ConnectLedger/LedgerConnector/types';
 import { SecretType, WalletDetails } from '@core/types';
-import { useAnalyticsContext } from '@core/ui';
-import { useState } from 'react';
-import { useChangeDerivationPath } from './useChangeDerivationPath';
+import { useAnalyticsContext, useImportLedger } from '@core/ui';
+import { useCallback, useState } from 'react';
 import { useWalletRemoval } from './useWalletRemoval';
 
 export type SubmissionState = 'idle' | 'submitting' | 'submitted' | 'error';
 
 export function useSubmit(walletDetails: WalletDetails | undefined) {
   const { capture } = useAnalyticsContext();
+  const { importLedger } = useImportLedger();
   const [state, setState] = useState<SubmissionState>('idle');
   const [error, setError] = useState<unknown>(undefined);
 
-  const secretType =
-    walletDetails?.type === SecretType.LedgerLive
-      ? SecretType.Ledger
-      : SecretType.LedgerLive;
-
-  const submitPathChange = useChangeDerivationPath(secretType);
   const removeOldWallet = useWalletRemoval();
 
-  const submit = async (derivedKeys: DerivedKeys) => {
-    if (!walletDetails) {
-      throw new Error('Wallet details not found');
-    }
+  const submit = useCallback(
+    async (derivedKeys: DerivedKeys) => {
+      if (!walletDetails) {
+        throw new Error('Wallet details not found');
+      }
 
-    try {
-      setState('submitting');
-      await submitPathChange(walletDetails.name, derivedKeys);
-      await removeOldWallet(walletDetails.id);
-      capture('LedgerChangeDerivationPathSuccess');
-      setState('submitted');
-    } catch (err) {
-      capture('LedgerChangeDerivationPathFailure');
-      setState('error');
-      setError(err);
-    }
-  };
+      const { type, name } = walletDetails;
+
+      try {
+        setState('submitting');
+        await importLedger({
+          name,
+          addressPublicKeys: derivedKeys.addressPublicKeys.map(
+            ({ key }) => key,
+          ),
+          extendedPublicKeys: derivedKeys.extendedPublicKeys ?? [],
+          secretType:
+            type === SecretType.LedgerLive
+              ? SecretType.Ledger
+              : SecretType.LedgerLive,
+        });
+        await removeOldWallet(walletDetails.id);
+        capture('LedgerChangeDerivationPathSuccess');
+        setState('submitted');
+      } catch (err) {
+        capture('LedgerChangeDerivationPathFailure');
+        setState('error');
+        setError(err);
+      }
+    },
+    [importLedger, removeOldWallet, capture, walletDetails],
+  );
 
   return { submissionState: state, submit, submissionError: error };
 }

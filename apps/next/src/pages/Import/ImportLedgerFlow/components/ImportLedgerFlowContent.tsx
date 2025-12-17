@@ -27,7 +27,7 @@ import {
 import { useModalPageControl } from '@/components/FullscreenModal';
 import { useOpenApp } from '@/hooks/useOpenApp';
 
-import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
+import { ACCOUNT_MANAGEMENT_QUERY_TOKENS } from '@/config/routes';
 import { isAvalancheExtendedKey } from '@core/common';
 import { NameYourWalletScreen } from '../../common-screens';
 
@@ -95,18 +95,17 @@ export const ImportLedgerFlowContent = () => {
       setTotal(totalSteps);
 
       setIsBackButtonVisible(true);
-      if (step > 1) {
-        return registerBackButtonHandler(() => history.goBack());
-      } else {
-        return registerBackButtonHandler(() =>
-          openApp({
-            closeWindow: true,
-            navigateTo: {
-              pathname: `/wallets/import`,
-            },
-          }),
-        );
-      }
+      return registerBackButtonHandler(
+        step > 1
+          ? history.goBack
+          : () =>
+              openApp({
+                closeWindow: true,
+                navigateTo: {
+                  pathname: '/wallets/import',
+                },
+              }),
+      );
     } else {
       // If we're on troubleshooting screens, hide the page indicator
       setTotal(0);
@@ -152,7 +151,7 @@ export const ImportLedgerFlowContent = () => {
   const onSave = useCallback(
     async (name: string) => {
       try {
-        const imported = await importLedger({
+        await importLedger({
           name,
           addressPublicKeys: publicKeys,
           extendedPublicKeys: extPublicKeys,
@@ -161,8 +160,8 @@ export const ImportLedgerFlowContent = () => {
         await openApp({
           closeWindow: true,
           navigateTo: {
-            pathname: `/wallet/${imported.id}`,
-            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
+            pathname: '/account-management',
+            search: `${ACCOUNT_MANAGEMENT_QUERY_TOKENS.showImportSuccess}=true`,
           },
         });
       } catch (err) {
