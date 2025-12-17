@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 import {
   LedgerAppType,
+  useActiveLedgerAppInfo,
   useConnectionContext,
   useLedgerContext,
   useRegisterBtcWalletPolicy,
@@ -14,12 +15,12 @@ import { PolicyRegistrationState, Status } from '../types';
 export const usePolicyRegistrationState = (): PolicyRegistrationState => {
   const { request } = useConnectionContext();
   const {
-    appType,
     getBtcExtendedPublicKey,
     getMasterFingerprint,
     registerBtcWalletPolicy,
     closeCurrentApp,
   } = useLedgerContext();
+  const { appType } = useActiveLedgerAppInfo();
 
   const {
     shouldRegisterBtcWalletPolicy,

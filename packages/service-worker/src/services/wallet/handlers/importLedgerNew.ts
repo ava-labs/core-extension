@@ -1,18 +1,18 @@
-import { injectable } from 'tsyringe';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { injectable } from 'tsyringe';
 
 import {
-  SecretType,
   ExtensionRequest,
   ExtensionRequestHandler,
-  LegacyImportLedgerWalletParams,
-  ImportWalletResult,
   ImportLedgerWalletParams,
+  ImportWalletResult,
+  LegacyImportLedgerWalletParams,
+  SecretType,
 } from '@core/types';
 
-import { WalletService } from '../WalletService';
-import { SecretsService } from '../../secrets/SecretsService';
 import { AccountsService } from '../../accounts/AccountsService';
+import { SecretsService } from '../../secrets/SecretsService';
+import { WalletService } from '../WalletService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_IMPORT_LEDGER_NEW,
@@ -45,7 +45,8 @@ export class ImportLedgerHandlerNew implements HandlerType {
   }
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [{ addressPublicKeys, extendedPublicKeys, name }] = request.params;
+    const [{ addressPublicKeys, extendedPublicKeys, name, secretType }] =
+      request.params;
 
     if (!addressPublicKeys.length) {
       return {
@@ -54,27 +55,23 @@ export class ImportLedgerHandlerNew implements HandlerType {
       };
     }
 
-    const secretType =
-      extendedPublicKeys.length === 0
-        ? SecretType.LedgerLive
-        : SecretType.Ledger;
+    const isLedgerLive = SecretType.LedgerLive === secretType;
 
-    const id =
-      secretType === SecretType.Ledger
-        ? await this.walletService.addPrimaryWallet({
-            secretType,
-            derivationPathSpec: DerivationPath.BIP44,
-            extendedPublicKeys,
-            publicKeys: addressPublicKeys,
-            name,
-          })
-        : await this.walletService.addPrimaryWallet({
-            secretType,
-            derivationPathSpec: DerivationPath.LedgerLive,
-            extendedPublicKeys: [],
-            publicKeys: addressPublicKeys,
-            name,
-          });
+    const id = isLedgerLive
+      ? await this.walletService.addPrimaryWallet({
+          secretType,
+          derivationPathSpec: DerivationPath.LedgerLive,
+          extendedPublicKeys,
+          publicKeys: addressPublicKeys,
+          name,
+        })
+      : await this.walletService.addPrimaryWallet({
+          secretType,
+          derivationPathSpec: DerivationPath.BIP44,
+          extendedPublicKeys,
+          publicKeys: addressPublicKeys,
+          name,
+        });
 
     // Number of accounts is equal to the number of derived EVM public keys, since they are always provided.
     const numberOfAccounts = addressPublicKeys.filter(({ derivationPath }) =>
@@ -88,7 +85,7 @@ export class ImportLedgerHandlerNew implements HandlerType {
     return {
       ...request,
       result: {
-        type: secretType,
+        type: isLedgerLive ? SecretType.LedgerLive : SecretType.Ledger,
         name: addedWallet.name,
         id,
       },

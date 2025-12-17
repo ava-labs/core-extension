@@ -104,6 +104,10 @@ export type AvalancheCorethGetBalancesRequestItem = {
      */
     addresses: Array<string>;
   }>;
+  /**
+   * Whether to filter out dust UTXOs from the balance calculation. Default is true.
+   */
+  filterOutDustUtxos?: boolean;
 };
 
 /**
@@ -204,9 +208,7 @@ export type GetBalancesResponse =
       networkType: 'coreth';
     } & CorethGetBalancesResponse)
   | GetBalancesResponseError
-  | {
-      error: string;
-    };
+  | GetBalancesResponseInternalError;
 
 /**
  * The balance response for EVM chains
@@ -323,6 +325,7 @@ export type SvmGetBalancesResponse = {
       priceChange24h?: number;
       priceChangePercentage24h?: number;
       address: string;
+      associatedTokenAddress: string;
       scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
     }>;
   };
@@ -480,6 +483,13 @@ export type GetBalancesResponseError = {
 };
 
 /**
+ * The error response if there was an internal error which was not handled correctly
+ */
+export type GetBalancesResponseInternalError = {
+  error: string;
+};
+
+/**
  * Get stake rewards response
  */
 export type GetStakeRewardsResponse = {
@@ -497,6 +507,33 @@ export type PostV1BalanceGetBalancesData = {
   query?: never;
   url: '/v1/balance/get-balances';
 };
+
+export type PostV1BalanceGetBalancesErrors = {
+  /**
+   * Default Response
+   */
+  400: {
+    message: 'INVALID_PAYLOAD';
+    issues: Array<unknown>;
+    method: string;
+    url: string;
+  };
+  /**
+   * Default Response
+   */
+  401: {
+    message: 'UNAUTHORIZED';
+  };
+  /**
+   * Default Response
+   */
+  500: {
+    message: 'INTERNAL_ERROR';
+  };
+};
+
+export type PostV1BalanceGetBalancesError =
+  PostV1BalanceGetBalancesErrors[keyof PostV1BalanceGetBalancesErrors];
 
 export type PostV1BalanceGetBalancesResponses = {
   /**

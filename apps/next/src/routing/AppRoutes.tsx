@@ -1,5 +1,5 @@
-import { Route, Switch } from 'react-router-dom';
 import { WalletTotalBalanceProvider } from '@core/ui';
+import { Route, Switch } from 'react-router-dom';
 
 import {
   getBridgePath,
@@ -15,15 +15,16 @@ import { Contacts } from '@/pages/Contacts';
 import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import { KeystoneUsbReconnect } from '@/pages/KeystoneUsb/Reconnect';
+import { ChangeDerivationPath } from '@/pages/Ledger/ChangeDerivationPath';
 import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
 import { Portfolio } from '@/pages/Portfolio';
 import { Receive } from '@/pages/Receive';
+import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 import { Send } from '@/pages/Send';
 import { Settings } from '@/pages/Settings';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
-import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
 
 export const AppRoutes = () => (
   <WalletTotalBalanceProvider>
@@ -52,6 +53,7 @@ export const AppRoutes = () => (
       <Route path={'/concierge'} component={Concierge} />
       <Route path={getBridgePath()} component={Bridge} />
       <Route path="/ledger/reconnect" component={LedgerReconnect} />
+      <Route path="/ledger/derivation-path" component={ChangeDerivationPath} />
       <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
       <Route path="/sync" component={Activity} />
       <Route path="/activity" component={Activity} />

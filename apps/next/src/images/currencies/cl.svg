@@ -1,0 +1,63 @@
+<!-- This is a temporary logo for the Chilean Peso until k2-alpine is ready -->
+<!--<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-4 -4 24 16">-->
+<!--	<path d="M20,12H-4V-4H20z" fill="#d52b1e"/>-->
+<!--	<path d="M4,4H20V-4H-4z" fill="#fff"/>-->
+<!--	<path d="M4,4H-4V-4H4z" fill="#0039a6"/>-->
+<!--	<g id="f">-->
+<!--		<g id="t">-->
+<!--			<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)" id="o"/>-->
+<!--			<use xlink:href="#o" transform="scale(-1,1)"/>-->
+<!--		</g>-->
+<!--		<use xlink:href="#t" transform="rotate(72)"/>-->
+<!--	</g>-->
+<!--	<use xlink:href="#t" transform="rotate(-72)"/>-->
+<!--	<use xlink:href="#f" transform="rotate(144)"/>-->
+<!--</svg>-->
+<!--<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg"-->
+<!--		 xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--	<g>-->
+<!--		<path d="M20,12H-4V-4H20z" fill="#d52b1e"/>-->
+<!--		<path d="M4,4H20V-4H-4z" fill="#fff"/>-->
+<!--		<path d="M4,4H-4V-4H4z" fill="#0039a6"/>-->
+<!--		<g id="f">-->
+<!--			<g id="t">-->
+<!--				<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)" id="o"/>-->
+<!--				<use xlink:href="#o" transform="scale(-1,1)"/>-->
+<!--			</g>-->
+<!--			<use xlink:href="#t" transform="rotate(72)"/>-->
+<!--		</g>-->
+<!--		<use xlink:href="#t" transform="rotate(-72)"/>-->
+<!--		<use xlink:href="#f" transform="rotate(144)"/>-->
+<!--	</g>-->
+<!--</svg>-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128.092 128.03" width="128.092px" height="128.03px">
+	<g transform="matrix(5.337166786193848, 0, 0, 8.001875877380371, 21.348661422729492, 32.007495880126946)" style="">
+		<path d="M20,12H-4V-4H20z" fill="#d52b1e"/>
+		<path d="M4,4H20V-4H-4z" fill="#fff"/>
+		<path d="M4,4H-4V-4H4z" fill="#0039a6"/>
+		<g id="group-1">
+			<g id="group-2">
+				<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)" id="path-1"/>
+				<path d="M0,-2V0H1z" fill="#fff" transform="matrix(-0.9510565162951535, 0.3090169943749474, 0.3090169943749474, 0.9510565162951535, 0.6180339887498948, -0.09788696740969294)"/>
+			</g>
+			<g transform="matrix(0.3090169943749474, 0.9510565162951535, -0.9510565162951535, 0.3090169943749474, 0, 0)">
+				<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)"/>
+				<path d="M0,-2V0H1z" fill="#fff" transform="matrix(-0.9510565162951535, 0.3090169943749474, 0.3090169943749474, 0.9510565162951535, 0.6180339887498948, -0.09788696740969294)"/>
+			</g>
+		</g>
+		<g transform="matrix(0.3090169943749474, -0.9510565162951535, 0.9510565162951535, 0.3090169943749474, 0, 0)">
+			<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)"/>
+			<path d="M0,-2V0H1z" fill="#fff" transform="matrix(-0.9510565162951535, 0.3090169943749474, 0.3090169943749474, 0.9510565162951535, 0.6180339887498948, -0.09788696740969294)"/>
+		</g>
+		<g transform="matrix(-0.8090169943749475, 0.5877852522924731, -0.5877852522924731, -0.8090169943749475, 0, 0)">
+			<g>
+				<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)"/>
+				<path d="M0,-2V0H1z" fill="#fff" transform="matrix(-0.9510565162951535, 0.3090169943749474, 0.3090169943749474, 0.9510565162951535, 0.6180339887498948, -0.09788696740969294)"/>
+			</g>
+			<g transform="matrix(0.3090169943749474, 0.9510565162951535, -0.9510565162951535, 0.3090169943749474, 0, 0)">
+				<path d="M0,-2V0H1z" fill="#fff" transform="rotate(18,0,-2)"/>
+				<path d="M0,-2V0H1z" fill="#fff" transform="matrix(-0.9510565162951535, 0.3090169943749474, 0.3090169943749474, 0.9510565162951535, 0.6180339887498948, -0.09788696740969294)"/>
+			</g>
+		</g>
+	</g>
+</svg>

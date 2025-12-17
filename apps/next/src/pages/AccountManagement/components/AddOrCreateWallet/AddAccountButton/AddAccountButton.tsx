@@ -3,6 +3,7 @@ import { Button, Stack, toast } from '@avalabs/k2-alpine';
 import {
   LedgerAppType,
   useAccountsContext,
+  useActiveLedgerAppInfo,
   useAnalyticsContext,
   useLedgerContext,
   useWalletContext,
@@ -16,7 +17,8 @@ export const AddAccountButton: FC = () => {
   const { capture } = useAnalyticsContext();
   const { addAccount, selectAccount } = useAccountsContext();
   const { walletDetails, isLedgerWallet } = useWalletContext();
-  const { hasLedgerTransport, appType } = useLedgerContext();
+  const { hasLedgerTransport } = useLedgerContext();
+  const { appType } = useActiveLedgerAppInfo();
 
   const canAddNewAccount =
     !isLedgerWallet ||

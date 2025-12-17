@@ -4,10 +4,7 @@ import { LockService } from '../lock/LockService';
 import { WalletService } from '../wallet/WalletService';
 import { AccountsService } from '../accounts/AccountsService';
 import { NetworkService } from '../network/NetworkService';
-import { addChainsToFavoriteIfNeeded } from './utils/addChainsToFavoriteIfNeeded';
 import { NETWORKS_ENABLED_BY_DEFAULT } from '@core/types';
-
-jest.mock('./utils/addChainsToFavoriteIfNeeded');
 
 jest.mock('@avalabs/core-wallets-sdk', () => {
   const actual = jest.requireActual('@avalabs/core-wallets-sdk');
@@ -85,7 +82,5 @@ describe('src/background/services/onboarding/finalizeOnboarding.test.ts', () => 
     );
     expect(onboardingServiceMock.setIsOnboarded).toHaveBeenCalledWith(true);
     expect(lockServiceMock.unlock).toHaveBeenCalledWith('password');
-
-    expect(addChainsToFavoriteIfNeeded).toHaveBeenCalledWith([accountMock]);
   });
 });

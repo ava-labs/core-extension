@@ -23,7 +23,7 @@ export class UpdateCurrencyHandler implements HandlerType {
       };
     }
 
-    await this.settingsService.setCurrencty(currency);
+    await this.settingsService.setCurrency(currency);
 
     return {
       ...request,

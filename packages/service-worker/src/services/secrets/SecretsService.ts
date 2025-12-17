@@ -1,55 +1,55 @@
 import { omit, pick, uniqBy } from 'lodash';
 import { singleton } from 'tsyringe';
 
-import EventEmitter from 'events';
-import {
-  Account,
-  AccountType,
-  AddressPublicKeyJson,
-  Curve,
-  EVM_BASE_DERIVATION_PATH,
-  ImportedAccountSecrets,
-  PrimaryWalletSecrets,
-  isKeystoneSecrets,
-  SecretType,
-  ImportData,
-  ImportType,
-  BtcWalletPolicyDetails,
-  WalletSecretInStorage,
-  AddPrimaryWalletSecrets,
-  WalletDetails,
-  WalletEvents,
-  LedgerError,
-  AccountWithSecrets,
-  ExtendedPublicKey,
-} from '@core/types';
-import { StorageService } from '../storage/StorageService';
-import {
-  assertPresent,
-  mapVMAddresses,
-  isPrimaryAccount,
-  getAvalancheXPub,
-  getAvalancheExtendedKeyPath,
-} from '@core/common';
 import {
   Avalanche,
   DerivationPath,
   getLedgerExtendedPublicKey,
 } from '@avalabs/core-wallets-sdk';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { SeedlessWallet } from '../seedless/SeedlessWallet';
-import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
-import { LedgerService } from '../ledger/LedgerService';
-import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import {
+  assertPresent,
+  getAvalancheExtendedKeyPath,
+  getAvalancheXPub,
+  getEvmExtendedKeyPath,
+  isPrimaryAccount,
+  mapVMAddresses,
+} from '@core/common';
+import {
+  Account,
+  AccountType,
+  AccountWithSecrets,
+  AddPrimaryWalletSecrets,
+  AddressPublicKeyJson,
+  BtcWalletPolicyDetails,
+  Curve,
+  EVM_BASE_DERIVATION_PATH,
+  ExtendedPublicKey,
+  ImportData,
+  ImportedAccountSecrets,
+  ImportType,
+  isKeystoneSecrets,
+  LedgerError,
+  PrimaryWalletSecrets,
+  SecretType,
+  WalletDetails,
+  WalletEvents,
+  WalletSecretInStorage,
+} from '@core/types';
+import EventEmitter from 'events';
 import { OnUnlock } from '../../runtime/lifecycleCallbacks';
+import { LedgerService } from '../ledger/LedgerService';
+import { SeedlessTokenStorage } from '../seedless/SeedlessTokenStorage';
+import { SeedlessWallet } from '../seedless/SeedlessWallet';
+import { StorageService } from '../storage/StorageService';
+import { WalletConnectService } from '../walletConnect/WalletConnectService';
+import { AddressPublicKey } from './AddressPublicKey';
+import { AddressResolver } from './AddressResolver';
 import {
   getExtendedPublicKey,
   hasPublicKeyFor,
   isPrimaryWalletSecrets,
 } from './utils';
-import { AddressPublicKey } from './AddressPublicKey';
-import { AddressResolver } from './AddressResolver';
-import { callGetAddresses } from '~/api-clients';
 
 /**
  * Use this service to fetch, save or delete account secrets.
@@ -97,19 +97,6 @@ export class SecretsService implements OnUnlock {
 
   async onUnlock(): Promise<void> {
     await this.emitWalletsInfo();
-
-    // calling profile api address calculation on extension unlock
-    const walletKeys = await this.#loadSecrets(false);
-    callGetAddresses(
-      walletKeys?.wallets
-        .flatMap((wallet) => {
-          if (!('extendedPublicKeys' in wallet)) {
-            return;
-          }
-          return wallet.extendedPublicKeys;
-        })
-        .filter((xpub) => !!xpub) || [],
-    );
   }
 
   async addSecrets(secrets: AddPrimaryWalletSecrets) {
@@ -829,8 +816,14 @@ export class SecretsService implements OnUnlock {
           LedgerError.TransportNotFound,
         );
 
+        const evmExtPath =
+          secrets.secretType === SecretType.LedgerLive
+            ? getEvmExtendedKeyPath(index)
+            : EVM_BASE_DERIVATION_PATH;
+
         const existingEvmXpub = secrets.extendedPublicKeys.find(
-          (key) => key.derivationPath === EVM_BASE_DERIVATION_PATH,
+          (key) =>
+            key.derivationPath === evmExtPath && key.curve === 'secp256k1',
         );
 
         if (existingEvmXpub) {
@@ -845,19 +838,19 @@ export class SecretsService implements OnUnlock {
           const evmXpubString = await getLedgerExtendedPublicKey(
             ledgerService.recentTransport,
             false,
-            EVM_BASE_DERIVATION_PATH,
+            evmExtPath,
           );
 
           assertPresent(
             evmXpubString,
             LedgerError.NoExtendedPublicKeyReturned,
-            `EVM @ ${EVM_BASE_DERIVATION_PATH}`,
+            `EVM @ ${evmExtPath}`,
           );
 
           const newEvmXpub: ExtendedPublicKey = {
             type: 'extended-pubkey',
             curve: 'secp256k1',
-            derivationPath: EVM_BASE_DERIVATION_PATH,
+            derivationPath: evmExtPath,
             key: evmXpubString,
           };
 

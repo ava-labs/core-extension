@@ -13,15 +13,16 @@ import {
 } from '@avalabs/k2-alpine';
 import { SearchableSelect } from '@/components/SearchableSelect';
 import { NetworkVMType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types';
-import { useNetworkContext } from '@core/ui';
-import { FC, useState } from 'react';
+import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
+import { useConnectionContext, useNetworkContext } from '@core/ui';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { useAddCustomToken } from './hooks/useAddCustomToken';
 import { useTokenLookup } from './hooks/useTokenLookup';
 import * as Styled from './Styled';
 import { FaCheck } from 'react-icons/fa';
+import { GetTokenDataHandler } from '~/services/settings/handlers/getTokenDataByAddress';
 
 const contentProps: StackProps = {
   gap: 2,
@@ -41,6 +42,7 @@ export const AddCustomToken: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [networkQuery, setNetworkQuery] = useState<string>('');
+  const { request } = useConnectionContext();
 
   const evmOnly = networks.filter(
     (network) => network.vmName === NetworkVMType.EVM,
@@ -50,6 +52,62 @@ export const AddCustomToken: FC = () => {
   const isTokenExists = useTokenLookup();
 
   const selectedNetwork = evmOnly.find((n) => n.caipId === chainId);
+
+  const validateTokenData = useCallback(
+    async (address: string, networkCaipId?: NetworkWithCaipId['caipId']) => {
+      if (!address.length) {
+        setError('');
+        return;
+      }
+
+      if (isTokenExists(address)) {
+        setError(t('Token already exists in the wallet.'));
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const data = await request<GetTokenDataHandler>({
+          method: ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
+          params: [address, networkCaipId],
+        });
+
+        if (!data) {
+          setError(t('Not a valid ERC-20 token address.'));
+        } else {
+          setError('');
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : t('Not a valid ERC-20 token address.'),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isTokenExists, request, t],
+  );
+
+  const handleTokenAddressChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const newAddress = e.target.value;
+    setTokenAddress(newAddress);
+    validateTokenData(newAddress, selectedNetwork?.caipId);
+  };
+
+  const handleNetworkChange = (network: NetworkWithCaipId) => {
+    setChainId(network.caipId);
+  };
+
+  // Re-validate token when network changes
+  useEffect(() => {
+    if (tokenAddress && chainId) {
+      validateTokenData(tokenAddress, chainId);
+    }
+  }, [chainId, tokenAddress, validateTokenData]);
 
   return (
     <Page title={t('Add Custom Token')} contentProps={contentProps}>
@@ -63,7 +121,7 @@ export const AddCustomToken: FC = () => {
         value={selectedNetwork}
         query={networkQuery}
         skipGroupingEntirely
-        onValueChange={(network) => setChainId(network.caipId)}
+        onValueChange={handleNetworkChange}
         onQueryChange={setNetworkQuery}
         searchFn={(network, query) =>
           query
@@ -121,15 +179,7 @@ export const AddCustomToken: FC = () => {
           size="small"
           label={t('Token contract address')}
           value={tokenAddress}
-          onChange={(e) => {
-            const newAddress = e.target.value;
-            if (newAddress.length && isTokenExists(newAddress)) {
-              setError(t('Token already exists in the wallet.'));
-            } else {
-              setError('');
-            }
-            setTokenAddress(newAddress);
-          }}
+          onChange={handleTokenAddressChange}
           placeholder={t('Type in or paste token contract address')}
           multiline
           minRows={6}

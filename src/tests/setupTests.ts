@@ -75,6 +75,17 @@ global.chrome = {
     onFocusChanged: {
       addListener: jest.fn(),
     },
+    getCurrent: () => {},
+  },
+  sidePanel: {
+    onOpened: {
+      addListener: () => {},
+      removeListener: () => {},
+    },
+    onClosed: {
+      addListener: () => {},
+      removeListener: () => {},
+    },
   },
   i18n: {
     getMessage(key: string) {

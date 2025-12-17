@@ -98,10 +98,11 @@ export const WalletCard: FC<WalletCardProps> = ({
             alignItems="center"
             width="calc(100% - 32px)"
             justifyContent="space-between"
+            gap={2}
             mr={1}
           >
             {disableRename ? (
-              <Stack>
+              <Stack minWidth={0} overflow="hidden" flex={1}>
                 <Typography {...sharedTitleProps}>{name}</Typography>
                 <Typography variant="body3" color="text.disabled">
                   {accountsNumber > 1
@@ -110,7 +111,7 @@ export const WalletCard: FC<WalletCardProps> = ({
                 </Typography>
               </Stack>
             ) : (
-              <Stack>
+              <Stack minWidth={0} overflow="hidden" flex={1}>
                 <RenamableTitle {...sharedTitleProps} onRename={handleRename}>
                   {name}
                 </RenamableTitle>
@@ -121,9 +122,9 @@ export const WalletCard: FC<WalletCardProps> = ({
                 </Typography>
               </Stack>
             )}
-            {isLoading && <CircularProgress size={14} />}
+            {isLoading && <CircularProgress size={14} sx={{ flexShrink: 0 }} />}
             {!isLoading && !hasErrorOccurred && (
-              <Typography variant="h6">
+              <Typography variant="h6" flexShrink={0}>
                 {currencyFormatter(totalBalanceInCurrency ?? 0)}
               </Typography>
             )}
