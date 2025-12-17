@@ -52,7 +52,7 @@ export const ImportedAccountDetails = ({ account }: Props) => {
   return (
     <Stack p={1} mt={2} gap={1}>
       <WalletBalance
-        walletName={t('Imported')}
+        walletName={t('Imported accounts')}
         isLoading={false}
         hasErrorOccurred={false}
         hasBalanceServiceErrorOccurred={false}
