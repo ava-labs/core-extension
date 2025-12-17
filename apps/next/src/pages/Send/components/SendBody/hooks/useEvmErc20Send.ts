@@ -32,7 +32,7 @@ export const useEvmErc20Send = ({
 }: UseEvmErc20SendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
-  const { getNetworkFee } = useNetworkFeeContext();
+  const { getNetworkFee, isGaslessOn } = useNetworkFeeContext();
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
   const { onSendFailure } = useTransactionCallbacks(network);
@@ -62,6 +62,7 @@ export const useEvmErc20Send = ({
         address: to,
         amount,
         token,
+        isGaslessOn,
       });
 
       const hash = await request(
@@ -94,6 +95,7 @@ export const useEvmErc20Send = ({
     t,
     amount,
     provider,
+    isGaslessOn,
   ]);
 
   useEffect(() => {

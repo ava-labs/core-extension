@@ -140,6 +140,7 @@ export const MarkrProvider: SwapProvider = {
     signAndSend,
     isOneClickSwapEnabled,
     markrSwapGasBuffer,
+    isGaslessOn,
   }: PerformSwapParams & SwapWalletState) {
     if (!srcTokenAddress)
       throw swapError(
@@ -223,6 +224,7 @@ export const MarkrProvider: SwapProvider = {
         userAddress,
         isOneClickSwapEnabled,
         batch,
+        isGaslessOn,
       });
 
       if (approvalTxHash && !isOneClickSwapEnabled) {
@@ -260,9 +262,37 @@ export const MarkrProvider: SwapProvider = {
       value: isSrcTokenNative ? bigIntToHex(BigInt(sourceAmount)) : undefined,
     };
 
-    const [swapGasLimit, swapGasLimitError] = await resolve(
-      provider.estimateGas(props),
-    );
+    let swapGasLimit: bigint | null = null;
+    let swapGasLimitError: unknown = null;
+
+    if (isGaslessOn) {
+      // When gasless is enabled, use state override to simulate the user having enough balance
+      // This prevents "insufficient funds for gas" errors during estimation
+      const stateOverride = {
+        [userAddress]: {
+          balance: bigIntToHex(10n ** 18n), // 1 AVAX for simulation
+        },
+      };
+
+      [swapGasLimit, swapGasLimitError] = await resolve(
+        provider
+          .send('eth_estimateGas', [
+            {
+              from: userAddress,
+              to: tx.to,
+              data: tx.data,
+              value: props.value,
+            },
+            'latest',
+            stateOverride,
+          ])
+          .then((result: string) => BigInt(result)),
+      );
+    } else {
+      [swapGasLimit, swapGasLimitError] = await resolve(
+        provider.estimateGas(props),
+      );
+    }
 
     if (swapGasLimitError || !swapGasLimit) {
       throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);

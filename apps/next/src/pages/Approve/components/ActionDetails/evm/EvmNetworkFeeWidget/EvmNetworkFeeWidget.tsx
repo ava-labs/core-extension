@@ -92,7 +92,12 @@ export const EvmNetworkFeeWidget = ({
         </Collapse>
       </DetailsSection>
       <Fade
-        in={!isLoading && Boolean(nativeToken) && !hasEnoughForNetworkFee}
+        in={
+          !isLoading &&
+          Boolean(nativeToken) &&
+          !hasEnoughForNetworkFee &&
+          !isGaslessOn
+        }
         mountOnEnter
         unmountOnExit
       >
