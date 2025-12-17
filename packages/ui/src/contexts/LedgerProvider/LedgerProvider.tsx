@@ -325,7 +325,11 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         }),
         switchMap((transport) => {
           transportRef.current = transport;
-          return initLedgerApp(transport);
+          if (transport) {
+            return initLedgerApp(transport);
+          }
+
+          return Promise.resolve(null);
         }),
         switchMap(() =>
           fromEventPattern(
@@ -376,7 +380,6 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         setAppType(LedgerAppType.UNKNOWN);
         setApp(undefined);
         setAppConfig(null);
-        throw err;
       });
     } else {
       setInitialized(false);

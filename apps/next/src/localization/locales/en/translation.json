@@ -569,6 +569,7 @@
   "Please review the transaction on your Keystone": "Please review the transaction on your Keystone",
   "Please review the transaction on your Ledger": "Please review the transaction on your Ledger",
   "Please switch to the {{appName}} app on your Ledger device to continue": "Please switch to the {{appName}} app on your Ledger device to continue",
+  "Please switch to {{requiredApp}} on your Ledger device to continue.": "Please switch to {{requiredApp}} on your Ledger device to continue.",
   "Please try again": "Please try again",
   "Please try again later or choose a different token pair.": "Please try again later or choose a different token pair.",
   "Please try again later or contact support.": "Please try again later or contact support.",

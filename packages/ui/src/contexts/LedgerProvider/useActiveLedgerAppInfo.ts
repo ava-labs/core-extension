@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLedgerContext } from './LedgerProvider';
+import { useWalletContext } from '../WalletProvider';
 
 /**
  * When your component needs to know the active app on the Ledger device, register it as a subscriber.
@@ -13,12 +14,17 @@ export const useActiveLedgerAppInfo = () => {
     registerSubscriber,
     unregisterSubscriber,
   } = useLedgerContext();
+  const { isLedgerWallet } = useWalletContext();
 
   useEffect(() => {
+    if (!isLedgerWallet) {
+      return;
+    }
+
     registerSubscriber();
 
     return unregisterSubscriber;
-  }, [registerSubscriber, unregisterSubscriber]);
+  }, [isLedgerWallet, registerSubscriber, unregisterSubscriber]);
 
   return {
     appType,
