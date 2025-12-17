@@ -1,12 +1,10 @@
 import { FC } from 'react';
 
-import {
-  LedgerRegisterBtcWalletPolicy,
-  LedgerIncorrectDevice,
-} from '@/components/ledger';
+import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 import { useNavigationRequests } from '@/hooks/useNavigationRequests';
+import { useImportMissingKeysFromLedger } from '@core/ui';
 
 /**
  * This is a container component where you can place event-driven global components
@@ -28,11 +26,11 @@ export const EventDrivenComponentsAndHooks: FC = () => {
   // https://ava-labs.atlassian.net/browse/CP-12875
   // useImportMissingKeysFromKeystone();
   useNavigationRequests();
+  useImportMissingKeysFromLedger();
 
   return (
     <>
       <LedgerRegisterBtcWalletPolicy />
-      <LedgerIncorrectDevice />
       <SeedlessAuthPrompt />
     </>
   );

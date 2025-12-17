@@ -78,3 +78,4 @@ export * from './useDuplicatedWalletChecker';
 export * from './useDeriveMissingKeysForSeedless';
 export * from './useImportMissingKeysFromKeystone';
 export * from './useIsCorrectDeviceForActiveWallet';
+export * from './useImportMissingKeysFromLedger';
