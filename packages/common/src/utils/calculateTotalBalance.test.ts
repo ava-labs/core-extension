@@ -505,8 +505,8 @@ describe('utils/calculateTotalBalance', () => {
         },
       });
 
-      expect(result.sum).toBe(100); // 100 + 75
-      expect(result.priceChange.value).toBe(25); // 25 + (-10) = 15
+      expect(result.sum).toBe(100);
+      expect(result.priceChange.value).toBe(25);
       expect(result.priceChange.percentage).toEqual([10]);
     });
   });
