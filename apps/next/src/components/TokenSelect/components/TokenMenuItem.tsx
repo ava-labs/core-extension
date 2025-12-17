@@ -47,7 +47,6 @@ export const TokenMenuItem: FC<TokenMenuItemProps> = ({
         {isHovered && truncatedAddress ? (
           <Typography
             variant="caption"
-            color="text.secondary"
             sx={{ flexShrink: 0, fontFamily: 'monospace' }}
           >
             {truncatedAddress}

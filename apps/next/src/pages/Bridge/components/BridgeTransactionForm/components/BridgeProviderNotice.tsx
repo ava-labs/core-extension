@@ -18,7 +18,7 @@ export const BridgeProviderNotice = () => {
         style={{ filter: 'contrast(0.05)' }}
       />
     ) : (
-      <AvalancheHorizontalIcon size={80} />
+      <AvalancheHorizontalIcon size={60} />
     );
 
   return (
@@ -30,7 +30,9 @@ export const BridgeProviderNotice = () => {
       justifyContent="center"
       gap={0.5}
     >
-      <Typography variant="caption">{t('Powered by')}</Typography>
+      <Typography variant="caption" fontSize={8.25} paddingTop={0.5}>
+        {t('Powered by')}
+      </Typography>
       {icon}
     </Stack>
   );
