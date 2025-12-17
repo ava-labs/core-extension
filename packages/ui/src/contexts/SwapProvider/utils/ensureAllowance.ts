@@ -134,7 +134,9 @@ export async function ensureAllowance({
   }
 
   const [txHash, signError] = await resolve(
-    signAndSend(RpcMethod.ETH_SEND_TRANSACTION, [tx]),
+    signAndSend(RpcMethod.ETH_SEND_TRANSACTION, [tx], {
+      isIntermediateTransaction: true,
+    }),
   );
 
   if (isUserRejectionError(signError)) {

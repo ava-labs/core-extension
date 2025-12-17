@@ -192,6 +192,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       const signAndSend = (
         method: RpcMethod,
         txParams: [NormalizedTransactionParams],
+        context?: Record<string, unknown>,
       ): Promise<string> =>
         request(
           {
@@ -200,6 +201,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
           },
           {
             scope: network.caipId,
+            context,
           },
         );
 
