@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import {
   IconButton,
-  SwapIcon,
+  SwapVerticalIcon,
   Stack,
   styled,
   getHexAlpha,
@@ -15,12 +15,7 @@ type PairFlipperProps = {
 export const PairFlipper: FC<PairFlipperProps> = ({ disabled, onClick }) => (
   <FlipContainer>
     <FlipButton color="secondary" disabled={disabled} onClick={onClick}>
-      <SwapIcon
-        size={20}
-        style={{
-          transform: 'rotate(90deg) translate(-2px, -2px)',
-        }}
-      />
+      <SwapVerticalIcon size={19} />
     </FlipButton>
   </FlipContainer>
 );
