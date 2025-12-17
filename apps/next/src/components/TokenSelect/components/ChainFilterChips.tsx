@@ -23,11 +23,12 @@ const ChipsContainer = styled(Stack)(({ theme }) => ({
 const FilterChip = styled(Button)<{ selected?: boolean }>(
   ({ theme, selected }) => ({
     minWidth: 'auto',
+    height: '24px',
     padding: theme.spacing(0.5, 1),
-    borderRadius: parseInt(theme.shape.borderRadius.toString(), 10) * 2,
+    borderRadius: parseInt(theme.shape.borderRadius.toString(), 10) * 4,
     textTransform: 'none',
     fontSize: theme.typography.body2.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
+    fontWeight: theme.typography.fontWeightSemiBold,
     backgroundColor: selected
       ? theme.palette.primary.main
       : theme.palette.background.paper,
@@ -47,8 +48,8 @@ const FilterChip = styled(Button)<{ selected?: boolean }>(
 );
 
 const ChainLogo = styled(Avatar)({
-  width: 16,
-  height: 16,
+  width: 12,
+  height: 12,
   backgroundColor: 'transparent',
 });
 
@@ -93,7 +94,7 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
         variant="outlined"
         size="small"
       >
-        {t('All')}
+        {t('All networks')}
       </FilterChip>
       {chainOptions.map(({ chainId, chainName }) => (
         <FilterChip
