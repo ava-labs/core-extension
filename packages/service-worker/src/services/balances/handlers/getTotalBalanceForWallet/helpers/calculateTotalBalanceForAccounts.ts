@@ -1,17 +1,28 @@
-import { Account, Balances, NetworkWithCaipId } from '@core/types';
+import {
+  Account,
+  Balances,
+  NetworkWithCaipId,
+  TokensVisibility,
+} from '@core/types';
 import { calculateTotalBalance } from '@core/common';
 
 export function calculateTotalBalanceForAccounts(
   balances: Balances,
   accounts: Partial<Account>[],
   networks: NetworkWithCaipId[],
+  tokenVisibility: TokensVisibility,
 ): { balance: number; priceChangeValue: number } {
   return accounts.reduce(
     (
       acc: { balance: number; priceChangeValue: number },
       account: Partial<Account>,
     ) => {
-      const accountBalance = calculateTotalBalance(account, networks, balances);
+      const accountBalance = calculateTotalBalance({
+        account,
+        networks,
+        balances,
+        tokenVisibility,
+      });
       return {
         balance: acc.balance + (accountBalance.sum ?? 0),
         priceChangeValue:

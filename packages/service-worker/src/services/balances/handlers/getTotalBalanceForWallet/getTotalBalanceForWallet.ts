@@ -18,6 +18,7 @@ import {
   PrimaryAccount,
   NetworkWithCaipId,
   FeatureGates,
+  TokensVisibility,
 } from '@core/types';
 
 import { SecretsService } from '~/services/secrets/SecretsService';
@@ -26,6 +27,8 @@ import { NetworkService } from '~/services/network/NetworkService';
 import { BalanceAggregatorService } from '~/services/balances/BalanceAggregatorService';
 import { getExtendedPublicKey } from '~/services/secrets/utils';
 import { getAvaxPrice } from '~/services/balances/handlers/helpers';
+import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
+import { SettingsService } from '~/services/settings/SettingsService';
 
 import {
   GetTotalBalanceForWalletParams,
@@ -36,7 +39,6 @@ import {
   getIncludedNetworks,
   removeChainPrefix,
 } from './helpers';
-import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
@@ -54,12 +56,14 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     private accountsService: AccountsService,
     private balanceAggregatorService: BalanceAggregatorService,
     private featureFlagService: FeatureFlagService,
+    private settingsService: SettingsService,
   ) {}
 
   async #queryAccountsSequentially(
     walletId: string,
     accounts: ImportedAccount[] | PrimaryAccount[],
     networksIncludedInTotal: NetworkWithCaipId[],
+    tokenVisibility: TokensVisibility,
   ): Promise<{
     totalBalanceInCurrency: number | undefined;
     totalPriceChangeValue: number;
@@ -80,6 +84,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
         derivedAddressesBalances,
         [account],
         networksIncludedInTotal,
+        tokenVisibility,
       );
 
       if (totalBalanceInCurrency === undefined) {
@@ -101,6 +106,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
     walletId: string,
     accounts: ImportedAccount[] | PrimaryAccount[],
     networksIncludedInTotal: NetworkWithCaipId[],
+    tokenVisibility: TokensVisibility,
   ): Promise<{
     totalBalanceInCurrency: number | undefined;
     totalPriceChangeValue: number;
@@ -117,6 +123,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
       derivedAddressesBalances,
       accounts,
       networksIncludedInTotal,
+      tokenVisibility,
     );
 
     return {
@@ -189,6 +196,8 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const { walletId } = request.params;
     const requestsImportedAccounts = isImportedAccountsRequest(walletId);
+    const tokenVisibility = await this.settingsService.getTokensVisibility();
+
     try {
       const allAccounts = await this.accountsService.getAccounts();
       const derivedAccounts = requestsImportedAccounts
@@ -254,11 +263,13 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             walletId,
             derivedAccounts,
             networksIncludedInTotal,
+            tokenVisibility,
           )
         : await this.#queryAccountsSequentially(
             walletId,
             derivedAccounts,
             networksIncludedInTotal,
+            tokenVisibility,
           );
 
       totalBalanceInCurrency ??= totalBalanceInCurrencyForDerivedAccounts;
@@ -288,6 +299,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
             walletId,
             underivedAccounts as ImportedAccount[] | PrimaryAccount[],
             xpChains,
+            tokenVisibility,
           );
           if (totalBalanceInCurrency === undefined) {
             totalBalanceInCurrency = totalBalanceInCurrencyForUnderivedAccounts;
@@ -312,6 +324,7 @@ export class GetTotalBalanceForWalletHandler implements HandlerType {
                 underivedAddressesBalances,
                 underivedAccounts,
                 xpChains,
+                tokenVisibility,
               );
             if (totalBalanceInCurrency === undefined) {
               totalBalanceInCurrency = underivedAccountsTotal;

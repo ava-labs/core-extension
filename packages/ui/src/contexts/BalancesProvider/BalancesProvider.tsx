@@ -41,6 +41,7 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
 import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
+import { useSettingsContext } from '../SettingsProvider';
 
 export const IPFS_URL = 'https://ipfs.io';
 
@@ -187,6 +188,7 @@ function balancesReducer(
 export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
+  const { tokensVisibility } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
     getAccount,
@@ -410,11 +412,12 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           accountAtomicBalances[cChainAccount?.id ?? '']?.balanceInCurrency ??
           0;
 
-        const totalBalance = calculateTotalBalance(
-          cChainAccount,
+        const totalBalance = calculateTotalBalance({
+          account: cChainAccount,
           networks,
-          balances.tokens,
-        );
+          balances: balances.tokens,
+          tokenVisibility: tokensVisibility,
+        });
         return {
           ...totalBalance,
           sum: (totalBalance.sum ?? 0) + atomicBalanceInCurrency,
@@ -431,6 +434,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       network?.isTestnet,
       balances.tokens,
       accountAtomicBalances,
+      tokensVisibility,
     ],
   );
 
