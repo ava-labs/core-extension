@@ -9,6 +9,7 @@ import {
   useWalletTotalBalance,
 } from '@core/ui';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -45,10 +46,14 @@ export const PortfolioTabs: FC = () => {
         : IMPORTED_ACCOUNTS_WALLET_ID,
     );
 
+  const assets = useTokensForAccount(accounts.active);
+
   const isLoading = balances.loading || !totalBalance || isWalletLoading;
   const isAccountEmpty =
     !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
-  const isWalletEmpty = !totalBalanceInCurrency || totalBalanceInCurrency === 0;
+  const isWalletEmpty =
+    (!totalBalanceInCurrency || totalBalanceInCurrency === 0) &&
+    assets.length === 0;
 
   const TABS: TabBarItemProps[] = [
     {

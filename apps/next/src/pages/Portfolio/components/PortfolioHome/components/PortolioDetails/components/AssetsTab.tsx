@@ -9,6 +9,7 @@ import {
   useBalancesContext,
   useAccountsContext,
   useBalanceTotalInCurrency,
+  useIsMainnet,
 } from '@core/ui';
 
 import { AssetCard } from './AssetCard';
@@ -35,6 +36,7 @@ export const AssetsTab: FC = () => {
   const [selectedNetworks, setSelectedNetworks] = useState<Set<number>>(
     new Set(),
   );
+  const isMainnet = useIsMainnet();
 
   const accountBalance = useBalanceTotalInCurrency(account);
 
@@ -42,8 +44,12 @@ export const AssetsTab: FC = () => {
 
   //Only show assets with balances
   const assetsWithBalances = useMemo(() => {
+    // on testnet we don't have balances
+    if (!isMainnet) {
+      return assets;
+    }
     return assets.filter((asset) => asset.balance > 0);
-  }, [assets]);
+  }, [assets, isMainnet]);
 
   const hasError = !!balances.error;
 
@@ -61,6 +67,14 @@ export const AssetsTab: FC = () => {
     () => sortAssets(filteredAssets, sort),
     [filteredAssets, sort],
   );
+
+  const shouldDisplayEmptyState = useMemo(() => {
+    if (!isMainnet) {
+      return sortedAssets.length === 0;
+    }
+
+    return sortedAssets.length === 0 || accountBalance?.sum === 0;
+  }, [isMainnet, sortedAssets, accountBalance]);
 
   return (
     <Stack direction="column" gap={1.25} height={1}>
@@ -87,7 +101,7 @@ export const AssetsTab: FC = () => {
       <Stack width="100%" flexGrow={1} gap={1}>
         {hasError ? (
           <AssetsErrorState />
-        ) : sortedAssets.length === 0 || accountBalance?.sum === 0 ? (
+        ) : shouldDisplayEmptyState ? (
           <AssetsEmptyState />
         ) : (
           sortedAssets.map((token) => (
