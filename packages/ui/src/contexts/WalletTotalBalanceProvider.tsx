@@ -8,6 +8,7 @@ import {
   useRef,
 } from 'react';
 import { isString } from 'lodash';
+import { filter, map } from 'rxjs';
 
 import {
   IMPORTED_ACCOUNTS_WALLET_ID,
@@ -20,6 +21,7 @@ import { useAccountsContext } from './AccountsProvider';
 import { useWalletContext } from './WalletProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { checkAndCleanupPossibleErrorForRequestInSessionStorage } from '@core/common';
+import { networksUpdatedEventListener } from './NetworkProvider/networksUpdatedEventListener';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;
@@ -50,7 +52,7 @@ export const WalletTotalBalanceProvider = ({
     accounts: { imported },
   } = useAccountsContext();
   const { wallets } = useWalletContext();
-  const { request } = useConnectionContext();
+  const { request, events } = useConnectionContext();
   const isMounted = useRef<boolean>(false);
   const isSyncingBalances = useRef<boolean>(false);
 
@@ -151,6 +153,27 @@ export const WalletTotalBalanceProvider = ({
       isMounted.current = false;
     };
   }, [wallets, fetchWalletBalancesSequentially]);
+
+  // Refetch wallet balances when enabled networks change
+  useEffect(() => {
+    if (!events) return;
+
+    const subscription = events()
+      .pipe(
+        filter(networksUpdatedEventListener),
+        map((evt) => evt.value),
+      )
+      .subscribe(async () => {
+        // Refetch balances when enabled networks change
+        if (isMounted.current && !isSyncingBalances.current) {
+          fetchWalletBalancesSequentially();
+        }
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, fetchWalletBalancesSequentially]);
 
   return (
     <WalletTotalBalanceContext.Provider
