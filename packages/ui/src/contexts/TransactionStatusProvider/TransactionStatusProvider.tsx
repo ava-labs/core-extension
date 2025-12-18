@@ -3,6 +3,7 @@ import { filter } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 
 import {
+  ContextContainer,
   ExtensionConnectionEvent,
   NetworkWithCaipId,
   TransactionStatusEvents as TransactionStatusEventNames,
@@ -11,6 +12,7 @@ import {
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isTransactionStatusEvent } from './isTransactionStatusEvent';
+import { isSpecificContextContainer } from '../../utils';
 
 const PENDING_TOAST_ID = 'transaction-pending';
 const RESULT_TOAST_ID = 'transaction-result';
@@ -37,6 +39,14 @@ export type TransactionStatusProviderProps = PropsWithChildren<{
   onReverted?: () => void;
 }>;
 
+const allowedContexts = [ContextContainer.POPUP, ContextContainer.SIDE_PANEL];
+
+// Only subscribe to transaction events in the floating popup and the side panel view.
+// Otherwise we might show a toast in the wrong context, for example on the approval pages.
+const isAllowedContext = () => {
+  return allowedContexts.some(isSpecificContextContainer);
+};
+
 export function TransactionStatusProvider({
   children,
   toast,
@@ -48,6 +58,10 @@ export function TransactionStatusProvider({
   const { t } = useTranslation();
 
   useEffect(() => {
+    if (!isAllowedContext()) {
+      return;
+    }
+
     const subscription = events()
       .pipe(filter(isTransactionStatusEvent))
       .subscribe((evt: ExtensionConnectionEvent<TransactionStatusInfo>) => {
