@@ -41,16 +41,7 @@ export const TokenAvatar = ({
         />
       }
     >
-      <SizedAvatar src={avatarSrc} alt={token.symbol} size={size}>
-        <img
-          src={fallbackImage}
-          alt={token.symbol}
-          style={{
-            width: '100%',
-            height: '100%',
-          }}
-        />
-      </SizedAvatar>
+      <SizedAvatar src={avatarSrc} alt={token.symbol} size={size} />
     </Badge>
   );
 };
