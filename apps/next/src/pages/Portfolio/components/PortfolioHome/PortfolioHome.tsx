@@ -33,6 +33,7 @@ export const PortfolioHome: FC = () => {
   return (
     <>
       <NoScrollStack
+        zIndex={0}
         height={1}
         data-scroll-container="portfolio-content"
         // TODO: The "testnet" color palette needs to be updated, but core.app is already using it.
