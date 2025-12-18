@@ -48,7 +48,8 @@ export const ImportPrivateKeyForm = ({
 
   const { updateBalanceOnNetworks, balances } = useBalancesContext();
   const { enabledNetworks } = useNetworkContext();
-  const { currency, currencyFormatter } = useSettingsContext();
+  const { currency, currencyFormatter, tokensVisibility } =
+    useSettingsContext();
 
   const { getDerivedAddresses } = useImportPrivateKey();
 
@@ -57,11 +58,12 @@ export const ImportPrivateKeyForm = ({
   const [derivedAddresses, setDerivedAddresses] = useState<DerivedAddresses>();
   const [error, setError] = useState('');
 
-  const balance = calculateTotalBalance(
-    derivedAddresses,
-    enabledNetworks,
-    balances.tokens,
-  );
+  const balance = calculateTotalBalance({
+    account: derivedAddresses,
+    networks: enabledNetworks,
+    balances: balances.tokens,
+    tokenVisibility: tokensVisibility,
+  });
 
   useEffect(() => {
     if (derivedAddresses && updateBalanceOnNetworks) {

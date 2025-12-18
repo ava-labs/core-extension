@@ -1,12 +1,6 @@
 import { merge, uniqBy, chunk } from 'lodash';
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
-import {
-  Account,
-  AccountType,
-  AtomicBalances,
-  Balances,
-  TokensVisibility,
-} from '@core/types';
+import { Account, AccountType, AtomicBalances, Balances } from '@core/types';
 import {
   AvalancheCorethGetBalancesRequestItem,
   AvalancheXpGetBalancesRequestItem,
@@ -481,7 +475,6 @@ export const createGetBalancePayload = async ({
 
 export const convertBalanceResponsesToCacheBalanceObject = (
   balanceResponses: BalanceResponse[],
-  tokensVisibility: TokensVisibility,
 ): Balances => {
   return balanceResponses.reduce<Balances>((accumulator, balanceResponse) => {
     let chainId: number = 0;
@@ -499,7 +492,6 @@ export const convertBalanceResponsesToCacheBalanceObject = (
 
     if (isEvmGetBalancesResponse(balanceResponse) && chainId !== 0) {
       const tokenBalanceMapper = mapErc20TokenBalance(chainId);
-      const enabledTokens = tokensVisibility[balanceResponse.caip2Id];
 
       return {
         ...accumulator,
@@ -513,10 +505,7 @@ export const convertBalanceResponsesToCacheBalanceObject = (
               ),
             ...balanceResponse.balances.erc20TokenBalances.reduce(
               (acc, tokenBalance) => {
-                const mappedTokenBalance = tokenBalanceMapper(
-                  tokenBalance,
-                  enabledTokens,
-                );
+                const mappedTokenBalance = tokenBalanceMapper(tokenBalance);
 
                 if (!mappedTokenBalance) {
                   return acc;
@@ -582,8 +571,6 @@ export const convertBalanceResponsesToCacheBalanceObject = (
     }
 
     if (isSvmGetBalancesResponse(balanceResponse) && chainId !== 0) {
-      const enabledTokens = tokensVisibility[balanceResponse.caip2Id];
-
       return {
         ...accumulator,
         [chainId]: {
@@ -596,10 +583,7 @@ export const convertBalanceResponsesToCacheBalanceObject = (
               ),
             ...balanceResponse.balances.splTokenBalances.reduce(
               (acc, tokenBalance) => {
-                const mappedTokenBalance = mapSplTokenBalance(
-                  tokenBalance,
-                  enabledTokens,
-                );
+                const mappedTokenBalance = mapSplTokenBalance(tokenBalance);
 
                 if (!mappedTokenBalance) {
                   return acc;

@@ -3,6 +3,7 @@ import {
   Balances,
   getUnconfirmedBalanceInCurrency,
   NetworkWithCaipId,
+  TokensVisibility,
   TotalPriceChange,
 } from '@core/types';
 import { getAddressForChain } from './getAddressForChain';
@@ -10,11 +11,19 @@ import { hasAccountBalances } from './hasAccountBalances';
 
 export const watchlistTokens = ['avax', 'btc', 'sol'];
 
-export function calculateTotalBalance(
-  account?: Partial<Account>,
-  networks?: NetworkWithCaipId[],
-  balances?: Balances,
-) {
+interface CalculateTotalBalanceParams {
+  account?: Partial<Account>;
+  networks?: NetworkWithCaipId[];
+  balances?: Balances;
+  tokenVisibility?: TokensVisibility;
+}
+
+export function calculateTotalBalance({
+  account,
+  networks,
+  balances,
+  tokenVisibility,
+}: CalculateTotalBalanceParams) {
   if (!account || !balances || !networks?.length) {
     return {
       sum: null,
@@ -69,8 +78,17 @@ export function calculateTotalBalance(
         return total;
       }
 
-      const sumValues = Object.values(tokens).reduce<BalanceAccumulator>(
-        (sumTotal, token) => {
+      const sumValues = Object.entries(tokens).reduce<BalanceAccumulator>(
+        (sumTotal, [tokenAddressOrSymbol, token]) => {
+          const isTokenVisible = !tokenVisibility
+            ? true
+            : tokenVisibility[network?.caipId ?? network?.caip2Id ?? '']?.[
+                tokenAddressOrSymbol
+              ] !== false;
+
+          if (!isTokenVisible) {
+            return sumTotal;
+          }
           const confirmedBalance = token.balanceInCurrency ?? 0;
 
           const unconfirmedBalance =

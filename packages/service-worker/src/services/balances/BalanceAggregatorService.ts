@@ -255,9 +255,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           },
         });
 
-        const tokenVisibility =
-          await this.settingsService.getTokensVisibility();
-
         const { balances: balanceServiceResponseArray, errors } =
           await convertStreamToArray(balanceServiceResponse.stream);
 
@@ -266,7 +263,6 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
         const balanceObject = convertBalanceResponsesToCacheBalanceObject(
           balanceServiceResponseArray,
-          tokenVisibility,
         );
         const atomicBalanceObject =
           convertBalanceResponseToAtomicCacheBalanceObject(

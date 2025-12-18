@@ -47,17 +47,10 @@ interface BaseTokenBalance {
 
 const isTokenEnabled = (
   tokenBalance: Erc20TokenBalance | SplTokenBalance,
-  enabledTokens: Record<string, boolean> | undefined,
 ): boolean => {
-  const addressMapper =
-    tokenBalance.type === 'erc20'
-      ? (address: string) => address.toLowerCase()
-      : (address: string) => address;
-
   return (
     isNil(tokenBalance.scanResult) ||
-    ['Benign', 'Warning'].includes(tokenBalance.scanResult) ||
-    Boolean(enabledTokens?.[addressMapper(tokenBalance.address)])
+    ['Benign', 'Warning'].includes(tokenBalance.scanResult)
   );
 };
 
@@ -186,11 +179,8 @@ export const mapAvmTokenBalance = (
 
 export const mapErc20TokenBalance =
   (chainId: number) =>
-  (
-    tokenBalance: Erc20TokenBalance,
-    enabledTokens: Record<string, boolean> | undefined,
-  ): TokenWithBalanceERC20 | undefined => {
-    if (!isTokenEnabled(tokenBalance, enabledTokens)) {
+  (tokenBalance: Erc20TokenBalance): TokenWithBalanceERC20 | undefined => {
+    if (!isTokenEnabled(tokenBalance)) {
       return undefined;
     }
 
@@ -209,9 +199,8 @@ export const mapErc20TokenBalance =
 
 export const mapSplTokenBalance = (
   tokenBalance: SplTokenBalance,
-  enabledTokens: Record<string, boolean> | undefined,
 ): TokenWithBalanceSPL | undefined => {
-  if (!isTokenEnabled(tokenBalance, enabledTokens)) {
+  if (!isTokenEnabled(tokenBalance)) {
     return undefined;
   }
 

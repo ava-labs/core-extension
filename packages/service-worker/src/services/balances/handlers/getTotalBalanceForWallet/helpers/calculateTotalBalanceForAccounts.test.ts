@@ -64,33 +64,34 @@ describe('src/background/services/balances/handlers/helpers/calculateTotalBalanc
       balances,
       accounts,
       chainIds,
+      {},
     );
 
     expect(calculateTotalBalance).toHaveBeenCalledTimes(4);
-    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
-      1,
-      accounts[0],
-      chainIds,
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(1, {
+      account: accounts[0],
+      networks: chainIds,
       balances,
-    );
-    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
-      2,
-      accounts[1],
-      chainIds,
+      tokenVisibility: {},
+    });
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(2, {
+      account: accounts[1],
+      networks: chainIds,
       balances,
-    );
-    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
-      3,
-      accounts[2],
-      chainIds,
+      tokenVisibility: {},
+    });
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(3, {
+      account: accounts[2],
+      networks: chainIds,
       balances,
-    );
-    expect(calculateTotalBalance).toHaveBeenNthCalledWith(
-      4,
-      accounts[3],
-      chainIds,
+      tokenVisibility: {},
+    });
+    expect(calculateTotalBalance).toHaveBeenNthCalledWith(4, {
+      account: accounts[3],
+      networks: chainIds,
       balances,
-    );
+      tokenVisibility: {},
+    });
 
     expect(result).toEqual({
       balance: 1600, // 100 + 0 + 0 + 1500
