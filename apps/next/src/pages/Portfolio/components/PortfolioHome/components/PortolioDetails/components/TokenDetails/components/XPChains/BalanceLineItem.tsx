@@ -3,12 +3,9 @@ import { FC } from 'react';
 
 type Props = {
   title: string;
-  displayBalanceWithSymbol: string;
+  balance: string;
 };
-export const BalanceLineItem: FC<Props> = ({
-  title,
-  displayBalanceWithSymbol,
-}) => {
+export const BalanceLineItem: FC<Props> = ({ title, balance }) => {
   return (
     <Stack
       direction="row"
@@ -18,7 +15,7 @@ export const BalanceLineItem: FC<Props> = ({
     >
       <Typography variant="subtitle3">{title}</Typography>
       <Typography variant="body3" color="text.secondary" textAlign="right">
-        {displayBalanceWithSymbol}
+        {balance}
       </Typography>
     </Stack>
   );
