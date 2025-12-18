@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Box, Stack, Typography, Divider } from '@avalabs/k2-alpine';
 
 import { DefiToken } from '@core/types';
+import { sumByProperty } from '@core/common';
 
 import { TokenAvatarGroup } from '@/components/TokenAvatar/TokenAvatarGroup';
 
@@ -10,13 +11,11 @@ import { useConvertedCurrencyFormatter } from '@core/ui';
 type DeFiProtocolCommonSectionProps = {
   title: string;
   tokens: DefiToken[];
-  value: number;
 };
 
 export const DeFiProtocolCommonSection: FC<DeFiProtocolCommonSectionProps> = ({
   title,
   tokens,
-  value,
 }) => {
   const formatValue = useConvertedCurrencyFormatter();
 
@@ -36,7 +35,7 @@ export const DeFiProtocolCommonSection: FC<DeFiProtocolCommonSectionProps> = ({
         </Typography>
 
         <Typography variant="body3" color="text.secondary">
-          {formatValue(value)}
+          {formatValue(sumByProperty(tokens, 'usdValue'))}
         </Typography>
       </Stack>
     </>
