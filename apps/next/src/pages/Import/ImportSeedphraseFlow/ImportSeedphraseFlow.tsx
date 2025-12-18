@@ -3,27 +3,40 @@ import {
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
 import { toast } from '@avalabs/k2-alpine';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 
 import {
+  useAnalyticsContext,
   useErrorMessage,
   useImportSeedphrase,
-  useAnalyticsContext,
 } from '@core/ui';
 
-import { useOpenApp } from '@/hooks/useOpenApp';
-import { FullscreenModal } from '@/components/FullscreenModal';
 import { FullscreenAnimatedBackground } from '@/components/FullscreenAnimatedBackground';
+import { FullscreenModal } from '@/components/FullscreenModal';
+import { ACCOUNT_MANAGEMENT_QUERY_TOKENS } from '@/config/routes';
+import { useOpenApp } from '@/hooks/useOpenApp';
 import {
   ConfirmAddressesScreen,
   NameYourWalletScreen,
 } from '../common-screens';
 import { EnterRecoveryPhraseScreen } from './screens';
-import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
 
 const EMPTY_ADDRESSES = Array(3).fill('');
 const TOTAL_STEPS = 3;
+
+const getCurrentStep = (pathname: string) => {
+  switch (pathname) {
+    case '/import-wallet/seedphrase':
+      return 1;
+    case '/import-wallet/seedphrase/confirm':
+      return 2;
+    case '/import-wallet/seedphrase/name':
+      return 3;
+    default:
+      return 1;
+  }
+};
 
 export const ImportSeedphraseFlow = () => {
   const history = useHistory();
@@ -37,18 +50,7 @@ export const ImportSeedphraseFlow = () => {
   const [isCalculatingAddresses, setIsCalculatingAddresses] = useState(false);
   const [addresses, setAddresses] = useState<string[]>(EMPTY_ADDRESSES);
 
-  const currentStep = useMemo(() => {
-    if (location.pathname === '/import-wallet/seedphrase') {
-      return 1;
-    }
-    if (location.pathname === '/import-wallet/seedphrase/confirm') {
-      return 2;
-    }
-    if (location.pathname === '/import-wallet/seedphrase/name') {
-      return 3;
-    }
-    return 1;
-  }, [location.pathname]);
+  const currentStep = getCurrentStep(location.pathname);
 
   const onPhraseEntered = useCallback(
     async (seedphrase: string) => {
@@ -91,7 +93,7 @@ export const ImportSeedphraseFlow = () => {
     await openApp({
       closeWindow: true,
       navigateTo: {
-        pathname: `/wallets/import`,
+        pathname: '/wallets/import',
       },
     });
   }, [openApp]);
@@ -99,7 +101,7 @@ export const ImportSeedphraseFlow = () => {
   const onSave = useCallback(
     async (name: string) => {
       try {
-        const imported = await importSeedphrase({
+        await importSeedphrase({
           mnemonic: phrase,
           name,
         });
@@ -107,8 +109,8 @@ export const ImportSeedphraseFlow = () => {
         await openApp({
           closeWindow: true,
           navigateTo: {
-            pathname: `/wallet/${imported.id}`,
-            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
+            pathname: '/account-management',
+            search: `${ACCOUNT_MANAGEMENT_QUERY_TOKENS.showImportSuccess}=true`,
           },
         });
       } catch (error) {
