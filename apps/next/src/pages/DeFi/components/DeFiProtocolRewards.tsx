@@ -18,15 +18,11 @@ export const DeFiProtocolRewards: FC<DeFiProtocolRewardsProps> = ({
 
   return (
     <Stack direction="column" gap={1}>
-      {items.map(({ tokens, netUsdValue }: DefiRewardItem, index: number) => {
+      {items.map(({ tokens }: DefiRewardItem, index: number) => {
         const key = `defi-rewards-${index}`;
         return (
           <Stack key={key} direction="column" gap={0.5}>
-            <DeFiProtocolCommonSection
-              title={t('Rewards')}
-              tokens={tokens}
-              value={netUsdValue}
-            />
+            <DeFiProtocolCommonSection title={t('Rewards')} tokens={tokens} />
           </Stack>
         );
       })}
