@@ -124,7 +124,6 @@ export type { ResetExtensionStateHandler } from './services/storage/handlers/res
 export type { GetTokensListHandler } from './services/tokens/handlers/getTokenList';
 export type { UnifiedBridgeGetState } from './services/unifiedBridge/handlers/unifiedBridgeGetState';
 export type { UnifiedBridgeTrackTransfer } from './services/unifiedBridge/handlers/unifiedBridgeTrackTransfer';
-export type { AvalancheSendTransactionHandler } from './services/wallet/handlers/avalanche_sendTransaction';
 export type { GetBtcWalletPolicyDetails } from './services/wallet/handlers/getBtcWalletPolicyDetails';
 export type { GetUnencryptedMnemonicHandler } from './services/wallet/handlers/getUnencryptedMnemonic';
 export type { GetWalletDetailsHandler } from './services/wallet/handlers/getWalletDetails';
