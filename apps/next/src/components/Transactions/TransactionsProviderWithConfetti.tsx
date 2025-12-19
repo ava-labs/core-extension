@@ -17,9 +17,11 @@ export const TransactionStatusProviderWithConfetti = ({
   return (
     <TransactionStatusProvider
       toast={toast}
+      onPending={() => {
+        history.replace('/');
+      }}
       onSuccess={() => {
         triggerConfetti();
-        history.replace('/');
       }}
       renderExplorerLink={({ network, hash }) => (
         <ExplorerLink network={network} hash={hash} />
