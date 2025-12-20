@@ -23,8 +23,10 @@ function getEtherscanLink(txHash: string, isMainnet: boolean) {
 }
 
 function getBTCBlockchainLink(txHash: string, isMainnet: boolean) {
-  const env = isMainnet ? 'btc' : 'btc-testnet';
-  return `https://www.blockchain.com/${env}/tx/${txHash}`;
+  if (isMainnet) {
+    return `https://www.blockchain.com/btc/tx/${txHash}`;
+  }
+  return `https://mempool.space/testnet4/tx/${txHash}`;
 }
 export function getExplorerAddress(
   chain: Blockchain | Chain,

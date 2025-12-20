@@ -51,6 +51,8 @@ import { OffloadTimerTooltip } from './components/OffloadTimerTooltip';
 import { usePendingBridgeTransactions } from '@core/ui';
 import { useUnifiedBridgeContext } from '@core/ui';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { BridgeEstimatedTimeWarning } from './components/BridgeEstimatedTimeWarning';
+import { useSourceConfirmationsEndTime } from './hooks/useSourceConfirmationsEndTime';
 
 const BridgeTransactionStatus = () => {
   const { t } = useTranslation();
@@ -147,6 +149,16 @@ const BridgeTransactionStatus = () => {
     targetCurrentConfirmations,
     targetRequiredConfirmations,
   } = useBridgeTransferStatus(bridgeTransaction);
+
+  const isSourceConfirmationsComplete =
+    sourceCurrentConfirmations >= sourceRequiredConfirmations ||
+    Boolean(bridgeTransaction?.targetStartedAt);
+
+  const sourceConfirmationsEndTime = useSourceConfirmationsEndTime(
+    bridgeTransaction,
+    isSourceConfirmationsComplete,
+    isComplete,
+  );
 
   const errorCode = isUnifiedBridgeTransfer(bridgeTransaction)
     ? bridgeTransaction.errorCode
@@ -277,7 +289,12 @@ const BridgeTransactionStatus = () => {
             </Card>
             <BridgeCard // from chain (Middle Card)
               isWaiting={false} // starts immediately
-              isDone={Boolean(bridgeTransaction.targetStartedAt)}
+              isDone={Boolean(
+                isUnifiedBridgeTransfer(bridgeTransaction)
+                  ? bridgeTransaction.sourceConfirmationCount >=
+                      bridgeTransaction.sourceRequiredConfirmationCount
+                  : Boolean(bridgeTransaction?.targetStartedAt),
+              )}
               isTransferComplete={isComplete}
             >
               <Stack
@@ -377,7 +394,7 @@ const BridgeTransactionStatus = () => {
                     </Typography>
                     <ElapsedTimer
                       startTime={bridgeTransaction.sourceStartedAt}
-                      endTime={bridgeTransaction.targetStartedAt}
+                      endTime={sourceConfirmationsEndTime}
                       hasError={hasError}
                     />
                   </Stack>
@@ -409,7 +426,7 @@ const BridgeTransactionStatus = () => {
                       </Typography>
                       <ElapsedTimer
                         startTime={bridgeTransaction.sourceStartedAt}
-                        endTime={bridgeTransaction.targetStartedAt}
+                        endTime={sourceConfirmationsEndTime}
                         hasError={hasError}
                       />
                     </Stack>
@@ -468,7 +485,7 @@ const BridgeTransactionStatus = () => {
               )}
             </BridgeCard>
             <BridgeCard // to chain (Bottom Card)
-              isWaiting={!bridgeTransaction.targetStartedAt}
+              isWaiting={!isSourceConfirmationsComplete}
               isDone={isComplete}
               isTransferComplete={isComplete}
             >
@@ -690,6 +707,13 @@ const BridgeTransactionStatus = () => {
                 </>
               )}
             </BridgeCard>
+
+            {isUnifiedBridgeTransfer(bridgeTransaction) ? (
+              <BridgeEstimatedTimeWarning
+                bridgeType={bridgeTransaction.type}
+                targetChainName={bridgeTransaction.targetChain.chainName}
+              />
+            ) : null}
           </Stack>
         </Scrollbars>
       )}
