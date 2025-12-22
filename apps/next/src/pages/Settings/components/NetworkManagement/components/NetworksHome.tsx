@@ -1,5 +1,4 @@
-import { FC, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Page } from '@/components/Page';
 import { Tab, TabMenu } from '@/components/TabMenu';
 import {
   getHexAlpha,
@@ -8,13 +7,14 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { MdAdd } from 'react-icons/md';
 import { useAnalyticsContext, useNetworkContext } from '@core/ui';
-import { useHistory } from 'react-router-dom';
-import { SearchInput } from './SearchInput';
-import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
-import { Page } from '@/components/Page';
 import { isEmpty } from 'lodash';
+import { FC, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MdAdd } from 'react-icons/md';
+import { useHistory } from 'react-router-dom';
+import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
+import { SearchInput } from './SearchInput';
 
 type Tab = 'all' | 'custom';
 
@@ -28,28 +28,16 @@ export const NetworksHome: FC = () => {
 
   const [filter, setFilter] = useState('');
 
+  const currentNetworks = activeTab === 'all' ? networks : customNetworks;
+
   const filteredNetworks = useMemo(() => {
-    return networks.filter((network) => {
-      return (
-        network.chainName.toLowerCase().includes(filter.toLowerCase()) ||
-        network.chainId.toString().includes(filter)
-      );
-    });
-  }, [networks, filter]);
-
-  const filteredCustomNetworks = useMemo(() => {
-    return customNetworks.filter((network) => {
-      return (
-        network.chainName.toLowerCase().includes(filter.toLowerCase()) ||
-        network.chainId.toString().includes(filter)
-      );
-    });
-  }, [customNetworks, filter]);
-
-  const currentNetworks = useMemo(
-    () => (activeTab === 'all' ? filteredNetworks : filteredCustomNetworks),
-    [activeTab, filteredNetworks, filteredCustomNetworks],
-  );
+    const normalizedFilter = filter.toLowerCase();
+    return currentNetworks.filter(
+      (network) =>
+        network.chainName.toLowerCase().includes(normalizedFilter) ||
+        network.chainId.toString().includes(filter),
+    );
+  }, [currentNetworks, filter]);
 
   return (
     <Page
@@ -71,38 +59,32 @@ export const NetworksHome: FC = () => {
       </Stack>
 
       {/* Content Area */}
-      {isEmpty(currentNetworks) && filter ? (
+      {isEmpty(filteredNetworks) && filter ? (
         <Stack
-          sx={{
-            height: '100%',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexGrow: 1,
-          }}
+          height="100%"
+          alignItems="center"
+          justifyContent="center"
+          flexGrow={1}
         >
-          <Typography
-            variant="h1"
-            component="span"
-            sx={{ mb: 2, fontWeight: 'medium' }}
-          >
+          <Typography variant="h1" component="span" mb={2} fontWeight="medium">
             🌵
           </Typography>
-          <Typography variant="body3" sx={{ fontWeight: 600 }}>
+          <Typography variant="body3" fontWeight={600}>
             {t('No results found')}
           </Typography>
         </Stack>
       ) : (
-        <NetworkToggleList networks={currentNetworks} />
+        <NetworkToggleList networks={filteredNetworks} />
       )}
       {/* Sticky Bottom Tab Menu */}
       <Stack
-        width="calc(100% + 24px)" // Compensate for container padding which we don't want applied here.
+        width="calc(100vw - 12px)"
         gap={1}
         position="sticky"
         bottom={0}
         pt={3}
         pb={2}
-        px={2} // Since we increased the width, we need to bump the padding too.
+        px={2}
         sx={{
           background: `linear-gradient(180deg, ${getHexAlpha(theme.palette.alphaMatch.backdropSolid, 0)} 0%, ${theme.palette.alphaMatch.backdropSolid} 32.5%)`,
         }}
@@ -117,13 +99,6 @@ export const NetworksHome: FC = () => {
             } else if (value === 'custom') {
               capture('NetworkCustomTabClicked');
             }
-          }}
-          slotProps={{
-            root: {
-              style: {
-                backgroundColor: 'transparent',
-              },
-            },
           }}
         >
           <Tab label={t('All networks')} value={'all' satisfies Tab} />
