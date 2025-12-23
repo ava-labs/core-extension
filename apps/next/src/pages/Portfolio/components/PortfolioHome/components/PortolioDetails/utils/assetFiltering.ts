@@ -1,5 +1,7 @@
 import { FungibleTokenBalance, NetworkWithCaipId } from '@core/types';
 
+type NetworkContext = ReturnType<typeof import('@core/ui').useNetworkContext>;
+
 export const filterAssetsByNetworks = (
   assets: FungibleTokenBalance[],
   selectedNetworkChainIds: Set<number>,
@@ -14,7 +16,7 @@ export const filterAssetsByNetworks = (
 
 export const getAvailableNetworksFromAssets = (
   assets: FungibleTokenBalance[],
-  getNetwork: (chainId: number) => NetworkWithCaipId | undefined,
+  getNetwork: NetworkContext['getNetwork'],
 ): NetworkWithCaipId[] => {
   const networkMap = new Map<number, NetworkWithCaipId>();
   assets.forEach((asset) => {
