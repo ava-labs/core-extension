@@ -1,7 +1,7 @@
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { assert, caipToChainId } from '@core/common';
 import { CommonError, NetworkWithCaipId } from '@core/types';
-import { promoteAvalancheNetworks, useNetworkContext } from '@core/ui';
+import { promoteNetworks, useNetworkContext } from '@core/ui';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import {
@@ -43,7 +43,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
         ...Object.keys(core?.getAssets() ?? {}),
         ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
       ].sort((one, another) =>
-        promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
+        promoteNetworks(caipToChainId(one), caipToChainId(another)),
       ),
     [core, isDeveloperMode],
   );
