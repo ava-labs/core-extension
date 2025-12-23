@@ -59,7 +59,6 @@ export class BackgroundRuntime {
     });
   }
 
-
   // initialize timestamp saving to keep the service worker alive
   private startKeepAliveTimer() {
     const saveTimestamp = () => {
