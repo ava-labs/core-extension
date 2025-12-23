@@ -59,10 +59,6 @@ export class BackgroundRuntime {
     });
   }
 
-  saveTimestamp = () => {
-    const timestamp = new Date().toISOString();
-    browser.storage.session.set({ timestamp });
-  };
 
   // initialize timestamp saving to keep the service worker alive
   private startKeepAliveTimer() {
