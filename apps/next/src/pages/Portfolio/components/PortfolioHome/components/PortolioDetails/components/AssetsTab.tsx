@@ -1,28 +1,29 @@
+import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
+import { getUniqueTokenId } from '@core/types';
+import {
+  promoteNetworks,
+  useAccountsContext,
+  useBalancesContext,
+  useBalanceTotalInCurrency,
+  useIsMainnet,
+  useNetworkContext,
+} from '@core/ui';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
-import { getUniqueTokenId } from '@core/types';
-import {
-  useNetworkContext,
-  useBalancesContext,
-  useAccountsContext,
-  useBalanceTotalInCurrency,
-  useIsMainnet,
-} from '@core/ui';
 
-import { AssetCard } from './AssetCard';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import {
   filterAssetsByNetworks,
   getAvailableNetworksFromAssets,
 } from '../utils/assetFiltering';
-import { FilterMenu } from './FilterMenu';
-import { SortMenu } from './SortMenu';
 import { AssetSortOption, sortAssets } from '../utils/assetSorting';
+import { AssetCard } from './AssetCard';
 import { AssetsEmptyState } from './AssetsEmptyState';
 import { AssetsErrorState } from './AssetsErrorState';
-import { useTokensForAccount } from '@/hooks/useTokensForAccount';
+import { FilterMenu } from './FilterMenu';
+import { SortMenu } from './SortMenu';
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
@@ -54,7 +55,10 @@ export const AssetsTab: FC = () => {
   const hasError = !!balances.error;
 
   const availableNetworks = useMemo(
-    () => getAvailableNetworksFromAssets(assetsWithBalances, getNetwork),
+    () =>
+      getAvailableNetworksFromAssets(assetsWithBalances, getNetwork).sort(
+        promoteNetworks,
+      ),
     [assetsWithBalances, getNetwork],
   );
 

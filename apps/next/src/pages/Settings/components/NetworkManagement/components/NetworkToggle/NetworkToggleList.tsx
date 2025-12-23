@@ -1,15 +1,14 @@
 import { Stack } from '@avalabs/k2-alpine';
+import { NETWORKS_ENABLED_FOREVER, NetworkWithCaipId } from '@core/types';
 import {
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
   useWalletTotalBalanceContext,
 } from '@core/ui';
-import { NetworkWithCaipId } from '@core/types';
-import { NETWORKS_ENABLED_FOREVER } from '@core/types';
+import { useEffect, useMemo, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { NetworkToggleListItem } from './NetworkToggleListItem';
-import { useEffect, useMemo, useRef } from 'react';
 
 type NetworkToggleListProps = {
   networks: NetworkWithCaipId[];
@@ -44,7 +43,7 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   }, [updateBalanceOnNetworks, fetchWalletBalancesSequentially, allAccounts]);
 
   const enabledNetworksArray = useMemo(
-    () => enabledNetworks.map((network) => network.chainId) || [],
+    () => enabledNetworks.map((network) => network.chainId),
     [enabledNetworks],
   );
 
@@ -84,15 +83,6 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
     allAccounts,
   ]);
 
-  const sortedNetworks = useMemo(() => {
-    return [...networks].sort((a, b) => {
-      return (
-        Number(defaultNetworkSet.has(b.chainId)) -
-        Number(defaultNetworkSet.has(a.chainId))
-      );
-    });
-  }, [networks]);
-
   return (
     <Stack
       sx={{
@@ -108,12 +98,12 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
         },
       }}
     >
-      {sortedNetworks.map((network) => (
+      {networks.map((network) => (
         <NetworkToggleListItem
           key={network.chainId}
           network={network}
           isEnabled={enabledNetworksArray.includes(network.chainId)}
-          isDefault={NETWORKS_ENABLED_FOREVER.includes(network.chainId)}
+          isDefault={defaultNetworkSet.has(network.chainId)}
           onToggle={() => {
             if (enabledNetworksArray.includes(network.chainId)) {
               disableNetwork(network.chainId);
