@@ -7,12 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useConnectionContext } from '@core/ui';
 import { useFeatureFlagContext } from '@core/ui';
 import { useWalletContext } from '@core/ui';
-import type { AvalancheSendTransactionHandler } from '@core/service-worker';
-import {
-  DAppProviderRequest,
-  FeatureGates,
-  SendErrorMessage,
-} from '@core/types';
+import { FeatureGates, SendErrorMessage } from '@core/types';
 import {
   getMaxUtxoSet,
   isValidPvmAddress,
@@ -24,6 +19,7 @@ import type { pvm } from '@avalabs/avalanchejs';
 import { PVMSendOptions } from '../../models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
 import { SendAdapterPVM } from './models';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 const PCHAIN_ALIAS = 'P' as const;
 
@@ -296,8 +292,8 @@ export const usePvmSend: SendAdapterPVM = ({
           ),
           feeTolerance,
         };
-        return await request<AvalancheSendTransactionHandler>({
-          method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
+        return await request({
+          method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
           params,
         });
       } catch (err) {
