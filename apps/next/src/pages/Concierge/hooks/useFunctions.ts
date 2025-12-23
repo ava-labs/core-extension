@@ -2,7 +2,6 @@ import {
   isAPIError,
   useAccountsContext,
   useAnalyticsContext,
-  useBridge,
   useConnectionContext,
   useContactsContext,
   useFirebaseContext,
@@ -29,6 +28,7 @@ import {
   isUserRejectionError,
   Monitoring,
   stringToBigint,
+  caipToChainId,
 } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { errorValues } from 'eth-rpc-errors/dist/error-constants';
@@ -38,21 +38,29 @@ import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { asHex } from '@/pages/Send/components/SendBody/lib/asHex';
 import { buildErc20SendTx } from '@/pages/Send/components/SendBody/lib/buildErc20SendTx';
 import { getEvmProvider } from '@/lib/getEvmProvider';
+import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 export const useFunctions = ({ setIsTyping, setInput }) => {
   useLiveBalance(POLLED_BALANCES);
   const { t } = useTranslation();
-  const { network, networks, enableNetwork, disableNetwork, enabledNetworks } =
-    useNetworkContext();
+  const {
+    network,
+    networks,
+    enableNetwork,
+    disableNetwork,
+    enabledNetworks,
+    getNetwork,
+  } = useNetworkContext();
   const { contacts, createContact } = useContactsContext();
   const { accounts, selectAccount } = useAccountsContext();
   const { request } = useConnectionContext();
   const { swap, getRate } = useSwapContext();
   const { setModel, sendMessage, prompts, setPrompts } = useFirebaseContext();
   const isModelReady = useRef(false);
-  const { targetChain, transferableAssets, transfer } = useBridge();
+  const { getTransferableAssets, transferAsset } =
+    useNextUnifiedBridgeContext();
   const { captureEncrypted } = useAnalyticsContext();
   const tokens = useTokensWithBalances();
   const allAvailableTokens = useTokensWithBalances({
@@ -88,7 +96,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         }
 
         const tokenToSend = tokensForAccount.find(
-          (item) => item.symbol === token,
+          (item) => item.symbol.toLowerCase() === token.toLowerCase(),
         );
 
         if (!tokenToSend) {
@@ -357,7 +365,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
         const newAmount = stringToBigint(amount, tokenData?.decimals);
 
         const foundAsset = findMatchingBridgeAsset(
-          transferableAssets,
+          getTransferableAssets(sourceNetwork),
           tokenData,
         );
         if (!foundAsset) {
@@ -374,19 +382,35 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
             'You have to grant the destination network you want to bridge.',
           );
         }
-        const [bridgeType] =
-          foundAsset?.destinations[targetChain?.caipId ?? ''] ?? [];
-        await transfer(
-          {
-            bridgeType,
-            gasSettings: undefined,
-          },
+
+        // Check if destination is available for this asset
+        const destinationCaipId = destinationNetwork;
+        const bridgeTypes = foundAsset?.destinations[destinationCaipId] ?? [];
+        if (bridgeTypes.length === 0) {
+          const availableDestinations = Object.keys(
+            foundAsset?.destinations ?? {},
+          )
+            .map((caipId) => {
+              const net = getNetwork(caipToChainId(caipId));
+              return net?.chainName || caipId;
+            })
+            .join(', ');
+          throw new Error(
+            `Cannot bridge ${foundAsset.symbol} to ${destinationNetwork}. Available destinations: ${availableDestinations || 'none'}.`,
+          );
+        }
+
+        await transferAsset(
+          foundAsset.symbol,
           newAmount,
+          sourceNetwork,
           destinationNetwork,
-          foundAsset,
         );
+
+        const destNet = getNetwork(caipToChainId(destinationNetwork));
+
         return {
-          content: `Bridge initiated ${amount}${foundAsset.symbol} to ${destinationNetwork}.`,
+          content: `Bridge initiated ${amount} ${foundAsset.symbol} to ${destNet?.chainName || destinationNetwork}`,
         };
       },
       enableNetwork: async ({ chainId }: { chainId: number }) => {
@@ -403,23 +427,23 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       },
     }),
     [
+      getNetwork,
       accounts.active,
-      allAvailableTokens,
-      createContact,
-      disableNetwork,
-      enableNetwork,
-      getNetworkFee,
-      getRate,
       network,
-      request,
-      selectAccount,
-      swap,
-      t,
-      targetChain?.caipId,
-      tokens,
       tokensForAccount,
-      transfer,
-      transferableAssets,
+      getNetworkFee,
+      request,
+      t,
+      selectAccount,
+      createContact,
+      tokens,
+      allAvailableTokens,
+      getRate,
+      swap,
+      enableNetwork,
+      disableNetwork,
+      transferAsset,
+      getTransferableAssets,
     ],
   );
 
@@ -488,10 +512,14 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
       .replace(
         '__BRIDGE_DATA__',
         JSON.stringify(
-          transferableAssets.map((token) => ({
-            name: token.name,
-            symbol: token.symbol,
-          })),
+          network
+            ? getTransferableAssets(network.caipId).map((asset) => {
+                return {
+                  symbol: asset.symbol,
+                  name: asset.name,
+                };
+              })
+            : [],
           (_, v) => (typeof v === 'bigint' ? v.toString() : v),
         ),
       )
@@ -510,8 +538,8 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
     allAvailableTokens,
     networks,
     contacts,
-    transferableAssets,
     enabledNetworks,
+    getTransferableAssets,
   ]);
 
   const prompt = useCallback(
@@ -579,7 +607,7 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
                   parts: [
                     {
                       functionResponse: {
-                        name: 'send',
+                        name: call.name,
                         response: {
                           content: apiResponse.content,
                         },
@@ -596,8 +624,8 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
           } catch (e: any) {
             const errorMessage =
               'code' in e
-                ? errorValues[e.code]?.message || 'Unkown error happened'
-                : e.toString();
+                ? errorValues[e.code]?.message || 'Unknown error happened'
+                : e.message || e.toString();
 
             // Send the API response back to the model so it can generate
             // a text response that can be displayed to the user.
@@ -610,9 +638,9 @@ export const useFunctions = ({ setIsTyping, setInput }) => {
                   parts: [
                     {
                       functionResponse: {
-                        name: 'send',
+                        name: call.name,
                         response: {
-                          content: `Send failed. ${errorMessage}`,
+                          content: `${call.name} failed. ${errorMessage}`,
                         },
                       },
                     },
