@@ -7,7 +7,7 @@ import {
   ValidationResult,
   ValidatorType,
 } from '../../models';
-import { validateSwapAmounts } from './utils';
+import { validateSwapAmounts } from './validation';
 
 /**
  * Validator for swap transactions.
@@ -22,12 +22,6 @@ export class SwapValidator implements RequestValidator {
    */
   canHandle(params: ApprovalParamsWithContext): boolean {
     const context = params.request.context;
-
-    console.log('[SwapValidator] Checking if can handle request', {
-      hasContext: !!context,
-      autoApprove: context?.autoApprove,
-      signingDataType: params.signingData?.type,
-    });
 
     // Only handle if explicitly requested for auto-approval
     if (!context?.autoApprove) {
@@ -46,23 +40,15 @@ export class SwapValidator implements RequestValidator {
       params.request.dappInfo.url.startsWith(browser.runtime.getURL(''));
 
     if (!isInternalRequest) {
-      console.log(
-        '[SwapValidator] Not handling: not an internal request',
-        params.request.dappInfo?.url,
-      );
       return false;
     }
 
     // Additional security check: validate swap destination
     const swapTxData = params.signingData?.data;
     if (swapTxData?.to === '0x0000000000000000000000000000000000000000') {
-      console.log(
-        '[SwapValidator] Not handling: swap destination is zero address',
-      );
       return false;
     }
 
-    console.log('[SwapValidator] Will handle this request for auto-approval');
     return true;
   }
 

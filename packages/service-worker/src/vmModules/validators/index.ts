@@ -1,12 +1,12 @@
-export { SwapValidator, swapValidator } from './swap/SwapValidator';
+// Re-export everything from swap validators
 export {
+  SwapValidator,
+  swapValidator,
   BatchSwapValidator,
   batchSwapValidator,
-} from './swap/BatchSwapValidator';
-export {
   validateSwapAmounts,
   validateSwapUsdPrices,
   validateMaxBuyLimit,
   findTokenInBalanceChange,
   MARKR_PARTNER_FEE_BPS,
-} from './swap/utils';
+} from './swap';

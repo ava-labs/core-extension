@@ -7,6 +7,7 @@ import {
   ValidationResult,
   ValidatorType,
 } from '../../models';
+import { validateSwapAmounts } from './validation';
 
 /**
  * Validator for batch swap transactions (approval + swap).
@@ -21,12 +22,6 @@ export class BatchSwapValidator implements BatchRequestValidator {
   canHandle(params: MultiApprovalParamsWithContext): boolean {
     const context = params.request.context;
 
-    console.log('[BatchSwapValidator] Checking if can handle request', {
-      hasContext: !!context,
-      autoApprove: context?.autoApprove,
-      batchSize: params.signingRequests.length,
-    });
-
     // Only handle if explicitly requested for auto-approval
     if (!context?.autoApprove) {
       return false;
@@ -37,9 +32,6 @@ export class BatchSwapValidator implements BatchRequestValidator {
       (req) => req.signingData.type === RpcMethod.ETH_SEND_TRANSACTION,
     );
     if (!allEvmTx) {
-      console.log(
-        '[BatchSwapValidator] Not handling: not all transactions are EVM',
-      );
       return false;
     }
 
@@ -50,55 +42,27 @@ export class BatchSwapValidator implements BatchRequestValidator {
       params.request.dappInfo.url.startsWith(browser.runtime.getURL(''));
 
     if (!isInternalRequest) {
-      console.log(
-        '[BatchSwapValidator] Not handling: not an internal request',
-        params.request.dappInfo?.url,
-      );
       return false;
     }
 
-    console.log(
-      '[BatchSwapValidator] Will handle this batch request for auto-approval',
-    );
     return true;
   }
 
   /**
    * Validate the batch action before auto-approval.
-   * For batch swaps, we validate the last transaction (the swap) since
-   * the first one is typically an approval transaction.
+   * For batch swaps, the displayData contains the net balance change for the entire batch,
+   * which includes both the approval and swap transactions combined.
    */
   validateAction(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     action: MultiTxAction,
     params: MultiApprovalParamsWithContext,
   ): ValidationResult {
     const context = params.request.context;
 
-    // For batch validation, we focus on validating that the context is valid
-    // The actual swap amounts validation happens on the swap transaction
-    // which is typically the last transaction in the batch
-
-    // Check if minAmountOut is valid
-    const expectedMinAmountOut = context?.minAmountOut;
-    if (!expectedMinAmountOut || expectedMinAmountOut === '0') {
-      return {
-        isValid: false,
-        requiresManualApproval: true,
-        reason:
-          'minAmountOut is missing or zero - manual approval required for batch',
-      };
-    }
-
-    // For batches, we can't easily validate against displayData since
-    // the scan results may be for the entire batch, not individual txs
-    // So we do basic validation and trust the context
-    console.log('[BatchSwapValidator] Batch validation passed (basic checks)', {
-      expectedMinAmountOut,
-      batchSize: params.signingRequests.length,
-    });
-
-    return { isValid: true };
+    // Validate using the same logic as single swaps
+    // The action.displayData contains scan results for the entire batch
+    // showing the net effect of approval + swap transactions
+    return validateSwapAmounts(action, context);
   }
 }
 
