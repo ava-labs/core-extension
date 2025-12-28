@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { SimulationAlertBox } from '@/components/SimulationAlertBox';
+import { ValidationWarningCard } from '@/components/ValidationWarningCard';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 
 import {
@@ -106,6 +107,16 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
                 t(
                   'Core was unable to fund the gas. You will need to pay the fee for this transaction.',
                 ),
+              ]}
+            />
+          </Stack>
+        )}
+        {(action.displayData as any)?.validationWarning && (
+          <Stack px={2} mt={1.5} mb={1.5}>
+            <ValidationWarningCard
+              textLines={[
+                t('Manual approval required'),
+                (action.displayData as any).validationWarning,
               ]}
             />
           </Stack>

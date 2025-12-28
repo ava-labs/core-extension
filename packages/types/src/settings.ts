@@ -64,6 +64,9 @@ type CustomTokens = {
 };
 
 export type ViewMode = 'floating' | 'sidebar';
+export type FeeSetting = 'low' | 'medium' | 'high';
+export type MaxBuyOption = '1000' | '5000' | '10000' | '50000' | 'unlimited';
+
 export interface SettingsState {
   currency: string;
   customTokens: CustomTokens;
@@ -76,6 +79,9 @@ export interface SettingsState {
   coreAssistant: boolean;
   preferredView: ViewMode;
   showTrendingTokens: boolean;
+  isDegenMode: boolean;
+  feeSetting: FeeSetting;
+  maxBuy: MaxBuyOption;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

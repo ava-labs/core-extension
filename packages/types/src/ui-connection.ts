@@ -88,6 +88,9 @@ export enum ExtensionRequest {
   SETTINGS_SET_CORE_ASSISTANT = 'settings_set_core_assistant',
   SETTINGS_SET_PREFERRED_VIEW = 'settings_set_preferred_view',
   SETTINGS_SET_SHOW_TRENDING_TOKENS = 'settings_set_show_trending_tokens',
+  SETTINGS_SET_DEGEN_MODE = 'settings_set_degen_mode',
+  SETTINGS_SET_FEE_SETTING = 'settings_set_fee_setting',
+  SETTINGS_SET_MAX_BUY = 'settings_set_max_buy',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',

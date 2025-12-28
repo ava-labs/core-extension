@@ -9,7 +9,10 @@ import type {
   LockWalletHandler,
   SetAnalyticsConsentHandler,
   SetCoreAssistantHandler,
+  SetDegenModeHandler,
+  SetFeeSettingHandler,
   SetLanguageHandler,
+  SetMaxBuyHandler,
   SetPreferredViewHandler,
   SetShowTrendingTokensHandler,
   UpdateCollectiblesVisibilityHandler,
@@ -21,7 +24,9 @@ import type {
 import {
   ColorTheme,
   ExtensionRequest,
+  FeeSetting,
   Languages,
+  MaxBuyOption,
   SettingsState,
   ViewMode,
 } from '@core/types';
@@ -74,6 +79,9 @@ type SettingsFromProvider = SettingsState & {
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
   setShowTrendingTokens: (show: boolean) => Promise<boolean>;
+  setDegenMode: (enabled: boolean) => Promise<boolean>;
+  setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
+  setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -260,6 +268,36 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setDegenMode = useCallback(
+    (enabled: boolean) => {
+      return request<SetDegenModeHandler>({
+        method: ExtensionRequest.SETTINGS_SET_DEGEN_MODE,
+        params: [enabled],
+      });
+    },
+    [request],
+  );
+
+  const setFeeSetting = useCallback(
+    (feeSetting: FeeSetting) => {
+      return request<SetFeeSettingHandler>({
+        method: ExtensionRequest.SETTINGS_SET_FEE_SETTING,
+        params: [feeSetting],
+      });
+    },
+    [request],
+  );
+
+  const setMaxBuy = useCallback(
+    (maxBuy: MaxBuyOption) => {
+      return request<SetMaxBuyHandler>({
+        method: ExtensionRequest.SETTINGS_SET_MAX_BUY,
+        params: [maxBuy],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -283,6 +321,9 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setCoreAssistant,
           setPreferredView,
           setShowTrendingTokens,
+          setDegenMode,
+          setFeeSetting,
+          setMaxBuy,
         } as SettingsFromProvider
       }
     >

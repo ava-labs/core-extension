@@ -14,6 +14,15 @@ export const PARASWAP_PARTNER_ADDRESS =
 export const PARASWAP_PARTNER_FEE_BPS = 85 as const satisfies number;
 
 /**
+ * The fee percentage that Core gathers on Markr swaps.
+ *
+ * An integer representing the basis points (BPS) of the fee percentage.
+ *
+ * @example 85 -> 0.85%
+ */
+export const MARKR_PARTNER_FEE_BPS = 85 as const satisfies number;
+
+/**
  * The address ParaSwap uses for EVM native tokens.
  */
 export const NATIVE_TOKEN_ADDRESS =
