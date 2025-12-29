@@ -1,4 +1,5 @@
-import { BridgeIcon, ContractCallIcon, SwapIcon } from '@avalabs/k2-alpine';
+import { BridgeIcon } from '@/components/BridgeIcon';
+import { ContractCallIcon, SwapIcon } from '@avalabs/k2-alpine';
 import { TransactionType } from '@avalabs/vm-module-types';
 import { isNftTokenType } from '@core/common';
 import { TxHistoryItem } from '@core/types';
