@@ -270,15 +270,10 @@ export class ApprovalController implements BatchApprovalController {
     const actionId = crypto.randomUUID();
     const action = this.#buildAction(params, actionId);
 
-    // Try to get validator - first by type from context, then by finding
+    // Get validator by type from context
     let validator = context?.validatorType
       ? validatorRegistry.getValidator(context.validatorType)
       : undefined;
-
-    // Fallback to finding validator if not specified or not found
-    if (!validator) {
-      validator = validatorRegistry.findValidator(params);
-    }
 
     if (validator) {
       // Verify the validator can actually handle this request
@@ -380,17 +375,13 @@ export class ApprovalController implements BatchApprovalController {
     const actionId = crypto.randomUUID();
     const action = this.#buildMultiApprovalAction(params, actionId);
 
-    // Try to get validator - first by type from context, then by finding
+    // Get validator by type from context
     let validator = context?.validatorType
       ? validatorRegistry.getBatchValidator(context.validatorType)
       : undefined;
 
-    // Fallback to finding validator if not specified or not found
-    if (!validator) {
-      validator = validatorRegistry.findBatchValidator(params);
-    }
-
     if (validator) {
+      // Verify the validator can actually handle this request
       if (!validator.canHandle(params)) {
         validator = undefined;
       }

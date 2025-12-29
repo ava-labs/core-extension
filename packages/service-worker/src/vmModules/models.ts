@@ -117,34 +117,6 @@ export class ValidatorRegistry {
   }
 
   /**
-   * Find a validator that can handle the request (fallback if no type specified)
-   */
-  findValidator(
-    params: ApprovalParamsWithContext,
-  ): RequestValidator | undefined {
-    for (const validator of this.validators.values()) {
-      if (validator.canHandle(params)) {
-        return validator;
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Find a batch validator that can handle the request (fallback if no type specified)
-   */
-  findBatchValidator(
-    params: MultiApprovalParamsWithContext,
-  ): BatchRequestValidator | undefined {
-    for (const validator of this.batchValidators.values()) {
-      if (validator.canHandle(params)) {
-        return validator;
-      }
-    }
-    return undefined;
-  }
-
-  /**
    * List all registered validator types (for debugging)
    */
   getRegisteredTypes(): {
