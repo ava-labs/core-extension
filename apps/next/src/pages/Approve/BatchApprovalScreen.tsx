@@ -93,6 +93,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
 
   const isProcessing = action.status === ActionStatus.SUBMITTING;
   const txCount = action.signingRequests.length;
+  const currentSigningRequest = action.signingRequests[currentTxIndex];
 
   return (
     <Styled.ApprovalScreenPage>
@@ -151,12 +152,20 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
         )}
 
         <Stack flexGrow={1} px={2}>
-          <ActionDetails
-            network={network}
-            action={action as any}
-            updateAction={updateAction}
-            error={error}
-          />
+          {currentSigningRequest && (
+            <ActionDetails
+              network={network}
+              action={
+                {
+                  ...action,
+                  signingData: currentSigningRequest.signingData,
+                  displayData: currentSigningRequest.displayData,
+                } as any
+              }
+              updateAction={updateAction}
+              error={error}
+            />
+          )}
         </Stack>
         <ActionDrawer
           open
