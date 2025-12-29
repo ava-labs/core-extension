@@ -120,23 +120,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/bridge-unified@npm:4.3.0":
-  version: 4.3.0
-  resolution: "@avalabs/bridge-unified@npm:4.3.0"
+"@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20251210215615":
+  version: 0.0.0-feat-lombard-sdk-integration-20251210215615
+  resolution: "@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:3.0.17"
-    "@lombard.experimental/sdk": "npm:3.7.0-rc.8"
+    "@lombard.experimental/sdk": "npm:3.7.0-rc.10"
     "@noble/hashes": "npm:1.5.0"
     "@scure/base": "npm:1.1.9"
-    "@scure/btc-signer": "npm:1.3.2"
     abitype: "npm:0.9.3"
     bitcoinjs-lib: "npm:6.1.5"
     coinselect: "npm:3.1.13"
     lodash: "npm:4.17.21"
     viem: "npm:2.11.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/f130c29e7509ea80368744df8bfdb4a4a3ab1dd414c30e342bbe7122e11a268ee9de180910952ad2d51cd68ad68f61a675188db46f0e630726da7f11c98a84cf
+  checksum: 10c0/e7e76eecb2b1b9eed787a622b925ee3a87dd5f5b4d91de145cf3b0fecde10404e25bca70007274d9879bb505834c7e704830430d24fb4a2b16a763375924542c
   languageName: node
   linkType: hard
 
@@ -3699,7 +3698,7 @@ __metadata:
     "@avalabs/avalanche-module": "npm:3.0.7"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:3.0.7"
-    "@avalabs/bridge-unified": "npm:4.3.0"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.69"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.69"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.69"
@@ -3884,7 +3883,7 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:4.3.0"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.71"
@@ -4142,7 +4141,7 @@ __metadata:
     "@avalabs/avalanche-module": "npm:3.0.7"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:3.0.7"
-    "@avalabs/bridge-unified": "npm:4.3.0"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.71"
@@ -4308,7 +4307,7 @@ __metadata:
   resolution: "@core/ui@workspace:packages/ui"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:4.3.0"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.71"
@@ -7783,9 +7782,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lombard.experimental/sdk@npm:3.7.0-rc.8":
-  version: 3.7.0-rc.8
-  resolution: "@lombard.experimental/sdk@npm:3.7.0-rc.8"
+"@lombard.experimental/sdk@npm:3.7.0-rc.10":
+  version: 3.7.0-rc.10
+  resolution: "@lombard.experimental/sdk@npm:3.7.0-rc.10"
   dependencies:
     "@lombard.experimental/sdk-common": "npm:^3.3.1"
     isows: "npm:^1.0.7"
@@ -7797,7 +7796,7 @@ __metadata:
     axios: ^1
     bignumber.js: ^9
     bitcoinjs-lib: 6.1.5
-  checksum: 10c0/db244ba4ff7456af7fe9e4b4668dc02811b25806aa325a6b6880a49ad0b765116cd2e24088cee5fad746f322db67b5f82cd5531c9e928cea45013874c47706f9
+  checksum: 10c0/904041fffc6b3875a230c043ade3c18cfcd659b6714a1e05f75217c1cca4c7f68cc9cea4b15d7cbf1cd86dbc6bd3c3998bbeda54611a241818ec7cd42058939d
   languageName: node
   linkType: hard
 
@@ -10324,18 +10323,6 @@ __metadata:
     "@noble/hashes": "npm:~1.8.0"
     "@scure/base": "npm:~1.2.5"
   checksum: 10c0/73a54b5566a50a3f8348a5cfd74d2092efeefc485efbed83d7a7374ffd9a75defddf446e8e5ea0385e4adb49a94b8ae83c5bad3e16333af400e932f7da3aaff8
-  languageName: node
-  linkType: hard
-
-"@scure/btc-signer@npm:1.3.2":
-  version: 1.3.2
-  resolution: "@scure/btc-signer@npm:1.3.2"
-  dependencies:
-    "@noble/curves": "npm:~1.4.0"
-    "@noble/hashes": "npm:~1.4.0"
-    "@scure/base": "npm:~1.1.6"
-    micro-packed: "npm:~0.6.2"
-  checksum: 10c0/0e3ebc7e707883d960a25c6da53d04176b7e2ecf314bbed1743349cb573d282988c86cdaa63c83c8ddf84867d76bfa3d4978d420df1cd18915d06ac8c43bc495
   languageName: node
   linkType: hard
 
@@ -26696,15 +26683,6 @@ __metadata:
   dependencies:
     "@scure/base": "npm:~1.1.5"
   checksum: 10c0/625775b7f450de0dfadb1686c86ba6c5afc7a427b1887e8c0419581971b125b33eb2597e9693ac3bd6c2500e37f32ce2a8cdc3c6056be77dbe0edf009e7caf5c
-  languageName: node
-  linkType: hard
-
-"micro-packed@npm:~0.6.2":
-  version: 0.6.3
-  resolution: "micro-packed@npm:0.6.3"
-  dependencies:
-    "@scure/base": "npm:~1.1.5"
-  checksum: 10c0/aab7b68c7c55b725891d0efa2e588e6b3f615a6d56ad4cd511e48e5e663b3a003f470e78cff4dd687a439f120c79db17c08df7f4375f8f8fcea3602efcd45c0e
   languageName: node
   linkType: hard
 
