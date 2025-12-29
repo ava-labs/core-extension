@@ -1,4 +1,5 @@
 import { useBridgeState } from '@/pages/Bridge/contexts';
+import { useSourceConfirmationsEndTime } from '@/pages/Bridge/hooks';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { findMatchingBridgeAsset } from '@core/common';
@@ -8,6 +9,7 @@ import { FC, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
+import { BridgeEstimatedTimeWarning } from '../BridgeEstimatedTimeWarning';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails, TransactionFailure } from './components';
 import { useUntrackTransaction } from './hooks/useUntrackTransaction';
@@ -47,12 +49,23 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
     }
   }, [pendingTransfer.completedAt, pendingTransfer.errorCode, triggerConfetti]);
 
+  const hasError = Boolean(pendingTransfer.errorCode);
+  const isComplete = Boolean(pendingTransfer.completedAt);
+
+  const isSourceConfirmationsComplete =
+    pendingTransfer.sourceConfirmationCount >=
+      pendingTransfer.sourceRequiredConfirmationCount ||
+    Boolean(pendingTransfer.targetStartedAt);
+
+  const sourceConfirmationsEndTime = useSourceConfirmationsEndTime(
+    pendingTransfer,
+    isSourceConfirmationsComplete,
+    isComplete,
+  );
+
   if (!pendingTransfer) {
     return null;
   }
-
-  const hasError = Boolean(pendingTransfer.errorCode);
-  const isComplete = Boolean(pendingTransfer.completedAt);
 
   return (
     <>
@@ -68,6 +81,8 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         confirmationsRequired={pendingTransfer.sourceRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.sourceConfirmationCount}
         error={hasError}
+        startTime={pendingTransfer.sourceStartedAt}
+        endTime={sourceConfirmationsEndTime}
       />
       <BridgeDetails
         networkLabel={t('To')}
@@ -76,6 +91,13 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         confirmationsRequired={pendingTransfer.targetRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.targetConfirmationCount}
         error={hasError}
+        startTime={pendingTransfer.targetStartedAt}
+        endTime={pendingTransfer.completedAt}
+      />
+
+      <BridgeEstimatedTimeWarning
+        bridgeType={pendingTransfer.type}
+        targetChainName={pendingTransfer.targetChain.chainName}
       />
 
       <Stack mt="auto" gap={1}>

@@ -3884,6 +3884,7 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
+    "@avalabs/bridge-unified": "npm:4.3.0"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.71"
@@ -3987,6 +3988,7 @@ __metadata:
     react-markdown: "npm:10.1.0"
     react-scripts: "npm:5.0.1"
     react-test-renderer: "npm:17.0.2"
+    react-timer-hook: "npm:3.0.5"
     react-transition-group: "npm:4.4.2"
     react-virtualized: "npm:9.22.6"
     react-window: "npm:1.8.11"

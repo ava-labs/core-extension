@@ -11,6 +11,7 @@ import {
   BannerTop,
   BridgeControls,
   BridgeErrorMessage,
+  BridgeEstimatedTimeWarning,
   BridgeProviderNotice,
 } from './components';
 
@@ -35,6 +36,7 @@ export const BridgeTransactionForm: FC<Props> = ({
   const {
     transferAsset,
     asset,
+    targetNetwork,
     query: {
       amount,
       updateQuery,
@@ -42,6 +44,10 @@ export const BridgeTransactionForm: FC<Props> = ({
       targetNetwork: targetNetworkId,
     },
   } = useBridgeState();
+
+  // NOTE: we operate on the assumption that UnifiedBridge SDK will
+  // use the first matching bridge from the `destinations` array
+  const [bridgeType] = asset?.destinations[targetNetworkId ?? ''] ?? [];
 
   const {
     isBridgeButtonDisabled,
@@ -100,6 +106,10 @@ export const BridgeTransactionForm: FC<Props> = ({
         <BridgeControls />
       </Stack>
       <BridgeErrorMessage formError={error} />
+      <BridgeEstimatedTimeWarning
+        bridgeType={bridgeType}
+        targetChainName={targetNetwork?.chainName}
+      />
       <BitcoinBridgeInfo />
       <Stack
         width="100%"

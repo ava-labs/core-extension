@@ -6,9 +6,10 @@ import { bigintToBig } from '@core/common';
 import { useNativeTokenPrice } from '@core/ui';
 import { useNetworkContext, useSettingsContext } from '@core/ui/src/contexts';
 import Big from 'big.js';
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmationsCounter } from './ConfirmationsRow';
+import { ElapsedTimer } from './ElapsedTimer';
 import * as Styled from './Styled';
 
 type Props = {
@@ -18,6 +19,9 @@ type Props = {
   confirmationsRequired: number;
   confirmationsReceived: number;
   error: boolean;
+  startTime?: number;
+  endTime?: number;
+  offloadDelayTooltip?: ReactNode;
 };
 
 export const BridgeDetails: FC<Props> = ({
@@ -27,6 +31,9 @@ export const BridgeDetails: FC<Props> = ({
   confirmationsRequired,
   confirmationsReceived,
   error,
+  startTime,
+  endTime,
+  offloadDelayTooltip,
 }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
@@ -79,6 +86,22 @@ export const BridgeDetails: FC<Props> = ({
           color={error ? 'error' : 'success'}
         />
       </Styled.RowItem>
+      {startTime !== undefined && (
+        <>
+          <Styled.Divider />
+          <Styled.RowItem>
+            <Typography variant="body3" color="text.primary">
+              {t('Time Elapsed')}
+            </Typography>
+            <ElapsedTimer
+              startTime={startTime}
+              endTime={endTime}
+              hasError={error}
+              offloadDelayTooltip={offloadDelayTooltip}
+            />
+          </Styled.RowItem>
+        </>
+      )}
     </Card>
   );
 };
