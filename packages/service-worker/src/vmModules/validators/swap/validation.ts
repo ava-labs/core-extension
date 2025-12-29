@@ -180,9 +180,6 @@ function validateSimulation(
   isSimulationSuccessful: boolean | undefined,
 ): ValidationResult | null {
   if (isSimulationSuccessful === false) {
-    console.error(
-      '[SwapValidator] Simulation failed - rejecting auto-approval',
-    );
     return {
       isValid: false,
       requiresManualApproval: false,

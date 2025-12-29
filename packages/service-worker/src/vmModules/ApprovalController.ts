@@ -254,16 +254,11 @@ export class ApprovalController implements BatchApprovalController {
     params: ApprovalParamsWithContext,
   ): Promise<ApprovalResponse> => {
     const context = params.request.context;
-    const requestId = crypto.randomUUID().slice(0, 8);
 
     const network = await this.#networkService.getNetwork(
       params.request.chainId,
     );
     if (!network) {
-      console.error(
-        `[ApprovalController:${requestId}] Network not found:`,
-        params.request.chainId,
-      );
       return {
         error: rpcErrors.invalidRequest({
           message: 'Unsupported network',
@@ -279,12 +274,6 @@ export class ApprovalController implements BatchApprovalController {
     let validator = context?.validatorType
       ? validatorRegistry.getValidator(context.validatorType)
       : undefined;
-
-    if (context?.validatorType && !validator) {
-      console.warn(
-        `[ApprovalController:${requestId}] Validator type "${context.validatorType}" not found in registry`,
-      );
-    }
 
     // Fallback to finding validator if not specified or not found
     if (!validator) {
@@ -302,15 +291,7 @@ export class ApprovalController implements BatchApprovalController {
       const validation = validator.validateAction(action, params);
 
       if (validation.isValid) {
-        console.log(
-          `[ApprovalController:${requestId}] Auto-approving ${validator.type}`,
-        );
-        return await this.#executeAutoApproval(
-          params,
-          action,
-          network,
-          requestId,
-        );
+        return await this.#executeAutoApproval(params, action, network);
       } else if (validation.requiresManualApproval) {
         // Add the validation warning to displayData so it shows in the approval UI
         if (validation.reason) {
@@ -318,10 +299,6 @@ export class ApprovalController implements BatchApprovalController {
         }
         // Fall through to normal approval flow
       } else {
-        console.error(
-          `[ApprovalController:${requestId}] Validation failed:`,
-          validation.reason,
-        );
         return {
           error: rpcErrors.invalidRequest({
             message: validation.reason || 'Auto-approval validation failed',
@@ -346,7 +323,6 @@ export class ApprovalController implements BatchApprovalController {
     params: ApprovalParamsWithContext,
     action: Action,
     network: NetworkWithCaipId,
-    requestId: string,
   ): Promise<ApprovalResponse> => {
     try {
       const approvalResult = await this.#handleApproval(
@@ -363,9 +339,6 @@ export class ApprovalController implements BatchApprovalController {
       } else if (approvalResult.txHash) {
         return { txHash: approvalResult.txHash };
       } else {
-        console.error(
-          `[ApprovalController:${requestId}] Unsupported signing result type`,
-        );
         return {
           error: rpcErrors.internal({
             message: 'Unsupported signing result type',
@@ -373,10 +346,6 @@ export class ApprovalController implements BatchApprovalController {
         };
       }
     } catch (err) {
-      console.error(
-        `[ApprovalController:${requestId}] Auto-approval error:`,
-        err,
-      );
       return {
         error: rpcErrors.internal({
           message: 'Unable to sign the transaction',
@@ -394,17 +363,12 @@ export class ApprovalController implements BatchApprovalController {
     params: MultiApprovalParamsWithContext,
   ): Promise<BatchApprovalResponse> => {
     const context = params.request.context;
-    const requestId = crypto.randomUUID().slice(0, 8);
 
     const network = await this.#networkService.getNetwork(
       params.request.chainId,
     );
 
     if (!network) {
-      console.error(
-        `[ApprovalController:${requestId}] Network not found:`,
-        params.request.chainId,
-      );
       return {
         error: rpcErrors.invalidRequest({
           message: 'Unsupported network',
@@ -421,12 +385,6 @@ export class ApprovalController implements BatchApprovalController {
       ? validatorRegistry.getBatchValidator(context.validatorType)
       : undefined;
 
-    if (context?.validatorType && !validator) {
-      console.warn(
-        `[ApprovalController:${requestId}] Batch validator type "${context.validatorType}" not found in registry`,
-      );
-    }
-
     // Fallback to finding validator if not specified or not found
     if (!validator) {
       validator = validatorRegistry.findBatchValidator(params);
@@ -442,20 +400,13 @@ export class ApprovalController implements BatchApprovalController {
       const validation = validator.validateAction(action, params);
 
       if (validation.isValid) {
-        console.log(
-          `[ApprovalController:${requestId}] Auto-approving batch ${validator.type}`,
-        );
-        return await this.#executeBatchAutoApproval(action, network, requestId);
+        return await this.#executeBatchAutoApproval(action, network);
       } else if (validation.requiresManualApproval) {
         // Add the validation warning to displayData so it shows in the approval UI
         if (validation.reason) {
           (action.displayData as any).validationWarning = validation.reason;
         }
       } else {
-        console.error(
-          `[ApprovalController:${requestId}] Batch validation failed:`,
-          validation.reason,
-        );
         return {
           error: rpcErrors.invalidRequest({
             message: validation.reason || 'Auto-approval validation failed',
@@ -479,7 +430,6 @@ export class ApprovalController implements BatchApprovalController {
   #executeBatchAutoApproval = async (
     action: MultiTxAction,
     network: NetworkWithCaipId,
-    requestId: string,
   ): Promise<BatchApprovalResponse> => {
     try {
       const results = await this.#handleBatchApproval(action, network);
@@ -488,10 +438,6 @@ export class ApprovalController implements BatchApprovalController {
         result: results.map((r) => ({ signedData: r.signedTx })),
       };
     } catch (err) {
-      console.error(
-        `[ApprovalController:${requestId}] Batch auto-approval error:`,
-        err,
-      );
       return {
         error: rpcErrors.internal({
           message: 'Unable to sign the batch of transactions',
