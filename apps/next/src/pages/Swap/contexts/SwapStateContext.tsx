@@ -125,6 +125,12 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       : toToken.address
     : undefined;
 
+  // Reset slippage to default when either token changes
+  useEffect(() => {
+    setSlippage(DEFAULT_SLIPPAGE);
+    setAutoSlippage(true);
+  }, [fromTokenAddress, toTokenAddress]);
+
   const fromAmount =
     side === 'sell'
       ? userAmount
