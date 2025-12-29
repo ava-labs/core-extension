@@ -1,3 +1,4 @@
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   Box,
   Button,
@@ -11,24 +12,31 @@ import {
   Typography,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
-import { FiAlertCircle } from 'react-icons/fi';
 import { Trans, useTranslation } from 'react-i18next';
-import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { FiAlertCircle } from 'react-icons/fi';
 
 import { InTextLink } from '@/components/InTextLink';
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
 
-import { ErrorType } from './LedgerConnector/types';
 import { PendingLedgerCircles } from '../PendingCircles';
+import { ErrorType } from './LedgerConnector/types';
+import { LedgerAppType } from '@core/ui';
+
+const defaultLabels: DerivationPathSelectorProps['labels'] = {
+  [DerivationPath.BIP44]: { text: 'BIP 44 (Default)', disabled: false },
+  [DerivationPath.LedgerLive]: { text: 'Ledger Live', disabled: false },
+};
 
 type DerivationPathSelectorProps = {
   derivationPathSpec: DerivationPath;
   onSelect: (derivationPathSpec: DerivationPath) => void;
+  labels?: Record<DerivationPath, { text: string; disabled: boolean }>;
 };
 export const DerivationPathSelector = ({
   onSelect,
   derivationPathSpec,
+  labels = defaultLabels,
 }: DerivationPathSelectorProps) => (
   <Section width="100%">
     <Select
@@ -42,8 +50,18 @@ export const DerivationPathSelector = ({
       }}
       sx={{ py: 0.75 }}
     >
-      <MenuItem value={DerivationPath.BIP44}>BIP 44 (Default)</MenuItem>
-      <MenuItem value={DerivationPath.LedgerLive}>Ledger Live</MenuItem>
+      <MenuItem
+        value={DerivationPath.BIP44}
+        disabled={labels[DerivationPath.BIP44].disabled}
+      >
+        {labels[DerivationPath.BIP44].text}
+      </MenuItem>
+      <MenuItem
+        value={DerivationPath.LedgerLive}
+        disabled={labels[DerivationPath.LedgerLive].disabled}
+      >
+        {labels[DerivationPath.LedgerLive].text}
+      </MenuItem>
     </Select>
   </Section>
 );
@@ -52,12 +70,16 @@ type LedgerConnectionErrorProps = {
   errorType: ErrorType;
   onTroubleshoot: () => void;
   onRetry: () => void;
+  retryLabel?: string;
+  requiredApp: LedgerAppType;
 };
 
 export const LedgerConnectionError = ({
   errorType,
   onRetry,
   onTroubleshoot,
+  retryLabel,
+  requiredApp,
 }: LedgerConnectionErrorProps) => {
   const { t } = useTranslation();
 
@@ -77,10 +99,13 @@ export const LedgerConnectionError = ({
         )}
         {errorType === 'unsupported-version' && <UnsupportedVersionMessage />}
         {errorType === 'duplicated-wallet' && <DuplicatedWalletMessage />}
+        {errorType === 'incorrect-app' && (
+          <IncorrectAppMessage requiredApp={requiredApp} />
+        )}
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
-          {t('Retry')}
+          {retryLabel ?? t('Retry')}
         </NavButton>
       </Stack>
     </Stack>
@@ -113,6 +138,22 @@ export const LedgerClickToConnectMessage = ({
         </NavButton>
       </Stack>
     </Stack>
+  );
+};
+
+type IncorrectAppMessageProps = {
+  requiredApp: LedgerAppType;
+};
+const IncorrectAppMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t(
+        'Please switch to {{requiredApp}} on your Ledger device to continue.',
+        { requiredApp },
+      )}
+    </Typography>
   );
 };
 

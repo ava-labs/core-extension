@@ -41,11 +41,13 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isBalancesUpdatedEvent } from './isBalancesUpdatedEvent';
 import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
+import { useSettingsContext } from '../SettingsProvider';
 
 export const IPFS_URL = 'https://ipfs.io';
 
 export interface BalancesState {
   loading: boolean;
+  nftsLoading: boolean;
   nfts?: Balances<NftTokenWithBalance>;
   tokens?: Balances;
   atomic?: AtomicBalances;
@@ -103,9 +105,9 @@ const BalancesContext = createContext<{
     tokenId: string,
   ): Promise<void>;
   getTokenPrice(
-    addressOrSymbol: string,
+    address: string,
     lookupNetwork?: NetworkWithCaipId,
-  ): Promise<number | undefined>;
+  ): Promise<number | null>;
   updateBalanceOnNetworks: (
     accounts: Account[],
     chainIds?: number[],
@@ -124,9 +126,9 @@ const BalancesContext = createContext<{
     accountId: string | undefined,
   ) => AccountAtomicBalanceState | undefined;
 }>({
-  balances: { loading: true },
+  balances: { loading: true, nftsLoading: true },
   async getTokenPrice() {
-    return undefined;
+    return null;
   },
   async refreshNftMetadata() {},
   async updateBalanceOnNetworks() {},
@@ -154,14 +156,18 @@ function balancesReducer(
         return { ...state };
       }
 
-      // Only set loading to false when we actually have token data because the cached data might be empty for a new user
+      // Set loading states independently when responses are received (even if empty {})
       const hasTokenData =
         action.payload.balances?.tokens &&
         Object.keys(action.payload.balances.tokens).length > 0;
+      const hasNftsData =
+        action.payload.balances?.nfts &&
+        Object.keys(action.payload.balances.nfts).length > 0;
 
       return {
         ...state,
         loading: hasTokenData ? false : state.loading,
+        nftsLoading: hasNftsData ? false : state.nftsLoading,
         cached: action.payload.isBalancesCached,
         // use deep merge to make sure we keep all accounts in there, even after a partial update
         tokens: merge({}, state.tokens, action.payload.balances?.tokens),
@@ -187,6 +193,7 @@ function balancesReducer(
 export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
+  const { tokensVisibility } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
     getAccount,
@@ -194,6 +201,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
 
   const [balances, dispatch] = useReducer(balancesReducer, {
     loading: true,
+    nftsLoading: true,
     cached: true,
   });
 
@@ -410,11 +418,12 @@ export function BalancesProvider({ children }: PropsWithChildren) {
           accountAtomicBalances[cChainAccount?.id ?? '']?.balanceInCurrency ??
           0;
 
-        const totalBalance = calculateTotalBalance(
-          cChainAccount,
+        const totalBalance = calculateTotalBalance({
+          account: cChainAccount,
           networks,
-          balances.tokens,
-        );
+          balances: balances.tokens,
+          tokenVisibility: tokensVisibility,
+        });
         return {
           ...totalBalance,
           sum: (totalBalance.sum ?? 0) + atomicBalanceInCurrency,
@@ -431,6 +440,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
       network?.isTestnet,
       balances.tokens,
       accountAtomicBalances,
+      tokensVisibility,
     ],
   );
 
@@ -446,31 +456,31 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   );
 
   const getTokenPrice = useCallback(
-    async (addressOrSymbol: string, lookupNetwork?: NetworkWithCaipId) => {
+    async (address: string, lookupNetwork?: NetworkWithCaipId) => {
       if (!activeAccount) {
-        return;
+        return null;
       }
 
       const tokenNetwork = lookupNetwork ?? network;
 
       if (!tokenNetwork) {
-        return;
+        return null;
       }
 
       const addressForChain = getAddressForChain(tokenNetwork, activeAccount);
 
       if (!addressForChain) {
-        return;
+        return null;
       }
 
       const accountBalances =
         balances.tokens?.[tokenNetwork.chainId]?.[addressForChain];
 
       const token =
-        accountBalances?.[addressOrSymbol] ??
+        accountBalances?.[address] ??
         // Also try lower-cased.
         // Native token symbols are not lower-cased by the balance services.
-        accountBalances?.[addressOrSymbol.toLowerCase()];
+        accountBalances?.[address.toLowerCase()];
 
       if (token?.priceInCurrency !== undefined) {
         return token.priceInCurrency;
@@ -482,19 +492,18 @@ export function BalancesProvider({ children }: PropsWithChildren) {
         try {
           const prices = await request<GetTokenPriceByAddressHandler>({
             method: ExtensionRequest.TOKEN_PRICE_GET_BY_ADDRESS,
-            params: [
-              addressOrSymbol,
-              coingeckoInfo.assetPlatformId,
-              coingeckoInfo.nativeTokenId,
-            ],
+            params: {
+              address,
+              caipId: tokenNetwork.caipId,
+            },
           });
-          return prices[addressOrSymbol.toLowerCase()];
+          return prices[address.toLowerCase()] ?? null;
         } catch {
-          return undefined;
+          return null;
         }
       }
 
-      return undefined;
+      return null;
     },
     [balances.tokens, activeAccount, network, request],
   );

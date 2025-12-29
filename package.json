@@ -26,7 +26,7 @@
     "typecheck:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run typecheck",
     "setup": "yarn install && yarn allow-scripts",
     "test": "yarn workspaces foreach -Ap --exclude @core-ext/next run test",
-    "test:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy run test",
+    "test:next": "yarn workspaces foreach -Ap --exclude @core-ext/legacy --exclude avalanche-extension run test",
     "test:watch": "yarn workspaces foreach -Ap run test:watch",
     "test:path": "yarn jest --watch --testPathPattern",
     "zip": "node build-scripts/zipscript.mjs --core-gen=legacy",

@@ -1,13 +1,13 @@
 import { ChainId, NetworkToken } from '@avalabs/core-chains-sdk';
-import { Account, AccountType, Balances } from '@core/types';
+import { Account, AccountType, Balances, NetworkWithCaipId } from '@core/types';
 import { calculateTotalBalance } from './calculateTotalBalance';
 import {
   NetworkTokenWithBalance,
   NetworkVMType,
   TokenType,
   TokenWithBalanceBTC,
+  TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types';
 
 describe('utils/calculateTotalBalance', () => {
   // Helper functions and shared data
@@ -105,14 +105,14 @@ describe('utils/calculateTotalBalance', () => {
   };
 
   it('it should calculate the balance', () => {
-    const balance = calculateTotalBalance(
-      account1,
-      [
+    const balance = calculateTotalBalance({
+      account: account1,
+      networks: [
         { chainId: ChainId.AVALANCHE_MAINNET_ID, vmName: NetworkVMType.EVM },
         { chainId: ChainId.DFK, vmName: NetworkVMType.EVM },
       ] as NetworkWithCaipId[],
       balances,
-    );
+    });
     expect(balance).toEqual({
       priceChange: { percentage: [], value: 0 },
       sum: 6,
@@ -120,7 +120,7 @@ describe('utils/calculateTotalBalance', () => {
   });
 
   it('should return null because of missing arguments', () => {
-    const balance = calculateTotalBalance();
+    const balance = calculateTotalBalance({});
     expect(balance).toEqual({
       priceChange: { percentage: [], value: 0 },
       sum: null,
@@ -158,7 +158,11 @@ describe('utils/calculateTotalBalance', () => {
       createBaseNetwork(ChainId.BITCOIN, NetworkVMType.BITCOIN),
     ];
 
-    const balance = calculateTotalBalance(account, networks, btcBalances);
+    const balance = calculateTotalBalance({
+      account,
+      networks,
+      balances: btcBalances,
+    });
 
     expect(balance.sum).toBe(15);
   });
@@ -194,7 +198,11 @@ describe('utils/calculateTotalBalance', () => {
       createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
     ];
 
-    const balance = calculateTotalBalance(account, networks, evmBalances);
+    const balance = calculateTotalBalance({
+      account,
+      networks,
+      balances: evmBalances,
+    });
 
     // Should use regular balanceInCurrency for non-AVAX tokens
     expect(balance.sum).toBe(150);
@@ -224,7 +232,11 @@ describe('utils/calculateTotalBalance', () => {
         createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
       ];
 
-      const result = calculateTotalBalance(account, networks, testBalances);
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+      });
 
       expect(result.sum).toBe(100);
       expect(result.priceChange.value).toBe(10);
@@ -254,7 +266,11 @@ describe('utils/calculateTotalBalance', () => {
         createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
       ];
 
-      const result = calculateTotalBalance(account, networks, testBalances);
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+      });
 
       expect(result.sum).toBe(100);
       expect(result.priceChange.value).toBe(-15);
@@ -296,7 +312,11 @@ describe('utils/calculateTotalBalance', () => {
         createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
       ];
 
-      const result = calculateTotalBalance(account, networks, testBalances);
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+      });
 
       expect(result.sum).toBe(150); // 100 + 50
       expect(result.priceChange.value).toBe(15); // 20 + (-5) = 15
@@ -343,7 +363,11 @@ describe('utils/calculateTotalBalance', () => {
         createBaseNetwork(ChainId.DFK, NetworkVMType.EVM),
       ];
 
-      const result = calculateTotalBalance(account, networks, testBalances);
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+      });
 
       expect(result.sum).toBe(175); // 100 + 75
       expect(result.priceChange.value).toBe(15); // 25 + (-10) = 15
@@ -382,7 +406,11 @@ describe('utils/calculateTotalBalance', () => {
         createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
       ];
 
-      const result = calculateTotalBalance(account, networks, testBalances);
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+      });
 
       expect(result.sum).toBe(150); // 100 + 50
       expect(result.priceChange.value).toBe(20); // Only AVAX contributes
@@ -413,10 +441,73 @@ describe('utils/calculateTotalBalance', () => {
         createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
       ];
 
-      const result = calculateTotalBalance(account, networks, testBalances);
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+      });
 
       // Should be 10, not 20 (which would indicate double-counting)
       expect(result.priceChange.value).toBe(10);
+    });
+
+    it('Should leave out not visible tokens', () => {
+      const cChainToken: NetworkTokenWithBalance = {
+        ...createBaseToken(),
+        symbol: 'AVAX',
+        balanceInCurrency: 100,
+        priceChanges: {
+          percentage: 10,
+          value: 25, // +$25
+        },
+      };
+
+      const dfkToken: TokenWithBalanceERC20 = {
+        ...createBaseToken(),
+        type: TokenType.ERC20,
+        symbol: 'JEWEL',
+        balanceInCurrency: 75,
+        address: '0x1',
+        reputation: null,
+        priceChanges: {
+          percentage: -5,
+          value: -10, // -$10
+        },
+      };
+
+      const account = createBaseAccount();
+      const testBalances: Balances = {
+        [ChainId.AVALANCHE_MAINNET_ID.toString()]: {
+          [account.addressC]: {
+            AVAX: cChainToken,
+          },
+        },
+        [ChainId.DFK.toString()]: {
+          [account.addressC]: {
+            JEWEL: dfkToken,
+          },
+        },
+      };
+
+      const networks = [
+        createBaseNetwork(ChainId.AVALANCHE_MAINNET_ID, NetworkVMType.EVM),
+        createBaseNetwork(ChainId.DFK, NetworkVMType.EVM),
+      ];
+
+      const result = calculateTotalBalance({
+        account,
+        networks,
+        balances: testBalances,
+        tokenVisibility: {
+          'eip155:43114': {
+            [dfkToken.symbol]: false,
+          },
+        },
+      });
+
+      expect(result.sum).toBe(100);
+      expect(result.priceChange.value).toBe(25);
+      expect(result.priceChange.percentage).toEqual([10]);
     });
   });
 });

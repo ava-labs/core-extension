@@ -56,7 +56,7 @@ export const SwapPair = () => {
 
   return (
     <Card>
-      <Stack gap={1}>
+      <Stack gap={0.5}>
         <TokenAmountInput
           id="swap-from-amount"
           tokenId={fromTokenId}

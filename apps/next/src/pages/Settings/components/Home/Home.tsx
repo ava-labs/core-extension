@@ -58,7 +58,7 @@ export const SettingsHomePage = () => {
   const { t } = useTranslation();
   const { lockWallet } = useSettingsContext();
   const { isDeveloperMode, setDeveloperMode } = useNetworkContext();
-  const { walletDetails } = useWalletContext();
+  const { walletDetails, isLedgerWallet } = useWalletContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
   const { push } = useHistory();
@@ -169,17 +169,19 @@ export const SettingsHomePage = () => {
           onClick={() => capture('CurrencySettingClicked')}
           secondaryAction={<CurrencySelector sx={navItemActionCommonSx} />}
         />
-        <SettingsNavItem
-          divider
-          label={t('Language')}
-          secondaryAction={
-            <LanguageSelector
-              dataTestId="settings-language-selector"
-              onSelectEventName="AppLanguageChanged"
-              sx={navItemActionCommonSx}
-            />
-          }
-        />
+        {featureFlags[FeatureGates.LANGUAGES] && (
+          <SettingsNavItem
+            divider
+            label={t('Language')}
+            secondaryAction={
+              <LanguageSelector
+                dataTestId="settings-language-selector"
+                onSelectEventName="AppLanguageChanged"
+                sx={navItemActionCommonSx}
+              />
+            }
+          />
+        )}
         <SettingsNavItem
           label={t('Theme')}
           divider
@@ -205,6 +207,13 @@ export const SettingsHomePage = () => {
           divider
           onClick={() => capture('ManageNetworksClicked')}
         />
+        {isLedgerWallet && (
+          <SettingsNavItem
+            label={t('Ledger')}
+            href={`${path}/ledger-device-status`}
+            divider
+          />
+        )}
         <SettingsNavItem
           label={t('Show me Trending Tokens')}
           description={t(

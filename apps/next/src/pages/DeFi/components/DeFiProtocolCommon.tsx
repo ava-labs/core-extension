@@ -6,8 +6,6 @@ import { DeFiProtocolCommonSection } from './DeFiProtocolCommonSection';
 
 import { useTranslation } from 'react-i18next';
 
-import { sumByProperty } from '@core/common';
-
 type DeFiProtocolCommonProps = {
   items: DefiCommonItem[];
 };
@@ -24,8 +22,6 @@ export const DeFiProtocolCommon: FC<DeFiProtocolCommonProps> = ({ items }) => {
         ) => {
           const key = `defi-common-${index}`;
           const hasRewards = rewardTokens.length > 0;
-          const suppliedValue = sumByProperty(supplyTokens, 'usdValue');
-          const rewardedValue = sumByProperty(rewardTokens, 'usdValue');
 
           return (
             <Stack key={key} direction="column" gap={1}>
@@ -33,7 +29,6 @@ export const DeFiProtocolCommon: FC<DeFiProtocolCommonProps> = ({ items }) => {
                 <DeFiProtocolCommonSection
                   title={t('Supplied')}
                   tokens={supplyTokens}
-                  value={suppliedValue}
                 />
                 {hasRewards && <Divider variant="fullWidth" />}
               </>
@@ -42,7 +37,6 @@ export const DeFiProtocolCommon: FC<DeFiProtocolCommonProps> = ({ items }) => {
                 <DeFiProtocolCommonSection
                   title={t('Rewards')}
                   tokens={rewardTokens}
-                  value={rewardedValue}
                 />
               )}
             </Stack>

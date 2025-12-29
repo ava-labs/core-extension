@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
 import {
   DerivationPath,
   getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   LedgerAppType,
   REQUIRED_LEDGER_VERSION,
   useLedgerContext,
   useDuplicatedWalletChecker,
+  useActiveLedgerAppInfo,
 } from '@core/ui';
 import { LedgerError, SecretType } from '@core/types';
 import {
@@ -21,6 +22,7 @@ import {
 import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 
+import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 import {
   DerivationStatus,
   DerivedKeys,
@@ -31,7 +33,6 @@ import {
   WalletExistsError,
 } from '../../types';
 import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
-import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 
 export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   derivationPathSpec,
@@ -42,14 +43,13 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   }
 
   const {
-    appType,
-    appVersion,
     popDeviceSelection,
     hasLedgerTransport,
     wasTransportAttempted,
     initLedgerTransport,
     getExtendedPublicKey,
   } = useLedgerContext();
+  const { appType, appVersion } = useActiveLedgerAppInfo();
   const checkIfWalletExists = useDuplicatedWalletChecker();
   const checkAddressActivity = useCheckAddressActivity();
 
@@ -328,8 +328,9 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setStatus('error');
           setError('unsupported-version');
         }
-      } else {
-        setStatus('waiting');
+      } else if (status !== 'error') {
+        setStatus('error');
+        setError('incorrect-app');
       }
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();

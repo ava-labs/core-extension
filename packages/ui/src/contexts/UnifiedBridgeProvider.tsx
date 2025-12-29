@@ -242,6 +242,8 @@ export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
             {
               context: {
                 customApprovalScreenTitle: t('Confirm Bridge'),
+                // Mark as bridge to skip toast/confetti (bridge has its own status tracking)
+                isBridge: true,
                 alert:
                   requiredSignatures > currentSignature
                     ? {
@@ -293,6 +295,8 @@ export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
             {
               context: {
                 customApprovalScreenTitle: t('Confirm Bridge'),
+                // Mark as bridge to skip toast/confetti (bridge has its own status tracking)
+                isBridge: true,
                 alert:
                   requiredSignatures > currentSignature
                     ? {

@@ -15,24 +15,23 @@ import {
   AVALANCHE_BASE_DERIVATION_PATH,
   SecretType,
   AddressPublicKeyJson,
+  FeatureGates,
 } from '@core/types';
 import { buildRpcCall } from '@shared/tests/test-utils';
 import type { SecretsService } from '~/services/secrets/SecretsService';
 import type { NetworkService } from '~/services/network/NetworkService';
-import type { GlacierService } from '~/services/glacier/GlacierService';
 import type { AccountsService } from '~/services/accounts/AccountsService';
 import { buildExtendedPublicKey } from '~/services/secrets/utils';
 
 import type { BalanceAggregatorService } from '../../BalanceAggregatorService';
 
-import { getAccountsWithActivity } from './helpers';
 import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
 import { GetTotalBalanceForWalletHandler } from './getTotalBalanceForWallet';
-import { hex } from '@scure/base';
 import { calculateTotalAtomicFundsForAccounts } from '@core/common';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
+import { SettingsService } from '~/services/settings/SettingsService';
 
-jest.mock('./helpers/getAccountsWithActivity');
 jest.mock('@core/common', () => {
   const actual = jest.requireActual('@core/common');
   return {
@@ -44,10 +43,6 @@ jest.mock('@core/common', () => {
 describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts', () => {
   const secretsService: jest.Mocked<SecretsService> = {
     getWalletAccountsSecretsById: jest.fn(),
-  } as any;
-
-  const glacierService: jest.Mocked<GlacierService> = {
-    getChainIdsForAddresses: jest.fn(),
   } as any;
 
   const networkService: jest.Mocked<NetworkService> = {
@@ -66,8 +61,11 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
 
   const balanceAggregatorService: jest.Mocked<BalanceAggregatorService> = {
     getBalancesForNetworks: jest.fn(),
-    getPriceChangesData: jest.fn(),
     atomicBalances: {},
+  } as any;
+
+  const settingsService: jest.Mocked<SettingsService> = {
+    getTokensVisibility: jest.fn().mockResolvedValue({}),
   } as any;
 
   const FAVORITE_NETWORKS = [
@@ -126,13 +124,22 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     },
   } as any;
 
-  const buildHandler = () =>
+  const buildHandler = (withBalanceServiceIntegration = false) =>
     new GetTotalBalanceForWalletHandler(
       secretsService,
-      glacierService,
       networkService,
       accountsService,
       balanceAggregatorService,
+      (withBalanceServiceIntegration
+        ? {
+            featureFlags: {
+              [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+            },
+          }
+        : {
+            featureFlags: { [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false },
+          }) as FeatureFlagService,
+      settingsService,
     );
 
   const handleRequest = (walletId: string) =>
@@ -168,10 +175,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         ? [buildExtendedPublicKey(xpubXP, AVALANCHE_BASE_DERIVATION_PATH)]
         : [],
     } as any);
-  };
-
-  const mockAccountsWithActivity = (addresses: string[]) => {
-    jest.mocked(getAccountsWithActivity).mockResolvedValue(addresses);
   };
 
   const buildAccount = <T = PrimaryAccount>({ id, ...opts }) =>
@@ -255,7 +258,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       X: Balances[keyof Balances];
     },
   ) => {
-    balanceAggregatorService.getPriceChangesData.mockResolvedValue({});
     balanceAggregatorService.getBalancesForNetworks.mockResolvedValue({
       nfts: {},
       atomic: {},
@@ -336,12 +338,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockBalances(true);
     });
 
-    it('does not look for underived addresses', async () => {
-      const response = await handleRequest(IMPORTED_ACCOUNTS_WALLET_ID);
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).not.toHaveBeenCalled();
-    });
-
     it('only fetches balances for the imported accounts', async () => {
       const response = await handleRequest(IMPORTED_ACCOUNTS_WALLET_ID);
       expect(response.error).toBeUndefined();
@@ -401,12 +397,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       mockSecrets(undefined); // No xpubXP
     });
 
-    it('does not look for underived addresses', async () => {
-      const response = await handleRequest('seedless');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).not.toHaveBeenCalled();
-    });
-
     it('only fetches balances for already derived accounts', async () => {
       const response = await handleRequest('seedless');
       expect(response.error).toBeUndefined();
@@ -452,8 +442,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     });
 
     it('fetches C-, X- and P-Chain balances along with favorite networks for already derived accounts within the wallet', async () => {
-      mockAccountsWithActivity([]); // No underived addresses with activity
-
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
       // Now expects 2 calls: all networks per derived account
@@ -503,7 +491,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
     it('works with testnets', async () => {
       mockEnv(false);
       mockBalances(false);
-      mockAccountsWithActivity([]); // No underived addresses with activity
 
       const response = await handleRequest('seedphrase');
       expect(response.error).toBeUndefined();
@@ -548,63 +535,6 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
         totalBalanceInCurrency: 17510,
         balanceChange: undefined,
         percentageChange: undefined,
-      });
-    });
-  });
-
-  describe('when requested wallet has additional XP public keys for some accounts', () => {
-    const keys = ['00000001', '00000002'];
-    const additionalXPKeys: AddressPublicKeyJson[] = keys.map((key, index) => ({
-      type: 'address-pubkey',
-      key,
-      derivationPath: `m/44'/9000'/0'/0/${index + 1}`,
-      curve: 'secp256k1',
-    }));
-
-    beforeEach(() => {
-      mockEnv(true);
-      mockAccounts();
-      mockBalances(true);
-      mockSecrets(undefined, additionalXPKeys); // We've got additional XP public keys
-
-      PROVIDER_XP.getAddress.mockImplementation(
-        (key) => `X-${hex.encode(Uint8Array.from(key))}`,
-      );
-    });
-
-    it('fetches balances for the additional XP public keys', async () => {
-      const unresolvedAddresses = [
-        'avaxUnresolvedAddress-1',
-        'avaxUnresolvedAddress-2',
-      ];
-      mockAccountsWithActivity(unresolvedAddresses);
-
-      const response = await handleRequest('seedphrase');
-      expect(response.error).toBeUndefined();
-      expect(getAccountsWithActivity).not.toHaveBeenCalled();
-
-      additionalXPKeys.forEach((key, index) => {
-        expect(PROVIDER_XP.getAddress).toHaveBeenNthCalledWith(
-          index + 1,
-          Buffer.from(hex.decode(key.key)),
-          'X',
-        );
-      });
-
-      // Expect calls for X/P balances of the addresses derived from the additional X/P keys
-      expect(
-        balanceAggregatorService.getBalancesForNetworks,
-      ).toHaveBeenCalledWith({
-        chainIds: expect.arrayContaining([
-          ChainId.AVALANCHE_X,
-          ChainId.AVALANCHE_P,
-        ]),
-        accounts: keys.map((key) => ({
-          addressPVM: `P-${key}`,
-          addressAVM: `X-${key}`,
-        })),
-        tokenTypes: [TokenType.NATIVE],
-        cacheResponse: false,
       });
     });
   });
@@ -845,6 +775,59 @@ describe('background/services/balances/handlers/getTotalBalanceForWallet.test.ts
       expect(response.result?.totalBalanceInCurrency).toBe(200);
       expect(response.result?.balanceChange).toBe(10);
       expect(response.result?.percentageChange).toBeCloseTo(5.26, 2);
+    });
+  });
+
+  describe('with balance service integration', () => {
+    beforeEach(() => {
+      mockEnv(true);
+      const accounts = {
+        imported: {},
+        primary: {
+          testing: [
+            ACCOUNT_SEED_0,
+            ACCOUNT_SEED_1,
+            ACCOUNT_LEDGER_0,
+            ACCOUNT_LEDGER_1,
+            ACCOUNT_SEEDLESS,
+          ],
+        },
+      };
+      mockAccounts(accounts);
+      mockBalances(true);
+      mockSecrets('xpubXP'); // We've got xpubXP
+    });
+
+    it('Should call getBalancesForNetworks once and with all the accounts', async () => {
+      await buildHandler(true).handle(
+        buildRpcCall({
+          id: '123',
+          method: ExtensionRequest.BALANCES_GET_TOTAL_FOR_WALLET,
+          params: {
+            walletId: 'testing',
+          },
+        }),
+      );
+
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        balanceAggregatorService.getBalancesForNetworks,
+      ).toHaveBeenNthCalledWith(1, {
+        chainIds: [
+          43114, 4503599627370471, 4503599627370469, 4503599627370475, 1,
+        ],
+        accounts: [
+          ACCOUNT_SEED_0,
+          ACCOUNT_SEED_1,
+          ACCOUNT_LEDGER_0,
+          ACCOUNT_LEDGER_1,
+          ACCOUNT_SEEDLESS,
+        ],
+        tokenTypes: ['NATIVE', 'ERC20'],
+        requestId: 'testing',
+      });
     });
   });
 });

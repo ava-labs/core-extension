@@ -102,6 +102,6 @@ export const getBridgePath = (query?: Partial<BridgeQueryTokens>) => {
 /**
  * Wallet View
  **/
-export const WALLET_VIEW_QUERY_TOKENS = {
+export const ACCOUNT_MANAGEMENT_QUERY_TOKENS = {
   showImportSuccess: 'showImportSuccess',
 } as const;

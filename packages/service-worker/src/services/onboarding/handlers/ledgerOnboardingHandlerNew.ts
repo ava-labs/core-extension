@@ -17,7 +17,6 @@ import { WalletService } from '../../wallet/WalletService';
 import { finalizeOnboarding } from '../finalizeOnboarding';
 import { OnboardingService } from '../OnboardingService';
 import { startOnboarding } from '../startOnboarding';
-import { getEvmBasePath } from '@core/common';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.LEDGER_ONBOARDING_SUBMIT_NEW,
@@ -28,6 +27,7 @@ type HandlerType = ExtensionRequestHandler<
       extendedPublicKeys: ExtendedPublicKey[];
       password: string;
       analyticsConsent: boolean;
+      derivationPathSpec: DerivationPath;
       walletName?: string;
     },
   ]
@@ -56,6 +56,7 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
         password,
         analyticsConsent,
         walletName,
+        derivationPathSpec,
       },
     ] = request.params;
 
@@ -67,11 +68,7 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
       analyticsConsent,
     });
 
-    const evmXPubs = extendedPublicKeys.filter(({ derivationPath }) =>
-      derivationPath.startsWith(getEvmBasePath()),
-    );
-
-    const isLedgerLive = evmXPubs.length > 1;
+    const isLedgerLive = derivationPathSpec === DerivationPath.LedgerLive;
 
     let walletId = '';
     if (isLedgerLive) {
@@ -79,7 +76,7 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
         secretType: SecretType.LedgerLive,
         extendedPublicKeys,
         publicKeys: addressPublicKeys,
-        derivationPathSpec: DerivationPath.LedgerLive,
+        derivationPathSpec,
         name: walletName,
       });
     } else {
@@ -87,7 +84,7 @@ export class LedgerOnboardingHandlerNew implements HandlerType {
         secretType: SecretType.Ledger,
         extendedPublicKeys,
         publicKeys: addressPublicKeys,
-        derivationPathSpec: DerivationPath.BIP44,
+        derivationPathSpec,
         name: walletName,
       });
     }

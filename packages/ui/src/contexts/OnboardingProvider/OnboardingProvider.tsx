@@ -20,6 +20,7 @@ import {
   SeedlessAuthProvider,
 } from '@core/types';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import {
   createContext,
   Dispatch,
@@ -52,6 +53,8 @@ const OnboardingContext = createContext<{
   analyticsConsent: boolean | undefined;
   password: string;
   setPassword: Dispatch<SetStateAction<string>>;
+  derivationPathSpec: DerivationPath;
+  setDerivationPathSpec: Dispatch<SetStateAction<DerivationPath>>;
   walletName: string;
   setWalletName: Dispatch<SetStateAction<string>>;
   setPasswordAndNames: (password: string, walletName: string) => void;
@@ -119,6 +122,10 @@ export function OnboardingContextProvider({
     undefined,
   );
 
+  const [derivationPathSpec, setDerivationPathSpec] = useState<DerivationPath>(
+    DerivationPath.BIP44,
+  );
+
   const [submitInProgress, setSubmitInProgress] = useState(false);
 
   const [publicKeys, setPublicKeys] = useState<PubKeyType[]>();
@@ -179,6 +186,7 @@ export function OnboardingContextProvider({
     setNumberOfAccountsToCreate(0);
     setAddressPublicKeys([]);
     setExtendedPublicKeys([]);
+    setDerivationPathSpec(DerivationPath.BIP44);
   }, []);
 
   useEffect(() => {
@@ -299,6 +307,7 @@ export function OnboardingContextProvider({
           password,
           analyticsConsent: !!analyticsConsent,
           walletName: walletName,
+          derivationPathSpec,
         },
       ],
     });
@@ -309,6 +318,7 @@ export function OnboardingContextProvider({
     password,
     request,
     walletName,
+    derivationPathSpec,
   ]);
 
   /**
@@ -508,6 +518,8 @@ export function OnboardingContextProvider({
         walletName,
         setWalletName,
         setPasswordAndNames,
+        derivationPathSpec,
+        setDerivationPathSpec,
         submit,
         setAnalyticsConsent,
         analyticsConsent,

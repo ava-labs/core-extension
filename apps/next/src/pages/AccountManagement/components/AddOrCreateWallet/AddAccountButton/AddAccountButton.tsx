@@ -3,10 +3,11 @@ import { Button, Stack, toast } from '@avalabs/k2-alpine';
 import {
   LedgerAppType,
   useAccountsContext,
+  useActiveLedgerAppInfo,
   useAnalyticsContext,
+  useIsCorrectDeviceForActiveWallet,
   useLedgerContext,
   useWalletContext,
-  useWalletTotalBalanceContext,
 } from '@core/ui';
 import { FC, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,13 +17,16 @@ export const AddAccountButton: FC = () => {
   const { t } = useTranslation();
   const { capture } = useAnalyticsContext();
   const { addAccount, selectAccount } = useAccountsContext();
-  const { fetchBalanceForWallet } = useWalletTotalBalanceContext();
   const { walletDetails, isLedgerWallet } = useWalletContext();
-  const { hasLedgerTransport, appType } = useLedgerContext();
+  const { hasLedgerTransport } = useLedgerContext();
+  const { appType } = useActiveLedgerAppInfo();
+  const status = useIsCorrectDeviceForActiveWallet();
 
   const canAddNewAccount =
     !isLedgerWallet ||
-    (hasLedgerTransport && appType === LedgerAppType.AVALANCHE);
+    (hasLedgerTransport &&
+      appType === LedgerAppType.AVALANCHE &&
+      status === 'correct');
 
   const TooltipWrapper = canAddNewAccount ? Fragment : LedgerTooltip;
 
@@ -38,9 +42,6 @@ export const AddAccountButton: FC = () => {
             addAccount()
               .then(selectAccount)
               .then(() => {
-                if (walletDetails?.id) {
-                  fetchBalanceForWallet(walletDetails.id);
-                }
                 toast.success(t('Account created successfully'));
                 capture('CreatedANewAccountSuccessfully', {
                   walletType: walletDetails?.type,

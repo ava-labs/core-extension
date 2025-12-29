@@ -12,14 +12,13 @@ import {
   stripAddressPrefix,
   getMaxUtxoSet,
 } from '@core/common';
-import { DAppProviderRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
 import { useFeatureFlagContext } from '@core/ui';
-import { AvalancheSendTransactionHandler } from '@core/service-worker';
 
 import { SendAdapterAVM } from './models';
 import { AVMSendOptions } from '../../models';
 import { correctAddressByPrefix } from '../../utils/correctAddressByPrefix';
+import { RpcMethod } from '@avalabs/vm-module-types';
 
 const XCHAIN_ALIAS = 'X' as const;
 
@@ -158,8 +157,8 @@ export const useAvmSend: SendAdapterAVM = ({
           ),
         };
 
-        return await request<AvalancheSendTransactionHandler>({
-          method: DAppProviderRequest.AVALANCHE_SEND_TRANSACTION,
+        return await request({
+          method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
           params,
         });
       } finally {

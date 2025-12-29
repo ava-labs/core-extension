@@ -1,4 +1,4 @@
-import { merge, uniqBy } from 'lodash';
+import { merge, uniqBy, chunk } from 'lodash';
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { Account, AccountType, AtomicBalances, Balances } from '@core/types';
 import {
@@ -146,6 +146,22 @@ interface GetAccountAddressFromCaip2IdOrNamesSpaceProps {
   caip2Id: string;
   nameSpace?: string;
 }
+
+const splitRequestItemsBasedOnReferencesLength = (
+  items: GetBalanceRequestItem[],
+): GetBalanceRequestItem[] => {
+  return items.flatMap(({ references, namespace, ...rest }) => {
+    return chunk(references, 20).flatMap(
+      (referencesChunk) =>
+        ({
+          references: referencesChunk,
+          namespace,
+          ...rest,
+        }) as GetBalanceRequestItem,
+    );
+  });
+};
+
 const getAccountAddressFromCaip2IdOrNamesSpace = ({
   account,
   caip2Id,
@@ -436,20 +452,24 @@ export const createGetBalancePayload = async ({
     },
     {},
   );
+
+  const payload = [
+    avalancheXpGetBalancesRequestItem.references.length > 0
+      ? avalancheXpGetBalancesRequestItem
+      : null,
+    ...[
+      ...Object.entries(coreEthGetBalancePayload),
+      ...Object.entries(partialGetBalancePayload),
+    ].map(([nameSpace, { namespace, ...rest }]) => ({
+      namespace: nameSpace,
+      ...rest,
+    })),
+  ].filter(Boolean) as GetBalanceRequestItem[];
+
   return {
-    data: [
-      avalancheXpGetBalancesRequestItem.references.length > 0
-        ? avalancheXpGetBalancesRequestItem
-        : null,
-      ...[
-        ...Object.entries(coreEthGetBalancePayload),
-        ...Object.entries(partialGetBalancePayload),
-      ].map(([nameSpace, { namespace, ...rest }]) => ({
-        namespace: nameSpace,
-        ...rest,
-      })),
-    ].filter(Boolean),
+    data: splitRequestItemsBasedOnReferencesLength(payload),
     currency,
+    showUntrustedTokens: true,
   } as GetBalancesRequestBody;
 };
 
@@ -484,10 +504,17 @@ export const convertBalanceResponsesToCacheBalanceObject = (
                 balanceResponse.balances.nativeTokenBalance,
               ),
             ...balanceResponse.balances.erc20TokenBalances.reduce(
-              (acc, tokenBalance) => ({
-                ...acc,
-                [tokenBalance.address]: tokenBalanceMapper(tokenBalance),
-              }),
+              (acc, tokenBalance) => {
+                const mappedTokenBalance = tokenBalanceMapper(tokenBalance);
+
+                if (!mappedTokenBalance) {
+                  return acc;
+                }
+                return {
+                  ...acc,
+                  [tokenBalance.address]: mappedTokenBalance,
+                };
+              },
               {},
             ),
           },
@@ -556,9 +583,14 @@ export const convertBalanceResponsesToCacheBalanceObject = (
               ),
             ...balanceResponse.balances.splTokenBalances.reduce(
               (acc, tokenBalance) => {
+                const mappedTokenBalance = mapSplTokenBalance(tokenBalance);
+
+                if (!mappedTokenBalance) {
+                  return acc;
+                }
                 return {
                   ...acc,
-                  [tokenBalance.address]: mapSplTokenBalance(tokenBalance),
+                  [tokenBalance.address]: mappedTokenBalance,
                 };
               },
               {},

@@ -8,6 +8,7 @@ import {
   useRef,
 } from 'react';
 import { isString } from 'lodash';
+import { filter, map } from 'rxjs';
 
 import {
   IMPORTED_ACCOUNTS_WALLET_ID,
@@ -20,6 +21,7 @@ import { useAccountsContext } from './AccountsProvider';
 import { useWalletContext } from './WalletProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { checkAndCleanupPossibleErrorForRequestInSessionStorage } from '@core/common';
+import { networksUpdatedEventListener } from './NetworkProvider/networksUpdatedEventListener';
 
 interface WalletTotalBalanceContextProps {
   children?: React.ReactNode;
@@ -33,7 +35,10 @@ export type WalletTotalBalanceState = Partial<TotalBalanceForWallet> & {
 
 const WalletTotalBalanceContext = createContext<
   | {
-      fetchBalanceForWallet(walletId: string): Promise<void>;
+      fetchBalanceForWallet(
+        walletId: string,
+        shouldFetchSilently?: boolean,
+      ): Promise<void>;
       walletBalances: Record<string, WalletTotalBalanceState>;
       fetchWalletBalancesSequentially: () => Promise<void>;
     }
@@ -47,7 +52,7 @@ export const WalletTotalBalanceProvider = ({
     accounts: { imported },
   } = useAccountsContext();
   const { wallets } = useWalletContext();
-  const { request } = useConnectionContext();
+  const { request, events } = useConnectionContext();
   const isMounted = useRef<boolean>(false);
   const isSyncingBalances = useRef<boolean>(false);
 
@@ -61,14 +66,14 @@ export const WalletTotalBalanceProvider = ({
   >({});
 
   const fetchBalanceForWallet = useCallback(
-    async (walletId: string) => {
+    async (walletId: string, shouldFetchSilently: boolean = false) => {
       setWalletBalances((prevState) => ({
         ...prevState,
         [walletId]: {
           ...prevState[walletId],
           hasErrorOccurred: false,
           hasBalanceServiceErrorOccurred: false,
-          isLoading: true,
+          isLoading: !shouldFetchSilently,
         },
       }));
 
@@ -88,7 +93,9 @@ export const WalletTotalBalanceProvider = ({
             [walletId]: {
               ...walletBalanceInfo,
               hasErrorOccurred: false,
-              hasBalanceServiceErrorOccurred,
+              hasBalanceServiceErrorOccurred: shouldFetchSilently
+                ? false
+                : hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
@@ -103,8 +110,10 @@ export const WalletTotalBalanceProvider = ({
             ...prevState,
             [walletId]: {
               ...prevState[walletId],
-              hasErrorOccurred: true,
-              hasBalanceServiceErrorOccurred,
+              hasErrorOccurred: shouldFetchSilently ? false : true,
+              hasBalanceServiceErrorOccurred: shouldFetchSilently
+                ? false
+                : hasBalanceServiceErrorOccurred,
               isLoading: false,
             },
           }));
@@ -144,6 +153,27 @@ export const WalletTotalBalanceProvider = ({
       isMounted.current = false;
     };
   }, [wallets, fetchWalletBalancesSequentially]);
+
+  // Refetch wallet balances when enabled networks change
+  useEffect(() => {
+    if (!events) return;
+
+    const subscription = events()
+      .pipe(
+        filter(networksUpdatedEventListener),
+        map((evt) => evt.value),
+      )
+      .subscribe(async () => {
+        // Refetch balances when enabled networks change
+        if (isMounted.current && !isSyncingBalances.current) {
+          fetchWalletBalancesSequentially();
+        }
+      });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [events, fetchWalletBalancesSequentially]);
 
   return (
     <WalletTotalBalanceContext.Provider

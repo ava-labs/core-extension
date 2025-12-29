@@ -1,21 +1,22 @@
-import { memoize } from 'lodash';
 import { toast } from '@avalabs/k2-alpine';
-import { useTranslation } from 'react-i18next';
+import { memoize } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Route, Switch, useHistory, useParams } from 'react-router-dom';
 
+import {
+  AddressPublicKeyJson,
+  ExtendedPublicKey,
+  FeatureGates,
+  SecretType,
+} from '@core/types';
 import {
   useAnalyticsContext,
   useFeatureFlagContext,
   useImportLedger,
 } from '@core/ui';
-import {
-  AddressPublicKeyJson,
-  ExtendedPublicKey,
-  FeatureGates,
-} from '@core/types';
 
-import { useModalPageControl } from '@/components/FullscreenModal';
 import {
   ConnectAvalanche,
   ConnectSolana,
@@ -23,11 +24,12 @@ import {
   Troubleshooting,
   WalletExistsError,
 } from '@/components/ConnectLedger';
+import { useModalPageControl } from '@/components/FullscreenModal';
 import { useOpenApp } from '@/hooks/useOpenApp';
 
-import { NameYourWalletScreen } from '../../common-screens';
+import { ACCOUNT_MANAGEMENT_QUERY_TOKENS } from '@/config/routes';
 import { isAvalancheExtendedKey } from '@core/common';
-import { WALLET_VIEW_QUERY_TOKENS } from '@/config/routes';
+import { NameYourWalletScreen } from '../../common-screens';
 
 type ImportPhase = 'connect-avax' | 'prompt-solana' | 'connect-solana' | 'name';
 
@@ -78,6 +80,9 @@ export const ImportLedgerFlowContent = () => {
 
   const [publicKeys, setPublicKeys] = useState<AddressPublicKeyJson[]>([]);
   const [extPublicKeys, setExtPublicKeys] = useState<ExtendedPublicKey[]>([]);
+  const [ledgerSecretType, setLedgerSecretType] = useState<
+    SecretType.Ledger | SecretType.LedgerLive
+  >(SecretType.Ledger);
   const isSolanaSupported = isFlagEnabled(FeatureGates.SOLANA_SUPPORT);
   const stepsMap = getPhaseToStepMap(isSolanaSupported);
   const totalSteps = Object.keys(stepsMap).length;
@@ -90,18 +95,17 @@ export const ImportLedgerFlowContent = () => {
       setTotal(totalSteps);
 
       setIsBackButtonVisible(true);
-      if (step > 1) {
-        return registerBackButtonHandler(() => history.goBack());
-      } else {
-        return registerBackButtonHandler(() =>
-          openApp({
-            closeWindow: true,
-            navigateTo: {
-              pathname: `/wallets/import`,
-            },
-          }),
-        );
-      }
+      return registerBackButtonHandler(
+        step > 1
+          ? history.goBack
+          : () =>
+              openApp({
+                closeWindow: true,
+                navigateTo: {
+                  pathname: '/wallets/import',
+                },
+              }),
+      );
     } else {
       // If we're on troubleshooting screens, hide the page indicator
       setTotal(0);
@@ -147,16 +151,17 @@ export const ImportLedgerFlowContent = () => {
   const onSave = useCallback(
     async (name: string) => {
       try {
-        const imported = await importLedger({
+        await importLedger({
           name,
           addressPublicKeys: publicKeys,
           extendedPublicKeys: extPublicKeys,
+          secretType: ledgerSecretType,
         });
         await openApp({
           closeWindow: true,
           navigateTo: {
-            pathname: `/wallet/${imported.id}`,
-            search: `${WALLET_VIEW_QUERY_TOKENS.showImportSuccess}=true`,
+            pathname: '/account-management',
+            search: `${ACCOUNT_MANAGEMENT_QUERY_TOKENS.showImportSuccess}=true`,
           },
         });
       } catch (err) {
@@ -164,7 +169,7 @@ export const ImportLedgerFlowContent = () => {
         console.error(err);
       }
     },
-    [extPublicKeys, importLedger, publicKeys, openApp, t],
+    [importLedger, publicKeys, extPublicKeys, ledgerSecretType, openApp, t],
   );
 
   return (
@@ -172,7 +177,15 @@ export const ImportLedgerFlowContent = () => {
       <Route exact path={CONNECT_AVAX_PATHS}>
         <ConnectAvalanche
           connectorCallbacks={avalancheConnectorCallbacks}
-          onNext={({ addressPublicKeys, extendedPublicKeys }) => {
+          onNext={(
+            { addressPublicKeys, extendedPublicKeys },
+            derivationPathSpec,
+          ) => {
+            setLedgerSecretType(
+              derivationPathSpec === DerivationPath.BIP44
+                ? SecretType.Ledger
+                : SecretType.LedgerLive,
+            );
             setPublicKeys(addressPublicKeys.map(({ key }) => key));
             setExtPublicKeys(extendedPublicKeys ?? []);
             if (isSolanaSupported) {

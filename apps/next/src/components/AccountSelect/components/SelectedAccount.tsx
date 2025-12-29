@@ -21,7 +21,7 @@ export const SelectedAccount = ({
     getAccountById(accountId),
   );
   return (
-    <Stack textAlign="end" py={!isBalanceVisible ? 1 : 0}>
+    <Stack textAlign="end" py={!isBalanceVisible ? 0.75 : 0}>
       <Typography
         variant="body3"
         color="text.primary"

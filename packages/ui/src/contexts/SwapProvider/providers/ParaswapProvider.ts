@@ -103,6 +103,7 @@ export const ParaswapProvider: SwapProvider = {
     signAndSend,
     isSwapFeesEnabled,
     isOneClickSwapEnabled,
+    isGaslessOn,
   }: PerformSwapParams & SwapWalletState) {
     if (!srcTokenAddress)
       throw swapError(
@@ -199,6 +200,7 @@ export const ParaswapProvider: SwapProvider = {
         userAddress,
         isOneClickSwapEnabled,
         batch,
+        isGaslessOn,
       });
 
       if (approvalTxHash && !isOneClickSwapEnabled) {

@@ -3,7 +3,9 @@ import {
   AnalyticsConsent,
   CollectiblesVisibility,
   ColorTheme,
+  CURRENCIES,
   EnsureDefined,
+  FeatureGates,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -16,6 +18,7 @@ import { EventEmitter } from 'events';
 import { changeLanguage } from 'i18next';
 import { singleton } from 'tsyringe';
 import { OnLock, OnStorageReady } from '../../runtime/lifecycleCallbacks';
+import { FeatureFlagService } from '../featureFlags/FeatureFlagService';
 import { NetworkService } from '../network/NetworkService';
 import { StorageService } from '../storage/StorageService';
 import { isTokenSupported } from '../tokens/utils/isTokenSupported';
@@ -43,6 +46,7 @@ export class SettingsService implements OnStorageReady, OnLock {
   constructor(
     private storageService: StorageService,
     private networkService: NetworkService,
+    private featureFlagService: FeatureFlagService,
   ) {
     this.networkService.uiActiveNetworkChanged.add(() => {
       this.applySettings();
@@ -71,7 +75,26 @@ export class SettingsService implements OnStorageReady, OnLock {
 
   async getSettings(): Promise<SettingsState> {
     if (this._cachedSettings && !this.needToRetryFetch) {
-      return this._cachedSettings;
+      let settingsToReturn = this._cachedSettings;
+      // If language feature flag is disabled, force English even for cached settings
+      if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
+        settingsToReturn = {
+          ...settingsToReturn,
+          language: Languages.EN,
+        };
+      }
+      // If balance service integration feature flag is disabled, force USD even for cached settings
+      if (
+        !this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ]
+      ) {
+        settingsToReturn = {
+          ...settingsToReturn,
+          currency: CURRENCIES.USD,
+        };
+      }
+      return settingsToReturn;
     }
 
     try {
@@ -88,6 +111,20 @@ export class SettingsService implements OnStorageReady, OnLock {
         ...state,
       };
 
+      // If language feature flag is disabled, force English
+      if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
+        settings.language = Languages.EN;
+      }
+
+      // If balance service integration feature flag is disabled, force USD
+      if (
+        !this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ]
+      ) {
+        settings.currency = CURRENCIES.USD;
+      }
+
       this.needToRetryFetch = false;
       this._cachedSettings = settings;
 
@@ -103,6 +140,20 @@ export class SettingsService implements OnStorageReady, OnLock {
         ...DEFAULT_SETTINGS_STATE,
         ...unEncryptedState,
       };
+
+      // If language feature flag is disabled, force English
+      if (!this.featureFlagService.featureFlags[FeatureGates.LANGUAGES]) {
+        settings.language = Languages.EN;
+      }
+
+      // If balance service integration feature flag is disabled, force USD
+      if (
+        !this.featureFlagService.featureFlags[
+          FeatureGates.BALANCE_SERVICE_INTEGRATION
+        ]
+      ) {
+        settings.currency = CURRENCIES.USD;
+      }
 
       this._cachedSettings = settings;
 
@@ -152,7 +203,7 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setCurrencty(currency: string) {
+  async setCurrency(currency: string) {
     const settings = await this.getSettings();
 
     await this.saveSettings({

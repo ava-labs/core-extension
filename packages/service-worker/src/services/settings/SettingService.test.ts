@@ -7,6 +7,7 @@ import {
 import {
   AnalyticsConsent,
   CollectiblesVisibility,
+  FeatureGates,
   Languages,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -61,6 +62,13 @@ describe('background/services/settings/SettingsService.ts', () => {
     getNetwork: jest.fn(),
   } as any;
 
+  const featureFlagServiceMock = {
+    featureFlags: {
+      [FeatureGates.LANGUAGES]: true,
+      [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+    },
+  } as any;
+
   const storedSettings: SettingsState = {
     currency: 'EUR',
     customTokens: {},
@@ -105,7 +113,12 @@ describe('background/services/settings/SettingsService.ts', () => {
       storedUnencryptedSettings,
     );
     (isTokenSupported as jest.Mock).mockResolvedValue(false);
-    service = new SettingsService(storageServiceMock, networkServiceMock);
+    featureFlagServiceMock.featureFlags[FeatureGates.LANGUAGES] = true;
+    service = new SettingsService(
+      storageServiceMock,
+      networkServiceMock,
+      featureFlagServiceMock,
+    );
 
     jest.mocked(networkServiceMock.getNetwork).mockResolvedValue(testNetwork);
   });
@@ -205,7 +218,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       const eventListener = jest.fn();
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-      await service.addCustomToken(customToken, testNetwork);
+      await service.addCustomToken(customToken);
 
       expect(storageServiceMock.saveUnencrypted).toBeCalledWith(
         SETTINGS_UNENCRYPTED_STORAGE_KEY,
@@ -238,7 +251,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
       try {
-        await service.addCustomToken(customToken, testNetwork);
+        await service.addCustomToken(customToken);
         fail('Should have thrown an error');
       } catch (e) {
         expect(e).toEqual(new Error('Token already exists in the wallet.'));
@@ -272,12 +285,12 @@ describe('background/services/settings/SettingsService.ts', () => {
       });
     });
 
-    describe('setCurrencty', () => {
-      it('should save the new value for curency properly', async () => {
+    describe('setCurrency', () => {
+      it('should save the new value for currency properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-        await service.setCurrencty('CHF');
+        await service.setCurrency('CHF');
 
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
@@ -287,13 +300,13 @@ describe('background/services/settings/SettingsService.ts', () => {
 
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
-          await service.setCurrencty('CHF');
+          await service.setCurrency('CHF');
         });
       });
     });
 
     describe('setShowTokensWithNoBalance', () => {
-      it('should save the new value for show tolens with no balance properly', async () => {
+      it('should save the new value for show tokens with no balance properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 

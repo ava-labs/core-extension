@@ -1,9 +1,8 @@
 import { Badge, BadgeProps, SxProps } from '@avalabs/k2-alpine';
-
 import { FungibleTokenBalance } from '@core/types';
-
 import { ChainBadge } from '../ChainBadge';
 import { SizedAvatar } from '../SizedAvatar';
+import { FallbackTokenAvatar } from './FallbackTokenAvatar';
 
 type TokenAvatarProps = {
   size: number;
@@ -33,6 +32,8 @@ export const TokenAvatar = ({
       />
     }
   >
-    <SizedAvatar src={token.logoUri} alt={token.symbol} size={size} />
+    <SizedAvatar src={token.logoUri} alt={token.symbol} size={size}>
+      <FallbackTokenAvatar symbol={token.symbol} />
+    </SizedAvatar>
   </Badge>
 );

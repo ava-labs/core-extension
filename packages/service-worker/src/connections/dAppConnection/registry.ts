@@ -1,5 +1,3 @@
-import { runtime } from 'webextension-polyfill';
-
 import { AccountsChangedEvents } from '../../services/accounts/events/accountsChangedEvent';
 import { AvalancheGetAccountsHandler } from '../../services/accounts/handlers/avalanche_getAccounts';
 import { AvalancheAddAccountHandler } from '../../services/accounts/handlers/avalanche_addAccount';
@@ -12,7 +10,6 @@ import { AvalancheCreateContactHandler } from '../../services/contacts/handlers/
 import { AvalancheUpdateContactHandler } from '../../services/contacts/handlers/avalanche_updateContact';
 import { AvalancheRemoveContactHandler } from '../../services/contacts/handlers/avalanche_removeContact';
 import { PersonalEcRecoverHandler } from '../../services/messages/handlers/personal_ecRecover';
-import { PersonalSignHandler } from '../../services/messages/handlers/signMessage';
 import { ChainChangedEvents } from '../../services/network/events/chainChangedEvent';
 import { WalletAddEthereumChainHandler } from '../../services/network/handlers/wallet_addEthereumChain';
 import { WalletSwitchEthereumChainHandler } from '../../services/network/handlers/wallet_switchEthereumChain';
@@ -27,10 +24,7 @@ import { AvalancheGetProviderState } from '../../services/web3/handlers/avalanch
 import { AvalancheSendDomainMetadataHandler } from '../../services/web3/handlers/avalanche_sendDomainMetadata';
 import { registry } from 'tsyringe';
 import { AvalancheGetAccountPubKeyHandler } from '../../services/accounts/handlers/avalanche_getAccountPubKey';
-import { AvalancheSendTransactionHandler } from '../../services/wallet/handlers/avalanche_sendTransaction';
 import { AvalancheGetAddressesInRangeHandler } from '../../services/accounts/handlers/avalanche_getAddressesInRange';
-import { AvalancheSignTransactionHandler } from '../../services/wallet/handlers/avalanche_signTransaction';
-import { AvalancheSignMessageHandler } from '../../services/messages/handlers/avalanche_signMessage';
 import { AvalancheRenameAccountHandler } from '../../services/accounts/handlers/avalanche_renameAccount';
 import { AvalancheRenameWalletHandler } from '../../services/secrets/handlers/avalanche_renameWallet';
 import { WalletAddNetworkHandler } from '../../services/network/handlers/wallet_addNetwork';
@@ -42,6 +36,7 @@ import { NetworkStateChangedEvents } from '~/services/network/events/networkStat
 import { SettingsUpdatedEventsCore } from '~/services/settings/events/settingsUpdatedEventCore';
 import { WalletSetSettingsHandler } from '~/services/settings/handlers/wallet_setSettings';
 import { WalletGetSettingsHandler } from '~/services/settings/handlers/wallet_getSettings';
+import { WalletGetCapabilitiesHandler } from '../../services/web3/handlers/wallet_getCapabilities';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -93,31 +88,10 @@ const SHARED_HANDLERS = [
   },
   { token: 'DAppRequestHandler', useToken: WalletGetSettingsHandler },
   { token: 'DAppRequestHandler', useToken: WalletSetSettingsHandler },
+  { token: 'DAppRequestHandler', useToken: WalletGetCapabilitiesHandler },
 ];
 
-const LEGACY_REQUEST_HANDLERS = [
-  { token: 'DAppRequestHandler', useToken: AvalancheSendTransactionHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSignTransactionHandler },
-  { token: 'DAppRequestHandler', useToken: AvalancheSignMessageHandler },
-  { token: 'DAppRequestHandler', useToken: PersonalSignHandler },
-];
-
-// In order to only switch the NextGen app to use the VM Modules for
-// the remaining request types, we recognize if we're in the NextGen app
-// and only add the local request handlers if we're not.
-
-const NEXT_GEN_LOCAL_ID = 'kgoihbeifdgeehmjjapgdgdlghbajemb';
-const NEXT_GEN_BLUE_ID = 'eacmbmdlcjonknhdlboigobpcjaojfgn';
-const useLocalRequestHandlers =
-  runtime.id !== NEXT_GEN_LOCAL_ID && runtime.id !== NEXT_GEN_BLUE_ID;
-
-const ALL_REQUEST_HANDLERS = [
-  ...SHARED_HANDLERS,
-  // TODO: This check should be completely removed and the ${LEGACY_REQUEST_HANDLERS}
-  // should no longer be used when we release the NextGen app.
-  ...(useLocalRequestHandlers ? LEGACY_REQUEST_HANDLERS : []),
-];
-
+const ALL_REQUEST_HANDLERS = [...SHARED_HANDLERS];
 @registry(ALL_REQUEST_HANDLERS)
 export class DappRequestHandlerRegistry {}
 

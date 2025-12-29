@@ -17,6 +17,7 @@ import { matchingPayload } from '@shared/tests/test-utils';
 
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
+import { useNetworkFeeContext } from '../NetworkFeeProvider';
 
 import {
   NATIVE_TOKEN_ADDRESS,
@@ -55,6 +56,7 @@ jest.mock('../ConnectionProvider', () => ({ useConnectionContext: jest.fn() }));
 jest.mock('../FeatureFlagsProvider', () => ({
   useFeatureFlagContext: jest.fn(),
 }));
+jest.mock('../NetworkFeeProvider');
 
 describe('contexts/SwapProvider/useEvmSwap', () => {
   const connectionContext = {
@@ -96,6 +98,9 @@ describe('contexts/SwapProvider/useEvmSwap', () => {
     jest.mocked(useFeatureFlagContext).mockReturnValue({
       isFlagEnabled: (flagName) => flagName !== FeatureGates.ONE_CLICK_SWAP,
     } as any);
+    jest.mocked(useNetworkFeeContext).mockReturnValue({
+      isGaslessOn: false,
+    } as ReturnType<typeof useNetworkFeeContext>);
     jest.mocked(rpcProvider.estimateGas).mockResolvedValue(10000n);
     rpcProvider.waitForTransaction.mockResolvedValue({
       status: 1,

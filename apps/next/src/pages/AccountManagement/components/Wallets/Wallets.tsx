@@ -1,18 +1,19 @@
-import { Stack, Typography } from '@avalabs/k2-alpine';
-import { FC, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
+import { Stack, Typography } from '@avalabs/k2-alpine';
+import { TokenType } from '@avalabs/vm-module-types';
 import {
+  useLiveBalance,
   useWalletContext,
   useWalletTotalBalance,
   useWalletTotalBalanceContext,
 } from '@core/ui';
-import { BulkDeleteButtons } from './components/BulkDeleteButtons';
-import { WalletList } from './components/WalletList';
-import * as Styled from './components/Styled';
-import { TokenType } from '@avalabs/vm-module-types';
-import { useLiveBalance } from '@core/ui';
+import { FC, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AddOrConnectWalletButton } from '../AddOrCreateWallet';
+import { BulkDeleteButtons } from './components/BulkDeleteButtons';
+import * as Styled from './components/Styled';
+import { WalletList } from './components/WalletList';
+import { useImportWalletSuccess } from './hooks';
 
 const POLLED_BALANCES: TokenType[] = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -28,6 +29,8 @@ export const WalletsHomePage: FC = () => {
   useEffect(() => {
     fetchWalletBalancesSequentially();
   }, [fetchWalletBalancesSequentially]);
+
+  useImportWalletSuccess();
 
   return (
     <Page

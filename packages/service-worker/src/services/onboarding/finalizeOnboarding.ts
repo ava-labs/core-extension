@@ -4,7 +4,6 @@ import { AccountsService } from '../accounts/AccountsService';
 import { OnboardingService } from './OnboardingService';
 import { LockService } from '../lock/LockService';
 import { runtime } from 'webextension-polyfill';
-import { addChainsToFavoriteIfNeeded } from './utils/addChainsToFavoriteIfNeeded';
 
 export interface FinalizeOnboardingParams {
   walletId: string;
@@ -32,10 +31,6 @@ export async function finalizeOnboarding({
 
   const allAccounts = await accountsService.getAccounts();
   const addedAccounts = allAccounts.primary[walletId];
-
-  if (addedAccounts) {
-    await addChainsToFavoriteIfNeeded(addedAccounts);
-  }
 
   const account = addedAccounts?.[0];
   await accountsService.activateAccount(account?.id ?? '');

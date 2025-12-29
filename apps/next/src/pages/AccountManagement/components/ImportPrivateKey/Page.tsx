@@ -30,7 +30,7 @@ export const ImportPrivateKey: FC = () => {
       await selectAccount(importedAccountId);
       capture('ImportPrivateKeySucceeded');
       toast.success(t('Private Key Imported'), { duration: 1000 });
-      replace(`/account-management`);
+      replace(`/portfolio`);
     } catch (err) {
       toast.error(t('Private Key Import Failed'), { duration: 1000 });
       console.error(err);

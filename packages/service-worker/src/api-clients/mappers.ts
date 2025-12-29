@@ -18,6 +18,7 @@ import { SplTokenBalance } from '~/api-clients/types';
 import { Erc20TokenBalance as GlacierSdkErc20TokenBalance } from '@avalabs/glacier-sdk';
 import tokenReputation = GlacierSdkErc20TokenBalance.tokenReputation;
 import { TokenUnit } from '@avalabs/core-utils-sdk';
+import { isNil } from 'lodash';
 
 interface TokenBalance {
   internalId?: string;
@@ -44,6 +45,15 @@ interface BaseTokenBalance {
   priceInCurrency?: number;
 }
 
+const isTokenEnabled = (
+  tokenBalance: Erc20TokenBalance | SplTokenBalance,
+): boolean => {
+  return (
+    isNil(tokenBalance.scanResult) ||
+    ['Benign', 'Warning'].includes(tokenBalance.scanResult)
+  );
+};
+
 const getBaseTokenBalance = (tokenBalance: TokenBalance): BaseTokenBalance => {
   return {
     balance: BigInt(tokenBalance.balance),
@@ -55,9 +65,7 @@ const getBaseTokenBalance = (tokenBalance: TokenBalance): BaseTokenBalance => {
       tokenBalance.decimals,
       tokenBalance.symbol,
     ).toString(),
-    balanceInCurrency: Number(
-      tokenBalance.balanceInCurrency?.toFixed(3).slice(0, -1) ?? '0',
-    ),
+    balanceInCurrency: tokenBalance.balanceInCurrency ?? 0,
     priceChanges: {
       percentage: tokenBalance.priceChangePercentage24h,
       value:
@@ -95,6 +103,7 @@ export const mapPvmTokenBalance = (
     atomicMemoryUnlocked,
     unlockedUnstaked,
     unlockedStaked,
+    unlockedUnstakedMultiSig,
   } = balanceResponse.balances.categories;
 
   const atomicMemoryLockedValues = Object.values(atomicMemoryLocked);
@@ -120,7 +129,11 @@ export const mapPvmTokenBalance = (
               0n,
             )
           : undefined,
-      unlockedUnstaked: unlockedUnstaked ? BigInt(unlockedUnstaked) : undefined,
+      unlockedUnstaked:
+        unlockedUnstaked || unlockedUnstakedMultiSig
+          ? BigInt(unlockedUnstaked ?? 0) +
+            BigInt(unlockedUnstakedMultiSig ?? 0)
+          : undefined,
       unlockedStaked: unlockedStaked ? BigInt(unlockedStaked) : undefined,
     },
   };
@@ -166,7 +179,11 @@ export const mapAvmTokenBalance = (
 
 export const mapErc20TokenBalance =
   (chainId: number) =>
-  (tokenBalance: Erc20TokenBalance): TokenWithBalanceERC20 => {
+  (tokenBalance: Erc20TokenBalance): TokenWithBalanceERC20 | undefined => {
+    if (!isTokenEnabled(tokenBalance)) {
+      return undefined;
+    }
+
     return {
       address: tokenBalance.address,
       chainId,
@@ -182,7 +199,11 @@ export const mapErc20TokenBalance =
 
 export const mapSplTokenBalance = (
   tokenBalance: SplTokenBalance,
-): TokenWithBalanceSPL => {
+): TokenWithBalanceSPL | undefined => {
+  if (!isTokenEnabled(tokenBalance)) {
+    return undefined;
+  }
+
   return {
     address: tokenBalance.address,
     decimals: tokenBalance.decimals,

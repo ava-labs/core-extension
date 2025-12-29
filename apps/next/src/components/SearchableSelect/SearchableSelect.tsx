@@ -149,18 +149,25 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
           paper: {
             sx: {
               marginTop: 6,
+              width: 'calc(100vw - 50px)',
+              left: '25px !important',
+              ul: {
+                paddingTop: '0 !important',
+              },
             },
           },
         }}
       >
         <NoScrollPopoverContent>
           <SearchableSelectMenuRoot ref={setRoot} {...getRootProps()}>
-            <SearchInput
-              autoFocus
-              ref={searchInputRef}
-              slotProps={{ htmlInput: getSearchInputProps() }}
-              {...searchInputProps}
-            />
+            <Stack py={0.5}>
+              <SearchInput
+                autoFocus
+                ref={searchInputRef}
+                slotProps={{ htmlInput: getSearchInputProps() }}
+                {...searchInputProps}
+              />
+            </Stack>
             <Divider
               sx={{
                 backgroundColor: getHexAlpha(

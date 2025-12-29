@@ -75,7 +75,6 @@ export class FeatureFlagService {
           }
 
           const versionRange = validRange(range);
-
           // Default to disabled state if the payload string is not a valid semver range.
           if (!versionRange) {
             return [flagName, false];

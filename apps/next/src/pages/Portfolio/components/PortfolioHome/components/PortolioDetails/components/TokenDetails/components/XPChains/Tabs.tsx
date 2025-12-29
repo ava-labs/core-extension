@@ -1,20 +1,27 @@
 import { TabsContainer } from '@/pages/Portfolio/components/PortfolioHome/styled';
-import { styled, TabBar, TabBarItemProps } from '@avalabs/k2-alpine';
+import {
+  styled,
+  TabBar,
+  TabBarItemProps,
+  tabClasses,
+  tabsClasses,
+} from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 export type TabName = 'assets' | 'activity';
 
 // Custom TabBar where both tabs take 50% width (accounting for gap)
 const XPChainTabBar = styled(TabBar)(({ theme }) => ({
-  '& .MuiTabs-flexContainer': {
+  [`.${tabsClasses.list}`]: {
     gap: theme.spacing(1),
-    width: '100%',
-  },
-  '& .MuiTab-root': {
-    flex: `1 1 calc(50% - ${theme.spacing(0.5)})`,
-    minWidth: `calc(50% - ${theme.spacing(0.5)})`,
-    maxWidth: `calc(50% - ${theme.spacing(0.5)})`,
-    width: `calc(50% - ${theme.spacing(0.5)})`,
+    display: 'grid',
+    gridAutoFlow: 'column',
+    gridAutoColumns: '1fr',
+
+    [`.${tabClasses.root}`]: {
+      maxWidth: 'unset',
+      width: '100%',
+    },
   },
 }));
 

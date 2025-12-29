@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill';
+import { windows, sidePanel, runtime } from 'webextension-polyfill';
 
 import { openExtensionNewWindow } from '@core/common';
 
@@ -8,6 +8,8 @@ import { ApprovalEvent } from '@core/types';
 
 jest.mock('@core/common');
 
+const CURRENT_WINDOW_ID = 5678;
+
 describe('src/background/services/approvals/ApprovalService', () => {
   let service: ApprovalService;
 
@@ -16,56 +18,106 @@ describe('src/background/services/approvals/ApprovalService', () => {
   } as any;
 
   beforeEach(() => {
+    jest.spyOn(windows, 'getCurrent').mockResolvedValue({
+      id: CURRENT_WINDOW_ID,
+    } as any);
     service = new ApprovalService(actionsService);
   });
 
   describe('.requestApproval()', () => {
-    it('saves the action and opens a new extension window for dApp-triggered requests', async () => {
-      const windowId = 1234;
-      const actionId = 'abcd-1234';
+    describe('when sidepanel is opened in the same window', () => {
+      beforeEach(() => {
+        jest.spyOn(sidePanel.onOpened, 'addListener');
+        service = new ApprovalService(actionsService);
 
-      jest.mocked(openExtensionNewWindow).mockResolvedValue({
-        id: windowId,
-      } as any);
+        const onOpenedCallback = jest.mocked(sidePanel.onOpened.addListener)
+          .mock.calls[0]?.[0];
 
-      const action = {
-        actionId,
-        site: {
-          domain: 'core.app',
-        },
-      } as any;
+        if (!onOpenedCallback) {
+          fail('sidePanel.onOpened not listened to');
+        }
 
-      await service.requestApproval(action, 'sign/transaction');
+        onOpenedCallback({ windowId: CURRENT_WINDOW_ID });
+      });
 
-      expect(openExtensionNewWindow).toHaveBeenCalledWith(
-        `sign/transaction?actionId=${actionId}`,
-      );
-      expect(actionsService.addAction).toHaveBeenCalledWith({
-        ...action,
-        popupWindowId: windowId,
+      it('saves the action and emits an approval request for the extension UI', async () => {
+        const actionId = 'abcd-1234';
+        const listener = jest.fn();
+
+        service.addListener(ApprovalEvent.ApprovalRequested, listener);
+
+        const action = {
+          actionId,
+          site: {
+            domain: runtime.id,
+          },
+        } as any;
+
+        await service.requestApproval(action, 'sign/transaction');
+
+        expect(openExtensionNewWindow).not.toHaveBeenCalled();
+        expect(listener).toHaveBeenCalledWith({
+          action: {
+            ...action,
+            windowId: CURRENT_WINDOW_ID,
+          },
+          url: `sign/transaction?actionId=${actionId}`,
+        });
+        expect(actionsService.addAction).toHaveBeenCalledWith(action);
       });
     });
 
-    it('saves the action and emits an approval request for extension-triggered requests', async () => {
-      const actionId = 'abcd-1234';
-      const listener = jest.fn();
+    describe('when sidepanel is not opened', () => {
+      it('saves the action and opens a new extension window for dApp-triggered requests', async () => {
+        const windowId = 1234;
+        const actionId = 'abcd-1234';
 
-      service.addListener(ApprovalEvent.ApprovalRequested, listener);
+        jest.mocked(openExtensionNewWindow).mockResolvedValue({
+          id: windowId,
+        } as any);
 
-      const action = {
-        actionId,
-        site: {
-          domain: browser.runtime.id,
-        },
-      } as any;
+        const action = {
+          actionId,
+          site: {
+            domain: 'core.app',
+          },
+        } as any;
 
-      await service.requestApproval(action, 'sign/transaction');
+        await service.requestApproval(action, 'sign/transaction');
 
-      expect(listener).toHaveBeenCalledWith({
-        action,
-        url: `sign/transaction?actionId=${actionId}`,
+        expect(openExtensionNewWindow).toHaveBeenCalledWith(
+          `sign/transaction?actionId=${actionId}`,
+        );
+        expect(actionsService.addAction).toHaveBeenCalledWith({
+          ...action,
+          popupWindowId: windowId,
+        });
       });
-      expect(actionsService.addAction).toHaveBeenCalledWith(action);
+    });
+
+    describe('with in-app requests', () => {
+      it('saves the action and emits an approval request for the extension UI', async () => {
+        const actionId = 'abcd-1234';
+        const listener = jest.fn();
+
+        service.addListener(ApprovalEvent.ApprovalRequested, listener);
+
+        const action = {
+          actionId,
+          windowId: CURRENT_WINDOW_ID,
+          site: {
+            domain: runtime.id,
+          },
+        } as any;
+
+        await service.requestApproval(action, 'sign/transaction');
+
+        expect(listener).toHaveBeenCalledWith({
+          action,
+          url: `sign/transaction?actionId=${actionId}`,
+        });
+        expect(actionsService.addAction).toHaveBeenCalledWith(action);
+      });
     });
   });
 });

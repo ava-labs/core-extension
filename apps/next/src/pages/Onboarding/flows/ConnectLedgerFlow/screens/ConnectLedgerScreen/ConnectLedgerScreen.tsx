@@ -43,6 +43,7 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
     setAddressPublicKeys,
     setExtendedPublicKeys,
     setOnboardingWalletType,
+    setDerivationPathSpec,
     extendedPublicKeys: addedXPubs,
   } = useOnboardingContext();
   const { capture } = useAnalyticsContext();
@@ -111,7 +112,11 @@ export const ConnectLedgerScreen: FC<ConnectLedgerScreenProps> = ({
       {phase === 'connect-avax' && (
         <ConnectAvalanche
           connectorCallbacks={avalancheConnectorCallbacks}
-          onNext={({ addressPublicKeys, extendedPublicKeys }) => {
+          onNext={(
+            { addressPublicKeys, extendedPublicKeys },
+            derivationPathSpec,
+          ) => {
+            setDerivationPathSpec(derivationPathSpec);
             setAddressPublicKeys(addressPublicKeys.map(({ key }) => key));
             setExtendedPublicKeys(extendedPublicKeys ?? []);
             if (isSolanaSupported) {

@@ -38,13 +38,13 @@ export const SwapProviderNotice = () => {
       justifyContent="center"
       gap={0.5}
     >
-      <Typography variant="caption" pt={paddingTop}>
+      <Typography variant="caption" fontSize={8.25} pt={paddingTop}>
         {t('Powered by')}
       </Typography>
       {imgLogoSrc ? (
         <img style={{ opacity: 0.75 }} src={imgLogoSrc} alt={provider} />
       ) : (
-        <AvalancheHorizontalIcon size={80} />
+        <AvalancheHorizontalIcon size={60} />
       )}
     </Stack>
   );

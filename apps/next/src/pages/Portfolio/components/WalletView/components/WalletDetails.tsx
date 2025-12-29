@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
 import {
   useAccountsContext,
+  useLiveWalletBalance,
   useSettingsContext,
   useWalletTotalBalance,
 } from '@core/ui';
@@ -17,7 +18,10 @@ import { getNetworkCount } from '../utils/networkCount';
 type Props = {
   wallet: WalletDetailsType;
 };
+
 export const WalletDetails = ({ wallet }: Props) => {
+  useLiveWalletBalance(wallet.id);
+
   const { getAccountsByWalletId } = useAccountsContext();
   const { coreAssistant } = useSettingsContext();
   const accountsInWallet = getAccountsByWalletId(wallet.id);

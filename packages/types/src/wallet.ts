@@ -6,15 +6,16 @@ import type {
 } from '@avalabs/core-wallets-sdk';
 import { RpcMethod, SigningData } from '@avalabs/vm-module-types';
 import { DistributiveOmit } from '@core/common';
-import { AddressPublicKeyJson, ExtendedPublicKey } from './secrets';
+import type { TransactionRequest } from 'ethers';
+import { TransactionPayload, VMABI } from 'hypersdk-client';
 import { type FireblocksApiData, type ImportType } from './account';
 import {
+  AddressPublicKeyJson,
+  ExtendedPublicKey,
   type ImportedAccountSecrets,
   type PrimaryWalletSecrets,
   SecretType,
 } from './secrets';
-import type { TransactionRequest } from 'ethers';
-import { TransactionPayload, VMABI } from 'hypersdk-client';
 
 export interface HVMTransactionRequest {
   txPayload: TransactionPayload;
@@ -242,6 +243,7 @@ export type ImportLedgerWalletParams =
       addressPublicKeys: AddressPublicKeyJson[];
       extendedPublicKeys: ExtendedPublicKey[];
       name?: string;
+      secretType: SecretType.Ledger | SecretType.LedgerLive;
     }
   | LegacyImportLedgerWalletParams;
 

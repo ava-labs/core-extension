@@ -1,12 +1,15 @@
 import { FC, useState } from 'react';
 import { Stack, TabBarItemProps } from '@avalabs/k2-alpine';
-import { isEmptyAccount } from '@core/common';
+import { isEmptyAccount, isPrimaryAccount } from '@core/common';
 import {
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
   useAnalyticsContext,
+  useWalletTotalBalance,
 } from '@core/ui';
+import { IMPORTED_ACCOUNTS_WALLET_ID } from '@core/types';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -36,9 +39,21 @@ export const PortfolioTabs: FC = () => {
   const { networks } = useNetworkContext();
   const { totalBalance, balances } = useBalancesContext();
 
-  const isLoading = balances.loading || !totalBalance;
+  const { totalBalanceInCurrency, isLoading: isWalletLoading } =
+    useWalletTotalBalance(
+      isPrimaryAccount(accounts.active)
+        ? accounts.active.walletId
+        : IMPORTED_ACCOUNTS_WALLET_ID,
+    );
+
+  const assets = useTokensForAccount(accounts.active);
+
+  const isLoading = balances.loading || !totalBalance || isWalletLoading;
   const isAccountEmpty =
     !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
+  const isWalletEmpty =
+    (!totalBalanceInCurrency || totalBalanceInCurrency === 0) &&
+    assets.length === 0;
 
   const TABS: TabBarItemProps[] = [
     {
@@ -62,7 +77,7 @@ export const PortfolioTabs: FC = () => {
     });
   }
 
-  const PortfolioContent = isAccountEmpty ? EmptyState : PortfolioDetails;
+  const PortfolioContent = isWalletEmpty ? EmptyState : PortfolioDetails;
 
   return (
     <Stack gap={2.5} px={1.5} flexGrow={1}>

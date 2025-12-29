@@ -312,6 +312,7 @@ describe('contexts/UnifiedBridgeProvider', () => {
                 type: 'info',
               },
               customApprovalScreenTitle: 'Confirm Bridge',
+              isBridge: true,
             },
           },
         );

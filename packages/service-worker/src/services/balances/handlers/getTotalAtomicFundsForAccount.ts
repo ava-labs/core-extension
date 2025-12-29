@@ -24,10 +24,12 @@ export class GetTotalAtomicFundsForAccountHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const { accountId } = request.params;
 
-    const primaryAccounts = Object.values(
-      (await this.accountsService.getAccounts()).primary,
-    ).flat();
-    const selectedAccount = primaryAccounts.find(
+    const { primary, imported } = await this.accountsService.getAccounts();
+    const accounts = [
+      ...Object.values(primary),
+      ...Object.values(imported),
+    ].flat();
+    const selectedAccount = accounts.find(
       (account) => account.id === accountId,
     );
 

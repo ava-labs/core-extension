@@ -1,5 +1,5 @@
 import { uniq } from 'lodash';
-import { OnAllExtensionClosed, OnLock } from '../../runtime/lifecycleCallbacks';
+import { OnAllExtensionClosed, OnLock } from '~/runtime/lifecycleCallbacks';
 import { singleton } from 'tsyringe';
 import { Account } from '@core/types';
 import { BalanceAggregatorService } from './BalanceAggregatorService';

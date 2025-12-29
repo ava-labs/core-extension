@@ -63,9 +63,8 @@ export const Container = styled('div', {
 );
 
 export const AccountInfoClickableStack = styled(Stack)(({ theme }) => ({
-  padding: theme.spacing(0.5),
+  padding: theme.spacing(0.75, 0.5),
   borderRadius: theme.spacing(1),
   backgroundColor: theme.palette.background.navBarItem,
-  marginY: theme.spacing(0.5),
   cursor: 'pointer',
 }));

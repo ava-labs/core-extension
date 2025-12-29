@@ -67,8 +67,11 @@ export class LedgerService implements OnLock, OnUnlock {
    * This gets called by the CloseLedgerTransportHandler when a new confirm window
    * is being requested open
    */
-  async closeOpenedTransport() {
-    this.eventEmitter.emit(LedgerEvent.TRANSPORT_CLOSE_REQUEST, {});
+  async closeOpenedTransport(currentTransportUUID: string) {
+    this.eventEmitter.emit(
+      LedgerEvent.TRANSPORT_CLOSE_REQUEST,
+      currentTransportUUID,
+    );
     /**
      * Avoiding a Possibly race condition here, we are requesting that a window close and simultaneously
      * requesting that another window open. The latter requires that the first has happened since

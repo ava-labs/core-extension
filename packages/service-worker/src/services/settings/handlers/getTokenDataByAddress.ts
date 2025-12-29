@@ -8,7 +8,7 @@ import { Monitoring } from '@core/common';
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.SETTINGS_GET_TOKEN_DATA,
   NetworkContractToken | null | false,
-  [tokenAddress: string]
+  [tokenAddress: string, networkId?: string]
 >;
 
 @injectable()
@@ -21,8 +21,8 @@ export class GetTokenDataHandler implements HandlerType {
   ) {}
 
   handle: HandlerType['handle'] = async ({ request, scope }) => {
-    const [tokenAddress] = request.params;
-    const network = await this.networkService.getNetwork(scope);
+    const [tokenAddress, networkId] = request.params;
+    const network = await this.networkService.getNetwork(networkId || scope);
 
     if (!network) {
       return {

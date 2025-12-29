@@ -1,29 +1,30 @@
-import { useTranslation } from 'react-i18next';
-import { FC, useCallback, useEffect, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack } from '@avalabs/k2-alpine';
+import { ComponentProps, FC, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DerivedAddresses } from '@/pages/Onboarding/components/DerivedAddresses';
+import { sortBy } from 'lodash';
 import * as Styled from '../Styled';
 import {
   ConnectorCallbacks,
+  DerivationStatus,
   DerivedKeys,
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
-import { sortBy } from 'lodash';
+import { LedgerAppType } from '@core/ui';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
-  onStatusChange: (
-    status: 'waiting' | 'ready' | 'error' | 'needs-user-gesture',
-  ) => void;
+  onStatusChange: (status: DerivationStatus) => void;
   minNumberOfKeys: number;
   onTroubleshoot: () => void;
   deriveAddresses: (keys: PublicKey[]) => string[];
   derivedAddressesChainCaipId: string;
   useLedgerPublicKeyFetcher: UseLedgerPublicKeyFetcher;
   callbacks?: ConnectorCallbacks;
+  requiredApp: LedgerAppType;
 };
 
 type PropsWithDerivationPathSpec = CommonProps & {
@@ -36,7 +37,17 @@ type PropsWithoutDerivationPathSpec = CommonProps & {
   setDerivationPathSpec?: never;
 };
 
-type Props = PropsWithDerivationPathSpec | PropsWithoutDerivationPathSpec;
+type Props = (PropsWithDerivationPathSpec | PropsWithoutDerivationPathSpec) &
+  LedgerConnectorOverrides;
+
+export type LedgerConnectorOverrides = {
+  overrides?: {
+    PathSelector?: Pick<
+      ComponentProps<typeof Styled.DerivationPathSelector>,
+      'labels'
+    >;
+  };
+};
 
 const isWithDerivationPathSpec = (
   props: Props,
@@ -46,7 +57,11 @@ const isWithDerivationPathSpec = (
   props.derivationPathSpec !== undefined &&
   props.setDerivationPathSpec !== undefined;
 
-export const BaseLedgerConnector: FC<Props> = (props) => {
+const EMPTY_KEYS: PublicKey[] = [];
+
+export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
+  props,
+) => {
   const {
     onSuccess,
     onStatusChange,
@@ -56,6 +71,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
     deriveAddresses,
     derivedAddressesChainCaipId,
     callbacks,
+    requiredApp,
   } = props;
   const { t } = useTranslation();
   const [activePublicKeys, setActivePublicKeys] = useState<PublicKey[]>([]);
@@ -64,7 +80,7 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
     withDerivationPathSpec ? props.derivationPathSpec : undefined,
     (publicKeys) => setActivePublicKeys(sortBy(publicKeys, 'index')),
   );
-  const [keys, setKeys] = useState<PublicKey[]>([]);
+  const [keys, setKeys] = useState<PublicKey[]>(EMPTY_KEYS);
   const [isRetrieving, setIsRetrieving] = useState(false);
 
   const fetchKeys = useCallback(async () => {
@@ -88,6 +104,8 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
   useEffect(() => {
     if (status === 'ready' && !keys.length && !isRetrieving) {
       fetchKeys();
+    } else if (status === 'error') {
+      setKeys(EMPTY_KEYS);
     }
   }, [fetchKeys, status, keys, isRetrieving]);
 
@@ -97,10 +115,13 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
 
   const addresses = deriveAddresses(activePublicKeys);
 
+  const isDuplicatedWalletError =
+    status === 'error' && error === 'duplicated-wallet';
+
   return (
     <>
       <Stack gap={3} width="100%">
-        {status === 'ready' && (
+        {(status === 'ready' || isDuplicatedWalletError) && (
           <>
             {withDerivationPathSpec && (
               <Styled.DerivationPathSelector
@@ -110,9 +131,10 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
                   setKeys([]);
                   onStatusChange('waiting');
                 }}
+                labels={props.overrides?.PathSelector?.labels}
               />
             )}
-            {addresses.length === 0 ? (
+            {isDuplicatedWalletError ? null : addresses.length === 0 ? (
               <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
             ) : (
               <DerivedAddresses
@@ -143,11 +165,32 @@ export const BaseLedgerConnector: FC<Props> = (props) => {
       {status === 'error' && error && (
         <Styled.LedgerConnectionError
           errorType={error}
+          requiredApp={requiredApp}
           onTroubleshoot={onTroubleshoot}
           onRetry={() => {
+            if (isDuplicatedWalletError) {
+              props.setDerivationPathSpec?.(
+                props.derivationPathSpec === DerivationPath.BIP44
+                  ? DerivationPath.LedgerLive
+                  : DerivationPath.BIP44,
+              );
+              setKeys([]);
+              onStatusChange('waiting');
+            }
+
             callbacks?.onConnectionRetry();
             onRetry();
           }}
+          retryLabel={
+            isDuplicatedWalletError
+              ? t('Connect with {{spec}} derivation paths', {
+                  spec:
+                    props.derivationPathSpec === DerivationPath.BIP44
+                      ? 'LedgerLive'
+                      : 'BIP44',
+                })
+              : t('Retry')
+          }
         />
       )}
       {status !== 'error' && (

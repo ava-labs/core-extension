@@ -1,12 +1,8 @@
-import { Divider } from '@avalabs/k2-alpine';
-
-import { Stack } from '@avalabs/k2-alpine';
-import { StyledCardNoPaddingY } from '../../styled';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { TokenWithBalancePVM } from '@avalabs/vm-module-types';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UtxoBanner } from '../XPChains/UtxoBanner';
+import { AssetsLayout } from '../XPChains/AssetsLayout';
 import { BalanceLineItem } from '../XPChains/BalanceLineItem';
 
 type Props = {
@@ -16,43 +12,42 @@ type Props = {
 export const Assets: FC<Props> = ({ balances }) => {
   const { t } = useTranslation();
 
-  const _typeDisplayNames = {
-    lockedStaked: t('Locked Staked'),
-    lockedStakeable: t('Locked Stakeable'),
-    lockedPlatform: t('Locked Platform'),
-    atomicMemoryLocked: t('Atomic Memory Locked'),
-    atomicMemoryUnlocked: t('Atomic Memory Unlocked'),
-    unlockedUnstaked: t('Unlocked Unstaked'),
-    unlockedStaked: t('Unlocked Staked'),
+  const { balancePerType, decimals, symbol } = balances;
+
+  const formatter = (balance: bigint | undefined) => {
+    return `${new TokenUnit(balance || 0n, decimals, symbol).toDisplay()} AVAX`;
   };
+
   return (
-    <Stack rowGap={1}>
-      <UtxoBanner network="p-chain" />
-      <StyledCardNoPaddingY>
-        <Stack divider={<Divider />}>
-          {Object.entries(balances.balancePerType).map(([type, balance]) => {
-            const displayName = _typeDisplayNames[type];
-            if (!displayName) {
-              return null;
-            }
-
-            const displayBalance = new TokenUnit(
-              balance,
-              balances.decimals,
-              balances.symbol,
-            ).toDisplay();
-
-            const displayBalanceWithSymbol = `${displayBalance} AVAX`;
-            return (
-              <BalanceLineItem
-                key={type}
-                title={displayName}
-                displayBalanceWithSymbol={displayBalanceWithSymbol}
-              />
-            );
-          })}
-        </Stack>
-      </StyledCardNoPaddingY>
-    </Stack>
+    <AssetsLayout network="p-chain">
+      <BalanceLineItem
+        title={t('Locked staked')}
+        balance={formatter(balancePerType.lockedStaked)}
+      />
+      <BalanceLineItem
+        title={t('Locked stakeable')}
+        balance={formatter(balancePerType.lockedStakeable)}
+      />
+      <BalanceLineItem
+        title={t('Locked platform')}
+        balance={formatter(balancePerType.lockedPlatform)}
+      />
+      <BalanceLineItem
+        title={t('Atomic memory locked')}
+        balance={formatter(balancePerType.atomicMemoryLocked)}
+      />
+      <BalanceLineItem
+        title={t('Atomic memory unlocked')}
+        balance={formatter(balancePerType.atomicMemoryUnlocked)}
+      />
+      <BalanceLineItem
+        title={t('Unlocked unstaked')}
+        balance={formatter(balancePerType.unlockedUnstaked)}
+      />
+      <BalanceLineItem
+        title={t('Unlocked staked')}
+        balance={formatter(balancePerType.unlockedStaked)}
+      />
+    </AssetsLayout>
   );
 };

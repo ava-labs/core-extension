@@ -24,9 +24,10 @@ import { ImportWallet } from './ImportWallet';
 import { ScreenshotsCarousel } from './components/ScreenshotsCarousel';
 import { CreateNewWalletFlow } from './flows/CreateNewWallet';
 import { SeedlessSignInButton } from './components/SeedlessSignInButton';
-import { SeedlessAuthProvider } from '@core/types';
+import { FeatureGates, SeedlessAuthProvider } from '@core/types';
 import { SeedlessFlow } from './flows/SeedlessFlow';
 import { CoreSplashStatic } from '@/components/CoreSplashStatic';
+import { useFeatureFlagContext } from '@core/ui';
 
 export function Onboarding() {
   const { t } = useTranslation();
@@ -34,7 +35,7 @@ export function Onboarding() {
   const history = useHistory();
   const { capture, initAnalyticsIds } = useAnalyticsContext();
   const { resetStates } = useOnboardingContext();
-
+  const { featureFlags } = useFeatureFlagContext();
   const [hasLogoAnimationEnded, setHasLogoAnimationEnded] = useState(false);
 
   useEffect(() => {
@@ -82,10 +83,12 @@ export function Onboarding() {
         position="relative"
       >
         <Box position="fixed" top={28} right={28}>
-          <LanguageSelector
-            dataTestId="onboarding-language-selector"
-            onSelectEventName="OnboardingLanguageChanged"
-          />
+          {featureFlags[FeatureGates.LANGUAGES] && (
+            <LanguageSelector
+              dataTestId="onboarding-language-selector"
+              onSelectEventName="OnboardingLanguageChanged"
+            />
+          )}
         </Box>
         <Column>
           <Stack direction="row" justifyContent="center" alignItems="center">
