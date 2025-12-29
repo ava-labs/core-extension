@@ -22,6 +22,7 @@ import {
   SwapContextAPI,
   useAnalyticsContext,
   useErrorMessage,
+  isMarkrQuote,
 } from '@core/ui';
 import {
   getAddressForChain,
@@ -58,6 +59,8 @@ type SwapState = QueryState &
     performSwap: () => Promise<void>;
     slippage: number;
     setSlippage: Dispatch<SetStateAction<number>>;
+    autoSlippage: boolean;
+    setAutoSlippage: Dispatch<SetStateAction<boolean>>;
     swapDisabled: boolean;
   };
 
@@ -105,6 +108,7 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
+  const [autoSlippage, setAutoSlippage] = useState(true);
 
   const fromTokenAddress = fromToken
     ? isNativeToken(fromToken)
@@ -317,6 +321,18 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
     quotes,
   ]);
 
+  // Auto-update slippage when auto mode is enabled and we have a recommendedSlippage
+  useEffect(() => {
+    if (autoSlippage && quotes?.selected?.quote) {
+      const quote = quotes.selected.quote;
+      if (isMarkrQuote(quote) && quote.recommendedSlippage) {
+        // Convert bps to percentage: 200 bps → 2%
+        const recommendedPercentage = quote.recommendedSlippage / 100;
+        setSlippage(recommendedPercentage);
+      }
+    }
+  }, [autoSlippage, quotes]);
+
   return (
     <SwapStateContext.Provider
       value={{
@@ -346,6 +362,8 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
         performSwap,
         slippage,
         setSlippage,
+        autoSlippage,
+        setAutoSlippage,
         swapDisabled,
       }}
     >
