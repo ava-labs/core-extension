@@ -39,7 +39,7 @@ export const Receive = () => {
   const isPchainActive = useMemo(() => isPchainNetwork(network), [network]);
   const isXchainActive = useMemo(() => isXchainNetwork(network), [network]);
   const isSolanaActive = network?.vmName === NetworkVMType.SVM;
-  const { checkIsFunctionSupported } = useIsFunctionAvailable();
+  const { checkIsFunctionSupported } = useIsFunctionAvailable({});
 
   const address = useMemo(
     () => getAddressForChain(network, activeAccount),
