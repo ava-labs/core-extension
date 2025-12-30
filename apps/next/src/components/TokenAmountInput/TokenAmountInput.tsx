@@ -102,6 +102,12 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
   const isAmountTooBig = token && maxAmount ? amountBigInt > maxAmount : false;
 
+  // Apply a 50% buffer to the estimated fee to account for fee increases during congestion (can jump between 75nAVAX and 225nAVAX), we need to multiply by 3n and divide by 2n to get the 50% buffer.
+  const estimatedFeeWithBuffer = useCallback((fee?: bigint) => {
+    if (!fee) return 0n;
+    return fee ? (fee * 3n) / 2n : 0n;
+  }, []);
+
   const handlePresetClick = useCallback(
     (percentage: number) => {
       if (!token) return;
@@ -115,7 +121,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       // If sending the max. amount of a native token, we need to subtract the estimated fee.
       const shouldSubtractFee =
         alwaysApplyFee || (percentage === 100 && isNativeToken(token));
-      const amountToSubtract = shouldSubtractFee ? (estimatedFee ?? 0n) : 0n;
+      const amountToSubtract = shouldSubtractFee
+        ? estimatedFeeWithBuffer(estimatedFee)
+        : 0n;
       const calculatedMaxAmount = tokenUnit
         .div(100 / percentage)
         .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol));
@@ -125,7 +133,13 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
-    [token, alwaysApplyFee, estimatedFee, onAmountChange],
+    [
+      token,
+      alwaysApplyFee,
+      estimatedFee,
+      onAmountChange,
+      estimatedFeeWithBuffer,
+    ],
   );
 
   const usdValue =

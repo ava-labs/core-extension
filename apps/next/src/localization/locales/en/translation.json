@@ -456,7 +456,7 @@
   "Max base fee": "Max base fee",
   "Max base fee must be greater than max priority fee": "Max base fee must be greater than max priority fee",
   "Max priority fee": "Max priority fee",
-  "Maximum available after fees is {{balance}} {{symbol}}": "Maximum available after fees is {{balance}} {{symbol}}",
+  "Maximum available after network fees is {{balance}} {{symbol}}": "Maximum available after network fees is {{balance}} {{symbol}}",
   "Maximum available amount after fees is ~{{maxAmount}}.": "Maximum available amount after fees is ~{{maxAmount}}.",
   "Minimum amount is {{minimum}}.": "Minimum amount is {{minimum}}.",
   "Mismatching provider": "Mismatching provider",

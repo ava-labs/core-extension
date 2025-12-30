@@ -6,6 +6,7 @@ import { DefiPerpetualItem, DefiToken } from '@core/types';
 import { TokenAvatarGroup } from '@/components/TokenAvatar/TokenAvatarGroup';
 
 import { useConvertedCurrencyFormatter } from '@core/ui';
+import { sumByProperty } from '@core/common';
 
 type DeFiProtocolPerpetualProps = {
   items: DefiPerpetualItem[];
@@ -18,12 +19,7 @@ export const DeFiProtocolPerpetual: FC<DeFiProtocolPerpetualProps> = ({
     <Stack direction="column" gap={1}>
       {items.map(
         (
-          {
-            positionToken,
-            marginToken,
-            profitUsdValue,
-            netUsdValue,
-          }: DefiPerpetualItem,
+          { positionToken, marginToken, profitUsdValue }: DefiPerpetualItem,
           index: number,
         ) => {
           const key = `defi-perpetual-${index}`;
@@ -32,7 +28,6 @@ export const DeFiProtocolPerpetual: FC<DeFiProtocolPerpetualProps> = ({
               <DeFiProtocolPerpetualSection
                 tokens={[positionToken, marginToken]}
                 profitUsdValue={profitUsdValue}
-                netUsdValue={netUsdValue}
               />
               {items.length > 1 && <Divider variant="fullWidth" />}
             </Stack>
@@ -46,13 +41,11 @@ export const DeFiProtocolPerpetual: FC<DeFiProtocolPerpetualProps> = ({
 type DeFiProtocolPerpetualSectionProps = {
   tokens: DefiToken[];
   profitUsdValue: number;
-  netUsdValue: number;
 };
 
 const DeFiProtocolPerpetualSection: FC<DeFiProtocolPerpetualSectionProps> = ({
   tokens,
   profitUsdValue,
-  netUsdValue,
 }) => {
   const formatValue = useConvertedCurrencyFormatter();
 
@@ -73,7 +66,7 @@ const DeFiProtocolPerpetualSection: FC<DeFiProtocolPerpetualSectionProps> = ({
           {formatValue(profitUsdValue)}
         </Typography>
         <Typography variant="body3" color="text.secondary">
-          {formatValue(netUsdValue)}
+          {formatValue(sumByProperty(tokens, 'usdValue'))}
         </Typography>
       </Stack>
     </Stack>

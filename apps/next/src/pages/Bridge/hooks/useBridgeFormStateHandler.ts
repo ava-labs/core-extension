@@ -3,6 +3,7 @@ import { stringToBigint } from '@core/common';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../contexts';
+import { TokenType } from '@avalabs/vm-module-types';
 
 export const useBridgeFormStateHandler = () => {
   const { t } = useTranslation();
@@ -75,12 +76,18 @@ export const useBridgeFormStateHandler = () => {
       return '';
     }
 
-    const maxAvailable = sourceToken.balance - requiredNetworkFee;
+    const maxAvailable =
+      sourceToken.type === TokenType.NATIVE
+        ? sourceToken.balance - requiredNetworkFee
+        : sourceToken.balance;
     if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
-      return t('Maximum available after fees is {{balance}}\u00A0{{symbol}}', {
-        balance: bigIntToString(maxAvailable, sourceToken.decimals),
-        symbol: sourceToken.symbol,
-      });
+      return t(
+        'Maximum available after network fees is {{balance}}\u00A0{{symbol}}',
+        {
+          balance: bigIntToString(maxAvailable, sourceToken.decimals),
+          symbol: sourceToken.symbol,
+        },
+      );
     }
     return '';
   }, [
