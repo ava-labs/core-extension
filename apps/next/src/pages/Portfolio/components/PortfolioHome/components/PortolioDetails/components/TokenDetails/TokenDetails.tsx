@@ -98,7 +98,7 @@ export const TokenDetails = () => {
                   {tokenBalanceInCurrency} {currency}
                 </Typography>
               </Stack>
-              <PortfolioActionButtons />
+              <PortfolioActionButtons network={network} />
             </StyledTokenSummary>
 
             <StyledTokenDetailsContent>

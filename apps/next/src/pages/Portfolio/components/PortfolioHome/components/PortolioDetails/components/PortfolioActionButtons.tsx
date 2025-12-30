@@ -11,13 +11,18 @@ import { SendIcon } from '@/components/SendIcon';
 import { SwapIcon } from '@/components/SwapIcon';
 import { BridgeIcon } from '@/components/BridgeIcon';
 import { BuyIcon } from '@/components/BuyIcon';
+import { NetworkWithCaipId } from '@core/types';
 
 const ICON_SIZE = 20;
 
-export const PortfolioActionButtons = () => {
+export const PortfolioActionButtons = ({
+  network,
+}: {
+  network?: NetworkWithCaipId;
+}) => {
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
-  const { checkIsFunctionSupported } = useIsFunctionAvailable();
+  const { checkIsFunctionSupported } = useIsFunctionAvailable({ network });
   const { t } = useTranslation();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);

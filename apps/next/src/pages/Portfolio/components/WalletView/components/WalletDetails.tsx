@@ -8,6 +8,7 @@ import { usePersonalAvatar } from '@/components/PersonalAvatar';
 import {
   useAccountsContext,
   useLiveWalletBalance,
+  useNetworkContext,
   useSettingsContext,
   useWalletTotalBalance,
 } from '@core/ui';
@@ -21,7 +22,7 @@ type Props = {
 
 export const WalletDetails = ({ wallet }: Props) => {
   useLiveWalletBalance(wallet.id);
-
+  const { avaxNetworkC } = useNetworkContext();
   const { getAccountsByWalletId } = useAccountsContext();
   const { coreAssistant } = useSettingsContext();
   const accountsInWallet = getAccountsByWalletId(wallet.id);
@@ -65,7 +66,7 @@ export const WalletDetails = ({ wallet }: Props) => {
         balanceChange={balanceChange}
         percentageChange={percentageChange}
       />
-      <PortfolioActionButtons />
+      <PortfolioActionButtons network={avaxNetworkC} />
       <WalletAccountsCard
         accountCount={accountCount}
         networkCount={networkCount}
