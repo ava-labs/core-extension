@@ -197,6 +197,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
               sx={{
                 overflow: suppressFlattening ? 'auto' : 'hidden',
               }}
+              ref={containerRef}
             >
               {groupedOptions.map((group, index, { length }) => {
                 // If there is only one group and it's not narrowed down via search,
@@ -207,12 +208,7 @@ export const SearchableSelect = genericMemo(function SearchableSelectComp<T>(
                     (!isListNarrowedDown && index === 0 && length === 1))
                 ) {
                   return (
-                    <Stack
-                      key="sole-item"
-                      pt={1}
-                      ref={containerRef}
-                      flexGrow={1}
-                    >
+                    <Stack key="sole-item" pt={1} flexGrow={1}>
                       <FixedSizeList
                         height={
                           containerRef.current?.clientHeight ??
