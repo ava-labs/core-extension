@@ -148,7 +148,9 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
     }
   };
 
-  const displayValue = autoSlippage ? `Auto • ${slippage}%` : `${slippage}%`;
+  const displayValue = autoSlippage
+    ? t('Auto • {{slippage}}%', { slippage })
+    : t('{{slippage}}%', { slippage });
 
   return (
     <SlideUpDialog open={open} onClose={onClose}>
