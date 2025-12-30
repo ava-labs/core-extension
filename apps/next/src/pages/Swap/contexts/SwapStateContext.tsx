@@ -36,6 +36,7 @@ import {
 import { useSwapQuery, useSwapTokens } from '../hooks';
 import { toast } from '@avalabs/k2-alpine';
 import { DEFAULT_SLIPPAGE } from '../swap-config';
+import { isSlippageValid } from '../lib/isSlippageValid';
 import { useHistory } from 'react-router-dom';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
@@ -334,7 +335,12 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       if (isMarkrQuote(quote) && quote.recommendedSlippage) {
         // Convert bps to percentage: 200 bps → 2%
         const recommendedPercentage = quote.recommendedSlippage / 100;
-        setSlippage(recommendedPercentage);
+        if (isSlippageValid(String(recommendedPercentage))) {
+          setSlippage(recommendedPercentage);
+        } else {
+          // Fall back to default if invalid
+          setSlippage(DEFAULT_SLIPPAGE);
+        }
       }
     }
   }, [autoSlippage, quotes]);

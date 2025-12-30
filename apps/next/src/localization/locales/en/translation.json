@@ -695,7 +695,7 @@
   "Skip": "Skip",
   "Slippage": "Slippage",
   "Slippage details": "Slippage details",
-  "Slippage must be less than or equal to 100%": "Slippage must be less than or equal to 100%",
+  "Slippage must be less than or equal to {{max}}%": "Slippage must be less than or equal to {{max}}%",
   "Slippage tolerance exceeded, increase the slippage and try again.": "Slippage tolerance exceeded, increase the slippage and try again.",
   "Slow": "Slow",
   "Solana": "Solana",

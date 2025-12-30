@@ -15,7 +15,11 @@ import { Page } from '@/components/Page';
 import { InvisibileInput } from '@/components/Forms/InvisibleInput';
 import * as LocalStyled from './Styled';
 import { useSwapState } from '../../contexts/SwapStateContext';
-import { MIN_SLIPPAGE, DEFAULT_SLIPPAGE } from '../../swap-config';
+import {
+  MIN_SLIPPAGE,
+  MAX_SLIPPAGE,
+  DEFAULT_SLIPPAGE,
+} from '../../swap-config';
 import { isSlippageValid } from '../../lib/isSlippageValid';
 
 interface SwapSlippageDetailsProps {
@@ -23,7 +27,7 @@ interface SwapSlippageDetailsProps {
   onClose: () => void;
 }
 
-const PRESET_SLIPPAGES = [0.2, 0.5, 1, 2] as const;
+const PRESET_SLIPPAGES = [1, 2] as const;
 
 export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
   open,
@@ -94,10 +98,14 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
     setCustomInput(value);
     setAutoSlippage(false);
 
-    // Check if value is greater than 100
+    // Check if value is greater than MAX_SLIPPAGE
     const numValue = parseFloat(value);
-    if (!isNaN(numValue) && numValue > 100) {
-      setError(t('Slippage must be less than or equal to 100%'));
+    if (!isNaN(numValue) && numValue > MAX_SLIPPAGE) {
+      setError(
+        t('Slippage must be less than or equal to {{max}}%', {
+          max: MAX_SLIPPAGE,
+        }),
+      );
       return;
     } else {
       setError(null);
@@ -113,26 +121,16 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
   const commitCustomValue = (value: string) => {
     const numValue = parseFloat(value);
 
-    // If value is greater than 100, reset to MIN_SLIPPAGE
-    if (!isNaN(numValue) && numValue > 100) {
-      setCustomInput(String(MIN_SLIPPAGE));
-      setSlippage(MIN_SLIPPAGE);
-      setLocalSlippage(MIN_SLIPPAGE);
-      setError(null);
-      return;
-    }
-
-    // Commit the valid value to global state
     if (isSlippageValid(value)) {
       setSlippage(numValue);
       setLocalSlippage(numValue);
     } else {
-      // Reset to MIN_SLIPPAGE if invalid
+      // Reset to MIN_SLIPPAGE if invalid (< MIN or > MAX)
       setCustomInput(String(MIN_SLIPPAGE));
       setSlippage(MIN_SLIPPAGE);
       setLocalSlippage(MIN_SLIPPAGE);
-      setError(null);
     }
+    setError(null);
   };
 
   const handleCustomInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -248,6 +246,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                       <Box
                         sx={{
                           flex: 1,
+                          flexBasis: 0,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -266,7 +265,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                           onBlur={handleCustomInputBlur}
                           onKeyDown={handleCustomInputKeyDown}
                           min={MIN_SLIPPAGE}
-                          max={100}
+                          max={MAX_SLIPPAGE}
                           step={0.1}
                           type="number"
                           inputMode="decimal"
