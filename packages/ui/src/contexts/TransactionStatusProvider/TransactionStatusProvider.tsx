@@ -51,6 +51,7 @@ export function TransactionStatusProvider({
   children,
   toast,
   renderExplorerLink,
+  onPending,
   onSuccess,
 }: TransactionStatusProviderProps) {
   const { events } = useConnectionContext();
@@ -80,6 +81,7 @@ export function TransactionStatusProvider({
                 break;
               }
 
+              onPending?.();
               toast.pending(t('Transaction pending...'), {
                 id: `${PENDING_TOAST_ID}-${statusInfo.txHash}`,
               });
@@ -133,7 +135,7 @@ export function TransactionStatusProvider({
     return () => {
       subscription.unsubscribe();
     };
-  }, [events, getNetwork, t, toast, renderExplorerLink, onSuccess]);
+  }, [events, getNetwork, t, toast, renderExplorerLink, onPending, onSuccess]);
 
   return <>{children}</>;
 }
