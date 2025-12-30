@@ -20,12 +20,7 @@ export const DeFiProtocolLending: FC<DeFiProtocolLendingProps> = ({
     <Stack direction="column" gap={0.5}>
       {items.map(
         (
-          {
-            supplyTokens,
-            borrowTokens,
-            rewardTokens,
-            netUsdValue,
-          }: DefiLendingItem,
+          { supplyTokens, borrowTokens, rewardTokens }: DefiLendingItem,
           index: number,
         ) => {
           const key = `defi-lending-${index}`;
@@ -36,7 +31,6 @@ export const DeFiProtocolLending: FC<DeFiProtocolLendingProps> = ({
                   <DeFiProtocolCommonSection
                     title={t('Supplied')}
                     tokens={supplyTokens}
-                    value={netUsdValue}
                   />
                   <Divider variant="fullWidth" />
                 </>
@@ -46,7 +40,6 @@ export const DeFiProtocolLending: FC<DeFiProtocolLendingProps> = ({
                   <DeFiProtocolCommonSection
                     title={t('Borrowed')}
                     tokens={borrowTokens}
-                    value={netUsdValue}
                   />
                   <Divider variant="fullWidth" />
                 </>
@@ -55,7 +48,6 @@ export const DeFiProtocolLending: FC<DeFiProtocolLendingProps> = ({
                 <DeFiProtocolCommonSection
                   title={t('Rewards')}
                   tokens={rewardTokens}
-                  value={netUsdValue}
                 />
               )}
             </Stack>

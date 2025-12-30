@@ -18,15 +18,11 @@ export const DeFiProtocolVesting: FC<DeFiProtocolVestingProps> = ({
 
   return (
     <Stack direction="column" gap={1}>
-      {items.map(({ token, netUsdValue }: DefiVestingItem, index: number) => {
+      {items.map(({ token }: DefiVestingItem, index: number) => {
         const key = `defi-vesting-${index}`;
         return (
           <Stack key={key} direction="column" gap={0.5}>
-            <DeFiProtocolCommonSection
-              title={t('Vesting')}
-              tokens={[token]}
-              value={netUsdValue}
-            />
+            <DeFiProtocolCommonSection title={t('Vesting')} tokens={[token]} />
           </Stack>
         );
       })}
