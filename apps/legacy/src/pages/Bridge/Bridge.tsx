@@ -60,7 +60,9 @@ export function Bridge() {
 
   const { t } = useTranslation();
 
-  const { isFunctionAvailable } = useIsFunctionAvailable(FunctionNames.BRIDGE);
+  const { isFunctionAvailable } = useIsFunctionAvailable({
+    functionName: FunctionNames.BRIDGE,
+  });
 
   const [bridgeError, setBridgeError] = useState<string>('');
 

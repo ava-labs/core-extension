@@ -40,9 +40,9 @@ export function CollectibleSend() {
   const tokens = useTokensWithBalances();
   const { nft } = useCollectibleFromParams();
 
-  const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
-    FunctionNames.COLLECTIBLES,
-  );
+  const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable({
+    functionName: FunctionNames.COLLECTIBLES,
+  });
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
 

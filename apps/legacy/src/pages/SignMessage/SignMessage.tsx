@@ -63,9 +63,9 @@ export function SignMessage() {
   const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();
   const isUsingWalletConnectAccount = useIsUsingWalletConnectAccount();
   const isFireblocksAccount = useIsUsingFireblocksAccount();
-  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN,
-  );
+  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable({
+    functionName: FunctionNames.SIGN,
+  });
   const {
     accounts: { active: activeAccount, primary: primaryAccounts },
   } = useAccountsContext();

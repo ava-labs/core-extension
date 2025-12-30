@@ -51,7 +51,7 @@ export function Collectibles({
   const setCollectibleParams = useSetCollectibleParams();
   const { setNavigationHistoryData } = usePageHistory();
   const { isFunctionSupported: isManageCollectiblesSupported } =
-    useIsFunctionAvailable(FunctionNames.MANAGE_COLLECTIBLES);
+    useIsFunctionAvailable({ functionName: FunctionNames.MANAGE_COLLECTIBLES });
   const { getCollectibleVisibility } = useSettingsContext();
   const visibleNfts = nfts.filter((nft) => {
     return getCollectibleVisibility(nft, network?.caipId);

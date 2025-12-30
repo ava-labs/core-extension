@@ -2,7 +2,7 @@ import { useAccountsContext } from '../contexts';
 import { useFeatureFlagContext } from '../contexts';
 import { useNetworkContext } from '../contexts';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { Account, FeatureGates } from '@core/types';
+import { Account, FeatureGates, NetworkWithCaipId } from '@core/types';
 import {
   isAvalancheNetwork,
   isBitcoinNetwork,
@@ -187,18 +187,23 @@ interface FunctionIsAvailable {
   checkIsFunctionAvailable: (functionName: FunctionNames) => boolean;
 }
 
-export const useIsFunctionAvailable = (
-  functionName?: FunctionNames,
-): FunctionIsAvailable => {
-  const { network } = useNetworkContext();
+export const useIsFunctionAvailable = ({
+  functionName,
+  network,
+}: {
+  functionName?: FunctionNames;
+  network?: NetworkWithCaipId;
+}): FunctionIsAvailable => {
+  const { network: activeNetwork } = useNetworkContext();
   const isUsingSeedlessAccount = useIsUsingSeedlessAccount();
   const { isFlagEnabled } = useFeatureFlagContext();
+  const networkToCheck = network || activeNetwork;
 
   const {
     accounts: { active },
   } = useAccountsContext();
 
-  const isReady = Boolean(network && active);
+  const isReady = Boolean(networkToCheck && active);
 
   const checkIsFunctionAvailable = (functionToCheck: FunctionNames) => {
     if (
@@ -209,13 +214,13 @@ export const useIsFunctionAvailable = (
       return false;
     }
     if (functionToCheck === FunctionNames.SEND) {
-      if (isPchainNetwork(network)) {
+      if (isPchainNetwork(networkToCheck)) {
         return Boolean(
           !!active?.addressPVM &&
             isFlagEnabled(FeatureGates.SEND) &&
             isFlagEnabled(FeatureGates.SEND_P_CHAIN),
         );
-      } else if (isXchainNetwork(network)) {
+      } else if (isXchainNetwork(networkToCheck)) {
         return Boolean(
           !!active?.addressAVM &&
             isFlagEnabled(FeatureGates.SEND) &&
@@ -225,25 +230,25 @@ export const useIsFunctionAvailable = (
     }
 
     if (functionToCheck === FunctionNames.SWAP) {
-      if (!network || !isFlagEnabled(FeatureGates.SWAP)) {
+      if (!networkToCheck || !isFlagEnabled(FeatureGates.SWAP)) {
         return false;
       }
 
-      return isEthereumNetwork(network)
+      return isEthereumNetwork(networkToCheck)
         ? isFlagEnabled(FeatureGates.SWAP_ETHEREUM)
-        : isAvalancheNetwork(network)
+        : isAvalancheNetwork(networkToCheck)
           ? isFlagEnabled(FeatureGates.SWAP_C_CHAIN)
-          : isSolanaNetwork(network)
+          : isSolanaNetwork(networkToCheck)
             ? isFlagEnabled(FeatureGates.SWAP_SOLANA)
             : false;
     }
 
     if (functionToCheck === FunctionNames.BRIDGE) {
-      if (!network || !isFlagEnabled(FeatureGates.BRIDGE)) {
+      if (!networkToCheck || !isFlagEnabled(FeatureGates.BRIDGE)) {
         return false;
       }
 
-      if (isBitcoinNetwork(network)) {
+      if (isBitcoinNetwork(networkToCheck)) {
         return isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA);
       }
       return true;
@@ -255,17 +260,18 @@ export const useIsFunctionAvailable = (
   };
 
   const checkIsFunctionSupported = (name: FunctionNames) => {
-    if (!network || !active) {
+    if (!networkToCheck || !active) {
       return false;
     }
 
     //The avalanche Ledger app doesn’t suprort send on x/p chain yet
     //The account without addressPVM cannot send on pchain
-    const onPchainWithNoAccess = isPchainNetwork(network) && !active.addressPVM;
+    const onPchainWithNoAccess =
+      isPchainNetwork(networkToCheck) && !active.addressPVM;
 
     //The account without addressAVM cannot send on xchain
     const onXchainWithNoAccress =
-      isXchainNetwork(network) && !active.addressAVM;
+      isXchainNetwork(networkToCheck) && !active.addressAVM;
 
     if (
       name === FunctionNames.SEND &&
@@ -276,7 +282,7 @@ export const useIsFunctionAvailable = (
     // Check whitelist
     if (
       enabledFeatures[name] &&
-      !enabledFeatures[name].includes(network.chainId)
+      !enabledFeatures[name].includes(networkToCheck.chainId)
     ) {
       return false;
     }
@@ -285,10 +291,10 @@ export const useIsFunctionAvailable = (
 
     if (blacklist) {
       const blacklistedForNetwork = blacklist.networks.includes(
-        network.chainId,
+        networkToCheck.chainId,
       );
       const blacklistedForOtherReasons = blacklist.complexChecks.some((check) =>
-        check(network.chainId, active),
+        check(networkToCheck.chainId, active),
       );
 
       return !blacklistedForNetwork && !blacklistedForOtherReasons;

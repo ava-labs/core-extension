@@ -59,7 +59,7 @@ export function Portfolio() {
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
   const { activeTab, setActiveTab } = usePersistedTabs(PortfolioTabs.ASSETS);
-  const { isReady, checkIsFunctionSupported } = useIsFunctionAvailable();
+  const { isReady, checkIsFunctionSupported } = useIsFunctionAvailable({});
   const [listType, setListType] = useState<ListType>();
   const [hadDefiEnabled, setHadDefiEnabled] = useState(false);
   const { getPageHistoryData } = usePageHistory();

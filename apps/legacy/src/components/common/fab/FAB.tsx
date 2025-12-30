@@ -97,7 +97,7 @@ const ActionButton = ({ icon, text, ...rest }) => (
 export function FAB({ isContentScrolling }: { isContentScrolling: boolean }) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const history = useHistory();
-  const { checkIsFunctionSupported } = useIsFunctionAvailable();
+  const { checkIsFunctionSupported } = useIsFunctionAvailable({});
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
   const theme = useTheme();

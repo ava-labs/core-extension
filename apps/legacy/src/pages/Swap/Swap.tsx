@@ -73,7 +73,7 @@ export function Swap() {
   const {
     isFunctionAvailable: isSwapAvailable,
     isFunctionSupported: isSwapSupported,
-  } = useIsFunctionAvailable(FunctionNames.SWAP);
+  } = useIsFunctionAvailable({ functionName: FunctionNames.SWAP });
   const history = useHistory();
   const theme = useTheme();
   const { sourceTokens, targetTokens } = useSwappableTokens();
