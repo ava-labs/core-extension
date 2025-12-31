@@ -253,12 +253,15 @@ export type MarkrQuote = {
     name: string;
     logo_url: string;
   };
+  chainId: number;
   tokenIn: string;
   tokenInDecimals: number;
   amountIn: string;
   tokenOut: string;
   tokenOutDecimals: number;
   amountOut: string;
+  gasEstimate?: number;
+  expiredAt?: number;
   done?: boolean;
 };
 

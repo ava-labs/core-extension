@@ -3,6 +3,7 @@ import { CircularProgress, Stack } from '@avalabs/k2-alpine';
 import { Route, Switch, SwitchProps } from 'react-router-dom';
 
 import { GenericApprovalScreen } from '@/pages/Approve/GenericApprovalScreen';
+import { BatchApprovalScreen } from '@/pages/Approve/BatchApprovalScreen';
 import { ApproveDappConnection } from '@/pages/Approve/ApproveDappConnection/ApproveDappConnection';
 import { ExtensionActionApprovalScreen } from '@/pages/Approve/ExtensionActionApprovalScreen';
 import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
@@ -42,6 +43,9 @@ export const ApprovalRoutes = (props: SwitchProps) => (
       </Route>
       <Route path={'/approve/generic'}>
         <GenericApprovalScreen />
+      </Route>
+      <Route path={'/approve/tx-batch'}>
+        <BatchApprovalScreen />
       </Route>
       <Route path="/permissions">
         <ApproveDappConnection />

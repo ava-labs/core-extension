@@ -106,13 +106,14 @@ export type PerformSwapParams = {
   signAndSend: (
     method: RpcMethod,
     txParams: [NormalizedTransactionParams],
-    context?: Record<string, unknown>,
+    context?: { approvalTx?: TransactionParams },
   ) => Promise<string>;
   isSwapFeesEnabled: boolean;
   feeAccount?: string;
   isOneClickSwapEnabled: boolean;
   markrSwapGasBuffer?: number;
   isGaslessOn?: boolean;
+  shouldUseAutoApproval?: boolean; // Only true for Markr swaps when degen mode is enabled
 };
 
 export function isEvmWrapQuote(quote: SwapQuote): quote is EvmWrapQuote {
