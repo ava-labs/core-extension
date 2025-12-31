@@ -139,7 +139,7 @@ describe('hooks/useIsFunctionAvailable', () => {
         network: undefined,
       });
 
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(result.current.isReady).toBe(false);
     });
@@ -151,13 +151,13 @@ describe('hooks/useIsFunctionAvailable', () => {
         },
       });
 
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(result.current.isReady).toBe(false);
     });
 
     it('returns true when both network and account are available', () => {
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(result.current.isReady).toBe(true);
     });
@@ -165,7 +165,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
   describe('when functionName is not provided', () => {
     it('returns false for isFunctionAvailable and isFunctionSupported', () => {
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(result.current.isFunctionAvailable).toBe(false);
       expect(result.current.isFunctionSupported).toBe(false);
@@ -178,7 +178,7 @@ describe('hooks/useIsFunctionAvailable', () => {
   describe('checkIsFunctionAvailable - Feature Flag Checks', () => {
     it('returns true when feature flag is enabled for BRIDGE', () => {
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -189,7 +189,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       mockIsFlagEnabled.mockReturnValueOnce(false);
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -197,7 +197,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
     it('returns true when feature flag is enabled for BUY', () => {
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BUY),
+        useIsFunctionAvailable({ functionName: FunctionNames.BUY }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -205,7 +205,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
     it('returns true when feature flag is enabled for DEFI', () => {
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.DEFI),
+        useIsFunctionAvailable({ functionName: FunctionNames.DEFI }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -213,7 +213,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
     it('returns true when feature flag is enabled for KEYSTONE', () => {
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.KEYSTONE),
+        useIsFunctionAvailable({ functionName: FunctionNames.KEYSTONE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -221,7 +221,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
     it('returns true for functions without feature flag mapping', () => {
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.RECEIVE),
+        useIsFunctionAvailable({ functionName: FunctionNames.RECEIVE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -240,22 +240,22 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result: bridgeResult } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
       expect(bridgeResult.current.isFunctionAvailable).toBe(false);
 
       const { result: sendResult } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
       expect(sendResult.current.isFunctionAvailable).toBe(false);
 
       const { result: swapResult } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
       expect(swapResult.current.isFunctionAvailable).toBe(false);
 
       const { result: signResult } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SIGN),
+        useIsFunctionAvailable({ functionName: FunctionNames.SIGN }),
       );
       expect(signResult.current.isFunctionAvailable).toBe(false);
     });
@@ -267,7 +267,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -280,7 +280,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.RECEIVE),
+        useIsFunctionAvailable({ functionName: FunctionNames.RECEIVE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -294,7 +294,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -313,7 +313,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -333,7 +333,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -345,7 +345,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -364,7 +364,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -378,7 +378,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -391,7 +391,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -403,7 +403,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -419,7 +419,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -433,7 +433,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -447,7 +447,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -461,7 +461,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -474,7 +474,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -493,7 +493,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -514,7 +514,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
@@ -530,7 +530,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionAvailable).toBe(true);
@@ -544,7 +544,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.COLLECTIBLES),
+        useIsFunctionAvailable({ functionName: FunctionNames.COLLECTIBLES }),
       );
 
       expect(result.current.isFunctionSupported).toBe(true);
@@ -556,7 +556,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.COLLECTIBLES),
+        useIsFunctionAvailable({ functionName: FunctionNames.COLLECTIBLES }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -568,7 +568,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionSupported).toBe(true);
@@ -580,7 +580,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SWAP),
+        useIsFunctionAvailable({ functionName: FunctionNames.SWAP }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -592,7 +592,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BUY),
+        useIsFunctionAvailable({ functionName: FunctionNames.BUY }),
       );
 
       expect(result.current.isFunctionSupported).toBe(true);
@@ -604,7 +604,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BUY),
+        useIsFunctionAvailable({ functionName: FunctionNames.BUY }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -618,7 +618,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN),
+        useIsFunctionAvailable({ functionName: FunctionNames.MANAGE_TOKEN }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -630,7 +630,9 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.MANAGE_COLLECTIBLES),
+        useIsFunctionAvailable({
+          functionName: FunctionNames.MANAGE_COLLECTIBLES,
+        }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -642,7 +644,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -654,7 +656,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.BRIDGE),
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
       );
 
       expect(result.current.isFunctionSupported).toBe(true);
@@ -673,7 +675,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -690,7 +692,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -702,7 +704,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionSupported).toBe(true);
@@ -714,7 +716,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.SEND),
+        useIsFunctionAvailable({ functionName: FunctionNames.SEND }),
       );
 
       expect(result.current.isFunctionSupported).toBe(true);
@@ -728,7 +730,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.RECEIVE),
+        useIsFunctionAvailable({ functionName: FunctionNames.RECEIVE }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -742,7 +744,7 @@ describe('hooks/useIsFunctionAvailable', () => {
       });
 
       const { result } = renderHook(() =>
-        useIsFunctionAvailable(FunctionNames.RECEIVE),
+        useIsFunctionAvailable({ functionName: FunctionNames.RECEIVE }),
       );
 
       expect(result.current.isFunctionSupported).toBe(false);
@@ -751,7 +753,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
   describe('checkIsFunctionAvailable and checkIsFunctionSupported helpers', () => {
     it('checkIsFunctionAvailable can be called directly', () => {
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(
         result.current.checkIsFunctionAvailable(FunctionNames.BRIDGE),
@@ -759,7 +761,7 @@ describe('hooks/useIsFunctionAvailable', () => {
     });
 
     it('checkIsFunctionSupported can be called directly', () => {
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(
         result.current.checkIsFunctionSupported(FunctionNames.BRIDGE),
@@ -772,7 +774,7 @@ describe('hooks/useIsFunctionAvailable', () => {
         return mockFeatureFlags[flag] ?? false;
       });
 
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(
         result.current.checkIsFunctionAvailable(FunctionNames.BRIDGE),
@@ -784,11 +786,35 @@ describe('hooks/useIsFunctionAvailable', () => {
         network: { chainId: ChainId.BITCOIN },
       });
 
-      const { result } = renderHook(() => useIsFunctionAvailable());
+      const { result } = renderHook(() => useIsFunctionAvailable({}));
 
       expect(
         result.current.checkIsFunctionSupported(FunctionNames.COLLECTIBLES),
       ).toBe(false);
+    });
+  });
+
+  describe('network parameter override', () => {
+    it('uses the provided network parameter instead of active network from context', () => {
+      // Set context to Bitcoin (where swap is NOT supported)
+      (useNetworkContext as jest.Mock).mockReturnValue({
+        network: { chainId: ChainId.BITCOIN },
+      });
+
+      // But pass Avalanche as the network parameter (where swap IS supported)
+      const { result } = renderHook(() =>
+        useIsFunctionAvailable({
+          functionName: FunctionNames.SWAP,
+          network: {
+            chainId: ChainId.AVALANCHE_MAINNET_ID,
+            caipId: 'eip155:43114',
+          } as any,
+        }),
+      );
+
+      // Should use the passed network (Avalanche), not the context network (Bitcoin)
+      expect(result.current.isFunctionAvailable).toBe(true);
+      expect(result.current.isFunctionSupported).toBe(true);
     });
   });
 });

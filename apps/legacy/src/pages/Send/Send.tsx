@@ -61,9 +61,9 @@ export function SendPage() {
   const { captureEncrypted } = useAnalyticsContext();
   const tokens = useTokensWithBalances();
 
-  const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable(
-    FunctionNames.SEND,
-  );
+  const { isFunctionAvailable, isFunctionSupported } = useIsFunctionAvailable({
+    functionName: FunctionNames.SEND,
+  });
 
   const nativeToken = tokens.find(({ type }) => type === TokenType.NATIVE);
 

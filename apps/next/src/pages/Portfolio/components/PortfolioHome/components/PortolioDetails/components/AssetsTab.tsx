@@ -1,46 +1,48 @@
+import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
+import { getUniqueTokenId } from '@core/types';
+import {
+  useAccountsContext,
+  useBalancesContext,
+  useBalanceTotalInCurrency,
+  useIsMainnet,
+  useNetworkContext,
+} from '@core/ui';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
-import { getUniqueTokenId } from '@core/types';
-import {
-  useNetworkContext,
-  useBalancesContext,
-  useAccountsContext,
-  useBalanceTotalInCurrency,
-  useIsMainnet,
-} from '@core/ui';
 
-import { AssetCard } from './AssetCard';
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import {
   filterAssetsByNetworks,
   getAvailableNetworksFromAssets,
 } from '../utils/assetFiltering';
-import { FilterMenu } from './FilterMenu';
-import { SortMenu } from './SortMenu';
 import { AssetSortOption, sortAssets } from '../utils/assetSorting';
+import { AssetCard } from './AssetCard';
 import { AssetsEmptyState } from './AssetsEmptyState';
 import { AssetsErrorState } from './AssetsErrorState';
-import { useTokensForAccount } from '@/hooks/useTokensForAccount';
+import { FilterMenu } from './FilterMenu';
+import { SortMenu } from './SortMenu';
+
+const selectedNetworkStateInitializer = () => new Set<number>();
 
 export const AssetsTab: FC = () => {
   const { t } = useTranslation();
   const { push } = useHistory();
-  const { getNetwork } = useNetworkContext();
+  const { getNetwork, enabledNetworks } = useNetworkContext();
   const {
     accounts: { active: account },
   } = useAccountsContext();
   const { balances } = useBalancesContext();
   const [sort, setSort] = useState<AssetSortOption | null>(null);
   const [selectedNetworks, setSelectedNetworks] = useState<Set<number>>(
-    new Set(),
+    selectedNetworkStateInitializer,
   );
   const isMainnet = useIsMainnet();
 
   const accountBalance = useBalanceTotalInCurrency(account);
 
-  const assets = useTokensForAccount(account);
+  const assets = useTokensForAccount(account, { networks: enabledNetworks });
 
   //Only show assets with balances
   const assetsWithBalances = useMemo(() => {
@@ -69,11 +71,10 @@ export const AssetsTab: FC = () => {
   );
 
   const shouldDisplayEmptyState = useMemo(() => {
-    if (!isMainnet) {
-      return sortedAssets.length === 0;
+    if (isMainnet) {
+      return sortedAssets.length === 0 || accountBalance?.sum === 0;
     }
-
-    return sortedAssets.length === 0 || accountBalance?.sum === 0;
+    return sortedAssets.length === 0;
   }, [isMainnet, sortedAssets, accountBalance]);
 
   return (

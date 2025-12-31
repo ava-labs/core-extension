@@ -1,5 +1,5 @@
 import { TokenType } from '@avalabs/vm-module-types';
-import { useLiveBalance } from '@core/ui';
+import { useLiveBalance, useNetworkContext } from '@core/ui';
 import { ComponentType, FC } from 'react';
 import { TabName } from '../../types';
 import { ActivityTab, AssetsTab, CollectiblesTab, DeFiTab } from './components';
@@ -29,10 +29,11 @@ const tabConfig: Record<TabName, TabConfig> = {
 export const PortfolioDetails: FC<Props> = ({ tab }) => {
   const { TabComponent, balancesFor } = tabConfig[tab];
   useLiveBalance(balancesFor);
+  const { avaxNetworkC } = useNetworkContext();
 
   return (
     <>
-      <PortfolioActionButtons />
+      <PortfolioActionButtons network={avaxNetworkC} />
       <TabComponent />
     </>
   );

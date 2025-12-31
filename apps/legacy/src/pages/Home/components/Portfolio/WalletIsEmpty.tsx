@@ -11,7 +11,7 @@ import {
 export function WalletIsEmpty() {
   const history = useHistory();
   const { isFunctionSupported: isManageTokenSupported } =
-    useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
+    useIsFunctionAvailable({ functionName: FunctionNames.MANAGE_TOKEN });
   const { t } = useTranslation();
   return (
     <Stack

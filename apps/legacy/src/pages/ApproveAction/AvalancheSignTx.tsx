@@ -47,9 +47,9 @@ export function AvalancheSignTx() {
   const { action, updateAction, cancelHandler } = useApproveAction(requestId);
   const { network } = useNetworkContext();
   const { t } = useTranslation();
-  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable(
-    FunctionNames.SIGN,
-  );
+  const { isFunctionAvailable: isSigningAvailable } = useIsFunctionAvailable({
+    functionName: FunctionNames.SIGN,
+  });
   const tokenPrice = useNativeTokenPrice(network);
   const isUsingLedgerWallet = useIsUsingLedgerWallet();
   const isUsingKeystone3Wallet = useIsUsingKeystone3Wallet();

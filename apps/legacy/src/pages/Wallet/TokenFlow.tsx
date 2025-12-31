@@ -63,9 +63,9 @@ export function TokenFlow() {
   const [showSend, setShowSend] = useState<boolean>();
   const setSendDataInParams = useSetSendDataInParams();
   const { network } = useNetworkContext();
-  const { isFunctionAvailable: isBuyAvailable } = useIsFunctionAvailable(
-    FunctionNames.BUY,
-  );
+  const { isFunctionAvailable: isBuyAvailable } = useIsFunctionAvailable({
+    functionName: FunctionNames.BUY,
+  });
 
   const { isBitcoin, isPchain, isXchain } = useMemo(() => {
     const networkExists = !!network;

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { usePersonalAvatar } from '@/components/PersonalAvatar';
-import { useBalancesContext } from '@core/ui';
+import { useBalancesContext, useNetworkContext } from '@core/ui';
 import { useNetworksWithBalance } from '../hooks/useNetworksWithBalance';
 import { getAccountAvatars } from '../utils/accountAvatars';
 import { WalletBalance } from './WalletBalance';
@@ -16,6 +16,7 @@ type Props = {
 };
 export const ImportedAccountDetails = ({ account }: Props) => {
   const { t } = useTranslation();
+  const { avaxNetworkC } = useNetworkContext();
   const { getTotalBalance } = useBalancesContext();
   const balance = getTotalBalance(account.addressC);
   const networksWithBalance = useNetworksWithBalance({ accountId: account.id });
@@ -60,7 +61,7 @@ export const ImportedAccountDetails = ({ account }: Props) => {
         balanceChange={balance?.priceChange?.value}
         percentageChange={percentageChange}
       />
-      <PortfolioActionButtons />
+      <PortfolioActionButtons network={avaxNetworkC} />
       <WalletAccountsCard
         accountCount={1}
         networkCount={networkCount}

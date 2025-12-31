@@ -33,7 +33,7 @@ export function TokenList({ searchQuery }: TokenListProps) {
   const setSendDataInParams = useSetSendDataInParams();
   const { capture } = useAnalyticsContext();
   const { isFunctionSupported: isManageTokenSupported } =
-    useIsFunctionAvailable(FunctionNames.MANAGE_TOKEN);
+    useIsFunctionAvailable({ functionName: FunctionNames.MANAGE_TOKEN });
   const { network } = useNetworkContext();
 
   const firstAsset = tokensWithBalances[0];

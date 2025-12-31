@@ -71,6 +71,7 @@ const NetworkContext = createContext<{
   isChainIdExist(chainId: number): boolean;
   getNetwork(chainId: number | string): NetworkWithCaipId | undefined;
   avaxProviderC?: JsonRpcBatchInternal;
+  avaxNetworkC?: NetworkWithCaipId;
   avaxProviderP?: Avalanche.JsonRpcProvider;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
@@ -96,7 +97,7 @@ const NetworkContext = createContext<{
   isChainIdExist: () => false,
   getNetwork: () => undefined,
   avaxProviderC: undefined,
-
+  avaxNetworkC: undefined,
   ethereumProvider: undefined,
   bitcoinProvider: undefined,
 });
@@ -181,6 +182,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const [ethereumProvider, setEthereumProvider] =
     useState<JsonRpcBatchInternal>();
   const [avaxProviderC, setAvaxProviderC] = useState<JsonRpcBatchInternal>();
+  const [networkC, setNetworkC] = useState<NetworkWithCaipId>();
 
   useEffect(() => {
     if (!network) {
@@ -197,6 +199,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         ? ChainId.AVALANCHE_TESTNET_ID
         : ChainId.AVALANCHE_MAINNET_ID,
     );
+    setNetworkC(avaxNetworkC);
     const ethNetwork = getNetwork(
       network.isTestnet
         ? ChainId.ETHEREUM_TEST_SEPOLIA
@@ -426,6 +429,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         isChainIdExist,
         getNetwork,
         avaxProviderC,
+        avaxNetworkC: networkC,
         bitcoinProvider,
         ethereumProvider,
       }}
