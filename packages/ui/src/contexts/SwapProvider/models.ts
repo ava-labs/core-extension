@@ -260,6 +260,7 @@ export type MarkrQuote = {
   tokenOutDecimals: number;
   amountOut: string;
   done?: boolean;
+  recommendedSlippage?: number;
 };
 
 export type MarkrTransaction = {
