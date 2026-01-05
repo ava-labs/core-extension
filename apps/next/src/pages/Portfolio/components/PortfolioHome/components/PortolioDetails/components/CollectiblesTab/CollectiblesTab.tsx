@@ -80,6 +80,8 @@ export function CollectiblesTab() {
     toggleCollectible,
     setSortOption,
     setOpenManageDialog,
+    networkFilters,
+    toggleNetworkFilter,
   } = useCollectiblesToolbar({ collectibles: formattedCollectibles });
 
   const handleItemClick = useCallback((nft: FormattedCollectible) => {
@@ -99,6 +101,8 @@ export function CollectiblesTab() {
         {collectibles.length > 0 && (
           <CollectibleToolbar
             mediaFilters={mediaFilters}
+            networkFilters={networkFilters}
+            toggleNetworkFilter={toggleNetworkFilter}
             toggleMediaFilter={toggleMediaFilter}
             toggleOpenManageDialog={() =>
               setOpenManageDialog(!openManageDialog)

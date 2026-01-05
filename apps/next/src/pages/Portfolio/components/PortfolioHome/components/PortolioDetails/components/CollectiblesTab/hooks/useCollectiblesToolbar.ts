@@ -1,5 +1,10 @@
 import { useMemo, useState, useCallback } from 'react';
-import { filterCollectiblesByMediaType, sortCollectibles } from '../utils';
+import { flow, isEmpty } from 'lodash';
+import {
+  filterCollectiblesByMediaType,
+  filterCollectiblesByNetworks,
+  sortCollectibles,
+} from '../utils';
 import { FormattedCollectible } from '../CollectiblesTab';
 import { useStorage } from '@/hooks/useStorage';
 export type MediaTypeFilters = {
@@ -19,6 +24,7 @@ const filterCollectibles = (
   collectibles: FormattedCollectible[],
   mediaFilters: MediaTypeFilters,
   hideUnreachable: boolean,
+  networkFilters: number[] = [],
 ): FormattedCollectible[] => {
   // First, filter out unreachable collectibles if hideUnreachable is true
   const reachableCollectibles = hideUnreachable
@@ -28,8 +34,11 @@ const filterCollectibles = (
           collectible.metadata?.indexStatus !== 'INVALID_TOKEN_URI_SCHEME',
       )
     : collectibles;
-  // Then apply media type filters
-  return filterCollectiblesByMediaType(reachableCollectibles, mediaFilters);
+  // Then apply other filters
+  return flow([
+    filterCollectiblesByMediaType(mediaFilters),
+    filterCollectiblesByNetworks(networkFilters),
+  ])(reachableCollectibles) as FormattedCollectible[];
 };
 
 export const useCollectiblesToolbar = ({
@@ -45,6 +54,10 @@ export const useCollectiblesToolbar = ({
       gif: true,
       video: true,
     },
+  );
+  const [networkFilters, setNetworkFilters] = useStorage<string, Set<number>>(
+    'collectibles-network-filters',
+    new Set(),
   );
   const [sortOption, setSortOption] = useStorage<string, SortMode>(
     'collectibles-sort-option',
@@ -100,6 +113,21 @@ export const useCollectiblesToolbar = ({
     [setMediaFilters],
   );
 
+  const toggleNetworkFilter = useCallback(
+    (chainId: number) => {
+      setNetworkFilters((prev) => {
+        const newSelected = isEmpty(prev) ? new Set<number>() : new Set(prev);
+        if (newSelected.has(chainId)) {
+          newSelected.delete(chainId);
+        } else {
+          newSelected.add(chainId);
+        }
+        return newSelected;
+      });
+    },
+    [setNetworkFilters],
+  );
+
   const hiddenCollectibles = useMemo(
     () => new Set<string>(hiddenCollectiblesIds),
     [hiddenCollectiblesIds],
@@ -130,6 +158,7 @@ export const useCollectiblesToolbar = ({
       collectibles,
       mediaFilters,
       hideUnreachable,
+      Array.from(networkFilters),
     );
     const sortedCollectibles = sortCollectibles(
       filteredCollectibles,
@@ -143,6 +172,7 @@ export const useCollectiblesToolbar = ({
   }, [
     collectibles,
     mediaFilters,
+    networkFilters,
     hideUnreachable,
     sortOption,
     hiddenCollectibles,
@@ -160,5 +190,7 @@ export const useCollectiblesToolbar = ({
     setOpenManageDialog,
     toggleHideUnreachable,
     toggleCollectible,
+    toggleNetworkFilter,
+    networkFilters,
   };
 };
