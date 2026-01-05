@@ -73,6 +73,10 @@ export const useCollectiblesToolbar = ({
     string[]
   >('hidden-collectibles-ids', []);
 
+  const clearNetworkFilter = useCallback(() => {
+    setNetworkFilters(new Set());
+  }, [setNetworkFilters]);
+
   const toggleMediaFilter = useCallback(
     (filterType: keyof MediaTypeFilters) => {
       setMediaFilters((prev) => {
@@ -192,5 +196,6 @@ export const useCollectiblesToolbar = ({
     toggleCollectible,
     toggleNetworkFilter,
     networkFilters,
+    clearNetworkFilter,
   };
 };

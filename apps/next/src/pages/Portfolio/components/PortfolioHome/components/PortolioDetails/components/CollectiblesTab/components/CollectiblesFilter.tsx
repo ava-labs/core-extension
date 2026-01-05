@@ -10,6 +10,7 @@ interface CollectiblesFilterProps {
   selectedNetworks: number[];
   onTypeChange: (type: keyof MediaTypeFilters) => void;
   onNetworkChange: (chainId: number) => void;
+  clearNetworkFilter: () => void;
 }
 
 export function CollectiblesFilter({
@@ -17,12 +18,19 @@ export function CollectiblesFilter({
   onTypeChange,
   selectedNetworks,
   onNetworkChange,
+  clearNetworkFilter,
 }: CollectiblesFilterProps) {
   const { t } = useTranslation();
   const { enabledNetworks } = useNetworkContext();
 
   return (
     <DropdownMenu label={t('Filter')}>
+      <PopoverItem
+        onClick={clearNetworkFilter}
+        selected={selectedNetworks.length === 0}
+      >
+        {t('All networks')}
+      </PopoverItem>
       {enabledNetworks.map((network) => (
         <PopoverItem
           key={network.caip2Id}

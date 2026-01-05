@@ -15,6 +15,7 @@ export type CollectibleToolbarProps = {
   setSortOption: (option: SortMode) => void;
   toggleOpenManageDialog: () => void;
   networkFilters: Set<number>;
+  clearNetworkFilter: () => void;
 };
 
 export const CollectibleToolbar = ({
@@ -25,6 +26,7 @@ export const CollectibleToolbar = ({
   toggleOpenManageDialog,
   toggleNetworkFilter,
   networkFilters,
+  clearNetworkFilter,
 }: CollectibleToolbarProps) => {
   const { t } = useTranslation();
   return (
@@ -40,6 +42,7 @@ export const CollectibleToolbar = ({
           onTypeChange={toggleMediaFilter}
           selectedNetworks={Array.from(networkFilters)}
           onNetworkChange={toggleNetworkFilter}
+          clearNetworkFilter={clearNetworkFilter}
         />
         <CollectiblesSort
           sortOption={sortOption}

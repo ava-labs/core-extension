@@ -82,6 +82,7 @@ export function CollectiblesTab() {
     setOpenManageDialog,
     networkFilters,
     toggleNetworkFilter,
+    clearNetworkFilter,
   } = useCollectiblesToolbar({ collectibles: formattedCollectibles });
 
   const handleItemClick = useCallback((nft: FormattedCollectible) => {
@@ -109,6 +110,7 @@ export function CollectiblesTab() {
             }
             sortOption={sortOption}
             setSortOption={setSortOption}
+            clearNetworkFilter={clearNetworkFilter}
           />
         )}
       </Stack>
