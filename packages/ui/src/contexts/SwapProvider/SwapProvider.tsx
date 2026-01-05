@@ -47,7 +47,7 @@ import { SWAP_REFRESH_INTERVAL } from './constants';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
-export function SwapContextProvider({ children }: PropsWithChildren) {
+export function SwapContextProvider({ children }: PropsWithChildren<object>) {
   const { network: activeNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },

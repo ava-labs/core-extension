@@ -28,7 +28,9 @@ const PermissionContext = createContext<{
   ) => boolean;
 }>({} as any);
 
-export function PermissionContextProvider({ children }: PropsWithChildren) {
+export function PermissionContextProvider({
+  children,
+}: PropsWithChildren<object>) {
   const { request, events } = useConnectionContext();
 
   const [permissionState, setPermissionState] = useState<Permissions>(

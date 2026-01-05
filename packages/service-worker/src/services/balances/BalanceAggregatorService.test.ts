@@ -107,7 +107,6 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
     activeNetworks: {
       promisify: jest.fn(),
     },
-    getFavoriteNetworks: () => [2, 3, 4],
   } as any;
   const addressResolverMock = {} as any;
 

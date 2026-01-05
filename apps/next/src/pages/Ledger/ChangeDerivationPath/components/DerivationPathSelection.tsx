@@ -1,10 +1,10 @@
 import {
   AvalancheLedgerConnector,
-  DerivationStatus,
   LedgerConnectorOverrides,
 } from '@/components/ConnectLedger/LedgerConnector';
 import { DerivedKeys } from '@/components/ConnectLedger/LedgerConnector/types';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
+import { DerivationStatus } from '@core/types';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

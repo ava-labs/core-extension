@@ -29,7 +29,9 @@ const FeatureFlagsContext = createContext<{
   isFlagEnabled: () => false,
 } as any);
 
-export function FeatureFlagsContextProvider({ children }: PropsWithChildren) {
+export function FeatureFlagsContextProvider({
+  children,
+}: PropsWithChildren<object>) {
   const { events, request } = useConnectionContext();
   const [featureFlags, setFeatureFlags] = useState<FeatureFlags>(DEFAULT_FLAGS);
 

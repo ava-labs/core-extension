@@ -30,7 +30,9 @@ const CurrenciesContext = createContext<CurrenciesProviderValue>(
   {} as unknown as CurrenciesProviderValue,
 );
 
-export function CurrenciesContextProvider({ children }: PropsWithChildren) {
+export function CurrenciesContextProvider({
+  children,
+}: PropsWithChildren<object>) {
   const { request, events } = useConnectionContext();
   const [rates, setRates] = useState<CurrencyExchangeRates>({});
 

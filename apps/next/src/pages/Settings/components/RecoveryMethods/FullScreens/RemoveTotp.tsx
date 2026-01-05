@@ -1,14 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  AlertCircleIcon,
-  Button,
-  CheckCircleIcon,
-  Stack,
-  SxProps,
-  toast,
-  Typography,
-} from '@avalabs/core-k2-components';
+import { Button, Stack, SxProps, toast, Typography } from '@avalabs/k2-alpine';
 
 import { useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
@@ -16,6 +8,8 @@ import { useMFAEvents } from '@/pages/Settings/components/common/useMFAEvent';
 import { FIDOChallenge } from '@/pages/Settings/components/common/FIDOChallenge';
 import { useHistory } from 'react-router-dom';
 import { InProgress } from '@/pages/Settings/components/common/InProgress';
+import { FiAlertCircle } from 'react-icons/fi';
+import { MdCheckCircle } from 'react-icons/md';
 
 enum RemoveTotpState {
   Loading = 'loading',
@@ -44,7 +38,6 @@ export const RemoveTotp = () => {
   const mfaChallenge = useMFAEvents(setError);
 
   const remove = useCallback(async () => {
-    console.log('remove');
     try {
       await removeTotp();
       setState(RemoveTotpState.Success);
@@ -69,7 +62,7 @@ export const RemoveTotp = () => {
       )}
       {state === RemoveTotpState.Failure && (
         <Stack sx={{ ...centeredStackSx, px: 3 }}>
-          <AlertCircleIcon size={72} />
+          <FiAlertCircle size={72} />
           <Stack sx={{ textAlign: 'center', gap: 0.5 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               {t('Something Went Wrong')}
@@ -100,7 +93,7 @@ export const RemoveTotp = () => {
       )}
       {state === RemoveTotpState.Success && (
         <Stack sx={{ ...centeredStackSx, px: 2 }}>
-          <CheckCircleIcon size={72} sx={{ color: 'success.main' }} />
+          <MdCheckCircle size={72} color={'success.main'} />
           <Typography variant="h5">{t('Success!')}</Typography>
           <Typography variant="body2">
             {t('Authenticator app removed successfully!')}

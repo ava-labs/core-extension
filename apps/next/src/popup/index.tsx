@@ -38,7 +38,9 @@ browser.tabs.query({ active: true }).then(() => {
           providers={
             Children.toArray([
               <I18nextProvider i18n={i18next} />,
-              <ConnectionContextProvider LoadingComponent={CircularProgress} />,
+              <ConnectionContextProvider
+                LoadingComponent={() => <CircularProgress />}
+              />,
               <SettingsContextProvider />,
               <FeatureFlagsContextProvider />,
               <AnalyticsContextProvider />,

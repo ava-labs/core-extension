@@ -3,11 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
 import { LedgerAppType, useLedgerContext } from '../contexts';
-
-import {
-  DerivationStatus,
-  SolanaPublicKey,
-} from '../../../../apps/legacy/src/pages/Ledger/models';
+import { DerivationStatus } from '@core/types';
 
 export const useSolanaPublicKeys = () => {
   const {
@@ -44,7 +40,7 @@ export const useSolanaPublicKeys = () => {
   const retrieveKeys = useCallback(
     async (indexes: number[]) => {
       try {
-        const keys: SolanaPublicKey[] = [];
+        const keys: { index: number; key: string }[] = [];
 
         for (const index of indexes) {
           const key = await getPublicKeyFromLedger(index);

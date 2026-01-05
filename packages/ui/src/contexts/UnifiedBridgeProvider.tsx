@@ -127,7 +127,7 @@ const DEFAULT_STATE = {
 
 const UnifiedBridgeContext = createContext<UnifiedBridgeContext>(DEFAULT_STATE);
 
-export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
+export function UnifiedBridgeProvider({ children }: PropsWithChildren<object>) {
   const { t } = useTranslation();
   const {
     accounts: { active: activeAccount },
