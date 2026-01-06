@@ -21,7 +21,7 @@ export function CollectiblesFilter({
   clearNetworkFilter,
 }: CollectiblesFilterProps) {
   const { t } = useTranslation();
-  const { enabledNetworks } = useNetworkContext();
+  const { nftEnabledNetworks } = useNetworkContext();
 
   return (
     <DropdownMenu label={t('Filter')}>
@@ -31,7 +31,7 @@ export function CollectiblesFilter({
       >
         {t('All networks')}
       </PopoverItem>
-      {enabledNetworks.map((network) => (
+      {nftEnabledNetworks.map((network) => (
         <PopoverItem
           key={network.caip2Id}
           onClick={() => onNetworkChange(network.chainId)}
