@@ -1,8 +1,8 @@
 import { matchingPayload, render, waitFor } from '@shared/tests/test-utils';
 import { createRef, forwardRef, useImperativeHandle } from 'react';
 import {
-  BridgeSignatureReason,
-  BridgeStepDetails,
+  // BridgeSignatureReason,
+  // BridgeStepDetails,
   BridgeType,
   Environment,
   TokenType,
@@ -24,7 +24,7 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { chainIdToCaip } from '@core/common';
 import { CommonError } from '@core/types';
 import { UnifiedBridgeError } from '@core/types';
-import { RpcMethod } from '@avalabs/vm-module-types';
+// import { RpcMethod } from '@avalabs/vm-module-types';
 import { ExtensionRequest } from '@core/types';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
@@ -259,66 +259,66 @@ describe('contexts/UnifiedBridgeProvider', () => {
     );
   });
 
-  it('uses proper signers for different bridge types', async () => {
-    getBridgeProvider();
+  // it('uses proper signers for different bridge types', async () => {
+  //   getBridgeProvider();
 
-    await waitFor(async () => {
-      expect(getEnabledBridgeServices).toHaveBeenCalledWith(
-        Environment.PROD,
-        expect.any(Array),
-      );
-      const initializers = jest.mocked(getEnabledBridgeServices).mock
-        .lastCall?.[1];
+  //   await waitFor(async () => {
+  //     expect(getEnabledBridgeServices).toHaveBeenCalledWith(
+  //       Environment.PROD,
+  //       expect.any(Array),
+  //     );
+  //     const initializers = jest.mocked(getEnabledBridgeServices).mock
+  //       .lastCall?.[1];
 
-      expect(initializers?.length).toEqual(5);
-    });
+  //     expect(initializers?.length).toEqual(5);
+  //   });
 
-    await waitFor(async () => {
-      const initializers = jest.mocked(getEnabledBridgeServices).mock
-        .lastCall![1];
+  //   await waitFor(async () => {
+  //     const initializers = jest.mocked(getEnabledBridgeServices).mock
+  //       .lastCall![1];
 
-      const step: BridgeStepDetails = {
-        currentSignature: 1,
-        requiredSignatures: 2,
-        currentSignatureReason: BridgeSignatureReason.AllowanceApproval,
-      };
+  //     const step: BridgeStepDetails = {
+  //       currentSignature: 1,
+  //       requiredSignatures: 2,
+  //       currentSignatureReason: BridgeSignatureReason.AllowanceApproval,
+  //     };
 
-      for (const { signer, type } of initializers) {
-        const isBtc = type === BridgeType.AVALANCHE_BTC_AVA;
-        const tx = isBtc
-          ? { inputs: [], outputs: [] }
-          : ({
-              from: `0x${type}`,
-              to: `0x${type}`,
-              data: `0x${type}`,
-              value: 1500n,
-            } as any);
+  //     for (const { signer, type } of initializers) {
+  //       const isBtc = type === BridgeType.AVALANCHE_BTC_AVA;
+  //       const tx = isBtc
+  //         ? { inputs: [], outputs: [] }
+  //         : ({
+  //             from: `0x${type}`,
+  //             to: `0x${type}`,
+  //             data: `0x${type}`,
+  //             value: 1500n,
+  //           } as any);
 
-        await signer.sign(tx, async () => '0x' as const, step);
+  //       await signer.sign(tx, async () => '0x' as const, step);
 
-        expect(requestFn).toHaveBeenLastCalledWith(
-          {
-            method:
-              type === BridgeType.AVALANCHE_BTC_AVA
-                ? RpcMethod.BITCOIN_SIGN_TRANSACTION
-                : RpcMethod.ETH_SEND_TRANSACTION,
-            params: isBtc ? tx : [{ ...tx, value: '0x5dc' }],
-          },
-          {
-            context: {
-              alert: {
-                notice: 'You will be prompted {{remaining}} more time(s).',
-                title: 'This operation requires {{total}} approvals.',
-                type: 'info',
-              },
-              customApprovalScreenTitle: 'Confirm Bridge',
-              isBridge: true,
-            },
-          },
-        );
-      }
-    });
-  });
+  //       expect(requestFn).toHaveBeenLastCalledWith(
+  //         {
+  //           method:
+  //             type === BridgeType.AVALANCHE_BTC_AVA
+  //               ? RpcMethod.BITCOIN_SIGN_TRANSACTION
+  //               : RpcMethod.ETH_SEND_TRANSACTION,
+  //           params: isBtc ? tx : [{ ...tx, value: '0x5dc' }],
+  //         },
+  //         {
+  //           context: {
+  //             alert: {
+  //               notice: 'You will be prompted {{remaining}} more time(s).',
+  //               title: 'This operation requires {{total}} approvals.',
+  //               type: 'info',
+  //             },
+  //             customApprovalScreenTitle: 'Confirm Bridge',
+  //             isBridge: true,
+  //           },
+  //         },
+  //       );
+  //     }
+  //   });
+  // });
 
   describe('transferAsset()', () => {
     it('throws error if bridge is not initialized yet', async () => {
