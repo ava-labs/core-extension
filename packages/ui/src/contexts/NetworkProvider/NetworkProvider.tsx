@@ -75,6 +75,7 @@ const NetworkContext = createContext<{
   avaxProviderP?: Avalanche.JsonRpcProvider;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
+  nftEnabledNetworks: NetworkWithCaipId[];
 }>({
   network: undefined,
   setNetwork() {},
@@ -100,6 +101,7 @@ const NetworkContext = createContext<{
   avaxNetworkC: undefined,
   ethereumProvider: undefined,
   bitcoinProvider: undefined,
+  nftEnabledNetworks: [],
 });
 
 /**
@@ -183,6 +185,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     useState<JsonRpcBatchInternal>();
   const [avaxProviderC, setAvaxProviderC] = useState<JsonRpcBatchInternal>();
   const [networkC, setNetworkC] = useState<NetworkWithCaipId>();
+  const [nftEnabledNetworks, seNftEnabledNetworks] = useState<
+    NetworkWithCaipId[]
+  >([]);
 
   useEffect(() => {
     if (!network) {
@@ -217,12 +222,16 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       };
     }
 
+    const tempNftEnabledNetworks: NetworkWithCaipId[] = [];
+
     if (avaxNetworkC) {
+      tempNftEnabledNetworks.push(avaxNetworkC);
       getProviderForNetwork(avaxNetworkC).then(
         updateIfMounted(setAvaxProviderC),
       );
     }
     if (ethNetwork) {
+      tempNftEnabledNetworks.push(ethNetwork);
       getProviderForNetwork(ethNetwork).then(
         updateIfMounted(setEthereumProvider),
       );
@@ -232,6 +241,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         updateIfMounted(setBitcoinProvider),
       );
     }
+
+    seNftEnabledNetworks(tempNftEnabledNetworks);
 
     return () => {
       isMounted = false;
@@ -432,6 +443,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         avaxNetworkC: networkC,
         bitcoinProvider,
         ethereumProvider,
+        nftEnabledNetworks,
       }}
     >
       {children}
