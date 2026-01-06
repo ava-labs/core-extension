@@ -31,11 +31,29 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const state = useUnifiedBridgeState();
 
   const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
+  const currentEnvironment = getEnvironment(isDeveloperMode, isBridgeDevEnv);
   const core = useCoreBridgeService(
-    getEnvironment(isDeveloperMode, isBridgeDevEnv),
+    currentEnvironment,
     bitcoinProvider,
     isDeveloperMode,
   );
+
+  const filteredState = useMemo(() => {
+    if (!currentEnvironment) {
+      return state;
+    }
+
+    const filteredTransfers = Object.fromEntries(
+      Object.entries(state.pendingTransfers).filter(
+        ([, transfer]) => transfer.environment === currentEnvironment,
+      ),
+    );
+
+    return {
+      ...state,
+      pendingTransfers: filteredTransfers,
+    };
+  }, [state, currentEnvironment]);
 
   const availableChainIds = useMemo(
     () =>
@@ -67,7 +85,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
       isReady: !!core,
       availableChainIds,
       estimateTransferGas,
-      state,
+      state: filteredState,
       getMinimumTransferAmount,
       getFee,
       supportsAsset,
@@ -82,7 +100,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
     core,
     availableChainIds,
     estimateTransferGas,
-    state,
+    filteredState,
     getMinimumTransferAmount,
     getFee,
     supportsAsset,
