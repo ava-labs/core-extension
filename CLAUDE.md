@@ -19,10 +19,6 @@ The project uses a monorepo structure with yarn workspaces and contains two main
 yarn dev
 yarn start
 
-# Start specific versions
-yarn dev:legacy
-yarn dev:next
-
 # Setup project (install deps + allow-scripts)
 yarn setup
 ```
@@ -141,12 +137,6 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 - **Clean State**: Reset all state when wallet locks
 - **Event-Driven Communication**: Services communicate via events, not direct calls
 - **Handler-Service Pattern**: Handlers orchestrate multiple services for complex operations
-
-### Multi-App Development
-
-- Test changes in both applications when modifying shared functionality
-- Service worker changes affect both apps simultaneously
-- Use appropriate commands: `yarn dev:legacy` vs `yarn dev:next`
 
 ### Component Library
 

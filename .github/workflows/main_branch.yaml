@@ -59,13 +59,8 @@ jobs:
           yarn allow-scripts
       - name: Run tests
         run: yarn test
-      - name: Build app (Legacy)
-        id: build_legacy
+      - name: Build app
         run: yarn build:alpha
-      - name: Build app (Next)
-        id: build_next
-        run: yarn build:next:alpha
-        continue-on-error: true
       - name: Setup sentry-cli
         run: |
           curl -sL https://sentry.io/get-cli/ | bash
@@ -76,7 +71,6 @@ jobs:
           echo project=${{ secrets.SENTRY_PROJECT }} >> .sentryclirc
       - name: Release
         env:
-          NEXT_GEN_BUILD_STATUS: ${{ steps.build_next.conclusion }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TYPE: alpha
           ID_SERVICE_URL: ${{ secrets.ID_SERVICE_URL }}
