@@ -48,7 +48,7 @@ export const BridgeDetails: FC<Props> = ({
         </Typography>
         <Stack direction="row" alignItems="center" gap={1}>
           <Box position="relative">
-            <Styled.NetworkLogo src={network?.logoUri} alt="Network logo" />
+            <Styled.NetworkLogo src={network.logoUri} alt="Network logo" />
           </Box>
           <Typography variant="body3" color="text.primary">
             {network.chainName}
