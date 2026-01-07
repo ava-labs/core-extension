@@ -93,13 +93,6 @@ export function Onboarding() {
         <Column>
           <Stack direction="row" justifyContent="center" alignItems="center">
             <CoreSplashStatic style={{ marginTop: theme.spacing(-5) }} />
-            {/* TODO: Add back the animated logo once the background is fixed
-						
-						<CoreSplash
-              size="big"
-              onGifEnd={() => setHasLogoAnimationEnded(true)}
-              style={{ marginTop: theme.spacing(-5), transform: 'scale(0.75)' }}
-            /> */}
           </Stack>
           <Collapse in={hasLogoAnimationEnded}>
             <Stack

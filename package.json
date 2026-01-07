@@ -46,6 +46,7 @@
     "@semantic-release/commit-analyzer": "9.0.2",
     "@semantic-release/exec": "6.0.3",
     "@semantic-release/github": "8.0.2",
+    "@types/node": "^25.0.3",
     "@typescript-eslint/eslint-plugin": "8.17.0",
     "@typescript-eslint/parser": "8.17.0",
     "eslint": "9.15.0",
@@ -56,7 +57,7 @@
     "husky": "7.0.4",
     "prettier": "3.4.2",
     "semantic-release": "19.0.3",
-    "typescript": "5.8.2"
+    "typescript": "5.9.3"
   },
   "prettier": {
     "tabWidth": 2,
@@ -81,9 +82,6 @@
       "@types/web3>web3>web3-bzz": false,
       "@types/web3>web3>web3-shh": false,
       "postinstall-postinstall": false,
-      "react-lottie>babel-runtime>core-js": false,
-      "react-scripts>@pmmmwh/react-refresh-webpack-plugin>core-js-pure": false,
-      "react-scripts>react-app-polyfill>core-js": false,
       "web3": false,
       "web3>web3-bzz": false,
       "web3>web3-shh": false,
@@ -143,8 +141,5 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.71",
     "@avalabs/types": "3.1.0-alpha.71",
     "@avalabs/hw-app-avalanche": "1.1.1"
-  },
-  "dependencies": {
-    "mime": "^4.1.0"
   }
 }

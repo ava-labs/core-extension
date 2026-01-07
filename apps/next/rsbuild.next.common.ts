@@ -66,8 +66,6 @@ export default defineConfig(() => ({
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
-      react: path.resolve('./node_modules/react'),
-      'react-dom': path.resolve('./node_modules/react-dom'),
       path: require.resolve('path-browserify'),
     },
     fallback: {

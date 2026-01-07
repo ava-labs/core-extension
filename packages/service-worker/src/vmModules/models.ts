@@ -15,9 +15,3 @@ export interface MultiApprovalParamsWithContext extends BatchApprovalParams {
 export interface ApprovalParamsWithContext extends ApprovalParams {
   request: RpcRequestWithExtensionContext;
 }
-
-export const isBatchApprovalParams = (
-  params: ApprovalParams | BatchApprovalParams,
-): params is BatchApprovalParams => {
-  return 'signingRequests' in params;
-};
