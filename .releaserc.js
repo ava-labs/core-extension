@@ -44,10 +44,6 @@ const execPatchAnyCommitSetting = [
   },
 ];
 
-const hasNextGenBuild =
-  process.env.NEXT_GEN_BUILD_STATUS === 'success' &&
-  fs.existsSync('dist-next/manifest.json');
-
 const replacementConfig = [
   {
     files: ['dist/manifest.json'],
@@ -82,42 +78,6 @@ const replacementConfig = [
   },
 ];
 
-if (hasNextGenBuild) {
-  replacementConfig.push(
-    {
-      files: ['dist-next/manifest.json'],
-      from: '"version": ".*"',
-      // Remove "-alpha" string from the version in the manifest.
-      // Chrome only supports numbers and dots in the version number.
-      to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
-      results: [
-        {
-          file: 'dist-next/manifest.json',
-          hasChanged: true,
-          numMatches: 1,
-          numReplacements: 1,
-        },
-      ],
-      countMatches: true,
-    },
-    {
-      files: ['dist-next/inpage/js/inpage.js'],
-      from: 'CORE_EXTENSION_VERSION',
-      // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
-      to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
-      results: [
-        {
-          file: 'dist-next/inpage/js/inpage.js',
-          hasChanged: true,
-          numMatches: 2,
-          numReplacements: 2,
-        },
-      ],
-      countMatches: true,
-    },
-  );
-}
-
 const releaseReplaceSetting = [
   '@google/semantic-release-replace-plugin',
   {
@@ -133,13 +93,6 @@ const assets = [
   },
 ];
 
-if (hasNextGenBuild) {
-  assets.push({
-    path: 'builds/avalanche-wallet-extension-next.zip',
-    name: 'NextGen-Core-Extension-${nextRelease.gitTag}.zip',
-    label: '[NextGen] Core Extension (${nextRelease.gitTag})',
-  });
-}
 const githubSetting = [
   '@semantic-release/github',
   {
@@ -151,22 +104,17 @@ const githubSetting = [
   },
 ];
 
-const getSubmitBuildCmd = (target) =>
-  `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build --core-gen=${target}`;
-
 const execSubmitBuildSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: hasNextGenBuild
-      ? `${getSubmitBuildCmd('legacy')} && ${getSubmitBuildCmd('next')}`
-      : getSubmitBuildCmd('legacy'),
+    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build`,
   },
 ];
 
 const execZipSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: hasNextGenBuild ? 'yarn zip && yarn zip:next' : 'yarn zip',
+    prepareCmd: 'yarn zip',
   },
 ];
 

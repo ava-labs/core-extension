@@ -1,12 +1,11 @@
 import { VM } from '@avalabs/avalanchejs';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
-import { AddressPublicKeyJson, ExtendedPublicKey } from '@core/types';
+import {
+  AddressPublicKeyJson,
+  DerivationStatus,
+  ExtendedPublicKey,
+} from '@core/types';
 
-export type DerivationStatus =
-  | 'waiting'
-  | 'ready'
-  | 'error'
-  | 'needs-user-gesture';
 export type ErrorType =
   | 'unable-to-connect'
   | 'unsupported-version'

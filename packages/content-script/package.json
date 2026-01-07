@@ -5,9 +5,7 @@
   "main": "src/contentscript.ts",
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.content-script.dev.ts",
-    "dev:next": "rsbuild build -w --config rsbuild.content-script.dev.ts -- --core-gen=next",
     "build": "rsbuild build --config rsbuild.content-script.prod.ts",
-    "build:next": "rsbuild build --config rsbuild.content-script.prod.ts -- --core-gen=next",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit"

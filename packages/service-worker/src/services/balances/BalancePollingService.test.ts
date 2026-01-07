@@ -30,9 +30,6 @@ describe('src/background/services/balances/BalancePollingService.ts', () => {
       jest.advanceTimersByTime(BalancePollingService.INTERVAL + 1);
       // Call the scheduled timer.
       await jest.runAllTimers();
-      // Need to .runAllTicks too, because getFavoriteNetworks() method is async
-      // and called inside of a fake Jest timer. This will resolve the pending promise.
-      await jest.runAllTicks();
     }
   };
 

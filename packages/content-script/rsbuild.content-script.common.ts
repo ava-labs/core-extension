@@ -2,11 +2,9 @@ import path from 'path';
 import { defineConfig } from '@rsbuild/core';
 import { RsdoctorRspackPlugin } from '@rsdoctor/rspack-plugin';
 import { pluginNodePolyfill } from '@rsbuild/plugin-node-polyfill';
-import { readCoreCliArgument } from '../../build-scripts/readCoreCliArgument.mjs';
 
 export default defineConfig(() => {
-  const gen = readCoreCliArgument('gen') || 'legacy';
-  const distSubdirectory = gen === 'next' ? 'dist-next' : 'dist';
+  const distSubdirectory = 'dist';
 
   return {
     environments: {

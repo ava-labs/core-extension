@@ -7,7 +7,7 @@ import { SeedlessNameFidoKey } from '@/pages/Onboarding/flows/SeedlessFlow/scree
 import { KeyType } from '@core/types';
 import { useHistory } from 'react-router-dom';
 
-export enum AddFIDOState {
+enum AddFIDOState {
   Initial = 'initial',
   Initiated = 'initiated',
   Failure = 'failure',

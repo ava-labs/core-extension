@@ -17,7 +17,7 @@ import {
 } from 'react';
 import { IconBaseProps } from 'react-icons';
 
-export const ItemIcon = styled(ListItemIcon)(({ theme }) => ({
+const ItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: 36,
   svg: {
     borderRadius: '50%',

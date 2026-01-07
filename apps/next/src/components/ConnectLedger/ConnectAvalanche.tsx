@@ -13,11 +13,11 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import {
   type ConnectorCallbacks,
-  type DerivationStatus,
   AvalancheLedgerConnector,
 } from './LedgerConnector';
 import { DerivedKeys } from './LedgerConnector/types';
 import * as Styled from './Styled';
+import { DerivationStatus } from '@core/types';
 
 type ConnectionStepProps = StackProps & {
   onNext: (keys: DerivedKeys, derivationPathSpec: DerivationPath) => void;

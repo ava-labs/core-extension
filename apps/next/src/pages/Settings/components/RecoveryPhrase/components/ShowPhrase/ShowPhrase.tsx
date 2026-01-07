@@ -1,8 +1,4 @@
-import {
-  CircularProgress,
-  Stack,
-  Typography,
-} from '@avalabs/core-k2-components';
+import { CircularProgress, Stack, Typography } from '@avalabs/k2-alpine';
 import { SecretType } from '@core/types';
 import { useWalletContext } from '@core/ui';
 import { FC } from 'react';

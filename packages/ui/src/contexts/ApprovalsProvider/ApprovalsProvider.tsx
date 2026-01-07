@@ -21,7 +21,9 @@ export const ApprovalsContext = createContext<{
   approval: undefined,
 });
 
-export function ApprovalsContextProvider({ children }: PropsWithChildren) {
+export function ApprovalsContextProvider({
+  children,
+}: PropsWithChildren<object>) {
   const { events, tabId } = useConnectionContext();
   const [approval, setApproval] = useState<ApprovalRequest>();
 

@@ -11,11 +11,9 @@ import {
 import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import * as Styled from './Styled';
-import {
-  type DerivationStatus,
-  SolanaLedgerConnector,
-} from './LedgerConnector';
+import { SolanaLedgerConnector } from './LedgerConnector';
 import { ConnectorCallbacks, DerivedKeys } from './LedgerConnector/types';
+import { DerivationStatus } from '@core/types';
 
 type ConnectionStepProps = StackProps & {
   onNext: (keys: DerivedKeys) => void;

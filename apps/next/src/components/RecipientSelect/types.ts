@@ -28,22 +28,6 @@ export type UnknownRecipient = {
   address: string;
 } & RecipientBase;
 
-export const isAccountRecipient = (
-  recipient: Recipient,
-): recipient is AccountRecipient => recipient.type === 'account';
-
-export const isContactRecipient = (
-  recipient: Recipient,
-): recipient is ContactRecipient => recipient.type === 'contact';
-
-export const isRecentRecipient = (
-  recipient: Recipient,
-): recipient is RecentRecipient => recipient.type === 'recent';
-
-export const isUnknownRecipient = (
-  recipient: Recipient,
-): recipient is UnknownRecipient => recipient.type === 'unknown';
-
 export type Recipient =
   | AccountRecipient
   | ContactRecipient

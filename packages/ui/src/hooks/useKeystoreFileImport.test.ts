@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 
 import { useAnalyticsContext } from '../contexts/AnalyticsProvider';
 import { KeystoreFixtures } from '@core/common';

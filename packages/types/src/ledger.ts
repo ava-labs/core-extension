@@ -18,6 +18,12 @@ export enum LedgerEvent {
   TRANSPORT_CLOSE_REQUEST = 'LedgerEvent:transport_close',
 }
 
+export type DerivationStatus =
+  | 'waiting'
+  | 'ready'
+  | 'error'
+  | 'needs-user-gesture';
+
 export const LEDGER_VERSION_WARNING_WAS_CLOSED =
   'LEDGER_VERSION_WARNING_WAS_CLOSED';
 

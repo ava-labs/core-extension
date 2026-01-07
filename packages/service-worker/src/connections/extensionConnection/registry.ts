@@ -77,10 +77,8 @@ import { SetNavigationHistoryHandler } from '../../services/navigationHistory/ha
 import { SetNavigationHistoryDataHandler } from '../../services/navigationHistory/handlers/setNavigationHistoryData';
 import { NetworksUpdatedEvents } from '../../services/network/events/networksUpdatedEvent';
 import { NetworkUpdatedEvents } from '../../services/network/events/networkUpdatedEvent';
-import { AddFavoriteNetworkHandler } from '../../services/network/handlers/addFavoriteNetwork';
 import { GetNetworksStateHandler } from '../../services/network/handlers/getNetworkState';
 import { RemoveCustomNetworkHandler } from '../../services/network/handlers/removeCustomNetwork';
-import { RemoveFavoriteNetworkHandler } from '../../services/network/handlers/removeFavoriteNetwork';
 import { SaveCustomNetworkHandler } from '../../services/network/handlers/saveCustomNetwork';
 import { SetActiveNetworkHandler } from '../../services/network/handlers/setActiveNetwork';
 import { SetDevelopermodeNetworkHandler } from '../../services/network/handlers/setDeveloperMode';
@@ -229,14 +227,6 @@ import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDevelopermodeNetworkHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: AddFavoriteNetworkHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: RemoveFavoriteNetworkHandler,
   },
   {
     token: 'ExtensionRequestHandler',

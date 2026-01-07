@@ -1,4 +1,5 @@
 import { PropsWithChildren, ReactNode, useEffect } from 'react';
+import { type toast } from '@avalabs/k2-alpine';
 import { filter } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 
@@ -17,18 +18,8 @@ import { isSpecificContextContainer } from '../../utils';
 const PENDING_TOAST_ID = 'transaction-pending';
 const RESULT_TOAST_ID = 'transaction-result';
 
-export type ToastFunctions = {
-  pending: (message: string, options?: { id?: string }) => void;
-  success: (
-    message: string,
-    options?: { id?: string; action?: ReactNode },
-  ) => void;
-  error: (message: string, options?: { id?: string }) => void;
-  dismiss: (id: string) => void;
-};
-
 export type TransactionStatusProviderProps = PropsWithChildren<{
-  toast: ToastFunctions;
+  toast: typeof toast;
   renderExplorerLink?: (options: {
     network: NetworkWithCaipId;
     hash: string;

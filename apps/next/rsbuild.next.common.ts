@@ -35,10 +35,10 @@ export default defineConfig(() => ({
       enable: true,
       keep: [
         // preserving the files from package builds
-        /dist-next\/cs\/.*/,
-        /dist-next\/inpage\/.*/,
-        /dist-next\/offscreen\/.*/,
-        /dist-next\/sw\/.*/,
+        /dist\/cs\/.*/,
+        /dist\/inpage\/.*/,
+        /dist\/offscreen\/.*/,
+        /dist\/sw\/.*/,
       ],
     },
     inlineStyles: true,
@@ -47,7 +47,7 @@ export default defineConfig(() => ({
       js: '[name].js', // this is the default, but just to make sure
     },
     distPath: {
-      root: path.join(__dirname, '../../dist-next'),
+      root: path.join(__dirname, '../../dist'),
       js: 'js',
       jsAsync: 'js',
       image: 'images',
@@ -66,8 +66,6 @@ export default defineConfig(() => ({
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
-      react: path.resolve('./node_modules/react'),
-      'react-dom': path.resolve('./node_modules/react-dom'),
       path: require.resolve('path-browserify'),
     },
     fallback: {

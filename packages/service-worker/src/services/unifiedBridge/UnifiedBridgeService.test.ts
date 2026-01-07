@@ -8,6 +8,7 @@ import {
 import { UnifiedBridgeService } from './UnifiedBridgeService';
 import { FeatureGates } from '@core/types';
 import { wait } from '@avalabs/core-utils-sdk';
+import { noop } from '@core/common';
 
 jest.mock('@avalabs/bridge-unified');
 jest.mock('@avalabs/core-utils-sdk');
@@ -59,6 +60,7 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.spyOn(console, 'log').mockImplementation(noop);
 
     core = {
       bridges: new Map(),

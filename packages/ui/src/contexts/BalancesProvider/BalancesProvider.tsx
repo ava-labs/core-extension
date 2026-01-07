@@ -190,7 +190,7 @@ function balancesReducer(
   }
 }
 
-export function BalancesProvider({ children }: PropsWithChildren) {
+export function BalancesProvider({ children }: PropsWithChildren<object>) {
   const { request, events } = useConnectionContext();
   const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
   const { tokensVisibility } = useSettingsContext();

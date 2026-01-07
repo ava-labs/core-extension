@@ -1,5 +1,5 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { ConnectionInfo, SettingsEvents, Web3Event } from '@core/types';
+import { ConnectionInfo, Web3Event } from '@core/types';
 import { NetworkService } from '../NetworkService';
 import { SettingsService } from '~/services/settings/SettingsService';
 import { NetworkStateChangedEvents } from './networkStateChanged';
@@ -75,28 +75,10 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
       {} as any,
     ) as jest.Mocked<SettingsService>;
 
-    // Mock the favoriteNetworksUpdated signal
-    mockNetworkService.favoriteNetworksUpdated = {
-      add: jest.fn(),
-      remove: jest.fn(),
-    } as any;
-
     networkStateChangedEvents = new NetworkStateChangedEvents(
       mockNetworkService,
       mockSettingsService,
     );
-  });
-
-  describe('constructor', () => {
-    it('sets up listeners for settings updates and favorite networks updates', () => {
-      expect(mockSettingsService.addListener).toHaveBeenCalledWith(
-        SettingsEvents.SETTINGS_UPDATED,
-        expect.any(Function),
-      );
-      expect(
-        mockNetworkService.favoriteNetworksUpdated.add,
-      ).toHaveBeenCalledWith(expect.any(Function));
-    });
   });
 
   describe('sendUpdateEvent (settings updated)', () => {
@@ -175,51 +157,6 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
       expect(eventHandler).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
-    });
-  });
-
-  describe('sendUpdateEvent (favorite networks updated)', () => {
-    beforeEach(() => {
-      getNetworkStateWithTokenvisibility.mockResolvedValue(
-        mockNetworkStateData,
-      );
-    });
-
-    it('emits update event when favorite networks change and domain is sync domain', (done) => {
-      networkStateChangedEvents.setConnectionInfo(mockSyncConnectionInfo);
-
-      // Listen for the update event
-      networkStateChangedEvents.addListener((event: any) => {
-        expect(event.method).toBe(Web3Event.NETWORK_STATE_CHANGED);
-        expect(event.params).toEqual({ networks: mockNetworkStateData });
-        expect(getNetworkStateWithTokenvisibility).toHaveBeenCalledWith(
-          mockNetworkService,
-          mockSettingsService,
-        );
-        done();
-      });
-
-      // Trigger the favorite networks update
-      const favoriteNetworksListener = (
-        mockNetworkService.favoriteNetworksUpdated.add as jest.Mock
-      ).mock.calls[0][0];
-      favoriteNetworksListener();
-    });
-
-    it('does not emit update event when domain is not sync domain', async () => {
-      networkStateChangedEvents.setConnectionInfo(mockNonSyncConnectionInfo);
-
-      const eventHandler = jest.fn();
-      networkStateChangedEvents.addListener(eventHandler);
-
-      // Trigger the favorite networks update
-      const favoriteNetworksListener = (
-        mockNetworkService.favoriteNetworksUpdated.add as jest.Mock
-      ).mock.calls[0][0];
-      await favoriteNetworksListener();
-
-      expect(eventHandler).not.toHaveBeenCalled();
-      expect(getNetworkStateWithTokenvisibility).not.toHaveBeenCalled();
     });
   });
 
@@ -329,17 +266,9 @@ describe('background/services/network/events/networkStateChanged.ts', () => {
 
       const settingsListener = (mockSettingsService.addListener as jest.Mock)
         .mock.calls[0][1];
-      const favoriteNetworksListener = (
-        mockNetworkService.favoriteNetworksUpdated.add as jest.Mock
-      ).mock.calls[0][0];
 
       // Trigger multiple updates rapidly
-      const promises = [
-        settingsListener(),
-        favoriteNetworksListener(),
-        settingsListener(),
-        favoriteNetworksListener(),
-      ];
+      const promises = [settingsListener(), settingsListener()];
 
       await Promise.all(promises);
 

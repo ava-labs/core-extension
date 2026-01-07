@@ -6,10 +6,11 @@ import { LockService } from '../lock/LockService';
 import { StorageService } from '../storage/StorageService';
 
 import { FeatureFlagService } from './FeatureFlagService';
-import { DEFAULT_FLAGS } from '@core/common';
+import { DEFAULT_FLAGS, isProductionBuild } from '@core/common';
 import { getFeatureFlags } from './utils/getFeatureFlags';
 
 jest.mock('./utils/getFeatureFlags');
+jest.mock('@core/common');
 
 describe('background/services/featureFlags/FeatureFlagService', () => {
   const env = process.env;
@@ -28,6 +29,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
     jest.resetAllMocks();
     jest.spyOn(global, 'setInterval');
     jest.spyOn(global, 'clearInterval');
+    jest.mocked(isProductionBuild).mockReturnValue(false);
     process.env = {
       ...env,
       POSTHOG_KEY: 'posthogkey',
@@ -131,6 +133,7 @@ describe('background/services/featureFlags/FeatureFlagService', () => {
 
   it('polls every 30 seconds in prod build', async () => {
     process.env = { ...env, POSTHOG_KEY: 'posthogkey', RELEASE: 'production' };
+    jest.mocked(isProductionBuild).mockReturnValue(true);
 
     new FeatureFlagService(
       analyticsServiceMock,

@@ -51,7 +51,6 @@ describe('packages/service-worker/src/services/network/utils/getNetworkStateWith
 
   beforeEach(() => {
     mockNetworkService = {
-      getFavoriteNetworks: jest.fn(),
       getEnabledNetworks: jest.fn(),
       allNetworks: {
         promisify: jest.fn(),
@@ -64,7 +63,6 @@ describe('packages/service-worker/src/services/network/utils/getNetworkStateWith
   });
 
   it('returns network state with enabled and disabled tokens', async () => {
-    mockNetworkService.getFavoriteNetworks.mockResolvedValue([43114]);
     mockNetworkService.getEnabledNetworks.mockResolvedValue([43114]);
     mockNetworkService.allNetworks.promisify.mockResolvedValue({
       1: mainnetNetwork,
@@ -116,7 +114,6 @@ describe('packages/service-worker/src/services/network/utils/getNetworkStateWith
   });
 
   it('filters out networks with mismatched isTestnet', async () => {
-    mockNetworkService.getFavoriteNetworks.mockResolvedValue([5]);
     mockNetworkService.getEnabledNetworks.mockResolvedValue([5]);
     mockNetworkService.allNetworks.promisify.mockResolvedValue({
       1: mainnetNetwork,
@@ -155,7 +152,6 @@ describe('packages/service-worker/src/services/network/utils/getNetworkStateWith
 
   it('throws if activeNetwork is missing', async () => {
     mockNetworkService.uiActiveNetwork = undefined;
-    mockNetworkService.getFavoriteNetworks.mockResolvedValue([1]);
     mockNetworkService.getEnabledNetworks.mockResolvedValue([1]);
     mockNetworkService.allNetworks.promisify.mockResolvedValue({
       1: mainnetNetwork,
@@ -171,7 +167,6 @@ describe('packages/service-worker/src/services/network/utils/getNetworkStateWith
   });
 
   it('returns empty enabled/disabled tokens if no visibility info', async () => {
-    mockNetworkService.getFavoriteNetworks.mockResolvedValue([1]);
     mockNetworkService.getEnabledNetworks.mockResolvedValue([1]);
     mockNetworkService.allNetworks.promisify.mockResolvedValue({
       1: mainnetNetwork,
@@ -202,7 +197,6 @@ describe('packages/service-worker/src/services/network/utils/getNetworkStateWith
   });
 
   it('deduplicates chainIds and preserves order', async () => {
-    mockNetworkService.getFavoriteNetworks.mockResolvedValue([1, 43114, 1]);
     mockNetworkService.getEnabledNetworks.mockResolvedValue([1, 43114, 1]);
     mockNetworkService.allNetworks.promisify.mockResolvedValue({
       1: mainnetNetwork,

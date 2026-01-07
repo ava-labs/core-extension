@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useDAppScan } from './useDAppScan';
 import { useFeatureFlagContext } from '../contexts/FeatureFlagsProvider';
 import { FeatureGates } from '@core/types';

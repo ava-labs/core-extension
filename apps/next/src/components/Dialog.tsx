@@ -2,7 +2,7 @@ import { Dialog, DialogProps, Slide } from '@avalabs/k2-alpine';
 import { useGoBack } from '@core/ui';
 import { PropsWithChildren } from 'react';
 
-export const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
+const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
   slots: {
     transition: Slide,
   },

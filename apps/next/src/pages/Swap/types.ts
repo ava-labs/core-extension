@@ -16,11 +16,3 @@ export type SwappableToken =
   | Erc20TokenBalance
   | SolanaNativeTokenBalance
   | SolanaSplTokenBalance;
-
-export type SwapProvider =
-  | 'none'
-  | 'native-wrapper'
-  | 'markr'
-  | 'paraswap'
-  | 'jupiter'
-  | 'unsupported';

@@ -8,7 +8,6 @@ Core Extension is a non-custodial browser extension for Chromium browsers built 
 
 The project uses a monorepo structure with yarn workspaces and contains two main applications:
 
-- **Legacy**: The current production version (React 17, older architecture) in `apps/legacy/`
 - **Next**: The next-generation version (React 19, modern architecture) in `apps/next/`
 
 ## Essential Commands
@@ -20,10 +19,6 @@ The project uses a monorepo structure with yarn workspaces and contains two main
 yarn dev
 yarn start
 
-# Start specific versions
-yarn dev:legacy
-yarn dev:next
-
 # Setup project (install deps + allow-scripts)
 yarn setup
 ```
@@ -32,39 +27,31 @@ yarn setup
 
 ```bash
 # Build for production
-yarn build                    # Legacy (default)
-yarn build:legacy             # Legacy explicit
-yarn build:next               # Next-gen
+yarn build                    # Production build
 
 # Build alpha versions
-yarn build:alpha              # Legacy alpha
-yarn build:next:alpha         # Next-gen alpha
+yarn build:alpha              # Alpha
 yarn build:alpha:no-source-maps  # Alpha without source maps
 
 # Create extension packages
-yarn zip                      # Legacy zip for Chrome Store
-yarn zip:next                 # Next-gen zip for Chrome Store
+yarn zip                      # Zip for Chrome Store
 ```
 
 ### Testing & Quality
 
 ```bash
 # Run tests
-yarn test                     # Legacy tests
-yarn test:next               # Next-gen tests
+yarn test                     # Tests
 yarn test:watch              # Watch mode
 yarn test:path <pattern>     # Test specific pattern
 
 # Code quality
-yarn lint                    # Legacy lint
-yarn lint:next              # Next-gen lint
-yarn typecheck              # Legacy typecheck
-yarn typecheck:next         # Next-gen typecheck
+yarn lint                    # Lint
+yarn typecheck              # Typecheck
 yarn prettify               # Format all code
 
 # Internationalization
-yarn scanner                # Legacy i18n scan
-yarn scanner:next           # Next-gen i18n scan
+yarn scanner                # i18n scan
 ```
 
 ### Build System
@@ -151,13 +138,6 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 - **Event-Driven Communication**: Services communicate via events, not direct calls
 - **Handler-Service Pattern**: Handlers orchestrate multiple services for complex operations
 
-### Multi-App Development
-
-- Legacy and next-gen apps share the same service worker and core packages
-- Test changes in both applications when modifying shared functionality
-- Service worker changes affect both apps simultaneously
-- Use appropriate commands: `yarn dev:legacy` vs `yarn dev:next`
-
 ### Component Library
 
 - Uses [K2 Components](https://k2-components.pages.dev/) for UI consistency
@@ -172,9 +152,9 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 
 ### Chrome Extension Development
 
-1. Build: `yarn dev` (legacy) or `yarn dev:next` (next-gen)
+1. Build: `yarn dev`
 2. Chrome: Go to `chrome://extensions/`, enable Developer mode
-3. Load: Click "Load unpacked", select `dist/` (legacy) or `dist-next/` (next-gen) folder
+3. Load: Click "Load unpacked", select `dist/`
 4. Hot reload: Changes reload automatically during development
 5. Service Worker: Requires extension reload for background script changes
 
@@ -183,7 +163,7 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 - **Avalanche**: C-Chain, P-Chain, X-Chain (primary focus)
 - **Bitcoin**: Native Bitcoin and testnet support
 - **Ethereum**: EVM-compatible chains
-- **Solana**: Next-gen app only
+- **Solana**: Solana support behind feature flag
 
 ### Testing Strategy
 
@@ -191,7 +171,7 @@ The frontend supports multiple contexts determined by `isSpecificContextContaine
 - Integration tests for service interactions
 - Mocks in `__mocks__/` directories
 - Jest testing framework across all packages
-- Test both legacy and next-gen when changing shared code
+- Test both when changing shared code
 
 ### Release Process
 

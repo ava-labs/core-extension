@@ -1,7 +1,7 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { constructPartialSDK, OptimalRate } from '@paraswap/sdk';
-import { act, renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import Big from 'big.js';
 import { Contract } from 'ethers';
 

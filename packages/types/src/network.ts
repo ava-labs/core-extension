@@ -45,10 +45,6 @@ export interface NetworkAvailability {
 }
 
 export interface NetworkStorage {
-  /**
-   * @deprecated For Legacy app only. For NextGen app please use "networkAvailability" field
-   */
-  favoriteNetworks: number[];
   customNetworks: Record<number, Network>;
   dappScopes: Record<string, string>;
   networkAvailability: NetworkAvailability;

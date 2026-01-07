@@ -5,9 +5,7 @@
   "module": "src/index.ts",
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.worker.dev.ts",
-    "dev:next": "rsbuild build -w --config rsbuild.worker.dev.ts -- --core-gen=next",
     "build": "rsbuild build --config rsbuild.worker.prod.ts",
-    "build:next": "rsbuild build --config rsbuild.worker.prod.ts -- --core-gen=next",
     "lint": "eslint --fix \"src/**/*.ts*\" --no-warn-ignored",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "test": "yarn jest",
