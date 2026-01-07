@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "yarn dev",
-    "dev": "yarn workspaces foreach --include '@core/*' --include @core-ext/next -Api run dev:next",
+    "dev": "yarn workspaces foreach --include '@core/*' --include @core-ext/next -Api run dev",
     "build:packages": "yarn workspaces foreach -Api --include '@core/*' run build",
     "build": "yarn build:packages && yarn workspace @core-ext/next run build",
     "build:alpha": "yarn build:packages && yarn workspace @core-ext/next run build:alpha",
@@ -19,7 +19,7 @@
     "test": "yarn workspaces foreach -Ap run test",
     "test:watch": "yarn workspaces foreach -Ap run test:watch",
     "test:path": "yarn jest --watch --testPathPattern",
-    "zip": "node build-scripts/zipscript.mjs --core-gen=next",
+    "zip": "node build-scripts/zipscript.mjs",
     "scanner": "yarn workspace @core-ext/next run scanner",
     "sentry": "node sentryscript.js",
     "submit-build": "node build-scripts/submitBuild.mjs"
@@ -57,7 +57,7 @@
     "husky": "7.0.4",
     "prettier": "3.4.2",
     "semantic-release": "19.0.3",
-    "typescript": "5.9.3"
+    "typescript": "^5.9.3"
   },
   "prettier": {
     "tabWidth": 2,

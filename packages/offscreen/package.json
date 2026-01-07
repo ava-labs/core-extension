@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "rsbuild build -w --config rsbuild.offscreen.dev.ts",
-    "dev:next": "rsbuild build -w --config rsbuild.offscreen.dev.ts -- --core-gen=next",
     "build": "rsbuild build --config rsbuild.offscreen.prod.ts",
-    "build:next": "rsbuild build --config rsbuild.offscreen.prod.ts -- --core-gen=next",
     "lint": "eslint --fix \"src/**/*.ts*\"",
     "prettify": "prettier --write \"src/**/*.ts*\"",
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
