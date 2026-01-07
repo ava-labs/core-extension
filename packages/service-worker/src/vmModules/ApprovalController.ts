@@ -37,7 +37,7 @@ import {
   MultiApprovalParamsWithContext,
 } from './models';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
-import { caipToChainId } from '@core/common';
+import { caipToChainId, isUserRejectionError } from '@core/common';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -225,14 +225,20 @@ export class ApprovalController implements BatchApprovalController {
           });
         }
       } catch (err) {
-        resolve({
-          error: rpcErrors.internal({
-            message: 'Unable to sign the message',
-            data: {
-              originalError: err instanceof Error ? err.message : err,
-            },
-          }),
-        });
+        if (isUserRejectionError(err)) {
+          resolve({
+            error: providerErrors.userRejectedRequest(),
+          });
+        } else {
+          resolve({
+            error: rpcErrors.internal({
+              message: 'Unable to sign the message',
+              data: {
+                originalError: err instanceof Error ? err.message : err,
+              },
+            }),
+          });
+        }
       } finally {
         this.#requests.delete(action.actionId);
       }
