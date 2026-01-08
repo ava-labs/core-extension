@@ -115,6 +115,9 @@ export type { SetCoreAssistantHandler } from './services/settings/handlers/setCo
 export type { SetLanguageHandler } from './services/settings/handlers/setLanguage';
 export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
 export type { SetShowTrendingTokensHandler } from './services/settings/handlers/setShowTrendingTokens';
+export type { SetDegenModeHandler } from './services/settings/handlers/setDegenMode';
+export type { SetFeeSettingHandler } from './services/settings/handlers/setFeeSetting';
+export type { SetMaxBuyHandler } from './services/settings/handlers/setMaxBuy';
 export type { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
 export type { UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';
 export type { UpdateShowNoBalanceHandler } from './services/settings/handlers/updateShowTokensNoBalance';

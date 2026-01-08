@@ -81,6 +81,9 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: false,
+    isDegenMode: false,
+    feeSetting: 'low',
+    maxBuy: '1000',
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -94,6 +97,9 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: false,
     preferredView: 'floating',
     showTrendingTokens: false,
+    isDegenMode: false,
+    feeSetting: 'low',
+    maxBuy: '1000',
   };
 
   const customToken: NetworkContractToken = {
