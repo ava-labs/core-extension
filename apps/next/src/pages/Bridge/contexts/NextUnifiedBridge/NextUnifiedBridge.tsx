@@ -45,17 +45,21 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   );
 
   const filteredState = useMemo(() => {
-    if (!currentEnvironment) {
-      return state;
+    if (!currentEnvironment || !activeAccount) {
+      return { ...state, pendingTransfers: {} };
     }
 
     const filteredTransfers = Object.fromEntries(
-      Object.entries(state.pendingTransfers).filter(
-        ([, transfer]) =>
-          transfer.environment === currentEnvironment &&
-          (transfer.fromAddress === activeAccount?.addressC ||
-            transfer.fromAddress === activeAccount?.addressBTC),
-      ),
+      Object.entries(state.pendingTransfers).filter(([, transfer]) => {
+        if (transfer.environment !== currentEnvironment) {
+          return false;
+        }
+
+        return (
+          transfer.fromAddress === activeAccount.addressC ||
+          transfer.fromAddress === activeAccount.addressBTC
+        );
+      }),
     );
 
     return {
