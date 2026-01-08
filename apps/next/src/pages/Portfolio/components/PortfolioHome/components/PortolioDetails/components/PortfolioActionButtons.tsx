@@ -11,14 +11,21 @@ import { SendIcon } from '@/components/SendIcon';
 import { SwapIcon } from '@/components/SwapIcon';
 import { BridgeIcon } from '@/components/BridgeIcon';
 import { BuyIcon } from '@/components/BuyIcon';
-import { NetworkWithCaipId } from '@core/types';
+import {
+  FungibleTokenBalance,
+  getUniqueTokenId,
+  NetworkWithCaipId,
+} from '@core/types';
+import { chainIdToCaip } from '@core/common';
 
 const ICON_SIZE = 20;
 
 export const PortfolioActionButtons = ({
   network,
+  token,
 }: {
   network?: NetworkWithCaipId;
+  token?: FungibleTokenBalance;
 }) => {
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
@@ -29,6 +36,9 @@ export const PortfolioActionButtons = ({
 
   let delay = 0;
   const getDelay = () => (delay += 300);
+
+  // Get unique token ID if token is provided
+  const tokenId = token ? getUniqueTokenId(token) : undefined;
 
   return (
     <Stack direction="row" gap={1} width="100%">
@@ -42,7 +52,7 @@ export const PortfolioActionButtons = ({
             label={t('Swap')}
             onClick={() => {
               capture('TokenSwapClicked');
-              push(getSwapPath());
+              push(getSwapPath(tokenId ? { from: tokenId } : undefined));
             }}
           />
         </Slide>
@@ -55,7 +65,16 @@ export const PortfolioActionButtons = ({
           label={t('Bridge')}
           onClick={() => {
             capture('TokenBridgeClicked');
-            push(getBridgePath());
+            push(
+              getBridgePath(
+                token
+                  ? {
+                      sourceToken: tokenId,
+                      sourceNetwork: chainIdToCaip(token.coreChainId),
+                    }
+                  : undefined,
+              ),
+            );
           }}
         />
       </Slide>
@@ -67,7 +86,7 @@ export const PortfolioActionButtons = ({
           label={t('Send')}
           onClick={() => {
             capture('TokenSendClicked');
-            push(getSendPath());
+            push(getSendPath(tokenId ? { token: tokenId } : undefined));
           }}
         />
       </Slide>
