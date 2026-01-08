@@ -150,6 +150,10 @@ if (process.env && process.env.RELEASE_TYPE === 'production') {
 module.exports = {
   // define a main version release branch even though we are doing all releases from main
   // this branch list gets overwritten in the production release Github Action
-  branches: ['release', { name: 'main', prerelease: 'alpha' }],
+  branches: [
+    'release',
+    { name: 'main', prerelease: 'alpha' },
+    { name: 'chore/update-ci', prerelease: 'beta' },
+  ],
   plugins,
 };
