@@ -6,6 +6,10 @@ import { TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
 import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
+import {
+  isCctImportTransaction,
+  isCctTransaction,
+} from '../../../utils/cctTransaction';
 
 export interface Props {
   transaction: TxHistoryItem;
@@ -44,6 +48,24 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       <TransactionDescriptionContainer>
         <Trans
           i18nKey="<amount /> {{symbol}} bridged"
+          values={{ symbol: mainToken?.symbol }}
+          components={{ amount }}
+        />
+      </TransactionDescriptionContainer>
+    );
+  }
+
+  // Handle CCT (Cross-Chain Transfer) import/export transactions
+  if (isCctTransaction(transaction)) {
+    const isImport = isCctImportTransaction(transaction);
+    return (
+      <TransactionDescriptionContainer>
+        <Trans
+          i18nKey={
+            isImport
+              ? '<amount /> {{symbol}} imported'
+              : '<amount /> {{symbol}} exported'
+          }
           values={{ symbol: mainToken?.symbol }}
           components={{ amount }}
         />
