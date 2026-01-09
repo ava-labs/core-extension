@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { formatUnits, parseUnits } from 'ethers';
-import { ComponentProps, FC, useEffect, useState } from 'react';
+import { ComponentProps, FC, useEffect, useState, WheelEvent } from 'react';
 import { Button, Fade, Stack, Tooltip, Typography } from '@avalabs/k2-alpine';
 
 import { calculateGasAndFees } from '@core/common';
@@ -74,6 +74,11 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
 
       if (newMaxTip > newMaxFee) {
         setError(t('Max base fee must be greater than max priority fee'));
+      } else if (newMaxFee <= 0) {
+        setError(t('Max base fee must be greater than 0'));
+      } else if (newMaxTip < 0) {
+        setError(t('Max priority fee cannot be negative'));
+        return;
       }
     } catch {
       setError(t('Please enter a valid decimal value'));
@@ -122,6 +127,7 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
                 onChange={(ev) => {
                   setCustomMaxFeeString(ev.currentTarget.value || '0');
                 }}
+                min={0}
               />
               <Fade in={typeof totalFeeInCurrency === 'number'}>
                 <Typography variant="caption" color="text.secondary">
@@ -217,6 +223,13 @@ const FeeInput = (props: ComponentProps<typeof InvisibileInput>) => (
     step="any"
     sx={{ textAlign: 'end', px: 0 }}
     inputMode="decimal"
+    min={0}
+    onWheel={(e: WheelEvent<HTMLInputElement>) => {
+      // Prevent changing value by mouse wheel
+      if (e.target === document.activeElement) {
+        (document.activeElement as HTMLInputElement).blur();
+      }
+    }}
     {...props}
   />
 );
