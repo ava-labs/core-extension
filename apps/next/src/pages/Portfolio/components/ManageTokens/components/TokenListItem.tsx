@@ -1,3 +1,4 @@
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import {
   Box,
@@ -67,7 +68,14 @@ export const TokenListItem: FC<Props> = ({ token }) => {
       <ListItemText
         {...listItemTextProps}
         primary={token.name}
-        secondary={token.balanceDisplayValue}
+        secondary={
+          <CollapsedTokenAmount
+            amount={token.balanceDisplayValue}
+            showApproximationSign={false}
+            regularProps={{ variant: 'body2' }}
+            overlineProps={{ variant: 'caption2' }}
+          />
+        }
       />
     </ListItem>
   );
