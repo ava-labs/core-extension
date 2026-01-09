@@ -21,7 +21,7 @@ export const DeriveSolanaAddresses: FC = () => {
   const { t } = useTranslation();
 
   const leavePage = () => {
-    openApp();
+    openApp({});
     window.close();
   };
 

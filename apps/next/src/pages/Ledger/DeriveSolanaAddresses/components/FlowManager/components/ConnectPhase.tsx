@@ -18,8 +18,10 @@ export const ConnectPhase: FC<Props> = ({ onNext, onTroubleshoot }) => {
     }),
     [capture],
   );
+
   return (
     <ConnectSolana
+      numberOfKeys={1}
       connectorCallbacks={callbacks}
       onNext={onNext}
       onTroubleshoot={onTroubleshoot}
