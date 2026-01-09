@@ -33,12 +33,10 @@ export const PortfolioActionButtons = ({
   const { t } = useTranslation();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
+  const tokenId = token ? getUniqueTokenId(token) : '';
 
   let delay = 0;
   const getDelay = () => (delay += 300);
-
-  // Get unique token ID if token is provided
-  const tokenId = token ? getUniqueTokenId(token) : undefined;
 
   return (
     <Stack direction="row" gap={1} width="100%">
@@ -52,7 +50,7 @@ export const PortfolioActionButtons = ({
             label={t('Swap')}
             onClick={() => {
               capture('TokenSwapClicked');
-              push(getSwapPath(tokenId ? { from: tokenId } : undefined));
+              push(getSwapPath({ from: tokenId }));
             }}
           />
         </Slide>
@@ -86,7 +84,7 @@ export const PortfolioActionButtons = ({
           label={t('Send')}
           onClick={() => {
             capture('TokenSendClicked');
-            push(getSendPath(tokenId ? { token: tokenId } : undefined));
+            push(getSendPath({ token: tokenId }));
           }}
         />
       </Slide>
