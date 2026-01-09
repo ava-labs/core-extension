@@ -33,8 +33,8 @@ export type UseLedgerPublicKeyFetcherResult = {
 };
 
 export type UseLedgerPublicKeyFetcher = (
-  derivationPathSpec?: DerivationPath,
-  onActivePublicKeysDiscovered?: (publicKeys: PublicKey[]) => void,
+  derivationPathSpec: DerivationPath | undefined,
+  onActivePublicKeysDiscovered: ((publicKeys: PublicKey[]) => void) | undefined,
 ) => UseLedgerPublicKeyFetcherResult;
 
 export type ConnectorCallbacks = {

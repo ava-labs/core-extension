@@ -1,6 +1,6 @@
 import { Button } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
-import { useWalletContext } from '@core/ui';
+import { useIsSolanaEnabled, useWalletContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChainListItem } from './ChainListItem';
@@ -18,9 +18,10 @@ export const SolanaAddressEnabler: FC<AddressEnablerProps> = ({
   labelVariant,
 }) => {
   const { isLedgerWallet } = useWalletContext();
+  const isSolanaEnabled = useIsSolanaEnabled();
   const { t } = useTranslation();
 
-  if (!isLedgerWallet) {
+  if (!isLedgerWallet || !isSolanaEnabled) {
     return null;
   }
 
