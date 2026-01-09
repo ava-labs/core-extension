@@ -54,6 +54,7 @@ import { SecretsService } from '~/services/secrets/SecretsService';
 import { AddressResolver } from '../secrets/AddressResolver';
 import { AccountsService } from '~/services/accounts/AccountsService';
 import { TokenPricesService } from './TokenPricesService';
+import { ChainId } from '@avalabs/core-chains-sdk';
 
 interface MergeWithNewSettingMissingTokenToZeroProps {
   cachedAccountBalance: {
@@ -90,6 +91,12 @@ const mergeWithNewSettingMissingTokenToZero = ({
 };
 
 const NFT_TYPES = [TokenType.ERC721, TokenType.ERC1155];
+const NFT_SUPPORTED_CHAIN_IDS = [
+  ChainId.AVALANCHE_MAINNET_ID,
+  ChainId.AVALANCHE_TESTNET_ID,
+  ChainId.ETHEREUM_HOMESTEAD,
+  ChainId.ETHEREUM_TEST_SEPOLIA,
+];
 
 @singleton()
 export class BalanceAggregatorService implements OnLock, OnUnlock {
@@ -186,7 +193,19 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       return {};
     }
 
-    const balances = await this.#fetchBalances(chainIds, accounts, tokenTypes);
+    const filteredChainIds = chainIds.filter((chainId) =>
+      NFT_SUPPORTED_CHAIN_IDS.includes(chainId),
+    );
+
+    if (filteredChainIds.length === 0) {
+      return {};
+    }
+
+    const balances = await this.#fetchBalances(
+      filteredChainIds,
+      accounts,
+      tokenTypes,
+    );
 
     return balances.nfts;
   }

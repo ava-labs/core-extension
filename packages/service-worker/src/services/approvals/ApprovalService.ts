@@ -6,6 +6,7 @@ import { openExtensionNewWindow } from '@core/common';
 import { Action, ApprovalEvent, MultiTxAction } from '@core/types';
 
 import { ActionsService } from '../actions/ActionsService';
+import { supportsSidePanelLifecycleEvents } from './utils/sidePanelUtils';
 
 @singleton()
 export class ApprovalService {
@@ -14,12 +15,14 @@ export class ApprovalService {
   #sidePanelWindowIds = new Set<number>();
 
   constructor(private actionsService: ActionsService) {
-    sidePanel.onOpened.addListener(({ windowId }) => {
-      this.#sidePanelWindowIds.add(windowId);
-    });
-    sidePanel.onClosed.addListener(({ windowId }) => {
-      this.#sidePanelWindowIds.delete(windowId);
-    });
+    if (supportsSidePanelLifecycleEvents()) {
+      sidePanel.onOpened.addListener(({ windowId }) => {
+        this.#sidePanelWindowIds.add(windowId);
+      });
+      sidePanel.onClosed.addListener(({ windowId }) => {
+        this.#sidePanelWindowIds.delete(windowId);
+      });
+    }
   }
 
   #isInAppRequest(action: Action | MultiTxAction): boolean {

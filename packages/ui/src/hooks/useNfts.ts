@@ -1,16 +1,38 @@
 import { useMemo } from 'react';
-import { useBalancesContext, useNetworkContext } from '../contexts';
+import {
+  BalancesState,
+  useBalancesContext,
+  useNetworkContext,
+} from '../contexts';
 import { useAccountsContext } from '../contexts';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId } from '@core/types';
+import { Account, NetworkWithCaipId } from '@core/types';
 import { getAddressForChain } from '@core/common';
+
+interface GetCollectiblesForNetworkParams {
+  network: NetworkWithCaipId;
+  account: Account;
+  balances: BalancesState;
+}
+
+const getCollectiblesForNetwork = ({
+  network,
+  account,
+  balances,
+}: GetCollectiblesForNetworkParams): NftTokenWithBalance[] => {
+  const userAddress = getAddressForChain(network, account);
+  if (!userAddress) {
+    return [];
+  }
+  return Object.values(balances.nfts?.[network.chainId]?.[userAddress] ?? {});
+};
 
 export const useNfts = (network?: NetworkWithCaipId) => {
   const { balances } = useBalancesContext();
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { network: currentNetwork } = useNetworkContext();
+  const { networks } = useNetworkContext();
 
   return useMemo<{
     collectibles: NftTokenWithBalance[];
@@ -26,42 +48,29 @@ export const useNfts = (network?: NetworkWithCaipId) => {
     }
 
     if (network) {
-      const userAddress = getAddressForChain(network, activeAccount);
-
-      if (!userAddress) {
-        return {
-          collectibles: [],
-          loading: balances.nftsLoading,
-          error: balances.error,
-        };
-      }
-
       return {
-        collectibles: Object.values(
-          balances.nfts?.[network.chainId]?.[userAddress] ?? {},
-        ),
+        collectibles: getCollectiblesForNetwork({
+          account: activeAccount,
+          network,
+          balances,
+        }),
+
         loading: balances.nftsLoading,
         error: balances.error,
       };
     }
 
-    if (!currentNetwork) {
-      return {
-        collectibles: [],
-        loading: false,
-        error: undefined,
-      };
-    }
-
-    const activeChainId = currentNetwork.chainId;
-    const userAddress = getAddressForChain(currentNetwork, activeAccount);
-
+    const collectiblesOnAllNetwork = networks.flatMap((enabledNetwork) =>
+      getCollectiblesForNetwork({
+        network: enabledNetwork,
+        account: activeAccount,
+        balances,
+      }),
+    );
     return {
-      collectibles: Object.values(
-        balances.nfts?.[activeChainId]?.[userAddress] ?? {},
-      ),
+      collectibles: collectiblesOnAllNetwork,
       loading: balances.nftsLoading,
       error: balances.error,
     };
-  }, [network, balances, activeAccount, currentNetwork]);
+  }, [network, networks, balances, activeAccount]);
 };

@@ -40,6 +40,22 @@ export const FIDOChallenge: FC<Props> = ({
   const { keyType } = useParams<RecoveryMethodsFullScreenParams>();
 
   useEffect(() => {
+    /**
+     * Some flows require two FIDO challenges to be fired one after another.
+     *
+     * Due to React state update batching, the updates coming from "mfa-clear" and "mfa-request" events
+     * may effectively be seen as "mfa-request" only if they happen really fast, therefore only updating
+     * the "challenge" property from one challenge to another, skipping the nullish state of it
+     * (and as a result, not resetting the entire component state here).
+     *
+     * Right now we also cannot just call"setIsVerifying(false)" after the first FIDO challenge,
+     * due to the event-driven nature of the Seedless MFA flows (i.e. request<SubmitMfaResponseHandler>()
+     * call succeeding does not mean the MFA verification has succeeded or failed).
+     */
+    setIsVerifying(false);
+  }, [challenge.mfaId]);
+
+  useEffect(() => {
     if (isVerifying && !force) {
       return;
     }

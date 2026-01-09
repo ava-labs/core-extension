@@ -30,8 +30,7 @@ export default defineConfig((...args) =>
                   shortName: 'Core',
                   actionDefaultTitle: 'Core Wallet: Crypto Made Easy',
                   oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-                  // TODO: add public key once ready
-                  // publicKey: process.env.EXTENSION_PUBLIC_KEY,
+                  publicKey: process.env.EXTENSION_PUBLIC_KEY,
                 }),
               },
             ],

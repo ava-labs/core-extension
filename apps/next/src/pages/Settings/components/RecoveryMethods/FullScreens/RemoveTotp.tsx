@@ -44,14 +44,13 @@ export const RemoveTotp = () => {
   const mfaChallenge = useMFAEvents(setError);
 
   const remove = useCallback(async () => {
-    console.log('remove');
     try {
       await removeTotp();
       setState(RemoveTotpState.Success);
       toast.success('Recovery method removed!', { duration: 20000 });
       history.push('update-recovery-method');
     } catch (e) {
-      console.log('error: ', e);
+      console.error(e);
       setState(RemoveTotpState.Failure);
     }
   }, [history, removeTotp]);

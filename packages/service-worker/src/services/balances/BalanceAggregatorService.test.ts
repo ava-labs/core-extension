@@ -89,7 +89,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
 
   const network2: Network = {
     chainName: 'test network 2',
-    chainId: 2,
+    chainId: 43114,
     vmName: NetworkVMType.EVM,
     rpcUrl: 'test.two.com/rpc',
     explorerUrl: 'https://explorer.url',
