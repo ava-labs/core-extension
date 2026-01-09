@@ -25,7 +25,7 @@ export interface UnifiedBridgeContext {
   supportsAsset(
     lookupAddressOrSymbol: string,
     sourceNetworkId: NetworkId,
-    targetNetworkId: NetworkId,
+    targetNetworkId?: NetworkId,
   ): boolean;
   transferAsset(
     symbol: string,

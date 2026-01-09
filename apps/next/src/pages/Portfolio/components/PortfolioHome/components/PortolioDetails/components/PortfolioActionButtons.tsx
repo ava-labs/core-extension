@@ -14,8 +14,10 @@ import { BuyIcon } from '@/components/BuyIcon';
 import {
   FungibleTokenBalance,
   getUniqueTokenId,
+  isNativeToken,
   NetworkWithCaipId,
 } from '@core/types';
+import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { chainIdToCaip } from '@core/common';
 
 const ICON_SIZE = 20;
@@ -31,9 +33,17 @@ export const PortfolioActionButtons = ({
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionSupported } = useIsFunctionAvailable({ network });
   const { t } = useTranslation();
+  const { supportsAsset } = useNextUnifiedBridgeContext();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
+  const isBridgeSupported =
+    !token ||
+    supportsAsset(
+      isNativeToken(token) ? token.symbol : token.address,
+      chainIdToCaip(token.coreChainId),
+    );
   const tokenId = token ? getUniqueTokenId(token) : '';
+  const tokenNetwork = token ? chainIdToCaip(token.coreChainId) : '';
 
   let delay = 0;
   const getDelay = () => (delay += 300);
@@ -56,26 +66,24 @@ export const PortfolioActionButtons = ({
         </Slide>
       )}
 
-      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-        <SquareButton
-          variant="extension"
-          icon={<BridgeIcon size={ICON_SIZE} />}
-          label={t('Bridge')}
-          onClick={() => {
-            capture('TokenBridgeClicked');
-            push(
-              getBridgePath(
-                token
-                  ? {
-                      sourceToken: tokenId,
-                      sourceNetwork: chainIdToCaip(token.coreChainId),
-                    }
-                  : undefined,
-              ),
-            );
-          }}
-        />
-      </Slide>
+      {isBridgeSupported && (
+        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+          <SquareButton
+            variant="extension"
+            icon={<BridgeIcon size={ICON_SIZE} />}
+            label={t('Bridge')}
+            onClick={() => {
+              capture('TokenBridgeClicked');
+              push(
+                getBridgePath({
+                  sourceToken: tokenId,
+                  sourceNetwork: tokenNetwork,
+                }),
+              );
+            }}
+          />
+        </Slide>
+      )}
 
       <Slide direction="left" in timeout={getDelay()} easing="ease-out">
         <SquareButton
