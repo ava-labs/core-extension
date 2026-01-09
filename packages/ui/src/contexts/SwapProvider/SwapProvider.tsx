@@ -44,6 +44,7 @@ import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
 import { NormalizedSwapQuoteResult, SwapProviders } from './types';
 import { SWAP_REFRESH_INTERVAL } from './constants';
+import { useErrorMessage } from '../../hooks';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
@@ -69,6 +70,7 @@ export function SwapContextProvider({ children }: PropsWithChildren) {
   const [swapNetwork, setSwapNetwork] = useState<NetworkWithCaipId | undefined>(
     activeNetwork,
   );
+  const getTranslatedError = useErrorMessage();
 
   useEffect(() => {
     // TODO: Cleanup once legacy app is gone -- new app uses setSwapNetwork() explicitly.
@@ -336,7 +338,7 @@ export function SwapContextProvider({ children }: PropsWithChildren) {
               Monitoring.SentryExceptionTypes.SWAP,
             );
             setQuotes(null);
-            setError({ message: t('An unknown error occurred') });
+            setError({ message: getTranslatedError(err).title });
           })
           .finally(() => {
             setIsSwapLoading(false);
@@ -347,7 +349,7 @@ export function SwapContextProvider({ children }: PropsWithChildren) {
         setQuotes(null);
       }
     },
-    [getRate, t, checkUserBalance, setAmounts],
+    [getRate, checkUserBalance, setAmounts, getTranslatedError, t],
   );
 
   useEffect(() => {

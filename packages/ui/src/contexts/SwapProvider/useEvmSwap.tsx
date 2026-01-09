@@ -164,7 +164,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
             return undefined;
           }
         }
-        throw swapError(CommonError.Unknown);
+        throw error;
       }
     },
     [account, network, isFlagEnabled],
