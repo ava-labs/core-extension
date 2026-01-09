@@ -21,6 +21,7 @@ import {
 } from '@avalabs/vm-module-types';
 import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
 import { setErrorForRequestInSessionStorage } from '@core/common';
+import { convertStreamToArray } from '~/api-clients/helpers';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
@@ -33,6 +34,7 @@ jest.mock('@core/common', () => {
   };
 });
 jest.mock('~/api-clients/balance-api');
+jest.mock('~/api-clients/helpers');
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   global.fetch = jest.fn().mockImplementation(
@@ -634,6 +636,105 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         walletId,
         BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
       );
+    });
+  });
+
+  describe('with balance service integration', () => {
+    const walletId = 'wallet-id';
+    let service: BalanceAggregatorService;
+
+    beforeEach(() => {
+      service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        settingsServiceMock,
+        {
+          featureFlags: {
+            [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+          },
+        } as any,
+        mockSecretsService,
+        addressResolverMock,
+        tokenPricesServiceMock,
+      );
+    });
+
+    describe('Success scenarios', () => {
+      it('Should call the respective methods to interact with the balance api and not call the fallback method', async () => {
+        jest.mocked(convertStreamToArray).mockResolvedValue({
+          balances: [],
+          errors: [],
+        });
+
+        // @ts-expect-error -- Good enough for this case
+        jest.mocked(postV1BalanceGetBalances).mockResolvedValue({ stream: {} });
+
+        await service.getBalancesForNetworks({
+          chainIds: [43114],
+          accounts: [account1],
+          tokenTypes: [TokenType.ERC20],
+          requestId: walletId,
+        });
+
+        expect(jest.mocked(postV1BalanceGetBalances)).toHaveBeenCalledWith(
+          expect.objectContaining({
+            body: {
+              currency: 'usd',
+              showUntrustedTokens: true,
+              data: [
+                {
+                  addresses: ['account1 C address'],
+                  namespace: 'eip155',
+                  references: ['43114'],
+                },
+              ],
+            },
+          }),
+        );
+        expect(
+          balancesServiceMock.getBalancesForNetwork,
+        ).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Error scenarios', () => {
+      it('Should call setErrorForRequestInSessionStorage if there is an error during the balance api call', async () => {
+        jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
+          throw new Error('Error while getting balances');
+        });
+
+        await service.getBalancesForNetworks({
+          chainIds: [43114],
+          accounts: [account1],
+          tokenTypes: [TokenType.ERC20],
+          requestId: walletId,
+        });
+
+        expect(
+          jest.mocked(setErrorForRequestInSessionStorage),
+        ).toHaveBeenCalledWith(
+          walletId,
+          BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
+        );
+      });
+
+      it('Should not call setErrorForRequestInSessionStorage if there is no requestId passed in for getBalancesForNetworks', async () => {
+        jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
+          throw new Error('Error while getting balances');
+        });
+
+        await service.getBalancesForNetworks({
+          chainIds: [43114],
+          accounts: [account1],
+          tokenTypes: [TokenType.ERC20],
+        });
+
+        expect(
+          jest.mocked(setErrorForRequestInSessionStorage),
+        ).not.toHaveBeenCalled();
+      });
     });
   });
 });
