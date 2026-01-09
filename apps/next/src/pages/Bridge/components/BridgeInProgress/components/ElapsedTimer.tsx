@@ -1,31 +1,28 @@
-import {
-  CheckIcon,
-  InfoCircleIcon,
-  Stack,
-  Tooltip,
-  Typography,
-  styled,
-} from '@avalabs/core-k2-components';
+import { Stack, styled, Tooltip, Typography } from '@avalabs/k2-alpine';
+import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';
+import { MdCheckCircle as CheckIcon, MdInfo as InfoIcon } from 'react-icons/md';
 
 const TimeElapsed = styled(Stack, {
   shouldForwardProp: (prop) => prop !== 'complete',
 })<{
   complete?: boolean;
-}>`
-  min-width: 76px; // this prevents the chip growing and shrinking due to numbers changing
-  border-radius: 66px;
-  padding: 2px 8px;
-  text-align: center;
-  background-color: ${({ complete, theme }) =>
-    complete ? theme.palette.success.dark : theme.palette.grey[700]};
-`;
+}>(({ complete, theme }) => ({
+  minWidth: 76, // this prevents the chip growing and shrinking due to numbers changing
+  borderRadius: 66,
+  padding: '2px 8px',
+  textAlign: 'center',
+  backgroundColor: complete
+    ? theme.palette.success.dark
+    : theme.palette.grey[700],
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}));
 
 const padTimeElapsed = (startTime: number, endTime?: number): Date => {
   // based on created time, set elapsed time offset
-
   const now = Date.now();
   const diff = (endTime || now) - startTime;
   const offset = new Date(now + diff);
@@ -33,17 +30,19 @@ const padTimeElapsed = (startTime: number, endTime?: number): Date => {
   return offset;
 };
 
-export function ElapsedTimer({
-  offloadDelayTooltip,
-  startTime,
-  endTime,
-  hasError,
-}: {
+type Props = {
   offloadDelayTooltip?: React.ReactNode;
   startTime: number;
   endTime?: number;
   hasError?: boolean;
-}) {
+};
+
+export const ElapsedTimer: FC<Props> = ({
+  offloadDelayTooltip,
+  startTime,
+  endTime,
+  hasError,
+}) => {
   const { t } = useTranslation();
   const { hours, minutes, seconds, reset, isRunning } = useStopwatch({
     autoStart: false,
@@ -76,35 +75,28 @@ export function ElapsedTimer({
   if (!startTime) {
     return (
       <TimeElapsed complete={!!endTime}>
-        <Typography>00:00</Typography>
+        <Typography variant="body3">00:00</Typography>
       </TimeElapsed>
     );
   }
 
   return (
-    <TimeElapsed
-      complete={!!endTime && !hasError}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: hasError ? 'center' : 'space-between',
-      }}
-    >
-      <Typography>
+    <TimeElapsed complete={!!endTime && !hasError}>
+      <Typography variant="body3">
         {displayedHours && `${displayedHours}:`}
         {displayedMinutes}:{displayedSeconds}
       </Typography>
       {endTime ? (
         hasError ? null : (
-          <CheckIcon size="12" sx={{ ml: 0.5 }} />
+          <CheckIcon size={12} style={{ marginLeft: 4 }} />
         )
       ) : (
         (offloadDelayTooltip ?? (
           <Tooltip title={t('Time Elapsed')}>
-            <InfoCircleIcon />
+            <InfoIcon size={12} style={{ marginLeft: 4 }} />
           </Tooltip>
         ))
       )}
     </TimeElapsed>
   );
-}
+};
