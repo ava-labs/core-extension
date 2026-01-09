@@ -1,9 +1,7 @@
 import { createHash } from 'crypto';
 import { readdir, readFile } from 'node:fs/promises';
-import { readCoreCliArgument } from './readCoreCliArgument.mjs';
 
-const gen = readCoreCliArgument('gen') || 'legacy';
-const dir = gen === 'legacy' ? 'dist' : 'dist-next';
+const dir = 'dist-next';
 const pathChecksumMap = {};
 const manifestBytes = await readFile(`${dir}/manifest.json`);
 const manifest = JSON.parse(manifestBytes.toString('utf-8'));
