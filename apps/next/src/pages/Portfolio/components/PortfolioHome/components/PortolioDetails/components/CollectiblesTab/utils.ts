@@ -1,3 +1,4 @@
+import { curry } from 'lodash';
 import { MediaTypeFilters, SortMode } from './hooks/useCollectiblesToolbar';
 import mime from 'mime/lite';
 import { FormattedCollectible } from './CollectiblesTab';
@@ -105,18 +106,37 @@ export const getCollectibleMediaType = (
 /**
  * Filter collectibles by media type
  */
-export const filterCollectiblesByMediaType = (
-  collectibles: FormattedCollectible[],
-  mediaFilters: MediaTypeFilters,
-): FormattedCollectible[] => {
-  if (mediaFilters.all) {
-    return collectibles;
-  }
-  return collectibles.filter((collectible) => {
-    const type = collectible.collectibleTypeMedia;
-    return mediaFilters[type];
-  });
-};
+export const filterCollectiblesByMediaType = curry(
+  (
+    mediaFilters: MediaTypeFilters,
+    collectibles: FormattedCollectible[],
+  ): FormattedCollectible[] => {
+    if (mediaFilters.all) {
+      return collectibles;
+    }
+    return collectibles.filter((collectible) => {
+      const type = collectible.collectibleTypeMedia;
+      return mediaFilters[type];
+    });
+  },
+);
+
+/**
+ * Filter collectibles by networks
+ */
+export const filterCollectiblesByNetworks = curry(
+  (
+    networkFilters: number[],
+    collectibles: FormattedCollectible[],
+  ): FormattedCollectible[] => {
+    if (networkFilters.length === 0) {
+      return collectibles;
+    }
+    return collectibles.filter((collectible) => {
+      return networkFilters.includes(collectible.chainId);
+    });
+  },
+);
 
 /**
  * Get display name for sorting (name or collectionName fallback)
