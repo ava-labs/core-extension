@@ -78,7 +78,6 @@ export const CustomGasSettings: FC<CustomGasSettingsProps> = ({
         setError(t('Max base fee must be greater than 0'));
       } else if (newMaxTip < 0) {
         setError(t('Max priority fee cannot be negative'));
-        return;
       }
     } catch {
       setError(t('Please enter a valid decimal value'));
