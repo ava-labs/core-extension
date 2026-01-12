@@ -1,3 +1,4 @@
+export * from '../../BridgeEstimatedTimeWarning';
 export * from '../../BridgeSanctions';
 export * from './BannerTop';
 export * from './BridgeControls';
