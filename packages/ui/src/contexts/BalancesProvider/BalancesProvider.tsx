@@ -21,7 +21,9 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
+  useRef,
   useState,
 } from 'react';
 import { filter, map } from 'rxjs';
@@ -193,7 +195,7 @@ function balancesReducer(
 export function BalancesProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network, enabledNetworkIds, getNetwork } = useNetworkContext();
-  const { tokensVisibility } = useSettingsContext();
+  const { tokensVisibility, filterSmallUtxos } = useSettingsContext();
   const {
     accounts: { active: activeAccount },
     getAccount,
@@ -210,6 +212,20 @@ export function BalancesProvider({ children }: PropsWithChildren) {
   >({});
 
   const [subscribers, setSubscribers] = useState<BalanceSubscribers>({});
+  const lastActiveTokenTypesRef = useRef<TokenType[]>([]);
+
+  const activeTokenTypes = useMemo(() => {
+    const tokenTypes = Object.entries(subscribers)
+      .filter(([, subscriberCount]) => subscriberCount > 0)
+      .map(([tokenType]) => tokenType as TokenType);
+
+    // Remember non-empty token types for use when subscribers are temporarily unavailable
+    if (tokenTypes.length > 0) {
+      lastActiveTokenTypesRef.current = tokenTypes;
+    }
+
+    return tokenTypes;
+  }, [subscribers]);
 
   const registerSubscriber = useCallback((tokenTypes: TokenType[]) => {
     setSubscribers((oldSubscribers) =>
@@ -326,6 +342,7 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  // Main polling effect - manages lifecycle based on subscribers
   useEffect(() => {
     if (!activeAccount) {
       return;
@@ -333,14 +350,10 @@ export function BalancesProvider({ children }: PropsWithChildren) {
 
     fetchAtomicBalanceForAccount(activeAccount.id);
 
-    const tokenTypes = Object.entries(subscribers)
-      .filter(([, subscriberCount]) => subscriberCount > 0)
-      .map(([tokenType]) => tokenType as TokenType);
-
-    if (tokenTypes.length > 0) {
+    if (activeTokenTypes.length > 0) {
       request<StartBalancesPollingHandler>({
         method: ExtensionRequest.BALANCES_START_POLLING,
-        params: [activeAccount, enabledNetworkIds, tokenTypes],
+        params: [activeAccount, enabledNetworkIds, activeTokenTypes],
       }).then((balancesData) => {
         dispatch({
           type: BalanceActionType.UPDATE_BALANCES,
@@ -363,9 +376,32 @@ export function BalancesProvider({ children }: PropsWithChildren) {
     activeAccount,
     network?.chainId,
     enabledNetworkIds,
-    subscribers,
+    activeTokenTypes,
     fetchAtomicBalanceForAccount,
   ]);
+
+  // Re-trigger polling when filterSmallUtxos changes
+  // Uses cached token types since subscribers may be unmounted (e.g., on Settings page)
+  useEffect(() => {
+    if (!activeAccount) {
+      return;
+    }
+
+    // Use cached token types since current subscribers may be empty
+    const tokenTypes = lastActiveTokenTypesRef.current;
+    console.log({ tokenTypes });
+    if (tokenTypes.length > 0) {
+      request<StartBalancesPollingHandler>({
+        method: ExtensionRequest.BALANCES_START_POLLING,
+        params: [activeAccount, enabledNetworkIds, tokenTypes],
+      }).then((balancesData) => {
+        dispatch({
+          type: BalanceActionType.UPDATE_BALANCES,
+          payload: balancesData,
+        });
+      });
+    }
+  }, [filterSmallUtxos, activeAccount, enabledNetworkIds, request]);
 
   const updateBalanceOnNetworks = useCallback(
     async (accounts: Account[], chainIds?: number[]) => {

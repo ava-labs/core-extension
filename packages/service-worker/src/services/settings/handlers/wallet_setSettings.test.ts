@@ -56,6 +56,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     preferredView: 'floating',
     showTrendingTokens: true,
     privacyMode: false,
+    filterSmallUtxos: false,
   };
 
   const mockSettingsResponse: WalletSetSettingsResponse = {

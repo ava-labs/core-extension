@@ -138,7 +138,8 @@ interface CreateGetBalancePayloadParams {
   chainIds: number[];
   currency?: Currency;
   secretsService: SecretsService;
-  addressResolver: AddressResolver;
+  addressResolver: Pick<AddressResolver, 'getXPAddressesForAccountIndex'>;
+  filterSmallUtxos: boolean;
 }
 
 interface GetAccountAddressFromCaip2IdOrNamesSpaceProps {
@@ -187,6 +188,7 @@ export const createGetBalancePayload = async ({
   currency = 'usd',
   secretsService,
   addressResolver,
+  filterSmallUtxos,
 }: CreateGetBalancePayloadParams): Promise<GetBalancesRequestBody> => {
   // TODO: coreth caip2 ID from extension
   const caip2Ids = chainIds.map(chainIdToCaip);
@@ -324,6 +326,7 @@ export const createGetBalancePayload = async ({
                     },
                   ]
                 : undefined,
+            filterOutDustUtxos: filterSmallUtxos,
           } as AvalancheXpGetBalancesRequestItem;
         } else {
           const address = getAccountAddressFromCaip2IdOrNamesSpace({
@@ -344,6 +347,7 @@ export const createGetBalancePayload = async ({
                 addresses: [stripAddressPrefix(address)],
               },
             ],
+            filterOutDustUtxos: filterSmallUtxos,
           } as AvalancheXpGetBalancesRequestItem;
         }
       });
@@ -376,6 +380,7 @@ export const createGetBalancePayload = async ({
             ],
             'id',
           ),
+          filterOutDustUtxos: filterSmallUtxos,
         };
       },
       {
@@ -383,6 +388,7 @@ export const createGetBalancePayload = async ({
         references: [],
         extendedPublicKeyDetails: [],
         addressDetails: [],
+        filterOutDustUtxos: filterSmallUtxos,
       },
     );
 

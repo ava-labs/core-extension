@@ -131,6 +131,7 @@ describe('utils', () => {
                 id: 'avax124',
               },
             ],
+            filterOutDustUtxos: false,
           },
           {
             addressDetails: [
@@ -187,6 +188,7 @@ describe('utils', () => {
         chainIds: payload.chainIds,
         secretsService: mockSecretsService as any,
         addressResolver: mockAddressResolver as any,
+        filterSmallUtxos: false,
       });
 
       expect(actual).toEqual(expected);
@@ -220,6 +222,7 @@ describe('utils', () => {
         chainIds,
         secretsService: mockSecretsService as any,
         addressResolver: mockAddressResolver as any,
+        filterSmallUtxos: false,
       });
 
       const expected = {
@@ -282,6 +285,88 @@ describe('utils', () => {
       };
 
       expect(actual).toEqual(expected);
+    });
+
+    it('should set filterOutDustUtxos to true when filterSmallUtxos is true', async () => {
+      const mockSecretsService = { getAvalancheExtendedPublicKey: jest.fn() };
+      const mockAddressResolver = { getXPAddressesForAccountIndex: jest.fn() };
+      mockSecretsService.getAvalancheExtendedPublicKey.mockResolvedValue({
+        key: 'xpub1',
+      });
+
+      const account = {
+        id: 'wallet-1-account-1',
+        index: 0,
+        name: 'Account 1',
+        type: 'primary',
+        walletId: 'wallet1',
+        addressC: '0xa1',
+        addressBTC: 'bc111',
+        addressAVM: 'X-avax111',
+        addressPVM: 'P-avax111',
+        addressCoreEth: 'C-avax1aa',
+        addressSVM: 'AAA',
+      };
+
+      const actual = await createGetBalancePayload({
+        accounts: [account] as Account[],
+        chainIds: [4503599627370471, 4503599627370475], // X and P chain IDs
+        secretsService: mockSecretsService as any,
+        addressResolver: mockAddressResolver as any,
+        filterSmallUtxos: true,
+      });
+
+      // Find the avax namespace item (X/P chains)
+      const avaxItem = actual.data.find(
+        (item) =>
+          item.namespace === 'avax' &&
+          'extendedPublicKeyDetails' in item &&
+          (item as any).extendedPublicKeyDetails?.length > 0,
+      );
+
+      expect(avaxItem).toBeDefined();
+      expect((avaxItem as any).filterOutDustUtxos).toBe(true);
+    });
+
+    it('should set filterOutDustUtxos to false when filterSmallUtxos is false', async () => {
+      const mockSecretsService = { getAvalancheExtendedPublicKey: jest.fn() };
+      const mockAddressResolver = { getXPAddressesForAccountIndex: jest.fn() };
+      mockSecretsService.getAvalancheExtendedPublicKey.mockResolvedValue({
+        key: 'xpub1',
+      });
+
+      const account = {
+        id: 'wallet-1-account-1',
+        index: 0,
+        name: 'Account 1',
+        type: 'primary',
+        walletId: 'wallet1',
+        addressC: '0xa1',
+        addressBTC: 'bc111',
+        addressAVM: 'X-avax111',
+        addressPVM: 'P-avax111',
+        addressCoreEth: 'C-avax1aa',
+        addressSVM: 'AAA',
+      };
+
+      const actual = await createGetBalancePayload({
+        accounts: [account] as Account[],
+        chainIds: [4503599627370471, 4503599627370475], // X and P chain IDs
+        secretsService: mockSecretsService as any,
+        addressResolver: mockAddressResolver as any,
+        filterSmallUtxos: false,
+      });
+
+      // Find the avax namespace item (X/P chains)
+      const avaxItem = actual.data.find(
+        (item) =>
+          item.namespace === 'avax' &&
+          'extendedPublicKeyDetails' in item &&
+          (item as any).extendedPublicKeyDetails?.length > 0,
+      );
+
+      expect(avaxItem).toBeDefined();
+      expect((avaxItem as any).filterOutDustUtxos).toBe(false);
     });
   });
 });
