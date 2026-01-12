@@ -50,7 +50,6 @@ jobs:
           echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
           echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
           echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
-          echo 'NEXT_GEN_EXTENSION_PUBLIC_KEY="${{ secrets.NEXT_GEN_EXTENSION_PUBLIC_KEY }}"' >> .env.production
           echo 'BALANCE_SERVICE_URL="${{ secrets.BALANCE_SERVICE_URL }}"' >> .env.production
           echo 'PROFILE_SERVICE_URL="${{ secrets.PROFILE_SERVICE_URL }}"' >> .env.production
       - name: Install dependencies

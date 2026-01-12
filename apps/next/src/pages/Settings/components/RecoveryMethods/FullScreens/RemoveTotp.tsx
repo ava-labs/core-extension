@@ -44,7 +44,7 @@ export const RemoveTotp = () => {
       toast.success('Recovery method removed!', { duration: 20000 });
       history.push('update-recovery-method');
     } catch (e) {
-      console.log('error: ', e);
+      console.error(e);
       setState(RemoveTotpState.Failure);
     }
   }, [history, removeTotp]);

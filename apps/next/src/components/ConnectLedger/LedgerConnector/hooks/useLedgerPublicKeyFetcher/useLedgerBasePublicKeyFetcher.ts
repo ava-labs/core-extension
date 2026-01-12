@@ -48,7 +48,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     initLedgerTransport,
     getExtendedPublicKey,
   } = useLedgerContext();
-  const { appType, appVersion } = useActiveLedgerAppInfo();
+  const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
   const checkAddressActivity = useCheckAddressActivity();
 

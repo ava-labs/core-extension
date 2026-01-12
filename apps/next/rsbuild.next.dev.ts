@@ -31,7 +31,7 @@ export default defineConfig((...args) =>
                   shortName: '[dev] Core NextGen',
                   actionDefaultTitle: '[dev] Core NextGen Browser Extension',
                   oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-                  publicKey: process.env.NEXT_GEN_EXTENSION_PUBLIC_KEY,
+                  publicKey: process.env.EXTENSION_PUBLIC_KEY,
                 }),
               },
               { from: 'src/images/dev-logos', to: './images', force: true },
