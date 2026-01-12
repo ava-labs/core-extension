@@ -14,14 +14,26 @@ import {
   FeatureVars,
   SecretType,
   SwapErrorCode,
+  ValidatorType,
 } from '@core/types';
 import { SwapSide } from '@paraswap/sdk';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
-import { WAVAX_ADDRESS, WETH_ADDRESS } from './constants';
-import { EvmSwapQuote, GetRateParams, SwapAdapter, SwapParams } from './models';
+import { useSettingsContext } from '../SettingsProvider';
+import {
+  MARKR_PARTNER_FEE_BPS,
+  WAVAX_ADDRESS,
+  WETH_ADDRESS,
+} from './constants';
+import {
+  EvmSwapQuote,
+  GetRateParams,
+  isMarkrQuote,
+  SwapAdapter,
+  SwapParams,
+} from './models';
 import { swapError } from './swap-utils';
 import { MarkrProvider } from './providers/MarkrProvider';
 import { WNativeProvider } from './providers/WNativeProvider';
@@ -30,7 +42,10 @@ import {
   SwapProvider,
   SwapProviders,
 } from './types';
+import { TransactionParams } from '@avalabs/evm-module';
 import { ParaswapProvider } from './providers/ParaswapProvider';
+import { applyGasPricesToTransactions } from './utils/applyGasPrices';
+import Big from 'big.js';
 
 const getSwapProvider = (isSwapUseMarkrBlocked: boolean): SwapProvider =>
   isSwapUseMarkrBlocked ? ParaswapProvider : MarkrProvider;
@@ -54,7 +69,8 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
 ) => {
   const { request } = useConnectionContext();
   const { isFlagEnabled, selectFeatureFlag } = useFeatureFlagContext();
-  const { isGaslessOn } = useNetworkFeeContext();
+  const { isGaslessOn, getNetworkFee } = useNetworkFeeContext();
+  const { isDegenMode, feeSetting, maxBuy } = useSettingsContext();
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
@@ -191,21 +207,111 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       assertPresent(rpcProvider, CommonError.Unknown);
       assert(!network.isTestnet, CommonError.UnknownNetwork);
 
-      const signAndSend = (
+      // Check if degen mode is enabled (only for Markr swaps)
+      const isDegenModeEnabledForMarkr =
+        swapProvider === SwapProviders.MARKR && (isDegenMode ?? false);
+
+      const signAndSend = async (
         method: RpcMethod,
         txParams: [NormalizedTransactionParams],
-        context?: Record<string, unknown>,
-      ): Promise<string> =>
-        request(
+      ): Promise<string> => {
+        const isBatch = method === RpcMethod.ETH_SEND_TRANSACTION_BATCH;
+        const transactions = isBatch ? txParams : [txParams[0]];
+
+        console.log('[Swap] signAndSend called', {
+          method,
+          network: network.caipId,
+          isBatch,
+          transactionCount: transactions.length,
+          swapProvider,
+          isDegenModeEnabledForMarkr,
+        });
+
+        // Try auto-approval for Markr swaps when degen mode is enabled
+        autoApproval: if (isDegenModeEnabledForMarkr) {
+          // Apply gas prices if missing
+          const needsGasPrices = (transactions as TransactionParams[]).some(
+            (tx) => !tx.maxFeePerGas || !tx.maxPriorityFeePerGas,
+          );
+
+          if (needsGasPrices) {
+            const networkFee = await getNetworkFee(network.caipId);
+            if (!networkFee) {
+              console.warn(
+                '[Swap] No network fee, falling back to normal flow',
+              );
+              break autoApproval;
+            }
+            applyGasPricesToTransactions(
+              transactions as TransactionParams[],
+              networkFee,
+              feeSetting,
+            );
+          }
+
+          // Calculate minAmountOut
+          const slippagePercent = slippage / 100;
+          const feePercent = MARKR_PARTNER_FEE_BPS / 10_000;
+          const baseAmount = isMarkrQuote(quote) ? quote.amountOut : amountOut;
+          const minAmountOut = baseAmount
+            ? new Big(baseAmount)
+                .times(1 - slippagePercent - feePercent)
+                .toFixed(0)
+            : undefined;
+
+          if (!minAmountOut || minAmountOut === '0') {
+            console.warn(
+              '[Swap] Invalid minAmountOut, falling back to normal flow',
+            );
+            break autoApproval;
+          }
+
+          const isDestTokenNative = network.networkToken.symbol === destToken;
+          const isSrcTokenNative = network.networkToken.symbol === srcToken;
+          const validatorType = isBatch
+            ? ValidatorType.BATCH_SWAP
+            : ValidatorType.SWAP;
+
+          const params = isBatch
+            ? { transactions: txParams, options: { skipIntermediateTxs: true } }
+            : txParams;
+
+          return request(
+            { method, params },
+            {
+              scope: network.caipId,
+              context: {
+                autoApprove: true,
+                validatorType,
+                srcTokenAddress: srcToken,
+                isSrcTokenNative,
+                destTokenAddress: destToken,
+                isDestTokenNative,
+                minAmountOut,
+                slippage,
+                maxBuy,
+                isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+              },
+            },
+          ).then((txHash) => {
+            if (isBatch && Array.isArray(txHash)) {
+              return txHash[txHash.length - 1];
+            }
+            return txHash;
+          });
+        }
+
+        // Normal flow: no auto-approval
+        return request(
           {
             method,
             params: txParams,
           },
           {
             scope: network.caipId,
-            context,
           },
         );
+      };
 
       // getting the swap provider by name because there is chance that
       // the markr can be blocked after the quote is fetched
@@ -235,6 +341,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
           selectFeatureFlag(FeatureVars.MARKR_SWAP_GAS_BUFFER),
         ),
         isGaslessOn,
+        shouldUseAutoApproval: isDegenModeEnabledForMarkr,
       });
 
       retry<TransactionReceipt | null>({
@@ -268,6 +375,10 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       selectFeatureFlag,
       walletDetails?.type,
       isGaslessOn,
+      getNetworkFee,
+      isDegenMode,
+      feeSetting,
+      maxBuy,
     ],
   );
 
