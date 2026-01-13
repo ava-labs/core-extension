@@ -37,18 +37,17 @@ export const PortfolioTabs: FC = () => {
     activeTabFromParams ?? 'assets',
   );
   const { networks } = useNetworkContext();
-  const { totalBalance, balances } = useBalancesContext();
+  const { balances } = useBalancesContext();
 
-  const { totalBalanceInCurrency, isLoading: isWalletLoading } =
-    useWalletTotalBalance(
-      isPrimaryAccount(accounts.active)
-        ? accounts.active.walletId
-        : IMPORTED_ACCOUNTS_WALLET_ID,
-    );
+  const { totalBalanceInCurrency } = useWalletTotalBalance(
+    isPrimaryAccount(accounts.active)
+      ? accounts.active.walletId
+      : IMPORTED_ACCOUNTS_WALLET_ID,
+  );
 
   const assets = useTokensForAccount(accounts.active);
 
-  const isLoading = balances.loading || !totalBalance || isWalletLoading;
+  const isLoading = balances.loading;
   const isAccountEmpty =
     !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
   const isWalletEmpty =

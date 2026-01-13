@@ -30,11 +30,6 @@
         font: inherit;
         vertical-align: baseline;
         height: 100%;
-        background-color: #ffffff;
-
-        @media (prefers-color-scheme: dark) {
-          background-color: #28282e;
-        }
       }
 
       #popup {
@@ -44,9 +39,17 @@
         display: flex;
         flex-direction: column;
       }
+
+      .system-bg {
+        background-color: #ffffff;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: #28282e;
+        }
+      }
     </style>
   </head>
-  <body>
+  <body class="system-bg">
     <div id="<%= mountId %>"></div>
   </body>
 </html>

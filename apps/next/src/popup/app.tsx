@@ -1,9 +1,4 @@
-import {
-  CircularProgress,
-  Stack,
-  ThemeProvider,
-  toast,
-} from '@avalabs/k2-alpine';
+import { Stack, ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,
@@ -110,14 +105,6 @@ export function App() {
       setNavigationHistory(history);
     });
   }, [history, navigationHistory, setNavigationHistory]);
-
-  if (!preferredColorScheme) {
-    return (
-      <Stack justifyContent="center" alignItems="center" height="100%">
-        <CircularProgress />
-      </Stack>
-    );
-  }
 
   const displayHeader = !pagesWithoutHeader.some((path) =>
     pathname.startsWith(path),

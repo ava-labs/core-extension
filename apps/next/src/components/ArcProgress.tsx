@@ -1,4 +1,4 @@
-import { Theme, useTheme } from '@avalabs/core-k2-components';
+import { Theme, useTheme } from '@avalabs/k2-alpine';
 import { get } from 'lodash';
 import { FC } from 'react';
 

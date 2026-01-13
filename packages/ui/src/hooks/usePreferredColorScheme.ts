@@ -3,6 +3,14 @@ import { useSettingsContext } from '../contexts';
 
 type ColorScheme = 'dark' | 'light' | 'testnet';
 
+// The document's body has a "system-bg" class that is set according to the system preferences.
+// This avoids the flash of white when the page loads (in dark mode).
+// As soon as we determine the preferred color scheme as set in the settings,
+// we remove the "system-bg" class from the body.
+const removeSystemBg = () => {
+  document.body.classList.remove('system-bg');
+};
+
 export const usePreferredColorScheme = () => {
   const { theme } = useSettingsContext();
 
@@ -13,11 +21,13 @@ export const usePreferredColorScheme = () => {
   useEffect(() => {
     if (theme === 'DARK') {
       setPreferredColorScheme('dark');
+      removeSystemBg();
       return;
     }
 
     if (theme === 'LIGHT') {
       setPreferredColorScheme('light');
+      removeSystemBg();
       return;
     }
 

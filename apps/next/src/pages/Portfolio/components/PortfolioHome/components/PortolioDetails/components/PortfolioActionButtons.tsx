@@ -1,4 +1,4 @@
-import { Slide, SquareButton, Stack } from '@avalabs/k2-alpine';
+import { Fade, SquareButton, Stack } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext } from '@core/ui';
 
@@ -50,10 +50,8 @@ export const PortfolioActionButtons = ({
 
   return (
     <Stack direction="row" gap={1} width="100%">
-      {/* TODO: create the proper animation */}
-
       {isSwapSupported && (
-        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
             icon={<SwapIcon size={ICON_SIZE} />}
@@ -63,11 +61,11 @@ export const PortfolioActionButtons = ({
               push(getSwapPath({ from: tokenId }));
             }}
           />
-        </Slide>
+        </Fade>
       )}
 
       {isBridgeSupported && (
-        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
             icon={<BridgeIcon size={ICON_SIZE} />}
@@ -82,10 +80,10 @@ export const PortfolioActionButtons = ({
               );
             }}
           />
-        </Slide>
+        </Fade>
       )}
 
-      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+      <Fade in timeout={getDelay()} easing="ease-out">
         <SquareButton
           variant="extension"
           icon={<SendIcon size={ICON_SIZE} />}
@@ -95,10 +93,10 @@ export const PortfolioActionButtons = ({
             push(getSendPath({ token: tokenId }));
           }}
         />
-      </Slide>
+      </Fade>
 
       {isBuySupported && (
-        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
             icon={<BuyIcon size={ICON_SIZE} />}
@@ -108,7 +106,7 @@ export const PortfolioActionButtons = ({
               openNewTab({ url: `${getCoreWebUrl()}/buy` });
             }}
           />
-        </Slide>
+        </Fade>
       )}
     </Stack>
   );
