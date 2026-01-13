@@ -36,7 +36,8 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
-  const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
+  const { isBridgeDevEnv, setBridgeDevMode } =
+    useBridgeEnvironment(isDeveloperMode);
   const currentEnvironment = getEnvironment(isDeveloperMode, isBridgeDevEnv);
   const core = useCoreBridgeService(
     currentEnvironment,
@@ -96,6 +97,10 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const context = useMemo<UnifiedBridgeContext>(() => {
     return {
       isReady: !!core,
+      devMode: {
+        enabled: isBridgeDevEnv,
+        set: setBridgeDevMode,
+      },
       availableChainIds,
       estimateTransferGas,
       state: filteredState,
@@ -111,6 +116,8 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
     };
   }, [
     core,
+    isBridgeDevEnv,
+    setBridgeDevMode,
     availableChainIds,
     estimateTransferGas,
     filteredState,

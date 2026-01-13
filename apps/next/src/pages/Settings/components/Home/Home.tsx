@@ -45,6 +45,7 @@ import {
   SettingsCard,
   SettingsNavItem,
 } from './components';
+import { BridgeDevModeSwitchCard } from './components/BridgeDevModeSwitchCard';
 
 const navItemActionCommonSx: SxProps = {
   px: 1,
@@ -123,6 +124,8 @@ export const SettingsHomePage = () => {
           />
         </Stack> */}
       </Stack>
+
+      <BridgeDevModeSwitchCard />
 
       {isMfaSetupPromptVisible && (
         <Card
