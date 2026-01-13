@@ -1,5 +1,5 @@
 import { PropsWithChildren, ReactNode, useEffect } from 'react';
-import { type toast } from '@avalabs/k2-alpine';
+import { toast } from '@avalabs/k2-alpine';
 import { filter } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 
@@ -19,7 +19,6 @@ const PENDING_TOAST_ID = 'transaction-pending';
 const RESULT_TOAST_ID = 'transaction-result';
 
 export type TransactionStatusProviderProps = PropsWithChildren<{
-  toast: typeof toast;
   renderExplorerLink?: (options: {
     network: NetworkWithCaipId;
     hash: string;
@@ -40,7 +39,6 @@ const isAllowedContext = () => {
 
 export function TransactionStatusProvider({
   children,
-  toast,
   renderExplorerLink,
   onPending,
   onSuccess,
@@ -126,7 +124,7 @@ export function TransactionStatusProvider({
     return () => {
       subscription.unsubscribe();
     };
-  }, [events, getNetwork, t, toast, renderExplorerLink, onPending, onSuccess]);
+  }, [events, getNetwork, t, renderExplorerLink, onPending, onSuccess]);
 
   return <>{children}</>;
 }
