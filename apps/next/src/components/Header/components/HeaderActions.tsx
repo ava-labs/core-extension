@@ -58,7 +58,14 @@ export const HeaderActions: FC<Props> = ({ account }) => {
         <IconButton
           disableRipple={true}
           data-testid="settings-button"
-          onClick={() => history.push('/settings')}
+          onClick={() => {
+            document.startViewTransition({
+              update: () => {
+                history.push('/settings');
+              },
+              types: ['backwards'],
+            });
+          }}
           size="small"
           sx={{ color: theme.palette.text.primary }}
         >

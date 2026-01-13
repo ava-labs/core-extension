@@ -85,7 +85,10 @@ export const SettingsHomePage = () => {
       )}
       withBackButton
       onBack={() => {
-        push('/');
+        document.startViewTransition({
+          update: () => push('/'),
+          types: ['forwards'],
+        });
       }}
     >
       <Stack direction="row" gap={1.5} width="100%">
