@@ -6,6 +6,7 @@ import {
 import { FC } from 'react';
 
 import { ContextContainer } from '@core/types';
+import { isSidePanelSupported } from '@core/common';
 import {
   isSpecificContextContainer,
   useAnalyticsContext,
@@ -20,6 +21,10 @@ export const ViewModeSwitcher: FC = () => {
   const { capture } = useAnalyticsContext();
   const isSidePanel = isSpecificContextContainer(ContextContainer.SIDE_PANEL);
   const openApp = useOpenApp();
+
+  if (!isSidePanelSupported()) {
+    return null;
+  }
 
   const DockIcon = isSidePanel ? SidebarUndockIcon : SidebarDockIcon;
 

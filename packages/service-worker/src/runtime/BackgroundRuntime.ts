@@ -11,6 +11,7 @@ import { OnboardingService } from '../services/onboarding/OnboardingService';
 import { AddressResolver } from '../services/secrets/AddressResolver';
 import { SettingsService } from '../services/settings/SettingsService';
 import { ModuleManager } from '../vmModules/ModuleManager';
+import { isSidePanelSupported } from '@core/common';
 
 @singleton()
 export class BackgroundRuntime {
@@ -146,6 +147,10 @@ export class BackgroundRuntime {
   }
 
   private async setupSidePanel() {
+    if (!isSidePanelSupported()) {
+      return;
+    }
+
     const hasSidePanelPermission = await browser.permissions.contains({
       permissions: ['sidePanel'],
     });
