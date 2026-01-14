@@ -13,7 +13,6 @@ export type AddressPublicKey = {
   btcWalletPolicyDetails?: BtcWalletPolicyDetails;
 };
 
-export type DerivationPathSpec = 'bip44' | 'ledger_live';
 export type ExtendedPublicKey = {
   type: 'extended-pubkey';
   curve: 'secp256k1';

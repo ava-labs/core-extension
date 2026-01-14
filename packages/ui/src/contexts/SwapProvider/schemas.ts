@@ -26,4 +26,3 @@ export const JUPITER_TX_SCHEMA = z.object({
 });
 
 export type JupiterQuote = z.infer<typeof JUPITER_QUOTE_SCHEMA>;
-export type JupiterTx = z.infer<typeof JUPITER_TX_SCHEMA>;

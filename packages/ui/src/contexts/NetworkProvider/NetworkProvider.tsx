@@ -20,11 +20,9 @@ import {
 } from '@core/common';
 import {
   AddEnabledNetworkHandler,
-  AddFavoriteNetworkHandler,
   GetNetworksStateHandler,
   RemoveCustomNetworkHandler,
   RemoveEnabledNetworkHandler,
-  RemoveFavoriteNetworkHandler,
   SaveCustomNetworkHandler,
   SetActiveNetworkHandler,
   SetDevelopermodeNetworkHandler,
@@ -58,12 +56,8 @@ const NetworkContext = createContext<{
   updateDefaultNetwork(network: NetworkOverrides): Promise<unknown>;
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
-  favoriteNetworks: NetworkWithCaipId[];
   enabledNetworks: NetworkWithCaipId[];
   enabledNetworkIds: number[];
-  addFavoriteNetwork(chainId: number): void;
-  removeFavoriteNetwork(chainId: number): void;
-  isFavoriteNetwork(chainId: number): boolean;
   enableNetwork(chainId: number): void;
   disableNetwork(chainId: number): void;
   customNetworks: NetworkWithCaipId[];
@@ -85,12 +79,8 @@ const NetworkContext = createContext<{
   async updateDefaultNetwork() {},
   async removeCustomNetwork() {},
   isDeveloperMode: false,
-  favoriteNetworks: [],
   enabledNetworks: [],
   enabledNetworkIds: [],
-  addFavoriteNetwork() {},
-  removeFavoriteNetwork() {},
-  isFavoriteNetwork: () => false,
   enableNetwork() {},
   disableNetwork() {},
   customNetworks: [],
@@ -113,23 +103,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const [network, setNetwork] = useState<NetworkWithCaipId | undefined>();
   const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
-  const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
   const [enabledNetworks, setEnabledNetworks] = useState<number[]>([]);
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
-
-  const favoriteNetworksList = useMemo(
-    () =>
-      networks
-        .filter((networkItem) => favoriteNetworks.includes(networkItem.chainId))
-        .filter((n) => {
-          return (
-            (!network?.isTestnet && !n.isTestnet) ||
-            (network?.isTestnet && n.isTestnet)
-          );
-        }),
-    [favoriteNetworks, network, networks],
-  );
 
   const enabledNetworksList = useMemo(
     () =>
@@ -260,10 +236,6 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
       updateIfDifferent(
-        setFavoriteNetworks,
-        result.favoriteNetworks.sort(promoteAvalancheNetworks),
-      );
-      updateIfDifferent(
         setEnabledNetworks,
         result.enabledNetworks.sort(promoteAvalancheNetworks),
       );
@@ -335,10 +307,6 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
           result.networks.sort(promoteAvalancheNetworks),
         );
         updateIfDifferent(
-          setFavoriteNetworks,
-          result.favoriteNetworks.sort(promoteAvalancheNetworks),
-        );
-        updateIfDifferent(
           setEnabledNetworks,
           result.enabledNetworks.sort(promoteAvalancheNetworks),
         );
@@ -404,35 +372,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         updateDefaultNetwork,
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
-        favoriteNetworks: favoriteNetworksList,
         enabledNetworks: enabledNetworksList,
         enabledNetworkIds: enabledNetworks,
-        addFavoriteNetwork: (chainId: number) => {
-          request<AddFavoriteNetworkHandler>({
-            method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
-            params: [chainId],
-          }).then((result) => {
-            setFavoriteNetworks(result.sort(promoteAvalancheNetworks));
-            capture('NetworkFavoriteAdded', {
-              networkChainId: chainId,
-              isCustom: isCustomNetwork(chainId),
-            });
-          });
-        },
-        removeFavoriteNetwork: async (chainId: number) => {
-          await request<RemoveFavoriteNetworkHandler>({
-            method: ExtensionRequest.NETWORK_REMOVE_FAVORITE_NETWORK,
-            params: [chainId],
-          }).then((result) => {
-            setFavoriteNetworks(result);
-            capture('NetworkFavoriteRemoved', {
-              networkChainId: chainId,
-              isCustom: isCustomNetwork(chainId),
-            });
-          });
-        },
-        isFavoriteNetwork: (chainId: number) =>
-          favoriteNetworks.includes(chainId),
         enableNetwork,
         disableNetwork,
         customNetworks: getCustomNetworks,

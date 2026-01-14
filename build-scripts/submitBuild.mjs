@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { readdir, readFile } from 'node:fs/promises';
 
-const dir = 'dist-next';
+const dir = 'dist';
 const pathChecksumMap = {};
 const manifestBytes = await readFile(`${dir}/manifest.json`);
 const manifest = JSON.parse(manifestBytes.toString('utf-8'));

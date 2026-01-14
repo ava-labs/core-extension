@@ -85,9 +85,9 @@ const releaseReplaceSetting = [
 
 const assets = [
   {
-    path: 'builds/avalanche-wallet-extension-next.zip',
-    name: 'NextGen-Core-Extension-${nextRelease.gitTag}.zip',
-    label: '[NextGen] Core Extension (${nextRelease.gitTag})',
+    path: 'builds/avalanche-wallet-extension.zip',
+    name: 'Avalanche-wallet-extension-${nextRelease.gitTag}.zip',
+    label: 'Wallet Extension (${nextRelease.gitTag})',
   },
 ];
 
@@ -102,13 +102,10 @@ const githubSetting = [
   },
 ];
 
-const getSubmitBuildCmd = () =>
-  `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build`;
-
 const execSubmitBuildSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: getSubmitBuildCmd(),
+    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build`,
   },
 ];
 

@@ -8,7 +8,7 @@ import {
   useNetworkContext,
 } from '@core/ui';
 
-import AccountInfo from './components/AccountInfo/AccountInfo';
+import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';

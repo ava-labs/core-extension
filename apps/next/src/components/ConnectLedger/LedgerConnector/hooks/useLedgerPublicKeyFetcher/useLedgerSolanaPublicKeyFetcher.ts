@@ -1,19 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 
-import { AddressPublicKeyJson } from '@core/types';
+import { AddressPublicKeyJson, DerivationStatus } from '@core/types';
 import {
   LedgerAppType,
   useActiveLedgerAppInfo,
   useLedgerContext,
 } from '@core/ui';
 
-import {
-  DerivationStatus,
-  ErrorType,
-  PublicKey,
-  UseLedgerPublicKeyFetcher,
-} from '../../types';
+import { ErrorType, PublicKey, UseLedgerPublicKeyFetcher } from '../../types';
 import { buildAddressPublicKey } from '../../util';
 
 export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher =
