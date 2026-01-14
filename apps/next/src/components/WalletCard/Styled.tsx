@@ -8,6 +8,7 @@ import {
   typographyClasses,
 } from '@avalabs/k2-alpine';
 import { MdError } from 'react-icons/md';
+import { HEADER_HEIGHT } from '@/config/constants';
 
 export const Accordion = styled(K2Accordion)(({ theme }) => ({
   marginBottom: theme.spacing(0),
@@ -20,7 +21,7 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
   [`&.${accordionClasses.expanded} .${accordionSummaryClasses.root}`]: {
     overflow: 'hidden',
     position: 'sticky',
-    top: 0,
+    top: `${HEADER_HEIGHT}px`, // Stick below the header/PageTopBar
     zIndex: 1,
     backdropFilter: 'blur(30px)',
     WebkitBackdropFilter: 'blur(30px)',

@@ -163,9 +163,25 @@ export function App() {
         ]) as ReactElement[]
       }
     >
-      <>
+      <Stack
+        height="100%"
+        width={1}
+        overflow="auto"
+        sx={{
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          scrollbarWidth: 'none',
+        }}
+      >
         {displayHeader && (
-          <Stack width={1}>
+          <Stack
+            width={1}
+            position="sticky"
+            top={0}
+            zIndex={10}
+            id="header-container"
+          >
             <Header />
           </Stack>
         )}
@@ -173,7 +189,7 @@ export function App() {
         {isAppContext && <InAppApprovalOverlay />}
 
         <EventDrivenComponentsAndHooks />
-      </>
+      </Stack>
     </Providers>
   );
 }
