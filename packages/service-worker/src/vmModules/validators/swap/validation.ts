@@ -1,6 +1,10 @@
 import { Action, MaxBuyOption, MultiTxAction } from '@core/types';
+import {
+  stringToBigint,
+  BASIS_POINTS_DIVISOR,
+  MARKR_PARTNER_FEE_BPS,
+} from '@core/common';
 import { ValidationResult } from '../../models';
-import { MARKR_PARTNER_FEE_BPS, BASIS_POINTS_DIVISOR } from './constants';
 import { findTokenInBalanceChange } from './helpers';
 import {
   SwapValidationContext,
@@ -58,8 +62,7 @@ export function validateSwapUsdPrices(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'Source token found but has no items in balance change - cannot extract USD price',
+      reason: 'Unable to verify token details or pricing',
     };
   }
 
@@ -67,8 +70,7 @@ export function validateSwapUsdPrices(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'Destination token found but has no items in balance change - cannot extract USD price',
+      reason: 'Unable to verify token details or pricing',
     };
   }
 
@@ -99,7 +101,7 @@ export function validateSwapUsdPrices(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason: 'USD prices unavailable or zero - cannot validate swap value',
+      reason: 'Unable to verify swap details due to currency price data',
     };
   }
 
@@ -123,8 +125,7 @@ export function validateSwapUsdPrices(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'Slippage not available in context - cannot validate loss tolerance',
+      reason: 'Unable to verify slippage impact',
     };
   }
 
@@ -148,12 +149,10 @@ export function validateSwapUsdPrices(
   }
 
   // Loss exceeds slippage + fee tolerance → manual approval
-  const lossPercent = ((sourceUsdValue - destUsdValue) / sourceUsdValue) * 100;
-  const totalTolerancePercent = slippage + feePercent * 100;
   return {
     isValid: false,
     requiresManualApproval: true,
-    reason: `USD loss (${lossPercent.toFixed(2)}%) exceeds slippage tolerance (${slippage}%)${feePercent > 0 ? ` + fee (${(feePercent * 100).toFixed(2)}%)` : ''} = ${totalTolerancePercent.toFixed(2)}%`,
+    reason: 'Slippage tolerance exceeded',
   };
 }
 
@@ -167,7 +166,7 @@ function validateMinAmountOut(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason: 'minAmountOut is missing or zero - manual approval required',
+      reason: 'Unable to verify balance change information',
     };
   }
   return null; // Validation passed, continue to next step
@@ -199,8 +198,7 @@ function validateBalanceChange(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'No balance change data in scan results - cannot validate swap amounts',
+      reason: 'Unable to verify balance change information',
     };
   }
 
@@ -208,8 +206,7 @@ function validateBalanceChange(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'No outgoing tokens in balance change data - cannot validate source token',
+      reason: 'Unable to verify balance change information',
     };
   }
 
@@ -217,8 +214,7 @@ function validateBalanceChange(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'No incoming tokens in balance change data - cannot validate swap amounts',
+      reason: 'Unable to verify balance change information',
     };
   }
 
@@ -236,8 +232,7 @@ function validateTokenAddresses(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason:
-        'Missing source or destination token address in context - cannot identify tokens',
+      reason: 'Unable to verify balance change information',
     };
   }
   return null;
@@ -262,7 +257,7 @@ function validateSourceToken(
       result: {
         isValid: false,
         requiresManualApproval: true,
-        reason: `Could not find source token (${srcTokenAddress}) in balance change scan results`,
+        reason: 'Unable to verify token details or pricing',
       },
     };
   }
@@ -292,7 +287,7 @@ function validateDestinationToken(
       result: {
         isValid: false,
         requiresManualApproval: true,
-        reason: `Could not find destination token (${destTokenAddress}) in balance change scan results`,
+        reason: 'Unable to verify token details or pricing',
       },
     };
   }
@@ -310,7 +305,7 @@ function validateDestinationTokenItems(
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason: `Destination token found but has no items in balance change - cannot extract amount`,
+      reason: 'Unable to verify token details or pricing',
     };
   }
   return null;
@@ -331,8 +326,7 @@ function calculateActualAmountReceived(
       result: {
         isValid: false,
         requiresManualApproval: true,
-        reason:
-          'Token decimals not found in scan results - cannot convert display value to raw amount',
+        reason: 'Unable to verify token details or pricing',
       },
     };
   }
@@ -341,9 +335,7 @@ function calculateActualAmountReceived(
     const totalAmount = destinationTokenIn.items.reduce(
       (sum: bigint, item: any) => {
         const displayValue = item.displayValue || '0';
-        const rawAmount = BigInt(
-          Math.floor(parseFloat(displayValue) * Math.pow(10, tokenDecimals)),
-        );
+        const rawAmount = stringToBigint(displayValue, tokenDecimals);
         return sum + rawAmount;
       },
       0n,
@@ -356,8 +348,7 @@ function calculateActualAmountReceived(
         result: {
           isValid: false,
           requiresManualApproval: true,
-          reason:
-            'Could not extract valid amount from scan results for destination token',
+          reason: 'Unable to verify balance change information',
         },
       };
     }
@@ -368,8 +359,7 @@ function calculateActualAmountReceived(
       result: {
         isValid: false,
         requiresManualApproval: true,
-        reason:
-          'Failed to calculate received amount - manual approval required',
+        reason: 'Unable to verify balance change information',
       },
     };
   }
@@ -381,19 +371,16 @@ function calculateActualAmountReceived(
 function validateAmountMeetsMinimum(
   actualAmountReceived: string,
   expectedMinAmountOut: string,
-  tokenDecimals: number,
 ): ValidationResult | null {
   const actualBigInt = BigInt(actualAmountReceived);
   const expectedBigInt = BigInt(expectedMinAmountOut);
   const isAmountValid = actualBigInt >= expectedBigInt;
 
   if (!isAmountValid) {
-    const difference =
-      Number(expectedBigInt - actualBigInt) / Math.pow(10, tokenDecimals);
     return {
       isValid: false,
       requiresManualApproval: true,
-      reason: `Swap amount ${actualAmountReceived} is below minimum expected ${expectedMinAmountOut} (difference: ~${difference.toFixed(6)})`,
+      reason: 'Swap amount is below the minimum expected quantity',
     };
   }
 
@@ -476,7 +463,6 @@ export function validateSwapAmounts(
   const minimumResult = validateAmountMeetsMinimum(
     actualAmountReceived!,
     context?.minAmountOut,
-    destinationTokenIn!.token.decimals,
   );
   if (minimumResult) return minimumResult;
 

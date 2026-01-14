@@ -12,5 +12,5 @@ export {
 // Helper functions
 export { findTokenInBalanceChange } from './helpers';
 
-// Constants
-export { MARKR_PARTNER_FEE_BPS } from './constants';
+// Constants - re-exported from @core/common
+export { MARKR_PARTNER_FEE_BPS, BASIS_POINTS_DIVISOR } from '@core/common';

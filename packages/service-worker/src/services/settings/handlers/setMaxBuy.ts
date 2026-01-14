@@ -19,7 +19,7 @@ export class SetMaxBuyHandler implements HandlerType {
   constructor(private settingsService: SettingsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [maxBuy] = request.params || ['unlimited'];
+    const [maxBuy] = request.params;
     await this.settingsService.setMaxBuy(maxBuy);
 
     return {

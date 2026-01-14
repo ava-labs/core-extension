@@ -1,11 +1,10 @@
 import { RpcMethod } from '@avalabs/vm-module-types';
 import browser from 'webextension-polyfill';
-import { Action } from '@core/types';
+import { Action, ValidatorType } from '@core/types';
 import {
   ApprovalParamsWithContext,
   RequestValidator,
   ValidationResult,
-  ValidatorType,
 } from '../../models';
 import { validateSwapAmounts } from './validation';
 

@@ -273,13 +273,6 @@ export const MarkrProvider: SwapProvider = {
     // This avoids gas estimation failures when allowance hasn't been granted yet (batch transactions)
     if (shouldUseAutoApproval && quote.gasEstimate !== undefined) {
       swapGasLimit = BigInt(quote.gasEstimate);
-      console.log(
-        '[MarkrProvider] Using gasEstimate from quote for auto-approval batch transaction',
-        {
-          gasEstimate: quote.gasEstimate,
-          swapGasLimit: swapGasLimit.toString(),
-        },
-      );
     } else if (isGaslessOn) {
       // When gasless is enabled, use state override to simulate the user having enough balance
       // This prevents "insufficient funds for gas" errors during estimation
@@ -305,10 +298,6 @@ export const MarkrProvider: SwapProvider = {
       );
 
       if (swapGasLimitError || !estimatedGasLimit) {
-        console.error('[MarkrProvider] Unable to estimate gas (gasless)', {
-          swapGasLimitError,
-          estimatedGasLimit,
-        });
         throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);
       }
 
@@ -320,10 +309,6 @@ export const MarkrProvider: SwapProvider = {
       );
 
       if (swapGasLimitError || !estimatedGasLimit) {
-        console.error('[MarkrProvider] Unable to estimate gas', {
-          swapGasLimitError,
-          estimatedGasLimit,
-        });
         throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);
       }
 

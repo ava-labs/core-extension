@@ -1,4 +1,5 @@
 import {
+  AlertType,
   ApprovalParams,
   ApprovalResponse,
   BatchApprovalController,
@@ -289,9 +290,13 @@ export class ApprovalController implements BatchApprovalController {
         return await this.#executeAutoApproval(params, action, network);
       } else if (validation.requiresManualApproval) {
         // Add the validation warning to displayData so it shows in the approval UI
-        if (validation.reason) {
-          (action.displayData as any).validationWarning = validation.reason;
-        }
+        action.displayData.alert = {
+          type: AlertType.WARNING,
+          details: {
+            title: 'Manual approval required',
+            description: validation.reason,
+          },
+        };
         // Fall through to normal approval flow
       } else {
         return {
@@ -394,9 +399,13 @@ export class ApprovalController implements BatchApprovalController {
         return await this.#executeBatchAutoApproval(action, network);
       } else if (validation.requiresManualApproval) {
         // Add the validation warning to displayData so it shows in the approval UI
-        if (validation.reason) {
-          (action.displayData as any).validationWarning = validation.reason;
-        }
+        action.displayData.alert = {
+          type: AlertType.WARNING,
+          details: {
+            title: 'Manual approval required',
+            description: validation.reason,
+          },
+        };
       } else {
         return {
           error: rpcErrors.invalidRequest({

@@ -275,15 +275,15 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <Switch
               size="small"
-              checked={isDegenMode ?? false}
+              checked={isDegenMode}
               onChange={() => setDegenMode(!isDegenMode)}
             />
           }
-          divider={isDegenMode ?? false}
+          divider={isDegenMode}
         />
-        {(isDegenMode ?? false) && (
+        {isDegenMode && (
           <>
-            <Stack gap={1} sx={{ py: theme.spacing(1) }}>
+            <Stack gap={1} py={1}>
               <Stack gap={0.5}>
                 <Typography variant="subtitle1">
                   {t('Pre-configured Fee Settings')}
@@ -295,7 +295,7 @@ export const SettingsHomePage = () => {
                 </Typography>
               </Stack>
               <FeeSettingsSelector
-                value={feeSetting ?? 'medium'}
+                value={feeSetting}
                 onChange={(value) => setFeeSetting(value)}
               />
             </Stack>
@@ -304,7 +304,7 @@ export const SettingsHomePage = () => {
               label={t('Allowed Max Buy')}
               secondaryAction={
                 <MaxBuySelector
-                  value={maxBuy ?? 'unlimited'}
+                  value={maxBuy}
                   onChange={(value) => setMaxBuy(value)}
                   sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
                 />

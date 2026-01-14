@@ -1,6 +1,5 @@
 import { FC, useCallback, useState } from 'react';
 import { Stack, Typography, Button } from '@avalabs/k2-alpine';
-import { DisplayData } from '@avalabs/vm-module-types';
 
 import { ActionStatus, MultiTxAction, NetworkWithCaipId } from '@core/types';
 import {
@@ -9,22 +8,23 @@ import {
   useNetworkContext,
   useLiveBalance,
 } from '@core/ui';
-import { TokenType } from '@avalabs/vm-module-types';
+import { AlertType, DisplayData, TokenType } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
 import { hasDefined } from '@core/common';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
-import { ValidationWarningCard } from '@/components/ValidationWarningCard';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 
 import {
   ActionDetails,
   ActionDrawer,
   ApprovalScreenTitle,
+  ErrorScreen,
   HardwareApprovalOverlay,
   LoadingScreen,
+  MaliciousTxOverlay,
+  NoteWarning,
   Styled,
-  UnsupportedNetworkScreen,
 } from './components';
 import { useApprovalHelpers } from './hooks';
 import { CancelActionFn, UpdateActionFn, ActionError } from './types';
@@ -33,9 +33,7 @@ const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
 type BatchAction = MultiTxAction & {
   actionId: string;
-  displayData: DisplayData & {
-    validationWarning?: string;
-  };
+  displayData: DisplayData;
 };
 
 const isBatchAction = (action: any): action is BatchAction => {
@@ -102,16 +100,8 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
           title={t('Approve {{count}} transactions', { count: txCount })}
         />
 
-        {/* Validation Warning */}
-        {action.displayData?.validationWarning && (
-          <Stack px={2} mt={1.5} mb={1.5}>
-            <ValidationWarningCard
-              textLines={[
-                t('Manual approval required'),
-                action.displayData.validationWarning,
-              ]}
-            />
-          </Stack>
+        {action.displayData.alert?.type === AlertType.WARNING && (
+          <NoteWarning alert={action.displayData.alert} />
         )}
 
         {/* Transaction Navigation */}
@@ -172,8 +162,18 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
           approve={handleApproval}
           reject={handleRejection}
           isProcessing={isProcessing}
+          withConfirmationSwitch={
+            action.displayData.alert?.type === AlertType.DANGER
+          }
         />
       </NoScrollStack>
+      {action.displayData.alert?.type === AlertType.DANGER && (
+        <MaliciousTxOverlay
+          open
+          cancelHandler={cancelHandler}
+          alert={action.displayData.alert}
+        />
+      )}
       {isUsingHardwareWallet && isApprovalOverlayVisible && deviceType && (
         <HardwareApprovalOverlay
           deviceType={deviceType}
@@ -202,18 +202,26 @@ export const BatchApprovalScreen = () => {
 
   if (!network) {
     return (
-      <UnsupportedNetworkScreen>
+      <ErrorScreen message="Unsupported Network">
         <ActionDrawer
           open
           reject={cancelHandler}
           isProcessing={action.status === ActionStatus.SUBMITTING}
         />
-      </UnsupportedNetworkScreen>
+      </ErrorScreen>
     );
   }
 
   if (!isBatchAction(action) || !hasDefined(action, 'actionId')) {
-    return <LoadingScreen />;
+    return (
+      <ErrorScreen message="Invalid batch action">
+        <ActionDrawer
+          open
+          reject={cancelHandler}
+          isProcessing={action.status === ActionStatus.SUBMITTING}
+        />
+      </ErrorScreen>
+    );
   }
 
   return (

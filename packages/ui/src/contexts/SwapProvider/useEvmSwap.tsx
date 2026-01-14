@@ -22,6 +22,7 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { useFeatureFlagContext } from '../FeatureFlagsProvider';
 import { useNetworkFeeContext } from '../NetworkFeeProvider';
 import { useSettingsContext } from '../SettingsProvider';
+import { BASIS_POINTS_DIVISOR } from '@core/common';
 import {
   MARKR_PARTNER_FEE_BPS,
   WAVAX_ADDRESS,
@@ -207,9 +208,17 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       assertPresent(rpcProvider, CommonError.Unknown);
       assert(!network.isTestnet, CommonError.UnknownNetwork);
 
-      // Check if degen mode is enabled (only for Markr swaps)
+      // Check if wallet type supports auto-signing (hardware wallets require manual approval)
+      const isAutoSignSupported =
+        walletDetails?.type === SecretType.Mnemonic ||
+        walletDetails?.type === SecretType.Seedless ||
+        walletDetails?.type === SecretType.PrivateKey;
+
+      // Check if degen mode is enabled (only for Markr swaps with supported wallet types)
       const isDegenModeEnabledForMarkr =
-        swapProvider === SwapProviders.MARKR && (isDegenMode ?? false);
+        swapProvider === SwapProviders.MARKR &&
+        isDegenMode &&
+        isAutoSignSupported;
 
       const signAndSend = async (
         method: RpcMethod,
@@ -251,7 +260,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
 
           // Calculate minAmountOut
           const slippagePercent = slippage / 100;
-          const feePercent = MARKR_PARTNER_FEE_BPS / 10_000;
+          const feePercent = MARKR_PARTNER_FEE_BPS / BASIS_POINTS_DIVISOR;
           const baseAmount = isMarkrQuote(quote) ? quote.amountOut : amountOut;
           const minAmountOut = baseAmount
             ? new Big(baseAmount)
@@ -318,10 +327,6 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       const provider = getSwapProviderByName(swapProvider);
       // Check if one click swap is enabled
       const isOneClickSwapEnabled = isFlagEnabled(FeatureGates.ONE_CLICK_SWAP);
-      const isOneClickSwapSupported =
-        walletDetails?.type === SecretType.Mnemonic ||
-        walletDetails?.type === SecretType.Seedless ||
-        walletDetails?.type === SecretType.PrivateKey;
 
       const userAddress = account.addressC;
       const txHash = await provider.swap({
@@ -336,7 +341,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         signAndSend,
         userAddress,
         isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
-        isOneClickSwapEnabled: isOneClickSwapEnabled && isOneClickSwapSupported,
+        isOneClickSwapEnabled: isOneClickSwapEnabled && isAutoSignSupported,
         markrSwapGasBuffer: parseFloat(
           selectFeatureFlag(FeatureVars.MARKR_SWAP_GAS_BUFFER),
         ),

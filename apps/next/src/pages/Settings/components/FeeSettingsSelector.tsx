@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { FeeSetting } from '@core/types';
-import { FeePresetButton } from '@/pages/Approve/components/ActionDetails/generic/NetworkFee';
+import { FeePresetButton } from '@/components/FeePresetButton';
 
 type FeeSettingsSelectorProps = {
   value: FeeSetting;

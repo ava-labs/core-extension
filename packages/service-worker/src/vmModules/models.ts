@@ -5,9 +5,6 @@ import {
 } from '@avalabs/vm-module-types';
 import { Action, MultiTxAction, ValidatorType } from '@core/types';
 
-// Re-export ValidatorType for convenience
-export { ValidatorType };
-
 type RpcRequestWithExtensionContext = RpcRequest & {
   context?: RpcRequest['context'] & {
     tabId?: number;
@@ -32,13 +29,12 @@ export const isBatchApprovalParams = (
  * Result of a validation check.
  * - isValid: Whether validation passed
  * - requiresManualApproval: If true, show manual approval UI instead of rejecting
- * - reason: Human-readable reason for the decision
+ * - reason: Human-readable reason for the decision (required when requiresManualApproval is true)
  */
-export interface ValidationResult {
-  isValid: boolean;
-  requiresManualApproval?: boolean;
-  reason?: string;
-}
+export type ValidationResult = { isValid: boolean } & (
+  | { requiresManualApproval?: false; reason?: string }
+  | { requiresManualApproval: true; reason: string }
+);
 
 /**
  * Generic interface for request validators.
@@ -91,14 +87,10 @@ export class ValidatorRegistry {
   private batchValidators = new Map<ValidatorType, BatchRequestValidator>();
 
   register(validator: RequestValidator): void {
-    console.log(`[ValidatorRegistry] Registering validator: ${validator.type}`);
     this.validators.set(validator.type, validator);
   }
 
   registerBatch(validator: BatchRequestValidator): void {
-    console.log(
-      `[ValidatorRegistry] Registering batch validator: ${validator.type}`,
-    );
     this.batchValidators.set(validator.type, validator);
   }
 
