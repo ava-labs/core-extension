@@ -20,7 +20,7 @@ for (const file of files) {
     !file.name.includes('node_modules')
   ) {
     const path = `${file.parentPath}/${file.name}`;
-    const pathWithoutDist = path.replace(/^(dist-next|dist)\//, '');
+    const pathWithoutDist = path.replace(/^(dist)\//, '');
 
     const content = await readFile(path, { encoding: 'base64' });
     const hash = createHash('sha256')

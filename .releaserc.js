@@ -44,14 +44,14 @@ const execPatchAnyCommitSetting = [
 
 const replacementConfig = [
   {
-    files: ['dist-next/manifest.json'],
+    files: ['dist/manifest.json'],
     from: '"version": ".*"',
     // Remove "-alpha" string from the version in the manifest.
     // Chrome only supports numbers and dots in the version number.
     to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
     results: [
       {
-        file: 'dist-next/manifest.json',
+        file: 'dist/manifest.json',
         hasChanged: true,
         numMatches: 1,
         numReplacements: 1,
@@ -60,13 +60,13 @@ const replacementConfig = [
     countMatches: true,
   },
   {
-    files: ['dist-next/inpage/js/inpage.js'],
+    files: ['dist/inpage/js/inpage.js'],
     from: 'CORE_EXTENSION_VERSION',
     // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
     to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
     results: [
       {
-        file: 'dist-next/inpage/js/inpage.js',
+        file: 'dist/inpage/js/inpage.js',
         hasChanged: true,
         numMatches: 2,
         numReplacements: 2,
