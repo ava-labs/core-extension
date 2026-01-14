@@ -78,9 +78,7 @@ type SettingsFromProvider = SettingsState & {
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
 
-export function SettingsContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function SettingsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [settings, setSettings] = useState<SettingsState>();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

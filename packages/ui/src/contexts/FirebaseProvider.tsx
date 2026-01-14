@@ -47,9 +47,7 @@ const FirebaseContext = createContext<{
   getModel: () => false,
 } as any);
 
-export function FirebaseContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function FirebaseContextProvider({ children }: PropsWithChildren) {
   const { request } = useConnectionContext();
   const [prompts, setPrompts] = useState<ChatDialogHistory[]>([
     {

@@ -89,7 +89,7 @@ const DefiContext = createContext<
   },
 });
 
-export function DefiContextProvider({ children }: PropsWithChildren<object>) {
+export function DefiContextProvider({ children }: PropsWithChildren) {
   const {
     accounts: { active },
   } = useAccountsContext();

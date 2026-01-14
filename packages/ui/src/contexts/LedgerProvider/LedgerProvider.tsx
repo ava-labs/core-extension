@@ -110,7 +110,7 @@ const LedgerContext = createContext<{
   appConfig: null | { isBlindSigningEnabled: boolean };
 }>({} as any);
 
-export function LedgerContextProvider({ children }: PropsWithChildren<object>) {
+export function LedgerContextProvider({ children }: PropsWithChildren) {
   const [initialized, setInitialized] = useState(false);
   const [wasTransportAttempted, setWasTransportAttempted] = useState(false);
   const [app, setApp] = useState<Btc | AppAvalanche | Eth | AppSolana>();

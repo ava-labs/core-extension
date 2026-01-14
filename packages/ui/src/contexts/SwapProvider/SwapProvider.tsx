@@ -48,7 +48,7 @@ import { useErrorMessage } from '../../hooks';
 
 export const SwapContext = createContext<SwapContextAPI>({} as any);
 
-export function SwapContextProvider({ children }: PropsWithChildren<object>) {
+export function SwapContextProvider({ children }: PropsWithChildren) {
   const { network: activeNetwork } = useNetworkContext();
   const {
     accounts: { active: activeAccount },

@@ -74,9 +74,7 @@ const NetworkFeeContext = createContext<{
   isGaslessEligible: false,
 });
 
-export function NetworkFeeContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function NetworkFeeContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { network } = useNetworkContext();
   const [fee, setFee] = useState<NetworkFee | null>(null);

@@ -35,9 +35,7 @@ const AnalyticsContext = createContext<{
 
 const windowId = crypto.randomUUID();
 
-export function AnalyticsContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function AnalyticsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const { analyticsConsent } = useSettingsContext();
   const [isInitialized, setIsInitialized] = useState(false);

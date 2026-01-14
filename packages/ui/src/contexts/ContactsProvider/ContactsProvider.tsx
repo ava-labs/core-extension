@@ -30,9 +30,7 @@ type ContactsFromProvider = ContactsState & {
 
 const ContactsContext = createContext<ContactsFromProvider>({} as any);
 
-export function ContactsContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function ContactsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [contacts, setContacts] = useState<ContactsState>({
     contacts: [],

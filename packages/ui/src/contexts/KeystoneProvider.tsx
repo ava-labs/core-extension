@@ -24,9 +24,7 @@ const KeystoneContext = createContext<{
   submitSignature(response: KeystoneDeviceResponseData): Promise<boolean>;
 }>({} as any);
 
-export function KeystoneContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function KeystoneContextProvider({ children }: PropsWithChildren) {
   const { request, events, tabId } = useConnectionContext();
   const [txRequest, setTxRequest] = useState<KeystoneDeviceRequestData>();
   /**

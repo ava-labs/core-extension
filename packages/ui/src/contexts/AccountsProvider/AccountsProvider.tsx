@@ -54,9 +54,7 @@ const AccountsContext = createContext<
   | undefined
 >(undefined);
 
-export function AccountsContextProvider({
-  children,
-}: PropsWithChildren<object>) {
+export function AccountsContextProvider({ children }: PropsWithChildren) {
   const { request, events } = useConnectionContext();
   const [accounts, setAccounts] = useState<Accounts>({
     active: undefined,
