@@ -3,16 +3,12 @@ import { useSettingsContext } from '../contexts';
 
 type ColorScheme = 'dark' | 'light' | 'testnet';
 
-// The document's body has a "system-bg" class that is set according to the system preferences.
-// This avoids the flash of white when the page loads (in dark mode).
-// As soon as we determine the preferred color scheme as set in the settings,
-// we remove the "system-bg" class from the body.
-const removeSystemBg = () => {
-  document.body.classList.remove('system-bg');
-};
-
 export const usePreferredColorScheme = () => {
-  const { theme } = useSettingsContext();
+  const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const lightQuery = window.matchMedia('(prefers-color-scheme: light)');
+
+  // If settings are not available yet, set it according to the system preferences
+  const { theme = darkQuery.matches ? 'DARK' : 'LIGHT' } = useSettingsContext();
 
   const [preferredColorScheme, setPreferredColorScheme] = useState<ColorScheme>(
     theme === 'DARK' ? 'dark' : 'light',
@@ -21,23 +17,18 @@ export const usePreferredColorScheme = () => {
   useEffect(() => {
     if (theme === 'DARK') {
       setPreferredColorScheme('dark');
-      removeSystemBg();
       return;
     }
 
     if (theme === 'LIGHT') {
       setPreferredColorScheme('light');
-      removeSystemBg();
       return;
     }
 
     // Handling 'SYSTEM'
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)');
-    const isLight = window.matchMedia('(prefers-color-scheme: light)');
-
-    if (isDark.matches) {
+    if (darkQuery.matches) {
       setPreferredColorScheme('dark');
-    } else if (isLight.matches) {
+    } else if (lightQuery.matches) {
       setPreferredColorScheme('light');
     } else {
       setPreferredColorScheme('light'); // Light by default
@@ -51,15 +42,15 @@ export const usePreferredColorScheme = () => {
       };
     };
 
-    isLight.addEventListener('change', getListener('light'), {
+    lightQuery.addEventListener('change', getListener('light'), {
       signal: controller.signal,
     });
-    isDark.addEventListener('change', getListener('dark'), {
+    darkQuery.addEventListener('change', getListener('dark'), {
       signal: controller.signal,
     });
 
     return () => controller.abort();
-  }, [theme]);
+  }, [theme, darkQuery, lightQuery]);
 
   return preferredColorScheme;
 };

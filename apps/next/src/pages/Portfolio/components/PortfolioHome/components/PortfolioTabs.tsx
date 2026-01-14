@@ -47,7 +47,7 @@ export const PortfolioTabs: FC = () => {
 
   const assets = useTokensForAccount(accounts.active);
 
-  const isLoading = balances.loading;
+  const isLoading = !accounts.active || balances.loading;
   const isAccountEmpty =
     !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
   const isWalletEmpty =
