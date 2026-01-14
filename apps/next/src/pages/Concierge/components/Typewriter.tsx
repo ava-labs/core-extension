@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Stack } from '@avalabs/core-k2-components';
+import { Stack } from '@avalabs/k2-alpine';
 
 export const Typewriter = ({
   text,
