@@ -1,5 +1,5 @@
 import { AccountSelect } from '@/components/AccountSelect';
-import { Button, Stack } from '@avalabs/k2-alpine';
+import { Stack } from '@avalabs/k2-alpine';
 import { handleTxOutcome, stringToBigint } from '@core/common';
 import { useAccountsContext } from '@core/ui';
 import { FC, useState } from 'react';
@@ -13,6 +13,7 @@ import {
   BridgeErrorMessage,
   BridgeProviderNotice,
 } from './components';
+import { TxButton } from '@/components/TxButton';
 
 type Props = {
   onSuccess(result: TransferResult): void;
@@ -109,17 +110,12 @@ export const BridgeTransactionForm: FC<Props> = ({
         textAlign="center"
       >
         <BridgeProviderNotice />
-        <Button
-          fullWidth
-          size="extension"
-          variant="contained"
-          color="primary"
+        <TxButton
+          isLoading={isBridgeExecuting}
           onClick={performBridge}
-          disabled={isBridgeButtonDisabled}
-          loading={isBridgeExecuting}
-        >
-          {t('Bridge')}
-        </Button>
+          isDisabled={isBridgeButtonDisabled}
+          title={t('Bridge')}
+        />
       </Stack>
     </>
   );
