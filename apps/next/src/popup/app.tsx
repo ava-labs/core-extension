@@ -47,6 +47,7 @@ import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
 import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
 import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
+import { ScrollDetectionProvider } from '@/contexts/ScrollDetectionContext';
 
 const pagesWithoutHeader = [
   '/seedless-auth',
@@ -160,6 +161,7 @@ export function App() {
           <NextUnifiedBridgeProvider />,
           <LedgerPolicyRegistrationStateProvider />,
           <TransactionStatusProviderWithConfetti />,
+          <ScrollDetectionProvider />,
         ]) as ReactElement[]
       }
     >
