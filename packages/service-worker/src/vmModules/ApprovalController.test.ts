@@ -1,6 +1,11 @@
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { providerErrors, rpcErrors } from '@metamask/rpc-errors';
-import { DappInfo, DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
+import {
+  AlertType,
+  DappInfo,
+  DetailItemType,
+  RpcMethod,
+} from '@avalabs/vm-module-types';
 import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { chainIdToCaip, getProviderForNetwork } from '@core/common';
@@ -21,8 +26,10 @@ import {
   ActionType,
   MultiTxAction,
   ACTION_HANDLED_BY_MODULE,
+  ValidatorType,
 } from '@core/types';
 import { SecretsService } from '../services/secrets/SecretsService';
+import { swapValidator, batchSwapValidator } from './validators';
 
 jest.mock('tsyringe', () => {
   return {
@@ -34,6 +41,18 @@ jest.mock('tsyringe', () => {
 });
 jest.mock('~/runtime/openApprovalWindow');
 jest.mock('@core/common');
+jest.mock('./validators', () => ({
+  swapValidator: {
+    type: 'swap',
+    canHandle: jest.fn(),
+    validateAction: jest.fn(),
+  },
+  batchSwapValidator: {
+    type: 'batch-swap',
+    canHandle: jest.fn(),
+    validateAction: jest.fn(),
+  },
+}));
 
 const btcNetwork = {
   chainId: ChainId.BITCOIN_TESTNET,
@@ -602,6 +621,313 @@ describe('src/background/vmModules/ApprovalController', () => {
 
         expect(await promise).toEqual({
           result: [{ signedData: signedTxA }, { signedData: signedTxB }],
+        });
+      });
+    });
+  });
+
+  describe('auto-approval flow', () => {
+    const createEvmApprovalParams = (
+      overrides: any = {},
+    ): ApprovalParamsWithContext => {
+      const base = {
+        request: {
+          chainId: chainIdToCaip(cChain.chainId),
+          method: RpcMethod.ETH_SEND_TRANSACTION,
+          requestId: 'requestId',
+          sessionId: 'sessionId',
+          params: { from: '0x1', to: '0x2', data: '0xA' },
+          context: {
+            tabId: 1234,
+            autoApprove: true,
+            validatorType: ValidatorType.SWAP,
+          },
+        },
+        displayData: {
+          details: [],
+          network: cChain,
+          title: 'Swap Transaction',
+        },
+        signingData: {
+          account: '0x1',
+          type: RpcMethod.ETH_SEND_TRANSACTION,
+          data: {
+            from: '0x1',
+            to: '0x2',
+            data: '0xA',
+          },
+        },
+      };
+      return {
+        ...base,
+        ...overrides,
+        request: { ...base.request, ...overrides.request },
+        displayData: { ...base.displayData, ...overrides.displayData },
+      } as ApprovalParamsWithContext;
+    };
+
+    beforeEach(() => {
+      jest.mocked(networkService.getNetwork).mockResolvedValue(cChain);
+      jest.clearAllMocks();
+    });
+
+    describe('requestApproval with validator', () => {
+      it('auto-approves when validator returns isValid: true', async () => {
+        const signedTx = '0xsigned';
+        walletService.sign.mockResolvedValueOnce({ signedTx });
+
+        jest.mocked(swapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(swapValidator.validateAction).mockReturnValue({
+          isValid: true,
+        });
+
+        const swapApprovalParams = createEvmApprovalParams();
+        const result = await controller.requestApproval(swapApprovalParams);
+
+        expect(swapValidator.canHandle).toHaveBeenCalledWith(
+          swapApprovalParams,
+        );
+        expect(swapValidator.validateAction).toHaveBeenCalled();
+        expect(openApprovalWindow).not.toHaveBeenCalled();
+        expect(walletService.sign).toHaveBeenCalled();
+        expect(result).toEqual({ signedData: signedTx });
+      });
+
+      it('opens approval window with warning when validation requires manual approval', async () => {
+        jest.mocked(swapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(swapValidator.validateAction).mockReturnValue({
+          isValid: false,
+          requiresManualApproval: true,
+          reason: 'Slippage tolerance exceeded',
+        });
+
+        controller.requestApproval(createEvmApprovalParams());
+
+        await new Promise(process.nextTick);
+
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.objectContaining({
+              alert: {
+                type: AlertType.WARNING,
+                details: {
+                  title: 'Manual approval required',
+                  description: 'Slippage tolerance exceeded',
+                },
+              },
+            }),
+          }),
+          'approve/generic',
+        );
+      });
+
+      it('returns error when validation fails without requiresManualApproval', async () => {
+        jest.mocked(swapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(swapValidator.validateAction).mockReturnValue({
+          isValid: false,
+          requiresManualApproval: false,
+          reason: 'Transaction simulation failed',
+        });
+
+        const result = await controller.requestApproval(
+          createEvmApprovalParams(),
+        );
+
+        expect(openApprovalWindow).not.toHaveBeenCalled();
+        expect(walletService.sign).not.toHaveBeenCalled();
+        expect(result).toEqual({
+          error: expect.objectContaining({
+            message: 'Transaction simulation failed',
+          }),
+        });
+      });
+
+      it('preserves existing Blockaid alert and requires manual approval', async () => {
+        const paramsWithAlert = createEvmApprovalParams({
+          displayData: {
+            alert: {
+              type: AlertType.DANGER,
+              details: {
+                title: 'Malicious contract detected',
+                description: 'This contract has been flagged by Blockaid',
+              },
+            },
+          },
+        });
+
+        jest.mocked(swapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(swapValidator.validateAction).mockReturnValue({
+          isValid: true,
+        });
+
+        controller.requestApproval(paramsWithAlert);
+
+        await new Promise(process.nextTick);
+
+        // Should open approval window even though validation passed
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.objectContaining({
+              alert: {
+                type: AlertType.DANGER,
+                details: {
+                  title: 'Malicious contract detected',
+                  description: 'This contract has been flagged by Blockaid',
+                },
+              },
+            }),
+          }),
+          'approve/generic',
+        );
+        expect(walletService.sign).not.toHaveBeenCalled();
+      });
+
+      it('skips validator when canHandle returns false', async () => {
+        jest.mocked(swapValidator.canHandle).mockReturnValue(false);
+
+        controller.requestApproval(createEvmApprovalParams());
+
+        await new Promise(process.nextTick);
+
+        expect(swapValidator.validateAction).not.toHaveBeenCalled();
+        expect(openApprovalWindow).toHaveBeenCalled();
+      });
+
+      it('falls back to normal flow when validatorType is not provided', async () => {
+        const paramsWithoutValidator = createEvmApprovalParams({
+          request: {
+            context: {
+              tabId: 1234,
+            },
+          },
+        });
+
+        controller.requestApproval(paramsWithoutValidator);
+
+        await new Promise(process.nextTick);
+
+        expect(swapValidator.canHandle).not.toHaveBeenCalled();
+        expect(openApprovalWindow).toHaveBeenCalled();
+      });
+    });
+
+    describe('requestBatchApproval with validator', () => {
+      const createBatchEvmParams = (
+        overrides: any = {},
+      ): MultiApprovalParamsWithContext => {
+        const base = {
+          request: {
+            chainId: chainIdToCaip(cChain.chainId),
+            method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+            requestId: 'requestId',
+            sessionId: 'sessionId',
+            context: {
+              tabId: 1234,
+              autoApprove: true,
+              validatorType: ValidatorType.BATCH_SWAP,
+            },
+          },
+          displayData: {
+            details: [],
+            network: cChain,
+            title: 'Batch Swap',
+          },
+          signingRequests: [
+            {
+              displayData: { details: [], network: cChain, title: 'Approval' },
+              signingData: {
+                account: '0x1',
+                type: RpcMethod.ETH_SEND_TRANSACTION,
+                data: { from: '0x1', to: '0x2', data: '0xA' },
+              },
+            },
+            {
+              displayData: { details: [], network: cChain, title: 'Swap' },
+              signingData: {
+                account: '0x1',
+                type: RpcMethod.ETH_SEND_TRANSACTION,
+                data: { from: '0x1', to: '0x3', data: '0xB' },
+              },
+            },
+          ],
+        };
+        return {
+          ...base,
+          ...overrides,
+          request: { ...base.request, ...overrides.request },
+          displayData: { ...base.displayData, ...overrides.displayData },
+        } as MultiApprovalParamsWithContext;
+      };
+
+      it('auto-approves batch when validator returns isValid: true', async () => {
+        walletService.signTransactionBatch.mockResolvedValueOnce([
+          { signedTx: '0xsigned1' },
+          { signedTx: '0xsigned2' },
+        ]);
+
+        jest.mocked(batchSwapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(batchSwapValidator.validateAction).mockReturnValue({
+          isValid: true,
+        });
+
+        const batchParams = createBatchEvmParams();
+        const result = await controller.requestBatchApproval(batchParams);
+
+        expect(batchSwapValidator.canHandle).toHaveBeenCalledWith(batchParams);
+        expect(batchSwapValidator.validateAction).toHaveBeenCalled();
+        expect(openApprovalWindow).not.toHaveBeenCalled();
+        expect(walletService.signTransactionBatch).toHaveBeenCalled();
+        expect(result).toEqual({
+          result: [{ signedData: '0xsigned1' }, { signedData: '0xsigned2' }],
+        });
+      });
+
+      it('opens approval window with warning when batch validation requires manual approval', async () => {
+        jest.mocked(batchSwapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(batchSwapValidator.validateAction).mockReturnValue({
+          isValid: false,
+          requiresManualApproval: true,
+          reason: 'Max buy limit exceeded',
+        });
+
+        controller.requestBatchApproval(createBatchEvmParams());
+
+        await new Promise(process.nextTick);
+
+        expect(openApprovalWindow).toHaveBeenCalledWith(
+          expect.objectContaining({
+            displayData: expect.objectContaining({
+              alert: {
+                type: AlertType.WARNING,
+                details: {
+                  title: 'Manual approval required',
+                  description: 'Max buy limit exceeded',
+                },
+              },
+            }),
+          }),
+          'approve/tx-batch',
+        );
+      });
+
+      it('returns error when batch validation fails without requiresManualApproval', async () => {
+        jest.mocked(batchSwapValidator.canHandle).mockReturnValue(true);
+        jest.mocked(batchSwapValidator.validateAction).mockReturnValue({
+          isValid: false,
+          requiresManualApproval: false,
+          reason: 'Simulation failed for batch',
+        });
+
+        const result = await controller.requestBatchApproval(
+          createBatchEvmParams(),
+        );
+
+        expect(openApprovalWindow).not.toHaveBeenCalled();
+        expect(walletService.signTransactionBatch).not.toHaveBeenCalled();
+        expect(result).toEqual({
+          error: expect.objectContaining({
+            message: 'Simulation failed for batch',
+          }),
         });
       });
     });

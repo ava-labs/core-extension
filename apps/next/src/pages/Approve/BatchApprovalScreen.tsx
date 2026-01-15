@@ -8,7 +8,7 @@ import {
   useNetworkContext,
   useLiveBalance,
 } from '@core/ui';
-import { AlertType, DisplayData, TokenType } from '@avalabs/vm-module-types';
+import { DisplayData, TokenType } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
 import { hasDefined } from '@core/common';
 
@@ -27,6 +27,7 @@ import {
   Styled,
 } from './components';
 import { useApprovalHelpers } from './hooks';
+import { hasNoteWarning, hasOverlayWarning } from './lib';
 import { CancelActionFn, UpdateActionFn, ActionError } from './types';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
@@ -100,7 +101,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
           title={t('Approve {{count}} transactions', { count: txCount })}
         />
 
-        {action.displayData.alert?.type === AlertType.WARNING && (
+        {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
         )}
 
@@ -162,12 +163,10 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
           approve={handleApproval}
           reject={handleRejection}
           isProcessing={isProcessing}
-          withConfirmationSwitch={
-            action.displayData.alert?.type === AlertType.DANGER
-          }
+          withConfirmationSwitch={hasOverlayWarning(action)}
         />
       </NoScrollStack>
-      {action.displayData.alert?.type === AlertType.DANGER && (
+      {hasOverlayWarning(action) && (
         <MaliciousTxOverlay
           open
           cancelHandler={cancelHandler}

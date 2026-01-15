@@ -286,17 +286,22 @@ export class ApprovalController implements BatchApprovalController {
     if (validator) {
       const validation = validator.validateAction(action, params);
 
-      if (validation.isValid) {
+      // If alert already exists (e.g., Blockaid warning), require manual approval
+      const hasExistingAlert = Boolean(action.displayData.alert);
+
+      if (validation.isValid && !hasExistingAlert) {
         return await this.#executeAutoApproval(params, action, network);
-      } else if (validation.requiresManualApproval) {
-        // Add the validation warning to displayData so it shows in the approval UI
-        action.displayData.alert = {
-          type: AlertType.WARNING,
-          details: {
-            title: 'Manual approval required',
-            description: validation.reason,
-          },
-        };
+      } else if (validation.requiresManualApproval || hasExistingAlert) {
+        // Only set alert if not already populated
+        if (!hasExistingAlert) {
+          action.displayData.alert = {
+            type: AlertType.WARNING,
+            details: {
+              title: 'Manual approval required',
+              description: validation.reason,
+            },
+          };
+        }
         // Fall through to normal approval flow
       } else {
         return {
