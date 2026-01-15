@@ -81,6 +81,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: false,
+    filterSmallUtxos: true,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -94,6 +95,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: false,
     preferredView: 'floating',
     showTrendingTokens: false,
+    filterSmallUtxos: true,
   };
 
   const customToken: NetworkContractToken = {
