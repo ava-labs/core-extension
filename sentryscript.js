@@ -7,7 +7,7 @@ if (process.argv.length === 2) {
 }
 
 const sourcemaps = execFileSync('find', [
-  './dist-next',
+  './dist',
   '-name',
   '*.js.map',
 ]).toString();
@@ -19,16 +19,16 @@ if (!sourcemaps.length) {
 
 const version = process.argv[2];
 const commands = [
-  { cmd: 'sentry-cli', args: ['sourcemaps', 'inject', './dist-next'] },
+  { cmd: 'sentry-cli', args: ['sourcemaps', 'inject', './dist'] },
   {
     cmd: 'sentry-cli',
-    args: parse('sourcemaps upload --release="$VERSION" ./dist-next', {
+    args: parse('sourcemaps upload --release="$VERSION" ./dist', {
       VERSION: version,
     }),
   },
   {
     cmd: 'find',
-    args: ['./dist-next', '-name', '*.js.map', '-delete'],
+    args: ['./dist', '-name', '*.js.map', '-delete'],
   },
 ];
 
