@@ -44,4 +44,8 @@ export interface UnifiedBridgeContext {
   state: UnifiedBridgeState;
   availableChainIds: NetworkWithCaipId['caipId'][];
   isReady: boolean;
+  devMode: {
+    enabled: boolean;
+    set: (enabled: boolean) => Promise<void>;
+  };
 }
