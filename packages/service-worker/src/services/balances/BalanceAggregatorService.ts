@@ -254,9 +254,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         FeatureGates.BALANCE_SERVICE_INTEGRATION
       ]
     ) {
-      const selectedCurrency = (
-        await this.settingsService.getSettings()
-      ).currency.toLowerCase();
+      const settings = await this.settingsService.getSettings();
+      const selectedCurrency = settings.currency.toLowerCase();
       try {
         const getBalancesRequestBody = await createGetBalancePayload({
           accounts,
@@ -264,6 +263,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           currency: selectedCurrency as Currency,
           secretsService: this.secretsService,
           addressResolver: this.addressResolver,
+          filterSmallUtxos: settings.filterSmallUtxos,
         });
 
         const balanceServiceResponse = await postV1BalanceGetBalances({

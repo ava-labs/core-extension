@@ -21,6 +21,7 @@ import {
 } from '@avalabs/vm-module-types';
 import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
 import { setErrorForRequestInSessionStorage } from '@core/common';
+import { createGetBalancePayload } from '~/api-clients/utils';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
@@ -33,6 +34,10 @@ jest.mock('@core/common', () => {
   };
 });
 jest.mock('~/api-clients/balance-api');
+jest.mock('~/api-clients/utils', () => ({
+  ...jest.requireActual('~/api-clients/utils'),
+  createGetBalancePayload: jest.fn(),
+}));
 
 describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
   global.fetch = jest.fn().mockImplementation(
@@ -633,6 +638,100 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       ).toHaveBeenCalledWith(
         walletId,
         BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
+      );
+    });
+  });
+
+  describe('filterSmallUtxos setting', () => {
+    it('should pass filterSmallUtxos from settings to createGetBalancePayload', async () => {
+      const settingsWithFilterSmallUtxos = {
+        getSettings: jest.fn().mockResolvedValue({
+          currency: 'USD',
+          filterSmallUtxos: true,
+        }),
+      } as unknown as SettingsService;
+
+      const service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        settingsWithFilterSmallUtxos,
+        {
+          featureFlags: {
+            [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+          },
+        } as any,
+        mockSecretsService,
+        addressResolverMock,
+        tokenPricesServiceMock,
+      );
+
+      jest.mocked(createGetBalancePayload).mockResolvedValue({
+        data: [],
+        currency: 'usd',
+      });
+
+      jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
+        throw new Error('Stop here');
+      });
+
+      await service.getBalancesForNetworks({
+        chainIds: [43114],
+        accounts: [account1],
+        tokenTypes: [TokenType.ERC20],
+      });
+
+      expect(createGetBalancePayload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filterSmallUtxos: true,
+        }),
+      );
+    });
+
+    it('should pass filterSmallUtxos as false when setting is false', async () => {
+      const settingsWithFilterSmallUtxosFalse = {
+        getSettings: jest.fn().mockResolvedValue({
+          currency: 'USD',
+          filterSmallUtxos: false,
+        }),
+      } as unknown as SettingsService;
+
+      const service = new BalanceAggregatorService(
+        balancesServiceMock,
+        networkServiceMock,
+        lockService,
+        storageService,
+        settingsWithFilterSmallUtxosFalse,
+        {
+          featureFlags: {
+            [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
+          },
+        } as any,
+        mockSecretsService,
+        addressResolverMock,
+        tokenPricesServiceMock,
+      );
+
+      jest.mocked(createGetBalancePayload).mockResolvedValue({
+        data: [],
+        currency: 'usd',
+      });
+
+      jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
+        throw new Error('Stop here');
+      });
+
+      await service.getBalancesForNetworks({
+        chainIds: [43114],
+        accounts: [account1],
+        tokenTypes: [TokenType.ERC20],
+      });
+
+      expect(createGetBalancePayload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filterSmallUtxos: false,
+        }),
       );
     });
   });
