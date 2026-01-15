@@ -87,7 +87,7 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
             {trendIcon}
           </Stack>
         ) : (
-          <Skeleton height={18} width={40} />
+          <Skeleton height={18} width={40} animation={false} />
         ))}
     </Stack>
   );

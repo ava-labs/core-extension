@@ -105,7 +105,7 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
               </Typography>
             </Stack>
           ) : (
-            <Skeleton height={18} width={70} />
+            <Skeleton height={18} width={70} animation={false} />
           )}
         </Stack>
         <Stack alignItems="flex-end" flexShrink={0}>
