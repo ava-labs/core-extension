@@ -23,10 +23,6 @@ export type ActionDetailsProps = {
   error: ApproveActionResult['error'];
 };
 
-export type TransactionDetailsProps = ActionDetailsProps & {
-  action: TransactionSigningRequest;
-};
-
 export type MessageDetailsProps = ActionDetailsProps & {
   action: MessageSigningRequest;
 };

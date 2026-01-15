@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { MARKR_EVM_PARTNER_ID } from '../constants';
-import { Account, NetworkWithCaipId, SwapErrorCode } from '@core/types';
-import { fetchAndVerify } from '@core/common';
+import {
+  Account,
+  CommonError,
+  NetworkWithCaipId,
+  SwapErrorCode,
+} from '@core/types';
+import { fetchAndVerify, isFailedToFetchError } from '@core/common';
 import { resolve } from '@avalabs/core-utils-sdk';
 import { swapError } from '../swap-utils';
 import { MarkrQuote, MarkrTransaction } from '../models';
@@ -226,6 +231,10 @@ class MarkrService {
 
       return sortQuotesByAmountOut(allQuotes) ?? undefined;
     } catch (error) {
+      if (isFailedToFetchError(error)) {
+        throw swapError(CommonError.NetworkError, error);
+      }
+
       if (
         error instanceof Error &&
         error.message.includes('FetchRequestCanceledException')

@@ -44,14 +44,14 @@ const execPatchAnyCommitSetting = [
 
 const replacementConfig = [
   {
-    files: ['dist-next/manifest.json'],
+    files: ['dist/manifest.json'],
     from: '"version": ".*"',
     // Remove "-alpha" string from the version in the manifest.
     // Chrome only supports numbers and dots in the version number.
     to: `"version": "<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>"`,
     results: [
       {
-        file: 'dist-next/manifest.json',
+        file: 'dist/manifest.json',
         hasChanged: true,
         numMatches: 1,
         numReplacements: 1,
@@ -60,13 +60,13 @@ const replacementConfig = [
     countMatches: true,
   },
   {
-    files: ['dist-next/inpage/js/inpage.js'],
+    files: ['dist/inpage/js/inpage.js'],
     from: 'CORE_EXTENSION_VERSION',
     // Replace CORE_EXTENSION_VERSION string to the next release number in the inpage.js file
     to: `<%= _.replace(nextRelease.version, /[^0-9.]/g, '') %>`,
     results: [
       {
-        file: 'dist-next/inpage/js/inpage.js',
+        file: 'dist/inpage/js/inpage.js',
         hasChanged: true,
         numMatches: 2,
         numReplacements: 2,
@@ -85,9 +85,9 @@ const releaseReplaceSetting = [
 
 const assets = [
   {
-    path: 'builds/avalanche-wallet-extension-next.zip',
-    name: 'NextGen-Core-Extension-${nextRelease.gitTag}.zip',
-    label: '[NextGen] Core Extension (${nextRelease.gitTag})',
+    path: 'builds/avalanche-wallet-extension.zip',
+    name: 'Avalanche-wallet-extension-${nextRelease.gitTag}.zip',
+    label: 'Wallet Extension (${nextRelease.gitTag})',
   },
 ];
 
@@ -102,13 +102,10 @@ const githubSetting = [
   },
 ];
 
-const getSubmitBuildCmd = () =>
-  `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build`;
-
 const execSubmitBuildSetting = [
   '@semantic-release/exec',
   {
-    prepareCmd: getSubmitBuildCmd(),
+    prepareCmd: `ID_SERVICE_URL=${process.env.ID_SERVICE_URL} ID_SERVICE_API_KEY=${process.env.ID_SERVICE_API_KEY} yarn submit-build`,
   },
 ];
 

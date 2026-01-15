@@ -45,6 +45,7 @@ import {
   SettingsCard,
   SettingsNavItem,
 } from './components';
+import { BridgeDevModeSwitchCard } from './components/BridgeDevModeSwitchCard';
 import { useMediaQuery } from '@avalabs/k2-alpine';
 
 const navItemActionCommonSx: SxProps = {
@@ -131,6 +132,8 @@ export const SettingsHomePage = () => {
           />
         </Stack>
       </Stack>
+
+      <BridgeDevModeSwitchCard />
 
       {isMfaSetupPromptVisible && (
         <Card

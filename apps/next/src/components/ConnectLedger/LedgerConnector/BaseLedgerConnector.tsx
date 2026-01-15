@@ -8,12 +8,12 @@ import { sortBy } from 'lodash';
 import * as Styled from '../Styled';
 import {
   ConnectorCallbacks,
-  DerivationStatus,
   DerivedKeys,
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
 import { LedgerAppType } from '@core/ui';
+import { DerivationStatus } from '@core/types';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;

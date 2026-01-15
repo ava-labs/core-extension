@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useLocation } from 'react-router-dom';
 import { useGetRequestId } from './useGetRequestId';
 
@@ -45,11 +45,13 @@ describe('hooks/useGetRequestId', () => {
 
     const { result, rerender } = renderHook(() => useGetRequestId());
 
+    expect(result.current).toEqual('1234');
+
     (useLocation as jest.Mock).mockReturnValue({
       search: '?actionId=4567',
     });
     rerender();
 
-    expect(result.all).toEqual(['1234', '4567']);
+    expect(result.current).toEqual('4567');
   });
 });

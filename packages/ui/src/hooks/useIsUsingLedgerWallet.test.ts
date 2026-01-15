@@ -1,7 +1,7 @@
 import { AccountType } from '@core/types';
 import { useAccountsContext } from '../contexts/AccountsProvider';
 import { useWalletContext } from '../contexts/WalletProvider';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useIsUsingLedgerWallet } from './useIsUsingLedgerWallet';
 
 jest.mock('../contexts/AccountsProvider', () => ({

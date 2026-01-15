@@ -87,5 +87,3 @@ export const AccountInfo: FC<Props> = ({
     </Stack>
   );
 };
-
-export default AccountInfo;

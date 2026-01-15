@@ -69,8 +69,7 @@ export class AvalancheRenameAccountHandler extends DAppRequestHandler<
           ...request,
           result: null,
         };
-      } catch (err) {
-        console.log(err);
+      } catch (_err) {
         return {
           ...request,
           error: ethErrors.rpc.internal('Account renaming failed'),

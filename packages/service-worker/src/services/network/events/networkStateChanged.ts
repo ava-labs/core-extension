@@ -52,7 +52,6 @@ export class NetworkStateChangedEvents implements DAppEventEmitter {
       SettingsEvents.SETTINGS_UPDATED,
       this.#sendUpdateEvent,
     );
-    this.networkService.favoriteNetworksUpdated.add(this.#sendUpdateEvent);
   }
 
   addListener(handler: (event: ExtensionConnectionEvent) => void): void {

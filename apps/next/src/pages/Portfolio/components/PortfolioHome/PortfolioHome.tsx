@@ -7,7 +7,7 @@ import {
   useNetworkContext,
 } from '@core/ui';
 
-import AccountInfo from './components/AccountInfo/AccountInfo';
+import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { PortfolioTabs } from './components/PortfolioTabs';

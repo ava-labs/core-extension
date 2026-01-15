@@ -1,12 +1,9 @@
 import {
   Box,
   ChevronRightIcon,
-  EncryptedIcon,
   List,
   ListItemText,
   ListItemTextProps,
-  PasswordIcon,
-  SecurityKeyIcon,
 } from '@avalabs/k2-alpine';
 import {
   MfaChoiceRequest,
@@ -26,12 +23,6 @@ import {
   StyledListItemStartIcon,
   StyledPaper,
 } from '../styled';
-
-export const MethodIcons = {
-  passkey: <PasswordIcon size={24} />,
-  authenticator: <EncryptedIcon size={24} />,
-  yubikey: <SecurityKeyIcon size={24} />,
-} as const;
 
 type Props = {
   mfaChoice?: PartialBy<MfaChoiceRequest, 'mfaId'>;
