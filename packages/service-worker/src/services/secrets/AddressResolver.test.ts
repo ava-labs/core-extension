@@ -12,6 +12,7 @@ import {
 } from '@shared/tests/test-utils';
 import { SecretsError, SecretType } from '@core/types';
 import { ChainId } from '@avalabs/core-chains-sdk';
+import { noop } from '@core/common';
 
 describe('src/background/services/secrets/AddressResolver', () => {
   let addressResolver: AddressResolver;
@@ -34,6 +35,7 @@ describe('src/background/services/secrets/AddressResolver', () => {
 
     addressResolver = new AddressResolver(networkService, secretsService);
     addressResolver.init(moduleManager);
+    jest.spyOn(console, 'warn').mockImplementation(noop);
   });
 
   describe('getDerivationPathsByVM()', () => {

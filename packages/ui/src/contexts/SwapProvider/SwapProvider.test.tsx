@@ -20,6 +20,7 @@ import {
 import { useEvmSwap } from './useEvmSwap';
 import { useSolanaSwap } from './useSolanaSwap';
 import { SwapContextProvider, useSwapContext } from './SwapProvider';
+import { noop } from '@core/common';
 
 const getSwapProvider = async (): Promise<SwapContextAPI> => {
   const ref = createRef<SwapContextAPI>();
@@ -114,6 +115,7 @@ describe('contexts/SwapProvider', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.useRealTimers();
+    jest.spyOn(console, 'error').mockImplementation(noop);
     jest.mocked(useAnalyticsContext).mockReturnValue({
       captureEncrypted: jest.fn(),
     } as any);

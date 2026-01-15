@@ -20,6 +20,7 @@ import {
 } from './BridgeProvider';
 import { act } from 'react-dom/test-utils';
 import { RpcMethod } from '@avalabs/vm-module-types';
+import { noop } from '@core/common';
 
 const ACTIVE_ACCOUNT_ADDRESS = 'addressC';
 
@@ -121,7 +122,7 @@ describe('contexts/BridgeProvider', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-
+    jest.spyOn(console, 'error').mockImplementation(noop);
     // Mock events flow
     eventsFn.mockReturnValue({
       pipe: jest.fn().mockReturnValue({

@@ -59,9 +59,7 @@ jobs:
       - name: Run tests
         run: yarn test
       - name: Build app
-        id: build
         run: yarn build:alpha
-        continue-on-error: true
       - name: Setup sentry-cli
         run: |
           curl -sL https://sentry.io/get-cli/ | bash

@@ -45,7 +45,6 @@ export * from './useSolanaAddressInfo';
 export * from './useTabFromParams';
 export * from './useTokenFromParams';
 export * from './useTokenPrice';
-export * from './useTokenPriceIsMissing';
 export * from './useTokensWithBalances';
 export * from './useTotpErrorMessage';
 export * from './useWillSwitchToPrimaryAccount';

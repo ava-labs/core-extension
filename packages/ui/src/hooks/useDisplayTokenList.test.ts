@@ -1,6 +1,5 @@
-import { act } from 'react-dom/test-utils';
 import { useDisplayTokenList } from './useDisplayTokenList';
-import { renderHook } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 
 const AVAX: TokenWithBalance = {

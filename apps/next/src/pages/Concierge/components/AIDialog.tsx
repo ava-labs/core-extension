@@ -12,7 +12,7 @@ import { PromptItem } from '@core/ui';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 
-export const AIBox = styled(Box)(({ theme }) => ({
+const AIBox = styled(Box)(({ theme }) => ({
   a: {
     color: theme.palette.text.primary,
     textDecoration: 'underline',
