@@ -1,4 +1,4 @@
-import { omit, pick, uniqBy } from 'lodash';
+import { omit, pick, uniqWith } from 'lodash';
 import { singleton } from 'tsyringe';
 
 import {
@@ -193,14 +193,16 @@ export class SecretsService implements OnUnlock {
       throw new Error('Cannot append public keys to a non-primary wallet');
     }
 
-    const newKeys = uniqBy(
+    const uniqueKeys = uniqWith(
       [...storedSecrets.publicKeys, ...publicKeys],
-      'derivationPath',
+      (one, other) =>
+        one.curve === other.curve &&
+        one.derivationPath === other.derivationPath,
     );
 
     return this.updateSecrets(
       {
-        publicKeys: newKeys,
+        publicKeys: uniqueKeys,
       },
       walletId,
     );

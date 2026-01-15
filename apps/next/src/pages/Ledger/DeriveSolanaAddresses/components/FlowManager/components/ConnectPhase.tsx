@@ -5,6 +5,7 @@ import {
   useWalletContext,
 } from '@core/ui';
 import { ComponentProps, FC, useMemo } from 'react';
+import { ENABLE_SOLANA_LOGGER_KEY_BASE } from '../../../config';
 
 type Props = Pick<
   ComponentProps<typeof ConnectSolana>,
@@ -25,9 +26,12 @@ export const ConnectPhase: FC<Props> = ({ onNext, onTroubleshoot }) => {
 
   const callbacks = useMemo(
     () => ({
-      onConnectionSuccess: () => capture('OnboardingLedgerSolanaKeysDerived'),
-      onConnectionFailed: () => capture('OnboardingLedgerSolanaKeysFailed'),
-      onConnectionRetry: () => capture('OnboardingLedgerSolanaKeysRetry'),
+      onConnectionSuccess: () =>
+        capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysDerived`),
+      onConnectionFailed: () =>
+        capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysFailed`),
+      onConnectionRetry: () =>
+        capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysRetry`),
     }),
     [capture],
   );

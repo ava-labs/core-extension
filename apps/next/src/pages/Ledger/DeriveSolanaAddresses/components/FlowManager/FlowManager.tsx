@@ -4,6 +4,7 @@ import { toast } from '@avalabs/k2-alpine';
 import { useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ENABLE_SOLANA_LOGGER_KEY_BASE } from '../../config';
 import {
   ActivationPhase,
   ConnectPhase,
@@ -33,11 +34,11 @@ export const FlowManager: FC<Props> = ({ walletId, onCloseApp }) => {
     return (
       <PromptSolana
         onNext={() => {
-          capture('OnboardingSolanaSupportConfirmed');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}SupportConfirmed`);
           setPhase('connect');
         }}
         onSkip={() => {
-          capture('OnboardingSolanaSupportDenied');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}SupportDenied`);
           onCloseApp();
         }}
       />
@@ -52,7 +53,7 @@ export const FlowManager: FC<Props> = ({ walletId, onCloseApp }) => {
           setPhase('activation');
         }}
         onTroubleshoot={() => {
-          capture('OnboardingLedgerTroubleshootingSolana');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}Troubleshooting`);
           setPhase('troubleshooting');
         }}
       />
@@ -64,7 +65,7 @@ export const FlowManager: FC<Props> = ({ walletId, onCloseApp }) => {
       <Troubleshooting
         appName="Solana"
         onClose={() => {
-          capture('OnboardingLedgerTroubleshootingSolanaClosed');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}TroubleshootingClosed`);
           setPhase('connect');
         }}
       />
@@ -77,12 +78,12 @@ export const FlowManager: FC<Props> = ({ walletId, onCloseApp }) => {
         keys={keys}
         walletId={walletId}
         onSuccess={() => {
-          capture('OnboardingLedgerSolanaKeysSaved');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysSaved`);
           toast.success(t('Solana addresses activated'));
           setPhase('success');
         }}
         onError={() => {
-          capture('OnboardingLedgerSolanaKeysFailed');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysFailed`);
           toast.error(t('Failed to activate Solana addresses'));
         }}
       />
@@ -93,7 +94,7 @@ export const FlowManager: FC<Props> = ({ walletId, onCloseApp }) => {
     return (
       <SuccessPhase
         onClose={() => {
-          capture('OnboardingLedgerSolanaKeysClosed');
+          capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysClosed`);
           onCloseApp();
         }}
       />
@@ -107,7 +108,7 @@ export const FlowManager: FC<Props> = ({ walletId, onCloseApp }) => {
       content={undefined}
       actionLabel={t('Try again')}
       action={() => {
-        capture('OnboardingLedgerSolanaKeysRetry');
+        capture(`${ENABLE_SOLANA_LOGGER_KEY_BASE}KeysRetry`);
         setPhase('connect');
       }}
     />
