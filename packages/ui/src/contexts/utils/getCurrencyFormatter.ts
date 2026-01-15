@@ -1,3 +1,21 @@
+export const PRIVACY_NUMBER_FALLBACK = '•••••';
+
+export const getObfuscatedCurrency = (currency = 'USD'): string => {
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    currencyDisplay: 'narrowSymbol',
+  });
+
+  const formatted = formatter.format(0);
+
+  // Replace all numbers, spaces, dashes, dots, commas, and other numeric-related characters with privacy fallback
+  return formatted.replace(
+    /[\d\s\-.,'\u202F\u00A0]+/g,
+    PRIVACY_NUMBER_FALLBACK,
+  );
+};
+
 export const getCurrencyFormatter = (currency = 'USD') => {
   /**
    * For performance reasons we want to instantiate this as little as possible

@@ -153,6 +153,7 @@ import { SubscribeToNotification } from '../../services/notifications/handlers/s
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
+import { SetPrivacyModeHandler } from '~/services/settings/handlers/setPrivacyMode';
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
@@ -489,6 +490,10 @@ import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/
   {
     token: 'ExtensionRequestHandler',
     useToken: SetPreferredViewHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetPrivacyModeHandler,
   },
   {
     token: 'ExtensionRequestHandler',

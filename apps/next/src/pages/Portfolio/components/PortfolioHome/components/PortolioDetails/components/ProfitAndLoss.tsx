@@ -3,6 +3,7 @@ import {
   Theme,
   TriangleDownIcon,
   TriangleUpIcon,
+  Skeleton,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
@@ -49,7 +50,7 @@ const getTrendIcon = (trend: Trend) => {
 };
 
 export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
-  const { currencyFormatter } = useSettingsContext();
+  const { currencyFormatter, privacyMode } = useSettingsContext();
   const theme = useTheme();
 
   const priceChanges = asset.priceChanges;
@@ -73,17 +74,21 @@ export const ProfitAndLoss = ({ asset }: ProfitAndLossProps) => {
       <Typography variant="subtitle3" color="text.primary">
         {formattedBalance}
       </Typography>
-      {!!priceChanges?.value && !!priceChanges?.percentage && (
-        <Stack
-          direction="row"
-          alignItems="center"
-          gap={0.5}
-          sx={{ color: trendColor }}
-        >
-          <Typography variant="subtitle3">{formattedPriceChange}</Typography>
-          {trendIcon}
-        </Stack>
-      )}
+      {!!priceChanges?.value &&
+        !!priceChanges?.percentage &&
+        (!privacyMode ? (
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={0.5}
+            sx={{ color: trendColor }}
+          >
+            <Typography variant="subtitle3">{formattedPriceChange}</Typography>
+            {trendIcon}
+          </Stack>
+        ) : (
+          <Skeleton height={18} width={40} />
+        ))}
     </Stack>
   );
 };

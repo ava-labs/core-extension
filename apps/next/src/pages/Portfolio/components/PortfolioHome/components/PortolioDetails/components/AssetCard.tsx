@@ -1,6 +1,7 @@
 import {
   Box,
   ChevronRightIcon,
+  Skeleton,
   Stack,
   Theme,
   Typography,
@@ -13,6 +14,7 @@ import { Card } from '@/components/Card';
 import { useHistory } from 'react-router-dom';
 import { TokenType } from '@avalabs/vm-module-types';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { useSettingsContext } from '@core/ui';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
@@ -35,7 +37,7 @@ const getBadgeBorderColor = (theme: Theme): string => {
 export const AssetCard = ({ asset }: AssetCardProps) => {
   const theme = useTheme();
   const history = useHistory();
-
+  const { privacyMode } = useSettingsContext();
   const handleClick = () => {
     const tokenAddress =
       asset.type === TokenType.NATIVE ? asset.symbol : asset.address;
@@ -84,25 +86,28 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
           >
             {asset.name}
           </Typography>
-          <Stack
-            direction="row"
-            alignItems="center"
-            gap={0.5}
-            width="max-content"
-            justifyContent="flex-start"
-          >
-            <CollapsedTokenAmount
-              amount={asset.balanceDisplayValue}
-              showApproximationSign={false}
-              regularProps={{ variant: 'body3' }}
-              overlineProps={{ variant: 'caption2' }}
-            />
-            <Typography color="text.primary" variant="body3">
-              {asset.symbol}
-            </Typography>
-          </Stack>
+          {!privacyMode ? (
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={0.5}
+              width="max-content"
+              justifyContent="flex-start"
+            >
+              <CollapsedTokenAmount
+                amount={asset.balanceDisplayValue}
+                showApproximationSign={false}
+                regularProps={{ variant: 'body3' }}
+                overlineProps={{ variant: 'caption2' }}
+              />
+              <Typography color="text.primary" variant="body3">
+                {asset.symbol}
+              </Typography>
+            </Stack>
+          ) : (
+            <Skeleton height={18} width={70} />
+          )}
         </Stack>
-
         <Stack alignItems="flex-end" flexShrink={0}>
           <ProfitAndLoss asset={asset} />
         </Stack>

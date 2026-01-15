@@ -8,6 +8,7 @@ import {
   ListItemText,
   ListItemTextProps,
   Switch,
+  Skeleton,
 } from '@avalabs/k2-alpine';
 import { TokenType, TokenWithBalance } from '@avalabs/vm-module-types';
 import { chainIdToCaip, isTokenMalicious } from '@core/common';
@@ -38,7 +39,8 @@ const listItemTextProps: ListItemTextProps = {
 };
 
 export const TokenListItem: FC<Props> = ({ token }) => {
-  const { getTokenVisibility, toggleTokenVisibility } = useSettingsContext();
+  const { getTokenVisibility, toggleTokenVisibility, privacyMode } =
+    useSettingsContext();
 
   // Only ERC20 and SPL tokens can be toggled (native tokens cannot)
   const canToggle =
@@ -69,12 +71,17 @@ export const TokenListItem: FC<Props> = ({ token }) => {
         {...listItemTextProps}
         primary={token.name}
         secondary={
-          <CollapsedTokenAmount
-            amount={token.balanceDisplayValue}
-            showApproximationSign={false}
-            regularProps={{ variant: 'body2' }}
-            overlineProps={{ variant: 'caption2' }}
-          />
+          !privacyMode ? (
+            <CollapsedTokenAmount
+              stackProps={{ justifyContent: 'flex-start' }}
+              amount={token.balanceDisplayValue}
+              showApproximationSign={false}
+              regularProps={{ variant: 'body2' }}
+              overlineProps={{ variant: 'caption2' }}
+            />
+          ) : (
+            <Skeleton height={18} width={70} animation={false} />
+          )
         }
       />
     </ListItem>
