@@ -1,5 +1,4 @@
-import { useTranslation } from 'react-i18next';
-import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
+import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import {
@@ -14,6 +13,8 @@ import {
 } from '@/components/RecipientSelect';
 
 import { useXChainSend } from '../hooks/useXChainSend';
+import { TxButton } from '@/components/TxButton';
+import { useTranslation } from 'react-i18next';
 
 type BtcSendBodyProps = {
   from: AvmCapableAccount;
@@ -30,11 +31,9 @@ export const XChainSendBody = ({
   recipient,
   network,
 }: BtcSendBodyProps) => {
-  const { t } = useTranslation();
-
   const to = getRecipientAddressByType(recipient, 'AVM');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
-
+  const { t } = useTranslation();
   const { isSending, isValid, error, send } = useXChainSend({
     token,
     amount: amountBigInt,
@@ -55,17 +54,12 @@ export const XChainSendBody = ({
         </Stack>
       </Fade>
       <Stack width="100%">
-        <Button
-          variant="contained"
-          color="primary"
-          size="extension"
-          fullWidth
-          disabled={!isValid}
-          loading={isSending}
+        <TxButton
+          isLoading={isSending}
           onClick={send}
-        >
-          {t('Send')}
-        </Button>
+          title={t('Send')}
+          isDisabled={!isValid}
+        />
       </Stack>
     </Stack>
   );
