@@ -1,6 +1,7 @@
-import { Slide, SquareButton, Stack, Tooltip } from '@avalabs/k2-alpine';
+import { Slide, SquareButton, Stack } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext, useOnline } from '@core/ui';
+import { OfflineTooltip } from '@/components/OfflineTooltip';
 
 import { getBridgePath, getSendPath, getSwapPath } from '@/config/routes';
 import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
@@ -36,58 +37,49 @@ export const PortfolioActionButtons = ({
 
       {isSwapSupported && (
         <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-          <Tooltip
-            title={!isOnline ? t('You are offline') : ''}
-            placement="top"
-          >
-            <span>
-              <SquareButton
-                variant="extension"
-                icon={<SwapIcon size={ICON_SIZE} />}
-                label={t('Swap')}
-                onClick={() => {
-                  capture('TokenSwapClicked');
-                  push(getSwapPath());
-                }}
-                disabled={!isOnline}
-              />
-            </span>
-          </Tooltip>
+          <OfflineTooltip placement="top">
+            <SquareButton
+              variant="extension"
+              icon={<SwapIcon size={ICON_SIZE} />}
+              label={t('Swap')}
+              onClick={() => {
+                capture('TokenSwapClicked');
+                push(getSwapPath());
+              }}
+              disabled={!isOnline}
+            />
+          </OfflineTooltip>
         </Slide>
       )}
 
       <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-        <Tooltip title={!isOnline ? t('You are offline') : ''} placement="top">
-          <span>
-            <SquareButton
-              variant="extension"
-              icon={<BridgeIcon size={ICON_SIZE} />}
-              label={t('Bridge')}
-              onClick={() => {
-                capture('TokenBridgeClicked');
-                push(getBridgePath());
-              }}
-              disabled={!isOnline}
-            />
-          </span>
-        </Tooltip>
+        <OfflineTooltip placement="top">
+          <SquareButton
+            variant="extension"
+            icon={<BridgeIcon size={ICON_SIZE} />}
+            label={t('Bridge')}
+            onClick={() => {
+              capture('TokenBridgeClicked');
+              push(getBridgePath());
+            }}
+            disabled={!isOnline}
+          />
+        </OfflineTooltip>
       </Slide>
 
       <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-        <Tooltip title={!isOnline ? t('You are offline') : ''} placement="top">
-          <span>
-            <SquareButton
-              variant="extension"
-              icon={<SendIcon size={ICON_SIZE} />}
-              label={t('Send')}
-              onClick={() => {
-                capture('TokenSendClicked');
-                push(getSendPath());
-              }}
-              disabled={!isOnline}
-            />
-          </span>
-        </Tooltip>
+        <OfflineTooltip placement="top">
+          <SquareButton
+            variant="extension"
+            icon={<SendIcon size={ICON_SIZE} />}
+            label={t('Send')}
+            onClick={() => {
+              capture('TokenSendClicked');
+              push(getSendPath());
+            }}
+            disabled={!isOnline}
+          />
+        </OfflineTooltip>
       </Slide>
 
       {isBuySupported && (

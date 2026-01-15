@@ -38,9 +38,7 @@ export const Header = () => {
           setIsAIBackdropOpen={setIsAIBackdropOpen}
         />
       ) : (
-        <>
-          <OfflineMessage />
-        </>
+        <OfflineMessage />
       )}
     </HeaderContainer>
   );

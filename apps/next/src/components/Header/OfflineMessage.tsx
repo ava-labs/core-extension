@@ -14,18 +14,16 @@ export const OfflineMessage: FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   return (
-    <Slide direction="down" in={true} mountOnEnter unmountOnExit>
+    <Slide direction="down" in mountOnEnter unmountOnExit>
       <Stack
         direction="row"
         alignItems="center"
         gap={1.5}
-        sx={{
-          width: '100%',
-          px: 1.5,
-          py: 1,
-          backgroundColor: getHexAlpha(theme.palette.error.main, 10),
-          color: 'error.main',
-        }}
+        width="100%"
+        px={1.5}
+        py={1}
+        bgcolor={getHexAlpha(theme.palette.error.main, 10)}
+        color="error.main"
       >
         <Box flexShrink={0} lineHeight={1}>
           <RiWifiOffLine size={24} />
