@@ -9,7 +9,6 @@ export function networksUpdatedEventListener(
 ): evt is ExtensionConnectionEvent<{
   networks: NetworkWithCaipId[];
   activeNetwork?: NetworkWithCaipId;
-  favoriteNetworks: number[];
   enabledNetworks: number[];
   customNetworks: Record<number, NetworkWithCaipId>;
 }> {
