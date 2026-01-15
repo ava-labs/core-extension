@@ -12,7 +12,7 @@ import { ExportEntryPoint } from './pages/ExportEntryPoint';
 import { LoadingState } from './pages/Loading';
 import { MFA } from './pages/MFA';
 import { ReadyToExport } from './pages/ReadyToExport';
-import { WaitingLounge } from './pages/WaitingLounge/WaitingLounge';
+import { WaitingLounge } from './pages/WaitingLounge';
 import { StageProps } from './types';
 
 const stages: Record<ExportState, FC<StageProps>> = {

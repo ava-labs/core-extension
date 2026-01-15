@@ -1,4 +1,4 @@
-import React, { FC, ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import {
   PartialBy,
@@ -8,7 +8,7 @@ import {
   ErrorCode,
 } from '@core/types';
 
-const AllTheProviders: FC<{ children: React.ReactNode }> = ({ children }) => {
+const AllTheProviders = ({ children }) => {
   // K2 ThemeProvider causes issues here.
   // https://ava-labs.atlassian.net/browse/CP-6954
   return <>{children}</>;

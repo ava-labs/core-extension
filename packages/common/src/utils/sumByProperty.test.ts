@@ -1,5 +1,7 @@
 import { sumByProperty } from './sumByProperty';
 
+jest.mock('./logging');
+
 describe('src/utils/sumByProperty.ts', () => {
   it('sums the numeric values held by specified property', () => {
     expect(sumByProperty([{ x: 1 }, { x: 2 }, { x: 3 }], 'x')).toEqual(6);

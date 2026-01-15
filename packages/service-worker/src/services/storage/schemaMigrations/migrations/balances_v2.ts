@@ -24,7 +24,7 @@ export type NewSchema = {
 
 const previousSchema = Joi.object();
 
-export function transformTotalBalance(
+function transformTotalBalance(
   totalBalance: PreviousSchema['totalBalance'],
 ): NewSchema['totalBalance'] {
   const newBalance: NewSchema['totalBalance'] = {};
