@@ -30,8 +30,6 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   isAIBackdropOpen,
   setIsAIBackdropOpen,
 }) => {
-  // const { isAtTop } = useScrollDetectionContext();
-
   const theme = useTheme();
   const history = useHistory();
   const { t } = useTranslation();
@@ -61,13 +59,6 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   if (!coreAssistant || !featureFlags[FeatureGates.CORE_ASSISTANT]) {
     return null;
   }
-
-  // Only show prompt when at the top
-  // const shouldShowPrompt = isAtTop;
-
-  // if (!shouldShowPrompt) {
-  //   return null;
-  // }
 
   return (
     <>
