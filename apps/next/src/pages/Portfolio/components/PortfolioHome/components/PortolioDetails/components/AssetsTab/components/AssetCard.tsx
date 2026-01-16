@@ -13,6 +13,7 @@ import { useHistory } from 'react-router-dom';
 
 import { Card } from '@/components/Card';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { OverflowingTypography } from '@/components/OverflowingTypography';
 import { TokenAvatar } from '@/components/TokenAvatar';
 import { FungibleTokenBalance } from '@core/types';
 import { useSettingsContext } from '@core/ui';
@@ -93,18 +94,34 @@ export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
               direction="row"
               alignItems="center"
               gap={0.5}
-              width="max-content"
               justifyContent="flex-start"
             >
               <CollapsedTokenAmount
                 amount={asset.balanceDisplayValue}
                 showApproximationSign={false}
-                regularProps={{ variant: 'body3' }}
-                overlineProps={{ variant: 'caption2' }}
+                regularProps={{
+                  variant: 'body3',
+                  noWrap: true,
+                }}
+                overlineProps={{
+                  variant: 'caption2',
+                  noWrap: true,
+                }}
+                stackProps={{
+                  width: 'auto',
+                  justifyContent: 'flex-start',
+                  overflow: 'hidden',
+                }}
               />
-              <Typography color="text.primary" variant="body3">
+              <OverflowingTypography
+                color="text.primary"
+                variant="body3"
+                flexBasis="6ch"
+                flexShrink={0}
+                noWrap
+              >
                 {asset.symbol}
-              </Typography>
+              </OverflowingTypography>
             </Stack>
           ) : (
             <Skeleton height={18} width={70} animation={false} />
