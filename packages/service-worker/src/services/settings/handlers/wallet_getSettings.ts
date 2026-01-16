@@ -40,6 +40,7 @@ interface WalletGetSettingsHandlerResult {
   coreAssistant: boolean;
   preferredView: 'floating' | 'sidebar';
   showTrendingTokens: boolean;
+  privacyMode: boolean;
 }
 @injectable()
 export class WalletGetSettingsHandler extends DAppRequestHandler<
@@ -67,6 +68,7 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         coreAssistant: settings.coreAssistant,
         preferredView: settings.preferredView,
         showTrendingTokens: settings.showTrendingTokens,
+        privacyMode: settings.privacyMode,
       };
       return {
         ...request,

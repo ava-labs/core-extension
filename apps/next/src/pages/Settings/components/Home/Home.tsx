@@ -46,6 +46,7 @@ import {
   SettingsNavItem,
 } from './components';
 import { BridgeDevModeSwitchCard } from './components/BridgeDevModeSwitchCard';
+import { useMediaQuery } from '@avalabs/k2-alpine';
 
 const navItemActionCommonSx: SxProps = {
   px: 1,
@@ -73,10 +74,13 @@ export const SettingsHomePage = () => {
     setCoreAssistant,
     analyticsConsent,
     setAnalyticsConsent,
+    privacyMode,
+    setPrivacyMode,
   } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
   const isMfaSettingsAvailable =
     featureFlags[FeatureGates.SEEEDLESS_MFA_SETTINGS];
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Page
@@ -90,7 +94,7 @@ export const SettingsHomePage = () => {
       }}
     >
       <Stack direction="row" gap={1.5} width="100%">
-        <Stack width="100%">
+        <Stack width="50%">
           <SwitchCard
             titleSize="large"
             checked={isDeveloperMode}
@@ -106,23 +110,27 @@ export const SettingsHomePage = () => {
             description={t(
               'Enable a sandbox environment for testing without using real funds',
             )}
-            orientation="horizontal"
+            orientation={isSmallScreen ? 'vertical' : 'horizontal'}
           />
         </Stack>
-        {/* 
-				TODO: Uncomment this when we have a privacy mode is implemented: CP-11873
-				<Stack width="50%">
+        <Stack width="50%">
           <SwitchCard
-            titleSize="small"
-            checked={isPrivacyMode}
-            onChange={() => setIsPrivacyMode((is) => !is)}
+            titleSize="large"
+            checked={privacyMode}
+            onChange={() => {
+              const newValue = !privacyMode;
+              setPrivacyMode(newValue);
+              toast.info(
+                newValue ? t('Privacy mode is on') : t('Privacy mode is off'),
+              );
+            }}
             title={t('Privacy mode')}
             orientation={isSmallScreen ? 'vertical' : 'horizontal'}
             description={t(
               'Hide your wallet balance on the portfolio screen for added privacy',
             )}
           />
-        </Stack> */}
+        </Stack>
       </Stack>
 
       <BridgeDevModeSwitchCard />

@@ -596,6 +596,8 @@
   "Pricing provider did not respond with a valid transaction.": "Pricing provider did not respond with a valid transaction.",
   "Privacy and security": "Privacy and security",
   "Privacy mode": "Privacy mode",
+  "Privacy mode is off": "Privacy mode is off",
+  "Privacy mode is on": "Privacy mode is on",
   "Private Key Import Failed": "Private Key Import Failed",
   "Private Key Imported": "Private Key Imported",
   "Private key copied!": "Private key copied!",

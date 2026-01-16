@@ -112,6 +112,7 @@ export type { SetAnalyticsConsentHandler } from './services/settings/handlers/se
 export type { SetCoreAssistantHandler } from './services/settings/handlers/setCoreAssistant';
 export type { SetLanguageHandler } from './services/settings/handlers/setLanguage';
 export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
+export type { SetPrivacyModeHandler } from './services/settings/handlers/setPrivacyMode';
 export type { SetShowTrendingTokensHandler } from './services/settings/handlers/setShowTrendingTokens';
 export type { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';
 export type { UpdateCurrencyHandler } from './services/settings/handlers/updateCurrencySelection';

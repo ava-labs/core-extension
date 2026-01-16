@@ -76,6 +76,7 @@ export interface SettingsState {
   coreAssistant: boolean;
   preferredView: ViewMode;
   showTrendingTokens: boolean;
+  privacyMode: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';
