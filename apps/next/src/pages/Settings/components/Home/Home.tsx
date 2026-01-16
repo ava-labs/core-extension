@@ -73,6 +73,8 @@ export const SettingsHomePage = () => {
     setCoreAssistant,
     analyticsConsent,
     setAnalyticsConsent,
+    setFilterSmallUtxos,
+    filterSmallUtxos,
   } = useSettingsContext();
   const { isMfaSetupPromptVisible } = useSeedlessMfaManager();
   const isMfaSettingsAvailable =
@@ -324,6 +326,35 @@ export const SettingsHomePage = () => {
           }
         />
       </SettingsCard>
+
+      <SettingsCard
+        title={t('Advanced')}
+        description={t('Tools and settings for power users')}
+      >
+        <SettingsNavItem
+          label={t('Filter out small UTXOs')}
+          description={t(
+            'Improves loading performance by removing UTXOs with a value less than 0.002 AVAX from the wallet. Total balances may be inaccurate.',
+          )}
+          sx={{
+            pb: 0,
+          }}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={filterSmallUtxos}
+              onChange={() => {
+                const newValue = !filterSmallUtxos;
+                capture('FilterSmallUtxosSettingChanged', {
+                  filterSmallUtxos: newValue,
+                });
+                setFilterSmallUtxos(newValue);
+              }}
+            />
+          }
+        />
+      </SettingsCard>
+
       <SettingsCard title={t('Contacts')}>
         <SettingsNavItem
           label={t('Saved addresses')}

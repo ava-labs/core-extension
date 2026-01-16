@@ -35,6 +35,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   coreAssistant: true,
   preferredView: 'floating',
   showTrendingTokens: false,
+  filterSmallUtxos: true,
 };
 
 @singleton()
@@ -280,6 +281,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       showTrendingTokens: show,
+    });
+  }
+
+  async setFilterSmallUtxos(filter: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      filterSmallUtxos: filter,
     });
   }
 

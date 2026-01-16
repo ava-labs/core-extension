@@ -34,6 +34,13 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: true,
+    filterSmallUtxos: false,
+  };
+
+  // The handler returns a filtered response that excludes filterSmallUtxos
+  const getExpectedResponse = (settings: SettingsState) => {
+    const { filterSmallUtxos, ...rest } = settings;
+    return rest;
   };
 
   beforeEach(() => {
@@ -51,7 +58,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       expect(getSettingsMock).toHaveBeenCalledWith();
       expect(result).toEqual({
         ...request,
-        result: mockSettingsState,
+        result: getExpectedResponse(mockSettingsState),
       });
     });
 
@@ -67,7 +74,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithEur,
+        result: getExpectedResponse(settingsWithEur),
       });
     });
 
@@ -83,7 +90,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithDarkTheme,
+        result: getExpectedResponse(settingsWithDarkTheme),
       });
     });
 
@@ -99,7 +106,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithSpanish,
+        result: getExpectedResponse(settingsWithSpanish),
       });
     });
 
@@ -115,7 +122,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithHiddenTokens,
+        result: getExpectedResponse(settingsWithHiddenTokens),
       });
     });
 
@@ -131,7 +138,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithoutAssistant,
+        result: getExpectedResponse(settingsWithoutAssistant),
       });
     });
 
@@ -147,7 +154,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithoutTrending,
+        result: getExpectedResponse(settingsWithoutTrending),
       });
     });
 
@@ -163,7 +170,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithDeniedConsent,
+        result: getExpectedResponse(settingsWithDeniedConsent),
       });
     });
 
@@ -179,7 +186,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithPendingConsent,
+        result: getExpectedResponse(settingsWithPendingConsent),
       });
     });
 
@@ -203,7 +210,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithCustomTokens,
+        result: getExpectedResponse(settingsWithCustomTokens),
       });
     });
 
@@ -223,7 +230,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithVisibility,
+        result: getExpectedResponse(settingsWithVisibility),
       });
     });
 
@@ -243,7 +250,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithCollectiblesVisibility,
+        result: getExpectedResponse(settingsWithCollectiblesVisibility),
       });
     });
 

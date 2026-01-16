@@ -9,6 +9,7 @@ import type {
   LockWalletHandler,
   SetAnalyticsConsentHandler,
   SetCoreAssistantHandler,
+  SetFilterSmallUtxosHandler,
   SetLanguageHandler,
   SetPreferredViewHandler,
   SetShowTrendingTokensHandler,
@@ -74,6 +75,7 @@ type SettingsFromProvider = SettingsState & {
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
   setShowTrendingTokens: (show: boolean) => Promise<boolean>;
+  setFilterSmallUtxos: (filter: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -260,6 +262,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setFilterSmallUtxos = useCallback(
+    (shouldFilter: boolean) => {
+      return request<SetFilterSmallUtxosHandler>({
+        method: ExtensionRequest.SETTINGS_SET_FILTER_SMALL_UTXOS,
+        params: [shouldFilter],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -283,6 +295,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setCoreAssistant,
           setPreferredView,
           setShowTrendingTokens,
+          setFilterSmallUtxos,
         } as SettingsFromProvider
       }
     >
