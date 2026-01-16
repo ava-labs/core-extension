@@ -30,7 +30,7 @@ export const PortfolioHome: FC = () => {
 
   return (
     <>
-      <Stack gap={2.5} px={1.5}>
+      <Stack gap={2.5} px={1.5} mb={2.5}>
         <AccountInfo
           account={accounts.active}
           balance={totalBalance}
