@@ -25,6 +25,7 @@ import { Settings } from '@/pages/Settings';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
+import { Fusion } from '@/pages/Fusion';
 
 export const AppRoutes = () => (
   <WalletTotalBalanceProvider>
@@ -57,6 +58,7 @@ export const AppRoutes = () => (
       <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
       <Route path="/sync" component={Activity} />
       <Route path="/activity" component={Activity} />
+      <Route path="/fusion" component={Fusion} />
       <Route path="/" component={Portfolio} />
     </Switch>
   </WalletTotalBalanceProvider>

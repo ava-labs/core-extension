@@ -1,6 +1,6 @@
 import { alpha, Button, styled, Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAccountsContext, useLiveBalance } from '@core/ui';
 
@@ -15,10 +15,13 @@ import {
   CoreFeeNotice,
   SwapProviderNotice,
 } from './components';
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { useTransferManager } from './hooks/useTransferManager';
+import { useSigners } from './hooks/useSigners';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
-const SwapPage = () => {
+const FusionPage = () => {
   useLiveBalance(POLLED_BALANCES);
 
   const { t } = useTranslation();
@@ -36,6 +39,11 @@ const SwapPage = () => {
     swapError,
   } = useSwapState();
 
+  const signers = useSigners();
+  const manager = useTransferManager({ signers });
+
+  console.log(manager);
+
   const [accountQuery, setAccountQuery] = useState('');
 
   return (
@@ -44,28 +52,30 @@ const SwapPage = () => {
       withBackButton
       contentProps={{ justifyContent: 'flex-start', alignItems: 'stretch' }}
     >
-      <Stack width="100%" flexGrow={1} gap={0.5}>
-        <Stack gap={1}>
-          <AccountSelect
-            addressType="C"
-            value={active}
-            isBalanceVisible={false}
-            query={accountQuery}
-            onValueChange={(newAccount) => {
-              selectAccount(newAccount.id);
-              updateQuery({
-                userAmount: '',
-                side: 'sell',
-              });
-            }}
-            onQueryChange={(q) => setAccountQuery(q)}
-          />
-          <SwapPair />
+      <Suspense fallback={<LoadingScreen />}>
+        <Stack width="100%" flexGrow={1} gap={0.5}>
+          <Stack gap={1}>
+            <AccountSelect
+              addressType="C"
+              value={active}
+              isBalanceVisible={false}
+              query={accountQuery}
+              onValueChange={(newAccount) => {
+                selectAccount(newAccount.id);
+                updateQuery({
+                  userAmount: '',
+                  side: 'sell',
+                });
+              }}
+              onQueryChange={(q) => setAccountQuery(q)}
+            />
+            <SwapPair />
+          </Stack>
+          <SwapErrorMessage />
+          <SwapSettings />
+          <CoreFeeNotice />
         </Stack>
-        <SwapErrorMessage />
-        <SwapSettings />
-        <CoreFeeNotice />
-      </Stack>
+      </Suspense>
       <SwapActionButtonsContainer>
         <Stack
           width="100%"
@@ -98,10 +108,10 @@ const SwapPage = () => {
   );
 };
 
-export const Swap = () => {
+export const Fusion = () => {
   return (
     <SwapStateContextProvider>
-      <SwapPage />
+      <FusionPage />
     </SwapStateContextProvider>
   );
 };
