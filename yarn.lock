@@ -360,6 +360,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/unified-asset-transfer@npm:^0.0.0-project-fusion-pr-20260114225301":
+  version: 0.0.0-project-fusion-pr-20260114225301
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260114225301"
+  dependencies:
+    "@scure/base": "npm:^1.0.1"
+    es-toolkit: "npm:^1.42.0"
+  peerDependencies:
+    "@solana/kit": ^5.0.0
+    viem: ^2.38.0
+    zod: ^4.1.0
+  checksum: 10c0/d6771ddba8a5a0d268d8cf753d2684914af78c804466a19f4f70db600612c9617d019fcda9e3084b18f9182c58779eab1ed8b947940b17a3c3e0fe830e0ce7ee
+  languageName: node
+  linkType: hard
+
 "@avalabs/vm-module-types@npm:3.0.7":
   version: 3.0.7
   resolution: "@avalabs/vm-module-types@npm:3.0.7"
@@ -2611,6 +2625,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/k2-alpine": "npm:1.255.2"
     "@avalabs/types": "npm:3.1.0-alpha.71"
+    "@avalabs/unified-asset-transfer": "npm:^0.0.0-project-fusion-pr-20260114225301"
     "@avalabs/vm-module-types": "npm:3.0.7"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -7337,6 +7352,13 @@ __metadata:
   version: 1.2.4
   resolution: "@scure/base@npm:1.2.4"
   checksum: 10c0/469c8aee80d6d6973e1aac6184befa04568f1b4016e40c889025f4a721575db9c1ca0c2ead80613896cce929392740322a18da585a427f157157e797dc0a42a9
+  languageName: node
+  linkType: hard
+
+"@scure/base@npm:^1.0.1":
+  version: 1.2.6
+  resolution: "@scure/base@npm:1.2.6"
+  checksum: 10c0/49bd5293371c4e062cb6ba689c8fe3ea3981b7bb9c000400dc4eafa29f56814cdcdd27c04311c2fec34de26bc373c593a1d6ca6d754398a488d587943b7c128a
   languageName: node
   linkType: hard
 
@@ -14357,6 +14379,18 @@ __metadata:
     is-date-object: "npm:^1.0.1"
     is-symbol: "npm:^1.0.2"
   checksum: 10c0/0886572b8dc075cb10e50c0af62a03d03a68e1e69c388bd4f10c0649ee41b1fbb24840a1b7e590b393011b5cdbe0144b776da316762653685432df37d6de60f1
+  languageName: node
+  linkType: hard
+
+"es-toolkit@npm:^1.42.0":
+  version: 1.44.0
+  resolution: "es-toolkit@npm:1.44.0"
+  dependenciesMeta:
+    "@trivago/prettier-plugin-sort-imports@4.3.0":
+      unplugged: true
+    prettier-plugin-sort-re-exports@0.0.1:
+      unplugged: true
+  checksum: 10c0/b80ff52ddc85ba26914cda57c9d4e46379ccc38c60dc097ef0d065cc0b20f95a16cf8d537969eea600b51c6687b5900a6cce67489db16d5ccc14d47597a29c34
   languageName: node
   linkType: hard
 
