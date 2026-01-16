@@ -2,10 +2,10 @@ import { Stack, styled, Typography, useTheme } from '@avalabs/k2-alpine';
 import { MdUnfoldMore } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import { ClickableStack } from '../styled';
-import { Account } from '@core/types';
+
 import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
+
 type Props = {
-  account?: Account;
   accountName: string;
   formattedSum: string;
   currency: string;

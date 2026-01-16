@@ -130,7 +130,12 @@ export const SearchableContactList: FC<ListProps> = ({ contacts }) => {
           </Stack>
         </Card>
       ) : (
-        <EmptyContactList />
+        <EmptyContactList
+          title={t('Not Found')}
+          description={t('No contacts match your search')}
+          icon="🔍"
+          filteredContacts={true}
+        />
       )}
     </Stack>
   );

@@ -26,7 +26,7 @@ export const PortfolioTabs: FC = () => {
   /**
    * TODO: This is a temporary solution to get the active tab from the URL.
    */
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const queryParams = new URLSearchParams(search);
   const activeTabFromParams = queryParams.get('activeTab') as TabName;
   const history = useHistory();
@@ -37,18 +37,17 @@ export const PortfolioTabs: FC = () => {
     activeTabFromParams ?? 'assets',
   );
   const { networks } = useNetworkContext();
-  const { totalBalance, balances } = useBalancesContext();
+  const { balances } = useBalancesContext();
 
-  const { totalBalanceInCurrency, isLoading: isWalletLoading } =
-    useWalletTotalBalance(
-      isPrimaryAccount(accounts.active)
-        ? accounts.active.walletId
-        : IMPORTED_ACCOUNTS_WALLET_ID,
-    );
+  const { totalBalanceInCurrency } = useWalletTotalBalance(
+    isPrimaryAccount(accounts.active)
+      ? accounts.active.walletId
+      : IMPORTED_ACCOUNTS_WALLET_ID,
+  );
 
   const assets = useTokensForAccount(accounts.active);
 
-  const isLoading = balances.loading || !totalBalance || isWalletLoading;
+  const isLoading = !accounts.active || balances.loading;
   const isAccountEmpty =
     !isLoading && isEmptyAccount(balances.tokens, accounts.active, networks);
   const isWalletEmpty =
@@ -90,7 +89,7 @@ export const PortfolioTabs: FC = () => {
           value={activeTabFromParams ?? activeTab}
           onChange={(_, val) => {
             history.replace({
-              pathname: location.pathname,
+              pathname,
               search: `?activeTab=${val}`, // Reset any params other than activeTab
             });
             setActiveTab(val as TabName);

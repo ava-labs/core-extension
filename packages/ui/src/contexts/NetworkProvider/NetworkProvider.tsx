@@ -44,7 +44,7 @@ import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { isNetworkUpdatedEvent } from './isNetworkUpdatedEvent';
 import { networkChanged } from './networkChanges';
-import { promoteAvalancheNetworks } from './networkSortingFn';
+import { promoteNetworks } from './networkSortingFn';
 import { networksUpdatedEventListener } from './networksUpdatedEventListener';
 
 const NetworkContext = createContext<{
@@ -229,19 +229,16 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     return request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      updateIfDifferent(
-        setNetworks,
-        result.networks.sort(promoteAvalancheNetworks),
-      );
+      updateIfDifferent(setNetworks, result.networks.sort(promoteNetworks));
       updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
       updateIfDifferent(
         setEnabledNetworks,
-        result.enabledNetworks.sort(promoteAvalancheNetworks),
+        result.enabledNetworks.sort(promoteNetworks),
       );
       updateIfDifferent(
         setCustomNetworks,
-        result.customNetworks.sort(promoteAvalancheNetworks),
+        result.customNetworks.sort(promoteNetworks),
       );
     });
   }, [request]);
@@ -302,13 +299,10 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         map((evt) => evt.value),
       )
       .subscribe(async (result) => {
-        updateIfDifferent(
-          setNetworks,
-          result.networks.sort(promoteAvalancheNetworks),
-        );
+        updateIfDifferent(setNetworks, result.networks.sort(promoteNetworks));
         updateIfDifferent(
           setEnabledNetworks,
-          result.enabledNetworks.sort(promoteAvalancheNetworks),
+          result.enabledNetworks.sort(promoteNetworks),
         );
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
@@ -318,7 +312,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         });
         setCustomNetworks(
           Object.values(result.customNetworks)
-            .sort(promoteAvalancheNetworks)
+            .sort(promoteNetworks)
             .map(({ chainId }) => chainId),
         );
       });
@@ -334,9 +328,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       request<AddEnabledNetworkHandler>({
         method: ExtensionRequest.ENABLE_NETWORK,
         params: chainId,
-      }).then((result) =>
-        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
-      );
+      }).then((result) => setEnabledNetworks(result.sort(promoteNetworks)));
     },
     [request],
   );
@@ -346,9 +338,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       request<RemoveEnabledNetworkHandler>({
         method: ExtensionRequest.DISABLE_NETWORK,
         params: chainId,
-      }).then((result) =>
-        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
-      );
+      }).then((result) => setEnabledNetworks(result.sort(promoteNetworks)));
     },
     [request],
   );

@@ -8,7 +8,7 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useAnalyticsContext } from '@core/ui';
@@ -29,9 +29,12 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   const {
     state: { pendingTransfers },
   } = useNextUnifiedBridgeContext();
-  const hasPendingTransactions = Object.values(pendingTransfers).length > 0;
-
   const isWalletView = location.pathname.startsWith('/wallet');
+
+  const hasPendingTransactions = useMemo(
+    () => (isWalletView ? false : Object.values(pendingTransfers).length > 0),
+    [pendingTransfers, isWalletView],
+  );
 
   return (
     <Stack direction="row" alignItems="center">

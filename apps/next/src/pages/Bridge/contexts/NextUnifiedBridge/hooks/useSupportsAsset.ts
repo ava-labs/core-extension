@@ -8,13 +8,13 @@ export function useSupportsAsset(core: UnifiedBridgeService | null) {
     (
       lookupAddressOrSymbol: string,
       sourceNetworkId: NetworkWithCaipId['caipId'],
-      targetChainId: string,
+      targetChainId?: string,
     ) => {
       return getSupportsAssets(
         core,
         sourceNetworkId,
-        targetChainId,
         lookupAddressOrSymbol,
+        targetChainId,
       );
     },
     [core],
@@ -26,8 +26,8 @@ export function useSupportsAsset(core: UnifiedBridgeService | null) {
 function getSupportsAssets(
   core: UnifiedBridgeService | null,
   sourceNetworkId: string | undefined,
-  targetChainId: string,
   lookupAddressOrSymbol: string,
+  targetChainId?: string,
 ) {
   const sourceAssets = getChainAssets(core, sourceNetworkId);
 
@@ -41,5 +41,9 @@ function getSupportsAssets(
       : token.address === lookupAddressOrSymbol;
   });
 
-  return Boolean(asset && targetChainId in asset.destinations);
+  if (targetChainId) {
+    return Boolean(asset && targetChainId in asset.destinations);
+  }
+
+  return Boolean(asset);
 }

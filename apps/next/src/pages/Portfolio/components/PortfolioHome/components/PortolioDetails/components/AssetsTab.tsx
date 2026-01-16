@@ -2,6 +2,7 @@ import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/Tr
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
 import {
+  promoteNetworks,
   useAccountsContext,
   useBalancesContext,
   useBalanceTotalInCurrency,
@@ -56,7 +57,10 @@ export const AssetsTab: FC = () => {
   const hasError = !!balances.error;
 
   const availableNetworks = useMemo(
-    () => getAvailableNetworksFromAssets(assetsWithBalances, getNetwork),
+    () =>
+      getAvailableNetworksFromAssets(assetsWithBalances, getNetwork).sort(
+        promoteNetworks,
+      ),
     [assetsWithBalances, getNetwork],
   );
 

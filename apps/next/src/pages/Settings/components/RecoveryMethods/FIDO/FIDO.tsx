@@ -76,9 +76,7 @@ export const FIDO = () => {
       contentProps={{ justifyContent: 'flex-start' }}
     >
       <Typography variant="caption">
-        {t(
-          'Open any authenticator app and scan the QR code below or enter the code manually',
-        )}
+        {t('Enter the code generated from your authenticator app.')}
       </Typography>
       {(!mfaEvents || !mfaEvents.challenge) && <InProgress textSize="body1" />}
       {mfaEvents.challenge && mfaEvents.challenge.type === 'totp' && (

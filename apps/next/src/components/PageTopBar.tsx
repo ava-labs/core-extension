@@ -55,7 +55,7 @@ export const PageTopBar: FC<Props> = ({
         gap={1}
         width="100%"
         overflow="hidden"
-        minHeight={HEADER_HEIGHT}
+        height={HEADER_HEIGHT}
         sx={{
           boxShadow:
             !isObserving || isIntersecting

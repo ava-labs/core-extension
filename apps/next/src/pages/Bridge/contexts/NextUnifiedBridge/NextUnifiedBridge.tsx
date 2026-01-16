@@ -1,7 +1,11 @@
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { assert, caipToChainId } from '@core/common';
 import { CommonError, NetworkWithCaipId } from '@core/types';
-import { promoteAvalancheNetworks, useNetworkContext } from '@core/ui';
+import {
+  promoteNetworks,
+  useAccountsContext,
+  useNetworkContext,
+} from '@core/ui';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
 import {
@@ -29,13 +33,41 @@ const AVAX_CAIPS = {
 export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const { bitcoinProvider, isDeveloperMode } = useNetworkContext();
   const state = useUnifiedBridgeState();
-
-  const { isBridgeDevEnv } = useBridgeEnvironment(isDeveloperMode);
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const { isBridgeDevEnv, setBridgeDevMode } =
+    useBridgeEnvironment(isDeveloperMode);
+  const currentEnvironment = getEnvironment(isDeveloperMode, isBridgeDevEnv);
   const core = useCoreBridgeService(
-    getEnvironment(isDeveloperMode, isBridgeDevEnv),
+    currentEnvironment,
     bitcoinProvider,
     isDeveloperMode,
   );
+
+  const filteredState = useMemo(() => {
+    if (!currentEnvironment || !activeAccount) {
+      return { ...state, pendingTransfers: {} };
+    }
+
+    const filteredTransfers = Object.fromEntries(
+      Object.entries(state.pendingTransfers).filter(([, transfer]) => {
+        if (transfer.environment !== currentEnvironment) {
+          return false;
+        }
+
+        return (
+          transfer.fromAddress === activeAccount.addressC ||
+          transfer.fromAddress === activeAccount.addressBTC
+        );
+      }),
+    );
+
+    return {
+      ...state,
+      pendingTransfers: filteredTransfers,
+    };
+  }, [state, currentEnvironment, activeAccount]);
 
   const availableChainIds = useMemo(
     () =>
@@ -43,7 +75,7 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
         ...Object.keys(core?.getAssets() ?? {}),
         ...AVAX_CAIPS[isDeveloperMode ? 'devnet' : 'mainnet'],
       ].sort((one, another) =>
-        promoteAvalancheNetworks(caipToChainId(one), caipToChainId(another)),
+        promoteNetworks(caipToChainId(one), caipToChainId(another)),
       ),
     [core, isDeveloperMode],
   );
@@ -65,9 +97,13 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
   const context = useMemo<UnifiedBridgeContext>(() => {
     return {
       isReady: !!core,
+      devMode: {
+        enabled: isBridgeDevEnv,
+        set: setBridgeDevMode,
+      },
       availableChainIds,
       estimateTransferGas,
-      state,
+      state: filteredState,
       getMinimumTransferAmount,
       getFee,
       supportsAsset,
@@ -80,9 +116,11 @@ export function NextUnifiedBridgeProvider({ children }: PropsWithChildren) {
     };
   }, [
     core,
+    isBridgeDevEnv,
+    setBridgeDevMode,
     availableChainIds,
     estimateTransferGas,
-    state,
+    filteredState,
     getMinimumTransferAmount,
     getFee,
     supportsAsset,

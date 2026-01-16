@@ -22,6 +22,7 @@ import {
   SwapContextAPI,
   useAnalyticsContext,
   useErrorMessage,
+  isMarkrQuote,
 } from '@core/ui';
 import {
   getAddressForChain,
@@ -35,6 +36,7 @@ import {
 import { useSwapQuery, useSwapTokens } from '../hooks';
 import { toast } from '@avalabs/k2-alpine';
 import { DEFAULT_SLIPPAGE } from '../swap-config';
+import { isSlippageValid } from '../lib/isSlippageValid';
 import { useHistory } from 'react-router-dom';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
@@ -58,6 +60,8 @@ type SwapState = QueryState &
     performSwap: () => Promise<void>;
     slippage: number;
     setSlippage: Dispatch<SetStateAction<number>>;
+    autoSlippage: boolean;
+    setAutoSlippage: Dispatch<SetStateAction<boolean>>;
     swapDisabled: boolean;
   };
 
@@ -105,6 +109,7 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
+  const [autoSlippage, setAutoSlippage] = useState(true);
 
   const fromTokenAddress = fromToken
     ? isNativeToken(fromToken)
@@ -120,6 +125,12 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       ? toToken.symbol
       : toToken.address
     : undefined;
+
+  // Reset slippage to default when either token changes
+  useEffect(() => {
+    setSlippage(DEFAULT_SLIPPAGE);
+    setAutoSlippage(true);
+  }, [fromTokenAddress, toTokenAddress]);
 
   const fromAmount =
     side === 'sell'
@@ -317,6 +328,23 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
     quotes,
   ]);
 
+  // Auto-update slippage when auto mode is enabled and we have a recommendedSlippage
+  useEffect(() => {
+    if (autoSlippage && quotes?.selected?.quote) {
+      const quote = quotes.selected.quote;
+      if (isMarkrQuote(quote) && quote.recommendedSlippage) {
+        // Convert bps to percentage: 200 bps → 2%
+        const recommendedPercentage = quote.recommendedSlippage / 100;
+        if (isSlippageValid(String(recommendedPercentage))) {
+          setSlippage(recommendedPercentage);
+        } else {
+          // Fall back to default if invalid
+          setSlippage(DEFAULT_SLIPPAGE);
+        }
+      }
+    }
+  }, [autoSlippage, quotes]);
+
   return (
     <SwapStateContext.Provider
       value={{
@@ -346,6 +374,8 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
         performSwap,
         slippage,
         setSlippage,
+        autoSlippage,
+        setAutoSlippage,
         swapDisabled,
       }}
     >

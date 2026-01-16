@@ -8,6 +8,10 @@ import {
   MdArrowDownward as ArrowDownIcon,
   MdArrowUpward as ArrowUpIcon,
 } from 'react-icons/md';
+import {
+  isCctExportTransaction,
+  isCctImportTransaction,
+} from '../../../../../utils/cctTransaction';
 
 export interface Props {
   transaction: TxHistoryItem;
@@ -21,6 +25,17 @@ export const TransactionTypeIcon: FC<Props> = ({ transaction }) => {
 
   if (transaction.bridgeAnalysis.isBridgeTx) {
     return <BridgeIcon size={iconSize} viewBox={k2IconViewBoxFix} />;
+  }
+
+  // Handle CCT (Cross-Chain Transfer) import/export transactions
+  // Import: receiving funds into a chain (down arrow)
+  // Export: sending funds out of a chain (up arrow)
+  if (isCctImportTransaction(transaction)) {
+    return <ArrowDownIcon size={iconSize} />;
+  }
+
+  if (isCctExportTransaction(transaction)) {
+    return <ArrowUpIcon size={iconSize} />;
   }
 
   if (

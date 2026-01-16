@@ -8,7 +8,7 @@ export const LoadingScreen = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <CircularProgress size={48} />
+      <CircularProgress size={48} color="info" />
     </Stack>
   );
 };

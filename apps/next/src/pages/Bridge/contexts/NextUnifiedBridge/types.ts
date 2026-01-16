@@ -25,7 +25,7 @@ export interface UnifiedBridgeContext {
   supportsAsset(
     lookupAddressOrSymbol: string,
     sourceNetworkId: NetworkId,
-    targetNetworkId: NetworkId,
+    targetNetworkId?: NetworkId,
   ): boolean;
   transferAsset(
     symbol: string,
@@ -44,4 +44,8 @@ export interface UnifiedBridgeContext {
   state: UnifiedBridgeState;
   availableChainIds: NetworkWithCaipId['caipId'][];
   isReady: boolean;
+  devMode: {
+    enabled: boolean;
+    set: (enabled: boolean) => Promise<void>;
+  };
 }

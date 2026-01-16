@@ -1,47 +1,32 @@
-import {
-  isAvalancheChainId,
-  isPchainNetworkId,
-  isXchainNetworkId,
-} from '@core/common';
-import { Network } from '@core/types';
-import { flow, overSome } from 'lodash';
+import { Network, NETWORKS_ENABLED_FOREVER } from '@core/types';
 
 function getChainId(network: Network | Network['chainId']) {
   return typeof network === 'number' ? network : network.chainId;
 }
 
-const isAnyAvalancheChain = flow(
-  getChainId,
-  overSome([isAvalancheChainId, isPchainNetworkId, isXchainNetworkId]),
-);
-
-function getAvalancheChainOrder(network: Network | Network['chainId']) {
-  const chainId = getChainId(network);
-  if (isAvalancheChainId(chainId)) return 0;
-  if (isPchainNetworkId(chainId)) return 1;
-  if (isXchainNetworkId(chainId)) return 2;
-
-  throw new Error('Network is not an Avalanche network');
+function getPriority(chainId: number) {
+  const index = NETWORKS_ENABLED_FOREVER.indexOf(chainId);
+  return index;
 }
 
-export function promoteAvalancheNetworks<
-  T extends Network | Network['chainId'],
->(one: T, another: T) {
-  const oneIsAvalanche = isAnyAvalancheChain(one);
-  const anotherIsAvalanche = isAnyAvalancheChain(another);
-  const bothAreAvalanche = oneIsAvalanche && anotherIsAvalanche;
+export function promoteNetworks<T extends Network | Network['chainId']>(
+  one: T,
+  another: T,
+) {
+  const onePriority = getPriority(getChainId(one));
+  const anotherPriority = getPriority(getChainId(another));
 
-  if (bothAreAvalanche) {
-    return getAvalancheChainOrder(one) - getAvalancheChainOrder(another);
+  if (onePriority === -1 && anotherPriority === -1) {
+    return 0;
   }
 
-  if (oneIsAvalanche) {
-    return -1;
-  }
-
-  if (anotherIsAvalanche) {
+  if (onePriority === -1) {
     return 1;
   }
 
-  return 0;
+  if (anotherPriority === -1) {
+    return -1;
+  }
+
+  return onePriority - anotherPriority;
 }

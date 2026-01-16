@@ -9,7 +9,11 @@ import { ConciergePrompt } from './ConciergePrompt';
 import { HeaderAccount } from './components/HeaderAccount';
 import { HeaderContainer, HeaderNavigationContainer } from './styled';
 
-export const Header = () => {
+export const Header = ({
+  withConciergePrompt = true,
+}: {
+  withConciergePrompt?: boolean;
+}) => {
   const { accounts } = useAccountsContext();
   const activeAccount = accounts.active;
 
@@ -31,10 +35,12 @@ export const Header = () => {
           <HeaderActions account={activeAccount} />
         </div>
       </HeaderNavigationContainer>
-      <ConciergePrompt
-        isAIBackdropOpen={isAIBackdropOpen}
-        setIsAIBackdropOpen={setIsAIBackdropOpen}
-      />
+      {withConciergePrompt && (
+        <ConciergePrompt
+          isAIBackdropOpen={isAIBackdropOpen}
+          setIsAIBackdropOpen={setIsAIBackdropOpen}
+        />
+      )}
     </HeaderContainer>
   );
 };

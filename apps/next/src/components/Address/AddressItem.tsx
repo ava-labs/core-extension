@@ -4,10 +4,9 @@ import {
   styled,
   toast,
   Tooltip,
-  truncateAddress,
   Typography,
 } from '@avalabs/k2-alpine';
-import { stripAddressPrefix } from '@core/common';
+import { stripAddressPrefix, truncateAddress } from '@core/common';
 import { ComponentType, FC, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconBaseProps } from 'react-icons';
@@ -21,6 +20,9 @@ export type Props = {
   copyActionVisibility?: 'always' | 'hover';
   truncate?: boolean | number;
 };
+
+const DEFAULT_TRUNCATE_FRONT = 7;
+const DEFAULT_TRUNCATE_BACK = 6;
 
 export const AddressItem: FC<Props> = ({
   Icon,
@@ -55,7 +57,10 @@ export const AddressItem: FC<Props> = ({
             {truncate
               ? truncateAddress(
                   strippedAddress,
-                  typeof truncate === 'number' ? truncate : undefined,
+                  typeof truncate === 'number'
+                    ? truncate
+                    : DEFAULT_TRUNCATE_FRONT,
+                  DEFAULT_TRUNCATE_BACK,
                 )
               : strippedAddress}
           </Typography>

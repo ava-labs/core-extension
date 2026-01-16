@@ -7,14 +7,12 @@ import { ClickableStack } from '../styled';
 import { TruncatedText } from '@/components/Header/components/styledComponents';
 
 type Props = {
-  walletSummary?: WalletSummary;
+  walletSummary: WalletSummary;
 };
 
 export const WalletSummaryInfo = ({ walletSummary }: Props) => {
   const history = useHistory();
   const theme = useTheme();
-
-  if (!walletSummary) return null;
 
   return (
     <ClickableStack

@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT } from '@/config';
 import {
   createContext,
   useContext,
@@ -48,7 +49,7 @@ export const AccountInfoVisibilityProvider = ({
       ([entry]) => {
         setIsAccountInfoVisible(entry?.isIntersecting ?? false);
       },
-      { threshold: 0 },
+      { threshold: 0, scrollMargin: `-${HEADER_HEIGHT}px` },
     );
 
     observerRef.current.observe(element);
