@@ -89,6 +89,80 @@ describe('src/background/services/storage/StorageService.ts', () => {
     });
   });
 
+  describe('verifyPassword', () => {
+    it('returns true when password is correct', async () => {
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
+      jest.mocked(browser.storage.local.get).mockResolvedValue({
+        [WALLET_STORAGE_ENCRYPTION_KEY]: {
+          cypher: [1, 1, 1],
+          nonce: [2, 2],
+          salt: [3, 3, 3],
+        },
+      });
+      const service = new StorageService(new CallbackManager());
+
+      const result = await service.verifyPassword('correct-password');
+
+      expect(result).toBe(true);
+      expect(decryptWithPassword).toHaveBeenCalledTimes(1);
+      expect(jest.mocked(decryptWithPassword).mock.calls[0]).toEqual([
+        {
+          cypher: new Uint8Array([1, 1, 1]),
+          password: 'correct-password',
+          salt: new Uint8Array([3, 3, 3]),
+          nonce: new Uint8Array([2, 2]),
+          keyDerivationVersion: KeyDerivationVersion.V1,
+        },
+      ]);
+    });
+
+    it('returns false when password is incorrect', async () => {
+      jest
+        .mocked(decryptWithPassword)
+        .mockRejectedValue(new Error('failed to decrypt'));
+      jest.mocked(browser.storage.local.get).mockResolvedValue({
+        [WALLET_STORAGE_ENCRYPTION_KEY]: {
+          cypher: [1, 1, 1],
+          nonce: [2, 2],
+          salt: [3, 3, 3],
+        },
+      });
+      const service = new StorageService(new CallbackManager());
+
+      const result = await service.verifyPassword('wrong-password');
+
+      expect(result).toBe(false);
+      expect(decryptWithPassword).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not modify internal state when verifying password', async () => {
+      jest
+        .mocked(decryptWithPassword)
+        .mockResolvedValue('{ "storageKey": "encryption-key", "version": 2 }');
+      jest.mocked(browser.storage.local.get).mockResolvedValue({
+        [WALLET_STORAGE_ENCRYPTION_KEY]: {
+          cypher: [1, 1, 1],
+          nonce: [2, 2],
+          salt: [3, 3, 3],
+        },
+      });
+      const callbackManager = new CallbackManager();
+      const service = new StorageService(callbackManager);
+
+      await service.verifyPassword('correct-password');
+
+      // verify that callback was not triggered (unlike activate)
+      expect(callbackManager.onStorageReady).not.toHaveBeenCalled();
+
+      // verify that storage key was not set (service should still throw when trying to save)
+      await expect(service.save('STORAGE_KEY', { data: 1 })).rejects.toThrow(
+        new Error('No encryption key defined'),
+      );
+    });
+  });
+
   describe('onLock', () => {
     it('clears storage key on lock', async () => {
       jest

@@ -38,4 +38,5 @@ export const DEFAULT_TARGET_TOKENS: Record<
 };
 
 export const MIN_SLIPPAGE = 0.1;
+export const MAX_SLIPPAGE = 50;
 export const DEFAULT_SLIPPAGE = 0.2;

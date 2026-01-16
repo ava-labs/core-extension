@@ -6,6 +6,8 @@ import {
   TypographyProps,
 } from '@avalabs/k2-alpine';
 import { PageTopBar } from '../PageTopBar';
+import { NoScrollStack } from '../NoScrollStack';
+import { HEADER_HEIGHT } from '@/config';
 
 type PageProps = {
   title?: string;
@@ -42,18 +44,11 @@ export const Page = ({
       height="100cqh"
       width={1}
       bgcolor="background.backdrop"
-      overflow="auto"
+      overflow="hidden"
       {...htmlProps}
     >
-      <PageTopBar
-        showBack={withBackButton}
-        showViewSwitcher={withViewSwitcher}
-        onBackClicked={onBack}
-        isObserving={isObserving}
-        isIntersecting={isIntersecting}
-        title={title}
-      />
-      <Stack
+      <NoScrollStack
+        scrollTrackTopMargin={HEADER_HEIGHT}
         sx={{
           flexGrow: 1,
           minHeight: 0,
@@ -61,13 +56,20 @@ export const Page = ({
           flexDirection: 'column',
         }}
       >
+        <PageTopBar
+          showBack={withBackButton}
+          showViewSwitcher={withViewSwitcher}
+          onBackClicked={onBack}
+          isObserving={isObserving}
+          isIntersecting={isIntersecting}
+          title={title}
+        />
         <Stack
           px={px ?? 1.5}
           pb={1.5}
           gap={3}
           mt={3}
           flexGrow={1}
-          sx={{ minHeight: 0 }}
           {...containerProps}
         >
           {title && (
@@ -104,13 +106,12 @@ export const Page = ({
             alignItems="center"
             justifyContent="center"
             gap={1.5}
-            sx={{ minHeight: 0 }}
             {...contentProps}
           >
             {children}
           </Stack>
         </Stack>
-      </Stack>
+      </NoScrollStack>
     </Stack>
   );
 };

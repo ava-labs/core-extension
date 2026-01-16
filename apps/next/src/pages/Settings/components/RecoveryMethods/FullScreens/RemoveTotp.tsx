@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Stack, SxProps, toast, Typography } from '@avalabs/k2-alpine';
+import {
+  Button,
+  Stack,
+  SxProps,
+  toast,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 
 import { useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
@@ -8,8 +15,7 @@ import { useMFAEvents } from '@/pages/Settings/components/common/useMFAEvent';
 import { FIDOChallenge } from '@/pages/Settings/components/common/FIDOChallenge';
 import { useHistory } from 'react-router-dom';
 import { InProgress } from '@/pages/Settings/components/common/InProgress';
-import { FiAlertCircle } from 'react-icons/fi';
-import { MdCheckCircle } from 'react-icons/md';
+import { FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 
 enum RemoveTotpState {
   Loading = 'loading',
@@ -32,6 +38,7 @@ const centeredStackSx: SxProps = {
 export const RemoveTotp = () => {
   const history = useHistory();
   const { t } = useTranslation();
+  const theme = useTheme();
   const { removeTotp } = useSeedlessMfaManager();
   const [state, setState] = useState(RemoveTotpState.Loading);
   const [error, setError] = useState<AuthErrorCode>();
@@ -93,7 +100,7 @@ export const RemoveTotp = () => {
       )}
       {state === RemoveTotpState.Success && (
         <Stack sx={{ ...centeredStackSx, px: 2 }}>
-          <MdCheckCircle size={72} color={'success.main'} />
+          <FiCheckCircle size={72} color={theme.palette.success.main} />
           <Typography variant="h5">{t('Success!')}</Typography>
           <Typography variant="body2">
             {t('Authenticator app removed successfully!')}

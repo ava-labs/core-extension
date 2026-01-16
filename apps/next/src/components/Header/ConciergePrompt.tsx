@@ -20,7 +20,6 @@ import { FeatureGates } from '@core/types';
 import { ConciergePromptBackground } from './components/ConciergePromptBackground';
 import { ConciergeBackdrop } from './components/ConciergeBackdrop';
 import { HEADER_HEIGHT } from '@/config/constants';
-import { useScrollDetectionContext } from '@/contexts/ScrollDetectionContext';
 
 type ConciergePromptProps = {
   isAIBackdropOpen: boolean;
@@ -31,8 +30,6 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   isAIBackdropOpen,
   setIsAIBackdropOpen,
 }) => {
-  const { isAtTop } = useScrollDetectionContext();
-
   const theme = useTheme();
   const history = useHistory();
   const { t } = useTranslation();
@@ -60,13 +57,6 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   const conciergeBackdropRef = useRef(null);
 
   if (!coreAssistant || !featureFlags[FeatureGates.CORE_ASSISTANT]) {
-    return null;
-  }
-
-  // Only show prompt when at the top
-  const shouldShowPrompt = isAtTop;
-
-  if (!shouldShowPrompt) {
     return null;
   }
 

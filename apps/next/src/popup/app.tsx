@@ -1,9 +1,4 @@
-import {
-  CircularProgress,
-  Stack,
-  ThemeProvider,
-  toast,
-} from '@avalabs/k2-alpine';
+import { ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,
@@ -34,12 +29,10 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
 import { useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
-import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import * as routes from '@/config/routes';
 import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -47,28 +40,6 @@ import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
 import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
 import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
-import { ScrollDetectionProvider } from '@/contexts/ScrollDetectionContext';
-
-const pagesWithoutHeader = [
-  '/seedless-auth',
-  '/account-management',
-  '/settings',
-  '/receive',
-  '/approve',
-  '/permissions',
-  '/network/switch',
-  '/manage-tokens',
-  '/trending',
-  '/defi',
-  '/concierge',
-  '/activity',
-  routes.getContactsPath(),
-  routes.getSendPath(),
-  routes.getSwapPath(),
-  routes.getBridgePath(),
-  '/asset', // Token details path
-  '/networks/add-popup',
-];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,7 +52,6 @@ const queryClient = new QueryClient({
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
-  const { pathname } = useLocation();
   const history = useHistory();
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
@@ -111,18 +81,6 @@ export function App() {
       setNavigationHistory(history);
     });
   }, [history, navigationHistory, setNavigationHistory]);
-
-  if (!preferredColorScheme) {
-    return (
-      <Stack justifyContent="center" alignItems="center" height="100%">
-        <CircularProgress />
-      </Stack>
-    );
-  }
-
-  const displayHeader = !pagesWithoutHeader.some((path) =>
-    pathname.startsWith(path),
-  );
 
   return (
     <Providers
@@ -161,37 +119,15 @@ export function App() {
           <NextUnifiedBridgeProvider />,
           <LedgerPolicyRegistrationStateProvider />,
           <TransactionStatusProviderWithConfetti />,
-          <ScrollDetectionProvider />,
         ]) as ReactElement[]
       }
     >
-      <Stack
-        height="100%"
-        width={1}
-        overflow="auto"
-        sx={{
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-          scrollbarWidth: 'none',
-        }}
-      >
-        {displayHeader && (
-          <Stack
-            width={1}
-            position="sticky"
-            top={0}
-            zIndex={10}
-            id="header-container"
-          >
-            <Header />
-          </Stack>
-        )}
+      <>
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
 
         <EventDrivenComponentsAndHooks />
-      </Stack>
+      </>
     </Providers>
   );
 }

@@ -1,12 +1,12 @@
 import { isPrimaryAccount } from '@core/common';
 import {
   Account,
-  AccountType,
+  IMPORTED_ACCOUNTS_WALLET_ID,
   SecretType,
   SeedlessAuthProvider,
 } from '@core/types';
 import { useAccountsContext, useWalletContext } from '@core/ui';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export type WalletSummary = {
@@ -29,52 +29,32 @@ export const useActiveAccountInfo = (): ActiveAccountInfo => {
 
   const activeAccount = accounts.active;
 
-  const activeWallet = useMemo(
-    () =>
-      activeAccount && isPrimaryAccount(activeAccount)
-        ? getWallet(activeAccount.walletId)
-        : undefined,
-    [activeAccount, getWallet],
-  );
-
-  const getImportedWalletName = useCallback(
-    (accountType: AccountType) => {
-      const defaultName = t('Wallet');
-      if (!accountType) {
-        return defaultName;
-      }
-      switch (accountType) {
-        case AccountType.IMPORTED:
-          return t(`Imported accounts`);
-        case AccountType.WALLET_CONNECT:
-          return t(`WalletConnect`);
-        case AccountType.FIREBLOCKS:
-          return t(`Fireblocks`);
-        default:
-          return defaultName;
-      }
-    },
-    [t],
-  );
-
   const walletSummary: WalletSummary | undefined = useMemo(() => {
     if (!activeAccount) {
       return undefined;
     }
-    const walletId = activeWallet ? activeWallet.id : activeAccount.id;
 
-    const walletName: string = activeWallet
-      ? (activeWallet.name ?? t('Wallet'))
-      : getImportedWalletName(activeAccount.type);
+    const wallet = isPrimaryAccount(activeAccount)
+      ? getWallet(activeAccount.walletId)
+      : {
+          name: t('Imported accounts'),
+          type: SecretType.PrivateKey,
+          id: IMPORTED_ACCOUNTS_WALLET_ID,
+          authProvider: undefined,
+        };
+
+    if (!wallet) {
+      return undefined;
+    }
 
     return {
-      id: walletId,
-      name: walletName,
-      isTrueWallet: !!activeWallet,
-      type: activeWallet?.type,
-      authProvider: activeWallet?.authProvider,
+      id: wallet.id,
+      name: wallet.name || t('Wallet'),
+      isTrueWallet: isPrimaryAccount(activeAccount),
+      type: wallet.type,
+      authProvider: wallet.authProvider,
     };
-  }, [activeAccount, getImportedWalletName, activeWallet, t]);
+  }, [activeAccount, getWallet, t]);
 
   return {
     account: activeAccount,
