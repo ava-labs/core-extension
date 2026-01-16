@@ -2,7 +2,7 @@ import { DropdownMenu } from '@/components/DropdownMenu';
 import { Box, PopoverItem } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AssetSortOption } from '../utils/assetSorting';
+import { AssetSortOption } from '../../../utils/assetSorting';
 
 export type SortMenuProps = {
   id: string;

@@ -7,14 +7,16 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { ProfitAndLoss } from './ProfitAndLoss';
-import { FungibleTokenBalance } from '@core/types';
-import { TokenAvatar } from '@/components/TokenAvatar';
-import { Card } from '@/components/Card';
-import { useHistory } from 'react-router-dom';
 import { TokenType } from '@avalabs/vm-module-types';
+import { FC } from 'react';
+import { useHistory } from 'react-router-dom';
+
+import { Card } from '@/components/Card';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { TokenAvatar } from '@/components/TokenAvatar';
+import { FungibleTokenBalance } from '@core/types';
 import { useSettingsContext } from '@core/ui';
+import { ProfitAndLoss } from '../../ProfitAndLoss';
 
 interface AssetCardProps {
   asset: FungibleTokenBalance;
@@ -34,7 +36,7 @@ const getBadgeBorderColor = (theme: Theme): string => {
     : theme.palette.surface.primary;
 };
 
-export const AssetCard = ({ asset }: AssetCardProps) => {
+export const AssetCard: FC<AssetCardProps> = ({ asset }) => {
   const theme = useTheme();
   const history = useHistory();
   const { privacyMode } = useSettingsContext();
@@ -60,10 +62,10 @@ export const AssetCard = ({ asset }: AssetCardProps) => {
         direction="row"
         alignItems="center"
         gap={CARD_GAP}
+        px={CARD_PADDING_X}
+        py={CARD_PADDING_Y}
         sx={{
           cursor: 'pointer',
-          px: theme.spacing(CARD_PADDING_X),
-          py: theme.spacing(CARD_PADDING_Y),
         }}
       >
         <Box flexShrink={0}>
