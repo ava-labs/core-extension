@@ -2,7 +2,7 @@ import {
   TransactionStatusEvents as TransactionStatusEventNames,
   TransactionStatusInfo,
 } from '@core/types';
-import { ChainId } from '@avalabs/core-chains-sdk';
+import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { TransactionStatusEvents } from './transactionStatusEvents';
 
@@ -18,7 +18,7 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0xabc123';
-    const chainId = ChainId.AVALANCHE_MAINNET_ID;
+    const chainId = 'eip1555:43114';
 
     transactionStatusEvents.emitPending(txHash, chainId);
 
@@ -38,7 +38,7 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0xdef456';
-    const chainId = ChainId.ETHEREUM_HOMESTEAD;
+    const chainId = 'eip155:1';
 
     transactionStatusEvents.emitConfirmed(txHash, chainId);
 
@@ -58,7 +58,7 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0x789ghi';
-    const chainId = ChainId.BITCOIN_TESTNET;
+    const chainId = BitcoinCaip2ChainId.TESTNET;
 
     transactionStatusEvents.emitReverted(txHash, chainId);
 
