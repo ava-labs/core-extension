@@ -1,3 +1,4 @@
+import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
@@ -12,18 +13,19 @@ import {
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-
-import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import {
+  AssetCard,
+  AssetsEmptyState,
+  AssetsErrorState,
+  FilterMenu,
+  SortMenu,
+} from './components';
+import {
+  AssetSortOption,
   filterAssetsByNetworks,
   getAvailableNetworksFromAssets,
-} from '../utils/assetFiltering';
-import { AssetSortOption, sortAssets } from '../utils/assetSorting';
-import { AssetCard } from './AssetCard';
-import { AssetsEmptyState } from './AssetsEmptyState';
-import { AssetsErrorState } from './AssetsErrorState';
-import { FilterMenu } from './FilterMenu';
-import { SortMenu } from './SortMenu';
+  sortAssets,
+} from './utils';
 
 const selectedNetworkStateInitializer = () => new Set<number>();
 
@@ -47,11 +49,11 @@ export const AssetsTab: FC = () => {
 
   //Only show assets with balances
   const assetsWithBalances = useMemo(() => {
-    // on testnet we don't have balances
-    if (!isMainnet) {
-      return assets;
+    if (isMainnet) {
+      return assets.filter((asset) => asset.balance > 0);
     }
-    return assets.filter((asset) => asset.balance > 0);
+    // on testnet we don't have balances
+    return assets;
   }, [assets, isMainnet]);
 
   const hasError = !!balances.error;
@@ -74,12 +76,9 @@ export const AssetsTab: FC = () => {
     [filteredAssets, sort],
   );
 
-  const shouldDisplayEmptyState = useMemo(() => {
-    if (isMainnet) {
-      return sortedAssets.length === 0 || accountBalance?.sum === 0;
-    }
-    return sortedAssets.length === 0;
-  }, [isMainnet, sortedAssets, accountBalance]);
+  const shouldDisplayEmptyState = isMainnet
+    ? sortedAssets.length === 0 || accountBalance?.sum === 0
+    : sortedAssets.length === 0;
 
   return (
     <Stack direction="column" gap={1.25} height={1}>
