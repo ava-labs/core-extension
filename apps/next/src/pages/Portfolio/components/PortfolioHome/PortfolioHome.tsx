@@ -12,7 +12,6 @@ import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { PortfolioTabs } from './components/PortfolioTabs';
 import { EnsureDefined } from '@core/types';
-import { NoScrollStack } from '@/components/NoScrollStack';
 
 const hasAtomicBalance = (
   atomicBalance?: AccountAtomicBalanceState,
@@ -31,22 +30,20 @@ export const PortfolioHome: FC = () => {
 
   return (
     <>
-      <NoScrollStack data-scroll-container="portfolio-content">
-        <Stack gap={2.5} px={1.5}>
-          <AccountInfo
-            account={accounts.active}
-            balance={totalBalance}
-            isDeveloperMode={isDeveloperMode}
-          />
+      <Stack gap={2.5} px={1.5} mb={2.5}>
+        <AccountInfo
+          account={accounts.active}
+          balance={totalBalance}
+          isDeveloperMode={isDeveloperMode}
+        />
 
-          {hasAtomicBalance(atomicBalance) && (
-            <AtomicFundsBalance
-              atomicBalance={atomicBalance.balanceDisplayValue}
-            />
-          )}
-        </Stack>
-        <PortfolioTabs />
-      </NoScrollStack>
+        {hasAtomicBalance(atomicBalance) && (
+          <AtomicFundsBalance
+            atomicBalance={atomicBalance.balanceDisplayValue}
+          />
+        )}
+      </Stack>
+      <PortfolioTabs />
       {isDeveloperMode && (
         <TestnetModeOverlay
           verticalLines={[12, -12]}
