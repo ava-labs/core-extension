@@ -77,7 +77,7 @@ export const AccountInfo: FC<Props> = ({
           percentageChange={priceChange.percentage[0]}
         />
       ) : (
-        <Stack direction="row" alignItems="center" gap={0.5} mb={3}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
           <MdVisibilityOff size={16} />
           <Typography variant="subtitle3" fontWeight={600}>
             {t('Privacy mode is on')}
