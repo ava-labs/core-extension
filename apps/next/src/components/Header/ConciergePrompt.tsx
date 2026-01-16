@@ -19,6 +19,7 @@ import { useFeatureFlagContext, useSettingsContext } from '@core/ui';
 import { FeatureGates } from '@core/types';
 import { ConciergePromptBackground } from './components/ConciergePromptBackground';
 import { ConciergeBackdrop } from './components/ConciergeBackdrop';
+import { HEADER_HEIGHT } from '@/config/constants';
 
 type ConciergePromptProps = {
   isAIBackdropOpen: boolean;
@@ -29,6 +30,8 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   isAIBackdropOpen,
   setIsAIBackdropOpen,
 }) => {
+  // const { isAtTop } = useScrollDetectionContext();
+
   const theme = useTheme();
   const history = useHistory();
   const { t } = useTranslation();
@@ -59,6 +62,13 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
     return null;
   }
 
+  // Only show prompt when at the top
+  // const shouldShowPrompt = isAtTop;
+
+  // if (!shouldShowPrompt) {
+  //   return null;
+  // }
+
   return (
     <>
       {/* THE BOX AREA WHERE WE WANT TO CATCH THE CURSOR */}
@@ -67,7 +77,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
           width: '100%',
           height: '24px',
           position: 'absolute',
-          top: '56px',
+          top: `${HEADER_HEIGHT}px`,
           zIndex: isHoverAreaHidden ? 0 : theme.zIndex.tooltip - 1,
         }}
         onMouseEnter={() => {
@@ -81,6 +91,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
           }
         }}
       />
+
       <TransitionGroup component={null}>
         <Stack>
           {/* GRADIENT BACKGROUND */}
@@ -141,7 +152,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
             <Stack
               sx={{
                 position: 'absolute',
-                top: '56px',
+                top: `${HEADER_HEIGHT}px`,
                 width: '100%',
                 px: 1.5,
                 zIndex: theme.zIndex.appBar + 3,
@@ -182,7 +193,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
         <Stack
           sx={{
             position: 'fixed',
-            top: '80px', // 56px (header) + 24px
+            top: `${HEADER_HEIGHT + 24}px`, // header height + 24px hover area
             left: 0,
             right: 0,
             bottom: 0,

@@ -26,7 +26,7 @@ export const PortfolioTabs: FC = () => {
   /**
    * TODO: This is a temporary solution to get the active tab from the URL.
    */
-  const { search } = useLocation();
+  const { search, pathname } = useLocation();
   const queryParams = new URLSearchParams(search);
   const activeTabFromParams = queryParams.get('activeTab') as TabName;
   const history = useHistory();
@@ -89,7 +89,7 @@ export const PortfolioTabs: FC = () => {
           value={activeTabFromParams ?? activeTab}
           onChange={(_, val) => {
             history.replace({
-              pathname: location.pathname,
+              pathname,
               search: `?activeTab=${val}`, // Reset any params other than activeTab
             });
             setActiveTab(val as TabName);

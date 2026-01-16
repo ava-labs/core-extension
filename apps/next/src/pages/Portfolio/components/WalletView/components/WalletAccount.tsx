@@ -38,8 +38,8 @@ export const WalletAccount: FC<Props> = ({
   const { getTotalBalance } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
   const { capture } = useAnalyticsContext();
-  const clickHandler = useCallback(() => {
-    selectAccount(account.id);
+  const clickHandler = useCallback(async () => {
+    await selectAccount(account.id);
 
     capture('AccountSelectorAccountSwitched', {
       type: account.type,

@@ -1,4 +1,4 @@
-import { Stack, ThemeProvider, toast } from '@avalabs/k2-alpine';
+import { ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,
@@ -29,12 +29,10 @@ import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
 import { useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
-import { Header } from '@/components/Header';
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
-import * as routes from '@/config/routes';
 import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -42,27 +40,6 @@ import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
 import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
 import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
-
-const pagesWithoutHeader = [
-  '/seedless-auth',
-  '/account-management',
-  '/settings',
-  '/receive',
-  '/approve',
-  '/permissions',
-  '/network/switch',
-  '/manage-tokens',
-  '/trending',
-  '/defi',
-  '/concierge',
-  '/activity',
-  routes.getContactsPath(),
-  routes.getSendPath(),
-  routes.getSwapPath(),
-  routes.getBridgePath(),
-  '/asset', // Token details path
-  '/networks/add-popup',
-];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,7 +52,6 @@ const queryClient = new QueryClient({
 
 export function App() {
   const preferredColorScheme = usePreferredColorScheme();
-  const { pathname } = useLocation();
   const history = useHistory();
   const { setNavigationHistory, getNavigationHistoryState } = usePageHistory();
   const navigationHistory = getNavigationHistoryState();
@@ -105,10 +81,6 @@ export function App() {
       setNavigationHistory(history);
     });
   }, [history, navigationHistory, setNavigationHistory]);
-
-  const displayHeader = !pagesWithoutHeader.some((path) =>
-    pathname.startsWith(path),
-  );
 
   return (
     <Providers
@@ -151,11 +123,6 @@ export function App() {
       }
     >
       <>
-        {displayHeader && (
-          <Stack width={1}>
-            <Header />
-          </Stack>
-        )}
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
 
