@@ -1,16 +1,17 @@
 import {
   Button,
-  listItemClasses,
-  styled,
   toast,
   Tooltip,
   Typography,
+  TypographyProps,
 } from '@avalabs/k2-alpine';
 import { stripAddressPrefix, truncateAddress } from '@core/common';
 import { ComponentType, FC, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconBaseProps } from 'react-icons';
 import { ChainListItem } from './ChainListItem';
+import { HoverableListItemButton } from './HoverableListItemButton';
+import { AddressEnablerProps } from './types';
 
 export type Props = {
   Icon: ComponentType<IconBaseProps> | ReactElement<IconBaseProps>;
@@ -19,34 +20,45 @@ export type Props = {
   onClick?: VoidFunction;
   copyActionVisibility?: 'always' | 'hover';
   truncate?: boolean | number;
+  AddressEnabler?: ComponentType<AddressEnablerProps>;
 };
 
 const DEFAULT_TRUNCATE_FRONT = 7;
 const DEFAULT_TRUNCATE_BACK = 6;
 
 export const AddressItem: FC<Props> = ({
-  Icon,
-  label,
-  address,
-  onClick,
-  copyActionVisibility = 'hover',
   truncate = true,
+  label,
+  Icon,
+  copyActionVisibility = 'hover',
+  onClick,
+  address,
+  AddressEnabler,
 }) => {
   const { t } = useTranslation();
 
+  const labelVariant: TypographyProps['variant'] = 'subtitle3';
+
   if (!address) {
-    return null;
+    return AddressEnabler ? (
+      <AddressEnabler
+        Icon={Icon}
+        label={label}
+        labelVariant={labelVariant}
+        visibility={copyActionVisibility}
+      />
+    ) : null;
   }
 
   const strippedAddress = stripAddressPrefix(address);
   const CopyActionButton =
-    copyActionVisibility === 'always' ? Button : HoverableButton;
+    copyActionVisibility === 'always' ? Button : HoverableListItemButton;
 
   return (
     <ChainListItem
       Icon={Icon}
       label={label}
-      labelVariant="subtitle3"
+      labelVariant={labelVariant}
       subtitle={
         <Tooltip title={strippedAddress} enterDelay={1000}>
           <Typography
@@ -88,12 +100,3 @@ export const AddressItem: FC<Props> = ({
     />
   );
 };
-
-const HoverableButton = styled(Button)(({ theme }) => ({
-  opacity: 0,
-  transition: theme.transitions.create(['opacity']),
-
-  [`.${listItemClasses.root}:hover &`]: {
-    opacity: 1,
-  },
-}));

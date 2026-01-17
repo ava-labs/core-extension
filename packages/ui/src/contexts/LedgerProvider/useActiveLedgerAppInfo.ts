@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { useLedgerContext } from './LedgerProvider';
 import { useWalletContext } from '../WalletProvider';
+import { useLedgerContext } from './LedgerProvider';
 
 /**
  * When your component needs to know the active app on the Ledger device, register it as a subscriber.
@@ -8,7 +8,7 @@ import { useWalletContext } from '../WalletProvider';
  *
  * @param {boolean} force - If true, the active app will be refreshed even if we're not in the context of a Ledger wallet. Useful for wallet import flows.
  */
-export const useActiveLedgerAppInfo = (force = false) => {
+export const useActiveLedgerAppInfo = (force: boolean = false) => {
   const {
     appType,
     appVersion,

@@ -1,19 +1,19 @@
-import {
-  Stack,
-  useTheme,
-  getHexAlpha,
-  CChainIcon,
-  XPChainIcon,
-  SolanaColorIcon,
-  EthereumColorIcon,
-  BitcoinColorIcon,
-  styled,
-  withThemeInvert,
-} from '@avalabs/k2-alpine';
-import { AddressItem } from '@/components/Address/AddressItem';
-import { Account } from '@core/types';
+import { AddressItem, SolanaAddressEnabler } from '@/components/Address';
 import { UniqueIdIcon } from '@/components/UniqueIdIcon';
 import { StyledDivider } from '@/components/styled';
+import {
+  BitcoinColorIcon,
+  CChainIcon,
+  EthereumColorIcon,
+  getHexAlpha,
+  SolanaColorIcon,
+  Stack,
+  styled,
+  useTheme,
+  withThemeInvert,
+  XPChainIcon,
+} from '@avalabs/k2-alpine';
+import { Account } from '@core/types';
 
 interface AddressListContainerProps {
   top?: number | string;
@@ -43,21 +43,16 @@ const AddressListContainer = styled(Stack, {
   color: theme.palette.text.primary,
 }));
 
+type Props = {
+  activeAccount?: Account;
+  top?: number | string;
+  className?: string;
+  left?: number | string;
+};
+
 //UniqueIdIcon is needed to avoid logo id conflicts which cause the logo to not be displayed
-export const AddressList = withThemeInvert(
-  <
-    T extends {
-      activeAccount?: Account;
-      top?: number | string;
-      className?: string;
-      left?: number | string;
-    },
-  >({
-    activeAccount,
-    top,
-    className,
-    left,
-  }: T) => {
+export const AddressList = withThemeInvert<Props>(
+  ({ activeAccount, top, className, left }) => {
     const theme = useTheme();
     return (
       <AddressListContainer
@@ -94,6 +89,7 @@ export const AddressList = withThemeInvert(
           label="Solana"
           Icon={<UniqueIdIcon icon={<SolanaColorIcon />} />}
           address={activeAccount?.addressSVM}
+          AddressEnabler={SolanaAddressEnabler}
         />
       </AddressListContainer>
     );
