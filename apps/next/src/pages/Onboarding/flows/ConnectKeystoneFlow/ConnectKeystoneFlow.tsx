@@ -39,9 +39,7 @@ export const ConnectKeystoneFlow = () => {
   const { isFlagEnabled } = useFeatureFlagContext();
 
   const isKeystoneUsbSupported = isFlagEnabled(FeatureGates.KEYSTONE_3);
-  const [device, setDevice] = useState<Device>(
-    isKeystoneUsbSupported ? 'keystone-usb' : 'keystone-qr',
-  );
+  const [device, setDevice] = useState<Device>('keystone-qr');
   const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>();
   const [addresses, setAddresses] = useState<string[]>([]);
 
