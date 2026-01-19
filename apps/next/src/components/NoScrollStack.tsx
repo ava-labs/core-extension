@@ -9,12 +9,13 @@ type ScrollbarsProps = Omit<
 
 type NoScrollStackProps = StackProps &
   ScrollbarsProps & {
-    children: React.ReactNode;
+    scrollTrackTopMargin?: number;
   };
 
 export const NoScrollStack = ({
   children,
   sx,
+  scrollTrackTopMargin = 0,
   ...scrollbarsProps
 }: NoScrollStackProps) => {
   const theme = useTheme();
@@ -25,9 +26,25 @@ export const NoScrollStack = ({
         return <Stack {...props} sx={sx} />;
       }}
       autoHide
-      renderThumbVertical={() => (
+      renderTrackVertical={({ style, ...props }) => (
         <div
+          {...props}
           style={{
+            ...style,
+            position: 'absolute',
+            width: '6px',
+            right: '2px',
+            bottom: '2px',
+            top: 2 + scrollTrackTopMargin,
+            borderRadius: '3px',
+          }}
+        />
+      )}
+      renderThumbVertical={({ style, ...props }) => (
+        <div
+          {...props}
+          style={{
+            ...style,
             backgroundColor: theme.palette.text.secondary,
             borderRadius: theme.shape.mediumBorderRadius,
           }}

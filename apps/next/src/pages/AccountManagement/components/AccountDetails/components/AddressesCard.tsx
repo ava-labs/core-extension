@@ -18,7 +18,7 @@ type Props = {
   account: Account;
 };
 
-const TRUNCATE_LENGTH = 21;
+const TRUNCATE_LENGTH = 16;
 
 export const AddressesCard: FC<Props> = ({ account }) => {
   const history = useHistory();

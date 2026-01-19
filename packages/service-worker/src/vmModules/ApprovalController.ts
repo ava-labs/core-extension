@@ -37,7 +37,7 @@ import {
   MultiApprovalParamsWithContext,
 } from './models';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
-import { caipToChainId } from '@core/common';
+import { isUserRejectionError } from '@core/common';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -83,9 +83,8 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    const chainId = caipToChainId(request.chainId);
-    this.#transactionStatusEvents.emitPending(txHash, chainId, {
-      requestId: request.chainId,
+    this.#transactionStatusEvents.emitPending(txHash, request.chainId, {
+      requestId: request.requestId,
       ...request.context,
     });
   };
@@ -99,10 +98,9 @@ export class ApprovalController implements BatchApprovalController {
     explorerLink: string;
     request: RpcRequest;
   }) => {
-    const chainId = caipToChainId(request.chainId);
-    this.#transactionStatusEvents.emitConfirmed(txHash, chainId, {
+    this.#transactionStatusEvents.emitConfirmed(txHash, request.chainId, {
       explorerLink,
-      requestId: request.chainId,
+      requestId: request.requestId,
       ...request.context,
     });
   };
@@ -114,9 +112,8 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    const chainId = caipToChainId(request.chainId);
-    this.#transactionStatusEvents.emitReverted(txHash, chainId, {
-      requestId: request.chainId,
+    this.#transactionStatusEvents.emitReverted(txHash, request.chainId, {
+      requestId: request.requestId,
       ...request.context,
     });
   };
@@ -225,14 +222,20 @@ export class ApprovalController implements BatchApprovalController {
           });
         }
       } catch (err) {
-        resolve({
-          error: rpcErrors.internal({
-            message: 'Unable to sign the message',
-            data: {
-              originalError: err instanceof Error ? err.message : err,
-            },
-          }),
-        });
+        if (isUserRejectionError(err)) {
+          resolve({
+            error: providerErrors.userRejectedRequest(),
+          });
+        } else {
+          resolve({
+            error: rpcErrors.internal({
+              message: 'Unable to sign the message',
+              data: {
+                originalError: err instanceof Error ? err.message : err,
+              },
+            }),
+          });
+        }
       } finally {
         this.#requests.delete(action.actionId);
       }

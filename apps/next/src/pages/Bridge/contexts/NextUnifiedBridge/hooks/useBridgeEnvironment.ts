@@ -1,8 +1,11 @@
 import { isBridgeStateUpdateEventListener } from '@core/common';
-import { BridgeGetStateHandler } from '@core/service-worker';
-import { ExtensionRequest } from '@core/types';
+import {
+  BridgeGetStateHandler,
+  BridgeSetIsDevEnvHandler,
+} from '@core/service-worker';
+import { BridgeState, ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { filter, map } from 'rxjs';
 
 export function useBridgeEnvironment(isTestnet: boolean) {
@@ -19,23 +22,34 @@ export function useBridgeEnvironment(isTestnet: boolean) {
       return;
     }
 
+    const saveState = (state: BridgeState) => setIsBridgeDevEnv(state.isDevEnv);
+
     request<BridgeGetStateHandler>({
       method: ExtensionRequest.BRIDGE_GET_STATE,
-    }).then(({ isDevEnv }) => {
-      setIsBridgeDevEnv(isDevEnv);
-    });
+    }).then(saveState);
 
     const subscription = events()
       .pipe(
         filter(isBridgeStateUpdateEventListener),
         map((evt) => evt.value),
       )
-      .subscribe(({ isDevEnv }) => {
-        setIsBridgeDevEnv(isDevEnv);
-      });
+      .subscribe(saveState);
 
     return () => subscription.unsubscribe();
   }, [events, request, isTestnet]);
 
-  return { isBridgeDevEnv };
+  const setBridgeDevMode = useCallback(
+    async (enabled: boolean) => {
+      request<BridgeSetIsDevEnvHandler>({
+        method: ExtensionRequest.BRIDGE_SET_IS_DEV_ENV,
+        params: [enabled],
+      });
+    },
+    [request],
+  );
+
+  return {
+    isBridgeDevEnv,
+    setBridgeDevMode,
+  };
 }

@@ -31,7 +31,6 @@ describe('sendRequest', () => {
   });
 
   it('sends a request to the ID service properly on non-development environments', async () => {
-    // @ts-expect-error - NODE_ENV is read-only
     process.env.NODE_ENV = 'production';
     process.env.ID_SERVICE_URL = 'https://test.com';
 
@@ -55,7 +54,6 @@ describe('sendRequest', () => {
   });
 
   it('sends a request to the ID service properly on development environment', async () => {
-    // @ts-expect-error - NODE_ENV is read-only
     process.env.NODE_ENV = 'development';
     process.env.ID_SERVICE_URL = 'https://test.com';
     process.env.ID_SERVICE_API_KEY = 'testkey';

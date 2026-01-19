@@ -34,6 +34,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: true,
+    privacyMode: false,
   };
 
   beforeEach(() => {

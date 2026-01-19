@@ -237,6 +237,6 @@ export enum TransactionStatusEvents {
 
 export interface TransactionStatusInfo {
   txHash: string;
-  chainId: number;
+  chainId: string;
   context?: Record<string, unknown>;
 }

@@ -10,9 +10,12 @@ import { useTranslation } from 'react-i18next';
 export type CollectibleToolbarProps = {
   mediaFilters: MediaTypeFilters;
   toggleMediaFilter: (filterType: keyof MediaTypeFilters) => void;
+  toggleNetworkFilter: (chainId: number) => void;
   sortOption: SortMode;
   setSortOption: (option: SortMode) => void;
   toggleOpenManageDialog: () => void;
+  networkFilters: Set<number>;
+  clearNetworkFilter: () => void;
 };
 
 export const CollectibleToolbar = ({
@@ -21,6 +24,9 @@ export const CollectibleToolbar = ({
   sortOption,
   setSortOption,
   toggleOpenManageDialog,
+  toggleNetworkFilter,
+  networkFilters,
+  clearNetworkFilter,
 }: CollectibleToolbarProps) => {
   const { t } = useTranslation();
   return (
@@ -34,6 +40,9 @@ export const CollectibleToolbar = ({
         <CollectiblesFilter
           typeFilter={mediaFilters}
           onTypeChange={toggleMediaFilter}
+          selectedNetworks={Array.from(networkFilters)}
+          onNetworkChange={toggleNetworkFilter}
+          clearNetworkFilter={clearNetworkFilter}
         />
         <CollectiblesSort
           sortOption={sortOption}

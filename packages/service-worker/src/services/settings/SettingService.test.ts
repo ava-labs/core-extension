@@ -81,6 +81,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: false,
+    privacyMode: false,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -94,6 +95,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: false,
     preferredView: 'floating',
     showTrendingTokens: false,
+    privacyMode: false,
   };
 
   const customToken: NetworkContractToken = {
@@ -460,6 +462,20 @@ describe('background/services/settings/SettingsService.ts', () => {
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setShowTrendingTokens(true);
+        });
+      });
+    });
+
+    describe('setPrivacyMode', () => {
+      it('should save the new value for privacy mode properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+        await service.setPrivacyMode(true);
+
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          privacyMode: true,
         });
       });
     });

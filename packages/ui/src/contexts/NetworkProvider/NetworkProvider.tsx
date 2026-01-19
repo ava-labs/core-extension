@@ -20,11 +20,9 @@ import {
 } from '@core/common';
 import {
   AddEnabledNetworkHandler,
-  AddFavoriteNetworkHandler,
   GetNetworksStateHandler,
   RemoveCustomNetworkHandler,
   RemoveEnabledNetworkHandler,
-  RemoveFavoriteNetworkHandler,
   SaveCustomNetworkHandler,
   SetActiveNetworkHandler,
   SetDevelopermodeNetworkHandler,
@@ -46,7 +44,7 @@ import { useAnalyticsContext } from '../AnalyticsProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { isNetworkUpdatedEvent } from './isNetworkUpdatedEvent';
 import { networkChanged } from './networkChanges';
-import { promoteAvalancheNetworks } from './networkSortingFn';
+import { promoteNetworks } from './networkSortingFn';
 import { networksUpdatedEventListener } from './networksUpdatedEventListener';
 
 const NetworkContext = createContext<{
@@ -58,12 +56,8 @@ const NetworkContext = createContext<{
   updateDefaultNetwork(network: NetworkOverrides): Promise<unknown>;
   removeCustomNetwork(chainId: number): Promise<unknown>;
   isDeveloperMode: boolean;
-  favoriteNetworks: NetworkWithCaipId[];
   enabledNetworks: NetworkWithCaipId[];
   enabledNetworkIds: number[];
-  addFavoriteNetwork(chainId: number): void;
-  removeFavoriteNetwork(chainId: number): void;
-  isFavoriteNetwork(chainId: number): boolean;
   enableNetwork(chainId: number): void;
   disableNetwork(chainId: number): void;
   customNetworks: NetworkWithCaipId[];
@@ -75,6 +69,7 @@ const NetworkContext = createContext<{
   avaxProviderP?: Avalanche.JsonRpcProvider;
   ethereumProvider?: JsonRpcBatchInternal;
   bitcoinProvider?: BitcoinProvider;
+  nftEnabledNetworks: NetworkWithCaipId[];
 }>({
   network: undefined,
   setNetwork() {},
@@ -84,12 +79,8 @@ const NetworkContext = createContext<{
   async updateDefaultNetwork() {},
   async removeCustomNetwork() {},
   isDeveloperMode: false,
-  favoriteNetworks: [],
   enabledNetworks: [],
   enabledNetworkIds: [],
-  addFavoriteNetwork() {},
-  removeFavoriteNetwork() {},
-  isFavoriteNetwork: () => false,
   enableNetwork() {},
   disableNetwork() {},
   customNetworks: [],
@@ -100,6 +91,7 @@ const NetworkContext = createContext<{
   avaxNetworkC: undefined,
   ethereumProvider: undefined,
   bitcoinProvider: undefined,
+  nftEnabledNetworks: [],
 });
 
 /**
@@ -111,23 +103,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
   const [network, setNetwork] = useState<NetworkWithCaipId | undefined>();
   const [networks, setNetworks] = useState<NetworkWithCaipId[]>([]);
   const [customNetworks, setCustomNetworks] = useState<number[]>([]);
-  const [favoriteNetworks, setFavoriteNetworks] = useState<number[]>([]);
   const [enabledNetworks, setEnabledNetworks] = useState<number[]>([]);
   const { request, events } = useConnectionContext();
   const { capture } = useAnalyticsContext();
-
-  const favoriteNetworksList = useMemo(
-    () =>
-      networks
-        .filter((networkItem) => favoriteNetworks.includes(networkItem.chainId))
-        .filter((n) => {
-          return (
-            (!network?.isTestnet && !n.isTestnet) ||
-            (network?.isTestnet && n.isTestnet)
-          );
-        }),
-    [favoriteNetworks, network, networks],
-  );
 
   const enabledNetworksList = useMemo(
     () =>
@@ -183,6 +161,9 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     useState<JsonRpcBatchInternal>();
   const [avaxProviderC, setAvaxProviderC] = useState<JsonRpcBatchInternal>();
   const [networkC, setNetworkC] = useState<NetworkWithCaipId>();
+  const [nftEnabledNetworks, seNftEnabledNetworks] = useState<
+    NetworkWithCaipId[]
+  >([]);
 
   useEffect(() => {
     if (!network) {
@@ -217,12 +198,16 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       };
     }
 
+    const tempNftEnabledNetworks: NetworkWithCaipId[] = [];
+
     if (avaxNetworkC) {
+      tempNftEnabledNetworks.push(avaxNetworkC);
       getProviderForNetwork(avaxNetworkC).then(
         updateIfMounted(setAvaxProviderC),
       );
     }
     if (ethNetwork) {
+      tempNftEnabledNetworks.push(ethNetwork);
       getProviderForNetwork(ethNetwork).then(
         updateIfMounted(setEthereumProvider),
       );
@@ -233,6 +218,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       );
     }
 
+    seNftEnabledNetworks(tempNftEnabledNetworks);
+
     return () => {
       isMounted = false;
     };
@@ -242,23 +229,16 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
     return request<GetNetworksStateHandler>({
       method: ExtensionRequest.NETWORKS_GET_STATE,
     }).then((result) => {
-      updateIfDifferent(
-        setNetworks,
-        result.networks.sort(promoteAvalancheNetworks),
-      );
+      updateIfDifferent(setNetworks, result.networks.sort(promoteNetworks));
       updateIfDifferent(setNetwork, result.activeNetwork);
       networkChanged.dispatch(result.activeNetwork?.caipId);
       updateIfDifferent(
-        setFavoriteNetworks,
-        result.favoriteNetworks.sort(promoteAvalancheNetworks),
-      );
-      updateIfDifferent(
         setEnabledNetworks,
-        result.enabledNetworks.sort(promoteAvalancheNetworks),
+        result.enabledNetworks.sort(promoteNetworks),
       );
       updateIfDifferent(
         setCustomNetworks,
-        result.customNetworks.sort(promoteAvalancheNetworks),
+        result.customNetworks.sort(promoteNetworks),
       );
     });
   }, [request]);
@@ -319,17 +299,10 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         map((evt) => evt.value),
       )
       .subscribe(async (result) => {
-        updateIfDifferent(
-          setNetworks,
-          result.networks.sort(promoteAvalancheNetworks),
-        );
-        updateIfDifferent(
-          setFavoriteNetworks,
-          result.favoriteNetworks.sort(promoteAvalancheNetworks),
-        );
+        updateIfDifferent(setNetworks, result.networks.sort(promoteNetworks));
         updateIfDifferent(
           setEnabledNetworks,
-          result.enabledNetworks.sort(promoteAvalancheNetworks),
+          result.enabledNetworks.sort(promoteNetworks),
         );
         setNetwork((currentNetwork) => {
           const newNetwork = result.activeNetwork ?? currentNetwork; // do not delete currently set network
@@ -339,7 +312,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         });
         setCustomNetworks(
           Object.values(result.customNetworks)
-            .sort(promoteAvalancheNetworks)
+            .sort(promoteNetworks)
             .map(({ chainId }) => chainId),
         );
       });
@@ -355,9 +328,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       request<AddEnabledNetworkHandler>({
         method: ExtensionRequest.ENABLE_NETWORK,
         params: chainId,
-      }).then((result) =>
-        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
-      );
+      }).then((result) => setEnabledNetworks(result.sort(promoteNetworks)));
     },
     [request],
   );
@@ -367,9 +338,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
       request<RemoveEnabledNetworkHandler>({
         method: ExtensionRequest.DISABLE_NETWORK,
         params: chainId,
-      }).then((result) =>
-        setEnabledNetworks(result.sort(promoteAvalancheNetworks)),
-      );
+      }).then((result) => setEnabledNetworks(result.sort(promoteNetworks)));
     },
     [request],
   );
@@ -393,35 +362,8 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         updateDefaultNetwork,
         removeCustomNetwork,
         isDeveloperMode: !!network?.isTestnet,
-        favoriteNetworks: favoriteNetworksList,
         enabledNetworks: enabledNetworksList,
         enabledNetworkIds: enabledNetworks,
-        addFavoriteNetwork: (chainId: number) => {
-          request<AddFavoriteNetworkHandler>({
-            method: ExtensionRequest.NETWORK_ADD_FAVORITE_NETWORK,
-            params: [chainId],
-          }).then((result) => {
-            setFavoriteNetworks(result.sort(promoteAvalancheNetworks));
-            capture('NetworkFavoriteAdded', {
-              networkChainId: chainId,
-              isCustom: isCustomNetwork(chainId),
-            });
-          });
-        },
-        removeFavoriteNetwork: async (chainId: number) => {
-          await request<RemoveFavoriteNetworkHandler>({
-            method: ExtensionRequest.NETWORK_REMOVE_FAVORITE_NETWORK,
-            params: [chainId],
-          }).then((result) => {
-            setFavoriteNetworks(result);
-            capture('NetworkFavoriteRemoved', {
-              networkChainId: chainId,
-              isCustom: isCustomNetwork(chainId),
-            });
-          });
-        },
-        isFavoriteNetwork: (chainId: number) =>
-          favoriteNetworks.includes(chainId),
         enableNetwork,
         disableNetwork,
         customNetworks: getCustomNetworks,
@@ -432,6 +374,7 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         avaxNetworkC: networkC,
         bitcoinProvider,
         ethereumProvider,
+        nftEnabledNetworks,
       }}
     >
       {children}

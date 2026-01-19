@@ -86,7 +86,6 @@ export const validatePasswords = ({
   isConfirmPasswordTouched,
   t,
 }: ValidatePasswordArgs): PasswordValidationResult | null => {
-  // If no values are provided, we show no messages
   if (!password && !confirmPassword) {
     return null;
   }
@@ -102,10 +101,17 @@ export const validatePasswords = ({
     };
   }
 
-  const strength = validatePasswordStrength(password || confirmPassword, t);
+  const strength = validatePasswordStrength(password, t);
 
-  if (!strength.isValid || !isPasswordTouched || !isConfirmPasswordTouched) {
+  if (!strength.isValid || !isPasswordTouched) {
     return strength;
+  }
+
+  if (!isConfirmPasswordTouched || !confirmPassword) {
+    return {
+      ...strength,
+      isValid: false,
+    };
   }
 
   return validatePasswordMatch(password, confirmPassword, t);

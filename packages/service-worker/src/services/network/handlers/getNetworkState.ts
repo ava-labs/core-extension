@@ -13,7 +13,6 @@ type HandlerType = ExtensionRequestHandler<
   {
     networks: NetworkWithCaipId[];
     activeNetwork?: NetworkWithCaipId;
-    favoriteNetworks: number[];
     enabledNetworks: number[];
     customNetworks: number[];
   }
@@ -44,9 +43,6 @@ export class GetNetworksStateHandler implements HandlerType {
       })
       .sort((a, b) => a.chainName.localeCompare(b.chainName));
 
-    const filteredFavoriteNetworks =
-      await this.networkService.getFavoriteNetworks();
-
     const filteredEnabledNetworks =
       await this.networkService.getEnabledNetworks();
 
@@ -64,7 +60,6 @@ export class GetNetworksStateHandler implements HandlerType {
       ...request,
       result: {
         networks: networkList,
-        favoriteNetworks: filteredFavoriteNetworks,
         enabledNetworks: filteredEnabledNetworks,
         customNetworks,
         activeNetwork: this.networkService.uiActiveNetwork
