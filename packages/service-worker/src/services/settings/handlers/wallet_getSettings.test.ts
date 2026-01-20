@@ -4,6 +4,7 @@ import {
   CURRENCIES,
   SettingsState,
   AnalyticsConsent,
+  ColorTheme,
 } from '@core/types';
 import { WalletGetSettingsHandler } from './wallet_getSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
@@ -38,11 +39,22 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     filterSmallUtxos: false,
   };
 
-  // The handler returns a filtered response that excludes filterSmallUtxos
-  const getExpectedResponse = (settings: SettingsState) => {
-    const { filterSmallUtxos, ...rest } = settings;
-    return rest;
-  };
+  // Maps settings to the expected handler response format
+  const getExpectedResponse = (settings: SettingsState) => ({
+    currency: settings.currency,
+    customTokens: settings.customTokens,
+    showTokensWithoutBalances: settings.showTokensWithoutBalances,
+    theme: settings.theme,
+    tokensVisibility: settings.tokensVisibility,
+    collectiblesVisibility: settings.collectiblesVisibility,
+    analyticsConsent: settings.analyticsConsent,
+    language: settings.language,
+    coreAssistant: settings.coreAssistant,
+    preferredView: settings.preferredView,
+    showTrendingTokens: settings.showTrendingTokens,
+    privacyMode: settings.privacyMode,
+    filterSmallUtxos: settings.filterSmallUtxos,
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -83,7 +95,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       const request = createRequest();
       const settingsWithDarkTheme = {
         ...mockSettingsState,
-        theme: 'DARK',
+        theme: 'DARK' as ColorTheme,
       };
       getSettingsMock.mockResolvedValueOnce(settingsWithDarkTheme);
 
@@ -159,6 +171,22 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       });
     });
 
+    it('should return settings with filterSmallUtxos true', async () => {
+      const request = createRequest();
+      const settingsWithFilterSmallUtxos = {
+        ...mockSettingsState,
+        filterSmallUtxos: true,
+      };
+      getSettingsMock.mockResolvedValueOnce(settingsWithFilterSmallUtxos);
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(result).toEqual({
+        ...request,
+        result: getExpectedResponse(settingsWithFilterSmallUtxos),
+      });
+    });
+
     it('should return settings with analytics consent denied', async () => {
       const request = createRequest();
       const settingsWithDeniedConsent = {
@@ -199,12 +227,14 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
           '43114': {
             '0x123': {
               address: '0x123',
+              name: 'Test Token',
               symbol: 'TEST',
               decimals: 18,
+              contractType: 'ERC-20',
             },
           },
         },
-      };
+      } as SettingsState;
       getSettingsMock.mockResolvedValueOnce(settingsWithCustomTokens);
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
