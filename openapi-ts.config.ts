@@ -10,4 +10,8 @@ export default defineConfig([
     input: 'https://core-profile-api.avax.network/schema.json',
     output: 'packages/service-worker/src/api-clients/profile-api',
   },
+  {
+    input: 'https://core-token-aggregator.avax-test.network/schema.json',
+    output: 'packages/service-worker/src/api-clients/token-aggregator',
+  },
 ]);
