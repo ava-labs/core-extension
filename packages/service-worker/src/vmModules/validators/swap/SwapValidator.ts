@@ -32,11 +32,10 @@ export class SwapValidator implements RequestValidator {
       return false;
     }
 
-    // Only allow internal requests (from extension itself)
+    // Only allow internal requests (dappInfo must be present and from our extension)
     const isInternalRequest =
-      !params.request.dappInfo ||
-      params.request.dappInfo.url === browser.runtime.getURL('') ||
-      params.request.dappInfo.url.startsWith(browser.runtime.getURL(''));
+      params.request.dappInfo?.url.startsWith(browser.runtime.getURL('')) ??
+      false;
 
     if (!isInternalRequest) {
       return false;

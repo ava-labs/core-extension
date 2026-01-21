@@ -293,15 +293,13 @@ export class ApprovalController implements BatchApprovalController {
         return await this.#executeAutoApproval(params, action, network);
       } else if (validation.requiresManualApproval || hasExistingAlert) {
         // Only set alert if not already populated
-        if (!hasExistingAlert) {
-          action.displayData.alert = {
-            type: AlertType.WARNING,
-            details: {
-              title: 'Manual approval required',
-              description: validation.reason,
-            },
-          };
-        }
+        action.displayData.alert ??= {
+          type: AlertType.WARNING,
+          details: {
+            title: 'Manual approval required',
+            description: validation.reason,
+          },
+        };
         // Fall through to normal approval flow
       } else {
         return {

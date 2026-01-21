@@ -34,11 +34,10 @@ export class BatchSwapValidator implements BatchRequestValidator {
       return false;
     }
 
-    // Only allow internal requests
+    // Only allow internal requests (dappInfo must be present and from our extension)
     const isInternalRequest =
-      !params.request.dappInfo ||
-      params.request.dappInfo.url === browser.runtime.getURL('') ||
-      params.request.dappInfo.url.startsWith(browser.runtime.getURL(''));
+      params.request.dappInfo?.url.startsWith(browser.runtime.getURL('')) ??
+      false;
 
     if (!isInternalRequest) {
       return false;

@@ -32,7 +32,11 @@ describe('SwapValidator', () => {
         context: {
           autoApprove: true,
         },
-        dappInfo: undefined,
+        dappInfo: {
+          url: 'chrome-extension://test-id/',
+          name: 'Core',
+          icon: '',
+        },
       },
       signingData: {
         type: RpcMethod.ETH_SEND_TRANSACTION,
@@ -105,6 +109,14 @@ describe('SwapValidator', () => {
             icon: '',
           },
         },
+      });
+
+      expect(validator.canHandle(params)).toBe(false);
+    });
+
+    it('returns false when dappInfo is undefined', () => {
+      const params = createMockParams({
+        request: { dappInfo: undefined },
       });
 
       expect(validator.canHandle(params)).toBe(false);
