@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT } from '@/config';
 import {
   accordionClasses,
   accordionSummaryClasses,
@@ -20,7 +21,7 @@ export const Accordion = styled(K2Accordion)(({ theme }) => ({
   [`&.${accordionClasses.expanded} .${accordionSummaryClasses.root}`]: {
     overflow: 'hidden',
     position: 'sticky',
-    top: 0,
+    top: HEADER_HEIGHT,
     zIndex: 1,
     backdropFilter: 'blur(30px)',
     WebkitBackdropFilter: 'blur(30px)',

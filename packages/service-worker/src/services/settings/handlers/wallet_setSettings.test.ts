@@ -58,6 +58,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     isDegenMode: false,
     feeSetting: 'low',
     maxBuy: '1000',
+    privacyMode: false,
   };
 
   const mockSettingsResponse: WalletSetSettingsResponse = {

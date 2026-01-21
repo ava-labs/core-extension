@@ -40,6 +40,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   isDegenMode: false,
   feeSetting: 'medium',
   maxBuy: 'unlimited',
+  privacyMode: false,
 };
 
 @singleton()
@@ -309,6 +310,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       maxBuy,
+    });
+  }
+
+  async setPrivacyMode(enabled: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      privacyMode: enabled,
     });
   }
 

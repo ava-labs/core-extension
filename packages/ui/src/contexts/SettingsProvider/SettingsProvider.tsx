@@ -14,6 +14,7 @@ import type {
   SetLanguageHandler,
   SetMaxBuyHandler,
   SetPreferredViewHandler,
+  SetPrivacyModeHandler,
   SetShowTrendingTokensHandler,
   UpdateCollectiblesVisibilityHandler,
   UpdateCurrencyHandler,
@@ -45,7 +46,10 @@ import {
 } from 'react';
 import { filter, map } from 'rxjs';
 import { useConnectionContext } from '../ConnectionProvider';
-import { getCurrencyFormatter } from '../utils/getCurrencyFormatter';
+import {
+  getCurrencyFormatter,
+  getObfuscatedCurrency,
+} from '../utils/getCurrencyFormatter';
 import { isSettingsUpdatedEvent } from './isSettingsUpdatedEvent';
 import { SettingsPages } from './models';
 
@@ -82,6 +86,7 @@ type SettingsFromProvider = SettingsState & {
   setDegenMode: (enabled: boolean) => Promise<boolean>;
   setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
   setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
+  setPrivacyMode: (enabled: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -117,10 +122,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     return () => subscription.unsubscribe();
   }, [events, request]);
 
-  const currencyFormatter = useMemo(
-    () => getCurrencyFormatter(settings?.currency ?? 'USD'),
-    [settings?.currency],
-  );
+  const currencyFormatter = useMemo(() => {
+    const currency = settings?.currency ?? 'USD';
+
+    if (settings?.privacyMode) {
+      const obfuscated = getObfuscatedCurrency(currency);
+      return () => obfuscated;
+    }
+
+    return getCurrencyFormatter(currency);
+  }, [settings?.currency, settings?.privacyMode]);
 
   function lockWallet() {
     setIsSettingsOpen(false);
@@ -298,6 +309,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setPrivacyMode = useCallback(
+    (enabled: boolean) => {
+      return request<SetPrivacyModeHandler>({
+        method: ExtensionRequest.SETTINGS_SET_PRIVACY_MODE,
+        params: [enabled],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -324,6 +345,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setDegenMode,
           setFeeSetting,
           setMaxBuy,
+          setPrivacyMode,
         } as SettingsFromProvider
       }
     >

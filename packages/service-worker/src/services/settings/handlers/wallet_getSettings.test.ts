@@ -37,6 +37,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     isDegenMode: false,
     feeSetting: 'low',
     maxBuy: '1000',
+    privacyMode: false,
   };
 
   beforeEach(() => {

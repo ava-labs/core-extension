@@ -13,7 +13,7 @@ export class TransactionStatusEvents implements ExtensionEventEmitter {
 
   emitPending(
     txHash: string,
-    chainId: number,
+    chainId: string,
     context?: Record<string, unknown>,
   ) {
     this.eventEmitter.emit('update', {
@@ -24,7 +24,7 @@ export class TransactionStatusEvents implements ExtensionEventEmitter {
 
   emitConfirmed(
     txHash: string,
-    chainId: number,
+    chainId: string,
     context?: Record<string, unknown>,
   ) {
     this.eventEmitter.emit('update', {
@@ -35,7 +35,7 @@ export class TransactionStatusEvents implements ExtensionEventEmitter {
 
   emitReverted(
     txHash: string,
-    chainId: number,
+    chainId: string,
     context?: Record<string, unknown>,
   ) {
     this.eventEmitter.emit('update', {

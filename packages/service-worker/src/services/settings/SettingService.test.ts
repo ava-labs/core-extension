@@ -84,6 +84,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     isDegenMode: false,
     feeSetting: 'low',
     maxBuy: '1000',
+    privacyMode: false,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -100,6 +101,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     isDegenMode: false,
     feeSetting: 'low',
     maxBuy: '1000',
+    privacyMode: false,
   };
 
   const customToken: NetworkContractToken = {
@@ -466,6 +468,20 @@ describe('background/services/settings/SettingsService.ts', () => {
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
           await service.setShowTrendingTokens(true);
+        });
+      });
+    });
+
+    describe('setPrivacyMode', () => {
+      it('should save the new value for privacy mode properly', async () => {
+        const eventListener = jest.fn();
+        service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
+
+        await service.setPrivacyMode(true);
+
+        expect(eventListener).toHaveBeenCalledWith({
+          ...storedSettings,
+          privacyMode: true,
         });
       });
     });

@@ -1,10 +1,7 @@
 import {
   AlarmsEvents,
-  LOCK_TIMEOUT,
   LockEvents,
   LockStateChangedEventPayload,
-  SESSION_AUTH_DATA_KEY,
-  SessionAuthData,
 } from '@core/types';
 import EventEmitter from 'events';
 import { singleton } from 'tsyringe';
@@ -15,13 +12,12 @@ import { StorageService } from '../storage/StorageService';
 @singleton()
 export class LockService implements OnAllExtensionClosed {
   private eventEmitter = new EventEmitter();
-
-  private _locked = true;
+  #locked = true;
 
   #autoLockInMinutes = 30;
 
   public get locked(): boolean {
-    return this._locked;
+    return this.#locked;
   }
 
   constructor(
@@ -39,25 +35,10 @@ export class LockService implements OnAllExtensionClosed {
         this.lock();
       }
     });
-    const authData =
-      await this.storageService.loadFromSessionStorage<SessionAuthData>(
-        SESSION_AUTH_DATA_KEY,
-      );
-
-    if (
-      !authData?.password ||
-      !authData?.loginTime ||
-      authData.loginTime + LOCK_TIMEOUT < Date.now()
-    ) {
-      await this.storageService.removeFromSessionStorage(SESSION_AUTH_DATA_KEY);
-      return;
-    }
-
-    await this.unlock(authData.password);
   }
 
   onAllExtensionsClosed(): void | Promise<void> {
-    if (!this._locked) {
+    if (!this.#locked) {
       chrome.alarms.create(AlarmsEvents.AUTO_LOCK, {
         periodInMinutes: this.#autoLockInMinutes,
       });
@@ -68,13 +49,7 @@ export class LockService implements OnAllExtensionClosed {
     try {
       await this.storageService.activate(password);
 
-      // save password to session storage to make auto unlock possible when the service worker restarts
-      await this.storageService.saveToSessionStorage(SESSION_AUTH_DATA_KEY, {
-        password,
-        loginTime: Date.now(),
-      });
-
-      this._locked = false;
+      this.#locked = false;
       this.callbackManager.onUnlock();
       this.eventEmitter.emit(LockEvents.LOCK_STATE_CHANGED, {
         isUnlocked: true,
@@ -85,32 +60,15 @@ export class LockService implements OnAllExtensionClosed {
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
-    const authData =
-      await this.storageService.loadFromSessionStorage<SessionAuthData>(
-        SESSION_AUTH_DATA_KEY,
-      );
-
-    if (!authData || oldPassword !== authData.password) {
-      throw new Error('wrong password');
-    }
     await this.storageService.changePassword(oldPassword, newPassword);
-    await this.storageService.saveToSessionStorage(SESSION_AUTH_DATA_KEY, {
-      password: newPassword,
-      loginTime: Date.now(),
-    });
   }
 
   async verifyPassword(password: string): Promise<boolean> {
-    const authData =
-      await this.storageService.loadFromSessionStorage<SessionAuthData>(
-        SESSION_AUTH_DATA_KEY,
-      );
-
-    return authData && password === authData.password;
+    return await this.storageService.verifyPassword(password);
   }
 
   lock() {
-    this._locked = true;
+    this.#locked = true;
     this.storageService.clearSessionStorage();
     this.callbackManager.onLock();
     this.eventEmitter.emit(LockEvents.LOCK_STATE_CHANGED, {

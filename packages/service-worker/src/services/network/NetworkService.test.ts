@@ -544,12 +544,6 @@ describe('background/services/network/NetworkService', () => {
       expect(savedActiveNetwork?.rpcUrl).toBe(newRpcUrl);
     });
 
-    it('should call `addFavoriteNetwork`', async () => {
-      jest.spyOn(service, 'addFavoriteNetwork');
-      await service.addFavoriteNetwork(customNetwork);
-      expect(service.addFavoriteNetwork).toHaveBeenCalled();
-    });
-
     it('should preserve customRpcHeaders when saving a network', async () => {
       const customHeaders = {
         Authorization: 'Bearer token123',
@@ -667,90 +661,6 @@ describe('background/services/network/NetworkService', () => {
         NETWORK_LIST_STORAGE_KEY,
       );
       expect(dispatchSpy).toHaveBeenCalledWith(cachedChainList);
-    });
-  });
-
-  it('should return without the (filtered out testnet) favorite networks', async () => {
-    const mainnetNetwork = mockNetwork(NetworkVMType.EVM, false, {
-      chainId: 2,
-    });
-    const testnetNetwork = mockNetwork(NetworkVMType.EVM, true, {
-      chainId: 123,
-    });
-    service.allNetworks = {
-      promisify: () =>
-        Promise.resolve({
-          [mainnetNetwork.chainId]: { ...mainnetNetwork },
-          [testnetNetwork.chainId]: { ...testnetNetwork },
-        }),
-    } as any;
-    await service.addFavoriteNetwork(testnetNetwork.chainId);
-    await service.addFavoriteNetwork(mainnetNetwork.chainId);
-    const favoriteNetworks = await service.getFavoriteNetworks();
-    expect(favoriteNetworks).toEqual([mainnetNetwork.chainId]);
-  });
-
-  describe('favorite and enabled networks synchronization', () => {
-    beforeEach(() => {
-      service.updateNetworkState = jest.fn();
-    });
-
-    it('should call addEnabledNetwork when addFavoriteNetwork is called', async () => {
-      const addEnabledNetworkSpy = jest.spyOn(service, 'enableNetwork');
-      const chainId = 1337;
-
-      await service.addFavoriteNetwork(chainId);
-
-      expect(addEnabledNetworkSpy).toHaveBeenCalledWith(chainId);
-    });
-
-    it('should call removeEnabledNetwork when removeFavoriteNetwork is called', async () => {
-      const removeEnabledNetworkSpy = jest.spyOn(service, 'disableNetwork');
-      const chainId = 1337;
-
-      // First add the network to favorites
-      await service.addFavoriteNetwork(chainId);
-
-      // Then remove it
-      await service.removeFavoriteNetwork(chainId);
-
-      expect(removeEnabledNetworkSpy).toHaveBeenCalledWith(chainId);
-    });
-
-    it('should keep favorite and enabled networks in sync when adding', async () => {
-      const chainId = 1337;
-
-      await service.addFavoriteNetwork(chainId);
-
-      // Verify the network was added to both favorites and enabled
-      expect(service['_favoriteNetworks']).toContain(chainId);
-      expect(service['_enabledNetworks']).toContain(chainId);
-    });
-
-    it('should keep favorite and enabled networks in sync when removing', async () => {
-      const chainId = 1337;
-
-      // First add the network
-      await service.addFavoriteNetwork(chainId);
-      expect(service['_favoriteNetworks']).toContain(chainId);
-      expect(service['_enabledNetworks']).toContain(chainId);
-
-      // Then remove it
-      await service.removeFavoriteNetwork(chainId);
-
-      // Verify the network was removed from both favorites and enabled
-      expect(service['_favoriteNetworks']).not.toContain(chainId);
-      expect(service['_enabledNetworks']).not.toContain(chainId);
-    });
-
-    it('should handle removing non-existent favorite network gracefully', async () => {
-      const chainId = 9999;
-      const removeEnabledNetworkSpy = jest.spyOn(service, 'disableNetwork');
-
-      await service.removeFavoriteNetwork(chainId);
-
-      // Should still call removeEnabledNetwork even if not in favorites
-      expect(removeEnabledNetworkSpy).toHaveBeenCalledWith(chainId);
     });
   });
 

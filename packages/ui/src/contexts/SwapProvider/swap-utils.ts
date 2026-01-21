@@ -10,13 +10,12 @@ import {
 import { address } from '@solana/kit';
 import { ethErrors } from 'eth-rpc-errors';
 import { Contract } from 'ethers';
-import { t } from 'i18next';
 
-import { isJupiterQuote, SwapError } from './models';
-import { isWrappedError, WrappedError } from '@core/common';
+import { isJupiterQuote } from './models';
+import { isWrappedError } from '@core/common';
 import { CommonError, SwapErrorCode } from '@core/types';
 
-import { FetcherError, SwapSide, TransactionParams } from '@paraswap/sdk';
+import { SwapSide } from '@paraswap/sdk';
 import {
   JUPITER_PARTNER_ADDRESS,
   PARASWAP_PARTNER_ADDRESS,
@@ -25,12 +24,7 @@ import {
 } from './constants';
 import type WAVAX_ABI from './ABI_WAVAX.json';
 import type WETH_ABI from './ABI_WETH.json';
-import {
-  hasParaswapError,
-  PARASWAP_RETRYABLE_ERRORS,
-  ParaswapPricesResponse,
-  SwapParams,
-} from './models';
+import { SwapParams } from './models';
 import { JupiterQuote } from './schemas';
 import Big from 'big.js';
 
@@ -173,95 +167,6 @@ export const swapError = (
     },
   });
 };
-
-export const paraswapErrorToSwapError = (error: FetcherError): SwapError => {
-  if (!error.message) {
-    return {
-      message: t('Unknown error occurred, '),
-      hasTryAgain: true,
-    };
-  }
-
-  switch (error.message) {
-    case 'ESTIMATED_LOSS_GREATER_THAN_MAX_IMPACT':
-      return {
-        message: t(
-          'Slippage tolerance exceeded, increase the slippage and try again.',
-        ),
-        hasTryAgain: false,
-      };
-
-    case 'No routes found with enough liquidity':
-      return {
-        message: t('No routes found with enough liquidity.'),
-        hasTryAgain: false,
-      };
-
-    case 'Internal Error while computing the price':
-      return {
-        message: t('An error occurred while computing the price.'),
-        hasTryAgain: false,
-      };
-  }
-
-  if (/is too small to proceed/.test(error.message)) {
-    return {
-      message: t('Amount is too small to proceed.'),
-      hasTryAgain: false,
-    };
-  }
-
-  return {
-    message: t('Unknown error occurred, '),
-    hasTryAgain: true,
-  };
-};
-
-export function checkForErrorsInGetRateResult(
-  response: ParaswapPricesResponse | TypeError,
-) {
-  const isFetchError = response instanceof TypeError;
-  const isParaswapError = !isFetchError && hasParaswapError(response);
-
-  if (isFetchError || isParaswapError) {
-    // If there is an error, we may want to retry the request if a network issue
-    // or some of the documented Paraswap API errors occurred.
-    const isNetworkIssue =
-      isFetchError && response.message === 'Failed to fetch';
-    const shouldBeRetried =
-      isNetworkIssue ||
-      (isParaswapError && PARASWAP_RETRYABLE_ERRORS.includes(response.error));
-
-    if (shouldBeRetried) {
-      return true;
-      // If an error occurred, but there is no point in retrying a request,
-      // we need to propagate the error so we're able to show an appropriate
-      // message in the UI.
-    } else if (isFetchError) {
-      throw swapError(CommonError.NetworkError, response);
-    } else {
-      throw swapError(CommonError.Unknown, new Error(response.error));
-    }
-  }
-
-  return false;
-}
-
-export function checkForErrorsInBuildTxResult(
-  result: TransactionParams | WrappedError,
-) {
-  return (
-    (isWrappedError(result) &&
-      typeof result.data.originalError === 'object' &&
-      result.data.originalError &&
-      'message' in result.data.originalError &&
-      result.data.originalError.message === 'Server too busy') ||
-    // paraswap returns responses like this: {error: 'Not enough 0x4f60a160d8c2dddaafe16fcc57566db84d674…}
-    // when they are too slow to detect the approval
-    (result as any).error ||
-    result instanceof Error
-  );
-}
 
 /**
  * Responsible for adding the needed parameters to a swap transaction

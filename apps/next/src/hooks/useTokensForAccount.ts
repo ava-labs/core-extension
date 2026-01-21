@@ -83,7 +83,9 @@ export const useTokensForAccount = (
     return sortTokens(
       options.forceShowAllTokens
         ? tokens
-        : tokens.filter(getIsTokenVisible(getTokenVisibility)),
+        : tokens
+            .filter((token) => token.balance > 0n)
+            .filter(getIsTokenVisible(getTokenVisibility)),
     );
   }, [
     account,

@@ -1,9 +1,8 @@
-import { PopoverItem } from '@avalabs/k2-alpine';
+import { DropdownMenu } from '@/components/DropdownMenu';
+import { Box, PopoverItem } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AssetSortOption } from '../utils/assetSorting';
-import { DropdownMenu } from '@/components/DropdownMenu';
-import { Box } from '@avalabs/k2-alpine';
 
 export type SortMenuProps = {
   id: string;
@@ -19,8 +18,6 @@ export const SortMenu: FC<SortMenuProps> = ({ id, sort, onSortChange }) => {
     { label: t('Balance'), value: 'balance' },
     { label: t('Name A to Z'), value: 'name-asc' },
     { label: t('Name Z to A'), value: 'name-desc' },
-    { label: t('Quantity'), value: 'balance-quantity' },
-    { label: t('Token Price'), value: 'token-price' },
   ];
 
   return (

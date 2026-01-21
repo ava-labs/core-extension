@@ -25,7 +25,14 @@ export const ContactList = () => {
       {contacts.length > 0 ? (
         <SearchableContactList contacts={contacts} />
       ) : (
-        <EmptyContactList />
+        <EmptyContactList
+          title={t('No saved addresses')}
+          description={t(
+            'Save addresses for quick access in future transactions.',
+          )}
+          icon="📒"
+          filteredContacts={false}
+        />
       )}
     </Page>
   );

@@ -5,7 +5,6 @@ import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 // MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
-import { CircularProgress, Stack } from '@avalabs/k2-alpine';
 import {
   AnalyticsContextProvider,
   ConnectionContextProvider,
@@ -13,11 +12,12 @@ import {
   NetworkContextProvider,
   SettingsContextProvider,
 } from '@core/ui';
-import { Children, lazy, ReactElement, Suspense } from 'react';
+import { Children, lazy, ReactElement } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { HashRouter as Router } from 'react-router-dom';
 import { initI18n, i18next } from '@core/common';
 import { Providers } from './providers';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 // Initialize translations
 initI18n();
@@ -38,22 +38,11 @@ browser.tabs.query({ active: true }).then(() => {
           providers={
             Children.toArray([
               <I18nextProvider i18n={i18next} />,
-              <ConnectionContextProvider LoadingComponent={CircularProgress} />,
+              <ConnectionContextProvider LoadingComponent={LoadingScreen} />,
               <SettingsContextProvider />,
               <FeatureFlagsContextProvider />,
               <AnalyticsContextProvider />,
               <NetworkContextProvider />,
-              <Suspense
-                fallback={
-                  <Stack
-                    justifyContent="center"
-                    alignItems="center"
-                    height="100%"
-                  >
-                    <CircularProgress />
-                  </Stack>
-                }
-              />,
             ]) as ReactElement[]
           }
         >

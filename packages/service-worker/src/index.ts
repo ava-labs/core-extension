@@ -65,11 +65,9 @@ export type { GetNavigationHistoryDataHandler } from './services/navigationHisto
 export type { SetNavigationHistoryHandler } from './services/navigationHistory/handlers/setNavigationHistory';
 export type { SetNavigationHistoryDataHandler } from './services/navigationHistory/handlers/setNavigationHistoryData';
 export type { RequestNavigationHandler } from './services/navigationHistory/handlers/requestNavigation';
-export type { AddFavoriteNetworkHandler } from './services/network/handlers/addFavoriteNetwork';
 export type { EnableNetworkHandler as AddEnabledNetworkHandler } from './services/network/handlers/enableNetwork';
 export type { GetNetworksStateHandler } from './services/network/handlers/getNetworkState';
 export type { RemoveCustomNetworkHandler } from './services/network/handlers/removeCustomNetwork';
-export type { RemoveFavoriteNetworkHandler } from './services/network/handlers/removeFavoriteNetwork';
 export type { DisableNetworkHandler as RemoveEnabledNetworkHandler } from './services/network/handlers/disableNetwork';
 export type { SaveCustomNetworkHandler } from './services/network/handlers/saveCustomNetwork';
 export type { SetActiveNetworkHandler } from './services/network/handlers/setActiveNetwork';
@@ -114,6 +112,7 @@ export type { SetAnalyticsConsentHandler } from './services/settings/handlers/se
 export type { SetCoreAssistantHandler } from './services/settings/handlers/setCoreAssistant';
 export type { SetLanguageHandler } from './services/settings/handlers/setLanguage';
 export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
+export type { SetPrivacyModeHandler } from './services/settings/handlers/setPrivacyMode';
 export type { SetShowTrendingTokensHandler } from './services/settings/handlers/setShowTrendingTokens';
 export type { SetDegenModeHandler } from './services/settings/handlers/setDegenMode';
 export type { SetFeeSettingHandler } from './services/settings/handlers/setFeeSetting';

@@ -43,6 +43,7 @@ interface WalletGetSettingsHandlerResult {
   isDegenMode: boolean;
   feeSetting: 'low' | 'medium' | 'high';
   maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
+  privacyMode: boolean;
 }
 @injectable()
 export class WalletGetSettingsHandler extends DAppRequestHandler<
@@ -73,6 +74,7 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         isDegenMode: settings.isDegenMode,
         feeSetting: settings.feeSetting,
         maxBuy: settings.maxBuy,
+        privacyMode: settings.privacyMode,
       };
       return {
         ...request,

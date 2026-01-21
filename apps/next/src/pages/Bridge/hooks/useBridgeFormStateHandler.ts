@@ -1,8 +1,10 @@
 import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { TokenType } from '@avalabs/vm-module-types';
 import { stringToBigint } from '@core/common';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../contexts';
+import { trimEndZeros } from '../lib/trimEndZeros';
 
 export const useBridgeFormStateHandler = () => {
   const { t } = useTranslation();
@@ -48,7 +50,9 @@ export const useBridgeFormStateHandler = () => {
       return t(
         'The transfer amount needs to be greater than {{limit}}\u00A0{{symbol}}',
         {
-          limit: bigIntToString(minTransferAmount, sourceToken.decimals),
+          limit: trimEndZeros(
+            bigIntToString(minTransferAmount, sourceToken.decimals),
+          ),
           symbol: sourceToken.symbol,
         },
       );
@@ -75,12 +79,20 @@ export const useBridgeFormStateHandler = () => {
       return '';
     }
 
-    const maxAvailable = sourceToken.balance - requiredNetworkFee;
+    const maxAvailable =
+      sourceToken.type === TokenType.NATIVE
+        ? sourceToken.balance - requiredNetworkFee
+        : sourceToken.balance;
     if (maxAvailable > minTransferAmount && maxAvailable < amountBigInt) {
-      return t('Maximum available after fees is {{balance}}\u00A0{{symbol}}', {
-        balance: bigIntToString(maxAvailable, sourceToken.decimals),
-        symbol: sourceToken.symbol,
-      });
+      return t(
+        'Maximum available after network fees is {{balance}}\u00A0{{symbol}}',
+        {
+          balance: trimEndZeros(
+            bigIntToString(maxAvailable, sourceToken.decimals),
+          ),
+          symbol: sourceToken.symbol,
+        },
+      );
     }
     return '';
   }, [

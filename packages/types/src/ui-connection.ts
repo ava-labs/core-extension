@@ -91,6 +91,7 @@ export enum ExtensionRequest {
   SETTINGS_SET_DEGEN_MODE = 'settings_set_degen_mode',
   SETTINGS_SET_FEE_SETTING = 'settings_set_fee_setting',
   SETTINGS_SET_MAX_BUY = 'settings_set_max_buy',
+  SETTINGS_SET_PRIVACY_MODE = 'settings_set_privacy_mode',
 
   CONTACTS_GET = 'contacts_get',
   CONTACTS_CREATE = 'contacts_create',

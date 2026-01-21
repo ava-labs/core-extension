@@ -82,6 +82,7 @@ export interface SettingsState {
   isDegenMode: boolean;
   feeSetting: FeeSetting;
   maxBuy: MaxBuyOption;
+  privacyMode: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

@@ -77,10 +77,8 @@ import { SetNavigationHistoryHandler } from '../../services/navigationHistory/ha
 import { SetNavigationHistoryDataHandler } from '../../services/navigationHistory/handlers/setNavigationHistoryData';
 import { NetworksUpdatedEvents } from '../../services/network/events/networksUpdatedEvent';
 import { NetworkUpdatedEvents } from '../../services/network/events/networkUpdatedEvent';
-import { AddFavoriteNetworkHandler } from '../../services/network/handlers/addFavoriteNetwork';
 import { GetNetworksStateHandler } from '../../services/network/handlers/getNetworkState';
 import { RemoveCustomNetworkHandler } from '../../services/network/handlers/removeCustomNetwork';
-import { RemoveFavoriteNetworkHandler } from '../../services/network/handlers/removeFavoriteNetwork';
 import { SaveCustomNetworkHandler } from '../../services/network/handlers/saveCustomNetwork';
 import { SetActiveNetworkHandler } from '../../services/network/handlers/setActiveNetwork';
 import { SetDevelopermodeNetworkHandler } from '../../services/network/handlers/setDeveloperMode';
@@ -153,6 +151,7 @@ import { SubscribeToNotification } from '../../services/notifications/handlers/s
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
+import { SetPrivacyModeHandler } from '~/services/settings/handlers/setPrivacyMode';
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
 import { SetDegenModeHandler } from '~/services/settings/handlers/setDegenMode';
 import { SetFeeSettingHandler } from '~/services/settings/handlers/setFeeSetting';
@@ -232,14 +231,6 @@ import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/
   {
     token: 'ExtensionRequestHandler',
     useToken: SetDevelopermodeNetworkHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: AddFavoriteNetworkHandler,
-  },
-  {
-    token: 'ExtensionRequestHandler',
-    useToken: RemoveFavoriteNetworkHandler,
   },
   {
     token: 'ExtensionRequestHandler',
@@ -492,6 +483,10 @@ import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/
   {
     token: 'ExtensionRequestHandler',
     useToken: SetPreferredViewHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetPrivacyModeHandler,
   },
   {
     token: 'ExtensionRequestHandler',

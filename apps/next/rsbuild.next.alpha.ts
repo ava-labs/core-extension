@@ -4,9 +4,14 @@ import commonConfig from './rsbuild.next.common.ts';
 import { transformManifestFiles } from '../../build-scripts/manifestHelpers.js';
 import { getEnvVars } from '../../build-scripts/getEnvVars.ts';
 
+const skipSourceMap = process.env.NO_SOURCE_MAPS === 'true';
+
 export default defineConfig((...args) =>
   mergeRsbuildConfig(commonConfig(...args), {
     mode: 'production',
+    output: {
+      sourceMap: skipSourceMap ? false : { js: 'hidden-source-map' },
+    },
     source: {
       define: getEnvVars('production'),
     },
@@ -25,7 +30,7 @@ export default defineConfig((...args) =>
                   actionDefaultTitle:
                     '[alpha] Core Wallet: Crypto Made Easy NextGen DEVELOPMENT BUILD',
                   oAuthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID,
-                  publicKey: process.env.NEXT_GEN_EXTENSION_PUBLIC_KEY,
+                  publicKey: process.env.EXTENSION_PUBLIC_KEY,
                 }),
                 force: true,
               },
