@@ -1,6 +1,13 @@
-import { merge, uniqBy, chunk } from 'lodash';
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
+import {
+  AVALANCHE_BLOCKCHAIN_IDS,
+  caipToChainId,
+  chainIdToCaip,
+  getNameSpaceFromScope,
+  stripAddressPrefix,
+} from '@core/common';
 import { Account, AccountType, AtomicBalances, Balances } from '@core/types';
+import { chunk, merge, uniqBy } from 'lodash';
 import {
   AvalancheCorethGetBalancesRequestItem,
   AvalancheXpGetBalancesRequestItem,
@@ -17,18 +24,10 @@ import {
   SvmGetBalancesResponse,
 } from '~/api-clients/balance-api';
 import {
-  caipToChainId,
-  chainIdToCaip,
-  getNameSpaceFromScope,
-  stripAddressPrefix,
-  AVALANCHE_BLOCKCHAIN_IDS,
-} from '@core/common';
-import {
-  BalanceResponse,
-  GetBalanceRequestItem,
-  NameSpace,
-  NotAvalancheRequestItem,
-} from '~/api-clients/types';
+  Caip2IdAccountTypeMap,
+  CORE_ETH_CAIP2ID,
+  NameSpaceAccountTypeMap,
+} from '~/api-clients/constants';
 import {
   mapAvmTokenBalance,
   mapErc20TokenBalance,
@@ -37,12 +36,13 @@ import {
   mapSplTokenBalance,
 } from '~/api-clients/mappers';
 import {
-  Caip2IdAccountTypeMap,
-  CORE_ETH_CAIP2ID,
-  NameSpaceAccountTypeMap,
-} from '~/api-clients/constants';
-import { SecretsService } from '~/services/secrets/SecretsService';
+  BalanceResponse,
+  GetBalanceRequestItem,
+  NameSpace,
+  NotAvalancheRequestItem,
+} from '~/api-clients/types';
 import { AddressResolver } from '~/services/secrets/AddressResolver';
+import { SecretsService } from '~/services/secrets/SecretsService';
 
 export const isErrorResponse = (
   response: GetBalancesResponse,
@@ -148,6 +148,18 @@ interface GetAccountAddressFromCaip2IdOrNamesSpaceProps {
   nameSpace?: string;
 }
 
+const splitIntoMultipleRequests = ({
+  data,
+  currency,
+  showUntrustedTokens,
+}: GetBalancesRequestBody): GetBalancesRequestBody[] => {
+  return chunk(data, 5).flatMap((dataChunk) => ({
+    data: dataChunk,
+    currency,
+    showUntrustedTokens,
+  }));
+};
+
 const splitRequestItemsBasedOnReferencesLength = (
   items: GetBalanceRequestItem[],
 ): GetBalanceRequestItem[] => {
@@ -160,6 +172,32 @@ const splitRequestItemsBasedOnReferencesLength = (
           ...rest,
         }) as GetBalanceRequestItem,
     );
+  });
+};
+
+const splitRequestItemsBasedOnAddressesLength = (
+  items: GetBalanceRequestItem[],
+): GetBalanceRequestItem[] => {
+  return items.flatMap((item) => {
+    if ('addresses' in item) {
+      return chunk(item.addresses, 50).flatMap(
+        (addressesChunk) =>
+          ({
+            ...item,
+            addresses: addressesChunk,
+          }) as GetBalanceRequestItem,
+      );
+    } else if ('addressDetails' in item) {
+      return chunk(item.addressDetails, 50).flatMap(
+        (addressDetailsChunk) =>
+          ({
+            ...item,
+            addressDetails: addressDetailsChunk,
+          }) as GetBalanceRequestItem,
+      );
+    }
+
+    return item;
   });
 };
 
@@ -189,7 +227,7 @@ export const createGetBalancePayload = async ({
   secretsService,
   addressResolver,
   filterSmallUtxos,
-}: CreateGetBalancePayloadParams): Promise<GetBalancesRequestBody> => {
+}: CreateGetBalancePayloadParams): Promise<GetBalancesRequestBody[]> => {
   // TODO: coreth caip2 ID from extension
   const caip2Ids = chainIds.map(chainIdToCaip);
   const partialGetBalancePayload = accounts.reduce<PartialGetBalancePayload>(
@@ -472,11 +510,13 @@ export const createGetBalancePayload = async ({
     })),
   ].filter(Boolean) as GetBalanceRequestItem[];
 
-  return {
-    data: splitRequestItemsBasedOnReferencesLength(payload),
+  return splitIntoMultipleRequests({
+    data: splitRequestItemsBasedOnReferencesLength(
+      splitRequestItemsBasedOnAddressesLength(payload),
+    ),
     currency,
     showUntrustedTokens: true,
-  } as GetBalancesRequestBody;
+  }) as GetBalancesRequestBody[];
 };
 
 export const convertBalanceResponsesToCacheBalanceObject = (
