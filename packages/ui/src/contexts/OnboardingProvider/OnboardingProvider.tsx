@@ -543,6 +543,7 @@ export function OnboardingContextProvider({
         setNumberOfAccountsToCreate,
         setAddressPublicKeys,
         setExtendedPublicKeys,
+        extendedPublicKeys,
       }}
     >
       {/*
