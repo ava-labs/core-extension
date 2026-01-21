@@ -1,4 +1,4 @@
-import { Slide, SquareButton, Stack } from '@avalabs/k2-alpine';
+import { Fade, SquareButton, Stack } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useAnalyticsContext, useOnline } from '@core/ui';
 import { OfflineTooltip } from '@/components/OfflineTooltip';
@@ -12,31 +12,48 @@ import { SendIcon } from '@/components/SendIcon';
 import { SwapIcon } from '@/components/SwapIcon';
 import { BridgeIcon } from '@/components/BridgeIcon';
 import { BuyIcon } from '@/components/BuyIcon';
-import { NetworkWithCaipId } from '@core/types';
+import {
+  FungibleTokenBalance,
+  getUniqueTokenId,
+  isNativeToken,
+  NetworkWithCaipId,
+} from '@core/types';
+import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
+import { chainIdToCaip } from '@core/common';
 
 const ICON_SIZE = 20;
 
 export const PortfolioActionButtons = ({
   network,
+  token,
 }: {
   network?: NetworkWithCaipId;
+  token?: FungibleTokenBalance;
 }) => {
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
   const { checkIsFunctionSupported } = useIsFunctionAvailable({ network });
   const { t } = useTranslation();
+  const { supportsAsset } = useNextUnifiedBridgeContext();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
   const { isOnline } = useOnline();
+  const isBridgeSupported =
+    !token ||
+    supportsAsset(
+      isNativeToken(token) ? token.symbol : token.address,
+      chainIdToCaip(token.coreChainId),
+    );
+  const tokenId = token ? getUniqueTokenId(token) : '';
+  const tokenNetwork = token ? chainIdToCaip(token.coreChainId) : '';
+
   let delay = 0;
   const getDelay = () => (delay += 300);
 
   return (
     <Stack direction="row" gap={1} width="100%">
-      {/* TODO: create the proper animation */}
-
       {isSwapSupported && (
-        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
               variant="extension"
@@ -44,30 +61,37 @@ export const PortfolioActionButtons = ({
               label={t('Swap')}
               onClick={() => {
                 capture('TokenSwapClicked');
-                push(getSwapPath());
+                push(getSwapPath({ from: tokenId }));
               }}
               disabled={!isOnline}
             />
           </OfflineTooltip>
-        </Slide>
+        </Fade>
       )}
 
-      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
-        <OfflineTooltip placement="top">
-          <SquareButton
-            variant="extension"
-            icon={<BridgeIcon size={ICON_SIZE} />}
-            label={t('Bridge')}
-            onClick={() => {
-              capture('TokenBridgeClicked');
-              push(getBridgePath());
-            }}
-            disabled={!isOnline}
-          />
-        </OfflineTooltip>
-      </Slide>
+      {isBridgeSupported && (
+        <Fade in timeout={getDelay()} easing="ease-out">
+          <OfflineTooltip placement="top">
+            <SquareButton
+              variant="extension"
+              icon={<BridgeIcon size={ICON_SIZE} />}
+              label={t('Bridge')}
+              onClick={() => {
+                capture('TokenBridgeClicked');
+                push(
+                  getBridgePath({
+                    sourceToken: tokenId,
+                    sourceNetwork: tokenNetwork,
+                  }),
+                );
+              }}
+              disabled={!isOnline}
+            />
+          </OfflineTooltip>
+        </Fade>
+      )}
 
-      <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+      <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
             variant="extension"
@@ -75,15 +99,15 @@ export const PortfolioActionButtons = ({
             label={t('Send')}
             onClick={() => {
               capture('TokenSendClicked');
-              push(getSendPath());
+              push(getSendPath({ token: tokenId }));
             }}
             disabled={!isOnline}
           />
         </OfflineTooltip>
-      </Slide>
+      </Fade>
 
       {isBuySupported && (
-        <Slide direction="left" in timeout={getDelay()} easing="ease-out">
+        <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton
             variant="extension"
             icon={<BuyIcon size={ICON_SIZE} />}
@@ -93,7 +117,7 @@ export const PortfolioActionButtons = ({
               openNewTab({ url: `${getCoreWebUrl()}/buy` });
             }}
           />
-        </Slide>
+        </Fade>
       )}
     </Stack>
   );

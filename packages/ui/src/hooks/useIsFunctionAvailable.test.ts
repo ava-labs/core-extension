@@ -600,7 +600,7 @@ describe('hooks/useIsFunctionAvailable', () => {
 
     it('returns false for Buy on non-whitelisted networks', () => {
       (useNetworkContext as jest.Mock).mockReturnValue({
-        network: { chainId: ChainId.ETHEREUM_HOMESTEAD },
+        network: { chainId: ChainId.BITCOIN },
       });
 
       const { result } = renderHook(() =>

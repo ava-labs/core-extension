@@ -43,6 +43,20 @@ export class StorageService implements OnLock {
     }
   }
 
+  async verifyPassword(password: string): Promise<boolean> {
+    try {
+      // attempt to load the storage encryption key with the provided password
+      // will throw an error if the password is incorrect
+      await this.load<WalletStorageEncryptionKeyData>(
+        WALLET_STORAGE_ENCRYPTION_KEY,
+        password,
+      );
+      return true;
+    } catch (_err) {
+      return false;
+    }
+  }
+
   onLock() {
     // Clear the encryption key when wallet is locked to prevent unauthorized storage access.
     this._storageKey = undefined;

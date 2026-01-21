@@ -7,7 +7,7 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { BalanceChange } from '../../BalanceChange';
-import { MdError, MdUnfoldMore } from 'react-icons/md';
+import { MdError, MdUnfoldMore, MdVisibilityOff } from 'react-icons/md';
 import { Trans, useTranslation } from 'react-i18next';
 import { SecretType } from '@core/types';
 import { useMemo } from 'react';
@@ -40,7 +40,7 @@ export const WalletBalance = ({
   const history = useHistory();
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
-
+  const { privacyMode } = useSettingsContext();
   const placeholderTotalBalance = useMemo(
     () => currencyFormatter(0).replace('0.00', ' -'),
     [currencyFormatter],
@@ -95,19 +95,27 @@ export const WalletBalance = ({
         </Stack>
         <Stack direction="row" alignItems="baseline" gap={0.5} ml={0.5}>
           <Typography variant="h2">{balanceToDisplay}</Typography>
-          <Typography variant="h7">{currency}</Typography>
+          {!privacyMode && <Typography variant="h7">{currency}</Typography>}
           {isLoading && (
             <CircularProgress size={14} sx={{ margin: '0 0 0 8px' }} />
           )}
         </Stack>
       </ClickableStack>
 
-      {!isLoading && (
-        <BalanceChange
-          balanceChange={balanceChange}
-          percentageChange={percentageChange}
-        />
-      )}
+      {!isLoading &&
+        (!privacyMode ? (
+          <BalanceChange
+            balanceChange={balanceChange}
+            percentageChange={percentageChange}
+          />
+        ) : (
+          <Stack direction="row" alignItems="center" gap={0.5} ml={0.5}>
+            <MdVisibilityOff size={16} />
+            <Typography variant="subtitle3" fontWeight={600}>
+              {t('Privacy mode is on')}
+            </Typography>
+          </Stack>
+        ))}
 
       {hasBalanceServiceErrorOccurred && (
         <Stack direction="row" alignItems="center" gap={0.5}>

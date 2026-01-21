@@ -1,13 +1,17 @@
 import { Box, Skeleton, Stack } from '@avalabs/k2-alpine';
+import { useSettingsContext } from '@core/ui';
 import { FC } from 'react';
 
 export const LoadingState: FC = () => {
+  const { showTrendingTokens } = useSettingsContext();
   return (
-    <Stack gap={1.25} height={1} overflow="clip">
+    <Stack gap={2.5}>
       <ActionButtonsSkeleton />
-      <TrendingTokensSkeleton />
-      <FiltersBarSkeleton />
-      <TokensListSkeleton />
+      <Stack gap={1.25} height={1} overflow="clip">
+        {showTrendingTokens && <TrendingTokensSkeleton />}
+        <FiltersBarSkeleton />
+        <TokensListSkeleton />
+      </Stack>
     </Stack>
   );
 };
@@ -35,10 +39,10 @@ const FiltersBarSkeleton: FC = () => {
   return (
     <Stack direction="row" justifyContent="space-between">
       <Stack direction="row" gap={1}>
-        <Skeleton width={65} height={24} animation="wave" variant="rounded" />
-        <Skeleton width={62} height={24} animation="wave" variant="rounded" />
+        <Skeleton width={82} height={24} animation="wave" variant="rounded" />
+        <Skeleton width={76} height={24} animation="wave" variant="rounded" />
       </Stack>
-      <Skeleton width={70} height={24} animation="wave" variant="rounded" />
+      <Skeleton width={79} height={24} animation="wave" variant="rounded" />
     </Stack>
   );
 };
@@ -46,9 +50,10 @@ const FiltersBarSkeleton: FC = () => {
 const TokensListSkeleton: FC = () => {
   return (
     <Stack gap={1}>
-      <Skeleton width="100%" height={50} animation="wave" variant="rounded" />
-      <Skeleton width="100%" height={50} animation="wave" variant="rounded" />
-      <Skeleton width="100%" height={50} animation="wave" variant="rounded" />
+      <Skeleton width="100%" height={60} animation="wave" variant="rounded" />
+      <Skeleton width="100%" height={60} animation="wave" variant="rounded" />
+      <Skeleton width="100%" height={60} animation="wave" variant="rounded" />
+      <Skeleton width="100%" height={60} animation="wave" variant="rounded" />
     </Stack>
   );
 };

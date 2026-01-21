@@ -20,7 +20,10 @@ export const BalanceChange: FC<BalanceChangeProps> = ({
   const theme = useTheme();
   const { currencyFormatter } = useSettingsContext();
 
-  if (!balanceChange) return null;
+  if (!balanceChange) {
+    // Prevent the layout from shifting on the rare occassion when balance change is not available.
+    return <Stack height={20} />;
+  }
 
   const isLoss = balanceChange < 0;
   const PnLIcon = isLoss ? TriangleDownIcon : TriangleUpIcon;

@@ -32,14 +32,14 @@ export const WalletAccount: FC<Props> = ({
   networksWithBalance,
 }) => {
   const theme = useTheme();
-
+  const { privacyMode } = useSettingsContext();
   const history = useHistory();
   const { selectAccount, isActiveAccount } = useAccountsContext();
   const { getTotalBalance } = useBalancesContext();
   const { currencyFormatter } = useSettingsContext();
   const { capture } = useAnalyticsContext();
-  const clickHandler = useCallback(() => {
-    selectAccount(account.id);
+  const clickHandler = useCallback(async () => {
+    await selectAccount(account.id);
 
     capture('AccountSelectorAccountSwitched', {
       type: account.type,
@@ -92,7 +92,9 @@ export const WalletAccount: FC<Props> = ({
           <Typography variant="subtitle3">
             {currencyFormatter(balance?.sum ?? 0)}
           </Typography>
-          <BalanceChange balanceChange={balance?.priceChange.value ?? 0} />
+          {!privacyMode && (
+            <BalanceChange balanceChange={balance?.priceChange.value ?? 0} />
+          )}
         </Stack>
         <MdNavigateNext size={16} color={theme.palette.text.secondary} />
       </Stack>

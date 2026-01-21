@@ -108,3 +108,4 @@ export * from './updateIfDifferent';
 export * from './walletConnectEventFilters';
 export * from './calculateTotalAtomicFundsForAccounts';
 export * from './promise';
+export * from './sidePanel';

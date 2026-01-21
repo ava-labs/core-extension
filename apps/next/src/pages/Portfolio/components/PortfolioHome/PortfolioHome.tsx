@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import { NoScrollStack } from '@/components/NoScrollStack';
 import { Stack } from '@avalabs/k2-alpine';
 import {
   AccountAtomicBalanceState,
@@ -11,7 +10,6 @@ import {
 import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
-import { TESTNET_MODE_BACKGROUND_COLOR } from '@/config/constants';
 import { PortfolioTabs } from './components/PortfolioTabs';
 import { EnsureDefined } from '@core/types';
 
@@ -32,34 +30,20 @@ export const PortfolioHome: FC = () => {
 
   return (
     <>
-      <NoScrollStack
-        zIndex={0}
-        height={1}
-        data-scroll-container="portfolio-content"
-        // TODO: The "testnet" color palette needs to be updated, but core.app is already using it.
-        // In Extension, we only need to change the background color of the home scren (portfolio page),
-        // meanwhile the "testnet" color scheme changes the palette's "background.default" property,
-        // so it affects the entire UI.
-        bgcolor={
-          isDeveloperMode ? TESTNET_MODE_BACKGROUND_COLOR : 'background.default'
-        }
-        gap={2.5}
-      >
-        <Stack gap={2.5} px={1.5}>
-          <AccountInfo
-            account={accounts.active}
-            balance={totalBalance}
-            isDeveloperMode={isDeveloperMode}
-          />
+      <Stack gap={2.5} px={1.5} mb={2.5}>
+        <AccountInfo
+          account={accounts.active}
+          balance={totalBalance}
+          isDeveloperMode={isDeveloperMode}
+        />
 
-          {hasAtomicBalance(atomicBalance) && (
-            <AtomicFundsBalance
-              atomicBalance={atomicBalance.balanceDisplayValue}
-            />
-          )}
-        </Stack>
-        <PortfolioTabs />
-      </NoScrollStack>
+        {hasAtomicBalance(atomicBalance) && (
+          <AtomicFundsBalance
+            atomicBalance={atomicBalance.balanceDisplayValue}
+          />
+        )}
+      </Stack>
+      <PortfolioTabs />
       {isDeveloperMode && (
         <TestnetModeOverlay
           verticalLines={[12, -12]}

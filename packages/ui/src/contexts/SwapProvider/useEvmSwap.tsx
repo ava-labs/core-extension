@@ -31,6 +31,7 @@ import {
   SwapProviders,
 } from './types';
 import { ParaswapProvider } from './providers/ParaswapProvider';
+import { normalizeAmountForNotificationForProvider } from './utils/normalizeAmount';
 
 const getSwapProvider = (isSwapUseMarkrBlocked: boolean): SwapProvider =>
   isSwapUseMarkrBlocked ? ParaswapProvider : MarkrProvider;
@@ -243,6 +244,16 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         backoffPolicy: RetryBackoffPolicy.linearThenExponential(4, 1000),
         maxRetries: 20,
       }).then((receipt) => {
+        const srcAmount = normalizeAmountForNotificationForProvider({
+          provider: swapProvider as SwapProviders,
+          amount: amountIn,
+          decimal: srcDecimals,
+        });
+        const destAmount = normalizeAmountForNotificationForProvider({
+          provider: swapProvider as SwapProviders,
+          amount: amountOut,
+          decimal: destDecimals,
+        });
         const isSuccessful = Boolean(receipt?.status === 1);
         onTransactionReceipt({
           isSuccessful,
@@ -251,8 +262,8 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
           userAddress,
           srcToken,
           destToken,
-          srcAmount: amountIn,
-          destAmount: amountOut,
+          srcAmount,
+          destAmount,
           srcDecimals,
           destDecimals,
         });
