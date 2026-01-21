@@ -18,15 +18,20 @@ import { isSpecificContextContainer } from '../../utils';
 const PENDING_TOAST_ID = 'transaction-pending';
 const RESULT_TOAST_ID = 'transaction-result';
 
+export type TransactionStatusCallbackParams = {
+  network?: NetworkWithCaipId;
+  context?: TransactionStatusInfo['context'];
+};
+
 export type TransactionStatusProviderProps = PropsWithChildren<{
   renderExplorerLink?: (options: {
     network: NetworkWithCaipId;
     hash: string;
     onDismiss: () => void;
   }) => ReactNode;
-  onPending?: () => void;
-  onSuccess?: (context?: TransactionStatusInfo['context']) => void;
-  onReverted?: () => void;
+  onPending?: (params: TransactionStatusCallbackParams) => void;
+  onSuccess?: (params: TransactionStatusCallbackParams) => void;
+  onReverted?: (params: TransactionStatusCallbackParams) => void;
 }>;
 
 const allowedContexts = [ContextContainer.POPUP, ContextContainer.SIDE_PANEL];
@@ -42,6 +47,7 @@ export function TransactionStatusProvider({
   renderExplorerLink,
   onPending,
   onSuccess,
+  onReverted,
 }: TransactionStatusProviderProps) {
   const { events } = useConnectionContext();
   const { getNetwork } = useNetworkContext();
@@ -70,7 +76,7 @@ export function TransactionStatusProvider({
                 break;
               }
 
-              onPending?.();
+              onPending?.({ network, context: statusInfo.context });
               toast.pending(t('Transaction pending...'), {
                 id: `${PENDING_TOAST_ID}-${statusInfo.txHash}`,
               });
@@ -102,7 +108,7 @@ export function TransactionStatusProvider({
                       },
                     })
                   : undefined;
-              onSuccess?.();
+              onSuccess?.({ network, context: statusInfo.context });
               toast.success(t('Transaction successful'), {
                 id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
                 ...(explorerLink && { action: explorerLink }),
@@ -112,6 +118,7 @@ export function TransactionStatusProvider({
 
             case TransactionStatusEventNames.REVERTED: {
               toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
+              onReverted?.({ network, context: statusInfo.context });
               toast.error(t('Transaction failed'), {
                 id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
               });
@@ -124,7 +131,15 @@ export function TransactionStatusProvider({
     return () => {
       subscription.unsubscribe();
     };
-  }, [events, getNetwork, t, renderExplorerLink, onPending, onSuccess]);
+  }, [
+    events,
+    getNetwork,
+    t,
+    renderExplorerLink,
+    onPending,
+    onSuccess,
+    onReverted,
+  ]);
 
   return <>{children}</>;
 }
