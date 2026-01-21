@@ -147,6 +147,18 @@ interface GetAccountAddressFromCaip2IdOrNamesSpaceProps {
   nameSpace?: string;
 }
 
+const splitIntoMultipleRequests = ({
+  data,
+  currency,
+  showUntrustedTokens,
+}: GetBalancesRequestBody): GetBalancesRequestBody[] => {
+  return chunk(data, 5).flatMap((dataChunk) => ({
+    data: dataChunk,
+    currency,
+    showUntrustedTokens,
+  }));
+};
+
 const splitRequestItemsBasedOnReferencesLength = (
   items: GetBalanceRequestItem[],
 ): GetBalanceRequestItem[] => {
@@ -159,6 +171,32 @@ const splitRequestItemsBasedOnReferencesLength = (
           ...rest,
         }) as GetBalanceRequestItem,
     );
+  });
+};
+
+const splitRequestItemsBasedOnAddressesLength = (
+  items: GetBalanceRequestItem[],
+): GetBalanceRequestItem[] => {
+  return items.flatMap((item) => {
+    if ('addresses' in item) {
+      return chunk(item.addresses, 50).flatMap(
+        (addressesChunk) =>
+          ({
+            ...item,
+            addresses: addressesChunk,
+          }) as GetBalanceRequestItem,
+      );
+    } else if ('addressDetails' in item) {
+      return chunk(item.addressDetails, 50).flatMap(
+        (addressDetailsChunk) =>
+          ({
+            ...item,
+            addressDetails: addressDetailsChunk,
+          }) as GetBalanceRequestItem,
+      );
+    }
+
+    return item;
   });
 };
 
@@ -187,7 +225,7 @@ export const createGetBalancePayload = async ({
   currency = 'usd',
   secretsService,
   addressResolver,
-}: CreateGetBalancePayloadParams): Promise<GetBalancesRequestBody> => {
+}: CreateGetBalancePayloadParams): Promise<GetBalancesRequestBody[]> => {
   // TODO: coreth caip2 ID from extension
   const caip2Ids = chainIds.map(chainIdToCaip);
   const partialGetBalancePayload = accounts.reduce<PartialGetBalancePayload>(
@@ -466,11 +504,13 @@ export const createGetBalancePayload = async ({
     })),
   ].filter(Boolean) as GetBalanceRequestItem[];
 
-  return {
-    data: splitRequestItemsBasedOnReferencesLength(payload),
+  return splitIntoMultipleRequests({
+    data: splitRequestItemsBasedOnReferencesLength(
+      splitRequestItemsBasedOnAddressesLength(payload),
+    ),
     currency,
     showUntrustedTokens: true,
-  } as GetBalancesRequestBody;
+  }) as GetBalancesRequestBody[];
 };
 
 export const convertBalanceResponsesToCacheBalanceObject = (

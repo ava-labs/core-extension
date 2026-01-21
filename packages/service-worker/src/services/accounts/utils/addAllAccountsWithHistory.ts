@@ -1,8 +1,8 @@
+import { AccountType } from '@core/types';
 import { container } from 'tsyringe';
+import { NetworkService } from '~/services/network/NetworkService';
 import { ModuleManager } from '~/vmModules/ModuleManager';
 import { AccountsService } from '../AccountsService';
-import { NetworkService } from '~/services/network/NetworkService';
-import { AccountType } from '@core/types';
 
 export const ACCOUNTS_ADDED_KEY = 'accountsAdded';
 
