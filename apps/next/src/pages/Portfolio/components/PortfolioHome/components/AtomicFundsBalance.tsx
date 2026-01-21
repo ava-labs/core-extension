@@ -1,33 +1,36 @@
-import { FC } from 'react';
-import { FiAlertCircle } from 'react-icons/fi';
-import { Box, Button, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
-import { useTranslation } from 'react-i18next';
 import { Card } from '@/components/Card';
 import { CORE_WEB_BASE_URL } from '@/config';
+import { Box, Button, Stack, styled, Typography } from '@avalabs/k2-alpine';
+import { useBalancesContext } from '@core/ui/src/contexts/BalancesProvider';
+import { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { FiAlertCircle } from 'react-icons/fi';
 
 type Props = {
-  atomicBalance: number;
+  accountId: string | undefined;
 };
 
+const StyledCard = styled(Card)(({ theme }) =>
+  theme.palette.mode === 'light'
+    ? {
+        backgroundColor: theme.palette.surface.secondary,
+      }
+    : {},
+);
+
 // TODO: Multiple token support
-export const AtomicFundsBalance: FC<Props> = ({ atomicBalance }) => {
-  const theme = useTheme();
+export const AtomicFundsBalance: FC<Props> = ({ accountId }) => {
   const { t } = useTranslation();
-  if (!atomicBalance) {
-    return <></>;
+  const { getAtomicBalance } = useBalancesContext();
+  const atomicBalance = getAtomicBalance(accountId);
+
+  if (!accountId || !atomicBalance?.balanceDisplayValue) {
+    return null;
   }
 
   return (
-    <Card>
-      <Stack
-        direction="row"
-        gap={1}
-        alignItems="center"
-        sx={{
-          px: theme.spacing(1.5),
-          py: theme.spacing(1),
-        }}
-      >
+    <StyledCard>
+      <Stack direction="row" gap={1} alignItems="center" px={1} py={1}>
         <Box flexShrink={0} lineHeight={1} color="error.main">
           <FiAlertCircle size={24} />
         </Box>
@@ -40,7 +43,7 @@ export const AtomicFundsBalance: FC<Props> = ({ atomicBalance }) => {
               {t(
                 'You have {{amount}} AVAX stuck in atomic memory from incomplete cross-chain transfers',
                 {
-                  amount: atomicBalance,
+                  amount: atomicBalance.balanceDisplayValue,
                 },
               )}
             </Typography>
@@ -61,6 +64,6 @@ export const AtomicFundsBalance: FC<Props> = ({ atomicBalance }) => {
           </Button>
         </Stack>
       </Stack>
-    </Card>
+    </StyledCard>
   );
 };

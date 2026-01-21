@@ -1,32 +1,20 @@
-import { FC } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import {
-  AccountAtomicBalanceState,
   useAccountsContext,
   useBalancesContext,
   useNetworkContext,
 } from '@core/ui';
+import { FC } from 'react';
 
-import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
+import { AccountInfo } from './components/AccountInfo/AccountInfo';
 import { AtomicFundsBalance } from './components/AtomicFundsBalance';
 import { PortfolioTabs } from './components/PortfolioTabs';
-import { EnsureDefined } from '@core/types';
-
-const hasAtomicBalance = (
-  atomicBalance?: AccountAtomicBalanceState,
-): atomicBalance is EnsureDefined<
-  AccountAtomicBalanceState,
-  'balanceDisplayValue'
-> => {
-  return Boolean(atomicBalance && atomicBalance.balanceDisplayValue);
-};
 
 export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const { isDeveloperMode } = useNetworkContext();
-  const { totalBalance, getAtomicBalance } = useBalancesContext();
-  const atomicBalance = getAtomicBalance(accounts.active?.id);
+  const { totalBalance } = useBalancesContext();
 
   return (
     <>
@@ -36,12 +24,7 @@ export const PortfolioHome: FC = () => {
           balance={totalBalance}
           isDeveloperMode={isDeveloperMode}
         />
-
-        {hasAtomicBalance(atomicBalance) && (
-          <AtomicFundsBalance
-            atomicBalance={atomicBalance.balanceDisplayValue}
-          />
-        )}
+        <AtomicFundsBalance accountId={accounts.active?.id} />
       </Stack>
       <PortfolioTabs />
       {isDeveloperMode && (
