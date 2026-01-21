@@ -291,7 +291,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       const settings = await this.settingsService.getSettings();
       const selectedCurrency = settings.currency.toLowerCase();
       try {
-        const getBalancesRequestBody = await createGetBalancePayload({
+        const getBalancesRequestBodies = await createGetBalancePayload({
           accounts,
           chainIds,
           currency: selectedCurrency as Currency,
@@ -300,16 +300,26 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           filterSmallUtxos: settings.filterSmallUtxos,
         });
 
-        const balanceServiceResponse = await postV1BalanceGetBalances({
-          client: balanceApiClient,
-          body: getBalancesRequestBody,
-          onSseError: (error) => {
-            throw error;
-          },
-        });
+        const balanceServiceResponses = (
+          await Promise.allSettled(
+            getBalancesRequestBodies.map(async (getBalancesRequestBody) =>
+              postV1BalanceGetBalances({
+                client: balanceApiClient,
+                body: getBalancesRequestBody,
+                onSseError: (error) => {
+                  throw error;
+                },
+              }),
+            ),
+          )
+        ).filter(isFulfilled);
 
         const { balances: balanceServiceResponseArray, errors } =
-          await convertStreamToArray(balanceServiceResponse.stream);
+          await Promise.all(
+            balanceServiceResponses.map(async (balanceServiceResponse) => {
+              return convertStreamToArray(balanceServiceResponse.value.stream);
+            }),
+          );
 
         const fallbackBalanceResponse =
           await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
