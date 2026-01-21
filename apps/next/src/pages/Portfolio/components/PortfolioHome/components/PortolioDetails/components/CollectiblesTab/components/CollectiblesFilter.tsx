@@ -2,20 +2,45 @@ import { PopoverItem } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { MediaTypeFilters } from '../hooks/useCollectiblesToolbar';
 import { DropdownMenu } from '@/components/DropdownMenu';
+import { NetworkDivider } from './Styled';
+import { useNetworkContext } from '@core/ui';
 
 interface CollectiblesFilterProps {
   typeFilter: MediaTypeFilters;
+  selectedNetworks: number[];
   onTypeChange: (type: keyof MediaTypeFilters) => void;
+  onNetworkChange: (chainId: number) => void;
+  clearNetworkFilter: () => void;
 }
 
 export function CollectiblesFilter({
   typeFilter,
   onTypeChange,
+  selectedNetworks,
+  onNetworkChange,
+  clearNetworkFilter,
 }: CollectiblesFilterProps) {
   const { t } = useTranslation();
+  const { nftEnabledNetworks } = useNetworkContext();
 
   return (
     <DropdownMenu label={t('Filter')}>
+      <PopoverItem
+        onClick={clearNetworkFilter}
+        selected={selectedNetworks.length === 0}
+      >
+        {t('All networks')}
+      </PopoverItem>
+      {nftEnabledNetworks.map((network) => (
+        <PopoverItem
+          key={network.caip2Id}
+          onClick={() => onNetworkChange(network.chainId)}
+          selected={selectedNetworks.includes(network.chainId)}
+        >
+          {network.chainName}
+        </PopoverItem>
+      ))}
+      <NetworkDivider />
       <PopoverItem
         onClick={() => onTypeChange('all')}
         selected={typeFilter.all}

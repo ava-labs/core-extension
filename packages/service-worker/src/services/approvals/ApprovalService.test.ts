@@ -33,11 +33,7 @@ describe('src/background/services/approvals/ApprovalService', () => {
         const onOpenedCallback = jest.mocked(sidePanel.onOpened.addListener)
           .mock.calls[0]?.[0];
 
-        if (!onOpenedCallback) {
-          fail('sidePanel.onOpened not listened to');
-        }
-
-        onOpenedCallback({ windowId: CURRENT_WINDOW_ID });
+        onOpenedCallback?.({ windowId: CURRENT_WINDOW_ID });
       });
 
       it('saves the action and emits an approval request for the extension UI', async () => {

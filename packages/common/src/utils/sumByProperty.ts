@@ -1,4 +1,5 @@
 import { formatAndLog } from './logging';
+import { isDevelopment } from './environment';
 
 export const sumByProperty = <O extends Record<T, unknown>, T extends keyof O>(
   values: O[],
@@ -12,12 +13,14 @@ export const sumByProperty = <O extends Record<T, unknown>, T extends keyof O>(
     }
 
     // Log out instances when provided list contains non-numeric values
-    formatAndLog(
-      `sumByProperty(): object at index ${index} was ignored. Property ${String(
-        key,
-      )} does not contain a number:`,
-      curr,
-    );
+    if (isDevelopment()) {
+      formatAndLog(
+        `sumByProperty(): object at index ${index} was ignored. Property ${String(
+          key,
+        )} does not contain a number:`,
+        curr,
+      );
+    }
 
     return acc;
   }, 0);

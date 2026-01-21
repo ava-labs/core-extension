@@ -11,7 +11,7 @@ import {
   useDuplicatedWalletChecker,
   useActiveLedgerAppInfo,
 } from '@core/ui';
-import { LedgerError, SecretType } from '@core/types';
+import { DerivationStatus, LedgerError, SecretType } from '@core/types';
 import {
   assert,
   getAvalancheExtendedKeyPath,
@@ -24,7 +24,6 @@ import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
 
 import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 import {
-  DerivationStatus,
   DerivedKeys,
   ErrorType,
   ExtendedPublicKeyMap,
@@ -49,7 +48,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     initLedgerTransport,
     getExtendedPublicKey,
   } = useLedgerContext();
-  const { appType, appVersion } = useActiveLedgerAppInfo();
+  const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
   const checkAddressActivity = useCheckAddressActivity();
 

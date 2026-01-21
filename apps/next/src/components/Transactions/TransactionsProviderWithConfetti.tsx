@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { ChevronRightIcon, IconButton, toast } from '@avalabs/k2-alpine';
+import { ChevronRightIcon, IconButton } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useConfettiContext } from '@/components/Confetti';
 
@@ -16,10 +16,11 @@ export const TransactionStatusProviderWithConfetti = ({
 
   return (
     <TransactionStatusProvider
-      toast={toast}
+      onPending={() => {
+        history.replace('/');
+      }}
       onSuccess={() => {
         triggerConfetti();
-        history.replace('/');
       }}
       renderExplorerLink={({ network, hash }) => (
         <ExplorerLink network={network} hash={hash} />

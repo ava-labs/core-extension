@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { TokenInfo, useTokenInfoContext } from '@avalabs/core-bridge-sdk';
 import { useCoinGeckoId } from './useCoinGeckoId';
 

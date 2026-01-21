@@ -11,7 +11,9 @@ import { OnboardingService } from '../services/onboarding/OnboardingService';
 import { AddressResolver } from '../services/secrets/AddressResolver';
 import { SettingsService } from '../services/settings/SettingsService';
 import { ModuleManager } from '../vmModules/ModuleManager';
+import { isSidePanelSupported } from '@core/common';
 
+const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000;
 @singleton()
 export class BackgroundRuntime {
   constructor(
@@ -29,6 +31,7 @@ export class BackgroundRuntime {
   ) {}
 
   async activate() {
+    this.startKeepAliveTimer();
     this.onInstalled();
     this.registerInpageScript();
     this.addContextMenus();
@@ -55,6 +58,17 @@ export class BackgroundRuntime {
         browser.tabs.create({ url: ContextContainer.HOME });
       }
     });
+  }
+
+  // initialize timestamp saving to keep the service worker alive
+  private startKeepAliveTimer() {
+    const saveTimestamp = () => {
+      const timestamp = new Date().toISOString();
+      browser.storage.session.set({ timestamp });
+    };
+
+    saveTimestamp();
+    setInterval(saveTimestamp, SAVE_TIMESTAMP_INTERVAL_MS);
   }
 
   private addContextMenus() {
@@ -146,6 +160,10 @@ export class BackgroundRuntime {
   }
 
   private async setupSidePanel() {
+    if (!isSidePanelSupported()) {
+      return;
+    }
+
     const hasSidePanelPermission = await browser.permissions.contains({
       permissions: ['sidePanel'],
     });

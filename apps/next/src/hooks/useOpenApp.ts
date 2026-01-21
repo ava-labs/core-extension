@@ -1,9 +1,12 @@
 import { useConnectionContext, useSettingsContext } from '@core/ui';
 import { useCallback } from 'react';
 import { ExtensionRequest, ViewMode } from '@core/types';
-import { OpenExtensionPopupWindowHandler } from '~/services/onboarding/handlers/openExtensionPopupWindow';
+import {
+  OpenExtensionPopupWindowHandler,
+  RequestNavigationHandler,
+} from '@core/service-worker';
 import browser from 'webextension-polyfill';
-import { RequestNavigationHandler } from '~/index';
+import { isSidePanelSupported } from '@core/common';
 
 type OpenAppParams = {
   closeWindow?: boolean;
@@ -31,7 +34,7 @@ export const useOpenApp = () => {
     async ({ closeWindow = true, viewMode, navigateTo }: OpenAppParams) => {
       const viewToOpen = viewMode || preferredView;
 
-      if (viewToOpen === 'sidebar') {
+      if (isSidePanelSupported() && viewToOpen === 'sidebar') {
         try {
           await viewInSidePanel();
         } catch (error) {

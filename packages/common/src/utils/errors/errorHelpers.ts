@@ -1,4 +1,6 @@
 import { EthereumRpcError, ethErrors } from 'eth-rpc-errors';
+import { StatusCodes, TransportStatusError } from '@ledgerhq/hw-transport';
+import { Status, TransportError } from '@keystonehq/hw-transport-error';
 import { CommonError, ErrorCode, SwapErrorCode } from '@core/types';
 
 export type ErrorData = {
@@ -45,9 +47,23 @@ export function wrapError(
   };
 }
 
+const LEDGER_USER_REJECTION_STATUS_CODES = [
+  StatusCodes.USER_REFUSED_ON_DEVICE,
+  StatusCodes.CONDITIONS_OF_USE_NOT_SATISFIED,
+  0x6986, // "Command not allowed", used by Avalanche app. Reference: https://docs.zondax.ch/ledger-apps/polkadot/APDUSPEC#return-codes
+];
+
 export const isUserRejectionError = (err: any) => {
-  if (!err) {
+  if (!err || typeof err !== 'object') {
     return false;
+  }
+
+  if (err instanceof TransportStatusError) {
+    return LEDGER_USER_REJECTION_STATUS_CODES.includes(err.statusCode);
+  }
+
+  if (err instanceof TransportError) {
+    return err.transportErrorCode === Status.PRS_PARSING_REJECTED;
   }
 
   if (typeof err === 'object') {
