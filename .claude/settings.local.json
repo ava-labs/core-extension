@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(yarn typecheck:next:*)",
-      "Bash(yarn test:path:*)",
-      "Bash(yarn workspace:*)"
-    ]
-  }
-}
