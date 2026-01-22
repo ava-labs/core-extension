@@ -1,19 +1,21 @@
-name: E2E Playwright Tests
+name: Core Extension E2E Smoke Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+  workflow_run:
+    workflows: ['CI for main']
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
+      test-env:
+        type: choice
+        description: 'Run E2E tests against what env?'
+        options:
+          - develop
+          - staging
+          - local
+        required: true
+        default: develop
       test-run-type:
         type: choice
         description: 'Run smoke tests or full regression?'
@@ -22,6 +24,10 @@ on:
           - full
         required: true
         default: smoke
+      extension-version:
+        description: 'Specify extension version'
+        required: true
+        default: 'latest'
       send-slack:
         type: choice
         description: 'Send slack notification?'

@@ -41,7 +41,7 @@ const getWorkers = () => {
 const fullyParallel = !process.env.CI;
 
 export const baseConfig: PlaywrightTestConfig = {
-  globalSetup: './global-setup.ts',
+  globalSetup: path.resolve(__dirname, 'global-setup.ts'),
   testDir: '../tests',
   testMatch: '**/*.spec.ts',
   outputDir: '../test-results',
