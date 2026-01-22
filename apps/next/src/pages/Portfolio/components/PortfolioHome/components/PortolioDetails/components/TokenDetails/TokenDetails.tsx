@@ -1,5 +1,5 @@
 import { useHistory, useParams } from 'react-router-dom';
-import { AssetsErrorState } from '../AssetsErrorState';
+import { AssetsErrorState } from '../AssetsTab';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { useMemo } from 'react';
 import { PortfolioActionButtons } from '../PortfolioActionButtons';
