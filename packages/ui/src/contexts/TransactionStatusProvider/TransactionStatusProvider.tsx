@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode, useEffect } from 'react';
+import { PropsWithChildren, ReactNode, useCallback, useEffect } from 'react';
 import { toast } from '@avalabs/k2-alpine';
 import { filter } from 'rxjs';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isTransactionStatusEvent } from './isTransactionStatusEvent';
 import { isSpecificContextContainer } from '../../utils';
+import { isAvalanchePrimaryNetwork } from '@core/common';
 
 const PENDING_TOAST_ID = 'transaction-pending';
 const RESULT_TOAST_ID = 'transaction-result';
@@ -53,6 +54,21 @@ export function TransactionStatusProvider({
   const { getNetwork } = useNetworkContext();
   const { t } = useTranslation();
 
+  const getExplorerLink = useCallback(
+    (hash: string, network?: NetworkWithCaipId) => {
+      return network && renderExplorerLink
+        ? renderExplorerLink({
+            network,
+            hash,
+            onDismiss: () => {
+              toast.dismiss(`${RESULT_TOAST_ID}-${hash}`);
+            },
+          })
+        : undefined;
+    },
+    [renderExplorerLink],
+  );
+
   useEffect(() => {
     if (!isAllowedContext()) {
       return;
@@ -77,37 +93,41 @@ export function TransactionStatusProvider({
               }
 
               onPending?.({ network, context: statusInfo.context });
-              toast.pending(t('Transaction pending...'), {
-                id: `${PENDING_TOAST_ID}-${statusInfo.txHash}`,
-              });
+
+              if (isAvalanchePrimaryNetwork(network)) {
+                const explorerLink = getExplorerLink(
+                  statusInfo.txHash,
+                  network,
+                );
+                toast.success(t('Transaction successful'), {
+                  id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
+                  ...(explorerLink && { action: explorerLink }),
+                });
+              } else {
+                toast.pending(t('Transaction pending...'), {
+                  id: `${PENDING_TOAST_ID}-${statusInfo.txHash}`,
+                });
+              }
+
               break;
             }
 
             case TransactionStatusEventNames.CONFIRMED: {
-              toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
-
               // Skip success callback and toast for intermediate transactions
               // For bridge transactions, we take the user to the bridge transaction status page instead
               // (e.g., ERC-20 spend approvals before swaps/bridges)
+              // Skip success callback and toast for Avalanche primary networks since we show a success toast in the pending callback
               if (
                 statusInfo.context?.isIntermediateTransaction ||
-                statusInfo.context?.isBridge
+                statusInfo.context?.isBridge ||
+                isAvalanchePrimaryNetwork(network)
               ) {
                 break;
               }
 
-              const explorerLink =
-                network && renderExplorerLink
-                  ? renderExplorerLink({
-                      network,
-                      hash: statusInfo.txHash,
-                      onDismiss: () => {
-                        toast.dismiss(
-                          `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
-                        );
-                      },
-                    })
-                  : undefined;
+              toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
+
+              const explorerLink = getExplorerLink(statusInfo.txHash, network);
               onSuccess?.({ network, context: statusInfo.context });
               toast.success(t('Transaction successful'), {
                 id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
@@ -139,6 +159,7 @@ export function TransactionStatusProvider({
     onPending,
     onSuccess,
     onReverted,
+    getExplorerLink,
   ]);
 
   return <>{children}</>;

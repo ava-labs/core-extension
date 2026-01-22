@@ -10,20 +10,9 @@ import {
 import {
   openNewTab,
   getExplorerAddressByNetwork,
-  isAvalancheNetwork,
-  isPchainNetwork,
-  isXchainNetwork,
+  isAvalanchePrimaryNetwork,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
-
-const isAvalanchePrimaryNetwork = (network?: NetworkWithCaipId) => {
-  if (!network) return false;
-  return (
-    isAvalancheNetwork(network) ||
-    isPchainNetwork(network) ||
-    isXchainNetwork(network)
-  );
-};
 
 export const TransactionStatusProviderWithConfetti = ({
   children,
