@@ -1,5 +1,6 @@
-name: E2E Testing
-'on':
+name: E2E Playwright Tests
+
+on:
   push:
     branches:
       - main
@@ -11,134 +12,278 @@ name: E2E Testing
       - reopened
       - synchronize
       - ready_for_review
+  workflow_dispatch:
+    inputs:
+      test-run-type:
+        type: choice
+        description: 'Run smoke tests or full regression?'
+        options:
+          - smoke
+          - full
+        required: true
+        default: smoke
+      send-slack:
+        type: choice
+        description: 'Send slack notification?'
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+
 jobs:
   build:
+    name: Build Extension
     runs-on: ubuntu-latest-16-cores-core-extension
-    if: '${{ !github.event.pull_request.draft }}'
+    if: ${{ !github.event.pull_request.draft }}
     environment: alpha
+    outputs:
+      test_run_id: ${{ steps.create-testrail-run.outputs.test_run_id }}
+
     steps:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.18.3
           check-latest: true
-      - name: enable corepack
-        run: |
-          corepack enable
+
+      - name: Enable corepack
+        run: corepack enable
+
       - name: Checkout extension
         uses: actions/checkout@v4
         with:
-          ref: '${{ github.head_ref }}'
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
+
       - name: Create env file
         run: |
           touch .env.production
-          echo 'RELEASE=alpha' >> .env.production
-          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
-          echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
-          echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
-          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
-          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
-          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
-          echo 'SENTRY_DSN="${{ secrets.SENTRY_DSN }}"' >> .env.production
-          echo 'COINBASE_APP_ID="${{ secrets.COINBASE_APP_ID }}"' >> .env.production
-          echo 'CORE_WEB_BASE_URL="${{ secrets.CORE_WEB_BASE_URL }}"' >> .env.production
-          echo 'GLACIER_API_KEY="${{ secrets.GLACIER_API_KEY }}"' >> .env.production
-          echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
-          echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
-          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
-          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY_E2E }}"' >> .env.production
-          echo 'ID_SERVICE_API_KEY="${{ secrets.ID_SERVICE_API_KEY }}"' >> .env.production
-          echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
-          echo 'BALANCE_SERVICE_URL="${{ secrets.BALANCE_SERVICE_URL }}"' >> .env.production
-          echo 'PROFILE_SERVICE_URL="${{ secrets.PROFILE_SERVICE_URL }}"' >> .env.production
+          echo RELEASE=alpha >> .env.production
+          echo POSTHOG_KEY=${{ secrets.QA_POSTHOG_KEY }} >> .env.production
+          echo POSTHOG_URL=${{ vars.QA_POSTHOG_URL }} >> .env.production
+          echo COVALENT_API_KEY=${{ secrets.QA_COVALENT_API_KEY }} >> .env.production
+          echo GLACIER_URL=${{ vars.QA_GLACIER_URL }} >> .env.production
+          echo PROXY_URL=${{ vars.QA_PROXY_URL }} >> .env.production
+          echo CORE_EXTENSION_LANDING_URL=${{ vars.QA_CORE_EXTENSION_LANDING_URL }} >> .env.production
+          echo SENTRY_DSN=${{ secrets.QA_SENTRY_DSN }} >> .env.production
+          echo COINBASE_APP_ID=${{ vars.QA_COINBASE_APP_ID }} >> .env.production
+          echo CORE_WEB_BASE_URL=${{ vars.QA_CORE_WEB_BASE_URL }} >> .env.production
+          echo GLACIER_API_KEY=${{ secrets.QA_GLACIER_API_KEY }} >> .env.production
+          echo FIREBASE_CONFIG=${{ secrets.QA_FIREBASE_CONFIG }} >> .env.production
+          echo ID_SERVICE_URL=${{ vars.QA_ID_SERVICE_URL }} >> .env.production
+          echo GASLESS_SERVICE_URL=${{ vars.QA_GASLESS_SERVICE_URL }} >> .env.production
+          echo SNOWTRACE_API_KEY=${{ secrets.QA_SNOWTRACE_API_KEY }} >> .env.production
+          echo WALLET_CONNECT_PROJECT_ID=${{ secrets.QA_WALLET_CONNECT_PROJECT_ID }} >> .env.production
+          echo SEEDLESS_URL=${{ vars.QA_SEEDLESS_URL }} >> .env.production
+          echo SEEDLESS_ORG_ID=${{ vars.QA_SEEDLESS_ORG_ID }} >> .env.production
+          echo SEEDLESS_FIDO_IDENTITY_URL=${{ vars.QA_SEEDLESS_FIDO_IDENTITY_URL }} >> .env.production
+          echo GOOGLE_OAUTH_CLIENT_ID=${{ vars.QA_GOOGLE_OAUTH_CLIENT_ID }} >> .env.production
+          echo APPLE_OAUTH_CLIENT_ID=${{ vars.QA_APPLE_OAUTH_CLIENT_ID }} >> .env.production
+          echo APPLE_OAUTH_REDIRECT_URL=${{ vars.QA_APPLE_OAUTH_REDIRECT_URL }} >> .env.production
+          echo CUBESIGNER_ENV=${{ vars.QA_CUBESIGNER_ENV }} >> .env.production
+          echo ANALYTICS_ENCRYPTION_KEY=${{ secrets.QA_ANALYTICS_ENCRYPTION_KEY }} >> .env.production
+          echo ANALYTICS_ENCRYPTION_KEY_ID=${{ secrets.QA_ANALYTICS_ENCRYPTION_KEY_ID }} >> .env.production
+          echo NEWSLETTER_BASE_URL=${{ vars.QA_NEWSLETTER_BASE_URL }} >> .env.production
+          echo NEWSLETTER_PORTAL_ID=${{ vars.QA_NEWSLETTER_PORTAL_ID }} >> .env.production
+          echo NEWSLETTER_FORM_ID=${{ vars.QA_NEWSLETTER_FORM_ID }} >> .env.production
+          echo NOTIFICATION_SENDER_SERVICE_URL=${{ vars.QA_NOTIFICATION_SENDER_SERVICE_URL }} >> .env.production
+          echo BALANCE_SERVICE_URL=${{ vars.QA_BALANCE_SERVICE_URL }} >> .env.production
+          echo PROFILE_SERVICE_URL=${{ vars.QA_PROFILE_SERVICE_URL }} >> .env.production
+          echo NEXT_GEN_EXTENSION_PUBLIC_KEY=${{ vars.QA_EXTENSION_PUBLIC_KEY }} >> .env.production
+
       - name: Install dependencies
         run: |
           yarn install
           yarn allow-scripts
-      - name: Build library
-        run: 'yarn build:alpha:no-source-maps'
-      - name: Generate a zip
-        run: yarn zip
-      - name: Output extension file version before renaming
-        run: ls builds/*.zip
-      - name: Rename extension file
-        run: |
-          mv builds/*.zip builds/extension.zip
-          mv builds/extension.zip ${GITHUB_WORKSPACE}
-      - name: Upload builded zip file
+
+      - name: Build extension
+        run: yarn build:alpha
+
+      - name: Upload built extension
         uses: actions/upload-artifact@v4
         with:
           name: extension
-          path: extension.zip
+          path: ./dist
+
+      - name: Install TestRail CLI
+        run: pip3 install trcli
+
+      - name: Create test run in TestRail
+        id: create-testrail-run
+        run: |
+          TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
+          TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
+            --project "Core Extension" \
+            --username ${{ vars.QA_TESTRAIL_EMAIL }} \
+            --key ${{ secrets.QA_TESTRAIL_API_KEY }} \
+            add_run --title "Extension Playwright Automation Run - $TS" \
+            --run-include-all | grep "run_id:" | awk '{print $2}')
+          echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
+
   e2e:
+    name: Run E2E Tests - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
     runs-on: ubuntu-latest-16-cores-core-extension
     needs: build
-    name: Run E2E Smoke Tests
     environment: e2e
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2]
+        shardTotal: [2]
     env:
-      RUNNER: CI
-      LOG_LEVEL: info
-      POST_TO_TESTRAIL: true
-      TESTRAIL_API_KEY: '${{secrets.TESTRAIL_API_KEY}}'
-      RECOVERY_PHRASE: '${{secrets.RECOVERY_PHRASE}}'
-      METAMASK_RECOVERY_PHRASE: '${{secrets.METAMASK_RECOVERY_PHRASE}}'
-      APITOKEN_ETHERSCAN: '${{secrets.APITOKEN_ETHERSCAN}}'
-      APITOKEN_CRYPTOAPIS: '${{secrets.APITOKEN_CRYPTOAPIS}}'
-      APITOKEN_SNOWTRACE: '${{secrets.APITOKEN_SNOWTRACE}}'
-      BROWSER_VERSION: ${{ github.event.inputs.browser_version == '' && '128.0' || github.event.inputs.browser_version }}
+      CI: true
+      AWS_REGION: us-east-1
+      TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+      WALLET_PASSWORD: ${{ secrets.E2E_WALLET_PASSWORD }}
+      RECOVERY_PHRASE_12_WORDS: ${{ secrets.E2E_RECOVERY_PHRASE_12_WORDS }}
+      RECOVERY_PHRASE_24_WORDS: ${{ secrets.E2E_RECOVERY_PHRASE_24_WORDS }}
+
+    container:
+      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      options: --ipc=host --security-opt=seccomp=unconfined --cap-add=SYS_ADMIN --shm-size=4gb --memory=6g --cpus=4
+
     steps:
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.18.3
-          check-latest: true
-      - name: Checkout automation repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: ava-labs/avalanche-test-automation
-          path: ./
-          ssh-key: '${{ secrets.SSH_DEPLOY_KEY }}'
-      - name: Install automation repo dependencies
-        run: yarn install
-      - name: Download builded zip file
+          fetch-depth: 0
+
+      - name: Install Chrome
+        working-directory: e2e
+        run: |
+          apt-get update
+          apt-get install -y wget gnupg
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+          apt-get update
+          apt-get install -y google-chrome-stable
+
+      - name: Download built extension
         uses: actions/download-artifact@v4
         with:
           name: extension
-      - name: >-
-          Running browser extension smoke tests on testnet/mainnet against
-          generated zip
-        run: 'yarn ext:testnet/mainnet-smoke'
-      - if: always()
-        name: Set Testrail Run ID ENV
-        run: |
-          echo $(head -n 1 testrail_run_id.txt)
-          echo "TESTRAIL_RUN_ID=$(head -n 1 testrail_run_id.txt)" >> $GITHUB_ENV
-      - name: Success slack notification
-        if: success()
-        uses: slackapi/slack-github-action@v1.25.0
+          path: ./dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
+          node-version: 20.18.3
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: |
+          yarn install
+          npx playwright install chromium
+
+      - name: Set Python for AWS CLI
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install AWS dependencies
+        shell: bash
+        run: |
+          python3 -m venv ~/py_env
+          source ~/py_env/bin/activate
+          pip3 install awscli
+
+      - name: Download Extension snapshots from AWS S3 bucket
+        shell: bash
+        working-directory: e2e/helpers
+        run: |
+          mkdir -p storage-snapshots
+          cd storage-snapshots
+          source ~/py_env/bin/activate
+          aws s3 sync s3://core-qa-automation-snapshots/extension/ .
+
+      - name: Run Playwright tests
+        working-directory: e2e
+        env:
+          PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+        run: |
+          GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
+          xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
+            npx playwright test --headed \
+            --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
+            $GREP_FILTER
+
+      - name: Upload results to TestRail
+        if: always()
+        shell: bash
+        run: |
+          source ~/py_env/bin/activate
+          pip3 install trcli
+          trcli -n -h https://avalabs.testrail.io \
+            --project "Core Extension" \
+            --username ${{ vars.QA_TESTRAIL_EMAIL }} \
+            --key ${{ secrets.QA_TESTRAIL_API_KEY }} \
+            parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
+            --run-id=${{ env.TEST_RUN_ID }}
+
+      - name: Output TestRail run link
+        if: always()
+        run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.shardIndex }}
+          path: |
+            e2e/test-results
+          retention-days: 30
+
+  slack-notification:
+    name: Send Slack Notification
+    runs-on: ubuntu-latest
+    environment: e2e
+    needs: [build, e2e]
+    if: always()
+    env:
+      TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+
+    steps:
+      - name: Notify Slack on success
+        if: ${{ (github.event.inputs.send-slack || 'true') == 'true' && needs.e2e.result == 'success' }}
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.QA_EXT_SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
           payload: |
             {
               "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "PASSED",
               "STATUS_EMOJI": ":white_check_mark:",
-              "TEST_RUN_TYPE": "Browser extension smoke tests are running against branch= ${{ github.head_ref }}",
-              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TESTRAIL_RUN_ID }}"
+              "TEST_RUN_TYPE": "${{ github.event.inputs.test-run-type == 'full' && 'Core Extension full regression tests' || 'Core Extension smoke tests' }}",
+              "BRANCH": "${{ github.head_ref || github.ref_name }}",
+              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}"
             }
-        env:
-          SLACK_WEBHOOK_URL: '${{ secrets.SLACK_WEBHOOK_URL }}'
-      - name: Failure slack notification
-        if: failure()
-        uses: slackapi/slack-github-action@v1.25.0
+
+      - name: Notify Slack on failure
+        if: ${{ (github.event.inputs.send-slack || 'true') == 'true' && needs.e2e.result == 'failure' }}
+        uses: slackapi/slack-github-action@v2.1.1
         with:
+          webhook: ${{ secrets.QA_EXT_SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
           payload: |
             {
               "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "FAILED",
               "STATUS_EMOJI": ":alert:",
-              "TEST_RUN_TYPE": "Browser extension smoke tests are running against branch= ${{ github.head_ref }}",
-              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TESTRAIL_RUN_ID }}"
+              "TEST_RUN_TYPE": "${{ github.event.inputs.test-run-type == 'full' && 'Core Extension full regression tests' || 'Core Extension smoke tests' }}",
+              "BRANCH": "${{ github.head_ref || github.ref_name }}",
+              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}"
             }
-        env:
-          SLACK_WEBHOOK_URL: '${{ secrets.SLACK_WEBHOOK_URL }}'
