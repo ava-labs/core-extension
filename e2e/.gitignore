@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Test results
+test-results/
+playwright-report/
+.last-run.json
+
+# Build artifacts
+dist/
+
+# Environment files
+.env
+.env.local
+
+# Snapshots (may contain sensitive wallet data)
+# Uncomment if you want to ignore snapshots:
+# helpers/storage-snapshots/*.ts
+
+# IDE
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db

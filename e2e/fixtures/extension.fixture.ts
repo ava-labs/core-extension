@@ -1,0 +1,187 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+import fs from 'node:fs';
+import path from 'node:path';
+import { test as base, chromium, BrowserContext, Page } from '@playwright/test';
+import { TEST_CONFIG } from '../constants';
+import {
+  getExtensionId,
+  openExtensionPopup,
+} from '../helpers/extensionHelpers';
+import { unlockWallet } from '../helpers/walletHelpers';
+import { loadWalletSnapshot } from '../helpers/loadWalletSnapshot';
+
+// Define custom fixtures
+export type ExtensionFixtures = {
+  context: BrowserContext;
+  extensionId: string;
+  extensionPage: Page;
+  unlockedExtensionPage: Page;
+  popupPage: Page;
+};
+
+export const test = base.extend<ExtensionFixtures>({
+  /**
+   * Browser context with extension loaded
+   * This is the foundation fixture that loads the extension
+   *
+   * By default, starts with a fresh extension (no snapshot).
+   * To use a wallet snapshot, add annotation: { type: 'snapshot', description: 'snapshotName' }
+   */
+  // eslint-disable-next-line no-empty-pattern
+  context: async ({}, use, testInfo) => {
+    console.log('\nSetting up browser context with extension...');
+
+    const extensionPath = path.resolve(
+      __dirname,
+      '..',
+      TEST_CONFIG.extension.path,
+    );
+    const userDataDir = path.resolve(
+      __dirname,
+      '..',
+      TEST_CONFIG.extension.userDataDir,
+    );
+
+    // Check if extension exists
+    if (!fs.existsSync(extensionPath)) {
+      throw new Error(
+        `Extension not found at: ${extensionPath}. Please build the extension first.`,
+      );
+    }
+
+    // Get snapshot name from test annotation (if provided)
+    // Default is 'none' for fresh extension launch
+    const snapshotAnnotation = testInfo.annotations.find(
+      (a) => a.type === 'snapshot',
+    );
+    const snapshotName = snapshotAnnotation?.description || 'none';
+
+    if (snapshotName === 'none') {
+      console.log('Starting with fresh extension (no snapshot)');
+    } else {
+      console.log(`Using snapshot: ${snapshotName}`);
+    }
+
+    // Launch browser with extension in persistent context
+    const context = await chromium.launchPersistentContext(userDataDir, {
+      headless: false, // Extensions require headed mode
+      args: [
+        `--disable-extensions-except=${extensionPath}`,
+        `--load-extension=${extensionPath}`,
+        '--no-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+      ],
+      viewport: { width: 1920, height: 1080 },
+      ignoreHTTPSErrors: true,
+      bypassCSP: true,
+    });
+
+    // Load wallet snapshot if specified
+    if (snapshotName !== 'none') {
+      try {
+        await loadWalletSnapshot(
+          context,
+          snapshotName,
+          TEST_CONFIG.wallet.password,
+        );
+      } catch (error) {
+        console.error(`Failed to load snapshot "${snapshotName}":`, error);
+        throw error;
+      }
+    }
+
+    await use(context);
+
+    // Cleanup
+    await context.close();
+  },
+
+  /**
+   * Gets the extension ID
+   */
+  extensionId: async ({ context }, use) => {
+    const extensionId = await getExtensionId(context);
+    console.log(`Extension ID: ${extensionId}`);
+    await use(extensionId);
+  },
+
+  /**
+   * Opens the extension page (may be locked)
+   */
+  extensionPage: async ({ context, extensionId }, use) => {
+    const page = await openExtensionPopup(context, extensionId);
+    await use(page);
+  },
+
+  /**
+   * Opens the extension page and unlocks it
+   * Requires a snapshot with wallet data
+   */
+  unlockedExtensionPage: async ({ context, extensionId }, use) => {
+    const page = await openExtensionPopup(context, extensionId);
+
+    // Try to unlock if lock screen is visible
+    try {
+      const passwordInput = page.getByPlaceholder(/password/i);
+      const isLocked = await passwordInput
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
+
+      if (isLocked) {
+        await unlockWallet(page);
+      }
+    } catch (_error) {
+      console.log('Wallet may already be unlocked or no wallet exists');
+    }
+
+    await use(page);
+  },
+
+  /**
+   * Opens a fresh popup page
+   */
+  popupPage: async ({ context, extensionId }, use) => {
+    const page = await openExtensionPopup(context, extensionId);
+    await use(page);
+  },
+});
+
+// Re-export expect from Playwright
+export { expect } from '@playwright/test';
+
+/**
+ * Test hook to take screenshots on failure
+ */
+test.afterEach(async ({ context }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus) {
+    // Take screenshot on failure
+    const pages = context.pages();
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      const screenshotDir = path.resolve(
+        __dirname,
+        '..',
+        'test-results',
+        'screenshots',
+      );
+
+      if (!fs.existsSync(screenshotDir)) {
+        fs.mkdirSync(screenshotDir, { recursive: true });
+      }
+
+      const filename = `${testInfo.title.replace(/[^a-z0-9]/gi, '_')}-page${i}-${Date.now()}.png`;
+      await page.screenshot({
+        path: path.join(screenshotDir, filename),
+        fullPage: true,
+      });
+
+      testInfo.annotations.push({
+        type: 'screenshot',
+        description: `./e2e/test-results/screenshots/${filename}`,
+      });
+    }
+  }
+});
