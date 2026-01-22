@@ -2,7 +2,7 @@ import { isTokenWithBalanceAVM } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 import { useBalancesContext, useTokensWithBalances } from '@core/ui';
 import { FC } from 'react';
-import { AssetsErrorState } from '../../../AssetsErrorState';
+import { AssetsErrorState } from '../../../AssetsTab';
 import { XPChainDetails } from '../XPChains/XPChainDetails';
 import { Assets } from './Assets';
 

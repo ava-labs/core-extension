@@ -5,6 +5,7 @@ import {
   Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
+import { ReactElement } from 'react';
 
 type CollapsedTokenAmountProps = {
   amount: string;
@@ -30,6 +31,7 @@ const defaultRegularProps: TypographyProps = {
 const CONSECUTIVE_ZEROES_THRESHOLD = 4;
 const MAX_FRACTION_SIZE = 5;
 const MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES = 2;
+const TOOLTIP_MIN_INTEGER_LENGTH = 10;
 
 /**
  * When dealing with super small numbers, like 0.0000000000001, we want to
@@ -40,7 +42,7 @@ const MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES = 2;
  * Any digits following the consecutive zeroes will be limited
  * to MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES.
  *
- * For rexample: 0.0000001000005 becomes 0.0₆10, not 0.0₆1000005.
+ * For example: 0.0000001000005 becomes 0.0₆10, not 0.0₆1000005.
  */
 export const CollapsedTokenAmount = ({
   amount,
@@ -55,38 +57,55 @@ export const CollapsedTokenAmount = ({
 
   const [integer, fraction] = amount.split('.');
 
+  const possibleIntegerOverflow = Boolean(
+    integer && integer.length > TOOLTIP_MIN_INTEGER_LENGTH,
+  );
+
   if (!fraction || (fraction && fraction.length <= MAX_FRACTION_SIZE)) {
-    return <Typography {...finalRegularProps}>{amount}</Typography>;
+    return withTooltip(
+      showTooltip && possibleIntegerOverflow,
+      amount,
+      <Typography {...finalRegularProps}>{amount}</Typography>,
+    );
   }
 
   const indexOfNonZero = fraction?.search(/[1-9]/);
 
   if (indexOfNonZero === -1) {
-    return <Typography {...finalRegularProps}>{integer}</Typography>;
+    return withTooltip(
+      showTooltip && possibleIntegerOverflow,
+      amount,
+      <Typography {...finalRegularProps}>{integer}</Typography>,
+    );
   }
 
   const zeroCount = fraction.slice(0, indexOfNonZero).length;
 
   if (fraction && indexOfNonZero >= CONSECUTIVE_ZEROES_THRESHOLD) {
-    const content = (
+    return withTooltip(
+      showTooltip,
+      amount,
       <Stack
         direction="row"
         width="100%"
         justifyContent="flex-end"
         {...stackProps}
       >
-        <Typography {...finalRegularProps}>{integer}.0</Typography>
-        <Typography {...finalOverlineProps}>{zeroCount}</Typography>
-        <Typography {...finalRegularProps}>
+        <Typography {...finalRegularProps}>{integer}</Typography>
+        <Typography {...finalRegularProps} flexShrink={0}>
+          .0
+        </Typography>
+        <Typography {...finalOverlineProps} flexShrink={0}>
+          {zeroCount}
+        </Typography>
+        <Typography {...finalRegularProps} flexShrink={0}>
           {fraction.slice(
             indexOfNonZero,
             indexOfNonZero + MAX_DIGITS_AFTER_CONSECUTIVE_ZEROES,
           )}
         </Typography>
-      </Stack>
+      </Stack>,
     );
-
-    return showTooltip ? <Tooltip title={amount}>{content}</Tooltip> : content;
   }
 
   // If the fraction is longer than the max fraction size, but we can't collapse
@@ -94,15 +113,24 @@ export const CollapsedTokenAmount = ({
   // exact amount in a tooltip.
   if (fraction && fraction.length > MAX_FRACTION_SIZE) {
     const approximationSign = showApproximationSign ? '~' : '';
-    const content = (
+
+    return withTooltip(
+      showTooltip,
+      amount,
       <Typography {...finalRegularProps}>
         {approximationSign}
         {integer}.{fraction.substring(0, MAX_FRACTION_SIZE)}
-      </Typography>
+      </Typography>,
     );
-
-    return showTooltip ? <Tooltip title={amount}>{content}</Tooltip> : content;
   }
 
   return <Typography {...finalRegularProps}>{amount}</Typography>;
+};
+
+const withTooltip = (
+  showTooltip: boolean,
+  title: string,
+  children: ReactElement,
+) => {
+  return showTooltip ? <Tooltip title={title}>{children}</Tooltip> : children;
 };

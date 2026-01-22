@@ -1,3 +1,4 @@
+import { SolanaAddressEnabler } from '@/components/Address';
 import {
   BitcoinColorIcon,
   CChainIcon,
@@ -87,6 +88,7 @@ export const AccountContextMenu: FC<Props> = ({
         Icon={SolanaColorIcon}
         address={account.addressSVM}
         onClick={onClose}
+        AddressEnabler={SolanaAddressEnabler}
       />
     </Menu>
   );
