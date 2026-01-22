@@ -142,14 +142,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
   /**
    * Filters out dust UTXOs (< 0.002 AVAX) from X and P chain balances
    */
-  #filterDustUtxosFromBalances(
-    balances: Balances,
-    filterSmallUtxos: boolean,
-  ): Balances {
-    if (!filterSmallUtxos) {
-      return balances;
-    }
-
+  #filterDustUtxosFromBalances(balances: Balances): Balances {
     const filteredBalances: Balances = {};
 
     for (const [chainIdStr, addressBalances] of Object.entries(balances)) {
@@ -331,10 +324,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
 
         // Apply local dust filtering to ensure consistency regardless of API behavior
         const mergedTokens = merge(balanceObject, fallbackBalanceResponse);
-        const filteredTokens = this.#filterDustUtxosFromBalances(
-          mergedTokens,
-          settings.filterSmallUtxos,
-        );
+        const filteredTokens = settings.filterSmallUtxos
+          ? this.#filterDustUtxosFromBalances(mergedTokens)
+          : mergedTokens;
 
         return {
           tokens: filteredTokens,
@@ -357,10 +349,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     // if there was an error with querying the balance service, or the feature flag is off, we're getting balances through vm modules
     const settings = await this.settingsService.getSettings();
     const balances = await this.#fetchBalances(chainIds, accounts, tokenTypes);
-    const filteredTokens = this.#filterDustUtxosFromBalances(
-      balances.tokens,
-      settings.filterSmallUtxos,
-    );
+    const filteredTokens = settings.filterSmallUtxos
+      ? this.#filterDustUtxosFromBalances(balances.tokens)
+      : balances.tokens;
 
     return { tokens: filteredTokens, atomic: {} };
   }
