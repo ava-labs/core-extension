@@ -107,9 +107,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20251210215615":
-  version: 0.0.0-feat-lombard-sdk-integration-20251210215615
-  resolution: "@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
+"@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20260121230409":
+  version: 0.0.0-feat-lombard-sdk-integration-20260121230409
+  resolution: "@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20260121230409"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:3.0.17"
@@ -122,7 +122,7 @@ __metadata:
     lodash: "npm:4.17.21"
     viem: "npm:2.11.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/e7e76eecb2b1b9eed787a622b925ee3a87dd5f5b4d91de145cf3b0fecde10404e25bca70007274d9879bb505834c7e704830430d24fb4a2b16a763375924542c
+  checksum: 10c0/f0dfca45a015b5bafec14e9917f0365a998b4bd122ec047bfac47a0142c00d3d9cd43771b2699a3c4881dcd8e0ab453e4b486ac9b478054e1e1451ec5d4dac20
   languageName: node
   linkType: hard
 
@@ -2625,7 +2625,7 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260121230409"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.71"
@@ -2880,7 +2880,7 @@ __metadata:
     "@avalabs/avalanche-module": "npm:3.0.7"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:3.0.7"
-    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260121230409"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.71"
@@ -3046,7 +3046,7 @@ __metadata:
   resolution: "@core/ui@workspace:packages/ui"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20251210215615"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260121230409"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.71"

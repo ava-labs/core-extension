@@ -9,7 +9,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@avalabs/avalanchejs": "5.1.0-alpha.2",
-    "@avalabs/bridge-unified": "0.0.0-feat-lombard-sdk-integration-20251210215615",
+    "@avalabs/bridge-unified": "0.0.0-feat-lombard-sdk-integration-20260121230409",
     "@avalabs/core-bridge-sdk": "3.1.0-alpha.71",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.71",
     "@avalabs/core-coingecko-sdk": "3.1.0-alpha.71",
