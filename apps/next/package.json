@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@avalabs/avalanchejs": "5.1.0-alpha.2",
-    "@avalabs/bridge-unified": "0.0.0-feat-lombard-sdk-integration-20251210215615",
+    "@avalabs/bridge-unified": "0.0.0-feat-lombard-sdk-integration-20260122181959",
     "@avalabs/core-chains-sdk": "3.1.0-alpha.71",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.71",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.71",
