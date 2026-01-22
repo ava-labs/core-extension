@@ -93,7 +93,7 @@ jobs:
           echo NOTIFICATION_SENDER_SERVICE_URL=${{ vars.QA_NOTIFICATION_SENDER_SERVICE_URL }} >> .env.production
           echo BALANCE_SERVICE_URL=${{ vars.QA_BALANCE_SERVICE_URL }} >> .env.production
           echo PROFILE_SERVICE_URL=${{ vars.QA_PROFILE_SERVICE_URL }} >> .env.production
-          echo NEXT_GEN_EXTENSION_PUBLIC_KEY=${{ vars.QA_EXTENSION_PUBLIC_KEY }} >> .env.production
+          echo EXTENSION_PUBLIC_KEY=${{ secrets.EXTENSION_PUBLIC_KEY_E2E }} >> .env.production
 
       - name: Install dependencies
         run: |
@@ -118,8 +118,8 @@ jobs:
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "Core Extension" \
-            --username ${{ vars.QA_TESTRAIL_EMAIL }} \
-            --key ${{ secrets.QA_TESTRAIL_API_KEY }} \
+          --username ${{ secrets.TESTRAIL_EMAIL }} \
+          --key ${{ secrets.TESTRAIL_API_KEY }} \
             add_run --title "Extension Playwright Automation Run - $TS" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
@@ -141,9 +141,9 @@ jobs:
       CI: true
       AWS_REGION: us-east-1
       TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
-      WALLET_PASSWORD: ${{ secrets.E2E_WALLET_PASSWORD }}
-      RECOVERY_PHRASE_12_WORDS: ${{ secrets.E2E_RECOVERY_PHRASE_12_WORDS }}
-      RECOVERY_PHRASE_24_WORDS: ${{ secrets.E2E_RECOVERY_PHRASE_24_WORDS }}
+      WALLET_PASSWORD: ${{ secrets.WALLET_PASSWORD }}
+      RECOVERY_PHRASE_12_WORDS: ${{ secrets.RECOVERY_PHRASE_12_WORDS }}
+      RECOVERY_PHRASE_24_WORDS: ${{ secrets.RECOVERY_PHRASE_24_WORDS }}
 
     container:
       image: mcr.microsoft.com/playwright:v1.55.1-noble
@@ -232,8 +232,8 @@ jobs:
           pip3 install trcli
           trcli -n -h https://avalabs.testrail.io \
             --project "Core Extension" \
-            --username ${{ vars.QA_TESTRAIL_EMAIL }} \
-            --key ${{ secrets.QA_TESTRAIL_API_KEY }} \
+          --username ${{ secrets.TESTRAIL_EMAIL }} \
+          --key ${{ secrets.TESTRAIL_API_KEY }} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
             --run-id=${{ env.TEST_RUN_ID }}
 
