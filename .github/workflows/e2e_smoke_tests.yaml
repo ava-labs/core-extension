@@ -139,7 +139,7 @@ jobs:
       RECOVERY_PHRASE_24_WORDS: ${{ secrets.E2E_RECOVERY_PHRASE_24_WORDS }}
 
     container:
-      image: mcr.microsoft.com/playwright:v1.52.0-noble
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
       options: --ipc=host --security-opt=seccomp=unconfined --cap-add=SYS_ADMIN --shm-size=4gb --memory=6g --cpus=4
 
     steps:
