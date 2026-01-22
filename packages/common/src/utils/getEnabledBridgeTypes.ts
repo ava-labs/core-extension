@@ -2,10 +2,7 @@ import { BridgeType } from '@avalabs/bridge-unified';
 import { type FeatureFlags, FeatureGates } from '@core/types';
 
 export const getEnabledBridgeTypes = (featureFlags: Partial<FeatureFlags>) => {
-  const enabled: BridgeType[] = [
-    BridgeType.LOMBARD_BTC_TO_BTCB,
-    BridgeType.LOMBARD_BTCB_TO_BTC,
-  ];
+  const enabled: BridgeType[] = [];
 
   if (featureFlags[FeatureGates.UNIFIED_BRIDGE_CCTP]) {
     enabled.push(BridgeType.CCTP);
