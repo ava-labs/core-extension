@@ -24,6 +24,10 @@ export type TransactionStatusCallbackParams = {
   context?: TransactionStatusInfo['context'];
 };
 
+/**
+ * If the network is C/X/P chain, we show a success toast immediately when the transaction is pending.
+ * For other networks, we show a pending toast and show the success toast when the transaction is confirmed.
+ */
 export type TransactionStatusProviderProps = PropsWithChildren<{
   renderExplorerLink?: (options: {
     network: NetworkWithCaipId;
