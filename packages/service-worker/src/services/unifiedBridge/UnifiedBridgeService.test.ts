@@ -53,6 +53,8 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
     },
     addListener: jest.fn(),
@@ -130,27 +132,31 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(1);
 
-    // Toggle an irrelevant flag off
+    // Toggle an irrelevant flag off (key order must match initial featureFlags)
     mockFeatureFlagChanges({
+      [FeatureGates.IMPORT_FIREBLOCKS]: false,
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: true,
       [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
-      [FeatureGates.IMPORT_FIREBLOCKS]: false,
     });
 
     await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
     expect(createUnifiedBridgeService).toHaveBeenCalledTimes(1);
 
-    // Toggle a relevant flag off
+    // Toggle a relevant flag off (key order must match initial featureFlags)
     mockFeatureFlagChanges({
+      [FeatureGates.IMPORT_FIREBLOCKS]: false,
       [FeatureGates.UNIFIED_BRIDGE_CCTP]: false,
       [FeatureGates.UNIFIED_BRIDGE_ICTT]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
-      [FeatureGates.IMPORT_FIREBLOCKS]: false,
     });
 
     await new Promise(process.nextTick); // Await getEnabledBridgeServices() call
