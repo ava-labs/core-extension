@@ -1,7 +1,7 @@
 import { AccountSelect } from '@/components/AccountSelect';
 import { Button, Stack } from '@avalabs/k2-alpine';
 import { handleTxOutcome, stringToBigint } from '@core/common';
-import { useAccountsContext } from '@core/ui';
+import { useAccountsContext, useNetworkContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../../contexts';
@@ -32,10 +32,10 @@ export const BridgeTransactionForm: FC<Props> = ({
   } = useAccountsContext();
 
   const [accountQuery, setAccountQuery] = useState('');
+  const { getNetwork } = useNetworkContext();
   const {
     transferAsset,
     asset,
-    targetNetwork,
     query: {
       amount,
       updateQuery,
@@ -43,6 +43,10 @@ export const BridgeTransactionForm: FC<Props> = ({
       targetNetwork: targetNetworkId,
     },
   } = useBridgeState();
+
+  const targetNetwork = targetNetworkId
+    ? getNetwork(targetNetworkId)
+    : undefined;
 
   // NOTE: we operate on the assumption that UnifiedBridge SDK will
   // use the first matching bridge from the `destinations` array
