@@ -60,7 +60,7 @@ export async function openExtensionPopup(
   context: BrowserContext,
   extensionId: string,
 ): Promise<Page> {
-  const popupUrl = `chrome-extension://${extensionId}/index.html`;
+  const popupUrl = `chrome-extension://${extensionId}/popup.html`;
   const page = await context.newPage();
   await page.goto(popupUrl);
   await waitForExtensionLoad(page);
@@ -75,7 +75,7 @@ export async function navigateToRoute(
   extensionId: string,
   route: string,
 ): Promise<void> {
-  const url = `chrome-extension://${extensionId}/index.html#${route}`;
+  const url = `chrome-extension://${extensionId}/popup.html#${route}`;
   await page.goto(url);
   await page.waitForLoadState('domcontentloaded');
 }

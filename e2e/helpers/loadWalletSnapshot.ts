@@ -72,9 +72,9 @@ export const loadWalletSnapshot = async (
       const extensionId = await getExtensionIdFromServiceWorker(context);
       console.log(`Extension ID: ${extensionId}`);
 
-      // Create a new page and navigate to the extension
+      // Create a new page and navigate to the extension popup
       extensionPage = await context.newPage();
-      const extensionUrl = `chrome-extension://${extensionId}/index.html`;
+      const extensionUrl = `chrome-extension://${extensionId}/popup.html`;
       console.log(`Navigating to extension: ${extensionUrl}`);
       await extensionPage.goto(extensionUrl, { waitUntil: 'domcontentloaded' });
 
