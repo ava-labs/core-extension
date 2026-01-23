@@ -1,9 +1,11 @@
 import type { BrowserContext, Page } from '@playwright/test';
 
 /**
- * Gets the extension ID from the browser context
+ * Gets the extension ID from the browser context using the service worker
+ * This is the most reliable method as it doesn't depend on open pages
  */
 export async function getExtensionId(context: BrowserContext): Promise<string> {
+  // First, try to get extension ID from existing pages
   const pages = context.pages();
   for (const page of pages) {
     const url = page.url();
@@ -15,18 +17,23 @@ export async function getExtensionId(context: BrowserContext): Promise<string> {
     }
   }
 
-  // Wait for extension page to load
-  const extensionPage = await context.waitForEvent('page', {
-    predicate: (page) => page.url().startsWith('chrome-extension://'),
-    timeout: 30000,
-  });
+  // If no page found, get extension ID from service worker (more reliable)
+  let [serviceWorker] = context.serviceWorkers();
 
-  const match = extensionPage.url().match(/chrome-extension:\/\/([^/]+)/);
+  if (!serviceWorker) {
+    console.log('Waiting for extension service worker...');
+    serviceWorker = await context.waitForEvent('serviceworker', {
+      timeout: 30000,
+    });
+  }
+
+  const url = serviceWorker.url();
+  const match = url.match(/chrome-extension:\/\/([^/]+)/);
   if (match) {
     return match[1];
   }
 
-  throw new Error('Could not get extension ID');
+  throw new Error('Could not get extension ID from service worker');
 }
 
 /**
