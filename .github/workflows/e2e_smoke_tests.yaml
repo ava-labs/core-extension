@@ -40,6 +40,9 @@ jobs:
     runs-on: ubuntu-latest-16-cores-core-extension
     if: ${{ !github.event.pull_request.draft }}
     environment: alpha
+    env:
+      TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
     outputs:
       test_run_id: ${{ steps.create-testrail-run.outputs.test_run_id }}
 
@@ -114,13 +117,13 @@ jobs:
 
       - name: Create test run in TestRail
         id: create-testrail-run
-        if: ${{ secrets.TESTRAIL_EMAIL != '' && secrets.TESTRAIL_API_KEY != '' }}
+        if: ${{ env.TESTRAIL_EMAIL != '' && env.TESTRAIL_API_KEY != '' }}
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "Core Extension" \
-            --username ${{ secrets.TESTRAIL_EMAIL }} \
-            --key ${{ secrets.TESTRAIL_API_KEY }} \
+            --username ${{ env.TESTRAIL_EMAIL }} \
+            --key ${{ env.TESTRAIL_API_KEY }} \
             add_run --title "Extension Playwright Automation Run - $TS" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
@@ -142,6 +145,8 @@ jobs:
       CI: true
       AWS_REGION: us-east-1
       TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+      TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
       WALLET_PASSWORD: ${{ secrets.WALLET_PASSWORD }}
       RECOVERY_PHRASE_12_WORDS: ${{ secrets.RECOVERY_PHRASE_12_WORDS }}
       RECOVERY_PHRASE_24_WORDS: ${{ secrets.RECOVERY_PHRASE_24_WORDS }}
@@ -233,8 +238,8 @@ jobs:
           pip3 install trcli
           trcli -n -h https://avalabs.testrail.io \
             --project "Core Extension" \
-            --username ${{ secrets.TESTRAIL_EMAIL }} \
-            --key ${{ secrets.TESTRAIL_API_KEY }} \
+            --username ${{ env.TESTRAIL_EMAIL }} \
+            --key ${{ env.TESTRAIL_API_KEY }} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
             --run-id=${{ env.TEST_RUN_ID }}
 
