@@ -114,6 +114,7 @@ jobs:
 
       - name: Create test run in TestRail
         id: create-testrail-run
+        if: ${{ secrets.TESTRAIL_EMAIL != '' && secrets.TESTRAIL_API_KEY != '' }}
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
@@ -225,7 +226,7 @@ jobs:
             $GREP_FILTER
 
       - name: Upload results to TestRail
-        if: always()
+        if: always() && env.TEST_RUN_ID != ''
         shell: bash
         run: |
           source ~/py_env/bin/activate
@@ -238,7 +239,7 @@ jobs:
             --run-id=${{ env.TEST_RUN_ID }}
 
       - name: Output TestRail run link
-        if: always()
+        if: always() && env.TEST_RUN_ID != ''
         run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
 
       - name: Upload test results
