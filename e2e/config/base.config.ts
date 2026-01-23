@@ -10,8 +10,13 @@ const shardId = process.env.PLAYWRIGHT_SHARD || '';
 const testRailOptions = {
   embedAnnotationsAsProperties: true,
   outputFile: shardId
-    ? `../test-results/junit-report-${shardId}.xml`
-    : '../test-results/junit-report.xml',
+    ? path.resolve(
+        __dirname,
+        '..',
+        'test-results',
+        `junit-report-${shardId}.xml`,
+      )
+    : path.resolve(__dirname, '..', 'test-results', 'junit-report.xml'),
 };
 
 /**
@@ -42,9 +47,9 @@ const fullyParallel = !process.env.CI;
 
 export const baseConfig: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, 'global-setup.ts'),
-  testDir: '../tests',
+  testDir: path.resolve(__dirname, '..', 'tests'),
   testMatch: '**/*.spec.ts',
-  outputDir: '../test-results',
+  outputDir: path.resolve(__dirname, '..', 'test-results'),
   timeout: 120000,
   expect: { timeout: 10000 },
   forbidOnly: !!process.env.CI,
