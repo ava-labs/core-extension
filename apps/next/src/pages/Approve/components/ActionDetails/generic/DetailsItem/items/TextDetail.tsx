@@ -1,7 +1,5 @@
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { TextItem } from '@avalabs/vm-module-types';
-
-import { NoScrollStack } from '@/components/NoScrollStack';
 
 import { TxDetailsRow } from './DetailRow';
 
@@ -29,7 +27,7 @@ const TextDetailVertical = ({ item }: TextItemProps) => (
     <Typography variant="body3" color="text.secondary">
       {item.label}
     </Typography>
-    <NoScrollStack mt={0}>
+    <Scrollable>
       <Typography
         variant="mono2"
         color="text.primary"
@@ -37,6 +35,12 @@ const TextDetailVertical = ({ item }: TextItemProps) => (
       >
         {item.value}
       </Typography>
-    </NoScrollStack>
+    </Scrollable>
   </Stack>
 );
+
+const Scrollable = styled(Stack)`
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;

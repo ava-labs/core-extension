@@ -66,7 +66,7 @@
     "argon2-browser": "1.18.0",
     "bip32": "2.0.6",
     "bip39": "3.0.4",
-    "bitcoinjs-lib": "6.1.5",
+    "bitcoinjs-lib": "5.2.0",
     "bn.js": "5.2.1",
     "buffer": "6.0.3",
     "date-fns": "2.28.0",

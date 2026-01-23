@@ -1,5 +1,5 @@
 import { EvmSignerWithMessage } from '@avalabs/bridge-unified';
-import { RpcMethod } from '@avalabs/vm-module-types';
+import { AlertType, RpcMethod } from '@avalabs/vm-module-types';
 import { assert, chainIdToCaip } from '@core/common';
 import { RequestHandlerType, UnifiedBridgeError } from '@core/types';
 import { hex, utf8 } from '@scure/base';
@@ -45,7 +45,7 @@ export function getEVMSigner(
               alert:
                 requiredSignatures > currentSignature
                   ? {
-                      type: 'info',
+                      type: AlertType.INFO,
                       title: t('This operation requires {{total}} approvals.', {
                         total: requiredSignatures,
                       }),
@@ -91,7 +91,7 @@ export function getEVMSigner(
               alert:
                 requiredSignatures > currentSignature
                   ? {
-                      type: 'info',
+                      type: AlertType.INFO,
                       title: t('This operation requires {{total}} approvals.', {
                         total: requiredSignatures,
                       }),

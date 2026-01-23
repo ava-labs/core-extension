@@ -1,5 +1,4 @@
 import { useBridgeState } from '@/pages/Bridge/contexts';
-import { useSourceConfirmationsEndTime } from '@/pages/Bridge/hooks';
 import { BridgeTransfer } from '@avalabs/bridge-unified';
 import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { findMatchingBridgeAsset } from '@core/common';
@@ -51,17 +50,6 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
   const hasError = Boolean(pendingTransfer.errorCode);
   const isComplete = Boolean(pendingTransfer.completedAt);
 
-  const isSourceConfirmationsComplete =
-    pendingTransfer.sourceConfirmationCount >=
-      pendingTransfer.sourceRequiredConfirmationCount ||
-    Boolean(pendingTransfer.targetStartedAt);
-
-  const sourceConfirmationsEndTime = useSourceConfirmationsEndTime(
-    pendingTransfer,
-    isSourceConfirmationsComplete,
-    isComplete,
-  );
-
   if (!pendingTransfer) {
     return null;
   }
@@ -79,8 +67,6 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         confirmationsRequired={pendingTransfer.sourceRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.sourceConfirmationCount}
         error={hasError}
-        startTime={pendingTransfer.sourceStartedAt}
-        endTime={sourceConfirmationsEndTime}
       />
       <BridgeDetails
         networkLabel={t('To')}
@@ -89,14 +75,9 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         confirmationsRequired={pendingTransfer.targetRequiredConfirmationCount}
         confirmationsReceived={pendingTransfer.targetConfirmationCount}
         error={hasError}
-        startTime={pendingTransfer.targetStartedAt}
-        endTime={pendingTransfer.completedAt}
       />
 
-      <BridgeEstimatedTimeWarning
-        bridgeType={pendingTransfer.type}
-        targetChainName={pendingTransfer.targetChain.chainName}
-      />
+      <BridgeEstimatedTimeWarning bridgeType={pendingTransfer.type} />
 
       <Stack mt="auto" gap={1}>
         <Button
