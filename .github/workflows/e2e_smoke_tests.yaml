@@ -119,8 +119,8 @@ jobs:
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "Core Extension" \
-          --username ${{ secrets.TESTRAIL_EMAIL }} \
-          --key ${{ secrets.TESTRAIL_API_KEY }} \
+            --username ${{ secrets.TESTRAIL_EMAIL }} \
+            --key ${{ secrets.TESTRAIL_API_KEY }} \
             add_run --title "Extension Playwright Automation Run - $TS" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
@@ -233,8 +233,8 @@ jobs:
           pip3 install trcli
           trcli -n -h https://avalabs.testrail.io \
             --project "Core Extension" \
-          --username ${{ secrets.TESTRAIL_EMAIL }} \
-          --key ${{ secrets.TESTRAIL_API_KEY }} \
+            --username ${{ secrets.TESTRAIL_EMAIL }} \
+            --key ${{ secrets.TESTRAIL_API_KEY }} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
             --run-id=${{ env.TEST_RUN_ID }}
 
