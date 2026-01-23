@@ -7,6 +7,32 @@ const snapshots: Record<string, object> = {
   testnetPrimaryExtWallet,
 };
 
+/**
+ * Gets the extension ID from the service worker
+ */
+async function getExtensionIdFromServiceWorker(
+  context: BrowserContext,
+): Promise<string> {
+  // Try to get extension ID from existing service workers
+  let [serviceWorker] = context.serviceWorkers();
+
+  // If no service worker found, wait for one to appear
+  if (!serviceWorker) {
+    console.log('Waiting for extension service worker...');
+    serviceWorker = await context.waitForEvent('serviceworker', {
+      timeout: 30000,
+    });
+  }
+
+  const url = serviceWorker.url();
+  const match = url.match(/chrome-extension:\/\/([^/]+)/);
+  if (match) {
+    return match[1];
+  }
+
+  throw new Error('Could not extract extension ID from service worker');
+}
+
 export const loadWalletSnapshot = async (
   context: BrowserContext,
   snapshotName: string,
@@ -28,23 +54,32 @@ export const loadWalletSnapshot = async (
     const parsedSnapshot =
       typeof snapshot === 'string' ? JSON.parse(snapshot) : snapshot;
 
-    // Find the extension page
+    // First, try to find an existing extension page
     let extensionPage: Page | undefined;
-    const loopEnd = Date.now() + 10000; // 10 seconds timeout
+    const pages = context.pages();
+    for (const p of pages) {
+      if (p.url().startsWith('chrome-extension://')) {
+        extensionPage = p;
+        break;
+      }
+    }
 
-    // Loop until finding the extension url page (meaning it's fully loaded in the browser) or timeout after 10 seconds
-    while (!extensionPage && Date.now() < loopEnd) {
-      const pages = context.pages();
-      for (const p of pages) {
-        if (p.url().startsWith('chrome-extension://')) {
-          extensionPage = p;
-          break;
-        }
-      }
-      // Wait 500ms before checking again
-      if (!extensionPage) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
+    // If no extension page exists, get the extension ID and create one
+    if (!extensionPage) {
+      console.log(
+        'No extension page found, getting extension ID from service worker...',
+      );
+      const extensionId = await getExtensionIdFromServiceWorker(context);
+      console.log(`Extension ID: ${extensionId}`);
+
+      // Create a new page and navigate to the extension
+      extensionPage = await context.newPage();
+      const extensionUrl = `chrome-extension://${extensionId}/index.html`;
+      console.log(`Navigating to extension: ${extensionUrl}`);
+      await extensionPage.goto(extensionUrl, { waitUntil: 'domcontentloaded' });
+
+      // Wait a bit for the extension to initialize
+      await extensionPage.waitForTimeout(2000);
     }
 
     if (!extensionPage) {
