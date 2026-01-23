@@ -50,11 +50,12 @@ export const test = base.extend<ExtensionFixtures>({
     }
 
     // Get snapshot name from test annotation (if provided)
-    // Default is 'none' for fresh extension launch
+    // Default is TEST_CONFIG wallet snapshot for extension tests
     const snapshotAnnotation = testInfo.annotations.find(
       (a) => a.type === 'snapshot',
     );
-    const snapshotName = snapshotAnnotation?.description || 'none';
+    const snapshotName =
+      snapshotAnnotation?.description || TEST_CONFIG.wallet.snapshotName;
 
     if (snapshotName === 'none') {
       console.log('Starting with fresh extension (no snapshot)');

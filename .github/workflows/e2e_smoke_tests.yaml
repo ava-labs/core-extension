@@ -224,11 +224,7 @@ jobs:
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.test-run-type }}" = "smoke" ]; then
-            GREP_FILTER="--grep=@smoke"
-          else
-            GREP_FILTER=""
-          fi
+          GREP_FILTER="--grep=@smoke"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \

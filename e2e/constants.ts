@@ -7,6 +7,7 @@ export const TEST_CONFIG = {
     userDataDir: './test-results/user-data',
   },
   wallet: {
+    snapshotName: 'mainnetPrimaryExtWallet',
     password: process.env.WALLET_PASSWORD || 'TestPassword123!',
     recoveryPhrase12: process.env.RECOVERY_PHRASE_12_WORDS?.split(' ') || [],
     recoveryPhrase24: process.env.RECOVERY_PHRASE_24_WORDS?.split(' ') || [],

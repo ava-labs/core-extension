@@ -1,21 +1,17 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { ContactsPage } from '../pages/extension/ContactsPage';
-import { TEST_TAGS, TEST_CONTACTS } from '../constants';
+import { TEST_CONTACTS } from '../constants';
 
 test.describe('Contacts Tests', () => {
-  // All contacts tests require an unlocked wallet with mainnet snapshot
-  test.beforeEach(async (_fixtures, testInfo) => {
-    testInfo.annotations.push({
-      type: 'snapshot',
-      description: 'mainnetPrimaryExtWallet',
-    });
-  });
-
   test(
     'As a CORE ext user, when I have no contacts I see an empty state',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-001',
@@ -39,8 +35,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can add a new contact',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-002',
@@ -64,8 +64,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can copy an address from the contact details',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-003',
@@ -93,8 +97,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can edit an existing contact',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-004',
@@ -129,8 +137,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can search for a contact',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-005',
@@ -153,8 +165,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, when I search for a non existent contact I see No contacts match your search state',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-006',
@@ -179,8 +195,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can delete a contact',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-007',
@@ -212,8 +232,12 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can delete one contact when multiple contacts exist',
     {
-      tag: TEST_TAGS.CONTACTS,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'mainnetPrimaryExtWallet',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:CON-008',

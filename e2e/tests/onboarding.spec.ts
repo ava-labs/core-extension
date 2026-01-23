@@ -1,18 +1,23 @@
 import { test, expect } from '../fixtures/extension.fixture';
 import { OnboardingPage } from '../pages/extension/OnboardingPage';
-import {
-  TEST_CONFIG,
-  TEST_TAGS,
-  INVALID_RECOVERY_PHRASE_12,
-  TEST_WALLET_NAMES,
-} from '../constants';
+import { INVALID_RECOVERY_PHRASE_12, TEST_WALLET_NAMES } from '../constants';
+
+const WALLET_PASSWORD = process.env.WALLET_PASSWORD || 'TestPassword123!';
+const RECOVERY_PHRASE_12_WORDS =
+  process.env.RECOVERY_PHRASE_12_WORDS?.split(' ') || [];
+const RECOVERY_PHRASE_24_WORDS =
+  process.env.RECOVERY_PHRASE_24_WORDS?.split(' ') || [];
 
 test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, I can see Google, Apple, Manually create wallet, and Access existing wallet options',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-001',
@@ -36,8 +41,12 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, when I select the Access existing wallet option, I can see Recovery Phrase, Ledger and Keystone options',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-002',
@@ -59,8 +68,12 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option, 12-24 words can be selectable, Clear All and Next buttons can be functional',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-003',
@@ -99,8 +112,12 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option, an Invalid Phrase error can be displayed if the user types the wrong one',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-004',
@@ -126,8 +143,12 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 12 words, I can complete the full onboarding flow',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-005',
@@ -136,7 +157,7 @@ test.describe('Onboarding Tests', () => {
     },
     async ({ extensionPage }) => {
       test.skip(
-        !TEST_CONFIG.wallet.recoveryPhrase12.length,
+        !RECOVERY_PHRASE_12_WORDS.length,
         'RECOVERY_PHRASE_12_WORDS env var not set',
       );
 
@@ -147,9 +168,9 @@ test.describe('Onboarding Tests', () => {
       await onboardingPage.selectWordCount(12);
 
       await onboardingPage.completeRecoveryPhraseOnboarding(
-        TEST_CONFIG.wallet.recoveryPhrase12,
+        RECOVERY_PHRASE_12_WORDS,
         TEST_WALLET_NAMES.RECOVERY_12,
-        TEST_CONFIG.wallet.password,
+        WALLET_PASSWORD,
       );
 
       // Verify we reached the portfolio/main page
@@ -165,8 +186,12 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 24 words, I can complete the full onboarding flow',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-006',
@@ -175,7 +200,7 @@ test.describe('Onboarding Tests', () => {
     },
     async ({ extensionPage }) => {
       test.skip(
-        !TEST_CONFIG.wallet.recoveryPhrase24.length,
+        !RECOVERY_PHRASE_24_WORDS.length,
         'RECOVERY_PHRASE_24_WORDS env var not set',
       );
 
@@ -186,9 +211,9 @@ test.describe('Onboarding Tests', () => {
       await onboardingPage.selectWordCount(24);
 
       await onboardingPage.completeRecoveryPhraseOnboarding(
-        TEST_CONFIG.wallet.recoveryPhrase24,
+        RECOVERY_PHRASE_24_WORDS,
         TEST_WALLET_NAMES.RECOVERY_24,
-        TEST_CONFIG.wallet.password,
+        WALLET_PASSWORD,
       );
 
       // Verify we reached the portfolio/main page
@@ -204,8 +229,12 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, I can manually create a new wallet and complete the full onboarding flow',
     {
-      tag: TEST_TAGS.ONBOARDING,
+      tag: '@smoke',
       annotation: [
+        {
+          type: 'snapshot',
+          description: 'none',
+        },
         {
           type: 'testrail_case_field',
           description: 'custom_automation_id:ONB-007',
@@ -220,7 +249,7 @@ test.describe('Onboarding Tests', () => {
 
       await onboardingPage.completeManualWalletCreation(
         TEST_WALLET_NAMES.MANUAL,
-        TEST_CONFIG.wallet.password,
+        WALLET_PASSWORD,
       );
 
       // Verify we reached the portfolio/main page

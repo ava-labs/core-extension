@@ -1,47 +1,11 @@
 import type { BrowserContext, Page } from '@playwright/test';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { mainnetPrimaryExtWallet } from './storage-snapshots/mainnetPrimaryExtWallet';
+import { testnetPrimaryExtWallet } from './storage-snapshots/testnetPrimaryExtWallet';
 
-// Use dynamic imports to load snapshots
-const SNAPSHOTS: Record<string, object> = {};
-let snapshotsLoaded = false;
-
-/**
- * Dynamically loads wallet snapshots from the storage-snapshots directory
- */
-async function loadSnapshots(): Promise<void> {
-  if (snapshotsLoaded) return;
-
-  const snapshotsDir = path.resolve(__dirname, 'storage-snapshots');
-
-  // Check for mainnetPrimaryExtWallet
-  const mainnetPath = path.join(snapshotsDir, 'mainnetPrimaryExtWallet.ts');
-  if (fs.existsSync(mainnetPath)) {
-    try {
-      const module = await import(
-        './storage-snapshots/mainnetPrimaryExtWallet'
-      );
-      SNAPSHOTS.mainnetPrimaryExtWallet = module.mainnetPrimaryExtWallet;
-    } catch (e) {
-      console.warn('mainnetPrimaryExtWallet snapshot not available:', e);
-    }
-  }
-
-  // Check for testnetPrimaryExtWallet
-  const testnetPath = path.join(snapshotsDir, 'testnetPrimaryExtWallet.ts');
-  if (fs.existsSync(testnetPath)) {
-    try {
-      const module = await import(
-        './storage-snapshots/testnetPrimaryExtWallet'
-      );
-      SNAPSHOTS.testnetPrimaryExtWallet = module.testnetPrimaryExtWallet;
-    } catch (e) {
-      console.warn('testnetPrimaryExtWallet snapshot not available:', e);
-    }
-  }
-
-  snapshotsLoaded = true;
-}
+const snapshots: Record<string, object> = {
+  mainnetPrimaryExtWallet,
+  testnetPrimaryExtWallet,
+};
 
 export const loadWalletSnapshot = async (
   context: BrowserContext,
@@ -49,17 +13,14 @@ export const loadWalletSnapshot = async (
   _password: string,
 ): Promise<void> => {
   try {
-    // Ensure snapshots are loaded
-    await loadSnapshots();
-
     console.log(`Loading wallet snapshot: ${snapshotName}`);
 
     // Get the snapshot data
-    const snapshot = SNAPSHOTS[snapshotName];
+    const snapshot = snapshots[snapshotName];
 
     if (!snapshot) {
       throw new Error(
-        `Snapshot "${snapshotName}" not found. Available snapshots: ${Object.keys(SNAPSHOTS).join(', ')}`,
+        `Snapshot "${snapshotName}" not found. Available snapshots: ${Object.keys(snapshots).join(', ')}`,
       );
     }
 
