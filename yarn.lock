@@ -107,13 +107,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20260122181959":
-  version: 0.0.0-feat-lombard-sdk-integration-20260122181959
-  resolution: "@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20260122181959"
+"@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20260123173815":
+  version: 0.0.0-feat-lombard-sdk-integration-20260123173815
+  resolution: "@avalabs/bridge-unified@npm:0.0.0-feat-lombard-sdk-integration-20260123173815"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:3.0.17"
-    "@lombard.finance/sdk": "npm:4.0.0"
+    "@lombard.finance/sdk": "npm:4.1.0"
     "@noble/hashes": "npm:1.5.0"
     "@scure/base": "npm:1.1.9"
     abitype: "npm:0.9.3"
@@ -122,7 +122,7 @@ __metadata:
     lodash: "npm:4.17.21"
     viem: "npm:2.11.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/ef79f2810eec7dfb3fb1d7581d564ef491e95622522a47b0a118652d4c93aa492c80b31ff00e5c816a2e5d375e5a2f76087d3451154d8c5b568fa43d158e7224
+  checksum: 10c0/e8d3c9af8225306172c959e8507e175bef4b33a2a4576f8b457d3b76bcbb896d711de4942229ba3ab6ba9b929a6a9a107a56b3e8dfdd31c6bfbf0b21779015f6
   languageName: node
   linkType: hard
 
@@ -2625,7 +2625,7 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260122181959"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260123173815"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.71"
@@ -2879,7 +2879,7 @@ __metadata:
     "@avalabs/avalanche-module": "npm:3.0.7"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:3.0.7"
-    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260122181959"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260123173815"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.71"
@@ -3045,7 +3045,7 @@ __metadata:
   resolution: "@core/ui@workspace:packages/ui"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260122181959"
+    "@avalabs/bridge-unified": "npm:0.0.0-feat-lombard-sdk-integration-20260123173815"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.71"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.71"
@@ -5824,21 +5824,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lombard.finance/sdk@npm:4.0.0":
-  version: 4.0.0
-  resolution: "@lombard.finance/sdk@npm:4.0.0"
+"@lombard.finance/sdk@npm:4.1.0":
+  version: 4.1.0
+  resolution: "@lombard.finance/sdk@npm:4.1.0"
   dependencies:
     "@lombard.finance/sdk-common": "npm:^3.3.1"
     isows: "npm:^1.0.7"
     viem: "npm:^2.23.15"
-    vite: "npm:^6.3.5"
   peerDependencies:
-    "@bitcoinerlab/secp256k1": 1.2.0
-    "@layerzerolabs/lz-v2-utilities": 3.0.17
+    "@bitcoinerlab/secp256k1": ^1.2.0
+    "@layerzerolabs/lz-v2-utilities": ^3.0.17
     axios: ^1
     bignumber.js: ^9
-    bitcoinjs-lib: 6.1.5
-  checksum: 10c0/547bee83ff14f72407f135060018331d6a8e6ba5d84287164ec994790e9e220db256dac842384832bdbfd67f16663da7be85b26df5e52eb0c059dc6f216217e1
+    bitcoinjs-lib: ^6.1.5
+  checksum: 10c0/eb50f9c7f466c7c57f1f0649399a3c35222278c9429da5cad17ef68a76ac1a98358d8996d4a0ce3337e67afc18870822009b8c17eef513fdbbbb07d7a5e4dc16
   languageName: node
   linkType: hard
 
