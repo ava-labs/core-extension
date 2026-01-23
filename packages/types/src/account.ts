@@ -120,6 +120,7 @@ export const ACCOUNTS_STORAGE_KEY = 'accounts';
 export enum AccountsEvents {
   ACCOUNTS_UPDATED = 'accounts-updated',
   ACTIVE_ACCOUNT_CHANGED = 'active-account-changed',
+  ACCOUNTS_DELETED = 'accounts-deleted',
 }
 
 export enum GetPrivateKeyErrorTypes {

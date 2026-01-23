@@ -723,6 +723,28 @@ export class AccountsService implements OnLock, OnUnlock {
       this.walletConnectService,
     );
 
+    const deletedAccounts = await Promise.all(
+      ids.map(async (id) => {
+        const account = await this.getAccountByID(id);
+        return account
+          ? {
+              id,
+              addressC: account.addressC,
+              addressAVM: account.addressAVM,
+              addressPVM: account.addressPVM,
+              addressBTC: account.addressBTC,
+              addressCoreEth: account.addressCoreEth,
+              addressSVM: account.addressSVM,
+            }
+          : null;
+      }),
+    );
+
+    this.eventEmitter.emit(
+      AccountsEvents.ACCOUNTS_DELETED,
+      deletedAccounts.filter((acc) => acc !== null),
+    );
+
     await this.#setAccounts({
       primary: newPrimaryAccounts,
       imported: newImportedAccounts,
