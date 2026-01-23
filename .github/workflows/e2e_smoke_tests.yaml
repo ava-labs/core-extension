@@ -219,12 +219,21 @@ jobs:
           source ~/py_env/bin/activate
           aws s3 sync s3://core-qa-automation-snapshots/extension/ .
 
+      - name: List available tests
+        working-directory: e2e
+        run: |
+          echo "=== Available tests ==="
+          npx playwright test --list
+          echo "=== Tests with @smoke tag ==="
+          npx playwright test --list --grep=@smoke || true
+
       - name: Run Playwright tests
         working-directory: e2e
         env:
           PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
         run: |
-          GREP_FILTER="--grep @smoke"
+          GREP_FILTER=$([ -z "${{ github.event.inputs.test-run-type }}" ] || [ "${{ github.event.inputs.test-run-type }}" = "smoke" ] && echo "--grep=@smoke" || echo "")
+          echo "Using GREP_FILTER: $GREP_FILTER"
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
