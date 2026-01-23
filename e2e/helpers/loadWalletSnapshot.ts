@@ -160,6 +160,17 @@ export const loadWalletSnapshot = async (
     });
 
     console.log('Storage summary:', storageSummary);
+
+    // Reload the extension page to pick up the new storage data
+    console.log('Reloading extension to apply snapshot data...');
+    await extensionPage.reload({ waitUntil: 'domcontentloaded' });
+
+    // Wait for the extension to fully initialize with the new data
+    await extensionPage.waitForTimeout(3000);
+
+    // Close this temporary page - a new one will be opened by the fixture
+    await extensionPage.close();
+    console.log('✓ Extension reloaded and ready');
   } catch (error) {
     console.error('Error loading wallet snapshot:', error);
     throw error;
