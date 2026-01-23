@@ -90,20 +90,30 @@ describe('TransactionStatusProvider', () => {
     jest.clearAllMocks();
     eventSubject = new Subject();
 
-    (useConnectionContext as jest.Mock).mockReturnValue({
-      events: () => eventSubject,
-    });
+    jest
+      .mocked<
+        () => Partial<ReturnType<typeof useConnectionContext>>
+      >(useConnectionContext)
+      .mockReturnValue({
+        events: () => eventSubject,
+      });
 
-    (useNetworkContext as jest.Mock).mockReturnValue({
-      getNetwork: mockGetNetwork,
-    });
+    jest
+      .mocked<
+        () => Partial<ReturnType<typeof useNetworkContext>>
+      >(useNetworkContext)
+      .mockReturnValue({
+        getNetwork: mockGetNetwork,
+      });
 
     // Default to allowed context
-    (isSpecificContextContainer as jest.Mock).mockImplementation(
-      (context: ContextContainer) =>
-        context === ContextContainer.POPUP ||
-        context === ContextContainer.SIDE_PANEL,
-    );
+    jest
+      .mocked(isSpecificContextContainer)
+      .mockImplementation(
+        (context: ContextContainer) =>
+          context === ContextContainer.POPUP ||
+          context === ContextContainer.SIDE_PANEL,
+      );
 
     mockRenderExplorerLink.mockReturnValue(<span>Explorer Link</span>);
   });
@@ -123,7 +133,7 @@ describe('TransactionStatusProvider', () => {
 
   describe('context restrictions', () => {
     it('does not subscribe to events in disallowed contexts', () => {
-      (isSpecificContextContainer as jest.Mock).mockReturnValue(false);
+      jest.mocked(isSpecificContextContainer).mockReturnValue(false);
 
       renderProvider();
 
