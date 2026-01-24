@@ -153,6 +153,9 @@ import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/a
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
 import { SetPrivacyModeHandler } from '~/services/settings/handlers/setPrivacyMode';
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
+import { SetDegenModeHandler } from '~/services/settings/handlers/setDegenMode';
+import { SetFeeSettingHandler } from '~/services/settings/handlers/setFeeSetting';
+import { SetMaxBuyHandler } from '~/services/settings/handlers/setMaxBuy';
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
 import { DisableNetworkHandler } from '~/services/network/handlers/disableNetwork';
 import { GetTrendingTokensHandler } from '~/services/trendingTokens/handlers/getTrendingTokens';
@@ -488,6 +491,18 @@ import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/
   {
     token: 'ExtensionRequestHandler',
     useToken: SetShowTrendingTokensHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetDegenModeHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetFeeSettingHandler,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: SetMaxBuyHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: ImportLedgerHandlerNew },
   { token: 'ExtensionRequestHandler', useToken: CheckIfWalletExists },

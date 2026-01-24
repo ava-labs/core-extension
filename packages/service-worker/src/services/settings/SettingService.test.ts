@@ -81,6 +81,9 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: false,
+    isDegenMode: false,
+    feeSetting: 'low',
+    maxBuy: '1000',
     privacyMode: false,
   };
   const storedUnencryptedSettings: SettingsState = {
@@ -95,6 +98,9 @@ describe('background/services/settings/SettingsService.ts', () => {
     coreAssistant: false,
     preferredView: 'floating',
     showTrendingTokens: false,
+    isDegenMode: false,
+    feeSetting: 'low',
+    maxBuy: '1000',
     privacyMode: false,
   };
 

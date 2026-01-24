@@ -1,7 +1,10 @@
-import { Action, EnsureDefined } from '@core/types';
+import { Action, MultiTxAction, EnsureDefined } from '@core/types';
 import { AlertType, DisplayData } from '@avalabs/vm-module-types';
 
-export const hasNoteWarning = (
-  action: Action<DisplayData>,
-): action is Action<EnsureDefined<DisplayData, 'alert'>> =>
-  action.displayData.alert?.type === AlertType.WARNING;
+type AnyAction = Action | MultiTxAction;
+type ActionWithAlert =
+  | Action<EnsureDefined<DisplayData, 'alert'>>
+  | (MultiTxAction & { displayData: EnsureDefined<DisplayData, 'alert'> });
+
+export const hasNoteWarning = (action: AnyAction): action is ActionWithAlert =>
+  action.displayData?.alert?.type === AlertType.WARNING;

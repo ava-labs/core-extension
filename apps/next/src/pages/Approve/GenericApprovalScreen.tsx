@@ -3,11 +3,7 @@ import { DisplayData } from '@avalabs/vm-module-types';
 import { ActionStatus } from '@core/types';
 import { useApproveAction, useGetRequestId, useNetworkContext } from '@core/ui';
 
-import {
-  ActionDrawer,
-  LoadingScreen,
-  UnsupportedNetworkScreen,
-} from './components';
+import { ActionDrawer, ErrorScreen, LoadingScreen } from './components';
 import { isMessageApproval, isTransactionApproval } from './types';
 import { TransactionApprovalScreen } from './TransactionApprovalScreen';
 import { MessageApprovalScreen } from './MessageApprovalScreen';
@@ -21,7 +17,7 @@ export const GenericApprovalScreen = () => {
 
   const network = action ? getNetwork(action.scope) : undefined;
 
-  // `!networks.length` prevents a flash of <UnsupportedNetworkScreen /> while the networks are loading.
+  // `!networks.length` prevents a flash of error screen while the networks are loading.
   if (!action || !networks.length) {
     return <LoadingScreen />;
   }
@@ -33,13 +29,13 @@ export const GenericApprovalScreen = () => {
     // in-between us receiving the approval request and displaying the approval screen.
     // TODO: Should we still allow approvals?
     return (
-      <UnsupportedNetworkScreen>
+      <ErrorScreen message="Unsupported Network">
         <ActionDrawer
           open
           reject={cancelHandler}
           isProcessing={action.status === ActionStatus.SUBMITTING}
         />
-      </UnsupportedNetworkScreen>
+      </ErrorScreen>
     );
   }
 

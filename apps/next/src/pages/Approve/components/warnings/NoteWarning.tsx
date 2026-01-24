@@ -20,8 +20,11 @@ export const NoteWarning: FC<NoteWarningProps> = ({ alert }) => (
     <Box flexShrink={0}>
       <FiAlertCircle size={20} />
     </Box>
-    <Typography variant="body3" fontWeight={500}>
-      {alert.details.title}. {alert.details.description}
-    </Typography>
+    <Stack>
+      <Typography variant="body3" fontWeight={500}>
+        {alert.details.title}
+      </Typography>
+      <Typography variant="body3">{alert.details.description}</Typography>
+    </Stack>
   </Stack>
 );

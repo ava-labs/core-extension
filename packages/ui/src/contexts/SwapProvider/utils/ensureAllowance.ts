@@ -118,6 +118,7 @@ export async function ensureAllowance({
   amount,
   signAndSend,
   isOneClickSwapEnabled,
+  shouldUseAutoApproval,
   batch,
   isGaslessOn,
 }: {
@@ -132,6 +133,7 @@ export async function ensureAllowance({
     context?: Record<string, unknown>,
   ) => Promise<string>;
   isOneClickSwapEnabled?: boolean;
+  shouldUseAutoApproval?: boolean;
   batch?: TransactionParams[];
   isGaslessOn?: boolean;
 }) {
@@ -156,7 +158,8 @@ export async function ensureAllowance({
     isGaslessOn,
   });
 
-  if (isOneClickSwapEnabled) {
+  // Add approval tx to batch if one-click swap is enabled OR auto-approval is enabled
+  if (isOneClickSwapEnabled || shouldUseAutoApproval) {
     if (!batch)
       throw swapError(
         SwapErrorCode.MissingParams,

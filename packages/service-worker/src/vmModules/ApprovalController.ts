@@ -1,4 +1,5 @@
 import {
+  AlertType,
   ApprovalParams,
   ApprovalResponse,
   BatchApprovalController,
@@ -35,9 +36,16 @@ import { SecretsService } from '../services/secrets/SecretsService';
 import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
+  ValidatorRegistry,
 } from './models';
+import { batchSwapValidator, swapValidator } from './validators';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
 import { isUserRejectionError } from '@core/common';
+
+// Create and populate the validator registry
+const validatorRegistry = new ValidatorRegistry();
+validatorRegistry.register(swapValidator);
+validatorRegistry.registerBatch(batchSwapValidator);
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -244,10 +252,13 @@ export class ApprovalController implements BatchApprovalController {
 
   /**
    * This method should never throw. Instead, return an { error } object.
+   * @param params - The approval parameters
    */
   requestApproval = async (
     params: ApprovalParamsWithContext,
   ): Promise<ApprovalResponse> => {
+    const context = params.request.context;
+
     const network = await this.#networkService.getNetwork(
       params.request.chainId,
     );
@@ -261,8 +272,49 @@ export class ApprovalController implements BatchApprovalController {
     }
 
     const actionId = crypto.randomUUID();
+    const action = this.#buildAction(params, actionId);
 
-    openApprovalWindow(this.#buildAction(params, actionId), 'approve/generic');
+    // Get validator by type from context
+    let validator = context?.validatorType
+      ? validatorRegistry.getValidator(context.validatorType)
+      : undefined;
+
+    if (validator) {
+      // Verify the validator can actually handle this request
+      if (!validator.canHandle(params)) {
+        validator = undefined;
+      }
+    }
+
+    if (validator) {
+      const validation = validator.validateAction(action, params);
+
+      // If alert already exists (e.g., Blockaid warning), require manual approval
+      const hasExistingAlert = Boolean(action.displayData.alert);
+
+      if (validation.isValid && !hasExistingAlert) {
+        return await this.#executeAutoApproval(params, action, network);
+      } else if (validation.requiresManualApproval || hasExistingAlert) {
+        // Only set alert if not already populated
+        action.displayData.alert ??= {
+          type: AlertType.WARNING,
+          details: {
+            title: 'Manual approval required',
+            description: validation.reason,
+          },
+        };
+        // Fall through to normal approval flow
+      } else {
+        return {
+          error: rpcErrors.invalidRequest({
+            message: validation.reason || 'Auto-approval validation failed',
+          }),
+        };
+      }
+    }
+
+    // Normal flow: open approval window
+    openApprovalWindow(action, 'approve/generic');
 
     return new Promise((resolve) => {
       this.#requests.set(actionId, {
@@ -273,12 +325,51 @@ export class ApprovalController implements BatchApprovalController {
     });
   };
 
+  #executeAutoApproval = async (
+    params: ApprovalParamsWithContext,
+    action: Action,
+    network: NetworkWithCaipId,
+  ): Promise<ApprovalResponse> => {
+    try {
+      const approvalResult = await this.#handleApproval(
+        params,
+        action,
+        network,
+      );
+
+      // Default handling
+      if (typeof approvalResult === 'string') {
+        return { signedData: approvalResult };
+      } else if (approvalResult.signedTx) {
+        return { signedData: approvalResult.signedTx };
+      } else if (approvalResult.txHash) {
+        return { txHash: approvalResult.txHash };
+      } else {
+        return {
+          error: rpcErrors.internal({
+            message: 'Unsupported signing result type',
+          }),
+        };
+      }
+    } catch (err) {
+      return {
+        error: rpcErrors.internal({
+          message: 'Unable to sign the transaction',
+          data: { originalError: err instanceof Error ? err.message : err },
+        }),
+      };
+    }
+  };
+
   /**
    * This method should never throw. Instead, return an { error } object.
+   * @param params - The batch approval parameters
    */
   requestBatchApproval = async (
     params: MultiApprovalParamsWithContext,
   ): Promise<BatchApprovalResponse> => {
+    const context = params.request.context;
+
     const network = await this.#networkService.getNetwork(
       params.request.chainId,
     );
@@ -293,11 +384,45 @@ export class ApprovalController implements BatchApprovalController {
     }
 
     const actionId = crypto.randomUUID();
+    const action = this.#buildMultiApprovalAction(params, actionId);
 
-    openApprovalWindow(
-      this.#buildMultiApprovalAction(params, actionId),
-      'approve/tx-batch',
-    );
+    // Get validator by type from context
+    let validator = context?.validatorType
+      ? validatorRegistry.getBatchValidator(context.validatorType)
+      : undefined;
+
+    if (validator) {
+      // Verify the validator can actually handle this request
+      if (!validator.canHandle(params)) {
+        validator = undefined;
+      }
+    }
+
+    if (validator) {
+      const validation = validator.validateAction(action, params);
+
+      if (validation.isValid) {
+        return await this.#executeBatchAutoApproval(action, network);
+      } else if (validation.requiresManualApproval) {
+        // Add the validation warning to displayData so it shows in the approval UI
+        action.displayData.alert = {
+          type: AlertType.WARNING,
+          details: {
+            title: 'Manual approval required',
+            description: validation.reason,
+          },
+        };
+      } else {
+        return {
+          error: rpcErrors.invalidRequest({
+            message: validation.reason || 'Auto-approval validation failed',
+          }),
+        };
+      }
+    }
+
+    // Normal flow: open approval window
+    openApprovalWindow(action, 'approve/tx-batch');
 
     return new Promise((resolve) => {
       this.#requests.set(actionId, {
@@ -306,6 +431,26 @@ export class ApprovalController implements BatchApprovalController {
         resolve,
       });
     });
+  };
+
+  #executeBatchAutoApproval = async (
+    action: MultiTxAction,
+    network: NetworkWithCaipId,
+  ): Promise<BatchApprovalResponse> => {
+    try {
+      const results = await this.#handleBatchApproval(action, network);
+
+      return {
+        result: results.map((r) => ({ signedData: r.signedTx })),
+      };
+    } catch (err) {
+      return {
+        error: rpcErrors.internal({
+          message: 'Unable to sign the batch of transactions',
+          data: { originalError: err instanceof Error ? err.message : err },
+        }),
+      };
+    }
   };
 
   updateTxInBatch = (

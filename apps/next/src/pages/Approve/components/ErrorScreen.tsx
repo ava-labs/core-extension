@@ -2,10 +2,15 @@ import { Stack, StackProps, Typography } from '@avalabs/k2-alpine';
 
 import { ApprovalScreenPage } from './Styled';
 
-export const UnsupportedNetworkScreen = ({
+type ErrorScreenProps = StackProps & {
+  message: string;
+};
+
+export const ErrorScreen = ({
+  message,
   children,
   ...props
-}: StackProps) => (
+}: ErrorScreenProps) => (
   <ApprovalScreenPage {...props}>
     <Stack
       px={4}
@@ -14,7 +19,7 @@ export const UnsupportedNetworkScreen = ({
       justifyContent="center"
       {...props}
     >
-      <Typography>Unsupported Network</Typography>
+      <Typography color="error">{message}</Typography>
     </Stack>
     {children}
   </ApprovalScreenPage>

@@ -1,6 +1,7 @@
 import {
   Button,
   ChevronRightIcon,
+  Divider,
   Stack,
   Switch,
   SxProps,
@@ -37,6 +38,8 @@ import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { getContactsPath } from '@/config/routes';
 import { AnalyticsConsent, FeatureGates, SecretType } from '@core/types';
 import { CurrencySelector } from '../CurrencySelector';
+import { FeeSettingsSelector } from '../FeeSettingsSelector';
+import { MaxBuySelector } from '../MaxBuySelector';
 import { ThemeSelector } from '../ThemeSelector';
 import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 import {
@@ -74,6 +77,12 @@ export const SettingsHomePage = () => {
     setCoreAssistant,
     analyticsConsent,
     setAnalyticsConsent,
+    isDegenMode,
+    setDegenMode,
+    feeSetting,
+    setFeeSetting,
+    maxBuy,
+    setMaxBuy,
     privacyMode,
     setPrivacyMode,
   } = useSettingsContext();
@@ -256,13 +265,65 @@ export const SettingsHomePage = () => {
             orientation="horizontal"
             descriptionColor="text.primary"
             description={t(
-              'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
+              "Get Core to work for you. Whether it's transferring, sending crypto, just ask away!",
             )}
             checked={coreAssistant}
             onChange={() => setCoreAssistant(!coreAssistant)}
           />
         </Stack>
       )}
+      <SettingsCard
+        title={t('Experimental Features')}
+        description={t(
+          'Try out new features and advanced settings. These features may change or be removed in future updates.',
+        )}
+      >
+        <SettingsNavItem
+          label={t('Enable Degen Mode')}
+          description={t(
+            'Enable advanced trading features and streamlined transaction flows for experienced users',
+          )}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={isDegenMode}
+              onChange={() => setDegenMode(!isDegenMode)}
+            />
+          }
+          divider={isDegenMode}
+        />
+        {isDegenMode && (
+          <>
+            <Stack gap={1} py={1}>
+              <Stack gap={0.5}>
+                <Typography variant="subtitle1">
+                  {t('Pre-configured Fee Settings')}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {t(
+                    'Choose your preferred transaction fee speed. Higher fees result in faster confirmation times.',
+                  )}
+                </Typography>
+              </Stack>
+              <FeeSettingsSelector
+                value={feeSetting}
+                onChange={(value) => setFeeSetting(value)}
+              />
+            </Stack>
+            <Divider />
+            <SettingsNavItem
+              label={t('Allowed Max Buy')}
+              secondaryAction={
+                <MaxBuySelector
+                  value={maxBuy}
+                  onChange={(value) => setMaxBuy(value)}
+                  sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+                />
+              }
+            />
+          </>
+        )}
+      </SettingsCard>
       <SettingsCard
         title={t('Privacy and security')}
         description={t(
