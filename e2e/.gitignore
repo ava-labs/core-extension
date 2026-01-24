@@ -14,9 +14,11 @@ dist/
 .env
 .env.local
 
-# Snapshots (may contain sensitive wallet data)
-# Uncomment if you want to ignore snapshots:
-# helpers/storage-snapshots/*.ts
+# Wallet snapshots (downloaded from AWS S3 in CI)
+# These contain sensitive wallet data and should NOT be committed
+helpers/storage-snapshots/*.ts
+helpers/storage-snapshots/*.json
+!helpers/storage-snapshots/README.md
 
 # IDE
 .idea/

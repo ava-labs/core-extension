@@ -1,11 +1,61 @@
 import type { BrowserContext, Page } from '@playwright/test';
-import { mainnetPrimaryExtWallet } from './storage-snapshots/mainnetPrimaryExtWallet';
-import { testnetPrimaryExtWallet } from './storage-snapshots/testnetPrimaryExtWallet';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-const snapshots: Record<string, object> = {
-  mainnetPrimaryExtWallet,
-  testnetPrimaryExtWallet,
-};
+/**
+ * Dynamically loads snapshot data from files in the storage-snapshots directory.
+ * Snapshots are downloaded from AWS S3 in CI, not committed to git.
+ */
+function loadSnapshotFromFile(snapshotName: string): object | null {
+  const snapshotsDir = path.resolve(__dirname, 'storage-snapshots');
+  const tsFilePath = path.join(snapshotsDir, `${snapshotName}.ts`);
+  const jsonFilePath = path.join(snapshotsDir, `${snapshotName}.json`);
+
+  // Try to load TypeScript file first (for backward compatibility)
+  if (fs.existsSync(tsFilePath)) {
+    try {
+      // Dynamic require for TypeScript files
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const module = require(tsFilePath);
+      // The snapshot might be the default export or a named export matching the filename
+      return module.default || module[snapshotName] || module;
+    } catch (error) {
+      console.error(
+        `Error loading TypeScript snapshot ${snapshotName}:`,
+        error,
+      );
+    }
+  }
+
+  // Try to load JSON file
+  if (fs.existsSync(jsonFilePath)) {
+    try {
+      const content = fs.readFileSync(jsonFilePath, 'utf-8');
+      return JSON.parse(content);
+    } catch (error) {
+      console.error(`Error loading JSON snapshot ${snapshotName}:`, error);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Gets available snapshot names from the storage-snapshots directory
+ */
+function getAvailableSnapshots(): string[] {
+  const snapshotsDir = path.resolve(__dirname, 'storage-snapshots');
+
+  if (!fs.existsSync(snapshotsDir)) {
+    return [];
+  }
+
+  const files = fs.readdirSync(snapshotsDir);
+  return files
+    .filter((f) => f.endsWith('.ts') || f.endsWith('.json'))
+    .filter((f) => f !== 'README.md')
+    .map((f) => f.replace(/\.(ts|json)$/, ''));
+}
 
 /**
  * Gets the extension ID from the service worker
@@ -41,12 +91,13 @@ export const loadWalletSnapshot = async (
   try {
     console.log(`Loading wallet snapshot: ${snapshotName}`);
 
-    // Get the snapshot data
-    const snapshot = snapshots[snapshotName];
+    // Dynamically load the snapshot from file
+    const snapshot = loadSnapshotFromFile(snapshotName);
 
     if (!snapshot) {
+      const available = getAvailableSnapshots();
       throw new Error(
-        `Snapshot "${snapshotName}" not found. Available snapshots: ${Object.keys(snapshots).join(', ')}`,
+        `Snapshot "${snapshotName}" not found. Available snapshots: ${available.length > 0 ? available.join(', ') : 'none (download from S3 first)'}`,
       );
     }
 
