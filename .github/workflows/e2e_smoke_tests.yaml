@@ -217,7 +217,14 @@ jobs:
           mkdir -p storage-snapshots
           cd storage-snapshots
           source ~/py_env/bin/activate
+          echo "=== Listing S3 bucket contents ==="
+          aws s3 ls s3://core-qa-automation-snapshots/extension/ || echo "Failed to list S3 bucket"
+          echo "=== Downloading snapshots ==="
           aws s3 sync s3://core-qa-automation-snapshots/extension/ .
+          echo "=== Downloaded files ==="
+          ls -la
+          echo "=== File contents preview ==="
+          head -c 200 *.ts 2>/dev/null || head -c 200 *.json 2>/dev/null || echo "No .ts or .json files found"
 
       - name: List available tests
         working-directory: e2e
