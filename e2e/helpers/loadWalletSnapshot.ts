@@ -90,8 +90,18 @@ export const loadWalletSnapshot = async (
       }
     }
 
-    // If no extension page exists, use the known extension ID directly
+    // If no extension page exists, wait for service worker and create page
     if (!extensionPage) {
+      // Wait for extension service worker to be ready (indicates extension is loaded)
+      let [serviceWorker] = context.serviceWorkers();
+      if (!serviceWorker) {
+        console.log('Waiting for extension service worker...');
+        serviceWorker = await context.waitForEvent('serviceworker', {
+          timeout: 30000,
+        });
+      }
+      console.log('Service worker ready');
+
       const extensionId = TEST_CONFIG.extension.id;
       console.log(`Using extension ID: ${extensionId}`);
 
@@ -100,8 +110,8 @@ export const loadWalletSnapshot = async (
       const extensionUrl = `chrome-extension://${extensionId}/popup.html`;
       await extensionPage.goto(extensionUrl, { waitUntil: 'domcontentloaded' });
 
-      // Wait a bit for the extension to initialize
-      await extensionPage.waitForTimeout(1000);
+      // Wait for the extension to fully initialize
+      await extensionPage.waitForTimeout(2000);
     }
 
     if (!extensionPage) {

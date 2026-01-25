@@ -46,10 +46,10 @@ export const baseConfig: PlaywrightTestConfig = {
   testDir: path.resolve(__dirname, '..', 'tests'),
   testMatch: '**/*.spec.ts',
   outputDir: path.resolve(__dirname, '..', 'test-results'),
-  timeout: 120000,
-  expect: { timeout: 10000 },
+  timeout: 60000, // Reduced for debugging
+  expect: { timeout: 5000 }, // Reduced for debugging
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0, // Disabled for debugging
   workers: getWorkers(),
   fullyParallel: fullyParallel,
   reporter: process.env.CI
