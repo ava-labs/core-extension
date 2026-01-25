@@ -19,6 +19,55 @@ export type ExtensionFixtures = {
   popupPage: Page;
 };
 
+// Helper to get a clean extension page state
+async function getActiveExtensionPage(
+  context: BrowserContext,
+  extensionId: string,
+  options: { preferOnboarding?: boolean } = {},
+): Promise<Page> {
+  let page: Page | undefined;
+
+  // 1. If preferOnboarding is true, try to find an existing tab first
+  if (options.preferOnboarding) {
+    console.log('Polling for existing onboarding/home page...');
+    for (let i = 0; i < 20; i++) {
+      // Poll for up to 10 seconds
+      const pages = context.pages();
+      page = pages.find(
+        (p) => p.url().includes('home.html') || p.url().includes('onboarding'),
+      );
+      if (page) {
+        console.log('Found existing onboarding page');
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+
+  // 2. If no page found yet, open a new popup
+  if (!page) {
+    console.log('Opening new extension popup');
+    page = await openExtensionPopup(context, extensionId);
+  }
+
+  // 3. Bring the active page to front
+  await page.bringToFront();
+
+  // 4. Close all other tabs to ensure clean state
+  const allPages = context.pages();
+  for (const p of allPages) {
+    if (p !== page && !p.isClosed()) {
+      try {
+        await p.close();
+      } catch (_e) {
+        // Ignore close errors
+      }
+    }
+  }
+
+  return page;
+}
+
 export const test = base.extend<ExtensionFixtures>({
   /**
    * Browser context with extension loaded
@@ -113,9 +162,12 @@ export const test = base.extend<ExtensionFixtures>({
 
   /**
    * Opens the extension page (may be locked)
+   * If an onboarding page is already open (fresh install), uses that instead of popup
    */
   extensionPage: async ({ context, extensionId }, use) => {
-    const page = await openExtensionPopup(context, extensionId);
+    const page = await getActiveExtensionPage(context, extensionId, {
+      preferOnboarding: true,
+    });
     await use(page);
   },
 
@@ -124,7 +176,9 @@ export const test = base.extend<ExtensionFixtures>({
    * Requires a snapshot with wallet data
    */
   unlockedExtensionPage: async ({ context, extensionId }, use) => {
-    const page = await openExtensionPopup(context, extensionId);
+    const page = await getActiveExtensionPage(context, extensionId, {
+      preferOnboarding: false,
+    });
 
     // Try to unlock if lock screen is visible
     try {
@@ -147,7 +201,9 @@ export const test = base.extend<ExtensionFixtures>({
    * Opens a fresh popup page
    */
   popupPage: async ({ context, extensionId }, use) => {
-    const page = await openExtensionPopup(context, extensionId);
+    const page = await getActiveExtensionPage(context, extensionId, {
+      preferOnboarding: false,
+    });
     await use(page);
   },
 });
