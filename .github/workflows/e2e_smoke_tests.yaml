@@ -117,11 +117,10 @@ jobs:
 
       - name: Create test run in TestRail
         id: create-testrail-run
-        if: ${{ env.TESTRAIL_EMAIL != '' && env.TESTRAIL_API_KEY != '' }}
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
-            --project "Core Extension" \
+            --project "New Gen Core Extension" \
             --username ${{ env.TESTRAIL_EMAIL }} \
             --key ${{ env.TESTRAIL_API_KEY }} \
             add_run --title "Extension Playwright Automation Run - $TS" \
@@ -177,6 +176,9 @@ jobs:
           name: extension
           path: ./dist
 
+      - name: Output Github runner
+        run: curl ifconfig.io
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -224,14 +226,6 @@ jobs:
           echo "=== Downloaded files ==="
           ls -la
 
-      - name: List available tests
-        working-directory: e2e
-        run: |
-          echo "=== Available tests ==="
-          npx playwright test --list
-          echo "=== Tests with @smoke tag ==="
-          npx playwright test --list --grep=@smoke || true
-
       - name: Run Playwright tests
         working-directory: e2e
         env:
@@ -251,7 +245,7 @@ jobs:
           source ~/py_env/bin/activate
           pip3 install trcli
           trcli -n -h https://avalabs.testrail.io \
-            --project "Core Extension" \
+            --project "New Gen Core Extension" \
             --username ${{ env.TESTRAIL_EMAIL }} \
             --key ${{ env.TESTRAIL_API_KEY }} \
             parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \

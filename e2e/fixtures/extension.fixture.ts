@@ -36,11 +36,13 @@ export const test = base.extend<ExtensionFixtures>({
       '..',
       TEST_CONFIG.extension.path,
     );
-    const userDataDir = path.resolve(
+    // Use unique user data directory per worker to avoid conflicts when running tests in parallel
+    const baseUserDataDir = path.resolve(
       __dirname,
       '..',
       TEST_CONFIG.extension.userDataDir,
     );
+    const userDataDir = `${baseUserDataDir}-worker-${testInfo.workerIndex}`;
 
     // Check if extension exists
     if (!fs.existsSync(extensionPath)) {

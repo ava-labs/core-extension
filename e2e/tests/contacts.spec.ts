@@ -53,11 +53,12 @@ test.describe('Contacts Tests', () => {
       await contactsPage.navigateToContacts();
       const initialCount = await contactsPage.getContactCount();
 
-      await contactsPage.addContact(TEST_CONTACTS.VALID);
+      // Add contact with all address types: C-Chain, X/P-Chain, Bitcoin, and Solana
+      await contactsPage.addContact(TEST_CONTACTS.FULL);
 
       await contactsPage.goBackToContactsList();
       const newCount = await contactsPage.getContactCount();
-      expect(newCount).toBeGreaterThanOrEqual(initialCount);
+      expect(newCount).toBeGreaterThan(initialCount);
     },
   );
 

@@ -72,18 +72,21 @@ export const TEST_WALLET_NAMES = {
 export const TEST_CONTACTS = {
   VALID: {
     name: 'Test Contact',
-    avalancheCChain: '0x1234567890123456789012345678901234567890',
-    avalancheXP:
-      'avax1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq',
-    bitcoin: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
-    solana: '11111111111111111111111111111111',
+    avalancheCChain: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  },
+  FULL: {
+    name: 'Full Contact',
+    avalancheCChain: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+    avalancheXP: 'avax1qm2a25eytsrj235hxg6jc0mwk99tss64eqevsw',
+    bitcoin: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+    solana: '7EcDhSYGxXyscszYEp35KHN8vvw3svAuLKTzXwCFLtV',
   },
   SECONDARY: {
     name: 'Secondary Contact',
-    avalancheCChain: '0x0987654321098765432109876543210987654321',
+    avalancheCChain: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
   },
   SEARCH: {
     name: 'Searchable Contact',
-    avalancheCChain: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+    avalancheCChain: '0xBE0eB53F46cd790Cd13851d5EFf43D12404d33E8',
   },
 };
