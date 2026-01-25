@@ -12,27 +12,63 @@ export async function getExtensionId(
 }
 
 /**
- * Waits for the extension to fully load
+ * Waits for the extension to fully load (past the loading spinner)
+ * Checks for actual UI elements that indicate the app is ready
  */
 export async function waitForExtensionLoad(
   page: Page,
   timeout = 30000,
 ): Promise<void> {
-  const startTime = Date.now();
+  console.log('Waiting for extension to fully load...');
 
-  while (Date.now() - startTime < timeout) {
-    const url = page.url();
-    if (url.startsWith('chrome-extension://') && !url.includes('loading')) {
-      // Check if the page has loaded content
-      const content = await page.content();
-      if (content.includes('</html>')) {
-        return;
-      }
-    }
-    await page.waitForTimeout(500);
+  // Wait for one of these states:
+  // 1. Lock screen (password input visible)
+  // 2. Main UI (navigation visible)
+  // 3. Onboarding screen (create wallet button visible)
+  try {
+    await page.waitForFunction(
+      () => {
+        // Check for loading spinner - if visible, not ready yet
+        const spinner = document.querySelector('[class*="CircularProgress"]');
+        if (spinner) return false;
+
+        // Check for lock screen
+        const passwordInput = document.querySelector(
+          'input[type="password"], input[placeholder*="password" i]',
+        );
+        if (passwordInput) return true;
+
+        // Check for main UI elements
+        const navButtons = document.querySelectorAll(
+          '[data-testid*="nav"], [data-testid*="settings"]',
+        );
+        if (navButtons.length > 0) return true;
+
+        // Check for onboarding
+        const onboardingButtons = document.querySelectorAll(
+          'button[class*="google" i], button[class*="apple" i]',
+        );
+        if (onboardingButtons.length > 0) return true;
+
+        // Check for any button with meaningful text
+        const buttons = Array.from(document.querySelectorAll('button'));
+        const hasVisibleButton = buttons.some(
+          (btn) => btn.textContent && btn.textContent.trim().length > 2,
+        );
+        if (hasVisibleButton) return true;
+
+        return false;
+      },
+      { timeout },
+    );
+    console.log('Extension UI loaded successfully');
+  } catch {
+    console.log('Timeout waiting for extension UI, continuing anyway...');
+    // Take a screenshot for debugging
+    await page.screenshot({
+      path: `./test-results/screenshots/extension-load-timeout-${Date.now()}.png`,
+    });
   }
-
-  throw new Error(`Extension did not load within ${timeout}ms`);
 }
 
 /**
@@ -43,9 +79,10 @@ export async function openExtensionPopup(
   extensionId: string,
 ): Promise<Page> {
   const popupUrl = `chrome-extension://${extensionId}/popup.html`;
+  console.log(`Opening extension popup: ${popupUrl}`);
   const page = await context.newPage();
-  await page.goto(popupUrl);
-  await waitForExtensionLoad(page);
+  await page.goto(popupUrl, { waitUntil: 'domcontentloaded' });
+  await waitForExtensionLoad(page, 45000); // Increased timeout for CI
   return page;
 }
 

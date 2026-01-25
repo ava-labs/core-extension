@@ -177,7 +177,35 @@ export const loadWalletSnapshot = async (
     await extensionPage.reload({ waitUntil: 'domcontentloaded' });
 
     // Wait for the extension to fully initialize with the new data
-    await extensionPage.waitForTimeout(3000);
+    // This waits for the loading spinner to disappear and actual UI to appear
+    console.log('Waiting for extension to initialize...');
+    try {
+      await extensionPage.waitForFunction(
+        () => {
+          // Check for loading spinner
+          const spinner = document.querySelector('[class*="CircularProgress"]');
+          if (spinner) return false;
+
+          // Check for lock screen (password input)
+          const passwordInput = document.querySelector(
+            'input[type="password"], input[placeholder*="password" i]',
+          );
+          if (passwordInput) return true;
+
+          // Check for any visible buttons (UI ready)
+          const buttons = Array.from(document.querySelectorAll('button'));
+          return buttons.some(
+            (btn) => btn.textContent && btn.textContent.trim().length > 2,
+          );
+        },
+        { timeout: 30000 },
+      );
+      console.log('Extension initialized successfully');
+    } catch {
+      console.log(
+        'Timeout waiting for extension initialization, continuing anyway...',
+      );
+    }
 
     // Close this temporary page - a new one will be opened by the fixture
     await extensionPage.close();
