@@ -1,39 +1,14 @@
 import type { BrowserContext, Page } from '@playwright/test';
+import { TEST_CONFIG } from '../constants';
 
 /**
- * Gets the extension ID from the browser context using the service worker
- * This is the most reliable method as it doesn't depend on open pages
+ * Gets the extension ID - uses the known ID from config for speed
  */
-export async function getExtensionId(context: BrowserContext): Promise<string> {
-  // First, try to get extension ID from existing pages
-  const pages = context.pages();
-  for (const page of pages) {
-    const url = page.url();
-    if (url.startsWith('chrome-extension://')) {
-      const match = url.match(/chrome-extension:\/\/([^/]+)/);
-      if (match) {
-        return match[1];
-      }
-    }
-  }
-
-  // If no page found, get extension ID from service worker (more reliable)
-  let [serviceWorker] = context.serviceWorkers();
-
-  if (!serviceWorker) {
-    console.log('Waiting for extension service worker...');
-    serviceWorker = await context.waitForEvent('serviceworker', {
-      timeout: 30000,
-    });
-  }
-
-  const url = serviceWorker.url();
-  const match = url.match(/chrome-extension:\/\/([^/]+)/);
-  if (match) {
-    return match[1];
-  }
-
-  throw new Error('Could not get extension ID from service worker');
+export async function getExtensionId(
+  _context: BrowserContext,
+): Promise<string> {
+  // Use the known extension ID directly for faster execution
+  return TEST_CONFIG.extension.id;
 }
 
 /**
@@ -118,7 +93,6 @@ export async function waitForElement(
 export async function clearExtensionStorage(page: Page): Promise<void> {
   await page.evaluate(() => {
     return new Promise<void>((resolve) => {
-      // @ts-expect-error - chrome is available in extension context
       chrome.storage.local.clear(() => {
         resolve();
       });

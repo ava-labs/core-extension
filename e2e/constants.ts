@@ -5,6 +5,9 @@ export const TEST_CONFIG = {
   extension: {
     path: '../dist',
     userDataDir: './test-results/user-data',
+    // Extension ID is derived from the extension's key in manifest.json
+    // This is consistent across builds and environments
+    id: 'bchaongeelijkgnhkfgkikfmkegodfoj',
   },
   wallet: {
     snapshotName: 'mainnetPrimaryExtWallet',

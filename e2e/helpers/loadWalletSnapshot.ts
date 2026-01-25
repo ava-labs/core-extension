@@ -1,6 +1,7 @@
 import type { BrowserContext, Page } from '@playwright/test';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { TEST_CONFIG } from '../constants';
 
 /**
  * Dynamically loads snapshot data from files in the storage-snapshots directory.
@@ -57,32 +58,6 @@ function getAvailableSnapshots(): string[] {
     .map((f) => f.replace(/\.(ts|json)$/, ''));
 }
 
-/**
- * Gets the extension ID from the service worker
- */
-async function getExtensionIdFromServiceWorker(
-  context: BrowserContext,
-): Promise<string> {
-  // Try to get extension ID from existing service workers
-  let [serviceWorker] = context.serviceWorkers();
-
-  // If no service worker found, wait for one to appear
-  if (!serviceWorker) {
-    console.log('Waiting for extension service worker...');
-    serviceWorker = await context.waitForEvent('serviceworker', {
-      timeout: 30000,
-    });
-  }
-
-  const url = serviceWorker.url();
-  const match = url.match(/chrome-extension:\/\/([^/]+)/);
-  if (match) {
-    return match[1];
-  }
-
-  throw new Error('Could not extract extension ID from service worker');
-}
-
 export const loadWalletSnapshot = async (
   context: BrowserContext,
   snapshotName: string,
@@ -115,22 +90,18 @@ export const loadWalletSnapshot = async (
       }
     }
 
-    // If no extension page exists, get the extension ID and create one
+    // If no extension page exists, use the known extension ID directly
     if (!extensionPage) {
-      console.log(
-        'No extension page found, getting extension ID from service worker...',
-      );
-      const extensionId = await getExtensionIdFromServiceWorker(context);
-      console.log(`Extension ID: ${extensionId}`);
+      const extensionId = TEST_CONFIG.extension.id;
+      console.log(`Using extension ID: ${extensionId}`);
 
       // Create a new page and navigate to the extension popup
       extensionPage = await context.newPage();
       const extensionUrl = `chrome-extension://${extensionId}/popup.html`;
-      console.log(`Navigating to extension: ${extensionUrl}`);
       await extensionPage.goto(extensionUrl, { waitUntil: 'domcontentloaded' });
 
       // Wait a bit for the extension to initialize
-      await extensionPage.waitForTimeout(2000);
+      await extensionPage.waitForTimeout(1000);
     }
 
     if (!extensionPage) {
@@ -162,20 +133,15 @@ export const loadWalletSnapshot = async (
           return new Promise<void>((resolve, reject) => {
             const keyString = k as string;
             const data = { [keyString]: v };
-            // @ts-expect-error - chrome is available in extension context
             chrome.storage.local.set(data, () => {
-              // @ts-expect-error - chrome is available in extension context
               if (chrome.runtime.lastError) {
-                // @ts-expect-error - chrome is available in extension context
                 console.error(
                   'Error setting storage:',
                   chrome.runtime.lastError,
                 );
-                // @ts-expect-error - chrome is available in extension context
                 reject(chrome.runtime.lastError);
               } else {
                 // Verify the data was stored correctly
-                // @ts-expect-error - chrome is available in extension context
                 chrome.storage.local.get(
                   keyString,
                   (result: Record<string, unknown>) => {
@@ -195,22 +161,6 @@ export const loadWalletSnapshot = async (
     }
 
     console.log(`✓ Wallet snapshot "${snapshotName}" loaded successfully`);
-
-    // Optional: Log storage summary for debugging
-    const storageSummary = await extensionPage.evaluate(async () => {
-      return new Promise<Record<string, string>>((resolve) => {
-        // @ts-expect-error - chrome is available in extension context
-        chrome.storage.local.get(null, (items: Record<string, unknown>) => {
-          const summary: Record<string, string> = {};
-          for (const [key, value] of Object.entries(items)) {
-            summary[key] = typeof value;
-          }
-          resolve(summary);
-        });
-      });
-    });
-
-    console.log('Storage summary:', storageSummary);
 
     // Reload the extension page to pick up the new storage data
     console.log('Reloading extension to apply snapshot data...');
