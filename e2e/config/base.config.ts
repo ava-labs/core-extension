@@ -22,21 +22,17 @@ const testRailOptions = {
 /**
  * Worker configuration:
  * - Local: Uses all available CPU cores (undefined = 100% parallelization)
- * - CI: Configurable via WORKERS env var, defaults to 4 for optimal performance
+ * - CI: Limited to 1 worker per shard because launchPersistentContext (required
+ *   for extensions) only allows one browser instance at a time
  *
- * The CI runner has 16 cores with 4 CPUs allocated per container.
- * Using 4 workers allows parallel test execution within each shard.
+ * To increase parallelism in CI, increase the number of shards instead.
  */
 const getWorkers = () => {
   if (!process.env.CI) {
-    // Local: use all available cores for maximum speed
-    return undefined; // Playwright will use 50% of CPU cores
+    return undefined;
   }
-
-  // CI: use configured workers or default to 4
-  const workers = parseInt(process.env.WORKERS || '4', 10);
-  console.log(`Running with ${workers} parallel workers in CI`);
-  return workers;
+  // Extension tests with persistent context run serially
+  return 1;
 };
 
 /**
