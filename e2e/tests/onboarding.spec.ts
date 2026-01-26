@@ -41,7 +41,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, when I select the Access existing wallet option, I can see Recovery Phrase, Ledger and Keystone options',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -68,7 +68,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option, 12-24 words can be selectable, Clear All and Next buttons can be functional',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -112,7 +112,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option, an Invalid Phrase error can be displayed if the user types the wrong one',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -143,7 +143,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 12 words, I can complete the full onboarding flow',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',

@@ -1,27 +1,14 @@
-name: Core Extension E2E Smoke Tests
+name: Core Extension E2E Regression Tests
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+  schedule:
+    - cron: '0 11 * * 1-5'
   workflow_dispatch:
     inputs:
-      test-run-type:
-        type: choice
-        description: 'Run smoke tests or full regression?'
-        options:
-          - smoke
-          - full
+      extension-branch:
+        description: 'Branch name to checkout for testing'
         required: true
-        default: smoke
+        default: 'main'
       send-slack:
         type: choice
         description: 'Send slack notification?'
@@ -34,7 +21,6 @@ jobs:
   build:
     name: Build Extension
     runs-on: ubuntu-latest-16-cores-core-extension
-    if: ${{ !github.event.pull_request.draft }}
     environment: alpha
     env:
       TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
@@ -55,7 +41,7 @@ jobs:
       - name: Checkout extension
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.inputs.extension-branch || 'main' }}
           fetch-depth: 0
 
       - name: Create env file
@@ -109,19 +95,13 @@ jobs:
 
       - name: Create test run in TestRail
         id: create-testrail-run
-        env:
-          TEST_RUN_TYPE: ${{ github.event.inputs.test-run-type || 'smoke' }}
         run: |
           TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
-          RUN_LABEL="Smoke"
-          if [ "$TEST_RUN_TYPE" = "full" ]; then
-            RUN_LABEL="Regression"
-          fi
           TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
             --project "New Gen Core Extension" \
             --username ${{ env.TESTRAIL_EMAIL }} \
             --key ${{ env.TESTRAIL_API_KEY }} \
-            add_run --title "Extension Playwright ${RUN_LABEL} Run - $TS" \
+            add_run --title "Extension Playwright Regression Run - $TS" \
             --run-include-all | grep "run_id:" | awk '{print $2}')
           echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
 
@@ -156,6 +136,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.inputs.extension-branch || 'main' }}
           fetch-depth: 0
 
       - name: Install Chrome
@@ -232,7 +213,7 @@ jobs:
           xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
             npx playwright test --headed \
             --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
-            --grep=@smoke
+            --grep=@regression
 
       - name: Upload results to TestRail
         if: always() && env.TEST_RUN_ID != ''
@@ -281,7 +262,7 @@ jobs:
               "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "PASSED",
               "STATUS_EMOJI": ":white_check_mark:",
-              "TEST_RUN_TYPE": "${{ github.event.inputs.test-run-type == 'full' && 'Core Extension full regression tests' || 'Core Extension smoke tests' }}",
+              "TEST_RUN_TYPE": "Core Extension regression tests",
               "BRANCH": "${{ github.head_ref || github.ref_name }}",
               "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}"
             }
@@ -297,7 +278,7 @@ jobs:
               "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
               "GH_RUN_STATUS": "FAILED",
               "STATUS_EMOJI": ":alert:",
-              "TEST_RUN_TYPE": "${{ github.event.inputs.test-run-type == 'full' && 'Core Extension full regression tests' || 'Core Extension smoke tests' }}",
+              "TEST_RUN_TYPE": "Core Extension regression tests",
               "BRANCH": "${{ github.head_ref || github.ref_name }}",
               "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}"
             }
