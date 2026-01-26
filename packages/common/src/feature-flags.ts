@@ -136,7 +136,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '120',
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
-  [FeatureGates.FUSION_PROJECT]: true,
+  [FeatureGates.FUSION_PROJECT]: false,
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

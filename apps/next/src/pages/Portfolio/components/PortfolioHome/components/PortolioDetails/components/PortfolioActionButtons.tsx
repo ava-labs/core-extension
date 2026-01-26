@@ -1,6 +1,11 @@
 import { Fade, SquareButton, Stack } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext, useFeatureFlagContext } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useOnline,
+} from '@core/ui';
+import { OfflineTooltip } from '@/components/OfflineTooltip';
 
 import {
   getBridgePath,
@@ -44,6 +49,7 @@ export const PortfolioActionButtons = ({
   const { supportsAsset } = useNextUnifiedBridgeContext();
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
+  const { isOnline } = useOnline();
   const isBridgeSupported =
     !token ||
     supportsAsset(
@@ -60,61 +66,71 @@ export const PortfolioActionButtons = ({
     <Stack direction="row" gap={1} width="100%">
       {isFlagEnabled(FeatureGates.FUSION_PROJECT) ? (
         <Fade in timeout={getDelay()} easing="ease-out">
-          <SquareButton
-            variant="extension"
-            icon={<FaExplosion size={ICON_SIZE} />}
-            label={t('Fusion')}
-            onClick={() => {
-              capture('TokenSwapClicked');
-              push(getFusionPath({ from: tokenId }));
-            }}
-          />
+          <OfflineTooltip placement="top">
+            <SquareButton
+              variant="extension"
+              icon={<FaExplosion size={ICON_SIZE} />}
+              label={t('Fusion')}
+              onClick={() => {
+                capture('TokenSwapClicked');
+                push(getFusionPath({ from: tokenId }));
+              }}
+            />
+          </OfflineTooltip>
         </Fade>
       ) : (
         isSwapSupported && (
           <Fade in timeout={getDelay()} easing="ease-out">
-            <SquareButton
-              variant="extension"
-              icon={<SwapIcon size={ICON_SIZE} />}
-              label={t('Swap')}
-              onClick={() => {
-                capture('TokenSwapClicked');
-                push(getSwapPath({ from: tokenId }));
-              }}
-            />
+            <OfflineTooltip placement="top">
+              <SquareButton
+                variant="extension"
+                icon={<SwapIcon size={ICON_SIZE} />}
+                label={t('Swap')}
+                onClick={() => {
+                  capture('TokenSwapClicked');
+                  push(getSwapPath({ from: tokenId }));
+                }}
+              />
+            </OfflineTooltip>
           </Fade>
         )
       )}
 
       {isBridgeSupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
-          <SquareButton
-            variant="extension"
-            icon={<BridgeIcon size={ICON_SIZE} />}
-            label={t('Bridge')}
-            onClick={() => {
-              capture('TokenBridgeClicked');
-              push(
-                getBridgePath({
-                  sourceToken: tokenId,
-                  sourceNetwork: tokenNetwork,
-                }),
-              );
-            }}
-          />
+          <OfflineTooltip placement="top">
+            <SquareButton
+              variant="extension"
+              icon={<BridgeIcon size={ICON_SIZE} />}
+              label={t('Bridge')}
+              onClick={() => {
+                capture('TokenBridgeClicked');
+                push(
+                  getBridgePath({
+                    sourceToken: tokenId,
+                    sourceNetwork: tokenNetwork,
+                  }),
+                );
+              }}
+              disabled={!isOnline}
+            />
+          </OfflineTooltip>
         </Fade>
       )}
 
       <Fade in timeout={getDelay()} easing="ease-out">
-        <SquareButton
-          variant="extension"
-          icon={<SendIcon size={ICON_SIZE} />}
-          label={t('Send')}
-          onClick={() => {
-            capture('TokenSendClicked');
-            push(getSendPath({ token: tokenId }));
-          }}
-        />
+        <OfflineTooltip placement="top">
+          <SquareButton
+            variant="extension"
+            icon={<SendIcon size={ICON_SIZE} />}
+            label={t('Send')}
+            onClick={() => {
+              capture('TokenSendClicked');
+              push(getSendPath({ token: tokenId }));
+            }}
+            disabled={!isOnline}
+          />
+        </OfflineTooltip>
       </Fade>
 
       {isBuySupported && (

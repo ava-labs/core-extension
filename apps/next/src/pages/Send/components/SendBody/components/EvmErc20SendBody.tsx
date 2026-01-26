@@ -1,5 +1,4 @@
-import { useTranslation } from 'react-i18next';
-import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
+import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
@@ -10,6 +9,8 @@ import {
 } from '@/components/RecipientSelect';
 
 import { useEvmErc20Send } from '../hooks';
+import { TxButton } from '@/components/TxButton';
+import { useTranslation } from 'react-i18next';
 
 type EvmErc20SendBodyProps = {
   from: Account;
@@ -26,10 +27,9 @@ export const EvmErc20SendBody = ({
   recipient,
   network,
 }: EvmErc20SendBodyProps) => {
-  const { t } = useTranslation();
-
   const to = getRecipientAddressByType(recipient, 'C');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
+  const { t } = useTranslation();
 
   const { isSending, isValid, error, send } = useEvmErc20Send({
     token,
@@ -51,17 +51,12 @@ export const EvmErc20SendBody = ({
         </Stack>
       </Fade>
       <Stack width="100%">
-        <Button
-          variant="contained"
-          color="primary"
-          size="extension"
-          fullWidth
-          disabled={!isValid}
-          loading={isSending}
+        <TxButton
+          isLoading={isSending}
           onClick={send}
-        >
-          {t('Send')}
-        </Button>
+          title={t('Send')}
+          isDisabled={!isValid}
+        />
       </Stack>
     </Stack>
   );
