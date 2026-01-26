@@ -237,6 +237,12 @@ export class OnboardingPage extends BasePage {
 
   async completeOnboarding(): Promise<void> {
     await this.letsGoButton.waitFor({ state: 'visible', timeout: 10000 });
+    const context = this.page.context();
+    const openPages = context.pages().filter((page) => !page.isClosed());
+    if (openPages.length <= 1) {
+      const keepAlive = await context.newPage();
+      await keepAlive.goto('about:blank');
+    }
     await this.letsGoButton.click();
   }
 
