@@ -30,6 +30,7 @@ export const CoreSplashStatic = (
       alt="Core Logo"
       width={width}
       height={height}
+      data-testid="core-logo"
     />
   );
 };

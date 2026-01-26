@@ -28,7 +28,7 @@ export const ContactListItem = ({
     contact.addressSVM;
 
   return (
-    <Wrapper role="button" {...props}>
+    <Wrapper role="button" data-testid="contact-item" {...props}>
       <AvatarHex size="xsmall" alt={contact.name} />
       <Stack
         gap={0.5}
