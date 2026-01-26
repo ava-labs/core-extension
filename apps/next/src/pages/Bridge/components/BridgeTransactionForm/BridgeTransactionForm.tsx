@@ -6,11 +6,11 @@ import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeState } from '../../contexts';
 import { TransferResult, useBridgeFormStateHandler } from '../../hooks';
-import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
 import {
   BannerTop,
   BridgeControls,
   BridgeErrorMessage,
+  BridgeEstimatedTimeWarning,
   BridgeProviderNotice,
 } from './components';
 
@@ -42,6 +42,10 @@ export const BridgeTransactionForm: FC<Props> = ({
       targetNetwork: targetNetworkId,
     },
   } = useBridgeState();
+
+  // NOTE: we operate on the assumption that UnifiedBridge SDK will
+  // use the first matching bridge from the `destinations` array
+  const [bridgeType] = asset?.destinations[targetNetworkId ?? ''] ?? [];
 
   const {
     isBridgeButtonDisabled,
@@ -100,7 +104,9 @@ export const BridgeTransactionForm: FC<Props> = ({
         <BridgeControls />
       </Stack>
       <BridgeErrorMessage formError={error} />
-      <BitcoinBridgeInfo />
+      {!error && bridgeType && (
+        <BridgeEstimatedTimeWarning bridgeType={bridgeType} />
+      )}
       <Stack
         width="100%"
         flexGrow={1}

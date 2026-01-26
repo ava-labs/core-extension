@@ -2,6 +2,7 @@ import { FC, useCallback, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { DetailItemType, RpcMethod } from '@avalabs/vm-module-types';
 import { Avatar, Stack, Typography } from '@avalabs/k2-alpine';
+import { runtime } from 'webextension-polyfill';
 
 import { useAccountsContext } from '@core/ui';
 import { ActionStatus, NetworkWithCaipId } from '@core/types';
@@ -28,7 +29,7 @@ import {
 import { DetailsSection } from './components/ActionDetails/generic/DetailsSection';
 import { NetworkDetail } from './components/ActionDetails/generic/DetailsItem/items/NetworkDetail';
 import { AddressDetail } from './components/ActionDetails/generic/DetailsItem/items/AddressDetail';
-import { getAddressByVMType } from '@core/common';
+import { getAddressByVMType, trimEndingSlash } from '@core/common';
 import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 import { useApprovalHelpers } from './hooks';
 import { sanitizeDappUrl } from './ApproveDappConnection/lib';
@@ -101,6 +102,12 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
     network.vmName,
   ]);
 
+  const dappUrl = hasDappInfo(action)
+    ? sanitizeDappUrl(action.dappInfo.url)
+    : '';
+  const isCoreRequest =
+    trimEndingSlash(dappUrl) === trimEndingSlash(runtime.getURL(''));
+
   return (
     <Styled.ApprovalScreenPage>
       <NoScrollStack>
@@ -124,7 +131,7 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
                 components={{
                   b: <b />,
                 }}
-                values={{ dappUrl: sanitizeDappUrl(action.dappInfo.url) }}
+                values={{ dappUrl: isCoreRequest ? t('Core') : dappUrl }}
               />
             </Typography>
           </Stack>

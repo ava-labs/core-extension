@@ -107,8 +107,12 @@ export const useBridgeFormStateHandler = () => {
 
   const isFeeLoading = fee === undefined;
   const canExecuteBridge = asset && amount && targetNetworkId;
+  // Note: minTransferAmount can be 0n which is falsy, so we check for undefined explicitly
   const isAmountCorrect =
-    canExecuteBridge && minTransferAmount && !minAmountError && !maxAmountError;
+    canExecuteBridge &&
+    minTransferAmount !== undefined &&
+    !minAmountError &&
+    !maxAmountError;
 
   const isReceiveAmountCorrect = typeof amountAfterFee === 'bigint';
 
