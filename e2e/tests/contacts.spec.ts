@@ -35,7 +35,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can add a new contact',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -65,7 +65,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can copy an address from the contact details',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -98,7 +98,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can edit an existing contact',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -138,7 +138,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can search for a contact',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -166,7 +166,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, when I search for a non existent contact I see No contacts match your search state',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -196,7 +196,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can delete a contact',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -233,7 +233,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, I can delete one contact when multiple contacts exist',
     {
-      tag: '@regression',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',

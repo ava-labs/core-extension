@@ -49,7 +49,7 @@ export const baseConfig: PlaywrightTestConfig = {
   timeout: 60000, // Reduced for debugging
   expect: { timeout: 5000 }, // Reduced for debugging
   forbidOnly: !!process.env.CI,
-  retries: 0, // Disabled for debugging
+  retries: 2,
   workers: getWorkers(),
   fullyParallel: fullyParallel,
   reporter: process.env.CI
