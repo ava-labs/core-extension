@@ -1,3 +1,4 @@
+import { HEADER_HEIGHT } from '@/config';
 import { useIsIntersecting } from '@/hooks/useIsIntersecting';
 import {
   Stack,
@@ -5,9 +6,8 @@ import {
   Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
-import { PageTopBar } from '../PageTopBar';
 import { NoScrollStack } from '../NoScrollStack';
-import { HEADER_HEIGHT } from '@/config';
+import { PageTopBar } from '../PageTopBar';
 
 type PageProps = {
   title?: string;
@@ -49,7 +49,7 @@ export const Page = ({
     >
       <NoScrollStack
         scrollTrackTopMargin={HEADER_HEIGHT}
-        sx={{
+        stackProps={{
           flexGrow: 1,
           minHeight: 0,
           display: 'flex',

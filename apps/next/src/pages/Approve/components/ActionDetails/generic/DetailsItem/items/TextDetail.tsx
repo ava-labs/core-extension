@@ -29,7 +29,7 @@ const TextDetailVertical = ({ item }: TextItemProps) => (
     <Typography variant="body3" color="text.secondary">
       {item.label}
     </Typography>
-    <NoScrollStack mt={0}>
+    <NoScrollStack stackProps={{ mt: 0 }} autoHeight>
       <Typography
         variant="mono2"
         color="text.primary"
