@@ -6,7 +6,7 @@ test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, when I have no contacts I see an empty state',
     {
-      tag: '@smoke',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',

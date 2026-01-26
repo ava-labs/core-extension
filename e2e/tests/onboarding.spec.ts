@@ -2,7 +2,7 @@ import { test, expect } from '../fixtures/extension.fixture';
 import { OnboardingPage } from '../pages/extension/OnboardingPage';
 import { INVALID_RECOVERY_PHRASE_12, TEST_WALLET_NAMES } from '../constants';
 
-const WALLET_PASSWORD = process.env.WALLET_PASSWORD || 'TestPassword123!';
+const WALLET_PASSWORD = process.env.WALLET_PASSWORD || 'password#123';
 const RECOVERY_PHRASE_12_WORDS =
   process.env.RECOVERY_PHRASE_12_WORDS?.split(' ') || [];
 const RECOVERY_PHRASE_24_WORDS =
@@ -12,7 +12,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, I can see Google, Apple, Manually create wallet, and Access existing wallet options',
     {
-      tag: '@smoke',
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -177,7 +177,9 @@ test.describe('Onboarding Tests', () => {
       await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
         timeout: 20000,
       });
-      await expect(onboardingPage.letsGoButton).toBeVisible({ timeout: 20000 });
+      await expect(onboardingPage.letsGoButton).toBeVisible({
+        timeout: 20000,
+      });
       await onboardingPage.completeOnboarding();
     },
   );
@@ -219,7 +221,9 @@ test.describe('Onboarding Tests', () => {
       await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
         timeout: 20000,
       });
-      await expect(onboardingPage.letsGoButton).toBeVisible({ timeout: 20000 });
+      await expect(onboardingPage.letsGoButton).toBeVisible({
+        timeout: 20000,
+      });
       await onboardingPage.completeOnboarding();
     },
   );
@@ -254,7 +258,9 @@ test.describe('Onboarding Tests', () => {
       await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
         timeout: 20000,
       });
-      await expect(onboardingPage.letsGoButton).toBeVisible({ timeout: 20000 });
+      await expect(onboardingPage.letsGoButton).toBeVisible({
+        timeout: 20000,
+      });
       await onboardingPage.completeOnboarding();
     },
   );

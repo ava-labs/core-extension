@@ -238,7 +238,7 @@ test.afterEach(async ({ context }, testInfo) => {
       });
 
       testInfo.annotations.push({
-        type: 'screenshot',
+        type: 'testrail_attachment',
         description: `./e2e/test-results/screenshots/${filename}`,
       });
     }

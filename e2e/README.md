@@ -1,22 +1,31 @@
 # E2E Tests for Core Extension
 
-This directory contains end-to-end tests for the Core Extension using Playwright.
+End-to-end tests for the Core Extension using Playwright, with page objects and
+fixtures that load the built extension, manage snapshots, and drive UI flows.
+
+## Framework Overview
+
+- **Runner**: Playwright (`@playwright/test`)
+- **Pattern**: Page Object Model in `pages/extension/`
+- **Fixtures**: `fixtures/extension.fixture.ts` launches the extension and
+  provides `extensionPage` / `unlockedExtensionPage`.
+- **Snapshots**: Wallet state is loaded from `helpers/storage-snapshots/` using
+  `helpers/loadWalletSnapshot.ts`.
+- **Extension ID**: Resolved from the service worker URL at runtime (fallback to
+  `constants.ts`) to avoid CI ID mismatches.
 
 ## Prerequisites
 
-1. **Node.js 20.18.0** (managed by Volta)
-2. **Built extension** - Run `yarn build` from the root directory first
+1. **Node.js 20.18.x** (via Volta)
+2. **Built extension** (from repo root):
+   - `yarn build` or `yarn build:alpha`
 
 ## Setup
 
 ```bash
-# Navigate to e2e directory
+# From repo root
 cd e2e
-
-# Install dependencies
 yarn install
-
-# Install Playwright browsers
 npx playwright install chromium
 ```
 
@@ -26,18 +35,51 @@ npx playwright install chromium
 # Run all tests
 yarn test
 
-# Run tests in headed mode (visible browser)
+# Headed mode
 yarn test:headed
 
-# Run specific test file
+# Specific file
 npx playwright test tests/onboarding.spec.ts
 
-# Run with UI mode for debugging
-yarn test:ui
+# Filter by tag
+npx playwright test --grep @smoke
 
-# Run tests with specific tag
+# UI mode
+yarn test:ui
+```
+
+## Tags and CI Behavior
+
+CI runs **only `@smoke`** tests:
+
+```bash
 npx playwright test --grep @smoke
 ```
+
+Tags are defined per test as either a string or array (e.g. `['@smoke', '@regression']`).
+If a test lacks `@smoke`, it will be skipped by CI.
+
+## Retries and Timeouts
+
+Configured in `config/base.config.ts`:
+
+- `expect` timeout: **5s**
+- `retries`: **2** (applies in CI and local unless overridden)
+
+## Environment Variables
+
+Set these in `.env` (or export in CI):
+
+| Variable                   | Description                               |
+| -------------------------- | ----------------------------------------- |
+| `WALLET_PASSWORD`          | Default wallet password                   |
+| `RECOVERY_PHRASE_12_WORDS` | 12-word recovery phrase (space-separated) |
+| `RECOVERY_PHRASE_24_WORDS` | 24-word recovery phrase (space-separated) |
+
+## Snapshots
+
+Local snapshots live in `helpers/storage-snapshots/`.
+CI downloads snapshots from S3 during the workflow.
 
 ## Project Structure
 
@@ -71,43 +113,19 @@ e2e/
 └── package.json                 # Dependencies
 ```
 
-## Test Tags
-
-| Tag           | Description            |
-| ------------- | ---------------------- |
-| `@smoke`      | Critical path tests    |
-| `@regression` | Full regression tests  |
-| `@onboarding` | Onboarding flow tests  |
-| `@contacts`   | Contacts feature tests |
-
-## Environment Variables
-
-Set these in `.env` or as environment variables:
-
-| Variable                   | Description                               |
-| -------------------------- | ----------------------------------------- |
-| `WALLET_PASSWORD`          | Default wallet password                   |
-| `RECOVERY_PHRASE_12_WORDS` | 12-word recovery phrase (space-separated) |
-| `RECOVERY_PHRASE_24_WORDS` | 24-word recovery phrase (space-separated) |
-
-## Creating Wallet Snapshots
-
-1. Set up a wallet manually
-2. Open Chrome DevTools for the extension
-3. Run: `chrome.storage.local.get(null, console.log)`
-4. Export as TypeScript in `helpers/storage-snapshots/`
-
 ## Troubleshooting
 
 ### Extension not loading
 
-- Verify `yarn build` completed successfully
-- Check extension path in `constants.ts`
+- Ensure `dist/` exists and is recent (`yarn build` or `yarn build:alpha`)
+- Verify `constants.ts` extension path and test config
 
-### Tests timing out
+### `net::ERR_BLOCKED_BY_CLIENT` on `chrome-extension://`
 
-- Increase timeouts in config files
+- Extension ID mismatch in CI. Use the runtime service worker ID (already in
+  helpers) or ensure your build includes a fixed `manifest.json` key.
 
 ### Snapshot not loading
 
-- Verify snapshot file exists and exports correctly
+- Confirm files exist in `helpers/storage-snapshots/`
+- Check CI download step and S3 credentials
