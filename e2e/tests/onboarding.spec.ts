@@ -177,11 +177,9 @@ test.describe('Onboarding Tests', () => {
       const portfolioPage = await onboardingPage.getActiveExtensionPage();
       await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
       await portfolioPage.waitForTimeout(2000);
-      const portfolioVisible = await portfolioPage
-        .locator('[data-testid="settings-button"]')
-        .isVisible({ timeout: 10000 })
-        .catch(() => false);
-      expect(portfolioVisible).toBe(true);
+      await expect(
+        portfolioPage.locator('[data-testid="settings-button"]'),
+      ).toBeVisible({ timeout: 20000 });
     },
   );
 
@@ -222,11 +220,9 @@ test.describe('Onboarding Tests', () => {
       const portfolioPage = await onboardingPage.getActiveExtensionPage();
       await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
       await portfolioPage.waitForTimeout(2000);
-      const portfolioVisible = await portfolioPage
-        .locator('[data-testid="settings-button"]')
-        .isVisible({ timeout: 10000 })
-        .catch(() => false);
-      expect(portfolioVisible).toBe(true);
+      await expect(
+        portfolioPage.locator('[data-testid="settings-button"]'),
+      ).toBeVisible({ timeout: 20000 });
     },
   );
 
@@ -260,11 +256,9 @@ test.describe('Onboarding Tests', () => {
       const portfolioPage = await onboardingPage.getActiveExtensionPage();
       await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
       await portfolioPage.waitForTimeout(2000);
-      const portfolioVisible = await portfolioPage
-        .locator('[data-testid="settings-button"]')
-        .isVisible({ timeout: 10000 })
-        .catch(() => false);
-      expect(portfolioVisible).toBe(true);
+      await expect(
+        portfolioPage.locator('[data-testid="settings-button"]'),
+      ).toBeVisible({ timeout: 20000 });
     },
   );
 });
