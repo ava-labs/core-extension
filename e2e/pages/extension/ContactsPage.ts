@@ -8,6 +8,8 @@ import type { ContactData, ContactUpdateData } from '../../types/contacts';
 export class ContactsPage extends BasePage {
   // Navigation
   readonly contactsNavButton: Locator;
+  readonly settingsButton: Locator;
+  readonly savedAddressesNavItem: Locator;
   readonly backButton: Locator;
 
   // Contact list
@@ -19,7 +21,12 @@ export class ContactsPage extends BasePage {
 
   // Add contact form
   readonly addContactButton: Locator;
+  readonly namePromptButton: Locator;
   readonly contactNameInput: Locator;
+  readonly avalancheCChainField: Locator;
+  readonly avalancheXPField: Locator;
+  readonly bitcoinField: Locator;
+  readonly solanaField: Locator;
   readonly avalancheCChainInput: Locator;
   readonly avalancheXPInput: Locator;
   readonly bitcoinInput: Locator;
@@ -40,24 +47,41 @@ export class ContactsPage extends BasePage {
     this.contactsNavButton = page.locator(
       '[data-testid="contacts-nav-button"]',
     );
-    this.backButton = page.getByRole('button', { name: /back/i });
+    this.settingsButton = page.locator('[data-testid="settings-button"]');
+    this.savedAddressesNavItem = page.getByText(/saved addresses/i);
+    this.backButton = page.locator('[data-testid="page-back-button"] svg');
 
     // Contact list
-    this.contactsList = page.locator('[data-testid="contacts-list"]');
+    this.contactsList = page.locator('[data-testid="contacts-list-page"]');
     this.contactItems = page.locator('[data-testid="contact-item"]');
-    this.emptyStateMessage = page.getByText(/no contacts yet/i);
+    this.emptyStateMessage = page.locator(
+      '[data-testid="contacts-empty-state"]',
+    );
     this.searchInput = page.getByPlaceholder(/search/i);
     this.noSearchResultsMessage = page.getByText(
       /no contacts match your search/i,
     );
 
     // Add contact form
-    this.addContactButton = page.getByRole('button', { name: /add contact/i });
-    this.contactNameInput = page.locator('input').first();
-    this.avalancheCChainInput = page.locator('input').nth(1);
-    this.avalancheXPInput = page.locator('input').nth(2);
-    this.bitcoinInput = page.locator('input').nth(3);
-    this.solanaInput = page.locator('input').nth(4);
+    this.addContactButton = page.getByRole('button', {
+      name: /add an address/i,
+    });
+    this.namePromptButton = page.getByRole('button', {
+      name: /name this contact/i,
+    });
+    this.contactNameInput = page.locator('input:not([placeholder])');
+    this.avalancheCChainField = page.locator(
+      '[data-testid="contact-address-c-chain"]',
+    );
+    this.avalancheXPField = page.locator(
+      '[data-testid="contact-address-xp-chain"]',
+    );
+    this.bitcoinField = page.locator('[data-testid="contact-address-bitcoin"]');
+    this.solanaField = page.locator('[data-testid="contact-address-solana"]');
+    this.avalancheCChainInput = this.avalancheCChainField.locator('input');
+    this.avalancheXPInput = this.avalancheXPField.locator('input');
+    this.bitcoinInput = this.bitcoinField.locator('input');
+    this.solanaInput = this.solanaField.locator('input');
     this.saveContactButton = page.getByRole('button', { name: /save/i });
     this.cancelButton = page.getByRole('button', { name: /cancel/i });
 
@@ -69,7 +93,22 @@ export class ContactsPage extends BasePage {
   }
 
   async navigateToContacts(): Promise<void> {
-    await this.contactsNavButton.click();
+    const hasDirectNav = await this.contactsNavButton
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    if (hasDirectNav) {
+      await this.contactsNavButton.click();
+      await this.page.waitForLoadState('domcontentloaded');
+      return;
+    }
+
+    await this.settingsButton.waitFor({ state: 'visible', timeout: 10000 });
+    await this.settingsButton.click();
+    await this.savedAddressesNavItem.waitFor({
+      state: 'visible',
+      timeout: 10000,
+    });
+    await this.savedAddressesNavItem.click();
     await this.page.waitForLoadState('domcontentloaded');
   }
 
@@ -77,23 +116,73 @@ export class ContactsPage extends BasePage {
     return await this.emptyStateMessage.isVisible();
   }
 
+  private async ensureNameInputVisible(): Promise<Locator> {
+    const input = this.contactNameInput.first();
+    const isVisible = await input.isVisible().catch(() => false);
+    if (!isVisible) {
+      const promptVisible = await this.namePromptButton
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
+      if (promptVisible) {
+        await this.namePromptButton.click();
+      }
+      await input.waitFor({ state: 'visible', timeout: 5000 });
+    }
+    return input;
+  }
+
+  private async ensureFieldInputVisible(field: Locator): Promise<Locator> {
+    const input = field.locator('input');
+    const fieldCount = await field.count();
+    if (fieldCount === 0) {
+      return input;
+    }
+
+    const isVisible = await input.isVisible().catch(() => false);
+    if (!isVisible) {
+      const namedPrompt = field.getByRole('button', { name: /add/i });
+      const namedPromptVisible = await namedPrompt
+        .isVisible({ timeout: 2000 })
+        .catch(() => false);
+      if (namedPromptVisible) {
+        await namedPrompt.click();
+      } else {
+        const fallbackPrompt = field.getByRole('button').first();
+        const fallbackVisible = await fallbackPrompt
+          .isVisible({ timeout: 2000 })
+          .catch(() => false);
+        if (fallbackVisible) {
+          await fallbackPrompt.click();
+        }
+      }
+      await input.waitFor({ state: 'visible', timeout: 10000 });
+    }
+    return input;
+  }
+
   async addContact(contact: ContactData): Promise<void> {
     await this.addContactButton.click();
-    await this.contactNameInput.waitFor({ state: 'visible' });
+    const nameInput = await this.ensureNameInputVisible();
 
-    await this.contactNameInput.fill(contact.name);
+    await nameInput.fill(contact.name);
 
     if (contact.avalancheCChain) {
-      await this.avalancheCChainInput.fill(contact.avalancheCChain);
+      const input = await this.ensureFieldInputVisible(
+        this.avalancheCChainField,
+      );
+      await input.fill(contact.avalancheCChain);
     }
     if (contact.avalancheXP) {
-      await this.avalancheXPInput.fill(contact.avalancheXP);
+      const input = await this.ensureFieldInputVisible(this.avalancheXPField);
+      await input.fill(contact.avalancheXP);
     }
     if (contact.bitcoin) {
-      await this.bitcoinInput.fill(contact.bitcoin);
+      const input = await this.ensureFieldInputVisible(this.bitcoinField);
+      await input.fill(contact.bitcoin);
     }
-    if (contact.solana) {
-      await this.solanaInput.fill(contact.solana);
+    if (contact.solana && (await this.solanaField.count()) > 0) {
+      const input = await this.ensureFieldInputVisible(this.solanaField);
+      await input.fill(contact.solana);
     }
 
     await this.saveContactButton.click();
@@ -116,6 +205,13 @@ export class ContactsPage extends BasePage {
   }
 
   async searchForContact(query: string): Promise<void> {
+    const isReady = await this.searchInput
+      .waitFor({ state: 'visible', timeout: 3000 })
+      .then(() => true)
+      .catch(() => false);
+    if (!isReady) {
+      return;
+    }
     await this.searchInput.fill(query);
     await this.page.waitForTimeout(500);
   }
@@ -141,21 +237,26 @@ export class ContactsPage extends BasePage {
   }
 
   async copyAddress(): Promise<void> {
-    await this.copyAddressButton.first().click();
+    const field = this.avalancheCChainField;
+    await field.hover();
+    const copyButton = field.getByRole('button', { name: /copy/i });
+    await copyButton.click();
     await this.page.waitForTimeout(500);
   }
 
   async editContact(updates: ContactUpdateData): Promise<void> {
-    const inputs = await this.page.locator('input').all();
-
-    if (updates.name && inputs.length > 0) {
-      await inputs[0].clear();
-      await inputs[0].fill(updates.name);
+    if (updates.name) {
+      const nameInput = await this.ensureNameInputVisible();
+      await nameInput.clear();
+      await nameInput.fill(updates.name);
     }
 
-    if (updates.avalancheCChain && inputs.length > 1) {
-      await inputs[1].clear();
-      await inputs[1].fill(updates.avalancheCChain);
+    if (updates.avalancheCChain) {
+      const input = await this.ensureFieldInputVisible(
+        this.avalancheCChainField,
+      );
+      await input.clear();
+      await input.fill(updates.avalancheCChain);
     }
 
     await this.saveContactButton.click();

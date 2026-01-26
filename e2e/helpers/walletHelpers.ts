@@ -17,8 +17,10 @@ export async function unlockWallet(
   // Enter password
   await passwordInput.fill(walletPassword);
 
-  // Click unlock button
-  const unlockButton = page.getByRole('button', { name: /unlock/i });
+  // Click unlock/login button (label differs across flows)
+  const unlockButton = page.getByRole('button', {
+    name: /(login)/i,
+  });
   await unlockButton.click();
 
   // Wait for unlock to complete (portfolio or main view should be visible)
