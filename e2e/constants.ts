@@ -51,7 +51,7 @@ export const INVALID_RECOVERY_PHRASE_12 = [
   'abandon',
   'abandon',
   'abandon',
-  'abandon',
+  'invalidword',
   'abandon',
   'abandon',
   'abandon',

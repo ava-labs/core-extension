@@ -4,10 +4,27 @@ import { TEST_CONFIG } from '../constants';
 /**
  * Gets the extension ID - uses the known ID from config for speed
  */
-export async function getExtensionId(
-  _context: BrowserContext,
-): Promise<string> {
-  // Use the known extension ID directly for faster execution
+export async function getExtensionId(context: BrowserContext): Promise<string> {
+  // Prefer the runtime extension ID from the service worker.
+  let serviceWorker = context.serviceWorkers()[0];
+  if (!serviceWorker) {
+    serviceWorker = await context
+      .waitForEvent('serviceworker', { timeout: 30000 })
+      .catch(() => undefined);
+  }
+
+  if (serviceWorker) {
+    try {
+      const derivedId = new URL(serviceWorker.url()).host;
+      if (derivedId) {
+        return derivedId;
+      }
+    } catch (error) {
+      console.warn('Failed to parse extension ID from service worker:', error);
+    }
+  }
+
+  // Fallback to the known extension ID
   return TEST_CONFIG.extension.id;
 }
 
@@ -64,10 +81,12 @@ export async function waitForExtensionLoad(
     console.log('Extension UI loaded successfully');
   } catch {
     console.log('Timeout waiting for extension UI, continuing anyway...');
-    // Take a screenshot for debugging
-    await page.screenshot({
-      path: `./test-results/screenshots/extension-load-timeout-${Date.now()}.png`,
-    });
+    if (!page.isClosed()) {
+      // Take a screenshot for debugging
+      await page.screenshot({
+        path: `./test-results/screenshots/extension-load-timeout-${Date.now()}.png`,
+      });
+    }
   }
 }
 

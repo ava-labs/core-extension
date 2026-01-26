@@ -102,7 +102,19 @@ export const loadWalletSnapshot = async (
       }
       console.log('Service worker ready');
 
-      const extensionId = TEST_CONFIG.extension.id;
+      let extensionId = TEST_CONFIG.extension.id;
+      try {
+        const workerUrl = serviceWorker.url();
+        const derivedId = new URL(workerUrl).host;
+        if (derivedId) {
+          extensionId = derivedId;
+        }
+      } catch (error) {
+        console.warn(
+          'Failed to derive extension ID from service worker:',
+          error,
+        );
+      }
       console.log(`Using extension ID: ${extensionId}`);
 
       // Create a new page and navigate to the extension popup

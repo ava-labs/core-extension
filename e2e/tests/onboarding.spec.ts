@@ -132,11 +132,11 @@ test.describe('Onboarding Tests', () => {
       await onboardingPage.selectWordCount(12);
 
       await onboardingPage.fillRecoveryPhrase(INVALID_RECOVERY_PHRASE_12);
-      await onboardingPage.nextButton.click();
 
       await expect(onboardingPage.recoveryPhraseErrorMessage).toBeVisible({
         timeout: 10000,
       });
+      await expect(onboardingPage.nextButton).toBeDisabled();
     },
   );
 
@@ -174,9 +174,11 @@ test.describe('Onboarding Tests', () => {
       );
 
       // Verify we reached the portfolio/main page
-      await extensionPage.waitForTimeout(2000);
-      const portfolioVisible = await extensionPage
-        .getByText(/portfolio|balance/i)
+      const portfolioPage = await onboardingPage.getActiveExtensionPage();
+      await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
+      await portfolioPage.waitForTimeout(2000);
+      const portfolioVisible = await portfolioPage
+        .locator('[data-testid="settings-button"]')
         .isVisible({ timeout: 10000 })
         .catch(() => false);
       expect(portfolioVisible).toBe(true);
@@ -217,9 +219,11 @@ test.describe('Onboarding Tests', () => {
       );
 
       // Verify we reached the portfolio/main page
-      await extensionPage.waitForTimeout(2000);
-      const portfolioVisible = await extensionPage
-        .getByText(/portfolio|balance/i)
+      const portfolioPage = await onboardingPage.getActiveExtensionPage();
+      await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
+      await portfolioPage.waitForTimeout(2000);
+      const portfolioVisible = await portfolioPage
+        .locator('[data-testid="settings-button"]')
         .isVisible({ timeout: 10000 })
         .catch(() => false);
       expect(portfolioVisible).toBe(true);
@@ -253,9 +257,11 @@ test.describe('Onboarding Tests', () => {
       );
 
       // Verify we reached the portfolio/main page
-      await extensionPage.waitForTimeout(2000);
-      const portfolioVisible = await extensionPage
-        .getByText(/portfolio|balance/i)
+      const portfolioPage = await onboardingPage.getActiveExtensionPage();
+      await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
+      await portfolioPage.waitForTimeout(2000);
+      const portfolioVisible = await portfolioPage
+        .locator('[data-testid="settings-button"]')
         .isVisible({ timeout: 10000 })
         .catch(() => false);
       expect(portfolioVisible).toBe(true);

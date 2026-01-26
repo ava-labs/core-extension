@@ -3,6 +3,8 @@
  */
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { waitForExtensionLoad } from '../../helpers/extensionHelpers';
+import { unlockWallet } from '../../helpers/walletHelpers';
 
 export class OnboardingPage extends BasePage {
   // Locators
@@ -53,11 +55,13 @@ export class OnboardingPage extends BasePage {
   readonly createWalletTermsCheckbox: Locator;
   readonly verifySeedphraseTitle: Locator;
   readonly seedphraseVerificationButtons: Locator;
+  readonly extensionId: string | null;
 
   constructor(page: Page) {
     super(page);
+    this.extensionId = this.getExtensionIdFromUrl(page.url());
     // Onboarding screen elements
-    this.coreLogo = page.locator('[data-testid="core-logo"]');
+    this.coreLogo = page.getByRole('img', { name: /core logo/i });
     this.continueWithGoogleButton = page.getByRole('button', {
       name: /continue with google/i,
     });
@@ -77,7 +81,7 @@ export class OnboardingPage extends BasePage {
     );
     this.termsCheckbox = page.locator('[data-testid="terms-checkbox"]');
     this.continueButton = page.getByRole('button', { name: /continue|next/i });
-    this.backButton = page.getByRole('button', { name: /back/i });
+    this.backButton = page.locator('[data-testid="page-back-button"] svg');
     this.recoveryPhraseDisplay = page.locator(
       '[data-testid="recovery-phrase"]',
     );
@@ -159,10 +163,14 @@ export class OnboardingPage extends BasePage {
   }
 
   async isOnOnboardingPage(): Promise<boolean> {
-    const isCoreLogoVisible = await this.isVisible(this.coreLogo);
     const isImportButtonVisible = await this.isVisible(this.importWalletButton);
     const isCreateButtonVisible = await this.isVisible(this.createWalletButton);
-    return isCoreLogoVisible && isImportButtonVisible && isCreateButtonVisible;
+    const isSocialButtonVisible = await this.isVisible(
+      this.continueWithGoogleButton,
+    );
+    return (
+      (isImportButtonVisible && isCreateButtonVisible) || isSocialButtonVisible
+    );
   }
 
   async startCreateWallet(): Promise<void> {
@@ -274,32 +282,193 @@ export class OnboardingPage extends BasePage {
       state: 'visible',
       timeout: 15000,
     });
-    const verificationCount = 3;
+    const promptBlocks = this.page.locator('p', {
+      hasText: /^Select/i,
+    });
+    const promptCount = await promptBlocks.count();
 
-    for (let i = 0; i < verificationCount; i++) {
-      const questionText = await this.page
-        .locator('text=/select word/i')
-        .textContent();
-      if (!questionText) continue;
+    for (let i = 0; i < promptCount; i++) {
+      const prompt = promptBlocks.nth(i);
+      const promptText = (await prompt.textContent())?.trim() ?? '';
+      const optionsContainer = prompt.locator('..');
+      const optionButtons = optionsContainer.getByRole('button');
+      const optionTexts = (await optionButtons.allTextContents()).map((text) =>
+        text.trim(),
+      );
 
-      const match = questionText.match(/word\s*#?\s*(\d+)/i);
-      if (!match) continue;
+      const correctWord = this.resolveVerificationWord(
+        promptText,
+        seedphraseWords,
+        optionTexts,
+      );
+      if (!correctWord) {
+        continue;
+      }
 
-      const wordNumber = parseInt(match[1], 10);
-      const correctWord = seedphraseWords[wordNumber - 1];
-
-      await this.selectVerificationWord(correctWord);
+      await this.selectVerificationWord(optionButtons, correctWord);
     }
   }
 
-  private async selectVerificationWord(word: string): Promise<void> {
-    const wordButton = this.page.getByRole('button', {
-      name: word,
-      exact: true,
-    });
+  private async selectVerificationWord(
+    buttons: Locator,
+    word: string,
+  ): Promise<void> {
+    const wordButton = buttons.filter({ hasText: word }).first();
     await wordButton.waitFor({ state: 'visible', timeout: 5000 });
     await wordButton.click();
     await this.page.waitForTimeout(300);
+  }
+
+  private resolveVerificationWord(
+    promptText: string,
+    seedphraseWords: string[],
+    optionTexts: string[],
+  ): string | undefined {
+    const normalized = this.normalizePromptText(promptText);
+
+    if (normalized.includes('select the first word')) {
+      return seedphraseWords[0];
+    }
+    if (normalized.includes('select the last word')) {
+      return seedphraseWords[seedphraseWords.length - 1];
+    }
+
+    const indexMatch = normalized.match(/word\s*#?\s*(\d+)/i);
+    if (indexMatch) {
+      const index = Number(indexMatch[1]);
+      if (
+        Number.isFinite(index) &&
+        index > 0 &&
+        index <= seedphraseWords.length
+      ) {
+        return seedphraseWords[index - 1];
+      }
+    }
+
+    const afterMatch = normalized.match(/after\s+"?([a-z]+)"?/i);
+    if (afterMatch) {
+      return this.findRelativeWord(
+        afterMatch[1],
+        seedphraseWords,
+        optionTexts,
+        1,
+      );
+    }
+
+    const beforeMatch = normalized.match(/before\s+"?([a-z]+)"?/i);
+    if (beforeMatch) {
+      return this.findRelativeWord(
+        beforeMatch[1],
+        seedphraseWords,
+        optionTexts,
+        -1,
+      );
+    }
+
+    return undefined;
+  }
+
+  private findRelativeWord(
+    anchor: string,
+    seedphraseWords: string[],
+    optionTexts: string[],
+    offset: 1 | -1,
+  ): string | undefined {
+    const anchorLower = anchor.toLowerCase();
+    const optionsLower = optionTexts.map((option) => option.toLowerCase());
+
+    for (let i = 0; i < seedphraseWords.length; i++) {
+      if (seedphraseWords[i].toLowerCase() !== anchorLower) continue;
+      const targetIndex = i + offset;
+      if (targetIndex < 0 || targetIndex >= seedphraseWords.length) continue;
+      const candidate = seedphraseWords[targetIndex];
+      if (optionsLower.includes(candidate.toLowerCase())) {
+        return candidate;
+      }
+    }
+
+    const fallbackIndex = seedphraseWords.findIndex(
+      (word) => word.toLowerCase() === anchorLower,
+    );
+    if (fallbackIndex === -1) {
+      return undefined;
+    }
+    const targetIndex = fallbackIndex + offset;
+    if (targetIndex < 0 || targetIndex >= seedphraseWords.length) {
+      return undefined;
+    }
+    return seedphraseWords[targetIndex];
+  }
+
+  private normalizePromptText(text: string): string {
+    return text.replace(/[“”]/g, '"').replace(/[‘’]/g, "'").toLowerCase();
+  }
+
+  private getExtensionIdFromUrl(url: string): string | null {
+    try {
+      return new URL(url).host;
+    } catch {
+      return null;
+    }
+  }
+
+  async getActiveExtensionPage(): Promise<Page> {
+    const context = this.page.context();
+    const extensionId = this.extensionId;
+
+    const candidates = context
+      .pages()
+      .filter(
+        (page) =>
+          !page.isClosed() &&
+          (!extensionId || page.url().includes(extensionId)),
+      );
+    const existingPage =
+      candidates.find((page) => page.url().includes('popup.html')) ??
+      candidates.find((page) => page.url().includes('home.html')) ??
+      candidates[0];
+
+    if (existingPage) {
+      await waitForExtensionLoad(existingPage, 45000);
+      if (!existingPage.isClosed()) {
+        return existingPage;
+      }
+    }
+
+    const openedPage = await context
+      .waitForEvent('page', { timeout: 15000 })
+      .catch(() => undefined);
+    if (
+      openedPage &&
+      !openedPage.isClosed() &&
+      (!extensionId || openedPage.url().includes(extensionId))
+    ) {
+      await waitForExtensionLoad(openedPage, 45000);
+      if (!openedPage.isClosed()) {
+        return openedPage;
+      }
+    }
+
+    if (extensionId) {
+      const fallbackPage = await context.newPage();
+      await fallbackPage.goto(`chrome-extension://${extensionId}/popup.html`, {
+        waitUntil: 'domcontentloaded',
+      });
+      await waitForExtensionLoad(fallbackPage, 45000);
+      return fallbackPage;
+    }
+
+    const fallbackPage = context
+      .pages()
+      .find(
+        (page) =>
+          !page.isClosed() && page.url().includes('chrome-extension://'),
+      );
+    const pageToUse = fallbackPage ?? this.page;
+    if (!pageToUse.isClosed()) {
+      await waitForExtensionLoad(pageToUse, 45000);
+    }
+    return pageToUse;
   }
 
   async completeManualWalletCreation(
@@ -329,5 +498,15 @@ export class OnboardingPage extends BasePage {
 
     // Complete onboarding
     await this.completeOnboarding();
+  }
+
+  async unlockIfNeeded(page: Page, password: string): Promise<void> {
+    const passwordInput = page.getByPlaceholder(/password/i);
+    const isLocked = await passwordInput
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    if (isLocked) {
+      await unlockWallet(page, password);
+    }
   }
 }
