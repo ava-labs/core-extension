@@ -1,5 +1,5 @@
 import { Collapse, Typography, useTheme } from '@avalabs/k2-alpine';
-import { useFusionState } from '../contexts/FusionStateContext';
+import { useFusionState } from '../contexts';
 
 export const SwapErrorMessage = () => {
   const theme = useTheme();

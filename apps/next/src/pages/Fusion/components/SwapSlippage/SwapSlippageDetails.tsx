@@ -14,7 +14,7 @@ import { SlideUpDialog } from '@/components/Dialog';
 import { Page } from '@/components/Page';
 import { InvisibileInput } from '@/components/Forms/InvisibleInput';
 import * as LocalStyled from './Styled';
-import { useFusionState } from '../../contexts/FusionStateContext';
+import { useFusionState } from '../../contexts';
 import {
   MIN_SLIPPAGE,
   MAX_SLIPPAGE,

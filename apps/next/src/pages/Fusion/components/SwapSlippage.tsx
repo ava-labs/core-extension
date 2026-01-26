@@ -9,18 +9,18 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 
-import { useSwapState } from '../contexts/FusionStateContext';
+import { useFusionState } from '../contexts';
 import * as Styled from './Styled';
-import { SwapProviders } from '@core/ui';
 import { SwapSlippageDetails } from './SwapSlippage/SwapSlippageDetails';
+import { ServiceType } from '@avalabs/unified-asset-transfer';
 
 export const SwapSlippage = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { slippage, autoSlippage, provider } = useSwapState();
+  const { slippage, autoSlippage, quote } = useFusionState();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const isSlippageApplicable = provider !== SwapProviders.WNATIVE;
+  const isSlippageApplicable = quote?.serviceType !== ServiceType.MARKR;
 
   // Format display value
   const displayValue = isSlippageApplicable

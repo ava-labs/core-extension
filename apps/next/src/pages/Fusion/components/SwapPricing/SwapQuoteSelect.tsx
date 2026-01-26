@@ -6,7 +6,7 @@ import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
 import { SlideUpDialog } from '@/components/Dialog';
 
-import { useFusionState } from '../../contexts/FusionStateContext';
+import { useFusionState } from '../../contexts';
 import * as Styled from '../Styled';
 import { ExchangeRate } from './ExchangeRate';
 import { SwapAggregatorSelect } from './SwapAggregatorSelect';

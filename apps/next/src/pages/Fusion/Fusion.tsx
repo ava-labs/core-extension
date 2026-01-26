@@ -33,7 +33,7 @@ const FusionPage = () => {
 
   return (
     <Page
-      title={t('Fusion')} // TODO:
+      title={t('Fusion')} // TODO: rename to swap
       withBackButton
       contentProps={{ justifyContent: 'flex-start', alignItems: 'stretch' }}
     >
@@ -49,7 +49,6 @@ const FusionPage = () => {
                 selectAccount(newAccount.id);
                 updateQuery({
                   userAmount: '',
-                  side: 'sell',
                 });
               }}
               onQueryChange={(q) => setAccountQuery(q)}

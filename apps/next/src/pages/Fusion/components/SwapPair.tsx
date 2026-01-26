@@ -7,7 +7,7 @@ import { getUniqueTokenId } from '@core/types';
 import { Card } from '@/components/Card';
 import { TokenAmountInput } from '@/components/TokenAmountInput';
 
-import { useFusionState } from '../contexts/FusionStateContext';
+import { useFusionState } from '../contexts';
 import { PairFlipper } from './PairFlipper';
 
 export const SwapPair = () => {

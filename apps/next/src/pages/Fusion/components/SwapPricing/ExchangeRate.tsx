@@ -4,9 +4,8 @@ import { Trans } from 'react-i18next';
 import { Skeleton, Typography, TypographyProps } from '@avalabs/k2-alpine';
 
 import { PartialBy } from '@core/types';
-import { calculateRate } from '@core/ui';
 
-import { useFusionState } from '../../contexts/FusionStateContext';
+import { useFusionState } from '../../contexts';
 
 export const ExchangeRate = (props: TypographyProps) => {
   const { fromToken, toToken, quote } = useFusionState();
@@ -14,10 +13,7 @@ export const ExchangeRate = (props: TypographyProps) => {
   const rateData: Partial<RateData> = {
     rate:
       fromToken && toToken && quote
-        ? calculateRate(quote, {
-            srcDecimals: fromToken.decimals,
-            destDecimals: toToken.decimals,
-          })
+        ? 1 // TODO: calculate rate
         : undefined,
     fromSymbol: fromToken?.symbol,
     toSymbol: toToken?.symbol,

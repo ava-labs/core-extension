@@ -114,6 +114,7 @@ export const FUSION_QUERY_TOKENS = {
   fromQuery: 'fromQ',
   to: 'to',
   toQuery: 'toQ',
+  userAmount: 'userAmount',
 };
 export type FusionQueryTokens = typeof FUSION_QUERY_TOKENS;
 export const getFusionPath = (query?: Partial<FusionQueryTokens>) => {

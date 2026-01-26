@@ -18,7 +18,7 @@ import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useSettingsContext } from '@core/ui';
 
 import * as Styled from '../Styled';
-import { useFusionState } from '../../contexts/FusionStateContext';
+import { useFusionState } from '../../contexts';
 
 type SwapAggregatorSelectProps = {
   quotes: Quote[];
