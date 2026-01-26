@@ -1,9 +1,4 @@
-import {
-  DisplayData,
-  RpcMethod,
-  TokenDiff,
-  TokenType,
-} from '@avalabs/vm-module-types';
+import { DisplayData, TokenDiff, TokenType } from '@avalabs/vm-module-types';
 
 import {
   isBitcoinNetwork,
@@ -20,10 +15,7 @@ import {
 } from '@core/ui';
 import { Action, NetworkWithCaipId } from '@core/types';
 
-import {
-  isMessageApproval,
-  isTransactionApproval,
-} from '@/pages/Approve/types';
+import { isTransactionApproval } from '@/pages/Approve/types';
 import { useLedgerPolicyRegistrationState } from '@/contexts';
 
 import { LedgerApprovalState } from './types';
@@ -66,7 +58,7 @@ export const useLedgerApprovalState: UseLedgerApprovalState = (
   const { appType, appVersion, appConfig } = useActiveLedgerAppInfo();
   const { shouldRegisterBtcWalletPolicy } = useLedgerPolicyRegistrationState();
 
-  const requiredApp = getRequiredApp(network, action);
+  const requiredApp = getRequiredApp(network);
   const isBlindSigningRequired = requiresBlindSigning(network, action);
   const isRequiredConfig =
     !isBlindSigningRequired || appConfig?.isBlindSigningEnabled;
@@ -153,22 +145,13 @@ const isCompatibleApp = (
   return requiredApp === appType;
 };
 
-const getRequiredApp = (
-  network: NetworkWithCaipId,
-  action: Action<DisplayData>,
-) => {
+const getRequiredApp = (network: NetworkWithCaipId) => {
   if (isBitcoinNetwork(network)) {
     return LedgerAppType.BITCOIN;
   }
 
   if (isSolanaNetwork(network)) {
     return LedgerAppType.SOLANA;
-  }
-
-  if (isMessageApproval(action)) {
-    return action.method === RpcMethod.AVALANCHE_SIGN_MESSAGE
-      ? LedgerAppType.AVALANCHE
-      : LedgerAppType.ETHEREUM;
   }
 
   if (isEthereumNetwork(network)) {
