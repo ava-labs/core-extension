@@ -171,15 +171,14 @@ test.describe('Onboarding Tests', () => {
         RECOVERY_PHRASE_12_WORDS,
         TEST_WALLET_NAMES.RECOVERY_12,
         WALLET_PASSWORD,
+        false,
       );
 
-      // Verify we reached the portfolio/main page
-      const portfolioPage = await onboardingPage.getActiveExtensionPage();
-      await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
-      await portfolioPage.waitForTimeout(2000);
-      await expect(
-        portfolioPage.locator('[data-testid="settings-button"]'),
-      ).toBeVisible({ timeout: 20000 });
+      await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
+        timeout: 20000,
+      });
+      await expect(onboardingPage.letsGoButton).toBeVisible({ timeout: 20000 });
+      await onboardingPage.completeOnboarding();
     },
   );
 
@@ -214,15 +213,14 @@ test.describe('Onboarding Tests', () => {
         RECOVERY_PHRASE_24_WORDS,
         TEST_WALLET_NAMES.RECOVERY_24,
         WALLET_PASSWORD,
+        false,
       );
 
-      // Verify we reached the portfolio/main page
-      const portfolioPage = await onboardingPage.getActiveExtensionPage();
-      await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
-      await portfolioPage.waitForTimeout(2000);
-      await expect(
-        portfolioPage.locator('[data-testid="settings-button"]'),
-      ).toBeVisible({ timeout: 20000 });
+      await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
+        timeout: 20000,
+      });
+      await expect(onboardingPage.letsGoButton).toBeVisible({ timeout: 20000 });
+      await onboardingPage.completeOnboarding();
     },
   );
 
@@ -250,15 +248,14 @@ test.describe('Onboarding Tests', () => {
       await onboardingPage.completeManualWalletCreation(
         TEST_WALLET_NAMES.MANUAL,
         WALLET_PASSWORD,
+        false,
       );
 
-      // Verify we reached the portfolio/main page
-      const portfolioPage = await onboardingPage.getActiveExtensionPage();
-      await onboardingPage.unlockIfNeeded(portfolioPage, WALLET_PASSWORD);
-      await portfolioPage.waitForTimeout(2000);
-      await expect(
-        portfolioPage.locator('[data-testid="settings-button"]'),
-      ).toBeVisible({ timeout: 20000 });
+      await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
+        timeout: 20000,
+      });
+      await expect(onboardingPage.letsGoButton).toBeVisible({ timeout: 20000 });
+      await onboardingPage.completeOnboarding();
     },
   );
 });

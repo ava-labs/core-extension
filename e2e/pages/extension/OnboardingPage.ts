@@ -250,6 +250,7 @@ export class OnboardingPage extends BasePage {
     recoveryWords: string[],
     walletName: string,
     password: string,
+    complete = true,
   ): Promise<void> {
     // Fill recovery phrase
     await this.fillRecoveryPhrase(recoveryWords);
@@ -265,8 +266,9 @@ export class OnboardingPage extends BasePage {
     // Select Avatar step
     await this.selectAvatarStep();
 
-    // Complete onboarding
-    await this.completeOnboarding();
+    if (complete) {
+      await this.completeOnboarding();
+    }
   }
 
   async getSeedphraseWords(): Promise<string[]> {
@@ -480,6 +482,7 @@ export class OnboardingPage extends BasePage {
   async completeManualWalletCreation(
     walletName: string,
     password: string,
+    complete = true,
   ): Promise<void> {
     // Get seedphrase
     const seedphraseWords = await this.getSeedphraseWords();
@@ -502,8 +505,9 @@ export class OnboardingPage extends BasePage {
     // Select Avatar step
     await this.selectAvatarStep();
 
-    // Complete onboarding
-    await this.completeOnboarding();
+    if (complete) {
+      await this.completeOnboarding();
+    }
   }
 
   async unlockIfNeeded(page: Page, password: string): Promise<void> {
