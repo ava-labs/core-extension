@@ -29,7 +29,7 @@ export function useTokenDetails({
   const { currencyFormatter, currency } = useSettingsContext();
 
   const addressKey =
-    token?.type === TokenType.NATIVE
+    token?.type === TokenType.NATIVE || token?.type === TokenType.SPL
       ? tokenAddress
       : tokenAddress.toLowerCase();
 

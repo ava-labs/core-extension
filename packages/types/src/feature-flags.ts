@@ -62,6 +62,7 @@ export enum FeatureGates {
   SWAP_USE_MARKR = 'swap-use-markr',
   BALANCE_SERVICE_INTEGRATION = 'balance-service-integration',
   LANGUAGES = 'languages',
+  FUSION_PROJECT = 'fusion-project',
 }
 
 export enum FeatureVars {
