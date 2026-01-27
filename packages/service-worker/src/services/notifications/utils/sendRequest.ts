@@ -44,8 +44,14 @@ export const sendRequest = async <T>({
   });
 
   if (!response.ok) {
+    let errorBody = '';
+    try {
+      errorBody = await response.text();
+    } catch {
+      // Ignore if we can't read the body
+    }
     throw new Error(
-      `Error while sending request to "${path}": ${response.statusText}`,
+      `Error while sending request to "${path}": ${response.status} ${response.statusText}${errorBody ? ` - ${errorBody}` : ''}`,
     );
   }
 

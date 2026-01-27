@@ -1,4 +1,4 @@
-import { incrementalPromiseResolve } from '@core/common';
+import { incrementalPromiseResolve, Monitoring } from '@core/common';
 import { FirebaseService } from '../firebase/FirebaseService';
 import { FirebaseEvents } from '@core/types';
 import { StorageService } from '../storage/StorageService';
@@ -9,7 +9,16 @@ import { sendRequest } from './utils/sendRequest';
 import { NOTIFICATIONS_CLIENT_ID_STORAGE_KEY } from './constants';
 
 jest.mock('./utils/sendRequest');
-jest.mock('@core/common');
+jest.mock('@core/common', () => ({
+  ...jest.requireActual('@core/common'),
+  incrementalPromiseResolve: jest.fn(),
+  Monitoring: {
+    sentryCaptureException: jest.fn(),
+    SentryExceptionTypes: {
+      NOTIFICATIONS: 'notifications',
+    },
+  },
+}));
 
 describe('NotificationsService', () => {
   const storageServiceMock = {
@@ -51,30 +60,40 @@ describe('NotificationsService', () => {
     );
   });
 
-  it('should throw an error when fcm token is missing', async () => {
-    await expect(
-      // simulate FCM_INITIALIZED event
-      jest
-        .mocked(firebaseServiceMock.addFirebaseEventListener)
-        .mock.calls[0]?.[1](),
-    ).rejects.toThrow('Error while registering device: fcm token is missing');
+  it('should capture error when fcm token is missing', async () => {
+    // simulate FCM_INITIALIZED event
+    await jest
+      .mocked(firebaseServiceMock.addFirebaseEventListener)
+      .mock.calls[0]?.[1]();
+
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Error while registering device: fcm token is missing',
+      }),
+      Monitoring.SentryExceptionTypes.NOTIFICATIONS,
+    );
 
     expect(balanceNotificationServiceMock.init).not.toHaveBeenCalled();
     expect(newsNotificationServiceMock.init).not.toHaveBeenCalled();
   });
 
-  it('should throw an error when device registration fails', async () => {
+  it('should capture error when device registration fails', async () => {
     jest.mocked(sendRequest).mockResolvedValueOnce(undefined);
     jest
       .mocked(firebaseServiceMock.getFcmToken)
       .mockReturnValueOnce('fcmToken');
 
-    await expect(
-      // simulate FCM_INITIALIZED event
-      jest
-        .mocked(firebaseServiceMock.addFirebaseEventListener)
-        .mock.calls[0]?.[1](),
-    ).rejects.toThrow('Error while registering device: device arn is missing');
+    // simulate FCM_INITIALIZED event
+    await jest
+      .mocked(firebaseServiceMock.addFirebaseEventListener)
+      .mock.calls[0]?.[1]();
+
+    expect(Monitoring.sentryCaptureException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Error while registering device: device arn is missing',
+      }),
+      Monitoring.SentryExceptionTypes.NOTIFICATIONS,
+    );
 
     expect(balanceNotificationServiceMock.init).not.toHaveBeenCalled();
     expect(newsNotificationServiceMock.init).not.toHaveBeenCalled();
