@@ -2,6 +2,12 @@ import { EventEmitter } from 'events';
 
 import { Mutex } from './Mutex';
 
+// By default, EventEmitter has a limit of 10 listeners.
+// This is to prevent memory leaks and performance issues.
+// We set it to 15 to accommodate concurrent read/write operations
+// Multiple read operations may wait for write completion simultaneously
+const MAX_LISTENERS = 20;
+
 export class ReadWriteLock {
   #mutex: Mutex;
   #emitter: EventEmitter;
@@ -12,6 +18,9 @@ export class ReadWriteLock {
   constructor() {
     this.#mutex = new Mutex();
     this.#emitter = new EventEmitter();
+    // Increase max listeners to accommodate concurrent read/write operations
+    // Multiple read operations may wait for write completion simultaneously
+    this.#emitter.setMaxListeners(MAX_LISTENERS);
     this.#readCount = 0;
     this.#writeCount = 0;
     this.#waitingWriters = 0;
