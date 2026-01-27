@@ -10,6 +10,7 @@ export const usePendingBridgeTransactions = () => {
   const {
     state: { pendingTransfers: unifiedBridgeTransfers },
   } = useUnifiedBridgeContext();
+
   const bridgeTransactions = useMemo(() => {
     return [
       ...Object.values(legacyBridgeTransfers),

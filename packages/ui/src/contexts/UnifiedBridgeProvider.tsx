@@ -10,7 +10,7 @@ import {
   BtcSigner,
   Chain,
   Environment,
-  EvmSigner,
+  EvmSignerWithMessage,
   GasSettings,
   TokenType,
   ErrorCode as UnifiedBridgeErrorCode,
@@ -58,6 +58,7 @@ import { useAccountsContext } from './AccountsProvider';
 import { useConnectionContext } from './ConnectionProvider';
 import { useFeatureFlagContext } from './FeatureFlagsProvider';
 import { useNetworkContext } from './NetworkProvider';
+import { hex, utf8 } from '@scure/base';
 
 export interface UnifiedBridgeContext {
   estimateTransferGas(
@@ -163,8 +164,56 @@ export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
   const [activeBridgeTypes, setActiveBridgeTypes] =
     useState<BridgeServicesMap>();
 
-  const evmSigner: EvmSigner = useMemo(
+  const evmSigner: EvmSignerWithMessage = useMemo(
     () => ({
+      signMessage: async (
+        data: { message: string; address: `0x${string}`; chainId: number },
+        _,
+        { currentSignature, requiredSignatures },
+      ) => {
+        const { message, address, chainId } = data;
+
+        assert(message, UnifiedBridgeError.InvalidTxPayload);
+        assert(address, UnifiedBridgeError.InvalidTxPayload);
+
+        try {
+          const result = await request(
+            {
+              method: RpcMethod.PERSONAL_SIGN,
+              params: [`0x${hex.encode(utf8.decode(message))}`, address],
+            },
+            {
+              scope: `eip155:${chainId}`,
+              context: {
+                customApprovalScreenTitle: t('Confirm Bridge'),
+                alert:
+                  requiredSignatures > currentSignature
+                    ? {
+                        type: 'info',
+                        title: t(
+                          'This operation requires {{total}} approvals.',
+                          {
+                            total: requiredSignatures,
+                          },
+                        ),
+                        notice: t(
+                          'You will be prompted {{remaining}} more time(s).',
+                          {
+                            remaining: requiredSignatures - currentSignature,
+                          },
+                        ),
+                      }
+                    : undefined,
+              },
+            },
+          );
+
+          return result as `0x${string}`;
+        } catch (err) {
+          console.error(err);
+          throw err;
+        }
+      },
       sign: async (
         { from, data, to, value },
         _,
@@ -333,6 +382,22 @@ export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
           return {
             type,
             signer: btcSigner,
+            bitcoinFunctions,
+          };
+
+        case BridgeType.LOMBARD_BTC_TO_BTCB:
+          return {
+            type,
+            evmSigner,
+            btcSigner,
+            bitcoinFunctions,
+          };
+
+        case BridgeType.LOMBARD_BTCB_TO_BTC:
+          return {
+            type,
+            evmSigner,
+            btcSigner,
             bitcoinFunctions,
           };
       }
@@ -687,6 +752,11 @@ export function UnifiedBridgeProvider({ children }: PropsWithChildren) {
 
         case UnifiedBridgeErrorCode.TIMEOUT:
           return t('The transaction timed out');
+
+        case UnifiedBridgeErrorCode.NOTARIZATION_FAILED:
+          return t(
+            'Notarization failed for deposit. Your deposit is safe, please contact support to complete the bridge.',
+          );
 
         case UnifiedBridgeErrorCode.TRANSACTION_REVERTED:
           return t('The transaction has been reverted');

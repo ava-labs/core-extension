@@ -1,0 +1,224 @@
+import {
+  createContext,
+  FC,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from 'react';
+import { useHistory } from 'react-router-dom';
+import { Quote } from '@avalabs/unified-asset-transfer';
+import { bigIntToString } from '@avalabs/core-utils-sdk';
+
+import { Account } from '@core/types';
+import { isUserRejectionError, Monitoring, stringToBigint } from '@core/common';
+import {
+  useAccountsContext,
+  SwapError,
+  useAnalyticsContext,
+  useErrorMessage,
+} from '@core/ui';
+
+import { DEFAULT_SLIPPAGE } from '../fusion-config';
+import { useSwapQuery, useSwapTokens } from '../hooks';
+import {
+  useUserAddresses,
+  useTransferManager,
+  useSigners,
+  useAssetAndChain,
+  useQuotes,
+} from './hooks';
+import { toast } from '@avalabs/k2-alpine';
+
+type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
+  updateQuery: ReturnType<typeof useSwapQuery>['update'];
+};
+type TokensState = ReturnType<typeof useSwapTokens>;
+type FusionState = QueryState &
+  TokensState & {
+    account?: Account;
+    isConfirming: boolean;
+    slippage: number;
+    setSlippage: (slippage: number) => void;
+    autoSlippage: boolean;
+    setAutoSlippage: (autoSlippage: boolean) => void;
+    fromAmount?: string;
+    toAmount?: string;
+    isAmountLoading: boolean;
+    swapError?: SwapError;
+    quote: Quote | null;
+    bestQuote: Quote | null;
+    quotes: Quote[];
+    selectQuote: (quote: Quote) => void;
+    transfer: (specificQuote?: Quote) => Promise<void>;
+    isReadyToTransfer: boolean;
+  };
+
+const FusionStateContext = createContext<FusionState | undefined>(undefined);
+
+export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
+  const { captureEncrypted } = useAnalyticsContext();
+  const { replace } = useHistory();
+  const getTranslatedError = useErrorMessage();
+
+  const {
+    update: updateQuery,
+    userAmount,
+    fromId,
+    toId,
+    fromQuery,
+    toQuery,
+  } = useSwapQuery();
+
+  const { sourceTokens, targetTokens, fromToken, toToken } = useSwapTokens(
+    fromId,
+    toId,
+  );
+
+  const signers = useSigners();
+  const manager = useTransferManager({ signers });
+
+  const { chain: sourceChain, asset: sourceAsset } =
+    useAssetAndChain(fromToken);
+  const { chain: targetChain, asset: targetAsset } = useAssetAndChain(toToken);
+  const { fromAddress, toAddress } = useUserAddresses(
+    activeAccount,
+    sourceChain,
+    targetChain,
+  );
+  const { bestQuote, quotes, quote, selectQuote } = useQuotes({
+    manager,
+    fromAddress,
+    toAddress,
+    sourceAsset,
+    sourceChain,
+    targetAsset,
+    targetChain,
+    amount:
+      userAmount && sourceAsset
+        ? stringToBigint(userAmount, sourceAsset.decimals)
+        : 0n,
+  });
+
+  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
+  const [autoSlippage, setAutoSlippage] = useState(true);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const toAmount =
+    bestQuote && targetAsset
+      ? bigIntToString(bestQuote.amountOut, targetAsset.decimals)
+      : undefined;
+
+  const transfer = useCallback(
+    async (specificQuote?: Quote) => {
+      if (!manager) {
+        throw new Error('Manager or quote not found');
+      }
+
+      setIsConfirming(true);
+
+      const quoteToUse = specificQuote ?? quote;
+
+      if (!quoteToUse) {
+        throw new Error('Quote not found');
+      }
+
+      captureEncrypted('SwapReviewOrder', {
+        provider: quoteToUse.aggregator.name,
+        slippage,
+      });
+
+      try {
+        await manager.transferAsset({ quote: quoteToUse });
+        captureEncrypted('SwapConfirmed', {
+          address: fromAddress,
+          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+        });
+        replace('/');
+      } catch (err) {
+        if (isUserRejectionError(err)) return;
+
+        // TODO: Retry with another quote if available AND if the user has not manually selected a quote.
+
+        console.error(err);
+        Monitoring.sentryCaptureException(
+          err as Error,
+          Monitoring.SentryExceptionTypes.SWAP,
+        );
+
+        const { title, hint } = getTranslatedError(err);
+
+        toast.error(title, {
+          description: hint,
+        });
+
+        captureEncrypted('SwapFailed', {
+          address: fromAddress,
+          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+        });
+      } finally {
+        setIsConfirming(false);
+      }
+    },
+    [
+      manager,
+      fromAddress,
+      quote,
+      slippage,
+      replace,
+      captureEncrypted,
+      getTranslatedError,
+    ],
+  );
+
+  return (
+    <FusionStateContext.Provider
+      value={{
+        updateQuery,
+        fromId,
+        toId,
+        fromQuery,
+        toQuery,
+        userAmount,
+        fromAmount: userAmount,
+        toAmount,
+        sourceTokens,
+        targetTokens,
+        fromToken,
+        toToken,
+        account: activeAccount,
+        isAmountLoading: Boolean(userAmount && toAmount === undefined),
+        isConfirming,
+        slippage,
+        setSlippage,
+        autoSlippage,
+        setAutoSlippage,
+        swapError: undefined, // TODO:
+        quote,
+        bestQuote,
+        quotes,
+        selectQuote,
+        transfer,
+        isReadyToTransfer: Boolean(quote && manager),
+      }}
+    >
+      {children}
+    </FusionStateContext.Provider>
+  );
+};
+
+export const useFusionState = () => {
+  const context = useContext(FusionStateContext);
+  if (!context) {
+    throw new Error(
+      'useFusionState must be used within FusionStateContextProvider',
+    );
+  }
+
+  return context;
+};

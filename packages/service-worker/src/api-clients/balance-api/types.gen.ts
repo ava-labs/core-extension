@@ -225,6 +225,10 @@ export type EvmGetBalancesResponse = {
     totalBalanceInCurrency?: number;
     erc20TokenBalances: Array<Erc20TokenBalance>;
   };
+  /**
+   * The requested currency
+   */
+  currency: Currency;
   error: null;
 };
 
@@ -296,6 +300,10 @@ export type BtcGetBalancesResponse = {
      */
     totalBalanceInCurrency?: number;
   };
+  /**
+   * The requested currency
+   */
+  currency: Currency;
   error: null;
 };
 
@@ -329,6 +337,10 @@ export type SvmGetBalancesResponse = {
       scanResult?: 'Benign' | 'Malicious' | 'Warning' | 'Spam';
     }>;
   };
+  /**
+   * The requested currency
+   */
+  currency: Currency;
   error: null;
 };
 
@@ -369,6 +381,10 @@ export type AvmGetBalancesResponse = {
       };
     };
   };
+  /**
+   * The requested currency
+   */
+  currency: Currency;
   error: null;
 };
 
@@ -427,6 +443,10 @@ export type PvmGetBalancesResponse = {
       };
     };
   };
+  /**
+   * The requested currency
+   */
+  currency: Currency;
   error: null;
 };
 
@@ -465,6 +485,10 @@ export type CorethGetBalancesResponse = {
       };
     };
   };
+  /**
+   * The requested currency
+   */
+  currency: Currency;
   error: null;
 };
 
@@ -487,6 +511,13 @@ export type GetBalancesResponseError = {
  */
 export type GetBalancesResponseInternalError = {
   error: string;
+};
+
+/**
+ * Get supported chains response
+ */
+export type GetSupportedChainsResponse = {
+  caip2Ids: Array<string>;
 };
 
 /**
@@ -544,6 +575,23 @@ export type PostV1BalanceGetBalancesResponses = {
 
 export type PostV1BalanceGetBalancesResponse =
   PostV1BalanceGetBalancesResponses[keyof PostV1BalanceGetBalancesResponses];
+
+export type GetV1BalanceGetSupportedChainsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/v1/balance/get-supported-chains';
+};
+
+export type GetV1BalanceGetSupportedChainsResponses = {
+  /**
+   * Default Response
+   */
+  200: GetSupportedChainsResponse;
+};
+
+export type GetV1BalanceGetSupportedChainsResponse =
+  GetV1BalanceGetSupportedChainsResponses[keyof GetV1BalanceGetSupportedChainsResponses];
 
 export type PostV1StakeGetRewardsData = {
   /**

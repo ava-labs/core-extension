@@ -115,6 +115,8 @@ describe('contexts/UnifiedBridgeProvider', () => {
       [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
       [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+      [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
     },
   } as any;
 
@@ -283,26 +285,30 @@ describe('contexts/UnifiedBridgeProvider', () => {
         currentSignatureReason: BridgeSignatureReason.AllowanceApproval,
       };
 
-      for (const { signer, type } of initializers) {
-        const isBtc = type === BridgeType.AVALANCHE_BTC_AVA;
-        const tx = isBtc
-          ? { inputs: [], outputs: [] }
-          : ({
-              from: `0x${type}`,
-              to: `0x${type}`,
-              data: `0x${type}`,
-              value: 1500n,
-            } as any);
+      for (const initializer of initializers) {
+        const { type } = initializer;
+        const isLombard =
+          type === BridgeType.LOMBARD_BTC_TO_BTCB ||
+          type === BridgeType.LOMBARD_BTCB_TO_BTC;
+
+        // Lombard initializers have evmSigner/btcSigner, others have signer
+        const signer = isLombard
+          ? initializer.evmSigner
+          : (initializer as any).signer;
+
+        const tx = {
+          from: `0x${type}`,
+          to: `0x${type}`,
+          data: `0x${type}`,
+          value: 1500n,
+        } as any;
 
         await signer.sign(tx, async () => '0x' as const, step);
 
         expect(requestFn).toHaveBeenLastCalledWith(
           {
-            method:
-              type === BridgeType.AVALANCHE_BTC_AVA
-                ? RpcMethod.BITCOIN_SIGN_TRANSACTION
-                : RpcMethod.ETH_SEND_TRANSACTION,
-            params: isBtc ? tx : [{ ...tx, value: '0x5dc' }],
+            method: RpcMethod.ETH_SEND_TRANSACTION,
+            params: [{ ...tx, value: '0x5dc' }],
           },
           {
             context: {

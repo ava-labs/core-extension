@@ -40,6 +40,8 @@ export enum FeatureGates {
   UNIFIED_BRIDGE_AB_EVM = 'unified-bridge-ab-evm',
   UNIFIED_BRIDGE_AB_AVA_TO_BTC = 'unified-bridge-ab-ava-to-btc',
   UNIFIED_BRIDGE_AB_BTC_TO_AVA = 'unified-bridge-ab-btc-to-ava',
+  UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA = 'unified-bridge-lombard-btc-to-ava',
+  UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC = 'unified-bridge-lombard-ava-to-btc',
   DEBANK_TRANSACTION_PARSING = 'debank-transaction-parsing',
   DEBANK_TRANSACTION_PRE_EXECUTION = 'debank-transaction-pre-execution',
   PRIMARY_ACCOUNT_REMOVAL = 'primary-account-removal',
@@ -60,6 +62,7 @@ export enum FeatureGates {
   SWAP_USE_MARKR = 'swap-use-markr',
   BALANCE_SERVICE_INTEGRATION = 'balance-service-integration',
   LANGUAGES = 'languages',
+  FUSION_PROJECT = 'fusion-project',
 }
 
 export enum FeatureVars {

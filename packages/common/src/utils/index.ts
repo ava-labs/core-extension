@@ -109,3 +109,4 @@ export * from './walletConnectEventFilters';
 export * from './calculateTotalAtomicFundsForAccounts';
 export * from './promise';
 export * from './sidePanel';
+export * from './string';

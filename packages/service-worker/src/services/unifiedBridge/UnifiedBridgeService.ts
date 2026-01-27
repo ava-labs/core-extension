@@ -129,6 +129,9 @@ export class UnifiedBridgeService implements OnStorageReady {
       async sign() {
         return '0x' as const;
       },
+      async signMessage() {
+        return '0x' as const;
+      },
     };
 
     switch (type) {
@@ -151,6 +154,15 @@ export class UnifiedBridgeService implements OnStorageReady {
         return {
           type,
           signer: dummySigner,
+          bitcoinFunctions: bitcoinProvider,
+        };
+
+      case BridgeType.LOMBARD_BTC_TO_BTCB:
+      case BridgeType.LOMBARD_BTCB_TO_BTC:
+        return {
+          type,
+          evmSigner: dummySigner,
+          btcSigner: dummySigner,
           bitcoinFunctions: bitcoinProvider,
         };
     }

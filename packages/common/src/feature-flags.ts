@@ -44,6 +44,8 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: false,
   [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: false,
   [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: false,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: false,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
   [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: false,
@@ -65,6 +67,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '100',
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
+  [FeatureGates.FUSION_PROJECT]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -110,6 +113,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
   [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
   [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
   [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: true,
@@ -131,6 +136,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '120',
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
+  [FeatureGates.FUSION_PROJECT]: false,
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';
