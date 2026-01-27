@@ -1,9 +1,18 @@
 import { Fade, SquareButton, Stack } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext, useOnline } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useFeatureFlagContext,
+  useOnline,
+} from '@core/ui';
 import { OfflineTooltip } from '@/components/OfflineTooltip';
 
-import { getBridgePath, getSendPath, getSwapPath } from '@/config/routes';
+import {
+  getBridgePath,
+  getFusionPath,
+  getSendPath,
+  getSwapPath,
+} from '@/config/routes';
 import { FunctionNames, useIsFunctionAvailable } from '@core/ui';
 import { getCoreWebUrl } from '@core/common/src/utils/getCoreWebUrl';
 import { openNewTab } from '@core/common/src/utils/extensionUtils';
@@ -13,6 +22,7 @@ import { SwapIcon } from '@/components/SwapIcon';
 import { BridgeIcon } from '@/components/BridgeIcon';
 import { BuyIcon } from '@/components/BuyIcon';
 import {
+  FeatureGates,
   FungibleTokenBalance,
   getUniqueTokenId,
   isNativeToken,
@@ -20,6 +30,7 @@ import {
 } from '@core/types';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { chainIdToCaip } from '@core/common';
+import { FaExplosion } from 'react-icons/fa6';
 
 const ICON_SIZE = 20;
 
@@ -32,6 +43,7 @@ export const PortfolioActionButtons = ({
 }) => {
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
+  const { isFlagEnabled } = useFeatureFlagContext();
   const { checkIsFunctionSupported } = useIsFunctionAvailable({ network });
   const { t } = useTranslation();
   const { supportsAsset } = useNextUnifiedBridgeContext();
@@ -52,21 +64,36 @@ export const PortfolioActionButtons = ({
 
   return (
     <Stack direction="row" gap={1} width="100%">
-      {isSwapSupported && (
+      {isFlagEnabled(FeatureGates.FUSION_PROJECT) ? (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
               variant="extension"
-              icon={<SwapIcon size={ICON_SIZE} />}
-              label={t('Swap')}
+              icon={<FaExplosion size={ICON_SIZE} />}
+              label={t('Fusion')}
               onClick={() => {
                 capture('TokenSwapClicked');
-                push(getSwapPath({ from: tokenId }));
+                push(getFusionPath({ from: tokenId }));
               }}
-              disabled={!isOnline}
             />
           </OfflineTooltip>
         </Fade>
+      ) : (
+        isSwapSupported && (
+          <Fade in timeout={getDelay()} easing="ease-out">
+            <OfflineTooltip placement="top">
+              <SquareButton
+                variant="extension"
+                icon={<SwapIcon size={ICON_SIZE} />}
+                label={t('Swap')}
+                onClick={() => {
+                  capture('TokenSwapClicked');
+                  push(getSwapPath({ from: tokenId }));
+                }}
+              />
+            </OfflineTooltip>
+          </Fade>
+        )
       )}
 
       {isBridgeSupported && (

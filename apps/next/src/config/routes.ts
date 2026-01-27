@@ -105,3 +105,26 @@ export const getBridgePath = (query?: Partial<BridgeQueryTokens>) => {
 export const ACCOUNT_MANAGEMENT_QUERY_TOKENS = {
   showImportSuccess: 'showImportSuccess',
 } as const;
+
+/**
+ * Swap
+ **/
+export const FUSION_QUERY_TOKENS = {
+  from: 'from',
+  fromQuery: 'fromQ',
+  to: 'to',
+  toQuery: 'toQ',
+  userAmount: 'userAmount',
+};
+export type FusionQueryTokens = typeof FUSION_QUERY_TOKENS;
+export const getFusionPath = (query?: Partial<FusionQueryTokens>) => {
+  const pathname = generatePath('/fusion');
+  const search = new URLSearchParams(query);
+  const searchString = search.toString();
+
+  if (!searchString) {
+    return pathname;
+  }
+
+  return `${pathname}?${searchString}`;
+};
