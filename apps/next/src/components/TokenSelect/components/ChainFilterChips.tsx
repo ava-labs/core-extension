@@ -18,6 +18,25 @@ const ChipsContainer = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   gap: theme.spacing(1),
   flexWrap: 'wrap',
+  maxHeight: '30%', // Set max height for vertical
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  // Scrollbar styling for cleaner look
+  scrollbarWidth: 'thin',
+  scrollbarColor: `${theme.palette.divider} transparent`,
+  '&::-webkit-scrollbar': {
+    width: 6,
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: theme.palette.divider,
+    borderRadius: 3,
+    '&:hover': {
+      backgroundColor: theme.palette.action.disabled,
+    },
+  },
 }));
 
 const FilterChip = styled(Button)<{ selected?: boolean }>(
@@ -39,6 +58,8 @@ const FilterChip = styled(Button)<{ selected?: boolean }>(
     border: '0px solid transparent',
     display: 'flex',
     alignItems: 'center',
+    flexShrink: 0, // Prevent chips from shrinking when scrolling
+    whiteSpace: 'nowrap', // Prevent text from wrapping
     '&:hover': {
       backgroundColor: selected
         ? theme.palette.primary.main
@@ -60,6 +81,19 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  // TEST: Generate 50 test chain options for testing scrolling
+  const testChainOptions: ChainOption[] = Array.from(
+    { length: 50 },
+    (_, i) => ({
+      chainId: 1000 + i,
+      chainName: `Test Chain ${i + 1}`,
+      logoUri: undefined,
+    }),
+  );
+
+  // Combine actual chain options with test options
+  const allChainOptions = [...chainOptions];
+
   const renderChainLogo = (
     chainId: number | 'avalanche',
     chainName: string,
@@ -75,7 +109,7 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
       return <ChainLogo src={mainLogo} alt={chainName} variant="circular" />;
     }
 
-    const logoUri = chainOptions.find(
+    const logoUri = allChainOptions.find(
       (option) => option.chainId === chainId,
     )?.logoUri;
 
@@ -96,7 +130,7 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
       >
         {t('All networks')}
       </FilterChip>
-      {chainOptions.map(({ chainId, chainName }) => (
+      {allChainOptions.map(({ chainId, chainName }) => (
         <FilterChip
           key={chainId}
           selected={selectedChainId === chainId}
