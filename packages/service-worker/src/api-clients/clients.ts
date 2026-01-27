@@ -2,6 +2,7 @@ import { container } from 'tsyringe';
 import { AppCheckService } from '~/services/appcheck/AppCheckService';
 import { createClient as createV1ProfileApiClient } from '~/api-clients/profile-api/client';
 import { createClient as createV1BalanceApiClient } from '~/api-clients/balance-api/client';
+import { createClient as createTokenAggregatorApiClientV1 } from '~/api-clients/token-aggregator/client';
 
 const appcheckService = container.resolve(AppCheckService);
 
@@ -30,7 +31,13 @@ const balanceApiClientV1 = createV1BalanceApiClient({
 });
 balanceApiClientV1.interceptors.request.use(authInterceptor);
 
+const tokenAggregatorApiClientV1 = createTokenAggregatorApiClientV1({
+  baseUrl: process.env.TOKEN_AGGREGATOR_SERVICE_URL,
+});
+tokenAggregatorApiClientV1.interceptors.request.use(authInterceptor);
+
 export {
   profileApiClientV1 as profileApiClient,
   balanceApiClientV1 as balanceApiClient,
+  tokenAggregatorApiClientV1 as tokenAggregatorApiClient,
 };

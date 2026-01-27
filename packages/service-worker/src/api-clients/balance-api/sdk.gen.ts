@@ -3,6 +3,8 @@
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
 import type {
+  GetV1BalanceGetSupportedChainsData,
+  GetV1BalanceGetSupportedChainsResponses,
   PostV1BalanceGetBalancesData,
   PostV1BalanceGetBalancesErrors,
   PostV1BalanceGetBalancesResponses,
@@ -47,6 +49,27 @@ export const postV1BalanceGetBalances = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options.headers,
     },
+  });
+};
+
+export const getV1BalanceGetSupportedChains = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<GetV1BalanceGetSupportedChainsData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).get<
+    GetV1BalanceGetSupportedChainsResponses,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: 'x-firebase-appcheck',
+        type: 'apiKey',
+      },
+    ],
+    url: '/v1/balance/get-supported-chains',
+    ...options,
   });
 };
 
