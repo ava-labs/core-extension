@@ -20,7 +20,8 @@ export const useToken = (
       return asset.symbol.toLowerCase() === tokenAddress.toLowerCase();
     }
 
-    return false;
+    return asset.address === tokenAddress;
   });
+
   return token;
 };
