@@ -1,13 +1,22 @@
-import { isEqual, partition, get, merge } from 'lodash';
-import { container, singleton } from 'tsyringe';
-import { EventEmitter } from 'events';
-import * as Sentry from '@sentry/browser';
 import {
   NftTokenWithBalance,
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import * as Sentry from '@sentry/browser';
+import { EventEmitter } from 'events';
+import { get, isEqual, merge, partition } from 'lodash';
+import { container, singleton } from 'tsyringe';
 
+import {
+  caipToChainId,
+  groupTokensByType,
+  isFulfilled,
+  isPchainNetworkId,
+  isXchainNetworkId,
+  Monitoring,
+  setErrorForRequestInSessionStorage,
+} from '@core/common';
 import {
   Account,
   AtomicBalances,
@@ -19,17 +28,7 @@ import {
   CachedBalancesInfo,
   FeatureGates,
 } from '@core/types';
-import {
-  caipToChainId,
-  groupTokensByType,
-  isFulfilled,
-  isPchainNetworkId,
-  isXchainNetworkId,
-  Monitoring,
-  setErrorForRequestInSessionStorage,
-} from '@core/common';
 
-import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
 import { balanceApiClient } from '~/api-clients';
 import {
   Currency,
@@ -45,18 +44,20 @@ import {
   convertBalanceResponseToAtomicCacheBalanceObject,
   createGetBalancePayload,
 } from '~/api-clients/utils';
+import { OnLock, OnUnlock } from '~/runtime/lifecycleCallbacks';
 
-import { BalancesService } from './BalancesService';
-import { NetworkService } from '../network/NetworkService';
-import { LockService } from '../lock/LockService';
-import { StorageService } from '../storage/StorageService';
-import { SettingsService } from '../settings/SettingsService';
+import { ChainId } from '@avalabs/core-chains-sdk';
+import { BalanceResponse } from '~/api-clients/types';
+import { AccountsService } from '~/services/accounts/AccountsService';
 import { FeatureFlagService } from '~/services/featureFlags/FeatureFlagService';
 import { SecretsService } from '~/services/secrets/SecretsService';
+import { LockService } from '../lock/LockService';
+import { NetworkService } from '../network/NetworkService';
 import { AddressResolver } from '../secrets/AddressResolver';
-import { AccountsService } from '~/services/accounts/AccountsService';
+import { SettingsService } from '../settings/SettingsService';
+import { StorageService } from '../storage/StorageService';
+import { BalancesService } from './BalancesService';
 import { TokenPricesService } from './TokenPricesService';
-import { ChainId } from '@avalabs/core-chains-sdk';
 
 interface MergeWithNewSettingMissingTokenToZeroProps {
   cachedAccountBalance: {
@@ -314,23 +315,44 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           )
         ).filter(isFulfilled);
 
-        const { balances: balanceServiceResponseArray, errors } =
-          await Promise.all(
-            balanceServiceResponses.map(async (balanceServiceResponse) => {
-              return convertStreamToArray(balanceServiceResponse.value.stream);
-            }),
-          );
+        const responses = await Promise.allSettled(
+          balanceServiceResponses.map(async (balanceServiceResponse) => {
+            return convertStreamToArray(balanceServiceResponse.value.stream);
+          }),
+        );
+
+        const { errors, balances } = responses.reduce(
+          (acc, response) => {
+            if (response.status === 'fulfilled') {
+              acc.balances.push(...response.value.balances);
+              acc.errors.push(...response.value.errors);
+            } else {
+              acc.errors.push({
+                balances: null,
+                caip2Id: response.reason.caip2Id,
+                id: Date.now().toString(),
+                error:
+                  typeof response.reason === 'string'
+                    ? response.reason
+                    : 'Network error occurred.' +
+                      JSON.stringify(response.reason, null, 2),
+              });
+            }
+            return acc;
+          },
+          {
+            errors: [] as GetBalancesResponseError[],
+            balances: [] as BalanceResponse[],
+          },
+        );
 
         const fallbackBalanceResponse =
           await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
 
-        const balanceObject = convertBalanceResponsesToCacheBalanceObject(
-          balanceServiceResponseArray,
-        );
+        const balanceObject =
+          convertBalanceResponsesToCacheBalanceObject(balances);
         const atomicBalanceObject =
-          convertBalanceResponseToAtomicCacheBalanceObject(
-            balanceServiceResponseArray,
-          );
+          convertBalanceResponseToAtomicCacheBalanceObject(balances);
 
         // Apply local dust filtering to ensure consistency regardless of API behavior
         const mergedTokens = merge(balanceObject, fallbackBalanceResponse);
