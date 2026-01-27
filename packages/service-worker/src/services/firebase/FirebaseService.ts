@@ -56,9 +56,22 @@ export class FirebaseService {
       return;
     }
 
-    onBackgroundMessage(getMessaging(this.#app), (payload) => {
-      this.#handleMessage(payload);
-    });
+    // Initialize background message listener only if FCM is supported
+    // This prevents IndexedDB errors in Safari iFrames, Firefox Private Browsing, etc.
+    isSupportedBrowserByFcm()
+      .then((isSupported) => {
+        if (isSupported && this.#app) {
+          onBackgroundMessage(getMessaging(this.#app), (payload) => {
+            this.#handleMessage(payload);
+          });
+        }
+      })
+      .catch((err) => {
+        Monitoring.sentryCaptureException(
+          err instanceof Error ? err : new Error(String(err)),
+          Monitoring.SentryExceptionTypes.FIREBASE,
+        );
+      });
 
     this.featureFlagService.addListener(
       FeatureFlagEvents.FEATURE_FLAG_UPDATED,
