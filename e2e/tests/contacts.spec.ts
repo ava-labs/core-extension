@@ -57,8 +57,9 @@ test.describe('Contacts Tests', () => {
       await contactsPage.addContact(TEST_CONTACTS.FULL);
 
       await contactsPage.goBackToContactsList();
-      const newCount = await contactsPage.getContactCount();
-      expect(newCount).toBeGreaterThan(initialCount);
+      await expect
+        .poll(() => contactsPage.getContactCount(), { timeout: 10000 })
+        .toBeGreaterThan(initialCount);
     },
   );
 

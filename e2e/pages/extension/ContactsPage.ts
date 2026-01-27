@@ -193,9 +193,8 @@ export class ContactsPage extends BasePage {
   }
 
   async getContactCount(): Promise<number> {
-    await this.page.waitForTimeout(500);
-    const items = await this.contactItems.all();
-    return items.length;
+    await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
+    return await this.contactItems.count();
   }
 
   async viewContactDetails(contactName: string): Promise<void> {
@@ -284,6 +283,6 @@ export class ContactsPage extends BasePage {
 
   async goBackToContactsList(): Promise<void> {
     await this.backButton.click();
-    await this.page.waitForTimeout(500);
+    await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
   }
 }
