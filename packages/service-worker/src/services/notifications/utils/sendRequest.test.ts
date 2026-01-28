@@ -52,11 +52,13 @@ describe('sendRequest', () => {
   it('should throw an error when the request fails', async () => {
     jest.mocked(global.fetch).mockResolvedValueOnce({
       ok: false,
-      statusText: 'some error',
-    } as Response);
+      status: 400,
+      statusText: 'Bad Request',
+      text: jest.fn().mockResolvedValue('Invalid payload'),
+    } as unknown as Response);
 
     await expect(sendRequest({ path: 'foo', payload: {} })).rejects.toThrow(
-      'Error while sending request to "foo": some error',
+      'Error while sending request to "foo": 400 Bad Request - Invalid payload',
     );
   });
 
