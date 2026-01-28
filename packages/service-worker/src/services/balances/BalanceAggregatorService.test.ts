@@ -1,10 +1,10 @@
-import * as Sentry from '@sentry/browser';
 import {
   ChainId,
   Network,
   NetworkToken,
   NetworkVMType,
 } from '@avalabs/core-chains-sdk';
+import * as Sentry from '@sentry/browser';
 
 import {
   Account,
@@ -14,19 +14,19 @@ import {
   BalanceServiceEvents,
   FeatureGates,
 } from '@core/types';
-import { StorageService } from '../storage/StorageService';
 import { SettingsService } from '../settings/SettingsService';
+import { StorageService } from '../storage/StorageService';
 
-import { BalanceAggregatorService } from './BalanceAggregatorService';
-import { LockService } from '../lock/LockService';
 import {
   NetworkTokenWithBalance,
   NftTokenWithBalance,
   TokenType,
 } from '@avalabs/vm-module-types';
-import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
 import { setErrorForRequestInSessionStorage } from '@core/common';
+import { postV1BalanceGetBalances } from '~/api-clients/balance-api';
 import { createGetBalancePayload } from '~/api-clients/utils';
+import { LockService } from '../lock/LockService';
+import { BalanceAggregatorService } from './BalanceAggregatorService';
 
 jest.mock('@sentry/browser');
 jest.mock('../lock/LockService');
@@ -637,9 +637,7 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         requestId: walletId,
       });
 
-      expect(
-        jest.mocked(setErrorForRequestInSessionStorage),
-      ).toHaveBeenCalledWith(
+      expect(setErrorForRequestInSessionStorage).toHaveBeenCalledWith(
         walletId,
         BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
       );
@@ -671,10 +669,12 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         tokenPricesServiceMock,
       );
 
-      jest.mocked(createGetBalancePayload).mockResolvedValue({
-        data: [],
-        currency: 'usd',
-      });
+      jest.mocked(createGetBalancePayload).mockResolvedValue([
+        {
+          data: [],
+          currency: 'usd',
+        },
+      ]);
 
       jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
         throw new Error('Stop here');
@@ -717,10 +717,12 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
         tokenPricesServiceMock,
       );
 
-      jest.mocked(createGetBalancePayload).mockResolvedValue({
-        data: [],
-        currency: 'usd',
-      });
+      jest.mocked(createGetBalancePayload).mockResolvedValue([
+        {
+          data: [],
+          currency: 'usd',
+        },
+      ]);
 
       jest.mocked(postV1BalanceGetBalances).mockImplementation(() => {
         throw new Error('Stop here');
@@ -1010,10 +1012,12 @@ describe('src/background/services/balances/BalanceAggregatorService.ts', () => {
       const validBalance = createTokenBalance(DUST_THRESHOLD);
 
       // Mock createGetBalancePayload to return empty data
-      jest.mocked(createGetBalancePayload).mockResolvedValue({
-        data: [],
-        currency: 'usd',
-      });
+      jest.mocked(createGetBalancePayload).mockResolvedValue([
+        {
+          data: [],
+          currency: 'usd',
+        },
+      ]);
 
       // Mock balance service to return a stream with X-chain balances including dust
       const mockStream = {

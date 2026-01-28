@@ -13,6 +13,7 @@ import {
   groupTokensByType,
   isFulfilled,
   isPchainNetworkId,
+  isRejected,
   isXchainNetworkId,
   Monitoring,
   setErrorForRequestInSessionStorage,
@@ -283,14 +284,28 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     if (tokenTypes.some((tokenType) => NFT_TYPES.includes(tokenType))) {
       return { tokens: {}, atomic: {} };
     }
+    const settings = await this.settingsService.getSettings();
 
     if (
       this.featureFlagService.featureFlags[
         FeatureGates.BALANCE_SERVICE_INTEGRATION
       ]
     ) {
-      const settings = await this.settingsService.getSettings();
       const selectedCurrency = settings.currency.toLowerCase();
+
+      const apiErrorHandler = async (error: Error) => {
+        if (requestId) {
+          await setErrorForRequestInSessionStorage(
+            requestId,
+            BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
+          );
+        }
+        Monitoring.sentryCaptureException(
+          error,
+          Monitoring.SentryExceptionTypes.BALANCES,
+        );
+      };
+
       try {
         const getBalancesRequestBodies = await createGetBalancePayload({
           accounts,
@@ -301,29 +316,29 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           filterSmallUtxos: settings.filterSmallUtxos,
         });
 
-        const balanceServiceResponses = (
-          await Promise.allSettled(
-            getBalancesRequestBodies.map(async (getBalancesRequestBody) =>
-              postV1BalanceGetBalances({
-                client: balanceApiClient,
-                body: getBalancesRequestBody,
-                onSseError: (error) => {
-                  throw error;
-                },
-              }),
-            ),
-          )
-        ).filter(isFulfilled);
+        const balanceServiceResponses = await Promise.allSettled(
+          getBalancesRequestBodies.map(async (getBalancesRequestBody) =>
+            postV1BalanceGetBalances({
+              client: balanceApiClient,
+              body: getBalancesRequestBody,
+              onSseError: (error) => {
+                throw error;
+              },
+            }),
+          ),
+        );
 
         const responses = await Promise.allSettled(
-          balanceServiceResponses.map(async (balanceServiceResponse) => {
-            return convertStreamToArray(balanceServiceResponse.value.stream);
-          }),
+          balanceServiceResponses
+            .filter(isFulfilled)
+            .map(async (balanceServiceResponse) => {
+              return convertStreamToArray(balanceServiceResponse.value.stream);
+            }),
         );
 
         const { errors, balances } = responses.reduce(
           (acc, response) => {
-            if (response.status === 'fulfilled') {
+            if (isFulfilled(response)) {
               acc.balances.push(...response.value.balances);
               acc.errors.push(...response.value.errors);
             } else {
@@ -346,6 +361,10 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           },
         );
 
+        balanceServiceResponses.filter(isRejected).forEach(({ reason }) => {
+          apiErrorHandler(reason);
+        });
+
         const fallbackBalanceResponse =
           await this.#fallbackOnBalanceServiceErrors(errors, tokenTypes);
 
@@ -365,21 +384,11 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           atomic: atomicBalanceObject,
         };
       } catch (err) {
-        if (requestId) {
-          await setErrorForRequestInSessionStorage(
-            requestId,
-            BalanceAggregatorServiceErrors.ERROR_WHILE_CALLING_BALANCE__SERVICE,
-          );
-        }
-        Monitoring.sentryCaptureException(
-          err as Error,
-          Monitoring.SentryExceptionTypes.BALANCES,
-        );
+        apiErrorHandler(err as Error);
       }
     }
 
     // if there was an error with querying the balance service, or the feature flag is off, we're getting balances through vm modules
-    const settings = await this.settingsService.getSettings();
     const balances = await this.#fetchBalances(chainIds, accounts, tokenTypes);
     const filteredTokens = settings.filterSmallUtxos
       ? this.#filterDustUtxosFromBalances(balances.tokens)

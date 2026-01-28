@@ -6,7 +6,7 @@ import { Account, AccountType } from '@core/types';
 import { NameSpace } from '~/api-clients/types';
 import { AddressResolver } from '~/services/secrets/AddressResolver';
 import { SecretsService } from '~/services/secrets/SecretsService';
-import { getAccountAddressFromCaip2IdOrNamesSpace } from './getAccountAddressFromCaip2IdOrNamesSpace';
+import { getAccountAddressForCaip2Identifier } from './getAccountAddressFromCaip2IdOrNamesSpace';
 
 async function getCoreXPRequestItems(
   accounts: Account[],
@@ -27,7 +27,7 @@ async function getCoreXPRequestItems(
         }
         const [, reference] = caip2Id.split(':');
 
-        const address = getAccountAddressFromCaip2IdOrNamesSpace({
+        const address = getAccountAddressForCaip2Identifier({
           account,
           caip2Id,
           nameSpace,

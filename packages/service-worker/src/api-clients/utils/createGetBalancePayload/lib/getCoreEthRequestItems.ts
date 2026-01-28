@@ -3,12 +3,8 @@ import { getNameSpaceFromScope } from '@core/common';
 import { Account } from '@core/types';
 import { uniqBy } from 'lodash';
 import { AvalancheCorethGetBalancesRequestItem } from '~/api-clients/balance-api';
-import {
-  GetBalanceRequestItem,
-  NameSpace,
-  PartialGetBalancePayload,
-} from '~/api-clients/types';
-import { getAccountAddressFromCaip2IdOrNamesSpace } from './getAccountAddressFromCaip2IdOrNamesSpace';
+import { NameSpace, PartialGetBalancePayload } from '~/api-clients/types';
+import { getAccountAddressForCaip2Identifier } from './getAccountAddressFromCaip2IdOrNamesSpace';
 import { getChainSpecificPayload } from './getChainSpecificPayload';
 
 type CoreEthReference =
@@ -18,36 +14,32 @@ function isAvaxNamespace(nameSpace: NameSpace): nameSpace is 'avax' {
   return nameSpace === 'avax';
 }
 
-function isAvalancheCorethRequestItem(
-  requestItem: GetBalanceRequestItem,
-): requestItem is AvalancheCorethGetBalancesRequestItem {
-  return requestItem.namespace === 'avax';
-}
-
 export function getCoreEthRequestItems(
   accounts: Account[],
   filterOutDustUtxos: boolean,
 ) {
   const caip2Id = AvalancheCaip2ChainId.C;
+
   const nameSpace = getNameSpaceFromScope(caip2Id) as
     | NameSpace
     | null
     | undefined;
 
-  if (!nameSpace) {
+  const [, reference] = caip2Id.split(':') as [string, CoreEthReference];
+
+  // if the caip2Id is "malformed" we skip it
+  if (!nameSpace || !reference) {
     return [];
   }
 
   const reduced = accounts.reduce<PartialGetBalancePayload>(
     (accumulator, account) => {
-      const address = getAccountAddressFromCaip2IdOrNamesSpace({
+      const address = getAccountAddressForCaip2Identifier({
         account,
         caip2Id,
         nameSpace,
       });
-      const [, reference] = caip2Id.split(':') as [string, CoreEthReference];
-      // if the caip2Id is "malformed" we skip it
-      if (!reference || !address) {
+      if (!address) {
         return accumulator;
       }
 
@@ -63,15 +55,15 @@ export function getCoreEthRequestItems(
         return accumulator;
       }
 
-      if (
-        !isAvaxNamespace(nameSpace) ||
-        !isAvalancheCorethRequestItem(accumulator[nameSpace])
-      ) {
+      if (!isAvaxNamespace(nameSpace)) {
         return accumulator;
       }
 
-      accumulator[nameSpace].references.push(reference);
-      accumulator[nameSpace].addressDetails.push(
+      const requestItem = accumulator[
+        nameSpace
+      ] as AvalancheCorethGetBalancesRequestItem;
+      requestItem.references.push(reference);
+      requestItem.addressDetails.push(
         ...chainSpecificRequestItem.addressDetails,
       );
 

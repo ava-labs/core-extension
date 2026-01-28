@@ -5,13 +5,13 @@ import { GetBalanceRequestItem } from '~/api-clients/types';
 export const splitIntoMultipleRequests = (
   request: GetBalancesRequestBody,
 ): GetBalancesRequestBody[] => {
-  const splittedRequest: GetBalancesRequestBody = {
+  const splitPayloadsRequest: GetBalancesRequestBody = {
     ...request,
     data: splitByReferences(splitByAddresses(request.data)),
   };
 
-  return chunk(splittedRequest.data, 5).map((dataChunk) => ({
-    ...splittedRequest,
+  return chunk(splitPayloadsRequest.data, 5).map((dataChunk) => ({
+    ...splitPayloadsRequest,
     data: dataChunk,
   }));
 };
