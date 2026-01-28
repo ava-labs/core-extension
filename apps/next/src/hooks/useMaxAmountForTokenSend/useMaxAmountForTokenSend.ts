@@ -30,8 +30,8 @@ import { getSolanaMaxAmount } from './lib/getSolanaMaxAmount';
 import { useGetXPAddresses } from '../useGetXPAddresses';
 
 type MaxAmountInfo = {
-  maxAmount: bigint;
-  estimatedFee: bigint;
+  maxAmount: bigint | undefined;
+  estimatedFee: bigint | undefined;
 };
 
 export const useMaxAmountForTokenSend = (
@@ -46,8 +46,8 @@ export const useMaxAmountForTokenSend = (
   const { filterSmallUtxos } = useSettingsContext();
 
   const [result, setResult] = useState<MaxAmountInfo>({
-    maxAmount: 0n,
-    estimatedFee: 0n,
+    maxAmount: undefined,
+    estimatedFee: undefined,
   });
 
   useEffect(() => {

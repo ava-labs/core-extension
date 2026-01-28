@@ -36,12 +36,6 @@ export async function getMaxUtxoSet({
   const utxos = preloadedUtxoSet ?? (await wallet.getUTXOs(chainAliasToUse));
   let filteredUtxos = Avalanche.sortUTXOsByAmount(utxos.getUTXOs(), true);
 
-  if (filterSmallUtxos) {
-    filteredUtxos = filteredUtxos.filter(
-      (utxo) => utils.getUtxoInfo(utxo).amount >= DUST_THRESHOLD,
-    );
-  }
-
   if (isPchainNetwork(network)) {
     assert(feeState, CommonError.UnknownNetworkFee);
 
@@ -60,6 +54,12 @@ export async function getMaxUtxoSet({
         utxos,
       });
     }
+  }
+
+  if (filterSmallUtxos) {
+    filteredUtxos = filteredUtxos.filter(
+      (utxo) => utils.getUtxoInfo(utxo).amount >= DUST_THRESHOLD,
+    );
   }
 
   filteredUtxos = isLedgerWallet

@@ -30,7 +30,8 @@ export const getPChainMaxAmount = async (
 
   const provider = getAvalancheProvider(network);
   const feeState = await provider.getApiP().getFeeState();
-  const wallet = await getAvalancheWallet(from, await getAddresses(), provider);
+  const addresses = await getAddresses();
+  const wallet = await getAvalancheWallet(from, addresses, provider);
   const utxos = await getMaxUtxoSet({
     isLedgerWallet,
     provider,
@@ -54,6 +55,7 @@ export const getPChainMaxAmount = async (
           network,
           provider,
           filterSmallUtxos,
+          addresses,
         });
 
   const maxAmount =
@@ -71,6 +73,14 @@ const getFeeForMinimalTx = async ({
   network,
   provider,
   filterSmallUtxos,
+  addresses,
+}: {
+  from: PvmCapableAccount;
+  isLedgerWallet: boolean;
+  network: NetworkWithCaipId;
+  provider: Avalanche.JsonRpcProvider;
+  filterSmallUtxos: boolean;
+  addresses: XPAddresses;
 }) => {
   const unsignedTx = await buildPChainSendTx({
     isLedgerWallet,
@@ -78,10 +88,7 @@ const getFeeForMinimalTx = async ({
     amount: 1n, // Minimum possible amount to send
     to: from.addressPVM,
     network,
-    addresses: {
-      externalAddresses: [],
-      internalAddresses: [],
-    },
+    addresses,
     filterSmallUtxos,
   });
 
