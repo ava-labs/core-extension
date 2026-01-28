@@ -83,8 +83,6 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  // Combine actual chain options with test options
-
   const renderChainLogo = (
     chainId: number | 'avalanche',
     chainName: string,
