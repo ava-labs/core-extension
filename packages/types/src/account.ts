@@ -121,6 +121,7 @@ export enum AccountsEvents {
   ACCOUNTS_UPDATED = 'accounts-updated',
   ACTIVE_ACCOUNT_CHANGED = 'active-account-changed',
   ACCOUNTS_DELETED = 'accounts-deleted',
+  ACCOUNT_NAME_CHANGED = 'account-name-changed',
 }
 
 export enum GetPrivateKeyErrorTypes {
