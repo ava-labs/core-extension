@@ -9,7 +9,11 @@ import {
   NetworkWithCaipId,
   XChainTokenBalance,
 } from '@core/types';
-import { useConnectionContext, useWalletContext } from '@core/ui';
+import {
+  useConnectionContext,
+  useSettingsContext,
+  useWalletContext,
+} from '@core/ui';
 import { isValidAvmAddress } from '@core/common';
 
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
@@ -37,7 +41,7 @@ export const useXChainSend = ({
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();
   const getXPAddressesFetcher = useGetXPAddresses();
-
+  const { filterSmallUtxos } = useSettingsContext();
   const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
@@ -85,6 +89,7 @@ export const useXChainSend = ({
         to,
         network,
         addresses: await getXPAddressesFetcher('AVM')(),
+        filterSmallUtxos,
       });
       const hash = await request(
         {
@@ -117,6 +122,7 @@ export const useXChainSend = ({
     amount,
     network,
     getXPAddressesFetcher,
+    filterSmallUtxos,
   ]);
 
   return {

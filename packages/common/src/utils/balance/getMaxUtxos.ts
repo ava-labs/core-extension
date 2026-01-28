@@ -10,19 +10,37 @@ enum CHAIN_ALIAS {
   X = 'X',
 }
 
-export async function getMaxUtxoSet(
-  isLedgerWallet: boolean,
-  provider: Avalanche.JsonRpcProvider,
-  wallet: Avalanche.AddressWallet,
-  network: Network,
-  feeState?: pvm.FeeState,
-  preloadedUtxoSet?: utils.UtxoSet,
-) {
+// Minimum balance threshold for X/P chain filtering (0.002 AVAX in nAVAX - 9 decimals)
+const DUST_THRESHOLD = 2_000_000n;
+
+export async function getMaxUtxoSet({
+  isLedgerWallet,
+  provider,
+  wallet,
+  network,
+  filterSmallUtxos,
+  feeState,
+  preloadedUtxoSet,
+}: {
+  isLedgerWallet: boolean;
+  provider: Avalanche.JsonRpcProvider;
+  wallet: Avalanche.AddressWallet;
+  network: Network;
+  filterSmallUtxos: boolean;
+  feeState?: pvm.FeeState;
+  preloadedUtxoSet?: utils.UtxoSet;
+}) {
   const chainAliasToUse = isPchainNetwork(network)
     ? CHAIN_ALIAS.P
     : CHAIN_ALIAS.X;
   const utxos = preloadedUtxoSet ?? (await wallet.getUTXOs(chainAliasToUse));
   let filteredUtxos = Avalanche.sortUTXOsByAmount(utxos.getUTXOs(), true);
+
+  if (filterSmallUtxos) {
+    filteredUtxos = filteredUtxos.filter(
+      (utxo) => utils.getUtxoInfo(utxo).amount >= DUST_THRESHOLD,
+    );
+  }
 
   if (isPchainNetwork(network)) {
     assert(feeState, CommonError.UnknownNetworkFee);
