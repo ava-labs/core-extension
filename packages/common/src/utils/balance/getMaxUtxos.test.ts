@@ -15,7 +15,25 @@ const AVALANCHE_X_DEV_NETWORK = {
   vmName: NetworkVMType.AVM,
 };
 
-jest.mock('@avalabs/core-wallets-sdk');
+jest.mock('@avalabs/core-wallets-sdk', () => ({
+  Avalanche: {
+    getMaximumUtxoSet: jest.fn(),
+    sortUTXOsByAmount: jest.fn(),
+    getAssetBalance: jest.fn(),
+    SizeSupportedTx: {
+      BaseP: 'BaseP',
+      BaseX: 'BaseX',
+    },
+    MainnetContext: {
+      pBlockchainID: 'mock-mainnet-p-blockchain-id',
+      xBlockchainID: 'mock-mainnet-x-blockchain-id',
+    },
+    FujiContext: {
+      pBlockchainID: 'mock-fuji-p-blockchain-id',
+      xBlockchainID: 'mock-fuji-x-blockchain-id',
+    },
+  },
+}));
 jest.mock('@avalabs/avalanchejs', () => ({
   utils: {
     getUtxoInfo: jest.fn(),
