@@ -11,7 +11,8 @@ import { FC, useState, useEffect, useCallback, useRef } from 'react';
 import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 
 import { useCameraPermissions } from '@core/ui';
-import { EVM_BASE_DERIVATION_PATH } from '@core/types';
+import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
+import { getAvalancheExtendedKeyPath } from '@core/common';
 
 import { VideoFeedCrosshair } from '@/components/keystone';
 
@@ -68,6 +69,30 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
     [minNumberOfKeys],
   );
 
+  const getAvmAddressPublicKeys = useCallback(
+    async (extendedPublicKeyHex: string) => {
+      const keys: PublicKey[] = [];
+      const startingIndexes = Array.from(
+        { length: minNumberOfKeys },
+        (_, i) => i,
+      );
+      for (const index of startingIndexes) {
+        const avmKey = await getAddressPublicKeyFromXPub(
+          extendedPublicKeyHex,
+          index,
+        );
+        keys.push({
+          index,
+          vm: 'AVM',
+          key: buildAddressPublicKey(avmKey, index, 'AVM'),
+        });
+      }
+
+      return keys;
+    },
+    [minNumberOfKeys],
+  );
+
   const handleUnreadableQRCode = useCallback(
     (isDimensionsError: boolean) => {
       setStatus('error');
@@ -84,24 +109,46 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
       const cryptoMultiAccounts = CryptoMultiAccounts.fromCBOR(buffer);
 
       const masterFingerprint = cryptoMultiAccounts.getMasterFingerprint();
-      const [key] = cryptoMultiAccounts.getKeys();
+      const allKeys = cryptoMultiAccounts.getKeys();
 
-      if (key) {
+      const extendedPublicKeys: ExtendedPublicKey[] = [];
+      let evmAddressPublicKeys: PublicKey[] = [];
+      let avmAddressPublicKeys: PublicKey[] = [];
+
+      for (const key of allKeys) {
+        const path = key.getOrigin()?.getPath();
+        const xpub = key.getBip32Key();
+
+        if (path?.includes("44'/60'")) {
+          extendedPublicKeys.push(
+            buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
+          );
+          evmAddressPublicKeys = await getAddressPublicKeys(xpub);
+        } else if (path?.includes("44'/9000'")) {
+          extendedPublicKeys.push(
+            buildExtendedPublicKey(xpub, getAvalancheExtendedKeyPath(0)),
+          );
+          avmAddressPublicKeys = await getAvmAddressPublicKeys(xpub);
+        }
+      }
+
+      if (extendedPublicKeys.length > 0) {
         onQRCodeScanned({
-          extendedPublicKeys: [
-            buildExtendedPublicKey(key.getBip32Key(), EVM_BASE_DERIVATION_PATH),
-          ],
-          addressPublicKeys: await getAddressPublicKeys(key.getBip32Key()),
+          extendedPublicKeys,
+          addressPublicKeys: [...evmAddressPublicKeys, ...avmAddressPublicKeys],
           masterFingerprint: masterFingerprint.toString('hex'),
         });
       } else {
-        console.error(
-          '[Keystone] Invalid QR code: missing extended public key',
-        );
+        console.error('[Keystone] Invalid QR code: no valid keys found');
         handleUnreadableQRCode(false);
       }
     },
-    [onQRCodeScanned, getAddressPublicKeys, handleUnreadableQRCode],
+    [
+      onQRCodeScanned,
+      getAddressPublicKeys,
+      getAvmAddressPublicKeys,
+      handleUnreadableQRCode,
+    ],
   );
 
   const handleError = useCallback(
