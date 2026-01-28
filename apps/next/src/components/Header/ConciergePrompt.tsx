@@ -6,7 +6,6 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { FC, useRef, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import {
@@ -15,7 +14,11 @@ import {
   PromptButtonBackground,
   TextAnimation,
 } from './components/styledComponents';
-import { useFeatureFlagContext, useSettingsContext } from '@core/ui';
+import {
+  useFeatureFlagContext,
+  useNavigation,
+  useSettingsContext,
+} from '@core/ui';
 import { FeatureGates } from '@core/types';
 import { ConciergePromptBackground } from './components/ConciergePromptBackground';
 import { ConciergeBackdrop } from './components/ConciergeBackdrop';
@@ -31,7 +34,7 @@ export const ConciergePrompt: FC<ConciergePromptProps> = ({
   setIsAIBackdropOpen,
 }) => {
   const theme = useTheme();
-  const history = useHistory();
+  const history = useNavigation('scale');
   const { t } = useTranslation();
 
   const [isHoverAreaHidden, setIsHoverAreaHidden] = useState(false);

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
-import { useHistory } from 'react-router-dom';
 import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { AddNetworkFormView } from './NetworkForm/types';
 import { NetworkDetails } from './NetworkDetails';
 import { useAddNetwork } from '../hooks/useAddNetwork';
+import { useNavigation } from '@core/ui';
 
 export const AddNetworkFlow = () => {
-  const history = useHistory();
+  const { goBack } = useNavigation('slide');
   const { t } = useTranslation();
   const { network, setNetwork, reset, isValid, submit, fieldInfo } =
     useAddNetwork();
@@ -17,7 +17,7 @@ export const AddNetworkFlow = () => {
 
   const goBackToNetworks = () => {
     reset();
-    history.replace('/settings/networks');
+    goBack();
   };
 
   const submitHandler = async () => {

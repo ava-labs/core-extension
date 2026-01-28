@@ -1,7 +1,7 @@
 import QRCodeSVG from 'qrcode.react';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Redirect, useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { Box, Collapse, Stack, useTheme } from '@avalabs/k2-alpine';
 
 import { AddressType } from '@core/types';
@@ -9,6 +9,7 @@ import { stripAddressPrefix } from '@core/common';
 import {
   useAccountsContext,
   useAnalyticsContext,
+  useNavigation,
   useQueryParams,
 } from '@core/ui';
 
@@ -19,7 +20,7 @@ import { Page } from '@/components/Page';
 
 export const Receive = () => {
   const theme = useTheme();
-  const history = useHistory();
+  const history = useNavigation();
   const params = useQueryParams();
   const { t } = useTranslation();
   const {

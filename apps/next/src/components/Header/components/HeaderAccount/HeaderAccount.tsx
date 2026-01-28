@@ -4,10 +4,11 @@ import { PersonalAvatar } from '@/components/PersonalAvatar';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
 import { WalletIcon } from '@/components/WalletIcon';
 import { Box, Stack, useTheme } from '@avalabs/k2-alpine';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { FadingText } from '../FadingText';
 import { useAccountInfoVisibility } from '@/contexts/AccountInfoVisibilityContext';
 import { ExpandIcon } from '@/components/ExpandIcon';
+import { useNavigation } from '@core/ui';
 
 const AVATAR_ONLY_CLASS = 'avatar-only';
 const ACCOUNT_INFO_CLASS = 'account-info';
@@ -29,7 +30,7 @@ export const HeaderAccount = () => {
     location.pathname === '/home';
 
   const theme = useTheme();
-  const history = useHistory();
+  const { push } = useNavigation('scale');
   const { walletSummary, account } = useActiveAccountInfo();
 
   const hasAccountData = walletSummary && account;
@@ -59,7 +60,7 @@ export const HeaderAccount = () => {
             className={ACCOUNT_INFO_CLASS}
             direction="row"
             alignItems="center"
-            onClick={() => history.push('/account-management')}
+            onClick={() => push('/account-management')}
           >
             <PersonalAvatar
               size="xsmall"

@@ -11,7 +11,7 @@ import {
 import { FC } from 'react';
 
 import { openNewTab } from '@core/common';
-import { useHistory } from 'react-router-dom';
+import { useNavigation } from '@core/ui';
 
 type OwnProps = {
   href?: string;
@@ -34,7 +34,7 @@ export const SettingsNavItem: FC<SettingsNavItemProps> = ({
   onClick,
   ...props
 }) => {
-  const history = useHistory();
+  const history = useNavigation('slide');
   const theme = useTheme();
   const hasLink = !!href;
   const isOutbound = hasLink && href.startsWith('https://');

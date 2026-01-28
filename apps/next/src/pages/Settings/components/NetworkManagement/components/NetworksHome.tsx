@@ -7,12 +7,15 @@ import {
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { useAnalyticsContext, useNetworkContext } from '@core/ui';
+import {
+  useAnalyticsContext,
+  useNavigation,
+  useNetworkContext,
+} from '@core/ui';
 import { isEmpty } from 'lodash';
 import { FC, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdAdd } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
 import { NetworkToggleList } from './NetworkToggle/NetworkToggleList';
 import { SearchInput } from './SearchInput';
 
@@ -21,7 +24,7 @@ type Tab = 'all' | 'custom';
 export const NetworksHome: FC = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const history = useHistory();
+  const history = useNavigation('slide');
   const { networks, customNetworks } = useNetworkContext();
   const { capture } = useAnalyticsContext();
   const [activeTab, setActiveTab] = useState<Tab>('all');

@@ -3,7 +3,6 @@ import {
   DialogContent,
   Stack,
   SxProps,
-  Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
@@ -13,9 +12,9 @@ import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
 import { ResetExtensionStateHandler } from '~/services/storage/handlers/resetExtensionState';
 
-import { SlideUpDialog } from '@/components/Dialog';
 import { PageTopBar } from '@/components/PageTopBar';
 import { WarningMessage } from '@/components/WarningMessage';
+import { Page } from '@/components/Page';
 
 type Props = {
   open: boolean;
@@ -27,7 +26,7 @@ const smallButtonFixSx: SxProps = {
   height: '32px',
 };
 
-export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
+export const ForgotPassword: FC<Props> = ({ onCancel, onConfirm }) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
   const theme = useTheme();
@@ -41,50 +40,39 @@ export const ForgotPassword: FC<Props> = ({ open, onCancel, onConfirm }) => {
   };
 
   return (
-    <SlideUpDialog open={open}>
-      <PageTopBar onBackClicked={onCancel} showBack />
-      <DialogContent
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          px: theme.spacing(1.5),
-        }}
+    <Page onBack={onCancel} title={t(`You're about to terminate this session`)}>
+      <Stack
+        width="100%"
+        direction="column"
+        rowGap={3}
+        paddingBlock="28px 22px"
+        paddingInline="0px 30px"
       >
-        <Stack
-          direction="column"
-          rowGap={3}
-          paddingBlock="28px 22px"
-          paddingInline="0px 30px"
+        <WarningMessage>
+          {t(
+            'Make sure you have written down your recovery phrase or stored your login credentials. Failure to do this may result in lost funds.',
+          )}
+        </WarningMessage>
+      </Stack>
+      <Stack width="100%" rowGap="10px" mt="auto" px={1}>
+        <Button
+          sx={smallButtonFixSx}
+          variant="contained"
+          size="extension"
+          onClick={onConfirmClick}
         >
-          <Typography variant="h2">
-            {t(`You're about to terminate this session`)}
-          </Typography>
-          <WarningMessage>
-            {t(
-              'Make sure you have written down your recovery phrase or stored your login credentials. Failure to do this may result in lost funds.',
-            )}
-          </WarningMessage>
-        </Stack>
-        <Stack rowGap="10px" mt="auto" px={1}>
-          <Button
-            sx={smallButtonFixSx}
-            variant="contained"
-            size="extension"
-            onClick={onConfirmClick}
-          >
-            {t('Confirm')}
-          </Button>
-          <Button
-            sx={smallButtonFixSx}
-            variant="contained"
-            size="extension"
-            color="secondary"
-            onClick={onCancel}
-          >
-            {t('Cancel')}
-          </Button>
-        </Stack>
-      </DialogContent>
-    </SlideUpDialog>
+          {t('Confirm')}
+        </Button>
+        <Button
+          sx={smallButtonFixSx}
+          variant="contained"
+          size="extension"
+          color="secondary"
+          onClick={onCancel}
+        >
+          {t('Cancel')}
+        </Button>
+      </Stack>
+    </Page>
   );
 };

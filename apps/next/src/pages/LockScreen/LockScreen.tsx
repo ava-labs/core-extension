@@ -12,6 +12,7 @@ import { PageTopBar } from '../../components/PageTopBar';
 import { Unlock } from './components/Unlock';
 import { UserAvatar } from './components/UserAvatar';
 import { CoreSplashStatic } from '@/components/CoreSplashStatic';
+import { SlideUpDialog } from '@/components/Dialog';
 
 type Props = {
   unlockWallet: ComponentProps<
@@ -87,11 +88,13 @@ export const LockScreen: FC<Props> = ({ unlockWallet }) => {
         />
       </Collapse>
 
-      <ForgotPassword
-        open={showForgotPassword}
-        onCancel={hideForgotPasswordModal}
-        onConfirm={hideForgotPasswordModal}
-      />
+      <SlideUpDialog open={showForgotPassword}>
+        <ForgotPassword
+          open={showForgotPassword}
+          onCancel={hideForgotPasswordModal}
+          onConfirm={hideForgotPasswordModal}
+        />
+      </SlideUpDialog>
     </Root>
   );
 };

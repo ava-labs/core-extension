@@ -18,16 +18,16 @@ import {
   MdError,
   MdOutlineRemoveModerator,
 } from 'react-icons/md';
-import { useHistory } from 'react-router-dom';
 import { StackRow } from '../StackRow';
 import { useDappScansCache } from '@/hooks/useDappScansCache';
+import { useNavigation } from '@core/ui';
 
 interface ConnectedSitesProps {
   activeAccount?: Account;
 }
 
 export const ConnectedSites = ({ activeAccount }: ConnectedSitesProps) => {
-  const { push } = useHistory();
+  const { push } = useNavigation('scale');
   const domain = useCurrentDomain();
   const { disconnectSite, connectedSites, isDomainConnectedToAccount } =
     useConnectedSites();

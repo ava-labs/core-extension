@@ -3,11 +3,11 @@ import { NETWORKS_ENABLED_FOREVER, NetworkWithCaipId } from '@core/types';
 import {
   useAccountsContext,
   useBalancesContext,
+  useNavigation,
   useNetworkContext,
   useWalletTotalBalanceContext,
 } from '@core/ui';
 import { useEffect, useMemo, useRef } from 'react';
-import { useHistory } from 'react-router-dom';
 import { NetworkToggleListItem } from './NetworkToggleListItem';
 
 type NetworkToggleListProps = {
@@ -18,7 +18,7 @@ const defaultNetworkSet = new Set(NETWORKS_ENABLED_FOREVER);
 export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
   const { enabledNetworks, enableNetwork, disableNetwork } =
     useNetworkContext();
-  const history = useHistory();
+  const { push } = useNavigation('slide');
 
   const { updateBalanceOnNetworks } = useBalancesContext();
   const { fetchWalletBalancesSequentially } = useWalletTotalBalanceContext();
@@ -112,9 +112,7 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
             }
           }}
           onClick={() => {
-            history.push(
-              `/settings/network-management/details/${network.chainId}`,
-            );
+            push(`/settings/network-management/details/${network.chainId}`);
           }}
         />
       ))}

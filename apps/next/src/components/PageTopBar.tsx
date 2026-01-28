@@ -8,7 +8,7 @@ import {
   getHexAlpha,
   styled,
 } from '@avalabs/k2-alpine';
-import { useGoBack, useOnline } from '@core/ui';
+import { useNavigation, useOnline } from '@core/ui';
 import { FC } from 'react';
 import { HEADER_HEIGHT } from '@/config/constants';
 
@@ -44,16 +44,17 @@ export const PageTopBar: FC<Props> = ({
   showViewSwitcher = true,
 }) => {
   const theme = useTheme();
-  const goBack = useGoBack();
+  const { goBack } = useNavigation();
   const { isOnline } = useOnline();
   return (
     <>
-      <StickyPageTopBar>
+      <StickyPageTopBar className="page-top-bar">
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          px={1.5}
+          pl={1.5}
+          pr={showViewSwitcher ? 0.5 : 1.5}
           py={2}
           gap={1}
           width="100%"
@@ -77,7 +78,7 @@ export const PageTopBar: FC<Props> = ({
             >
               <ArrowBackIcon
                 size={20}
-                onClick={onBackClicked || goBack}
+                onClick={onBackClicked || (() => goBack(undefined))}
                 cursor="pointer"
               />
             </Box>

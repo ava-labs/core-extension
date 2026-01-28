@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
 import { RpcUrlResetConfirmation } from './Confirmations/RpcUrlResetConfirmation';
 import { toast } from '@avalabs/k2-alpine';
@@ -10,7 +10,7 @@ import { NetworkDetails } from './NetworkDetails';
 import { NetworkDeleteConfirmation } from './Confirmations/NetworkDeleteConfirmation';
 import { NetworkNotFound } from './NetworkNotFound';
 import { useEditNetwork } from '../hooks/useEditNetwork';
-import { useAnalyticsContext } from '@core/ui';
+import { useAnalyticsContext, useNavigation } from '@core/ui';
 import { Network } from '@core/types';
 
 type NetworkDetailsParams = {
@@ -18,7 +18,7 @@ type NetworkDetailsParams = {
 };
 
 export const NetworkDetailsFlow = () => {
-  const history = useHistory();
+  const { goBack } = useNavigation('slide');
   const { t } = useTranslation();
   const { networkId } = useParams<NetworkDetailsParams>();
   const { capture } = useAnalyticsContext();
@@ -71,7 +71,7 @@ export const NetworkDetailsFlow = () => {
       await removeCustomNetwork(Number(networkId));
       toast.success(t('Network deleted'));
       capture('CustomNetworkDeleted');
-      history.goBack();
+      goBack();
     } catch (error) {
       console.error(error);
       toast.error(t('Failed to delete network'));

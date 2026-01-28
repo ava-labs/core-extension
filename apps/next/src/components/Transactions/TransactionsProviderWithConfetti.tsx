@@ -1,9 +1,8 @@
 import { PropsWithChildren } from 'react';
 import { ChevronRightIcon, IconButton } from '@avalabs/k2-alpine';
-import { useHistory } from 'react-router-dom';
 import { useConfettiContext } from '@/components/Confetti';
 
-import { TransactionStatusProvider } from '@core/ui';
+import { TransactionStatusProvider, useNavigation } from '@core/ui';
 import { openNewTab } from '@core/common';
 import { getExplorerAddressByNetwork } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
@@ -12,7 +11,7 @@ export const TransactionStatusProviderWithConfetti = ({
   children,
 }: PropsWithChildren) => {
   const { triggerConfetti } = useConfettiContext();
-  const history = useHistory();
+  const history = useNavigation('scale');
 
   return (
     <TransactionStatusProvider

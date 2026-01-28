@@ -9,12 +9,13 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useRouteMatch } from 'react-router-dom';
 
 import {
   useAnalyticsContext,
   useContactsContext,
   useFeatureFlagContext,
+  useNavigation,
   useNetworkContext,
   useSeedlessMfaManager,
   useSettingsContext,
@@ -63,7 +64,7 @@ export const SettingsHomePage = () => {
   const { walletDetails, isLedgerWallet } = useWalletContext();
   const { contacts } = useContactsContext();
   const { path } = useRouteMatch();
-  const { push } = useHistory();
+  const { push, goBack } = useNavigation('slide');
   const { capture } = useAnalyticsContext();
   const { featureFlags } = useFeatureFlagContext();
 
@@ -89,9 +90,7 @@ export const SettingsHomePage = () => {
         'Manage and customize your Core experience to your liking.',
       )}
       withBackButton
-      onBack={() => {
-        push('/');
-      }}
+      onBack={() => goBack('scale')}
     >
       <Stack direction="row" gap={1.5} width="100%">
         <Stack width="50%">

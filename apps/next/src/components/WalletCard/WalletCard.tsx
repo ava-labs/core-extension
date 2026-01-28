@@ -6,7 +6,11 @@ import {
   TypographyProps,
 } from '@avalabs/k2-alpine';
 import { WalletDetails } from '@core/types';
-import { useSettingsContext, useWalletTotalBalance } from '@core/ui';
+import {
+  useNavigation,
+  useSettingsContext,
+  useWalletTotalBalance,
+} from '@core/ui';
 import {
   cloneElement,
   FC,
@@ -19,7 +23,6 @@ import { useTranslation } from 'react-i18next';
 import { RenamableTitle } from '../../pages/AccountManagement/components/RenamableTitle';
 import * as Styled from './Styled';
 import { WalletIconProps } from '@/components/WalletIcon';
-import { useHistory } from 'react-router-dom';
 import { URL_SEARCH_TOKENS } from '@/pages/AccountManagement/utils/searchParams';
 interface WalletCardProps extends PropsWithChildren {
   accountsNumber: number;
@@ -42,7 +45,7 @@ export const WalletCard: FC<WalletCardProps> = ({
   showActiveIndicator,
 }) => {
   const { t } = useTranslation();
-  const { push } = useHistory();
+  const { push } = useNavigation('slide');
   const { isLoading, hasErrorOccurred, totalBalanceInCurrency } =
     useWalletTotalBalance(id);
   const { currencyFormatter } = useSettingsContext();

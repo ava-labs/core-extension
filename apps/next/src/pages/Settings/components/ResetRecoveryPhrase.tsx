@@ -1,10 +1,9 @@
 import { ForgotPassword } from '@/pages/LockScreen';
-import { useAnalyticsContext } from '@core/ui';
-import { useHistory } from 'react-router-dom';
+import { useAnalyticsContext, useNavigation } from '@core/ui';
 
 export const ResetRecoveryPhrase = () => {
   const { capture, stopDataCollection } = useAnalyticsContext();
-  const { goBack } = useHistory();
+  const { goBack } = useNavigation('slide');
 
   return (
     <ForgotPassword

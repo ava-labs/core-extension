@@ -4,10 +4,12 @@ import { useContactsContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
 import { EmptyContactList, SearchableContactList } from './components';
+import { useHistory } from 'react-router-dom';
 
 export const ContactList = () => {
   const { t } = useTranslation();
   const { contacts } = useContactsContext();
+	const { goBack } = useHistory();
 
   return (
     <Page
@@ -21,6 +23,12 @@ export const ContactList = () => {
             : ''
       }
       withBackButton
+			onBack={() => {
+				document.startViewTransition({
+					update: () => goBack(),
+					types: ['backwards'],
+				})
+			}}
     >
       {contacts.length > 0 ? (
         <SearchableContactList contacts={contacts} />

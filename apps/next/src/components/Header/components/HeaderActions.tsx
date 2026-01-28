@@ -10,8 +10,8 @@ import {
 import { Account } from '@core/types';
 import { FC, useMemo } from 'react';
 import { FiSettings } from 'react-icons/fi';
-import { useHistory, useLocation } from 'react-router-dom';
-import { useAnalyticsContext } from '@core/ui';
+import { useLocation } from 'react-router-dom';
+import { useAnalyticsContext, useNavigation } from '@core/ui';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +21,7 @@ type Props = {
 };
 
 export const HeaderActions: FC<Props> = ({ account }) => {
-  const history = useHistory();
+  const { push } = useNavigation('scale');
   const theme = useTheme();
   const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
@@ -47,7 +47,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
             size="small"
             onClick={() => {
               capture('TokenReceiveClicked', { addressType: 'C' });
-              history.push(`/receive?accId=${account?.id}`);
+              push(`/receive?accId=${account?.id}`);
             }}
           >
             <QrCodeIcon fill={theme.palette.text.primary} size={24} />
@@ -58,7 +58,14 @@ export const HeaderActions: FC<Props> = ({ account }) => {
         <IconButton
           disableRipple={true}
           data-testid="settings-button"
-          onClick={() => history.push('/settings')}
+          onClick={() => {
+            document.startViewTransition({
+              update: () => {
+                push('/settings');
+              },
+              types: ['grow-up'],
+            });
+          }}
           size="small"
           sx={{ color: theme.palette.text.primary }}
         >
@@ -68,7 +75,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
       <IconButton
         disableRipple={true}
         size="small"
-        onClick={() => history.push('/activity')}
+        onClick={() => push('/activity')}
       >
         <AnimatedSyncIcon
           size={24}

@@ -15,7 +15,7 @@ export * from './useGetAvaxBalance';
 export * from './useNativeBalanceFetcher';
 export * from './useGetRequestId';
 export * from './useGetSolBalance';
-export * from './useGoBack';
+export * from './useNavigation';
 export * from './useInterval';
 export * from './useIsFunctionAvailable';
 export * from './useIsMainnet';

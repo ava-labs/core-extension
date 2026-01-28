@@ -10,10 +10,10 @@ import {
 } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC } from 'react';
-import { useHistory } from 'react-router-dom';
 import { getNavigateToQRCode } from '../../QRCode/utils';
 import * as Styled from '../../Styled';
 import { QRCodeIconButton } from './QRCodeIconButton';
+import { useNavigation } from '@core/ui';
 
 type Props = {
   account: Account;
@@ -22,8 +22,8 @@ type Props = {
 const TRUNCATE_LENGTH = 16;
 
 export const AddressesCard: FC<Props> = ({ account }) => {
-  const history = useHistory();
-  const getNavigate = getNavigateToQRCode(history.push, account.id);
+  const { push } = useNavigation('slide');
+  const getNavigate = getNavigateToQRCode(push, account.id);
   return (
     <Styled.Card>
       <Styled.CardContent>

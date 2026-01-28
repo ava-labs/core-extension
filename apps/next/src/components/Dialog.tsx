@@ -1,5 +1,5 @@
 import { Dialog, DialogProps, Slide } from '@avalabs/k2-alpine';
-import { useGoBack } from '@core/ui';
+import { useGoBack, useNavigation } from '@core/ui';
 import { PropsWithChildren } from 'react';
 
 const dialogSlots: Pick<DialogProps, 'slots' | 'slotProps'> = {
@@ -28,13 +28,14 @@ export const SlideUpDialog = ({
   children,
   zIndex,
 }: SlideUpDialogProps) => {
-  const goBack = useGoBack();
+  const { goBack } = useNavigation('scale');
+  const handleClose = onClose ?? (() => goBack());
   return (
     <Dialog
       {...dialogSlots}
       sx={{ zIndex }}
       open={open}
-      onClose={onClose || goBack}
+      onClose={handleClose}
       fullScreen
     >
       {children}

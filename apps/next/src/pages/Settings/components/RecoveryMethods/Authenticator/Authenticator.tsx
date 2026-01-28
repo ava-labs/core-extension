@@ -5,9 +5,9 @@ import { TFunction, useTranslation } from 'react-i18next';
 import { AuthErrorCode, TotpResetChallenge } from '@core/types';
 import { useState } from 'react';
 import {
-  useGoBack,
   useSeedlessMfaManager,
   useAnalyticsContext,
+  useNavigation,
 } from '@core/ui';
 import { AuthenticatorVerifyScreen } from './AuthenticatorVerifyScreen';
 import { AuthenticatorVerifyCode } from './AuthenticatorVerifyCode';
@@ -60,7 +60,7 @@ export const Authenticator: FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<AuthErrorCode>();
 
-  const goBack = useGoBack();
+  const { goBack } = useNavigation();
 
   const { title, description } = getPageText(screenState, t);
 
@@ -110,7 +110,7 @@ export const Authenticator: FC = () => {
       title={title}
       withBackButton
       contentProps={{ justifyContent: 'flex-start', alignItems: 'start' }}
-      onBack={goBack}
+      onBack={() => goBack('slide')}
     >
       <Typography variant="caption">{description}</Typography>
       {screenState === 'initial' && <InProgress textSize="body1" />}

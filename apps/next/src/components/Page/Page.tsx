@@ -70,6 +70,7 @@ export const Page = ({
           gap={3}
           mt={3}
           flexGrow={1}
+          className="page-content"
           {...containerProps}
         >
           {title && (
