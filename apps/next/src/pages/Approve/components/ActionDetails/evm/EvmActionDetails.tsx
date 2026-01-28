@@ -10,7 +10,8 @@ import { TransactionBalanceChange } from '../generic/TransactionBalanceChange';
 
 import { EvmTokenApprovals } from './EvmTokenApprovals';
 import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget';
-import { EvmNftDisplay, isNftTokenDiff } from './EvmNftDisplay';
+import { EvmNftDisplay } from './EvmNftDisplay';
+import { isNftTokenType } from '@core/common';
 
 type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: EvmNetwork;
@@ -22,7 +23,12 @@ export const EvmActionDetails = ({
 }: EvmActionDetailsProps) => {
   // Extract NFTs from balanceChange outs (NFTs being sent/received)
   const nftDiffs =
-    action.displayData.balanceChange?.outs.filter(isNftTokenDiff) ?? [];
+    action.displayData.balanceChange?.outs.filter((diff) => {
+      if ('type' in diff.token) {
+        return isNftTokenType(diff.token.type);
+      }
+      return false;
+    }) ?? [];
 
   return (
     <Stack gap={1}>

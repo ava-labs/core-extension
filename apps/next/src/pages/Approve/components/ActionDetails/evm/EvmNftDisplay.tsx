@@ -1,9 +1,9 @@
-import { Box, Stack, Typography, styled, useTheme } from '@avalabs/k2-alpine';
-import { TokenDiff, TokenType } from '@avalabs/vm-module-types';
-import { FC, useMemo, useState } from 'react';
-import { FaQuestionCircle } from 'react-icons/fa';
+import { Stack, Typography } from '@avalabs/k2-alpine';
+import { TokenDiff } from '@avalabs/vm-module-types';
+import { FC, useMemo } from 'react';
 import { useNfts } from '@core/ui';
 import { EvmNetwork } from '@core/types';
+import { NftImage } from './NftImage';
 
 type EvmNftDisplayProps = {
   nftDiffs: TokenDiff[];
@@ -40,7 +40,7 @@ export const EvmNftDisplay: FC<EvmNftDisplayProps> = ({
     <Stack gap={2} alignItems="center" width="100%">
       {nftDiffs.map(({ token, items }, index) => {
         // Get the first item for display (NFTs typically have one item per token)
-        const firstItem = items[0];
+        const [firstItem] = items;
         if (!firstItem) return null;
 
         const key =
@@ -69,58 +69,5 @@ export const EvmNftDisplay: FC<EvmNftDisplayProps> = ({
         );
       })}
     </Stack>
-  );
-};
-
-type NftImageProps = {
-  logoUri?: string;
-};
-
-const NftImage: FC<NftImageProps> = ({ logoUri }) => {
-  const theme = useTheme();
-  const [hasError, setHasError] = useState(false);
-  return (
-    <Stack
-      overflow="hidden"
-      width={80}
-      height={80}
-      borderRadius={theme.shape.mediumBorderRadius}
-    >
-      {!hasError && logoUri ? (
-        <Image src={logoUri} onError={() => setHasError(true)} alt="" />
-      ) : (
-        <FallbackIconContainer>
-          <FaQuestionCircle size={40} color="text.primary" opacity={0.3} />
-        </FallbackIconContainer>
-      )}
-    </Stack>
-  );
-};
-
-const Image = styled('img')({
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-  borderRadius: 8,
-});
-
-const FallbackIconContainer = styled(Box)({
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: 8,
-});
-
-/**
- * Helper function to check if a token diff represents an NFT
- */
-export const isNftTokenDiff = (tokenDiff: TokenDiff): boolean => {
-  return (
-    tokenDiff.token &&
-    'type' in tokenDiff.token &&
-    (tokenDiff.token.type === TokenType.ERC721 ||
-      tokenDiff.token.type === TokenType.ERC1155)
   );
 };
