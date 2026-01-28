@@ -6,7 +6,7 @@ import {
   NonAvalancheRequestItem,
   PartialGetBalancePayload,
 } from '~/api-clients/types';
-import { getAccountAddressFromCaip2IdOrNamesSpace } from './getAccountAddressFromCaip2IdOrNamesSpace';
+import { getAccountAddressForCaip2Identifier } from './getAccountAddressFromCaip2IdOrNamesSpace';
 import { getChainSpecificPayload } from './getChainSpecificPayload';
 
 const xpCaip2Ids: string[] = [
@@ -36,7 +36,7 @@ export function getNonAvalancheXPRequestItems(
           return acc;
         }
 
-        const address = getAccountAddressFromCaip2IdOrNamesSpace({
+        const address = getAccountAddressForCaip2Identifier({
           account,
           nameSpace,
           caip2Id,

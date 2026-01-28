@@ -4,21 +4,17 @@ import {
   NameSpaceAccountTypeMap,
 } from '~/api-clients/constants';
 
-interface GetAccountAddressFromCaip2IdOrNamesSpaceProps {
+interface GetAccountAddressForCaip2IdentifierParams {
   account: Account;
   caip2Id: string;
-  nameSpace?: string;
+  nameSpace: string;
 }
 
-export const getAccountAddressFromCaip2IdOrNamesSpace = ({
+export const getAccountAddressForCaip2Identifier = ({
   account,
   caip2Id,
   nameSpace,
-}: GetAccountAddressFromCaip2IdOrNamesSpaceProps): string | null => {
-  if (!nameSpace) {
-    return null;
-  }
-
+}: GetAccountAddressForCaip2IdentifierParams): string | null => {
   const accountTypeByCaip2Id = Caip2IdAccountTypeMap[caip2Id];
 
   if (accountTypeByCaip2Id) {
