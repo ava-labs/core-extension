@@ -254,9 +254,15 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
       return {};
     }
 
+    const nonRateLimitsErrors = errors.filter(
+      ({ error }) => !error.includes('Rate limit exceeded'),
+    );
+
     // TODO: if we need to differentiate between chains we can filter based on the networkType
-    const accounts = errors.map(reconstructAccountFromError);
-    const chainIds = errors.map(({ caip2Id }) => caipToChainId(caip2Id));
+    const accounts = nonRateLimitsErrors.map(reconstructAccountFromError);
+    const chainIds = nonRateLimitsErrors.map(({ caip2Id }) =>
+      caipToChainId(caip2Id),
+    );
 
     try {
       const { tokens } = await this.#fetchBalances(
@@ -362,7 +368,9 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         );
 
         balanceServiceResponses.filter(isRejected).forEach(({ reason }) => {
-          apiErrorHandler(reason);
+          if (reason instanceof Error) {
+            apiErrorHandler(reason);
+          }
         });
 
         const fallbackBalanceResponse =
