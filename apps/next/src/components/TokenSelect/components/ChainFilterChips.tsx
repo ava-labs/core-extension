@@ -99,10 +99,6 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
       style={{
         borderBottom: `1px solid ${theme.palette.divider}`,
       }}
-      sx={{
-        minHeight: theme.spacing(10),
-        maxHeight: theme.spacing(12),
-      }}
     >
       <ChipsContainer direction="row">
         <FilterChip
