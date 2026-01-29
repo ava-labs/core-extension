@@ -36,7 +36,7 @@ import {
 import { useSwapQuery, useSwapTokens } from '../hooks';
 import { toast } from '@avalabs/k2-alpine';
 import { DEFAULT_SLIPPAGE } from '../swap-config';
-import { isSlippageValid } from '../lib/isSlippageValid';
+import { isSlippageValid } from '../lib/slippageValidation';
 import { useHistory } from 'react-router-dom';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
@@ -125,12 +125,6 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       ? toToken.symbol
       : toToken.address
     : undefined;
-
-  // Reset slippage to default when either token changes
-  useEffect(() => {
-    setSlippage(DEFAULT_SLIPPAGE);
-    setAutoSlippage(true);
-  }, [fromTokenAddress, toTokenAddress]);
 
   const fromAmount =
     side === 'sell'

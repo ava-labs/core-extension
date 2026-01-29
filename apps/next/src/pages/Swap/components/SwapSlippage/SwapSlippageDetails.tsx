@@ -20,7 +20,10 @@ import {
   MAX_SLIPPAGE,
   DEFAULT_SLIPPAGE,
 } from '../../swap-config';
-import { isSlippageValid } from '../../lib/isSlippageValid';
+import {
+  validateSlippage,
+  isSlippageValid,
+} from '../../lib/slippageValidation';
 
 interface SwapSlippageDetailsProps {
   open: boolean;
@@ -39,22 +42,17 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
     useSwapState();
 
   const [localSlippage, setLocalSlippage] = useState(slippage);
-  const [isCustom, setIsCustom] = useState(
-    !PRESET_SLIPPAGES.includes(slippage as any),
-  );
+  const [isCustom, setIsCustom] = useState(false);
   const [customInput, setCustomInput] = useState(String(slippage));
-  const [error, setError] = useState<string | null>(null);
   const customInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync local state when modal opens or slippage changes
-  useEffect(() => {
-    if (open) {
-      setLocalSlippage(slippage);
-      setCustomInput(String(slippage));
-      setIsCustom(!PRESET_SLIPPAGES.includes(slippage as any));
-      setError(null);
-    }
-  }, [open, slippage]);
+  // Derive error/warning from current input value
+  const validation = validateSlippage(
+    isCustom ? customInput : String(localSlippage),
+    t,
+  );
+  const error = validation.error ?? null;
+  const warning = validation.warning ?? null;
 
   // Focus custom input when custom is selected
   useEffect(() => {
@@ -82,39 +80,31 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
     setSlippage(preset);
     setIsCustom(false);
     setAutoSlippage(false);
-    setError(null);
   };
 
   const handleCustomClick = () => {
     setIsCustom(true);
     setAutoSlippage(false);
-    setError(null);
   };
 
   const handleCustomInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = event.target.value;
+
+    // Reject if more than 1 decimal place
+    const decimalIndex = value.indexOf('.');
+    if (decimalIndex !== -1 && value.length - decimalIndex > 2) {
+      return;
+    }
+
     setCustomInput(value);
     setAutoSlippage(false);
 
-    // Check if value is greater than MAX_SLIPPAGE
-    const numValue = parseFloat(value);
-    if (!isNaN(numValue) && numValue > MAX_SLIPPAGE) {
-      setError(
-        t('Slippage must be less than or equal to {{max}}%', {
-          max: MAX_SLIPPAGE,
-        }),
-      );
-      return;
-    } else {
-      setError(null);
-    }
-
-    // Only update local state for validation, don't update global slippage yet
-    // This prevents focus loss while typing
-    if (isSlippageValid(value)) {
-      setLocalSlippage(numValue);
+    // Only update local state if valid, prevents focus loss while typing
+    const inputValidation = validateSlippage(value, t);
+    if (inputValidation.success && inputValidation.value !== undefined) {
+      setLocalSlippage(inputValidation.value);
     }
   };
 
@@ -125,12 +115,11 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
       setSlippage(numValue);
       setLocalSlippage(numValue);
     } else {
-      // Reset to MIN_SLIPPAGE if invalid (< MIN or > MAX)
-      setCustomInput(String(MIN_SLIPPAGE));
-      setSlippage(MIN_SLIPPAGE);
-      setLocalSlippage(MIN_SLIPPAGE);
+      // Reset to default if invalid (< MIN or > MAX)
+      setCustomInput(String(DEFAULT_SLIPPAGE));
+      setSlippage(DEFAULT_SLIPPAGE);
+      setLocalSlippage(DEFAULT_SLIPPAGE);
     }
-    setError(null);
   };
 
   const handleCustomInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -229,8 +218,9 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                     {PRESET_SLIPPAGES.map((preset) => (
                       <LocalStyled.SlippagePresetButton
                         key={preset}
+                        disabled={autoSlippage}
                         color={
-                          !isCustom && localSlippage === preset
+                          !autoSlippage && !isCustom && localSlippage === preset
                             ? 'primary'
                             : 'secondary'
                         }
@@ -244,7 +234,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                       </LocalStyled.SlippagePresetButton>
                     ))}
                     {/* Custom button as input */}
-                    {isCustom ? (
+                    {isCustom && !autoSlippage ? (
                       <Box
                         sx={{
                           flex: 1,
@@ -285,6 +275,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                       </Box>
                     ) : (
                       <LocalStyled.SlippagePresetButton
+                        disabled={autoSlippage}
                         color="secondary"
                         onClick={handleCustomClick}
                         sx={{
@@ -301,8 +292,8 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
             </Stack>
           </Card>
 
-          {/* Error message - below the card */}
-          {error && (
+          {/* Error or warning message - below the card */}
+          {(error || warning) && (
             <Box
               sx={{
                 display: 'flex',
@@ -314,11 +305,16 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                 variant="caption"
                 sx={{
                   textAlign: 'center',
-                  color: 'error.main',
+                  color: error ? 'error.main' : 'text.primary',
                   fontWeight: 500,
                 }}
               >
-                {error}
+                {error ?? (
+                  <>
+                    {'\u26A0 '}
+                    {warning}
+                  </>
+                )}
               </Typography>
             </Box>
           )}
