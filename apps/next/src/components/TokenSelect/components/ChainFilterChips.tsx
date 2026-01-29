@@ -1,4 +1,5 @@
-import { Avatar, Button, Stack, styled } from '@avalabs/k2-alpine';
+import { NoScrollStack } from '@/components/NoScrollStack';
+import { Avatar, Button, Stack, styled, useTheme } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,27 +19,6 @@ const ChipsContainer = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   gap: theme.spacing(1),
   flexWrap: 'wrap',
-  overflowY: 'auto',
-  overflowX: 'hidden',
-  // Scrollbar styling for cleaner look
-  scrollbarWidth: 'thin',
-  scrollbarColor: `${theme.palette.divider} transparent`,
-  '&::-webkit-scrollbar': {
-    width: 6,
-  },
-  '&::-webkit-scrollbar-track': {
-    background: 'transparent',
-  },
-  '&::-webkit-scrollbar-thumb': {
-    backgroundColor: theme.palette.divider,
-    borderRadius: 3,
-    '&:hover': {
-      backgroundColor: theme.palette.action.disabled,
-    },
-  },
-  alignContent: 'baseline',
-  minHeight: theme.spacing(10),
-  maxHeight: theme.spacing(12),
 }));
 
 const FilterChip = styled(Button)<{ selected?: boolean }>(
@@ -82,6 +62,7 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
   onChainSelect,
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const renderChainLogo = (
     chainId: number | 'avalanche',
@@ -110,27 +91,41 @@ export const ChainFilterChips: FC<ChainFilterChipsProps> = ({
   };
 
   return (
-    <ChipsContainer direction="row">
-      <FilterChip
-        selected={selectedChainId === null}
-        onClick={() => onChainSelect(null)}
-        variant="outlined"
-        size="small"
-      >
-        {t('All networks')}
-      </FilterChip>
-      {chainOptions.map(({ chainId, chainName }) => (
+    <NoScrollStack
+      autoHide
+      autoHeight
+      autoHeightMin={theme.spacing(10)}
+      autoHeightMax={theme.spacing(12)}
+      style={{
+        borderBottom: `1px solid ${theme.palette.divider}`,
+      }}
+      sx={{
+        minHeight: theme.spacing(10),
+        maxHeight: theme.spacing(12),
+      }}
+    >
+      <ChipsContainer direction="row">
         <FilterChip
-          key={chainId}
-          selected={selectedChainId === chainId}
-          onClick={() => onChainSelect(chainId)}
+          selected={selectedChainId === null}
+          onClick={() => onChainSelect(null)}
           variant="outlined"
           size="small"
         >
-          {renderChainLogo(chainId, chainName)}
-          {chainName}
+          {t('All networks')}
         </FilterChip>
-      ))}
-    </ChipsContainer>
+        {chainOptions.map(({ chainId, chainName }) => (
+          <FilterChip
+            key={chainId}
+            selected={selectedChainId === chainId}
+            onClick={() => onChainSelect(chainId)}
+            variant="outlined"
+            size="small"
+          >
+            {renderChainLogo(chainId, chainName)}
+            {chainName}
+          </FilterChip>
+        ))}
+      </ChipsContainer>
+    </NoScrollStack>
   );
 };
