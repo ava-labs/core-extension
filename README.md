@@ -1,7 +1,7 @@
 <h1 align="center">Core Extension</h1>
 
 <p align="center">
-  <img src="src/images/icon-192.png" alt="core-logo" width="160px" height="160px"/>
+  <img src="apps/next/src/images/icon-192.png" alt="core-logo" width="160px" height="160px"/>
   <br>
   <i>
     Core is a non-custodial browser extension engineered for users to <br>
