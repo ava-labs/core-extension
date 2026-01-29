@@ -18,6 +18,27 @@ const ChipsContainer = styled(Stack)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   gap: theme.spacing(1),
   flexWrap: 'wrap',
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  // Scrollbar styling for cleaner look
+  scrollbarWidth: 'thin',
+  scrollbarColor: `${theme.palette.divider} transparent`,
+  '&::-webkit-scrollbar': {
+    width: 6,
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'transparent',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    backgroundColor: theme.palette.divider,
+    borderRadius: 3,
+    '&:hover': {
+      backgroundColor: theme.palette.action.disabled,
+    },
+  },
+  alignContent: 'baseline',
+  minHeight: theme.spacing(10),
+  maxHeight: theme.spacing(12),
 }));
 
 const FilterChip = styled(Button)<{ selected?: boolean }>(
@@ -39,6 +60,8 @@ const FilterChip = styled(Button)<{ selected?: boolean }>(
     border: '0px solid transparent',
     display: 'flex',
     alignItems: 'center',
+    flexShrink: 0, // Prevent chips from shrinking when scrolling
+    whiteSpace: 'nowrap', // Prevent text from wrapping
     '&:hover': {
       backgroundColor: selected
         ? theme.palette.primary.main
