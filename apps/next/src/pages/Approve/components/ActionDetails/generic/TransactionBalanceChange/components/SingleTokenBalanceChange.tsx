@@ -24,6 +24,11 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
 }) => {
   const currencyFormatter = useConvertedCurrencyFormatter();
 
+  const checkedItem = item ?? {
+    displayValue: '',
+    usdPrice: '',
+  };
+
   return (
     <Styled.TokenBalanceChangeWrapper>
       <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
@@ -37,12 +42,12 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
         flexGrow={1}
       >
         <Styled.ResponsiveTokenAmount
-          amount={item.displayValue}
+          amount={checkedItem.displayValue}
           negate={direction === 'loss'}
         />
-        {typeof item.usdPrice === 'string' && currencyFormatter && (
+        {typeof checkedItem.usdPrice === 'string' && currencyFormatter && (
           <Typography variant="caption">
-            {currencyFormatter(Number(item.usdPrice))}
+            {currencyFormatter(Number(checkedItem.usdPrice))}
           </Typography>
         )}
       </Stack>
