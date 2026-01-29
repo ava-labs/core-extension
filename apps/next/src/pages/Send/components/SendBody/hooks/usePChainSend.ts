@@ -10,7 +10,11 @@ import {
   PChainTokenBalance,
   PvmCapableAccount,
 } from '@core/types';
-import { useConnectionContext, useWalletContext } from '@core/ui';
+import {
+  useConnectionContext,
+  useSettingsContext,
+  useWalletContext,
+} from '@core/ui';
 import { isValidPvmAddress, stripAddressPrefix } from '@core/common';
 
 import { buildPChainSendTx } from '@/lib/buildPChainSendTx';
@@ -38,7 +42,7 @@ export const usePChainSend = ({
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();
   const getXPAddressesFetcher = useGetXPAddresses();
-
+  const { filterSmallUtxos } = useSettingsContext();
   const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
@@ -53,7 +57,7 @@ export const usePChainSend = ({
     }
 
     // Network fee data not loaded yet, we'll validate the amount when it does load.
-    if (!estimatedFee) return;
+    if (estimatedFee === undefined || maxAmount === undefined) return;
 
     if (!amount || amount < 0n) {
       return setError(t('Please enter a valid amount.'));
@@ -87,6 +91,7 @@ export const usePChainSend = ({
         to,
         network,
         addresses,
+        filterSmallUtxos,
       });
       const manager = utils.getManagerForVM(unsignedTx.getVM());
       const [codec] = manager.getCodecFromBuffer(unsignedTx.toBytes());
@@ -140,6 +145,7 @@ export const usePChainSend = ({
     request,
     t,
     onSendFailure,
+    filterSmallUtxos,
     isLedgerWallet,
     from,
     amount,
@@ -147,10 +153,12 @@ export const usePChainSend = ({
     getXPAddressesFetcher,
   ]);
 
+  const isLoaded = estimatedFee !== undefined && maxAmount !== undefined;
+
   return {
     error,
     isSending,
-    isValid: !error,
+    isValid: isLoaded && !error,
     send,
   };
 };

@@ -9,7 +9,11 @@ import {
   NetworkWithCaipId,
   XChainTokenBalance,
 } from '@core/types';
-import { useConnectionContext, useWalletContext } from '@core/ui';
+import {
+  useConnectionContext,
+  useSettingsContext,
+  useWalletContext,
+} from '@core/ui';
 import { isValidAvmAddress } from '@core/common';
 
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
@@ -37,7 +41,7 @@ export const useXChainSend = ({
   const { request } = useConnectionContext();
   const { isLedgerWallet } = useWalletContext();
   const getXPAddressesFetcher = useGetXPAddresses();
-
+  const { filterSmallUtxos } = useSettingsContext();
   const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
@@ -52,7 +56,7 @@ export const useXChainSend = ({
     }
 
     // Network fee data not loaded yet, we'll validate the amount when it does load.
-    if (!estimatedFee) return;
+    if (estimatedFee === undefined || maxAmount === undefined) return;
 
     if (!amount || amount < 0n) {
       return setError(t('Please enter a valid amount.'));
@@ -85,6 +89,7 @@ export const useXChainSend = ({
         to,
         network,
         addresses: await getXPAddressesFetcher('AVM')(),
+        filterSmallUtxos,
       });
       const hash = await request(
         {
@@ -117,12 +122,15 @@ export const useXChainSend = ({
     amount,
     network,
     getXPAddressesFetcher,
+    filterSmallUtxos,
   ]);
+
+  const isLoaded = estimatedFee !== undefined && maxAmount !== undefined;
 
   return {
     error,
     isSending,
-    isValid: !error,
+    isValid: isLoaded && !error,
     send,
   };
 };

@@ -77,6 +77,7 @@ export interface SettingsState {
   preferredView: ViewMode;
   showTrendingTokens: boolean;
   privacyMode: boolean;
+  filterSmallUtxos: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

@@ -17,6 +17,7 @@ const ARBITRARY_FEE = 10_000_000n;
 export const getPChainMaxAmount = async (
   from: PvmCapableAccount,
   isLedgerWallet: boolean,
+  filterSmallUtxos: boolean,
   getAddresses: () => Promise<XPAddresses>,
   network?: NetworkWithCaipId,
 ) => {
@@ -29,14 +30,16 @@ export const getPChainMaxAmount = async (
 
   const provider = getAvalancheProvider(network);
   const feeState = await provider.getApiP().getFeeState();
-  const wallet = await getAvalancheWallet(from, await getAddresses(), provider);
-  const utxos = await getMaxUtxoSet(
+  const addresses = await getAddresses();
+  const wallet = await getAvalancheWallet(from, addresses, provider);
+  const utxos = await getMaxUtxoSet({
     isLedgerWallet,
     provider,
     wallet,
     network,
     feeState,
-  );
+    filterSmallUtxos,
+  });
 
   // If available balance is larger than what we withhold, we use the difference.
   // Otherwise, we'll estimate the fee for the smallest possible transaction and
@@ -51,6 +54,8 @@ export const getPChainMaxAmount = async (
           isLedgerWallet,
           network,
           provider,
+          filterSmallUtxos,
+          addresses,
         });
 
   const maxAmount =
@@ -67,6 +72,15 @@ const getFeeForMinimalTx = async ({
   isLedgerWallet,
   network,
   provider,
+  filterSmallUtxos,
+  addresses,
+}: {
+  from: PvmCapableAccount;
+  isLedgerWallet: boolean;
+  network: NetworkWithCaipId;
+  provider: Avalanche.JsonRpcProvider;
+  filterSmallUtxos: boolean;
+  addresses: XPAddresses;
 }) => {
   const unsignedTx = await buildPChainSendTx({
     isLedgerWallet,
@@ -74,10 +88,8 @@ const getFeeForMinimalTx = async ({
     amount: 1n, // Minimum possible amount to send
     to: from.addressPVM,
     network,
-    addresses: {
-      externalAddresses: [],
-      internalAddresses: [],
-    },
+    addresses,
+    filterSmallUtxos,
   });
 
   // Parse transaction to estimate the fee

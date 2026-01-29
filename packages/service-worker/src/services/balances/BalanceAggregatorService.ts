@@ -23,6 +23,8 @@ import {
   caipToChainId,
   groupTokensByType,
   isFulfilled,
+  isPchainNetworkId,
+  isXchainNetworkId,
   Monitoring,
   setErrorForRequestInSessionStorage,
 } from '@core/common';
@@ -98,6 +100,9 @@ const NFT_SUPPORTED_CHAIN_IDS = [
   ChainId.ETHEREUM_TEST_SEPOLIA,
 ];
 
+// Minimum balance threshold for X/P chain filtering (0.002 AVAX in nAVAX - 9 decimals)
+const DUST_THRESHOLD = 2_000_000n;
+
 @singleton()
 export class BalanceAggregatorService implements OnLock, OnUnlock {
   #eventEmitter = new EventEmitter();
@@ -133,6 +138,35 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     private addressResolver: AddressResolver,
     private tokenPricesService: TokenPricesService,
   ) {}
+
+  /**
+   * Filters out dust UTXOs (< 0.002 AVAX) from X and P chain balances
+   */
+  #filterDustUtxosFromBalances(balances: Balances): Balances {
+    const filteredBalances: Balances = {};
+
+    for (const [chainIdStr, addressBalances] of Object.entries(balances)) {
+      const chainId = Number(chainIdStr);
+
+      // Only filter X and P chains
+      if (!isXchainNetworkId(chainId) && !isPchainNetworkId(chainId)) {
+        filteredBalances[chainId] = addressBalances;
+        continue;
+      }
+
+      filteredBalances[chainId] = {};
+      for (const [address, tokens] of Object.entries(addressBalances)) {
+        filteredBalances[chainId][address] = {};
+        for (const [tokenKey, token] of Object.entries(tokens)) {
+          if (token.balance >= DUST_THRESHOLD) {
+            filteredBalances[chainId][address][tokenKey] = token;
+          }
+        }
+      }
+    }
+
+    return filteredBalances;
+  }
 
   async #fetchBalances(
     chainIds: number[],
@@ -254,9 +288,8 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
         FeatureGates.BALANCE_SERVICE_INTEGRATION
       ]
     ) {
-      const selectedCurrency = (
-        await this.settingsService.getSettings()
-      ).currency.toLowerCase();
+      const settings = await this.settingsService.getSettings();
+      const selectedCurrency = settings.currency.toLowerCase();
       try {
         const getBalancesRequestBody = await createGetBalancePayload({
           accounts,
@@ -264,6 +297,7 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
           currency: selectedCurrency as Currency,
           secretsService: this.secretsService,
           addressResolver: this.addressResolver,
+          filterSmallUtxos: settings.filterSmallUtxos,
         });
 
         const balanceServiceResponse = await postV1BalanceGetBalances({
@@ -288,8 +322,14 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
             balanceServiceResponseArray,
           );
 
+        // Apply local dust filtering to ensure consistency regardless of API behavior
+        const mergedTokens = merge(balanceObject, fallbackBalanceResponse);
+        const filteredTokens = settings.filterSmallUtxos
+          ? this.#filterDustUtxosFromBalances(mergedTokens)
+          : mergedTokens;
+
         return {
-          tokens: merge(balanceObject, fallbackBalanceResponse),
+          tokens: filteredTokens,
           atomic: atomicBalanceObject,
         };
       } catch (err) {
@@ -307,9 +347,13 @@ export class BalanceAggregatorService implements OnLock, OnUnlock {
     }
 
     // if there was an error with querying the balance service, or the feature flag is off, we're getting balances through vm modules
+    const settings = await this.settingsService.getSettings();
     const balances = await this.#fetchBalances(chainIds, accounts, tokenTypes);
+    const filteredTokens = settings.filterSmallUtxos
+      ? this.#filterDustUtxosFromBalances(balances.tokens)
+      : balances.tokens;
 
-    return { tokens: balances.tokens, atomic: {} };
+    return { tokens: filteredTokens, atomic: {} };
   }
 
   async getBalancesForNetworks({
