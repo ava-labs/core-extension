@@ -4,7 +4,10 @@ import { LedgerRegisterBtcWalletPolicy } from '@/components/ledger';
 import { useSeedlessMissingKeysDerivation } from '@/hooks/seedless';
 import { SeedlessAuthPrompt } from '@/components/Seedless/SeedlessAuthPrompt';
 import { useNavigationRequests } from '@/hooks/useNavigationRequests';
-import { useImportMissingKeysFromLedger } from '@core/ui';
+import {
+  useImportMissingKeysFromKeystone,
+  useImportMissingKeysFromLedger,
+} from '@core/ui';
 
 /**
  * This is a container component where you can place event-driven global components
@@ -24,7 +27,7 @@ export const EventDrivenComponentsAndHooks: FC = () => {
   useSeedlessMissingKeysDerivation();
   // TODO: enable after Keystone releases new SDK version
   // https://ava-labs.atlassian.net/browse/CP-12875
-  // useImportMissingKeysFromKeystone();
+  useImportMissingKeysFromKeystone();
   useNavigationRequests();
   useImportMissingKeysFromLedger();
 

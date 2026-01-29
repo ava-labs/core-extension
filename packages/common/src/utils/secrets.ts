@@ -84,6 +84,13 @@ export const getAvalancheXpBasePath = (): string => `m/44'/9000'/`;
 export const getAvalancheExtendedKeyPath = (accountIndex: number): string =>
   `${getAvalancheXpBasePath()}${accountIndex}'`;
 
+export const getAvalancheDerivationPath = (
+  accountIndex: number,
+  addressIndex?: number,
+  isChange?: boolean,
+): string =>
+  `${getAvalancheExtendedKeyPath(accountIndex)}/${isChange ? '1' : '0'}/${addressIndex ?? 0}`;
+
 export const getLegacyXPDerivationPath = (
   addressIndex: number,
   isChange = false,
