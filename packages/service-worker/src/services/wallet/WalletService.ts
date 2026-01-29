@@ -551,8 +551,12 @@ export class WalletService implements OnUnlock {
 
         assertPresent(extPublicKey, SecretsError.MissingExtendedPublicKey);
 
+        // Use XP extended public key for SimpleLedgerSigner.
+        // - For X/P chains: getAddressPathMap uses the xpub to derive addresses for path matching
+        // - For C-chain: getAddressPathMap returns empty and uses fallback paths, so xpub isn't used
+        // The account path (m/44'/60'/... vs m/44'/9000'/...) is determined by getAccountPath() based on chain
         return new Avalanche.SimpleLedgerSigner(
-          secrets.account.index, // With the new X/P account model, the account index should always match the active account.
+          secrets.account.index,
           provider as Avalanche.JsonRpcProvider,
           extPublicKey.key,
         );
@@ -762,7 +766,7 @@ export class WalletService implements OnUnlock {
       const Tx = tx.vm === EVM ? EVMUnsignedTx : UnsignedTx;
       const unsignedTx = Tx.fromJSON(tx.unsignedTxJson);
 
-      const externalIndices =
+      let externalIndices =
         tx.type === RpcMethod.AVALANCHE_SEND_TRANSACTION
           ? (tx.externalIndices ?? [])
           : [];
@@ -770,6 +774,36 @@ export class WalletService implements OnUnlock {
         tx.type === RpcMethod.AVALANCHE_SEND_TRANSACTION
           ? (tx.internalIndices ?? [])
           : [];
+
+      // WORKAROUND: For Ledger Live C-chain (EVM) atomic transactions, the SDK's SimpleLedgerSigner
+      // cannot find the matching address because it uses Avalanche derivation (sha256+ripemd160)
+      // instead of EVM derivation (keccak256). We need to manually provide the index.
+      // For Ledger Live, the first address derived from the EVM xpub (index 0) is the account's EVM address.
+      const activeAccount = await this.accountsService.getActiveAccount();
+      let isLedgerLiveEvm = false;
+      try {
+        if (activeAccount) {
+          const secrets =
+            await this.secretService.getAccountSecrets(activeAccount);
+          isLedgerLiveEvm =
+            'secretType' in secrets &&
+            secrets.secretType === SecretType.LedgerLive &&
+            tx.vm === EVM;
+        }
+      } catch {
+        // Ignore errors checking secrets
+      }
+
+      // WORKAROUND: For Ledger Live C-chain (EVM) atomic transactions, force externalIndices = [0]
+      // The SDK's SimpleLedgerSigner uses fallback paths for C-chain, and the first address (index 0)
+      // corresponds to the account's EVM address at m/44'/60'/{accountIndex}'/0/0
+      if (
+        isLedgerLiveEvm &&
+        externalIndices.length === 0 &&
+        internalIndices.length === 0
+      ) {
+        externalIndices = [0];
+      }
 
       const hasMultipleAddresses =
         unsignedTx.addressMaps.getAddresses().length > 1;
@@ -803,11 +837,14 @@ export class WalletService implements OnUnlock {
         return signingResult;
       }
 
-      // Avalanche Module expexts a signed transaction hex, while our signers either
+      // Avalanche Module expects a signed transaction hex, while our signers either
       // return a Tx directly, or its JSON representation -- we need to convert those.
+      // Use duck typing (hasToBytes) as a fallback since instanceof can fail with symlinked modules
+      const isUnsignedTxInstance = signingResult instanceof UnsignedTx;
+      const hasToBytes = typeof signingResult?.toBytes === 'function';
       const signedTx =
-        signingResult instanceof UnsignedTx
-          ? signingResult
+        isUnsignedTxInstance || hasToBytes
+          ? (signingResult as UnsignedTx)
           : Tx.fromJSON(signingResult.signedTx);
 
       if (!signedTx.hasAllSignatures()) {
