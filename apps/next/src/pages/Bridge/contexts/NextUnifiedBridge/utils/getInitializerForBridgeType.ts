@@ -22,20 +22,6 @@ export function getInitializerForBridgeType(
         signer: evm,
       };
 
-    case BridgeType.AVALANCHE_AVA_BTC:
-      return {
-        type,
-        signer: evm,
-        bitcoinFunctions,
-      };
-
-    case BridgeType.AVALANCHE_BTC_AVA:
-      return {
-        type,
-        signer: btc,
-        bitcoinFunctions,
-      };
-
     case BridgeType.LOMBARD_BTC_TO_BTCB:
       return {
         type,
@@ -51,5 +37,8 @@ export function getInitializerForBridgeType(
         btcSigner: btc,
         bitcoinFunctions,
       };
+
+    default:
+      throw new Error(`Unsupported bridge type: ${type}`);
   }
 }
