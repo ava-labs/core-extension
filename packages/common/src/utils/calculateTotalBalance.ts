@@ -8,6 +8,7 @@ import {
 } from '@core/types';
 import { getAddressForChain } from './getAddressForChain';
 import { hasAccountBalances } from './hasAccountBalances';
+import { isTokenMalicious } from './isTokenMalicious';
 
 export const watchlistTokens = ['avax', 'btc', 'sol'];
 
@@ -80,6 +81,10 @@ export function calculateTotalBalance({
 
       const sumValues = Object.entries(tokens).reduce<BalanceAccumulator>(
         (sumTotal, [tokenAddressOrSymbol, token]) => {
+          if (isTokenMalicious(token)) {
+            return sumTotal;
+          }
+
           const isTokenVisible = !tokenVisibility
             ? true
             : tokenVisibility[network?.caipId ?? network?.caip2Id ?? '']?.[

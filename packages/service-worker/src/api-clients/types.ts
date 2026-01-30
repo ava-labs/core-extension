@@ -1,3 +1,4 @@
+import { AccountStorageItem } from '@core/types';
 import {
   AvalancheCorethGetBalancesRequestItem,
   AvalancheXpGetBalancesRequestItem,
@@ -11,7 +12,6 @@ import {
   SvmGetBalancesRequestItem,
   SvmGetBalancesResponse,
 } from '~/api-clients/balance-api';
-import { AccountStorageItem } from '@core/types';
 
 export type BalanceResponse =
   | CorethGetBalancesResponse
@@ -28,22 +28,22 @@ export type GetBalanceRequestItem =
   | AvalancheCorethGetBalancesRequestItem
   | AvalancheXpGetBalancesRequestItem;
 
-export type NotAvalancheRequestItem =
-  | EvmGetBalancesRequestItem
-  | BtcGetBalancesRequestItem
-  | SvmGetBalancesRequestItem;
+export type NonAvalancheRequestItem = Exclude<
+  GetBalanceRequestItem,
+  AvalancheCorethGetBalancesRequestItem | AvalancheXpGetBalancesRequestItem
+>;
 
-export type NameSpace = 'eip155' | 'bip122' | 'solana' | 'avax';
+export type NameSpace = GetBalanceRequestItem['namespace'];
 
 export type SplTokenBalance =
-  SvmGetBalancesResponse['balances']['splTokenBalances']['0'];
+  SvmGetBalancesResponse['balances']['splTokenBalances'][number];
 
 export type AccountTypes = keyof Pick<
   AccountStorageItem,
-  | 'addressC'
-  | 'addressBTC'
-  | 'addressAVM'
-  | 'addressPVM'
-  | 'addressCoreEth'
-  | 'addressSVM'
+  Extract<keyof AccountStorageItem, `address${string}`>
+>;
+
+export type PartialGetBalancePayload = Record<
+  string, // the name space
+  GetBalanceRequestItem
 >;

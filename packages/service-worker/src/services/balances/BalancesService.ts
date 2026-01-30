@@ -1,21 +1,21 @@
-import { singleton } from 'tsyringe';
-import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
-import { ModuleManager } from '../../vmModules/ModuleManager';
-import { SettingsService } from '../settings/SettingsService';
-import {
-  getPriceChangeValues,
-  isNotNullish,
-  isPrimaryAccount,
-} from '@core/common';
-import * as Sentry from '@sentry/browser';
 import {
   Network,
   NetworkVMType,
   TokenType,
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
+import {
+  getPriceChangeValues,
+  isNotNullish,
+  isPrimaryAccount,
+} from '@core/common';
+import { Account, NetworkWithCaipId, TokensPriceShortData } from '@core/types';
+import * as Sentry from '@sentry/browser';
 import LRUCache from 'lru-cache';
+import { singleton } from 'tsyringe';
+import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AddressResolver } from '../secrets/AddressResolver';
+import { SettingsService } from '../settings/SettingsService';
 
 const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
 
@@ -103,9 +103,16 @@ export class BalancesService {
         }
       }),
     );
+
+    const addressesToFetch = new Set(addresses.flat().filter(isNotNullish));
+
+    if (addressesToFetch.size === 0) {
+      return {};
+    }
+
     const rawBalances = await module.getBalances({
       // TODO: Use public key and module.getAddress instead to make this more modular
-      addresses: addresses.flat().filter(isNotNullish),
+      addresses: Array.from(addressesToFetch),
       network: network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types
       currency,
       customTokens,
