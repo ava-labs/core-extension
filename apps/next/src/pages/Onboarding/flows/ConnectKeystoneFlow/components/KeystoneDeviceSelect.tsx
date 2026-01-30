@@ -38,11 +38,11 @@ export const KeystoneDeviceSelect = ({
         onChange={(e) => setDevice(e.target.value as Device)}
         sx={{ py: 0.75 }}
       >
-        <MenuItem value="keystone-usb" disabled={!isKeystoneUsbSupported}>
-          USB (Keystone 3 Pro)
-        </MenuItem>
         <MenuItem value="keystone-qr">
-          QR code (Keystone Essential/Pro)
+          {t('QR code (Supports: Essential, Pro, 3 Pro)')}
+        </MenuItem>
+        <MenuItem value="keystone-usb" disabled={!isKeystoneUsbSupported}>
+          {t('USB (Keystone 3 Pro only)')}
         </MenuItem>
       </Select>
     </Section>
