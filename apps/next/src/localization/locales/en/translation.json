@@ -526,7 +526,6 @@
   "Normal": "Normal",
   "Not Found": "Not Found",
   "Not a valid ERC-20 token address.": "Not a valid ERC-20 token address.",
-  "Notarization failed for deposit. Your deposit is safe, please contact support to complete the bridge.": "Notarization failed for deposit. Your deposit is safe, please contact support to complete the bridge.",
   "Notify me when it’s done": "Notify me when it’s done",
   "On-ramp using Core in two minutes": "On-ramp using Core in two minutes",
   "Only Keystore files from the Avalanche Wallet are supported": "Only Keystore files from the Avalanche Wallet are supported",
