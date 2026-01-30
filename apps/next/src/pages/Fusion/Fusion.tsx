@@ -9,7 +9,7 @@ import { AccountSelect } from '@/components/AccountSelect';
 import { LoadingScreen } from '@/components/LoadingScreen';
 
 import { FusionStateContextProvider, useFusionState } from './contexts';
-import { SwapErrorMessage, SwapPair } from './components';
+import { SwapErrorMessage, SwapPair, SwapSettings } from './components';
 
 const POLLED_BALANCES = [
   VmTokenType.NATIVE,
@@ -56,6 +56,7 @@ const FusionPage = () => {
             <SwapPair />
           </Stack>
           <SwapErrorMessage />
+          <SwapSettings />
         </Stack>
       </Suspense>
       <SwapActionButtonsContainer>

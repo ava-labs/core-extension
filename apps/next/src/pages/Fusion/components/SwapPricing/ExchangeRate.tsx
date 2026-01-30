@@ -6,15 +6,13 @@ import { Skeleton, Typography, TypographyProps } from '@avalabs/k2-alpine';
 import { PartialBy } from '@core/types';
 
 import { useFusionState } from '../../contexts';
+import { calculateRate } from '../../lib/calculateRate';
 
 export const ExchangeRate = (props: TypographyProps) => {
   const { fromToken, toToken, quote } = useFusionState();
 
   const rateData: Partial<RateData> = {
-    rate:
-      fromToken && toToken && quote
-        ? 1 // TODO: calculate rate
-        : undefined,
+    rate: quote ? calculateRate(quote) : undefined,
     fromSymbol: fromToken?.symbol,
     toSymbol: toToken?.symbol,
   };

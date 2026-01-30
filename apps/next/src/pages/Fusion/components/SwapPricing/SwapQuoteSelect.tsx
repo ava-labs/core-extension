@@ -22,7 +22,7 @@ export const SwapQuoteSelect: FC<SwapQuoteSelectProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const { quote, quotes } = useFusionState();
+  const { quotes, userQuote, bestQuote } = useFusionState();
 
   return (
     <SlideUpDialog open={open} onClose={onClose}>
@@ -41,8 +41,12 @@ export const SwapQuoteSelect: FC<SwapQuoteSelectProps> = ({
               <ExchangeRate color="text.secondary" />
             </Styled.SettingRow>
             <Divider />
-            {quote && quotes.length > 0 ? (
-              <SwapAggregatorSelect quotes={quotes} quote={quote} />
+            {bestQuote && quotes.length > 0 ? (
+              <SwapAggregatorSelect
+                userQuote={userQuote}
+                bestQuote={bestQuote}
+                quotes={quotes}
+              />
             ) : (
               <Styled.SettingRow title={t('Provider')}>
                 <Skeleton variant="text" width={100} />

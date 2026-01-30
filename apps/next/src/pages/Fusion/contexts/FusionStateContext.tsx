@@ -46,10 +46,10 @@ type FusionState = QueryState &
     toAmount?: string;
     isAmountLoading: boolean;
     swapError?: SwapError;
-    quote: Quote | null;
+    userQuote: Quote | null;
     bestQuote: Quote | null;
     quotes: Quote[];
-    selectQuote: (quote: Quote) => void;
+    selectQuoteById: (quoteId: string | null) => void;
     transfer: (specificQuote?: Quote) => Promise<void>;
     isReadyToTransfer: boolean;
   };
@@ -91,7 +91,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceChain,
     targetChain,
   );
-  const { bestQuote, quotes, quote, selectQuote } = useQuotes({
+  const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
     manager,
     fromAddress,
     toAddress,
@@ -122,7 +122,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
       setIsConfirming(true);
 
-      const quoteToUse = specificQuote ?? quote;
+      const quoteToUse = specificQuote ?? userQuote;
 
       if (!quoteToUse) {
         throw new Error('Quote not found');
@@ -168,7 +168,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     [
       manager,
       fromAddress,
-      quote,
+      userQuote,
       slippage,
       replace,
       captureEncrypted,
@@ -199,12 +199,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         autoSlippage,
         setAutoSlippage,
         swapError: undefined, // TODO:
-        quote,
+        userQuote,
         bestQuote,
         quotes,
-        selectQuote,
+        selectQuoteById,
         transfer,
-        isReadyToTransfer: Boolean(quote && manager),
+        isReadyToTransfer: Boolean((userQuote ?? bestQuote) && manager),
       }}
     >
       {children}
