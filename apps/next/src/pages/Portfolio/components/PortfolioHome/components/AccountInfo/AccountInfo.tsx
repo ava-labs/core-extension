@@ -43,7 +43,7 @@ export const AccountInfo: FC<Props> = ({
   const { currencyFormatter, currency } = useSettingsContext();
   const { sum, priceChange } = balance;
   const formattedSum =
-    sum === null
+    sum === null || isDeveloperMode
       ? currencyFormatter(0).replace(/^(\D)0\.00$/, '$1–')
       : currencyFormatter(sum);
 
