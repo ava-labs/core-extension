@@ -186,7 +186,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
               ? t('Connect with {{spec}} derivation paths', {
                   spec:
                     props.derivationPathSpec === DerivationPath.BIP44
-                      ? 'LedgerLive'
+                      ? 'Ledger Live'
                       : 'BIP44',
                 })
               : t('Retry')
