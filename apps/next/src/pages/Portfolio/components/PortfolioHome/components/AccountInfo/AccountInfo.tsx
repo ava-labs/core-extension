@@ -42,10 +42,10 @@ export const AccountInfo: FC<Props> = ({
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
   const { sum, priceChange } = balance;
-  const formattedSum = currencyFormatter(sum ?? 0).replace(
-    /^(\D)0\.00$/,
-    '$1–',
-  );
+  const formattedSum =
+    sum === null
+      ? currencyFormatter(0).replace(/^(\D)0\.00$/, '$1–')
+      : currencyFormatter(sum);
 
   const containerProps = getContainerProps(coreAssistant);
 
