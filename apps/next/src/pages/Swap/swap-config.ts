@@ -40,3 +40,4 @@ export const DEFAULT_TARGET_TOKENS: Record<
 export const MIN_SLIPPAGE = 0.1;
 export const MAX_SLIPPAGE = 50;
 export const DEFAULT_SLIPPAGE = 0.2;
+export const HIGH_SLIPPAGE_THRESHOLD = 10;
