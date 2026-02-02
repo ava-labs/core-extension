@@ -6,7 +6,10 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
+import {
+  CryptoHDKey,
+  CryptoMultiAccounts,
+} from '@keystonehq/bc-ur-registry-eth';
 import { FC, useState, useEffect, useCallback, useRef } from 'react';
 import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 
@@ -32,6 +35,15 @@ import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 import { QRCodeScanner } from './QRCodeScanner';
 import { KeystoneQRError } from './KeystoneQRError';
 import { QRCodeScannerContainer } from './QRCodeScannerContainer';
+
+// CryptoHDKey (BIP32 HD keys) does not expose curve information directly.
+// Per BIP32/BIP44 specification, HD keys for coin types 60 (ETH) and 9000 (AVAX)
+// always use secp256k1, so curve validation is implicit in the path check.
+const isEvmXpub = (key: CryptoHDKey): boolean =>
+  !!key.getOrigin()?.getPath()?.startsWith(getEvmBasePath());
+
+const isAvalancheXpub = (key: CryptoHDKey): boolean =>
+  !!key.getOrigin()?.getPath()?.startsWith(getAvalancheXpBasePath());
 
 type KeystoneQRConnectorProps = {
   onQRCodeScanned: (info: DerivedKeys) => void;
@@ -113,15 +125,15 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
       const avmAddressPublicKeys: PublicKey[] = [];
 
       for (const key of allKeys) {
-        const path = key.getOrigin()?.getPath();
         const xpub = key.getBip32Key();
 
-        if (path?.startsWith(getEvmBasePath())) {
+        if (isEvmXpub(key)) {
           extendedPublicKeys.push(
             buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
           );
           evmAddressPublicKeys = await getAddressPublicKeys(xpub);
-        } else if (path?.startsWith(getAvalancheXpBasePath())) {
+        } else if (isAvalancheXpub(key)) {
+          const path = key.getOrigin()!.getPath()!;
           const accountIndex = getXPAccountIndexFromPath(path);
           extendedPublicKeys.push(
             buildExtendedPublicKey(
