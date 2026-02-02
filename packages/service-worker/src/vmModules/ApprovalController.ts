@@ -38,6 +38,7 @@ import {
 } from './models';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
 import { isUserRejectionError } from '@core/common';
+import { KEYSTONE_NOT_IN_HOMEPAGE_ERROR } from '~/services/keystone/constants/error';
 
 type CachedRequest = {
   params: ApprovalParams;
@@ -222,10 +223,14 @@ export class ApprovalController implements BatchApprovalController {
           });
         }
       } catch (err) {
-        if (isUserRejectionError(err)) {
+        const errorMessage = (err as Error).message;
+        if (errorMessage.includes(KEYSTONE_NOT_IN_HOMEPAGE_ERROR)) {
+          throw err;
+        } else if (isUserRejectionError(err)) {
           resolve({
             error: providerErrors.userRejectedRequest(),
           });
+          this.#requests.delete(action.actionId);
         } else {
           resolve({
             error: rpcErrors.internal({
@@ -235,9 +240,8 @@ export class ApprovalController implements BatchApprovalController {
               },
             }),
           });
+          this.#requests.delete(action.actionId);
         }
-      } finally {
-        this.#requests.delete(action.actionId);
       }
     }
   };

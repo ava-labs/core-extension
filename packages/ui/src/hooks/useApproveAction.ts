@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getUpdatedSigningData } from '@core/common';
 import { useWindowGetsClosedOrHidden } from './useWindowGetsClosedOrHidden';
 import { isActionsUpdate } from '../contexts/ApprovalsProvider/isActionsUpdate';
+import { KEYSTONE_NOT_IN_HOMEPAGE_ERROR } from '@core/service-worker/src/services/keystone/constants/error';
 
 type ActionType<IsBatchApproval> = IsBatchApproval extends true
   ? MultiTxAction
@@ -90,11 +91,26 @@ export function useApproveAction<DisplayData = any>(
         return request<UpdateActionHandler>({
           method: ExtensionRequest.ACTION_UPDATE,
           params: [params, shouldWaitForResponse],
-        }).finally(() => {
-          if (shouldCloseAfterUpdate) {
-            globalThis.close();
-          }
-        });
+        })
+          .then(() => {
+            if (shouldCloseAfterUpdate) {
+              globalThis.close();
+            }
+            return true;
+          })
+          .catch((err) => {
+            const errorMessage =
+              typeof err === 'string' ? err : err?.message || String(err);
+            if (errorMessage.includes(KEYSTONE_NOT_IN_HOMEPAGE_ERROR)) {
+              setError(KEYSTONE_NOT_IN_HOMEPAGE_ERROR);
+              return false;
+            } else {
+              if (shouldCloseAfterUpdate) {
+                globalThis.close();
+              }
+              return false;
+            }
+          });
       },
       [request, isConfirmPopup],
     );

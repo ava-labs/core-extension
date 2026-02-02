@@ -12,6 +12,7 @@ type HardwareApprovalOverlayProps = {
   network: NetworkWithCaipId;
   approve: () => Promise<unknown>;
   reject: () => void;
+  error: string;
 };
 
 export const HardwareApprovalOverlay = ({
@@ -20,6 +21,7 @@ export const HardwareApprovalOverlay = ({
   network,
   approve,
   reject,
+  error,
 }: HardwareApprovalOverlayProps) => {
   if (deviceType === 'ledger') {
     return (
@@ -46,6 +48,7 @@ export const HardwareApprovalOverlay = ({
         action={action}
         reject={reject}
         approve={approve}
+        error={error}
       />
     );
   }

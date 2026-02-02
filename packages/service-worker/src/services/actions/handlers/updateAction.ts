@@ -45,7 +45,12 @@ export class UpdateActionHandler implements HandlerType {
     });
 
     if (shouldWaitForResponse) {
-      await response;
+      try {
+        await response;
+        return { ...request, result: true };
+      } catch (error: any) {
+        return { ...request, error: error?.message || error };
+      }
     }
 
     return { ...request, result: true };

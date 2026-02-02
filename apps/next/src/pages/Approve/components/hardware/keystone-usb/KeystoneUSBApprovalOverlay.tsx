@@ -6,23 +6,29 @@ import { useKeystoneUsbApprovalState } from './useKeystoneUsbApprovalState';
 import { StateComponentMapper } from './types';
 import { useKeystoneUsbContext } from '@core/ui';
 import { Loading } from './components/Loading';
+import { KEYSTONE_NOT_IN_HOMEPAGE_ERROR } from '~/services/keystone/constants/error';
 
 type KeystoneUSBApprovalOverlayProps = {
   action: Action<DisplayData>;
   reject: () => void;
   approve: () => Promise<unknown>;
+  error: string;
 };
 
 export const KeystoneUSBApprovalOverlay: FC<
   KeystoneUSBApprovalOverlayProps
-> = ({ action, reject, approve }) => {
-  const state = useKeystoneUsbApprovalState();
+> = ({ action, reject, approve, error }) => {
+  let state = useKeystoneUsbApprovalState();
   const { initKeystoneTransport } = useKeystoneUsbContext();
 
   useEffect(() => {
     // Initialize transport to check availability (required for state detection)
     initKeystoneTransport();
   }, [initKeystoneTransport]);
+
+  if (state === 'pending' && error === KEYSTONE_NOT_IN_HOMEPAGE_ERROR) {
+    state = 'disconnected';
+  }
 
   const Component = StateComponentMapper[state] || Loading;
 
@@ -33,6 +39,7 @@ export const KeystoneUSBApprovalOverlay: FC<
         approve={approve}
         reject={reject}
         action={action}
+        error={error}
       />
     </HardwareApprovalDrawer>
   );
