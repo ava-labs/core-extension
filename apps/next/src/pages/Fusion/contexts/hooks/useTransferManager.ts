@@ -25,10 +25,6 @@ export const useTransferManager = ({ signers }: TransferManagerProps) => {
       environment: Environment.PROD,
       serviceInitializers: [
         {
-          type: ServiceType.AVALANCHE_EVM,
-          evmSigner: signers.evm,
-        },
-        {
           type: ServiceType.MARKR,
           evmSigner: signers.evm,
           markrApiToken: process.env.MARKR_API_TOKEN, // Not required (if using the default proxy API url)

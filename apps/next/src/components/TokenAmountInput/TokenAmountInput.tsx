@@ -35,7 +35,6 @@ type TokenAmountInputProps = {
   amount: string;
   maxAmount?: bigint;
   minAmount?: bigint;
-  onAmountChange: (amount: string) => void;
   withPresetButtons?: boolean;
   tokenHint?: string;
   autoFocus?: boolean;
@@ -43,7 +42,25 @@ type TokenAmountInputProps = {
   onFocus?: FocusEventHandler;
   onBlur?: FocusEventHandler;
   disabled?: boolean;
-};
+} & AmountInputProps;
+
+type AmountInputProps =
+  | {
+      isAmountReadOnly?: undefined;
+      onAmountChange?: (amount: string) => void;
+    }
+  | {
+      isAmountReadOnly?: never;
+      onAmountChange?: (amount: string) => void;
+    }
+  | {
+      isAmountReadOnly: false;
+      onAmountChange: (amount: string) => void;
+    }
+  | {
+      isAmountReadOnly: true;
+      onAmountChange?: never;
+    };
 
 export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   id,
@@ -58,6 +75,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   onQueryChange,
   amount,
   onAmountChange,
+  isAmountReadOnly,
   withPresetButtons = true,
   tokenHint,
   autoFocus = true,
@@ -129,7 +147,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         .sub(new TokenUnit(amountToSubtract, token.decimals, token.symbol));
 
       // Make sure we never seem silly by telling the user to send a negative amount.
-      onAmountChange(
+      onAmountChange?.(
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
       );
     },
@@ -180,7 +198,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           <InvisibleAmountInput
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
-            onChange={(ev) => onAmountChange(ev.target.value)}
+            onChange={(ev) => onAmountChange?.(ev.target.value)}
             error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
@@ -193,7 +211,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
                 readOnly: isLoading,
                 onFocus,
                 onBlur,
-                disabled,
+                disabled: disabled || isAmountReadOnly,
               },
             }}
             value={amount}
@@ -201,7 +219,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
         </Grow>
       </Stack>
       <Collapse
-        in={withPresetButtons && Boolean(token)}
+        in={withPresetButtons && Boolean(token) && !isAmountReadOnly}
         mountOnEnter
         unmountOnExit
       >

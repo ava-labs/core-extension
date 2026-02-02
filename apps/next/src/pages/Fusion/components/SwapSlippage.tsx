@@ -17,10 +17,12 @@ import { ServiceType } from '@avalabs/unified-asset-transfer';
 export const SwapSlippage = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { slippage, autoSlippage, quote } = useFusionState();
+  const { slippage, autoSlippage, userQuote, bestQuote } = useFusionState();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const isSlippageApplicable = quote?.serviceType !== ServiceType.MARKR;
+  const quote = userQuote ?? bestQuote;
+
+  const isSlippageApplicable = quote?.serviceType === ServiceType.MARKR;
 
   // Format display value
   const displayValue = isSlippageApplicable
@@ -34,7 +36,7 @@ export const SwapSlippage = () => {
       <Styled.SettingRow
         title={t('Slippage')}
         tooltip={t(
-          'Suggested slippage - your transaction will fail if the fail price changes unfavorable more than this percentage',
+          'Suggested slippage — your transaction will fail if the price changes unfavorably by more than this percentage.',
         )}
       >
         <Stack direction="row" alignItems="center" gap={0.5} mr={-1}>
