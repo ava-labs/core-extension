@@ -10,6 +10,7 @@ import {
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
+import { uniq } from 'lodash';
 import { Signature, TransactionRequest, hexlify } from 'ethers';
 import { BufferLike, rlp } from 'ethereumjs-util';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
@@ -17,7 +18,7 @@ import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
 import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
 import { UREncoder, URDecoder, UR } from '@ngraveio/bc-ur';
-import { getAvalancheExtendedKeyPath, makeBNLike } from '@core/common';
+import { getAvalancheDerivationPath, makeBNLike } from '@core/common';
 import { utils } from '@avalabs/avalanchejs';
 
 import {
@@ -205,11 +206,16 @@ export class KeystoneWallet {
   ): Promise<Avalanche.SignTxRequest['tx']> {
     const tx = txRequest.tx;
     const app = new KeystoneUSBAvalancheSDK(await createKeystoneTransport());
-    const basePath = getAvalancheExtendedKeyPath(this.activeAccountIndex);
-    const derivationPaths = [
-      ...(txRequest.externalIndices ?? []).map((i) => `${basePath}/0/${i}`),
-      ...(txRequest.internalIndices ?? []).map((i) => `${basePath}/1/${i}`),
-    ];
+
+    const derivationPaths = uniq([
+      getAvalancheDerivationPath(this.activeAccountIndex),
+      ...(txRequest.externalIndices ?? []).map((index) =>
+        getAvalancheDerivationPath(this.activeAccountIndex, index, false),
+      ),
+      ...(txRequest.internalIndices ?? []).map((index) =>
+        getAvalancheDerivationPath(this.activeAccountIndex, index, true),
+      ),
+    ]);
 
     const signatures = await app.signTx(
       tx as any,
