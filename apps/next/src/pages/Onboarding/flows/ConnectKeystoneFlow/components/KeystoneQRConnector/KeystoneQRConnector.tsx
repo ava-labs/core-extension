@@ -17,9 +17,9 @@ import { useCameraPermissions } from '@core/ui';
 import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
 import {
   getAvalancheExtendedKeyPath,
-  getAvalancheXpBasePath,
-  getEvmBasePath,
   getXPAccountIndexFromPath,
+  isEvmDerivationPath,
+  isAvalancheDerivationPath,
 } from '@core/common';
 
 import { VideoFeedCrosshair } from '@/components/keystone';
@@ -39,11 +39,15 @@ import { QRCodeScannerContainer } from './QRCodeScannerContainer';
 // CryptoHDKey (BIP32 HD keys) does not expose curve information directly.
 // Per BIP32/BIP44 specification, HD keys for coin types 60 (ETH) and 9000 (AVAX)
 // always use secp256k1, so curve validation is implicit in the path check.
-const isEvmXpub = (key: CryptoHDKey): boolean =>
-  !!key.getOrigin()?.getPath()?.startsWith(getEvmBasePath());
+const isEvmXpub = (key: CryptoHDKey): boolean => {
+  const path = key.getOrigin()?.getPath();
+  return !!path && isEvmDerivationPath(path);
+};
 
-const isAvalancheXpub = (key: CryptoHDKey): boolean =>
-  !!key.getOrigin()?.getPath()?.startsWith(getAvalancheXpBasePath());
+const isAvalancheXpub = (key: CryptoHDKey): boolean => {
+  const path = key.getOrigin()?.getPath();
+  return !!path && isAvalancheDerivationPath(path);
+};
 
 type KeystoneQRConnectorProps = {
   onQRCodeScanned: (info: DerivedKeys) => void;

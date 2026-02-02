@@ -95,3 +95,9 @@ export const isAvalancheExtendedKey = ({
   curve,
 }: ExtendedPublicKey): boolean =>
   derivationPath.startsWith(getAvalancheXpBasePath()) && curve === 'secp256k1';
+
+export const isEvmDerivationPath = (path: string): boolean =>
+  path.startsWith(getEvmBasePath());
+
+export const isAvalancheDerivationPath = (path: string): boolean =>
+  path.startsWith(getAvalancheXpBasePath());
