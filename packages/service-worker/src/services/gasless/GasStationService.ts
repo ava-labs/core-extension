@@ -71,7 +71,9 @@ export class GasStationService {
     if (!token) {
       throw new Error('Cannot get the Appcheck Token');
     }
-    this.#sdk.setAppCheckToken(token);
+    this.#sdk.setHeaders({
+      'X-Firebase-AppCheck': token,
+    });
     return await this.#sdk.isEligibleForChain({
       chainId,
       from: fromAddress,
@@ -145,7 +147,9 @@ export class GasStationService {
     if (!token) {
       throw new Error('Cannot get Appcheck Token');
     }
-    this.#sdk.setAppCheckToken(token);
+    this.#sdk.setHeaders({
+      'X-Firebase-AppCheck': token,
+    });
 
     const network = await this.networkService.getNetwork(data.chainId);
     if (!network) {
