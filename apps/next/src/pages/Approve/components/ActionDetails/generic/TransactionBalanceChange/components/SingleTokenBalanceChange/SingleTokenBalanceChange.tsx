@@ -1,19 +1,19 @@
-import { FC } from 'react';
+import { Stack } from '@avalabs/k2-alpine';
 import {
   NetworkContractToken,
   NetworkToken,
   TokenDiffItem,
 } from '@avalabs/vm-module-types';
-import { Stack, Typography } from '@avalabs/k2-alpine';
+import { FC } from 'react';
 
-import { useConvertedCurrencyFormatter } from '@core/ui';
+import { TokenLogo } from '../TokenLogo';
+import { NoBalanceChange, TokenBalanceChange } from './components';
 
-import * as Styled from './Styled';
-import { TokenLogo } from './TokenLogo';
+import * as Styled from '../Styled';
 
 type SingleTokenBalanceChangeProps = {
   token: NetworkToken | NetworkContractToken;
-  item: TokenDiffItem;
+  item: TokenDiffItem | undefined;
   direction: 'loss' | 'gain';
 };
 
@@ -22,12 +22,6 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
   item,
   direction,
 }) => {
-  const currencyFormatter = useConvertedCurrencyFormatter();
-
-  if (!item || !token) {
-    return null;
-  }
-
   return (
     <Styled.TokenBalanceChangeWrapper>
       <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
@@ -40,14 +34,10 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
         overflow="hidden"
         flexGrow={1}
       >
-        <Styled.ResponsiveTokenAmount
-          amount={item.displayValue}
-          negate={direction === 'loss'}
-        />
-        {typeof item.usdPrice === 'string' && currencyFormatter && (
-          <Typography variant="caption">
-            {currencyFormatter(Number(item.usdPrice))}
-          </Typography>
+        {item ? (
+          <TokenBalanceChange diffItem={item} direction={direction} />
+        ) : (
+          <NoBalanceChange />
         )}
       </Stack>
     </Styled.TokenBalanceChangeWrapper>
