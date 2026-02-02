@@ -10,7 +10,7 @@ import { GasStationService } from './GasStationService';
 jest.mock('@avalabs/core-gasless-sdk', () => {
   const functions = {
     isEligibleForChain: jest.fn().mockResolvedValue(true),
-    setAppCheckToken: jest.fn(),
+    setHeaders: jest.fn(),
     fundTx: jest.fn(),
   };
 
