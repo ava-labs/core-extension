@@ -12,7 +12,12 @@ import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 
 import { useCameraPermissions } from '@core/ui';
 import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
-import { getAvalancheExtendedKeyPath } from '@core/common';
+import {
+  getAvalancheExtendedKeyPath,
+  getAvalancheXpBasePath,
+  getEvmBasePath,
+  getXPAccountIndexFromPath,
+} from '@core/common';
 
 import { VideoFeedCrosshair } from '@/components/keystone';
 
@@ -69,28 +74,20 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
     [minNumberOfKeys],
   );
 
-  const getAvmAddressPublicKeys = useCallback(
-    async (extendedPublicKeyHex: string) => {
-      const keys: PublicKey[] = [];
-      const startingIndexes = Array.from(
-        { length: minNumberOfKeys },
-        (_, i) => i,
+  // For X/P chains, derive ONE address per xpub (one xpub = one account)
+  const getAvmAddressPublicKey = useCallback(
+    async (extendedPublicKeyHex: string, accountIndex: number) => {
+      const avmKey = await getAddressPublicKeyFromXPub(
+        extendedPublicKeyHex,
+        0, // Always derive address index 0 (the receive address)
       );
-      for (const index of startingIndexes) {
-        const avmKey = await getAddressPublicKeyFromXPub(
-          extendedPublicKeyHex,
-          index,
-        );
-        keys.push({
-          index,
-          vm: 'AVM',
-          key: buildAddressPublicKey(avmKey, index, 'AVM'),
-        });
-      }
-
-      return keys;
+      return {
+        index: accountIndex,
+        vm: 'AVM' as const,
+        key: buildAddressPublicKey(avmKey, accountIndex, 'AVM'),
+      };
     },
-    [minNumberOfKeys],
+    [],
   );
 
   const handleUnreadableQRCode = useCallback(
@@ -113,22 +110,30 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
 
       const extendedPublicKeys: ExtendedPublicKey[] = [];
       let evmAddressPublicKeys: PublicKey[] = [];
-      let avmAddressPublicKeys: PublicKey[] = [];
+      const avmAddressPublicKeys: PublicKey[] = [];
 
       for (const key of allKeys) {
         const path = key.getOrigin()?.getPath();
         const xpub = key.getBip32Key();
 
-        if (path?.includes("44'/60'")) {
+        if (path?.startsWith(getEvmBasePath())) {
           extendedPublicKeys.push(
             buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
           );
           evmAddressPublicKeys = await getAddressPublicKeys(xpub);
-        } else if (path?.includes("44'/9000'")) {
+        } else if (path?.startsWith(getAvalancheXpBasePath())) {
+          const accountIndex = getXPAccountIndexFromPath(path);
           extendedPublicKeys.push(
-            buildExtendedPublicKey(xpub, getAvalancheExtendedKeyPath(0)),
+            buildExtendedPublicKey(
+              xpub,
+              getAvalancheExtendedKeyPath(accountIndex),
+            ),
           );
-          avmAddressPublicKeys = await getAvmAddressPublicKeys(xpub);
+          const avmAddressPublicKey = await getAvmAddressPublicKey(
+            xpub,
+            accountIndex,
+          );
+          avmAddressPublicKeys.push(avmAddressPublicKey);
         }
       }
 
@@ -146,7 +151,7 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
     [
       onQRCodeScanned,
       getAddressPublicKeys,
-      getAvmAddressPublicKeys,
+      getAvmAddressPublicKey,
       handleUnreadableQRCode,
     ],
   );
