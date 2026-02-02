@@ -44,9 +44,11 @@ const isEvmXpub = (key: CryptoHDKey): boolean => {
   return !!path && isEvmDerivationPath(path);
 };
 
-const isAvalancheXpub = (key: CryptoHDKey): boolean => {
+// Returns the Avalanche derivation path if valid, undefined otherwise.
+// Used to extract account index from the path.
+const getAvalanchePath = (key: CryptoHDKey): string | undefined => {
   const path = key.getOrigin()?.getPath();
-  return !!path && isAvalancheDerivationPath(path);
+  return path && isAvalancheDerivationPath(path) ? path : undefined;
 };
 
 type KeystoneQRConnectorProps = {
@@ -130,15 +132,15 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
 
       for (const key of allKeys) {
         const xpub = key.getBip32Key();
+        const avalanchePath = getAvalanchePath(key);
 
         if (isEvmXpub(key)) {
           extendedPublicKeys.push(
             buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
           );
           evmAddressPublicKeys = await getAddressPublicKeys(xpub);
-        } else if (isAvalancheXpub(key)) {
-          const path = key.getOrigin()!.getPath()!;
-          const accountIndex = getXPAccountIndexFromPath(path);
+        } else if (avalanchePath) {
+          const accountIndex = getXPAccountIndexFromPath(avalanchePath);
           extendedPublicKeys.push(
             buildExtendedPublicKey(
               xpub,
