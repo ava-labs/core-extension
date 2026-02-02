@@ -47,28 +47,36 @@ export const AddOrConnectWallet: FC = () => {
             secondary={t('Manually enter your private key to import')}
             onClick={goToImportPrivateKey}
           />
-          <Divider />
-          <AccountListItem
-            Icon={MdList}
-            primary={t('Import a recovery phrase')}
-            secondary={t('Enter your recovery phrase to import a wallet')}
-            onClick={() => {
-              capture('AddWalletWithSeedphrase_Clicked');
-              openFullscreenTab('import-wallet/seedphrase');
-              window.close();
-            }}
-          />
-          <Divider />
-          <AccountListItem
-            Icon={LedgerIcon}
-            primary={t('Import Ledger wallet')}
-            secondary={t('Use Ledger to connect')}
-            onClick={() => {
-              capture('AddWalletWithLedger_Clicked');
-              openFullscreenTab('import-wallet/ledger');
-              window.close();
-            }}
-          />
+          {isFlagEnabled(FeatureGates.ADD_WALLET_WITH_SEEDPHRASE) && (
+            <>
+              <Divider />
+              <AccountListItem
+                Icon={MdList}
+                primary={t('Import a recovery phrase')}
+                secondary={t('Enter your recovery phrase to import a wallet')}
+                onClick={() => {
+                  capture('AddWalletWithSeedphrase_Clicked');
+                  openFullscreenTab('import-wallet/seedphrase');
+                  window.close();
+                }}
+              />
+            </>
+          )}
+          {isFlagEnabled(FeatureGates.ADD_WALLET_WITH_LEDGER) && (
+            <>
+              <Divider />
+              <AccountListItem
+                Icon={LedgerIcon}
+                primary={t('Import Ledger wallet')}
+                secondary={t('Use Ledger to connect')}
+                onClick={() => {
+                  capture('AddWalletWithLedger_Clicked');
+                  openFullscreenTab('import-wallet/ledger');
+                  window.close();
+                }}
+              />
+            </>
+          )}
           {isFlagEnabled(FeatureGates.IMPORT_WALLET_CONNECT) && (
             <>
               <Divider />
@@ -83,13 +91,17 @@ export const AddOrConnectWallet: FC = () => {
               />
             </>
           )}
-          <Divider />
-          <AccountListItem
-            Icon={MdTopic}
-            primary={t('Import a keystore file')}
-            secondary={t('Upload a JSON file to import')}
-            onClick={goToImportKeystoreFileScreen}
-          />
+          {isFlagEnabled(FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE) && (
+            <>
+              <Divider />
+              <AccountListItem
+                Icon={MdTopic}
+                primary={t('Import a keystore file')}
+                secondary={t('Upload a JSON file to import')}
+                onClick={goToImportKeystoreFileScreen}
+              />
+            </>
+          )}
           {isFlagEnabled(FeatureGates.IMPORT_FIREBLOCKS) && (
             <>
               <Divider />
