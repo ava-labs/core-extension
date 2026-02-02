@@ -735,6 +735,7 @@
   "Successfully imported the keystore file.": "Successfully imported the keystore file.",
   "Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}": "Successfully swapped {{srcAmount}} {{srcToken}} to {{destAmount}} {{destToken}}",
   "Suggested slippage - your transaction will fail if the fail price changes unfavorable more than this percentage": "Suggested slippage - your transaction will fail if the fail price changes unfavorable more than this percentage",
+  "Suggested slippage — your transaction will fail if the price changes unfavorably by more than this percentage.": "Suggested slippage — your transaction will fail if the price changes unfavorably by more than this percentage.",
   "Supplied": "Supplied",
   "Swap": "Swap",
   "Swap client is not initialized": "Swap client is not initialized",
