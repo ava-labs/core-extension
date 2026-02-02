@@ -991,6 +991,7 @@
   "{{sitesCount}} Connected sites": "{{sitesCount}} Connected sites",
   "{{slippage}}%": "{{slippage}}%",
   "{{token}} bridge {{action}}": "{{token}} bridge {{action}}",
+  "{{walletName}} is already imported.": "{{walletName}} is already imported.",
   "© 2025 Ava Labs – All rights reserved. {{version}}": "© 2025 Ava Labs – All rights reserved. {{version}}",
   "🚧 Placeholder - needs implementation 🚧": "🚧 Placeholder - needs implementation 🚧"
 }

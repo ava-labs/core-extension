@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { ExtensionRequest, SecretType } from '@core/types';
+import { ExtensionRequest, IsKnownSecretResult, SecretType } from '@core/types';
 import type { CheckIfWalletExists } from '@core/service-worker';
 
 import { useConnectionContext } from '../contexts';
@@ -12,7 +12,7 @@ export const useDuplicatedWalletChecker = () => {
     async (
       secretType: SecretType.LedgerLive | SecretType.Ledger,
       secret: string,
-    ): Promise<boolean> => {
+    ): Promise<IsKnownSecretResult> => {
       return await request<CheckIfWalletExists>({
         method: ExtensionRequest.WALLET_CHECK_IF_EXISTS,
         params: [secretType, secret],
