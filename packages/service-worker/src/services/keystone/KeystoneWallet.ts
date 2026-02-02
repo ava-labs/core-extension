@@ -17,7 +17,7 @@ import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
 import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
 import { UREncoder, URDecoder, UR } from '@ngraveio/bc-ur';
-import { makeBNLike } from '@core/common';
+import { getAvalancheExtendedKeyPath, makeBNLike } from '@core/common';
 import { utils } from '@avalabs/avalanchejs';
 
 import {
@@ -204,16 +204,24 @@ export class KeystoneWallet {
     txRequest: Avalanche.SignTxRequest,
   ): Promise<Avalanche.SignTxRequest['tx']> {
     const tx = txRequest.tx;
-    const isEvmChain = tx.getVM() === 'EVM';
     const app = new KeystoneUSBAvalancheSDK(await createKeystoneTransport());
-    const sig = await app.signTx(
+    const basePath = getAvalancheExtendedKeyPath(this.activeAccountIndex);
+    const derivationPaths = [
+      ...(txRequest.externalIndices ?? []).map((i) => `${basePath}/0/${i}`),
+      ...(txRequest.internalIndices ?? []).map((i) => `${basePath}/1/${i}`),
+    ];
+
+    const signatures = await app.signTx(
       tx as any,
+      derivationPaths,
+      [],
       this.fingerprint,
-      isEvmChain ? this.xpub! : this.xpubXP!,
-      this.activeAccountIndex,
     );
 
-    tx.addSignature(utils.hexToBuffer(sig));
+    signatures.forEach((sig) => {
+      tx.addSignature(utils.hexToBuffer(sig));
+    });
+
     return tx;
   }
 

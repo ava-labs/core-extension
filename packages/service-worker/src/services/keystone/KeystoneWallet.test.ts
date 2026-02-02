@@ -251,7 +251,7 @@ describe('src/background/services/keystone/KeystoneWallet.ts', () => {
       (KeystoneUSBAvalancheSDK as unknown as jest.Mock).mockImplementation(
         () => {
           return {
-            signTx: jest.fn().mockResolvedValue(FIXTURES.P_CHAIN_SIGNATURE),
+            signTx: jest.fn().mockResolvedValue([FIXTURES.P_CHAIN_SIGNATURE]),
           };
         },
       );
