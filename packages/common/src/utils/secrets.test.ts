@@ -2,8 +2,13 @@ import { isEvmDerivationPath, isAvalancheDerivationPath } from './secrets';
 
 describe('isEvmDerivationPath', () => {
   it('returns true for EVM derivation paths', () => {
-    // Arrange
-    const evmPaths = ["m/44'/60'/0'", "m/44'/60'/5'"];
+    // Arrange - both with and without m/ prefix (Keystone QR omits the prefix)
+    const evmPaths = [
+      "m/44'/60'/0'",
+      "m/44'/60'/5'",
+      "44'/60'/0'",
+      "44'/60'/5'",
+    ];
 
     // Act & Assert
     evmPaths.forEach((path) => {
@@ -51,8 +56,13 @@ describe('isEvmDerivationPath', () => {
 
 describe('isAvalancheDerivationPath', () => {
   it('returns true for Avalanche X/P derivation paths', () => {
-    // Arrange
-    const avalanchePaths = ["m/44'/9000'/0'", "m/44'/9000'/5'"];
+    // Arrange - both with and without m/ prefix (Keystone QR omits the prefix)
+    const avalanchePaths = [
+      "m/44'/9000'/0'",
+      "m/44'/9000'/5'",
+      "44'/9000'/0'",
+      "44'/9000'/5'",
+    ];
 
     // Act & Assert
     avalanchePaths.forEach((path) => {
