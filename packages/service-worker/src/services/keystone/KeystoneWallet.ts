@@ -220,7 +220,7 @@ export class KeystoneWallet {
     const signatures = await app.signTx(
       tx as any,
       derivationPaths,
-      [],
+      [], // Additional UTXOs array reserved for web utxo selector (not provided by current extension)
       this.fingerprint,
     );
 
