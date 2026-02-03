@@ -90,7 +90,10 @@ export class ImportLedgerHandler implements HandlerType {
     if (secretType === SecretType.Ledger) {
       assertPresent(xpub, SecretsError.MissingExtendedPublicKey);
 
-      const isKnown = await this.secretsService.isKnownSecret(secretType, xpub);
+      const { isKnown } = await this.secretsService.isKnownSecret(
+        secretType,
+        xpub,
+      );
 
       if (isKnown) {
         return {
@@ -101,7 +104,7 @@ export class ImportLedgerHandler implements HandlerType {
     } else if (secretType === SecretType.LedgerLive) {
       assertPresent(pubKeys?.[0], SecretsError.PublicKeyNotFound);
 
-      const isKnown = await this.secretsService.isKnownSecret(
+      const { isKnown } = await this.secretsService.isKnownSecret(
         secretType,
         pubKeys[0].evm,
       );

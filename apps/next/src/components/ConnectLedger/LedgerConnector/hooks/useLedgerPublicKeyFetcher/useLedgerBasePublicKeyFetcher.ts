@@ -11,7 +11,12 @@ import {
   useDuplicatedWalletChecker,
   useActiveLedgerAppInfo,
 } from '@core/ui';
-import { DerivationStatus, LedgerError, SecretType } from '@core/types';
+import {
+  DerivationStatus,
+  IsKnownSecretResult,
+  LedgerError,
+  SecretType,
+} from '@core/types';
 import {
   assert,
   getAvalancheExtendedKeyPath,
@@ -53,6 +58,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const checkAddressActivity = useCheckAddressActivity();
 
   const [error, setError] = useState<ErrorType>();
+  const [duplicatedWalletName, setDuplicatedWalletName] = useState<string>();
   const [status, setStatus] = useState<DerivationStatus>('waiting');
   const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
     useState(false);
@@ -124,20 +130,23 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
   const assertUniqueWallet = useCallback(
     async (firstXpub: string) => {
-      let isDuplicated = false;
+      let checkResult: IsKnownSecretResult = { isKnown: false };
+
+      setDuplicatedWalletName(undefined);
 
       if (derivationPathSpec === DerivationPath.LedgerLive) {
-        isDuplicated = await checkIfWalletExists(
+        checkResult = await checkIfWalletExists(
           SecretType.LedgerLive,
           firstXpub,
         );
       } else {
-        isDuplicated = await checkIfWalletExists(SecretType.Ledger, firstXpub);
+        checkResult = await checkIfWalletExists(SecretType.Ledger, firstXpub);
       }
 
-      if (isDuplicated) {
+      if (checkResult.isKnown) {
         setStatus('error');
         setError('duplicated-wallet');
+        setDuplicatedWalletName(checkResult.name);
         throw new WalletExistsError('This wallet is already imported');
       }
     },
@@ -370,6 +379,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   return {
     status,
     error,
+    duplicatedWalletName,
     retrieveKeys,
     onRetry,
   };
