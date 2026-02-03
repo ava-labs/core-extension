@@ -212,9 +212,10 @@ export class WalletService implements OnUnlock {
     const derivationPaths = await Promise.all(
       accountIndices.map((index) =>
         this.addressResolver.getDerivationPathsByVM(
-          index,
+          secrets.account.index,
           secrets.derivationPathSpec,
           [vmName],
+          index,
         ),
       ),
     );
