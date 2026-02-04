@@ -101,15 +101,19 @@ export function useApproveAction<DisplayData = any>(
           .catch((err) => {
             const errorMessage =
               typeof err === 'string' ? err : err?.message || String(err);
-            if (errorMessage.includes(KEYSTONE_NOT_IN_HOMEPAGE_ERROR)) {
-              setError(KEYSTONE_NOT_IN_HOMEPAGE_ERROR);
-              return false;
-            } else {
-              if (shouldCloseAfterUpdate) {
-                globalThis.close();
-              }
-              return false;
+            const isKeystoneNotInHomepageError = errorMessage.includes(
+              KEYSTONE_NOT_IN_HOMEPAGE_ERROR,
+            );
+
+            if (!isKeystoneNotInHomepageError && shouldCloseAfterUpdate) {
+              globalThis.close();
             }
+
+            if (isKeystoneNotInHomepageError) {
+              setError(KEYSTONE_NOT_IN_HOMEPAGE_ERROR);
+            }
+
+            return false;
           });
       },
       [request, isConfirmPopup],

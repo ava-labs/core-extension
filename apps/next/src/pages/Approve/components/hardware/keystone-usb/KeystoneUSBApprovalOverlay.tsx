@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import { DisplayData } from '@avalabs/vm-module-types';
 import { Action } from '@core/types';
 import { HardwareApprovalDrawer } from '../common/ApprovalDrawer';
@@ -18,7 +18,7 @@ type KeystoneUSBApprovalOverlayProps = {
 export const KeystoneUSBApprovalOverlay: FC<
   KeystoneUSBApprovalOverlayProps
 > = ({ action, reject, approve, error }) => {
-  let state = useKeystoneUsbApprovalState();
+  const hookState = useKeystoneUsbApprovalState();
   const { initKeystoneTransport } = useKeystoneUsbContext();
 
   useEffect(() => {
@@ -26,9 +26,13 @@ export const KeystoneUSBApprovalOverlay: FC<
     initKeystoneTransport();
   }, [initKeystoneTransport]);
 
-  if (state === 'pending' && error === KEYSTONE_NOT_IN_HOMEPAGE_ERROR) {
-    state = 'disconnected';
-  }
+  const state = useMemo(
+    () =>
+      hookState === 'pending' && error === KEYSTONE_NOT_IN_HOMEPAGE_ERROR
+        ? 'disconnected'
+        : hookState,
+    [hookState, error],
+  );
 
   const Component = StateComponentMapper[state] || Loading;
 

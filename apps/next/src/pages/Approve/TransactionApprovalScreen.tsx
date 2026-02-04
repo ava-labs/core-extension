@@ -128,8 +128,8 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
                 mx: 0,
               }}
             >
-              <strong>Note: </strong>
-              {'Ensure your Keystone 3 Pro is on the homepage'}
+              <strong>{t('Note: ')}</strong>
+              {t('Ensure your Keystone 3 Pro is on the homepage')}
             </Typography>
           )}
         </Stack>
