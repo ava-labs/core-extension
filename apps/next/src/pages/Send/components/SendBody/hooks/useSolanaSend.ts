@@ -4,6 +4,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { compileSolanaTx, serializeSolanaTx } from '@avalabs/core-wallets-sdk';
 
 import {
@@ -18,6 +19,7 @@ import { useConnectionContext } from '@core/ui';
 
 import { getSolanaProvider } from '@/lib/getSolanaProvider';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
+import { useConfettiContext } from '@/components/Confetti';
 
 import { buildSolanaSendTx } from '../lib/buildSolanaSendTx';
 import { useTransactionCallbacks } from './useTransactionCallbacks';
@@ -42,8 +44,10 @@ export const useSolanaSend = ({
 }: UseSolanaSendArgs) => {
   const { t } = useTranslation();
   const { request } = useConnectionContext();
+  const { replace } = useHistory();
+  const { triggerConfetti } = useConfettiContext();
 
-  const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
+  const { onSendFailure } = useTransactionCallbacks(network);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -107,7 +111,7 @@ export const useSolanaSend = ({
         provider: provider as any, // TODO: update the Solana SDK in our Core Wallets SDK to match the types here
       });
 
-      const hash = await request(
+      await request(
         {
           method: RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
           params: [
@@ -121,7 +125,11 @@ export const useSolanaSend = ({
           scope: network.caipId,
         },
       );
-      onSendSuccess(hash);
+
+      // Navigate to home and show confetti
+      // Transaction status toasts will be handled by TransactionStatusProvider
+      replace('/');
+      triggerConfetti();
     } catch (err) {
       console.error(err);
       onSendFailure(err);
@@ -133,8 +141,9 @@ export const useSolanaSend = ({
     to,
     request,
     t,
-    onSendSuccess,
     onSendFailure,
+    replace,
+    triggerConfetti,
     from,
     amount,
     network,
