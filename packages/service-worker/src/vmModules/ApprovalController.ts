@@ -225,7 +225,6 @@ export class ApprovalController implements BatchApprovalController {
       } catch (err) {
         const errorMessage = (err as Error).message;
         if (errorMessage.includes(KEYSTONE_NOT_IN_HOMEPAGE_ERROR)) {
-          this.#requests.delete(action.actionId);
           throw err;
         }
 
