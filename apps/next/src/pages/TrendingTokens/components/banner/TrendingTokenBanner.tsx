@@ -25,7 +25,7 @@ export const TrendingTokenBanner = () => {
 
   const updateRef = useRef(updateTrendingTokens);
   updateRef.current = updateTrendingTokens;
-  console.log('firstToken', showTrendingTokens);
+
   useEffect(() => {
     // Just run it once for the initial render
     updateRef.current(`avalanche`);
