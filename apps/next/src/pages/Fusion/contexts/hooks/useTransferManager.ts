@@ -10,14 +10,12 @@ import { useEffect, useState } from 'react';
 
 import { MARKR_EVM_PARTNER_ID } from '@core/ui';
 
-type TransferManagerProps = {
-  signers: {
-    evm: EvmSigner;
-    btc?: BtcSigner;
-  };
+type Signers = {
+  evm: EvmSigner;
+  btc?: BtcSigner;
 };
 
-export const useTransferManager = ({ signers }: TransferManagerProps) => {
+export const useTransferManager = (signers: Signers) => {
   const [manager, setManager] = useState<TransferManager>();
 
   useEffect(() => {
