@@ -6,11 +6,12 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { toast } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { Quote } from '@avalabs/unified-asset-transfer';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { Account } from '@core/types';
+import { Account, FungibleTokenBalance } from '@core/types';
 import { isUserRejectionError, Monitoring, stringToBigint } from '@core/common';
 import {
   useAccountsContext,
@@ -20,40 +21,46 @@ import {
 } from '@core/ui';
 
 import { DEFAULT_SLIPPAGE } from '../fusion-config';
-import { useSwapQuery, useSwapTokens } from '../hooks';
+import { useSwapQuery } from '../hooks';
+import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
   useUserAddresses,
   useTransferManager,
   useSigners,
   useAssetAndChain,
   useQuotes,
+  useSupportedChainIds,
+  useSwapSourceTokenList,
+  useSwapSourceToken,
+  useSwapTargetTokenList,
+  useSwapTargetToken,
 } from './hooks';
-import { toast } from '@avalabs/k2-alpine';
-import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
 };
-type TokensState = ReturnType<typeof useSwapTokens>;
-type FusionState = QueryState &
-  TokensState & {
-    account?: Account;
-    isConfirming: boolean;
-    slippage: number;
-    setSlippage: (slippage: number) => void;
-    autoSlippage: boolean;
-    setAutoSlippage: (autoSlippage: boolean) => void;
-    fromAmount?: string;
-    toAmount?: string;
-    isAmountLoading: boolean;
-    swapError?: SwapError;
-    userQuote: Quote | null;
-    bestQuote: Quote | null;
-    quotes: Quote[];
-    selectQuoteById: (quoteId: string | null) => void;
-    transfer: (specificQuote?: Quote) => Promise<void>;
-    isReadyToTransfer: boolean;
-  };
+type FusionState = QueryState & {
+  sourceTokenList: FungibleTokenBalance[];
+  targetTokenList: FungibleTokenBalance[];
+  sourceToken: FungibleTokenBalance | undefined;
+  targetToken: FungibleTokenBalance | undefined;
+  account?: Account;
+  isConfirming: boolean;
+  slippage: number;
+  setSlippage: (slippage: number) => void;
+  autoSlippage: boolean;
+  setAutoSlippage: (autoSlippage: boolean) => void;
+  fromAmount?: string;
+  toAmount?: string;
+  isAmountLoading: boolean;
+  swapError?: SwapError;
+  userQuote: Quote | null;
+  bestQuote: Quote | null;
+  quotes: Quote[];
+  selectQuoteById: (quoteId: string | null) => void;
+  transfer: (specificQuote?: Quote) => Promise<void>;
+  isReadyToTransfer: boolean;
+};
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -80,22 +87,28 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toQuery,
   } = useSwapQuery();
 
-  const { sourceTokens, targetTokens, fromToken, toToken } = useSwapTokens(
-    fromId,
-    toId,
-  );
-
   const signers = useSigners();
-  const manager = useTransferManager({ signers });
+  const manager = useTransferManager(signers);
+  const supportedChainsIds = useSupportedChainIds(manager);
+  const sourceTokenList = useSwapSourceTokenList(supportedChainsIds);
+  const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
+  const targetTokenList = useSwapTargetTokenList(
+    sourceToken ? sourceToken.chainCaipId : supportedChainsIds,
+    sourceToken,
+  );
+  const targetToken = useSwapTargetToken(targetTokenList, sourceToken, toId);
 
   const { chain: sourceChain, asset: sourceAsset } =
-    useAssetAndChain(fromToken);
-  const { chain: targetChain, asset: targetAsset } = useAssetAndChain(toToken);
+    useAssetAndChain(sourceToken);
+  const { chain: targetChain, asset: targetAsset } =
+    useAssetAndChain(targetToken);
+
   const { fromAddress, toAddress } = useUserAddresses(
     activeAccount,
     sourceChain,
     targetChain,
   );
+
   const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
     manager,
     fromAddress,
@@ -206,10 +219,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         userAmount,
         fromAmount: userAmount,
         toAmount,
-        sourceTokens,
-        targetTokens,
-        fromToken,
-        toToken,
+        sourceTokenList,
+        targetTokenList,
+        sourceToken,
+        targetToken,
         account: activeAccount,
         isAmountLoading: Boolean(userAmount && toAmount === undefined),
         isConfirming,
