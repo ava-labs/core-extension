@@ -29,6 +29,7 @@ import {
   useQuotes,
 } from './hooks';
 import { toast } from '@avalabs/k2-alpine';
+import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
@@ -138,13 +139,30 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         await manager.transferAsset({ quote: quoteToUse });
         captureEncrypted('SwapConfirmed', {
           address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+          chainId: quoteToUse.sourceChain.chainId,
         });
         replace('/');
       } catch (err) {
-        if (isUserRejectionError(err)) return;
+        if (isUserRejectionError(err)) {
+          setIsConfirming(false);
+          return;
+        }
 
-        // TODO: Retry with another quote if available AND if the user has NOT manually selected a quote.
+        const wasManuallySelectedQuote = !!userQuote;
+
+        // If no specific quote was selected manually by the user, retry with the next quote (if applicable).
+        if (!wasManuallySelectedQuote && shouldRetryWithNextQuote(err)) {
+          const currentQuoteIndex = quotes.findIndex(
+            (q) => q.id === quoteToUse.id,
+          );
+          const nextQuote = quotes[currentQuoteIndex + 1];
+
+          if (nextQuote) {
+            return transfer(nextQuote);
+          }
+        }
+
+        setIsConfirming(false);
 
         console.error(err);
         Monitoring.sentryCaptureException(
@@ -160,10 +178,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
         captureEncrypted('SwapFailed', {
           address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+          chainId: quoteToUse.sourceChain.chainId,
         });
-      } finally {
-        setIsConfirming(false);
       }
     },
     [
@@ -175,6 +191,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       replace,
       captureEncrypted,
       getTranslatedError,
+      quotes,
     ],
   );
 

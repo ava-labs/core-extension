@@ -381,6 +381,10 @@ export const useErrorMessage = () => {
         message = messages[error.code];
       }
 
+      if (!message && error instanceof Error) {
+        message = { title: error.message };
+      }
+
       return message ?? messages[CommonError.Unknown];
     },
     [messages],
