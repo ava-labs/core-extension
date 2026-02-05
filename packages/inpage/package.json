@@ -13,8 +13,8 @@
     "typecheck": "yarn tsc --skipLibCheck --noEmit"
   },
   "dependencies": {
-    "@avalabs/evm-module": "0.0.0-feat-cp-12848-genesis-data-vie-20260130130752",
-    "@avalabs/svm-module": "0.0.0-feat-cp-12848-genesis-data-vie-20260130130752",
+    "@avalabs/evm-module": "3.0.7",
+    "@avalabs/svm-module": "3.0.7",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",
     "@core/types": "workspace:*",

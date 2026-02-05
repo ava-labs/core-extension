@@ -23,7 +23,7 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.71",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.71",
-    "@avalabs/vm-module-types": "0.0.0-feat-cp-12848-genesis-data-vie-20260130130752",
+    "@avalabs/vm-module-types": "3.0.7",
     "@blockaid/client": "0.10.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@ethereumjs/common": "2.6.5",
