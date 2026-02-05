@@ -30,7 +30,7 @@ export const SwapAggregatorSelect: FC<{
   const { currencyFormatter } = useSettingsContext();
   const theme = useTheme();
 
-  const { toToken, selectQuoteById } = useFusionState();
+  const { targetToken, selectQuoteById } = useFusionState();
 
   const isChoiceAvailable = Number(quotes.length) > 1;
 
@@ -38,11 +38,11 @@ export const SwapAggregatorSelect: FC<{
 
   const getPriceInCurrency: GetPriceInCurrency = useCallback(
     function (_quote: Quote) {
-      const price = toToken?.priceInCurrency;
+      const price = targetToken?.priceInCurrency;
       const amount =
         _quote && price
           ? parseFloat(
-              bigIntToString(BigInt(_quote.amountOut), toToken.decimals),
+              bigIntToString(BigInt(_quote.amountOut), targetToken.decimals),
             ) * price
           : undefined;
       return {
@@ -51,7 +51,7 @@ export const SwapAggregatorSelect: FC<{
           typeof amount === 'number' ? currencyFormatter(amount, false) : '-',
       };
     },
-    [toToken, currencyFormatter],
+    [targetToken, currencyFormatter],
   );
 
   const selectedName = userQuote

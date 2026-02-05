@@ -4,7 +4,7 @@ import { FungibleTokenBalance } from '@core/types';
 import { memoize } from 'lodash';
 
 export const getTokenMapper = memoize(
-  (chainId: number) =>
+  (chainId: number, caip2Id: string) =>
     (tokenData: NetworkContractToken): FungibleTokenBalance => ({
       type: tokenData.contractType === 'SPL' ? TokenType.SPL : TokenType.ERC20,
       address: tokenData.address,
@@ -16,6 +16,7 @@ export const getTokenMapper = memoize(
       reputation: null,
       assetType: tokenData.contractType === 'SPL' ? 'svm_spl' : 'evm_erc20',
       coreChainId: chainId,
+      chainCaipId: caip2Id,
       logoUri: tokenData.logoUri,
     }),
 );

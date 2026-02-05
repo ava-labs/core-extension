@@ -16,17 +16,17 @@ export const SwapPair = () => {
     toId: queryToId,
     toQuery,
     updateQuery,
-    sourceTokens,
-    targetTokens,
-    fromToken,
-    toToken,
+    sourceTokenList,
+    targetTokenList,
+    sourceToken,
+    targetToken,
     fromAmount,
     toAmount,
     isAmountLoading,
   } = useFusionState();
 
-  const fromTokenId = fromToken ? getUniqueTokenId(fromToken) : queryFromId;
-  const toTokenId = toToken ? getUniqueTokenId(toToken) : queryToId;
+  const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
+  const toTokenId = targetToken ? getUniqueTokenId(targetToken) : queryToId;
 
   return (
     <Card>
@@ -34,9 +34,9 @@ export const SwapPair = () => {
         <TokenAmountInput
           id="swap-from-amount"
           tokenId={fromTokenId}
-          maxAmount={fromToken?.balance ?? 0n}
+          maxAmount={sourceToken?.balance ?? 0n}
           estimatedFee={0n}
-          tokensForAccount={sourceTokens}
+          tokensForAccount={sourceTokenList}
           onTokenChange={(value) => updateQuery({ from: value, fromQuery: '' })}
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
@@ -44,20 +44,20 @@ export const SwapPair = () => {
           onAmountChange={(value) => {
             updateQuery({ userAmount: value, side: 'sell' });
           }}
-          tokenHint={fromToken ? t('You pay') : undefined}
+          tokenHint={sourceToken ? t('You pay') : undefined}
         />
         <TokenAmountInput
           autoFocus={false}
           id="swap-to-amount"
           tokenId={toTokenId}
-          tokensForAccount={targetTokens}
+          tokensForAccount={targetTokenList}
           onTokenChange={(value) => updateQuery({ to: value, toQuery: '' })}
           tokenQuery={toQuery}
           onQueryChange={(q) => updateQuery({ toQuery: q })}
           isAmountReadOnly
           amount={fromAmount ? (toAmount ?? '') : ''}
           withPresetButtons={false}
-          tokenHint={fromToken ? t('You receive') : undefined}
+          tokenHint={sourceToken ? t('You receive') : undefined}
           isLoading={isAmountLoading}
         />
       </Stack>

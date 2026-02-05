@@ -184,6 +184,7 @@ export type FungibleTokenBalance = Exclude<
 > & {
   coreChainId: number;
   assetType: FungibleAssetType;
+  chainCaipId: string;
 };
 
 export type NonNativeFungibleTokenBalance = Exclude<
