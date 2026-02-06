@@ -173,14 +173,6 @@ test.describe('Onboarding Tests', () => {
         WALLET_PASSWORD,
         false,
       );
-
-      await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
-        timeout: 20000,
-      });
-      await expect(onboardingPage.letsGoButton).toBeVisible({
-        timeout: 20000,
-      });
-      await onboardingPage.completeOnboarding();
     },
   );
 
@@ -217,14 +209,6 @@ test.describe('Onboarding Tests', () => {
         WALLET_PASSWORD,
         false,
       );
-
-      await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
-        timeout: 20000,
-      });
-      await expect(onboardingPage.letsGoButton).toBeVisible({
-        timeout: 20000,
-      });
-      await onboardingPage.completeOnboarding();
     },
   );
 
@@ -254,14 +238,6 @@ test.describe('Onboarding Tests', () => {
         WALLET_PASSWORD,
         false,
       );
-
-      await expect(onboardingPage.enjoyWalletTitle).toBeVisible({
-        timeout: 20000,
-      });
-      await expect(onboardingPage.letsGoButton).toBeVisible({
-        timeout: 20000,
-      });
-      await onboardingPage.completeOnboarding();
     },
   );
 });

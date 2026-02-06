@@ -28,6 +28,13 @@ const testRailOptions = {
  * To increase parallelism in CI, increase the number of shards instead.
  */
 const getWorkers = () => {
+  const configured = process.env.PLAYWRIGHT_WORKERS;
+  if (configured) {
+    const parsed = Number.parseInt(configured, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
   if (!process.env.CI) {
     return undefined;
   }

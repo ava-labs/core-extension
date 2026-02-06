@@ -8,66 +8,66 @@ import { unlockWallet } from '../../helpers/walletHelpers';
 
 export class OnboardingPage extends BasePage {
   // Locators
-  readonly coreLogo: Locator;
-  readonly continueWithGoogleButton: Locator;
+  readonly confirmPasswordInput: Locator;
+  readonly backButton: Locator;
+  readonly confirmRecoveryButton: Locator;
+  readonly continueButton: Locator;
   readonly continueWithAppleButton: Locator;
+  readonly continueWithGoogleButton: Locator;
+  readonly coreLogo: Locator;
   readonly createWalletButton: Locator;
+  readonly finishButton: Locator;
   readonly importWalletButton: Locator;
   readonly passwordInput: Locator;
-  readonly confirmPasswordInput: Locator;
-  readonly termsCheckbox: Locator;
-  readonly continueButton: Locator;
-  readonly backButton: Locator;
   readonly recoveryPhraseDisplay: Locator;
   readonly recoveryPhraseInput: Locator;
-  readonly confirmRecoveryButton: Locator;
-  readonly finishButton: Locator;
+  readonly termsCheckbox: Locator;
   // Import wallet method options
-  readonly recoveryPhraseOption: Locator;
-  readonly ledgerOption: Locator;
   readonly keystoneOption: Locator;
+  readonly ledgerOption: Locator;
+  readonly recoveryPhraseOption: Locator;
   // Recovery phrase form elements
-  readonly phraseLengthSelectorButton: Locator;
-  readonly wordCount12Option: Locator;
-  readonly wordCount24Option: Locator;
   readonly clearAllButton: Locator;
   readonly nextButton: Locator;
+  readonly phraseLengthSelectorButton: Locator;
   readonly recoveryPhraseErrorMessage: Locator;
   readonly recoveryPhraseWordInputs: Locator;
+  readonly wordCount12Option: Locator;
+  readonly wordCount24Option: Locator;
   // Wallet details page elements
-  readonly walletNameInput: Locator;
-  readonly unlockAirdropsToggle: Locator;
-  readonly enterPasswordInput: Locator;
   readonly confirmPasswordInputField: Locator;
+  readonly enterPasswordInput: Locator;
   readonly termsOfUseCheckbox: Locator;
+  readonly unlockAirdropsToggle: Locator;
+  readonly walletNameInput: Locator;
   // Customize Core page elements
   readonly customizeCoreTitle: Locator;
   // Select Avatar page elements
-  readonly selectAvatarTitle: Locator;
   readonly avatarOptions: Locator;
+  readonly selectAvatarTitle: Locator;
   // Enjoy Your Wallet page elements
   readonly enjoyWalletTitle: Locator;
   readonly letsGoButton: Locator;
   // Create new wallet flow elements
-  readonly newSeedphraseTitle: Locator;
-  readonly seedphraseWords: Locator;
   readonly copyPhraseButton: Locator;
   readonly createWalletTermsCheckbox: Locator;
-  readonly verifySeedphraseTitle: Locator;
+  readonly newSeedphraseTitle: Locator;
   readonly seedphraseVerificationButtons: Locator;
+  readonly seedphraseWords: Locator;
+  readonly verifySeedphraseTitle: Locator;
   readonly extensionId: string | null;
 
   constructor(page: Page) {
     super(page);
     this.extensionId = this.getExtensionIdFromUrl(page.url());
     // Onboarding screen elements
-    this.coreLogo = page.getByRole('img', { name: /core logo/i });
-    this.continueWithGoogleButton = page.getByRole('button', {
-      name: /continue with google/i,
-    });
     this.continueWithAppleButton = page.getByRole('button', {
       name: /continue with apple/i,
     });
+    this.continueWithGoogleButton = page.getByRole('button', {
+      name: /continue with google/i,
+    });
+    this.coreLogo = page.getByRole('img', { name: /core logo/i });
     this.createWalletButton = page.getByRole('button', {
       name: /manually create new wallet/i,
     });
@@ -75,34 +75,42 @@ export class OnboardingPage extends BasePage {
       name: /access existing wallet/i,
     });
     // Wallet setup elements
-    this.passwordInput = page.locator('[data-testid="password-input"]');
     this.confirmPasswordInput = page.locator(
       '[data-testid="confirm-password-input"]',
     );
-    this.termsCheckbox = page.locator('[data-testid="terms-checkbox"]');
-    this.continueButton = page.getByRole('button', { name: /continue|next/i });
     this.backButton = page.locator('[data-testid="page-back-button"] svg');
+    this.confirmRecoveryButton = page.getByRole('button', {
+      name: /confirm|verify/i,
+    });
+    this.continueButton = page.getByRole('button', { name: /continue|next/i });
+    this.finishButton = page.getByRole('button', { name: /finish|done/i });
+    this.passwordInput = page.locator('[data-testid="password-input"]');
     this.recoveryPhraseDisplay = page.locator(
       '[data-testid="recovery-phrase"]',
     );
     this.recoveryPhraseInput = page.locator(
       '[data-testid="recovery-phrase-input"]',
     );
-    this.confirmRecoveryButton = page.getByRole('button', {
-      name: /confirm|verify/i,
-    });
-    this.finishButton = page.getByRole('button', { name: /finish|done/i });
+    this.termsCheckbox = page.locator('[data-testid="terms-checkbox"]');
     // Import wallet method options
-    this.recoveryPhraseOption = page.locator(
-      '[data-testid="import-recovery-phrase-option"]',
-    );
-    this.ledgerOption = page.locator('[data-testid="import-ledger-option"]');
     this.keystoneOption = page.locator(
       '[data-testid="import-keystone-option"]',
     );
+    this.ledgerOption = page.locator('[data-testid="import-ledger-option"]');
+    this.recoveryPhraseOption = page.locator(
+      '[data-testid="import-recovery-phrase-option"]',
+    );
     // Recovery phrase form elements
+    this.clearAllButton = page.getByRole('button', { name: /clear all/i });
+    this.nextButton = page.getByRole('button', { name: /next/i });
     this.phraseLengthSelectorButton = page.locator(
       '[data-testid="onboarding-phrase-length-selector"]',
+    );
+    this.recoveryPhraseErrorMessage = page.locator(
+      '[data-testid="recovery-phrase-error-message"]',
+    );
+    this.recoveryPhraseWordInputs = page.locator(
+      'input[type="text"], input[type="password"]',
     );
     this.wordCount12Option = page.getByRole('menuitem', {
       name: '12-word phrase',
@@ -110,55 +118,47 @@ export class OnboardingPage extends BasePage {
     this.wordCount24Option = page.getByRole('menuitem', {
       name: '24-word phrase',
     });
-    this.clearAllButton = page.getByRole('button', { name: /clear all/i });
-    this.nextButton = page.getByRole('button', { name: /next/i });
-    this.recoveryPhraseErrorMessage = page.locator(
-      '[data-testid="recovery-phrase-error-message"]',
-    );
-    this.recoveryPhraseWordInputs = page.locator(
-      'input[type="text"], input[type="password"]',
-    );
     // Wallet details page elements
-    this.walletNameInput = page.locator('[data-testid="wallet-name-input"]');
-    this.unlockAirdropsToggle = page.getByRole('checkbox', {
-      name: /unlock airdrops/i,
-    });
-    this.enterPasswordInput = page.locator(
-      '[data-testid="enter-password-input"]',
-    );
     this.confirmPasswordInputField = page.locator(
       '[data-testid="confirm-password-input"]',
+    );
+    this.enterPasswordInput = page.locator(
+      '[data-testid="enter-password-input"]',
     );
     this.termsOfUseCheckbox = page.getByRole('checkbox', {
       name: /i have read and agree/i,
     });
+    this.unlockAirdropsToggle = page.getByRole('checkbox', {
+      name: /unlock airdrops/i,
+    });
+    this.walletNameInput = page.locator('[data-testid="wallet-name-input"]');
     // Customize Core page elements
     this.customizeCoreTitle = page.getByRole('heading', {
       name: /customize core to your liking/i,
     });
     // Select Avatar page elements
+    this.avatarOptions = page.locator('[data-testid="avatar-option"]');
     this.selectAvatarTitle = page.getByRole('heading', {
       name: /select your personal avatar/i,
     });
-    this.avatarOptions = page.locator('[data-testid="avatar-option"]');
     // Enjoy Your Wallet page elements
     this.enjoyWalletTitle = page.locator('[data-testid="enjoy-wallet-title"]');
     this.letsGoButton = page.getByRole('button', { name: /let's go/i });
     // Create new wallet flow elements
-    this.newSeedphraseTitle = page.getByRole('heading', {
-      name: /here is your wallet's recovery phrase/i,
-    });
-    this.seedphraseWords = page.locator('[data-testid="seedphrase-word"]');
     this.copyPhraseButton = page.getByRole('button', { name: /copy phrase/i });
     this.createWalletTermsCheckbox = page
       .locator('input[type="checkbox"]')
       .last();
-    this.verifySeedphraseTitle = page.getByRole('heading', {
-      name: 'Verify your recovery phrase',
-      exact: true,
+    this.newSeedphraseTitle = page.getByRole('heading', {
+      name: /here is your wallet's recovery phrase/i,
     });
     this.seedphraseVerificationButtons = page.getByRole('button', {
       name: /^[a-z]+$/i,
+    });
+    this.seedphraseWords = page.locator('[data-testid="seedphrase-word"]');
+    this.verifySeedphraseTitle = page.getByRole('heading', {
+      name: 'Verify your recovery phrase',
+      exact: true,
     });
   }
 

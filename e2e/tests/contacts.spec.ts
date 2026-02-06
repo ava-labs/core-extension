@@ -2,6 +2,14 @@ import { test, expect } from '../fixtures/extension.fixture';
 import { ContactsPage } from '../pages/extension/ContactsPage';
 import { TEST_CONTACTS } from '../constants';
 
+const createContact = async (
+  contactsPage: ContactsPage,
+  contact: typeof TEST_CONTACTS.VALID,
+) => {
+  await contactsPage.addContact(contact);
+  await contactsPage.goBackToContactsList();
+};
+
 test.describe('Contacts Tests', () => {
   test(
     'As a CORE ext user, when I have no contacts I see an empty state',
@@ -59,7 +67,7 @@ test.describe('Contacts Tests', () => {
       await contactsPage.goBackToContactsList();
       await expect
         .poll(() => contactsPage.getContactCount(), { timeout: 10000 })
-        .toBeGreaterThan(initialCount);
+        .toBe(initialCount + 1);
     },
   );
 
@@ -82,7 +90,12 @@ test.describe('Contacts Tests', () => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
 
       await contactsPage.navigateToContacts();
-      await contactsPage.ensureContactExists(TEST_CONTACTS.VALID);
+      await createContact(contactsPage, TEST_CONTACTS.VALID);
+      await expect
+        .poll(() => contactsPage.doesContactExist(TEST_CONTACTS.VALID), {
+          timeout: 10000,
+        })
+        .toBe(true);
 
       await contactsPage.viewContactDetails(TEST_CONTACTS.VALID.name);
       await contactsPage.copyAddress();
@@ -116,23 +129,25 @@ test.describe('Contacts Tests', () => {
       const updatedName = 'Updated Contact Name';
 
       await contactsPage.navigateToContacts();
-      await contactsPage.ensureContactExists(TEST_CONTACTS.VALID);
+      await createContact(contactsPage, TEST_CONTACTS.VALID);
+      await expect
+        .poll(() => contactsPage.doesContactExist(TEST_CONTACTS.VALID), {
+          timeout: 10000,
+        })
+        .toBe(true);
 
       await contactsPage.viewContactDetails(TEST_CONTACTS.VALID.name);
       await contactsPage.editContact({ name: updatedName });
 
       // Verify the contact was updated
       await contactsPage.goBackToContactsList();
-      const items = await contactsPage.contactItems.all();
-      let found = false;
-      for (const item of items) {
-        const text = await item.textContent();
-        if (text?.includes(updatedName)) {
-          found = true;
-          break;
-        }
-      }
-      expect(found).toBe(true);
+      await expect
+        .poll(
+          () =>
+            contactsPage.contactItems.filter({ hasText: updatedName }).count(),
+          { timeout: 10000 },
+        )
+        .toBeGreaterThan(0);
     },
   );
 
@@ -155,12 +170,29 @@ test.describe('Contacts Tests', () => {
       const contactsPage = new ContactsPage(unlockedExtensionPage);
 
       await contactsPage.navigateToContacts();
-      await contactsPage.ensureContactExists(TEST_CONTACTS.SEARCH);
+      await createContact(contactsPage, TEST_CONTACTS.SEARCH);
+      await expect
+        .poll(() => contactsPage.doesContactExist(TEST_CONTACTS.SEARCH), {
+          timeout: 10000,
+        })
+        .toBe(true);
 
       await contactsPage.searchForContact(TEST_CONTACTS.SEARCH.name);
 
-      const items = await contactsPage.contactItems.all();
-      expect(items.length).toBeGreaterThan(0);
+      await expect
+        .poll(
+          () =>
+            contactsPage.contactItems
+              .filter({ hasText: TEST_CONTACTS.SEARCH.name })
+              .count(),
+          { timeout: 10000 },
+        )
+        .toBeGreaterThan(0);
+      await expect(
+        contactsPage.contactItems.filter({
+          hasNotText: TEST_CONTACTS.SEARCH.name,
+        }),
+      ).toHaveCount(0);
     },
   );
 
@@ -217,17 +249,26 @@ test.describe('Contacts Tests', () => {
       };
 
       await contactsPage.navigateToContacts();
-      await contactsPage.ensureContactExists(contactToDelete);
+      await createContact(contactsPage, contactToDelete);
+      await expect
+        .poll(() => contactsPage.doesContactExist(contactToDelete), {
+          timeout: 10000,
+        })
+        .toBe(true);
 
       const initialCount = await contactsPage.getContactCount();
 
       await contactsPage.viewContactDetails(contactToDelete.name);
       await contactsPage.deleteContact();
 
-      await unlockedExtensionPage.waitForTimeout(1000);
-      const finalCount = await contactsPage.getContactCount();
-
-      expect(finalCount).toBeLessThanOrEqual(initialCount);
+      await expect
+        .poll(() => contactsPage.getContactCount(), { timeout: 10000 })
+        .toBe(initialCount - 1);
+      await expect
+        .poll(() => contactsPage.doesContactExist(contactToDelete), {
+          timeout: 10000,
+        })
+        .toBe(false);
     },
   );
 
@@ -255,8 +296,18 @@ test.describe('Contacts Tests', () => {
       };
 
       await contactsPage.navigateToContacts();
-      await contactsPage.ensureContactExists(contact1);
-      await contactsPage.ensureContactExists(contact2);
+      await createContact(contactsPage, contact1);
+      await createContact(contactsPage, contact2);
+      await expect
+        .poll(() => contactsPage.doesContactExist(contact1), {
+          timeout: 10000,
+        })
+        .toBe(true);
+      await expect
+        .poll(() => contactsPage.doesContactExist(contact2), {
+          timeout: 10000,
+        })
+        .toBe(true);
 
       const initialCount = await contactsPage.getContactCount();
       expect(initialCount).toBeGreaterThanOrEqual(2);
@@ -264,12 +315,15 @@ test.describe('Contacts Tests', () => {
       await contactsPage.viewContactDetails(contact2.name);
       await contactsPage.deleteContact();
 
-      await unlockedExtensionPage.waitForTimeout(1000);
-
       // Verify we still have contacts
-      const finalCount = await contactsPage.getContactCount();
-      expect(finalCount).toBeGreaterThanOrEqual(1);
-      expect(finalCount).toBeLessThan(initialCount);
+      await expect
+        .poll(() => contactsPage.getContactCount(), { timeout: 10000 })
+        .toBe(initialCount - 1);
+      await expect
+        .poll(() => contactsPage.doesContactExist(contact2), {
+          timeout: 10000,
+        })
+        .toBe(false);
     },
   );
 });

@@ -27,6 +27,9 @@ fixtures that load the built extension, manage snapshots, and drive UI flows.
 cd e2e
 yarn install
 npx playwright install chromium
+
+# Create local env file
+cp .env.example .env
 ```
 
 ## Running Tests
@@ -65,10 +68,13 @@ Configured in `config/base.config.ts`:
 
 - `expect` timeout: **5s**
 - `retries`: **2** (applies in CI and local unless overridden)
+- `PLAYWRIGHT_WORKERS`: optional override for worker count
 
 ## Environment Variables
 
-Set these in `.env` (or export in CI):
+Set these in `.env` (or export in CI). A template is available in
+`e2e/.env.example`. Shared values live in 1Password under
+"Extension .ENV for development".
 
 | Variable                   | Description                               |
 | -------------------------- | ----------------------------------------- |
@@ -80,6 +86,11 @@ Set these in `.env` (or export in CI):
 
 Local snapshots live in `helpers/storage-snapshots/`.
 CI downloads snapshots from S3 during the workflow.
+CI access is configured via `aws-actions/configure-aws-credentials` using
+the role `arn:aws:iam::975050371175:role/github-flow-sa-role` to read from
+`s3://core-qa-automation-snapshots/ext/`. For local runs, either populate
+`helpers/storage-snapshots/` manually or use AWS credentials with access to
+that bucket and run `aws s3 sync s3://core-qa-automation-snapshots/ext/ helpers/storage-snapshots/`.
 
 ## Project Structure
 

@@ -189,7 +189,6 @@ jobs:
         working-directory: e2e
         run: |
           yarn install
-          npx playwright install chromium
 
       - name: Set Python for AWS CLI
         uses: actions/setup-python@v5

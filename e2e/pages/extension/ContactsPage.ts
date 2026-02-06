@@ -7,89 +7,89 @@ import type { ContactData, ContactUpdateData } from '../../types/contacts';
 
 export class ContactsPage extends BasePage {
   // Navigation
-  readonly contactsNavButton: Locator;
-  readonly settingsButton: Locator;
-  readonly savedAddressesNavItem: Locator;
   readonly backButton: Locator;
+  readonly contactsNavButton: Locator;
+  readonly savedAddressesNavItem: Locator;
+  readonly settingsButton: Locator;
 
   // Contact list
-  readonly contactsList: Locator;
   readonly contactItems: Locator;
+  readonly contactsList: Locator;
   readonly emptyStateMessage: Locator;
-  readonly searchInput: Locator;
   readonly noSearchResultsMessage: Locator;
+  readonly searchInput: Locator;
 
   // Add contact form
   readonly addContactButton: Locator;
-  readonly namePromptButton: Locator;
-  readonly contactNameInput: Locator;
   readonly avalancheCChainField: Locator;
-  readonly avalancheXPField: Locator;
-  readonly bitcoinField: Locator;
-  readonly solanaField: Locator;
   readonly avalancheCChainInput: Locator;
+  readonly avalancheXPField: Locator;
   readonly avalancheXPInput: Locator;
+  readonly bitcoinField: Locator;
   readonly bitcoinInput: Locator;
-  readonly solanaInput: Locator;
-  readonly saveContactButton: Locator;
   readonly cancelButton: Locator;
+  readonly contactNameInput: Locator;
+  readonly namePromptButton: Locator;
+  readonly saveContactButton: Locator;
+  readonly solanaField: Locator;
+  readonly solanaInput: Locator;
 
   // Contact details
-  readonly editContactButton: Locator;
-  readonly deleteContactButton: Locator;
-  readonly copyAddressButton: Locator;
   readonly contactDetailName: Locator;
+  readonly copyAddressButton: Locator;
+  readonly deleteContactButton: Locator;
+  readonly editContactButton: Locator;
 
   constructor(page: Page) {
     super(page);
 
     // Navigation
+    this.backButton = page.locator('[data-testid="page-back-button"] svg');
     this.contactsNavButton = page.locator(
       '[data-testid="contacts-nav-button"]',
     );
-    this.settingsButton = page.locator('[data-testid="settings-button"]');
     this.savedAddressesNavItem = page.getByText(/saved addresses/i);
-    this.backButton = page.locator('[data-testid="page-back-button"] svg');
+    this.settingsButton = page.locator('[data-testid="settings-button"]');
 
     // Contact list
-    this.contactsList = page.locator('[data-testid="contacts-list-page"]');
     this.contactItems = page.locator('[data-testid="contact-item"]');
+    this.contactsList = page.locator('[data-testid="contacts-list-page"]');
     this.emptyStateMessage = page.locator(
       '[data-testid="contacts-empty-state"]',
     );
-    this.searchInput = page.getByPlaceholder(/search/i);
     this.noSearchResultsMessage = page.getByText(
       /no contacts match your search/i,
     );
+    this.searchInput = page.getByPlaceholder(/search/i);
 
     // Add contact form
     this.addContactButton = page.getByRole('button', {
       name: /add an address/i,
     });
-    this.namePromptButton = page.getByRole('button', {
-      name: /name this contact/i,
-    });
-    this.contactNameInput = page.locator('input:not([placeholder])');
     this.avalancheCChainField = page.locator(
       '[data-testid="contact-address-c-chain"]',
     );
+    this.avalancheCChainInput = this.avalancheCChainField.locator('input');
     this.avalancheXPField = page.locator(
       '[data-testid="contact-address-xp-chain"]',
     );
-    this.bitcoinField = page.locator('[data-testid="contact-address-bitcoin"]');
-    this.solanaField = page.locator('[data-testid="contact-address-solana"]');
-    this.avalancheCChainInput = this.avalancheCChainField.locator('input');
     this.avalancheXPInput = this.avalancheXPField.locator('input');
+    this.bitcoinField = page.locator('[data-testid="contact-address-bitcoin"]');
     this.bitcoinInput = this.bitcoinField.locator('input');
-    this.solanaInput = this.solanaField.locator('input');
-    this.saveContactButton = page.getByRole('button', { name: /save/i });
     this.cancelButton = page.getByRole('button', { name: /cancel/i });
+    this.contactNameInput = page.locator('input:not([placeholder])');
+    this.namePromptButton = page.getByRole('button', {
+      name: /name this contact/i,
+    });
+    this.saveContactButton = page.getByRole('button', { name: /save/i });
+    this.solanaField = page.locator('[data-testid="contact-address-solana"]');
+    this.solanaInput = this.solanaField.locator('input');
 
     // Contact details
-    this.editContactButton = page.getByRole('button', { name: /edit/i });
-    this.deleteContactButton = page.getByRole('button', { name: /delete/i });
-    this.copyAddressButton = page.getByRole('button', { name: /copy/i });
     this.contactDetailName = page.locator('[data-testid="contact-name"]');
+    this.copyAddressButton = page.getByRole('button', { name: /copy/i });
+    this.deleteContactButton = page.getByRole('button', { name: /delete/i });
+    this.editContactButton = page.getByRole('button', { name: /edit/i });
   }
 
   async navigateToContacts(): Promise<void> {
@@ -116,7 +116,7 @@ export class ContactsPage extends BasePage {
     return await this.emptyStateMessage.isVisible();
   }
 
-  private async ensureNameInputVisible(): Promise<Locator> {
+  private async getContactNameInput(): Promise<Locator> {
     const input = this.contactNameInput.first();
     const isVisible = await input.isVisible().catch(() => false);
     if (!isVisible) {
@@ -131,7 +131,7 @@ export class ContactsPage extends BasePage {
     return input;
   }
 
-  private async ensureFieldInputVisible(field: Locator): Promise<Locator> {
+  private async getContactAddressInput(field: Locator): Promise<Locator> {
     const input = field.locator('input');
     const fieldCount = await field.count();
     if (fieldCount === 0) {
@@ -162,26 +162,26 @@ export class ContactsPage extends BasePage {
 
   async addContact(contact: ContactData): Promise<void> {
     await this.addContactButton.click();
-    const nameInput = await this.ensureNameInputVisible();
+    const nameInput = await this.getContactNameInput();
 
     await nameInput.fill(contact.name);
 
     if (contact.avalancheCChain) {
-      const input = await this.ensureFieldInputVisible(
+      const input = await this.getContactAddressInput(
         this.avalancheCChainField,
       );
       await input.fill(contact.avalancheCChain);
     }
     if (contact.avalancheXP) {
-      const input = await this.ensureFieldInputVisible(this.avalancheXPField);
+      const input = await this.getContactAddressInput(this.avalancheXPField);
       await input.fill(contact.avalancheXP);
     }
     if (contact.bitcoin) {
-      const input = await this.ensureFieldInputVisible(this.bitcoinField);
+      const input = await this.getContactAddressInput(this.bitcoinField);
       await input.fill(contact.bitcoin);
     }
     if (contact.solana && (await this.solanaField.count()) > 0) {
-      const input = await this.ensureFieldInputVisible(this.solanaField);
+      const input = await this.getContactAddressInput(this.solanaField);
       await input.fill(contact.solana);
     }
 
@@ -222,17 +222,12 @@ export class ContactsPage extends BasePage {
 
   async deleteContact(): Promise<void> {
     await this.deleteContactButton.click();
-    // Confirm deletion if dialog appears
-    const confirmButton = this.page.getByRole('button', {
-      name: /confirm|yes|delete/i,
-    });
-    const isConfirmVisible = await confirmButton
-      .isVisible({ timeout: 2000 })
-      .catch(() => false);
-    if (isConfirmVisible) {
-      await confirmButton.click();
-    }
-    await this.page.waitForTimeout(500);
+    const confirmButton = this.page.locator(
+      '[data-testid="confirm-delete-contact-button"]',
+    );
+    await confirmButton.waitFor({ state: 'visible', timeout: 5000 });
+    await confirmButton.click();
+    await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   async copyAddress(): Promise<void> {
@@ -245,13 +240,13 @@ export class ContactsPage extends BasePage {
 
   async editContact(updates: ContactUpdateData): Promise<void> {
     if (updates.name) {
-      const nameInput = await this.ensureNameInputVisible();
+      const nameInput = await this.getContactNameInput();
       await nameInput.clear();
       await nameInput.fill(updates.name);
     }
 
     if (updates.avalancheCChain) {
-      const input = await this.ensureFieldInputVisible(
+      const input = await this.getContactAddressInput(
         this.avalancheCChainField,
       );
       await input.clear();
@@ -262,23 +257,12 @@ export class ContactsPage extends BasePage {
     await this.page.waitForTimeout(500);
   }
 
-  async ensureContactExists(contact: ContactData): Promise<void> {
-    const items = await this.contactItems.all();
-    let contactExists = false;
-
-    for (const item of items) {
-      const text = await item.textContent();
-      if (text?.includes(contact.name)) {
-        contactExists = true;
-        break;
-      }
-    }
-
-    if (!contactExists) {
-      await this.addContact(contact);
-      await this.backButton.click();
-      await this.page.waitForTimeout(500);
-    }
+  async doesContactExist(contact: ContactData): Promise<boolean> {
+    await this.contactsList.waitFor({ state: 'visible', timeout: 5000 });
+    const count = await this.contactItems
+      .filter({ hasText: contact.name })
+      .count();
+    return count > 0;
   }
 
   async goBackToContactsList(): Promise<void> {

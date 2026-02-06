@@ -96,9 +96,12 @@ export async function waitForExtensionLoad(
 export async function openExtensionPopup(
   context: BrowserContext,
   extensionId: string,
+  options: { pageType?: 'popup' | 'home' } = {},
 ): Promise<Page> {
-  const popupUrl = `chrome-extension://${extensionId}/popup.html`;
-  console.log(`Opening extension popup: ${popupUrl}`);
+  const pageType = options.pageType ?? 'popup';
+  const pagePath = pageType === 'home' ? 'home.html' : 'popup.html';
+  const popupUrl = `chrome-extension://${extensionId}/${pagePath}`;
+  console.log(`Opening extension ${pageType}: ${popupUrl}`);
   const page = await context.newPage();
   await page.goto(popupUrl, { waitUntil: 'domcontentloaded' });
   await waitForExtensionLoad(page, 45000); // Increased timeout for CI

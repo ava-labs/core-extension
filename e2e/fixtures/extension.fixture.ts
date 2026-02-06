@@ -44,10 +44,12 @@ async function getActiveExtensionPage(
     }
   }
 
-  // 2. If no page found yet, open a new popup
+  // 2. If no page found yet, open a new popup or home
   if (!page) {
-    console.log('Opening new extension popup');
-    page = await openExtensionPopup(context, extensionId);
+    console.log('Opening new extension page');
+    page = await openExtensionPopup(context, extensionId, {
+      pageType: options.preferOnboarding ? 'home' : 'popup',
+    });
   }
 
   // 3. Bring the active page to front
