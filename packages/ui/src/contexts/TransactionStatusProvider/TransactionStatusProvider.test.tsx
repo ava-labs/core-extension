@@ -21,6 +21,12 @@ jest.mock('@avalabs/k2-alpine', () => ({
   },
 }));
 
+jest.mock('react-i18next', () => ({
+  useTranslation: jest.fn(() => ({
+    t: (key: string) => key,
+  })),
+}));
+
 jest.mock('../ConnectionProvider', () => ({
   useConnectionContext: jest.fn(),
 }));
@@ -213,7 +219,7 @@ describe('TransactionStatusProvider', () => {
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
         expect.objectContaining({
-          id: `transaction-result-${txHash}`,
+          id: `transaction-success-${txHash}`,
         }),
       );
       expect(toast.pending).not.toHaveBeenCalled();
@@ -233,7 +239,7 @@ describe('TransactionStatusProvider', () => {
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
         expect.objectContaining({
-          id: `transaction-result-${txHash}`,
+          id: `transaction-success-${txHash}`,
         }),
       );
       expect(toast.pending).not.toHaveBeenCalled();
@@ -253,7 +259,7 @@ describe('TransactionStatusProvider', () => {
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
         expect.objectContaining({
-          id: `transaction-result-${txHash}`,
+          id: `transaction-success-${txHash}`,
         }),
       );
       expect(toast.pending).not.toHaveBeenCalled();
@@ -316,7 +322,7 @@ describe('TransactionStatusProvider', () => {
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
         expect.objectContaining({
-          id: `transaction-result-${txHash}`,
+          id: `transaction-success-${txHash}`,
         }),
       );
     });
@@ -438,8 +444,11 @@ describe('TransactionStatusProvider', () => {
       expect(toast.dismiss).toHaveBeenCalledWith(
         `transaction-pending-${txHash}`,
       );
+      expect(toast.dismiss).toHaveBeenCalledWith(
+        `transaction-success-${txHash}`,
+      );
       expect(toast.error).toHaveBeenCalledWith('Transaction failed', {
-        id: `transaction-result-${txHash}`,
+        id: `transaction-failure-${txHash}`,
       });
     });
 
@@ -515,7 +524,7 @@ describe('TransactionStatusProvider', () => {
 
           expect(toast.success).toHaveBeenCalledWith(
             'Transaction successful',
-            expect.objectContaining({ id: `transaction-result-${txHash}` }),
+            expect.objectContaining({ id: `transaction-success-${txHash}` }),
           );
           expect(toast.pending).not.toHaveBeenCalled();
           expect(mockOnPending).toHaveBeenCalledWith({
@@ -572,7 +581,7 @@ describe('TransactionStatusProvider', () => {
         );
         expect(toast.success).toHaveBeenCalledWith(
           'Transaction successful',
-          expect.objectContaining({ id: `transaction-result-${txHash}` }),
+          expect.objectContaining({ id: `transaction-success-${txHash}` }),
         );
         expect(mockOnSuccess).toHaveBeenCalledWith({
           network: ethereumNetwork,
