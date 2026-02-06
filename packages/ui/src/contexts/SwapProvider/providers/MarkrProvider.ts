@@ -316,7 +316,9 @@ export const MarkrProvider: SwapProvider = {
         : RpcMethod.ETH_SEND_TRANSACTION;
 
     const [swapTxHash, signError] = await resolve(
-      signAndSend(method, txParams),
+      signAndSend(method, txParams, {
+        revertReason: SwapErrorCode.TransactionRevertedDueToSlippage,
+      }),
     );
 
     if (isUserRejectionError(signError)) {
