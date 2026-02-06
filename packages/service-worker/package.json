@@ -84,7 +84,7 @@
     "jose": "4.15.5",
     "json-rpc-engine": "6.1.0",
     "ledger-bitcoin": "0.2.3",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "lru-cache": "7.10.1",
     "micro-key-producer": "0.7.5",
     "micro-signals": "2.4.0",
