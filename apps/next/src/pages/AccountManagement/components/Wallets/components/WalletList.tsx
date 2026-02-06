@@ -42,6 +42,7 @@ export const WalletList: FC = () => {
                 type={wallet.type}
                 authProvider={wallet.authProvider}
                 size={24}
+                expanded={isActiveWallet}
               />
             }
             showActiveIndicator={isActiveWallet}
