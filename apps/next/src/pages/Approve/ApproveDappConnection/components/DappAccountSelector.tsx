@@ -1,5 +1,5 @@
-import { FC, useCallback, useEffect } from 'react';
 import { Stack, Typography } from '@avalabs/k2-alpine';
+import { FC, useCallback, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Account, Action, ActionStatus, Permissions } from '@core/types';
@@ -10,12 +10,12 @@ import { useDappScansCache } from '@/hooks/useDappScansCache';
 import { ActionDrawer, LoadingScreen, NoteWarning } from '../../components';
 import { ActionError, CancelActionFn, UpdateActionFn } from '../../types';
 
-import { sanitizeDappUrl } from '../lib';
-import { ConnectDappDisplayData } from '../types';
-import { useDappPermissionsState } from '../hooks';
-import { ConnectWalletCard, SizedAvatar } from '../components';
 import { AlertType } from '@avalabs/vm-module-types';
 import { isPrimaryAccount } from '@core/common';
+import { ConnectWalletCard, SizedAvatar } from '../components';
+import { useDappPermissionsState } from '../hooks';
+import { sanitizeDappUrl } from '../lib';
+import { ConnectDappDisplayData } from '../types';
 
 type DappAccountSelectorProps = {
   activeAccount: Account;
@@ -84,7 +84,7 @@ export const DappAccountSelector: FC<DappAccountSelectorProps> = ({
   }
 
   return (
-    <NoScrollStack mt={5}>
+    <NoScrollStack stackProps={{ mt: 5 }}>
       <Stack px={2} alignItems="center" gap={3}>
         <SizedAvatar size={60} src={action.displayData.dappIcon} />
         <Typography variant="body3" mx={5} textAlign="center">

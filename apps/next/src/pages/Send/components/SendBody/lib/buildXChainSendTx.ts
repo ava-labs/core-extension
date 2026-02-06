@@ -13,11 +13,13 @@ type BuildXChainSendTxArgs = {
   to: string;
   network: NetworkWithCaipId;
   addresses: XPAddresses;
+  filterSmallUtxos: boolean;
 };
 
 export const buildXChainSendTx = async ({
   isLedgerWallet,
   account,
+  filterSmallUtxos,
   amount,
   to,
   network,
@@ -26,12 +28,13 @@ export const buildXChainSendTx = async ({
   const provider = getAvalancheProvider(network);
   const wallet = await getAvalancheWallet(account, addresses, provider);
 
-  const { utxos } = await getMaxUtxoSet(
+  const { utxos } = await getMaxUtxoSet({
     isLedgerWallet,
     provider,
     wallet,
     network,
-  );
+    filterSmallUtxos,
+  });
   const assetId = provider.getAvaxID();
   const changeAddressBytes = utils.parse(account.addressAVM)[2];
 

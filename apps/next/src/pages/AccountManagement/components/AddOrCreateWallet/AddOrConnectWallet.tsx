@@ -1,6 +1,5 @@
-import { Card, Divider, LedgerIcon, List, toast } from '@avalabs/k2-alpine';
-import { openFullscreenTab } from '@core/common';
-import { useAnalyticsContext, useFeatureFlagContext } from '@core/ui';
+import { Card, LedgerIcon, List, toast } from '@avalabs/k2-alpine';
+import { useAnalyticsContext } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';
@@ -9,15 +8,15 @@ import { MdKey, MdList, MdTopic } from 'react-icons/md';
 import { SiWalletconnect } from 'react-icons/si';
 import { useHistory } from 'react-router-dom';
 import { AccountListItem } from './components/AccountListItem';
+import { FeatureFlaggedListItem } from './components/FeatureFlaggedListItem';
 import { FeatureGates } from '@core/types';
+import { openFullscreenTab } from '@core/common';
 
 const underDevelopmentClick = () => toast.error('Under development');
 
 export const AddOrConnectWallet: FC = () => {
   const { t } = useTranslation();
-  const { isFlagEnabled } = useFeatureFlagContext();
   const { capture } = useAnalyticsContext();
-
   const { push } = useHistory();
 
   const goToImportKeystoreFileScreen = useCallback(() => {
@@ -47,8 +46,8 @@ export const AddOrConnectWallet: FC = () => {
             secondary={t('Manually enter your private key to import')}
             onClick={goToImportPrivateKey}
           />
-          <Divider />
-          <AccountListItem
+          <FeatureFlaggedListItem
+            featureFlag={FeatureGates.ADD_WALLET_WITH_SEEDPHRASE}
             Icon={MdList}
             primary={t('Import a recovery phrase')}
             secondary={t('Enter your recovery phrase to import a wallet')}
@@ -58,8 +57,8 @@ export const AddOrConnectWallet: FC = () => {
               window.close();
             }}
           />
-          <Divider />
-          <AccountListItem
+          <FeatureFlaggedListItem
+            featureFlag={FeatureGates.ADD_WALLET_WITH_LEDGER}
             Icon={LedgerIcon}
             primary={t('Import Ledger wallet')}
             secondary={t('Use Ledger to connect')}
@@ -69,41 +68,33 @@ export const AddOrConnectWallet: FC = () => {
               window.close();
             }}
           />
-          {isFlagEnabled(FeatureGates.IMPORT_WALLET_CONNECT) && (
-            <>
-              <Divider />
-              <AccountListItem
-                Icon={SiWalletconnect}
-                primary={t('Connect with WalletConnect')}
-                secondary={t('Scan QR code to connect your wallet')}
-                onClick={() => {
-                  capture('ImportWithWalletConnect_Clicked');
-                  underDevelopmentClick();
-                }}
-              />
-            </>
-          )}
-          <Divider />
-          <AccountListItem
+          <FeatureFlaggedListItem
+            featureFlag={FeatureGates.IMPORT_WALLET_CONNECT}
+            Icon={SiWalletconnect}
+            primary={t('Connect with WalletConnect')}
+            secondary={t('Scan QR code to connect your wallet')}
+            onClick={() => {
+              capture('ImportWithWalletConnect_Clicked');
+              underDevelopmentClick();
+            }}
+          />
+          <FeatureFlaggedListItem
+            featureFlag={FeatureGates.ADD_WALLET_WITH_KEYSTORE_FILE}
             Icon={MdTopic}
             primary={t('Import a keystore file')}
             secondary={t('Upload a JSON file to import')}
             onClick={goToImportKeystoreFileScreen}
           />
-          {isFlagEnabled(FeatureGates.IMPORT_FIREBLOCKS) && (
-            <>
-              <Divider />
-              <AccountListItem
-                Icon={FaSquareCaretUp}
-                primary={t('Import with Fireblocks account')}
-                secondary={t('Manually enter your private key to import')}
-                onClick={() => {
-                  capture('ImportWithFireblocks_Clicked');
-                  underDevelopmentClick();
-                }}
-              />
-            </>
-          )}
+          <FeatureFlaggedListItem
+            featureFlag={FeatureGates.IMPORT_FIREBLOCKS}
+            Icon={FaSquareCaretUp}
+            primary={t('Import with Fireblocks account')}
+            secondary={t('Manually enter your private key to import')}
+            onClick={() => {
+              capture('ImportWithFireblocks_Clicked');
+              underDevelopmentClick();
+            }}
+          />
         </List>
       </Card>
     </Page>

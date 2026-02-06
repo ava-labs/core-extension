@@ -37,7 +37,7 @@ export const Portfolio: FC = () => {
           <Header withConciergePrompt={withConciergePrompt} />
         </Stack>
       )}
-      <Stack flexGrow={1}>
+      <Stack flexGrow={1} data-scroll-container>
         <Switch>
           <Route path="/manage-tokens/add-custom" component={AddCustomToken} />
           <Route path="/manage-tokens" component={ManageTokens} />

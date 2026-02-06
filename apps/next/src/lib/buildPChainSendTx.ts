@@ -14,6 +14,7 @@ type BuildPChainSendTxArgs = {
   network: NetworkWithCaipId;
   preloadedUtxoSet?: utils.UtxoSet;
   addresses: XPAddresses;
+  filterSmallUtxos: boolean;
 };
 
 export const buildPChainSendTx = async ({
@@ -24,20 +25,22 @@ export const buildPChainSendTx = async ({
   network,
   preloadedUtxoSet,
   addresses,
+  filterSmallUtxos,
 }: BuildPChainSendTxArgs) => {
   const provider = getAvalancheProvider(network);
   const wallet = await getAvalancheWallet(account, addresses, provider);
 
   const feeState = await provider.getApiP().getFeeState();
 
-  const { utxos, balance } = await getMaxUtxoSet(
+  const { utxos, balance } = await getMaxUtxoSet({
     isLedgerWallet,
     provider,
     wallet,
     network,
     feeState,
     preloadedUtxoSet,
-  );
+    filterSmallUtxos,
+  });
 
   if (balance.available < amount) {
     throw new Error('Insufficient balance');

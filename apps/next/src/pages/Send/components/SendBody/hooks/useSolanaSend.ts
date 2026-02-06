@@ -1,5 +1,5 @@
 import { toast } from '@avalabs/k2-alpine';
-import { Address } from '@solana/kit';
+import { address as toAddress, Address } from '@solana/kit';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { useTranslation } from 'react-i18next';
@@ -57,7 +57,7 @@ export const useSolanaSend = ({
     }
 
     // Network fee data not loaded yet, we'll validate the amount when it does load.
-    if (!estimatedFee) return;
+    if (estimatedFee === undefined || maxAmount === undefined) return;
 
     if (!amount || amount < 0n) {
       return setError(t('Please enter a valid amount.'));
@@ -73,7 +73,7 @@ export const useSolanaSend = ({
 
     if (isSolanaNativeToken(token)) {
       const provider = getSolanaProvider(network);
-      getAccountOccupiedSpace(to, provider).then((accountSpace) => {
+      getAccountOccupiedSpace(toAddress(to), provider).then((accountSpace) => {
         if (accountSpace !== 0n) return;
         // If the recipient account does not hold any data, the first transfer
         // must be greater than the rent-exempt minimum.
@@ -104,7 +104,7 @@ export const useSolanaSend = ({
         amount,
         to,
         token,
-        provider,
+        provider: provider as any, // TODO: update the Solana SDK in our Core Wallets SDK to match the types here
       });
 
       const hash = await request(
@@ -141,10 +141,12 @@ export const useSolanaSend = ({
     token,
   ]);
 
+  const isLoaded = estimatedFee !== undefined && maxAmount !== undefined;
+
   return {
     error,
     isSending,
-    isValid: !error,
+    isValid: isLoaded && !error,
     send,
   };
 };

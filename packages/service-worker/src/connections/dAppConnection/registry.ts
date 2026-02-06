@@ -1,4 +1,6 @@
 import { AccountsChangedEvents } from '../../services/accounts/events/accountsChangedEvent';
+import { AccountsDeletedEvents } from '../../services/accounts/events/accountsDeletedEvent';
+import { AccountsNameChangedEvents } from '../../services/accounts/events/accountsNameChangedEvent';
 import { AvalancheGetAccountsHandler } from '../../services/accounts/handlers/avalanche_getAccounts';
 import { AvalancheAddAccountHandler } from '../../services/accounts/handlers/avalanche_addAccount';
 import { AvalancheSelectAccountHandler } from '../../services/accounts/handlers/avalanche_selectAccount';
@@ -107,6 +109,8 @@ export class DappRequestHandlerRegistry {}
 @registry([
   { token: 'DAppEventEmitter', useToken: AccountsChangedEvents },
   { token: 'DAppEventEmitter', useToken: AccountsChangedCAEvents },
+  { token: 'DAppEventEmitter', useToken: AccountsDeletedEvents },
+  { token: 'DAppEventEmitter', useToken: AccountsNameChangedEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionEvents },
   { token: 'DAppEventEmitter', useToken: NetworkStateChangedEvents },

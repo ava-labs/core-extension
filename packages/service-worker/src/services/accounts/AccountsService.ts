@@ -592,13 +592,24 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async #renameImportedAccount(account: ImportedAccount, name: string) {
+    const oldName = account.name;
     const accountWithNewName = { ...account, name };
     const newAccounts = { ...this.#accounts.imported };
     newAccounts[account.id] = accountWithNewName;
+
+    // Emit account name changed event before updating accounts state
+    this.eventEmitter.emit(AccountsEvents.ACCOUNT_NAME_CHANGED, {
+      id: account.id,
+      addressC: account.addressC,
+      oldName,
+      newName: name,
+    });
+
     await this.#setAccounts({ ...this.#accounts, imported: newAccounts });
   }
 
   async #renamePrimaryAccount(account: PrimaryAccount, name: string) {
+    const oldName = account.name;
     const accountWithNewName = { ...account, name };
 
     const walletAccounts = this.#accounts.primary[account.walletId];
@@ -614,6 +625,14 @@ export class AccountsService implements OnLock, OnUnlock {
     // by this.accounts setter.
     const newWalletAccounts = [...walletAccounts];
     newWalletAccounts[account.index] = accountWithNewName;
+
+    // Emit account name changed event before updating accounts state
+    this.eventEmitter.emit(AccountsEvents.ACCOUNT_NAME_CHANGED, {
+      id: account.id,
+      addressC: account.addressC,
+      oldName,
+      newName: name,
+    });
 
     await this.#setAccounts({
       ...this.#accounts,
@@ -721,6 +740,28 @@ export class AccountsService implements OnLock, OnUnlock {
     await this.secretsService.deleteImportedWallets(
       ids,
       this.walletConnectService,
+    );
+
+    const deletedAccounts = await Promise.all(
+      ids.map(async (id) => {
+        const account = await this.getAccountByID(id);
+        return account
+          ? {
+              id,
+              addressC: account.addressC,
+              addressAVM: account.addressAVM,
+              addressPVM: account.addressPVM,
+              addressBTC: account.addressBTC,
+              addressCoreEth: account.addressCoreEth,
+              addressSVM: account.addressSVM,
+            }
+          : null;
+      }),
+    );
+
+    this.eventEmitter.emit(
+      AccountsEvents.ACCOUNTS_DELETED,
+      deletedAccounts.filter((acc) => acc !== null),
     );
 
     await this.#setAccounts({

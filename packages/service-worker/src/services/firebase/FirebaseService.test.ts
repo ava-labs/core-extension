@@ -62,25 +62,51 @@ describe('FirebaseService', () => {
     );
   });
 
-  it('does not subscribe to FCM when the browser is not supported', () => {
+  it('does not subscribe to FCM when the browser is not supported', async () => {
     jest.mocked(isSupportedBrowser).mockReturnValueOnce(false);
 
     const firebaseService = new FirebaseService(featureFlagService);
     expect(firebaseService.getFirebaseApp()).toBe(appMock);
     expect(initializeApp).toHaveBeenCalledWith({ foo: 'bar' });
 
+    // Wait for any pending promises
+    await Promise.resolve();
+
     expect(getMessaging).not.toHaveBeenCalled();
     expect(onBackgroundMessage).not.toHaveBeenCalled();
     expect(featureFlagService.addListener).not.toHaveBeenCalled();
   });
 
-  it('initializes correctly', () => {
+  it('does not subscribe to FCM when FCM is not supported by browser', async () => {
+    jest.mocked(isSupportedBrowserByFcm).mockResolvedValueOnce(false);
+
+    const firebaseService = new FirebaseService(featureFlagService);
+    expect(firebaseService.getFirebaseApp()).toBe(appMock);
+    expect(initializeApp).toHaveBeenCalledWith({ foo: 'bar' });
+
+    // Wait for the async isSupportedBrowserByFcm check
+    await Promise.resolve();
+
+    expect(getMessaging).not.toHaveBeenCalled();
+    expect(onBackgroundMessage).not.toHaveBeenCalled();
+    // Feature flag listener should still be registered
+    expect(featureFlagService.addListener).toHaveBeenCalledWith(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      expect.any(Function),
+    );
+  });
+
+  it('initializes correctly', async () => {
     const firebaseService = new FirebaseService(featureFlagService);
 
     expect(firebaseService.getFirebaseApp()).toBe(appMock);
     expect(firebaseService.isFcmInitialized).toBe(false);
     expect(firebaseService.getFcmToken()).toBeUndefined();
     expect(initializeApp).toHaveBeenCalledWith({ foo: 'bar' });
+
+    // Wait for the async isSupportedBrowserByFcm check
+    await Promise.resolve();
+
     expect(getMessaging).toHaveBeenCalledWith(appMock);
     expect(onBackgroundMessage).toHaveBeenCalledWith(
       messagingMock,
@@ -100,10 +126,14 @@ describe('FirebaseService', () => {
     });
 
     it('does not initialize FCM when the browser is not supported', async () => {
-      jest.mocked(isSupportedBrowserByFcm).mockResolvedValueOnce(false);
+      // Mock to return false for all calls (constructor check + feature flag listener check)
+      jest.mocked(isSupportedBrowserByFcm).mockResolvedValue(false);
 
       const initializedEventListener = jest.fn();
       const firebaseService = new FirebaseService(featureFlagService);
+
+      // Wait for the async isSupportedBrowserByFcm check in constructor
+      await Promise.resolve();
 
       firebaseService.addFirebaseEventListener(
         FirebaseEvents.FCM_INITIALIZED,
@@ -182,6 +212,9 @@ describe('FirebaseService', () => {
       'emits incoming messages to the listeners correctly',
       async ({ type, listener }) => {
         const firebaseService = new FirebaseService(featureFlagService);
+
+        // Wait for the async isSupportedBrowserByFcm check to complete
+        await Promise.resolve();
 
         firebaseService.addFcmMessageListener(type, listener);
 

@@ -74,7 +74,10 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     expect(error).toEqual('Missing required param: Need xpub or pubKeys');
   });
   it('returns an error if the wallet is already imported', async () => {
-    secretsService.isKnownSecret.mockResolvedValueOnce(true);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: true,
+      name: 'walletName',
+    });
 
     const { error } = await handle({
       secretType: SecretType.Ledger,
@@ -84,7 +87,9 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     expect(error).toEqual('This wallet already exists');
   });
   it('should return with the id as `0` and the given `SecretType` after it checked the wallet is exist', async () => {
-    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: false,
+    });
 
     const { result } = await handle({
       secretType: SecretType.Ledger,
@@ -105,7 +110,9 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
     const xpubValue = 'xpubValue';
     const xpubXPValue = 'xpubXPValue';
     const nameValue = 'walletName';
-    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: false,
+    });
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.Ledger,
@@ -162,7 +169,9 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       },
     ] as any;
 
-    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: false,
+    });
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.Ledger,
@@ -235,7 +244,9 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       },
     ] as any;
     const nameValue = 'walletName';
-    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: false,
+    });
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.LedgerLive,
@@ -301,7 +312,9 @@ describe('src/background/services/wallet/handlers/importLedger', () => {
       },
     ] as any;
     const nameValue = 'walletName';
-    secretsService.isKnownSecret.mockResolvedValueOnce(false);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: false,
+    });
     walletService.addPrimaryWallet.mockResolvedValue(walletId);
     secretsService.getWalletAccountsSecretsById.mockResolvedValue({
       secretType: SecretType.LedgerLive,

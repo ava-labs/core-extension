@@ -15,8 +15,11 @@ import { Contacts } from '@/pages/Contacts';
 import { DeFiProtocolDetails } from '@/pages/DeFi/DeFiProtocolDetails';
 import { ImportLedgerFlow, ImportSeedphraseFlow } from '@/pages/Import';
 import { KeystoneUsbReconnect } from '@/pages/KeystoneUsb/Reconnect';
-import { ChangeDerivationPath } from '@/pages/Ledger/ChangeDerivationPath';
-import { LedgerReconnect } from '@/pages/Ledger/Reconnect';
+import {
+  ChangeDerivationPath,
+  DeriveSolanaAddresses,
+  LedgerReconnect,
+} from '@/pages/Ledger';
 import { Portfolio } from '@/pages/Portfolio';
 import { Receive } from '@/pages/Receive';
 import { SeedlessAuthPopup } from '@/pages/Seedless/SeedlessAuthPopup';
@@ -25,6 +28,7 @@ import { Settings } from '@/pages/Settings';
 import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryMethods/FullScreens/RecoveryMethodsFullScreen';
 import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
+import { Fusion } from '@/pages/Fusion';
 
 export const AppRoutes = () => (
   <WalletTotalBalanceProvider>
@@ -54,9 +58,14 @@ export const AppRoutes = () => (
       <Route path={getBridgePath()} component={Bridge} />
       <Route path="/ledger/reconnect" component={LedgerReconnect} />
       <Route path="/ledger/derivation-path" component={ChangeDerivationPath} />
+      <Route
+        path="/ledger/derive-solana-addresses"
+        component={DeriveSolanaAddresses}
+      />
       <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
       <Route path="/sync" component={Activity} />
       <Route path="/activity" component={Activity} />
+      <Route path="/fusion" component={Fusion} />
       <Route path="/" component={Portfolio} />
     </Switch>
   </WalletTotalBalanceProvider>

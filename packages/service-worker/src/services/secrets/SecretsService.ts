@@ -1,4 +1,4 @@
-import { omit, pick, uniqBy } from 'lodash';
+import { omit, pick, uniqWith } from 'lodash';
 import { singleton } from 'tsyringe';
 
 import {
@@ -29,6 +29,7 @@ import {
   ImportedAccountSecrets,
   ImportType,
   isKeystoneSecrets,
+  IsKnownSecretResult,
   LedgerError,
   PrimaryWalletSecrets,
   SecretType,
@@ -193,14 +194,16 @@ export class SecretsService implements OnUnlock {
       throw new Error('Cannot append public keys to a non-primary wallet');
     }
 
-    const newKeys = uniqBy(
+    const uniqueKeys = uniqWith(
       [...storedSecrets.publicKeys, ...publicKeys],
-      'derivationPath',
+      (one, other) =>
+        one.curve === other.curve &&
+        one.derivationPath === other.derivationPath,
     );
 
     return this.updateSecrets(
       {
-        publicKeys: newKeys,
+        publicKeys: uniqueKeys,
       },
       walletId,
     );
@@ -590,19 +593,19 @@ export class SecretsService implements OnUnlock {
   async isKnownSecret(
     type: SecretType.Mnemonic,
     mnemonic: string,
-  ): Promise<boolean>;
+  ): Promise<IsKnownSecretResult>;
   async isKnownSecret(
     type: SecretType.PrivateKey,
     privateKey: string,
-  ): Promise<boolean>;
+  ): Promise<IsKnownSecretResult>;
   async isKnownSecret(
     type: SecretType.LedgerLive,
     publicKey: string,
-  ): Promise<boolean>;
+  ): Promise<IsKnownSecretResult>;
   async isKnownSecret(
     type: SecretType.Ledger,
     extendedPublicKey: string,
-  ): Promise<boolean>;
+  ): Promise<IsKnownSecretResult>;
   async isKnownSecret(
     type:
       | SecretType.Mnemonic
@@ -610,7 +613,7 @@ export class SecretsService implements OnUnlock {
       | SecretType.Ledger
       | SecretType.LedgerLive,
     secret: unknown,
-  ): Promise<boolean>;
+  ): Promise<IsKnownSecretResult>;
   async isKnownSecret(
     type:
       | SecretType.Mnemonic
@@ -618,48 +621,56 @@ export class SecretsService implements OnUnlock {
       | SecretType.Ledger
       | SecretType.LedgerLive,
     secret: unknown,
-  ): Promise<boolean> {
+  ): Promise<IsKnownSecretResult> {
     const secrets = await this.#loadSecrets(false);
 
     if (!secrets) {
-      return false;
+      return { isKnown: false };
     }
 
     if (type === SecretType.Mnemonic) {
-      return secrets.wallets.some(
+      const found = secrets.wallets.find(
         (wallet) =>
           wallet.secretType === SecretType.Mnemonic &&
           wallet.mnemonic === secret,
       );
+
+      return found ? { isKnown: true, name: found.name } : { isKnown: false };
     }
 
     if (type === SecretType.PrivateKey) {
       if (!secrets.importedAccounts) {
-        return false;
+        return { isKnown: false };
       }
 
-      return Object.values(secrets.importedAccounts).some(
+      const found = Object.values(secrets.importedAccounts).find(
         (acc) =>
           acc.secretType === SecretType.PrivateKey && acc.secret === secret,
       );
+
+      return found ? { isKnown: true, name: '' } : { isKnown: false };
     }
 
     if (type === SecretType.Ledger) {
-      return secrets.wallets.some(
+      const found = secrets.wallets.find(
         (wallet) =>
           wallet.secretType === SecretType.Ledger &&
           wallet.extendedPublicKeys.some((pub) => pub.key === secret),
       );
+
+      return found ? { isKnown: true, name: found.name } : { isKnown: false };
     }
 
     if (type === SecretType.LedgerLive) {
-      return secrets.wallets.some((wallet) => {
+      const found = secrets.wallets.find((wallet) => {
         return (
           wallet.secretType === SecretType.LedgerLive &&
           (wallet.publicKeys.some((pub) => pub.key === secret) ||
             wallet.extendedPublicKeys.some((pub) => pub.key === secret))
         );
       });
+
+      return found ? { isKnown: true, name: found.name } : { isKnown: false };
     }
 
     throw new Error('Unsupported secret type');

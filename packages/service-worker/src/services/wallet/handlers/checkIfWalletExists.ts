@@ -4,6 +4,7 @@ import {
   SecretType,
   ExtensionRequest,
   ExtensionRequestHandler,
+  IsKnownSecretResult,
 } from '@core/types';
 
 import { SecretsService } from '../../secrets/SecretsService';
@@ -14,7 +15,7 @@ type Params =
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.WALLET_CHECK_IF_EXISTS,
-  boolean,
+  IsKnownSecretResult,
   Params
 >;
 

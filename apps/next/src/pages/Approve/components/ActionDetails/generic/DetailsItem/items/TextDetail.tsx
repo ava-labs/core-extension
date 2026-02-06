@@ -1,9 +1,8 @@
 import { Stack, Typography } from '@avalabs/k2-alpine';
 import { TextItem } from '@avalabs/vm-module-types';
 
-import { NoScrollStack } from '@/components/NoScrollStack';
-
 import { TxDetailsRow } from './DetailRow';
+import { NoScrollStack } from '@/components/NoScrollStack';
 
 type TextItemProps = {
   item: TextItem;
@@ -29,7 +28,7 @@ const TextDetailVertical = ({ item }: TextItemProps) => (
     <Typography variant="body3" color="text.secondary">
       {item.label}
     </Typography>
-    <NoScrollStack mt={0}>
+    <NoScrollStack stackProps={{ mt: 0 }} autoHeight>
       <Typography
         variant="mono2"
         color="text.primary"

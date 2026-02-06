@@ -1,4 +1,4 @@
-import { alpha, Button, styled, Stack } from '@avalabs/k2-alpine';
+import { alpha, styled, Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +15,7 @@ import {
   CoreFeeNotice,
   SwapProviderNotice,
 } from './components';
+import { TxButton } from '@/components/TxButton';
 
 const POLLED_BALANCES = [TokenType.NATIVE, TokenType.ERC20];
 
@@ -76,22 +77,17 @@ const SwapPage = () => {
         >
           <SwapProviderNotice />
 
-          <Button
-            fullWidth
-            size="extension"
-            variant="contained"
-            color="primary"
-            onClick={() => performSwap()}
-            disabled={
+          <TxButton
+            isLoading={isConfirming || isAmountLoading}
+            isDisabled={
               isConfirming ||
               isAmountLoading ||
               swapDisabled ||
               Boolean(swapError?.message)
             }
-            loading={isConfirming || isAmountLoading}
-          >
-            {t('Swap')}
-          </Button>
+            onClick={() => performSwap()}
+            title={t('Swap')}
+          />
         </Stack>
       </SwapActionButtonsContainer>
     </Page>

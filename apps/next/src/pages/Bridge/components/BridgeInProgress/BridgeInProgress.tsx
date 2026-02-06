@@ -7,7 +7,7 @@ import Big from 'big.js';
 import { FC, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-import { BitcoinBridgeInfo } from '../BitcoinBridgeInfo';
+import { BridgeEstimatedTimeWarning } from '../BridgeEstimatedTimeWarning';
 import { BridgeTokenCard } from '../BridgeTokenCard';
 import { BridgeDetails, TransactionFailure } from './components';
 import { useUntrackTransaction } from './hooks/useUntrackTransaction';
@@ -47,12 +47,12 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
     }
   }, [pendingTransfer.completedAt, pendingTransfer.errorCode, triggerConfetti]);
 
+  const hasError = Boolean(pendingTransfer.errorCode);
+  const isComplete = Boolean(pendingTransfer.completedAt);
+
   if (!pendingTransfer) {
     return null;
   }
-
-  const hasError = Boolean(pendingTransfer.errorCode);
-  const isComplete = Boolean(pendingTransfer.completedAt);
 
   return (
     <>
@@ -60,7 +60,6 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         <TransactionFailure code={pendingTransfer.errorCode} />
       </Collapse>
       <BridgeTokenCard token={token} amount={amount} size={24} badgeSize={10} />
-      <BitcoinBridgeInfo />
       <BridgeDetails
         networkLabel={t('From')}
         chain={pendingTransfer.sourceChain}
@@ -77,6 +76,8 @@ export const BridgeInProgress: FC<Props> = ({ transfer: pendingTransfer }) => {
         confirmationsReceived={pendingTransfer.targetConfirmationCount}
         error={hasError}
       />
+
+      <BridgeEstimatedTimeWarning bridgeType={pendingTransfer.type} />
 
       <Stack mt="auto" gap={1}>
         <Button

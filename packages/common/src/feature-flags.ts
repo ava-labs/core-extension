@@ -17,14 +17,11 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.SEND]: false,
   [FeatureGates.SEND_P_CHAIN]: false,
   [FeatureGates.SEND_X_CHAIN]: false,
-  [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: false,
   [FeatureGates.BUY]: false,
   [FeatureGates.BUY_MOONPAY]: false,
   [FeatureGates.BUY_COINBASE]: false,
   [FeatureGates.KEYSTONE]: false,
   [FeatureGates.KEYSTONE_3]: false,
-  [FeatureGates.NFT_MARKETPLACE]: false,
-  [FeatureGates.BOTTOM_NAVIGATION]: false,
   [FeatureGates.DEFI]: false,
   [FeatureGates.IMPORT_WALLET_CONNECT]: false,
   [FeatureGates.IMPORT_FIREBLOCKS]: false,
@@ -44,6 +41,8 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: false,
   [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: false,
   [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: false,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: false,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
   [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: false,
@@ -65,6 +64,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '100',
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
+  [FeatureGates.FUSION_PROJECT]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -83,14 +83,11 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.SEND]: true,
   [FeatureGates.SEND_P_CHAIN]: true,
   [FeatureGates.SEND_X_CHAIN]: true,
-  [FeatureGates.SENDTRANSACTION_CHAIN_ID_SUPPORT]: true,
   [FeatureGates.BUY]: true,
   [FeatureGates.BUY_MOONPAY]: true,
   [FeatureGates.BUY_COINBASE]: true,
   [FeatureGates.KEYSTONE]: true,
   [FeatureGates.KEYSTONE_3]: true,
-  [FeatureGates.NFT_MARKETPLACE]: true,
-  [FeatureGates.BOTTOM_NAVIGATION]: true,
   [FeatureGates.DEFI]: true,
   [FeatureGates.IMPORT_WALLET_CONNECT]: true,
   [FeatureGates.IMPORT_FIREBLOCKS]: true,
@@ -110,6 +107,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.UNIFIED_BRIDGE_AB_EVM]: true,
   [FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]: true,
   [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+  [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
   [FeatureGates.DEBANK_TRANSACTION_PARSING]: false,
   [FeatureGates.DEBANK_TRANSACTION_PRE_EXECUTION]: false,
   [FeatureGates.PRIMARY_ACCOUNT_REMOVAL]: true,
@@ -131,6 +130,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '120',
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
+  [FeatureGates.FUSION_PROJECT]: false,
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

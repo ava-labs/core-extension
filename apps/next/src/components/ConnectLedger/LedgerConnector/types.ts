@@ -28,13 +28,14 @@ export type DerivedKeys = {
 export type UseLedgerPublicKeyFetcherResult = {
   status: DerivationStatus;
   error?: ErrorType;
+  duplicatedWalletName?: string;
   retrieveKeys: (minNumberOfKeys: number) => Promise<DerivedKeys>;
   onRetry: () => Promise<void>;
 };
 
 export type UseLedgerPublicKeyFetcher = (
-  derivationPathSpec?: DerivationPath,
-  onActivePublicKeysDiscovered?: (publicKeys: PublicKey[]) => void,
+  derivationPathSpec: DerivationPath | undefined,
+  onActivePublicKeysDiscovered: ((publicKeys: PublicKey[]) => void) | undefined,
 ) => UseLedgerPublicKeyFetcherResult;
 
 export type ConnectorCallbacks = {

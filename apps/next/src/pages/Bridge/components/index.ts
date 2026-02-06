@@ -1,3 +1,4 @@
+export * from './BridgeEstimatedTimeWarning';
 export * from './BridgeInProgress';
 export * from './BridgeSanctions';
 export * from './BridgeTokenCard';

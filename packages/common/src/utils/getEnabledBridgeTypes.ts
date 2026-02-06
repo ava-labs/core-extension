@@ -1,5 +1,5 @@
 import { BridgeType } from '@avalabs/bridge-unified';
-import { FeatureFlags, FeatureGates } from '@core/types';
+import { type FeatureFlags, FeatureGates } from '@core/types';
 
 export const getEnabledBridgeTypes = (featureFlags: Partial<FeatureFlags>) => {
   const enabled: BridgeType[] = [];
@@ -13,11 +13,12 @@ export const getEnabledBridgeTypes = (featureFlags: Partial<FeatureFlags>) => {
   if (featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_EVM]) {
     enabled.push(BridgeType.AVALANCHE_EVM);
   }
-  if (featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]) {
-    enabled.push(BridgeType.AVALANCHE_BTC_AVA);
+  if (featureFlags[FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]) {
+    enabled.push(BridgeType.LOMBARD_BTC_TO_BTCB);
   }
-  if (featureFlags[FeatureGates.UNIFIED_BRIDGE_AB_AVA_TO_BTC]) {
-    enabled.push(BridgeType.AVALANCHE_AVA_BTC);
+
+  if (featureFlags[FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]) {
+    enabled.push(BridgeType.LOMBARD_BTCB_TO_BTC);
   }
 
   return enabled;
