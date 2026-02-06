@@ -56,10 +56,6 @@ export function SwapContextProvider({ children }: PropsWithChildren) {
   const { captureEncrypted } = useAnalyticsContext();
   const { walletDetails } = useWalletContext();
   const { t } = useTranslation();
-  const tokens = useTokensWithBalances({
-    forceShowTokensWithoutBalances: true,
-    disallowedAssets: DISALLOWED_SWAP_ASSETS,
-  });
 
   const [quotes, setQuotes] = useState<NormalizedSwapQuoteResult | null>(null);
   const [manuallySelected, setManuallySelected] = useState<boolean>(false);
@@ -70,6 +66,11 @@ export function SwapContextProvider({ children }: PropsWithChildren) {
   const [swapNetwork, setSwapNetwork] = useState<NetworkWithCaipId | undefined>(
     activeNetwork,
   );
+  const tokens = useTokensWithBalances({
+    forceShowTokensWithoutBalances: true,
+    disallowedAssets: DISALLOWED_SWAP_ASSETS,
+    network: swapNetwork,
+  });
   const getTranslatedError = useErrorMessage();
 
   useEffect(() => {
@@ -117,10 +118,10 @@ export function SwapContextProvider({ children }: PropsWithChildren) {
       const destAsset = findSymbol(destToken);
       const srcAssetAmount = new Big(resultSrcAmount)
         .div(10 ** srcDecimals)
-        .toString();
+        .toFixed();
       const destAssetAmount = new Big(resultDestAmount)
         .div(10 ** destDecimals)
-        .toString();
+        .toFixed();
 
       const notificationText = isSuccessful
         ? t('Swap transaction succeeded! 🎉')
