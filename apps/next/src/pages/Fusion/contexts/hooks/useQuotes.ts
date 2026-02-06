@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Quote } from '@avalabs/unified-asset-transfer';
 
 import { UseQuoterProps, useQuoter } from './useQuoter';
@@ -12,11 +12,14 @@ export const useQuotes = ({
   targetAsset,
   targetChain,
   amount,
+  slippageBps,
 }: UseQuoterProps) => {
+  // The best quote is the quote with the best price
   const [bestQuote, setBestQuote] = useState<Quote | null>(null);
+  // The user quote is the quote that the user has manually selected.
+  // "null" means that the user has not manually selected a quote.
+  const [userQuote, setUserQuote] = useState<Quote | null>(null);
   const [allQuotes, setAllQuotes] = useState<Quote[]>([]);
-  const [manuallySelectedQuote, setManuallySelectedQuote] =
-    useState<Quote | null>(null);
 
   const quoter = useQuoter({
     manager,
@@ -27,6 +30,7 @@ export const useQuotes = ({
     targetAsset,
     targetChain,
     amount,
+    slippageBps,
   });
 
   useEffect(() => {
@@ -57,10 +61,21 @@ export const useQuotes = ({
     return unsubscribe;
   }, [quoter]);
 
+  const selectQuoteById = useCallback(
+    (quoteId: Quote['id'] | null) => {
+      if (quoteId === null) {
+        setUserQuote(null);
+      } else {
+        setUserQuote(allQuotes.find((q) => q.id === quoteId) ?? null);
+      }
+    },
+    [allQuotes],
+  );
+
   return {
     bestQuote,
-    quote: manuallySelectedQuote ?? bestQuote,
+    userQuote,
     quotes: allQuotes,
-    selectQuote: setManuallySelectedQuote,
+    selectQuoteById,
   };
 };

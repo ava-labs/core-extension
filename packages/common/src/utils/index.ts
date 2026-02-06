@@ -69,6 +69,7 @@ export * from './network/buildGlacierAuthHeaders';
 export * from './network/getProviderForNetwork';
 export * from './network/isAvalancheNetwork';
 export * from './network/isAvalanchePchainNetwork';
+export * from './network/isAvalanchePrimaryNetwork';
 export * from './network/isAvalancheXchainNetwork';
 export * from './network/isBitcoinNetwork';
 export * from './network/isEthereumNetwork';

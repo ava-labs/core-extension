@@ -28,6 +28,7 @@ export type DerivedKeys = {
 export type UseLedgerPublicKeyFetcherResult = {
   status: DerivationStatus;
   error?: ErrorType;
+  duplicatedWalletName?: string;
   retrieveKeys: (minNumberOfKeys: number) => Promise<DerivedKeys>;
   onRetry: () => Promise<void>;
 };

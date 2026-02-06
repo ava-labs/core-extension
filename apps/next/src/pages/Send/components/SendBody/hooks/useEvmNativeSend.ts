@@ -111,7 +111,7 @@ export const useEvmNativeSend = ({
     }
 
     // Network fee data not loaded yet, we'll validate the amount when it does load.
-    if (!estimatedFee) return;
+    if (estimatedFee === undefined || maxAmount === undefined) return;
 
     if (!amount || amount < 0n) {
       return setError(t('Please enter a valid amount.'));
@@ -135,10 +135,12 @@ export const useEvmNativeSend = ({
     estimatedFee,
   ]);
 
+  const isLoaded = estimatedFee !== undefined && maxAmount !== undefined;
+
   return {
     error,
     isSending,
-    isValid: !error,
+    isValid: isLoaded && !error,
     send,
   };
 };

@@ -33,7 +33,9 @@ connection.onMessage.addListener(async (param: string) => {
   }
 
   const sdk = new GaslessSdk(gasStationUrl, {
-    appCheckToken: token,
+    headers: {
+      'X-Firebase-AppCheck': token,
+    },
   });
 
   const { difficulty, challengeHex } = await sdk.fetchChallenge();

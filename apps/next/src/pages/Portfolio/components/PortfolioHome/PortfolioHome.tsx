@@ -14,7 +14,7 @@ import { PortfolioTabs } from './components/PortfolioTabs';
 export const PortfolioHome: FC = () => {
   const { accounts } = useAccountsContext();
   const { isDeveloperMode } = useNetworkContext();
-  const { totalBalance } = useBalancesContext();
+  const { totalBalance, balances } = useBalancesContext();
 
   return (
     <>
@@ -23,6 +23,8 @@ export const PortfolioHome: FC = () => {
           account={accounts.active}
           balance={totalBalance}
           isDeveloperMode={isDeveloperMode}
+          hasBalanceError={!!balances.error}
+          isLoading={balances.loading}
         />
         <AtomicFundsBalance accountId={accounts.active?.id} />
       </Stack>

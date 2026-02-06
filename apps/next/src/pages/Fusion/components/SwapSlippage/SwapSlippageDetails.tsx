@@ -27,7 +27,7 @@ interface SwapSlippageDetailsProps {
   onClose: () => void;
 }
 
-const PRESET_SLIPPAGES = [1, 2] as const;
+const PRESET_SLIPPAGES = [1, 2];
 
 export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
   open,
@@ -40,7 +40,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
 
   const [localSlippage, setLocalSlippage] = useState(slippage);
   const [isCustom, setIsCustom] = useState(
-    !PRESET_SLIPPAGES.includes(slippage as any),
+    !PRESET_SLIPPAGES.includes(slippage),
   );
   const [customInput, setCustomInput] = useState(String(slippage));
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
     if (open) {
       setLocalSlippage(slippage);
       setCustomInput(String(slippage));
-      setIsCustom(!PRESET_SLIPPAGES.includes(slippage as any));
+      setIsCustom(!PRESET_SLIPPAGES.includes(slippage));
       setError(null);
     }
   }, [open, slippage]);
@@ -106,7 +106,6 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
           max: MAX_SLIPPAGE,
         }),
       );
-      return;
     } else {
       setError(null);
     }
@@ -174,12 +173,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                   alignItems="center"
                 >
                   <Typography variant="body3">{t('Slippage')}</Typography>
-                  <Typography
-                    variant="body3"
-                    sx={{
-                      color: 'text.secondary',
-                    }}
-                  >
+                  <Typography variant="body3" color="text.secondary">
                     {displayValue}
                   </Typography>
                 </Stack>
@@ -279,7 +273,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
                           }}
                           placeholder={String(MIN_SLIPPAGE)}
                         />
-                        <Typography variant="body3" sx={{ color: 'inherit' }}>
+                        <Typography variant="body3" color="inherit">
                           %
                         </Typography>
                       </Box>
@@ -303,13 +297,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
 
           {/* Error message - below the card */}
           {error && (
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                width: '100%',
-              }}
-            >
+            <Stack justifyContent="center" width={1}>
               <Typography
                 variant="caption"
                 sx={{
@@ -320,7 +308,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
               >
                 {error}
               </Typography>
-            </Box>
+            </Stack>
           )}
         </Stack>
       </Page>

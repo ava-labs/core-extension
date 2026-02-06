@@ -1,15 +1,10 @@
 import {
   ChevronDownIcon,
-  Collapse,
   IconButton,
-  MenuItem,
   Stack,
-  styled,
-  Tooltip,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-import { FaCheck } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
 import { FC, useCallback, useState } from 'react';
 import { Quote } from '@avalabs/unified-asset-transfer';
@@ -19,27 +14,29 @@ import { useSettingsContext } from '@core/ui';
 
 import * as Styled from '../Styled';
 import { useFusionState } from '../../contexts';
+import { SwapAggregatorList } from './SwapAggregatorList';
 
-type SwapAggregatorSelectProps = {
-  quotes: Quote[];
-  quote: Quote;
+type GetPriceInCurrency = (quote: Quote) => {
+  amount: number | undefined;
+  formattedAmount: string;
 };
 
-export const SwapAggregatorSelect: FC<SwapAggregatorSelectProps> = ({
-  quotes,
-  quote,
-}) => {
+export const SwapAggregatorSelect: FC<{
+  userQuote: Quote | null;
+  bestQuote: Quote;
+  quotes: Quote[];
+}> = ({ userQuote, bestQuote, quotes }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
   const theme = useTheme();
 
-  const { toToken, selectQuote, bestQuote } = useFusionState();
+  const { toToken, selectQuoteById } = useFusionState();
 
   const isChoiceAvailable = Number(quotes.length) > 1;
 
   const [isProviderMenuOpen, setIsProviderMenuOpen] = useState(false);
 
-  const getPriceInCurrency = useCallback(
+  const getPriceInCurrency: GetPriceInCurrency = useCallback(
     function (_quote: Quote) {
       const price = toToken?.priceInCurrency;
       const amount =
@@ -57,11 +54,15 @@ export const SwapAggregatorSelect: FC<SwapAggregatorSelectProps> = ({
     [toToken, currencyFormatter],
   );
 
+  const selectedName = userQuote
+    ? userQuote.aggregator.name
+    : t('Auto • {{name}}', { name: bestQuote.aggregator.name });
+
   return (
     <>
       <Styled.SettingRow title={t('Provider')}>
         <Stack role="button" direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="body3">{quote.aggregator.name}</Typography>
+          <Typography variant="body3">{selectedName}</Typography>
           <IconButton
             size="small"
             disabled={!isChoiceAvailable}
@@ -71,61 +72,26 @@ export const SwapAggregatorSelect: FC<SwapAggregatorSelectProps> = ({
             <ChevronDownIcon
               size={24}
               color={theme.palette.text.secondary}
-              transform={
-                isProviderMenuOpen ? 'rotateX(180deg)' : 'rotateX(0deg)'
-              }
+              sx={{
+                transition: theme.transitions.create('transform'),
+                transform: isProviderMenuOpen
+                  ? 'rotateX(180deg)'
+                  : 'rotateX(0deg)',
+              }}
             />
           </IconButton>
         </Stack>
       </Styled.SettingRow>
-      <Collapse in={isProviderMenuOpen}>
-        <Stack mx={-2} px={1}>
-          {quotes.map((q) => {
-            const isSelected = q === quote;
-            const { amount, formattedAmount } = getPriceInCurrency(q);
-
-            return (
-              <StyledMenuItem
-                key={q.aggregator.id}
-                data-testid={`provider-${q.aggregator.id}`}
-                onClick={() => selectQuote(q)}
-              >
-                <Stack direction="row" alignItems="center" gap={1}>
-                  <img
-                    src={q.aggregator.logoUrl}
-                    width={32}
-                    height={32}
-                    alt={q.aggregator.name}
-                  />
-                  <Stack flexGrow={1}>
-                    <Typography variant="body3" fontWeight={500}>
-                      {q.aggregator.name}
-                    </Typography>
-                    <Tooltip title={amount}>
-                      <Typography variant="caption" color="text.secondary">
-                        {q === bestQuote
-                          ? t('Best price available')
-                          : formattedAmount}
-                      </Typography>
-                    </Tooltip>
-                  </Stack>
-                </Stack>
-                {isSelected && <FaCheck size={16} />}
-              </StyledMenuItem>
-            );
-          })}
-        </Stack>
-      </Collapse>
+      {isChoiceAvailable && (
+        <SwapAggregatorList
+          isOpen={isProviderMenuOpen}
+          userQuote={userQuote}
+          bestQuote={bestQuote}
+          quotes={quotes}
+          selectQuoteById={selectQuoteById}
+          getPriceInCurrency={getPriceInCurrency}
+        />
+      )}
     </>
   );
 };
-
-const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
-  marginInline: 0,
-  paddingInline: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius,
-  minHeight: 'unset',
-  width: 'auto',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-}));

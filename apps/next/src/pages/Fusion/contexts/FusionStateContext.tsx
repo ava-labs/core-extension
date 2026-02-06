@@ -46,10 +46,10 @@ type FusionState = QueryState &
     toAmount?: string;
     isAmountLoading: boolean;
     swapError?: SwapError;
-    quote: Quote | null;
+    userQuote: Quote | null;
     bestQuote: Quote | null;
     quotes: Quote[];
-    selectQuote: (quote: Quote) => void;
+    selectQuoteById: (quoteId: string | null) => void;
     transfer: (specificQuote?: Quote) => Promise<void>;
     isReadyToTransfer: boolean;
   };
@@ -65,6 +65,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
   const getTranslatedError = useErrorMessage();
+
+  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
+  const [autoSlippage, setAutoSlippage] = useState(true);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const {
     update: updateQuery,
@@ -91,7 +95,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceChain,
     targetChain,
   );
-  const { bestQuote, quotes, quote, selectQuote } = useQuotes({
+  const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
     manager,
     fromAddress,
     toAddress,
@@ -103,11 +107,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       userAmount && sourceAsset
         ? stringToBigint(userAmount, sourceAsset.decimals)
         : 0n,
+    slippageBps: slippage * 100, // TODO: Support auto slippage when Markr supports it
   });
-
-  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
-  const [autoSlippage, setAutoSlippage] = useState(true);
-  const [isConfirming, setIsConfirming] = useState(false);
 
   const toAmount =
     bestQuote && targetAsset
@@ -122,7 +123,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
       setIsConfirming(true);
 
-      const quoteToUse = specificQuote ?? quote;
+      const quoteToUse = specificQuote ?? userQuote ?? bestQuote;
 
       if (!quoteToUse) {
         throw new Error('Quote not found');
@@ -143,7 +144,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       } catch (err) {
         if (isUserRejectionError(err)) return;
 
-        // TODO: Retry with another quote if available AND if the user has not manually selected a quote.
+        // TODO: Retry with another quote if available AND if the user has NOT manually selected a quote.
 
         console.error(err);
         Monitoring.sentryCaptureException(
@@ -168,7 +169,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     [
       manager,
       fromAddress,
-      quote,
+      userQuote,
+      bestQuote,
       slippage,
       replace,
       captureEncrypted,
@@ -199,12 +201,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         autoSlippage,
         setAutoSlippage,
         swapError: undefined, // TODO:
-        quote,
+        userQuote,
         bestQuote,
         quotes,
-        selectQuote,
+        selectQuoteById,
         transfer,
-        isReadyToTransfer: Boolean(quote && manager),
+        isReadyToTransfer: Boolean((userQuote ?? bestQuote) && manager),
       }}
     >
       {children}

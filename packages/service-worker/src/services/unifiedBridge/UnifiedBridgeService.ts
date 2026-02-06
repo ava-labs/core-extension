@@ -143,20 +143,6 @@ export class UnifiedBridgeService implements OnStorageReady {
           signer: dummySigner,
         };
 
-      case BridgeType.AVALANCHE_AVA_BTC:
-        return {
-          type,
-          signer: dummySigner,
-          bitcoinFunctions: bitcoinProvider,
-        };
-
-      case BridgeType.AVALANCHE_BTC_AVA:
-        return {
-          type,
-          signer: dummySigner,
-          bitcoinFunctions: bitcoinProvider,
-        };
-
       case BridgeType.LOMBARD_BTC_TO_BTCB:
       case BridgeType.LOMBARD_BTCB_TO_BTC:
         return {
@@ -165,6 +151,9 @@ export class UnifiedBridgeService implements OnStorageReady {
           btcSigner: dummySigner,
           bitcoinFunctions: bitcoinProvider,
         };
+
+      default:
+        throw new Error(`Unsupported bridge type: ${type}`);
     }
   }
 

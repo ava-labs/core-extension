@@ -4,6 +4,7 @@ import {
   CURRENCIES,
   SettingsState,
   AnalyticsConsent,
+  ColorTheme,
 } from '@core/types';
 import { WalletGetSettingsHandler } from './wallet_getSettings';
 import { buildRpcCall } from '@shared/tests/test-utils';
@@ -35,7 +36,25 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     preferredView: 'floating',
     showTrendingTokens: true,
     privacyMode: false,
+    filterSmallUtxos: false,
   };
+
+  // Maps settings to the expected handler response format
+  const getExpectedResponse = (settings: SettingsState) => ({
+    currency: settings.currency,
+    customTokens: settings.customTokens,
+    showTokensWithoutBalances: settings.showTokensWithoutBalances,
+    theme: settings.theme,
+    tokensVisibility: settings.tokensVisibility,
+    collectiblesVisibility: settings.collectiblesVisibility,
+    analyticsConsent: settings.analyticsConsent,
+    language: settings.language,
+    coreAssistant: settings.coreAssistant,
+    preferredView: settings.preferredView,
+    showTrendingTokens: settings.showTrendingTokens,
+    privacyMode: settings.privacyMode,
+    filterSmallUtxos: settings.filterSmallUtxos,
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -52,7 +71,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       expect(getSettingsMock).toHaveBeenCalledWith();
       expect(result).toEqual({
         ...request,
-        result: mockSettingsState,
+        result: getExpectedResponse(mockSettingsState),
       });
     });
 
@@ -68,7 +87,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithEur,
+        result: getExpectedResponse(settingsWithEur),
       });
     });
 
@@ -76,7 +95,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       const request = createRequest();
       const settingsWithDarkTheme = {
         ...mockSettingsState,
-        theme: 'DARK',
+        theme: 'DARK' as ColorTheme,
       };
       getSettingsMock.mockResolvedValueOnce(settingsWithDarkTheme);
 
@@ -84,7 +103,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithDarkTheme,
+        result: getExpectedResponse(settingsWithDarkTheme),
       });
     });
 
@@ -100,7 +119,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithSpanish,
+        result: getExpectedResponse(settingsWithSpanish),
       });
     });
 
@@ -116,7 +135,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithHiddenTokens,
+        result: getExpectedResponse(settingsWithHiddenTokens),
       });
     });
 
@@ -132,7 +151,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithoutAssistant,
+        result: getExpectedResponse(settingsWithoutAssistant),
       });
     });
 
@@ -148,7 +167,23 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithoutTrending,
+        result: getExpectedResponse(settingsWithoutTrending),
+      });
+    });
+
+    it('should return settings with filterSmallUtxos true', async () => {
+      const request = createRequest();
+      const settingsWithFilterSmallUtxos = {
+        ...mockSettingsState,
+        filterSmallUtxos: true,
+      };
+      getSettingsMock.mockResolvedValueOnce(settingsWithFilterSmallUtxos);
+
+      const result = await handler.handleAuthenticated(buildRpcCall(request));
+
+      expect(result).toEqual({
+        ...request,
+        result: getExpectedResponse(settingsWithFilterSmallUtxos),
       });
     });
 
@@ -164,7 +199,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithDeniedConsent,
+        result: getExpectedResponse(settingsWithDeniedConsent),
       });
     });
 
@@ -180,7 +215,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithPendingConsent,
+        result: getExpectedResponse(settingsWithPendingConsent),
       });
     });
 
@@ -192,19 +227,21 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
           '43114': {
             '0x123': {
               address: '0x123',
+              name: 'Test Token',
               symbol: 'TEST',
               decimals: 18,
+              contractType: 'ERC-20',
             },
           },
         },
-      };
+      } as SettingsState;
       getSettingsMock.mockResolvedValueOnce(settingsWithCustomTokens);
 
       const result = await handler.handleAuthenticated(buildRpcCall(request));
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithCustomTokens,
+        result: getExpectedResponse(settingsWithCustomTokens),
       });
     });
 
@@ -224,7 +261,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithVisibility,
+        result: getExpectedResponse(settingsWithVisibility),
       });
     });
 
@@ -244,7 +281,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
 
       expect(result).toEqual({
         ...request,
-        result: settingsWithCollectiblesVisibility,
+        result: getExpectedResponse(settingsWithCollectiblesVisibility),
       });
     });
 

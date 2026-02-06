@@ -592,13 +592,24 @@ export class AccountsService implements OnLock, OnUnlock {
   }
 
   async #renameImportedAccount(account: ImportedAccount, name: string) {
+    const oldName = account.name;
     const accountWithNewName = { ...account, name };
     const newAccounts = { ...this.#accounts.imported };
     newAccounts[account.id] = accountWithNewName;
+
+    // Emit account name changed event before updating accounts state
+    this.eventEmitter.emit(AccountsEvents.ACCOUNT_NAME_CHANGED, {
+      id: account.id,
+      addressC: account.addressC,
+      oldName,
+      newName: name,
+    });
+
     await this.#setAccounts({ ...this.#accounts, imported: newAccounts });
   }
 
   async #renamePrimaryAccount(account: PrimaryAccount, name: string) {
+    const oldName = account.name;
     const accountWithNewName = { ...account, name };
 
     const walletAccounts = this.#accounts.primary[account.walletId];
@@ -614,6 +625,14 @@ export class AccountsService implements OnLock, OnUnlock {
     // by this.accounts setter.
     const newWalletAccounts = [...walletAccounts];
     newWalletAccounts[account.index] = accountWithNewName;
+
+    // Emit account name changed event before updating accounts state
+    this.eventEmitter.emit(AccountsEvents.ACCOUNT_NAME_CHANGED, {
+      id: account.id,
+      addressC: account.addressC,
+      oldName,
+      newName: name,
+    });
 
     await this.#setAccounts({
       ...this.#accounts,

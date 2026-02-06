@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import {
   useNetworkContext,
   useNetworkFeeContext,
+  useSettingsContext,
   useWalletContext,
 } from '@core/ui';
 import {
@@ -29,8 +30,8 @@ import { getSolanaMaxAmount } from './lib/getSolanaMaxAmount';
 import { useGetXPAddresses } from '../useGetXPAddresses';
 
 type MaxAmountInfo = {
-  maxAmount: bigint;
-  estimatedFee: bigint;
+  maxAmount: bigint | undefined;
+  estimatedFee: bigint | undefined;
 };
 
 export const useMaxAmountForTokenSend = (
@@ -42,10 +43,11 @@ export const useMaxAmountForTokenSend = (
   const { getNetworkFee } = useNetworkFeeContext();
   const { isLedgerWallet } = useWalletContext();
   const getXPAddresses = useGetXPAddresses();
+  const { filterSmallUtxos } = useSettingsContext();
 
   const [result, setResult] = useState<MaxAmountInfo>({
-    maxAmount: 0n,
-    estimatedFee: 0n,
+    maxAmount: undefined,
+    estimatedFee: undefined,
   });
 
   useEffect(() => {
@@ -71,6 +73,7 @@ export const useMaxAmountForTokenSend = (
           getXChainMaxAmount(
             from,
             isLedgerWallet,
+            filterSmallUtxos,
             getXPAddresses('AVM'),
             getNetwork(token.coreChainId),
           ).then(setResult);
@@ -78,6 +81,7 @@ export const useMaxAmountForTokenSend = (
           getPChainMaxAmount(
             from,
             isLedgerWallet,
+            filterSmallUtxos,
             getXPAddresses('PVM'),
             getNetwork(token.coreChainId),
           ).then(setResult);
@@ -108,6 +112,7 @@ export const useMaxAmountForTokenSend = (
     getNetwork,
     isLedgerWallet,
     getXPAddresses,
+    filterSmallUtxos,
   ]);
 
   return result;
