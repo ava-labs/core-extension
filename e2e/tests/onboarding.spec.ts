@@ -173,6 +173,8 @@ test.describe('Onboarding Tests', () => {
         WALLET_PASSWORD,
         false,
       );
+
+      await onboardingPage.waitForEnjoyWalletAndComplete(60000);
     },
   );
 
@@ -192,6 +194,7 @@ test.describe('Onboarding Tests', () => {
       ],
     },
     async ({ extensionPage }) => {
+      test.setTimeout(120000);
       test.skip(
         !RECOVERY_PHRASE_24_WORDS.length,
         'RECOVERY_PHRASE_24_WORDS env var not set',
@@ -209,6 +212,8 @@ test.describe('Onboarding Tests', () => {
         WALLET_PASSWORD,
         false,
       );
+
+      await onboardingPage.waitForEnjoyWalletAndComplete(90000, 1);
     },
   );
 
@@ -228,6 +233,7 @@ test.describe('Onboarding Tests', () => {
       ],
     },
     async ({ extensionPage }) => {
+      test.setTimeout(120000);
       const onboardingPage = new OnboardingPage(extensionPage);
 
       await extensionPage.waitForTimeout(3000);
@@ -238,6 +244,8 @@ test.describe('Onboarding Tests', () => {
         WALLET_PASSWORD,
         false,
       );
+
+      await onboardingPage.waitForEnjoyWalletAndComplete(60000, 1);
     },
   );
 });

@@ -246,6 +246,105 @@ export class OnboardingPage extends BasePage {
     await this.letsGoButton.click();
   }
 
+  private async findEnjoyWalletPage(timeout = 20000): Promise<Page> {
+    const context = this.page.context();
+    const deadline = Date.now() + timeout;
+
+    while (Date.now() < deadline) {
+      let pages: Page[] = [];
+      try {
+        pages = context.pages().filter((page) => !page.isClosed());
+      } catch {
+        throw new Error('Enjoy wallet page not found: context closed');
+      }
+      const enjoyRoutePage = pages.find((page) =>
+        page.url().includes('enjoy-your-wallet'),
+      );
+      if (enjoyRoutePage) {
+        return enjoyRoutePage;
+      }
+      for (const page of pages) {
+        const isVisible = await page
+          .locator('[data-testid="enjoy-wallet-title"]')
+          .isVisible()
+          .catch(() => false);
+        if (isVisible) {
+          return page;
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    throw new Error('Enjoy wallet page not found');
+  }
+
+  private async waitForEnjoyWalletAndCompleteOnce(
+    timeout = 20000,
+  ): Promise<void> {
+    const page = await this.findEnjoyWalletPage(timeout);
+    const enjoyWalletTitle = page.locator('[data-testid="enjoy-wallet-title"]');
+    const letsGoButton = page.getByRole('button', { name: /let's go/i });
+    const loadingDialog = page
+      .getByRole('dialog')
+      .filter({ has: page.getByRole('progressbar') });
+
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const titleVisible = await enjoyWalletTitle
+        .isVisible()
+        .catch(() => false);
+      if (titleVisible) {
+        break;
+      }
+      const dialogVisible = await loadingDialog.isVisible().catch(() => false);
+      if (!dialogVisible) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    const remaining = Math.max(1000, deadline - Date.now());
+    await enjoyWalletTitle.waitFor({ state: 'visible', timeout: remaining });
+    await letsGoButton.waitFor({ state: 'visible', timeout: remaining });
+
+    const context = page.context();
+    const openPages = context.pages().filter((p) => !p.isClosed());
+    if (openPages.length <= 1) {
+      const keepAlive = await context.newPage();
+      await keepAlive.goto('about:blank');
+    }
+
+    await letsGoButton.click();
+  }
+
+  async waitForEnjoyWalletAndComplete(
+    timeout = 20000,
+    retries = 0,
+  ): Promise<void> {
+    let lastError: unknown;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        await this.waitForEnjoyWalletAndCompleteOnce(timeout);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (attempt >= retries) {
+          break;
+        }
+        const page = await this.findEnjoyWalletPage(5000).catch(
+          () => this.page,
+        );
+        if (!page.isClosed()) {
+          await page.reload({ waitUntil: 'domcontentloaded' });
+          await waitForExtensionLoad(page, 45000);
+        }
+      }
+    }
+    throw lastError instanceof Error
+      ? lastError
+      : new Error('Enjoy wallet page not found');
+  }
+
   async completeRecoveryPhraseOnboarding(
     recoveryWords: string[],
     walletName: string,
