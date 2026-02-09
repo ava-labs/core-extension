@@ -36,6 +36,16 @@ export const NoScrollStack = ({
           }}
         />
       )}
+      renderThumbHorizontal={({ style, ...props }) => (
+        <Stack
+          {...props}
+          style={{
+            ...style,
+            backgroundColor: theme.palette.text.secondary,
+            borderRadius: theme.shape.mediumBorderRadius,
+          }}
+        />
+      )}
       renderThumbVertical={({ style, ...props }) => (
         <div
           {...props}
