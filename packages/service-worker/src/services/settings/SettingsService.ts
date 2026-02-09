@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   coreAssistant: true,
   preferredView: 'floating',
   showTrendingTokens: false,
-  isDegenMode: false,
+  isQuickSwapsEnabled: false,
   feeSetting: 'medium',
   maxBuy: 'unlimited',
   privacyMode: false,
@@ -290,11 +290,11 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setDegenMode(enabled: boolean) {
+  async setQuickSwapsEnabled(enabled: boolean) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,
-      isDegenMode: enabled,
+      isQuickSwapsEnabled: enabled,
     });
   }
 

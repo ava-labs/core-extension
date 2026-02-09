@@ -96,7 +96,7 @@ const BatchApprovalContent: FC<BatchApprovalContentProps> = ({
 
   return (
     <Styled.ApprovalScreenPage>
-      <NoScrollStack sx={{ mt: 3 }}>
+      <NoScrollStack stackProps={{ sx: { mt: 3 } }}>
         <ApprovalScreenTitle
           title={t('Approve {{count}} transactions', { count: txCount })}
         />

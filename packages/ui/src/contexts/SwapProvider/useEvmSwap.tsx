@@ -72,7 +72,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
   const { request } = useConnectionContext();
   const { isFlagEnabled, selectFeatureFlag } = useFeatureFlagContext();
   const { isGaslessOn, getNetworkFee } = useNetworkFeeContext();
-  const { isDegenMode, feeSetting, maxBuy } = useSettingsContext();
+  const { isQuickSwapsEnabled, feeSetting, maxBuy } = useSettingsContext();
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const [rpcProvider, setRpcProvider] = useState<JsonRpcBatchInternal>();
@@ -216,9 +216,9 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
         walletDetails?.type === SecretType.PrivateKey;
 
       // Check if degen mode is enabled (only for Markr swaps with supported wallet types)
-      const isDegenModeEnabledForMarkr =
+      const isQuickSwapsEnabledEnabledForMarkr =
         swapProvider === SwapProviders.MARKR &&
-        isDegenMode &&
+        isQuickSwapsEnabled &&
         isAutoSignSupported;
 
       const signAndSend = async (
@@ -234,11 +234,11 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
           isBatch,
           transactionCount: transactions.length,
           swapProvider,
-          isDegenModeEnabledForMarkr,
+          isQuickSwapsEnabledEnabledForMarkr,
         });
 
         // Try auto-approval for Markr swaps when degen mode is enabled
-        autoApproval: if (isDegenModeEnabledForMarkr) {
+        autoApproval: if (isQuickSwapsEnabledEnabledForMarkr) {
           // Apply gas prices if missing
           const needsGasPrices = (transactions as TransactionParams[]).some(
             (tx) => !tx.maxFeePerGas || !tx.maxPriorityFeePerGas,
@@ -347,7 +347,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
           selectFeatureFlag(FeatureVars.MARKR_SWAP_GAS_BUFFER),
         ),
         isGaslessOn,
-        shouldUseAutoApproval: isDegenModeEnabledForMarkr,
+        shouldUseAutoApproval: isQuickSwapsEnabledEnabledForMarkr,
       });
 
       retry<TransactionReceipt | null>({
@@ -392,7 +392,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       walletDetails?.type,
       isGaslessOn,
       getNetworkFee,
-      isDegenMode,
+      isQuickSwapsEnabled,
       feeSetting,
       maxBuy,
     ],

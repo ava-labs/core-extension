@@ -79,7 +79,7 @@ export interface SettingsState {
   coreAssistant: boolean;
   preferredView: ViewMode;
   showTrendingTokens: boolean;
-  isDegenMode: boolean;
+  isQuickSwapsEnabled: boolean;
   feeSetting: FeeSetting;
   maxBuy: MaxBuyOption;
   privacyMode: boolean;

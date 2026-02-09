@@ -114,7 +114,7 @@ export type { SetLanguageHandler } from './services/settings/handlers/setLanguag
 export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
 export type { SetPrivacyModeHandler } from './services/settings/handlers/setPrivacyMode';
 export type { SetShowTrendingTokensHandler } from './services/settings/handlers/setShowTrendingTokens';
-export type { SetDegenModeHandler } from './services/settings/handlers/setDegenMode';
+export type { SetQuickSwapsEnabledHandler } from './services/settings/handlers/setQuickSwapsEnabled';
 export type { SetFeeSettingHandler } from './services/settings/handlers/setFeeSetting';
 export type { SetMaxBuyHandler } from './services/settings/handlers/setMaxBuy';
 export type { UpdateCollectiblesVisibilityHandler } from './services/settings/handlers/updateCollectiblesVisibility';

@@ -9,7 +9,7 @@ import type {
   LockWalletHandler,
   SetAnalyticsConsentHandler,
   SetCoreAssistantHandler,
-  SetDegenModeHandler,
+  SetQuickSwapsEnabledHandler,
   SetFeeSettingHandler,
   SetFilterSmallUtxosHandler,
   SetLanguageHandler,
@@ -84,7 +84,7 @@ type SettingsFromProvider = SettingsState & {
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
   setShowTrendingTokens: (show: boolean) => Promise<boolean>;
-  setDegenMode: (enabled: boolean) => Promise<boolean>;
+  setQuickSwapsEnabled: (enabled: boolean) => Promise<boolean>;
   setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
   setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
   setPrivacyMode: (enabled: boolean) => Promise<boolean>;
@@ -281,9 +281,9 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
-  const setDegenMode = useCallback(
+  const setQuickSwapsEnabled = useCallback(
     (enabled: boolean) => {
-      return request<SetDegenModeHandler>({
+      return request<SetQuickSwapsEnabledHandler>({
         method: ExtensionRequest.SETTINGS_SET_DEGEN_MODE,
         params: [enabled],
       });
@@ -354,7 +354,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setCoreAssistant,
           setPreferredView,
           setShowTrendingTokens,
-          setDegenMode,
+          setQuickSwapsEnabled,
           setFeeSetting,
           setMaxBuy,
           setPrivacyMode,

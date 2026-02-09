@@ -9,14 +9,14 @@ type HandlerType = ExtensionRequestHandler<
 >;
 
 @injectable()
-export class SetDegenModeHandler implements HandlerType {
+export class SetQuickSwapsEnabledHandler implements HandlerType {
   method = ExtensionRequest.SETTINGS_SET_DEGEN_MODE as const;
 
   constructor(private settingsService: SettingsService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [enabled] = request.params || [false];
-    await this.settingsService.setDegenMode(enabled);
+    await this.settingsService.setQuickSwapsEnabled(enabled);
 
     return {
       ...request,

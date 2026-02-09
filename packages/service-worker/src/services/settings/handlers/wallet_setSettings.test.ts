@@ -55,7 +55,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     coreAssistant: true,
     preferredView: 'floating',
     showTrendingTokens: true,
-    isDegenMode: false,
+    isQuickSwapsEnabled: false,
     feeSetting: 'low',
     maxBuy: '1000',
     privacyMode: false,

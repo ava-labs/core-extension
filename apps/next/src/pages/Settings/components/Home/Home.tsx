@@ -77,8 +77,8 @@ export const SettingsHomePage = () => {
     setCoreAssistant,
     analyticsConsent,
     setAnalyticsConsent,
-    isDegenMode,
-    setDegenMode,
+    isQuickSwapsEnabled,
+    setQuickSwapsEnabled,
     feeSetting,
     setFeeSetting,
     maxBuy,
@@ -275,58 +275,6 @@ export const SettingsHomePage = () => {
         </Stack>
       )}
       <SettingsCard
-        title={t('Experimental Features')}
-        description={t(
-          'Try out new features and advanced settings. These features may change or be removed in future updates.',
-        )}
-      >
-        <SettingsNavItem
-          label={t('Enable Degen Mode')}
-          description={t(
-            'Enable advanced trading features and streamlined transaction flows for experienced users',
-          )}
-          secondaryAction={
-            <Switch
-              size="small"
-              checked={isDegenMode}
-              onChange={() => setDegenMode(!isDegenMode)}
-            />
-          }
-          divider={isDegenMode}
-        />
-        {isDegenMode && (
-          <>
-            <Stack gap={1} py={1}>
-              <Stack gap={0.5}>
-                <Typography variant="subtitle1">
-                  {t('Pre-configured Fee Settings')}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {t(
-                    'Choose your preferred transaction fee speed. Higher fees result in faster confirmation times.',
-                  )}
-                </Typography>
-              </Stack>
-              <FeeSettingsSelector
-                value={feeSetting}
-                onChange={(value) => setFeeSetting(value)}
-              />
-            </Stack>
-            <Divider />
-            <SettingsNavItem
-              label={t('Allowed Max Buy')}
-              secondaryAction={
-                <MaxBuySelector
-                  value={maxBuy}
-                  onChange={(value) => setMaxBuy(value)}
-                  sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
-                />
-              }
-            />
-          </>
-        )}
-      </SettingsCard>
-      <SettingsCard
         title={t('Privacy and security')}
         description={t(
           'Protect your data and ensure the highest level of security for your Core wallet.',
@@ -405,9 +353,6 @@ export const SettingsHomePage = () => {
           description={t(
             'Improves loading performance by removing UTXOs with a value less than 0.002 AVAX from the wallet. Total balances may be inaccurate.',
           )}
-          sx={{
-            pb: 0,
-          }}
           secondaryAction={
             <Switch
               size="small"
@@ -421,7 +366,59 @@ export const SettingsHomePage = () => {
               }}
             />
           }
+          divider
         />
+        <SettingsNavItem
+          label={t('Quick swaps')}
+          description={t(
+            'Swap tokens inside of Core with one-click. Core is unable to provide free gas if this feature is enabled.',
+          )}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={isQuickSwapsEnabled}
+              onChange={() => setQuickSwapsEnabled(!isQuickSwapsEnabled)}
+            />
+          }
+          divider={isQuickSwapsEnabled}
+          sx={{
+            pb: isQuickSwapsEnabled ? 0.75 : 0,
+          }}
+        />
+        {isQuickSwapsEnabled && (
+          <>
+            <Stack gap={1} py={1}>
+              <Stack gap={0.5}>
+                <Typography variant="subtitle1">
+                  {t('Network fee settings')}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {t(
+                    'Set the default fee for quick swaps. Faster swaps require higher fees.',
+                  )}
+                </Typography>
+              </Stack>
+              <FeeSettingsSelector
+                value={feeSetting}
+                onChange={(value) => setFeeSetting(value)}
+              />
+            </Stack>
+            <Divider />
+            <SettingsNavItem
+              label={t('Swap amount limit')}
+              secondaryAction={
+                <MaxBuySelector
+                  value={maxBuy}
+                  onChange={(value) => setMaxBuy(value)}
+                  sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+                />
+              }
+              sx={{
+                pb: 0,
+              }}
+            />
+          </>
+        )}
       </SettingsCard>
 
       <SettingsCard title={t('Contacts')}>

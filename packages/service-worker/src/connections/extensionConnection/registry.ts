@@ -153,7 +153,7 @@ import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/a
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
 import { SetPrivacyModeHandler } from '~/services/settings/handlers/setPrivacyMode';
 import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
-import { SetDegenModeHandler } from '~/services/settings/handlers/setDegenMode';
+import { SetQuickSwapsEnabledHandler } from '~/services/settings/handlers/setQuickSwapsEnabled';
 import { SetFeeSettingHandler } from '~/services/settings/handlers/setFeeSetting';
 import { SetMaxBuyHandler } from '~/services/settings/handlers/setMaxBuy';
 import { EnableNetworkHandler } from '~/services/network/handlers/enableNetwork';
@@ -495,7 +495,7 @@ import { SetFilterSmallUtxosHandler } from '~/services/settings/handlers/setFilt
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: SetDegenModeHandler,
+    useToken: SetQuickSwapsEnabledHandler,
   },
   {
     token: 'ExtensionRequestHandler',
