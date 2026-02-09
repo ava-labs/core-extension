@@ -83,6 +83,7 @@ export interface SettingsState {
   feeSetting: FeeSetting;
   maxBuy: MaxBuyOption;
   privacyMode: boolean;
+  filterSmallUtxos: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settings';

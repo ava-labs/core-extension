@@ -62,6 +62,8 @@ describe('hooks/useIsFunctionAvailable', () => {
     [FeatureGates.SWAP_C_CHAIN]: true,
     [FeatureGates.SWAP_SOLANA]: true,
     [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: true,
+    [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+    [FeatureGates.UNIFIED_BRIDGE_LOMBARD_AVA_TO_BTC]: true,
   } as any;
 
   const mockIsFlagEnabled = jest.fn();
@@ -499,10 +501,11 @@ describe('hooks/useIsFunctionAvailable', () => {
       expect(result.current.isFunctionAvailable).toBe(true);
     });
 
-    it('returns false for Bitcoin network when UNIFIED_BRIDGE_AB_BTC_TO_AVA is disabled', () => {
+    it('returns false for Bitcoin network when both BTC bridge flags are disabled', () => {
       const testFeatureFlags = {
         ...mockFeatureFlags,
         [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
+        [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: false,
       };
 
       (useNetworkContext as jest.Mock).mockReturnValue({
@@ -518,6 +521,28 @@ describe('hooks/useIsFunctionAvailable', () => {
       );
 
       expect(result.current.isFunctionAvailable).toBe(false);
+    });
+
+    it('returns true for Bitcoin network when only LOMBARD_BTC_TO_AVA is enabled', () => {
+      const testFeatureFlags = {
+        ...mockFeatureFlags,
+        [FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA]: false,
+        [FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA]: true,
+      };
+
+      (useNetworkContext as jest.Mock).mockReturnValue({
+        network: { chainId: ChainId.BITCOIN },
+      });
+      (useFeatureFlagContext as jest.Mock).mockReturnValue({
+        isFlagEnabled: (flag: FeatureGates) => testFeatureFlags[flag] ?? false,
+        featureFlags: testFeatureFlags,
+      });
+
+      const { result } = renderHook(() =>
+        useIsFunctionAvailable({ functionName: FunctionNames.BRIDGE }),
+      );
+
+      expect(result.current.isFunctionAvailable).toBe(true);
     });
 
     it('returns true for non-Bitcoin networks', () => {

@@ -44,5 +44,10 @@ export const EvmActionDetails = ({
 const hasTokenApprovals = (
   action: Action<DisplayData>,
 ): action is Action<EnsureDefined<DisplayData, 'tokenApprovals'>> => {
-  return action.displayData.tokenApprovals !== undefined;
+  return (
+    action.displayData.tokenApprovals !== undefined &&
+    action.displayData.tokenApprovals.approvals.some(
+      (approval) => approval.value !== undefined,
+    )
+  );
 };

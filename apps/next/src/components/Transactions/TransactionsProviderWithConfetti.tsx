@@ -1,27 +1,51 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 import { ChevronRightIcon, IconButton } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useConfettiContext } from '@/components/Confetti';
 
-import { TransactionStatusProvider } from '@core/ui';
-import { openNewTab } from '@core/common';
-import { getExplorerAddressByNetwork } from '@core/common';
+import {
+  TransactionStatusProvider,
+  TransactionStatusCallbackParams,
+} from '@core/ui';
+import {
+  openNewTab,
+  getExplorerAddressByNetwork,
+  isAvalanchePrimaryNetwork,
+} from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 
 export const TransactionStatusProviderWithConfetti = ({
   children,
 }: PropsWithChildren) => {
-  const { triggerConfetti } = useConfettiContext();
+  const { triggerConfetti, stopConfetti } = useConfettiContext();
   const history = useHistory();
+
+  const handlePending = useCallback(
+    ({ network }: TransactionStatusCallbackParams) => {
+      history.replace('/');
+      // Trigger confetti on pending for Avalanche C/P/X chains
+      if (isAvalanchePrimaryNetwork(network)) {
+        triggerConfetti();
+      }
+    },
+    [history, triggerConfetti],
+  );
+
+  const handleSuccess = useCallback(
+    ({ network }: TransactionStatusCallbackParams) => {
+      // Trigger confetti on success for non-Avalanche chains
+      if (!isAvalanchePrimaryNetwork(network)) {
+        triggerConfetti();
+      }
+    },
+    [triggerConfetti],
+  );
 
   return (
     <TransactionStatusProvider
-      onPending={() => {
-        history.replace('/');
-      }}
-      onSuccess={() => {
-        triggerConfetti();
-      }}
+      onPending={handlePending}
+      onSuccess={handleSuccess}
+      onReverted={stopConfetti}
       renderExplorerLink={({ network, hash }) => (
         <ExplorerLink network={network} hash={hash} />
       )}

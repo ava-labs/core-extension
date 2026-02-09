@@ -212,9 +212,10 @@ export class WalletService implements OnUnlock {
     const derivationPaths = await Promise.all(
       accountIndices.map((index) =>
         this.addressResolver.getDerivationPathsByVM(
-          index,
+          secrets.account.index,
           secrets.derivationPathSpec,
           [vmName],
+          index,
         ),
       ),
     );
@@ -555,6 +556,7 @@ export class WalletService implements OnUnlock {
           secrets.account.index, // With the new X/P account model, the account index should always match the active account.
           provider as Avalanche.JsonRpcProvider,
           extPublicKey.key,
+          secrets.derivationPathSpec,
         );
       }
 
@@ -895,6 +897,10 @@ export class WalletService implements OnUnlock {
 
     if (signingResult instanceof Transaction) {
       return { signedTx: signingResult.toHex() };
+    }
+
+    if ('toHex' in signingResult && typeof signingResult.toHex === 'function') {
+      return { signedTx: signingResult.toHex() as string };
     }
 
     return signingResult;

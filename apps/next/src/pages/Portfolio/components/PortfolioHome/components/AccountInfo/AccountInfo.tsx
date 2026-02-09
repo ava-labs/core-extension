@@ -1,14 +1,14 @@
-import { Stack, Typography, WaterDropIcon } from '@avalabs/k2-alpine';
+import { Stack, Typography, useTheme, WaterDropIcon } from '@avalabs/k2-alpine';
 import { useBalancesContext, useSettingsContext } from '@core/ui';
 import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { BalanceChange } from '../../../BalanceChange';
 import { useActiveAccountInfo } from '@/hooks/useActiveAccountInfo';
 import { WalletSummaryInfo } from './components/WalletSummaryInfo';
 import { AccountSummaryInfo } from './components/AccountSummaryInfo';
 import { Account } from '@core/types';
 import { AccountInfoSkeleton } from './components/AccountInfoSkeleton';
-import { MdVisibilityOff } from 'react-icons/md';
+import { MdError, MdVisibilityOff } from 'react-icons/md';
 
 type TotalBalance = ReturnType<typeof useBalancesContext>['totalBalance'];
 
@@ -16,6 +16,8 @@ type Props = {
   account?: Account;
   balance: TotalBalance;
   isDeveloperMode: boolean;
+  hasBalanceError?: boolean;
+  isLoading: boolean;
 };
 
 const fallbackTotalBalance: TotalBalance = {
@@ -36,16 +38,19 @@ export const AccountInfo: FC<Props> = ({
   account,
   balance = fallbackTotalBalance,
   isDeveloperMode,
+  hasBalanceError = false,
+  isLoading,
 }) => {
+  const theme = useTheme();
   const { walletSummary } = useActiveAccountInfo();
   const { coreAssistant, privacyMode } = useSettingsContext();
   const { t } = useTranslation();
   const { currencyFormatter, currency } = useSettingsContext();
   const { sum, priceChange } = balance;
-  const formattedSum = currencyFormatter(sum ?? 0).replace(
-    /^(\D)0\.00$/,
-    '$1–',
-  );
+  const formattedSum =
+    sum === null || isDeveloperMode || hasBalanceError || isLoading
+      ? currencyFormatter(0).replace(/^(\D)0\.00$/, '$1–')
+      : currencyFormatter(sum);
 
   const containerProps = getContainerProps(coreAssistant);
 
@@ -70,6 +75,13 @@ export const AccountInfo: FC<Props> = ({
         >
           <WaterDropIcon size={16} />
           <Typography variant="subtitle3">{t('Testnet mode is on')}</Typography>
+        </Stack>
+      ) : hasBalanceError ? (
+        <Stack direction="row" alignItems="center" gap={0.5} mt={1}>
+          <MdError size={20} color={theme.palette.error.main} />
+          <Typography variant="subtitle4" color="error">
+            {<Trans i18nKey="Unable to load balance at this time" />}
+          </Typography>
         </Stack>
       ) : !privacyMode ? (
         <BalanceChange

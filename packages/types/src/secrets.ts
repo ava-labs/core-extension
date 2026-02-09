@@ -167,3 +167,12 @@ export type DerivationPathsMap = Record<
   Exclude<NetworkVMType, NetworkVMType.PVM | NetworkVMType.CoreEth>,
   string
 >;
+
+export type IsKnownSecretResult =
+  | {
+      isKnown: true;
+      name: string;
+    }
+  | {
+      isKnown: false;
+    };

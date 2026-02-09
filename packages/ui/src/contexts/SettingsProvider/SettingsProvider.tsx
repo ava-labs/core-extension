@@ -11,6 +11,7 @@ import type {
   SetCoreAssistantHandler,
   SetDegenModeHandler,
   SetFeeSettingHandler,
+  SetFilterSmallUtxosHandler,
   SetLanguageHandler,
   SetMaxBuyHandler,
   SetPreferredViewHandler,
@@ -87,6 +88,7 @@ type SettingsFromProvider = SettingsState & {
   setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
   setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
   setPrivacyMode: (enabled: boolean) => Promise<boolean>;
+  setFilterSmallUtxos: (filter: boolean) => Promise<boolean>;
 };
 
 const SettingsContext = createContext<SettingsFromProvider>({} as any);
@@ -319,6 +321,16 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setFilterSmallUtxos = useCallback(
+    (shouldFilter: boolean) => {
+      return request<SetFilterSmallUtxosHandler>({
+        method: ExtensionRequest.SETTINGS_SET_FILTER_SMALL_UTXOS,
+        params: [shouldFilter],
+      });
+    },
+    [request],
+  );
+
   return (
     <SettingsContext.Provider
       value={
@@ -346,6 +358,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setFeeSetting,
           setMaxBuy,
           setPrivacyMode,
+          setFilterSmallUtxos,
         } as SettingsFromProvider
       }
     >

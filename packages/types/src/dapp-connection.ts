@@ -68,6 +68,8 @@ export enum Web3Event {
   // Core Web specific events
   NETWORK_STATE_CHANGED = 'networkStateChanged',
   SETTINGS_CHANGED = 'settingsChanged',
+  ACCOUNTS_DELETED = 'accountsDeleted',
+  ACCOUNT_NAME_CHANGED = 'accountNameChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {

@@ -1,20 +1,16 @@
 import { Stack, StackProps, useTheme } from '@avalabs/k2-alpine';
-import { Scrollbars } from 'react-custom-scrollbars-2';
-import { ComponentProps } from 'react';
+import { ScrollbarProps, Scrollbars } from 'react-custom-scrollbars-2';
 
-type ScrollbarsProps = Omit<
-  ComponentProps<typeof Scrollbars>,
-  'children' | 'renderView'
->;
+type ScrollbarsProps = Omit<ScrollbarProps, 'renderView'>;
 
-type NoScrollStackProps = StackProps &
-  ScrollbarsProps & {
-    scrollTrackTopMargin?: number;
-  };
+type NoScrollStackProps = ScrollbarsProps & {
+  scrollTrackTopMargin?: number;
+  stackProps?: StackProps;
+};
 
 export const NoScrollStack = ({
   children,
-  sx,
+  stackProps,
   scrollTrackTopMargin = 0,
   ...scrollbarsProps
 }: NoScrollStackProps) => {
@@ -23,7 +19,7 @@ export const NoScrollStack = ({
     <Scrollbars
       {...scrollbarsProps}
       renderView={(props) => {
-        return <Stack {...props} sx={sx} />;
+        return <Stack {...stackProps} {...props} />;
       }}
       autoHide
       renderTrackVertical={({ style, ...props }) => (
@@ -37,6 +33,16 @@ export const NoScrollStack = ({
             bottom: '2px',
             top: 2 + scrollTrackTopMargin,
             borderRadius: '3px',
+          }}
+        />
+      )}
+      renderThumbHorizontal={({ style, ...props }) => (
+        <Stack
+          {...props}
+          style={{
+            ...style,
+            backgroundColor: theme.palette.text.secondary,
+            borderRadius: theme.shape.mediumBorderRadius,
           }}
         />
       )}

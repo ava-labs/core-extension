@@ -106,7 +106,7 @@ export type PerformSwapParams = {
   signAndSend: (
     method: RpcMethod,
     txParams: [NormalizedTransactionParams],
-    context?: { approvalTx?: TransactionParams },
+    context?: Record<string, unknown>,
   ) => Promise<string>;
   isSwapFeesEnabled: boolean;
   feeAccount?: string;

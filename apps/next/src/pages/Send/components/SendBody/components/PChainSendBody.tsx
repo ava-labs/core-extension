@@ -1,5 +1,4 @@
-import { useTranslation } from 'react-i18next';
-import { Button, Fade, Stack, Typography } from '@avalabs/k2-alpine';
+import { Fade, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { stringToBigint } from '@core/common';
 import {
@@ -13,7 +12,9 @@ import {
   getRecipientAddressByType,
 } from '@/components/RecipientSelect';
 
+import { TxButton } from '@/components/TxButton';
 import { usePChainSend } from '../hooks/usePChainSend';
+import { useTranslation } from 'react-i18next';
 
 type PChainSendBodyProps = {
   from: PvmCapableAccount;
@@ -30,11 +31,9 @@ export const PChainSendBody = ({
   recipient,
   network,
 }: PChainSendBodyProps) => {
-  const { t } = useTranslation();
-
   const to = getRecipientAddressByType(recipient, 'PVM');
   const amountBigInt = stringToBigint(amount || '0', token.decimals);
-
+  const { t } = useTranslation();
   const { isSending, isValid, error, send } = usePChainSend({
     token,
     amount: amountBigInt,
@@ -55,17 +54,12 @@ export const PChainSendBody = ({
         </Stack>
       </Fade>
       <Stack width="100%">
-        <Button
-          variant="contained"
-          color="primary"
-          size="extension"
-          fullWidth
-          disabled={!isValid}
-          loading={isSending}
+        <TxButton
+          isLoading={isSending}
           onClick={send}
-        >
-          {t('Send')}
-        </Button>
+          title={t('Send')}
+          isDisabled={!isValid}
+        />
       </Stack>
     </Stack>
   );

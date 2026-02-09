@@ -85,6 +85,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     feeSetting: 'low',
     maxBuy: '1000',
     privacyMode: false,
+    filterSmallUtxos: true,
   };
   const storedUnencryptedSettings: SettingsState = {
     currency: 'USD',
@@ -102,6 +103,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     feeSetting: 'low',
     maxBuy: '1000',
     privacyMode: false,
+    filterSmallUtxos: true,
   };
 
   const customToken: NetworkContractToken = {

@@ -41,6 +41,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   feeSetting: 'medium',
   maxBuy: 'unlimited',
   privacyMode: false,
+  filterSmallUtxos: true,
 };
 
 @singleton()
@@ -318,6 +319,14 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       privacyMode: enabled,
+    });
+  }
+
+  async setFilterSmallUtxos(filter: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      filterSmallUtxos: filter,
     });
   }
 

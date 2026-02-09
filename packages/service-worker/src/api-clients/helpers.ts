@@ -3,9 +3,9 @@ import {
   GetBalancesResponse,
   GetBalancesResponseError,
 } from '~/api-clients/balance-api';
+import { Caip2IdAccountTypeMap } from '~/api-clients/constants';
 import { BalanceResponse } from '~/api-clients/types';
 import { isErrorResponse } from '~/api-clients/utils';
-import { Caip2IdAccountTypeMap } from '~/api-clients/constants';
 
 export const convertStreamToArray = async (
   stream: AsyncGenerator<GetBalancesResponse, unknown>,
@@ -53,9 +53,9 @@ export const reconstructAccountFromError = (
     name: 'N/A',
     id: error.id,
     // these will be overwritten if the error happened with the respective chain
-    addressBTC: 'N/A',
-    addressC: 'N/A',
-    addressCoreEth: 'N/A',
+    addressBTC: undefined as unknown as string,
+    addressC: undefined as unknown as string,
+    addressCoreEth: undefined as unknown as string,
     // the id in the error is the account address
     [Caip2IdAccountTypeMap[error.caip2Id] ?? '']: error.id,
   };

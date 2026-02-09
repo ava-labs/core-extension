@@ -35,6 +35,7 @@ export enum SwapErrorCode {
   ApprovalTxFailed = 'approval-tx-failed',
   InvalidSlippageTolerance = 'invalid-slippage-tolerance',
   InsufficientBalance = 'insufficient-balance',
+  TransactionRevertedDueToSlippage = 'transaction-reverted-due-to-slippage',
 }
 
 export enum VMModuleError {

@@ -249,7 +249,11 @@ export const useIsFunctionAvailable = ({
       }
 
       if (isBitcoinNetwork(networkToCheck)) {
-        return isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA);
+        // Bridge is available on Bitcoin if either Lombard or AB BTC->AVA is enabled
+        return (
+          isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_LOMBARD_BTC_TO_AVA) ||
+          isFlagEnabled(FeatureGates.UNIFIED_BRIDGE_AB_BTC_TO_AVA)
+        );
       }
       return true;
     }

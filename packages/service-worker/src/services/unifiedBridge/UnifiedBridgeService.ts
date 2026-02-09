@@ -129,6 +129,9 @@ export class UnifiedBridgeService implements OnStorageReady {
       async sign() {
         return '0x' as const;
       },
+      async signMessage() {
+        return '0x' as const;
+      },
     };
 
     switch (type) {
@@ -140,19 +143,17 @@ export class UnifiedBridgeService implements OnStorageReady {
           signer: dummySigner,
         };
 
-      case BridgeType.AVALANCHE_AVA_BTC:
+      case BridgeType.LOMBARD_BTC_TO_BTCB:
+      case BridgeType.LOMBARD_BTCB_TO_BTC:
         return {
           type,
-          signer: dummySigner,
+          evmSigner: dummySigner,
+          btcSigner: dummySigner,
           bitcoinFunctions: bitcoinProvider,
         };
 
-      case BridgeType.AVALANCHE_BTC_AVA:
-        return {
-          type,
-          signer: dummySigner,
-          bitcoinFunctions: bitcoinProvider,
-        };
+      default:
+        throw new Error(`Unsupported bridge type: ${type}`);
     }
   }
 

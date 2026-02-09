@@ -343,7 +343,9 @@ export const MarkrProvider: SwapProvider = {
     const finalTxParams = batch.length > 1 ? batch : txParams;
 
     const [swapTxHash, signError] = await resolve(
-      signAndSend(method, finalTxParams as [NormalizedTransactionParams]),
+      signAndSend(method, finalTxParams as [NormalizedTransactionParams], {
+        revertReason: SwapErrorCode.TransactionRevertedDueToSlippage,
+      }),
     );
 
     if (isUserRejectionError(signError)) {

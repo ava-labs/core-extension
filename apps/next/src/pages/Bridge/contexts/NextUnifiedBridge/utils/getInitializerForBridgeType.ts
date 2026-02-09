@@ -3,10 +3,10 @@ import {
   BridgeInitializer,
   BridgeType,
   BtcSigner,
-  EvmSigner,
+  EvmSignerWithMessage,
 } from '@avalabs/bridge-unified';
 
-type BridgeSigners = { evm: EvmSigner; btc: BtcSigner };
+type BridgeSigners = { evm: EvmSignerWithMessage; btc: BtcSigner };
 
 export function getInitializerForBridgeType(
   type: BridgeType,
@@ -22,18 +22,23 @@ export function getInitializerForBridgeType(
         signer: evm,
       };
 
-    case BridgeType.AVALANCHE_AVA_BTC:
+    case BridgeType.LOMBARD_BTC_TO_BTCB:
       return {
         type,
-        signer: evm,
+        evmSigner: evm,
+        btcSigner: btc,
         bitcoinFunctions,
       };
 
-    case BridgeType.AVALANCHE_BTC_AVA:
+    case BridgeType.LOMBARD_BTCB_TO_BTC:
       return {
         type,
-        signer: btc,
+        evmSigner: evm,
+        btcSigner: btc,
         bitcoinFunctions,
       };
+
+    default:
+      throw new Error(`Unsupported bridge type: ${type}`);
   }
 }

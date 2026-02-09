@@ -163,6 +163,7 @@ import { GetXPAddressesForAccountHandler } from '../../services/accounts/handler
 import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handlers/getTotalAtomicFundsForAccount';
 import { NavigationRequestEvents } from '~/services/navigationHistory/events/navigationRequestEvents';
 import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/requestNavigation';
+import { SetFilterSmallUtxosHandler } from '~/services/settings/handlers/setFilterSmallUtxos';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -515,6 +516,7 @@ import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/
     token: 'ExtensionRequestHandler',
     useToken: GetTotalAtomicFundsForAccountHandler,
   },
+  { token: 'ExtensionRequestHandler', useToken: SetFilterSmallUtxosHandler },
 ])
 export class ExtensionRequestHandlerRegistry {}
 

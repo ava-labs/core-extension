@@ -1,6 +1,6 @@
-import { FC, useCallback, useEffect, useRef } from 'react';
 import { Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
+import { FC, useCallback, useEffect, useRef } from 'react';
 
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
 import { useLiveBalance } from '@core/ui';
@@ -19,8 +19,8 @@ import {
   NoteWarning,
   Styled,
 } from './components';
-import { hasNoteWarning, hasOverlayWarning } from './lib';
 import { useApprovalHelpers, useGasless } from './hooks';
+import { hasNoteWarning, hasOverlayWarning } from './lib';
 import {
   ActionError,
   CancelActionFn,
@@ -94,7 +94,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
 
   return (
     <Styled.ApprovalScreenPage>
-      <NoScrollStack sx={{ mt: 3 }}>
+      <NoScrollStack stackProps={{ sx: { mt: 3 } }}>
         <ApprovalScreenTitle title={action.displayData.title} />
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />

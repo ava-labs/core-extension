@@ -137,3 +137,4 @@ export type { WalletConnectImportAccount } from './services/walletConnect/handle
 export type { GetTrendingTokensHandler } from './services/trendingTokens/handlers/getTrendingTokens';
 export type { MigrateMissingPublicKeysFromKeystoneHandler } from './services/keystone/handlers/migrateMissingKeysFromKeystone';
 export type { GetXPAddressesForAccountHandler } from './services/accounts/handlers/getXPAddressesForAccountIndex';
+export type { SetFilterSmallUtxosHandler } from './services/settings/handlers/setFilterSmallUtxos';

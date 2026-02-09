@@ -44,6 +44,7 @@ interface WalletGetSettingsHandlerResult {
   feeSetting: 'low' | 'medium' | 'high';
   maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
   privacyMode: boolean;
+  filterSmallUtxos: boolean;
 }
 @injectable()
 export class WalletGetSettingsHandler extends DAppRequestHandler<
@@ -75,6 +76,7 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         feeSetting: settings.feeSetting,
         maxBuy: settings.maxBuy,
         privacyMode: settings.privacyMode,
+        filterSmallUtxos: settings.filterSmallUtxos,
       };
       return {
         ...request,

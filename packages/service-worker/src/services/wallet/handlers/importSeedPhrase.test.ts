@@ -38,6 +38,9 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     (addAllAccountsWithHistory as jest.Mock).mockResolvedValue(['1', '2', '3']);
+    secretsService.isKnownSecret.mockResolvedValue({
+      isKnown: false,
+    });
   });
 
   const handle = (params) => {
@@ -57,7 +60,10 @@ describe('src/background/services/wallet/handlers/importSeedPhrase', () => {
   };
 
   it('returns an error if the seed phrase is already imported', async () => {
-    secretsService.isKnownSecret.mockResolvedValueOnce(true);
+    secretsService.isKnownSecret.mockResolvedValueOnce({
+      isKnown: true,
+      name: 'walletName',
+    });
 
     const { error } = await handle({ mnemonic: 'mnemonic' });
 

@@ -72,6 +72,7 @@ type LedgerConnectionErrorProps = {
   onRetry: () => void;
   retryLabel?: string;
   requiredApp: LedgerAppType;
+  duplicatedWalletName?: string;
 };
 
 export const LedgerConnectionError = ({
@@ -79,6 +80,7 @@ export const LedgerConnectionError = ({
   onRetry,
   onTroubleshoot,
   retryLabel,
+  duplicatedWalletName,
   requiredApp,
 }: LedgerConnectionErrorProps) => {
   const { t } = useTranslation();
@@ -98,7 +100,9 @@ export const LedgerConnectionError = ({
           <UnableToConnectMessage onTroubleshoot={onTroubleshoot} />
         )}
         {errorType === 'unsupported-version' && <UnsupportedVersionMessage />}
-        {errorType === 'duplicated-wallet' && <DuplicatedWalletMessage />}
+        {errorType === 'duplicated-wallet' && (
+          <DuplicatedWalletMessage walletName={duplicatedWalletName} />
+        )}
         {errorType === 'incorrect-app' && (
           <IncorrectAppMessage requiredApp={requiredApp} />
         )}
@@ -169,12 +173,19 @@ const UnsupportedVersionMessage = () => {
   );
 };
 
-const DuplicatedWalletMessage = () => {
+type DuplicatedWalletMessageProps = {
+  walletName?: string;
+};
+const DuplicatedWalletMessage: FC<DuplicatedWalletMessageProps> = ({
+  walletName,
+}) => {
   const { t } = useTranslation();
 
   return (
     <Typography variant="body2">
-      {t('This wallet is already imported.')}
+      {walletName
+        ? t('{{walletName}} is already imported.', { walletName })
+        : t('This wallet is already imported.')}
     </Typography>
   );
 };

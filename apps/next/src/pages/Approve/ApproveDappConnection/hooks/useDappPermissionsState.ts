@@ -80,7 +80,7 @@ export const useDappPermissionsState = (
   const isSelected = (accountId: string) =>
     accountSettings.get(accountId) ?? false;
 
-  if (!walletDetails || !allAccounts.length) {
+  if (!allAccounts.length) {
     return {
       isLoading: true,
       wallets: [],
@@ -96,7 +96,7 @@ export const useDappPermissionsState = (
 
   // Make sure to show the active wallet first and the imported accounts last
   const sortedWallets = wallets.toSorted((a) =>
-    walletDetails.id === a.id ? -1 : 0,
+    walletDetails?.id === a.id ? -1 : 0,
   );
 
   if (hasImportedAccounts) {

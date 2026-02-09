@@ -1,4 +1,4 @@
-import { incrementalPromiseResolve } from '@core/common';
+import { incrementalPromiseResolve, Monitoring } from '@core/common';
 import { FirebaseEvents, RegisterDeviceResponse } from '@core/types';
 import { singleton } from 'tsyringe';
 import { FirebaseService } from '../firebase/FirebaseService';
@@ -24,7 +24,14 @@ export class NotificationsService {
     this.firebaseService.addFirebaseEventListener(
       FirebaseEvents.FCM_INITIALIZED,
       async () => {
-        await this.#init();
+        try {
+          await this.#init();
+        } catch (err) {
+          Monitoring.sentryCaptureException(
+            err instanceof Error ? err : new Error(String(err)),
+            Monitoring.SentryExceptionTypes.NOTIFICATIONS,
+          );
+        }
       },
     );
   }
