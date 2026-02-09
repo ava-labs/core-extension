@@ -1,17 +1,10 @@
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
-import {
-  IconButton,
-  QrCodeIcon,
-  Stack,
-  Tooltip,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { IconButton, Stack, Tooltip, useTheme } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
 import { FC, useMemo } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useAnalyticsContext } from '@core/ui';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +16,6 @@ type Props = {
 export const HeaderActions: FC<Props> = ({ account }) => {
   const history = useHistory();
   const theme = useTheme();
-  const { capture } = useAnalyticsContext();
   const { t } = useTranslation();
   const location = useLocation();
   const {
@@ -39,21 +31,6 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   return (
     <Stack direction="row" alignItems="center">
       <ConnectedSites activeAccount={account} />
-      {!isWalletView && (
-        <Tooltip title={t('Receive crypto')}>
-          <IconButton
-            disableRipple={true}
-            disabled={!account}
-            size="small"
-            onClick={() => {
-              capture('TokenReceiveClicked', { addressType: 'C' });
-              history.push(`/receive?accId=${account?.id}`);
-            }}
-          >
-            <QrCodeIcon fill={theme.palette.text.primary} size={24} />
-          </IconButton>
-        </Tooltip>
-      )}
       <Tooltip title={t('Settings')}>
         <IconButton
           disableRipple={true}

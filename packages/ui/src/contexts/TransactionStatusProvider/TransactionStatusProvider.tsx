@@ -7,6 +7,7 @@ import {
   ContextContainer,
   ExtensionConnectionEvent,
   NetworkWithCaipId,
+  SwapErrorCode,
   TransactionStatusEvents as TransactionStatusEventNames,
   TransactionStatusInfo,
 } from '@core/types';
@@ -17,7 +18,8 @@ import { isSpecificContextContainer } from '../../utils';
 import { isAvalanchePrimaryNetwork } from '@core/common';
 
 const PENDING_TOAST_ID = 'transaction-pending';
-const RESULT_TOAST_ID = 'transaction-result';
+const SUCCESS_TOAST_ID = 'transaction-success';
+const FAILURE_TOAST_ID = 'transaction-failure';
 
 export type TransactionStatusCallbackParams = {
   network?: NetworkWithCaipId;
@@ -65,7 +67,7 @@ export function TransactionStatusProvider({
             network,
             hash,
             onDismiss: () => {
-              toast.dismiss(`${RESULT_TOAST_ID}-${hash}`);
+              toast.dismiss(`${SUCCESS_TOAST_ID}-${hash}`);
             },
           })
         : undefined;
@@ -104,7 +106,7 @@ export function TransactionStatusProvider({
                   network,
                 );
                 toast.success(t('Transaction successful'), {
-                  id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
+                  id: `${SUCCESS_TOAST_ID}-${statusInfo.txHash}`,
                   ...(explorerLink && { action: explorerLink }),
                 });
               } else {
@@ -134,7 +136,7 @@ export function TransactionStatusProvider({
               const explorerLink = getExplorerLink(statusInfo.txHash, network);
               onSuccess?.({ network, context: statusInfo.context });
               toast.success(t('Transaction successful'), {
-                id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
+                id: `${SUCCESS_TOAST_ID}-${statusInfo.txHash}`,
                 ...(explorerLink && { action: explorerLink }),
               });
               break;
@@ -142,9 +144,17 @@ export function TransactionStatusProvider({
 
             case TransactionStatusEventNames.REVERTED: {
               toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
+              toast.dismiss(`${SUCCESS_TOAST_ID}-${statusInfo.txHash}`); // Success toast may be shown optimistically for X/C/P chains.
               onReverted?.({ network, context: statusInfo.context });
-              toast.error(t('Transaction failed'), {
-                id: `${RESULT_TOAST_ID}-${statusInfo.txHash}`,
+
+              const message =
+                statusInfo.context?.revertReason ===
+                SwapErrorCode.TransactionRevertedDueToSlippage
+                  ? t('Transaction failed due to slippage')
+                  : t('Transaction failed');
+
+              toast.error(message, {
+                id: `${FAILURE_TOAST_ID}-${statusInfo.txHash}`,
               });
               break;
             }

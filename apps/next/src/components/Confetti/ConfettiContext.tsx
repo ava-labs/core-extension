@@ -29,5 +29,8 @@ export function useConfettiContext() {
   const triggerConfetti = useCallback(() => {
     methodsRef.current?.restart();
   }, [methodsRef]);
-  return { triggerConfetti };
+  const stopConfetti = useCallback(() => {
+    methodsRef.current?.reset();
+  }, [methodsRef]);
+  return { triggerConfetti, stopConfetti };
 }
