@@ -56,6 +56,7 @@ type FusionState = QueryState & {
   swapError?: SwapError;
   userQuote: Quote | null;
   bestQuote: Quote | null;
+  selectedQuote: Quote | null;
   quotes: Quote[];
   selectQuoteById: (quoteId: string | null) => void;
   transfer: (specificQuote?: Quote) => Promise<void>;
@@ -110,7 +111,14 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { slippage, setSlippage, autoSlippage, setAutoSlippage } =
     useSlippageTolerance();
 
-  const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
+  const {
+    bestQuote,
+    quotes,
+    userQuote,
+    selectedQuote,
+    isUserSelectedQuote,
+    selectQuoteById,
+  } = useQuotes({
     manager,
     fromAddress,
     toAddress,
@@ -126,8 +134,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   });
 
   const toAmount =
-    bestQuote && targetAsset
-      ? bigIntToString(bestQuote.amountOut, targetAsset.decimals)
+    selectedQuote && targetAsset
+      ? bigIntToString(selectedQuote.amountOut, targetAsset.decimals)
       : undefined;
 
   const transfer = useCallback(
@@ -138,7 +146,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
       setIsConfirming(true);
 
-      const quoteToUse = specificQuote ?? userQuote ?? bestQuote;
+      const quoteToUse = specificQuote ?? selectedQuote;
 
       if (!quoteToUse) {
         throw new Error('Quote not found');
@@ -162,10 +170,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           return;
         }
 
-        const wasManuallySelectedQuote = !!userQuote;
-
         // If no specific quote was selected manually by the user, retry with the next quote (if applicable).
-        if (!wasManuallySelectedQuote && shouldRetryWithNextQuote(err)) {
+        if (!isUserSelectedQuote && shouldRetryWithNextQuote(err)) {
           const currentQuoteIndex = quotes.findIndex(
             (q) => q.id === quoteToUse.id,
           );
@@ -199,13 +205,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     [
       manager,
       fromAddress,
-      userQuote,
-      bestQuote,
       slippage,
       replace,
       captureEncrypted,
       getTranslatedError,
       quotes,
+      isUserSelectedQuote,
+      selectedQuote,
     ],
   );
 
@@ -234,10 +240,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         swapError: undefined, // TODO:
         userQuote,
         bestQuote,
+        selectedQuote,
         quotes,
         selectQuoteById,
         transfer,
-        isReadyToTransfer: Boolean((userQuote ?? bestQuote) && manager),
+        isReadyToTransfer: Boolean(selectedQuote && manager),
       }}
     >
       {children}

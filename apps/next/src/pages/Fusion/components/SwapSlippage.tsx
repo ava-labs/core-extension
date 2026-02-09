@@ -17,12 +17,10 @@ import { isMarkrQuote } from '../lib/isMarkrQuote';
 export const SwapSlippage = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { slippage, autoSlippage, userQuote, bestQuote } = useFusionState();
+  const { slippage, autoSlippage, selectedQuote } = useFusionState();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const quote = userQuote ?? bestQuote;
-
-  const isSlippageApplicable = isMarkrQuote(quote);
+  const isSlippageApplicable = isMarkrQuote(selectedQuote);
 
   // Format display value
   const displayValue = isSlippageApplicable

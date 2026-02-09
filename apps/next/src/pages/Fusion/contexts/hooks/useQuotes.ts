@@ -76,6 +76,8 @@ export const useQuotes = ({
     bestQuote,
     userQuote,
     quotes: allQuotes,
+    isUserSelectedQuote: !!userQuote,
+    selectedQuote: userQuote ?? bestQuote,
     selectQuoteById,
   };
 };
