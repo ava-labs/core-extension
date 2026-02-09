@@ -21,6 +21,7 @@ import {
   DEFAULT_SLIPPAGE,
 } from '../../fusion-config';
 import { isSlippageValid } from '../../lib/isSlippageValid';
+import { formatBasisPointsToPercentage } from '../../lib/formatBasisPointsToPercentage';
 
 interface SwapSlippageDetailsProps {
   open: boolean;
@@ -35,8 +36,13 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { slippage, setSlippage, autoSlippage, setAutoSlippage } =
-    useFusionState();
+  const {
+    slippage,
+    setSlippage,
+    autoSlippage,
+    setAutoSlippage,
+    selectedQuote,
+  } = useFusionState();
 
   const [localSlippage, setLocalSlippage] = useState(slippage);
   const [isCustom, setIsCustom] = useState(
@@ -148,7 +154,11 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
   };
 
   const displayValue = autoSlippage
-    ? t('Auto')
+    ? selectedQuote
+      ? t('Auto • {{slippage}}', {
+          slippage: formatBasisPointsToPercentage(selectedQuote.slippageBps),
+        })
+      : t('Auto')
     : t('{{slippage}}%', { slippage });
 
   return (

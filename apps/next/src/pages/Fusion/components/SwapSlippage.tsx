@@ -13,6 +13,7 @@ import { useFusionState } from '../contexts';
 import * as Styled from './Styled';
 import { SwapSlippageDetails } from './SwapSlippage/SwapSlippageDetails';
 import { isMarkrQuote } from '../lib/isMarkrQuote';
+import { formatBasisPointsToPercentage } from '../lib/formatBasisPointsToPercentage';
 
 export const SwapSlippage = () => {
   const { t } = useTranslation();
@@ -25,7 +26,9 @@ export const SwapSlippage = () => {
   // Format display value
   const displayValue = isSlippageApplicable
     ? autoSlippage
-      ? t(`Auto`) // TODO: Indicate the exact value suggested by Markr if available.
+      ? t(`Auto • {{slippage}}`, {
+          slippage: formatBasisPointsToPercentage(selectedQuote.slippageBps),
+        })
       : `${slippage}%`
     : '0%';
 
