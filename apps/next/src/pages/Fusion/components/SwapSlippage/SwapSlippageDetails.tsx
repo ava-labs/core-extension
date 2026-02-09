@@ -148,7 +148,7 @@ export const SwapSlippageDetails: FC<SwapSlippageDetailsProps> = ({
   };
 
   const displayValue = autoSlippage
-    ? t('Auto • {{slippage}}%', { slippage })
+    ? t('Auto')
     : t('{{slippage}}%', { slippage });
 
   return (

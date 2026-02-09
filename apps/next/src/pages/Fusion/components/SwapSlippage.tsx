@@ -12,7 +12,7 @@ import {
 import { useFusionState } from '../contexts';
 import * as Styled from './Styled';
 import { SwapSlippageDetails } from './SwapSlippage/SwapSlippageDetails';
-import { ServiceType } from '@avalabs/unified-asset-transfer';
+import { isMarkrQuote } from '../lib/isMarkrQuote';
 
 export const SwapSlippage = () => {
   const { t } = useTranslation();
@@ -22,12 +22,12 @@ export const SwapSlippage = () => {
 
   const quote = userQuote ?? bestQuote;
 
-  const isSlippageApplicable = quote?.serviceType === ServiceType.MARKR;
+  const isSlippageApplicable = isMarkrQuote(quote);
 
   // Format display value
   const displayValue = isSlippageApplicable
     ? autoSlippage
-      ? `Auto • ${slippage}%`
+      ? t(`Auto`) // TODO: Indicate the exact value suggested by Markr if available.
       : `${slippage}%`
     : '0%';
 

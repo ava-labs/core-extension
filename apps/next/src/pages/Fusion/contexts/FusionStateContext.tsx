@@ -20,7 +20,6 @@ import {
   useErrorMessage,
 } from '@core/ui';
 
-import { DEFAULT_SLIPPAGE } from '../fusion-config';
 import { useSwapQuery } from '../hooks';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
@@ -34,6 +33,7 @@ import {
   useSwapSourceToken,
   useSwapTargetTokenList,
   useSwapTargetToken,
+  useSlippageTolerance,
 } from './hooks';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
@@ -74,8 +74,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { replace } = useHistory();
   const getTranslatedError = useErrorMessage();
 
-  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
-  const [autoSlippage, setAutoSlippage] = useState(true);
   const [isConfirming, setIsConfirming] = useState(false);
 
   const {
@@ -109,6 +107,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     targetChain,
   );
 
+  const { slippage, setSlippage, autoSlippage, setAutoSlippage } =
+    useSlippageTolerance();
+
   const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
     manager,
     fromAddress,
@@ -121,7 +122,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       userAmount && sourceAsset
         ? stringToBigint(userAmount, sourceAsset.decimals)
         : 0n,
-    slippageBps: slippage * 100, // TODO: Support auto slippage when Markr supports it
+    slippageBps: autoSlippage ? undefined : slippage * 100,
   });
 
   const toAmount =
