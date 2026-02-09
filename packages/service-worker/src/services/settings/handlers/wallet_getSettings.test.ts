@@ -55,6 +55,9 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     coreAssistant: settings.coreAssistant,
     preferredView: settings.preferredView,
     showTrendingTokens: settings.showTrendingTokens,
+    isQuickSwapsEnabled: settings.isQuickSwapsEnabled,
+    feeSetting: settings.feeSetting,
+    maxBuy: settings.maxBuy,
     privacyMode: settings.privacyMode,
     filterSmallUtxos: settings.filterSmallUtxos,
   });
