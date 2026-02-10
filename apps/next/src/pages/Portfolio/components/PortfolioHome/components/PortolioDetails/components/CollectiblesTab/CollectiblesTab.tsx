@@ -37,6 +37,7 @@ export function CollectiblesTab() {
   const {
     accounts: { active },
   } = useAccountsContext();
+  console.log('collectibles: ', collectibles);
   const formattedCollectibles = useMemo(() => {
     return collectibles.map((collectible) => {
       const ownerAddress = active?.addressC;
@@ -67,6 +68,8 @@ export function CollectiblesTab() {
       };
     });
   }, [collectibles, active, getNetwork, isDeveloperMode]);
+
+  console.log('formattedCollectibles: ', formattedCollectibles);
 
   const {
     processedCollectibles,

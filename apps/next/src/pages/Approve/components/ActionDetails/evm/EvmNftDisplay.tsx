@@ -21,7 +21,7 @@ export const EvmNftDisplay: FC<EvmNftDisplayProps> = ({
     const map = new Map<string, (typeof collectibles)[0]>();
     collectibles.forEach((collectible) => {
       if (collectible.address && collectible.chainId === network.chainId) {
-        const key = `${collectible.address.toLowerCase()}`;
+        const key = `${collectible.address.toLowerCase()}-${collectible.tokenId}`;
         // If multiple NFTs with same address, prefer one with logoUri
         const existing = map.get(key);
         if (!existing || (!existing.logoUri && collectible.logoUri)) {
@@ -49,15 +49,16 @@ export const EvmNftDisplay: FC<EvmNftDisplayProps> = ({
         // Try to find matching collectible by address
         const tokenAddress =
           'address' in token ? token.address?.toLowerCase() : undefined;
+
+        const tokenId = Number(firstItem.tokenId);
         const matchedCollectible = tokenAddress
-          ? collectiblesMap.get(tokenAddress)
+          ? collectiblesMap.get(`${tokenAddress}-${tokenId}`)
           : undefined;
 
+        console.log('matchedCollectible: ', matchedCollectible);
+
         // Use collectible's logoUri if found, otherwise fall back to token.logoUri
-        const logoUri =
-          matchedCollectible?.logoUri ||
-          matchedCollectible?.logoSmall ||
-          token.logoUri;
+        const logoUri = matchedCollectible?.logoUri || token.logoUri;
 
         return (
           <Stack key={key} gap={1} alignItems="center" width="100%" mb={2}>
