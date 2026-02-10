@@ -79,7 +79,7 @@ export const PortfolioActionButtons = ({
         gap: 1,
       }}
     >
-      {isFlagEnabled(FeatureGates.FUSION_PROJECT) ? (
+      {isFlagEnabled(FeatureGates.FUSION_FEATURE) ? (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
