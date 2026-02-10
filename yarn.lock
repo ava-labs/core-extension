@@ -492,9 +492,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/unified-asset-transfer@npm:0.0.0-fix-lombard-asset-match-fix-20260210094101":
-  version: 0.0.0-fix-lombard-asset-match-fix-20260210094101
-  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-fix-lombard-asset-match-fix-20260210094101"
+"@avalabs/unified-asset-transfer@npm:0.0.0-fix-lombard-asset-match-fix-20260210112031":
+  version: 0.0.0-fix-lombard-asset-match-fix-20260210112031
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-fix-lombard-asset-match-fix-20260210112031"
   dependencies:
     "@lombard.finance/sdk": "npm:^4.1.0"
     "@scure/base": "npm:^1.0.1"
@@ -504,7 +504,7 @@ __metadata:
     "@solana/kit": ^5.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/d1bf6225b109b84910e9dec5d4b39463b102d15b3ef70488b692dcdb6b26a29561a95db8f571154f8514a62b4a71e70ba336450eed6175618b836d3b0942f2fa
+  checksum: 10c0/e00d5a7c9b3d7b27e89d2fb1012ebf7dc55c581e9f6dcaba756100a78f3f1f117aea02a3286694f67313d3fa28546aa67ec7df5c8258e24155fcf62990d62c4e
   languageName: node
   linkType: hard
 
@@ -2769,7 +2769,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
     "@avalabs/types": "npm:3.1.0-alpha.74"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-fix-lombard-asset-match-fix-20260210094101"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-fix-lombard-asset-match-fix-20260210112031"
     "@avalabs/vm-module-types": "npm:3.1.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
