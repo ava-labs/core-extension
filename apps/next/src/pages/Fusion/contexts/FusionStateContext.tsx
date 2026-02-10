@@ -25,7 +25,6 @@ import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
   useUserAddresses,
   useTransferManager,
-  useSigners,
   useAssetAndChain,
   useQuotes,
   useSupportedChainIds,
@@ -86,13 +85,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toQuery,
   } = useSwapQuery();
 
-  const signers = useSigners();
-  const manager = useTransferManager(signers);
+  const manager = useTransferManager();
   const supportedChainsIds = useSupportedChainIds(manager);
   const sourceTokenList = useSwapSourceTokenList(supportedChainsIds);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
   const targetTokenList = useSwapTargetTokenList(
-    sourceToken ? sourceToken.chainCaipId : supportedChainsIds,
+    supportedChainsIds,
     sourceToken,
   );
   const targetToken = useSwapTargetToken(targetTokenList, sourceToken, toId);
