@@ -191,6 +191,10 @@ export const useErrorMessage = () => {
       [SwapErrorCode.InsufficientBalance]: {
         title: t('Insufficient balance'),
       },
+      [SwapErrorCode.TransactionRevertedDueToSlippage]: {
+        title: t('Transaction reverted due to slippage'),
+        hint: t('Please try again with a different slippage tolerance.'),
+      },
     }),
     [t],
   );
@@ -379,6 +383,10 @@ export const useErrorMessage = () => {
         (typeof error.code === 'number' || typeof error.code === 'string')
       ) {
         message = messages[error.code];
+      }
+
+      if (!message && error instanceof Error) {
+        message = { title: error.message };
       }
 
       return message ?? messages[CommonError.Unknown];

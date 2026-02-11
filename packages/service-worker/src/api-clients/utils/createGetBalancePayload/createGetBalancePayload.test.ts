@@ -158,6 +158,7 @@ describe('utils', () => {
                   id: 'avax124',
                 },
               ],
+              filterOutDustUtxos: false,
             },
             {
               addressDetails: [
@@ -188,6 +189,7 @@ describe('utils', () => {
               ],
               namespace: 'avax',
               references: ['8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a'],
+              filterOutDustUtxos: false,
             },
             {
               namespace: 'eip155',
@@ -246,6 +248,7 @@ describe('utils', () => {
           currency: 'usd',
           data: [
             {
+              filterOutDustUtxos: false,
               addressDetails: [
                 {
                   addresses: ['avax1aa'],

@@ -140,6 +140,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
           {
             secretType: SecretType.Mnemonic,
             mnemonic: 'mnemonic',
+            name: 'Recovery Phrase 01',
             extendedPublicKeys: [
               {
                 key: 'xpub',
@@ -165,6 +166,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         {
           secretType: SecretType.Mnemonic,
           mnemonic: 'mnemonic',
+          name: 'Recovery Phrase 01',
           extendedPublicKeys: [
             {
               key: 'xpub',
@@ -238,6 +240,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
               type: 'extended-pubkey',
             },
           ],
+          name: 'Ledger 01',
           derivationPathSpec: DerivationPath.BIP44,
           id: ACTIVE_WALLET_ID,
           secretType: SecretType.Ledger,
@@ -260,6 +263,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
             { type: 'address-pubkey', curve: 'secp256k1', key: 'xp' },
           ],
           id: ACTIVE_WALLET_ID,
+          name: 'Ledger Live 01',
           secretType: SecretType.LedgerLive,
           extendedPublicKeys: [],
           ...additionalData,
@@ -333,7 +337,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
         {
           derivationPath: DerivationPath.BIP44,
           id: ACTIVE_WALLET_ID,
-          name: undefined,
+          name: 'Recovery Phrase 01',
           type: SecretType.Mnemonic,
         },
       ]);
@@ -1008,42 +1012,42 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
   });
 
   describe('isKnownSecret', () => {
-    it('returns true when seed phrase is already stored', async () => {
+    it('returns isKnown: true when seed phrase is already stored', async () => {
       mockMnemonicWallet();
 
       expect(
         await secretsService.isKnownSecret(SecretType.Mnemonic, 'mnemonic'),
-      ).toBe(true);
+      ).toEqual({ isKnown: true, name: 'Recovery Phrase 01' });
 
       expect(
         await secretsService.isKnownSecret(SecretType.Mnemonic, 'cinomenm'),
-      ).toBe(false);
+      ).toEqual({ isKnown: false });
     });
-    it('returns true when Ledger is already stored', async () => {
+    it('returns isKnown: true when Ledger is already stored', async () => {
       mockLedgerWallet();
 
       expect(
         await secretsService.isKnownSecret(SecretType.Ledger, 'xpub'),
-      ).toBe(true);
+      ).toEqual({ isKnown: true, name: 'Ledger 01' });
 
       expect(
         await secretsService.isKnownSecret(SecretType.Ledger, 'newxpub'),
-      ).toBe(false);
+      ).toEqual({ isKnown: false });
     });
-    it('returns true when Ledger Live is already stored', async () => {
+    it('returns isKnown: true when Ledger Live is already stored', async () => {
       mockLedgerLiveWallet();
 
       expect(
         await secretsService.isKnownSecret(SecretType.LedgerLive, 'evm'),
-      ).toBe(true);
+      ).toEqual({ isKnown: true, name: 'Ledger Live 01' });
 
       expect(
         await secretsService.isKnownSecret(SecretType.LedgerLive, 'xp'),
-      ).toBe(true);
+      ).toEqual({ isKnown: true, name: 'Ledger Live 01' });
 
       expect(
         await secretsService.isKnownSecret(SecretType.LedgerLive, 'new evm'),
-      ).toBe(false);
+      ).toEqual({ isKnown: false });
     });
   });
 
@@ -1135,6 +1139,7 @@ describe('src/background/services/secrets/SecretsService.ts', () => {
               id: ACTIVE_WALLET_ID,
               secretType: SecretType.LedgerLive,
               extendedPublicKeys: [],
+              name: 'Ledger Live 01',
               publicKeys: [
                 {
                   ...existingSecrets.wallets[0]?.publicKeys[0],

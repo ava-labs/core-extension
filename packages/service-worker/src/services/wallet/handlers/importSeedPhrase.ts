@@ -55,7 +55,7 @@ export class ImportSeedPhraseHandler implements HandlerType {
     const { mnemonic: rawMnemonic, name } = params;
     const mnemonic = rawMnemonic.toLowerCase(); // BIP39 seed phrases are case-insensitive
 
-    const isKnown = await this.secretsService.isKnownSecret(
+    const { isKnown } = await this.secretsService.isKnownSecret(
       SecretType.Mnemonic,
       mnemonic,
     );

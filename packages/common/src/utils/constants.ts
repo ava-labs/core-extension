@@ -21,3 +21,9 @@ export const AVALANCHE_BLOCKCHAIN_IDS = Object.freeze({
   MAINNET_C: '2q9e4r6Mu3U68nU1fYjgbR6JvwrRx36CohpAX5UQxse55x1Q5',
   TESTNET_C: 'yH8D7ThNJkxmtkuv2jgBa4P1Rn3Qpr4pPr7QYNfcdoS6k6HWp',
 });
+
+/**
+ * Divisor for converting basis points to decimal percentage.
+ * @example 100 BPS / 10_000 = 0.01 = 1%
+ */
+export const BASIS_POINTS_DIVISOR = 10_000 as const;

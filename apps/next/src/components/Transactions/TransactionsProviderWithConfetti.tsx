@@ -17,7 +17,7 @@ import { NetworkWithCaipId } from '@core/types';
 export const TransactionStatusProviderWithConfetti = ({
   children,
 }: PropsWithChildren) => {
-  const { triggerConfetti } = useConfettiContext();
+  const { triggerConfetti, stopConfetti } = useConfettiContext();
   const history = useHistory();
 
   const handlePending = useCallback(
@@ -45,6 +45,7 @@ export const TransactionStatusProviderWithConfetti = ({
     <TransactionStatusProvider
       onPending={handlePending}
       onSuccess={handleSuccess}
+      onReverted={stopConfetti}
       renderExplorerLink={({ network, hash }) => (
         <ExplorerLink network={network} hash={hash} />
       )}

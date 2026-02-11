@@ -10,6 +10,7 @@ export type UseQuoterProps = Partial<{
   targetAsset: Asset;
   targetChain: Chain;
   amount: bigint;
+  slippageBps: number;
 }>;
 
 export const useQuoter = ({
@@ -21,6 +22,7 @@ export const useQuoter = ({
   targetAsset,
   targetChain,
   amount,
+  slippageBps,
 }: UseQuoterProps) => {
   const quoterProps = useMemoizedProps({
     manager,
@@ -31,6 +33,7 @@ export const useQuoter = ({
     targetAsset,
     targetChain,
     amount,
+    slippageBps,
   });
 
   return useMemo(
@@ -52,10 +55,11 @@ const buildQuoter = ({
   targetAsset,
   targetChain,
   amount,
+  slippageBps,
 }: Required<UseQuoterProps>) =>
   manager.getQuoter({
     amount,
-    slippageBps: 100, // TODO:
+    slippageBps,
     fromAddress,
     sourceAsset,
     sourceChain,
@@ -73,6 +77,7 @@ const useMemoizedProps = ({
   targetAsset,
   targetChain,
   amount,
+  slippageBps,
 }: UseQuoterProps) =>
   useMemo(
     () => ({
@@ -84,6 +89,7 @@ const useMemoizedProps = ({
       targetAsset,
       targetChain,
       amount,
+      slippageBps,
     }),
     [
       manager,
@@ -94,5 +100,6 @@ const useMemoizedProps = ({
       targetAsset,
       targetChain,
       amount,
+      slippageBps,
     ],
   );

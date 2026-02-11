@@ -29,6 +29,7 @@ import {
   useQuotes,
 } from './hooks';
 import { toast } from '@avalabs/k2-alpine';
+import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
@@ -46,10 +47,10 @@ type FusionState = QueryState &
     toAmount?: string;
     isAmountLoading: boolean;
     swapError?: SwapError;
-    quote: Quote | null;
+    userQuote: Quote | null;
     bestQuote: Quote | null;
     quotes: Quote[];
-    selectQuote: (quote: Quote) => void;
+    selectQuoteById: (quoteId: string | null) => void;
     transfer: (specificQuote?: Quote) => Promise<void>;
     isReadyToTransfer: boolean;
   };
@@ -65,6 +66,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
   const getTranslatedError = useErrorMessage();
+
+  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
+  const [autoSlippage, setAutoSlippage] = useState(true);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   const {
     update: updateQuery,
@@ -91,7 +96,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceChain,
     targetChain,
   );
-  const { bestQuote, quotes, quote, selectQuote } = useQuotes({
+  const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
     manager,
     fromAddress,
     toAddress,
@@ -103,11 +108,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       userAmount && sourceAsset
         ? stringToBigint(userAmount, sourceAsset.decimals)
         : 0n,
+    slippageBps: slippage * 100, // TODO: Support auto slippage when Markr supports it
   });
-
-  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
-  const [autoSlippage, setAutoSlippage] = useState(true);
-  const [isConfirming, setIsConfirming] = useState(false);
 
   const toAmount =
     bestQuote && targetAsset
@@ -122,7 +124,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
       setIsConfirming(true);
 
-      const quoteToUse = specificQuote ?? quote;
+      const quoteToUse = specificQuote ?? userQuote ?? bestQuote;
 
       if (!quoteToUse) {
         throw new Error('Quote not found');
@@ -137,13 +139,30 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         await manager.transferAsset({ quote: quoteToUse });
         captureEncrypted('SwapConfirmed', {
           address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+          chainId: quoteToUse.sourceChain.chainId,
         });
         replace('/');
       } catch (err) {
-        if (isUserRejectionError(err)) return;
+        if (isUserRejectionError(err)) {
+          setIsConfirming(false);
+          return;
+        }
 
-        // TODO: Retry with another quote if available AND if the user has not manually selected a quote.
+        const wasManuallySelectedQuote = !!userQuote;
+
+        // If no specific quote was selected manually by the user, retry with the next quote (if applicable).
+        if (!wasManuallySelectedQuote && shouldRetryWithNextQuote(err)) {
+          const currentQuoteIndex = quotes.findIndex(
+            (q) => q.id === quoteToUse.id,
+          );
+          const nextQuote = quotes[currentQuoteIndex + 1];
+
+          if (nextQuote) {
+            return transfer(nextQuote);
+          }
+        }
+
+        setIsConfirming(false);
 
         console.error(err);
         Monitoring.sentryCaptureException(
@@ -159,20 +178,20 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
         captureEncrypted('SwapFailed', {
           address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+          chainId: quoteToUse.sourceChain.chainId,
         });
-      } finally {
-        setIsConfirming(false);
       }
     },
     [
       manager,
       fromAddress,
-      quote,
+      userQuote,
+      bestQuote,
       slippage,
       replace,
       captureEncrypted,
       getTranslatedError,
+      quotes,
     ],
   );
 
@@ -199,12 +218,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         autoSlippage,
         setAutoSlippage,
         swapError: undefined, // TODO:
-        quote,
+        userQuote,
         bestQuote,
         quotes,
-        selectQuote,
+        selectQuoteById,
         transfer,
-        isReadyToTransfer: Boolean(quote && manager),
+        isReadyToTransfer: Boolean((userQuote ?? bestQuote) && manager),
       }}
     >
       {children}

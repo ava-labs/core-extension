@@ -76,10 +76,11 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   const { t } = useTranslation();
   const [activePublicKeys, setActivePublicKeys] = useState<PublicKey[]>([]);
   const withDerivationPathSpec = isWithDerivationPathSpec(props);
-  const { status, error, onRetry, retrieveKeys } = useLedgerPublicKeyFetcher(
-    withDerivationPathSpec ? props.derivationPathSpec : undefined,
-    (publicKeys) => setActivePublicKeys(sortBy(publicKeys, 'index')),
-  );
+  const { status, error, onRetry, duplicatedWalletName, retrieveKeys } =
+    useLedgerPublicKeyFetcher(
+      withDerivationPathSpec ? props.derivationPathSpec : undefined,
+      (publicKeys) => setActivePublicKeys(sortBy(publicKeys, 'index')),
+    );
   const [keys, setKeys] = useState<PublicKey[]>(EMPTY_KEYS);
   const [isRetrieving, setIsRetrieving] = useState(false);
 
@@ -165,6 +166,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
       {status === 'error' && error && (
         <Styled.LedgerConnectionError
           errorType={error}
+          duplicatedWalletName={duplicatedWalletName}
           requiredApp={requiredApp}
           onTroubleshoot={onTroubleshoot}
           onRetry={() => {
@@ -186,7 +188,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
               ? t('Connect with {{spec}} derivation paths', {
                   spec:
                     props.derivationPathSpec === DerivationPath.BIP44
-                      ? 'LedgerLive'
+                      ? 'Ledger Live'
                       : 'BIP44',
                 })
               : t('Retry')

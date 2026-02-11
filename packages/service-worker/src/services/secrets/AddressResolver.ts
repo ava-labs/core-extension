@@ -56,6 +56,7 @@ export class AddressResolver {
     accountIndex: number,
     derivationPathType: DerivationPath,
     vms: VMs,
+    addressIndex?: number,
   ): Promise<PickKeys<DerivationPathsMap, VMs>> {
     assertPresent(this.#moduleManager, CommonError.ModuleManagerNotSet);
 
@@ -65,6 +66,7 @@ export class AddressResolver {
       const modulePaths = await module.buildDerivationPath({
         accountIndex,
         derivationPathType,
+        addressIndex,
       });
 
       for (const [vmType, address] of Object.entries(modulePaths)) {

@@ -24,6 +24,10 @@ export const SingleTokenBalanceChange: FC<SingleTokenBalanceChangeProps> = ({
 }) => {
   const currencyFormatter = useConvertedCurrencyFormatter();
 
+  if (!item || !token) {
+    return null;
+  }
+
   return (
     <Styled.TokenBalanceChangeWrapper>
       <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
