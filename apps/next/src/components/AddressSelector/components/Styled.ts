@@ -10,6 +10,8 @@ import {
 export const HidingMenuItem = styled(MenuItem)(({ disabled, theme }) => ({
   display: disabled ? 'none' : undefined,
   gap: theme.spacing(1.25),
+  alignItems: 'center',
+  justifyContent: 'flex-start',
 }));
 
 export const Select = styled(K2Select)(({ theme }) => ({

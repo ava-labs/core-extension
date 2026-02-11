@@ -113,6 +113,7 @@ export type PerformSwapParams = {
   isOneClickSwapEnabled: boolean;
   markrSwapGasBuffer?: number;
   isGaslessOn?: boolean;
+  shouldUseAutoApproval?: boolean; // Only true for Markr swaps when degen mode is enabled
 };
 
 export function isEvmWrapQuote(quote: SwapQuote): quote is EvmWrapQuote {

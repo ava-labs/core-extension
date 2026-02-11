@@ -27,10 +27,10 @@ const ActionButtonsSkeleton: FC = () => {
   );
 };
 
-const TrendingTokensSkeleton: FC = () => {
+export const TrendingTokensSkeleton: FC = () => {
   return (
-    <Box pt={1.25}>
-      <Skeleton height={40} animation="wave" variant="rounded" />
+    <Box>
+      <Skeleton height={44} animation="wave" variant="rounded" />
     </Box>
   );
 };

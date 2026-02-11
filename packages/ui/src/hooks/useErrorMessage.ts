@@ -191,6 +191,10 @@ export const useErrorMessage = () => {
       [SwapErrorCode.InsufficientBalance]: {
         title: t('Insufficient balance'),
       },
+      [SwapErrorCode.TransactionRevertedDueToSlippage]: {
+        title: t('Transaction reverted due to slippage'),
+        hint: t('Please try again with a different slippage tolerance.'),
+      },
     }),
     [t],
   );
