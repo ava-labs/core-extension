@@ -111,6 +111,7 @@
   "Auto": "Auto",
   "Auto slippage": "Auto slippage",
   "Auto • {{name}}": "Auto • {{name}}",
+  "Auto • {{slippage}}": "Auto • {{slippage}}",
   "Auto • {{slippage}}%": "Auto • {{slippage}}%",
   "Avalanche": "Avalanche",
   "Avalanche C-Chain": "Avalanche C-Chain",
