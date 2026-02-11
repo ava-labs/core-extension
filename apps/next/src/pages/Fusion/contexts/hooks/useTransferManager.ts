@@ -26,7 +26,9 @@ export const useTransferManager = (signers: Signers) => {
           type: ServiceType.MARKR,
           evmSigner: signers.evm,
           markrApiToken: process.env.MARKR_API_TOKEN, // Not required (if using the default proxy API url)
-          markrApiUrl: 'https://staging-orchestrator.markr.io', // Not required
+          markrApiUrl:
+            process.env.MARKR_API_URL ??
+            'https://staging-orchestrator.markr.io', // Default to prod
           markrAppId: MARKR_EVM_PARTNER_ID,
         },
       ],

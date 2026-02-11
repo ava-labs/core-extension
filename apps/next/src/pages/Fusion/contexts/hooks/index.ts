@@ -8,3 +8,4 @@ export * from './useSwapSourceTokenList';
 export * from './useSwapSourceToken';
 export * from './useSwapTargetTokenList';
 export * from './useSwapTargetToken';
+export * from './useSlippageTolerance';
