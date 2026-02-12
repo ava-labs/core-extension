@@ -1,4 +1,5 @@
 import { Stack, styled } from '@avalabs/k2-alpine';
+import { useEffect, useRef } from 'react';
 import { PersonalAvatar, PersonalAvatarName } from '../PersonalAvatar';
 
 const AvatarGridRow = styled(Stack)(({ theme }) => ({
@@ -26,12 +27,23 @@ export const AvatarRows = ({
   selected,
   onSelect,
 }: AvatarRowsProps) => {
+  const selectedRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    selectedRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      inline: 'center',
+      block: 'nearest',
+    });
+  }, []);
+
   return (
     <>
       {avatarRows.map((row, index) => (
         <AvatarGridRow key={index}>
           {row.map((avatar) => (
             <PersonalAvatar
+              ref={avatar === selected ? selectedRef : undefined}
               tabIndex={0}
               key={avatar}
               name={avatar}
