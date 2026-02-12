@@ -40,6 +40,9 @@ interface WalletGetSettingsHandlerResult {
   coreAssistant: boolean;
   preferredView: 'floating' | 'sidebar';
   showTrendingTokens: boolean;
+  isQuickSwapsEnabled: boolean;
+  feeSetting: 'low' | 'medium' | 'high';
+  maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
   privacyMode: boolean;
   filterSmallUtxos: boolean;
 }
@@ -69,6 +72,9 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         coreAssistant: settings.coreAssistant,
         preferredView: settings.preferredView,
         showTrendingTokens: settings.showTrendingTokens,
+        isQuickSwapsEnabled: settings.isQuickSwapsEnabled,
+        feeSetting: settings.feeSetting,
+        maxBuy: settings.maxBuy,
         privacyMode: settings.privacyMode,
         filterSmallUtxos: settings.filterSmallUtxos,
       };

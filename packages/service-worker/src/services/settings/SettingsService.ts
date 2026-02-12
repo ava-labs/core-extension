@@ -6,7 +6,9 @@ import {
   CURRENCIES,
   EnsureDefined,
   FeatureGates,
+  FeeSetting,
   Languages,
+  MaxBuyOption,
   SETTINGS_STORAGE_KEY,
   SETTINGS_UNENCRYPTED_STORAGE_KEY,
   SettingsEvents,
@@ -35,6 +37,9 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   coreAssistant: true,
   preferredView: 'floating',
   showTrendingTokens: false,
+  isQuickSwapsEnabled: false,
+  feeSetting: 'medium',
+  maxBuy: 'unlimited',
   privacyMode: false,
   filterSmallUtxos: true,
 };
@@ -282,6 +287,30 @@ export class SettingsService implements OnStorageReady, OnLock {
     await this.saveSettings({
       ...settings,
       showTrendingTokens: show,
+    });
+  }
+
+  async setQuickSwapsEnabled(enabled: boolean) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      isQuickSwapsEnabled: enabled,
+    });
+  }
+
+  async setFeeSetting(feeSetting: FeeSetting) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      feeSetting,
+    });
+  }
+
+  async setMaxBuy(maxBuy: MaxBuyOption) {
+    const settings = await this.getSettings();
+    await this.saveSettings({
+      ...settings,
+      maxBuy,
     });
   }
 

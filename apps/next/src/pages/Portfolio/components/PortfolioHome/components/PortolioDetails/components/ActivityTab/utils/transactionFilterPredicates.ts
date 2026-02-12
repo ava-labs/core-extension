@@ -14,9 +14,9 @@ export const transactionFilterPredicates: Record<
     tx.isContractCall &&
     !tx.bridgeAnalysis.isBridgeTx &&
     tx.txType !== TransactionType.SWAP,
-  Incoming: (tx) => tx.isIncoming,
-  Outgoing: (tx) => tx.isOutgoing,
-  NFTs: (tx) => {
+  Received: (tx) => tx.isIncoming,
+  Sent: (tx) => tx.isOutgoing,
+  NFT: (tx) => {
     const [token] = tx.tokens;
     return (
       tx.txType === TransactionType.NFT_BUY ||
