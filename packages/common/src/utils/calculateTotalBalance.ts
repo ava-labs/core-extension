@@ -8,7 +8,7 @@ import {
 } from '@core/types';
 import { getAddressForChain } from './getAddressForChain';
 import { hasAccountBalances } from './hasAccountBalances';
-import { isTokenMalicious } from './isTokenMalicious';
+import { isTokenCountIn } from './isTokenCountIn';
 
 export const watchlistTokens = ['avax', 'btc', 'sol'];
 
@@ -81,7 +81,7 @@ export function calculateTotalBalance({
 
       const sumValues = Object.entries(tokens).reduce<BalanceAccumulator>(
         (sumTotal, [tokenAddressOrSymbol, token]) => {
-          if (isTokenMalicious(token)) {
+          if (!isTokenCountIn(token)) {
             return sumTotal;
           }
 
