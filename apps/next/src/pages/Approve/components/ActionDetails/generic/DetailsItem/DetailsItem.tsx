@@ -12,12 +12,19 @@ import { NodeIdDetail } from './items/NodeIdDetail';
 import { DateDetail } from './items/DateDetail';
 import { NetworkWithCaipId } from '@core/types';
 
+type SimpleDetailsItems = DetailItemType[];
+
 type DetailsItemProps = {
   item: DetailItem;
   network: NetworkWithCaipId;
+  simpleDetailsItems?: SimpleDetailsItems;
 };
 
-export const DetailsItem = ({ item, network }: DetailsItemProps) => {
+export const DetailsItem = ({
+  item,
+  network,
+  simpleDetailsItems = [],
+}: DetailsItemProps) => {
   if (typeof item === 'string') {
     return <PlainTextDetail item={item} />;
   }
@@ -27,7 +34,15 @@ export const DetailsItem = ({ item, network }: DetailsItemProps) => {
       return <TextDetail item={item} />;
 
     case DetailItemType.ADDRESS:
-      return <AddressDetail item={item} network={network} />;
+      return (
+        <AddressDetail
+          item={item}
+          network={network}
+          isSimpleDetailsItem={simpleDetailsItems.includes(
+            DetailItemType.ADDRESS,
+          )}
+        />
+      );
 
     case DetailItemType.LINK:
       return <LinkDetail item={item} />;
