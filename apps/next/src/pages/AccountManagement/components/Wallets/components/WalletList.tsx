@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { AddAccountButton } from '../../AddOrCreateWallet';
 import { AccountListItem } from './AccountListItem';
 import * as Styled from './Styled';
+import { isImportedAccount } from '@core/common';
 
 export const WalletList: FC = () => {
   const { t } = useTranslation();
@@ -19,6 +20,7 @@ export const WalletList: FC = () => {
   const { accounts, selectAccount, isActiveAccount } = useAccountsContext();
   const importedAccounts = Object.values(accounts.imported);
   const renderAccount = getAccountRenderer(isActiveAccount, selectAccount);
+  const isActiveAccountImported = isImportedAccount(accounts.active);
 
   return (
     <>
@@ -79,24 +81,19 @@ export const WalletList: FC = () => {
           </WalletCard>
         );
       })}
-      {importedAccounts.map((account) => {
-        const isActiveAccountInWallet = isActiveAccount(account.id);
-
-        return (
-          <WalletCard
-            key={account.id}
-            accountsNumber={1}
-            id={IMPORTED_ACCOUNTS_WALLET_ID}
-            disableRename
-            name={t('Imported accounts')}
-            icon={<WalletIcon type={SecretType.PrivateKey} size={24} />}
-            showActiveIndicator={isActiveAccountInWallet}
-            initialExpanded={isActiveAccountInWallet}
-          >
-            {renderAccount(account)}
-          </WalletCard>
-        );
-      })}
+      {importedAccounts.length > 0 && (
+        <WalletCard
+          accountsNumber={importedAccounts.length}
+          id={IMPORTED_ACCOUNTS_WALLET_ID}
+          disableRename
+          name={t('Imported accounts')}
+          icon={<WalletIcon type={SecretType.PrivateKey} size={24} />}
+          showActiveIndicator={isActiveAccountImported}
+          initialExpanded={isActiveAccountImported}
+        >
+          {importedAccounts.map(renderAccount)}
+        </WalletCard>
+      )}
     </>
   );
 };
