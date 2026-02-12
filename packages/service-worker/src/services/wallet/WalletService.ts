@@ -1092,7 +1092,7 @@ export class WalletService implements OnUnlock {
    */
   private async signMessageAvalanche(params: PartialBy<MessageParams, 'from'>) {
     const message = toUtf8(params.data);
-    const xpNetwork = this.networkService.getAvalancheNetworkXP();
+    const xpNetwork = this.networkService.getAvalancheNetworkX();
     const wallet = await this.getWallet({
       network: xpNetwork,
       accountIndex: params.accountIndex,
