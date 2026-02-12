@@ -111,6 +111,7 @@ const decorateWithAssetTypeAndChainId = (
   ...token,
   assetType: getFungibleAssetType(token, network),
   coreChainId: network.chainId,
+  chainCaipId: network.caipId,
 });
 
 const getFungibleAssetType = (
