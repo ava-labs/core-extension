@@ -24,7 +24,9 @@ export const AvalancheTransactionDetails: FC<
               key={index}
               item={item}
               network={network}
-              simpleDetailsItems={[DetailItemType.ADDRESS]}
+              isSimpleDetailsItem={
+                typeof item !== 'string' && item.type === DetailItemType.ADDRESS
+              }
             />
           ))}
         </DetailsSection>

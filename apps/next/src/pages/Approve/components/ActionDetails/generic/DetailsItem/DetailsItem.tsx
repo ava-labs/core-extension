@@ -12,18 +12,16 @@ import { NodeIdDetail } from './items/NodeIdDetail';
 import { DateDetail } from './items/DateDetail';
 import { NetworkWithCaipId } from '@core/types';
 
-type SimpleDetailsItems = DetailItemType[];
-
 type DetailsItemProps = {
   item: DetailItem;
   network: NetworkWithCaipId;
-  simpleDetailsItems?: SimpleDetailsItems;
+  isSimpleDetailsItem?: boolean;
 };
 
 export const DetailsItem = ({
   item,
   network,
-  simpleDetailsItems = [],
+  isSimpleDetailsItem = false,
 }: DetailsItemProps) => {
   if (typeof item === 'string') {
     return <PlainTextDetail item={item} />;
@@ -38,9 +36,7 @@ export const DetailsItem = ({
         <AddressDetail
           item={item}
           network={network}
-          isSimpleDetailsItem={simpleDetailsItems.includes(
-            DetailItemType.ADDRESS,
-          )}
+          isSimpleDetailsItem={isSimpleDetailsItem}
         />
       );
 
