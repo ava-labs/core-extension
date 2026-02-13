@@ -67,6 +67,7 @@ describe('background/services/settings/SettingsService.ts', () => {
       [FeatureGates.LANGUAGES]: true,
       [FeatureGates.BALANCE_SERVICE_INTEGRATION]: true,
     },
+    addListener: jest.fn(),
   } as any;
 
   const storedSettings: SettingsState = {

@@ -64,6 +64,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.FUSION_PROJECT]: false,
+  [FeatureGates.QUICK_SWAPS]: false,
 };
 
 // Default flags are used when posthog is not available
@@ -129,6 +130,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.FUSION_PROJECT]: false,
+  [FeatureGates.QUICK_SWAPS]: false,
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

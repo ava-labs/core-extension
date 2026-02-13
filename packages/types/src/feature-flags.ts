@@ -59,6 +59,7 @@ export enum FeatureGates {
   BALANCE_SERVICE_INTEGRATION = 'balance-service-integration',
   LANGUAGES = 'languages',
   FUSION_PROJECT = 'fusion-project',
+  QUICK_SWAPS = 'quick-swaps',
 }
 
 export enum FeatureVars {
