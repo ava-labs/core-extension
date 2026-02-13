@@ -22,6 +22,14 @@ type AvatarRowsProps = {
   onSelect: (avatar: PersonalAvatarName) => void;
 };
 
+function scrollToAvatar(avatarElement: HTMLElement | null) {
+  avatarElement?.scrollIntoView({
+    behavior: 'smooth',
+    inline: 'center',
+    block: 'nearest',
+  });
+}
+
 export const AvatarRows = ({
   avatarRows,
   selected,
@@ -30,11 +38,7 @@ export const AvatarRows = ({
   const selectedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    selectedRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      inline: 'center',
-      block: 'nearest',
-    });
+    scrollToAvatar(selectedRef.current);
   }, []);
 
   return (
@@ -50,7 +54,10 @@ export const AvatarRows = ({
               dimmed
               size="medium"
               selected={avatar === selected}
-              onClick={() => onSelect(avatar)}
+              onClick={(e) => {
+                scrollToAvatar(e.currentTarget);
+                onSelect(avatar);
+              }}
               onKeyDown={(ev) => {
                 // On space, select the avatar
                 if (ev.key === ' ') {
