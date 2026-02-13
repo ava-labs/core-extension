@@ -1,6 +1,4 @@
-import { Contact } from '@avalabs/types';
 import {
-  AvatarHex,
   ChevronRightIcon,
   IconButton,
   Stack,
@@ -8,7 +6,9 @@ import {
   Typography,
   styled,
 } from '@avalabs/k2-alpine';
+import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
+import { ContactAvatar } from './ContactAvatar';
 
 type ContactListItemProps = Omit<StackProps, 'children'> & {
   contact: Contact;
@@ -29,7 +29,12 @@ export const ContactListItem = ({
 
   return (
     <Wrapper role="button" data-testid="contact-item" {...props}>
-      <AvatarHex size="xsmall" alt={contact.name} />
+      <ContactAvatar
+        name={contact.name}
+        size="xsmall"
+        selected={contact.avatar}
+        readonly
+      />
       <Stack
         gap={0.5}
         flexGrow={1}
