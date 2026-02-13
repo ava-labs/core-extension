@@ -127,7 +127,7 @@ export class ConnectRequestHandler implements DAppRequestHandler {
     const connectorArgs = {
       accountsService: this.accountsService,
       permissionsService: this.permissionsService,
-      vm: pendingAction.params.addressVM || NetworkVMType.EVM,
+      vm: pendingAction.displayData?.addressVM || NetworkVMType.EVM,
     };
     const baseCallbackArgs = {
       pendingAction,
