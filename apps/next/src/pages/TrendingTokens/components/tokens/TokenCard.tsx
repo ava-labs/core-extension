@@ -97,11 +97,11 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       ? token.address?.toLowerCase()
       : token.address;
 
-    const tokenType = isSolana
-      ? TokenType.SPL
-      : isErc20
-        ? TokenType.ERC20
-        : TokenType.NATIVE;
+    const tokenType = token.isNative
+      ? TokenType.NATIVE
+      : isSolana
+        ? TokenType.SPL
+        : TokenType.ERC20;
     return getUniqueTokenIdGeneric({
       type: tokenType,
       symbol: normalizedSymbol,
