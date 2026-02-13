@@ -9,18 +9,38 @@ import {
   openNewTab,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
+import { useAnalyticsContext } from '@core/ui';
 import { useConfettiContext } from '@/components/Confetti';
 
 const TOAST_ID = 'send-result';
 
-export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
+export const useTransactionCallbacks = (
+  network: NetworkWithCaipId,
+  fromAddress?: string,
+) => {
   const { t } = useTranslation();
   const { replace } = useHistory();
   const { triggerConfetti } = useConfettiContext();
+  const { captureEncrypted } = useAnalyticsContext();
 
   return {
+    onSendApproved: () => {
+      if (fromAddress) {
+        captureEncrypted('SendApproved', {
+          address: fromAddress,
+          chainId: network?.chainId,
+        });
+      }
+    },
     // When transaction is successfully sent to the network
     onSendSuccess: (hash: string) => {
+      if (fromAddress) {
+        captureEncrypted('SendSuccessful', {
+          address: fromAddress,
+          txHash: hash,
+          chainId: network?.chainId,
+        });
+      }
       // Redirect to home page
       replace('/');
       triggerConfetti();

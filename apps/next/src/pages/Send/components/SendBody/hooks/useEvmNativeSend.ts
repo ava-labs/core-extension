@@ -36,7 +36,8 @@ export const useEvmNativeSend = ({
   const provider = getEvmProvider(network);
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
-  const { onSendFailure } = useTransactionCallbacks(network);
+  const { onSendApproved, onSendFailure, onSendSuccess } =
+    useTransactionCallbacks(network, from.addressC);
 
   const [error, setError] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -44,6 +45,7 @@ export const useEvmNativeSend = ({
   const send = useCallback(async () => {
     try {
       setIsSending(true);
+      onSendApproved();
 
       const networkFee = await getNetworkFee(token.coreChainId);
 
@@ -81,9 +83,7 @@ export const useEvmNativeSend = ({
         },
       );
 
-      // Transaction status will be handled by the TransactionStatusProvider
-      // so we don't need to listen for events here
-
+      onSendSuccess(hash);
       return hash;
     } catch (err) {
       onSendFailure(err);
@@ -93,7 +93,9 @@ export const useEvmNativeSend = ({
     }
   }, [
     request,
+    onSendApproved,
     onSendFailure,
+    onSendSuccess,
     token.coreChainId,
     from.addressC,
     to,
