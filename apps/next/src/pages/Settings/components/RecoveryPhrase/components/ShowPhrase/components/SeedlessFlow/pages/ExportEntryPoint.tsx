@@ -1,11 +1,10 @@
 import { ActionButtons } from '@/components/ActionButtons';
 import { Page } from '@/components/Page';
 import { WarningMessage } from '@/components/WarningMessage';
-import { StackProps, styled } from '@avalabs/k2-alpine';
+import { StackProps } from '@avalabs/k2-alpine';
 import { openFullscreenTab } from '@core/common';
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FiExternalLink } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import { StageProps } from '../types';
 
@@ -15,10 +14,6 @@ const contentProps: StackProps = {
   justifyContent: undefined,
   alignItems: undefined,
 };
-
-const ExternalLinkIcon = styled(FiExternalLink)(({ theme }) => ({
-  marginLeft: theme.spacing(-1.5),
-}));
 
 export const ExportEntryPoint: FC<StageProps> = ({
   initExport,
@@ -43,12 +38,9 @@ export const ExportEntryPoint: FC<StageProps> = ({
   return (
     <Page
       title={t('There is a waiting period to view your recovery phrase')}
-      description={t(
-        'This phrase is your access key to your wallet. Carefully write it down and store it in a safe location',
-      )}
       contentProps={contentProps}
     >
-      <WarningMessage>
+      <WarningMessage sx={{ pr: 2 }}>
         {t(
           'It will take 2 days to retrieve your recovery phrase. You will only have 48 hours to copy your recovery phrase once the 2 day waiting period is over',
         )}
@@ -56,7 +48,7 @@ export const ExportEntryPoint: FC<StageProps> = ({
       <ActionButtons
         top={{
           label: t('Next'),
-          endIcon: <ExternalLinkIcon />,
+
           onClick: async () => {
             if (!isFullscreen) {
               openFullscreenTab(pathname.slice(1));
