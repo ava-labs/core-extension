@@ -1,3 +1,4 @@
+import { PersonalAvatarName } from '@/components/PersonalAvatar';
 import {
   ChevronRightIcon,
   IconButton,
@@ -32,7 +33,7 @@ export const ContactListItem = ({
       <ContactAvatar
         name={contact.name}
         size="xsmall"
-        selected={contact.avatar}
+        selected={contact.avatar as PersonalAvatarName | undefined}
         readonly
       />
       <Stack

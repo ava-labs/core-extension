@@ -1,15 +1,15 @@
-import { Box, styled, SxProps, Theme } from '@avalabs/k2-alpine';
+import { Box, styled } from '@avalabs/k2-alpine';
 import { FC, ReactElement } from 'react';
 import { MdEdit } from 'react-icons/md';
 
 type Props = {
-  children: ReactElement<{ sx?: SxProps<Theme> }>;
+  children: ReactElement;
   onClick: () => void;
 };
 
 export const AvatarEditOverlay: FC<Props> = ({ children, onClick }) => {
   return (
-    <Wrapper onClick={onClick}>
+    <Wrapper role="button" tabIndex={0} onClick={onClick}>
       {children}
       <EditIcon size={24} />
     </Wrapper>
