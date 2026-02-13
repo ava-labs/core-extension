@@ -492,17 +492,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260209181522":
-  version: 0.0.0-project-fusion-pr-20260209181522
-  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260209181522"
+"@avalabs/unified-asset-transfer@npm:0.0.0-fix-circular-deps-20260211115048":
+  version: 0.0.0-fix-circular-deps-20260211115048
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-fix-circular-deps-20260211115048"
   dependencies:
+    "@lombard.finance/sdk": "npm:^4.1.0"
     "@scure/base": "npm:^1.0.1"
+    coinselect: "npm:^3.1.13"
     es-toolkit: "npm:^1.42.0"
   peerDependencies:
     "@solana/kit": ^5.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/46e05d930b9d2e033ab305e79be3833f9c26037a35155525ab6d0292187bf32f3183ab5846acd2a70d4e76336d85b48943d244c77fcf6b2ccc15c8b3816dad66
+  checksum: 10c0/ee21b27242c3e0e1c7f76fe75f0c175a61d1af22a59aa05ca249597208a816cefb64a96e23e83a20af8c4c576826f316e56ecedcee32c9d526ca779f9dcda7f3
   languageName: node
   linkType: hard
 
@@ -2767,7 +2769,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
     "@avalabs/types": "npm:3.1.0-alpha.74"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260209181522"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-fix-circular-deps-20260211115048"
     "@avalabs/vm-module-types": "npm:3.1.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -5963,6 +5965,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lombard.finance/sdk-common@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "@lombard.finance/sdk-common@npm:3.4.0"
+  peerDependencies:
+    "@bitcoinerlab/secp256k1": ^1.2.0
+    bitcoinjs-lib: ^6.1.5
+  checksum: 10c0/84b22ea52826acdf3207946eb7af099de34020e9d451cf96c57aefd69d02ae4ed269a64f7317ce927c9be1ac6a014a12ae929f9ef83ec2d7f526b3ecf1c1f0ac
+  languageName: node
+  linkType: hard
+
 "@lombard.finance/sdk@npm:4.1.0":
   version: 4.1.0
   resolution: "@lombard.finance/sdk@npm:4.1.0"
@@ -5977,6 +5989,23 @@ __metadata:
     bignumber.js: ^9
     bitcoinjs-lib: ^6.1.5
   checksum: 10c0/eb50f9c7f466c7c57f1f0649399a3c35222278c9429da5cad17ef68a76ac1a98358d8996d4a0ce3337e67afc18870822009b8c17eef513fdbbbb07d7a5e4dc16
+  languageName: node
+  linkType: hard
+
+"@lombard.finance/sdk@npm:^4.1.0":
+  version: 4.2.0
+  resolution: "@lombard.finance/sdk@npm:4.2.0"
+  dependencies:
+    "@lombard.finance/sdk-common": "npm:^3.4.0"
+    isows: "npm:^1.0.7"
+  peerDependencies:
+    "@bitcoinerlab/secp256k1": ^1.2.0
+    "@layerzerolabs/lz-v2-utilities": ^3.0.17
+    axios: ^1
+    bignumber.js: ^9
+    bitcoinjs-lib: ^6.1.5
+    viem: ^2.21.0
+  checksum: 10c0/c23c789a1b69cb9d8dabcc132a7259dc51fb1a1662b82b924b8846da0b184edca21fd91b40da647883875781d7fe9d1e53b44167296c1d6588d033be64232dd5
   languageName: node
   linkType: hard
 
@@ -13695,7 +13724,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"coinselect@npm:3.1.13":
+"coinselect@npm:3.1.13, coinselect@npm:^3.1.13":
   version: 3.1.13
   resolution: "coinselect@npm:3.1.13"
   checksum: 10c0/bdab9186e2b735c82a835e7c8fb23f21b5d79538a270e82c079194e865d0bbd90a4cfcf189465cb971992657dfbe4eeb5397e44f42382876c476e6be8b6a3265

@@ -8,8 +8,8 @@ import {
 } from '@core/ui';
 import { memoize } from 'lodash';
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react';
+import { useBridgeEnvironment } from '@/hooks/useBridgeEnvironment';
 import {
-  useBridgeEnvironment,
   useCoreBridgeService,
   useGetFee,
   useGetMinimumTransferAmount,

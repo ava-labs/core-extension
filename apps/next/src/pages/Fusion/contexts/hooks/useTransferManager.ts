@@ -1,47 +1,44 @@
 import {
-  BtcSigner,
   createTransferManager,
-  Environment,
-  EvmSigner,
-  ServiceType,
   TransferManager,
 } from '@avalabs/unified-asset-transfer';
 import { useEffect, useState } from 'react';
 
-import { MARKR_EVM_PARTNER_ID } from '@core/ui';
+import { useFeatureFlagContext } from '@core/ui';
+import { hasAtLeastOneElement } from '@core/common';
 
-type Signers = {
-  evm: EvmSigner;
-  btc?: BtcSigner;
-};
+import { getEnabledTransferServices } from '../../lib/getEnabledTransferServices';
+import { useSigners } from './useSigners';
+import { useTransferEnvironment } from './useTransferEnvironment';
+import { useTransferServiceInitializers } from './useTransferServiceInitializers';
 
-export const useTransferManager = (signers: Signers) => {
+export const useTransferManager = () => {
+  const { featureFlags } = useFeatureFlagContext();
   const [manager, setManager] = useState<TransferManager>();
 
+  const signers = useSigners();
+  const environment = useTransferEnvironment();
+  const enabledServices = getEnabledTransferServices(featureFlags);
+  const serviceInitializers = useTransferServiceInitializers(
+    enabledServices,
+    signers,
+  );
+
   useEffect(() => {
+    if (!environment || !hasAtLeastOneElement(serviceInitializers)) {
+      return;
+    }
+
     createTransferManager({
-      environment: Environment.PROD,
-      serviceInitializers: [
-        {
-          type: ServiceType.MARKR,
-          evmSigner: signers.evm,
-          markrApiToken: process.env.MARKR_API_TOKEN, // Not required (if using the default proxy API url)
-          markrApiUrl:
-            process.env.MARKR_API_URL ??
-            'https://staging-orchestrator.markr.io', // Default to prod
-          markrAppId: MARKR_EVM_PARTNER_ID,
-        },
-      ],
+      environment,
+      serviceInitializers,
     })
-      .then((m) => {
-        console.log('Transfer manager created', m);
-        setManager(m);
-      })
+      .then(setManager)
       .catch((error) => {
-        console.error('Error creating transfer manager', error);
+        console.error('[useTransferManager]', error);
         setManager(undefined);
       });
-  }, [signers]);
+  }, [environment, serviceInitializers]);
 
   return manager;
 };
