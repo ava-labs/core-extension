@@ -387,7 +387,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     return networkList;
   }
 
-  private _getPchainNetwork(isTestnet: boolean): Network {
+  private _getPchainNetwork(isTestnet: boolean): NetworkWithCaipId {
     const network = isTestnet
       ? AVALANCHE_XP_TEST_NETWORK
       : AVALANCHE_XP_NETWORK;
@@ -497,9 +497,16 @@ export class NetworkService implements OnLock, OnStorageReady {
   }
 
   /**
-   * Returns the network object for Avalanche X/P Chains
+   * Returns the network object for Avalanche P-Chain
    */
-  getAvalancheNetworkXP() {
+  getAvalancheNetworkP() {
+    return this._getPchainNetwork(!this.isMainnet());
+  }
+
+  /**
+   * Returns the network object for Avalanche X-Chain
+   */
+  getAvalancheNetworkX() {
     return this._getXchainNetwork(!this.isMainnet());
   }
 
@@ -533,7 +540,7 @@ export class NetworkService implements OnLock, OnStorageReady {
    */
   async getAvalanceProviderXP(): Promise<Avalanche.JsonRpcProvider> {
     return (await getProviderForNetwork(
-      this.getAvalancheNetworkXP(),
+      this.getAvalancheNetworkX(),
     )) as Avalanche.JsonRpcProvider;
   }
 

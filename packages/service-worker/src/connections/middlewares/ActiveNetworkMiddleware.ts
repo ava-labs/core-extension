@@ -83,8 +83,10 @@ export function ActiveNetworkMiddleware(
 
         if (alias === 'C') {
           network = await networkService.getCoreEthNetwork();
+        } else if (alias === 'P') {
+          network = networkService.getAvalancheNetworkP();
         } else {
-          network = await networkService.getAvalancheNetworkXP();
+          network = networkService.getAvalancheNetworkX();
         }
       }
     } else {
