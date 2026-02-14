@@ -1,0 +1,63 @@
+import {
+  PersonalAvatar,
+  PersonalAvatarName,
+} from '@/components/PersonalAvatar';
+import { AvatarHex } from '@avalabs/k2-alpine';
+import { ComponentProps, FC, useState } from 'react';
+import { ScrollableAvatars } from '../ScrollableAvatars';
+import { AvatarEditOverlay } from './components/AvatarEditOverlay';
+
+type Props = {
+  name: string;
+  selected: PersonalAvatarName | undefined;
+  size: NonNullable<ComponentProps<typeof PersonalAvatar>['size']>;
+} & Modes;
+
+type Modes =
+  | {
+      readonly?: true;
+      onSelect?: never;
+    }
+  | {
+      readonly?: false;
+      onSelect: (avatar: PersonalAvatarName) => void;
+    };
+
+export const ContactAvatar: FC<Props> = ({
+  name,
+  selected,
+  onSelect,
+  size,
+  readonly,
+}) => {
+  const [selectionMode, setSelectionMode] = useState(false);
+
+  if (selectionMode && onSelect) {
+    return (
+      <ScrollableAvatars
+        selected={selected}
+        onSelect={(newAvatar) => {
+          onSelect(newAvatar);
+          setSelectionMode(false);
+        }}
+      />
+    );
+  }
+
+  if (readonly) {
+    if (!selected) {
+      return <AvatarHex size={size} alt={name} />;
+    }
+    return <PersonalAvatar name={selected} size={size} />;
+  }
+
+  return (
+    <AvatarEditOverlay onClick={() => setSelectionMode(true)}>
+      {selected ? (
+        <PersonalAvatar name={selected} size={size} />
+      ) : (
+        <AvatarHex size={size} alt={name} />
+      )}
+    </AvatarEditOverlay>
+  );
+};
