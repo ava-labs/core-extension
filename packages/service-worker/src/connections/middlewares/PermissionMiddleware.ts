@@ -121,6 +121,7 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.WALLET_GET_NETWORK_STATE,
   DAppProviderRequest.WALLET_GET_SETTINGS,
   DAppProviderRequest.WALLET_SET_SETTINGS,
+  DAppProviderRequest.WALLET_ENABLE_NETWORK,
 ]);
 
 export function PermissionMiddleware(
