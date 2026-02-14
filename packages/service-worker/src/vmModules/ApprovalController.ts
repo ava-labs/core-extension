@@ -41,6 +41,7 @@ import {
 import { batchSwapValidator, swapValidator } from './validators';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
 import { isUserRejectionError } from '@core/common';
+import { KEYSTONE_NOT_IN_HOMEPAGE_ERROR } from '~/services/keystone/constants/error';
 
 // Create and populate the validator registry
 const validatorRegistry = new ValidatorRegistry();
@@ -230,6 +231,13 @@ export class ApprovalController implements BatchApprovalController {
           });
         }
       } catch (err) {
+        const errorMessage = (err as Error).message;
+        if (errorMessage.includes(KEYSTONE_NOT_IN_HOMEPAGE_ERROR)) {
+          throw err;
+        }
+
+        this.#requests.delete(action.actionId);
+
         if (isUserRejectionError(err)) {
           resolve({
             error: providerErrors.userRejectedRequest(),
@@ -244,8 +252,6 @@ export class ApprovalController implements BatchApprovalController {
             }),
           });
         }
-      } finally {
-        this.#requests.delete(action.actionId);
       }
     }
   };

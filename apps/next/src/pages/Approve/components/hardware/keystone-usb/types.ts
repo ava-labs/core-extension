@@ -10,6 +10,7 @@ export type StateComponentProps = {
   approve: () => Promise<unknown>;
   reject: () => void;
   action: Action<DisplayData>;
+  error?: any;
 };
 
 export type KeystoneUsbApprovalState = 'loading' | 'disconnected' | 'pending';

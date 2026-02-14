@@ -6,8 +6,9 @@ import { useKeystoneUsbContext, isSpecificContextContainer } from '@core/ui';
 import { tabs } from 'webextension-polyfill';
 import { ContextContainer } from '@core/types';
 import { FiAlertCircle } from 'react-icons/fi';
+import { KEYSTONE_NOT_IN_HOMEPAGE_ERROR } from '~/services/keystone/constants/error';
 
-export const Disconnected: FC<StateComponentProps> = ({ state }) => {
+export const Disconnected: FC<StateComponentProps> = ({ state, error }) => {
   const { t } = useTranslation();
   const {
     popDeviceSelection,
@@ -15,10 +16,12 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
     retryConnection,
     wasTransportAttempted,
   } = useKeystoneUsbContext();
+  const isNotInHomePage = error === KEYSTONE_NOT_IN_HOMEPAGE_ERROR;
 
   // Auto-retry connection when in disconnected state (device might be locked)
+  // Don't retry if the error is because Keystone is not on the homepage
   useEffect(() => {
-    if (state === 'disconnected' && wasTransportAttempted) {
+    if (state === 'disconnected' && wasTransportAttempted && !isNotInHomePage) {
       const interval = setInterval(() => {
         retryConnection();
       }, 2000);
@@ -27,7 +30,7 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
         clearInterval(interval);
       };
     }
-  }, [state, wasTransportAttempted, retryConnection]);
+  }, [state, wasTransportAttempted, retryConnection, isNotInHomePage]);
 
   const onReconnect = useCallback(async () => {
     if (isSpecificContextContainer(ContextContainer.CONFIRM)) {
@@ -69,24 +72,33 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
           <FiAlertCircle size={24} color="red" />
         </Box>
         <Stack gap={0.5}>
-          <Typography variant="body3" fontWeight={500}>
-            {t('Keystone disconnected')}
+          <Typography variant="body3" fontWeight={600} color="text.primary">
+            {isNotInHomePage
+              ? t('Action Required on Keystone')
+              : t('Keystone disconnected')}
           </Typography>
+
           <Stack gap={1.5}>
-            <Typography variant="caption">
-              {t(
-                'Core is no longer connected to your Keystone device. Reconnect to continue.',
-              )}
+            <Typography variant="caption" color="text.secondary">
+              {isNotInHomePage
+                ? t(
+                    'Please return to the Keystone dashboard (home screen). Then close this window and try the transaction again.',
+                  )
+                : t(
+                    'Core is no longer connected to your Keystone device. Reconnect to continue.',
+                  )}
             </Typography>
-            <Button
-              onClick={onReconnect}
-              fullWidth
-              variant="contained"
-              color="primary"
-              size="extension"
-            >
-              {t('Unable to connect?')}
-            </Button>
+            {!isNotInHomePage && (
+              <Button
+                onClick={onReconnect}
+                fullWidth
+                variant="contained"
+                color="primary"
+                size="extension"
+              >
+                {t('Unable to connect?')}
+              </Button>
+            )}
           </Stack>
         </Stack>
       </Stack>
