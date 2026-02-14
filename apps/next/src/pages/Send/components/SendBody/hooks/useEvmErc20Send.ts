@@ -35,7 +35,8 @@ export const useEvmErc20Send = ({
   const { getNetworkFee, isGaslessOn } = useNetworkFeeContext();
 
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
-  const { onSendFailure } = useTransactionCallbacks(network);
+  const { onSendApproved, onSendFailure, onSendSuccess } =
+    useTransactionCallbacks(network, from.addressC);
 
   const [error, setError] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -45,6 +46,7 @@ export const useEvmErc20Send = ({
   const send = useCallback(async () => {
     try {
       setIsSending(true);
+      onSendApproved();
 
       if (!to) {
         toast.error(t('Please enter a recipient address.'));
@@ -75,9 +77,7 @@ export const useEvmErc20Send = ({
         },
       );
 
-      // Transaction status will be handled by the TransactionStatusProvider
-      // so we don't need to listen for events here
-
+      onSendSuccess(hash);
       return hash;
     } catch (err) {
       onSendFailure(err);
@@ -87,7 +87,9 @@ export const useEvmErc20Send = ({
     }
   }, [
     request,
+    onSendApproved,
     onSendFailure,
+    onSendSuccess,
     from,
     to,
     getNetworkFee,

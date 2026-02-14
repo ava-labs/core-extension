@@ -43,7 +43,8 @@ export const useSolanaSend = ({
   const { t } = useTranslation();
   const { request } = useConnectionContext();
 
-  const { onSendFailure } = useTransactionCallbacks(network);
+  const { onSendApproved, onSendFailure, onSendSuccess } =
+    useTransactionCallbacks(network, from.addressSVM);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -96,6 +97,7 @@ export const useSolanaSend = ({
     }
 
     setIsSending(true);
+    onSendApproved();
 
     try {
       const provider = getSolanaProvider(network);
@@ -122,6 +124,7 @@ export const useSolanaSend = ({
         },
       );
 
+      onSendSuccess(hash);
       return hash;
     } catch (err) {
       console.error(err);
@@ -130,7 +133,18 @@ export const useSolanaSend = ({
     } finally {
       setIsSending(false);
     }
-  }, [to, request, t, onSendFailure, from, amount, network, token]);
+  }, [
+    to,
+    request,
+    t,
+    onSendApproved,
+    onSendFailure,
+    onSendSuccess,
+    from,
+    amount,
+    network,
+    token,
+  ]);
 
   const isLoaded = estimatedFee !== undefined && maxAmount !== undefined;
 
