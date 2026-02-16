@@ -12,6 +12,7 @@ import { EvmTokenApprovals } from './EvmTokenApprovals';
 import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget';
 import { EvmNftDisplay } from './EvmNftDisplay';
 import { isNftTokenType } from '@core/common';
+import { NoScrollStack } from '@/components/NoScrollStack';
 
 type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: EvmNetwork;
@@ -33,7 +34,18 @@ export const EvmActionDetails = ({
   return (
     <Stack gap={1}>
       {nftDiffs.length > 0 && (
-        <EvmNftDisplay nftDiffs={nftDiffs} network={network} />
+        <NoScrollStack
+          autoHide
+          autoHeight
+          autoHeightMin={120}
+          autoHeightMax={120}
+          stackProps={{
+            direction: 'row',
+            gap: 1,
+          }}
+        >
+          <EvmNftDisplay nftDiffs={nftDiffs} network={network} />
+        </NoScrollStack>
       )}
       <TransactionBalanceChange
         ins={action.displayData.balanceChange?.ins ?? []}

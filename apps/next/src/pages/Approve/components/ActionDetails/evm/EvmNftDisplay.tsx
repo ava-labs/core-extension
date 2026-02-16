@@ -37,7 +37,7 @@ export const EvmNftDisplay: FC<EvmNftDisplayProps> = ({
   }
 
   return (
-    <Stack gap={2} alignItems="center" width="100%">
+    <Stack gap={2} alignItems="center" width="100%" direction="row">
       {nftDiffs.map(({ token, items }, index) => {
         // Get the first item for display (NFTs typically have one item per token)
         const [firstItem] = items;
