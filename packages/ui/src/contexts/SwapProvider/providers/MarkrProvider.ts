@@ -16,6 +16,7 @@ import {
   isEvmProvider,
   NormalizedSwapQuote,
   NormalizedSwapQuoteResult,
+  NormalizedTransactionParams,
   PerformSwapParams,
   SwapProvider,
   SwapProviders,
@@ -141,6 +142,7 @@ export const MarkrProvider: SwapProvider = {
     isOneClickSwapEnabled,
     markrSwapGasBuffer,
     isGaslessOn,
+    shouldUseAutoApproval,
   }: PerformSwapParams & SwapWalletState) {
     if (!srcTokenAddress)
       throw swapError(
@@ -223,11 +225,12 @@ export const MarkrProvider: SwapProvider = {
         tokenAddress: srcTokenAddress,
         userAddress,
         isOneClickSwapEnabled,
+        shouldUseAutoApproval,
         batch,
         isGaslessOn,
       });
 
-      if (approvalTxHash && !isOneClickSwapEnabled) {
+      if (approvalTxHash && !isOneClickSwapEnabled && !shouldUseAutoApproval) {
         const receipt = await provider.waitForTransaction(approvalTxHash);
 
         if (!receipt || (receipt && receipt.status !== 1)) {
@@ -254,18 +257,23 @@ export const MarkrProvider: SwapProvider = {
       from: userAddress,
     });
 
+    const chainId = `0x${provider._network.chainId.toString(16)}`;
     const props = {
       from: userAddress,
       to: tx.to,
+      chainId,
       gas: undefined,
       data: tx.data,
       value: isSrcTokenNative ? bigIntToHex(BigInt(sourceAmount)) : undefined,
     };
 
-    let swapGasLimit: bigint | null = null;
-    let swapGasLimitError: unknown = null;
+    let swapGasLimit: bigint | undefined;
 
-    if (isGaslessOn) {
+    // Use gasEstimate from quote if shouldUseAutoApproval is enabled and gasEstimate is available
+    // This avoids gas estimation failures when allowance hasn't been granted yet (batch transactions)
+    if (shouldUseAutoApproval && quote.gasEstimate !== undefined) {
+      swapGasLimit = BigInt(quote.gasEstimate);
+    } else if (isGaslessOn) {
       // When gasless is enabled, use state override to simulate the user having enough balance
       // This prevents "insufficient funds for gas" errors during estimation
       const stateOverride = {
@@ -274,7 +282,7 @@ export const MarkrProvider: SwapProvider = {
         },
       };
 
-      [swapGasLimit, swapGasLimitError] = await resolve(
+      const [estimatedGasLimit, swapGasLimitError] = await resolve(
         provider
           .send('eth_estimateGas', [
             {
@@ -288,14 +296,30 @@ export const MarkrProvider: SwapProvider = {
           ])
           .then((result: string) => BigInt(result)),
       );
+
+      if (swapGasLimitError || !estimatedGasLimit) {
+        throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);
+      }
+
+      swapGasLimit = estimatedGasLimit;
     } else {
-      [swapGasLimit, swapGasLimitError] = await resolve(
+      // Fall back to gas estimation for normal flow
+      const [estimatedGasLimit, swapGasLimitError] = await resolve(
         provider.estimateGas(props),
       );
+
+      if (swapGasLimitError || !estimatedGasLimit) {
+        throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);
+      }
+
+      swapGasLimit = estimatedGasLimit;
     }
 
-    if (swapGasLimitError || !swapGasLimit) {
-      throw swapError(CommonError.UnableToEstimateGas, swapGasLimitError);
+    if (!swapGasLimit) {
+      throw swapError(
+        CommonError.UnableToEstimateGas,
+        new Error('Gas limit is undefined'),
+      );
     }
 
     const gas = bigIntToHex((swapGasLimit * BigInt(markrSwapGasBuffer)) / 100n);
@@ -315,8 +339,11 @@ export const MarkrProvider: SwapProvider = {
         ? RpcMethod.ETH_SEND_TRANSACTION_BATCH
         : RpcMethod.ETH_SEND_TRANSACTION;
 
+    // For batch transactions, pass the batch array instead of single txParams
+    const finalTxParams = batch.length > 1 ? batch : txParams;
+
     const [swapTxHash, signError] = await resolve(
-      signAndSend(method, txParams, {
+      signAndSend(method, finalTxParams as [NormalizedTransactionParams], {
         revertReason: SwapErrorCode.TransactionRevertedDueToSlippage,
       }),
     );

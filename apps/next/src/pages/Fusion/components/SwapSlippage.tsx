@@ -12,22 +12,23 @@ import {
 import { useFusionState } from '../contexts';
 import * as Styled from './Styled';
 import { SwapSlippageDetails } from './SwapSlippage/SwapSlippageDetails';
-import { ServiceType } from '@avalabs/unified-asset-transfer';
+import { isMarkrQuote } from '../lib/isMarkrQuote';
+import { formatBasisPointsToPercentage } from '../lib/formatBasisPointsToPercentage';
 
 export const SwapSlippage = () => {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { slippage, autoSlippage, userQuote, bestQuote } = useFusionState();
+  const { slippage, autoSlippage, selectedQuote } = useFusionState();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const quote = userQuote ?? bestQuote;
-
-  const isSlippageApplicable = quote?.serviceType === ServiceType.MARKR;
+  const isSlippageApplicable = isMarkrQuote(selectedQuote);
 
   // Format display value
   const displayValue = isSlippageApplicable
     ? autoSlippage
-      ? `Auto • ${slippage}%`
+      ? t(`Auto • {{slippage}}`, {
+          slippage: formatBasisPointsToPercentage(selectedQuote.slippageBps),
+        })
       : `${slippage}%`
     : '0%';
 

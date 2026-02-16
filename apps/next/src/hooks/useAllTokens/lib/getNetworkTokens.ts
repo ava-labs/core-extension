@@ -23,7 +23,7 @@ export async function getNetworkTokens({
       method: ExtensionRequest.GET_NETWORK_TOKENS,
       params: [network.chainId, []],
     });
-    const mapper = getTokenMapper(network.chainId);
+    const mapper = getTokenMapper(network.chainId, network.caipId);
 
     const nativeToken: FungibleTokenBalance = {
       type: TokenType.NATIVE,
@@ -31,6 +31,7 @@ export async function getNetworkTokens({
       balanceDisplayValue: '0',
       assetType: getNativeAssetType(network),
       coreChainId: network.chainId,
+      chainCaipId: network.caipId,
       name: network.networkToken.name,
       symbol: network.networkToken.symbol,
       decimals: network.networkToken.decimals,

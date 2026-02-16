@@ -1,6 +1,7 @@
-import { Fade, SquareButton, Stack } from '@avalabs/k2-alpine';
+import { Fade, QrCodeIcon, SquareButton } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import {
+  useAccountsContext,
   useAnalyticsContext,
   useFeatureFlagContext,
   useOnline,
@@ -31,6 +32,7 @@ import {
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { chainIdToCaip } from '@core/common';
 import { FaExplosion } from 'react-icons/fa6';
+import { NoScrollStack } from '@/components/NoScrollStack';
 
 const ICON_SIZE = 20;
 
@@ -50,6 +52,7 @@ export const PortfolioActionButtons = ({
   const isSwapSupported = checkIsFunctionSupported(FunctionNames.SWAP);
   const isBuySupported = checkIsFunctionSupported(FunctionNames.BUY);
   const { isOnline } = useOnline();
+  const history = useHistory();
   const isBridgeSupported =
     !token ||
     supportsAsset(
@@ -58,12 +61,24 @@ export const PortfolioActionButtons = ({
     );
   const tokenId = token ? getUniqueTokenId(token) : '';
   const tokenNetwork = token ? chainIdToCaip(token.coreChainId) : '';
+  const {
+    accounts: { active: activeAccount },
+  } = useAccountsContext();
 
   let delay = 0;
   const getDelay = () => (delay += 300);
 
   return (
-    <Stack direction="row" gap={1} width="100%">
+    <NoScrollStack
+      autoHide
+      autoHeight
+      autoHeightMin={80}
+      autoHeightMax={80}
+      stackProps={{
+        direction: 'row',
+        gap: 1,
+      }}
+    >
       {isFlagEnabled(FeatureGates.FUSION_PROJECT) ? (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
@@ -133,6 +148,20 @@ export const PortfolioActionButtons = ({
         </OfflineTooltip>
       </Fade>
 
+      <Fade in timeout={getDelay()} easing="ease-out">
+        <OfflineTooltip placement="top">
+          <SquareButton
+            variant="extension"
+            icon={<QrCodeIcon size={ICON_SIZE} />}
+            label={t('Receive')}
+            onClick={() => {
+              capture('TokenReceiveClicked', { addressType: 'C' });
+              history.push(`/receive?accId=${activeAccount?.id}`);
+            }}
+          />
+        </OfflineTooltip>
+      </Fade>
+
       {isBuySupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton
@@ -146,6 +175,6 @@ export const PortfolioActionButtons = ({
           />
         </Fade>
       )}
-    </Stack>
+    </NoScrollStack>
   );
 };

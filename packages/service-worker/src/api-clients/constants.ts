@@ -10,6 +10,7 @@ export const CORE_ETH_CAIP2ID = 'avax:8aDU0Kqh-5d23op-B-r-4YbQFRbsgF9a';
 
 export const Caip2IdAccountTypeMap: Record<string, AccountTypes> = {
   [SolanaCaipId[ChainId.SOLANA_MAINNET_ID]]: 'addressSVM',
+  [SolanaCaipId[ChainId.SOLANA_DEVNET_ID]]: 'addressSVM',
   [SolanaCaipId[ChainId.SOLANA_TESTNET_ID]]: 'addressSVM',
   [BitcoinCaip2ChainId.MAINNET]: 'addressBTC',
   [BitcoinCaip2ChainId.TESTNET]: 'addressBTC',

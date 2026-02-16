@@ -492,9 +492,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260116171103":
-  version: 0.0.0-project-fusion-pr-20260116171103
-  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260116171103"
+"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260209181522":
+  version: 0.0.0-project-fusion-pr-20260209181522
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260209181522"
   dependencies:
     "@scure/base": "npm:^1.0.1"
     es-toolkit: "npm:^1.42.0"
@@ -502,7 +502,7 @@ __metadata:
     "@solana/kit": ^5.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/3df9af525b396918ce606b6fc4cddad8cf75087c623bb581532b0d4e4a51defb61278e7604f4ea243294e4f41ab1ec8d3498c3a91095eec678dfe1d668bb9d5e
+  checksum: 10c0/46e05d930b9d2e033ab305e79be3833f9c26037a35155525ab6d0292187bf32f3183ab5846acd2a70d4e76336d85b48943d244c77fcf6b2ccc15c8b3816dad66
   languageName: node
   linkType: hard
 
@@ -2767,7 +2767,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
     "@avalabs/types": "npm:3.1.0-alpha.74"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260116171103"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260209181522"
     "@avalabs/vm-module-types": "npm:3.1.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"

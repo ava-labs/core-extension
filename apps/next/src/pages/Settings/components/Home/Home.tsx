@@ -1,6 +1,7 @@
 import {
   Button,
   ChevronRightIcon,
+  Divider,
   Stack,
   Switch,
   SxProps,
@@ -37,6 +38,8 @@ import { TestnetModeOverlay } from '@/components/TestnetModeOverlay';
 import { getContactsPath } from '@/config/routes';
 import { AnalyticsConsent, FeatureGates, SecretType } from '@core/types';
 import { CurrencySelector } from '../CurrencySelector';
+import { FeeSettingsSelector } from '../FeeSettingsSelector';
+import { MaxBuySelector } from '../MaxBuySelector';
 import { ThemeSelector } from '../ThemeSelector';
 import { ViewPreferenceSelector } from '../ViewPreferenceSelector';
 import {
@@ -74,6 +77,12 @@ export const SettingsHomePage = () => {
     setCoreAssistant,
     analyticsConsent,
     setAnalyticsConsent,
+    isQuickSwapsEnabled,
+    setQuickSwapsEnabled,
+    feeSetting,
+    setFeeSetting,
+    maxBuy,
+    setMaxBuy,
     privacyMode,
     setPrivacyMode,
     setFilterSmallUtxos,
@@ -258,7 +267,7 @@ export const SettingsHomePage = () => {
             orientation="horizontal"
             descriptionColor="text.primary"
             description={t(
-              'Get Core to work for you. Whether it’s transferring, sending crypto, just ask away!',
+              "Get Core to work for you. Whether it's transferring, sending crypto, just ask away!",
             )}
             checked={coreAssistant}
             onChange={() => setCoreAssistant(!coreAssistant)}
@@ -344,9 +353,6 @@ export const SettingsHomePage = () => {
           description={t(
             'Improves loading performance by removing UTXOs with a value less than 0.002 AVAX from the wallet. Total balances may be inaccurate.',
           )}
-          sx={{
-            pb: 0,
-          }}
           secondaryAction={
             <Switch
               size="small"
@@ -360,7 +366,59 @@ export const SettingsHomePage = () => {
               }}
             />
           }
+          divider
         />
+        <SettingsNavItem
+          label={t('Quick swaps')}
+          description={t(
+            'Swap tokens inside of Core with one-click. Core is unable to provide free gas if this feature is enabled.',
+          )}
+          secondaryAction={
+            <Switch
+              size="small"
+              checked={isQuickSwapsEnabled}
+              onChange={() => setQuickSwapsEnabled(!isQuickSwapsEnabled)}
+            />
+          }
+          divider={isQuickSwapsEnabled}
+          sx={{
+            pb: isQuickSwapsEnabled ? 0.75 : 0,
+          }}
+        />
+        {isQuickSwapsEnabled && (
+          <>
+            <Stack gap={1} py={1}>
+              <Stack gap={0.5}>
+                <Typography variant="subtitle1">
+                  {t('Network fee settings')}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {t(
+                    'Set the default fee for quick swaps. Faster swaps require higher fees.',
+                  )}
+                </Typography>
+              </Stack>
+              <FeeSettingsSelector
+                value={feeSetting}
+                onChange={(value) => setFeeSetting(value)}
+              />
+            </Stack>
+            <Divider />
+            <SettingsNavItem
+              label={t('Swap amount limit')}
+              secondaryAction={
+                <MaxBuySelector
+                  value={maxBuy}
+                  onChange={(value) => setMaxBuy(value)}
+                  sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+                />
+              }
+              sx={{
+                pb: 0,
+              }}
+            />
+          </>
+        )}
       </SettingsCard>
 
       <SettingsCard title={t('Contacts')}>
