@@ -37,7 +37,8 @@ export const useBtcSend = ({
   const { request } = useConnectionContext();
   const { getNetworkFee } = useNetworkFeeContext();
 
-  const { onSendFailure } = useTransactionCallbacks(network);
+  const { onSendApproved, onSendFailure, onSendSuccess } =
+    useTransactionCallbacks(network, from.addressBTC);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -86,6 +87,7 @@ export const useBtcSend = ({
     }
 
     setIsSending(true);
+    onSendApproved();
 
     try {
       const hash = await request<BitcoinSendTransactionParams>(
@@ -102,9 +104,7 @@ export const useBtcSend = ({
           scope: network.caipId,
         },
       );
-      // Transaction status will be handled by the TransactionStatusProvider
-      // so we don't need to listen for events here
-
+      onSendSuccess(hash);
       return hash;
     } catch (err) {
       console.error(err);
@@ -120,7 +120,9 @@ export const useBtcSend = ({
     amount,
     request,
     t,
+    onSendApproved,
     onSendFailure,
+    onSendSuccess,
     network.isTestnet,
     network.caipId,
   ]);
