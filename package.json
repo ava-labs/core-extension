@@ -129,11 +129,11 @@
     "@mui/material@npm:^6.4.10": "patch:@mui/material@npm%3A6.4.10#~/.yarn/patches/@mui-material-npm-6.4.10-51975882a1.patch",
     "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10",
     "@avalabs/hw-app-avalanche": "1.1.1",
-    "@avalabs/vm-module-types": "0.0.0-cp-12846-validator-delegator-20260213170131",
-    "@avalabs/avalanche-module": "0.0.0-cp-12846-validator-delegator-20260213170131",
-    "@avalabs/bitcoin-module": "0.0.0-cp-12846-validator-delegator-20260213170131",
-    "@avalabs/evm-module": "0.0.0-cp-12846-validator-delegator-20260213170131",
-    "@avalabs/hvm-module": "0.0.0-cp-12846-validator-delegator-20260213170131",
-    "@avalabs/svm-module": "0.0.0-cp-12846-validator-delegator-20260213170131"
+    "@avalabs/vm-module-types": "3.3.0",
+    "@avalabs/avalanche-module": "3.3.0",
+    "@avalabs/bitcoin-module": "3.3.0",
+    "@avalabs/evm-module": "3.3.0",
+    "@avalabs/hvm-module": "3.3.0",
+    "@avalabs/svm-module": "3.3.0"
   }
 }
