@@ -9,13 +9,12 @@ import { useFusionState } from '../../contexts';
 import { calculateRate } from '../../lib/calculateRate';
 
 export const ExchangeRate = (props: TypographyProps) => {
-  const { fromToken, toToken, userQuote, bestQuote } = useFusionState();
+  const { sourceToken, targetToken, selectedQuote } = useFusionState();
 
-  const quote = userQuote ?? bestQuote;
   const rateData: Partial<RateData> = {
-    rate: quote ? calculateRate(quote) : undefined,
-    fromSymbol: fromToken?.symbol,
-    toSymbol: toToken?.symbol,
+    rate: selectedQuote ? calculateRate(selectedQuote) : undefined,
+    fromSymbol: sourceToken?.symbol,
+    toSymbol: targetToken?.symbol,
   };
 
   const rateRef = useRef<HTMLSpanElement>(null);

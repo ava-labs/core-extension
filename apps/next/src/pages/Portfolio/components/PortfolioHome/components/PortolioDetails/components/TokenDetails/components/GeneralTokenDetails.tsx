@@ -1,22 +1,23 @@
 import { Slide, Stack } from '@avalabs/k2-alpine';
 import { ActivityFilterSelector } from '../../ActivityTab/components/ActivityFilterSelector';
 
+import { NetworkWithCaipId } from '@core/types';
 import { FC, Suspense, useState } from 'react';
-import { ActivityFilter } from '../../ActivityTab/types';
-import { useTokenHistory } from '../hooks/useTokenHistory';
+import { useTranslation } from 'react-i18next';
 import { TransactionListSkeleton } from '../../ActivityTab/components/TransactionList';
 import { HistoryList } from '../../ActivityTab/components/TransactionList/components/HistoryList';
+import { ActivityFilter } from '../../ActivityTab/types';
+import { useTokenHistory } from '../hooks/useTokenHistory';
 import { useUrlState } from '../hooks/useUrlState';
-import { NoTokenActivity } from './NoTokenActivity';
-import { NetworkWithCaipId } from '@core/types';
 import { ExplorerButton } from './ExplorerButton';
-import { useTranslation } from 'react-i18next';
+import { NoTokenActivity } from './NoTokenActivity';
 
 type Props = {
   networkId: number; //From params
   tokenAddress: string; //From params
   network: NetworkWithCaipId;
 };
+
 export const GeneralTokenDetails: FC<Props> = ({
   networkId,
   tokenAddress,
@@ -43,7 +44,7 @@ export const GeneralTokenDetails: FC<Props> = ({
         <Slide direction="right" in>
           <ActivityFilterSelector
             selected={filter}
-            exclude={['NFTs']}
+            exclude={['NFT']}
             onChange={(newFilter) => {
               setFilter(newFilter);
               urlState.update(newFilter, networkId, tokenAddress, 'activity');
@@ -53,7 +54,11 @@ export const GeneralTokenDetails: FC<Props> = ({
       </Stack>
       <Suspense fallback={<TransactionListSkeleton />}>
         <HistoryList filter={filter} transactionHistory={transactionHistory} />
-        <ExplorerButton network={network} buttonText={t('View full history')} />
+        <Stack mt="auto" pt={0.5}>
+          <ExplorerButton network={network}>
+            {t('View full history')}
+          </ExplorerButton>
+        </Stack>
       </Suspense>
     </>
   );

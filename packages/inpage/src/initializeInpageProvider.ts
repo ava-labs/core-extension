@@ -8,7 +8,6 @@ import type { AbstractConnection } from '@core/messaging';
 import { ChainAgnosticProvider } from './ChainAgnosticProvider';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { EventNames, type EIP6963ProviderDetail } from './models';
-import { isProductionBuild } from '@core/common';
 
 /**
  * Initializes a CoreProvide and assigns it as window.ethereum.
@@ -72,20 +71,14 @@ export function initializeProvider(
   announceWalletProvider(evmProvider, globalObject);
   announceChainAgnosticProvider(chainAgnosticProvider, globalObject);
 
-  // TODO: remove prior to official release and also uncomment the test
   try {
-    if (
-      !isProductionBuild() || // enable in local & blue builds by default
-      localStorage.getItem('__core__solana__enabled') === 'true'
-    ) {
-      initializeSolanaProvider(
-        new SolanaWalletProvider(chainAgnosticProvider, {
-          icon: EVM_PROVIDER_INFO_ICON,
-          name: EVM_PROVIDER_INFO_NAME,
-          version: CORE_EXTENSION_VERSION,
-        }),
-      );
-    }
+    initializeSolanaProvider(
+      new SolanaWalletProvider(chainAgnosticProvider, {
+        icon: EVM_PROVIDER_INFO_ICON,
+        name: EVM_PROVIDER_INFO_NAME,
+        version: CORE_EXTENSION_VERSION,
+      }),
+    );
   } catch {
     // Do nothing
   }

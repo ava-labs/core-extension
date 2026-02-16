@@ -43,7 +43,8 @@ export const useSolanaSend = ({
   const { t } = useTranslation();
   const { request } = useConnectionContext();
 
-  const { onSendSuccess, onSendFailure } = useTransactionCallbacks(network);
+  const { onSendApproved, onSendFailure, onSendSuccess } =
+    useTransactionCallbacks(network, from.addressSVM);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -96,6 +97,7 @@ export const useSolanaSend = ({
     }
 
     setIsSending(true);
+    onSendApproved();
 
     try {
       const provider = getSolanaProvider(network);
@@ -121,7 +123,9 @@ export const useSolanaSend = ({
           scope: network.caipId,
         },
       );
+
       onSendSuccess(hash);
+      return hash;
     } catch (err) {
       console.error(err);
       onSendFailure(err);
@@ -133,8 +137,9 @@ export const useSolanaSend = ({
     to,
     request,
     t,
-    onSendSuccess,
+    onSendApproved,
     onSendFailure,
+    onSendSuccess,
     from,
     amount,
     network,

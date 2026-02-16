@@ -6,21 +6,21 @@ import {
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 import { useAccountsContext } from '@core/ui';
+import { FC, PropsWithChildren } from 'react';
 
-export const ExplorerButton = ({
-  network,
-  buttonText,
-}: {
+type Props = PropsWithChildren<{
   network: NetworkWithCaipId;
-  buttonText: string;
-}) => {
+}>;
+
+export const ExplorerButton: FC<Props> = ({ network, children }) => {
   const { accounts } = useAccountsContext();
 
-  const activeAccount = accounts.active;
-
-  const address = getAddressForChain(network, activeAccount);
   const explorerUrl = network
-    ? getExplorerAddressByNetwork(network, address, 'address')
+    ? getExplorerAddressByNetwork(
+        network,
+        getAddressForChain(network, accounts.active),
+        'address',
+      )
     : undefined;
 
   if (!explorerUrl) {
@@ -34,7 +34,7 @@ export const ExplorerButton = ({
       size="small"
       onClick={() => openNewTab({ url: explorerUrl })}
     >
-      {buttonText}
+      {children}
     </Button>
   );
 };
