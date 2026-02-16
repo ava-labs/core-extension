@@ -107,9 +107,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/bridge-unified@npm:4.4.1":
-  version: 4.4.1
-  resolution: "@avalabs/bridge-unified@npm:4.4.1"
+"@avalabs/bridge-unified@npm:4.4.2":
+  version: 4.4.2
+  resolution: "@avalabs/bridge-unified@npm:4.4.2"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:3.0.17"
@@ -122,7 +122,7 @@ __metadata:
     lodash: "npm:4.17.21"
     viem: "npm:2.11.1"
     zod: "npm:3.23.8"
-  checksum: 10c0/67f8563afc902341b1ec67df588d5d927b7b2bb60a22f1e6fcb2d4e257f7255e7fac5302878278128e1b2c4141bb1bf5b059d8d8fa1dac7095ec6ab4f5cb9a86
+  checksum: 10c0/c4be6a85546abaae7e1ffb4238cd00faee3027c8ba092a58ae680586d55383ca859b7e1057a84e15b3933fde54bbea438c7d7dec133e797b57c17be962c6b5c4
   languageName: node
   linkType: hard
 
@@ -492,9 +492,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260116171103":
-  version: 0.0.0-project-fusion-pr-20260116171103
-  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260116171103"
+"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260209181522":
+  version: 0.0.0-project-fusion-pr-20260209181522
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260209181522"
   dependencies:
     "@scure/base": "npm:^1.0.1"
     es-toolkit: "npm:^1.42.0"
@@ -502,7 +502,7 @@ __metadata:
     "@solana/kit": ^5.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/3df9af525b396918ce606b6fc4cddad8cf75087c623bb581532b0d4e4a51defb61278e7604f4ea243294e4f41ab1ec8d3498c3a91095eec678dfe1d668bb9d5e
+  checksum: 10c0/46e05d930b9d2e033ab305e79be3833f9c26037a35155525ab6d0292187bf32f3183ab5846acd2a70d4e76336d85b48943d244c77fcf6b2ccc15c8b3816dad66
   languageName: node
   linkType: hard
 
@@ -2761,13 +2761,13 @@ __metadata:
   resolution: "@core-ext/next@workspace:apps/next"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:4.4.1"
+    "@avalabs/bridge-unified": "npm:4.4.2"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
     "@avalabs/types": "npm:3.1.0-alpha.74"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260116171103"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260209181522"
     "@avalabs/vm-module-types": "npm:3.2.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -3018,7 +3018,7 @@ __metadata:
     "@avalabs/avalanche-module": "npm:3.2.0"
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
     "@avalabs/bitcoin-module": "npm:3.2.0"
-    "@avalabs/bridge-unified": "npm:4.4.1"
+    "@avalabs/bridge-unified": "npm:4.4.2"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.74"
@@ -3184,7 +3184,7 @@ __metadata:
   resolution: "@core/ui@workspace:packages/ui"
   dependencies:
     "@avalabs/avalanchejs": "npm:5.1.0-alpha.2"
-    "@avalabs/bridge-unified": "npm:4.4.1"
+    "@avalabs/bridge-unified": "npm:4.4.2"
     "@avalabs/core-bridge-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-coingecko-sdk": "npm:3.1.0-alpha.74"

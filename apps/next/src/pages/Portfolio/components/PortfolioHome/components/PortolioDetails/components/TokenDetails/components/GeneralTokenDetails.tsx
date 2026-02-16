@@ -43,7 +43,7 @@ export const GeneralTokenDetails: FC<Props> = ({
         <Slide direction="right" in>
           <ActivityFilterSelector
             selected={filter}
-            exclude={['NFTs']}
+            exclude={['NFT']}
             onChange={(newFilter) => {
               setFilter(newFilter);
               urlState.update(newFilter, networkId, tokenAddress, 'activity');

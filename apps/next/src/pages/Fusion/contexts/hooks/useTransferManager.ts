@@ -10,14 +10,12 @@ import { useEffect, useState } from 'react';
 
 import { MARKR_EVM_PARTNER_ID } from '@core/ui';
 
-type TransferManagerProps = {
-  signers: {
-    evm: EvmSigner;
-    btc?: BtcSigner;
-  };
+type Signers = {
+  evm: EvmSigner;
+  btc?: BtcSigner;
 };
 
-export const useTransferManager = ({ signers }: TransferManagerProps) => {
+export const useTransferManager = (signers: Signers) => {
   const [manager, setManager] = useState<TransferManager>();
 
   useEffect(() => {
@@ -28,7 +26,9 @@ export const useTransferManager = ({ signers }: TransferManagerProps) => {
           type: ServiceType.MARKR,
           evmSigner: signers.evm,
           markrApiToken: process.env.MARKR_API_TOKEN, // Not required (if using the default proxy API url)
-          markrApiUrl: 'https://staging-orchestrator.markr.io', // Not required
+          markrApiUrl:
+            process.env.MARKR_API_URL ??
+            'https://staging-orchestrator.markr.io', // Default to prod
           markrAppId: MARKR_EVM_PARTNER_ID,
         },
       ],

@@ -1,2 +1,2 @@
 export * from './TotalFeeAmount';
-export * from './FeePresetButton';
+export { FeePresetButton } from '@/components/FeePresetButton';

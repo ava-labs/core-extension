@@ -20,25 +20,31 @@ const emptyTrendingTokens: TrendingTokensState = {
 export const useTrendingTokens = () => {
   const [trendingTokens, setTrendingTokens] =
     useState<TrendingTokensState>(emptyTrendingTokens);
+  const [isLoading, setIsLoading] = useState(false);
   const { request } = useConnectionContext();
 
   const fetchTrendingTokens = useCallback(
     async (nwk: TrendingTokensNetwork) => {
-      const response = await request<GetTrendingTokensHandler>({
-        method: ExtensionRequest.GET_TRENDING_TOKENS,
-        params: [nwk],
-      });
-      let newTrendingTokens = emptyTrendingTokens;
+      setIsLoading(true);
+      try {
+        const response = await request<GetTrendingTokensHandler>({
+          method: ExtensionRequest.GET_TRENDING_TOKENS,
+          params: [nwk],
+        });
+        let newTrendingTokens = emptyTrendingTokens;
 
-      setTrendingTokens((prev) => {
-        newTrendingTokens = {
-          ...prev,
-          [nwk]: response.tokens,
-        };
+        setTrendingTokens((prev) => {
+          newTrendingTokens = {
+            ...prev,
+            [nwk]: response.tokens,
+          };
+          return newTrendingTokens;
+        });
+
         return newTrendingTokens;
-      });
-
-      return newTrendingTokens;
+      } finally {
+        setIsLoading(false);
+      }
     },
     [request],
   );
@@ -52,6 +58,7 @@ export const useTrendingTokens = () => {
   );
   return {
     trendingTokens,
+    isLoading,
     updateTrendingTokens: getTrendingTokens,
   };
 };

@@ -9,8 +9,11 @@ import type {
   LockWalletHandler,
   SetAnalyticsConsentHandler,
   SetCoreAssistantHandler,
+  SetQuickSwapsEnabledHandler,
+  SetFeeSettingHandler,
   SetFilterSmallUtxosHandler,
   SetLanguageHandler,
+  SetMaxBuyHandler,
   SetPreferredViewHandler,
   SetPrivacyModeHandler,
   SetShowTrendingTokensHandler,
@@ -23,7 +26,9 @@ import type {
 import {
   ColorTheme,
   ExtensionRequest,
+  FeeSetting,
   Languages,
+  MaxBuyOption,
   SettingsState,
   ViewMode,
 } from '@core/types';
@@ -79,6 +84,9 @@ type SettingsFromProvider = SettingsState & {
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
   setShowTrendingTokens: (show: boolean) => Promise<boolean>;
+  setQuickSwapsEnabled: (enabled: boolean) => Promise<boolean>;
+  setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
+  setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
   setPrivacyMode: (enabled: boolean) => Promise<boolean>;
   setFilterSmallUtxos: (filter: boolean) => Promise<boolean>;
 };
@@ -273,6 +281,36 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
+  const setQuickSwapsEnabled = useCallback(
+    (enabled: boolean) => {
+      return request<SetQuickSwapsEnabledHandler>({
+        method: ExtensionRequest.SETTINGS_SET_DEGEN_MODE,
+        params: [enabled],
+      });
+    },
+    [request],
+  );
+
+  const setFeeSetting = useCallback(
+    (feeSetting: FeeSetting) => {
+      return request<SetFeeSettingHandler>({
+        method: ExtensionRequest.SETTINGS_SET_FEE_SETTING,
+        params: [feeSetting],
+      });
+    },
+    [request],
+  );
+
+  const setMaxBuy = useCallback(
+    (maxBuy: MaxBuyOption) => {
+      return request<SetMaxBuyHandler>({
+        method: ExtensionRequest.SETTINGS_SET_MAX_BUY,
+        params: [maxBuy],
+      });
+    },
+    [request],
+  );
+
   const setPrivacyMode = useCallback(
     (enabled: boolean) => {
       return request<SetPrivacyModeHandler>({
@@ -316,6 +354,9 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setCoreAssistant,
           setPreferredView,
           setShowTrendingTokens,
+          setQuickSwapsEnabled,
+          setFeeSetting,
+          setMaxBuy,
           setPrivacyMode,
           setFilterSmallUtxos,
         } as SettingsFromProvider

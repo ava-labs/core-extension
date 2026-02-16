@@ -6,11 +6,12 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { toast } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { Quote } from '@avalabs/unified-asset-transfer';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
-import { Account } from '@core/types';
+import { Account, FungibleTokenBalance } from '@core/types';
 import { isUserRejectionError, Monitoring, stringToBigint } from '@core/common';
 import {
   useAccountsContext,
@@ -19,40 +20,48 @@ import {
   useErrorMessage,
 } from '@core/ui';
 
-import { DEFAULT_SLIPPAGE } from '../fusion-config';
-import { useSwapQuery, useSwapTokens } from '../hooks';
+import { useSwapQuery } from '../hooks';
+import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
   useUserAddresses,
   useTransferManager,
   useSigners,
   useAssetAndChain,
   useQuotes,
+  useSupportedChainIds,
+  useSwapSourceTokenList,
+  useSwapSourceToken,
+  useSwapTargetTokenList,
+  useSwapTargetToken,
+  useSlippageTolerance,
 } from './hooks';
-import { toast } from '@avalabs/k2-alpine';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
 };
-type TokensState = ReturnType<typeof useSwapTokens>;
-type FusionState = QueryState &
-  TokensState & {
-    account?: Account;
-    isConfirming: boolean;
-    slippage: number;
-    setSlippage: (slippage: number) => void;
-    autoSlippage: boolean;
-    setAutoSlippage: (autoSlippage: boolean) => void;
-    fromAmount?: string;
-    toAmount?: string;
-    isAmountLoading: boolean;
-    swapError?: SwapError;
-    userQuote: Quote | null;
-    bestQuote: Quote | null;
-    quotes: Quote[];
-    selectQuoteById: (quoteId: string | null) => void;
-    transfer: (specificQuote?: Quote) => Promise<void>;
-    isReadyToTransfer: boolean;
-  };
+type FusionState = QueryState & {
+  sourceTokenList: FungibleTokenBalance[];
+  targetTokenList: FungibleTokenBalance[];
+  sourceToken: FungibleTokenBalance | undefined;
+  targetToken: FungibleTokenBalance | undefined;
+  account?: Account;
+  isConfirming: boolean;
+  slippage: number;
+  setSlippage: (slippage: number) => void;
+  autoSlippage: boolean;
+  setAutoSlippage: (autoSlippage: boolean) => void;
+  fromAmount?: string;
+  toAmount?: string;
+  isAmountLoading: boolean;
+  swapError?: SwapError;
+  userQuote: Quote | null;
+  bestQuote: Quote | null;
+  selectedQuote: Quote | null;
+  quotes: Quote[];
+  selectQuoteById: (quoteId: string | null) => void;
+  transfer: (specificQuote?: Quote) => Promise<void>;
+  isReadyToTransfer: boolean;
+};
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -66,8 +75,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { replace } = useHistory();
   const getTranslatedError = useErrorMessage();
 
-  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE);
-  const [autoSlippage, setAutoSlippage] = useState(true);
   const [isConfirming, setIsConfirming] = useState(false);
 
   const {
@@ -79,23 +86,39 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toQuery,
   } = useSwapQuery();
 
-  const { sourceTokens, targetTokens, fromToken, toToken } = useSwapTokens(
-    fromId,
-    toId,
-  );
-
   const signers = useSigners();
-  const manager = useTransferManager({ signers });
+  const manager = useTransferManager(signers);
+  const supportedChainsIds = useSupportedChainIds(manager);
+  const sourceTokenList = useSwapSourceTokenList(supportedChainsIds);
+  const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
+  const targetTokenList = useSwapTargetTokenList(
+    sourceToken ? sourceToken.chainCaipId : supportedChainsIds,
+    sourceToken,
+  );
+  const targetToken = useSwapTargetToken(targetTokenList, sourceToken, toId);
 
   const { chain: sourceChain, asset: sourceAsset } =
-    useAssetAndChain(fromToken);
-  const { chain: targetChain, asset: targetAsset } = useAssetAndChain(toToken);
+    useAssetAndChain(sourceToken);
+  const { chain: targetChain, asset: targetAsset } =
+    useAssetAndChain(targetToken);
+
   const { fromAddress, toAddress } = useUserAddresses(
     activeAccount,
     sourceChain,
     targetChain,
   );
-  const { bestQuote, quotes, userQuote, selectQuoteById } = useQuotes({
+
+  const { slippage, setSlippage, autoSlippage, setAutoSlippage } =
+    useSlippageTolerance();
+
+  const {
+    bestQuote,
+    quotes,
+    userQuote,
+    selectedQuote,
+    isUserSelectedQuote,
+    selectQuoteById,
+  } = useQuotes({
     manager,
     fromAddress,
     toAddress,
@@ -107,12 +130,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       userAmount && sourceAsset
         ? stringToBigint(userAmount, sourceAsset.decimals)
         : 0n,
-    slippageBps: slippage * 100, // TODO: Support auto slippage when Markr supports it
+    slippageBps: autoSlippage ? undefined : slippage * 100,
   });
 
   const toAmount =
-    bestQuote && targetAsset
-      ? bigIntToString(bestQuote.amountOut, targetAsset.decimals)
+    selectedQuote && targetAsset
+      ? bigIntToString(selectedQuote.amountOut, targetAsset.decimals)
       : undefined;
 
   const transfer = useCallback(
@@ -123,7 +146,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
       setIsConfirming(true);
 
-      const quoteToUse = specificQuote ?? userQuote ?? bestQuote;
+      const quoteToUse = specificQuote ?? selectedQuote;
 
       if (!quoteToUse) {
         throw new Error('Quote not found');
@@ -138,13 +161,28 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         await manager.transferAsset({ quote: quoteToUse });
         captureEncrypted('SwapConfirmed', {
           address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+          chainId: quoteToUse.sourceChain.chainId,
         });
         replace('/');
       } catch (err) {
-        if (isUserRejectionError(err)) return;
+        if (isUserRejectionError(err)) {
+          setIsConfirming(false);
+          return;
+        }
 
-        // TODO: Retry with another quote if available AND if the user has NOT manually selected a quote.
+        // If no specific quote was selected manually by the user, retry with the next quote (if applicable).
+        if (!isUserSelectedQuote && shouldRetryWithNextQuote(err)) {
+          const currentQuoteIndex = quotes.findIndex(
+            (q) => q.id === quoteToUse.id,
+          );
+          const nextQuote = quotes[currentQuoteIndex + 1];
+
+          if (nextQuote) {
+            return transfer(nextQuote);
+          }
+        }
+
+        setIsConfirming(false);
 
         console.error(err);
         Monitoring.sentryCaptureException(
@@ -160,21 +198,20 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
         captureEncrypted('SwapFailed', {
           address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId, // TODO: can I use CAIP-2?
+          chainId: quoteToUse.sourceChain.chainId,
         });
-      } finally {
-        setIsConfirming(false);
       }
     },
     [
       manager,
       fromAddress,
-      userQuote,
-      bestQuote,
       slippage,
       replace,
       captureEncrypted,
       getTranslatedError,
+      quotes,
+      isUserSelectedQuote,
+      selectedQuote,
     ],
   );
 
@@ -189,10 +226,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         userAmount,
         fromAmount: userAmount,
         toAmount,
-        sourceTokens,
-        targetTokens,
-        fromToken,
-        toToken,
+        sourceTokenList,
+        targetTokenList,
+        sourceToken,
+        targetToken,
         account: activeAccount,
         isAmountLoading: Boolean(userAmount && toAmount === undefined),
         isConfirming,
@@ -203,10 +240,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         swapError: undefined, // TODO:
         userQuote,
         bestQuote,
+        selectedQuote,
         quotes,
         selectQuoteById,
         transfer,
-        isReadyToTransfer: Boolean((userQuote ?? bestQuote) && manager),
+        isReadyToTransfer: Boolean(selectedQuote && manager),
       }}
     >
       {children}

@@ -2,7 +2,7 @@ import { AutoPairingPostMessageConnection } from '@core/messaging';
 import { createMultiWalletProxy } from './MultiWalletProviderProxy';
 import { initializeProvider } from './initializeInpageProvider';
 import { EVMProvider } from '@avalabs/evm-module/dist/provider';
-// import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
+import { SolanaWalletProvider } from '@avalabs/svm-module/dist/provider';
 
 jest.mock('@avalabs/evm-module/dist/provider', () => ({
   EVMProvider: jest
@@ -34,7 +34,7 @@ describe('src/background/providers/initializeInpageProvider', () => {
     expect(EVMProvider).toHaveBeenCalledWith(
       expect.objectContaining({ maxListeners: 10 }),
     );
-    // expect(SolanaWalletProvider).toHaveBeenCalled();
+    expect(SolanaWalletProvider).toHaveBeenCalled();
     expect(provider.isAvalanche).toBe(true);
   });
 
