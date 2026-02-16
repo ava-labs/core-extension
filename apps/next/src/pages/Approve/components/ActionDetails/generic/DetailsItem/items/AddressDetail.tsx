@@ -21,14 +21,9 @@ import { NetworkWithCaipId } from '@core/types';
 type AddressDetailProps = {
   item: AddressItem;
   network: NetworkWithCaipId;
-  isSimpleDetailsItem?: boolean;
 };
 
-export const AddressDetail = ({
-  item,
-  network,
-  isSimpleDetailsItem = false,
-}: AddressDetailProps) => {
+export const AddressDetail = ({ item, network }: AddressDetailProps) => {
   const { t } = useTranslation();
   const { getAccount } = useAccountsContext();
   const account = getAccount(item.value);
@@ -48,18 +43,6 @@ export const AddressDetail = ({
     }
     return item.label;
   }, [account, item.label, t]);
-
-  if (isSimpleDetailsItem) {
-    return (
-      <TxDetailsRow label={account ? account.name : item.label}>
-        <Stack textAlign="right">
-          <OverflowingTypography variant="body3" color="text.secondary">
-            {truncateAddress(item.value, 10)}
-          </OverflowingTypography>
-        </Stack>
-      </TxDetailsRow>
-    );
-  }
 
   return (
     <TxDetailsRow label={label}>

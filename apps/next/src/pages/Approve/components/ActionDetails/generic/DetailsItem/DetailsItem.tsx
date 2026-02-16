@@ -15,14 +15,9 @@ import { NetworkWithCaipId } from '@core/types';
 type DetailsItemProps = {
   item: DetailItem;
   network: NetworkWithCaipId;
-  isSimpleDetailsItem?: boolean;
 };
 
-export const DetailsItem = ({
-  item,
-  network,
-  isSimpleDetailsItem = false,
-}: DetailsItemProps) => {
+export const DetailsItem = ({ item, network }: DetailsItemProps) => {
   if (typeof item === 'string') {
     return <PlainTextDetail item={item} />;
   }
@@ -32,13 +27,7 @@ export const DetailsItem = ({
       return <TextDetail item={item} />;
 
     case DetailItemType.ADDRESS:
-      return (
-        <AddressDetail
-          item={item}
-          network={network}
-          isSimpleDetailsItem={isSimpleDetailsItem}
-        />
-      );
+      return <AddressDetail item={item} network={network} />;
 
     case DetailItemType.LINK:
       return <LinkDetail item={item} />;
