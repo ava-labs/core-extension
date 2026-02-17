@@ -170,6 +170,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           return;
         }
 
+        // Match legacy: report SwapConfirmed for any non–user-rejection result (success or failure)
+        captureEncrypted('SwapConfirmed', {
+          address: fromAddress,
+          chainId: quoteToUse.sourceChain.chainId,
+        });
+
         // If no specific quote was selected manually by the user, retry with the next quote (if applicable).
         if (!isUserSelectedQuote && shouldRetryWithNextQuote(err)) {
           const currentQuoteIndex = quotes.findIndex(
