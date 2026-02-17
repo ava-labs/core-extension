@@ -1,9 +1,4 @@
 import {
-  BtcSigner,
-  EvmSignerWithMessage,
-} from '@avalabs/unified-asset-transfer';
-
-import {
   Erc20TokenBalance,
   EvmNativeTokenBalance,
   SolanaNativeTokenBalance,
@@ -21,8 +16,3 @@ export type SwappableToken =
   | Erc20TokenBalance
   | SolanaNativeTokenBalance
   | SolanaSplTokenBalance;
-
-export type Signers = {
-  evm: EvmSignerWithMessage;
-  btc: BtcSigner;
-};

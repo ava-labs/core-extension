@@ -202,6 +202,9 @@ export enum ExtensionRequest {
   GET_TRENDING_TOKENS = 'get_trending_tokens',
 
   GET_ATOMIC_FUNDS_FOR_ACCOUNT = 'get_atomic_funds_for_account',
+
+  TRANSFER_TRACKING_GET_STATE = 'transfer_tracking_get_state',
+  TRANSFER_TRACKING_TRACK_TRANSFER = 'transfer_tracking_track_transfer',
 }
 
 /* eslint-disable no-prototype-builtins */

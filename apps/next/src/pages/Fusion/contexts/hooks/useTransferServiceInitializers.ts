@@ -2,13 +2,12 @@ import { useMemo } from 'react';
 import { ServiceType } from '@avalabs/unified-asset-transfer';
 
 import { useNetworkContext } from '@core/ui';
-
-import { Signers } from '../../types';
-import { getServiceInitializer } from '../../lib/getServiceInitializer';
+import { getServiceInitializer } from '@core/common';
+import { UnifiedTransferSigners } from '@core/types';
 
 export const useTransferServiceInitializers = (
   services: ServiceType[],
-  signers: Signers,
+  signers: UnifiedTransferSigners,
 ) => {
   const { bitcoinProvider } = useNetworkContext();
 

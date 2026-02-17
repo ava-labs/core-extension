@@ -23,6 +23,7 @@
     "@avalabs/glacier-sdk": "3.1.0-alpha.74",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.74",
+    "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260216201336",
     "@avalabs/vm-module-types": "3.1.4",
     "@blockaid/client": "0.10.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
@@ -52,7 +53,8 @@
     "@sentry/browser": "7.66.0",
     "@sentry/integrations": "7.66.0",
     "@sentry/react": "7.66.0",
-    "@solana-program/token": "0.5.1",
+    "@solana-program/token": "0.9.0",
+    "@solana/kit": "5.4.0",
     "@tanstack/react-virtual": "3.13.6",
     "argon2-browser": "1.18.0",
     "bip32": "2.0.6",
@@ -84,8 +86,9 @@
     "reflect-metadata": "0.1.13",
     "rxjs": "7.8.2",
     "semver": "7.6.0",
+    "viem": "2.38.0",
     "xss": "1.0.13",
-    "zod": "3.23.8",
+    "zod": "4.3.5",
     "zxcvbn": "4.4.2"
   },
   "devDependencies": {
