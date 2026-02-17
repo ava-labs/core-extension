@@ -1,16 +1,12 @@
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRightIcon, IconButton, toast } from '@avalabs/k2-alpine';
+import { toast } from '@avalabs/k2-alpine';
 
 import {
-  getExplorerAddressByNetwork,
   isMissingBtcWalletPolicyError,
   isUserRejectionError,
-  openNewTab,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
 import { useAnalyticsContext } from '@core/ui';
-import { useConfettiContext } from '@/components/Confetti';
 
 const TOAST_ID = 'send-result';
 
@@ -19,8 +15,6 @@ export const useTransactionCallbacks = (
   fromAddress?: string,
 ) => {
   const { t } = useTranslation();
-  const { replace } = useHistory();
-  const { triggerConfetti } = useConfettiContext();
   const { captureEncrypted } = useAnalyticsContext();
 
   return {
@@ -41,13 +35,6 @@ export const useTransactionCallbacks = (
           chainId: network?.chainId,
         });
       }
-      // Redirect to home page
-      replace('/');
-      triggerConfetti();
-      toast.success(t('Transaction successful'), {
-        id: TOAST_ID,
-        action: <ExplorerLink network={network} hash={hash} />,
-      });
     },
     // When transaction could not be sent to the network or failed immediately
     onSendFailure: (err: unknown) => {
@@ -63,24 +50,3 @@ export const useTransactionCallbacks = (
     },
   };
 };
-
-const ExplorerLink = ({
-  network,
-  hash,
-}: {
-  network: NetworkWithCaipId;
-  hash: string;
-}) => (
-  <IconButton
-    size="small"
-    sx={{ color: 'background.default', padding: 0 }}
-    onClick={() => {
-      toast.dismiss(TOAST_ID);
-      openNewTab({
-        url: getExplorerAddressByNetwork(network, hash, 'tx'),
-      });
-    }}
-  >
-    <ChevronRightIcon size={18} />
-  </IconButton>
-);
