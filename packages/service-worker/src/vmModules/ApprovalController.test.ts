@@ -221,6 +221,10 @@ describe('src/background/vmModules/ApprovalController', () => {
   let networkService: jest.Mocked<NetworkService>;
   let secretsService: jest.Mocked<SecretsService>;
   let transactionStatusEvents: jest.Mocked<TransactionStatusEvents>;
+  let analyticsServicePosthog: jest.Mocked<{
+    captureEncryptedEvent: jest.Mock;
+  }>;
+  let accountsService: jest.Mocked<{ getActiveAccount: jest.Mock }>;
   let controller: ApprovalController;
 
   beforeEach(() => {
@@ -245,11 +249,21 @@ describe('src/background/vmModules/ApprovalController', () => {
       removeListener: jest.fn(),
     } as any;
 
+    analyticsServicePosthog = {
+      captureEncryptedEvent: jest.fn(),
+    } as any;
+
+    accountsService = {
+      getActiveAccount: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     controller = new ApprovalController(
       secretsService,
       walletService,
       networkService,
       transactionStatusEvents,
+      analyticsServicePosthog,
+      accountsService,
     );
 
     jest.mocked(networkService.getNetwork).mockResolvedValue(btcNetwork);
