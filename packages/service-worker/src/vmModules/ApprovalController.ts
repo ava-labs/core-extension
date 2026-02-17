@@ -101,25 +101,9 @@ export class ApprovalController implements BatchApprovalController {
   }) => {
     this.#transactionStatusEvents.emitPending(txHash, request.chainId, {
       requestId: request.requestId,
+      method: request.method,
       ...request.context,
     });
-
-    if (request.method === RpcMethod.AVALANCHE_SEND_TRANSACTION) {
-      const network = await this.#networkService.getNetwork(request.chainId);
-      const activeAccount = await this.#accountsService.getActiveAccount();
-      const address = getAddressForChain(network, activeAccount);
-      if (address) {
-        this.#analyticsServicePosthog.captureEncryptedEvent({
-          name: 'avalanche_sendTransaction_success',
-          windowId: crypto.randomUUID(),
-          properties: {
-            address,
-            txHash,
-            chainId: request.chainId,
-          },
-        });
-      }
-    }
   };
 
   onTransactionConfirmed = async ({

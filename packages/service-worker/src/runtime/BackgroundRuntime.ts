@@ -3,6 +3,7 @@ import { singleton } from 'tsyringe';
 import browser from 'webextension-polyfill';
 import { ConnectionService } from '../connections/ConnectionService';
 import { AppCheckService } from '../services/appcheck/AppCheckService';
+import { AvalancheSendTransactionAnalyticsSubscriber } from '~/services/transactions/AvalancheSendTransactionAnalyticsSubscriber';
 import { BridgeService } from '../services/bridge/BridgeService';
 import { GasStationService } from '../services/gasless/GasStationService';
 import { LockService } from '../services/lock/LockService';
@@ -28,6 +29,8 @@ export class BackgroundRuntime {
     private gasStationService: GasStationService,
     private notificationsService: NotificationsService,
     private settingsService: SettingsService,
+    // Injected so it is created at startup and subscribes to TransactionStatusEvents
+    private _avalancheSendTransactionAnalyticsSubscriber: AvalancheSendTransactionAnalyticsSubscriber,
   ) {}
 
   async activate() {
