@@ -24,6 +24,7 @@ export const getChainLabelAndIconByAddressType = memoize(
           Icon: AvalancheColorIcon,
         };
       case 'AVM':
+      case 'PVM':
         return {
           label: 'Avalanche X/P-Chain',
           Icon: FixedXPChainIcon,
