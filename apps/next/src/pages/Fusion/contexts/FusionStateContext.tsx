@@ -163,6 +163,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           address: fromAddress,
           chainId: quoteToUse.sourceChain.chainId,
         });
+        captureEncrypted('SwapSuccessful', {
+          address: fromAddress,
+          chainId: quoteToUse.sourceChain.chainId,
+        });
         replace('/');
       } catch (err) {
         if (isUserRejectionError(err)) {
