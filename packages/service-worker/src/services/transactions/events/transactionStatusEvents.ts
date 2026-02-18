@@ -14,33 +14,57 @@ export class TransactionStatusEvents implements ExtensionEventEmitter {
   emitPending(
     txHash: string,
     chainId: string,
+    method: string,
+    accountAddress: string,
     context?: Record<string, unknown>,
   ) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.PENDING,
-      value: { txHash, chainId, context } as TransactionStatusInfo,
+      value: {
+        txHash,
+        chainId,
+        context,
+        method,
+        accountAddress,
+      } as TransactionStatusInfo,
     });
   }
 
   emitConfirmed(
     txHash: string,
     chainId: string,
+    method: string,
+    accountAddress: string,
     context?: Record<string, unknown>,
   ) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.CONFIRMED,
-      value: { txHash, chainId, context } as TransactionStatusInfo,
+      value: {
+        txHash,
+        chainId,
+        context,
+        method,
+        accountAddress,
+      } as TransactionStatusInfo,
     });
   }
 
   emitReverted(
     txHash: string,
     chainId: string,
+    method: string,
+    accountAddress: string,
     context?: Record<string, unknown>,
   ) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.REVERTED,
-      value: { txHash, chainId, context } as TransactionStatusInfo,
+      value: {
+        txHash,
+        chainId,
+        context,
+        method,
+        accountAddress,
+      } as TransactionStatusInfo,
     });
   }
 

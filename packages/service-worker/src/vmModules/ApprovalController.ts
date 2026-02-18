@@ -21,6 +21,7 @@ import { singleton } from 'tsyringe';
 
 import {
   ACTION_HANDLED_BY_MODULE,
+  Account,
   Action,
   ActionStatus,
   ActionType,
@@ -40,7 +41,8 @@ import {
 } from './models';
 import { batchSwapValidator, swapValidator } from './validators';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
-import { isUserRejectionError } from '@core/common';
+import { getAddressForChain, isUserRejectionError } from '@core/common';
+import { AccountsService } from '../services/accounts/AccountsService';
 
 // Create and populate the validator registry
 const validatorRegistry = new ValidatorRegistry();
@@ -68,6 +70,7 @@ export class ApprovalController implements BatchApprovalController {
   #walletService: WalletService;
   #networkService: NetworkService;
   #secretsService: SecretsService;
+  #accountsService: AccountsService;
   #transactionStatusEvents: TransactionStatusEvents;
 
   #requests = new Map<string, ActionToRequest[keyof ActionToRequest]>();
@@ -76,13 +79,34 @@ export class ApprovalController implements BatchApprovalController {
     secretsService: SecretsService,
     walletService: WalletService,
     networkService: NetworkService,
+    accountsService: AccountsService,
     transactionStatusEvents: TransactionStatusEvents,
   ) {
     this.#secretsService = secretsService;
     this.#walletService = walletService;
     this.#networkService = networkService;
+    this.#accountsService = accountsService;
     this.#transactionStatusEvents = transactionStatusEvents;
   }
+
+  #getUsedAccount = async (
+    request: RpcRequest,
+  ): Promise<Account | undefined> => {
+    const accountContext = request.context?.account;
+    const evmAddress =
+      accountContext &&
+      typeof accountContext === 'object' &&
+      'evmAddress' in accountContext &&
+      typeof (accountContext as { evmAddress: string }).evmAddress === 'string'
+        ? (accountContext as { evmAddress: string }).evmAddress
+        : undefined;
+    const allAccounts = await this.#accountsService.getAccountList();
+    return evmAddress
+      ? (allAccounts.find(
+          (acc) => acc.addressC?.toLowerCase() === evmAddress.toLowerCase(),
+        ) ?? (await this.#accountsService.getActiveAccount()))
+      : undefined;
+  };
 
   onTransactionPending = async ({
     txHash,
@@ -91,11 +115,19 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    this.#transactionStatusEvents.emitPending(txHash, request.chainId, {
-      requestId: request.requestId,
-      method: request.method,
-      ...request.context,
-    });
+    const network = await this.#networkService.getNetwork(request.chainId);
+    const usedAccount = await this.#getUsedAccount(request);
+    const accountAddress = getAddressForChain(network, usedAccount);
+    this.#transactionStatusEvents.emitPending(
+      txHash,
+      request.chainId,
+      request.method,
+      accountAddress,
+      {
+        requestId: request.requestId,
+        ...request.context,
+      },
+    );
   };
 
   onTransactionConfirmed = async ({
@@ -107,11 +139,20 @@ export class ApprovalController implements BatchApprovalController {
     explorerLink: string;
     request: RpcRequest;
   }) => {
-    this.#transactionStatusEvents.emitConfirmed(txHash, request.chainId, {
-      explorerLink,
-      requestId: request.requestId,
-      ...request.context,
-    });
+    const network = await this.#networkService.getNetwork(request.chainId);
+    const usedAccount = await this.#getUsedAccount(request);
+    const accountAddress = getAddressForChain(network, usedAccount);
+    this.#transactionStatusEvents.emitConfirmed(
+      txHash,
+      request.chainId,
+      request.method,
+      accountAddress,
+      {
+        explorerLink,
+        requestId: request.requestId,
+        ...request.context,
+      },
+    );
   };
 
   onTransactionReverted = async ({
@@ -121,10 +162,19 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    this.#transactionStatusEvents.emitReverted(txHash, request.chainId, {
-      requestId: request.requestId,
-      ...request.context,
-    });
+    const network = await this.#networkService.getNetwork(request.chainId);
+    const usedAccount = await this.#getUsedAccount(request);
+    const accountAddress = getAddressForChain(network, usedAccount);
+    this.#transactionStatusEvents.emitReverted(
+      txHash,
+      request.chainId,
+      request.method,
+      accountAddress,
+      {
+        requestId: request.requestId,
+        ...request.context,
+      },
+    );
   };
 
   async requestPublicKey({

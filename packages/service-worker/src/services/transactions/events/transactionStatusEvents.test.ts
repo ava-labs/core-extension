@@ -19,8 +19,15 @@ describe('TransactionStatusEvents', () => {
 
     const txHash = '0xabc123';
     const chainId = 'eip1555:43114';
+    const method = 'avalanche_sendTransaction';
+    const accountAddress = '0xaccount';
 
-    transactionStatusEvents.emitPending(txHash, chainId);
+    transactionStatusEvents.emitPending(
+      txHash,
+      chainId,
+      method,
+      accountAddress,
+    );
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
@@ -29,6 +36,8 @@ describe('TransactionStatusEvents', () => {
         txHash,
         chainId,
         context: undefined,
+        method,
+        accountAddress,
       } as TransactionStatusInfo,
     });
   });
@@ -39,8 +48,15 @@ describe('TransactionStatusEvents', () => {
 
     const txHash = '0xdef456';
     const chainId = 'eip155:1';
+    const method = 'avalanche_sendTransaction';
+    const accountAddress = '0xaccount';
 
-    transactionStatusEvents.emitConfirmed(txHash, chainId);
+    transactionStatusEvents.emitConfirmed(
+      txHash,
+      chainId,
+      method,
+      accountAddress,
+    );
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
@@ -49,6 +65,8 @@ describe('TransactionStatusEvents', () => {
         txHash,
         chainId,
         context: undefined,
+        method,
+        accountAddress,
       } as TransactionStatusInfo,
     });
   });
@@ -59,8 +77,15 @@ describe('TransactionStatusEvents', () => {
 
     const txHash = '0x789ghi';
     const chainId = BitcoinCaip2ChainId.TESTNET;
+    const method = 'avalanche_sendTransaction';
+    const accountAddress = '0xaccount';
 
-    transactionStatusEvents.emitReverted(txHash, chainId);
+    transactionStatusEvents.emitReverted(
+      txHash,
+      chainId,
+      method,
+      accountAddress,
+    );
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
@@ -69,6 +94,8 @@ describe('TransactionStatusEvents', () => {
         txHash,
         chainId,
         context: undefined,
+        method,
+        accountAddress,
       } as TransactionStatusInfo,
     });
   });
