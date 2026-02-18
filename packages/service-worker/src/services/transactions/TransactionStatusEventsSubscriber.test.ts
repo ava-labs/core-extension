@@ -1,9 +1,21 @@
-import { TransactionStatusEvents, TransactionStatusInfo } from '@core/types';
+import { TransactionStatusEvents } from '@core/types';
 import { TransactionStatusEvents as TransactionStatusEventsClass } from './events/transactionStatusEvents';
 import { TransactionStatusEventsSubscriber } from './TransactionStatusEventsSubscriber';
-import { avalancheSendTransactionHandler } from './handlers/avalancheSendTransactionHandler';
 
-jest.mock('./handlers/avalancheSendTransactionHandler');
+jest.mock('./handlers/TransactionStatusEventsHandlers', () => ({
+  TransactionStatusEventsHandlers: {
+    avalanche_sendTransaction: {
+      [TransactionStatusEvents.PENDING]: jest.fn(() => ({
+        name: 'avalanche_sendTransaction_success',
+        properties: { txHash: '0xabc', chainId: 'eip155:43114' },
+      })),
+    },
+  },
+}));
+
+const { TransactionStatusEventsHandlers } = jest.requireMock(
+  './handlers/TransactionStatusEventsHandlers',
+);
 
 describe('TransactionStatusEventsSubscriber', () => {
   let transactionStatusEvents: TransactionStatusEventsClass;
@@ -11,7 +23,7 @@ describe('TransactionStatusEventsSubscriber', () => {
   let mockAnalytics: { captureEncryptedEvent: jest.Mock };
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     transactionStatusEvents = new TransactionStatusEventsClass();
     addListenerSpy = jest.spyOn(transactionStatusEvents, 'addListener');
     mockAnalytics = { captureEncryptedEvent: jest.fn() };
@@ -27,43 +39,47 @@ describe('TransactionStatusEventsSubscriber', () => {
     expect(typeof addListenerSpy.mock.calls[0][0]).toBe('function');
   });
 
-  it('calls avalancheSendTransactionHandler with context and event when status event is emitted', () => {
+  it('calls the matching handler and captures the analytics event', () => {
     new TransactionStatusEventsSubscriber(
       transactionStatusEvents,
       mockAnalytics as any,
     );
 
-    const event: {
-      name: TransactionStatusEvents;
-      value: TransactionStatusInfo;
-    } = {
-      name: TransactionStatusEvents.PENDING,
-      value: {
-        txHash: '0xabc',
-        chainId: 'eip155:43114',
-        method: 'avalanche_sendTransaction',
-        accountAddress: '0xaccount',
-      },
-    };
-
     transactionStatusEvents.emitPending(
-      event.value.txHash,
-      event.value.chainId,
-      event.value.method,
-      event.value.accountAddress,
+      '0xabc',
+      'eip155:43114',
+      'avalanche_sendTransaction',
+      '0xaccount',
     );
 
-    expect(avalancheSendTransactionHandler).toHaveBeenCalledTimes(1);
-    expect(avalancheSendTransactionHandler).toHaveBeenCalledWith({
-      analyticsServicePosthog: mockAnalytics,
-      event: expect.objectContaining({
-        name: event.name,
-        value: expect.objectContaining({
-          txHash: event.value.txHash,
-          chainId: event.value.chainId,
-          method: event.value.method,
-        }),
+    const pendingHandler =
+      TransactionStatusEventsHandlers['avalanche_sendTransaction'][
+        TransactionStatusEvents.PENDING
+      ];
+    expect(pendingHandler).toHaveBeenCalledTimes(1);
+
+    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledTimes(1);
+    expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'avalanche_sendTransaction_success',
+        properties: { txHash: '0xabc', chainId: 'eip155:43114' },
       }),
-    });
+    );
+  });
+
+  it('does not capture when no handler matches', () => {
+    new TransactionStatusEventsSubscriber(
+      transactionStatusEvents,
+      mockAnalytics as any,
+    );
+
+    transactionStatusEvents.emitConfirmed(
+      '0xabc',
+      'eip155:43114',
+      'eth_sendTransaction',
+      '0xaccount',
+    );
+
+    expect(mockAnalytics.captureEncryptedEvent).not.toHaveBeenCalled();
   });
 });

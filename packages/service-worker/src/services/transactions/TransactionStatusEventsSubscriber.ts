@@ -1,8 +1,8 @@
 import { singleton } from 'tsyringe';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import { TransactionStatusEvents } from './events/transactionStatusEvents';
-import { avalancheSendTransactionHandler } from './handlers/avalancheSendTransactionHandler';
 import { ExtensionConnectionEvent, TransactionStatusInfo } from '@core/types';
+import { TransactionStatusEventsHandlers } from './handlers/TransactionStatusEventsHandlers';
 
 /**
  * Subscribes to transaction status events and captures analytics
@@ -19,9 +19,23 @@ export class TransactionStatusEventsSubscriber {
   #onTransactionStatusEvent = async (
     event: ExtensionConnectionEvent<TransactionStatusInfo>,
   ) => {
-    avalancheSendTransactionHandler({
-      analyticsServicePosthog: this.analyticsServicePosthog,
-      event,
+    const handler =
+      TransactionStatusEventsHandlers[event.value.method]?.[event.name];
+
+    if (!handler) {
+      return;
+    }
+
+    const { name, properties } = handler(event);
+
+    if (!name || !properties) {
+      return;
+    }
+
+    this.analyticsServicePosthog.captureEncryptedEvent({
+      name,
+      windowId: crypto.randomUUID(),
+      properties,
     });
   };
 }

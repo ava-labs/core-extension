@@ -1,78 +1,48 @@
-import { RpcMethod } from '@avalabs/vm-module-types';
 import {
   ExtensionConnectionEvent,
   TransactionStatusEvents,
   TransactionStatusInfo,
 } from '@core/types';
 
-import type { AnalyticsServicePosthog } from '../../analytics/AnalyticsServicePosthog';
 import { measureDuration } from '@core/common';
 
-const PENDING_EVENT_NAME = 'avalanche_sendTransaction_success';
-const REVERTED_EVENT_NAME = 'avalanche_sendTransaction_failed';
-const CONFIRMED_EVENT_NAME = 'avalanche_sendTransaction_confirmed';
+type AnalyticsEventBuilderFn = (
+  event: ExtensionConnectionEvent<TransactionStatusInfo>,
+) => { name: string; properties: Record<string, unknown> } | null;
 
-export type AvalancheSendTransactionHandlerContext = {
-  analyticsServicePosthog: AnalyticsServicePosthog;
-  event: ExtensionConnectionEvent<TransactionStatusInfo>;
-};
+export type TransactionStatusEventBuilders = Partial<
+  Record<TransactionStatusEvents, AnalyticsEventBuilderFn>
+>;
 
-export async function avalancheSendTransactionHandler({
-  analyticsServicePosthog,
-  event,
-}: AvalancheSendTransactionHandlerContext) {
-  const { value } = event;
-  if (!value) {
-    return;
-  }
-  const method = value.method;
-  if (method !== RpcMethod.AVALANCHE_SEND_TRANSACTION) {
-    return;
-  }
+export const AvalancheSendTransactionHandlers: TransactionStatusEventBuilders =
+  {
+    [TransactionStatusEvents.PENDING]: (event) => {
+      const { txHash, chainId, accountAddress } = event.value;
 
-  const accountAddress = value.accountAddress;
-  if (!accountAddress) {
-    return;
-  }
+      measureDuration(txHash).start();
 
-  const { txHash, chainId } = value;
+      return {
+        name: 'avalanche_sendTransaction_success',
+        properties: { address: accountAddress, txHash, chainId },
+      };
+    },
+    [TransactionStatusEvents.REVERTED]: (event) => {
+      const { txHash, chainId, accountAddress } = event.value;
 
-  const eventName =
-    event.name === TransactionStatusEvents.PENDING
-      ? PENDING_EVENT_NAME
-      : event.name === TransactionStatusEvents.REVERTED
-        ? REVERTED_EVENT_NAME
-        : event.name === TransactionStatusEvents.CONFIRMED
-          ? CONFIRMED_EVENT_NAME
-          : null;
+      measureDuration(txHash).end();
 
-  if (!eventName) {
-    return;
-  }
+      return {
+        name: 'avalanche_sendTransaction_failed',
+        properties: { address: accountAddress, txHash, chainId },
+      };
+    },
+    [TransactionStatusEvents.CONFIRMED]: (event) => {
+      const { txHash, chainId, accountAddress } = event.value;
+      const duration = measureDuration(txHash).end();
 
-  let properties: Record<string, any> = {
-    address: accountAddress,
-    txHash,
-    chainId,
+      return {
+        name: 'avalanche_sendTransaction_confirmed',
+        properties: { address: accountAddress, txHash, chainId, duration },
+      };
+    },
   };
-
-  if (eventName === PENDING_EVENT_NAME) {
-    measureDuration(txHash).start();
-  } else if (eventName === REVERTED_EVENT_NAME) {
-    measureDuration(txHash).end();
-  } else if (eventName === CONFIRMED_EVENT_NAME) {
-    const duration = measureDuration(txHash).end();
-    properties = {
-      address: accountAddress,
-      txHash,
-      chainId,
-      duration,
-    };
-  }
-
-  analyticsServicePosthog.captureEncryptedEvent({
-    name: eventName,
-    windowId: crypto.randomUUID(),
-    properties,
-  });
-}

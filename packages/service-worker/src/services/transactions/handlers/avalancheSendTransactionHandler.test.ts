@@ -1,6 +1,5 @@
-import { RpcMethod } from '@avalabs/vm-module-types';
 import { TransactionStatusEvents, TransactionStatusInfo } from '@core/types';
-import { avalancheSendTransactionHandler } from './avalancheSendTransactionHandler';
+import { AvalancheSendTransactionHandlers } from './avalancheSendTransactionHandler';
 
 const mockMeasureDuration = {
   start: jest.fn(),
@@ -12,123 +11,80 @@ jest.mock('@core/common', () => ({
   measureDuration: jest.fn(() => mockMeasureDuration),
 }));
 
-describe('avalancheSendTransactionHandler', () => {
+describe('AvalancheSendTransactionHandlers', () => {
   const chainId = 'eip155:43114';
   const txHash = '0xabc123';
-  const address = '0xaddress';
-
-  let analyticsServicePosthog: { captureEncryptedEvent: jest.Mock };
+  const accountAddress = '0xaddress';
 
   beforeEach(() => {
     jest.clearAllMocks();
-    analyticsServicePosthog = { captureEncryptedEvent: jest.fn() };
     mockMeasureDuration.end.mockReturnValue(100);
   });
 
-  const makeEvent = (
-    name: TransactionStatusEvents,
-    value: Partial<TransactionStatusInfo>,
-  ) => ({
+  const makeEvent = (name: string, value: Partial<TransactionStatusInfo>) => ({
     name,
     value: {
       txHash,
       chainId,
-      method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
-      accountAddress: address,
+      method: 'avalanche_sendTransaction',
+      accountAddress,
       ...value,
     },
   });
 
-  it('captures avalanche_sendTransaction_confirmed for CONFIRMED event', async () => {
-    await avalancheSendTransactionHandler({
-      analyticsServicePosthog: analyticsServicePosthog as any,
-      event: makeEvent(TransactionStatusEvents.CONFIRMED, {}),
-    });
+  describe('PENDING handler', () => {
+    const handler =
+      AvalancheSendTransactionHandlers[TransactionStatusEvents.PENDING]!;
 
-    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledTimes(
-      1,
-    );
-    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'avalanche_sendTransaction_confirmed',
-        properties: { address, txHash, chainId, duration: 100 },
-      }),
-    );
-  });
+    it('starts duration measurement and returns success event', () => {
+      const result = handler(
+        makeEvent(TransactionStatusEvents.PENDING, {}) as any,
+      );
 
-  it('does not capture when method is not avalanche_sendTransaction', async () => {
-    await avalancheSendTransactionHandler({
-      analyticsServicePosthog: analyticsServicePosthog as any,
-      event: makeEvent(TransactionStatusEvents.PENDING, {
-        method: 'eth_sendTransaction',
-      }),
-    });
-
-    expect(
-      analyticsServicePosthog.captureEncryptedEvent,
-    ).not.toHaveBeenCalled();
-  });
-
-  it('does not capture when value is missing', async () => {
-    await avalancheSendTransactionHandler({
-      analyticsServicePosthog: analyticsServicePosthog as any,
-      event: {
-        name: TransactionStatusEvents.PENDING,
-        value: undefined as any,
-      },
-    });
-
-    expect(
-      analyticsServicePosthog.captureEncryptedEvent,
-    ).not.toHaveBeenCalled();
-  });
-
-  it('does not capture when accountAddress is missing', async () => {
-    await avalancheSendTransactionHandler({
-      analyticsServicePosthog: analyticsServicePosthog as any,
-      event: makeEvent(TransactionStatusEvents.PENDING, {
-        accountAddress: '',
-      }),
-    });
-
-    expect(
-      analyticsServicePosthog.captureEncryptedEvent,
-    ).not.toHaveBeenCalled();
-  });
-
-  it('captures avalanche_sendTransaction_success for PENDING with avalanche_sendTransaction method', async () => {
-    await avalancheSendTransactionHandler({
-      analyticsServicePosthog: analyticsServicePosthog as any,
-      event: makeEvent(TransactionStatusEvents.PENDING, {}),
-    });
-
-    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledTimes(
-      1,
-    );
-    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
+      expect(mockMeasureDuration.start).toHaveBeenCalled();
+      expect(result).toEqual({
         name: 'avalanche_sendTransaction_success',
-        properties: { address, txHash, chainId },
-      }),
-    );
-    expect(mockMeasureDuration.start).toHaveBeenCalled();
+        properties: { address: accountAddress, txHash, chainId },
+      });
+    });
   });
 
-  it('captures avalanche_sendTransaction_failed for REVERTED with avalanche_sendTransaction method', async () => {
-    await avalancheSendTransactionHandler({
-      analyticsServicePosthog: analyticsServicePosthog as any,
-      event: makeEvent(TransactionStatusEvents.REVERTED, {}),
-    });
+  describe('REVERTED handler', () => {
+    const handler =
+      AvalancheSendTransactionHandlers[TransactionStatusEvents.REVERTED]!;
 
-    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledTimes(
-      1,
-    );
-    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
+    it('ends duration measurement and returns failed event', () => {
+      const result = handler(
+        makeEvent(TransactionStatusEvents.REVERTED, {}) as any,
+      );
+
+      expect(mockMeasureDuration.end).toHaveBeenCalled();
+      expect(result).toEqual({
         name: 'avalanche_sendTransaction_failed',
-        properties: { address, txHash, chainId },
-      }),
-    );
-    expect(mockMeasureDuration.end).toHaveBeenCalled();
+        properties: { address: accountAddress, txHash, chainId },
+      });
+    });
+  });
+
+  describe('CONFIRMED handler', () => {
+    const handler =
+      AvalancheSendTransactionHandlers[TransactionStatusEvents.CONFIRMED]!;
+
+    it('ends duration measurement and returns confirmed event with duration', () => {
+      const result = handler(
+        makeEvent(TransactionStatusEvents.CONFIRMED, {}) as any,
+      );
+
+      expect(mockMeasureDuration.end).toHaveBeenCalled();
+      expect(result).toEqual({
+        name: 'avalanche_sendTransaction_confirmed',
+        properties: {
+          address: accountAddress,
+          txHash,
+          chainId,
+          duration: 100,
+        },
+      });
+    });
   });
 });
