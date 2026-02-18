@@ -174,7 +174,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           return;
         }
 
-        // Match legacy: report SwapConfirmed for any non–user-rejection result (success or failure)
         captureEncrypted('SwapConfirmed', {
           address: fromAddress,
           chainId: quoteToUse.sourceChain.chainId,

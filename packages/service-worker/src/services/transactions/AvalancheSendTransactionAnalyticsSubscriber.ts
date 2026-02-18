@@ -12,8 +12,8 @@ import { NetworkService } from '../network/NetworkService';
 import { TransactionStatusEvents } from './events/transactionStatusEvents';
 
 /**
- * Subscribes to transaction status PENDING events and captures
- * avalanche_sendTransaction_success when the pending tx was an avalanche_sendTransaction.
+ * Subscribes to transaction status events and captures analytics for
+ * avalanche_sendTransaction: success on PENDING, failed on REVERTED.
  */
 @singleton()
 export class AvalancheSendTransactionAnalyticsSubscriber {
@@ -33,7 +33,14 @@ export class AvalancheSendTransactionAnalyticsSubscriber {
       context?: Record<string, unknown>;
     }>,
   ) => {
-    if (event.name !== TransactionStatusEventNames.PENDING) {
+    const eventName =
+      event.name === TransactionStatusEventNames.PENDING
+        ? 'avalanche_sendTransaction_success'
+        : event.name === TransactionStatusEventNames.REVERTED
+          ? 'avalanche_sendTransaction_failed'
+          : null;
+
+    if (!eventName) {
       return;
     }
 
@@ -57,7 +64,7 @@ export class AvalancheSendTransactionAnalyticsSubscriber {
     }
 
     this.analyticsServicePosthog.captureEncryptedEvent({
-      name: 'avalanche_sendTransaction_success',
+      name: eventName,
       windowId: crypto.randomUUID(),
       properties: {
         address,

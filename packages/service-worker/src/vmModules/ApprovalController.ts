@@ -40,9 +40,7 @@ import {
 } from './models';
 import { batchSwapValidator, swapValidator } from './validators';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
-import { isUserRejectionError, getAddressForChain } from '@core/common';
-import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
-import { AccountsService } from '../services/accounts/AccountsService';
+import { isUserRejectionError } from '@core/common';
 
 // Create and populate the validator registry
 const validatorRegistry = new ValidatorRegistry();
@@ -71,8 +69,6 @@ export class ApprovalController implements BatchApprovalController {
   #networkService: NetworkService;
   #secretsService: SecretsService;
   #transactionStatusEvents: TransactionStatusEvents;
-  #analyticsServicePosthog: AnalyticsServicePosthog;
-  #accountsService: AccountsService;
 
   #requests = new Map<string, ActionToRequest[keyof ActionToRequest]>();
 
@@ -81,15 +77,11 @@ export class ApprovalController implements BatchApprovalController {
     walletService: WalletService,
     networkService: NetworkService,
     transactionStatusEvents: TransactionStatusEvents,
-    analyticsServicePosthog: AnalyticsServicePosthog,
-    accountsService: AccountsService,
   ) {
     this.#secretsService = secretsService;
     this.#walletService = walletService;
     this.#networkService = networkService;
     this.#transactionStatusEvents = transactionStatusEvents;
-    this.#analyticsServicePosthog = analyticsServicePosthog;
-    this.#accountsService = accountsService;
   }
 
   onTransactionPending = async ({
@@ -133,22 +125,6 @@ export class ApprovalController implements BatchApprovalController {
       requestId: request.requestId,
       ...request.context,
     });
-
-    if (request.method === RpcMethod.AVALANCHE_SEND_TRANSACTION) {
-      const network = await this.#networkService.getNetwork(request.chainId);
-      const activeAccount = await this.#accountsService.getActiveAccount();
-      const address = getAddressForChain(network, activeAccount);
-      if (address) {
-        this.#analyticsServicePosthog.captureEncryptedEvent({
-          name: 'avalanche_sendTransaction_failed',
-          windowId: crypto.randomUUID(),
-          properties: {
-            address,
-            chainId: request.chainId,
-          },
-        });
-      }
-    }
   };
 
   async requestPublicKey({

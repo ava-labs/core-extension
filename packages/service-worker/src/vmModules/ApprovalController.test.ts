@@ -10,8 +10,6 @@ import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import { chainIdToCaip, getProviderForNetwork } from '@core/common';
 
-import { AccountsService } from '../services/accounts/AccountsService';
-import { AnalyticsServicePosthog } from '../services/analytics/AnalyticsServicePosthog';
 import { WalletService } from '../services/wallet/WalletService';
 import { NetworkService } from '../services/network/NetworkService';
 import { TransactionStatusEvents } from '../services/transactions/events/transactionStatusEvents';
@@ -55,11 +53,6 @@ jest.mock('./validators', () => ({
     validateAction: jest.fn(),
   },
 }));
-
-/** Use for test-only mocks passed to constructors that require full service types. */
-function asTestDouble<T>(partial: Partial<T>): T {
-  return partial as T;
-}
 
 const btcNetwork = {
   chainId: ChainId.BITCOIN_TESTNET,
@@ -228,8 +221,6 @@ describe('src/background/vmModules/ApprovalController', () => {
   let networkService: jest.Mocked<NetworkService>;
   let secretsService: jest.Mocked<SecretsService>;
   let transactionStatusEvents: jest.Mocked<TransactionStatusEvents>;
-  let analyticsServicePosthog: AnalyticsServicePosthog;
-  let accountsService: AccountsService;
   let controller: ApprovalController;
 
   beforeEach(() => {
@@ -254,21 +245,11 @@ describe('src/background/vmModules/ApprovalController', () => {
       removeListener: jest.fn(),
     } as any;
 
-    analyticsServicePosthog = asTestDouble<AnalyticsServicePosthog>({
-      captureEncryptedEvent: jest.fn(),
-    });
-
-    accountsService = asTestDouble<AccountsService>({
-      getActiveAccount: jest.fn().mockResolvedValue(undefined),
-    });
-
     controller = new ApprovalController(
       secretsService,
       walletService,
       networkService,
       transactionStatusEvents,
-      analyticsServicePosthog,
-      accountsService,
     );
 
     jest.mocked(networkService.getNetwork).mockResolvedValue(btcNetwork);

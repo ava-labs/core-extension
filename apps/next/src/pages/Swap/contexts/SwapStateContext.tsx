@@ -187,7 +187,6 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       } catch (err) {
         if (isUserRejectionError(err)) return;
 
-        // Match legacy: report SwapConfirmed for any non–user-rejection result (success or failure)
         captureEncrypted('SwapConfirmed', {
           address,
           chainId: network?.chainId,

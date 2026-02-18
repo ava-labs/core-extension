@@ -70,7 +70,36 @@ describe('AvalancheSendTransactionAnalyticsSubscriber', () => {
     });
   });
 
-  it('does not capture when event is not PENDING', async () => {
+  it('captures avalanche_sendTransaction_failed when REVERTED is emitted with AVALANCHE_SEND_TRANSACTION method', async () => {
+    new AvalancheSendTransactionAnalyticsSubscriber(
+      transactionStatusEvents,
+      analyticsServicePosthog,
+      accountsService,
+      networkService,
+    );
+
+    transactionStatusEvents.emitReverted(txHash, chainId, {
+      method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
+      requestId: 'req-1',
+    });
+
+    await new Promise(process.nextTick);
+
+    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(analyticsServicePosthog.captureEncryptedEvent).toHaveBeenCalledWith({
+      name: 'avalanche_sendTransaction_failed',
+      windowId: expect.any(String),
+      properties: {
+        address,
+        txHash,
+        chainId,
+      },
+    });
+  });
+
+  it('does not capture when event is CONFIRMED', async () => {
     new AvalancheSendTransactionAnalyticsSubscriber(
       transactionStatusEvents,
       analyticsServicePosthog,
@@ -79,9 +108,6 @@ describe('AvalancheSendTransactionAnalyticsSubscriber', () => {
     );
 
     transactionStatusEvents.emitConfirmed(txHash, chainId, {
-      method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
-    });
-    transactionStatusEvents.emitReverted(txHash, chainId, {
       method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
     });
 
