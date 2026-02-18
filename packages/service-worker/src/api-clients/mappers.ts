@@ -18,7 +18,6 @@ import { SplTokenBalance } from '~/api-clients/types';
 import { Erc20TokenBalance as GlacierSdkErc20TokenBalance } from '@avalabs/glacier-sdk';
 import tokenReputation = GlacierSdkErc20TokenBalance.tokenReputation;
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { isNil } from 'lodash';
 
 interface TokenBalance {
   internalId?: string;
@@ -44,15 +43,6 @@ interface BaseTokenBalance {
   };
   priceInCurrency?: number;
 }
-
-const isTokenEnabled = (
-  tokenBalance: Erc20TokenBalance | SplTokenBalance,
-): boolean => {
-  return (
-    isNil(tokenBalance.scanResult) ||
-    ['Benign', 'Warning'].includes(tokenBalance.scanResult)
-  );
-};
 
 const getBaseTokenBalance = (tokenBalance: TokenBalance): BaseTokenBalance => {
   return {
@@ -180,10 +170,6 @@ export const mapAvmTokenBalance = (
 export const mapErc20TokenBalance =
   (chainId: number) =>
   (tokenBalance: Erc20TokenBalance): TokenWithBalanceERC20 | undefined => {
-    if (!isTokenEnabled(tokenBalance)) {
-      return undefined;
-    }
-
     return {
       address: tokenBalance.address,
       chainId,
@@ -200,10 +186,6 @@ export const mapErc20TokenBalance =
 export const mapSplTokenBalance = (
   tokenBalance: SplTokenBalance,
 ): TokenWithBalanceSPL | undefined => {
-  if (!isTokenEnabled(tokenBalance)) {
-    return undefined;
-  }
-
   return {
     address: tokenBalance.address,
     decimals: tokenBalance.decimals,
