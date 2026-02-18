@@ -35,7 +35,6 @@ const SwapPage = () => {
     isAmountLoading,
     swapDisabled,
     swapError,
-    fromToken,
   } = useSwapState();
 
   const [accountQuery, setAccountQuery] = useState('');
@@ -76,7 +75,7 @@ const SwapPage = () => {
           gap={1}
           textAlign="center"
         >
-          <SwapProviderNotice chainId={fromToken?.coreChainId} />
+          <SwapProviderNotice />
 
           <TxButton
             isLoading={isConfirming || isAmountLoading}

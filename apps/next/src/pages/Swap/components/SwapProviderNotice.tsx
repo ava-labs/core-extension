@@ -14,17 +14,18 @@ import VeloraLogoLight from '@/images/swap-providers/velora-logo-light.svg';
 import VeloraLogoDark from '@/images/swap-providers/velora-logo-dark.svg';
 
 import { useSwapState } from '../contexts';
-import { useIsAnyAvalancheNetwork } from '@/components/TokenSelect/hooks';
+import { isAvalancheChainId } from '@core/common';
 
-export const SwapProviderNotice = ({ chainId }: { chainId?: number }) => {
+export const SwapProviderNotice = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isLightTheme = theme.palette.mode === 'light';
-  const isAnyAvalancheNetwork = useIsAnyAvalancheNetwork();
 
-  const { provider } = useSwapState();
+  const { provider, fromToken } = useSwapState();
 
-  const isAvalancheNetwork = chainId ? isAnyAvalancheNetwork(chainId) : false;
+  const isAvalancheNetwork = fromToken?.coreChainId
+    ? isAvalancheChainId(fromToken?.coreChainId)
+    : false;
 
   // Depending on the logo, we align the text differently to best match the logo's design.
   const needsPadding =
