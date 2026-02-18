@@ -5,9 +5,18 @@ import { MdEdit } from 'react-icons/md';
 type Props = {
   children: ReactElement;
   onClick: () => void;
+  readonly: boolean;
 };
 
-export const AvatarEditOverlay: FC<Props> = ({ children, onClick }) => {
+export const AvatarEditOverlay: FC<Props> = ({
+  children,
+  onClick,
+  readonly,
+}) => {
+  if (readonly) {
+    return children;
+  }
+
   return (
     <Wrapper role="button" tabIndex={0} onClick={onClick}>
       {children}

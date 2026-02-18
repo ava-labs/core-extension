@@ -105,6 +105,7 @@ export const ContactDetails = () => {
           selected={avatar}
           onSelect={setAvatar}
           size="large"
+          readonly={false}
         />
         <ContactNameField
           name={name}
