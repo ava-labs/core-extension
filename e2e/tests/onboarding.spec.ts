@@ -143,7 +143,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 12 words, I can complete the full onboarding flow',
     {
-      tag: ['@regression'],
+      tag: ['@smoke', '@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -181,7 +181,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, for the Access Recovery Phrase option with 24 words, I can complete the full onboarding flow',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
@@ -220,7 +220,7 @@ test.describe('Onboarding Tests', () => {
   test(
     'As a CORE ext user, I can manually create a new wallet and complete the full onboarding flow',
     {
-      tag: ['@smoke', '@regression'],
+      tag: ['@regression'],
       annotation: [
         {
           type: 'snapshot',
