@@ -11,7 +11,11 @@ export function getEVMSigner(
   _t: TFunction,
 ): EvmSignerWithMessage {
   return {
-    sign: async ({ from, data, to, value, chainId }) => {
+    sign: async (
+      { from, data, to, value, chainId },
+      _,
+      { currentSignature, requiredSignatures },
+    ) => {
       assert(to, UnifiedBridgeError.InvalidTxPayload);
       assert(from, UnifiedBridgeError.InvalidTxPayload);
       assert(data, UnifiedBridgeError.InvalidTxPayload);
@@ -35,6 +39,9 @@ export function getEVMSigner(
           },
           {
             scope: chainIdToCaip(Number(chainId)),
+            context: {
+              isIntermediateTransaction: currentSignature < requiredSignatures,
+            },
           },
         );
 

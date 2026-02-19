@@ -1,13 +1,10 @@
 import { useCallback } from 'react';
 import { StackProps } from '@avalabs/k2-alpine';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Transfer } from '@avalabs/unified-asset-transfer';
 
-import {
-  isTransferInProgress,
-  isCompletedTransfer,
-  isFailedTransfer,
-} from '@core/types';
+import { isCompletedTransfer, isFailedTransfer } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
@@ -24,6 +21,7 @@ const contentProps: StackProps = {
 
 export const FusionActivity = () => {
   const { t } = useTranslation();
+  const { push } = useHistory();
   const { transfers } = useTransferTrackingContext();
 
   const getTransferTitle = useCallback(
@@ -54,12 +52,10 @@ export const FusionActivity = () => {
       {Object.values(transfers).map((transfer) => (
         <ActivityItem
           key={transfer.id}
-          pending={isTransferInProgress(transfer)}
+          transfer={transfer}
           title={getTransferTitle(transfer)}
           subtitle={t('Click for more details')}
-          onClick={() => {
-            alert('TODO: Implement transfer details page');
-          }}
+          onClick={() => push(`/fusion-activity/${transfer.id}`)}
         />
       ))}
     </Page>
