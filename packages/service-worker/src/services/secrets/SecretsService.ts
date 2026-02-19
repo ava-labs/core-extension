@@ -52,6 +52,12 @@ import {
   isPrimaryWalletSecrets,
 } from './utils';
 
+type WalletStateUpdateCallback = (data: WalletDetails[]) => void;
+type WalletNameUpdateCallback = (data: {
+  walletId: string;
+  name: string;
+}) => void;
+
 /**
  * Use this service to fetch, save or delete account secrets.
  */
@@ -92,7 +98,18 @@ export class SecretsService implements OnUnlock {
     this.#eventEmitter.emit(WalletEvents.WALLET_STATE_UPDATE, wallets);
   }
 
-  addListener(event: WalletEvents, callback: (data: unknown) => void) {
+  addListener(
+    event: WalletEvents.WALLET_STATE_UPDATE,
+    callback: WalletStateUpdateCallback,
+  ): void;
+  addListener(
+    event: WalletEvents.WALLET_NAME_CHANGED,
+    callback: WalletNameUpdateCallback,
+  ): void;
+  addListener(
+    event: WalletEvents,
+    callback: WalletStateUpdateCallback | WalletNameUpdateCallback,
+  ): void {
     this.#eventEmitter.on(event, callback);
   }
 
@@ -215,6 +232,9 @@ export class SecretsService implements OnUnlock {
   ): Promise<string | null> {
     const storedSecrets = await this.#loadSecrets(false);
 
+    const existingWallet = storedSecrets?.wallets.find(
+      (w) => w.id === walletId,
+    );
     const updatedWalletSecrets = storedSecrets?.wallets.map((wallet) => {
       if (wallet.id === walletId) {
         return {
@@ -226,6 +246,17 @@ export class SecretsService implements OnUnlock {
     });
 
     if (updatedWalletSecrets) {
+      if (
+        existingWallet &&
+        typeof secrets.name === 'string' &&
+        existingWallet.name !== secrets.name
+      ) {
+        this.#eventEmitter.emit(WalletEvents.WALLET_NAME_CHANGED, {
+          walletId,
+          name: secrets.name,
+        });
+      }
+
       await this.storageService.save<Partial<WalletSecretInStorage>>('wallet', {
         ...storedSecrets,
         wallets: [...updatedWalletSecrets] as PrimaryWalletSecrets[],
