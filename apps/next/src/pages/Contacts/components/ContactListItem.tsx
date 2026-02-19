@@ -1,4 +1,4 @@
-import { PersonalAvatarName } from '@/components/PersonalAvatar';
+import { PersonalAvatar } from '@/components/PersonalAvatar';
 import {
   ChevronRightIcon,
   IconButton,
@@ -9,7 +9,6 @@ import {
 } from '@avalabs/k2-alpine';
 import { Contact } from '@avalabs/types';
 import { useTranslation } from 'react-i18next';
-import { ContactAvatar } from './ContactAvatar';
 
 type ContactListItemProps = Omit<StackProps, 'children'> & {
   contact: Contact;
@@ -30,11 +29,10 @@ export const ContactListItem = ({
 
   return (
     <Wrapper role="button" data-testid="contact-item" {...props}>
-      <ContactAvatar
-        name={contact.name}
+      <PersonalAvatar
+        dataUri={contact.avatar ?? ''}
         size="xsmall"
-        selected={contact.avatar as PersonalAvatarName | undefined}
-        readonly
+        alt={contact.name}
       />
       <Stack
         gap={0.5}

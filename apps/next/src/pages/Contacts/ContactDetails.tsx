@@ -18,7 +18,6 @@ import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';
 import { CONTACTS_QUERY_TOKENS, getContactsPath } from '@/config/routes';
 
-import { PersonalAvatarName } from '@/components/PersonalAvatar';
 import { FeatureGates } from '@core/types';
 import {
   BTCAddressField,
@@ -55,9 +54,7 @@ export const ContactDetails = () => {
   const [addressBTC, setAddressBTC] = useState(contact?.addressBTC ?? '');
   const [addressSVM, setAddressSVM] = useState(contact?.addressSVM ?? '');
 
-  const [avatar, setAvatar] = useState<PersonalAvatarName | undefined>(
-    contact?.avatar as PersonalAvatarName | undefined,
-  );
+  const [avatarDataUri, setAvatarDataUri] = useState(contact?.avatar);
 
   const hasChanges =
     name !== contact?.name ||
@@ -65,7 +62,7 @@ export const ContactDetails = () => {
     addressXP !== contact?.addressXP ||
     addressBTC !== contact?.addressBTC ||
     addressSVM !== contact?.addressSVM ||
-    avatar !== contact?.avatar;
+    avatarDataUri !== contact?.avatar;
 
   const save = useCallback(
     async (payload: Contact) => {
@@ -94,7 +91,7 @@ export const ContactDetails = () => {
     addressXP,
     addressBTC,
     addressSVM,
-    avatar,
+    avatar: avatarDataUri,
   });
 
   return (
@@ -102,10 +99,8 @@ export const ContactDetails = () => {
       <Stack width="100%" gap={3} alignItems="center">
         <ContactAvatar
           name={name}
-          selected={avatar}
-          onSelect={setAvatar}
-          size="large"
-          readonly={false}
+          dataUri={avatarDataUri}
+          onChange={setAvatarDataUri}
         />
         <ContactNameField
           name={name}
@@ -154,7 +149,7 @@ export const ContactDetails = () => {
                   addressXP,
                   addressBTC,
                   addressSVM,
-                  avatar,
+                  avatar: avatarDataUri,
                 })
               }
             >

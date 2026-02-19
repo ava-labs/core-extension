@@ -1,42 +1,28 @@
-import {
-  PersonalAvatar,
-  PersonalAvatarName,
-} from '@/components/PersonalAvatar';
-import { ComponentProps, FC, useState } from 'react';
+import { getAvatarDataUri, PersonalAvatar } from '@/components/PersonalAvatar';
+import { FC, useState } from 'react';
 import { ScrollableAvatars } from '../ScrollableAvatars';
-import { AvatarEditOverlay } from './components/AvatarEditOverlay';
+import * as Styled from './Styled';
+import { getAvatarName } from './utils';
 
 type Props = {
   name: string;
-  selected: PersonalAvatarName | undefined;
-  size: NonNullable<ComponentProps<typeof PersonalAvatar>['size']>;
-} & Modes;
+  dataUri: string | undefined;
+  onChange: (avatarDataUri: string) => void;
+};
 
-type Modes =
-  | {
-      readonly?: true;
-      onSelect?: never;
-    }
-  | {
-      readonly?: false;
-      onSelect: (avatar: PersonalAvatarName) => void;
-    };
-
-export const ContactAvatar: FC<Props> = ({
-  name,
-  selected,
-  onSelect,
-  size,
-  readonly = true,
-}) => {
+export const ContactAvatar: FC<Props> = ({ name, dataUri, onChange }) => {
   const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedAvatarName, setSelectedAvatarName] = useState(() =>
+    getAvatarName(dataUri),
+  );
 
-  if (selectionMode && onSelect) {
+  if (selectionMode) {
     return (
       <ScrollableAvatars
-        selected={selected}
-        onSelect={(newAvatar) => {
-          onSelect(newAvatar);
+        selected={selectedAvatarName}
+        onSelect={async (newAvatar) => {
+          setSelectedAvatarName(newAvatar);
+          onChange(await getAvatarDataUri(newAvatar));
           setSelectionMode(false);
         }}
       />
@@ -44,11 +30,13 @@ export const ContactAvatar: FC<Props> = ({
   }
 
   return (
-    <AvatarEditOverlay
+    <Styled.Wrapper
+      role="button"
+      tabIndex={0}
       onClick={() => setSelectionMode(true)}
-      readonly={readonly}
     >
-      <PersonalAvatar name={selected ?? ''} size={size} alt={name} />
-    </AvatarEditOverlay>
+      <PersonalAvatar dataUri={dataUri ?? ''} size="large" alt={name} />
+      <Styled.EditIcon size={24} />
+    </Styled.Wrapper>
   );
 };

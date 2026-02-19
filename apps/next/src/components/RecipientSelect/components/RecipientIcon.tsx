@@ -1,6 +1,7 @@
-import { FaQuestion } from 'react-icons/fa6';
-import { AvatarHex, Box } from '@avalabs/k2-alpine';
 import { HexagonalIcon } from '@/components/HexagonalIcon';
+import { PersonalAvatar } from '@/components/PersonalAvatar';
+import { Box } from '@avalabs/k2-alpine';
+import { FaQuestion } from 'react-icons/fa6';
 import { Recipient } from '../types';
 
 type RecipientIconProps = {
@@ -17,7 +18,13 @@ export const RecipientIcon = ({ recipient }: RecipientIconProps) => {
       );
     }
     case 'contact':
-      return <AvatarHex size="xsmall" alt={recipient.contact.name} />;
+      return (
+        <PersonalAvatar
+          dataUri={recipient.contact.avatar ?? ''}
+          size="xsmall"
+          alt={recipient.contact.name}
+        />
+      );
     default:
       return (
         <HexagonalIcon size={36}>
