@@ -220,7 +220,6 @@ describe('src/background/vmModules/ApprovalController', () => {
   let walletService: jest.Mocked<WalletService>;
   let networkService: jest.Mocked<NetworkService>;
   let secretsService: jest.Mocked<SecretsService>;
-  let accountsService: { getActiveAccount: jest.Mock };
   let transactionStatusEvents: jest.Mocked<TransactionStatusEvents>;
   let controller: ApprovalController;
 
@@ -238,10 +237,6 @@ describe('src/background/vmModules/ApprovalController', () => {
       derivePublicKey: jest.fn(),
     } as any;
 
-    accountsService = {
-      getActiveAccount: jest.fn(),
-    };
-
     transactionStatusEvents = {
       emitPending: jest.fn(),
       emitConfirmed: jest.fn(),
@@ -254,7 +249,6 @@ describe('src/background/vmModules/ApprovalController', () => {
       secretsService,
       walletService,
       networkService,
-      accountsService as any,
       transactionStatusEvents,
     );
 

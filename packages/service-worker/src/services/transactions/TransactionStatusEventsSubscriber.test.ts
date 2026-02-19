@@ -1,62 +1,86 @@
 import { TransactionStatusEvents } from '@core/types';
+import { RpcMethod } from '@avalabs/vm-module-types';
 import { TransactionStatusEvents as TransactionStatusEventsClass } from './events/transactionStatusEvents';
 import { TransactionStatusEventsSubscriber } from './TransactionStatusEventsSubscriber';
 
-jest.mock('./handlers/TransactionStatusEventsHandlers', () => ({
-  TransactionStatusEventsHandlers: {
-    avalanche_sendTransaction: {
-      [TransactionStatusEvents.PENDING]: jest.fn(() => ({
-        name: 'avalanche_sendTransaction_success',
-        properties: { txHash: '0xabc', chainId: 'eip155:43114' },
-      })),
-    },
-  },
+const mockBuilderResult = {
+  name: 'avalanche_sendTransaction_success',
+  properties: { txHash: '0xabc', chainId: 'eip155:43114' },
+};
+
+jest.mock('./handlers/avalancheSendTransactionHandler', () => ({
+  getAvalancheSendTransactionHandlers: jest.fn(() => ({
+    [TransactionStatusEvents.PENDING]: jest.fn(() =>
+      Promise.resolve(mockBuilderResult),
+    ),
+  })),
+  TransactionStatusEventBuilders: {},
 }));
 
-const { TransactionStatusEventsHandlers } = jest.requireMock(
-  './handlers/TransactionStatusEventsHandlers',
+const { getAvalancheSendTransactionHandlers } = jest.requireMock(
+  './handlers/avalancheSendTransactionHandler',
 );
 
 describe('TransactionStatusEventsSubscriber', () => {
   let transactionStatusEvents: TransactionStatusEventsClass;
   let addListenerSpy: jest.SpyInstance;
   let mockAnalytics: { captureEncryptedEvent: jest.Mock };
+  let mockAccountsService: { getAccountList: jest.Mock };
+
+  const makeRequest = (method: string) => ({
+    requestId: 'req-1',
+    method,
+    chainId: 'eip155:43114',
+    context: {},
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
     transactionStatusEvents = new TransactionStatusEventsClass();
     addListenerSpy = jest.spyOn(transactionStatusEvents, 'addListener');
     mockAnalytics = { captureEncryptedEvent: jest.fn() };
+    mockAccountsService = { getAccountList: jest.fn() };
   });
 
   it('registers listener on transaction status events in constructor', () => {
     new TransactionStatusEventsSubscriber(
       transactionStatusEvents,
       mockAnalytics as any,
+      mockAccountsService as any,
     );
 
     expect(addListenerSpy).toHaveBeenCalledTimes(1);
     expect(typeof addListenerSpy.mock.calls[0][0]).toBe('function');
   });
 
-  it('calls the matching handler and captures the analytics event', () => {
+  it('initializes handlers via getAvalancheSendTransactionHandlers', () => {
     new TransactionStatusEventsSubscriber(
       transactionStatusEvents,
       mockAnalytics as any,
+      mockAccountsService as any,
+    );
+
+    expect(getAvalancheSendTransactionHandlers).toHaveBeenCalledWith(
+      mockAccountsService,
+    );
+  });
+
+  it('calls the matching handler and captures the analytics event', async () => {
+    new TransactionStatusEventsSubscriber(
+      transactionStatusEvents,
+      mockAnalytics as any,
+      mockAccountsService as any,
     );
 
     transactionStatusEvents.emitPending(
       '0xabc',
-      'eip155:43114',
-      'avalanche_sendTransaction',
-      '0xaccount',
+      makeRequest(RpcMethod.AVALANCHE_SEND_TRANSACTION) as any,
     );
 
-    const pendingHandler =
-      TransactionStatusEventsHandlers['avalanche_sendTransaction'][
-        TransactionStatusEvents.PENDING
-      ];
-    expect(pendingHandler).toHaveBeenCalledTimes(1);
+    await new Promise(process.nextTick);
+
+    const handlers = getAvalancheSendTransactionHandlers.mock.results[0].value;
+    expect(handlers[TransactionStatusEvents.PENDING]).toHaveBeenCalledTimes(1);
 
     expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledTimes(1);
     expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledWith(
@@ -67,18 +91,19 @@ describe('TransactionStatusEventsSubscriber', () => {
     );
   });
 
-  it('does not capture when no handler matches', () => {
+  it('does not capture when no handler matches', async () => {
     new TransactionStatusEventsSubscriber(
       transactionStatusEvents,
       mockAnalytics as any,
+      mockAccountsService as any,
     );
 
     transactionStatusEvents.emitConfirmed(
       '0xabc',
-      'eip155:43114',
-      'eth_sendTransaction',
-      '0xaccount',
+      makeRequest('eth_sendTransaction') as any,
     );
+
+    await new Promise(process.nextTick);
 
     expect(mockAnalytics.captureEncryptedEvent).not.toHaveBeenCalled();
   });

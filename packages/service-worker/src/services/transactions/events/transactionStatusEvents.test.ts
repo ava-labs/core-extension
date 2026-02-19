@@ -13,31 +13,29 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents = new TransactionStatusEvents();
   });
 
+  const makeRequest = (overrides = {}) => ({
+    requestId: 'req-1',
+    method: 'avalanche_sendTransaction',
+    chainId: 'eip155:43114',
+    context: {},
+    ...overrides,
+  });
+
   it('emits pending event', () => {
     const handler = jest.fn();
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0xabc123';
-    const chainId = 'eip1555:43114';
-    const method = 'avalanche_sendTransaction';
-    const accountAddress = '0xaccount';
+    const request = makeRequest({ chainId: 'eip1555:43114' });
 
-    transactionStatusEvents.emitPending(
-      txHash,
-      chainId,
-      method,
-      accountAddress,
-    );
+    transactionStatusEvents.emitPending(txHash, request as any);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
       name: TransactionStatusEventNames.PENDING,
       value: {
         txHash,
-        chainId,
-        context: undefined,
-        method,
-        accountAddress,
+        request,
       } as TransactionStatusInfo,
     });
   });
@@ -47,26 +45,16 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0xdef456';
-    const chainId = 'eip155:1';
-    const method = 'avalanche_sendTransaction';
-    const accountAddress = '0xaccount';
+    const request = makeRequest({ chainId: 'eip155:1' });
 
-    transactionStatusEvents.emitConfirmed(
-      txHash,
-      chainId,
-      method,
-      accountAddress,
-    );
+    transactionStatusEvents.emitConfirmed(txHash, request as any);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
       name: TransactionStatusEventNames.CONFIRMED,
       value: {
         txHash,
-        chainId,
-        context: undefined,
-        method,
-        accountAddress,
+        request,
       } as TransactionStatusInfo,
     });
   });
@@ -76,26 +64,16 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0x789ghi';
-    const chainId = BitcoinCaip2ChainId.TESTNET;
-    const method = 'avalanche_sendTransaction';
-    const accountAddress = '0xaccount';
+    const request = makeRequest({ chainId: BitcoinCaip2ChainId.TESTNET });
 
-    transactionStatusEvents.emitReverted(
-      txHash,
-      chainId,
-      method,
-      accountAddress,
-    );
+    transactionStatusEvents.emitReverted(txHash, request as any);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
       name: TransactionStatusEventNames.REVERTED,
       value: {
         txHash,
-        chainId,
-        context: undefined,
-        method,
-        accountAddress,
+        request,
       } as TransactionStatusInfo,
     });
   });
