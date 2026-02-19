@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.yarn/
+
+# Test results
+test-results/
+playwright-report/
+.last-run.json
+
+# Build artifacts
+dist/
+
+# Environment files
+.env
+.env.local
+
+# Wallet snapshots (downloaded from AWS S3 in CI)
+# These contain sensitive wallet data and should NOT be committed
+helpers/storage-snapshots/*.ts
+helpers/storage-snapshots/*.json
+!helpers/storage-snapshots/README.md
+
+# IDE
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db

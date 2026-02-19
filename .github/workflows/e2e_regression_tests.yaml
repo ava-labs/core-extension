@@ -1,0 +1,283 @@
+name: Core Extension E2E Regression Tests
+
+on:
+  schedule:
+    - cron: '0 11 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      extension-branch:
+        description: 'Branch name to checkout for testing'
+        required: true
+        default: 'main'
+      send-slack:
+        type: choice
+        description: 'Send slack notification?'
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+
+jobs:
+  build:
+    name: Build Extension
+    runs-on: ubuntu-latest-16-cores-core-extension
+    environment: alpha
+    env:
+      TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+    outputs:
+      test_run_id: ${{ steps.create-testrail-run.outputs.test_run_id }}
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.3
+          check-latest: true
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Checkout extension
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.extension-branch || 'main' }}
+          fetch-depth: 0
+
+      - name: Create env file
+        run: |
+          touch .env.production
+          echo RELEASE=alpha >> .env.production
+          echo 'POSTHOG_KEY="${{ secrets.POSTHOG_KEY }}"' >> .env.production
+          echo 'POSTHOG_URL="${{ secrets.POSTHOG_URL }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY="${{ secrets.ANALYTICS_ENCRYPTION_KEY }}"' >> .env.production
+          echo 'ANALYTICS_ENCRYPTION_KEY_ID="${{ secrets.ANALYTICS_ENCRYPTION_KEY_ID }}"' >> .env.production
+          echo 'COVALENT_API_KEY="${{ secrets.COVALENT_API_KEY }}"' >> .env.production
+          echo 'GLACIER_URL="${{ secrets.GLACIER_URL }}"' >> .env.production
+          echo 'PROXY_URL="${{ secrets.PROXY_URL }}"' >> .env.production
+          echo 'CORE_EXTENSION_LANDING_URL="${{ secrets.CORE_EXTENSION_LANDING_URL }}"' >> .env.production
+          echo 'SENTRY_DSN="${{ secrets.SENTRY_DSN }}"' >> .env.production
+          echo 'CORE_WEB_BASE_URL="${{ secrets.CORE_WEB_BASE_URL }}"' >> .env.production
+          echo 'WALLET_CONNECT_PROJECT_ID="${{ secrets.WALLET_CONNECT_PROJECT_ID }}"' >> .env.production
+          echo 'SEEDLESS_URL="${{ secrets.SEEDLESS_URL }}"' >> .env.production
+          echo 'SEEDLESS_ORG_ID="${{ secrets.SEEDLESS_ORG_ID }}"' >> .env.production
+          echo 'GOOGLE_OAUTH_CLIENT_ID="${{ secrets.GOOGLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_CLIENT_ID="${{ secrets.APPLE_OAUTH_CLIENT_ID }}"' >> .env.production
+          echo 'APPLE_OAUTH_REDIRECT_URL="${{ secrets.APPLE_OAUTH_REDIRECT_URL }}"' >> .env.production
+          echo 'CUBESIGNER_ENV="${{ secrets.CUBESIGNER_ENV }}"' >> .env.production
+          echo 'SEEDLESS_FIDO_IDENTITY_URL="${{ secrets.SEEDLESS_FIDO_IDENTITY_URL }}"' >> .env.production
+          echo 'NEWSLETTER_BASE_URL="${{ secrets.NEWSLETTER_BASE_URL }}"' >> .env.production
+          echo 'NEWSLETTER_PORTAL_ID="${{ secrets.NEWSLETTER_PORTAL_ID }}"' >> .env.production
+          echo 'NEWSLETTER_FORM_ID="${{ secrets.NEWSLETTER_FORM_ID }}"' >> .env.production
+          echo 'FIREBASE_CONFIG="${{ secrets.FIREBASE_CONFIG }}"' >> .env.production
+          echo 'ID_SERVICE_URL="${{ secrets.ID_SERVICE_URL }}"' >> .env.production
+          echo 'GASLESS_SERVICE_URL="${{ secrets.GASLESS_SERVICE_URL }}"' >> .env.production
+          echo 'NOTIFICATION_SENDER_SERVICE_URL="${{ secrets.NOTIFICATION_SENDER_SERVICE_URL }}"' >> .env.production
+          echo 'EXTENSION_PUBLIC_KEY="${{ secrets.EXTENSION_PUBLIC_KEY }}"' >> .env.production
+          echo 'BALANCE_SERVICE_URL="${{ secrets.BALANCE_SERVICE_URL }}"' >> .env.production
+          echo 'PROFILE_SERVICE_URL="${{ secrets.PROFILE_SERVICE_URL }}"' >> .env.production
+      - name: Install dependencies
+        run: |
+          yarn install
+          yarn allow-scripts
+
+      - name: Build extension
+        run: yarn build:alpha
+
+      - name: Upload built extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: ./dist
+
+      - name: Install TestRail CLI
+        run: pip3 install trcli
+
+      - name: Create test run in TestRail
+        id: create-testrail-run
+        run: |
+          TS=$(date -u +'%Y-%m-%d-%H:%M:%S')
+          TEST_RUN_ID=$(trcli -y -h https://avalabs.testrail.io \
+            --project "New Gen Core Extension" \
+            --username ${{ env.TESTRAIL_EMAIL }} \
+            --key ${{ env.TESTRAIL_API_KEY }} \
+            add_run --title "Extension Playwright Regression Run - $TS" \
+            --run-include-all | grep "run_id:" | awk '{print $2}')
+          echo "test_run_id=$TEST_RUN_ID" >> $GITHUB_OUTPUT
+
+  e2e:
+    name: Run E2E Tests - Shard ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+    runs-on: ubuntu-latest-16-cores-core-extension
+    needs: build
+    environment: e2e
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2]
+        shardTotal: [2]
+    env:
+      CI: true
+      AWS_REGION: us-east-1
+      TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+      TESTRAIL_EMAIL: ${{ secrets.TESTRAIL_EMAIL }}
+      TESTRAIL_API_KEY: ${{ secrets.TESTRAIL_API_KEY }}
+      WALLET_PASSWORD: ${{ secrets.WALLET_PASSWORD }}
+      RECOVERY_PHRASE_12_WORDS: ${{ secrets.RECOVERY_PHRASE_12_WORDS }}
+      RECOVERY_PHRASE_24_WORDS: ${{ secrets.RECOVERY_PHRASE_24_WORDS }}
+
+    container:
+      image: mcr.microsoft.com/playwright:v1.55.1-noble
+      options: --ipc=host --security-opt=seccomp=unconfined --cap-add=SYS_ADMIN --shm-size=4gb --memory=6g --cpus=4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.extension-branch || 'main' }}
+          fetch-depth: 0
+
+      - name: Install Chrome
+        working-directory: e2e
+        run: |
+          apt-get update
+          apt-get install -y wget gnupg
+          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
+          apt-get update
+          apt-get install -y google-chrome-stable
+
+      - name: Download built extension
+        uses: actions/download-artifact@v4
+        with:
+          name: extension
+          path: ./dist
+
+      - name: Output Github runner
+        run: curl ifconfig.io
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.3
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install E2E dependencies
+        working-directory: e2e
+        run: |
+          yarn install
+
+      - name: Set Python for AWS CLI
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          role-to-assume: arn:aws:iam::975050371175:role/github-flow-sa-role
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install AWS dependencies
+        shell: bash
+        run: |
+          python3 -m venv ~/py_env
+          source ~/py_env/bin/activate
+          pip3 install awscli
+
+      - name: Download Extension snapshots from AWS S3 bucket
+        shell: bash
+        working-directory: e2e/helpers
+        run: |
+          mkdir -p storage-snapshots
+          cd storage-snapshots
+          source ~/py_env/bin/activate
+          echo "=== Listing S3 bucket contents ==="
+          aws s3 ls s3://core-qa-automation-snapshots/ext/ || echo "Failed to list S3 bucket"
+          echo "=== Downloading snapshots ==="
+          aws s3 sync s3://core-qa-automation-snapshots/ext/ .
+          echo "=== Downloaded files ==="
+          ls -la
+
+      - name: Run Playwright tests
+        working-directory: e2e
+        env:
+          PLAYWRIGHT_SHARD: ${{ matrix.shardIndex }}
+        run: |
+          xvfb-run --auto-servernum --server-args='-screen 0 1280x1024x24' \
+            npx playwright test --headed \
+            --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} \
+            --grep=@regression
+
+      - name: Upload results to TestRail
+        if: always() && env.TEST_RUN_ID != ''
+        shell: bash
+        run: |
+          source ~/py_env/bin/activate
+          pip3 install trcli
+          trcli -n -h https://avalabs.testrail.io \
+            --project "New Gen Core Extension" \
+            --username ${{ env.TESTRAIL_EMAIL }} \
+            --key ${{ env.TESTRAIL_API_KEY }} \
+            parse_junit -f ./e2e/test-results/junit-report-${{ matrix.shardIndex }}.xml \
+            --run-id=${{ env.TEST_RUN_ID }}
+
+      - name: Output TestRail run link
+        if: always() && env.TEST_RUN_ID != ''
+        run: echo https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.shardIndex }}
+          path: |
+            e2e/test-results
+          retention-days: 30
+
+  slack-notification:
+    name: Send Slack Notification
+    runs-on: ubuntu-latest
+    environment: e2e
+    needs: [build, e2e]
+    if: always()
+    env:
+      TEST_RUN_ID: ${{ needs.build.outputs.test_run_id }}
+
+    steps:
+      - name: Notify Slack on success
+        if: ${{ (github.event.inputs.send-slack || 'true') == 'true' && needs.e2e.result == 'success' }}
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.QA_EXT_SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
+              "GH_RUN_STATUS": "PASSED",
+              "STATUS_EMOJI": ":white_check_mark:",
+              "TEST_RUN_TYPE": "Core Extension regression tests",
+              "BRANCH": "${{ github.head_ref || github.ref_name }}",
+              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}"
+            }
+
+      - name: Notify Slack on failure
+        if: ${{ (github.event.inputs.send-slack || 'true') == 'true' && needs.e2e.result == 'failure' }}
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.QA_EXT_SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "GH_RUN_LINK": "https://github.com/ava-labs/core-extension/actions/runs/${{ github.run_id }}",
+              "GH_RUN_STATUS": "FAILED",
+              "STATUS_EMOJI": ":alert:",
+              "TEST_RUN_TYPE": "Core Extension regression tests",
+              "BRANCH": "${{ github.head_ref || github.ref_name }}",
+              "TR_RUN_LINK": "https://avalabs.testrail.io/index.php?/runs/view/${{ env.TEST_RUN_ID }}"
+            }
