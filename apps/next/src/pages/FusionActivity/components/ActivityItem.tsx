@@ -1,14 +1,22 @@
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 import { Card } from '@/components/Card';
-import { ListItem, ListItemText, ListItemTextProps } from '@avalabs/k2-alpine';
+import {
+  ListItem,
+  ListItemText,
+  ListItemTextProps,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import * as Styled from './Styled';
+import { Transfer } from '@avalabs/unified-asset-transfer';
+import { isCompletedTransfer, isTransferInProgress } from '@core/types';
+import { MdCheckCircle, MdError } from 'react-icons/md';
 
 type Props = {
   title: string;
   subtitle: string;
   onClick: VoidFunction;
-  pending: boolean;
+  transfer: Transfer;
 };
 
 const textSlotProps: ListItemTextProps['slotProps'] = {
@@ -26,11 +34,13 @@ const textSlotProps: ListItemTextProps['slotProps'] = {
 };
 
 export const ActivityItem: FC<Props> = ({
+  transfer,
   title,
   subtitle,
   onClick,
-  pending,
 }) => {
+  const theme = useTheme();
+
   return (
     <Card noPadding>
       <ListItem
@@ -39,9 +49,15 @@ export const ActivityItem: FC<Props> = ({
       >
         <Styled.ListItemButton onClick={onClick}>
           <Styled.ListItemIcon>
-            <Styled.Avatar>
-              <AnimatedSyncIcon size={20} data-active={pending} />
-            </Styled.Avatar>
+            {isTransferInProgress(transfer) ? (
+              <Styled.Avatar>
+                <AnimatedSyncIcon size={20} data-active={true} />
+              </Styled.Avatar>
+            ) : isCompletedTransfer(transfer) ? (
+              <MdCheckCircle size={20} color={theme.palette.success.main} />
+            ) : (
+              <MdError size={20} color={theme.palette.error.main} />
+            )}
           </Styled.ListItemIcon>
           <ListItemText
             primary={title}

@@ -148,6 +148,7 @@ export enum ExtensionRequest {
   CURRENCIES_GET_EXCHANGE_RATES = 'currencies_get_exchange_rates',
 
   GET_NETWORK_TOKENS = 'get_network_tokens',
+  LOOKUP_TOKEN = 'lookup_token',
 
   WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION = 'wallet_connect_establish_required_session',
   WALLET_CONNECT_IMPORT_ACCOUNT = 'wallet_connect_import_account',
