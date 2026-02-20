@@ -15,6 +15,7 @@ import {
   PermissionContextProvider,
   SeedlessMfaManagementProvider,
   SwapContextProvider,
+  TransferTrackingContextProvider,
   useNetworkContext,
   usePageHistory,
   usePreferredColorScheme,
@@ -117,6 +118,7 @@ export function App() {
           <DefiContextProvider />,
           <FirebaseContextProvider />,
           <NextUnifiedBridgeProvider />,
+          <TransferTrackingContextProvider />,
           <LedgerPolicyRegistrationStateProvider />,
           <TransactionStatusProviderWithConfetti />,
         ]) as ReactElement[]

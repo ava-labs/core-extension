@@ -26,6 +26,8 @@ export enum SentryExceptionTypes {
 
   UNIFIED_BRIDGE = 'unifiedBridge',
 
+  UNIFIED_TRANSFER = 'unifiedTransfer',
+
   ANALYTICS = 'analytics',
 
   WALLET_IMPORT = 'walletImport',

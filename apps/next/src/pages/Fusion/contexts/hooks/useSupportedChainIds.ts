@@ -1,8 +1,14 @@
 import { useEffect, useState } from 'react';
-import { TransferManager } from '@avalabs/unified-asset-transfer';
+import {
+  GetSupportedChainsResult,
+  TransferManager,
+} from '@avalabs/unified-asset-transfer';
 
-export const useSupportedChainIds = (manager?: TransferManager) => {
-  const [chainIds, setChainIds] = useState<string[]>([]);
+const EMPTY_MAP = new Map();
+
+export const useSupportedChainsMap = (manager?: TransferManager) => {
+  const [chainsMap, setChainsMap] =
+    useState<GetSupportedChainsResult>(EMPTY_MAP);
 
   useEffect(() => {
     if (!manager) {
@@ -11,12 +17,12 @@ export const useSupportedChainIds = (manager?: TransferManager) => {
 
     manager
       .getSupportedChains()
-      .then((supportedChainIds) => setChainIds(supportedChainIds.map(String)))
+      .then(setChainsMap)
       .catch(() => {
         console.error('Error getting supported chains');
-        setChainIds([]);
+        setChainsMap(EMPTY_MAP);
       });
   }, [manager]);
 
-  return chainIds;
+  return chainsMap;
 };

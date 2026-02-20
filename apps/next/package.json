@@ -22,7 +22,7 @@
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.74",
     "@avalabs/k2-alpine": "1.255.2",
     "@avalabs/types": "3.1.0-alpha.77",
-    "@avalabs/unified-asset-transfer": "0.0.0-fix-circular-deps-20260211115048",
+    "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260216201336",
     "@avalabs/vm-module-types": "3.1.4",
     "@core/common": "workspace:*",
     "@core/messaging": "workspace:*",

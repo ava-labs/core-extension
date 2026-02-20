@@ -38,5 +38,5 @@ export const featureFlagsSchema = z
  */
 export const posthogResponseSchema = z.object({
   featureFlags: featureFlagsSchema,
-  featureFlagPayloads: z.record(z.string()).optional(),
+  featureFlagPayloads: z.record(z.string(), z.string()).optional(),
 });

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MARKR_EVM_PARTNER_ID } from '../constants';
+import { MARKR_EVM_PARTNER_ID } from '@core/common';
 import {
   Account,
   CommonError,

@@ -5,9 +5,8 @@ import {
 import { useEffect, useState } from 'react';
 
 import { useFeatureFlagContext } from '@core/ui';
-import { hasAtLeastOneElement } from '@core/common';
+import { hasAtLeastOneElement, getEnabledTransferServices } from '@core/common';
 
-import { getEnabledTransferServices } from '../../lib/getEnabledTransferServices';
 import { useSigners } from './useSigners';
 import { useTransferEnvironment } from './useTransferEnvironment';
 import { useTransferServiceInitializers } from './useTransferServiceInitializers';

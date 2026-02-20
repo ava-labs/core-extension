@@ -25,3 +25,4 @@ export * from './WalletConnectContextProvider';
 export * from './WalletProvider';
 export * from './WalletTotalBalanceProvider';
 export * from './AccountManagerProvider';
+export * from './TransferTrackingProvider';
