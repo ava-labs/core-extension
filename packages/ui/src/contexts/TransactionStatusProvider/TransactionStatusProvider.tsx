@@ -11,6 +11,7 @@ import {
   TransactionStatusEvents as TransactionStatusEventNames,
   TransactionStatusInfo,
 } from '@core/types';
+import type { RpcRequest } from '@avalabs/vm-module-types';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isTransactionStatusEvent } from './isTransactionStatusEvent';
@@ -23,7 +24,7 @@ const FAILURE_TOAST_ID = 'transaction-failure';
 
 export type TransactionStatusCallbackParams = {
   network?: NetworkWithCaipId;
-  context?: TransactionStatusInfo['context'];
+  context?: RpcRequest['context'];
 };
 
 /**
@@ -83,35 +84,30 @@ export function TransactionStatusProvider({
     const subscription = events()
       .pipe(filter(isTransactionStatusEvent))
       .subscribe((evt: ExtensionConnectionEvent<TransactionStatusInfo>) => {
-        const statusInfo = evt.value;
-        const network = getNetwork(statusInfo.chainId);
+        const { txHash, request } = evt.value;
+        const { context } = request;
+        const network = getNetwork(request.chainId);
 
-        if (statusInfo.txHash) {
+        if (txHash) {
           switch (evt.name) {
             case TransactionStatusEventNames.PENDING: {
               // Skip pending toast for intermediate transactions or bridge transactions
               // (e.g., ERC-20 spend approvals before swaps/bridges)
-              if (
-                statusInfo.context?.isIntermediateTransaction ||
-                statusInfo.context?.isBridge
-              ) {
+              if (context?.isIntermediateTransaction || context?.isBridge) {
                 break;
               }
 
-              onPending?.({ network, context: statusInfo.context });
+              onPending?.({ network, context });
 
               if (isAvalanchePrimaryNetwork(network)) {
-                const explorerLink = getExplorerLink(
-                  statusInfo.txHash,
-                  network,
-                );
+                const explorerLink = getExplorerLink(txHash, network);
                 toast.success(t('Transaction successful'), {
-                  id: `${SUCCESS_TOAST_ID}-${statusInfo.txHash}`,
+                  id: `${SUCCESS_TOAST_ID}-${txHash}`,
                   ...(explorerLink && { action: explorerLink }),
                 });
               } else {
                 toast.pending(t('Transaction pending...'), {
-                  id: `${PENDING_TOAST_ID}-${statusInfo.txHash}`,
+                  id: `${PENDING_TOAST_ID}-${txHash}`,
                 });
               }
 
@@ -124,37 +120,37 @@ export function TransactionStatusProvider({
               // (e.g., ERC-20 spend approvals before swaps/bridges)
               // Skip success callback and toast for Avalanche primary networks since we show a success toast in the pending callback
               if (
-                statusInfo.context?.isIntermediateTransaction ||
-                statusInfo.context?.isBridge ||
+                context?.isIntermediateTransaction ||
+                context?.isBridge ||
                 isAvalanchePrimaryNetwork(network)
               ) {
                 break;
               }
 
-              toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
+              toast.dismiss(`${PENDING_TOAST_ID}-${txHash}`);
 
-              const explorerLink = getExplorerLink(statusInfo.txHash, network);
-              onSuccess?.({ network, context: statusInfo.context });
+              const explorerLink = getExplorerLink(txHash, network);
+              onSuccess?.({ network, context });
               toast.success(t('Transaction successful'), {
-                id: `${SUCCESS_TOAST_ID}-${statusInfo.txHash}`,
+                id: `${SUCCESS_TOAST_ID}-${txHash}`,
                 ...(explorerLink && { action: explorerLink }),
               });
               break;
             }
 
             case TransactionStatusEventNames.REVERTED: {
-              toast.dismiss(`${PENDING_TOAST_ID}-${statusInfo.txHash}`);
-              toast.dismiss(`${SUCCESS_TOAST_ID}-${statusInfo.txHash}`); // Success toast may be shown optimistically for X/C/P chains.
-              onReverted?.({ network, context: statusInfo.context });
+              toast.dismiss(`${PENDING_TOAST_ID}-${txHash}`);
+              toast.dismiss(`${SUCCESS_TOAST_ID}-${txHash}`); // Success toast may be shown optimistically for X/C/P chains.
+              onReverted?.({ network, context });
 
               const message =
-                statusInfo.context?.revertReason ===
+                context?.revertReason ===
                 SwapErrorCode.TransactionRevertedDueToSlippage
                   ? t('Transaction failed due to slippage')
                   : t('Transaction failed');
 
               toast.error(message, {
-                id: `${FAILURE_TOAST_ID}-${statusInfo.txHash}`,
+                id: `${FAILURE_TOAST_ID}-${txHash}`,
               });
               break;
             }

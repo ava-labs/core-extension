@@ -73,6 +73,19 @@ const createMockNetwork = (
   caipId: `eip155:${chainId}`,
 });
 
+const makeEvent = (
+  name: TransactionStatusEvents,
+  txHash: string,
+  chainId: string,
+  context?: Record<string, unknown>,
+) => ({
+  name,
+  value: {
+    txHash,
+    request: { chainId, context, method: 'avalanche_sendTransaction' },
+  },
+});
+
 describe('TransactionStatusProvider', () => {
   let eventSubject: Subject<any>;
   const mockGetNetwork = jest.fn();
@@ -146,10 +159,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'eip155:1' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
+      );
 
       expect(mockOnPending).not.toHaveBeenCalled();
       expect(toast.pending).not.toHaveBeenCalled();
@@ -161,10 +173,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'eip155:1' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
+      );
 
       expect(mockOnPending).toHaveBeenCalled();
     });
@@ -178,10 +189,9 @@ describe('TransactionStatusProvider', () => {
       const context = { someData: 'test' };
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'eip155:1', context },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1', context),
+      );
 
       expect(mockOnPending).toHaveBeenCalledWith({
         network: ethereumNetwork,
@@ -195,10 +205,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'eip155:1' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
+      );
 
       expect(toast.pending).toHaveBeenCalledWith('Transaction pending...', {
         id: `transaction-pending-${txHash}`,
@@ -211,10 +220,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(avalancheCChain);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'eip155:43114' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:43114'),
+      );
 
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
@@ -231,10 +239,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(avalanchePChain);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'avax:p-chain' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'avax:p-chain'),
+      );
 
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
@@ -251,10 +258,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(avalancheXChain);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: { txHash, chainId: 'avax:x-chain' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'avax:x-chain'),
+      );
 
       expect(toast.success).toHaveBeenCalledWith(
         'Transaction successful',
@@ -271,14 +277,11 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: {
-          txHash,
-          chainId: 'eip155:1',
-          context: { isIntermediateTransaction: true },
-        },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1', {
+          isIntermediateTransaction: true,
+        }),
+      );
 
       expect(mockOnPending).not.toHaveBeenCalled();
       expect(toast.pending).not.toHaveBeenCalled();
@@ -290,14 +293,11 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.PENDING,
-        value: {
-          txHash,
-          chainId: 'eip155:1',
-          context: { isBridge: true },
-        },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1', {
+          isBridge: true,
+        }),
+      );
 
       expect(mockOnPending).not.toHaveBeenCalled();
       expect(toast.pending).not.toHaveBeenCalled();
@@ -311,10 +311,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: { txHash, chainId: 'eip155:1' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1'),
+      );
 
       expect(toast.dismiss).toHaveBeenCalledWith(
         `transaction-pending-${txHash}`,
@@ -334,10 +333,14 @@ describe('TransactionStatusProvider', () => {
       const context = { someData: 'test' };
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: { txHash, chainId: 'eip155:1', context },
-      });
+      eventSubject.next(
+        makeEvent(
+          TransactionStatusEvents.CONFIRMED,
+          txHash,
+          'eip155:1',
+          context,
+        ),
+      );
 
       expect(mockOnSuccess).toHaveBeenCalledWith({
         network: ethereumNetwork,
@@ -351,10 +354,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(avalancheCChain);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: { txHash, chainId: 'eip155:43114' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:43114'),
+      );
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
@@ -366,10 +368,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(avalanchePChain);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: { txHash, chainId: 'avax:p-chain' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'avax:p-chain'),
+      );
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
@@ -381,10 +382,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(avalancheXChain);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: { txHash, chainId: 'avax:x-chain' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'avax:x-chain'),
+      );
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
@@ -396,14 +396,11 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: {
-          txHash,
-          chainId: 'eip155:1',
-          context: { isIntermediateTransaction: true },
-        },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1', {
+          isIntermediateTransaction: true,
+        }),
+      );
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
@@ -415,14 +412,11 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: {
-          txHash,
-          chainId: 'eip155:1',
-          context: { isBridge: true },
-        },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1', {
+          isBridge: true,
+        }),
+      );
 
       expect(mockOnSuccess).not.toHaveBeenCalled();
       expect(toast.success).not.toHaveBeenCalled();
@@ -436,10 +430,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.REVERTED,
-        value: { txHash, chainId: 'eip155:1' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.REVERTED, txHash, 'eip155:1'),
+      );
 
       expect(toast.dismiss).toHaveBeenCalledWith(
         `transaction-pending-${txHash}`,
@@ -459,10 +452,14 @@ describe('TransactionStatusProvider', () => {
       const context = { someData: 'test' };
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.REVERTED,
-        value: { txHash, chainId: 'eip155:1', context },
-      });
+      eventSubject.next(
+        makeEvent(
+          TransactionStatusEvents.REVERTED,
+          txHash,
+          'eip155:1',
+          context,
+        ),
+      );
 
       expect(mockOnReverted).toHaveBeenCalledWith({
         network: ethereumNetwork,
@@ -478,10 +475,9 @@ describe('TransactionStatusProvider', () => {
       const txHash = '0x123';
       mockGetNetwork.mockReturnValue(ethereumNetwork);
 
-      eventSubject.next({
-        name: TransactionStatusEvents.CONFIRMED,
-        value: { txHash, chainId: 'eip155:1' },
-      });
+      eventSubject.next(
+        makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1'),
+      );
 
       expect(mockRenderExplorerLink).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -517,10 +513,9 @@ describe('TransactionStatusProvider', () => {
           mockGetNetwork.mockReturnValue(network);
 
           // PENDING event
-          eventSubject.next({
-            name: TransactionStatusEvents.PENDING,
-            value: { txHash, chainId },
-          });
+          eventSubject.next(
+            makeEvent(TransactionStatusEvents.PENDING, txHash, chainId),
+          );
 
           expect(toast.success).toHaveBeenCalledWith(
             'Transaction successful',
@@ -535,10 +530,9 @@ describe('TransactionStatusProvider', () => {
           jest.clearAllMocks();
 
           // CONFIRMED event
-          eventSubject.next({
-            name: TransactionStatusEvents.CONFIRMED,
-            value: { txHash, chainId },
-          });
+          eventSubject.next(
+            makeEvent(TransactionStatusEvents.CONFIRMED, txHash, chainId),
+          );
 
           // Should NOT show another success toast (already shown on pending)
           expect(toast.success).not.toHaveBeenCalled();
@@ -554,10 +548,9 @@ describe('TransactionStatusProvider', () => {
         mockGetNetwork.mockReturnValue(ethereumNetwork);
 
         // PENDING event
-        eventSubject.next({
-          name: TransactionStatusEvents.PENDING,
-          value: { txHash, chainId: 'eip155:1' },
-        });
+        eventSubject.next(
+          makeEvent(TransactionStatusEvents.PENDING, txHash, 'eip155:1'),
+        );
 
         expect(toast.pending).toHaveBeenCalledWith('Transaction pending...', {
           id: `transaction-pending-${txHash}`,
@@ -571,10 +564,9 @@ describe('TransactionStatusProvider', () => {
         jest.clearAllMocks();
 
         // CONFIRMED event
-        eventSubject.next({
-          name: TransactionStatusEvents.CONFIRMED,
-          value: { txHash, chainId: 'eip155:1' },
-        });
+        eventSubject.next(
+          makeEvent(TransactionStatusEvents.CONFIRMED, txHash, 'eip155:1'),
+        );
 
         expect(toast.dismiss).toHaveBeenCalledWith(
           `transaction-pending-${txHash}`,

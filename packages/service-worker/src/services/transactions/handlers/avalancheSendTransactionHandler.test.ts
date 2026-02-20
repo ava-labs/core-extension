@@ -9,7 +9,10 @@ const mockMeasureDuration = {
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),
   measureDuration: jest.fn(() => mockMeasureDuration),
+  getAddressForChain: jest.fn(),
 }));
+
+const { getAddressForChain } = jest.requireMock('@core/common');
 
 describe('getAvalancheSendTransactionHandlers', () => {
   const caipChainId = 'avax:Sj7NVE3jXTbJvwFAiu7OEUo_8g8ctXMG';
@@ -39,6 +42,7 @@ describe('getAvalancheSendTransactionHandlers', () => {
     mockNetworkService.getNetwork.mockResolvedValue({
       chainId: numericChainId,
     });
+    getAddressForChain.mockReturnValue(addressC);
   });
 
   const makeEvent = (name: string, value: Partial<TransactionStatusInfo>) => ({
@@ -131,6 +135,7 @@ describe('getAvalancheSendTransactionHandlers', () => {
     it('returns empty address when no account is found', async () => {
       mockAccountsService.getAccountList.mockResolvedValue([]);
       mockAccountsService.getActiveAccount.mockResolvedValue(undefined);
+      getAddressForChain.mockReturnValue('');
 
       const handler = handlers[TransactionStatusEvents.PENDING]!;
       const event = makeEvent(TransactionStatusEvents.PENDING, {});
