@@ -1,9 +1,9 @@
-import { Stack } from '@avalabs/k2-alpine';
+import { Stack, Typography } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { FC, useCallback, useEffect, useRef } from 'react';
 
 import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
-import { useLiveBalance } from '@core/ui';
+import { useIsUsingKeystoneWallet, useLiveBalance } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
@@ -92,6 +92,8 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
   const showGaslessErrorMessage =
     gaslessPhase === GaslessPhase.ERROR || gaslessUnavailable.current;
 
+  const isUsingKeystoneWallet = useIsUsingKeystoneWallet();
+
   return (
     <Styled.ApprovalScreenPage>
       <NoScrollStack stackProps={{ sx: { mt: 3 } }}>
@@ -117,6 +119,19 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
             updateAction={updateAction}
             error={error}
           />
+          {isUsingKeystoneWallet && (
+            <Typography
+              variant="body2"
+              sx={{
+                mt: 2,
+                mb: 1,
+                mx: 0,
+              }}
+            >
+              <strong>{t('Note: ')}</strong>
+              {t('Ensure your Keystone 3 Pro is on the homepage')}
+            </Typography>
+          )}
         </Stack>
         <ActionDrawer
           open
@@ -140,6 +155,7 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
           network={network}
           approve={approve}
           reject={cancel}
+          error={error}
         />
       )}
     </Styled.ApprovalScreenPage>
