@@ -13,7 +13,7 @@ describe('src/background/services/transferTracking/handlers/trackUnifiedTransfer
     status: 'source-pending',
   } as Transfer;
 
-  it('returns the current state of the UnifiedBridgeService', async () => {
+  it('initiates the transfer tracking process', async () => {
     const trackingServiceMock: Partial<TransferTrackingService> = {
       trackTransfer: jest.fn(),
       updatePendingTransfer: jest.fn(),

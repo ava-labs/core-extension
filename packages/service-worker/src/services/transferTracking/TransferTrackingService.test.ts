@@ -206,4 +206,132 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
       expect(createTransferManager).toHaveBeenCalled();
     });
   });
+
+  describe('concurrent manager recreation handling', () => {
+    it('should handle a single call correctly', async () => {
+      // Clear the mock from constructor call
+      jest.mocked(createTransferManager).mockClear();
+
+      const service = new TransferTrackingService(
+        networkService,
+        storageService,
+        flagsService,
+      );
+
+      // Wait for constructor's call to complete
+      await new Promise(process.nextTick);
+
+      jest.mocked(createTransferManager).mockClear();
+
+      await service.recreateManager();
+
+      expect(createTransferManager).toHaveBeenCalledTimes(1);
+    });
+
+    it('should serialize concurrent calls - first call completes before second starts', async () => {
+      jest.mocked(createTransferManager).mockClear();
+
+      const service = new TransferTrackingService(
+        networkService,
+        storageService,
+        flagsService,
+      );
+
+      // Wait for constructor's call to complete
+      await new Promise(process.nextTick);
+
+      jest.mocked(createTransferManager).mockClear();
+
+      const call1Promise = service.recreateManager();
+      const call2Promise = service.recreateManager();
+
+      // 2 explicit calls = 2 total
+      await call1Promise;
+      expect(createTransferManager).toHaveBeenCalledTimes(1);
+      await call2Promise;
+      expect(createTransferManager).toHaveBeenCalledTimes(2);
+    });
+
+    it('should coalesce 3 concurrent calls into 2 recreations', async () => {
+      jest.mocked(createTransferManager).mockClear();
+
+      const service = new TransferTrackingService(
+        networkService,
+        storageService,
+        flagsService,
+      );
+
+      // Wait for constructor's call to complete
+      await new Promise(process.nextTick);
+
+      jest.mocked(createTransferManager).mockClear();
+
+      const call1Promise = service.recreateManager();
+      const call2Promise = service.recreateManager();
+      const call3Promise = service.recreateManager();
+
+      await Promise.all([call1Promise, call2Promise, call3Promise]);
+
+      // First explicit call (1) + coalesced second call (1) = 2 total
+      expect(createTransferManager).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle rapid sequential calls correctly', async () => {
+      jest.mocked(createTransferManager).mockClear();
+
+      const service = new TransferTrackingService(
+        networkService,
+        storageService,
+        flagsService,
+      );
+
+      // Wait for constructor's call to complete
+      await new Promise(process.nextTick);
+
+      jest.mocked(createTransferManager).mockClear();
+
+      await service.recreateManager();
+      await service.recreateManager();
+      await service.recreateManager();
+
+      // 3 sequential calls = 3 total
+      expect(createTransferManager).toHaveBeenCalledTimes(3);
+    });
+
+    it('should handle concurrent calls during an in-progress recreation', async () => {
+      let resolveRecreation: () => void;
+      const recreationPromise = new Promise<TransferManager>((resolve) => {
+        resolveRecreation = () => resolve({} as TransferManager);
+      });
+
+      jest.mocked(createTransferManager).mockClear();
+      jest.mocked(createTransferManager).mockReturnValueOnce(recreationPromise);
+
+      const service = new TransferTrackingService(
+        networkService,
+        storageService,
+        flagsService,
+      );
+
+      // Wait for constructor to start
+      await new Promise(process.nextTick);
+
+      // Constructor is now waiting on the first promise
+      jest
+        .mocked(createTransferManager)
+        .mockResolvedValue({} as TransferManager);
+
+      // Start concurrent calls while constructor's call is in progress
+      const call2Promise = service.recreateManager();
+      const call3Promise = service.recreateManager();
+
+      // Resolve the first recreation
+      resolveRecreation!();
+
+      await Promise.all([call2Promise, call3Promise]);
+
+      // Constructor's call + coalesced call = 2 total
+      expect(createTransferManager).toHaveBeenCalledTimes(2);
+    });
+  });
 });

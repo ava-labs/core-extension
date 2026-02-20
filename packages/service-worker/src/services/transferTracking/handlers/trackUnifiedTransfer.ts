@@ -21,9 +21,9 @@ export class TrackUnifiedTransfer implements HandlerType {
     const [transfer] = request.params;
 
     try {
-      await this.trackingService
-        .updatePendingTransfer(transfer)
-        .then(() => this.trackingService.trackTransfer(transfer));
+      await this.trackingService.updatePendingTransfer(transfer);
+
+      this.trackingService.trackTransfer(transfer);
 
       return {
         ...request,

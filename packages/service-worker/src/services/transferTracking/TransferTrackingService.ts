@@ -45,6 +45,8 @@ export class TransferTrackingService implements OnStorageReady {
   #eventEmitter = new EventEmitter();
   #state = TRANSFER_TRACKING_DEFAULT_STATE;
   #failedInitAttempts = 0;
+  #recreationPromise?: Promise<void>;
+  #pendingRecreation = false;
 
   // We'll re-create the #manager instance when one of these feature flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -143,6 +145,36 @@ export class TransferTrackingService implements OnStorageReady {
   }
 
   async recreateManager() {
+    // If a recreation is currently in progress, wait for it to complete
+    if (this.#recreationPromise) {
+      this.#pendingRecreation = true;
+      await this.#recreationPromise;
+    }
+
+    // If a pending recreation is needed and no one else started it yet, do it now
+    if (this.#pendingRecreation && !this.#recreationPromise) {
+      this.#pendingRecreation = false;
+      this.#recreationPromise = this.#doRecreateManager();
+      try {
+        await this.#recreationPromise;
+      } finally {
+        this.#recreationPromise = undefined;
+      }
+      return;
+    }
+
+    // If there's no recreation in progress, start one
+    if (!this.#recreationPromise) {
+      this.#recreationPromise = this.#doRecreateManager();
+      try {
+        await this.#recreationPromise;
+      } finally {
+        this.#recreationPromise = undefined;
+      }
+    }
+  }
+
+  async #doRecreateManager() {
     const environment = this.networkService.isMainnet()
       ? Environment.PROD
       : Environment.TEST;
