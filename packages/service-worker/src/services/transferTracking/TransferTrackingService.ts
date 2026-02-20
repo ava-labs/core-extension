@@ -196,11 +196,11 @@ export class TransferTrackingService implements OnStorageReady {
 
         await wait(delay);
 
-        // Do not attempt again if it succeded in the meantime
+        // Do not attempt again if it succeeded in the meantime
         // (e.g. user switched developer mode or feature flags updated)
         if (this.#failedInitAttempts > 0) {
           this.#isRecreatingManager = false;
-          this.recreateManager();
+          await this.recreateManager();
         }
       }
     } finally {
