@@ -103,12 +103,7 @@ export class ApprovalController implements BatchApprovalController {
     explorerLink: string;
     request: RpcRequest;
   }) => {
-    request.context = {
-      ...request.context,
-      explorerLink,
-    };
-
-    this.#transactionStatusEvents.emitConfirmed(txHash, request);
+    this.#transactionStatusEvents.emitConfirmed(txHash, request, explorerLink);
   };
 
   onTransactionReverted = async ({

@@ -15,30 +15,21 @@ export class TransactionStatusEvents implements ExtensionEventEmitter {
   emitPending(txHash: string, request: RpcRequest) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.PENDING,
-      value: {
-        txHash,
-        request,
-      } as TransactionStatusInfo,
+      value: { txHash, request } as TransactionStatusInfo,
     });
   }
 
-  emitConfirmed(txHash: string, request: RpcRequest) {
+  emitConfirmed(txHash: string, request: RpcRequest, explorerLink: string) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.CONFIRMED,
-      value: {
-        txHash,
-        request,
-      } as TransactionStatusInfo,
+      value: { txHash, request, explorerLink } as TransactionStatusInfo,
     });
   }
 
   emitReverted(txHash: string, request: RpcRequest) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.REVERTED,
-      value: {
-        txHash,
-        request,
-      } as TransactionStatusInfo,
+      value: { txHash, request } as TransactionStatusInfo,
     });
   }
 

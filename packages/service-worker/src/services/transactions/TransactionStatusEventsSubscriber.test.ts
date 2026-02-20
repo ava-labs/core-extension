@@ -108,6 +108,7 @@ describe('TransactionStatusEventsSubscriber', () => {
     transactionStatusEvents.emitConfirmed(
       '0xabc',
       makeRequest('eth_sendTransaction') as any,
+      'https://explorer.avax.network/tx/0xabc',
     );
 
     await new Promise(process.nextTick);

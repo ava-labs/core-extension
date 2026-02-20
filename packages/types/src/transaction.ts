@@ -238,4 +238,5 @@ export enum TransactionStatusEvents {
 export interface TransactionStatusInfo {
   txHash: string;
   request: RpcRequest;
+  explorerLink?: string;
 }
