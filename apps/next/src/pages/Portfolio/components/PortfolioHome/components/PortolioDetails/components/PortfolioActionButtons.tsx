@@ -33,6 +33,7 @@ import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { chainIdToCaip } from '@core/common';
 import { FaExplosion } from 'react-icons/fa6';
 import { NoScrollStack } from '@/components/NoScrollStack';
+import { getAddressTypeForToken } from '@/lib/getAddressTypeForToken';
 
 const ICON_SIZE = 20;
 
@@ -79,7 +80,7 @@ export const PortfolioActionButtons = ({
         gap: 1,
       }}
     >
-      {isFlagEnabled(FeatureGates.FUSION_PROJECT) ? (
+      {isFlagEnabled(FeatureGates.FUSION_FEATURE) ? (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
@@ -155,8 +156,15 @@ export const PortfolioActionButtons = ({
             icon={<QrCodeIcon size={ICON_SIZE} />}
             label={t('Receive')}
             onClick={() => {
-              capture('TokenReceiveClicked', { addressType: 'C' });
-              history.push(`/receive?accId=${activeAccount?.id}`);
+              const addressType = token ? getAddressTypeForToken(token) : 'C';
+
+              capture('TokenReceiveClicked', { addressType });
+
+              const params = new URLSearchParams({
+                addressType,
+                accId: activeAccount?.id ?? '',
+              });
+              history.push(`/receive?${params.toString()}`);
             }}
           />
         </OfflineTooltip>

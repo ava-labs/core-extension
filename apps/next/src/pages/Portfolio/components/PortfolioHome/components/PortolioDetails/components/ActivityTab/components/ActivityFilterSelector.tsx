@@ -13,12 +13,12 @@ type Props = {
 
 const ACTIVITY_FILTERS: ActivityFilter[] = [
   'All',
-  'Bridge',
-  'Incoming',
-  'Outgoing',
-  'Contract_Call',
+  'Sent',
+  'Received',
   'Swap',
-  'NFTs',
+  'Bridge',
+  'NFT',
+  'Contract_Call',
 ];
 
 export const ActivityFilterSelector: FC<Props> = ({

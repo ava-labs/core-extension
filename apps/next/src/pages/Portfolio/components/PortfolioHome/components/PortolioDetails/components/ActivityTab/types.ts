@@ -2,11 +2,11 @@ import { TxHistoryItem } from '@core/types';
 
 export type ActivityFilter =
   | 'All'
-  | 'Bridge'
-  | 'Incoming'
-  | 'Outgoing'
-  | 'Contract_Call'
+  | 'Sent'
+  | 'Received'
   | 'Swap'
-  | 'NFTs';
+  | 'Bridge'
+  | 'NFT'
+  | 'Contract_Call';
 
 export type ActivityFilterPredicate = (tx: TxHistoryItem) => boolean;

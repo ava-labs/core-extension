@@ -17,7 +17,7 @@ import {
   WalletType,
 } from '@avalabs/types';
 import { AddressResolver } from '~/services/secrets/AddressResolver';
-import { getAvalancheExtendedKeyPath } from '@core/common';
+import { getAvalancheExtendedKeyPath, stripAddressPrefix } from '@core/common';
 
 @injectable()
 export class AvalancheGetAccountsHandler extends DAppRequestHandler {
@@ -106,7 +106,9 @@ export class AvalancheGetAccountsHandler extends DAppRequestHandler {
           addressSVM: acc.addressSVM,
           name: acc.name,
           type: CoreAccountType.IMPORTED,
-          xpAddresses: [],
+          xpAddresses: acc.addressPVM
+            ? [{ address: stripAddressPrefix(acc.addressPVM), index: 0 }]
+            : [],
         };
 
         return importedAccount;

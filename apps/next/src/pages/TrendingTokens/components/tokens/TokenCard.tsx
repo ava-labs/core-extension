@@ -15,7 +15,8 @@ import { useHistory } from 'react-router-dom';
 import { getSwapPath } from '@/config/routes';
 import { TokenType } from '@avalabs/vm-module-types';
 import { ChainId } from '@avalabs/core-chains-sdk';
-import { useSwapTokens } from '@/pages/Swap/hooks';
+import { useTargetSwapTokens } from '@/pages/Swap/hooks';
+import { SwappableToken } from '@/pages/Swap/types';
 
 type TokenCardProps = {
   token: TrendingToken;
@@ -32,12 +33,37 @@ const getCoreChainId = (network: TrendingTokensNetwork) => {
   }
 };
 
+// Get the native token ID for a network (used for swap source)
+const getNativeTokenId = (trendingNetwork: TrendingTokensNetwork) => {
+  const chainId = getCoreChainId(trendingNetwork);
+  const symbol = trendingNetwork === 'avalanche' ? 'AVAX' : 'SOL';
+  return getUniqueTokenIdGeneric({
+    type: TokenType.NATIVE,
+    symbol,
+    coreChainId: chainId,
+  });
+};
+
 export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   const rank = token.rank;
   const { currency } = useSettingsContext();
   const { t } = useTranslation();
   const { push } = useHistory();
-  const { targetTokens } = useSwapTokens();
+
+  // Create a minimal "from token" to get target tokens for the correct network
+  const networkFromToken = useMemo(
+    () =>
+      ({
+        coreChainId: getCoreChainId(network),
+      }) as SwappableToken,
+    [network],
+  );
+
+  // Get swappable target tokens for the network using swap hooks
+  const targetTokens = useTargetSwapTokens(networkFromToken);
+
+  // Native token ID for swap source (AVAX or SOL)
+  const nativeTokenId = useMemo(() => getNativeTokenId(network), [network]);
 
   const [showBuyButton, setShowBuyButton] = useState(false);
 
@@ -59,9 +85,11 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       : downIcon;
 
   const uniqueTokenId = useMemo(() => {
+    const isSolana = network === 'solana';
+
     // Normalize symbol and address to lowercase for ERC20 tokens to match getUniqueTokenId behavior
     // getUniqueTokenId lowercases symbols for EVM fungible tokens (ERC20)
-    const isErc20 = !token.isNative;
+    const isErc20 = !token.isNative && !isSolana;
     const normalizedSymbol = isErc20
       ? token.symbol.toLowerCase()
       : token.symbol;
@@ -69,8 +97,13 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
       ? token.address?.toLowerCase()
       : token.address;
 
+    const tokenType = token.isNative
+      ? TokenType.NATIVE
+      : isSolana
+        ? TokenType.SPL
+        : TokenType.ERC20;
     return getUniqueTokenIdGeneric({
-      type: isErc20 ? TokenType.ERC20 : TokenType.NATIVE,
+      type: tokenType,
       symbol: normalizedSymbol,
       address: token.isNative ? undefined : normalizedAddress,
       coreChainId: getCoreChainId(network),
@@ -78,9 +111,9 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
   }, [token, network]);
 
   const isBuyable = useMemo(() => {
-    return targetTokens.some(
-      (targetToken) => getUniqueTokenId(targetToken) === uniqueTokenId,
-    );
+    return targetTokens.some((targetToken) => {
+      return getUniqueTokenId(targetToken) === uniqueTokenId;
+    });
   }, [targetTokens, uniqueTokenId]);
 
   return (
@@ -163,6 +196,7 @@ export const TokenCard = ({ token, last, network }: TokenCardProps) => {
                 onClick={() =>
                   push(
                     getSwapPath({
+                      from: nativeTokenId,
                       to: uniqueTokenId,
                     }),
                   )

@@ -43,7 +43,8 @@ export const usePChainSend = ({
   const { isLedgerWallet } = useWalletContext();
   const getXPAddressesFetcher = useGetXPAddresses();
   const { filterSmallUtxos } = useSettingsContext();
-  const { onSendFailure } = useTransactionCallbacks(network);
+  const { onSendApproved, onSendFailure, onSendSuccess } =
+    useTransactionCallbacks(network, from.addressPVM);
   const { maxAmount, estimatedFee } = useMaxAmountForTokenSend(from, token, to);
 
   const [isSending, setIsSending] = useState(false);
@@ -81,6 +82,7 @@ export const usePChainSend = ({
     }
 
     setIsSending(true);
+    onSendApproved();
 
     try {
       const addresses = await getXPAddressesFetcher('PVM')();
@@ -129,9 +131,7 @@ export const usePChainSend = ({
         },
       );
 
-      // Transaction status will be handled by the TransactionStatusProvider
-      // so we don't need to listen for events here
-
+      onSendSuccess(hash);
       return hash;
     } catch (err) {
       console.error(err);
@@ -144,7 +144,9 @@ export const usePChainSend = ({
     to,
     request,
     t,
+    onSendApproved,
     onSendFailure,
+    onSendSuccess,
     filterSmallUtxos,
     isLedgerWallet,
     from,
