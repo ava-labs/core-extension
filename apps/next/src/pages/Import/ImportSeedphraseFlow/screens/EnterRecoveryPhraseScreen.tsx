@@ -90,7 +90,7 @@ export const EnterRecoveryPhraseScreen: FC<EnterRecoveryPhraseScreenProps> = ({
             </Box>
             <Typography variant="body2">
               {t(
-                'The recovery phrase your entered is invalid. Please double check for spelling mistakes or the order of each word',
+                'The recovery phrase you entered is invalid. Please double check for spelling mistakes or the order of each word',
               )}
             </Typography>
           </Stack>

@@ -485,10 +485,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/types@npm:3.1.0-alpha.74":
-  version: 3.1.0-alpha.74
-  resolution: "@avalabs/types@npm:3.1.0-alpha.74"
-  checksum: 10c0/250ce3dbb0a40841ab5ef35473569e15abd8dceac68840c72e70c7e926b1d5bda2132a447be5201278cf98ce39f1692d0dfb99a8d14ec47cc88ca7b96a9b726f
+"@avalabs/types@npm:3.1.0-alpha.77":
+  version: 3.1.0-alpha.77
+  resolution: "@avalabs/types@npm:3.1.0-alpha.77"
+  checksum: 10c0/c8e39e179e8acdd9585c7b439354f268174aeb5d95a93647db27a753f59176c64f84d1c4ea9789f73b5644e812264a67a32a552642b0924ee10e446f88e55d74
   languageName: node
   linkType: hard
 
@@ -2768,7 +2768,7 @@ __metadata:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
-    "@avalabs/types": "npm:3.1.0-alpha.74"
+    "@avalabs/types": "npm:3.1.0-alpha.77"
     "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260216201336"
     "@avalabs/vm-module-types": "npm:3.1.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
@@ -3040,7 +3040,7 @@ __metadata:
     "@avalabs/hvm-module": "npm:3.1.4"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/svm-module": "npm:3.1.4"
-    "@avalabs/types": "npm:3.1.0-alpha.74"
+    "@avalabs/types": "npm:3.1.0-alpha.77"
     "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260216201336"
     "@avalabs/vm-module-types": "npm:3.1.4"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
@@ -3208,7 +3208,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/types": "npm:3.1.0-alpha.74"
+    "@avalabs/types": "npm:3.1.0-alpha.77"
     "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260216201336"
     "@avalabs/vm-module-types": "npm:3.1.4"
     "@blockaid/client": "npm:0.10.0"

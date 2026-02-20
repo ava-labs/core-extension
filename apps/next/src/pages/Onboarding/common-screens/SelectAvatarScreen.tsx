@@ -89,8 +89,8 @@ export const SelectAvatarScreen: FC<SelectAvatarScreenProps> = ({
                 maxWidth: '100%',
               }}
               avatars={AVATAR_OPTIONS}
-              selected={selectedAvatar as PersonalAvatarName}
-              onSelect={(a) => setSelectedAvatar(a)}
+              selected={selectedAvatar}
+              onSelect={setSelectedAvatar}
             />
           </Suspense>
         </Stack>
