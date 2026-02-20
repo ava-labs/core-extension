@@ -152,59 +152,62 @@ export class TransferTrackingService implements OnStorageReady {
     this.#isRecreatingManager = true;
 
     try {
-      const environment = this.networkService.isMainnet()
-        ? Environment.PROD
-        : Environment.TEST;
-
-      try {
-        const bitcoinProvider = await this.networkService.getBitcoinProvider();
-
-        const serviceInitializers =
-          await this.#getServiceInitializers(bitcoinProvider);
-
-        if (!hasAtLeastOneElement(serviceInitializers)) {
-          this.#manager = undefined;
-          this.#failedInitAttempts = 0;
-          return;
-        }
-
-        this.#manager = await createTransferManager({
-          environment,
-          serviceInitializers,
-        });
-        this.#failedInitAttempts = 0;
-        this.#trackPendingTransfers();
-      } catch (err: any) {
-        // If it failed, it's most likely a network issue.
-        // Wait a bit and try again.
-        this.#failedInitAttempts += 1;
-
-        const delay = getExponentialBackoffDelay({
-          attempt: this.#failedInitAttempts,
-          startsAfter: 1,
-        });
-
-        Monitoring.sentryCaptureException(
-          err,
-          Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
-        );
-        console.log(
-          `Initialization of UnifiedBridgeService failed, attempt #${
-            this.#failedInitAttempts
-          }. Retry in ${delay / 1000}s`,
-        );
-
-        await wait(delay);
-
-        // Do not attempt again if it succeeded in the meantime
-        // (e.g. user switched developer mode or feature flags updated)
-        if (this.#failedInitAttempts > 0) {
-          this.#isRecreatingManager = false;
-          await this.recreateManager();
-        }
-      }
+      await this.#doRecreateManager();
     } finally {
       this.#isRecreatingManager = false;
+    }
+  }
+
+  async #doRecreateManager() {
+    const environment = this.networkService.isMainnet()
+      ? Environment.PROD
+      : Environment.TEST;
+
+    try {
+      const bitcoinProvider = await this.networkService.getBitcoinProvider();
+
+      const serviceInitializers =
+        await this.#getServiceInitializers(bitcoinProvider);
+
+      if (!hasAtLeastOneElement(serviceInitializers)) {
+        this.#manager = undefined;
+        this.#failedInitAttempts = 0;
+        return;
+      }
+
+      this.#manager = await createTransferManager({
+        environment,
+        serviceInitializers,
+      });
+      this.#failedInitAttempts = 0;
+      this.#trackPendingTransfers();
+    } catch (err: any) {
+      // If it failed, it's most likely a network issue.
+      // Wait a bit and try again.
+      this.#failedInitAttempts += 1;
+
+      const delay = getExponentialBackoffDelay({
+        attempt: this.#failedInitAttempts,
+        startsAfter: 1,
+      });
+
+      Monitoring.sentryCaptureException(
+        err,
+        Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
+      );
+      console.log(
+        `Initialization of UnifiedBridgeService failed, attempt #${
+          this.#failedInitAttempts
+        }. Retry in ${delay / 1000}s`,
+      );
+
+      await wait(delay);
+
+      // Do not attempt again if it succeeded in the meantime
+      // (e.g. user switched developer mode or feature flags updated)
+      if (this.#failedInitAttempts > 0) {
+        await this.#doRecreateManager();
+      }
     }
   }
 
