@@ -67,6 +67,7 @@ export const PersonalAvatar = ({
   return (
     <Box
       position="relative"
+      display="inline-flex"
       onClick={onClick}
       aria-selected={selected}
       role={onClick ? 'radio' : 'presentation'}
