@@ -63,7 +63,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
       </IconButton>
       {isFlagEnabled(FeatureGates.FUSION_FEATURE) && (
         <IconButton
-          disableRipple={true}
+          disableRipple
           size="small"
           onClick={() => history.push('/fusion-activity')}
         >
