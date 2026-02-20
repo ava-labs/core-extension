@@ -124,7 +124,7 @@ describe('featureFlagsSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success && result.error.issues[0]) {
-        expect(result.error.issues[0].message).toContain('Expected boolean');
+        expect(result.error.issues[0].message).toContain('expected boolean');
       }
     });
 
@@ -135,7 +135,7 @@ describe('featureFlagsSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success && result.error.issues[0]) {
-        expect(result.error.issues[0].message).toContain('Expected boolean');
+        expect(result.error.issues[0].message).toContain('expected boolean');
       }
     });
 
@@ -147,7 +147,7 @@ describe('featureFlagsSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success && result.error.issues[0]) {
-        expect(result.error.issues[0].message).toContain('Expected string');
+        expect(result.error.issues[0].message).toContain('expected string');
       }
     });
 
@@ -159,7 +159,7 @@ describe('featureFlagsSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success && result.error.issues[0]) {
-        expect(result.error.issues[0].message).toContain('Expected string');
+        expect(result.error.issues[0].message).toContain('expected string');
       }
     });
   });
@@ -253,7 +253,7 @@ describe('posthogResponseSchema', () => {
 
       expect(result.success).toBe(false);
       if (!result.success && result.error.issues[0]) {
-        expect(result.error.issues[0].message).toContain('Expected string');
+        expect(result.error.issues[0].message).toContain('expected string');
       }
     });
 

@@ -138,3 +138,5 @@ export type { GetTrendingTokensHandler } from './services/trendingTokens/handler
 export type { MigrateMissingPublicKeysFromKeystoneHandler } from './services/keystone/handlers/migrateMissingKeysFromKeystone';
 export type { GetXPAddressesForAccountHandler } from './services/accounts/handlers/getXPAddressesForAccountIndex';
 export type { SetFilterSmallUtxosHandler } from './services/settings/handlers/setFilterSmallUtxos';
+export type { TransferTrackingGetState } from './services/transferTracking/handlers/transferTrackingGetState';
+export type { TrackUnifiedTransfer } from './services/transferTracking/handlers/trackUnifiedTransfer';

@@ -29,6 +29,7 @@ import { AvalancheGetAccountPubKeyHandler } from '../../services/accounts/handle
 import { AvalancheGetAddressesInRangeHandler } from '../../services/accounts/handlers/avalanche_getAddressesInRange';
 import { AvalancheRenameAccountHandler } from '../../services/accounts/handlers/avalanche_renameAccount';
 import { AvalancheRenameWalletHandler } from '../../services/secrets/handlers/avalanche_renameWallet';
+import { WalletNameChangedEvents } from '../../services/secrets/events/walletNameChangedEvent';
 import { WalletAddNetworkHandler } from '../../services/network/handlers/wallet_addNetwork';
 import { AvalancheDeleteAccountsHandler } from '../../services/accounts/handlers/avalanche_deleteAccounts';
 import { AccountsChangedCAEvents } from '../../services/accounts/events/accountsChangedCAEvent';
@@ -113,6 +114,7 @@ export class DappRequestHandlerRegistry {}
   { token: 'DAppEventEmitter', useToken: AccountsChangedCAEvents },
   { token: 'DAppEventEmitter', useToken: AccountsDeletedEvents },
   { token: 'DAppEventEmitter', useToken: AccountsNameChangedEvents },
+  { token: 'DAppEventEmitter', useToken: WalletNameChangedEvents },
   { token: 'DAppEventEmitter', useToken: ChainChangedEvents },
   { token: 'DAppEventEmitter', useToken: ActionEvents },
   { token: 'DAppEventEmitter', useToken: NetworkStateChangedEvents },

@@ -14,13 +14,18 @@ import VeloraLogoLight from '@/images/swap-providers/velora-logo-light.svg';
 import VeloraLogoDark from '@/images/swap-providers/velora-logo-dark.svg';
 
 import { useSwapState } from '../contexts';
+import { isAvalancheChainId } from '@core/common';
 
 export const SwapProviderNotice = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isLightTheme = theme.palette.mode === 'light';
 
-  const { provider } = useSwapState();
+  const { provider, fromToken } = useSwapState();
+
+  const isAvalancheNetwork = fromToken?.coreChainId
+    ? isAvalancheChainId(fromToken?.coreChainId)
+    : false;
 
   // Depending on the logo, we align the text differently to best match the logo's design.
   const needsPadding =
@@ -28,6 +33,10 @@ export const SwapProviderNotice = () => {
   const paddingTop = needsPadding ? 0.5 : 0;
 
   const imgLogoSrc = getLogoSrc(provider, isLightTheme);
+
+  if (!isAvalancheNetwork && !imgLogoSrc) {
+    return null;
+  }
 
   return (
     <Stack
@@ -41,9 +50,10 @@ export const SwapProviderNotice = () => {
       <Typography variant="caption" fontSize={8.25} pt={paddingTop}>
         {t('Powered by')}
       </Typography>
-      {imgLogoSrc ? (
+      {imgLogoSrc && (
         <img style={{ opacity: 0.75 }} src={imgLogoSrc} alt={provider} />
-      ) : (
+      )}
+      {!imgLogoSrc && isAvalancheNetwork && (
         <AvalancheHorizontalIcon size={60} />
       )}
     </Stack>

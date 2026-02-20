@@ -164,6 +164,11 @@ import { GetTotalAtomicFundsForAccountHandler } from '~/services/balances/handle
 import { NavigationRequestEvents } from '~/services/navigationHistory/events/navigationRequestEvents';
 import { RequestNavigationHandler } from '~/services/navigationHistory/handlers/requestNavigation';
 import { SetFilterSmallUtxosHandler } from '~/services/settings/handlers/setFilterSmallUtxos';
+import { TransferTrackingEvents } from '~/services/transferTracking/events/transferTrackingEvents';
+import {
+  TrackUnifiedTransfer,
+  TransferTrackingGetState,
+} from '~/services/transferTracking/handlers';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -517,6 +522,11 @@ import { SetFilterSmallUtxosHandler } from '~/services/settings/handlers/setFilt
     useToken: GetTotalAtomicFundsForAccountHandler,
   },
   { token: 'ExtensionRequestHandler', useToken: SetFilterSmallUtxosHandler },
+  { token: 'ExtensionRequestHandler', useToken: TrackUnifiedTransfer },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: TransferTrackingGetState,
+  },
 ])
 export class ExtensionRequestHandlerRegistry {}
 
@@ -551,5 +561,6 @@ export class ExtensionRequestHandlerRegistry {}
   { token: 'ExtensionEventEmitter', useToken: SubscriptionsChangedEvents },
   { token: 'ExtensionEventEmitter', useToken: NavigationRequestEvents },
   { token: 'ExtensionEventEmitter', useToken: TransactionStatusEvents },
+  { token: 'ExtensionEventEmitter', useToken: TransferTrackingEvents },
 ])
 export class ExtensionEventEmitterRegistry {}
