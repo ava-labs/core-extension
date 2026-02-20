@@ -53,7 +53,7 @@ const StatusIcon: FC<StatusIconProps> = ({ transfer, side }) => {
   const Icon = IconBySideAndStatus[side][transfer.status];
 
   return (
-    <Box color={color} lineHeight={1}>
+    <Box color={color} height={18}>
       <Icon size={18} />
     </Box>
   );
