@@ -187,7 +187,7 @@ export class TransferTrackingService implements OnStorageReady {
 
       await wait(delay);
 
-      // Do not attempt again if it succeded in the meantime
+      // Do not attempt again if it succedeed in the meantime
       // (e.g. user switched developer mode or feature flags updated)
       if (this.#failedInitAttempts > 0) {
         this.recreateManager();
@@ -200,7 +200,7 @@ export class TransferTrackingService implements OnStorageReady {
       // Just log that this happened. This is edge-casey, but technically possible.
       Monitoring.sentryCaptureException(
         new Error(
-          `UnifiedTransfers - tracking attempted with no manager insantiated.`,
+          `UnifiedTransfers - tracking attempted with no manager instantiated.`,
         ),
         Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
       );
