@@ -12,7 +12,8 @@ jest.mock('@core/common', () => ({
 }));
 
 describe('getAvalancheSendTransactionHandlers', () => {
-  const chainId = 'eip155:43114';
+  const caipChainId = 'avax:Sj7NVE3jXTbJvwFAiu7OEUo_8g8ctXMG';
+  const numericChainId = 43113;
   const txHash = '0xabc123';
   const addressC = '0xaddress';
 
@@ -21,8 +22,13 @@ describe('getAvalancheSendTransactionHandlers', () => {
     getActiveAccount: jest.fn().mockResolvedValue({ addressC }),
   };
 
+  const mockNetworkService = {
+    getNetwork: jest.fn().mockResolvedValue({ chainId: numericChainId }),
+  };
+
   const handlers = getAvalancheSendTransactionHandlers(
     mockAccountsService as any,
+    mockNetworkService as any,
   );
 
   beforeEach(() => {
@@ -30,6 +36,9 @@ describe('getAvalancheSendTransactionHandlers', () => {
     mockMeasureDuration.end.mockReturnValue(100);
     mockAccountsService.getAccountList.mockResolvedValue([{ addressC }]);
     mockAccountsService.getActiveAccount.mockResolvedValue({ addressC });
+    mockNetworkService.getNetwork.mockResolvedValue({
+      chainId: numericChainId,
+    });
   });
 
   const makeEvent = (name: string, value: Partial<TransactionStatusInfo>) => ({
@@ -37,7 +46,7 @@ describe('getAvalancheSendTransactionHandlers', () => {
     value: {
       txHash,
       request: {
-        chainId,
+        chainId: caipChainId,
         method: 'avalanche_sendTransaction',
         context: { account: { evmAddress: addressC } },
       },
@@ -46,49 +55,60 @@ describe('getAvalancheSendTransactionHandlers', () => {
   });
 
   describe('PENDING handler', () => {
-    it('starts duration measurement and returns success event', async () => {
+    it('resolves network chainId and returns success event', async () => {
       const handler = handlers[TransactionStatusEvents.PENDING]!;
       const result = await handler(
         makeEvent(TransactionStatusEvents.PENDING, {}) as any,
       );
 
+      expect(mockNetworkService.getNetwork).toHaveBeenCalledWith(caipChainId);
       expect(mockMeasureDuration.start).toHaveBeenCalled();
       expect(result).toEqual({
         name: 'avalanche_sendTransaction_success',
-        properties: { address: addressC, txHash, chainId },
+        properties: {
+          address: addressC,
+          txHash,
+          chainId: numericChainId,
+        },
       });
     });
   });
 
   describe('REVERTED handler', () => {
-    it('ends duration measurement and returns failed event', async () => {
+    it('resolves network chainId and returns failed event', async () => {
       const handler = handlers[TransactionStatusEvents.REVERTED]!;
       const result = await handler(
         makeEvent(TransactionStatusEvents.REVERTED, {}) as any,
       );
 
+      expect(mockNetworkService.getNetwork).toHaveBeenCalledWith(caipChainId);
       expect(mockMeasureDuration.end).toHaveBeenCalled();
       expect(result).toEqual({
         name: 'avalanche_sendTransaction_failed',
-        properties: { address: addressC, txHash, chainId },
+        properties: {
+          address: addressC,
+          txHash,
+          chainId: numericChainId,
+        },
       });
     });
   });
 
   describe('CONFIRMED handler', () => {
-    it('ends duration measurement and returns confirmed event with duration', async () => {
+    it('resolves network chainId and returns confirmed event with duration', async () => {
       const handler = handlers[TransactionStatusEvents.CONFIRMED]!;
       const result = await handler(
         makeEvent(TransactionStatusEvents.CONFIRMED, {}) as any,
       );
 
+      expect(mockNetworkService.getNetwork).toHaveBeenCalledWith(caipChainId);
       expect(mockMeasureDuration.end).toHaveBeenCalled();
       expect(result).toEqual({
         name: 'avalanche_sendTransaction_confirmed',
         properties: {
           address: addressC,
           txHash,
-          chainId,
+          chainId: numericChainId,
           duration: 100,
         },
       });

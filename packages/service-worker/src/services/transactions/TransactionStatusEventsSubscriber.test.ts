@@ -5,7 +5,7 @@ import { TransactionStatusEventsSubscriber } from './TransactionStatusEventsSubs
 
 const mockBuilderResult = {
   name: 'avalanche_sendTransaction_success',
-  properties: { txHash: '0xabc', chainId: 'eip155:43114' },
+  properties: { txHash: '0xabc', chainId: 43114 },
 };
 
 jest.mock('./handlers/avalancheSendTransactionHandler', () => ({
@@ -26,6 +26,7 @@ describe('TransactionStatusEventsSubscriber', () => {
   let addListenerSpy: jest.SpyInstance;
   let mockAnalytics: { captureEncryptedEvent: jest.Mock };
   let mockAccountsService: { getAccountList: jest.Mock };
+  let mockNetworkService: { getNetwork: jest.Mock };
 
   const makeRequest = (method: string) => ({
     requestId: 'req-1',
@@ -40,6 +41,7 @@ describe('TransactionStatusEventsSubscriber', () => {
     addListenerSpy = jest.spyOn(transactionStatusEvents, 'addListener');
     mockAnalytics = { captureEncryptedEvent: jest.fn() };
     mockAccountsService = { getAccountList: jest.fn() };
+    mockNetworkService = { getNetwork: jest.fn() };
   });
 
   it('registers listener on transaction status events in constructor', () => {
@@ -47,6 +49,7 @@ describe('TransactionStatusEventsSubscriber', () => {
       transactionStatusEvents,
       mockAnalytics as any,
       mockAccountsService as any,
+      mockNetworkService as any,
     );
 
     expect(addListenerSpy).toHaveBeenCalledTimes(1);
@@ -58,10 +61,12 @@ describe('TransactionStatusEventsSubscriber', () => {
       transactionStatusEvents,
       mockAnalytics as any,
       mockAccountsService as any,
+      mockNetworkService as any,
     );
 
     expect(getAvalancheSendTransactionHandlers).toHaveBeenCalledWith(
       mockAccountsService,
+      mockNetworkService,
     );
   });
 
@@ -70,6 +75,7 @@ describe('TransactionStatusEventsSubscriber', () => {
       transactionStatusEvents,
       mockAnalytics as any,
       mockAccountsService as any,
+      mockNetworkService as any,
     );
 
     transactionStatusEvents.emitPending(
@@ -86,7 +92,7 @@ describe('TransactionStatusEventsSubscriber', () => {
     expect(mockAnalytics.captureEncryptedEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         name: 'avalanche_sendTransaction_success',
-        properties: { txHash: '0xabc', chainId: 'eip155:43114' },
+        properties: { txHash: '0xabc', chainId: 43114 },
       }),
     );
   });
@@ -96,6 +102,7 @@ describe('TransactionStatusEventsSubscriber', () => {
       transactionStatusEvents,
       mockAnalytics as any,
       mockAccountsService as any,
+      mockNetworkService as any,
     );
 
     transactionStatusEvents.emitConfirmed(

@@ -1,13 +1,15 @@
 import {
   Account,
   ExtensionConnectionEvent,
+  NetworkWithCaipId,
   TransactionStatusEvents,
   TransactionStatusInfo,
 } from '@core/types';
 
-import { measureDuration } from '@core/common';
+import { getAddressForChain, measureDuration } from '@core/common';
 import { RpcRequest } from '@avalabs/vm-module-types';
 import { AccountsService } from '~/services/accounts/AccountsService';
+import { NetworkService } from '~/services/network/NetworkService';
 
 type AnalyticsEventBuilderFn = (
   event: ExtensionConnectionEvent<TransactionStatusInfo>,
@@ -37,49 +39,78 @@ async function getUsedAccount(
     : undefined;
 }
 
+async function getUsedAccountAddress(
+  request: RpcRequest,
+  accountsService: AccountsService,
+  network?: NetworkWithCaipId,
+): Promise<string | undefined> {
+  const account = await getUsedAccount(request, accountsService);
+  return getAddressForChain(network, account);
+}
+
 export function getAvalancheSendTransactionHandlers(
   accountsService: AccountsService,
+  networkService: NetworkService,
 ): TransactionStatusEventBuilders {
   return {
     [TransactionStatusEvents.PENDING]: async (event) => {
       const { txHash, request } = event.value;
-      const { chainId } = request;
+      const network = await networkService.getNetwork(request.chainId);
 
       measureDuration(txHash).start();
 
-      const account = await getUsedAccount(request, accountsService);
+      const accountAddress = await getUsedAccountAddress(
+        request,
+        accountsService,
+        network,
+      );
 
       return {
         name: 'avalanche_sendTransaction_success',
-        properties: { address: account?.addressC ?? '', txHash, chainId },
+        properties: {
+          address: accountAddress,
+          txHash,
+          chainId: network?.chainId,
+        },
       };
     },
     [TransactionStatusEvents.REVERTED]: async (event) => {
       const { txHash, request } = event.value;
-      const { chainId } = request;
+      const network = await networkService.getNetwork(request.chainId);
 
       measureDuration(txHash).end();
 
-      const account = await getUsedAccount(request, accountsService);
+      const accountAddress = await getUsedAccountAddress(
+        request,
+        accountsService,
+        network,
+      );
 
       return {
         name: 'avalanche_sendTransaction_failed',
-        properties: { address: account?.addressC ?? '', txHash, chainId },
+        properties: {
+          address: accountAddress,
+          txHash,
+          chainId: network?.chainId,
+        },
       };
     },
     [TransactionStatusEvents.CONFIRMED]: async (event) => {
       const { txHash, request } = event.value;
-      const { chainId } = request;
+      const network = await networkService.getNetwork(request.chainId);
       const duration = measureDuration(txHash).end();
 
-      const account = await getUsedAccount(request, accountsService);
-
+      const accountAddress = await getUsedAccountAddress(
+        request,
+        accountsService,
+        network,
+      );
       return {
         name: 'avalanche_sendTransaction_confirmed',
         properties: {
-          address: account?.addressC ?? '',
+          address: accountAddress,
           txHash,
-          chainId,
+          chainId: network?.chainId,
           duration,
         },
       };

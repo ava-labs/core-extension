@@ -2,6 +2,7 @@ import { RpcMethod } from '@avalabs/vm-module-types';
 import { singleton } from 'tsyringe';
 import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 import { AccountsService } from '../accounts/AccountsService';
+import { NetworkService } from '../network/NetworkService';
 import { TransactionStatusEvents } from './events/transactionStatusEvents';
 import { ExtensionConnectionEvent, TransactionStatusInfo } from '@core/types';
 import {
@@ -20,10 +21,11 @@ export class TransactionStatusEventsSubscriber {
     private transactionStatusEvents: TransactionStatusEvents,
     private analyticsServicePosthog: AnalyticsServicePosthog,
     accountsService: AccountsService,
+    networkService: NetworkService,
   ) {
     this.#handlers = {
       [RpcMethod.AVALANCHE_SEND_TRANSACTION]:
-        getAvalancheSendTransactionHandlers(accountsService),
+        getAvalancheSendTransactionHandlers(accountsService, networkService),
     };
     this.transactionStatusEvents.addListener(this.#onTransactionStatusEvent);
   }
@@ -43,6 +45,10 @@ export class TransactionStatusEventsSubscriber {
       return;
     }
 
+    console.log('about to capture event', {
+      result,
+      event,
+    });
     this.analyticsServicePosthog.captureEncryptedEvent({
       name: result.name,
       windowId: crypto.randomUUID(),
