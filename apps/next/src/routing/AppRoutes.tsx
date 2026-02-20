@@ -30,6 +30,7 @@ import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
 import { Fusion } from '@/pages/Fusion';
 import { FusionActivity } from '@/pages/FusionActivity';
+import { TransferDetails } from '@/pages/Fusion/TransferDetails';
 
 export const AppRoutes = () => (
   <WalletTotalBalanceProvider>
@@ -66,6 +67,7 @@ export const AppRoutes = () => (
       <Route path="/keystone-usb/reconnect" component={KeystoneUsbReconnect} />
       <Route path="/sync" component={Activity} />
       <Route path="/activity" component={Activity} />
+      <Route path="/fusion-activity/:id" component={TransferDetails} />
       <Route path="/fusion-activity" component={FusionActivity} />
       <Route path="/fusion" component={Fusion} />
       <Route path="/" component={Portfolio} />

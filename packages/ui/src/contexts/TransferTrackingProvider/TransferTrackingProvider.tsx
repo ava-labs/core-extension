@@ -35,7 +35,6 @@ export function TransferTrackingContextProvider({
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log('TransferTrackingContextProvider');
   useEffect(() => {
     setIsLoading(true);
     request<TransferTrackingGetState>({

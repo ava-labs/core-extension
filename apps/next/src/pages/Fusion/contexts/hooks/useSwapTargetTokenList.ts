@@ -8,8 +8,8 @@ import { GetSupportedChainsResult } from '@avalabs/unified-asset-transfer';
 import { isNotNullish } from '@core/common';
 
 /**
- * @param chainIds - The chain IDs to filter the tokens by.
- * @returns All known, fungible tokens that live on provided networks.
+ * @param supportedChainsMap - Map of supported source chain IDs to their allowed target chain IDs.
+ * @returns All known, fungible tokens that live on the supported target networks.
  */
 export const useSwapTargetTokenList = (
   supportedChainsMap: GetSupportedChainsResult,

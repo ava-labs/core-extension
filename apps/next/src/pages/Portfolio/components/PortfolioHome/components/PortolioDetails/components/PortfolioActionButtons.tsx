@@ -80,7 +80,7 @@ export const PortfolioActionButtons = ({
         gap: 1,
       }}
     >
-      {isFlagEnabled(FeatureGates.FUSION_FEATURE) ? (
+      {isFlagEnabled(FeatureGates.FUSION_FEATURE) && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
@@ -94,22 +94,22 @@ export const PortfolioActionButtons = ({
             />
           </OfflineTooltip>
         </Fade>
-      ) : (
-        isSwapSupported && (
-          <Fade in timeout={getDelay()} easing="ease-out">
-            <OfflineTooltip placement="top">
-              <SquareButton
-                variant="extension"
-                icon={<SwapIcon size={ICON_SIZE} />}
-                label={t('Swap')}
-                onClick={() => {
-                  capture('TokenSwapClicked');
-                  push(getSwapPath({ from: tokenId }));
-                }}
-              />
-            </OfflineTooltip>
-          </Fade>
-        )
+      )}
+
+      {isSwapSupported && (
+        <Fade in timeout={getDelay()} easing="ease-out">
+          <OfflineTooltip placement="top">
+            <SquareButton
+              variant="extension"
+              icon={<SwapIcon size={ICON_SIZE} />}
+              label={t('Swap')}
+              onClick={() => {
+                capture('TokenSwapClicked');
+                push(getSwapPath({ from: tokenId }));
+              }}
+            />
+          </OfflineTooltip>
+        </Fade>
       )}
 
       {isBridgeSupported && (
@@ -133,7 +133,6 @@ export const PortfolioActionButtons = ({
           </OfflineTooltip>
         </Fade>
       )}
-
       <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
@@ -148,7 +147,6 @@ export const PortfolioActionButtons = ({
           />
         </OfflineTooltip>
       </Fade>
-
       <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
@@ -169,7 +167,6 @@ export const PortfolioActionButtons = ({
           />
         </OfflineTooltip>
       </Fade>
-
       {isBuySupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton

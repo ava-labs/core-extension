@@ -23,8 +23,8 @@ import {
   getExponentialBackoffDelay,
   hasAtLeastOneElement,
   Monitoring,
-  getEnabledTransferServicesRaw,
   getServiceInitializer,
+  getEnabledTransferServices,
 } from '@core/common';
 
 import { NetworkService } from '../network/NetworkService';
@@ -45,6 +45,8 @@ export class TransferTrackingService implements OnStorageReady {
   #eventEmitter = new EventEmitter();
   #state = TRANSFER_TRACKING_DEFAULT_STATE;
   #failedInitAttempts = 0;
+  #recreationPromise?: Promise<void>;
+  #pendingRecreation = false;
 
   // We'll re-create the #manager instance when one of these feature flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -135,7 +137,7 @@ export class TransferTrackingService implements OnStorageReady {
       btc: dummySigner,
     };
 
-    const enabledServices = getEnabledTransferServicesRaw(this.#flagStates);
+    const enabledServices = getEnabledTransferServices(this.#flagStates);
 
     return enabledServices.map((type) =>
       getServiceInitializer(type, bitcoinProvider, signers),
@@ -143,6 +145,36 @@ export class TransferTrackingService implements OnStorageReady {
   }
 
   async recreateManager() {
+    // If a recreation is currently in progress, wait for it to complete
+    if (this.#recreationPromise) {
+      this.#pendingRecreation = true;
+      await this.#recreationPromise;
+    }
+
+    // If a pending recreation is needed and no one else started it yet, do it now
+    if (this.#pendingRecreation && !this.#recreationPromise) {
+      this.#pendingRecreation = false;
+      this.#recreationPromise = this.#doRecreateManager();
+      try {
+        await this.#recreationPromise;
+      } finally {
+        this.#recreationPromise = undefined;
+      }
+      return;
+    }
+
+    // If there's no recreation in progress, start one
+    if (!this.#recreationPromise) {
+      this.#recreationPromise = this.#doRecreateManager();
+      try {
+        await this.#recreationPromise;
+      } finally {
+        this.#recreationPromise = undefined;
+      }
+    }
+  }
+
+  async #doRecreateManager() {
     const environment = this.networkService.isMainnet()
       ? Environment.PROD
       : Environment.TEST;
@@ -187,7 +219,7 @@ export class TransferTrackingService implements OnStorageReady {
 
       await wait(delay);
 
-      // Do not attempt again if it succeded in the meantime
+      // Do not attempt again if it succedeed in the meantime
       // (e.g. user switched developer mode or feature flags updated)
       if (this.#failedInitAttempts > 0) {
         this.recreateManager();
@@ -200,7 +232,7 @@ export class TransferTrackingService implements OnStorageReady {
       // Just log that this happened. This is edge-casey, but technically possible.
       Monitoring.sentryCaptureException(
         new Error(
-          `UnifiedTransfers - tracking attempted with no manager insantiated.`,
+          `UnifiedTransfers - tracking attempted with no manager instantiated.`,
         ),
         Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
       );
