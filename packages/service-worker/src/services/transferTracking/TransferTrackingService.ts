@@ -146,6 +146,9 @@ export class TransferTrackingService implements OnStorageReady {
   async recreateManager() {
     // Prevent concurrent recreation attempts
     if (this.#isRecreatingManager) {
+      console.log(
+        'Recreation already in progress, skipping concurrent attempt',
+      );
       return;
     }
 
