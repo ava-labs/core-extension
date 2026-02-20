@@ -285,7 +285,7 @@ export const useErrorMessage = () => {
       },
       [SecretsError.UnsupportedSecretType]: {
         title: t('Error while deriving address'),
-        hint: t('Unsupporetd secret type'),
+        hint: t('Unsupported secret type'),
       },
       [SecretsError.UnsupportedCurve]: {
         title: t('Error while deriving address'),

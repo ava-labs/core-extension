@@ -53,7 +53,7 @@ export const SeedlessAuthPrompt = () => {
           </Typography>
 
           <Typography variant="subtitle2" textAlign="center">
-            {t('You have been logged out do to inactivity')}
+            {t('You have been logged out due to inactivity')}
           </Typography>
         </StyledStack>
       </StyledDialogContent>
