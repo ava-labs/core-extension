@@ -34,7 +34,7 @@
     "@avalabs/hvm-module": "3.3.0",
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/svm-module": "3.3.0",
-    "@avalabs/types": "3.1.0-alpha.74",
+    "@avalabs/types": "3.1.0-alpha.77",
     "@avalabs/vm-module-types": "3.3.0",
     "@blockaid/client": "0.10.0",
     "@coinbase/cbpay-js": "1.6.0",

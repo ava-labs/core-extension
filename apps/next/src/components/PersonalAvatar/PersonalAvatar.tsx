@@ -18,14 +18,17 @@ type OnlyOne<T extends object> = {
   };
 }[keyof T];
 
+type FallbackAvatar = '';
+
 type PersonalAvatarSharedProps = {
   isGlowing?: boolean;
   size?: ComponentProps<typeof AvatarHex>['size'];
   selected?: boolean;
   dimmed?: boolean;
+  alt?: string;
 } & OnlyOne<{
   cached?: true;
-  name: PersonalAvatarName;
+  name: PersonalAvatarName | FallbackAvatar;
   dataUri: string;
 }>;
 
@@ -59,11 +62,12 @@ export const PersonalAvatar = ({
   const src = use(
     getAvatarSrc(cached ? avatar : (props.name ?? props.dataUri ?? avatar)),
   );
-  const alt = props.name ? props.name : t('your avatar');
+  const alt = props.alt ?? props.name ?? t('your avatar')!;
 
   return (
     <Box
       position="relative"
+      display="inline-flex"
       onClick={onClick}
       aria-selected={selected}
       role={onClick ? 'radio' : 'presentation'}

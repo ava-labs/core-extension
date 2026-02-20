@@ -485,16 +485,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/types@npm:3.1.0-alpha.74":
-  version: 3.1.0-alpha.74
-  resolution: "@avalabs/types@npm:3.1.0-alpha.74"
-  checksum: 10c0/250ce3dbb0a40841ab5ef35473569e15abd8dceac68840c72e70c7e926b1d5bda2132a447be5201278cf98ce39f1692d0dfb99a8d14ec47cc88ca7b96a9b726f
+"@avalabs/types@npm:3.1.0-alpha.77":
+  version: 3.1.0-alpha.77
+  resolution: "@avalabs/types@npm:3.1.0-alpha.77"
+  checksum: 10c0/c8e39e179e8acdd9585c7b439354f268174aeb5d95a93647db27a753f59176c64f84d1c4ea9789f73b5644e812264a67a32a552642b0924ee10e446f88e55d74
   languageName: node
   linkType: hard
 
-"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260216201336":
-  version: 0.0.0-project-fusion-pr-20260216201336
-  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260216201336"
+"@avalabs/unified-asset-transfer@npm:0.0.0-fix-circular-deps-20260211115048":
+  version: 0.0.0-fix-circular-deps-20260211115048
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-fix-circular-deps-20260211115048"
   dependencies:
     "@lombard.finance/sdk": "npm:^4.1.0"
     "@scure/base": "npm:^1.0.1"
@@ -504,7 +504,7 @@ __metadata:
     "@solana/kit": ^5.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/629e379be1ec7bfe6ee297113ddc965b2a6099b09caf02d23b923a510d676bc5cea417f2cbb39caedbec7f52692245c7f71e5135091fae26e1ba00463e5bcf00
+  checksum: 10c0/ee21b27242c3e0e1c7f76fe75f0c175a61d1af22a59aa05ca249597208a816cefb64a96e23e83a20af8c4c576826f316e56ecedcee32c9d526ca779f9dcda7f3
   languageName: node
   linkType: hard
 
@@ -2768,8 +2768,8 @@ __metadata:
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
-    "@avalabs/types": "npm:3.1.0-alpha.74"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260216201336"
+    "@avalabs/types": "npm:3.1.0-alpha.77"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-fix-circular-deps-20260211115048"
     "@avalabs/vm-module-types": "npm:3.3.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -3036,7 +3036,7 @@ __metadata:
     "@avalabs/hvm-module": "npm:3.3.0"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/svm-module": "npm:3.3.0"
-    "@avalabs/types": "npm:3.1.0-alpha.74"
+    "@avalabs/types": "npm:3.1.0-alpha.77"
     "@avalabs/vm-module-types": "npm:3.3.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -3199,7 +3199,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
-    "@avalabs/types": "npm:3.1.0-alpha.74"
+    "@avalabs/types": "npm:3.1.0-alpha.77"
     "@avalabs/vm-module-types": "npm:3.3.0"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"

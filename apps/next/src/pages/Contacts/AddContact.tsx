@@ -1,5 +1,4 @@
 import {
-  AvatarHex,
   Button,
   Divider,
   Stack,
@@ -8,29 +7,32 @@ import {
   toast,
 } from '@avalabs/k2-alpine';
 import { Contact } from '@avalabs/types';
-import { useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 
 import { isContactValid } from '@core/common';
 import {
-  useContactsContext,
   useAnalyticsContext,
+  useContactsContext,
   useFeatureFlagContext,
 } from '@core/ui';
 
-import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
+import { Page } from '@/components/Page';
 import { getContactsPath } from '@/config/routes';
 
+import { getRandomAvatar } from '@/components/Avatar';
+import { PersonalAvatarName } from '@/components/PersonalAvatar';
+import { FeatureGates } from '@core/types';
 import {
   BTCAddressField,
+  ContactNameField,
   EVMAddressField,
+  ScrollableAvatars,
   SVMAddressField,
   XPAddressField,
-  ContactNameField,
 } from './components';
-import { FeatureGates } from '@core/types';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -55,6 +57,9 @@ export const AddContact = () => {
   const [addressXP, setAddressXP] = useState('');
   const [addressBTC, setAddressBTC] = useState('');
   const [addressSVM, setAddressSVM] = useState('');
+
+  const [selectedAvatar, setSelectedAvatar] =
+    useState<PersonalAvatarName>(getRandomAvatar);
 
   const saveContact = useCallback(
     async (payload: Omit<Contact, 'id'>) => {
@@ -86,14 +91,17 @@ export const AddContact = () => {
     addressXP,
     addressBTC,
     addressSVM,
+    avatar: selectedAvatar,
   });
 
   return (
     <Page withBackButton contentProps={contentProps}>
       <Stack gap={4} width="100%" flexGrow={1}>
         <Stack width="100%" gap={3} alignItems="center">
-          {/* TODO: Choose & save the contact's avatar */}
-          <AvatarHex size="large" alt="Contact" />
+          <ScrollableAvatars
+            selected={selectedAvatar}
+            onSelect={setSelectedAvatar}
+          />
           <ContactNameField
             name={name}
             setName={setName}
@@ -131,6 +139,7 @@ export const AddContact = () => {
               addressXP,
               addressBTC,
               addressSVM,
+              avatar: selectedAvatar,
             })
           }
         >
