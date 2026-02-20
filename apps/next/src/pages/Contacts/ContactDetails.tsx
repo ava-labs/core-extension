@@ -1,5 +1,4 @@
 import {
-  AvatarHex,
   Button,
   Divider,
   Stack,
@@ -8,25 +7,26 @@ import {
   toast,
 } from '@avalabs/k2-alpine';
 import { Contact } from '@avalabs/types';
-import { Redirect, useHistory, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Redirect, useHistory, useLocation } from 'react-router-dom';
 
-import { useContactsContext, useFeatureFlagContext } from '@core/ui';
 import { isContactValid, noop } from '@core/common';
+import { useContactsContext, useFeatureFlagContext } from '@core/ui';
 
-import { Page } from '@/components/Page';
 import { Card } from '@/components/Card';
+import { Page } from '@/components/Page';
 import { CONTACTS_QUERY_TOKENS, getContactsPath } from '@/config/routes';
 
+import { FeatureGates } from '@core/types';
 import {
   BTCAddressField,
+  ContactNameField,
   EVMAddressField,
   SVMAddressField,
   XPAddressField,
-  ContactNameField,
 } from './components';
-import { FeatureGates } from '@core/types';
+import { ContactAvatar } from './components/ContactAvatar';
 
 const contentProps: StackProps = {
   width: '100%',
@@ -54,12 +54,15 @@ export const ContactDetails = () => {
   const [addressBTC, setAddressBTC] = useState(contact?.addressBTC ?? '');
   const [addressSVM, setAddressSVM] = useState(contact?.addressSVM ?? '');
 
+  const [avatarDataUri, setAvatarDataUri] = useState(contact?.avatar);
+
   const hasChanges =
     name !== contact?.name ||
     addressC !== contact?.address ||
     addressXP !== contact?.addressXP ||
     addressBTC !== contact?.addressBTC ||
-    addressSVM !== contact?.addressSVM;
+    addressSVM !== contact?.addressSVM ||
+    avatarDataUri !== contact?.avatar;
 
   const save = useCallback(
     async (payload: Contact) => {
@@ -88,13 +91,17 @@ export const ContactDetails = () => {
     addressXP,
     addressBTC,
     addressSVM,
+    avatar: avatarDataUri,
   });
 
   return (
     <Page withBackButton contentProps={contentProps}>
       <Stack width="100%" gap={3} alignItems="center">
-        {/* TODO: Choose & save the contact's avatar */}
-        <AvatarHex size="large" alt="Contact" />
+        <ContactAvatar
+          name={name}
+          dataUri={avatarDataUri}
+          onChange={setAvatarDataUri}
+        />
         <ContactNameField
           name={name}
           setName={setName}
@@ -142,6 +149,7 @@ export const ContactDetails = () => {
                   addressXP,
                   addressBTC,
                   addressSVM,
+                  avatar: avatarDataUri,
                 })
               }
             >
