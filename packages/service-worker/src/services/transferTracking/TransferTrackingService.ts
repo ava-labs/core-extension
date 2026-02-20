@@ -45,6 +45,7 @@ export class TransferTrackingService implements OnStorageReady {
   #eventEmitter = new EventEmitter();
   #state = TRANSFER_TRACKING_DEFAULT_STATE;
   #failedInitAttempts = 0;
+  #isRecreatingManager = false;
 
   // We'll re-create the #manager instance when one of these feature flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -143,55 +144,67 @@ export class TransferTrackingService implements OnStorageReady {
   }
 
   async recreateManager() {
-    const environment = this.networkService.isMainnet()
-      ? Environment.PROD
-      : Environment.TEST;
+    // Prevent concurrent recreation attempts
+    if (this.#isRecreatingManager) {
+      return;
+    }
+
+    this.#isRecreatingManager = true;
 
     try {
-      const bitcoinProvider = await this.networkService.getBitcoinProvider();
+      const environment = this.networkService.isMainnet()
+        ? Environment.PROD
+        : Environment.TEST;
 
-      const serviceInitializers =
-        await this.#getServiceInitializers(bitcoinProvider);
+      try {
+        const bitcoinProvider = await this.networkService.getBitcoinProvider();
 
-      if (!hasAtLeastOneElement(serviceInitializers)) {
-        this.#manager = undefined;
+        const serviceInitializers =
+          await this.#getServiceInitializers(bitcoinProvider);
+
+        if (!hasAtLeastOneElement(serviceInitializers)) {
+          this.#manager = undefined;
+          this.#failedInitAttempts = 0;
+          return;
+        }
+
+        this.#manager = await createTransferManager({
+          environment,
+          serviceInitializers,
+        });
         this.#failedInitAttempts = 0;
-        return;
+        this.#trackPendingTransfers();
+      } catch (err: any) {
+        // If it failed, it's most likely a network issue.
+        // Wait a bit and try again.
+        this.#failedInitAttempts += 1;
+
+        const delay = getExponentialBackoffDelay({
+          attempt: this.#failedInitAttempts,
+          startsAfter: 1,
+        });
+
+        Monitoring.sentryCaptureException(
+          err,
+          Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
+        );
+        console.log(
+          `Initialization of UnifiedBridgeService failed, attempt #${
+            this.#failedInitAttempts
+          }. Retry in ${delay / 1000}s`,
+        );
+
+        await wait(delay);
+
+        // Do not attempt again if it succeded in the meantime
+        // (e.g. user switched developer mode or feature flags updated)
+        if (this.#failedInitAttempts > 0) {
+          this.#isRecreatingManager = false;
+          this.recreateManager();
+        }
       }
-
-      this.#manager = await createTransferManager({
-        environment,
-        serviceInitializers,
-      });
-      this.#failedInitAttempts = 0;
-      this.#trackPendingTransfers();
-    } catch (err: any) {
-      // If it failed, it's most likely a network issue.
-      // Wait a bit and try again.
-      this.#failedInitAttempts += 1;
-
-      const delay = getExponentialBackoffDelay({
-        attempt: this.#failedInitAttempts,
-        startsAfter: 1,
-      });
-
-      Monitoring.sentryCaptureException(
-        err,
-        Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
-      );
-      console.log(
-        `Initialization of UnifiedBridgeService failed, attempt #${
-          this.#failedInitAttempts
-        }. Retry in ${delay / 1000}s`,
-      );
-
-      await wait(delay);
-
-      // Do not attempt again if it succeded in the meantime
-      // (e.g. user switched developer mode or feature flags updated)
-      if (this.#failedInitAttempts > 0) {
-        this.recreateManager();
-      }
+    } finally {
+      this.#isRecreatingManager = false;
     }
   }
 
