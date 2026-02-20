@@ -45,7 +45,8 @@ export class TransferTrackingService implements OnStorageReady {
   #eventEmitter = new EventEmitter();
   #state = TRANSFER_TRACKING_DEFAULT_STATE;
   #failedInitAttempts = 0;
-  #isRecreatingManager = false;
+  #recreationPromise?: Promise<void>;
+  #pendingRecreation = false;
 
   // We'll re-create the #manager instance when one of these feature flags is toggled.
   #flagStates: Partial<FeatureFlags> = {};
@@ -144,20 +145,27 @@ export class TransferTrackingService implements OnStorageReady {
   }
 
   async recreateManager() {
-    // Prevent concurrent recreation attempts
-    if (this.#isRecreatingManager) {
-      console.log(
-        'Recreation already in progress, skipping concurrent attempt',
-      );
+    // If a recreation is currently in progress, mark that we need another one and wait
+    if (this.#recreationPromise) {
+      this.#pendingRecreation = true;
+      await this.#recreationPromise;
       return;
     }
 
-    this.#isRecreatingManager = true;
+    // Start the recreation process
+    this.#recreationPromise = (async () => {
+      do {
+        // Reset the pending flag before each iteration
+        this.#pendingRecreation = false;
+        await this.#doRecreateManager();
+        // Loop if another recreation was requested during execution
+      } while (this.#pendingRecreation);
+    })();
 
     try {
-      await this.#doRecreateManager();
+      await this.#recreationPromise;
     } finally {
-      this.#isRecreatingManager = false;
+      this.#recreationPromise = undefined;
     }
   }
 
