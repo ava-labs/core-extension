@@ -145,6 +145,7 @@ export type ImportedWalletData =
 
 export enum WalletEvents {
   WALLET_STATE_UPDATE = 'wallet-state-updated',
+  WALLET_NAME_CHANGED = 'wallet-name-changed',
 }
 
 export const WALLET_STORAGE_KEY = 'wallet';
