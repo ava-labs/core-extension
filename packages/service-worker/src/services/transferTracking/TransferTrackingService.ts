@@ -145,27 +145,32 @@ export class TransferTrackingService implements OnStorageReady {
   }
 
   async recreateManager() {
-    // If a recreation is currently in progress, mark that we need another one and wait
+    // If a recreation is currently in progress, wait for it to complete
     if (this.#recreationPromise) {
       this.#pendingRecreation = true;
       await this.#recreationPromise;
+    }
+
+    // If a pending recreation is needed and no one else started it yet, do it now
+    if (this.#pendingRecreation && !this.#recreationPromise) {
+      this.#pendingRecreation = false;
+      this.#recreationPromise = this.#doRecreateManager();
+      try {
+        await this.#recreationPromise;
+      } finally {
+        this.#recreationPromise = undefined;
+      }
       return;
     }
 
-    // Start the recreation process with a do-while loop
-    this.#recreationPromise = (async () => {
-      do {
-        // Reset the pending flag before each iteration
-        this.#pendingRecreation = false;
-        await this.#doRecreateManager();
-        // Loop if another recreation was requested during execution
-      } while (this.#pendingRecreation);
-    })();
-
-    try {
-      await this.#recreationPromise;
-    } finally {
-      this.#recreationPromise = undefined;
+    // If there's no recreation in progress, start one
+    if (!this.#recreationPromise) {
+      this.#recreationPromise = this.#doRecreateManager();
+      try {
+        await this.#recreationPromise;
+      } finally {
+        this.#recreationPromise = undefined;
+      }
     }
   }
 
