@@ -91,10 +91,6 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    request.context = {
-      ...request.context,
-      requestId: request.requestId,
-    };
     this.#transactionStatusEvents.emitPending(txHash, request);
   };
 
@@ -109,7 +105,6 @@ export class ApprovalController implements BatchApprovalController {
   }) => {
     request.context = {
       ...request.context,
-      requestId: request.requestId,
       explorerLink,
     };
 
@@ -123,10 +118,6 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    request.context = {
-      ...request.context,
-      requestId: request.requestId,
-    };
     this.#transactionStatusEvents.emitReverted(txHash, request);
   };
 
