@@ -23,8 +23,8 @@ import {
   getExponentialBackoffDelay,
   hasAtLeastOneElement,
   Monitoring,
-  getEnabledTransferServicesRaw,
   getServiceInitializer,
+  getEnabledTransferServices,
 } from '@core/common';
 
 import { NetworkService } from '../network/NetworkService';
@@ -135,7 +135,7 @@ export class TransferTrackingService implements OnStorageReady {
       btc: dummySigner,
     };
 
-    const enabledServices = getEnabledTransferServicesRaw(this.#flagStates);
+    const enabledServices = getEnabledTransferServices(this.#flagStates);
 
     return enabledServices.map((type) =>
       getServiceInitializer(type, bitcoinProvider, signers),

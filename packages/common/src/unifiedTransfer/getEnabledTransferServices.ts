@@ -2,7 +2,7 @@ import { ServiceType } from '@avalabs/unified-asset-transfer';
 import { type FeatureFlags, FeatureGates } from '@core/types';
 import { memoize } from 'lodash';
 
-export const getEnabledTransferServicesRaw = (
+const getEnabledTransferServicesRaw = (
   featureFlags: Partial<FeatureFlags>,
 ): ServiceType[] => {
   const enabled: ServiceType[] = [];
