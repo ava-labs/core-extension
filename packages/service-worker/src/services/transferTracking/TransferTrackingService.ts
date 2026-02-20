@@ -149,6 +149,11 @@ export class TransferTrackingService implements OnStorageReady {
     if (this.#recreationPromise) {
       this.#pendingRecreation = true;
       await this.#recreationPromise;
+      // After waiting, check if we need to start a new recreation
+      // (handles case where flag was set after the loop completed)
+      if (!this.#recreationPromise && this.#pendingRecreation) {
+        return this.recreateManager();
+      }
       return;
     }
 
