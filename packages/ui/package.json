@@ -24,7 +24,7 @@
     "@avalabs/hw-app-avalanche": "1.1.1",
     "@avalabs/types": "3.1.0-alpha.77",
     "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260216201336",
-    "@avalabs/vm-module-types": "3.1.4",
+    "@avalabs/vm-module-types": "3.3.0",
     "@blockaid/client": "0.10.0",
     "@cubist-labs/cubesigner-sdk": "0.3.28",
     "@ethereumjs/common": "2.6.5",
