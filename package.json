@@ -134,6 +134,7 @@
     "@avalabs/bitcoin-module": "3.3.0",
     "@avalabs/evm-module": "3.3.0",
     "@avalabs/hvm-module": "3.3.0",
-    "@avalabs/svm-module": "3.3.0"
+    "@avalabs/svm-module": "3.3.0",
+    "@solana/kit": "5.4.0"
   }
 }

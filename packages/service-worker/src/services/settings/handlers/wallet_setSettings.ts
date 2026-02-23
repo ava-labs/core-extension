@@ -89,7 +89,7 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
 
       const validationResult = SettingsSchema.safeParse(newSettings);
       if (!validationResult.success) {
-        const errorMessage = validationResult.error.errors
+        const errorMessage = validationResult.error.issues
           .map((err) => `${err.path.join('.')}: ${err.message}`)
           .join(', ');
         throw new Error(`Invalid settings: ${errorMessage}`);

@@ -5,17 +5,17 @@ import {
   SxProps,
   Theme,
 } from '@avalabs/k2-alpine';
+import { TokenType } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { useSettingsContext, useTokenPrice } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TransactionIcon } from './TransactionIcon';
 
 import * as Styled from './Styled';
-import { ViewInExplorerButton } from './ViewInExplorerButton';
-import { TokenType } from '@avalabs/vm-module-types';
 import { TransactionDescription } from './TransactionDescription';
+import { TransactionIcon } from './TransactionIcon';
+import { ViewInExplorerButton } from './ViewInExplorerButton';
 
 type Props = {
   transaction: TxHistoryItem;
@@ -25,6 +25,7 @@ type Props = {
 const TIME_FORMAT = 'HH:mm a';
 
 const listItemSx: SxProps<Theme> = (theme) => ({
+  height: 42,
   justifyContent: 'space-between',
   gap: theme.spacing(1.5),
   paddingInlineEnd: theme.spacing(3),

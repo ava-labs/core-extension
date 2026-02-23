@@ -7,14 +7,13 @@ import {
   ServiceType,
 } from '@avalabs/unified-asset-transfer';
 
-import { MARKR_EVM_PARTNER_ID } from '@core/ui';
-
-import { Signers } from '../types';
+import { UnifiedTransferSigners } from '@core/types';
+import { MARKR_EVM_PARTNER_ID } from './constants';
 
 export function getServiceInitializer(
   type: ServiceType,
   btcFunctions: BitcoinFunctions,
-  { btc, evm }: Signers,
+  { btc, evm }: UnifiedTransferSigners,
 ): ServiceInitializer {
   switch (type) {
     case ServiceType.AVALANCHE_EVM:

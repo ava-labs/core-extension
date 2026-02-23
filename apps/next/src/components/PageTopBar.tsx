@@ -21,7 +21,10 @@ const StickyPageTopBar = styled(Stack)(({ theme }) => ({
   left: 0,
   width: '100%',
   zIndex: theme.zIndex.appBar,
-  background: getHexAlpha(theme.palette.background.default, 60),
+  background:
+    theme.palette.mode === 'dark'
+      ? getHexAlpha(theme.palette.background.default, 60)
+      : 'transparent',
   backdropFilter: 'blur(30px)',
   WebkitBackdropFilter: 'blur(30px)',
 }));

@@ -148,6 +148,7 @@ export enum ExtensionRequest {
   CURRENCIES_GET_EXCHANGE_RATES = 'currencies_get_exchange_rates',
 
   GET_NETWORK_TOKENS = 'get_network_tokens',
+  LOOKUP_TOKEN = 'lookup_token',
 
   WALLET_CONNECT_ESTABLISH_REQUIRED_SESSION = 'wallet_connect_establish_required_session',
   WALLET_CONNECT_IMPORT_ACCOUNT = 'wallet_connect_import_account',
@@ -202,6 +203,9 @@ export enum ExtensionRequest {
   GET_TRENDING_TOKENS = 'get_trending_tokens',
 
   GET_ATOMIC_FUNDS_FOR_ACCOUNT = 'get_atomic_funds_for_account',
+
+  TRANSFER_TRACKING_GET_STATE = 'transfer_tracking_get_state',
+  TRANSFER_TRACKING_TRACK_TRANSFER = 'transfer_tracking_track_transfer',
 }
 
 /* eslint-disable no-prototype-builtins */
