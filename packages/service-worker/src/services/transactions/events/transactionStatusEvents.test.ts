@@ -3,6 +3,7 @@ import {
   TransactionStatusInfo,
 } from '@core/types';
 import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
+import { RpcMethod, RpcRequest } from '@avalabs/vm-module-types';
 
 import { TransactionStatusEvents } from './transactionStatusEvents';
 
@@ -13,22 +14,32 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents = new TransactionStatusEvents();
   });
 
+  const makeRequest = (overrides: Partial<RpcRequest> = {}): RpcRequest => ({
+    requestId: 'req-1',
+    sessionId: 'session-1',
+    method: RpcMethod.AVALANCHE_SEND_TRANSACTION,
+    chainId: 'eip155:43114',
+    params: undefined,
+    dappInfo: { name: 'test-dapp', url: 'https://test.com', icon: '' },
+    context: {},
+    ...overrides,
+  });
+
   it('emits pending event', () => {
     const handler = jest.fn();
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0xabc123';
-    const chainId = 'eip1555:43114';
+    const request = makeRequest({ chainId: 'eip1555:43114' });
 
-    transactionStatusEvents.emitPending(txHash, chainId);
+    transactionStatusEvents.emitPending(txHash, request);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
       name: TransactionStatusEventNames.PENDING,
       value: {
         txHash,
-        chainId,
-        context: undefined,
+        request,
       } as TransactionStatusInfo,
     });
   });
@@ -38,17 +49,18 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0xdef456';
-    const chainId = 'eip155:1';
+    const request = makeRequest({ chainId: 'eip155:1' });
+    const explorerLink = 'https://explorer.avax.network/tx/0xdef456';
 
-    transactionStatusEvents.emitConfirmed(txHash, chainId);
+    transactionStatusEvents.emitConfirmed(txHash, request, explorerLink);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
       name: TransactionStatusEventNames.CONFIRMED,
       value: {
         txHash,
-        chainId,
-        context: undefined,
+        request,
+        explorerLink,
       } as TransactionStatusInfo,
     });
   });
@@ -58,17 +70,16 @@ describe('TransactionStatusEvents', () => {
     transactionStatusEvents.addListener(handler);
 
     const txHash = '0x789ghi';
-    const chainId = BitcoinCaip2ChainId.TESTNET;
+    const request = makeRequest({ chainId: BitcoinCaip2ChainId.TESTNET });
 
-    transactionStatusEvents.emitReverted(txHash, chainId);
+    transactionStatusEvents.emitReverted(txHash, request);
 
     expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith({
       name: TransactionStatusEventNames.REVERTED,
       value: {
         txHash,
-        chainId,
-        context: undefined,
+        request,
       } as TransactionStatusInfo,
     });
   });

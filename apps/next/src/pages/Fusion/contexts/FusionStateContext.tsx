@@ -175,12 +175,21 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           address: fromAddress,
           chainId: quoteToUse.sourceChain.chainId,
         });
+        captureEncrypted('SwapSuccessful', {
+          address: fromAddress,
+          chainId: quoteToUse.sourceChain.chainId,
+        });
         replace('/');
       } catch (err) {
         if (isUserRejectionError(err)) {
           setIsConfirming(false);
           return;
         }
+
+        captureEncrypted('SwapConfirmed', {
+          address: fromAddress,
+          chainId: quoteToUse.sourceChain.chainId,
+        });
 
         // If no specific quote was selected manually by the user, retry with the next quote (if applicable).
         if (!isUserSelectedQuote && shouldRetryWithNextQuote(err)) {

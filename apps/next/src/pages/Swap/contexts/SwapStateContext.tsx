@@ -187,6 +187,11 @@ export const SwapStateContextProvider: FC<{ children: ReactNode }> = ({
       } catch (err) {
         if (isUserRejectionError(err)) return;
 
+        captureEncrypted('SwapConfirmed', {
+          address,
+          chainId: network?.chainId,
+        });
+
         if (
           !manuallySelected &&
           (isSwapTxBuildError(err) || isGasEstimationError(err))
