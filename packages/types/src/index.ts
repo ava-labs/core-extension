@@ -44,3 +44,4 @@ export * from './web3';
 export * from './transaction';
 export * from './notifications';
 export * from './trendingToken';
+export * from './unifiedTransfer';

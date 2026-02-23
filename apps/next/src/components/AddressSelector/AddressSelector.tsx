@@ -28,7 +28,11 @@ export const AddressSelector: FC<Props> = ({ type, account, onChange }) => {
         const { label } = getChainLabelAndIconByAddressType(
           value as AddressType,
         );
-        return <Typography variant="subtitle3">{label}</Typography>;
+        return (
+          <Typography variant="subtitle3" lineHeight={1}>
+            {label}
+          </Typography>
+        );
       }}
     >
       {OPTIONS.map((item) => {

@@ -128,6 +128,7 @@
     "@firebase/app-check@npm:0.8.13": "patch:@firebase/app-check@npm%3A0.8.13#~/.yarn/patches/@firebase-app-check-npm-0.8.13-82152b436a.patch",
     "@mui/material@npm:^6.4.10": "patch:@mui/material@npm%3A6.4.10#~/.yarn/patches/@mui-material-npm-6.4.10-51975882a1.patch",
     "ledger-bitcoin/@ledgerhq/hw-transport": "6.31.10",
-    "@avalabs/hw-app-avalanche": "1.1.1"
+    "@avalabs/hw-app-avalanche": "1.1.1",
+    "@solana/kit": "5.4.0"
   }
 }

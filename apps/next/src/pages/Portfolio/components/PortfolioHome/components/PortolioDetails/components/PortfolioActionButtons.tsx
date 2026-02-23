@@ -33,6 +33,7 @@ import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { chainIdToCaip } from '@core/common';
 import { FaExplosion } from 'react-icons/fa6';
 import { NoScrollStack } from '@/components/NoScrollStack';
+import { getAddressTypeForToken } from '@/lib/getAddressTypeForToken';
 
 const ICON_SIZE = 20;
 
@@ -79,7 +80,7 @@ export const PortfolioActionButtons = ({
         gap: 1,
       }}
     >
-      {isFlagEnabled(FeatureGates.FUSION_PROJECT) ? (
+      {isFlagEnabled(FeatureGates.FUSION_FEATURE) && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
@@ -93,22 +94,22 @@ export const PortfolioActionButtons = ({
             />
           </OfflineTooltip>
         </Fade>
-      ) : (
-        isSwapSupported && (
-          <Fade in timeout={getDelay()} easing="ease-out">
-            <OfflineTooltip placement="top">
-              <SquareButton
-                variant="extension"
-                icon={<SwapIcon size={ICON_SIZE} />}
-                label={t('Swap')}
-                onClick={() => {
-                  capture('TokenSwapClicked');
-                  push(getSwapPath({ from: tokenId }));
-                }}
-              />
-            </OfflineTooltip>
-          </Fade>
-        )
+      )}
+
+      {isSwapSupported && (
+        <Fade in timeout={getDelay()} easing="ease-out">
+          <OfflineTooltip placement="top">
+            <SquareButton
+              variant="extension"
+              icon={<SwapIcon size={ICON_SIZE} />}
+              label={t('Swap')}
+              onClick={() => {
+                capture('TokenSwapClicked');
+                push(getSwapPath({ from: tokenId }));
+              }}
+            />
+          </OfflineTooltip>
+        </Fade>
       )}
 
       {isBridgeSupported && (
@@ -132,7 +133,6 @@ export const PortfolioActionButtons = ({
           </OfflineTooltip>
         </Fade>
       )}
-
       <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
@@ -147,7 +147,6 @@ export const PortfolioActionButtons = ({
           />
         </OfflineTooltip>
       </Fade>
-
       <Fade in timeout={getDelay()} easing="ease-out">
         <OfflineTooltip placement="top">
           <SquareButton
@@ -155,13 +154,19 @@ export const PortfolioActionButtons = ({
             icon={<QrCodeIcon size={ICON_SIZE} />}
             label={t('Receive')}
             onClick={() => {
-              capture('TokenReceiveClicked', { addressType: 'C' });
-              history.push(`/receive?accId=${activeAccount?.id}`);
+              const addressType = token ? getAddressTypeForToken(token) : 'C';
+
+              capture('TokenReceiveClicked', { addressType });
+
+              const params = new URLSearchParams({
+                addressType,
+                accId: activeAccount?.id ?? '',
+              });
+              history.push(`/receive?${params.toString()}`);
             }}
           />
         </OfflineTooltip>
       </Fade>
-
       {isBuySupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <SquareButton

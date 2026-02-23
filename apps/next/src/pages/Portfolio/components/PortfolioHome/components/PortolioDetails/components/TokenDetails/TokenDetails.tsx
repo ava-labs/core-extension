@@ -1,23 +1,22 @@
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
+import { PageTopBar } from '@/components/PageTopBar';
+import { TokenAvatar } from '@/components/TokenAvatar';
+import { Box, Stack, Typography } from '@avalabs/k2-alpine';
+import { isPchainNetworkId, isXchainNetworkId } from '@core/common';
+import { useBalancesContext, useNetworkContext } from '@core/ui';
 import { useHistory, useParams } from 'react-router-dom';
 import { AssetsErrorState } from '../AssetsTab';
-import { Box, Stack, Typography } from '@avalabs/k2-alpine';
-import { useMemo } from 'react';
 import { PortfolioActionButtons } from '../PortfolioActionButtons';
-import { TokenAvatar } from '@/components/TokenAvatar';
-import { useTokenDetails } from './hooks/useTokenDetails';
-import { PageTopBar } from '@/components/PageTopBar';
 import { GeneralTokenDetails } from './components/GeneralTokenDetails';
-import { isPchainNetworkId, isXchainNetworkId } from '@core/common';
 import { PchainDetails } from './components/PChain/PchainDetails';
 import { XchainDetails } from './components/XChain/XchainDetails';
+import { useTokenDetails } from './hooks/useTokenDetails';
 import {
   StyledTokenDetails,
   StyledTokenDetailsContent,
   StyledTokenScrollContainer,
   StyledTokenSummary,
 } from './styled';
-import { useBalancesContext, useNetworkContext } from '@core/ui';
-import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 
 export const TokenDetails = () => {
   const { push } = useHistory();
@@ -28,7 +27,7 @@ export const TokenDetails = () => {
     tokenAddress: string;
   }>();
 
-  const preppedNetworkId = useMemo(() => Number(networkId), [networkId]);
+  const preppedNetworkId = Number(networkId);
   const network = getNetwork(preppedNetworkId);
 
   const { balances } = useBalancesContext();
@@ -47,8 +46,8 @@ export const TokenDetails = () => {
   return (
     <StyledTokenDetails>
       <PageTopBar
-        showBack={true}
-        showViewSwitcher={true}
+        showBack
+        showViewSwitcher
         onBackClicked={() => {
           push('/portfolio');
         }}

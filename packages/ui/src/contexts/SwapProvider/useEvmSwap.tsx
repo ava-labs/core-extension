@@ -224,6 +224,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
       const signAndSend = async (
         method: RpcMethod,
         txParams: [NormalizedTransactionParams],
+        context?: Record<string, unknown>,
       ): Promise<string> => {
         const isBatch = method === RpcMethod.ETH_SEND_TRANSACTION_BATCH;
         const transactions = isBatch ? txParams : [txParams[0]];
@@ -319,6 +320,7 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
           },
           {
             scope: network.caipId,
+            context,
           },
         );
       };

@@ -1,7 +1,6 @@
-import { AvatarRows } from '@/components/Avatar/AvatarRows';
+import { AVATAR_ROWS, AvatarRows } from '@/components/Avatar';
 import { Page } from '@/components/Page';
 import {
-  AVATAR_OPTIONS,
   PersonalAvatar,
   PersonalAvatarName,
   usePersonalAvatar,
@@ -11,10 +10,6 @@ import { useAnalyticsContext } from '@core/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
-
-const row1 = AVATAR_OPTIONS.filter((_, index) => index % 2 === 0);
-const row2 = AVATAR_OPTIONS.filter((_, index) => index % 2 !== 0);
-const rows = [row1, row2];
 
 export const AvatarSelector = () => {
   const { t } = useTranslation();
@@ -73,7 +68,7 @@ export const AvatarSelector = () => {
         }}
       >
         <AvatarRows
-          avatarRows={rows}
+          avatarRows={AVATAR_ROWS}
           selected={selectedAvatar}
           onSelect={handleSelectAvatar}
         />

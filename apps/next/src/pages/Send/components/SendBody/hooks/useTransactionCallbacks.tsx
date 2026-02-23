@@ -1,33 +1,40 @@
-import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRightIcon, IconButton, toast } from '@avalabs/k2-alpine';
+import { toast } from '@avalabs/k2-alpine';
 
 import {
-  getExplorerAddressByNetwork,
   isMissingBtcWalletPolicyError,
   isUserRejectionError,
-  openNewTab,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
-import { useConfettiContext } from '@/components/Confetti';
+import { useAnalyticsContext } from '@core/ui';
 
 const TOAST_ID = 'send-result';
 
-export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
+export const useTransactionCallbacks = (
+  network: NetworkWithCaipId,
+  fromAddress?: string,
+) => {
   const { t } = useTranslation();
-  const { replace } = useHistory();
-  const { triggerConfetti } = useConfettiContext();
+  const { captureEncrypted } = useAnalyticsContext();
 
   return {
+    onSendApproved: () => {
+      if (fromAddress) {
+        captureEncrypted('SendApproved', {
+          address: fromAddress,
+          chainId: network?.chainId,
+        });
+      }
+    },
     // When transaction is successfully sent to the network
     onSendSuccess: (hash: string) => {
-      // Redirect to home page
-      replace('/');
-      triggerConfetti();
-      toast.success(t('Transaction successful'), {
-        id: TOAST_ID,
-        action: <ExplorerLink network={network} hash={hash} />,
-      });
+      if (fromAddress) {
+        captureEncrypted('SendSuccessful', {
+          address: fromAddress,
+          txHash: hash,
+          chainId: network?.chainId,
+        });
+      }
     },
     // When transaction could not be sent to the network or failed immediately
     onSendFailure: (err: unknown) => {
@@ -43,24 +50,3 @@ export const useTransactionCallbacks = (network: NetworkWithCaipId) => {
     },
   };
 };
-
-const ExplorerLink = ({
-  network,
-  hash,
-}: {
-  network: NetworkWithCaipId;
-  hash: string;
-}) => (
-  <IconButton
-    size="small"
-    sx={{ color: 'background.default', padding: 0 }}
-    onClick={() => {
-      toast.dismiss(TOAST_ID);
-      openNewTab({
-        url: getExplorerAddressByNetwork(network, hash, 'tx'),
-      });
-    }}
-  >
-    <ChevronRightIcon size={18} />
-  </IconButton>
-);

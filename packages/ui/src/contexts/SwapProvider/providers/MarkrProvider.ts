@@ -1,8 +1,5 @@
 import { CommonError, SwapErrorCode } from '@core/types';
-import {
-  MARKR_EVM_NATIVE_TOKEN_ADDRESS,
-  MARKR_EVM_PARTNER_ID,
-} from '../constants';
+import { MARKR_EVM_NATIVE_TOKEN_ADDRESS } from '../constants';
 import {
   isMarkrQuote,
   MarkrQuote,
@@ -26,7 +23,7 @@ import { ensureAllowance } from '../utils/ensureAllowance';
 import Big from 'big.js';
 import { TransactionParams } from '@avalabs/evm-module';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { isUserRejectionError } from '@core/common';
+import { isUserRejectionError, MARKR_EVM_PARTNER_ID } from '@core/common';
 import { bigIntToHex } from '@ethereumjs/util';
 
 const getNormalizedQuoteResult = (

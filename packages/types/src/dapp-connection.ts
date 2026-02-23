@@ -71,6 +71,7 @@ export enum Web3Event {
   SETTINGS_CHANGED = 'settingsChanged',
   ACCOUNTS_DELETED = 'accountsDeleted',
   ACCOUNT_NAME_CHANGED = 'accountNameChanged',
+  WALLET_NAME_CHANGED = 'walletNameChanged',
 }
 
 export interface JsonRpcRequestParams<Method extends string, Params = unknown> {

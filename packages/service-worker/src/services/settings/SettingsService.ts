@@ -5,6 +5,7 @@ import {
   ColorTheme,
   CURRENCIES,
   EnsureDefined,
+  FeatureFlagEvents,
   FeatureGates,
   FeeSetting,
   Languages,
@@ -58,6 +59,12 @@ export class SettingsService implements OnStorageReady, OnLock {
     this.networkService.uiActiveNetworkChanged.add(() => {
       this.applySettings();
     });
+    this.featureFlagService.addListener(
+      FeatureFlagEvents.FEATURE_FLAG_UPDATED,
+      () => {
+        this.applySettings();
+      },
+    );
   }
 
   async onStorageReady(): Promise<void> {
@@ -101,6 +108,14 @@ export class SettingsService implements OnStorageReady, OnLock {
           currency: CURRENCIES.USD,
         };
       }
+
+      // If quick swaps feature flag is disabled, force quick swaps to be disabled even for cached settings
+      if (!this.featureFlagService.featureFlags[FeatureGates.QUICK_SWAPS]) {
+        settingsToReturn = {
+          ...settingsToReturn,
+          isQuickSwapsEnabled: false,
+        };
+      }
       return settingsToReturn;
     }
 
@@ -132,6 +147,11 @@ export class SettingsService implements OnStorageReady, OnLock {
         settings.currency = CURRENCIES.USD;
       }
 
+      // If quick swaps feature flag is disabled, force disabled
+      if (!this.featureFlagService.featureFlags[FeatureGates.QUICK_SWAPS]) {
+        settings.isQuickSwapsEnabled = false;
+      }
+
       this.needToRetryFetch = false;
       this._cachedSettings = settings;
 
@@ -160,6 +180,11 @@ export class SettingsService implements OnStorageReady, OnLock {
         ]
       ) {
         settings.currency = CURRENCIES.USD;
+      }
+
+      // If quick swaps feature flag is disabled, force disabled
+      if (!this.featureFlagService.featureFlags[FeatureGates.QUICK_SWAPS]) {
+        settings.isQuickSwapsEnabled = false;
       }
 
       this._cachedSettings = settings;

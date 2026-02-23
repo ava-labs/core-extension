@@ -58,7 +58,12 @@ export enum FeatureGates {
   SWAP_USE_MARKR = 'swap-use-markr',
   BALANCE_SERVICE_INTEGRATION = 'balance-service-integration',
   LANGUAGES = 'languages',
-  FUSION_PROJECT = 'fusion-project',
+  QUICK_SWAPS = 'quick-swaps',
+  FUSION_FEATURE = 'fusion',
+  FUSION_MARKR = 'fusion-markr',
+  FUSION_AVALANCHE_EVM = 'fusion-avalanche-evm',
+  FUSION_LOMBARD_BTC_TO_AVA = 'fusion-lombard-btc-to-ava',
+  FUSION_LOMBARD_AVA_TO_BTC = 'fusion-lombard-ava-to-btc',
 }
 
 export enum FeatureVars {

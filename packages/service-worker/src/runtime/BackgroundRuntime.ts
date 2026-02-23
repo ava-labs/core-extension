@@ -12,6 +12,7 @@ import { AddressResolver } from '../services/secrets/AddressResolver';
 import { SettingsService } from '../services/settings/SettingsService';
 import { ModuleManager } from '../vmModules/ModuleManager';
 import { isSidePanelSupported } from '@core/common';
+import { TransferTrackingService } from '~/services/transferTracking/TransferTrackingService';
 
 const SAVE_TIMESTAMP_INTERVAL_MS = 2 * 1000;
 @singleton()
@@ -28,6 +29,7 @@ export class BackgroundRuntime {
     private gasStationService: GasStationService,
     private notificationsService: NotificationsService,
     private settingsService: SettingsService,
+    private transferTrackingService: TransferTrackingService,
   ) {}
 
   async activate() {

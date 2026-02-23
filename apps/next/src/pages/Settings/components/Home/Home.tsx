@@ -68,7 +68,7 @@ export const SettingsHomePage = () => {
   const { path } = useRouteMatch();
   const { push } = useHistory();
   const { capture } = useAnalyticsContext();
-  const { featureFlags } = useFeatureFlagContext();
+  const { featureFlags, isFlagEnabled } = useFeatureFlagContext();
 
   const {
     showTrendingTokens,
@@ -366,57 +366,61 @@ export const SettingsHomePage = () => {
               }}
             />
           }
-          divider
+          divider={isFlagEnabled(FeatureGates.QUICK_SWAPS)}
         />
-        <SettingsNavItem
-          label={t('Quick swaps')}
-          description={t(
-            'Swap tokens inside of Core with one-click. Core is unable to provide free gas if this feature is enabled.',
-          )}
-          secondaryAction={
-            <Switch
-              size="small"
-              checked={isQuickSwapsEnabled}
-              onChange={() => setQuickSwapsEnabled(!isQuickSwapsEnabled)}
-            />
-          }
-          divider={isQuickSwapsEnabled}
-          sx={{
-            pb: isQuickSwapsEnabled ? 0.75 : 0,
-          }}
-        />
-        {isQuickSwapsEnabled && (
+        {isFlagEnabled(FeatureGates.QUICK_SWAPS) && (
           <>
-            <Stack gap={1} py={1}>
-              <Stack gap={0.5}>
-                <Typography variant="subtitle1">
-                  {t('Network fee settings')}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {t(
-                    'Set the default fee for quick swaps. Faster swaps require higher fees.',
-                  )}
-                </Typography>
-              </Stack>
-              <FeeSettingsSelector
-                value={feeSetting}
-                onChange={(value) => setFeeSetting(value)}
-              />
-            </Stack>
-            <Divider />
             <SettingsNavItem
-              label={t('Swap amount limit')}
+              label={t('Quick swaps')}
+              description={t(
+                'Swap tokens inside of Core with one-click. Core is unable to provide free gas if this feature is enabled.',
+              )}
               secondaryAction={
-                <MaxBuySelector
-                  value={maxBuy}
-                  onChange={(value) => setMaxBuy(value)}
-                  sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+                <Switch
+                  size="small"
+                  checked={isQuickSwapsEnabled}
+                  onChange={() => setQuickSwapsEnabled(!isQuickSwapsEnabled)}
                 />
               }
+              divider={isQuickSwapsEnabled}
               sx={{
-                pb: 0,
+                pb: isQuickSwapsEnabled ? 0.75 : 0,
               }}
             />
+            {isQuickSwapsEnabled && (
+              <>
+                <Stack gap={1} py={1}>
+                  <Stack gap={0.5}>
+                    <Typography variant="subtitle1">
+                      {t('Network fee settings')}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {t(
+                        'Set the default fee for quick swaps. Faster swaps require higher fees.',
+                      )}
+                    </Typography>
+                  </Stack>
+                  <FeeSettingsSelector
+                    value={feeSetting}
+                    onChange={(value) => setFeeSetting(value)}
+                  />
+                </Stack>
+                <Divider />
+                <SettingsNavItem
+                  label={t('Swap amount limit')}
+                  secondaryAction={
+                    <MaxBuySelector
+                      value={maxBuy}
+                      onChange={(value) => setMaxBuy(value)}
+                      sx={{ px: 1, mr: -0.5, gap: 0, color: 'text.secondary' }}
+                    />
+                  }
+                  sx={{
+                    pb: 0,
+                  }}
+                />
+              </>
+            )}
           </>
         )}
       </SettingsCard>
