@@ -157,7 +157,7 @@ export class FirebaseService {
     };
 
     return getGenerativeModel(vertexAI, {
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       generationConfig: this.#generationConfig,
       tools,
       systemInstruction,
