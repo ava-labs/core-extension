@@ -35,5 +35,4 @@ export type SwapStatus =
   | 'initialization-failed'
   | 'no-swappable-assets'
   | 'no-routes-found'
-  | 'ready-to-transfer'
-  | `quote:${QuoteStreamingStatus}`;
+  | 'ready-to-transfer';

@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { toast } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
-import { Quote, TransferManager } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/unified-asset-transfer';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import {
@@ -64,7 +64,6 @@ type FusionState = QueryState & {
   quotes: Quote[];
   selectQuoteById: (quoteId: string | null) => void;
   transfer: (specificQuote?: Quote) => Promise<void>;
-  manager: TransferManager | undefined;
   status: SwapStatus;
   quotesStatus: QuoteStreamingStatus;
 };
@@ -256,7 +255,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   return (
     <FusionStateContext.Provider
       value={{
-        manager,
         updateQuery,
         fromId,
         toId,
