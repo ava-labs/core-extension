@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 
 import {
+  FUSION_QUERY_TOKENS,
   getFusionPath,
-  SWAP_QUERY_TOKENS,
   SwapQueryTokens,
 } from '@/config/routes';
 
@@ -26,18 +26,18 @@ export const useSwapQuery: UseSwapQuery = () => {
   const { search } = useLocation();
 
   const searchParams = new URLSearchParams(search);
-  const fromId = searchParams.get(SWAP_QUERY_TOKENS.from) ?? '';
-  const fromQuery = searchParams.get(SWAP_QUERY_TOKENS.fromQuery) ?? '';
-  const toId = searchParams.get(SWAP_QUERY_TOKENS.to) ?? '';
-  const toQuery = searchParams.get(SWAP_QUERY_TOKENS.toQuery) ?? '';
-  const userAmount = searchParams.get(SWAP_QUERY_TOKENS.userAmount) ?? '';
+  const fromId = searchParams.get(FUSION_QUERY_TOKENS.from) ?? '';
+  const fromQuery = searchParams.get(FUSION_QUERY_TOKENS.fromQuery) ?? '';
+  const toId = searchParams.get(FUSION_QUERY_TOKENS.to) ?? '';
+  const toQuery = searchParams.get(FUSION_QUERY_TOKENS.toQuery) ?? '';
+  const userAmount = searchParams.get(FUSION_QUERY_TOKENS.userAmount) ?? '';
 
   const update = useCallback(
     (payload: UpdatePayload) => {
       const updated = new URLSearchParams(search);
 
       for (const [k, v] of Object.entries(payload)) {
-        updated.set(SWAP_QUERY_TOKENS[k], v);
+        updated.set(FUSION_QUERY_TOKENS[k], v);
       }
 
       replace({

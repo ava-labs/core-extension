@@ -14,6 +14,7 @@ import { useTransferServiceInitializers } from './useTransferServiceInitializers
 export const useTransferManager = () => {
   const { featureFlags } = useFeatureFlagContext();
   const [manager, setManager] = useState<TransferManager>();
+  const [error, setError] = useState(false);
 
   const signers = useSigners();
   const environment = useTransferEnvironment();
@@ -32,12 +33,19 @@ export const useTransferManager = () => {
       environment,
       serviceInitializers,
     })
-      .then(setManager)
-      .catch((error) => {
-        console.error('[useTransferManager]', error);
+      .then((_manager) => {
+        setManager(_manager);
+        setError(false);
+      })
+      .catch((err) => {
         setManager(undefined);
+        setError(true);
+        console.error('[useTransferManager]', err);
       });
-  }, [environment, serviceInitializers]);
+  }, [environment, serviceInitializers, setError]);
 
-  return manager;
+  return {
+    manager,
+    error,
+  };
 };

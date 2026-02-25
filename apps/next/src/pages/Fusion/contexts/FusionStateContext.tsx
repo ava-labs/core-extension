@@ -21,6 +21,7 @@ import {
   useAccountsContext,
   SwapError,
   useAnalyticsContext,
+  useBalancesContext,
   useErrorMessage,
   useTransferTrackingContext,
 } from '@core/ui';
@@ -39,6 +40,8 @@ import {
   useSwapTargetToken,
   useSlippageTolerance,
 } from './hooks';
+import { getSwapStatus } from './lib/getSwapStatus';
+import { SwapStatus } from '../types';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
@@ -64,7 +67,7 @@ type FusionState = QueryState & {
   quotes: Quote[];
   selectQuoteById: (quoteId: string | null) => void;
   transfer: (specificQuote?: Quote) => Promise<void>;
-  isReadyToTransfer: boolean;
+  status: SwapStatus;
 };
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
@@ -79,6 +82,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
   const getTranslatedError = useErrorMessage();
+  const {
+    balances: { loading: isBalancesLoading },
+  } = useBalancesContext();
 
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -91,12 +97,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toQuery,
   } = useSwapQuery();
 
-  const manager = useTransferManager();
-  const supportedChainsIds = useSupportedChainsMap(manager);
-  const sourceTokenList = useSwapSourceTokenList(supportedChainsIds);
+  const { manager, error: initializationError } = useTransferManager();
+  const supportedChainsMap = useSupportedChainsMap(manager);
+  const sourceTokenList = useSwapSourceTokenList(supportedChainsMap);
   const sourceToken = useSwapSourceToken(sourceTokenList, fromId);
   const targetTokenList = useSwapTargetTokenList(
-    supportedChainsIds,
+    supportedChainsMap,
     sourceToken,
   );
   const targetToken = useSwapTargetToken(targetTokenList, sourceToken, toId);
@@ -237,6 +243,16 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
+  const status = getSwapStatus(
+    activeAccount,
+    isBalancesLoading,
+    manager,
+    initializationError,
+    sourceTokenList,
+    targetTokenList,
+    selectedQuote,
+  );
+
   return (
     <FusionStateContext.Provider
       value={{
@@ -260,13 +276,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         autoSlippage,
         setAutoSlippage,
         swapError: undefined, // TODO:
+        status,
         userQuote,
         bestQuote,
         selectedQuote,
         quotes,
         selectQuoteById,
         transfer,
-        isReadyToTransfer: Boolean(selectedQuote && manager),
       }}
     >
       {children}
