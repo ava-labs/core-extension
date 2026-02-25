@@ -91,10 +91,7 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    this.#transactionStatusEvents.emitPending(txHash, request.chainId, {
-      requestId: request.requestId,
-      ...request.context,
-    });
+    this.#transactionStatusEvents.emitPending(txHash, request);
   };
 
   onTransactionConfirmed = async ({
@@ -106,11 +103,7 @@ export class ApprovalController implements BatchApprovalController {
     explorerLink: string;
     request: RpcRequest;
   }) => {
-    this.#transactionStatusEvents.emitConfirmed(txHash, request.chainId, {
-      explorerLink,
-      requestId: request.requestId,
-      ...request.context,
-    });
+    this.#transactionStatusEvents.emitConfirmed(txHash, request, explorerLink);
   };
 
   onTransactionReverted = async ({
@@ -120,10 +113,7 @@ export class ApprovalController implements BatchApprovalController {
     txHash: string;
     request: RpcRequest;
   }) => {
-    this.#transactionStatusEvents.emitReverted(txHash, request.chainId, {
-      requestId: request.requestId,
-      ...request.context,
-    });
+    this.#transactionStatusEvents.emitReverted(txHash, request);
   };
 
   async requestPublicKey({

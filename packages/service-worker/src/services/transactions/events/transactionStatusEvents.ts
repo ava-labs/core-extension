@@ -1,3 +1,4 @@
+import { RpcRequest } from '@avalabs/vm-module-types';
 import {
   ExtensionConnectionEvent,
   ExtensionEventEmitter,
@@ -11,36 +12,24 @@ import { singleton } from 'tsyringe';
 export class TransactionStatusEvents implements ExtensionEventEmitter {
   private eventEmitter = new EventEmitter();
 
-  emitPending(
-    txHash: string,
-    chainId: string,
-    context?: Record<string, unknown>,
-  ) {
+  emitPending(txHash: string, request: RpcRequest) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.PENDING,
-      value: { txHash, chainId, context } as TransactionStatusInfo,
+      value: { txHash, request } as TransactionStatusInfo,
     });
   }
 
-  emitConfirmed(
-    txHash: string,
-    chainId: string,
-    context?: Record<string, unknown>,
-  ) {
+  emitConfirmed(txHash: string, request: RpcRequest, explorerLink: string) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.CONFIRMED,
-      value: { txHash, chainId, context } as TransactionStatusInfo,
+      value: { txHash, request, explorerLink } as TransactionStatusInfo,
     });
   }
 
-  emitReverted(
-    txHash: string,
-    chainId: string,
-    context?: Record<string, unknown>,
-  ) {
+  emitReverted(txHash: string, request: RpcRequest) {
     this.eventEmitter.emit('update', {
       name: TransactionStatusEventNames.REVERTED,
-      value: { txHash, chainId, context } as TransactionStatusInfo,
+      value: { txHash, request } as TransactionStatusInfo,
     });
   }
 

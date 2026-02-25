@@ -1420,7 +1420,7 @@ describe('background/services/wallet/WalletService.ts', () => {
         .mockReturnValue(simpleSignerMock);
       jest
         .mocked(networkService)
-        .getAvalancheNetworkXP.mockReturnValue(
+        .getAvalancheNetworkX.mockReturnValue(
           decorateWithCaipId(AVALANCHE_XP_TEST_NETWORK),
         );
 

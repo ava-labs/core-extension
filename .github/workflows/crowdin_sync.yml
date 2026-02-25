@@ -1,6 +1,8 @@
-name: Crowdin Action
+name: Crowdin Sync
 
 on:
+  workflow_dispatch:
+
   schedule:
     - cron: '0 0 * * *'
   push:
@@ -14,17 +16,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: crowdin action
-        uses: crowdin/github-action@1.4.16
+        uses: crowdin/github-action@v2
         with:
           upload_translations: true
           download_translations: true
-          new_branch_export_pattern: 'src/localization/locales/%two_letters_code%/**/%original_file_name%'
-          source: 'src/localization/locales/en/**/*.json'
-          translation: 'src/localization/locales/%locale%/**/%original_file_name%'
+          source: 'apps/next/src/localization/locales/en/**/*.json'
+          translation: 'apps/next/src/localization/locales/%locale%/%original_file_name%'
           base_url: 'https://ava-labs.crowdin.com'
-          project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
-          token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+          pull_request_title: 'chore(translations): New Crowdin translations by Github Action'
+          pull_request_team_reviewers: 'core-extension'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ vars.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
