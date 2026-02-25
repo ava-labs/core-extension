@@ -74,7 +74,10 @@ export type { SetActiveNetworkHandler } from './services/network/handlers/setAct
 export type { SetDevelopermodeNetworkHandler } from './services/network/handlers/setDeveloperMode';
 export type { UpdateDefaultNetworkHandler } from './services/network/handlers/updateDefaultNetwork';
 export type { GetNetworkFeeHandler } from './services/networkFee/handlers/getNetworkFee';
+export type { GetNotificationCenterList } from './services/notifications/handlers/getNotificationCenterList';
 export type { GetNotificationSubscriptions } from './services/notifications/handlers/getSubscriptions';
+export type { MarkAllNotificationsAsRead } from './services/notifications/handlers/markAllNotificationsAsRead';
+export type { MarkNotificationAsRead } from './services/notifications/handlers/markNotificationAsRead';
 export type { SubscribeToNotification } from './services/notifications/handlers/subscribe';
 export type { UnsubscribeFromNotification } from './services/notifications/handlers/unsubscribe';
 export type { GetIsOnboardedHandler } from './services/onboarding/handlers/getIsOnBoarded';

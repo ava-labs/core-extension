@@ -200,6 +200,10 @@ export enum ExtensionRequest {
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
 
+  NOTIFICATION_CENTER_GET_LIST = 'notification_center_get_list',
+  NOTIFICATION_CENTER_MARK_AS_READ = 'notification_center_mark_as_read',
+  NOTIFICATION_CENTER_MARK_ALL_AS_READ = 'notification_center_mark_all_as_read',
+
   GET_TRENDING_TOKENS = 'get_trending_tokens',
 
   GET_ATOMIC_FUNDS_FOR_ACCOUNT = 'get_atomic_funds_for_account',
