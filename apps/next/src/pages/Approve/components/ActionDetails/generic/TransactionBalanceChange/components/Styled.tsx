@@ -30,6 +30,7 @@ export const ResponsiveTokenAmount: FC<{ amount: string; negate: boolean }> =
             fontSize: fontSize,
           }}
           amount={negate ? `-${amount}` : `+${amount}`}
+          showApproximationSign={false}
         />
       </Box>
     );

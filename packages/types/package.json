@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/index.ts",
   "devDependencies": {
-    "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260224175214",
+    "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260225180625",
     "fireblocks-sdk": "5.20.0",
     "joi": "17.7.0",
     "jose": "4.15.5"
