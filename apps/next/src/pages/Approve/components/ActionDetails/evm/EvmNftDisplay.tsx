@@ -55,8 +55,6 @@ export const EvmNftDisplay: FC<EvmNftDisplayProps> = ({
           ? collectiblesMap.get(`${tokenAddress}-${tokenId}`)
           : undefined;
 
-        console.log('matchedCollectible: ', matchedCollectible);
-
         // Use collectible's logoUri if found, otherwise fall back to token.logoUri
         const logoUri = matchedCollectible?.logoUri || token.logoUri;
 
