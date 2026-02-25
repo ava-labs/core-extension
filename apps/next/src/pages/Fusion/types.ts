@@ -27,10 +27,13 @@ export type Signers = {
   btc: BtcSigner;
 };
 
+export type QuoteStreamingStatus = 'done' | 'loading' | 'error';
+
 export type SwapStatus =
   | 'loading'
   | 'initialized'
   | 'initialization-failed'
   | 'no-swappable-assets'
   | 'no-routes-found'
-  | 'ready-to-transfer';
+  | 'ready-to-transfer'
+  | `quote:${QuoteStreamingStatus}`;

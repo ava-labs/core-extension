@@ -1,12 +1,13 @@
 import { Collapse, Typography, useTheme } from '@avalabs/k2-alpine';
-import { useFusionState } from '../contexts';
+
+import { useSwapFormError } from '../hooks';
 
 export const SwapErrorMessage = () => {
   const theme = useTheme();
-  const { swapError } = useFusionState();
+  const formError = useSwapFormError();
 
   return (
-    <Collapse in={Boolean(swapError?.message)}>
+    <Collapse in={Boolean(formError)}>
       <Typography
         component="p"
         color="error.main"
@@ -14,7 +15,7 @@ export const SwapErrorMessage = () => {
         variant="caption"
         height={theme.typography.caption.lineHeight}
       >
-        {swapError?.message ?? ' '}
+        {formError}
       </Typography>
     </Collapse>
   );

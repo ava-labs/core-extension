@@ -71,7 +71,7 @@ const hasRequiredParams = (
   );
 
 const buildQuoter = ({ manager, ...props }: RequiredQuoterProps) =>
-  manager.getQuoter(props);
+  manager.getQuoter(props, { quoteTimeoutMs: 5_000 }); // TODO: What timeout should we use?
 
 const useMemoizedProps = ({
   manager,

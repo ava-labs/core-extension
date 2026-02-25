@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { toast } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote, TransferManager } from '@avalabs/unified-asset-transfer';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import {
@@ -19,7 +19,6 @@ import {
 import { isUserRejectionError, Monitoring, stringToBigint } from '@core/common';
 import {
   useAccountsContext,
-  SwapError,
   useAnalyticsContext,
   useBalancesContext,
   useErrorMessage,
@@ -41,7 +40,7 @@ import {
   useSlippageTolerance,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
-import { SwapStatus } from '../types';
+import { QuoteStreamingStatus, SwapStatus } from '../types';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
@@ -59,15 +58,15 @@ type FusionState = QueryState & {
   setAutoSlippage: (autoSlippage: boolean) => void;
   fromAmount?: string;
   toAmount?: string;
-  isAmountLoading: boolean;
-  swapError?: SwapError;
   userQuote: Quote | null;
   bestQuote: Quote | null;
   selectedQuote: Quote | null;
   quotes: Quote[];
   selectQuoteById: (quoteId: string | null) => void;
   transfer: (specificQuote?: Quote) => Promise<void>;
+  manager: TransferManager | undefined;
   status: SwapStatus;
+  quotesStatus: QuoteStreamingStatus;
 };
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
@@ -128,6 +127,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectedQuote,
     isUserSelectedQuote,
     selectQuoteById,
+    status: quotesStatus,
   } = useQuotes({
     manager,
     fromAddress,
@@ -256,6 +256,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   return (
     <FusionStateContext.Provider
       value={{
+        manager,
         updateQuery,
         fromId,
         toId,
@@ -269,18 +270,17 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         sourceToken,
         targetToken,
         account: activeAccount,
-        isAmountLoading: Boolean(userAmount && toAmount === undefined),
         isConfirming,
         slippage,
         setSlippage,
         autoSlippage,
         setAutoSlippage,
-        swapError: undefined, // TODO:
         status,
         userQuote,
         bestQuote,
         selectedQuote,
         quotes,
+        quotesStatus,
         selectQuoteById,
         transfer,
       }}
