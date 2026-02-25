@@ -5,12 +5,14 @@ type Params = {
   path: string;
   clientId?: string;
   payload: Record<string, unknown>;
+  includeAppType?: boolean;
 };
 
 export const sendRequest = async <T>({
   path,
   clientId,
   payload,
+  includeAppType = true,
 }: Params): Promise<T> => {
   const url = process.env.NOTIFICATION_SENDER_SERVICE_URL;
 
@@ -37,7 +39,7 @@ export const sendRequest = async <T>({
       'X-Firebase-AppCheck': appcheckToken,
     },
     body: JSON.stringify({
-      appType: 'CORE_EXTENSION',
+      ...(includeAppType && { appType: 'CORE_EXTENSION' }),
       ...(clientId && { deviceArn: clientId }),
       ...payload,
     }),

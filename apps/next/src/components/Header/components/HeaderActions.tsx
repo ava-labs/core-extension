@@ -1,6 +1,7 @@
 import { MdNotificationsNone } from 'react-icons/md';
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
+import { useUnreadCount } from '@/pages/Notifications/hooks/useNotificationCenter';
 import { Box, IconButton, Stack, Tooltip, useTheme } from '@avalabs/k2-alpine';
 import { Account, FeatureGates, isTransferInProgress } from '@core/types';
 import { FC, useMemo } from 'react';
@@ -47,6 +48,8 @@ export const HeaderActions: FC<Props> = ({ account }) => {
     isFlagEnabled(FeatureGates.FUSION_FEATURE) &&
     (hasPendingTransfers || hasConcludedTransfers);
 
+  const unreadCount = useUnreadCount();
+
   return (
     <Stack direction="row" alignItems="center">
       <ConnectedSites activeAccount={account} />
@@ -59,6 +62,28 @@ export const HeaderActions: FC<Props> = ({ account }) => {
           sx={{ color: theme.palette.text.primary }}
         >
           <FiSettings size={20} style={{ scale: 5 / 6 }} />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={t('Notifications')}>
+        <IconButton
+          disableRipple
+          size="small"
+          data-testid="notifications-button"
+          onClick={() => history.push('/notifications')}
+          sx={{ color: theme.palette.text.primary, position: 'relative' }}
+        >
+          <MdNotificationsNone size={20} />
+          {unreadCount > 0 && (
+            <Box
+              position="absolute"
+              top={4}
+              right={4}
+              bgcolor="error.main"
+              borderRadius="50%"
+              width={6}
+              height={6}
+            />
+          )}
         </IconButton>
       </Tooltip>
       <IconButton

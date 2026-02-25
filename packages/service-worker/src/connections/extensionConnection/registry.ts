@@ -146,7 +146,10 @@ import { KeystoneOnboardingHandlerNew } from '~/services/onboarding/handlers/key
 import { LedgerOnboardingHandlerNew } from '~/services/onboarding/handlers/ledgerOnboardingHandlerNew';
 import { SetPreferredViewHandler } from '~/services/settings/handlers/setPreferredView';
 import { SubscriptionsChangedEvents } from '../../services/notifications/events/subscriptionsChangedEvent';
+import { GetNotificationCenterList } from '../../services/notifications/handlers/getNotificationCenterList';
 import { GetNotificationSubscriptions } from '../../services/notifications/handlers/getSubscriptions';
+import { MarkAllNotificationsAsRead } from '../../services/notifications/handlers/markAllNotificationsAsRead';
+import { MarkNotificationAsRead } from '../../services/notifications/handlers/markNotificationAsRead';
 import { SubscribeToNotification } from '../../services/notifications/handlers/subscribe';
 import { UnsubscribeFromNotification } from '../../services/notifications/handlers/unsubscribe';
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
@@ -477,6 +480,18 @@ import {
   {
     token: 'ExtensionRequestHandler',
     useToken: GetNotificationSubscriptions,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: GetNotificationCenterList,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MarkNotificationAsRead,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MarkAllNotificationsAsRead,
   },
   {
     token: 'ExtensionRequestHandler',
