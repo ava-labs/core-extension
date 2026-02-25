@@ -16,7 +16,7 @@
     "@sentry/browser": "7.66.0"
   },
   "devDependencies": {
-    "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260220233431",
+    "@avalabs/unified-asset-transfer": "0.0.0-project-fusion-pr-20260224175214",
     "@eslint/compat": "1.2.4",
     "@eslint/eslintrc": "3.2.0",
     "@eslint/js": "9.16.0",
