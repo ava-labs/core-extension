@@ -22,7 +22,7 @@ export const SwapPair = () => {
     targetToken,
     fromAmount,
     toAmount,
-    isAmountLoading,
+    quotesStatus,
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
@@ -58,7 +58,7 @@ export const SwapPair = () => {
           amount={fromAmount ? (toAmount ?? '') : ''}
           withPresetButtons={false}
           tokenHint={sourceToken ? t('You receive') : undefined}
-          isLoading={isAmountLoading}
+          isLoading={quotesStatus === 'loading'}
         />
       </Stack>
     </Card>

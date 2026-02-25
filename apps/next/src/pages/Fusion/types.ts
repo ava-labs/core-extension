@@ -27,6 +27,8 @@ export type Signers = {
   btc: BtcSigner;
 };
 
+export type QuoteStreamingStatus = 'done' | 'loading' | 'error';
+
 export type SwapStatus =
   | 'loading'
   | 'initialized'

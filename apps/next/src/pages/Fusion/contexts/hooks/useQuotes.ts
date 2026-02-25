@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Quote } from '@avalabs/unified-asset-transfer';
 
 import { UseQuoterProps, useQuoter } from './useQuoter';
+import { QuoteStreamingStatus } from '../../types';
 
 export const useQuotes = ({
   manager,
@@ -14,6 +15,7 @@ export const useQuotes = ({
   amount,
   slippageBps,
 }: UseQuoterProps) => {
+  const [status, setStatus] = useState<QuoteStreamingStatus>('done');
   // The best quote is the quote with the best price
   const [bestQuote, setBestQuote] = useState<Quote | null>(null);
   // The user quote is the quote that the user has manually selected.
@@ -38,16 +40,24 @@ export const useQuotes = ({
       return;
     }
 
+    setStatus('loading');
+
     const unsubscribe = quoter.subscribe((event, data) => {
       switch (event) {
         case 'error': {
-          console.error('Quote streaming failure', data);
+          console.error('[fusion::useQuotes] streaming failure', data);
+          setStatus('error');
           break;
         }
 
         case 'quote': {
           setBestQuote(data.bestQuote);
           setAllQuotes(Array.from(data.quotes));
+          break;
+        }
+
+        case 'done': {
+          setStatus('done');
           break;
         }
       }
@@ -79,5 +89,6 @@ export const useQuotes = ({
     isUserSelectedQuote: !!userQuote,
     selectedQuote: userQuote ?? bestQuote,
     selectQuoteById,
+    status,
   };
 };
