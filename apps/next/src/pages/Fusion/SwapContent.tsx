@@ -16,7 +16,7 @@ export const SwapContent = () => {
 
   switch (status) {
     case 'loading':
-      return <LoadingScreen height="100%" />;
+      return <LoadingScreen height="100%" width="100%" />;
     case 'initialization-failed':
     case 'no-routes-found':
     case 'no-swappable-assets':
