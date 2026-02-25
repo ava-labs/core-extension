@@ -40,6 +40,7 @@ export class NetworkStateChangedEvents implements DAppEventEmitter {
         params: { networks: networkState },
       });
     } catch (error) {
+      // TODO: active network error fix
       console.error(error);
     }
   };
