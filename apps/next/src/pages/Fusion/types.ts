@@ -26,3 +26,11 @@ export type Signers = {
   evm: EvmSignerWithMessage;
   btc: BtcSigner;
 };
+
+export type SwapStatus =
+  | 'loading'
+  | 'initialized'
+  | 'initialization-failed'
+  | 'no-swappable-assets'
+  | 'no-routes-found'
+  | 'ready-to-transfer';

@@ -49,9 +49,8 @@ function TokenSelectRaw({
   const chainOptions = useChainOptions(availableChainIds, hasAvalancheNetworks);
 
   const selectedToken = useMemo(
-    () =>
-      filteredTokenList.find((token) => getUniqueTokenId(token) === tokenId),
-    [filteredTokenList, tokenId],
+    () => tokenList.find((token) => getUniqueTokenId(token) === tokenId),
+    [tokenList, tokenId],
   );
 
   return (
