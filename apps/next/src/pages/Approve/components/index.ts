@@ -6,3 +6,4 @@ export * from './ErrorScreen';
 export * as Styled from './Styled';
 export * from './warnings';
 export * from './hardware';
+export * from './AgentIdentityCard';

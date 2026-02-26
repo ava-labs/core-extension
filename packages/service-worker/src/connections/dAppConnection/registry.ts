@@ -41,6 +41,7 @@ import { WalletSetSettingsHandler } from '~/services/settings/handlers/wallet_se
 import { WalletGetSettingsHandler } from '~/services/settings/handlers/wallet_getSettings';
 import { WalletGetCapabilitiesHandler } from '../../services/web3/handlers/wallet_getCapabilities';
 import { WalletEnableNetworkHandler } from '../../services/network/handlers/wallet_enableNetwork';
+import { AvalancheDeclareAgentIdentityHandler } from '../../services/agentIdentity/handlers/avalanche_declareAgentIdentity';
 
 /**
  * TODO: GENERATE THIS FILE AS PART OF THE BUILD PROCESS
@@ -94,6 +95,10 @@ const SHARED_HANDLERS = [
   { token: 'DAppRequestHandler', useToken: WalletSetSettingsHandler },
   { token: 'DAppRequestHandler', useToken: WalletGetCapabilitiesHandler },
   { token: 'DAppRequestHandler', useToken: WalletEnableNetworkHandler },
+  {
+    token: 'DAppRequestHandler',
+    useToken: AvalancheDeclareAgentIdentityHandler,
+  },
 ];
 
 const ALL_REQUEST_HANDLERS = [...SHARED_HANDLERS];
