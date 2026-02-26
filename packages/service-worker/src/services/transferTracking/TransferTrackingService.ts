@@ -123,18 +123,19 @@ export class TransferTrackingService implements OnStorageReady {
   ): ServiceInitializer[] {
     // This backend service is only used for transaction tracking purposes,
     // therefore we don't need to provide true signing capabilities.
+    const sign = () => {
+      throw new Error('Signer method called from tracking service.');
+    };
     const dummySigner = {
-      async sign() {
-        return '0x' as const;
-      },
-      async signMessage() {
-        return '0x' as const;
-      },
+      sign,
+      signMessage: sign,
+      signAndSend: sign,
     };
 
     const signers: UnifiedTransferSigners = {
       evm: dummySigner,
       btc: dummySigner,
+      svm: dummySigner,
     };
 
     const enabledServices = getEnabledTransferServices(this.#flagStates);

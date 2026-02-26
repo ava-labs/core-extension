@@ -5,9 +5,18 @@ import { stringToBigint } from '@core/common';
 export const useSwapFormError = () => {
   const { t } = useTranslation();
 
-  const { quotes, quotesStatus, sourceToken, fromAmount } = useFusionState();
+  const { userAmount, status, quotes, quotesStatus, sourceToken, fromAmount } =
+    useFusionState();
 
-  if (quotesStatus !== 'loading' && quotes.length === 0) {
+  if (!userAmount) {
+    return '';
+  }
+
+  if (
+    status === 'ready-to-transfer' &&
+    quotesStatus !== 'loading' &&
+    quotes.length === 0
+  ) {
     return t('No quotes found for selected token pair.');
   }
 

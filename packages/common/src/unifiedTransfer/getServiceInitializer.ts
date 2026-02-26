@@ -13,7 +13,7 @@ import { MARKR_EVM_PARTNER_ID } from './constants';
 export function getServiceInitializer(
   type: ServiceType,
   btcFunctions: BitcoinFunctions,
-  { btc, evm }: UnifiedTransferSigners,
+  { btc, evm, svm }: UnifiedTransferSigners,
 ): ServiceInitializer {
   switch (type) {
     case ServiceType.AVALANCHE_EVM:
@@ -26,6 +26,7 @@ export function getServiceInitializer(
       return {
         type,
         evmSigner: evm,
+        solanaSigner: svm,
         markrApiToken: process.env.MARKR_API_TOKEN,
         markrApiUrl: process.env.MARKR_API_URL,
         markrAppId: MARKR_EVM_PARTNER_ID,
