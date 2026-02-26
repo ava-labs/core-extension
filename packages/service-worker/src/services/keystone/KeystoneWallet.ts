@@ -10,7 +10,6 @@ import {
   ETHSignature,
   EthSignRequest,
 } from '@keystonehq/bc-ur-registry-eth';
-import { uniq } from 'lodash';
 import { Signature, TransactionRequest, hexlify } from 'ethers';
 import { BufferLike, rlp } from 'ethereumjs-util';
 import { Avalanche } from '@avalabs/core-wallets-sdk';
@@ -207,15 +206,25 @@ export class KeystoneWallet {
     const tx = txRequest.tx;
     const app = new KeystoneUSBAvalancheSDK(await createKeystoneTransport());
 
-    const derivationPaths = uniq([
-      getAvalancheDerivationPath(this.activeAccountIndex),
-      ...(txRequest.externalIndices ?? []).map((index) =>
+    const potentialPaths = new Set<string>();
+    potentialPaths.add(getAvalancheDerivationPath(this.activeAccountIndex));
+
+    if (tx.getVM() === 'EVM') {
+      potentialPaths.add(`M/44'/60'/0'/0/${this.activeAccountIndex}`);
+    }
+
+    (txRequest.externalIndices ?? []).forEach((index) =>
+      potentialPaths.add(
         getAvalancheDerivationPath(this.activeAccountIndex, index, false),
       ),
-      ...(txRequest.internalIndices ?? []).map((index) =>
+    );
+    (txRequest.internalIndices ?? []).forEach((index) =>
+      potentialPaths.add(
         getAvalancheDerivationPath(this.activeAccountIndex, index, true),
       ),
-    ]);
+    );
+
+    const derivationPaths = Array.from(potentialPaths);
 
     const signatures = await app.signTx(
       tx as any,
