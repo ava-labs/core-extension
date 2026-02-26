@@ -102,6 +102,7 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   RpcMethod.SOLANA_SIGN_TRANSACTION,
   RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
   RpcMethod.SOLANA_SIGN_MESSAGE,
+  DAppProviderRequest.AGENT_DECLARE_IDENTITY,
 ]);
 
 const CORE_METHODS = Object.freeze([

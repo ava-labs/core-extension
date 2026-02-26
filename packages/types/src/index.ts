@@ -1,4 +1,5 @@
 export * from './address';
+export * from './agent-identity';
 export * from './account';
 export * from './actions';
 export * from './analytics';

@@ -5,13 +5,14 @@ import { Avatar, Stack, Typography } from '@avalabs/k2-alpine';
 import { runtime } from 'webextension-polyfill';
 
 import { useAccountsContext } from '@core/ui';
-import { ActionStatus, NetworkWithCaipId } from '@core/types';
+import { ActionStatus, AgentIdentity, NetworkWithCaipId } from '@core/types';
 
 import { NoScrollStack } from '@/components/NoScrollStack';
 
 import {
   ActionDetails,
   ActionDrawer,
+  AgentIdentityCard,
   Styled,
   MaliciousTxOverlay,
   NoteWarning,
@@ -142,6 +143,12 @@ export const MessageApprovalScreen: FC<MessageApprovalScreenProps> = ({
         {hasNoteWarning(action) && (
           <NoteWarning alert={action.displayData.alert} />
         )}
+
+        <AgentIdentityCard
+          agentIdentity={
+            action.context?.agentIdentity as AgentIdentity | undefined
+          }
+        />
 
         <Stack flexGrow={1} px={2} gap={1.5}>
           {(address || action.displayData.network) && (

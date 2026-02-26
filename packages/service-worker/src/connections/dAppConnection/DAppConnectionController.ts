@@ -9,6 +9,7 @@ import { injectable, injectAll } from 'tsyringe';
 import { Runtime } from 'webextension-polyfill';
 import { Context, Pipeline } from '../middlewares/models';
 import { PermissionMiddleware } from '../middlewares/PermissionMiddleware';
+import { AgentIdentityMiddleware } from '../middlewares/AgentIdentityMiddleware';
 import { DAppRequestHandlerMiddleware } from '../middlewares/DAppRequestHandlerMiddleware';
 import {
   LoggerMiddleware,
@@ -38,6 +39,7 @@ import { ModuleManager } from '../../vmModules/ModuleManager';
 import { ActiveNetworkMiddleware } from '../middlewares/ActiveNetworkMiddleware';
 import { AvalancheTxContextMiddleware } from '../middlewares/AvalancheTxContextMiddleware';
 import { SecretsService } from '~/services/secrets/SecretsService';
+import { AgentIdentityService } from '../../services/agentIdentity/AgentIdentityService';
 
 /**
  * This needs to be a controller per dApp, to separate messages
@@ -60,6 +62,7 @@ export class DAppConnectionController implements ConnectionController {
     private secretsService: SecretsService,
     private lockService: LockService,
     private moduleManager: ModuleManager,
+    private agentIdentityService: AgentIdentityService,
   ) {
     this.onRequest = this.onRequest.bind(this);
     this.disconnect = this.disconnect.bind(this);
@@ -77,6 +80,7 @@ export class DAppConnectionController implements ConnectionController {
       // @ts-ignore
       LoggerMiddleware(SideToLog.REQUEST),
       SiteMetadataMiddleware(connection),
+      AgentIdentityMiddleware(this.agentIdentityService),
       PermissionMiddleware(
         this.permissionsService,
         this.accountsService,
