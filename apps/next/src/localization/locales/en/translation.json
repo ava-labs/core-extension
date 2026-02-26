@@ -81,7 +81,7 @@
   "An overview of your wallets and associated accounts": "An overview of your wallets and associated accounts",
   "An unexpected error occurred. Please try again later or contact Core support.": "An unexpected error occurred. Please try again later or contact Core support.",
   "An unexpected error occurred. Please try again.": "An unexpected error occurred. Please try again.",
-  "An unknown error occurred (code: {{errorCode}}). Please reach out to the support team.": "An unknown error occurred (code: {{errorCode}}). Please reach out to the support team.",
+  "An unknown error occurred (code: {{errorCode}}).": "An unknown error occurred (code: {{errorCode}}).",
   "Anyone with this private key can access the account(s) associated with it": "Anyone with this private key can access the account(s) associated with it",
   "Approval transaction failed": "Approval transaction failed",
   "Approve": "Approve",

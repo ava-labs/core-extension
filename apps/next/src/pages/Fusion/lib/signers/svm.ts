@@ -1,9 +1,6 @@
 import { TFunction } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import {
-  SolanaSendOptions,
-  SolanaSigner,
-} from '@avalabs/unified-asset-transfer';
+import { SolanaSigner } from '@avalabs/unified-asset-transfer';
 import { SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { assert } from '@core/common';
@@ -30,7 +27,7 @@ export function getSVMSigner(
               {
                 account,
                 serializedTx,
-                sendOptions: fixSendOptions(sendOptions),
+                sendOptions,
               },
             ],
           },
@@ -50,18 +47,3 @@ export function getSVMSigner(
     },
   };
 }
-
-const fixSendOptions = (sendOptions?: SolanaSendOptions) => {
-  if (
-    sendOptions &&
-    'maxRetries' in sendOptions &&
-    typeof sendOptions.maxRetries === 'number'
-  ) {
-    return {
-      ...sendOptions,
-      maxRetries: BigInt(sendOptions.maxRetries),
-    };
-  }
-
-  return sendOptions;
-};
