@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,11 @@ import { NavButton } from '@/pages/Onboarding/components/NavButton';
 
 import * as Styled from './Styled';
 import { SolanaLedgerConnector } from './LedgerConnector';
-import { ConnectorCallbacks, DerivedKeys } from './LedgerConnector/types';
+import {
+  ConnectorCallbacks,
+  DerivedKeys,
+  ErrorType,
+} from './LedgerConnector/types';
 import { DerivationStatus } from '@core/types';
 
 type ConnectionStepProps = StackProps & {
@@ -32,12 +36,14 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
   const { t } = useTranslation();
 
   const [status, setStatus] = useState<DerivationStatus>('error');
+  const [error, setError] = useState<ErrorType>();
   const [derivedKeys, setDerivedKeys] = useState<DerivedKeys>({
     addressPublicKeys: [],
     extendedPublicKeys: [],
   });
 
   const isValid = derivedKeys.addressPublicKeys.length > 0;
+  const onErrorChange = useCallback((err?: ErrorType) => setError(err), []);
 
   useEffect(() => {
     if (status === 'error') {
@@ -52,7 +58,17 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
     <Stack height="100%" width="100%" {...stackProps}>
       <FullscreenModalTitle>{t('Connect your Ledger')}</FullscreenModalTitle>
       <FullscreenModalDescription>
-        {t('Open the Solana app on your Ledger device')}
+        {status === 'error' && error === 'incorrect-app'
+          ? t(
+              'Please switch to the Solana app on your Ledger device to continue.',
+            )
+          : status === 'error' && error === 'no-app'
+            ? t('Please open the Solana app on your Ledger to continue.')
+            : status === 'error' && error === 'device-locked'
+              ? t(
+                  'Please unlock your Ledger and open the Solana app to continue.',
+                )
+              : t('Open the Solana app on your Ledger device')}
       </FullscreenModalDescription>
       <FullscreenModalContent sx={{ gap: 3, alignItems: 'center' }}>
         <SolanaLedgerConnector
@@ -60,6 +76,7 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
           onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={setStatus}
+          onErrorChange={onErrorChange}
           minNumberOfKeys={numberOfKeys}
         />
       </FullscreenModalContent>

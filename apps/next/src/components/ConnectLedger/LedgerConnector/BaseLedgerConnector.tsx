@@ -18,6 +18,7 @@ import { DerivationStatus } from '@core/types';
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
   onStatusChange: (status: DerivationStatus) => void;
+  onErrorChange?: (error?: ErrorType) => void;
   minNumberOfKeys: number;
   onTroubleshoot: () => void;
   deriveAddresses: (keys: PublicKey[]) => string[];
@@ -65,6 +66,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   const {
     onSuccess,
     onStatusChange,
+    onErrorChange,
     onTroubleshoot,
     minNumberOfKeys,
     useLedgerPublicKeyFetcher,
@@ -113,6 +115,10 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   useEffect(() => {
     onStatusChange(status);
   }, [status, onStatusChange]);
+
+  useEffect(() => {
+    onErrorChange?.(error);
+  }, [error, onErrorChange]);
 
   const addresses = deriveAddresses(activePublicKeys);
 

@@ -336,7 +336,15 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setStatus('error');
           setError('unsupported-version');
         }
-      } else if (status !== 'error') {
+      } else if (appType === LedgerAppType.DASHBOARD) {
+        // Device is unlocked but sitting on the dashboard with no app open.
+        setStatus('error');
+        setError('no-app');
+      } else if (appType === LedgerAppType.UNKNOWN) {
+        // Device is likely locked or unresponsive.
+        setStatus('error');
+        setError('device-locked');
+      } else {
         setStatus('error');
         setError('incorrect-app');
       }

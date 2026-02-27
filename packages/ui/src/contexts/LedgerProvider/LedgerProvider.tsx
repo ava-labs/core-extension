@@ -56,6 +56,7 @@ export enum LedgerAppType {
   ETHEREUM = 'Ethereum',
   SOLANA = 'Solana',
   UNKNOWN = 'UNKNOWN',
+  DASHBOARD = 'BOLOS', // Device is unlocked but sitting on the dashboard with no app open.
 }
 
 export const REQUIRED_LEDGER_VERSION = '0.7.3';
@@ -233,7 +234,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
   const initLedgerApp = useCallback(
     async (
       transport?: Transport | null,
-    ): Promise<Btc | AppAvalanche | Eth | AppSolana> => {
+    ): Promise<Btc | AppAvalanche | Eth | AppSolana | undefined> => {
       if (!transport) {
         throw new Error('Ledger not connected');
       }
@@ -269,37 +270,41 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         }
       }
 
-      // check if btc app is selected
-      const btcAppInstance = new Btc(transport);
+      // Use the generic APDU to identify the active app.
+      const appInfo = await getLedgerAppInfo(transport);
 
-      if (btcAppInstance) {
-        const appInfo = await getLedgerAppInfo(transport);
-
-        if (LedgerAppType.BITCOIN === appInfo.applicationName) {
-          setAppVersion(appInfo.version);
-          setApp(btcAppInstance);
-          setAppType(LedgerAppType.BITCOIN);
-          setAppConfig(null);
-          return btcAppInstance;
-        } else if (LedgerAppType.BITCOIN_RECOVERY === appInfo.applicationName) {
-          setAppVersion(appInfo.version);
-          setApp(btcAppInstance);
-          setAppType(LedgerAppType.BITCOIN_RECOVERY);
-          return btcAppInstance;
-        }
+      // BOLOS is the Ledger OS — returned when no app is open (dashboard screen).
+      if (appInfo.applicationName === LedgerAppType.DASHBOARD) {
+        setAppType(LedgerAppType.DASHBOARD);
+        setApp(undefined);
+        setAppConfig(null);
+        return undefined;
       }
 
-      const solanaAppInstance = new AppSolana(transport);
-      if (solanaAppInstance) {
-        const appInfo = await getLedgerAppInfo(transport);
+      if (LedgerAppType.BITCOIN === appInfo.applicationName) {
+        const btcAppInstance = new Btc(transport);
+        setAppVersion(appInfo.version);
+        setApp(btcAppInstance);
+        setAppType(LedgerAppType.BITCOIN);
+        setAppConfig(null);
+        return btcAppInstance;
+      }
 
-        if (LedgerAppType.SOLANA === appInfo.applicationName) {
-          setAppVersion(appInfo.version);
-          setApp(solanaAppInstance);
-          setAppType(LedgerAppType.SOLANA);
-          setAppConfig(null);
-          return solanaAppInstance;
-        }
+      if (LedgerAppType.BITCOIN_RECOVERY === appInfo.applicationName) {
+        const btcAppInstance = new Btc(transport);
+        setAppVersion(appInfo.version);
+        setApp(btcAppInstance);
+        setAppType(LedgerAppType.BITCOIN_RECOVERY);
+        return btcAppInstance;
+      }
+
+      if (LedgerAppType.SOLANA === appInfo.applicationName) {
+        const solanaAppInstance = new AppSolana(transport);
+        setAppVersion(appInfo.version);
+        setApp(solanaAppInstance);
+        setAppType(LedgerAppType.SOLANA);
+        setAppConfig(null);
+        return solanaAppInstance;
       }
 
       throw new Error('No compatible ledger app found');

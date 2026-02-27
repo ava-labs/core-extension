@@ -10,6 +10,8 @@ export type ErrorType =
   | 'unable-to-connect'
   | 'unsupported-version'
   | 'incorrect-app'
+  | 'no-app'
+  | 'device-locked'
   | 'duplicated-wallet';
 export type PublicKey = {
   hasActivity?: boolean;

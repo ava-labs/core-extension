@@ -1,6 +1,6 @@
 import { DerivationPath } from '@avalabs/core-wallets-sdk';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
-import { FC, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -15,7 +15,7 @@ import {
   type ConnectorCallbacks,
   AvalancheLedgerConnector,
 } from './LedgerConnector';
-import { DerivedKeys } from './LedgerConnector/types';
+import { DerivedKeys, ErrorType } from './LedgerConnector/types';
 import * as Styled from './Styled';
 import { DerivationStatus } from '@core/types';
 
@@ -34,6 +34,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
   const { t } = useTranslation();
 
   const [status, setStatus] = useState<DerivationStatus>('waiting');
+  const [error, setError] = useState<ErrorType>();
   const [derivationPathSpec, setDerivationPathSpec] = useState<DerivationPath>(
     DerivationPath.BIP44,
   );
@@ -42,6 +43,8 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
     addressPublicKeys: [],
     extendedPublicKeys: [],
   });
+
+  const onErrorChange = useCallback((err?: ErrorType) => setError(err), []);
 
   const isValid =
     derivationPathSpec === DerivationPath.BIP44
@@ -64,17 +67,27 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
     <Stack height="100%" width="100%" {...stackProps}>
       <FullscreenModalTitle>{t('Connect your Ledger')}</FullscreenModalTitle>
       <FullscreenModalDescription>
-        {status === 'error'
+        {status === 'error' && error === 'incorrect-app'
           ? t(
-              'Please connect your device, open the Avalanche application, and connect the wallet with the Ledger option to continue.',
+              'Please switch to the Avalanche app on your Ledger device to continue.',
             )
-          : status === 'needs-user-gesture'
-            ? t(
-                'Please make sure your device is connected and unlocked, then click the button below.',
-              )
-            : t(
-                'Make sure the Avalanche application is open on your device. Then, select the derivation path type to see your derived addresses.',
-              )}
+          : status === 'error' && error === 'no-app'
+            ? t('Please open the Avalanche app on your Ledger to continue.')
+            : status === 'error' && error === 'device-locked'
+              ? t(
+                  'Please unlock your Ledger and open the Avalanche app to continue.',
+                )
+              : status === 'error'
+                ? t(
+                    'Please connect your device, open the Avalanche application, and connect the wallet with the Ledger option to continue.',
+                  )
+                : status === 'needs-user-gesture'
+                  ? t(
+                      'Please make sure your device is connected and unlocked, then click the button below.',
+                    )
+                  : t(
+                      'Make sure the Avalanche application is open on your device. Then, select the derivation path type to see your derived addresses.',
+                    )}
       </FullscreenModalDescription>
       <FullscreenModalContent sx={{ gap: 3, alignItems: 'center' }}>
         <AvalancheLedgerConnector
@@ -82,6 +95,7 @@ export const ConnectAvalanche: FC<ConnectionStepProps> = ({
           onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={setStatus}
+          onErrorChange={onErrorChange}
           setDerivationPathSpec={setDerivationPathSpec}
           derivationPathSpec={derivationPathSpec}
           minNumberOfKeys={1}
