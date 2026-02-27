@@ -16,7 +16,12 @@ export const TextDetail = ({ item }: TextItemProps) =>
   );
 
 const TextDetailHorizontal = ({ item }: TextItemProps) => (
-  <TxDetailsRow label={item.label} direction="row" alignItems="center">
+  <TxDetailsRow
+    label={item.label}
+    direction="row"
+    alignItems="center"
+    sx={{ wordBreak: 'break-word' }}
+  >
     <Typography variant="body3" color="text.secondary">
       {item.value}
     </Typography>
