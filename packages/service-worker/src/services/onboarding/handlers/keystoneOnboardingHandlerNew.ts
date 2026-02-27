@@ -6,6 +6,7 @@ import {
   ExtendedPublicKey,
   AddressPublicKeyJson,
 } from '@core/types';
+import { isEvmDerivationPath, isAvalancheDerivationPath } from '@core/common';
 import { SettingsService } from '../../settings/SettingsService';
 import { StorageService } from '../../storage/StorageService';
 import { AnalyticsService } from '../../analytics/AnalyticsService';
@@ -111,9 +112,3 @@ export class KeystoneOnboardingHandlerNew implements HandlerType {
     };
   };
 }
-
-const isEvmDerivationPath = (derivationPath: string) =>
-  derivationPath.startsWith(`m/44'/60'/`);
-
-const isAvalancheDerivationPath = (derivationPath: string) =>
-  derivationPath.startsWith(`m/44'/9000'/`);

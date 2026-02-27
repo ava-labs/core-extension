@@ -95,3 +95,14 @@ export const isAvalancheExtendedKey = ({
   curve,
 }: ExtendedPublicKey): boolean =>
   derivationPath.startsWith(getAvalancheXpBasePath()) && curve === 'secp256k1';
+
+// Keystone QR codes return paths without the 'm/' prefix (e.g., "44'/60'/0'")
+// while internal paths use the full form (e.g., "m/44'/60'/0'")
+const normalizeDerivationPath = (path: string): string =>
+  path.startsWith('m/') ? path : `m/${path}`;
+
+export const isEvmDerivationPath = (path: string): boolean =>
+  normalizeDerivationPath(path).startsWith(getEvmBasePath());
+
+export const isAvalancheDerivationPath = (path: string): boolean =>
+  normalizeDerivationPath(path).startsWith(getAvalancheXpBasePath());
