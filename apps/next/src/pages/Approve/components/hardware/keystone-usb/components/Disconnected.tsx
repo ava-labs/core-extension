@@ -14,11 +14,17 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
     initKeystoneTransport,
     retryConnection,
     wasTransportAttempted,
+    userCancelledDeviceSelection,
   } = useKeystoneUsbContext();
 
-  // Auto-retry connection when in disconnected state (device might be locked)
+  // Auto-retry connection when in disconnected state (device might be locked).
+  // Stops retrying if the user dismissed the WebUSB device picker.
   useEffect(() => {
-    if (state === 'disconnected' && wasTransportAttempted) {
+    if (
+      state === 'disconnected' &&
+      wasTransportAttempted &&
+      !userCancelledDeviceSelection
+    ) {
       const interval = setInterval(() => {
         retryConnection();
       }, 2000);
@@ -27,7 +33,12 @@ export const Disconnected: FC<StateComponentProps> = ({ state }) => {
         clearInterval(interval);
       };
     }
-  }, [state, wasTransportAttempted, retryConnection]);
+  }, [
+    state,
+    wasTransportAttempted,
+    userCancelledDeviceSelection,
+    retryConnection,
+  ]);
 
   const onReconnect = useCallback(async () => {
     if (isSpecificContextContainer(ContextContainer.CONFIRM)) {
