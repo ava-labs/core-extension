@@ -71,7 +71,7 @@
     "i18next": "21.9.2",
     "i18next-http-backend": "1.4.4",
     "ledger-bitcoin": "0.2.3",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "lru-cache": "7.10.1",
     "micro-signals": "2.4.0",
     "qrcode.react": "1.0.1",
