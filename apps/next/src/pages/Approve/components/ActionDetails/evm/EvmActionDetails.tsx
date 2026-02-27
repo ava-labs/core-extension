@@ -10,6 +10,9 @@ import { TransactionBalanceChange } from '../generic/TransactionBalanceChange';
 
 import { EvmTokenApprovals } from './EvmTokenApprovals';
 import { EvmNetworkFeeWidget } from './EvmNetworkFeeWidget';
+import { EvmNftDisplay } from './EvmNftDisplay';
+import { isNftTokenType } from '@core/common';
+import { NoScrollStack } from '@/components/NoScrollStack';
 
 type EvmActionDetailsProps = Omit<ActionDetailsProps, 'network'> & {
   network: EvmNetwork;
@@ -19,8 +22,31 @@ export const EvmActionDetails = ({
   action,
   network,
 }: EvmActionDetailsProps) => {
+  // Extract NFTs from balanceChange outs (NFTs being sent/received)
+  const nftDiffs =
+    action.displayData.balanceChange?.outs.filter((diff) => {
+      if ('type' in diff.token) {
+        return isNftTokenType(diff.token.type);
+      }
+      return false;
+    }) ?? [];
+
   return (
     <Stack gap={1}>
+      {nftDiffs.length > 0 && (
+        <NoScrollStack
+          autoHide
+          autoHeight
+          autoHeightMin={120}
+          autoHeightMax={120}
+          stackProps={{
+            direction: 'row',
+            gap: 1,
+          }}
+        >
+          <EvmNftDisplay nftDiffs={nftDiffs} network={network} />
+        </NoScrollStack>
+      )}
       <TransactionBalanceChange
         ins={action.displayData.balanceChange?.ins ?? []}
         outs={action.displayData.balanceChange?.outs ?? []}
