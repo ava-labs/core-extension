@@ -1,4 +1,4 @@
-import { GlobalStyles, ThemeProvider, toast } from '@avalabs/k2-alpine';
+import { ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,
@@ -36,7 +36,6 @@ import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
 import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
 import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
-import { globalStyles } from '@/lib/global';
 import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
@@ -126,7 +125,6 @@ export function App() {
       }
     >
       <>
-        <GlobalStyles styles={globalStyles} />
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
 

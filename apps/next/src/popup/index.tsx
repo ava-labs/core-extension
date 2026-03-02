@@ -2,6 +2,8 @@
 import '../monitoring/initSentryForPopup';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { globalStyles } from '@/lib/global';
+import { GlobalStyles } from '@avalabs/k2-alpine';
 import { i18next, initI18n } from '@core/common';
 import {
   AnalyticsContextProvider,
@@ -32,6 +34,7 @@ const root = createRoot(document.getElementById('popup') as HTMLElement);
 browser.tabs.query({ active: true }).then(() => {
   root.render(
     <Sentry.ErrorBoundary>
+      <GlobalStyles styles={globalStyles} />
       <Router>
         <Providers
           providers={

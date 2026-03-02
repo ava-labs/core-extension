@@ -167,6 +167,7 @@
   "Clear all": "Clear all",
   "Click for more details": "Click for more details",
   "Click on the “Get signature” button after signing the transaction with your Keystone device": "Click on the “Get signature” button after signing the transaction with your Keystone device",
+  "Click to copy": "Click to copy",
   "Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.": "Clicking the cancel button will close the tab and open the extension for you. If the extension doesn’t open automatically, please open it manually.",
   "Close": "Close",
   "Close and try again": "Close and try again",
@@ -1033,6 +1034,6 @@
   "{{slippage}}%": "{{slippage}}%",
   "{{token}} bridge {{action}}": "{{token}} bridge {{action}}",
   "{{walletName}} is already imported.": "{{walletName}} is already imported.",
-  "© 2025 Ava Labs – All rights reserved. {{version}}": "© 2025 Ava Labs – All rights reserved. {{version}}",
+  "© 2025 Ava Labs – All rights reserved.": "© 2025 Ava Labs – All rights reserved.",
   "🚧 Placeholder - needs implementation 🚧": "🚧 Placeholder - needs implementation 🚧"
 }

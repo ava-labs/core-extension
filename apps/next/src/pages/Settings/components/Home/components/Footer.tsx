@@ -4,8 +4,6 @@ import {
   Stack,
   StackProps,
   styled,
-  toast,
-  Tooltip,
   Typography,
 } from '@avalabs/k2-alpine';
 import { useAnalyticsContext } from '@core/ui';
@@ -13,6 +11,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { runtime } from 'webextension-polyfill';
 
 import { InTextLink } from '@/components/InTextLink';
+import { TextToCopy } from '@/components/TextToCopy';
 
 export const Footer = (props: StackProps) => {
   const { t } = useTranslation();
@@ -51,21 +50,8 @@ export const Footer = (props: StackProps) => {
           {t('© 2025 Ava Labs – All rights reserved.')}
         </Typography>
 
-        <Link
-          variant="caption"
-          color="text.secondary"
-          underline="hover"
-          sx={{ cursor: 'pointer' }}
-          onClick={(e) => {
-            navigator.clipboard.writeText(e.currentTarget.textContent);
-            toast.success(t('Copied!'), {
-              id: 'version-copied',
-            });
-          }}
-        >
-          <Tooltip title={t('Click to copy')} enterDelay={0} followCursor>
-            <span>v{runtime.getManifest().version}</span>
-          </Tooltip>
+        <Link variant="caption" color="text.secondary" underline="hover">
+          <TextToCopy>v{runtime.getManifest().version}</TextToCopy>
         </Link>
       </Stack>
     </FooterContainer>
