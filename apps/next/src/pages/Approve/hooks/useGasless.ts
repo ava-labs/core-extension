@@ -42,33 +42,32 @@ export const useGasless: UseGasless = ({ action }) => {
     }
   }, [isGaslessEligible, fetchAndSolveGaslessChallange, gaslessPhase]);
 
-  // Capture analytics events
+  // Capture analytics for gasless funding errors
   useEffect(() => {
     if (gaslessPhase === GaslessPhase.ERROR) {
       captureEncrypted('GaslessFundFailed');
     }
-    if (gaslessPhase === GaslessPhase.FUNDED && fundTxHex) {
-      captureEncrypted('GaslessFundSuccessful', {
-        fundTxHex,
-      });
-    }
-  }, [captureEncrypted, fundTxHex, gaslessPhase, setGaslessDefaultValues]);
+  }, [captureEncrypted, gaslessPhase]);
 
   // Wrapper around the approval screen's approve callback so we don't pollute it with gasless funding logic
   const tryFunding = useCallback(
     async (approveCallback: () => void) => {
       if (isGaslessOn && isGaslessEligible) {
         try {
-          await gaslessFundTx(action?.signingData);
+          const fundedTxHex = await gaslessFundTx(action?.signingData);
+
+          if (fundedTxHex) {
+            captureEncrypted('GaslessFundSuccessful', {
+              fundTxHex: fundedTxHex,
+            });
+          }
         } catch {
           toast.error(t('Gasless funding failed'));
-          // Do not auto-submit if user wanted to fund the transaction, but it failed
+          setGaslessDefaultValues();
           return;
         }
       }
-      // Submit the transaction
       approveCallback();
-      // Clear the gasless state
       setGaslessDefaultValues();
     },
     [
@@ -76,6 +75,7 @@ export const useGasless: UseGasless = ({ action }) => {
       isGaslessEligible,
       gaslessFundTx,
       action?.signingData,
+      captureEncrypted,
       t,
       setGaslessDefaultValues,
     ],
