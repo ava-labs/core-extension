@@ -5,13 +5,15 @@ import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { RequestHandlerType } from '@core/types';
 
+import { buildRequestContext } from './lib/buildRequestContext';
+
 export function getBtcSigner(
   request: RequestHandlerType,
   scope: BitcoinCaip2ChainId,
   _t: TFunction,
 ): BtcSigner {
   return {
-    sign: async ({ inputs, outputs }) => {
+    sign: async ({ inputs, outputs }, _, stepDetails) => {
       try {
         const result = await request(
           {
@@ -23,6 +25,7 @@ export function getBtcSigner(
           },
           {
             scope,
+            context: buildRequestContext(stepDetails),
           },
         );
 

@@ -492,9 +492,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260225200603":
-  version: 0.0.0-project-fusion-pr-20260225200603
-  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260225200603"
+"@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260227162256":
+  version: 0.0.0-project-fusion-pr-20260227162256
+  resolution: "@avalabs/unified-asset-transfer@npm:0.0.0-project-fusion-pr-20260227162256"
   dependencies:
     "@bitcoinerlab/secp256k1": "npm:^1.2.0"
     "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
@@ -509,7 +509,7 @@ __metadata:
     "@solana/kit": ^5.0.0
     viem: ^2.38.0
     zod: ^4.1.0
-  checksum: 10c0/f5949fb921f8b4e5e7868304c605abc70a5cb2baed857185167883177258ef88a16ed13e31a06a3fa73d7ed2bc27bc3237bbec559601d3ccdc6bd699e7e6677d
+  checksum: 10c0/6a559562f1796614b9eaf82a1fe7bd681e0eb696495f8ac94f7a91ad9a8a575299b2477061c08051f659c19d590a4f5bb177e6e6c0628d08c1f795484f5674fc
   languageName: node
   linkType: hard
 
@@ -2774,7 +2774,7 @@ __metadata:
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/k2-alpine": "npm:1.255.2"
     "@avalabs/types": "npm:3.1.0-alpha.77"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260225200603"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260227162256"
     "@avalabs/vm-module-types": "npm:3.3.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -2890,7 +2890,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/common@workspace:packages/common"
   dependencies:
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260225200603"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260227162256"
     "@eslint/compat": "npm:1.2.4"
     "@eslint/eslintrc": "npm:3.2.0"
     "@eslint/js": "npm:9.16.0"
@@ -3046,7 +3046,7 @@ __metadata:
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/svm-module": "npm:3.3.0"
     "@avalabs/types": "npm:3.1.0-alpha.77"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260225200603"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260227162256"
     "@avalabs/vm-module-types": "npm:3.3.0"
     "@babel/plugin-proposal-decorators": "npm:7.24.1"
     "@babel/preset-env": "npm:7.24.4"
@@ -3188,7 +3188,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@core/types@workspace:packages/types"
   dependencies:
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260225200603"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260227162256"
     fireblocks-sdk: "npm:5.20.0"
     joi: "npm:17.7.0"
     jose: "npm:4.15.5"
@@ -3214,7 +3214,7 @@ __metadata:
     "@avalabs/glacier-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/hw-app-avalanche": "npm:1.1.1"
     "@avalabs/types": "npm:3.1.0-alpha.77"
-    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260225200603"
+    "@avalabs/unified-asset-transfer": "npm:0.0.0-project-fusion-pr-20260227162256"
     "@avalabs/vm-module-types": "npm:3.3.0"
     "@blockaid/client": "npm:0.10.0"
     "@cubist-labs/cubesigner-sdk": "npm:0.3.28"

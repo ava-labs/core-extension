@@ -1,6 +1,7 @@
 import { EnsureDefined } from './util-types';
 import { DomainMetadata } from './domain-metadata';
 import { RpcRequest, TokenType } from '@avalabs/vm-module-types';
+import { JsonRpcRequestContext } from './dapp-connection';
 
 export enum AvalancheChainStrings {
   AVM = 'X Chain',
@@ -237,6 +238,6 @@ export enum TransactionStatusEvents {
 
 export interface TransactionStatusInfo {
   txHash: string;
-  request: RpcRequest;
+  request: RpcRequest & { context?: JsonRpcRequestContext };
   explorerLink?: string;
 }

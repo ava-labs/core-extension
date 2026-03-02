@@ -4,8 +4,8 @@ import { Transfer } from '@avalabs/unified-asset-transfer';
 import { isNotNullish } from '@core/common';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 
-import { lookupTokenByAssetInfo } from './lib/lookupTokenByAssetInfo';
-import { useTransferTokensLookup } from './useTransferTokensLookup';
+import { lookupTokenByAssetInfo } from '../../../lib/lookupTokenByAssetInfo';
+import { useTransferTokensLookup } from '../../../hooks/useTransferTokensLookup';
 
 type TokemAmountInfo = {
   token: FungibleTokenBalance;
@@ -77,6 +77,13 @@ export const useSwappedTokens = (transfer: Transfer): TokemAmountInfo[] => {
         return lookup;
       }, new Map<string, TokemAmountInfo>())
       .values()
-      .toArray();
+      .toArray()
+      .toSorted(paidFirst);
   }, [transfer, tokensByChainId]);
+};
+
+const paidFirst = (a: TokemAmountInfo, b: TokemAmountInfo) => {
+  if (a.type === 'paid') return -1;
+  if (b.type === 'paid') return 1;
+  return 0;
 };

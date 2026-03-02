@@ -93,7 +93,11 @@ export function TransactionStatusProvider({
             case TransactionStatusEventNames.PENDING: {
               // Skip pending toast for intermediate transactions or bridge transactions
               // (e.g., ERC-20 spend approvals before swaps/bridges)
-              if (context?.isIntermediateTransaction || context?.isBridge) {
+              if (
+                context?.surpressSuccessToast ||
+                context?.isIntermediateTransaction ||
+                context?.isBridge
+              ) {
                 break;
               }
 
@@ -120,6 +124,7 @@ export function TransactionStatusProvider({
               // (e.g., ERC-20 spend approvals before swaps/bridges)
               // Skip success callback and toast for Avalanche primary networks since we show a success toast in the pending callback
               if (
+                context?.surpressSuccessToast ||
                 context?.isIntermediateTransaction ||
                 context?.isBridge ||
                 isAvalanchePrimaryNetwork(network)
