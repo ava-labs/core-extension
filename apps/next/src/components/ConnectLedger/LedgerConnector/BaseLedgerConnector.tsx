@@ -8,7 +8,9 @@ import { sortBy } from 'lodash';
 import * as Styled from '../Styled';
 import {
   ConnectorCallbacks,
+  DerivedAccountInfo,
   DerivedKeys,
+  ErrorType,
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
@@ -21,7 +23,7 @@ type CommonProps = {
   onErrorChange?: (error?: ErrorType) => void;
   minNumberOfKeys: number;
   onTroubleshoot: () => void;
-  deriveAddresses: (keys: PublicKey[]) => string[];
+  deriveAddresses: (keys: PublicKey[]) => DerivedAccountInfo[];
   derivedAddressesChainCaipId: string;
   useLedgerPublicKeyFetcher: UseLedgerPublicKeyFetcher;
   callbacks?: ConnectorCallbacks;
@@ -120,7 +122,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
     onErrorChange?.(error);
   }, [error, onErrorChange]);
 
-  const addresses = deriveAddresses(activePublicKeys);
+  const accounts = deriveAddresses(activePublicKeys);
 
   const isDuplicatedWalletError =
     status === 'error' && error === 'duplicated-wallet';
@@ -141,11 +143,11 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
                 labels={props.overrides?.PathSelector?.labels}
               />
             )}
-            {isDuplicatedWalletError ? null : addresses.length === 0 ? (
+            {isDuplicatedWalletError ? null : accounts.length === 0 ? (
               <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
             ) : (
               <DerivedAddresses
-                addresses={addresses}
+                accounts={accounts}
                 chainCaipId={derivedAddressesChainCaipId}
                 addLoadingRow={isRetrieving}
               />

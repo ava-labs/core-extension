@@ -6,6 +6,8 @@ import {
   ExtendedPublicKey,
 } from '@core/types';
 
+export type { AccountInfo as DerivedAccountInfo } from '@/pages/Onboarding/components/DerivedAddresses';
+
 export type ErrorType =
   | 'unable-to-connect'
   | 'unsupported-version'
