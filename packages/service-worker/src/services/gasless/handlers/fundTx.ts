@@ -5,7 +5,7 @@ import { TransactionRequest } from 'ethers';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FUND_TX,
-  undefined,
+  string | undefined,
   [
     data: TransactionRequest,
     challengeHex: string,
@@ -23,18 +23,16 @@ export class FundTxHandler implements HandlerType {
   handle: HandlerType['handle'] = async ({ request }) => {
     const [data, challengeHex, solutionHex, fromAddress] = request.params;
     try {
-      const response = await this.gasStationService.fundTx({
+      const fundTxHex = await this.gasStationService.fundTx({
         data,
         challengeHex,
         solutionHex,
         fromAddress,
       });
-      if (response?.message === 'UNAUTHORIZED') {
-        throw new Error('Gasless funding unauthorized');
-      }
+
       return {
         ...request,
-        result: undefined,
+        result: fundTxHex,
       };
     } catch (e: any) {
       return {
