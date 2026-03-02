@@ -135,7 +135,12 @@ export class GasStationService {
     );
   }
 
-  async fundTx({ data, challengeHex, solutionHex, fromAddress }) {
+  async fundTx({
+    data,
+    challengeHex,
+    solutionHex,
+    fromAddress,
+  }): Promise<string | undefined> {
     await this.setDefaultStateValues({
       isFundInProgress: true,
       challengeHex,
@@ -184,16 +189,16 @@ export class GasStationService {
         this.#fundDataPipeline.push({ data, fromAddress });
 
         await this.fetchAndSolveChallange(nextPipelineIndex);
-        return;
+        return undefined;
       }
       this.setDefaultStateValues({ fundTxDoNotRetryError: true });
       this.#attempt = 0;
       this.#fundDataPipeline = [];
 
       if (result.error.message === 'UNAUTHORIZED') {
-        return result.error;
+        throw new Error('Gasless funding unauthorized');
       }
-      return;
+      return undefined;
     }
     if (!result.txHash) {
       throw new Error('No tx hash');
@@ -202,13 +207,17 @@ export class GasStationService {
     const waitForTransactionResult = await (
       provider as JsonRpcProvider
     ).waitForTransaction(result.txHash);
+    const fundedTxHash = waitForTransactionResult?.hash;
+
     this.setDefaultStateValues({
       solutionHex,
       challengeHex,
-      fundTxHex: waitForTransactionResult?.hash,
+      fundTxHex: fundedTxHash,
     });
     this.#attempt = 0;
     this.#fundDataPipeline = [];
+
+    return fundedTxHash;
   }
 
   addListener(event: GaslessEvents, callback: (data: GaslessMessage) => void) {
