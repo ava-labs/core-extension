@@ -7,6 +7,5 @@ export type TokenAmount = {
 
 export type AggregatedFees = {
   amountInFiatCurrency: number;
-  isFiatAmountPrecise: boolean;
   tokenAmounts: TokenAmount[];
 };
