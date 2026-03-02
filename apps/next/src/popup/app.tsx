@@ -1,4 +1,4 @@
-import { ThemeProvider, toast } from '@avalabs/k2-alpine';
+import { GlobalStyles, ThemeProvider, toast } from '@avalabs/k2-alpine';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,
@@ -23,9 +23,9 @@ import {
 } from '@core/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+import { ConfettiProvider } from '@/components/Confetti';
 import { PersonalAvatarProvider } from '@/components/PersonalAvatar/context';
 import { AccountInfoVisibilityProvider } from '@/contexts/AccountInfoVisibilityContext';
-import { ConfettiProvider } from '@/components/Confetti';
 import { LockScreen } from '@/pages/LockScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { ContextContainer } from '@core/types';
@@ -34,13 +34,14 @@ import { useHistory } from 'react-router-dom';
 
 import { InAppApprovalOverlay } from '@/components/InAppApprovalOverlay';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
+import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
+import { globalStyles } from '@/lib/global';
 import { NextUnifiedBridgeProvider } from '@/pages/Bridge/contexts';
 import { AppRoutes, ApprovalRoutes } from '@/routing';
 import { Children, ReactElement } from 'react';
-import { Providers } from './providers';
 import { EventDrivenComponentsAndHooks } from './components';
-import { LedgerPolicyRegistrationStateProvider } from '@/contexts';
-import { TransactionStatusProviderWithConfetti } from '@/components/Transactions/TransactionsProviderWithConfetti';
+import { Providers } from './providers';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +126,7 @@ export function App() {
       }
     >
       <>
+        <GlobalStyles styles={globalStyles} />
         {isApprovalContext ? <ApprovalRoutes /> : <AppRoutes />}
         {isAppContext && <InAppApprovalOverlay />}
 
