@@ -33,6 +33,7 @@ export const SwapFeesBreakdown: FC<{ tokenAmounts: TokenAmount[] }> = ({
           key={`${tokenAmount.token.chainCaipId}-${tokenAmount.token.symbol}`}
           direction="row"
           alignItems="center"
+          justifyContent="flex-end"
           gap={0.5}
         >
           <CollapsedTokenAmount
