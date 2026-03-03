@@ -7,11 +7,13 @@ import {
   SourcePendingTransfer,
   TargetPendingTransfer,
   SourceCompletedTransfer,
+  SolanaSigner,
 } from '@avalabs/unified-asset-transfer';
 
 export type UnifiedTransferSigners = {
   evm: EvmSignerWithMessage;
   btc: BtcSigner;
+  svm: SolanaSigner;
 };
 
 export type TrackedTransfers = Record<Transfer['id'], Transfer>;

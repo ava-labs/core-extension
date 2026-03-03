@@ -5,7 +5,11 @@ import {
   RpcMethod,
   SigningData,
 } from '@avalabs/vm-module-types';
-import { DAppProviderRequest, JsonRpcRequestPayload } from './dapp-connection';
+import {
+  DAppProviderRequest,
+  JsonRpcRequest,
+  JsonRpcRequestPayload,
+} from './dapp-connection';
 import { ACTION_HANDLED_BY_MODULE } from './util-types';
 
 export enum ActionStatus {
@@ -31,7 +35,7 @@ type ActionBase<DisplayData = any, Params = any> = JsonRpcRequestPayload<
   type: ActionType;
   caipId?: string;
   scope: string;
-  context?: Record<string, unknown>;
+  context?: JsonRpcRequest['context'];
   dappInfo?: DappInfo;
   [ACTION_HANDLED_BY_MODULE]?: boolean;
   time?: number;
