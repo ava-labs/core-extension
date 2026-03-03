@@ -50,7 +50,12 @@ export const Footer = (props: StackProps) => {
           {t('© 2025 Ava Labs – All rights reserved.')}
         </Typography>
 
-        <Link variant="caption" color="text.secondary" underline="hover">
+        <Link
+          role="button"
+          variant="caption"
+          color="text.secondary"
+          underline="hover"
+        >
           <TextToCopy>v{runtime.getManifest().version}</TextToCopy>
         </Link>
       </Stack>

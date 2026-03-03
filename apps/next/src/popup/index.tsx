@@ -20,6 +20,8 @@ import { HashRouter as Router } from 'react-router-dom'; // MemoryRouter doesn't
 import browser from 'webextension-polyfill';
 import { Providers } from './providers';
 
+import '@/lib/global';
+
 // Initialize translations
 initI18n();
 
