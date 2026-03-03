@@ -5,15 +5,17 @@ import { MdCheckCircle, MdError } from 'react-icons/md';
 import { Transfer } from '@avalabs/unified-asset-transfer';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 
-import { isCompletedTransfer, isFailedTransfer } from '@core/types';
+import { useNetworkContext } from '@core/ui';
+import { isFailedTransfer } from '@core/types';
 
 import { Card } from '@/components/Card';
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 
 import * as Styled from '../Styled';
-import { useNetworkContext } from '@core/ui';
+import { useTransferStatusForSide } from './hooks/useTransferStatusForSide';
+import { isTransferSuccessfulForSide } from './lib/isTransferSuccessfulForSide';
+import { Side } from './types';
 
-type Side = 'source' | 'target';
 type Props = {
   transfer: Transfer;
   side: Side;
@@ -43,11 +45,12 @@ type StatusIconProps = {
   transfer: Transfer;
   side: Side;
 };
+
 const StatusIcon: FC<StatusIconProps> = ({ transfer, side }) => {
-  const color = isFailedTransfer(transfer)
-    ? 'error.main'
-    : isCompletedTransfer(transfer)
-      ? 'success.main'
+  const color = isTransferSuccessfulForSide(transfer, side)
+    ? 'success.main'
+    : isFailedTransfer(transfer)
+      ? 'error.main'
       : 'text.primary';
 
   const Icon = IconBySideAndStatus[side][transfer.status];
@@ -66,11 +69,7 @@ export const ChainStatusInfoBox: FC<Props> = ({ transfer, side }) => {
   const chain = side === 'source' ? transfer.sourceChain : transfer.targetChain;
   const network = getNetwork(chain.chainId);
 
-  const status = isFailedTransfer(transfer)
-    ? t('Failed')
-    : isCompletedTransfer(transfer)
-      ? t('Complete')
-      : t('Pending...');
+  const status = useTransferStatusForSide(transfer, side);
 
   return (
     <Card noPadding>

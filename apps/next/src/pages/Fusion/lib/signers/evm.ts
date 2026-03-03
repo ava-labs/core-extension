@@ -6,16 +6,14 @@ import { EvmSignerWithMessage } from '@avalabs/unified-asset-transfer';
 import { assert, chainIdToCaip } from '@core/common';
 import { RequestHandlerType, UnifiedBridgeError } from '@core/types';
 
+import { buildRequestContext } from './lib/buildRequestContext';
+
 export function getEVMSigner(
   request: RequestHandlerType,
   _t: TFunction,
 ): EvmSignerWithMessage {
   return {
-    sign: async (
-      { from, data, to, value, chainId },
-      _,
-      { currentSignature, requiredSignatures },
-    ) => {
+    sign: async ({ from, data, to, value, chainId }, _, stepDetails) => {
       assert(to, UnifiedBridgeError.InvalidTxPayload);
       assert(from, UnifiedBridgeError.InvalidTxPayload);
       assert(data, UnifiedBridgeError.InvalidTxPayload);
@@ -39,9 +37,7 @@ export function getEVMSigner(
           },
           {
             scope: chainIdToCaip(Number(chainId)),
-            context: {
-              isIntermediateTransaction: currentSignature < requiredSignatures,
-            },
+            context: buildRequestContext(stepDetails),
           },
         );
 
@@ -52,11 +48,15 @@ export function getEVMSigner(
       }
     },
 
-    signMessage: async (data: {
-      message: string;
-      address: `0x${string}`;
-      chainId: number;
-    }) => {
+    signMessage: async (
+      data: {
+        message: string;
+        address: `0x${string}`;
+        chainId: number;
+      },
+      _,
+      stepDetails,
+    ) => {
       const { message, address, chainId } = data;
 
       assert(message, UnifiedBridgeError.InvalidTxPayload);
@@ -70,6 +70,7 @@ export function getEVMSigner(
           },
           {
             scope: `eip155:${chainId}`,
+            context: buildRequestContext(stepDetails),
           },
         );
 

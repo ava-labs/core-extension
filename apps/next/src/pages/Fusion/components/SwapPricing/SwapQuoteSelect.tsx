@@ -10,6 +10,7 @@ import { useFusionState } from '../../contexts';
 import * as Styled from '../Styled';
 import { ExchangeRate } from './ExchangeRate';
 import { SwapAggregatorSelect } from './SwapAggregatorSelect';
+import { SwapFees } from './SwapFees';
 
 type SwapQuoteSelectProps = {
   open: boolean;
@@ -39,6 +40,10 @@ export const SwapQuoteSelect: FC<SwapQuoteSelectProps> = ({
           <Stack width="100%" px={2}>
             <Styled.SettingRow title={t('Rate')}>
               <ExchangeRate color="text.secondary" />
+            </Styled.SettingRow>
+            <Divider />
+            <Styled.SettingRow title={t('Fees')}>
+              <SwapFees color="text.secondary" />
             </Styled.SettingRow>
             <Divider />
             {bestQuote && quotes.length > 0 ? (

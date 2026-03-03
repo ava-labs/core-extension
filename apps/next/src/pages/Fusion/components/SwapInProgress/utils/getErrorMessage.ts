@@ -27,9 +27,8 @@ export const getErrorMessage = (
       );
 
     default:
-      return t(
-        'An unknown error occurred (code: {{errorCode}}). Please reach out to the support team.',
-        { errorCode },
-      );
+      return t('An unknown error occurred (code: {{errorCode}}).', {
+        errorCode,
+      });
   }
 };

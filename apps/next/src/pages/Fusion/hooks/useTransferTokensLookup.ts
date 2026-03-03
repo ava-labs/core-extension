@@ -1,19 +1,24 @@
 import { useMemo } from 'react';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { PartialBy } from '@avalabs/vm-module-types';
+import { Transfer, Quote } from '@avalabs/unified-asset-transfer';
 
 import { useNetworkContext } from '@core/ui';
 import { FungibleTokenBalance } from '@core/types';
 
 import { useAllTokens } from '@/hooks/useAllTokens';
 
-import { getNetworksForTransfer } from './lib/getNetworksForTransfer';
+import { getNetworksForTransfer } from '../lib/getNetworksForTransfer';
 
-export const useTransferTokensLookup = (transfer: Transfer) => {
+export const useTransferTokensLookup = (
+  transferLike: Required<
+    PartialBy<Transfer | Quote, 'sourceChain' | 'targetChain' | 'fees'>
+  >,
+) => {
   const { getNetwork } = useNetworkContext();
 
   const networks = useMemo(
-    () => getNetworksForTransfer(transfer, getNetwork),
-    [transfer, getNetwork],
+    () => getNetworksForTransfer(transferLike, getNetwork),
+    [transferLike, getNetwork],
   );
   const tokens = useAllTokens(networks, true);
 

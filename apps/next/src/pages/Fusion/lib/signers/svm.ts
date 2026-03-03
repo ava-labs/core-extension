@@ -1,13 +1,12 @@
 import { TFunction } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import {
-  SolanaSendOptions,
-  SolanaSigner,
-} from '@avalabs/unified-asset-transfer';
+import { SolanaSigner } from '@avalabs/unified-asset-transfer';
 import { SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { assert } from '@core/common';
 import { RequestHandlerType, UnifiedBridgeError } from '@core/types';
+
+import { buildRequestContext } from './lib/buildRequestContext';
 
 export function getSVMSigner(
   request: RequestHandlerType,
@@ -17,7 +16,7 @@ export function getSVMSigner(
   return {
     signAndSend: async (
       { serializedTx, sendOptions, account },
-      { currentSignature, requiredSignatures },
+      stepDetails,
     ) => {
       assert(serializedTx, UnifiedBridgeError.InvalidTxPayload);
       assert(account, UnifiedBridgeError.InvalidTxPayload);
@@ -30,19 +29,17 @@ export function getSVMSigner(
               {
                 account,
                 serializedTx,
-                sendOptions: fixSendOptions(sendOptions),
+                sendOptions,
               },
             ],
           },
           {
             scope,
-            context: {
-              isIntermediateTransaction: currentSignature < requiredSignatures,
-            },
+            context: buildRequestContext(stepDetails),
           },
         );
 
-        return result as `0x${string}`;
+        return result;
       } catch (err) {
         console.error(`[fusion::svmSigner.signAndSend]`, err);
         throw err;
@@ -50,18 +47,3 @@ export function getSVMSigner(
     },
   };
 }
-
-const fixSendOptions = (sendOptions?: SolanaSendOptions) => {
-  if (
-    sendOptions &&
-    'maxRetries' in sendOptions &&
-    typeof sendOptions.maxRetries === 'number'
-  ) {
-    return {
-      ...sendOptions,
-      maxRetries: BigInt(sendOptions.maxRetries),
-    };
-  }
-
-  return sendOptions;
-};
