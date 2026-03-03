@@ -1,10 +1,12 @@
 import { Maybe } from '@avalabs/core-utils-sdk';
 import { RpcResponse } from '@avalabs/vm-module-types';
+import type { CurrentAvalancheAccount } from '@avalabs/avalanche-module';
 import { EthereumProviderError } from 'eth-rpc-errors';
 import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 
 import { Action } from './actions';
 import { DomainMetadata } from './domain-metadata';
+import { ValidatorType } from './approvals';
 
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
@@ -87,12 +89,45 @@ export type JsonRpcRequestPayload<
   ? JsonRpcRequestPayloadWithoutParams<Method>
   : JsonRpcRequestPayloadWithParams<Method, Params>;
 
+type MultiApprovalActionStep = {
+  currentSignature: number;
+  requiredSignatures: number;
+  currentSignatureReason: string;
+};
+
+export type JsonRpcRequestContext = {
+  tabId?: number;
+
+  /**
+   * When performing a multi-step action, this should include the information about the current step.
+   * (which out of how many steps, and why it needs to be done).
+   */
+  actionStep?: MultiApprovalActionStep;
+
+  /**
+   * When processing avalanche_sendTransaction or avalanche_signTransaction requests,
+   * this should be populated for the Avalanche Module to properly parse the transaction.
+   */
+  account?: CurrentAvalancheAccount;
+
+  /**
+   * Whether to suppress the success toast.
+   * Useful when the action being performed requires multiple steps
+   * to actually be successful (e.g. cross-chain swaps).
+   */
+  surpressSuccessToast?: boolean;
+
+  /** The validator type to use for auto-approval */
+  validatorType?: ValidatorType;
+  [key: string]: unknown;
+};
+
 export interface JsonRpcRequest<Method extends string = any, Params = unknown> {
   readonly jsonrpc: '2.0';
   readonly id: string;
   readonly method: 'provider_request';
   readonly params: JsonRpcRequestParams<Method, Params>;
-  readonly context?: { tabId?: number } & Record<string, unknown>;
+  readonly context?: JsonRpcRequestContext;
 }
 
 interface JsonRpcRequestPayloadBase<Method extends string = any> {

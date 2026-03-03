@@ -3,14 +3,15 @@ import {
   BatchApprovalParams,
   RpcRequest,
 } from '@avalabs/vm-module-types';
-import { Action, MultiTxAction, ValidatorType } from '@core/types';
+import {
+  Action,
+  JsonRpcRequestContext,
+  MultiTxAction,
+  ValidatorType,
+} from '@core/types';
 
-type RpcRequestWithExtensionContext = RpcRequest & {
-  context?: RpcRequest['context'] & {
-    tabId?: number;
-    /** The validator type to use for auto-approval */
-    validatorType?: ValidatorType;
-  };
+export type RpcRequestWithExtensionContext = RpcRequest & {
+  context?: JsonRpcRequestContext;
 };
 export interface MultiApprovalParamsWithContext extends BatchApprovalParams {
   request: RpcRequestWithExtensionContext;

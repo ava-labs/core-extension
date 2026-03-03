@@ -6,6 +6,8 @@ import { SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { assert } from '@core/common';
 import { RequestHandlerType, UnifiedBridgeError } from '@core/types';
 
+import { buildRequestContext } from './lib/buildRequestContext';
+
 export function getSVMSigner(
   request: RequestHandlerType,
   scope: SolanaCaip2ChainId,
@@ -14,7 +16,7 @@ export function getSVMSigner(
   return {
     signAndSend: async (
       { serializedTx, sendOptions, account },
-      { currentSignature, requiredSignatures },
+      stepDetails,
     ) => {
       assert(serializedTx, UnifiedBridgeError.InvalidTxPayload);
       assert(account, UnifiedBridgeError.InvalidTxPayload);
@@ -33,13 +35,11 @@ export function getSVMSigner(
           },
           {
             scope,
-            context: {
-              isIntermediateTransaction: currentSignature < requiredSignatures,
-            },
+            context: buildRequestContext(stepDetails),
           },
         );
 
-        return result as `0x${string}`;
+        return result;
       } catch (err) {
         console.error(`[fusion::svmSigner.signAndSend]`, err);
         throw err;
