@@ -56,11 +56,8 @@ export const AvalancheLedgerConnector = (
     () => Avalanche.JsonRpcProvider.getDefaultMainnetProvider(),
     [],
   );
-
-  const deriveAddresses = useMemo(
-    () => (keys: PublicKey[]) => buildDerivedAccounts(keys, provider),
-    [provider],
-  );
+  const deriveAddresses = (keys: PublicKey[]) =>
+    buildDerivedAccounts(keys, provider);
 
   return (
     <BaseLedgerConnector

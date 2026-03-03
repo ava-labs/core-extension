@@ -11,11 +11,13 @@ import {
 import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 import {
   getAvalancheAddressLink,
+  isNotNullish,
   openNewTab,
   stripAddressPrefix,
 } from '@core/common';
 import { TokenWithBalance } from '@avalabs/vm-module-types';
 
+import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { Section, SectionRow } from '@/pages/Onboarding/components/Section';
 
 import { useNativeBalanceFetcher } from '@core/ui';
@@ -39,19 +41,17 @@ type DerivedAddressesProps = CommonProps &
 
 type AccountBalanceInfo = {
   isLoading: boolean;
-  totalDisplayValue?: string;
+  totalValue?: string;
   symbol?: string;
 };
 
 type AccountBalanceMap = Map<string, AccountBalanceInfo>;
 
 function sumBalances(balances: (TokenWithBalance | undefined)[]): {
-  totalDisplayValue: string;
+  totalValue: string;
   symbol: string;
 } | null {
-  const validBalances = balances.filter(
-    (b): b is TokenWithBalance => b !== undefined,
-  );
+  const validBalances = balances.filter(isNotNullish);
 
   if (validBalances.length === 0) {
     return null;
@@ -63,8 +63,7 @@ function sumBalances(balances: (TokenWithBalance | undefined)[]): {
   );
 
   return {
-    totalDisplayValue:
-      total % 1 === 0 ? total.toString() : total.toFixed(4).replace(/0+$/, ''),
+    totalValue: total.toString(),
     symbol: validBalances[0]?.symbol ?? 'AVAX',
   };
 }
@@ -118,7 +117,7 @@ export const DerivedAddresses = ({
           setBalances((prev) =>
             new Map(prev).set(account.address, {
               isLoading: false,
-              totalDisplayValue: result?.totalDisplayValue,
+              totalValue: result?.totalValue,
               symbol: result?.symbol,
             }),
           );
@@ -180,11 +179,13 @@ export const DerivedAddresses = ({
             {balance.isLoading ? (
               <Skeleton variant="text" width={100} />
             ) : (
-              balance.totalDisplayValue && (
+              balance.totalValue && (
                 <Stack direction="row" alignItems="center" gap={0.5}>
-                  <Typography variant="subtitle1">
-                    {balance.totalDisplayValue}
-                  </Typography>
+                  <CollapsedTokenAmount
+                    amount={balance.totalValue}
+                    regularProps={{ variant: 'subtitle1' }}
+                    overlineProps={{ variant: 'caption2' }}
+                  />
                   <Typography variant="subtitle1" color="text.secondary">
                     {balance.symbol}
                   </Typography>

@@ -3,21 +3,18 @@ import { AvalancheCaip2ChainId } from '@avalabs/core-chains-sdk';
 import { ExtensionRequest } from '@core/types';
 import { useConnectionContext } from '@core/ui';
 
-import { useCheckXPAddressActivity } from './useCheckXPAddressActivity';
+import { useCheckXPAddressBalance } from './useCheckXPAddressBalance';
 
-jest.mock('@core/ui', () => ({
-  useConnectionContext: jest.fn(),
-}));
+jest.mock('@core/ui');
 
 const TEST_ADDRESS = 'avax1qr6yg5aa3hsm4fhgdu5qm23dpnlsflukrt7lp0';
 
 describe('useCheckXPAddressActivity', () => {
   const request = jest.fn();
 
-  beforeEach(() => {
-    jest.resetAllMocks();
-    jest.mocked(useConnectionContext).mockReturnValue({ request } as any);
-  });
+  jest
+    .mocked(useConnectionContext)
+    .mockReturnValue({ request, events: jest.fn(), tabId: 1 });
 
   const balanceResponse = (value: bigint) => ({
     balance: { balance: value },
@@ -28,7 +25,7 @@ describe('useCheckXPAddressActivity', () => {
       .mockResolvedValueOnce(balanceResponse(100n))
       .mockResolvedValueOnce(balanceResponse(0n));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     const hasActivity = await result.current(TEST_ADDRESS);
 
     expect(hasActivity).toBe(true);
@@ -39,7 +36,7 @@ describe('useCheckXPAddressActivity', () => {
       .mockResolvedValueOnce(balanceResponse(0n))
       .mockResolvedValueOnce(balanceResponse(50n));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     const hasActivity = await result.current(TEST_ADDRESS);
 
     expect(hasActivity).toBe(true);
@@ -50,7 +47,7 @@ describe('useCheckXPAddressActivity', () => {
       .mockResolvedValueOnce(balanceResponse(100n))
       .mockResolvedValueOnce(balanceResponse(50n));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     const hasActivity = await result.current(TEST_ADDRESS);
 
     expect(hasActivity).toBe(true);
@@ -61,7 +58,7 @@ describe('useCheckXPAddressActivity', () => {
       .mockResolvedValueOnce(balanceResponse(0n))
       .mockResolvedValueOnce(balanceResponse(0n));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     const hasActivity = await result.current(TEST_ADDRESS);
 
     expect(hasActivity).toBe(false);
@@ -70,7 +67,7 @@ describe('useCheckXPAddressActivity', () => {
   it('returns false when both requests fail', async () => {
     request.mockRejectedValue(new Error('network error'));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     const hasActivity = await result.current(TEST_ADDRESS);
 
     expect(hasActivity).toBe(false);
@@ -81,7 +78,7 @@ describe('useCheckXPAddressActivity', () => {
       .mockResolvedValueOnce(balanceResponse(100n))
       .mockRejectedValueOnce(new Error('network error'));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     const hasActivity = await result.current(TEST_ADDRESS);
 
     expect(hasActivity).toBe(true);
@@ -90,7 +87,7 @@ describe('useCheckXPAddressActivity', () => {
   it('calls request with correct params for both chains', async () => {
     request.mockResolvedValue(balanceResponse(0n));
 
-    const { result } = renderHook(() => useCheckXPAddressActivity());
+    const { result } = renderHook(() => useCheckXPAddressBalance());
     await result.current(TEST_ADDRESS);
 
     expect(request).toHaveBeenCalledTimes(2);

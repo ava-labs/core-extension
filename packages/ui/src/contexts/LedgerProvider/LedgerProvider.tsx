@@ -295,6 +295,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         setAppVersion(appInfo.version);
         setApp(btcAppInstance);
         setAppType(LedgerAppType.BITCOIN_RECOVERY);
+        setAppConfig(null);
         return btcAppInstance;
       }
 

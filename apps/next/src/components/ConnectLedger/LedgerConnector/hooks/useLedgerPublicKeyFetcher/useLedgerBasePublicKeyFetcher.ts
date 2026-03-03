@@ -27,7 +27,7 @@ import {
 
 import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
-import { useCheckXPAddressActivity } from '@/hooks/useCheckXPAddressActivity';
+import { useCheckXPAddressBalance } from '@/hooks/useCheckXPAddressBalance';
 
 import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 import {
@@ -58,7 +58,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
   const checkAddressActivity = useCheckAddressActivity();
-  const checkXPAddressActivity = useCheckXPAddressActivity();
+  const checkXPAddressBalance = useCheckXPAddressBalance();
 
   const avalancheProvider = useMemo(
     () => Avalanche.JsonRpcProvider.getDefaultMainnetProvider(),
@@ -95,7 +95,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       const addressPublicKey = await getAddressPublicKeyFromXPub(xpubXP, 0);
 
       const xpAddress = avalancheProvider.getAddress(addressPublicKey, 'X');
-      const hasXPActivity = await checkXPAddressActivity(xpAddress).catch(
+      const hasXPActivity = await checkXPAddressBalance(xpAddress).catch(
         () => false,
       );
 
@@ -118,7 +118,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     [
       getExtendedPublicKey,
       avalancheProvider,
-      checkXPAddressActivity,
+      checkXPAddressBalance,
       derivationPathSpec,
     ],
   );
@@ -251,8 +251,9 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         avmPublicKeys.push(avmKey);
         xpExtendedKeys.push(extendedKey);
 
-        if (newEvmKeys[0] && !newEvmKeys[0].hasActivity && avmKey.hasActivity) {
-          newEvmKeys[0].hasActivity = true;
+        const [firstEvmKey] = newEvmKeys;
+        if (firstEvmKey) {
+          firstEvmKey.hasActivity ||= avmKey.hasActivity;
         }
 
         evmPublicKeys.push(...newEvmKeys);
