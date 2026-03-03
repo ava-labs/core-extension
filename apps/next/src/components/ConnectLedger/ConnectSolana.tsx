@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { Stack, StackProps } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 
@@ -43,7 +43,6 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
   });
 
   const isValid = derivedKeys.addressPublicKeys.length > 0;
-  const onErrorChange = useCallback((err?: ErrorType) => setError(err), []);
 
   const errorMessages: Record<ErrorType, string> = useMemo(
     () => ({
@@ -84,7 +83,7 @@ export const ConnectSolana: FC<ConnectionStepProps> = ({
           onSuccess={setDerivedKeys}
           onTroubleshoot={onTroubleshoot}
           onStatusChange={setStatus}
-          onErrorChange={onErrorChange}
+          onErrorChange={setError}
           minNumberOfKeys={numberOfKeys}
         />
       </FullscreenModalContent>
