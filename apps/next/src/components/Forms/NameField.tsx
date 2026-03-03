@@ -15,6 +15,7 @@ type NameFieldProps = {
   prompt: string;
   readOnly: boolean;
   showEditIcon?: boolean;
+  'data-testid'?: string;
 };
 
 export const NameField = ({
@@ -26,6 +27,7 @@ export const NameField = ({
   prompt,
   readOnly,
   showEditIcon = false,
+  'data-testid': dataTestId,
 }: NameFieldProps) => {
   const theme = useTheme();
   const showPrompt = !isNaming && name.trim().length === 0;
@@ -59,6 +61,7 @@ export const NameField = ({
               onBlur={() => setIsNaming(false)}
               onChange={(e) => setName(e.target.value)}
               readOnly={readOnly}
+              data-testid={dataTestId}
               style={{
                 gridArea: '1 / 1',
                 padding: 0,

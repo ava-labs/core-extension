@@ -88,7 +88,10 @@ export class ContactsPage extends BasePage {
     // Contact details
     this.contactDetailName = page.locator('[data-testid="contact-name"]');
     this.copyAddressButton = page.getByRole('button', { name: /copy/i });
-    this.deleteContactButton = page.getByRole('button', { name: /delete/i });
+    this.deleteContactButton = page.getByRole('button', {
+      name: 'Delete',
+      exact: true,
+    });
     this.editContactButton = page.getByRole('button', { name: /edit/i });
   }
 

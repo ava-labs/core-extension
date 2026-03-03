@@ -32,6 +32,7 @@ type FormFieldProps = {
   onChange: (value: KeyValue) => void;
   allowCopy?: boolean;
   readonly?: boolean;
+  'data-testid'?: string;
 };
 
 export const KeyValueFormField = ({
@@ -43,6 +44,7 @@ export const KeyValueFormField = ({
   onChange,
   allowCopy = false,
   readonly = false,
+  'data-testid': dataTestId,
 }: FormFieldProps) => {
   const { key, value } = values;
   const theme = useTheme();
@@ -77,6 +79,7 @@ export const KeyValueFormField = ({
 
   return (
     <FieldContainer
+      data-testid={dataTestId}
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

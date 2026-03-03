@@ -10,6 +10,7 @@ export const SearchInput = ({ filter, setFilter }: SearchInputProps) => {
   const theme = useTheme();
   return (
     <K2SearchInput
+      data-testid="networks-search-input"
       value={filter}
       onChange={(e) => setFilter(e.target.value)}
       placeholder={t('Search')}

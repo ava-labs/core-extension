@@ -129,6 +129,7 @@ export const NetworkDetails = ({
         {isEditing ? (
           <>
             <Button
+              data-testid="add-network-save-button"
               variant="contained"
               color="primary"
               size="small"
@@ -142,6 +143,7 @@ export const NetworkDetails = ({
               {t('Save')}
             </Button>
             <Button
+              data-testid="add-network-cancel-button"
               variant="contained"
               color="secondary"
               size="small"
@@ -157,6 +159,7 @@ export const NetworkDetails = ({
         ) : (
           <>
             <Button
+              data-testid="network-edit-button"
               variant="contained"
               color="primary"
               size="small"
@@ -167,6 +170,7 @@ export const NetworkDetails = ({
             </Button>
             {isCustom && (
               <Button
+                data-testid="network-delete-button"
                 variant="contained"
                 color="secondary"
                 size="small"

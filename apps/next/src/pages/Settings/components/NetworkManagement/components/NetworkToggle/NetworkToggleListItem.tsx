@@ -27,6 +27,7 @@ export const NetworkToggleListItem = ({
 
   return (
     <ListItem
+      data-testid={`network-item-${network.chainId}`}
       sx={{ px: 0 }}
       onClick={() => {
         capture('NetworkDetailsClicked', { chainId: network.chainId });
@@ -43,6 +44,7 @@ export const NetworkToggleListItem = ({
       <ListItemText primary={network.chainName} />
       {isDefault ? null : (
         <Switch
+          data-testid={`network-toggle-${network.chainId}`}
           size="small"
           checked={isEnabled}
           disabled={isDefault}

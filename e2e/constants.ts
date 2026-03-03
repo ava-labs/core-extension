@@ -23,6 +23,7 @@ export const TEST_CONFIG = {
   },
   snapshots: {
     mainnet: 'mainnetPrimaryExtWallet',
+    mainnetMonadNetwork: 'mainnetMonadNetworkExtWallet',
     testnet: 'testnetPrimaryExtWallet',
   },
 };
@@ -33,12 +34,6 @@ export const TEST_CONFIG = {
 export const TEST_TAGS = {
   SMOKE: '@smoke',
   REGRESSION: '@regression',
-  WALLET: '@wallet',
-  ONBOARDING: '@onboarding',
-  CONTACTS: '@contacts',
-  SEND: '@send',
-  SWAP: '@swap',
-  SETTINGS: '@settings',
 };
 
 /**
@@ -67,6 +62,20 @@ export const TEST_WALLET_NAMES = {
   RECOVERY_12: 'Recovery 12 Wallet',
   RECOVERY_24: 'Recovery 24 Wallet',
   MANUAL: 'Manual Wallet',
+};
+
+/**
+ * Network data for testing
+ */
+export const MONAD_CHAIN_ID = 143;
+
+export const MONAD_NETWORK = {
+  name: 'Monad',
+  rpcUrl: 'https://rpc.monad.xyz',
+  chainId: String(MONAD_CHAIN_ID),
+  tokenSymbol: 'MON',
+  tokenName: 'Monad',
+  explorerUrl: 'https://monadvision.com',
 };
 
 /**

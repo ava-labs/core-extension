@@ -51,6 +51,7 @@ export const NetworkForm = ({
   return (
     <Card sx={{ width: '100%', px: 2 }}>
       <RpcUrlField
+        data-testid="add-network-rpc-url"
         value={network.rpcUrl}
         onChange={(rpcUrl) => setNetwork({ ...network, rpcUrl })}
         error={fieldInfo.rpcUrl?.error}
@@ -61,6 +62,7 @@ export const NetworkForm = ({
       />
       <Divider />
       <ChainIdField
+        data-testid="add-network-chain-id"
         value={convertChainIdToString(network.chainId)}
         onChange={(chainId) =>
           setNetwork({ ...network, chainId: Number(chainId) })
@@ -71,6 +73,7 @@ export const NetworkForm = ({
       />
       <Divider />
       <TokenSymbolField
+        data-testid="add-network-token-symbol"
         value={network.networkToken.symbol}
         onChange={(tokenSymbol) =>
           setNetwork({
@@ -84,6 +87,7 @@ export const NetworkForm = ({
       />
       <Divider />
       <TokenNameField
+        data-testid="add-network-token-name"
         value={network.networkToken.name}
         onChange={(tokenName) =>
           setNetwork({
@@ -97,6 +101,7 @@ export const NetworkForm = ({
       />
       <Divider />
       <ExplorerUrlField
+        data-testid="add-network-explorer-url"
         value={network.explorerUrl}
         onChange={(explorerUrl) => setNetwork({ ...network, explorerUrl })}
         error={fieldInfo.explorerUrl?.error}
@@ -113,6 +118,7 @@ export const NetworkForm = ({
       />
       <Divider />
       <Stack
+        data-testid="custom-rpc-headers-link"
         direction="row"
         spacing={2}
         alignItems="center"
