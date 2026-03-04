@@ -29,3 +29,12 @@ export const MAX_SLIPPAGE = 50;
 export const DEFAULT_SLIPPAGE = 0.2;
 
 export const AUTO_QUOTE_ID = '___---AUTO-QUOTE---___';
+
+/**
+ * Lombard mainnet and testnet BTC.b addresses.
+ * @see unified-asset-transfer/src/transfer-service/lombard/constants.ts for definitions
+ */
+export const BTCB_ADDRESS_MAINNET =
+  '0x152b9d0fdc40c096757f570a51e494bd4b943e50' as const;
+export const BTCB_ADDRESS_TESTNET =
+  '0x71ba2b8dc58e7ca1b6d81a60729e31aefa37ae02' as const;

@@ -7,7 +7,7 @@ import { TokenType } from '@avalabs/vm-module-types';
 
 @singleton()
 export class BalancePollingService implements OnLock, OnAllExtensionClosed {
-  static readonly INTERVAL = 2000;
+  static readonly INTERVAL = 5000;
 
   #timer: NodeJS.Timeout | null = null;
   #pollingIteration = 0;

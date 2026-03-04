@@ -6,6 +6,7 @@ import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { useAllTokens } from '@/hooks/useAllTokens';
 import { GetSupportedChainsResult } from '@avalabs/unified-asset-transfer';
 import { isNotNullish } from '@core/common';
+import { getConstrainedTargetTokenId } from '../../lib/getConstrainedTargetTokenId';
 
 /**
  * @param supportedChainsMap - Map of supported source chain IDs to their allowed target chain IDs.
@@ -40,6 +41,14 @@ export const useSwapTargetTokenList = (
 
   return useMemo(() => {
     if (sourceToken) {
+      const constrainedTargetTokenId = getConstrainedTargetTokenId(sourceToken);
+
+      if (constrainedTargetTokenId) {
+        return allTokens.filter(
+          (token) => getUniqueTokenId(token) === constrainedTargetTokenId,
+        );
+      }
+
       const sourceTokenId = getUniqueTokenId(sourceToken);
 
       return allTokens.filter(

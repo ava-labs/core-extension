@@ -7,6 +7,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -22,6 +23,7 @@ import { TokenSelect } from '@/components/TokenSelect';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
+import { useUpdateLocalValue, useDebouncedAmountPropagation } from './hooks';
 
 type TokenAmountInputProps = {
   id: string;
@@ -47,15 +49,15 @@ type TokenAmountInputProps = {
 type AmountInputProps =
   | {
       isAmountReadOnly?: undefined;
-      onAmountChange?: (amount: string) => void;
+      onAmountChange?: (amount: string, isMax: boolean) => void;
     }
   | {
       isAmountReadOnly?: never;
-      onAmountChange?: (amount: string) => void;
+      onAmountChange?: (amount: string, isMax: boolean) => void;
     }
   | {
       isAmountReadOnly: false;
-      onAmountChange: (amount: string) => void;
+      onAmountChange: (amount: string, isMax: boolean) => void;
     }
   | {
       isAmountReadOnly: true;
@@ -88,6 +90,16 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
   const amountInputRef = useRef<HTMLInputElement>(null);
   const previousTokenIdRef = useRef<string>(tokenId);
+
+  const [localAmount, setLocalAmount] = useState(amount);
+
+  useUpdateLocalValue(amount, setLocalAmount);
+  useDebouncedAmountPropagation(
+    amount,
+    localAmount,
+    isAmountReadOnly ?? false,
+    onAmountChange,
+  );
 
   const token = useMemo(
     () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
@@ -149,6 +161,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       // Make sure we never seem silly by telling the user to send a negative amount.
       onAmountChange?.(
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
+        percentage === 100,
       );
     },
     [
@@ -198,7 +211,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           <InvisibleAmountInput
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
-            onChange={(ev) => onAmountChange?.(ev.target.value)}
+            onChange={(ev) => setLocalAmount(ev.target.value)}
             error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
@@ -214,7 +227,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
                 disabled: disabled || isAmountReadOnly,
               },
             }}
-            value={amount}
+            value={localAmount}
           />
         </Grow>
       </Stack>
@@ -232,13 +245,22 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           onFocus={onFocus}
           onBlur={onBlur}
         >
-          <AmountPresetButton onClick={() => handlePresetClick(25)}>
+          <AmountPresetButton
+            onClick={() => handlePresetClick(25)}
+            disabled={isLoading}
+          >
             {t('25%')}
           </AmountPresetButton>
-          <AmountPresetButton onClick={() => handlePresetClick(50)}>
+          <AmountPresetButton
+            onClick={() => handlePresetClick(50)}
+            disabled={isLoading}
+          >
             {t('50%')}
           </AmountPresetButton>
-          <AmountPresetButton onClick={() => handlePresetClick(100)}>
+          <AmountPresetButton
+            onClick={() => handlePresetClick(100)}
+            disabled={isLoading}
+          >
             {t('Max')}
           </AmountPresetButton>
         </Stack>

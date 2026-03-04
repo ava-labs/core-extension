@@ -36,3 +36,9 @@ export type SwapStatus =
   | 'no-swappable-assets'
   | 'no-routes-found'
   | 'ready-to-transfer';
+
+export type EstimatedFeeResult = {
+  fee: bigint | undefined;
+  isFeeLoading: boolean;
+  feeError: Error | null;
+};

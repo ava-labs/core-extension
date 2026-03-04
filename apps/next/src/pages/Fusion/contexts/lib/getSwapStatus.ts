@@ -12,6 +12,7 @@ export const getSwapStatus = (
   sourceTokenList: FungibleTokenBalance[],
   targetTokenList: FungibleTokenBalance[],
   selectedQuote: Quote | null,
+  useMaxAmount: boolean,
 ): SwapStatus => {
   const isAccountLoading = !activeAccount;
   const isManagerLoading = !manager && !initializationError;
@@ -32,7 +33,7 @@ export const getSwapStatus = (
     return 'no-routes-found';
   }
 
-  if (selectedQuote) {
+  if (selectedQuote && !useMaxAmount) {
     return 'ready-to-transfer';
   }
 
