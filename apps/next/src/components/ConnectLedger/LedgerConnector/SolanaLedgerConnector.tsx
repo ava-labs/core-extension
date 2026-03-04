@@ -1,7 +1,7 @@
 import { base58, hex } from '@scure/base';
 import { ComponentProps } from 'react';
 
-import { PublicKey } from './types';
+import { DerivedAccountInfo, PublicKey } from './types';
 import { BaseLedgerConnector } from './BaseLedgerConnector';
 import { useLedgerSolanaPublicKeyFetcher } from './hooks/useLedgerPublicKeyFetcher';
 import { SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
@@ -18,11 +18,12 @@ type SolanaLedgerConnectorProps = Omit<
   | 'requiredApp'
 >;
 
-const deriveAddresses = (keys: PublicKey[]) =>
+const deriveAddresses = (keys: PublicKey[]): DerivedAccountInfo[] =>
   keys
     .filter(({ vm }) => vm === 'SVM')
-    .map(({ key }) => key.key)
-    .map((publicKeyHex) => base58.encode(hex.decode(publicKeyHex)));
+    .map(({ key }) => ({
+      address: base58.encode(hex.decode(key.key)),
+    }));
 
 export const SolanaLedgerConnector = (props: SolanaLedgerConnectorProps) => {
   return (

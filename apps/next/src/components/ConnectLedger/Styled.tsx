@@ -106,6 +106,10 @@ export const LedgerConnectionError = ({
         {errorType === 'incorrect-app' && (
           <IncorrectAppMessage requiredApp={requiredApp} />
         )}
+        {errorType === 'no-app' && <NoAppMessage requiredApp={requiredApp} />}
+        {errorType === 'device-locked' && (
+          <DeviceLockedMessage requiredApp={requiredApp} />
+        )}
       </Stack>
       <Stack direction="row" justifyContent="center">
         <NavButton size="medium" color="primary" onClick={onRetry}>
@@ -155,6 +159,31 @@ const IncorrectAppMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
     <Typography variant="body2">
       {t(
         'Please switch to {{requiredApp}} on your Ledger device to continue.',
+        { requiredApp },
+      )}
+    </Typography>
+  );
+};
+
+const NoAppMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t('Please open the {{requiredApp}} app on your Ledger to continue.', {
+        requiredApp,
+      })}
+    </Typography>
+  );
+};
+
+const DeviceLockedMessage = ({ requiredApp }: IncorrectAppMessageProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Typography variant="body2">
+      {t(
+        'Please unlock your Ledger and open the {{requiredApp}} app to continue.',
         { requiredApp },
       )}
     </Typography>

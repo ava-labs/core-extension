@@ -1,8 +1,9 @@
 import {
+  Avalanche,
   DerivationPath,
   getAddressPublicKeyFromXPub,
 } from '@avalabs/core-wallets-sdk';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   LedgerAppType,
@@ -26,6 +27,7 @@ import {
 
 import { MAX_ACCOUNTS_TO_CREATE } from '@/config/onboarding';
 import { useCheckAddressActivity } from '@/hooks/useCheckAddressActivity';
+import { useCheckXPAddressBalance } from '@/hooks/useCheckXPAddressBalance';
 
 import { getLedgerTransport } from '@core/ui/src/contexts/utils/getLedgerTransport';
 import {
@@ -56,6 +58,12 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
   const { appType, appVersion } = useActiveLedgerAppInfo(true);
   const checkIfWalletExists = useDuplicatedWalletChecker();
   const checkAddressActivity = useCheckAddressActivity();
+  const checkXPAddressBalance = useCheckXPAddressBalance();
+
+  const avalancheProvider = useMemo(
+    () => Avalanche.JsonRpcProvider.getDefaultMainnetProvider(),
+    [],
+  );
 
   const [error, setError] = useState<ErrorType>();
   const [duplicatedWalletName, setDuplicatedWalletName] = useState<string>();
@@ -79,33 +87,23 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     [getExtendedPublicKey],
   );
 
-  const getXpExtendedPublicKeys = useCallback(
-    async (indexes: number[]) => {
-      const xpExtendedPublicKeys: { index: number; key: string }[] = [];
+  const deriveXpKeyForIndex = useCallback(
+    async (index: number) => {
+      const xpubXP = await getExtendedPublicKey(
+        getAvalancheExtendedKeyPath(index),
+      );
+      const addressPublicKey = await getAddressPublicKeyFromXPub(xpubXP, 0);
 
-      for (const index of indexes) {
-        xpExtendedPublicKeys.push({
+      const xpAddress = avalancheProvider.getAddress(addressPublicKey, 'X');
+      const hasXPActivity = await checkXPAddressBalance(xpAddress).catch(
+        () => false,
+      );
+
+      return {
+        avmKey: {
           index,
-          key: await getExtendedPublicKey(getAvalancheExtendedKeyPath(index)),
-        });
-      }
-
-      return xpExtendedPublicKeys;
-    },
-    [getExtendedPublicKey],
-  );
-
-  const getXpPublicKeys = useCallback(
-    async (indexes: number[]) => {
-      const publicKeys: PublicKey[] = [];
-      const xpExtendedKeys = await getXpExtendedPublicKeys(indexes);
-
-      for (const { key: xpubXP, index } of xpExtendedKeys) {
-        const addressPublicKey = await getAddressPublicKeyFromXPub(xpubXP, 0);
-
-        publicKeys.push({
-          index,
-          vm: 'AVM',
+          vm: 'AVM' as const,
+          hasActivity: hasXPActivity,
           key: buildAddressPublicKey(
             addressPublicKey,
             'AVM',
@@ -113,19 +111,16 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
             'secp256k1',
             derivationPathSpec,
           ),
-        });
-      }
-
-      return {
-        extendedPublicKeys: [
-          ...xpExtendedKeys.map(({ key, index }) =>
-            buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
-          ),
-        ],
-        addressPublicKeys: publicKeys,
+        },
+        extendedKey: { index, key: xpubXP },
       };
     },
-    [getXpExtendedPublicKeys, derivationPathSpec],
+    [
+      getExtendedPublicKey,
+      avalancheProvider,
+      checkXPAddressBalance,
+      derivationPathSpec,
+    ],
   );
 
   const assertUniqueWallet = useCallback(
@@ -206,18 +201,32 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
     return evmPublicKeys.slice(-2).some(({ hasActivity }) => hasActivity);
   }, []);
 
-  const retrieveEvmKeys = useCallback(
+  const retrieveAllKeys = useCallback(
     async (startingIndexes: number[]) => {
       const minNumberOfKeys = startingIndexes.length;
       const evmExtendedPublicKeys = await getEvmExtendedPublicKeys(
-        derivationPathSpec === DerivationPath.BIP44 ? [0] : startingIndexes, // For BIP44, we only need to get the EVM extended public key for account index 0
+        derivationPathSpec === DerivationPath.BIP44 ? [0] : startingIndexes,
       );
       const evmPublicKeys = await getEvmPublicKeysFromXpubs(
         evmExtendedPublicKeys,
         startingIndexes,
       );
 
-      onActivePublicKeysDiscovered?.(evmPublicKeys);
+      const avmPublicKeys: PublicKey[] = [];
+      const xpExtendedKeys: { index: number; key: string }[] = [];
+
+      for (const index of startingIndexes) {
+        const { avmKey, extendedKey } = await deriveXpKeyForIndex(index);
+        avmPublicKeys.push(avmKey);
+        xpExtendedKeys.push(extendedKey);
+
+        const evmKey = evmPublicKeys.find((k) => k.index === index);
+        if (evmKey && !evmKey.hasActivity && avmKey.hasActivity) {
+          evmKey.hasActivity = true;
+        }
+      }
+
+      onActivePublicKeysDiscovered?.([...evmPublicKeys, ...avmPublicKeys]);
 
       await assertUniqueWallet(evmExtendedPublicKeys.get(0)!);
 
@@ -237,10 +246,20 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           evmExtendedPublicKeys,
           [currentIndex],
         );
+
+        const { avmKey, extendedKey } = await deriveXpKeyForIndex(currentIndex);
+        avmPublicKeys.push(avmKey);
+        xpExtendedKeys.push(extendedKey);
+
+        const [firstEvmKey] = newEvmKeys;
+        if (firstEvmKey) {
+          firstEvmKey.hasActivity ||= avmKey.hasActivity;
+        }
+
         evmPublicKeys.push(...newEvmKeys);
 
         if (newEvmKeys.some(({ hasActivity }) => hasActivity)) {
-          onActivePublicKeysDiscovered?.(evmPublicKeys);
+          onActivePublicKeysDiscovered?.([...evmPublicKeys, ...avmPublicKeys]);
         }
       }
 
@@ -250,16 +269,20 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         !evmPublicKeys.at(-1)?.hasActivity
       ) {
         evmPublicKeys.pop();
+        avmPublicKeys.pop();
       }
 
       return {
-        extendedPublicKeys: evmExtendedPublicKeys,
-        addressPublicKeys: evmPublicKeys,
+        evmExtendedPublicKeys,
+        evmPublicKeys,
+        avmPublicKeys,
+        xpExtendedKeys,
       };
     },
     [
       getEvmExtendedPublicKeys,
       getEvmPublicKeysFromXpubs,
+      deriveXpKeyForIndex,
       assertUniqueWallet,
       derivationPathSpec,
       shouldContinue,
@@ -283,26 +306,23 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
 
       try {
         const {
-          addressPublicKeys: evmAddressPublicKeys,
-          extendedPublicKeys: evmExtendedPublicKeys,
-        } = await retrieveEvmKeys(startingIndexes);
-
-        const xpIndexes = evmAddressPublicKeys.map(({ index }) => index);
-
-        const {
-          addressPublicKeys: xpAddressPublicKeys,
-          extendedPublicKeys: xpExtendedPublicKeys,
-        } = await getXpPublicKeys(xpIndexes);
+          evmExtendedPublicKeys,
+          evmPublicKeys,
+          avmPublicKeys,
+          xpExtendedKeys,
+        } = await retrieveAllKeys(startingIndexes);
 
         return {
-          addressPublicKeys: [...evmAddressPublicKeys, ...xpAddressPublicKeys],
+          addressPublicKeys: [...evmPublicKeys, ...avmPublicKeys],
           extendedPublicKeys: [
             ...evmExtendedPublicKeys
               .entries()
               .map(([index, value]) =>
                 buildExtendedPublicKey(value, getEvmExtendedKeyPath(index)),
               ),
-            ...xpExtendedPublicKeys,
+            ...xpExtendedKeys.map(({ key, index }) =>
+              buildExtendedPublicKey(key, getAvalancheExtendedKeyPath(index)),
+            ),
           ],
         } satisfies DerivedKeys;
       } catch (err) {
@@ -311,12 +331,7 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
         throw err;
       }
     },
-    [
-      popDeviceSelection,
-      retrieveEvmKeys,
-      getXpPublicKeys,
-      onActivePublicKeysDiscovered,
-    ],
+    [popDeviceSelection, retrieveAllKeys, onActivePublicKeysDiscovered],
   );
 
   // Attempt to automatically connect as soon as we establish the transport.
@@ -336,7 +351,15 @@ export const useLedgerBasePublicKeyFetcher: UseLedgerPublicKeyFetcher = (
           setStatus('error');
           setError('unsupported-version');
         }
-      } else if (status !== 'error') {
+      } else if (appType === LedgerAppType.DASHBOARD) {
+        // Device is unlocked but sitting on the dashboard with no app open.
+        setStatus('error');
+        setError('no-app');
+      } else if (appType === LedgerAppType.UNKNOWN) {
+        // Device is likely locked or unresponsive.
+        setStatus('error');
+        setError('device-locked');
+      } else {
         setStatus('error');
         setError('incorrect-app');
       }
