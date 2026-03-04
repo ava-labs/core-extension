@@ -126,9 +126,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
-    Number.isFinite(parseFloat(amount)) && parseFloat(amount) !== 0;
+    Number.isFinite(parseFloat(localAmount)) && parseFloat(localAmount) !== 0;
   const amountBigInt =
-    token && amountHasValue ? stringToBigint(amount, token.decimals) : 0n;
+    token && amountHasValue ? stringToBigint(localAmount, token.decimals) : 0n;
 
   const isAmountTooBig = token && maxAmount ? amountBigInt > maxAmount : false;
 

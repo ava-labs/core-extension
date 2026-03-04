@@ -34,7 +34,10 @@ export const useUpdateToMaxAmount = (
     const maxAmount = isNativeToken(sourceToken)
       ? sourceToken.balance - bigToBigInt(paddedFee, sourceToken.decimals)
       : sourceToken.balance;
-    const fromAmount = bigIntToString(maxAmount, sourceToken.decimals);
+    const fromAmount = bigIntToString(
+      maxAmount < 0n ? 0n : maxAmount,
+      sourceToken.decimals,
+    );
 
     updateQuery({ userAmount: fromAmount, useMaxAmount: true });
   }, [useMaxAmount, isFeeLoading, feeError, sourceToken, fee, updateQuery]);

@@ -23,16 +23,13 @@ export const useSwapFormError = () => {
     quotes,
     quotesStatus,
     sourceToken,
-    useMaxAmount,
     fee,
     isFeeLoading,
     feeError,
     minimumTransferAmount,
   } = useFusionState();
 
-  if (!userAmount || useMaxAmount) {
-    // If useMaxAmount is true, it means we're fetching the max. amount, so no validations should run at the moment.
-    // useMaxAmount is set back to false when the max. amount is calculated and populated.
+  if (!userAmount || isFeeLoading) {
     return '';
   }
 
