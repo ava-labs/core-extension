@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
 import { RpcUrlResetConfirmation } from './Confirmations/RpcUrlResetConfirmation';
-import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { NetworkUpdateConfirmation } from './Confirmations/NetworkUpdateConfirmation';
 import { EditNetworkFormView } from './NetworkForm/types';
@@ -10,9 +9,8 @@ import { NetworkDetails } from './NetworkDetails';
 import { NetworkDeleteConfirmation } from './Confirmations/NetworkDeleteConfirmation';
 import { NetworkNotFound } from './NetworkNotFound';
 import { useEditNetwork } from '../hooks/useEditNetwork';
-import { useAnalyticsContext } from '@core/ui';
+import { toast, useAnalyticsContext } from '@core/ui';
 import { Network } from '@core/types';
-
 type NetworkDetailsParams = {
   networkId: string;
 };

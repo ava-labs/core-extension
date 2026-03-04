@@ -1,4 +1,5 @@
-import { ThemeProvider, toast } from '@avalabs/k2-alpine';
+import { ThemeProvider } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import {
   AccountsContextProvider,
   ApprovalsContextProvider,

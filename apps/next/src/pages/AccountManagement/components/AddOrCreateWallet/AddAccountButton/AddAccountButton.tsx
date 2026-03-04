@@ -1,5 +1,6 @@
 import AddIcon from '@/components/AddIcon';
-import { Button, Stack, toast } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import {
   LedgerAppType,
   useAccountsContext,

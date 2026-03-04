@@ -1,7 +1,6 @@
 import { PromptSolana, Troubleshooting } from '@/components/ConnectLedger';
 import { PublicKey } from '@/components/ConnectLedger/LedgerConnector/types';
-import { toast } from '@avalabs/k2-alpine';
-import { useAnalyticsContext } from '@core/ui';
+import { toast, useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ENABLE_SOLANA_LOGGER_KEY_BASE } from '../../config';

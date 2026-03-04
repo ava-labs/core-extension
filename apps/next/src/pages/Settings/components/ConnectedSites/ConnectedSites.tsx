@@ -1,4 +1,4 @@
-import { Stack, toast } from '@avalabs/k2-alpine';
+import { Stack } from '@avalabs/k2-alpine';
 import { FC, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -8,7 +8,7 @@ import { Page } from '@/components/Page';
 import { useConnectedSites } from '@/hooks/useConnectedSites';
 import { useUrlPersistedQuery } from '@/hooks/useUrlPersistedQuery';
 import { Account } from '@core/types';
-import { useAnalyticsContext } from '@core/ui';
+import { toast, useAnalyticsContext } from '@core/ui';
 import { ConnectedSiteItem, EmptyConnectedSites, Styled } from './components';
 import { useDappScansCache } from '@/hooks/useDappScansCache';
 

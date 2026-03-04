@@ -1,4 +1,3 @@
-import { toast } from '@avalabs/k2-alpine';
 import { address as toAddress, Address } from '@solana/kit';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
@@ -14,7 +13,7 @@ import {
   SvmCapableAccount,
 } from '@core/types';
 import { isValidSvmAddress } from '@core/common';
-import { useConnectionContext } from '@core/ui';
+import { toast, useConnectionContext } from '@core/ui';
 
 import { getSolanaProvider } from '@/lib/getSolanaProvider';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';

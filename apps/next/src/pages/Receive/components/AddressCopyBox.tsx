@@ -1,12 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  Stack,
-  toast,
-  Typography,
-  TypographyProps,
-} from '@avalabs/k2-alpine';
-
+import { Button, Stack, Typography, TypographyProps } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { AddressType } from '@core/types';
 
 import { Card } from '@/components/Card';

@@ -1,5 +1,5 @@
-import { Card, LedgerIcon, List, toast } from '@avalabs/k2-alpine';
-import { useAnalyticsContext } from '@core/ui';
+import { Card, LedgerIcon, List } from '@avalabs/k2-alpine';
+import { toast, useAnalyticsContext } from '@core/ui';
 import { FC, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Page } from '@/components/Page';

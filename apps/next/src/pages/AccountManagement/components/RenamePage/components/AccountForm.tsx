@@ -1,6 +1,5 @@
-import { toast } from '@avalabs/k2-alpine';
 import { Account } from '@core/types';
-import { useAccountsContext } from '@core/ui';
+import { toast, useAccountsContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

@@ -1,5 +1,4 @@
 import { isAddress } from 'ethers';
-import { toast } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
@@ -7,7 +6,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { chainIdToCaip } from '@core/common';
 import { Account, Erc20TokenBalance, NetworkWithCaipId } from '@core/types';
-import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
+import { toast, useConnectionContext, useNetworkFeeContext } from '@core/ui';
 
 import { getEvmProvider } from '@/lib/getEvmProvider';
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';
