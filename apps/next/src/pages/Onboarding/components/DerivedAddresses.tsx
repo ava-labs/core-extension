@@ -143,7 +143,8 @@ export const DerivedAddresses = ({
   }));
 
   return (
-    <Section>
+    <Section sx={{ maxHeight: 290, overflowY: 'auto' }}>
+      {/* Max height is set to avoid double scrollbars */}
       {sortedAccounts.map(({ account, index, balance }) => (
         <SectionRow key={account.address} gap="unset" py={0.25}>
           <Stack direction="row" gap={1.5} alignItems="center" minWidth={0}>
