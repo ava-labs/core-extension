@@ -208,7 +208,7 @@ export class NetworksPage extends BasePage {
     await toggle.waitFor({ state: 'visible', timeout: 5000 });
     await this.page.waitForTimeout(500);
     const input = toggle.locator('input');
-    await input.dispatchEvent('click');
+    await input.click();
     await this.page.waitForTimeout(1000);
   }
 

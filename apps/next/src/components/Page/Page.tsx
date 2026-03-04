@@ -21,6 +21,7 @@ type PageProps = {
   withViewSwitcher?: boolean;
   px?: number;
   descriptionProps?: TypographyProps;
+  'data-testid'?: string;
 };
 
 export const Page = ({

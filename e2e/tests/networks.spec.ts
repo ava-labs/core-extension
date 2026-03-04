@@ -284,14 +284,12 @@ test.describe('Networks Tests', () => {
 
       await networksPage.saveButton.click();
 
-      const confirmSaveButton = unlockedExtensionPage
-        .getByRole('button', { name: 'Save' })
-        .last();
-      const hasConfirmDialog = await confirmSaveButton
+      const confirmDialog = unlockedExtensionPage.getByRole('dialog');
+      const hasConfirmDialog = await confirmDialog
         .isVisible({ timeout: 3000 })
         .catch(() => false);
       if (hasConfirmDialog) {
-        await confirmSaveButton.click();
+        await confirmDialog.getByRole('button', { name: 'Save' }).click();
       }
 
       await networksPage.editButton.waitFor({
@@ -337,14 +335,12 @@ test.describe('Networks Tests', () => {
       );
       await networksPage.saveButton.click();
 
-      const confirmRevertButton = unlockedExtensionPage
-        .getByRole('button', { name: 'Save' })
-        .last();
-      const hasRevertDialog = await confirmRevertButton
+      const revertDialog = unlockedExtensionPage.getByRole('dialog');
+      const hasRevertDialog = await revertDialog
         .isVisible({ timeout: 3000 })
         .catch(() => false);
       if (hasRevertDialog) {
-        await confirmRevertButton.click();
+        await revertDialog.getByRole('button', { name: 'Save' }).click();
       }
     },
   );
@@ -536,11 +532,9 @@ test.describe('Networks Tests', () => {
       await expect(networksPage.deleteButton).toBeVisible();
       await networksPage.deleteButton.click();
 
-      const confirmDeleteButton = unlockedExtensionPage.getByRole('button', {
-        name: 'Delete',
-      });
-      await confirmDeleteButton.waitFor({ state: 'visible', timeout: 10000 });
-      await confirmDeleteButton.click();
+      const deleteDialog = unlockedExtensionPage.getByRole('dialog');
+      await deleteDialog.waitFor({ state: 'visible', timeout: 10000 });
+      await deleteDialog.getByRole('button', { name: 'Delete' }).click();
 
       await networksPage.networksList.waitFor({
         state: 'visible',
