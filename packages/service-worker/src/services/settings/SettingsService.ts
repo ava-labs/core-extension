@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   language: Languages.EN,
   coreAssistant: true,
   preferredView: 'floating',
-  showHighlightBanners: false,
+  showHighlightBanners: true,
   isQuickSwapsEnabled: false,
   feeSetting: 'medium',
   maxBuy: 'unlimited',
