@@ -11,7 +11,6 @@ import {
   EvmTxUpdateFn,
   RequestPublicKeyParams,
   RpcMethod,
-  RpcRequest,
   SigningData,
   SigningData_EthSendTx,
   SigningRequest,
@@ -36,6 +35,7 @@ import { SecretsService } from '../services/secrets/SecretsService';
 import {
   ApprovalParamsWithContext,
   MultiApprovalParamsWithContext,
+  RpcRequestWithExtensionContext,
   ValidatorRegistry,
 } from './models';
 import { batchSwapValidator, swapValidator } from './validators';
@@ -89,7 +89,7 @@ export class ApprovalController implements BatchApprovalController {
     request,
   }: {
     txHash: string;
-    request: RpcRequest;
+    request: RpcRequestWithExtensionContext;
   }) => {
     this.#transactionStatusEvents.emitPending(txHash, request);
   };
@@ -101,7 +101,7 @@ export class ApprovalController implements BatchApprovalController {
   }: {
     txHash: string;
     explorerLink: string;
-    request: RpcRequest;
+    request: RpcRequestWithExtensionContext;
   }) => {
     this.#transactionStatusEvents.emitConfirmed(txHash, request, explorerLink);
   };
@@ -111,7 +111,7 @@ export class ApprovalController implements BatchApprovalController {
     request,
   }: {
     txHash: string;
-    request: RpcRequest;
+    request: RpcRequestWithExtensionContext;
   }) => {
     this.#transactionStatusEvents.emitReverted(txHash, request);
   };

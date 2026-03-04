@@ -54,32 +54,40 @@ export const SwapAggregatorSelect: FC<{
     [targetToken, currencyFormatter],
   );
 
+  const hasMultipleQuotes = quotes.length > 1;
+
   const selectedName = userQuote
     ? userQuote.aggregator.name
-    : t('Auto • {{name}}', { name: bestQuote.aggregator.name });
+    : hasMultipleQuotes
+      ? t('Auto • {{name}}', { name: bestQuote.aggregator.name })
+      : bestQuote.aggregator.name;
 
   return (
     <>
       <Styled.SettingRow title={t('Provider')}>
         <Stack role="button" direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="body3">{selectedName}</Typography>
-          <IconButton
-            size="small"
-            disabled={!isChoiceAvailable}
-            sx={{ p: 0 }}
-            onClick={() => setIsProviderMenuOpen((prev) => !prev)}
-          >
-            <ChevronDownIcon
-              size={24}
-              color={theme.palette.text.secondary}
-              sx={{
-                transition: theme.transitions.create('transform'),
-                transform: isProviderMenuOpen
-                  ? 'rotateX(180deg)'
-                  : 'rotateX(0deg)',
-              }}
-            />
-          </IconButton>
+          <Typography variant="body3" color="text.secondary">
+            {selectedName}
+          </Typography>
+          {hasMultipleQuotes && (
+            <IconButton
+              size="small"
+              disabled={!isChoiceAvailable}
+              sx={{ p: 0 }}
+              onClick={() => setIsProviderMenuOpen((prev) => !prev)}
+            >
+              <ChevronDownIcon
+                size={24}
+                color={theme.palette.text.secondary}
+                sx={{
+                  transition: theme.transitions.create('transform'),
+                  transform: isProviderMenuOpen
+                    ? 'rotateX(180deg)'
+                    : 'rotateX(0deg)',
+                }}
+              />
+            </IconButton>
+          )}
         </Stack>
       </Styled.SettingRow>
       {isChoiceAvailable && (
