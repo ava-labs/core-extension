@@ -71,8 +71,8 @@ export const SettingsHomePage = () => {
   const { featureFlags, isFlagEnabled } = useFeatureFlagContext();
 
   const {
-    showTrendingTokens,
-    setShowTrendingTokens,
+    showHighlightBanners,
+    setShowHighlightBanners,
     coreAssistant,
     setCoreAssistant,
     analyticsConsent,
@@ -237,9 +237,9 @@ export const SettingsHomePage = () => {
           />
         )}
         <SettingsNavItem
-          label={t('Show me Trending Tokens')}
+          label={t('Show highlights')}
           description={t(
-            'Display the shortcut to tokens that are trending in the last 24 hours',
+            'See trending tokens and feature highlights on your home screen',
           )}
           sx={{
             pb: 0,
@@ -247,12 +247,12 @@ export const SettingsHomePage = () => {
           secondaryAction={
             <Switch
               size="small"
-              checked={showTrendingTokens}
+              checked={showHighlightBanners}
               onChange={() => {
-                const newValue = !showTrendingTokens;
-                setShowTrendingTokens(newValue);
-                capture('ShowTrendingTokensSettingChanged', {
-                  showTrendingTokens: newValue,
+                const newValue = !showHighlightBanners;
+                setShowHighlightBanners(newValue);
+                capture('ShowHighlightBannersSettingChanged', {
+                  showHighlightBanners: newValue,
                 });
               }}
             />
@@ -335,7 +335,7 @@ export const SettingsHomePage = () => {
                 const newValue =
                   analyticsConsent === AnalyticsConsent.Approved ? false : true;
                 capture('AnalyticsConsentSettingChanged', {
-                  showTrendingTokens: newValue,
+                  analyticsConsent: newValue,
                 });
                 setAnalyticsConsent(newValue);
               }}

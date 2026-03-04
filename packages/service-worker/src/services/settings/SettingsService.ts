@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS_STATE: SettingsState = {
   language: Languages.EN,
   coreAssistant: true,
   preferredView: 'floating',
-  showTrendingTokens: false,
+  showHighlightBanners: false,
   isQuickSwapsEnabled: false,
   feeSetting: 'medium',
   maxBuy: 'unlimited',
@@ -307,11 +307,11 @@ export class SettingsService implements OnStorageReady, OnLock {
     });
   }
 
-  async setShowTrendingTokens(show: boolean) {
+  async setShowHighlightBanners(show: boolean) {
     const settings = await this.getSettings();
     await this.saveSettings({
       ...settings,
-      showTrendingTokens: show,
+      showHighlightBanners: show,
     });
   }
 

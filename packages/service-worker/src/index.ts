@@ -113,7 +113,7 @@ export type { SetCoreAssistantHandler } from './services/settings/handlers/setCo
 export type { SetLanguageHandler } from './services/settings/handlers/setLanguage';
 export type { SetPreferredViewHandler } from './services/settings/handlers/setPreferredView';
 export type { SetPrivacyModeHandler } from './services/settings/handlers/setPrivacyMode';
-export type { SetShowTrendingTokensHandler } from './services/settings/handlers/setShowTrendingTokens';
+export type { SetShowHighlightBannersHandler } from './services/settings/handlers/setShowHighlightBanners';
 export type { SetQuickSwapsEnabledHandler } from './services/settings/handlers/setQuickSwapsEnabled';
 export type { SetFeeSettingHandler } from './services/settings/handlers/setFeeSetting';
 export type { SetMaxBuyHandler } from './services/settings/handlers/setMaxBuy';
