@@ -25,15 +25,16 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     getMasterFingerprint,
     hasKeystoneTransport,
     initKeystoneTransport,
-    popDeviceSelection,
     wasTransportAttempted,
     getExtendedPublicKey,
+    retryConnection,
   } = useKeystoneUsbContext();
 
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<UsbDerivationStatus>('waiting');
+  const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
+    useState(false);
   const checkAddressActivity = useCheckAddressActivity();
-  const deviceSelectionAttempted = useRef(false);
   const isRetrying = useRef(false);
 
   const retrieveXpKeys = useCallback(
@@ -142,6 +143,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   const retrieveKeys = useCallback(
     async (minNumberOfKeys: number) => {
       if (minNumberOfKeys < 1) {
+        setError('unable-to-connect');
         throw new Error('Min number of keys must be greater than 0');
       }
 
@@ -195,6 +197,11 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     ],
   );
 
+  // Attempt a fresh connection on load
+  useEffect(() => {
+    retryConnection();
+  }, [retryConnection]);
+
   useEffect(() => {
     // Skip when onRetry is handling the flow to avoid racing with the effect.
     if (isRetrying.current) {
@@ -203,7 +210,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
 
     // If the user previously rejected the request to connect,
     // do not attempt to connect again unless they retry manually.
-    if (error === 'user-rejected') {
+    if (error === 'user-rejected' || status === 'needs-user-gesture') {
       return;
     }
 
@@ -211,35 +218,19 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     if (hasKeystoneTransport) {
       setStatus('ready');
       setError(undefined);
-    } else if (
-      !hasKeystoneTransport &&
-      !wasTransportAttempted &&
-      !deviceSelectionAttempted.current
-    ) {
-      deviceSelectionAttempted.current = true;
-      popDeviceSelection()
-        .then(initKeystoneTransport)
-        .catch(() => {
-          setStatus('error');
-          setError('unable-to-connect');
-        });
-    } else if (!hasKeystoneTransport && wasTransportAttempted) {
-      // Wait 5 seconds for the connection to establish, then show an error.
-      const timer = setTimeout(() => {
-        setStatus('error');
-        setError('unable-to-connect');
-      }, 5_000);
-
-      return () => clearTimeout(timer);
+    } else if (!hasKeystoneTransport && !wasTransportAttempted) {
+      initKeystoneTransport();
+    } else if (!hasKeystoneTransport && !wasManualConnectionAttempted) {
+      setWasManualConnectionAttempted(true);
+      setStatus('needs-user-gesture');
     }
   }, [
     error,
     status,
-    retrieveKeys,
     wasTransportAttempted,
     hasKeystoneTransport,
     initKeystoneTransport,
-    popDeviceSelection,
+    wasManualConnectionAttempted,
   ]);
 
   const onRetry = useCallback(async () => {
@@ -248,15 +239,16 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     setStatus('waiting');
 
     try {
-      await popDeviceSelection();
-      await initKeystoneTransport();
+      setError(undefined);
+      setStatus('waiting');
+      await retryConnection();
     } catch {
       setStatus('error');
       setError('unable-to-connect');
     } finally {
       isRetrying.current = false;
     }
-  }, [popDeviceSelection, initKeystoneTransport]);
+  }, [retryConnection]);
 
   return {
     status,
