@@ -16,6 +16,7 @@ import {
 } from './types';
 import { LedgerAppType } from '@core/ui';
 import { DerivationStatus } from '@core/types';
+import { Monitoring } from '@core/common';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
@@ -97,6 +98,10 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         callbacks?.onConnectionSuccess();
       })
       .catch((err) => {
+        Monitoring.sentryCaptureException(
+          err,
+          Monitoring.SentryExceptionTypes.LEDGER,
+        );
         console.error('Failed to derive keys', err);
         callbacks?.onConnectionFailed(err);
       })
