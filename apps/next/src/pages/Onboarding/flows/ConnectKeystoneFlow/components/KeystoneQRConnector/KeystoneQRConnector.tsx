@@ -6,12 +6,21 @@ import {
   useTheme,
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { CryptoMultiAccounts } from '@keystonehq/bc-ur-registry-eth';
+import {
+  CryptoHDKey,
+  CryptoMultiAccounts,
+} from '@keystonehq/bc-ur-registry-eth';
 import { FC, useState, useEffect, useCallback, useRef } from 'react';
 import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
 
 import { useCameraPermissions } from '@core/ui';
-import { EVM_BASE_DERIVATION_PATH } from '@core/types';
+import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
+import {
+  getAvalancheExtendedKeyPath,
+  getXPAccountIndexFromPath,
+  isEvmDerivationPath,
+  isAvalancheDerivationPath,
+} from '@core/common';
 
 import { VideoFeedCrosshair } from '@/components/keystone';
 
@@ -26,6 +35,21 @@ import { buildAddressPublicKey, buildExtendedPublicKey } from '../../util';
 import { QRCodeScanner } from './QRCodeScanner';
 import { KeystoneQRError } from './KeystoneQRError';
 import { QRCodeScannerContainer } from './QRCodeScannerContainer';
+
+// CryptoHDKey (BIP32 HD keys) does not expose curve information directly.
+// Per BIP32/BIP44 specification, HD keys for coin types 60 (ETH) and 9000 (AVAX)
+// always use secp256k1, so curve validation is implicit in the path check.
+const isEvmXpub = (key: CryptoHDKey): boolean => {
+  const path = key.getOrigin()?.getPath();
+  return !!path && isEvmDerivationPath(path);
+};
+
+// Returns the Avalanche derivation path if valid, undefined otherwise.
+// Used to extract account index from the path.
+const getAvalanchePath = (key: CryptoHDKey): string | undefined => {
+  const path = key.getOrigin()?.getPath();
+  return path && isAvalancheDerivationPath(path) ? path : undefined;
+};
 
 type KeystoneQRConnectorProps = {
   onQRCodeScanned: (info: DerivedKeys) => void;
@@ -68,6 +92,22 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
     [minNumberOfKeys],
   );
 
+  // For X/P chains, derive ONE address per xpub (one xpub = one account)
+  const getAvmAddressPublicKey = useCallback(
+    async (extendedPublicKeyHex: string, accountIndex: number) => {
+      const avmKey = await getAddressPublicKeyFromXPub(
+        extendedPublicKeyHex,
+        0, // Always derive address index 0 (the receive address)
+      );
+      return {
+        index: accountIndex,
+        vm: 'AVM' as const,
+        key: buildAddressPublicKey(avmKey, accountIndex, 'AVM'),
+      };
+    },
+    [],
+  );
+
   const handleUnreadableQRCode = useCallback(
     (isDimensionsError: boolean) => {
       setStatus('error');
@@ -84,24 +124,54 @@ export const KeystoneQRConnector: FC<KeystoneQRConnectorProps> = ({
       const cryptoMultiAccounts = CryptoMultiAccounts.fromCBOR(buffer);
 
       const masterFingerprint = cryptoMultiAccounts.getMasterFingerprint();
-      const [key] = cryptoMultiAccounts.getKeys();
+      const allKeys = cryptoMultiAccounts.getKeys();
 
-      if (key) {
+      const extendedPublicKeys: ExtendedPublicKey[] = [];
+      let evmAddressPublicKeys: PublicKey[] = [];
+      const avmAddressPublicKeys: PublicKey[] = [];
+
+      for (const key of allKeys) {
+        const xpub = key.getBip32Key();
+        const avalanchePath = getAvalanchePath(key);
+
+        if (isEvmXpub(key)) {
+          extendedPublicKeys.push(
+            buildExtendedPublicKey(xpub, EVM_BASE_DERIVATION_PATH),
+          );
+          evmAddressPublicKeys = await getAddressPublicKeys(xpub);
+        } else if (avalanchePath) {
+          const accountIndex = getXPAccountIndexFromPath(avalanchePath);
+          extendedPublicKeys.push(
+            buildExtendedPublicKey(
+              xpub,
+              getAvalancheExtendedKeyPath(accountIndex),
+            ),
+          );
+          const avmAddressPublicKey = await getAvmAddressPublicKey(
+            xpub,
+            accountIndex,
+          );
+          avmAddressPublicKeys.push(avmAddressPublicKey);
+        }
+      }
+
+      if (extendedPublicKeys.length > 0) {
         onQRCodeScanned({
-          extendedPublicKeys: [
-            buildExtendedPublicKey(key.getBip32Key(), EVM_BASE_DERIVATION_PATH),
-          ],
-          addressPublicKeys: await getAddressPublicKeys(key.getBip32Key()),
+          extendedPublicKeys,
+          addressPublicKeys: [...evmAddressPublicKeys, ...avmAddressPublicKeys],
           masterFingerprint: masterFingerprint.toString('hex'),
         });
       } else {
-        console.error(
-          '[Keystone] Invalid QR code: missing extended public key',
-        );
+        console.error('[Keystone] Invalid QR code: no valid keys found');
         handleUnreadableQRCode(false);
       }
     },
-    [onQRCodeScanned, getAddressPublicKeys, handleUnreadableQRCode],
+    [
+      onQRCodeScanned,
+      getAddressPublicKeys,
+      getAvmAddressPublicKey,
+      handleUnreadableQRCode,
+    ],
   );
 
   const handleError = useCallback(
