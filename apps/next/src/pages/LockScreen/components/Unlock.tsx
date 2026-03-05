@@ -1,4 +1,4 @@
-import { Box, Button, Stack } from '@avalabs/k2-alpine';
+import { Box, Button, Stack, Typography } from '@avalabs/k2-alpine';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -72,6 +72,9 @@ export const Unlock: React.FC<Props> = ({
           {t('Forgot password?')}
         </Button>
       </Box>
+      <Typography sx={{ color: 'info.main', textAlign: 'center' }}>
+        Hello world
+      </Typography>
     </Stack>
   );
 };
