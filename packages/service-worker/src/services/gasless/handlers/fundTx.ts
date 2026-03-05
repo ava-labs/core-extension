@@ -5,7 +5,7 @@ import { TransactionRequest } from 'ethers';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FUND_TX,
-  string | undefined,
+  string,
   [
     data: TransactionRequest,
     challengeHex: string,

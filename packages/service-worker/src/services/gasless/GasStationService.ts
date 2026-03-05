@@ -14,11 +14,18 @@ import { JsonRpcProvider, Transaction } from 'ethers';
 import { NetworkService } from '../network/NetworkService';
 import { getProviderForNetwork } from '@core/common';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
+
+interface FundTxData {
+  chainId: number | string;
+  maxFeePerGas?: bigint;
+  [key: string]: unknown;
+}
+
 @singleton()
 export class GasStationService {
   #eventEmitter = new EventEmitter();
   #gasStationUrl = process.env.GASLESS_SERVICE_URL;
-  #fundDataPipeline: { fromAddress: string; data: any }[] = [];
+  #fundDataPipeline: { fromAddress: string; data: FundTxData }[] = [];
   gaslessState = new Signal<GaslessState>();
   #defaultGaslessState: GaslessState = {
     isFundInProgress: false,
@@ -32,6 +39,8 @@ export class GasStationService {
   txHex = '';
   #attempt = 0;
   #sdk: GaslessSdk;
+  #retryResolver: ((value: string) => void) | null = null;
+  #retryRejecter: ((error: Error) => void) | null = null;
 
   constructor(
     private appCheckService: AppCheckService,
@@ -49,7 +58,10 @@ export class GasStationService {
     return tokenResult?.token;
   }
 
-  async sendMessage(message, request: ExtensionRequest) {
+  async sendMessage(
+    message: Record<string, unknown>,
+    request: ExtensionRequest,
+  ) {
     const token = await this.#getAppcheckToken();
     this.#eventEmitter.emit(GaslessEvents.SEND_OFFSCREEN_MESSAGE, {
       message,
@@ -111,19 +123,24 @@ export class GasStationService {
       solutionHex,
     });
     if (pipelineIndex === 0 || pipelineIndex) {
-      const pipelineData = this.#fundDataPipeline[pipelineIndex];
-      if (!pipelineData) {
-        throw new Error('No data for funding.');
-      }
       try {
-        await this.fundTx({
+        const pipelineData = this.#fundDataPipeline[pipelineIndex];
+        if (!pipelineData) {
+          throw new Error('No data for funding.');
+        }
+        const result = await this.fundTx({
           challengeHex,
           solutionHex,
           data: pipelineData.data,
           fromAddress: pipelineData?.fromAddress,
         });
-      } catch (_) {
+        this.#retryResolver?.(result);
+      } catch (e) {
+        this.#retryRejecter?.(e as Error);
         this.setDefaultStateValues({ fundTxDoNotRetryError: true });
+      } finally {
+        this.#retryResolver = null;
+        this.#retryRejecter = null;
       }
     }
   }
@@ -140,7 +157,12 @@ export class GasStationService {
     challengeHex,
     solutionHex,
     fromAddress,
-  }): Promise<string | undefined> {
+  }: {
+    data: FundTxData;
+    challengeHex: string;
+    solutionHex: string;
+    fromAddress: string;
+  }): Promise<string> {
     await this.setDefaultStateValues({
       isFundInProgress: true,
       challengeHex,
@@ -184,21 +206,31 @@ export class GasStationService {
         result.error.category === 'RETRY_WITH_NEW_CHALLENGE' &&
         this.#attempt < 2
       ) {
+        if (this.#retryResolver) {
+          throw new Error('A gasless retry is already in progress');
+        }
+
         const nextPipelineIndex = this.#fundDataPipeline.length;
 
         this.#fundDataPipeline.push({ data, fromAddress });
 
+        const retryPromise = new Promise<string>((resolve, reject) => {
+          this.#retryResolver = resolve;
+          this.#retryRejecter = reject;
+        });
+
         await this.fetchAndSolveChallange(nextPipelineIndex);
-        return undefined;
+        return retryPromise;
       }
       this.setDefaultStateValues({ fundTxDoNotRetryError: true });
       this.#attempt = 0;
       this.#fundDataPipeline = [];
 
-      if (result.error.message === 'UNAUTHORIZED') {
-        throw new Error('Gasless funding unauthorized');
-      }
-      return undefined;
+      throw new Error(
+        result.error.message === 'UNAUTHORIZED'
+          ? 'Gasless funding unauthorized'
+          : `Gasless funding failed: ${result.error.message ?? result.error.category}`,
+      );
     }
     if (!result.txHash) {
       throw new Error('No tx hash');
@@ -207,7 +239,11 @@ export class GasStationService {
     const waitForTransactionResult = await (
       provider as JsonRpcProvider
     ).waitForTransaction(result.txHash);
-    const fundedTxHash = waitForTransactionResult?.hash;
+
+    if (!waitForTransactionResult?.hash) {
+      throw new Error('Gasless funding transaction not confirmed');
+    }
+    const fundedTxHash = waitForTransactionResult.hash;
 
     this.setDefaultStateValues({
       solutionHex,
