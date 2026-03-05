@@ -3118,7 +3118,7 @@ __metadata:
     bip32: "npm:2.0.6"
     bip39: "npm:3.0.4"
     bitcoinjs-lib: "npm:5.2.0"
-    bn.js: "npm:5.2.1"
+    bn.js: "npm:5.2.3"
     buffer: "npm:6.0.3"
     conventional-changelog-cli: "npm:2.2.2"
     css-loader: "npm:5.2.4"
@@ -3288,7 +3288,7 @@ __metadata:
     bip32: "npm:2.0.6"
     bip39: "npm:3.0.4"
     bitcoinjs-lib: "npm:5.2.0"
-    bn.js: "npm:5.2.1"
+    bn.js: "npm:5.2.3"
     css-loader: "npm:5.2.4"
     date-fns: "npm:2.28.0"
     detect-browser: "npm:5.3.0"
@@ -12391,6 +12391,13 @@ __metadata:
   version: 5.2.1
   resolution: "bn.js@npm:5.2.1"
   checksum: 10c0/bed3d8bd34ec89dbcf9f20f88bd7d4a49c160fda3b561c7bb227501f974d3e435a48fb9b61bc3de304acab9215a3bda0803f7017ffb4d0016a0c3a740a283caa
+  languageName: node
+  linkType: hard
+
+"bn.js@npm:5.2.3":
+  version: 5.2.3
+  resolution: "bn.js@npm:5.2.3"
+  checksum: 10c0/eef19cb9cf5e91e91e3e0f036b799ce6c72f79463c3934d62991c3dcdb58f6c94dc3d806495d9b0bf31cd121870ed79bb2115cea71b56c03e794fb71485031fa
   languageName: node
   linkType: hard
 
