@@ -9,10 +9,11 @@ describe('src/background/services/gasless/handlers/fundTx', () => {
   const appCheckMock = jest.mocked<AppCheckService>({
     getAppcheckToken: jest.fn().mockResolvedValue({ token: 'appCheckToken' }),
   } as any);
+  const txData = { chainId: 43114, to: '0xabc' };
   const request = {
     method: ExtensionRequest.GASLESS_FUND_TX,
     id: '1234',
-    params: ['data', 'challengeHex', 'solutionHex', 'fromAddress'],
+    params: [txData, 'challengeHex', 'solutionHex', 'fromAddress'],
   };
   const realEnv = process.env;
   let gasStationServiceMock;
@@ -32,7 +33,7 @@ describe('src/background/services/gasless/handlers/fundTx', () => {
   it('should call the service `fundTx` function with the right params', () => {
     handler.handle(buildRpcCall(request) as any);
     expect(gasStationServiceMock.fundTx).toHaveBeenCalledWith({
-      data: 'data',
+      data: txData,
       challengeHex: 'challengeHex',
       solutionHex: 'solutionHex',
       fromAddress: 'fromAddress',
