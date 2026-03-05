@@ -171,7 +171,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       );
       jest.spyOn(service.gaslessState, 'dispatch');
       service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -196,7 +196,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       expect(
         async () =>
           await service.fundTx({
-            data: {},
+            data: { chainId: 1 },
             challengeHex: 'challengeHex',
             solutionHex: 'solutionHex',
             fromAddress: 'fromAddress',
@@ -217,7 +217,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       expect(
         async () =>
           await service.fundTx({
-            data: {},
+            data: { chainId: 1 },
             challengeHex: 'challengeHex',
             solutionHex: 'solutionHex',
             fromAddress: 'fromAddress',
@@ -252,7 +252,7 @@ describe('src/background/services/gasless/GasStationService', () => {
 
       await expect(
         service.fundTx({
-          data: {},
+          data: { chainId: 1 },
           challengeHex: 'challengeHex',
           solutionHex: 'solutionHex',
           fromAddress: 'fromAddress',
@@ -287,7 +287,7 @@ describe('src/background/services/gasless/GasStationService', () => {
 
       await expect(
         service.fundTx({
-          data: {},
+          data: { chainId: 1 },
           challengeHex: 'challengeHex',
           solutionHex: 'solutionHex',
           fromAddress: 'fromAddress',
@@ -327,7 +327,7 @@ describe('src/background/services/gasless/GasStationService', () => {
 
       await expect(
         service.fundTx({
-          data: {},
+          data: { chainId: 1 },
           challengeHex: 'challengeHex',
           solutionHex: 'solutionHex',
           fromAddress: 'fromAddress',
@@ -372,7 +372,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       service.setDefaultStateValues = jest.fn();
 
       const fundPromise = service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -419,7 +419,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       expect(
         async () =>
           await service.fundTx({
-            data: {},
+            data: { chainId: 1 },
             challengeHex: 'challengeHex',
             solutionHex: 'solutionHex',
             fromAddress: 'fromAddress',
@@ -454,7 +454,7 @@ describe('src/background/services/gasless/GasStationService', () => {
 
       await expect(
         service.fundTx({
-          data: {},
+          data: { chainId: 1 },
           challengeHex: 'challengeHex',
           solutionHex: 'solutionHex',
           fromAddress: 'fromAddress',
@@ -491,7 +491,7 @@ describe('src/background/services/gasless/GasStationService', () => {
 
       // First call triggers retry
       void service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -503,7 +503,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       // Second call (attempt >= 2) should throw instead of retrying
       await expect(
         service.fundTx({
-          data: {},
+          data: { chainId: 1 },
           challengeHex: 'challengeHex2',
           solutionHex: 'solutionHex2',
           fromAddress: 'fromAddress',
@@ -542,7 +542,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       } as any);
 
       const result = await service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -579,7 +579,7 @@ describe('src/background/services/gasless/GasStationService', () => {
 
       await expect(
         service.fundTx({
-          data: {},
+          data: { chainId: 1 },
           challengeHex: 'challengeHex',
           solutionHex: 'solutionHex',
           fromAddress: 'fromAddress',
@@ -622,7 +622,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       } as any);
       service.setDefaultStateValues = jest.fn();
       await service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -670,7 +670,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       } as any);
 
       const result = await service.fundTx({
-        data: { maxFeePerGas: 5000000n },
+        data: { chainId: 1, maxFeePerGas: 5000000n },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -712,7 +712,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       service.sendMessage = jest.fn();
 
       const fundPromise = service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',
@@ -762,7 +762,7 @@ describe('src/background/services/gasless/GasStationService', () => {
       service.sendMessage = jest.fn();
 
       const fundPromise = service.fundTx({
-        data: {},
+        data: { chainId: 1 },
         challengeHex: 'challengeHex',
         solutionHex: 'solutionHex',
         fromAddress: 'fromAddress',

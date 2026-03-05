@@ -15,10 +15,9 @@ import { NetworkService } from '../network/NetworkService';
 import { getProviderForNetwork } from '@core/common';
 import { NetworkFeeService } from '../networkFee/NetworkFeeService';
 
-interface FundTxData {
-  chainId: number | string;
+interface FundTxData extends Record<string, unknown> {
+  chainId: number | string | bigint;
   maxFeePerGas?: bigint;
-  [key: string]: unknown;
 }
 
 @singleton()
@@ -178,7 +177,7 @@ export class GasStationService {
       'X-Firebase-AppCheck': token,
     });
 
-    const network = await this.networkService.getNetwork(data.chainId);
+    const network = await this.networkService.getNetwork(Number(data.chainId));
     if (!network) {
       throw new Error('No network');
     }
