@@ -30,7 +30,7 @@
     "@ethereumjs/common": "2.6.5",
     "@ethereumjs/tx": "3.4.0",
     "@google/generative-ai": "0.22.0",
-    "@hpke/core": "1.2.5",
+    "@hpke/core": "1.7.5",
     "@keystonehq/alias-sampling": "0.1.2",
     "@keystonehq/animated-qr": "0.5.2",
     "@keystonehq/bc-ur-registry-eth": "0.15.2",
