@@ -1,9 +1,6 @@
 import { FC } from 'react';
-import {
-  AppNotification,
-  BalanceChangeEventSchema,
-  isBalanceChangeNotification,
-} from '@core/types';
+import { AppNotification, isBalanceChangeNotification } from '@core/types';
+import { hasAtLeastOneElement } from '@core/common';
 import { NotificationListItem } from './NotificationListItem';
 import { NotificationIcon } from './NotificationIcon';
 
@@ -16,16 +13,14 @@ type BalanceChangeItemProps = {
 
 const getTitle = (notification: AppNotification): string => {
   if (!isBalanceChangeNotification(notification)) return notification.title;
-  const { transfers, event } = notification.data ?? {};
-  if (!transfers || transfers.length === 0) return notification.title;
+  const { transfers = [], event } = notification.data ?? {};
+  if (!hasAtLeastOneElement(transfers)) return notification.title;
 
-  const isSent =
-    event === BalanceChangeEventSchema.enum.BALANCES_SPENT ||
-    event === BalanceChangeEventSchema.enum.BALANCES_TRANSFERRED;
+  const isSent = event === 'BALANCES_SPENT' || event === 'BALANCES_TRANSFERRED';
 
   if (transfers.length === 1) {
-    const { amount, tokenSymbol } = transfers[0]!;
-    if (event === BalanceChangeEventSchema.enum.ALLOWANCE_APPROVED) {
+    const [{ amount, tokenSymbol }] = transfers;
+    if (event === 'ALLOWANCE_APPROVED') {
       if (amount === '0') {
         return `${tokenSymbol} revoked`;
       }
@@ -44,13 +39,13 @@ const getTitle = (notification: AppNotification): string => {
 
 const getSubtitle = (notification: AppNotification): string => {
   if (!isBalanceChangeNotification(notification)) return notification.body;
-  const { transfers, event } = notification.data ?? {};
-  if (!transfers || transfers.length === 0) return notification.body;
+  const { transfers = [], event } = notification.data ?? {};
+  if (!hasAtLeastOneElement(transfers)) return notification.body;
 
-  const firstTransfer = transfers[0]!;
+  const [firstTransfer] = transfers;
   const { partnerAddress, amount, tokenSymbol } = firstTransfer;
 
-  if (event === BalanceChangeEventSchema.enum.ALLOWANCE_APPROVED) {
+  if (event === 'ALLOWANCE_APPROVED') {
     if (amount === '0') {
       return `${tokenSymbol} allowance revoked`;
     }
@@ -59,9 +54,7 @@ const getSubtitle = (notification: AppNotification): string => {
 
   if (!partnerAddress) return notification.body;
 
-  const isSent =
-    event === BalanceChangeEventSchema.enum.BALANCES_SPENT ||
-    event === BalanceChangeEventSchema.enum.BALANCES_TRANSFERRED;
+  const isSent = event === 'BALANCES_SPENT' || event === 'BALANCES_TRANSFERRED';
   const prefix = isSent ? 'to' : 'from';
   return `${prefix} ${partnerAddress}`;
 };

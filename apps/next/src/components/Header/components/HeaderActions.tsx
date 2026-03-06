@@ -1,7 +1,7 @@
 import { MdNotificationsNone } from 'react-icons/md';
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
-import { useUnreadCount } from '@/pages/Notifications/hooks/useNotificationCenter';
+import { useUnreadNotificationsCount } from '@/hooks/useUnreadNotificationsCount';
 import { Box, IconButton, Stack, Tooltip, useTheme } from '@avalabs/k2-alpine';
 import { Account, FeatureGates, isTransferInProgress } from '@core/types';
 import { FC, useMemo } from 'react';
@@ -48,7 +48,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
     isFlagEnabled(FeatureGates.FUSION_FEATURE) &&
     (hasPendingTransfers || hasConcludedTransfers);
 
-  const unreadCount = useUnreadCount();
+  const unreadCount = useUnreadNotificationsCount();
 
   return (
     <Stack direction="row" alignItems="center">
