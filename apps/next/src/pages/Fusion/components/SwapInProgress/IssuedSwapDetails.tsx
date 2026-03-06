@@ -2,7 +2,7 @@ import { FC, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
-import { FailedTransfer, Transfer } from '@avalabs/unified-asset-transfer';
+import { FailedTransfer, Transfer } from '@avalabs/fusion-sdk';
 
 import { isCompletedTransfer, isFailedTransfer } from '@core/types';
 

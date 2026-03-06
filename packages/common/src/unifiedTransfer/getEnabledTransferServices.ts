@@ -1,4 +1,4 @@
-import { ServiceType } from '@avalabs/unified-asset-transfer';
+import { ServiceType } from '@avalabs/fusion-sdk';
 import { type FeatureFlags, FeatureGates } from '@core/types';
 import { memoize } from 'lodash';
 

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 
 import { UseQuoterProps, useQuoter } from './useQuoter';
 import { QuoteStreamingStatus } from '../../types';

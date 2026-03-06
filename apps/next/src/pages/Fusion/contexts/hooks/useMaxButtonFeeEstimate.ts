@@ -1,4 +1,4 @@
-import { Asset, Chain, TransferManager } from '@avalabs/unified-asset-transfer';
+import { Asset, Chain, TransferManager } from '@avalabs/fusion-sdk';
 
 import { FungibleTokenBalance } from '@core/types';
 

@@ -4,7 +4,7 @@ import { useNetworkContext } from '@core/ui';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 
 import { useAllTokens } from '@/hooks/useAllTokens';
-import { GetSupportedChainsResult } from '@avalabs/unified-asset-transfer';
+import { GetSupportedChainsResult } from '@avalabs/fusion-sdk';
 import { isNotNullish } from '@core/common';
 import { getConstrainedTargetTokenId } from '../../lib/getConstrainedTargetTokenId';
 

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 
 import { isFailedTransfer } from '@core/types';
 

@@ -1,5 +1,5 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { TransferManager, Quote } from '@avalabs/unified-asset-transfer';
+import { TransferManager, Quote } from '@avalabs/fusion-sdk';
 
 import { EstimatedFeeResult } from '../../types';
 

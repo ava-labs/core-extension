@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { StackProps } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 
 import { isCompletedTransfer, isFailedTransfer } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';

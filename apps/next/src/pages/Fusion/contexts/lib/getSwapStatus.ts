@@ -1,4 +1,4 @@
-import { Quote, TransferManager } from '@avalabs/unified-asset-transfer';
+import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 
 import { Account, FungibleTokenBalance } from '@core/types';
 

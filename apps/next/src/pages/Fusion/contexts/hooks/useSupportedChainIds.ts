@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  GetSupportedChainsResult,
-  TransferManager,
-} from '@avalabs/unified-asset-transfer';
+import { GetSupportedChainsResult, TransferManager } from '@avalabs/fusion-sdk';
 
 const EMPTY_MAP = new Map();
 

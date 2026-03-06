@@ -1,5 +1,5 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { TransferManager } from '@avalabs/unified-asset-transfer';
+import { TransferManager } from '@avalabs/fusion-sdk';
 
 import { isNotNullish } from '@core/common';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';

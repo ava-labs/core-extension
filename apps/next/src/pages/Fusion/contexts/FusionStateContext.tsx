@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { toast } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
-import { Quote, TransferManager } from '@avalabs/unified-asset-transfer';
+import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 

@@ -1,7 +1,4 @@
-import {
-  BtcSigner,
-  EvmSignerWithMessage,
-} from '@avalabs/unified-asset-transfer';
+import { BtcSigner, EvmSignerWithMessage } from '@avalabs/fusion-sdk';
 
 import {
   Erc20TokenBalance,
