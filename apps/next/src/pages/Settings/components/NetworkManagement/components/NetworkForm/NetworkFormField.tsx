@@ -18,7 +18,6 @@ type FlavouredFieldProps = Pick<
   error?: string;
   required?: boolean;
   readOnly?: boolean;
-  'data-testid'?: string;
 };
 
 export const RpcUrlField: FC<
@@ -34,7 +33,7 @@ export const RpcUrlField: FC<
   canResetRpcUrl,
   resetAction,
   readOnly,
-  'data-testid': dataTestId,
+  ...rest
 }) => {
   const theme = useTheme();
   const { t } = useTranslation();
@@ -43,7 +42,7 @@ export const RpcUrlField: FC<
   return (
     <>
       <FormField
-        data-testid={dataTestId}
+        {...rest}
         value={value}
         label={t('Network RPC URL')}
         placeholder={t('Enter RPC URL')}
@@ -76,13 +75,13 @@ export const ChainIdField: FC<FlavouredFieldProps> = ({
   error,
   required,
   readOnly,
-  'data-testid': dataTestId,
+  ...rest
 }) => {
   const { t } = useTranslation();
 
   return (
     <FormField
-      data-testid={dataTestId}
+      {...rest}
       type="number"
       value={value}
       label={t('Chain ID')}
@@ -102,13 +101,13 @@ export const TokenSymbolField: FC<FlavouredFieldProps> = ({
   error,
   required,
   readOnly,
-  'data-testid': dataTestId,
+  ...rest
 }) => {
   const { t } = useTranslation();
 
   return (
     <FormField
-      data-testid={dataTestId}
+      {...rest}
       value={value}
       label={t('Token symbol')}
       placeholder={t('Enter token symbol')}
@@ -127,13 +126,13 @@ export const TokenNameField: FC<FlavouredFieldProps> = ({
   error,
   required,
   readOnly,
-  'data-testid': dataTestId,
+  ...rest
 }) => {
   const { t } = useTranslation();
 
   return (
     <FormField
-      data-testid={dataTestId}
+      {...rest}
       value={value}
       label={t('Token name')}
       placeholder={t('Enter token name')}
@@ -151,13 +150,13 @@ export const ExplorerUrlField: FC<FlavouredFieldProps> = ({
   error,
   required,
   readOnly,
-  'data-testid': dataTestId,
+  ...rest
 }) => {
   const { t } = useTranslation();
 
   return (
     <FormField
-      data-testid={dataTestId}
+      {...rest}
       value={value}
       label={t('Explorer URL')}
       placeholder={t('Enter explorer URL')}
