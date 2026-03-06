@@ -15,7 +15,7 @@ export const useDebouncedAmountPropagation = (
 
     const timer = setTimeout(() => {
       if (localAmount !== amount) {
-        onAmountChange?.(localAmount, false);
+        onAmountChange(localAmount, false);
       }
     }, DEBOUNCE_DELAY);
     return () => clearTimeout(timer);

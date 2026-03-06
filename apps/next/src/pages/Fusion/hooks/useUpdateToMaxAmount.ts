@@ -22,8 +22,14 @@ export const useUpdateToMaxAmount = (
   const { useMaxAmount, sourceToken, updateQuery } = useFusionState();
 
   useEffect(() => {
-    const isFeeReady = !isFeeLoading && !feeError && typeof fee === 'bigint';
+    if (feeError) {
+      // If we encountered an error while estimating the gas fee, reset the `useMaxAmount` state to false
+      // so the user can still swap.
+      updateQuery({ useMaxAmount: false });
+      return;
+    }
 
+    const isFeeReady = !isFeeLoading && typeof fee === 'bigint';
     if (!useMaxAmount || !isFeeReady || !sourceToken) {
       return;
     }
@@ -39,6 +45,6 @@ export const useUpdateToMaxAmount = (
       sourceToken.decimals,
     );
 
-    updateQuery({ userAmount: fromAmount, useMaxAmount: true });
+    updateQuery({ userAmount: fromAmount, useMaxAmount: false });
   }, [useMaxAmount, isFeeLoading, feeError, sourceToken, fee, updateQuery]);
 };
