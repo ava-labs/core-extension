@@ -5,7 +5,7 @@ import { TransactionRequest } from 'ethers';
 
 type HandlerType = ExtensionRequestHandler<
   ExtensionRequest.GASLESS_FUND_TX,
-  string | undefined,
+  string,
   [
     data: TransactionRequest,
     challengeHex: string,
@@ -22,9 +22,18 @@ export class FundTxHandler implements HandlerType {
 
   handle: HandlerType['handle'] = async ({ request }) => {
     const [data, challengeHex, solutionHex, fromAddress] = request.params;
+
+    if (data.chainId == null) {
+      return { ...request, error: 'Missing chainId in transaction data' };
+    }
+
     try {
+      const chainId = data.chainId;
       const fundTxHex = await this.gasStationService.fundTx({
-        data,
+        data: {
+          ...(data as Record<string, unknown>),
+          chainId,
+        },
         challengeHex,
         solutionHex,
         fromAddress,
@@ -34,10 +43,10 @@ export class FundTxHandler implements HandlerType {
         ...request,
         result: fundTxHex,
       };
-    } catch (e: any) {
+    } catch (e: unknown) {
       return {
         ...request,
-        error: e.toString(),
+        error: String(e),
       };
     }
   };
