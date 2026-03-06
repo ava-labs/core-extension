@@ -1,39 +1,18 @@
 import { useState, useCallback } from 'react';
-import {
-  Box,
-  Button,
-  Skeleton,
-  Stack,
-  StackProps,
-  alpha,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Box, StackProps, alpha, useTheme } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import {
-  AppNotification,
-  NotificationTab,
-  isPriceAlertNotification,
-  isBalanceChangeNotification,
-} from '@core/types';
+import { AppNotification, NotificationTab } from '@core/types';
 
 import { Page } from '@/components/Page';
 import { Tab, TabMenu } from '@/components/TabMenu';
 
-import {
-  useNotifications,
-  useUnreadCount,
-  useClearAll,
-} from './hooks/useNotificationCenter';
+import { useNotifications } from './hooks/useNotifications';
+import { useClearAll } from './hooks/useClearAll';
+import { hasActionableUrl } from './lib/hasActionableUrl';
 import { NotificationEmptyState } from './components/NotificationEmptyState';
-import { PriceAlertItem } from './components/PriceAlertItem';
-import { BalanceChangeItem } from './components/BalanceChangeItem';
-import { GenericNotificationItem } from './components/GenericNotificationItem';
-
-const TAB_ITEMS = [
-  { label: 'All', value: NotificationTab.ALL },
-  { label: 'Transactions', value: NotificationTab.TRANSACTIONS },
-  { label: 'Prices', value: NotificationTab.PRICE_UPDATES },
-] as const;
+import { NotificationItem } from './components/NotificationItem';
+import { NotificationListSkeleton } from './components/NotificationListSkeleton';
+import { ClearButton } from './components/ClearButton';
 
 const contentProps: StackProps = {
   justifyContent: 'flex-start',
@@ -43,69 +22,29 @@ const contentProps: StackProps = {
   pb: 9,
 };
 
-const isPriceAlertWithData = (notification: AppNotification): boolean => {
-  if (!isPriceAlertNotification(notification)) return false;
-  return notification.data?.priceChangePercent !== undefined;
-};
-
-const isBalanceChangeWithData = (notification: AppNotification): boolean => {
-  if (!isBalanceChangeNotification(notification)) return false;
-  const { transfers } = notification.data ?? {};
-  return transfers !== undefined && transfers.length > 0;
-};
-
-const hasActionableUrl = (notification: AppNotification): boolean => {
-  const url = notification.deepLinkUrl;
-  if (!url) return false;
-
-  try {
-    const parsedUrl = new URL(url);
-    const protocol = parsedUrl.protocol.replace(':', '');
-    return !(protocol === 'core' && parsedUrl.host === 'portfolio');
-  } catch {
-    return false;
-  }
-};
-
-const renderNotificationItem = (
-  item: AppNotification,
-  props: {
-    showSeparator: boolean;
-    accessoryType: 'chevron' | 'none';
-    onClick?: () => void;
-  },
-) => {
-  if (isPriceAlertWithData(item)) {
-    return <PriceAlertItem notification={item} {...props} />;
-  }
-
-  if (isBalanceChangeWithData(item)) {
-    return <BalanceChangeItem notification={item} {...props} />;
-  }
-
-  return <GenericNotificationItem notification={item} {...props} />;
-};
-
 export const Notifications = () => {
   const theme = useTheme();
   const { t } = useTranslation();
+
+  const tabItems = [
+    { label: t('All'), value: NotificationTab.ALL },
+    { label: t('Transactions'), value: NotificationTab.TRANSACTIONS },
+    { label: t('Prices'), value: NotificationTab.PRICE_UPDATES },
+  ];
+
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-  const selectedTab = TAB_ITEMS[selectedTabIndex]?.value ?? NotificationTab.ALL;
+  const selectedTab = tabItems[selectedTabIndex]?.value ?? NotificationTab.ALL;
   const { notifications, isLoading } = useNotifications(selectedTab);
-  const totalUnreadCount = useUnreadCount();
   const { clearAll, isClearing } = useClearAll();
 
-  const hasNoNotificationsAtAll = totalUnreadCount === 0;
   const isCurrentTabEmpty =
     notifications.length === 0 && !isClearing && !isLoading;
-  const showFullEmptyState = isCurrentTabEmpty && hasNoNotificationsAtAll;
-  const showFilteredEmptyState = isCurrentTabEmpty && !hasNoNotificationsAtAll;
 
   const handleNotificationPress = useCallback(
     (notification: AppNotification) => {
       const url = notification.deepLinkUrl;
       if (url && hasActionableUrl(notification)) {
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
       }
     },
     [],
@@ -124,68 +63,33 @@ export const Notifications = () => {
       withBackButton
       contentProps={contentProps}
       titleAction={
-        !showFullEmptyState &&
-        !isLoading &&
-        !showFilteredEmptyState &&
-        notifications.length > 0 ? (
-          <Button
-            variant="text"
-            size="small"
-            onClick={clearAll}
-            disabled={isClearing}
-            sx={{
-              backgroundColor: 'rgba(161, 161, 170, 0.25)',
-              borderRadius: '360px',
-              minWidth: 'auto',
-              px: 1.5,
-              py: 0.5,
-              '&:hover': {
-                backgroundColor: 'rgba(161, 161, 170, 0.35)',
-              },
-            }}
-          >
-            {t('Clear')}
-          </Button>
+        !isCurrentTabEmpty ? (
+          <ClearButton onClick={clearAll} disabled={isClearing} />
         ) : undefined
       }
     >
-      {isLoading && (
-        <Stack gap={1} py={1}>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton
-              key={i}
-              variant="rectangular"
-              height={45}
-              sx={{ borderRadius: 1 }}
-            />
-          ))}
-        </Stack>
-      )}
+      {isLoading && <NotificationListSkeleton />}
 
-      {(showFullEmptyState || showFilteredEmptyState) && (
-        <NotificationEmptyState />
-      )}
+      {isCurrentTabEmpty && <NotificationEmptyState />}
 
-      {!isLoading &&
-        !showFullEmptyState &&
-        !showFilteredEmptyState &&
+      {!isCurrentTabEmpty &&
         notifications.map((item, index) => {
           const isLast = index === notifications.length - 1;
           const clickable = hasActionableUrl(item);
           return (
-            <Box key={item.id}>
-              {renderNotificationItem(item, {
-                showSeparator: !isLast,
-                accessoryType: clickable ? 'chevron' : 'none',
-                onClick: clickable
-                  ? () => handleNotificationPress(item)
-                  : undefined,
-              })}
-            </Box>
+            <NotificationItem
+              key={item.id}
+              notification={item}
+              showSeparator={!isLast}
+              accessoryType={clickable ? 'chevron' : 'none'}
+              onClick={
+                clickable ? () => handleNotificationPress(item) : undefined
+              }
+            />
           );
         })}
 
-      {!showFullEmptyState && !isLoading && (
+      {!isLoading && (
         <Box
           sx={{
             position: 'fixed',
@@ -204,8 +108,8 @@ export const Notifications = () => {
             value={selectedTabIndex}
             onChange={handleTabChange}
           >
-            {TAB_ITEMS.map((tab) => (
-              <Tab key={tab.value} label={t(tab.label)} />
+            {tabItems.map((tab) => (
+              <Tab key={tab.value} label={tab.label} />
             ))}
           </TabMenu>
         </Box>
