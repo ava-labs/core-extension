@@ -6,19 +6,31 @@ export const globalStyles: GlobalStylesProps['styles'] = {
   },
 };
 
-function disableEventForMediaElement(event: Event) {
-  const { target } = event;
-  if (
-    target != null &&
-    (target instanceof HTMLImageElement ||
-      target instanceof SVGElement ||
-      target instanceof HTMLVideoElement ||
-      target instanceof HTMLCanvasElement)
-  ) {
-    return event.preventDefault();
-  }
-  return false;
+let isInitialized = false;
+
+export function initGlobalBehaviors() {
+  if (isInitialized) return;
+
+  document.addEventListener('contextmenu', preventMediaContextMenuAndDrag);
+  document.addEventListener('dragstart', preventMediaContextMenuAndDrag);
+  isInitialized = true;
 }
 
-document.addEventListener('contextmenu', disableEventForMediaElement);
-document.addEventListener('dragstart', disableEventForMediaElement);
+function preventMediaContextMenuAndDrag(event: Event) {
+  if (isMediaElement(event.target)) {
+    event.preventDefault();
+  }
+}
+
+function isMediaElement(element: EventTarget | null) {
+  if (element == null) {
+    return false;
+  }
+
+  return (
+    element instanceof HTMLImageElement ||
+    element instanceof SVGElement ||
+    element instanceof HTMLVideoElement ||
+    element instanceof HTMLCanvasElement
+  );
+}

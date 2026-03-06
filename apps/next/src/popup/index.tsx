@@ -2,7 +2,7 @@
 import '../monitoring/initSentryForPopup';
 
 import { LoadingScreen } from '@/components/LoadingScreen';
-import { globalStyles } from '@/lib/global';
+import { globalStyles, initGlobalBehaviors } from '@/lib/global';
 import { GlobalStyles } from '@avalabs/k2-alpine';
 import { i18next, initI18n } from '@core/common';
 import {
@@ -20,10 +20,9 @@ import { HashRouter as Router } from 'react-router-dom'; // MemoryRouter doesn't
 import browser from 'webextension-polyfill';
 import { Providers } from './providers';
 
-import '@/lib/global';
-
 // Initialize translations
 initI18n();
+initGlobalBehaviors();
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './app').then((m) => ({
