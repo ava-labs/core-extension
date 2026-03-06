@@ -34,7 +34,7 @@ export const KeystoneUSBConnector: FC<Props> = ({
       .catch((err) => {
         console.error('Failed to derive keys', err);
         Monitoring.sentryCaptureException(
-          err,
+          err instanceof Error ? err : new Error(String(err)),
           Monitoring.SentryExceptionTypes.KEYSTONE,
         );
         callbacks?.onConnectionFailed();

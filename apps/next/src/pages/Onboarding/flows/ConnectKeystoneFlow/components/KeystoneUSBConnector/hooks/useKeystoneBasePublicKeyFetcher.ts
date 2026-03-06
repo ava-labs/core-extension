@@ -143,6 +143,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   const retrieveKeys = useCallback(
     async (minNumberOfKeys: number) => {
       if (minNumberOfKeys < 1) {
+        setStatus('error');
         setError('unable-to-connect');
         throw new Error('Min number of keys must be greater than 0');
       }
@@ -210,7 +211,7 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
 
     // If the user previously rejected the request to connect,
     // do not attempt to connect again unless they retry manually.
-    if (error === 'user-rejected' || status === 'needs-user-gesture') {
+    if (status === 'error' || status === 'needs-user-gesture') {
       return;
     }
 
@@ -225,7 +226,6 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
       setStatus('needs-user-gesture');
     }
   }, [
-    error,
     status,
     wasTransportAttempted,
     hasKeystoneTransport,
@@ -239,8 +239,6 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     setStatus('waiting');
 
     try {
-      setError(undefined);
-      setStatus('waiting');
       await retryConnection();
     } catch {
       setStatus('error');
