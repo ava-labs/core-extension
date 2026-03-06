@@ -1,7 +1,4 @@
-import {
-  BtcSigner,
-  EvmSignerWithMessage,
-} from '@avalabs/unified-asset-transfer';
+import { BtcSigner, EvmSignerWithMessage } from '@avalabs/fusion-sdk';
 
 import {
   Erc20TokenBalance,
@@ -36,3 +33,9 @@ export type SwapStatus =
   | 'no-swappable-assets'
   | 'no-routes-found'
   | 'ready-to-transfer';
+
+export type EstimatedFeeResult = {
+  fee: bigint | undefined;
+  isFeeLoading: boolean;
+  feeError: Error | null;
+};

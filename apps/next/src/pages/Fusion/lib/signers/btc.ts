@@ -1,6 +1,6 @@
 import { TFunction } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { BtcSigner } from '@avalabs/unified-asset-transfer';
+import { BtcSigner } from '@avalabs/fusion-sdk';
 import { BitcoinCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { RequestHandlerType } from '@core/types';

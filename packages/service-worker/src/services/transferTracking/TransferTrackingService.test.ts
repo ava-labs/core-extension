@@ -4,13 +4,13 @@ import {
   TransferManager,
   SourcePendingTransfer,
   FailedTransfer,
-} from '@avalabs/unified-asset-transfer';
+} from '@avalabs/fusion-sdk';
 import { TransferTrackingService } from './TransferTrackingService';
 import { FeatureGates, TrackedTransfers } from '@core/types';
 import { wait } from '@avalabs/core-utils-sdk';
 import { noop } from '@core/common';
 
-jest.mock('@avalabs/unified-asset-transfer');
+jest.mock('@avalabs/fusion-sdk');
 jest.mock('@avalabs/core-utils-sdk');
 jest.mock('@core/common', () => ({
   ...jest.requireActual('@core/common'),

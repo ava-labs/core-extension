@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { IconType } from 'react-icons';
 import { useTranslation } from 'react-i18next';
 import { MdCheckCircle, MdError } from 'react-icons/md';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 
 import { useNetworkContext } from '@core/ui';

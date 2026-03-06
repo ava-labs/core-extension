@@ -1,7 +1,4 @@
-import {
-  createTransferManager,
-  TransferManager,
-} from '@avalabs/unified-asset-transfer';
+import { createTransferManager, TransferManager } from '@avalabs/fusion-sdk';
 import { useEffect, useState } from 'react';
 
 import { useFeatureFlagContext } from '@core/ui';

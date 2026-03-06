@@ -1,7 +1,7 @@
 import { hex, utf8 } from '@scure/base';
 import { TFunction } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { EvmSignerWithMessage } from '@avalabs/unified-asset-transfer';
+import { EvmSignerWithMessage } from '@avalabs/fusion-sdk';
 
 import { assert, chainIdToCaip } from '@core/common';
 import { RequestHandlerType, UnifiedBridgeError } from '@core/types';

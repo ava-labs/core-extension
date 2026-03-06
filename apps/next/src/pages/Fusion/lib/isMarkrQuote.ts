@@ -1,4 +1,4 @@
-import { Quote, ServiceType } from '@avalabs/unified-asset-transfer';
+import { Quote, ServiceType } from '@avalabs/fusion-sdk';
 
 type MarkrQuote = Omit<Quote, 'serviceType'> & {
   serviceType: ServiceType.MARKR;

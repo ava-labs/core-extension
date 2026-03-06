@@ -5,7 +5,7 @@ import {
   MarkrServiceInitializer,
   ServiceInitializer,
   ServiceType,
-} from '@avalabs/unified-asset-transfer';
+} from '@avalabs/fusion-sdk';
 
 import { UnifiedTransferSigners } from '@core/types';
 import { MARKR_EVM_PARTNER_ID } from './constants';

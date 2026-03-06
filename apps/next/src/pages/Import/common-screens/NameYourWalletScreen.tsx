@@ -40,11 +40,11 @@ export const NameYourWalletScreen: FC<NameYourWalletScreenProps> = ({
   return (
     <>
       <FullscreenModalTitle>
-        {t('How would you like to name your wallet?')}
+        {t('Create a name for your wallet')}
       </FullscreenModalTitle>
       <FullscreenModalDescription>
         {t(
-          'Add a display name for your wallet. You can change it at any time in the settings.',
+          'Wallet names are displayed inside Core and you can change them at any time in the settings.',
         )}
       </FullscreenModalDescription>
       <FullscreenModalContent {...keyboardShortcuts}>

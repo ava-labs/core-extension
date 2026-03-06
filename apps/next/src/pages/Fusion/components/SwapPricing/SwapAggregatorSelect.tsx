@@ -7,7 +7,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { FC, useCallback, useState } from 'react';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import { useSettingsContext } from '@core/ui';

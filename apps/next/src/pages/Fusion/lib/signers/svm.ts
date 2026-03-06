@@ -1,6 +1,6 @@
 import { TFunction } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { SolanaSigner } from '@avalabs/unified-asset-transfer';
+import { SolanaSigner } from '@avalabs/fusion-sdk';
 import { SolanaCaip2ChainId } from '@avalabs/core-chains-sdk';
 
 import { assert } from '@core/common';

@@ -4,7 +4,7 @@ import {
   Transfer,
   TransferManager,
   ServiceInitializer,
-} from '@avalabs/unified-asset-transfer';
+} from '@avalabs/fusion-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
 import EventEmitter from 'events';

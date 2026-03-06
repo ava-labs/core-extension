@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdError as AlertCircleIcon } from 'react-icons/md';
-import { ServiceType } from '@avalabs/unified-asset-transfer';
+import { ServiceType } from '@avalabs/fusion-sdk';
 import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
 
 type Props = {

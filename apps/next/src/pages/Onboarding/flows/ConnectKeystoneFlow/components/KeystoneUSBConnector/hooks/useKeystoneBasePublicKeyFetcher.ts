@@ -1,7 +1,7 @@
 import { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 import { Status, TransportError } from '@keystonehq/hw-transport-error';
 import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useKeystoneUsbContext } from '@core/ui';
 import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
@@ -33,6 +33,8 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<UsbDerivationStatus>('waiting');
   const checkAddressActivity = useCheckAddressActivity();
+  const deviceSelectionAttempted = useRef(false);
+  const isRetrying = useRef(false);
 
   const retrieveXpKeys = useCallback(
     async (indexes: number[]) => {
@@ -194,9 +196,14 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   );
 
   useEffect(() => {
+    // Skip when onRetry is handling the flow to avoid racing with the effect.
+    if (isRetrying.current) {
+      return;
+    }
+
     // If the user previously rejected the request to connect,
     // do not attempt to connect again unless they retry manually.
-    if (error == 'user-rejected') {
+    if (error === 'user-rejected') {
       return;
     }
 
@@ -204,13 +211,24 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     if (hasKeystoneTransport) {
       setStatus('ready');
       setError(undefined);
-    } else if (!hasKeystoneTransport && !wasTransportAttempted) {
-      popDeviceSelection().then(initKeystoneTransport);
-    } else if (!hasKeystoneTransport) {
+    } else if (
+      !hasKeystoneTransport &&
+      !wasTransportAttempted &&
+      !deviceSelectionAttempted.current
+    ) {
+      deviceSelectionAttempted.current = true;
+      popDeviceSelection()
+        .then(initKeystoneTransport)
+        .catch(() => {
+          setStatus('error');
+          setError('unable-to-connect');
+        });
+    } else if (!hasKeystoneTransport && wasTransportAttempted) {
+      // Wait 5 seconds for the connection to establish, then show an error.
       const timer = setTimeout(() => {
         setStatus('error');
         setError('unable-to-connect');
-      }, 5_000); // Wait 5 seconds to obtain the connection, then show an error message with some instructions
+      }, 5_000);
 
       return () => clearTimeout(timer);
     }
@@ -225,14 +243,18 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   ]);
 
   const onRetry = useCallback(async () => {
+    isRetrying.current = true;
+    setError(undefined);
+    setStatus('waiting');
+
     try {
       await popDeviceSelection();
       await initKeystoneTransport();
-      setError(undefined);
-      setStatus('waiting');
     } catch {
       setStatus('error');
       setError('unable-to-connect');
+    } finally {
+      isRetrying.current = false;
     }
   }, [popDeviceSelection, initKeystoneTransport]);
 

@@ -1,5 +1,5 @@
 import { injectable } from 'tsyringe';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 
 import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { PartialBy } from '@avalabs/vm-module-types';
-import { Transfer, Quote } from '@avalabs/unified-asset-transfer';
+import { Transfer, Quote } from '@avalabs/fusion-sdk';
 
 import { useNetworkContext } from '@core/ui';
 import { FungibleTokenBalance } from '@core/types';
