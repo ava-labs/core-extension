@@ -80,7 +80,9 @@ export const ConnectKeystoneFlow = () => {
         setDerivedKeys(obtainedKeys);
         history.replace(BASE_PATH);
       },
-      onConnectionFailed: () => capture('OnboardingKeystone3ConnectionFailed'),
+      onConnectionFailed: () => {
+        capture('OnboardingKeystone3ConnectionFailed');
+      },
       onConnectionRetry: () => capture('OnboardingKeystone3Retry'),
       onActivePublicKeysDiscovered: (publicKeys: PublicKey[]) => {
         setAddresses(deriveAddresses(publicKeys));

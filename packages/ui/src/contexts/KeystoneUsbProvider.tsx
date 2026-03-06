@@ -51,6 +51,13 @@ export function KeystoneUsbContextProvider({ children }: { children: any }) {
       .pipe(
         filter(([isInitialized]) => !!isInitialized),
         switchMap(async () => {
+          const usbDevices = await navigator.usb.getDevices();
+
+          // This prevents `createKeystoneTransport` from popping the device selection dialog
+          // when it will not display any devices at all.
+          if (usbDevices.length === 0) {
+            throw new Error('No USB devices connected');
+          }
           // Get transport directly (not via resolve()) so the original error
           // is preserved for retryWhen to distinguish user cancellation from
           // transient failures.
