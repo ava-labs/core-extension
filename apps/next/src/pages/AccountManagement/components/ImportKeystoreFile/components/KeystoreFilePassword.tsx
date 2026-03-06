@@ -1,11 +1,5 @@
-import {
-  Button,
-  Card,
-  Stack,
-  toast,
-  Typography,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Button, Card, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { FileImage } from './FileImage';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo, useState } from 'react';

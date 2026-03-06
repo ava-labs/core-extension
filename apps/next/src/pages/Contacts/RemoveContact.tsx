@@ -1,9 +1,9 @@
-import { Button, Stack, StackProps, toast } from '@avalabs/k2-alpine';
+import { Button, Stack, StackProps } from '@avalabs/k2-alpine';
 import { Redirect, useHistory, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
-import { useContactsContext } from '@core/ui';
+import { toast, useContactsContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
 import { CONTACTS_QUERY_TOKENS, getContactsPath } from '@/config/routes';

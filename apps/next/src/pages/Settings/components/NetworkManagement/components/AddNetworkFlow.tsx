@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { CustomRpcHeadersManager } from './NetworkForm/CustomRpcHeadersManager';
 import { useHistory } from 'react-router-dom';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { AddNetworkFormView } from './NetworkForm/types';
 import { NetworkDetails } from './NetworkDetails';
 import { useAddNetwork } from '../hooks/useAddNetwork';
-
 export const AddNetworkFlow = () => {
   const history = useHistory();
   const { t } = useTranslation();

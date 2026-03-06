@@ -1,5 +1,6 @@
 import { Page } from '@/components/Page';
-import { Button, Stack, toast, Typography } from '@avalabs/k2-alpine';
+import { Button, Stack, Typography } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import {
   useConnectionContext,
   useKeyboardShortcuts,

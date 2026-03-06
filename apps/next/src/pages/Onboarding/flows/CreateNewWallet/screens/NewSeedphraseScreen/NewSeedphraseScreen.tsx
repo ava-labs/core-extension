@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { FC, useEffect, useState } from 'react';
-import { Button, Divider, Stack, toast } from '@avalabs/k2-alpine';
+import { Button, Divider, Stack } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 
 import { createNewMnemonic } from '@core/common';
 
@@ -57,9 +58,7 @@ export const NewSeedphraseScreen: FC<NewSeedphraseScreenProps> = ({
             size="small"
             onClick={() => {
               navigator.clipboard.writeText(generatedSeedphrase);
-              toast.success(t('Phrase copied'), {
-                duration: 2000,
-              });
+              toast.success(t('Phrase copied'));
             }}
           >
             {t('Copy phrase')}

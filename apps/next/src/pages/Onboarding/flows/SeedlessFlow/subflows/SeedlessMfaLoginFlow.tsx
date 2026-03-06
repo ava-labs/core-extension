@@ -1,10 +1,14 @@
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { toast } from '@avalabs/k2-alpine';
 import { SignerSessionData } from '@cubist-labs/cubesigner-sdk';
 
-import { useOnboardingContext, useSeedlessAuth, AuthStep } from '@core/ui';
+import {
+  toast,
+  useOnboardingContext,
+  useSeedlessAuth,
+  AuthStep,
+} from '@core/ui';
 
 import { LoadingScreen } from '@/pages/Onboarding/components/LoadingScreen';
 import { useModalPageControl } from '@/components/FullscreenModal';

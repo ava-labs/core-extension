@@ -1,5 +1,4 @@
-import { toast } from '@avalabs/k2-alpine';
-import { ExportState, useAnalyticsContext } from '@core/ui';
+import { ExportState, toast, useAnalyticsContext } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';

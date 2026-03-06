@@ -1,7 +1,7 @@
-import { useSeedlessMfaManager, useAnalyticsContext } from '@core/ui';
+import { toast, useSeedlessMfaManager, useAnalyticsContext } from '@core/ui';
 import { useCallback, useState } from 'react';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
-import { Stack, toast, Typography } from '@avalabs/k2-alpine';
+import { Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { SeedlessNameFidoKey } from '@/pages/Onboarding/flows/SeedlessFlow/screens';
 import { KeyType } from '@core/types';
@@ -29,9 +29,7 @@ export const AddFIDO = ({ keyType }: { keyType: KeyType }) => {
       try {
         await addFidoDevice(deviceName, keyType);
         capture('RecoveryMethodAdded', { method: 'fido', keyType });
-        toast.success(t(`${deviceName} (${keyType}) added!`), {
-          duration: Infinity,
-        });
+        toast.success(t(`${deviceName} (${keyType}) added!`));
         history.push('/update-recovery-method');
         return;
       } catch {

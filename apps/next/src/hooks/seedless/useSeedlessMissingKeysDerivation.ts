@@ -1,5 +1,4 @@
-import { toast } from '@avalabs/k2-alpine';
-import { useDeriveMissingKeysForSeedless } from '@core/ui';
+import { toast, useDeriveMissingKeysForSeedless } from '@core/ui';
 import { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,7 +15,9 @@ export const useSeedlessMissingKeysDerivation = () => {
         // If we haven't managed to display the "Updating accounts..." message,
         // we don't show the "Accounts updated" message either.
         if (toastId.current) {
-          toast.success(t('Accounts updated'), { id: toastId.current });
+          toast.success(t('Accounts updated'), {
+            id: toastId.current,
+          });
         }
         toastId.current = undefined;
       },
