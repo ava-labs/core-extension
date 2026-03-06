@@ -85,6 +85,7 @@ export const NetworkToggleList = ({ networks }: NetworkToggleListProps) => {
 
   return (
     <Stack
+      data-testid="networks-list"
       sx={{
         flex: 1,
         overflowY: 'auto',

@@ -32,6 +32,7 @@ export const NetworkNameField = ({
       prompt={t('Name this network')}
       readOnly={readOnly}
       showEditIcon={true}
+      data-testid="add-network-name-input"
     />
   );
 };

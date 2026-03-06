@@ -227,6 +227,7 @@ export const SettingsHomePage = () => {
           label={t('Networks')}
           href={`${path}/network-management`}
           divider
+          data-testid="networks-nav-item"
           onClick={() => capture('ManageNetworksClicked')}
         />
         {isLedgerWallet && (

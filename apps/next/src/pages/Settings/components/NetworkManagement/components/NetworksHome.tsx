@@ -44,6 +44,7 @@ export const NetworksHome: FC = () => {
       title={t('Networks')}
       titleAction={
         <IconButton
+          data-testid="networks-add-button"
           onClick={() => {
             history.push(`/settings/network-management/add`);
           }}
@@ -53,6 +54,7 @@ export const NetworksHome: FC = () => {
       }
       contentProps={{ px: 0 }}
       containerProps={{ pb: 0 }}
+      data-testid="networks-page"
     >
       <Stack width="100%">
         <SearchInput filter={filter} setFilter={setFilter} />
@@ -65,6 +67,7 @@ export const NetworksHome: FC = () => {
           alignItems="center"
           justifyContent="center"
           flexGrow={1}
+          data-testid="networks-empty-state"
         >
           <Typography variant="h1" component="span" mb={2} fontWeight="medium">
             🌵
@@ -101,8 +104,16 @@ export const NetworksHome: FC = () => {
             }
           }}
         >
-          <Tab label={t('All networks')} value={'all' satisfies Tab} />
-          <Tab label="Custom" value={'custom' satisfies Tab} />
+          <Tab
+            label={t('All networks')}
+            value={'all' satisfies Tab}
+            data-testid="networks-tab-all"
+          />
+          <Tab
+            label="Custom"
+            value={'custom' satisfies Tab}
+            data-testid="networks-tab-custom"
+          />
         </TabMenu>
       </Stack>
     </Page>

@@ -85,6 +85,7 @@ export const CustomRpcHeadersManager = ({
 
   return (
     <Page
+      data-testid="rpc-headers-page"
       contentProps={{ px: 0 }}
       containerProps={{ pb: 0 }}
       onBack={handleBack}
@@ -92,8 +93,13 @@ export const CustomRpcHeadersManager = ({
     >
       <Stack rowGap={1} sx={{ flex: 1, px: 1.5, width: '100%' }}>
         {headerList.map((listItem, index) => (
-          <Card key={`keyValueFormField-${index}`} sx={{ px: 1 }}>
+          <Card
+            key={`keyValueFormField-${index}`}
+            data-testid={`rpc-header-${index}`}
+            sx={{ px: 1 }}
+          >
             <KeyValueFormField
+              data-testid={`rpc-header-field-${index}`}
               labels={{
                 key: t('Header name'),
                 value: t('Value'),
@@ -137,6 +143,7 @@ export const CustomRpcHeadersManager = ({
           }}
         >
           <Button
+            data-testid="rpc-headers-save-button"
             variant="contained"
             color="primary"
             size="small"
@@ -147,6 +154,7 @@ export const CustomRpcHeadersManager = ({
             {t('Save')}
           </Button>
           <Button
+            data-testid="rpc-headers-cancel-button"
             variant="contained"
             color="secondary"
             size="small"
