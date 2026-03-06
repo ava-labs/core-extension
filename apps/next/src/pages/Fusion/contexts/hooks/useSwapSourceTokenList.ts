@@ -3,7 +3,7 @@ import { useAccountsContext } from '@core/ui';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { useMemo } from 'react';
 import { FungibleTokenBalance } from '@core/types';
-import { GetSupportedChainsResult } from '@avalabs/unified-asset-transfer';
+import { GetSupportedChainsResult } from '@avalabs/fusion-sdk';
 
 export const useSwapSourceTokenList = (
   supportedChainsMap: GetSupportedChainsResult,

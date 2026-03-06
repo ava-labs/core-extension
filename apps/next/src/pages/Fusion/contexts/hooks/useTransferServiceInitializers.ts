@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ServiceType } from '@avalabs/unified-asset-transfer';
+import { ServiceType } from '@avalabs/fusion-sdk';
 
 import { useNetworkContext } from '@core/ui';
 import { getServiceInitializer } from '@core/common';

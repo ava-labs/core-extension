@@ -1,20 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 
 import { UseQuoterProps, useQuoter } from './useQuoter';
 import { QuoteStreamingStatus } from '../../types';
 
-export const useQuotes = ({
-  manager,
-  fromAddress,
-  toAddress,
-  sourceAsset,
-  sourceChain,
-  targetAsset,
-  targetChain,
-  amount,
-  slippageBps,
-}: UseQuoterProps) => {
+export const useQuotes = (
+  {
+    manager,
+    fromAddress,
+    toAddress,
+    sourceAsset,
+    sourceChain,
+    targetAsset,
+    targetChain,
+    amount,
+    slippageBps,
+  }: UseQuoterProps,
+  skipFetching: boolean,
+) => {
   const [status, setStatus] = useState<QuoteStreamingStatus>('done');
   // The best quote is the quote with the best price
   const [bestQuote, setBestQuote] = useState<Quote | null>(null);
@@ -36,7 +39,7 @@ export const useQuotes = ({
   });
 
   useEffect(() => {
-    if (!quoter) {
+    if (!quoter || skipFetching) {
       return;
     }
 
@@ -69,7 +72,7 @@ export const useQuotes = ({
     setAllQuotes(Array.from(_allQuotes));
 
     return unsubscribe;
-  }, [quoter]);
+  }, [quoter, skipFetching]);
 
   const selectQuoteById = useCallback(
     (quoteId: Quote['id'] | null) => {

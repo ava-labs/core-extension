@@ -7,7 +7,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { MdInfoOutline } from 'react-icons/md';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 
 import { useSettingsContext } from '@core/ui';
 

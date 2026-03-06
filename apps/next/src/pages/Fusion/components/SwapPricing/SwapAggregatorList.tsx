@@ -8,7 +8,7 @@ import {
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiOutlineSparkles } from 'react-icons/hi2';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 
 import { useAutomaticQuote } from './hooks/useAutomaticQuote';
 import { SwapAggregatorItem } from './SwapAggregatorItem';

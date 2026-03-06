@@ -151,3 +151,6 @@ export const getNameSpaceFromScope = (scope?: string | null) => {
 };
 export const isBitcoinCaipId = (caipId: string) =>
   (Object.values(BitcoinCaipId) as string[]).includes(caipId);
+
+export const isBitcoinTestnetCaipId = (caipId: string) =>
+  BitcoinCaip2ChainId.TESTNET === caipId;

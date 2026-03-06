@@ -1,4 +1,4 @@
-import { Environment } from '@avalabs/unified-asset-transfer';
+import { Environment } from '@avalabs/fusion-sdk';
 
 export const getEnvironment = (
   isDeveloperMode: boolean | undefined,

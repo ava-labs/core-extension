@@ -1,4 +1,4 @@
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 
 import { ExtensionRequest } from '@core/types';
 

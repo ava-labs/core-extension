@@ -1,4 +1,4 @@
-import { TransferStepDetails } from '@avalabs/unified-asset-transfer';
+import { TransferStepDetails } from '@avalabs/fusion-sdk';
 
 export const buildRequestContext = ({
   requiredSignatures,

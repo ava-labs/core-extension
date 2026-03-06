@@ -1,4 +1,4 @@
-import { Chain } from '@avalabs/unified-asset-transfer';
+import { Chain } from '@avalabs/fusion-sdk';
 
 import { Account } from '@core/types';
 import { useNetworkContext } from '@core/ui';

@@ -1,7 +1,7 @@
 import { ExtensionRequest } from '@core/types';
 
 import { TransferTrackingGetState } from './transferTrackingGetState';
-import { SourcePendingTransfer } from '@avalabs/unified-asset-transfer';
+import { SourcePendingTransfer } from '@avalabs/fusion-sdk';
 
 describe('src/background/services/transferTracking/handlers/transferTrackingGetState', () => {
   const request = {

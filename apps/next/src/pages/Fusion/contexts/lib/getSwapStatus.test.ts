@@ -1,4 +1,4 @@
-import { Quote, TransferManager } from '@avalabs/unified-asset-transfer';
+import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 
 import { Account, FungibleTokenBalance } from '@core/types';
 
@@ -21,6 +21,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('loading');
@@ -35,6 +36,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('loading');
@@ -49,6 +51,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('loading');
@@ -65,6 +68,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('initialization-failed');
@@ -79,6 +83,7 @@ describe('getSwapStatus', () => {
         [],
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('no-swappable-assets');
@@ -93,6 +98,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         [],
         null,
+        false,
       );
 
       expect(result).toBe('no-routes-found');
@@ -100,7 +106,7 @@ describe('getSwapStatus', () => {
   });
 
   describe('ready states', () => {
-    it('returns ready-to-transfer when a quote is selected', () => {
+    it('returns ready-to-transfer when a quote is selected and useMaxAmount is false', () => {
       const result = getSwapStatus(
         mockAccount,
         false,
@@ -109,9 +115,25 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         mockQuote,
+        false,
       );
 
       expect(result).toBe('ready-to-transfer');
+    });
+
+    it('returns initialized when a quote is selected but useMaxAmount is true', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        mockTargetTokenList,
+        mockQuote,
+        true,
+      );
+
+      expect(result).toBe('initialized');
     });
 
     it('returns initialized when all conditions are met but no quote selected', () => {
@@ -123,6 +145,22 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         null,
+        false,
+      );
+
+      expect(result).toBe('initialized');
+    });
+
+    it('returns initialized when no quote selected and useMaxAmount is true', () => {
+      const result = getSwapStatus(
+        mockAccount,
+        false,
+        mockManager,
+        false,
+        mockSourceTokenList,
+        mockTargetTokenList,
+        null,
+        true,
       );
 
       expect(result).toBe('initialized');
@@ -139,6 +177,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('loading');
@@ -153,6 +192,7 @@ describe('getSwapStatus', () => {
         [],
         mockTargetTokenList,
         null,
+        false,
       );
 
       expect(result).toBe('initialization-failed');
@@ -167,6 +207,7 @@ describe('getSwapStatus', () => {
         [],
         [],
         null,
+        false,
       );
 
       expect(result).toBe('no-swappable-assets');
@@ -181,6 +222,7 @@ describe('getSwapStatus', () => {
         mockSourceTokenList,
         [],
         mockQuote,
+        false,
       );
 
       expect(result).toBe('no-routes-found');

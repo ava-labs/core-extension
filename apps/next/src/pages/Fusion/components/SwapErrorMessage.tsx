@@ -1,9 +1,8 @@
-import { Collapse, Typography, useTheme } from '@avalabs/k2-alpine';
+import { Collapse, Typography } from '@avalabs/k2-alpine';
 
 import { useSwapFormError } from '../hooks';
 
 export const SwapErrorMessage = () => {
-  const theme = useTheme();
   const formError = useSwapFormError();
 
   return (
@@ -13,7 +12,6 @@ export const SwapErrorMessage = () => {
         color="error.main"
         textAlign="center"
         variant="caption"
-        height={theme.typography.caption.lineHeight}
       >
         {formError}
       </Typography>

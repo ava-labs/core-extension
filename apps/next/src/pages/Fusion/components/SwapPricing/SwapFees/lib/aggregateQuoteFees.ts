@@ -2,7 +2,7 @@ import { bigintToBig } from '@core/common';
 import { AggregatedFees, TokenAmount } from '../types';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';
 import { lookupTokenByAssetInfo } from '@/pages/Fusion/lib/lookupTokenByAssetInfo';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 
 export const aggregateQuoteFees = (
   quote: Quote,

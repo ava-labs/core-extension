@@ -8,7 +8,7 @@ import {
   TargetPendingTransfer,
   SourceCompletedTransfer,
   SolanaSigner,
-} from '@avalabs/unified-asset-transfer';
+} from '@avalabs/fusion-sdk';
 
 export type UnifiedTransferSigners = {
   evm: EvmSignerWithMessage;

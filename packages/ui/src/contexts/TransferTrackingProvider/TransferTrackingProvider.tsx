@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 
 import {
   TrackUnifiedTransfer,
