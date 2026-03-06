@@ -10,6 +10,7 @@ import { toast } from '@avalabs/k2-alpine';
 import { useHistory } from 'react-router-dom';
 import { Quote, TransferManager } from '@avalabs/unified-asset-transfer';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { useDebouncedValue } from '@tanstack/react-pacer';
 
 import {
   Account,
@@ -144,6 +145,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
   const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
 
+  // Avoid spamming quoters by debouncing the user amount
+  const [debouncedUserAmount] = useDebouncedValue(userAmount, { wait: 200 });
+  const debouncedSourceAmountBigInt =
+    debouncedUserAmount && sourceAsset
+      ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
+      : 0n;
+
   const {
     bestQuote,
     quotes,
@@ -161,7 +169,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       sourceChain,
       targetAsset,
       targetChain,
-      amount: sourceAmountBigInt,
+      amount: debouncedSourceAmountBigInt,
       slippageBps: autoSlippage ? undefined : slippage * 100,
     },
     skipFetching,

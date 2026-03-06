@@ -7,7 +7,6 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -23,7 +22,6 @@ import { TokenSelect } from '@/components/TokenSelect';
 import { getAvailableBalance } from '@/lib/getAvailableBalance';
 
 import { AmountPresetButton, InvisibleAmountInput } from './components';
-import { useUpdateLocalValue, useDebouncedAmountPropagation } from './hooks';
 
 type TokenAmountInputProps = {
   id: string;
@@ -91,16 +89,6 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   const amountInputRef = useRef<HTMLInputElement>(null);
   const previousTokenIdRef = useRef<string>(tokenId);
 
-  const [localAmount, setLocalAmount] = useState(amount);
-
-  useUpdateLocalValue(amount, setLocalAmount);
-  useDebouncedAmountPropagation(
-    amount,
-    localAmount,
-    isAmountReadOnly ?? false,
-    onAmountChange,
-  );
-
   const token = useMemo(
     () => tokensForAccount.find((tok) => getUniqueTokenId(tok) === tokenId),
     [tokensForAccount, tokenId],
@@ -126,9 +114,9 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
 
   // Amount comes in as a string, we need to convert it to BigInt for computation
   const amountHasValue =
-    Number.isFinite(parseFloat(localAmount)) && parseFloat(localAmount) !== 0;
+    Number.isFinite(parseFloat(amount)) && parseFloat(amount) !== 0;
   const amountBigInt =
-    token && amountHasValue ? stringToBigint(localAmount, token.decimals) : 0n;
+    token && amountHasValue ? stringToBigint(amount, token.decimals) : 0n;
 
   const isAmountTooBig = token && maxAmount ? amountBigInt > maxAmount : false;
 
@@ -211,7 +199,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           <InvisibleAmountInput
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
-            onChange={(ev) => setLocalAmount(ev.target.value)}
+            onChange={(ev) => onAmountChange?.(ev.target.value, false)}
             error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
@@ -227,7 +215,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
                 disabled: disabled || isAmountReadOnly,
               },
             }}
-            value={localAmount}
+            value={amount}
           />
         </Grow>
       </Stack>
