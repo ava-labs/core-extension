@@ -1,10 +1,10 @@
 // initialize sentry first to enable error collection
 import '../monitoring/initSentryForPopup';
 
-import * as Sentry from '@sentry/react';
-import { createRoot } from 'react-dom/client';
-import browser from 'webextension-polyfill';
-// MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
+import { LoadingScreen } from '@/components/LoadingScreen';
+import { globalStyles, initGlobalBehaviors } from '@/lib/global';
+import { GlobalStyles } from '@avalabs/k2-alpine';
+import { i18next, initI18n } from '@core/common';
 import {
   AnalyticsContextProvider,
   ConnectionContextProvider,
@@ -12,15 +12,17 @@ import {
   NetworkContextProvider,
   SettingsContextProvider,
 } from '@core/ui';
+import * as Sentry from '@sentry/react';
 import { Children, lazy, ReactElement } from 'react';
+import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
-import { HashRouter as Router } from 'react-router-dom';
-import { initI18n, i18next } from '@core/common';
+import { HashRouter as Router } from 'react-router-dom'; // MemoryRouter doesn't handle deep linking well.  And BrowserRouter doesn't work in extensions.
+import browser from 'webextension-polyfill';
 import { Providers } from './providers';
-import { LoadingScreen } from '@/components/LoadingScreen';
 
 // Initialize translations
 initI18n();
+initGlobalBehaviors();
 
 const App = lazy(() => {
   return import(/* webpackChunkName: 'App'  */ './app').then((m) => ({
@@ -33,6 +35,7 @@ const root = createRoot(document.getElementById('popup') as HTMLElement);
 browser.tabs.query({ active: true }).then(() => {
   root.render(
     <Sentry.ErrorBoundary>
+      <GlobalStyles styles={globalStyles} />
       <Router>
         <Providers
           providers={
