@@ -2,7 +2,12 @@ import { Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { FC, useCallback, useEffect, useRef } from 'react';
 
-import { ActionStatus, GaslessPhase, NetworkWithCaipId } from '@core/types';
+import {
+  ActionStatus,
+  AgentIdentity,
+  GaslessPhase,
+  NetworkWithCaipId,
+} from '@core/types';
 import { useLiveBalance } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +18,7 @@ import { useIsUsingHardwareWallet } from '@/hooks/useIsUsingHardwareWallet';
 import {
   ActionDetails,
   ActionDrawer,
+  AgentIdentityCard,
   ApprovalScreenTitle,
   HardwareApprovalOverlay,
   MaliciousTxOverlay,
@@ -110,6 +116,11 @@ export const TransactionApprovalScreen: FC<TransactionApprovalScreenProps> = ({
             />
           </Stack>
         )}
+        <AgentIdentityCard
+          agentIdentity={
+            action.context?.agentIdentity as AgentIdentity | undefined
+          }
+        />
         <Stack flexGrow={1} px={2}>
           <ActionDetails
             network={network}

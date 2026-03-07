@@ -1,6 +1,7 @@
 import { CurrentAvalancheAccount } from '@avalabs/avalanche-module';
 
 import {
+  AgentIdentity,
   DEFERRED_RESPONSE,
   DomainMetadata,
   NetworkWithCaipId,
@@ -16,6 +17,7 @@ export type Context<RequestType, ResponseType> = {
   account?: CurrentAvalancheAccount;
   authenticated: boolean;
   response?: ResponseType | typeof DEFERRED_RESPONSE;
+  agentIdentity?: AgentIdentity;
 };
 
 export type Middleware<RequestType, ResponseType> = (
