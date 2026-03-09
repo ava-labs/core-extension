@@ -44,10 +44,9 @@ export const TrendingTokenSlide = () => {
     <Card
       onClick={() => push(`/trending`)}
       sx={{
-        py: 0,
-        height: 44,
         cursor: 'pointer',
         backgroundColor: 'background.paper',
+        overflow: 'hidden',
       }}
     >
       <Stack
@@ -55,19 +54,17 @@ export const TrendingTokenSlide = () => {
         justifyContent="space-between"
         direction="row"
         width="100%"
-        height="100%"
+        gap={1.5}
       >
         <TopThreeLogos
           first={firstToken}
           second={secondToken}
           third={thirdToken}
         />
-
         <Typography
           variant="subtitle3"
-          width="165px"
-          py={0.5}
-          ml={2}
+          flex={1}
+          minWidth={0}
           sx={{ fontWeight: 400 }}
         >
           <Trans

@@ -38,7 +38,7 @@ export const HighlightsBannerCarousel: FC = () => {
   }
 
   return (
-    <Stack gap={1} alignItems="center">
+    <Stack gap={1} alignItems="center" mb={1.5}>
       <ScrollContainer ref={scrollRef}>
         <Slide>
           <TrendingTokenSlide />

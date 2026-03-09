@@ -63,7 +63,7 @@ export const useHighlightBanners = (): HighlightBannerConfig[] => {
         title: t('Earn rewards by staking AVAX.'),
         description: t('Delegate in seconds.'),
         icon: (
-          <BannerIcon src={stakingIcon} glowColor="#FCC118" iconWidth={54} />
+          <BannerIcon src={stakingIcon} glowColor="#FCC118" iconWidth={62} />
         ),
         action: {
           type: 'external' as const,
@@ -101,7 +101,7 @@ export const useHighlightBanners = (): HighlightBannerConfig[] => {
         id: 'yield',
         title: t('Earn real yield in seconds.'),
         description: t('Put your crypto to work.'),
-        icon: <BannerIcon src={earnIcon} glowColor="#AEF319" iconWidth={62} />,
+        icon: <BannerIcon src={earnIcon} glowColor="#AEF319" iconWidth={70} />,
         action: {
           type: 'external' as const,
           url: 'https://core.app/earn/',

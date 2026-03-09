@@ -42,14 +42,17 @@ export const HighlightBannerSlide: FC<HighlightBannerSlideProps> = ({
         gap={1.5}
       >
         {banner.icon}
-        <Stack flex={1} minWidth={0}>
-          <Typography variant="subtitle3" sx={{ fontWeight: 600 }}>
+        <Stack flex={1} minWidth={0} gap="1px">
+          <Typography
+            variant="subtitle3"
+            sx={{ fontWeight: 600, lineHeight: 1.2 }}
+          >
             {banner.title}
           </Typography>
           <Typography
             variant="subtitle3"
             color="text.secondary"
-            sx={{ fontWeight: 600 }}
+            sx={{ fontWeight: 600, lineHeight: 1.2 }}
           >
             {banner.description}
           </Typography>

@@ -30,7 +30,7 @@ const ActionButtonsSkeleton: FC = () => {
 export const TrendingTokensSkeleton: FC = () => {
   return (
     <Box>
-      <Skeleton height={44} animation="wave" variant="rounded" />
+      <Skeleton height={60} animation="wave" variant="rounded" />
     </Box>
   );
 };
@@ -38,7 +38,7 @@ export const TrendingTokensSkeleton: FC = () => {
 const HighlightsBannerSkeleton: FC = () => {
   return (
     <Stack gap={1} alignItems="center">
-      <Skeleton height={44} width="100%" animation="wave" variant="rounded" />
+      <Skeleton height={60} width="100%" animation="wave" variant="rounded" />
       <Skeleton height={5} width={40} animation="wave" variant="rounded" />
     </Stack>
   );

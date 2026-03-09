@@ -9,45 +9,7 @@ type Props = {
 
 export const TopThreeLogos = ({ first, second, third }: Props) => {
   return (
-    <Box
-      position="relative"
-      width="65px"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="40px"
-    >
-      {/* First token - biggest, center-right */}
-      <Avatar
-        src={first.logoURI || undefined}
-        alt={first.symbol}
-        sx={{
-          width: 38,
-          height: 38,
-          position: 'absolute',
-          right: 0,
-          top: '50%',
-          transform: 'translateY(calc(-50% + 16px))',
-          zIndex: 3,
-        }}
-      />
-
-      {/* Second token - smaller, left side */}
-      <Avatar
-        src={second.logoURI || undefined}
-        alt={second.symbol}
-        sx={{
-          width: 24,
-          height: 24,
-          position: 'absolute',
-          left: 0,
-          top: '50%',
-          transform: 'translateY(calc(-50% - 4px))',
-          zIndex: 2,
-        }}
-      />
-
-      {/* Third token - partial, top-right */}
+    <Box position="relative" width={60} height={48} flexShrink={0}>
       <Avatar
         src={third.logoURI || undefined}
         alt={third.symbol}
@@ -55,10 +17,33 @@ export const TopThreeLogos = ({ first, second, third }: Props) => {
           width: 32,
           height: 32,
           position: 'absolute',
-          right: 5,
-          top: '50%',
-          transform: 'translateY(calc(-50% - 24px))',
-          // clipPath: 'inset(62.5% 0 0 0)', // Show only bottom half
+          left: 15,
+          top: -10,
+          zIndex: 1,
+        }}
+      />
+      <Avatar
+        src={second.logoURI || undefined}
+        alt={second.symbol}
+        sx={{
+          width: 20,
+          height: 20,
+          position: 'absolute',
+          left: -2,
+          top: 17,
+          zIndex: 2,
+        }}
+      />
+      <Avatar
+        src={first.logoURI || undefined}
+        alt={first.symbol}
+        sx={{
+          width: 38,
+          height: 38,
+          position: 'absolute',
+          left: 25,
+          top: 22,
+          zIndex: 3,
         }}
       />
     </Box>
