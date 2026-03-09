@@ -1,15 +1,8 @@
-import {
-  Stack,
-  useTheme,
-  Typography,
-  AvalancheHorizontalIcon,
-  Collapse,
-} from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { ServiceType } from '@avalabs/fusion-sdk';
+import { Stack, useTheme, Typography, Collapse } from '@avalabs/k2-alpine';
 
 import { useFusionState } from '../contexts';
-import { AVALANCHE_C_CHAIN_CAIP2ID } from '../fusion-config';
 
 export const SwapProviderNotice = () => {
   const { t } = useTranslation();
@@ -22,25 +15,8 @@ export const SwapProviderNotice = () => {
     serviceType === ServiceType.LOMBARD_BTC_TO_BTCB ||
     serviceType === ServiceType.LOMBARD_BTCB_TO_BTC;
 
-  const isAvalancheBridge = serviceType === ServiceType.AVALANCHE_EVM;
-
-  const isOnAvalancheNetwork =
-    selectedQuote?.sourceChain.chainId === AVALANCHE_C_CHAIN_CAIP2ID &&
-    selectedQuote?.targetChain.chainId === AVALANCHE_C_CHAIN_CAIP2ID;
-
-  const isPoweredByAvalanche = isAvalancheBridge || isOnAvalancheNetwork;
-
-  const icon = isLombard ? (
-    <img
-      src={`/images/bridge-providers/lombard-wordmark-${theme.palette.mode}.svg`}
-      style={{ filter: 'contrast(0.05)', height: 24, marginLeft: -4 }}
-    />
-  ) : isPoweredByAvalanche ? (
-    <AvalancheHorizontalIcon size={60} />
-  ) : null;
-
   return (
-    <Collapse in={Boolean(icon)}>
+    <Collapse in={isLombard} mountOnEnter>
       <Stack
         direction="row"
         alignItems="center"
@@ -56,7 +32,10 @@ export const SwapProviderNotice = () => {
         >
           {t('Powered by')}
         </Typography>
-        {icon}
+        <img
+          src={`/images/bridge-providers/lombard-wordmark-${theme.palette.mode}.svg`}
+          style={{ filter: 'contrast(0.05)', height: 24, marginLeft: -4 }}
+        />
       </Stack>
     </Collapse>
   );
