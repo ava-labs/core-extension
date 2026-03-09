@@ -1,10 +1,14 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 
+import { Monitoring } from '@core/common';
+
 import { LoadingScreen } from '@/pages/Onboarding/components/LoadingScreen';
 
 import * as Styled from '../Styled';
 import { ConnectorCallbacks, PublicKey } from '../../types';
 import { useKeystoneBasePublicKeyFetcher } from './hooks';
+import { KeystoneClickToConnectMessage } from './components/KeystoneClickToConnectMessage';
+import { KeystoneApproveDeviceConnection } from './components/KeystoneApproveDeviceConnection';
 
 type Props = {
   minNumberOfKeys: number;
@@ -29,6 +33,10 @@ export const KeystoneUSBConnector: FC<Props> = ({
       })
       .catch((err) => {
         console.error('Failed to derive keys', err);
+        Monitoring.sentryCaptureException(
+          err instanceof Error ? err : new Error(String(err)),
+          Monitoring.SentryExceptionTypes.KEYSTONE,
+        );
         callbacks?.onConnectionFailed();
       })
       .finally(() => {
@@ -45,9 +53,19 @@ export const KeystoneUSBConnector: FC<Props> = ({
 
   return (
     <>
-      {status !== 'error' || !error ? (
-        <LoadingScreen />
-      ) : (
+      {status === 'needs-user-gesture' && (
+        <KeystoneClickToConnectMessage
+          onConnect={() => {
+            callbacks?.onConnectionRetry();
+            onRetry();
+          }}
+        />
+      )}
+      {status === 'waiting' && <LoadingScreen />}
+      {status === 'ready' && !keys.length && (
+        <KeystoneApproveDeviceConnection />
+      )}
+      {status === 'error' && error && (
         <Styled.KeystoneConnectionError
           errorType={error}
           onRetry={() => {
