@@ -66,6 +66,8 @@ export const SwapPair = () => {
               fromQuery: '',
               userAmount: '',
               useMaxAmount: false,
+              to: '',
+              toQuery: '',
             })
           }
           tokenQuery={fromQuery}

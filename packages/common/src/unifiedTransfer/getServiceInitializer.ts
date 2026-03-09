@@ -17,6 +17,7 @@ export function getServiceInitializer(
 ): ServiceInitializer {
   switch (type) {
     case ServiceType.AVALANCHE_EVM:
+    case ServiceType.WRAP_UNWRAP:
       return {
         type,
         evmSigner: evm,

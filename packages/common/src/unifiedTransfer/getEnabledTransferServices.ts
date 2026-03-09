@@ -7,6 +7,10 @@ const getEnabledTransferServicesRaw = (
 ): ServiceType[] => {
   const enabled: ServiceType[] = [];
 
+  if (featureFlags[FeatureGates.FUSION_WRAP_UNWRAP]) {
+    enabled.push(ServiceType.WRAP_UNWRAP);
+  }
+
   if (featureFlags[FeatureGates.FUSION_MARKR]) {
     enabled.push(ServiceType.MARKR);
   }

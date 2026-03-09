@@ -10,6 +10,7 @@ import {
   SwapErrorScreen,
 } from './components';
 import { useFusionState } from './contexts/FusionStateContext';
+import { SwapPartnerFee } from './components/SwapPartnerFee';
 
 export const SwapContent = () => {
   const { status } = useFusionState();
@@ -30,6 +31,7 @@ export const SwapContent = () => {
           </Stack>
           <SwapErrorMessage />
           <SwapSettings />
+          <SwapPartnerFee />
         </Stack>
       );
   }

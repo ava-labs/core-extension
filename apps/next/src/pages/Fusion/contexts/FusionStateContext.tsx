@@ -50,6 +50,7 @@ type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
 };
 type FusionState = QueryState &
   EstimatedFeeResult & {
+    debouncedUserAmount: string;
     manager: TransferManager | undefined;
     sourceTokenList: FungibleTokenBalance[];
     targetTokenList: FungibleTokenBalance[];
@@ -130,7 +131,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       ? stringToBigint(userAmount, sourceAsset.decimals)
       : 0n;
 
-  const { data: minimumTransferAmount } = useFusionMinimumTransferAmount({
+  const {
+    data: minimumTransferAmount,
+    isLoading: isMinimumTransferAmountLoading,
+  } = useFusionMinimumTransferAmount({
     selectedFromToken: sourceToken,
     selectedToToken: targetToken,
     transferManager: manager,
@@ -146,7 +150,11 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
 
   // Avoid spamming quoters by debouncing the user amount
-  const [debouncedUserAmount] = useDebouncedValue(userAmount, { wait: 200 });
+  const [debouncedUserAmount] = useDebouncedValue(userAmount, {
+    wait: 200,
+    trailing: true,
+    leading: false,
+  });
   const debouncedSourceAmountBigInt =
     debouncedUserAmount && sourceAsset
       ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
@@ -285,7 +293,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     targetAsset,
     targetChain,
     sourceToken,
-    minimumTransferAmount,
+    minimumTransferAmount: isMinimumTransferAmountLoading
+      ? undefined
+      : minimumTransferAmount,
     slippageBps: autoSlippage ? undefined : slippage * 100,
   });
 
@@ -311,6 +321,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         useMaxAmount,
         manager,
         userAmount,
+        debouncedUserAmount,
         toAmount,
         sourceTokenList,
         targetTokenList,

@@ -643,6 +643,7 @@
   "Provider": "Provider",
   "Public key not found": "Public key not found",
   "Quick swaps": "Quick swaps",
+  "Quote includes a {{coreFee}} partner fee": "Quote includes a {{coreFee}} partner fee",
   "Quote includes an {{coreFee}} Core fee": "Quote includes an {{coreFee}} Core fee",
   "RPC URL": "RPC URL",
   "RPC URL reset successfully": "RPC URL reset successfully",
