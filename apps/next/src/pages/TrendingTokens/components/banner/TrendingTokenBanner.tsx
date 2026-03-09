@@ -14,12 +14,12 @@ const getDisplayName = (token: { name: string; symbol: string }) => {
   return token.name.length > MAX_NAME_LENGTH ? token.symbol : token.name;
 };
 
-export const TrendingTokenBanner = () => {
+export const TrendingTokenSlide = () => {
   const { push } = useHistory();
 
   const { updateTrendingTokens, trendingTokens, isLoading } =
     useTrendingTokens();
-  const { showTrendingTokens } = useSettingsContext();
+  const { showHighlightBanners } = useSettingsContext();
 
   const [firstToken, secondToken, thirdToken] = trendingTokens.avalanche;
 
@@ -31,7 +31,7 @@ export const TrendingTokenBanner = () => {
     updateRef.current(`avalanche`);
   }, []);
 
-  if (!showTrendingTokens) {
+  if (!showHighlightBanners) {
     return null;
   }
 
