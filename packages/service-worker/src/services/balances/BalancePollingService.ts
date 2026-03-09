@@ -1,9 +1,11 @@
-import { uniq } from 'lodash';
-import { OnAllExtensionClosed, OnLock } from '~/runtime/lifecycleCallbacks';
-import { singleton } from 'tsyringe';
-import { Account } from '@core/types';
-import { BalanceAggregatorService } from './BalanceAggregatorService';
+import { wait } from '@avalabs/core-utils-sdk';
 import { TokenType } from '@avalabs/vm-module-types';
+import { getExponentialBackoffDelay } from '@core/common/src/utils/exponentialBackoff';
+import { Account } from '@core/types';
+import { uniq } from 'lodash';
+import { singleton } from 'tsyringe';
+import { OnAllExtensionClosed, OnLock } from '~/runtime/lifecycleCallbacks';
+import { BalanceAggregatorService } from './BalanceAggregatorService';
 
 @singleton()
 export class BalancePollingService implements OnLock, OnAllExtensionClosed {
@@ -13,6 +15,7 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
   #pollingIteration = 0;
   #lastPollingStartedAt?: number;
   #isPollingActive = false;
+  #failedAttempts = 0;
 
   constructor(private balanceAggregator: BalanceAggregatorService) {}
 
@@ -79,8 +82,10 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
         accounts: [account],
         tokenTypes,
       });
+      this.#failedAttempts = 0;
     } catch {
-      // Do nothing, just schedule another attempt
+      this.#failedAttempts += 1;
+      await wait(getExponentialBackoffDelay({ attempt: this.#failedAttempts }));
     }
 
     // Only schedule the next update if another polling was not started
@@ -122,27 +127,18 @@ export class BalancePollingService implements OnLock, OnAllExtensionClosed {
     iteration: number,
     updatePeriod: number,
   ) {
-    // Always load all chains for the first request.
     if (iteration === 0) {
       return networkIds;
     }
-    const numberOfNetworksToUpdate = Math.ceil(
-      networkIds.length / updatePeriod,
-    );
+    const networkCount = networkIds.length;
+    const batchSize = Math.ceil(networkCount / updatePeriod);
 
-    const roundsWithUpdates = Math.ceil(
-      networkIds.length / numberOfNetworksToUpdate,
-    );
+    const roundsWithUpdates = Math.ceil(networkCount / batchSize);
+    const round = iteration % updatePeriod;
 
-    if (iteration % updatePeriod < roundsWithUpdates) {
-      const startIndex =
-        ((iteration % updatePeriod) * numberOfNetworksToUpdate) %
-        networkIds.length;
-
-      return networkIds.slice(
-        startIndex,
-        startIndex + numberOfNetworksToUpdate,
-      );
+    if (round < roundsWithUpdates) {
+      const startIndex = (round * batchSize) % networkCount;
+      return networkIds.slice(startIndex, startIndex + batchSize);
     }
 
     return [];
