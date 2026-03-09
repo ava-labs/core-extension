@@ -30,6 +30,8 @@ export const DEFAULT_SLIPPAGE = 0.2;
 
 export const AUTO_QUOTE_ID = '___---AUTO-QUOTE---___';
 
+export const AVALANCHE_C_CHAIN_CAIP2ID = 'eip155:43114' as const;
+
 /**
  * Lombard mainnet and testnet BTC.b addresses.
  * @see unified-asset-transfer/src/transfer-service/lombard/constants.ts for definitions

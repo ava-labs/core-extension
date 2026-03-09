@@ -19,7 +19,7 @@ export const useSwapFormError = () => {
   const { t } = useTranslation();
 
   const {
-    userAmount,
+    debouncedUserAmount,
     quotes,
     quotesStatus,
     sourceToken,
@@ -29,13 +29,13 @@ export const useSwapFormError = () => {
     minimumTransferAmount,
   } = useFusionState();
 
-  if (!userAmount || isFeeLoading) {
+  if (!debouncedUserAmount || isFeeLoading) {
     return '';
   }
 
   const sourceAmountBigInt =
-    sourceToken && userAmount
-      ? stringToBigint(userAmount, sourceToken.decimals)
+    sourceToken && debouncedUserAmount
+      ? stringToBigint(debouncedUserAmount, sourceToken.decimals)
       : 0n;
 
   if (sourceToken && sourceAmountBigInt <= 0n) {

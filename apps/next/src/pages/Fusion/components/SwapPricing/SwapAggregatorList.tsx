@@ -1,10 +1,4 @@
-import {
-  Box,
-  Collapse,
-  getHexAlpha,
-  Stack,
-  useTheme,
-} from '@avalabs/k2-alpine';
+import { Collapse, Stack } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HiOutlineSparkles } from 'react-icons/hi2';
@@ -13,6 +7,7 @@ import { Quote } from '@avalabs/fusion-sdk';
 import { useAutomaticQuote } from './hooks/useAutomaticQuote';
 import { SwapAggregatorItem } from './SwapAggregatorItem';
 import { SwapAggregatorLogo } from './SwapAggregatorLogo';
+import { SwapAggregatorLogoArea } from './SwapAggregatorLogoArea';
 
 export const SwapAggregatorList: FC<{
   isOpen: boolean;
@@ -27,7 +22,6 @@ export const SwapAggregatorList: FC<{
 }> = ({ getPriceInCurrency, isOpen, userQuote, quotes, selectQuoteById }) => {
   const { t } = useTranslation();
   const autoQuote = useAutomaticQuote();
-  const theme = useTheme();
 
   return (
     <Collapse in={isOpen}>
@@ -36,19 +30,9 @@ export const SwapAggregatorList: FC<{
           id={autoQuote.id}
           name={autoQuote.aggregatorName}
           logo={
-            <Box
-              width={32}
-              height={32}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              sx={{
-                backgroundColor: getHexAlpha(theme.palette.primary.main, 10),
-                borderRadius: '50%',
-              }}
-            >
+            <SwapAggregatorLogoArea size={32}>
               <HiOutlineSparkles size={24} />
-            </Box>
+            </SwapAggregatorLogoArea>
           }
           isSelected={!userQuote}
           formattedAmount={t('Best price available')}
@@ -64,6 +48,7 @@ export const SwapAggregatorList: FC<{
                 <SwapAggregatorLogo
                   logoUrl={q.aggregator.logoUrl}
                   name={q.aggregator.name}
+                  service={q.serviceType}
                 />
               }
               isSelected={q.id === userQuote?.id}

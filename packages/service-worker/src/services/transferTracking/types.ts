@@ -9,6 +9,7 @@ export type TransferTrackingServiceEvents = 'tracked-transfers-updated';
 export const UNIFIED_TRANSFER_TRACKED_FLAGS = [
   FeatureGates.FUSION_MARKR,
   FeatureGates.FUSION_AVALANCHE_EVM,
+  FeatureGates.FUSION_WRAP_UNWRAP,
   FeatureGates.FUSION_LOMBARD_AVA_TO_BTC,
   FeatureGates.FUSION_LOMBARD_BTC_TO_AVA,
 ];
