@@ -1,5 +1,9 @@
 name: PR checks
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches:
+      - l10n_crowdin_action
 jobs:
   lint:
     name: Lint and build
