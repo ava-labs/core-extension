@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { useFusionState } from '../contexts';
+import { useFusionState } from '../../contexts';
 import { isNativeToken } from '@core/types';
 import { bigIntToString, bigToBigInt } from '@avalabs/core-utils-sdk';
 import { bigintToBig } from '@core/common';
+import { getNativeBridgeFee } from './lib/extractBridgeFee';
 
 /**
  * Additional buffer for the "Max" button to account for fee fluctuations.
@@ -19,7 +20,8 @@ export const useUpdateToMaxAmount = (
   isFeeLoading: boolean,
   feeError: Error | null,
 ) => {
-  const { useMaxAmount, sourceToken, updateQuery } = useFusionState();
+  const { useMaxAmount, sourceToken, updateQuery, selectedQuote } =
+    useFusionState();
 
   useEffect(() => {
     if (feeError) {
@@ -34,11 +36,18 @@ export const useUpdateToMaxAmount = (
       return;
     }
 
+    const bridgeFee = getNativeBridgeFee(
+      isNativeToken(sourceToken),
+      selectedQuote,
+    );
+
     const paddedFee = bigintToBig(fee, sourceToken.decimals).mul(
       FEE_PADDING_FACTOR,
     );
     const maxAmount = isNativeToken(sourceToken)
-      ? sourceToken.balance - bigToBigInt(paddedFee, sourceToken.decimals)
+      ? sourceToken.balance -
+        bigToBigInt(paddedFee, sourceToken.decimals) -
+        bridgeFee
       : sourceToken.balance;
     const fromAmount = bigIntToString(
       maxAmount < 0n ? 0n : maxAmount,
@@ -46,5 +55,13 @@ export const useUpdateToMaxAmount = (
     );
 
     updateQuery({ userAmount: fromAmount, useMaxAmount: false });
-  }, [useMaxAmount, isFeeLoading, feeError, sourceToken, fee, updateQuery]);
+  }, [
+    useMaxAmount,
+    isFeeLoading,
+    feeError,
+    sourceToken,
+    fee,
+    updateQuery,
+    selectedQuote,
+  ]);
 };

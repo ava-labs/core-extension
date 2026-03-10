@@ -28,6 +28,7 @@ import {
 
 import { useSwapQuery } from '../hooks';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
+import { NATIVE_FEE_UNITS_MARGIN_BPS } from '../fusion-config';
 import {
   useUserAddresses,
   useTransferManager,
@@ -210,6 +211,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       try {
         const transferObject = await manager.transferAsset({
           quote: quoteToUse,
+          gasSettings: {
+            estimateGasMarginBps: NATIVE_FEE_UNITS_MARGIN_BPS,
+          },
         });
 
         if (isCrossChainTransfer(transferObject)) {
