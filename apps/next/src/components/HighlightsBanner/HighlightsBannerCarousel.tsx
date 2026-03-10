@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Stack, styled } from '@avalabs/k2-alpine';
 import { useSettingsContext } from '@core/ui';
 import { PageControl } from '@/components/PageControl';
-import { TrendingTokenSlide } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
+import { TrendingTokenSlide } from './trendingToken/TrendingTokenSlide';
 import { HighlightBannerSlide } from './HighlightBannerSlide';
 import { useHighlightBanners } from './highlightBanners';
 

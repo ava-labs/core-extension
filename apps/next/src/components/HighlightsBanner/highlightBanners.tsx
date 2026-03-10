@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Box } from '@avalabs/k2-alpine';
+import { Box, styled } from '@avalabs/k2-alpine';
 import { useMemo } from 'react';
 import { HighlightBannerConfig } from './types';
 import stakingIcon from './assets/staking.svg';
@@ -7,50 +7,51 @@ import bridgeIcon from './assets/bridge.svg';
 import swapIcon from './assets/swap.svg';
 import earnIcon from './assets/earn.svg';
 
+const IconContainer = styled(Box)({
+  width: 60,
+  height: 48,
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+});
+
+const Glow = styled(Box)({
+  position: 'absolute',
+  borderRadius: '50%',
+  filter: 'blur(8px)',
+});
+
+const IconImage = styled('img')({
+  position: 'relative',
+  height: 'auto',
+  objectFit: 'contain',
+});
+
+type BannerIconProps = {
+  src: string;
+  glowColor: string;
+  iconWidth?: number;
+  glowSize?: number;
+};
+
 const BannerIcon = ({
   src,
   glowColor,
   iconWidth = 48,
   glowSize = 80,
-}: {
-  src: string;
-  glowColor: string;
-  iconWidth?: number;
-  glowSize?: number;
-}) => (
-  <Box
-    sx={{
-      width: 60,
-      height: 48,
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexShrink: 0,
-    }}
-  >
-    <Box
-      sx={{
-        position: 'absolute',
-        width: glowSize,
-        height: glowSize,
-        borderRadius: '50%',
+}: BannerIconProps) => (
+  <IconContainer>
+    <Glow
+      width={glowSize}
+      height={glowSize}
+      style={{
         background: `radial-gradient(circle, ${glowColor} 0%, ${glowColor}50 15%, ${glowColor}20 35%, ${glowColor}08 50%, transparent 70%)`,
-        filter: 'blur(8px)',
       }}
     />
-    <Box
-      component="img"
-      src={src}
-      alt=""
-      sx={{
-        position: 'relative',
-        width: iconWidth,
-        height: 'auto',
-        objectFit: 'contain',
-      }}
-    />
-  </Box>
+    <IconImage src={src} alt="" width={iconWidth} />
+  </IconContainer>
 );
 
 export const useHighlightBanners = (): HighlightBannerConfig[] => {

@@ -1,9 +1,20 @@
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
-import { ArrowRightIcon, Stack, Typography } from '@avalabs/k2-alpine';
+import { ArrowRightIcon, Stack, styled, Typography } from '@avalabs/k2-alpine';
 import { openNewTab } from '@core/common';
 import { Card } from '@/components/Card';
 import { HighlightBannerConfig } from './types';
+
+const SlideCard = styled(Card)({
+  cursor: 'pointer',
+  backgroundColor: 'background.paper',
+  flexShrink: 0,
+  width: '100%',
+  scrollSnapAlign: 'start',
+  overflow: 'hidden',
+});
+
+const bannerTextSx = { fontWeight: 600, lineHeight: 1.2 } as const;
 
 type HighlightBannerSlideProps = {
   banner: HighlightBannerConfig;
@@ -23,17 +34,7 @@ export const HighlightBannerSlide: FC<HighlightBannerSlideProps> = ({
   };
 
   return (
-    <Card
-      onClick={handleClick}
-      sx={{
-        cursor: 'pointer',
-        backgroundColor: 'background.paper',
-        flexShrink: 0,
-        width: '100%',
-        scrollSnapAlign: 'start',
-        overflow: 'hidden',
-      }}
-    >
+    <SlideCard onClick={handleClick}>
       <Stack
         alignItems="center"
         justifyContent="space-between"
@@ -43,22 +44,19 @@ export const HighlightBannerSlide: FC<HighlightBannerSlideProps> = ({
       >
         {banner.icon}
         <Stack flex={1} minWidth={0} gap="1px">
-          <Typography
-            variant="subtitle3"
-            sx={{ fontWeight: 600, lineHeight: 1.2 }}
-          >
+          <Typography variant="subtitle3" sx={bannerTextSx}>
             {banner.title}
           </Typography>
           <Typography
             variant="subtitle3"
             color="text.secondary"
-            sx={{ fontWeight: 600, lineHeight: 1.2 }}
+            sx={bannerTextSx}
           >
             {banner.description}
           </Typography>
         </Stack>
         <ArrowRightIcon size={22} />
       </Stack>
-    </Card>
+    </SlideCard>
   );
 };

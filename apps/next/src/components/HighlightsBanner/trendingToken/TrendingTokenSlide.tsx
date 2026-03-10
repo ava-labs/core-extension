@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Trans } from 'react-i18next';
-import { useTrendingTokens } from '../../hooks/useTrendingTokens';
-import { useSettingsContext } from '@core/ui';
+import { useTrendingTokens } from '@/pages/TrendingTokens/hooks/useTrendingTokens';
 import { ArrowRightIcon, Stack, Typography } from '@avalabs/k2-alpine';
 import { Card } from '@/components/Card';
 import { useHistory } from 'react-router-dom';
@@ -19,8 +18,6 @@ export const TrendingTokenSlide = () => {
 
   const { updateTrendingTokens, trendingTokens, isLoading } =
     useTrendingTokens();
-  const { showHighlightBanners } = useSettingsContext();
-
   const [firstToken, secondToken, thirdToken] = trendingTokens.avalanche;
 
   const updateRef = useRef(updateTrendingTokens);
@@ -30,10 +27,6 @@ export const TrendingTokenSlide = () => {
     // Just run it once for the initial render
     updateRef.current(`avalanche`);
   }, []);
-
-  if (!showHighlightBanners) {
-    return null;
-  }
 
   // Show skeleton while loading or when data isn't ready yet
   if (isLoading || !firstToken || !secondToken || !thirdToken) {
