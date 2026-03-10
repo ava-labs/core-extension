@@ -1,7 +1,8 @@
 import { FC } from 'react';
 import QRCodeSVG from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
-import { Stack, toast, Typography, useTheme } from '@avalabs/k2-alpine';
+import { Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 
 import {
   FullscreenModalActions,

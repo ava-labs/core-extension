@@ -1,8 +1,8 @@
 import { AuthErrorCode, TotpResetChallenge } from '@core/types';
-import { useSeedlessMfaManager, useAnalyticsContext } from '@core/ui';
+import { toast, useSeedlessMfaManager, useAnalyticsContext } from '@core/ui';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MFA } from '../../RecoveryPhrase/components/ShowPhrase/components/SeedlessFlow/pages/MFA';
-import { Button, Stack, toast } from '@avalabs/k2-alpine';
+import { Button, Stack } from '@avalabs/k2-alpine';
 import { AuthenticatorVerifyTotp } from '../Authenticator/AuthenticatorVerifyTotp';
 import { useTranslation } from 'react-i18next';
 import {
@@ -42,9 +42,7 @@ export const AddTotp = () => {
       setIsVerifying(true);
       await completeAuthenticatorChange(totpChallenge.totpId, code);
       capture('RecoveryMethodAdded', { method: 'totp' });
-      toast.success(t('Authenticator added!'), {
-        duration: Infinity,
-      });
+      toast.success(t('Authenticator added!'));
       history.push('update-recovery-method');
     } catch (e) {
       setError(e as AuthErrorCode);

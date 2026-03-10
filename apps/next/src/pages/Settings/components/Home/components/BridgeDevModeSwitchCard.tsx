@@ -1,8 +1,8 @@
 import { SwitchCard } from '@/components/SwitchCard';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
-import { Stack, toast } from '@avalabs/k2-alpine';
+import { Stack } from '@avalabs/k2-alpine';
 import { isProductionBuild } from '@core/common';
-import { useNetworkContext } from '@core/ui';
+import { toast, useNetworkContext } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 

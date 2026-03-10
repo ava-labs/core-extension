@@ -1,5 +1,4 @@
 import { PropsWithChildren, ReactNode, useCallback, useEffect } from 'react';
-import { toast } from '@avalabs/k2-alpine';
 import { filter } from 'rxjs';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +16,7 @@ import { useNetworkContext } from '../NetworkProvider';
 import { isTransactionStatusEvent } from './isTransactionStatusEvent';
 import { isSpecificContextContainer } from '../../utils';
 import { isAvalanchePrimaryNetwork } from '@core/common';
+import { toast } from '../../utils';
 
 const PENDING_TOAST_ID = 'transaction-pending';
 const SUCCESS_TOAST_ID = 'transaction-success';

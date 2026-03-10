@@ -4,12 +4,10 @@ import {
   Button,
   Stack,
   SxProps,
-  toast,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
-
-import { useSeedlessMfaManager } from '@core/ui';
+import { toast, useSeedlessMfaManager } from '@core/ui';
 import { AuthErrorCode, MfaRequestType } from '@core/types';
 import { useMFAEvents } from '@/pages/Settings/components/common/useMFAEvent';
 import { FIDOChallenge } from '@/pages/Settings/components/common/FIDOChallenge';
@@ -48,7 +46,7 @@ export const RemoveTotp = () => {
     try {
       await removeTotp();
       setState(RemoveTotpState.Success);
-      toast.success('Recovery method removed!', { duration: 20000 });
+      toast.success('Recovery method removed!');
       history.push('update-recovery-method');
     } catch (e) {
       console.error(e);

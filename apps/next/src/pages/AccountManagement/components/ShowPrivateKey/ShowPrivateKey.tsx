@@ -1,4 +1,4 @@
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect } from 'react-router-dom';

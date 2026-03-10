@@ -1,11 +1,5 @@
-import {
-  Button,
-  Divider,
-  Stack,
-  StackProps,
-  styled,
-  toast,
-} from '@avalabs/k2-alpine';
+import { Button, Divider, Stack, StackProps, styled } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { Contact } from '@avalabs/types';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
