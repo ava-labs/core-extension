@@ -28,6 +28,9 @@ export const MIN_SLIPPAGE = 0.1;
 export const MAX_SLIPPAGE = 50;
 export const DEFAULT_SLIPPAGE = 0.2;
 
+export const NATIVE_FEE_UNITS_MARGIN_BPS = 2000; // 20%. TODO: Move to a feature flag served via Posthog
+export const BRIDGE_FEE_SAFETY_MULTIPLIER = 1.2; // 20% safety buffer. TODO: Move to a feature flag served via Posthog
+
 export const AUTO_QUOTE_ID = '___---AUTO-QUOTE---___';
 
 export const AVALANCHE_C_CHAIN_CAIP2ID = 'eip155:43114' as const;

@@ -2,8 +2,7 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 import { TransferManager, Quote } from '@avalabs/fusion-sdk';
 
 import { EstimatedFeeResult } from '../../types';
-
-const NATIVE_FEE_UNITS_MARGIN_BPS = 2000 as const satisfies number; // 20%
+import { NATIVE_FEE_UNITS_MARGIN_BPS } from '../../fusion-config';
 
 export const useNativeFeeEstimate = (
   manager: TransferManager | undefined,
