@@ -1,4 +1,4 @@
-import { ServiceType } from '@avalabs/unified-asset-transfer';
+import { ServiceType } from '@avalabs/fusion-sdk';
 import { type FeatureFlags, FeatureGates } from '@core/types';
 import { memoize } from 'lodash';
 
@@ -6,6 +6,10 @@ const getEnabledTransferServicesRaw = (
   featureFlags: Partial<FeatureFlags>,
 ): ServiceType[] => {
   const enabled: ServiceType[] = [];
+
+  if (featureFlags[FeatureGates.FUSION_WRAP_UNWRAP]) {
+    enabled.push(ServiceType.WRAP_UNWRAP);
+  }
 
   if (featureFlags[FeatureGates.FUSION_MARKR]) {
     enabled.push(ServiceType.MARKR);

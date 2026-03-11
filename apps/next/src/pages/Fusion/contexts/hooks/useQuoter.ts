@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Chain, Asset, TransferManager } from '@avalabs/unified-asset-transfer';
+import { Chain, Asset, TransferManager } from '@avalabs/fusion-sdk';
 
 // Extracts keys that are required (not optional) in T
 type RequiredKeys<T> = {

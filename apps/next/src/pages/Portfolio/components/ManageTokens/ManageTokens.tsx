@@ -28,6 +28,7 @@ export const ManageTokens: FC = () => {
   const [query, setQuery] = useState('');
   return (
     <Page
+      data-testid="manage-tokens-page"
       title={t('Manage Tokens')}
       titleAction={
         <IconButton

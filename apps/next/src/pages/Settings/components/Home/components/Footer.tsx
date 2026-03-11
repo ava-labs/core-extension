@@ -1,15 +1,17 @@
 import {
   CoreIcon,
+  Link,
   Stack,
   StackProps,
   styled,
   Typography,
 } from '@avalabs/k2-alpine';
-import { runtime } from 'webextension-polyfill';
-import { Trans, useTranslation } from 'react-i18next';
 import { useAnalyticsContext } from '@core/ui';
+import { Trans, useTranslation } from 'react-i18next';
+import { runtime } from 'webextension-polyfill';
 
 import { InTextLink } from '@/components/InTextLink';
+import { TextToCopy } from '@/components/TextToCopy';
 
 export const Footer = (props: StackProps) => {
   const { t } = useTranslation();
@@ -45,10 +47,17 @@ export const Footer = (props: StackProps) => {
           />
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {t('© 2025 Ava Labs – All rights reserved. {{version}}', {
-            version: `v${runtime.getManifest().version}`,
-          })}
+          {t('© 2025 Ava Labs – All rights reserved.')}
         </Typography>
+
+        <Link
+          role="button"
+          variant="caption"
+          color="text.secondary"
+          underline="hover"
+        >
+          <TextToCopy>v{runtime.getManifest().version}</TextToCopy>
+        </Link>
       </Stack>
     </FooterContainer>
   );

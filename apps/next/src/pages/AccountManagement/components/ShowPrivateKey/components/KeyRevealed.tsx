@@ -6,14 +6,13 @@ import {
   Stack,
   styled,
   TextField,
-  toast,
   Typography,
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdErrorOutline } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
-import { useAnalyticsContext } from '@core/ui';
+import { toast, useAnalyticsContext } from '@core/ui';
 
 type Props = {
   privateKey: string;

@@ -1,5 +1,5 @@
 import { address } from '@solana/kit';
-import { Asset, TokenType } from '@avalabs/unified-asset-transfer';
+import { Asset, TokenType } from '@avalabs/fusion-sdk';
 
 import { FungibleAssetType } from '@core/types';
 

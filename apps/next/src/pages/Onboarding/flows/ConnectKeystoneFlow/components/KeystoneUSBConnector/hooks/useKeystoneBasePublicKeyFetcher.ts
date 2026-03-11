@@ -1,7 +1,7 @@
 import { ChainIDAlias } from '@keystonehq/hw-app-avalanche';
 import { Status, TransportError } from '@keystonehq/hw-transport-error';
 import { getAddressPublicKeyFromXPub } from '@avalabs/core-wallets-sdk';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useKeystoneUsbContext } from '@core/ui';
 import { EVM_BASE_DERIVATION_PATH, ExtendedPublicKey } from '@core/types';
@@ -25,14 +25,17 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     getMasterFingerprint,
     hasKeystoneTransport,
     initKeystoneTransport,
-    popDeviceSelection,
     wasTransportAttempted,
     getExtendedPublicKey,
+    retryConnection,
   } = useKeystoneUsbContext();
 
   const [error, setError] = useState<ErrorType>();
   const [status, setStatus] = useState<UsbDerivationStatus>('waiting');
+  const [wasManualConnectionAttempted, setWasManualConnectionAttempted] =
+    useState(false);
   const checkAddressActivity = useCheckAddressActivity();
+  const isRetrying = useRef(false);
 
   const retrieveXpKeys = useCallback(
     async (indexes: number[]) => {
@@ -140,6 +143,8 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
   const retrieveKeys = useCallback(
     async (minNumberOfKeys: number) => {
       if (minNumberOfKeys < 1) {
+        setStatus('error');
+        setError('unable-to-connect');
         throw new Error('Min number of keys must be greater than 0');
       }
 
@@ -193,10 +198,20 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
     ],
   );
 
+  // Attempt a fresh connection on load
   useEffect(() => {
+    retryConnection();
+  }, [retryConnection]);
+
+  useEffect(() => {
+    // Skip when onRetry is handling the flow to avoid racing with the effect.
+    if (isRetrying.current) {
+      return;
+    }
+
     // If the user previously rejected the request to connect,
     // do not attempt to connect again unless they retry manually.
-    if (error == 'user-rejected') {
+    if (status === 'error' || status === 'needs-user-gesture') {
       return;
     }
 
@@ -205,36 +220,33 @@ export const useKeystoneBasePublicKeyFetcher: UseKeystonePublicKeyFetcher = (
       setStatus('ready');
       setError(undefined);
     } else if (!hasKeystoneTransport && !wasTransportAttempted) {
-      popDeviceSelection().then(initKeystoneTransport);
-    } else if (!hasKeystoneTransport) {
-      const timer = setTimeout(() => {
-        setStatus('error');
-        setError('unable-to-connect');
-      }, 5_000); // Wait 5 seconds to obtain the connection, then show an error message with some instructions
-
-      return () => clearTimeout(timer);
+      initKeystoneTransport();
+    } else if (!hasKeystoneTransport && !wasManualConnectionAttempted) {
+      setWasManualConnectionAttempted(true);
+      setStatus('needs-user-gesture');
     }
   }, [
-    error,
     status,
-    retrieveKeys,
     wasTransportAttempted,
     hasKeystoneTransport,
     initKeystoneTransport,
-    popDeviceSelection,
+    wasManualConnectionAttempted,
   ]);
 
   const onRetry = useCallback(async () => {
+    isRetrying.current = true;
+    setError(undefined);
+    setStatus('waiting');
+
     try {
-      await popDeviceSelection();
-      await initKeystoneTransport();
-      setError(undefined);
-      setStatus('waiting');
+      await retryConnection();
     } catch {
       setStatus('error');
       setError('unable-to-connect');
+    } finally {
+      isRetrying.current = false;
     }
-  }, [popDeviceSelection, initKeystoneTransport]);
+  }, [retryConnection]);
 
   return {
     status,

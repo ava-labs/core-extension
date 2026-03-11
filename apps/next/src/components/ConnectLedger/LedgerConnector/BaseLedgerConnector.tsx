@@ -8,19 +8,23 @@ import { sortBy } from 'lodash';
 import * as Styled from '../Styled';
 import {
   ConnectorCallbacks,
+  DerivedAccountInfo,
   DerivedKeys,
+  ErrorType,
   PublicKey,
   UseLedgerPublicKeyFetcher,
 } from './types';
 import { LedgerAppType } from '@core/ui';
 import { DerivationStatus } from '@core/types';
+import { Monitoring } from '@core/common';
 
 type CommonProps = {
   onSuccess: (keys: DerivedKeys) => void;
   onStatusChange: (status: DerivationStatus) => void;
+  onErrorChange?: (error?: ErrorType) => void;
   minNumberOfKeys: number;
   onTroubleshoot: () => void;
-  deriveAddresses: (keys: PublicKey[]) => string[];
+  deriveAddresses: (keys: PublicKey[]) => DerivedAccountInfo[];
   derivedAddressesChainCaipId: string;
   useLedgerPublicKeyFetcher: UseLedgerPublicKeyFetcher;
   callbacks?: ConnectorCallbacks;
@@ -65,6 +69,7 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
   const {
     onSuccess,
     onStatusChange,
+    onErrorChange,
     onTroubleshoot,
     minNumberOfKeys,
     useLedgerPublicKeyFetcher,
@@ -93,6 +98,10 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
         callbacks?.onConnectionSuccess();
       })
       .catch((err) => {
+        Monitoring.sentryCaptureException(
+          err,
+          Monitoring.SentryExceptionTypes.LEDGER,
+        );
         console.error('Failed to derive keys', err);
         callbacks?.onConnectionFailed(err);
       })
@@ -114,7 +123,11 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
     onStatusChange(status);
   }, [status, onStatusChange]);
 
-  const addresses = deriveAddresses(activePublicKeys);
+  useEffect(() => {
+    onErrorChange?.(error);
+  }, [error, onErrorChange]);
+
+  const accounts = deriveAddresses(activePublicKeys);
 
   const isDuplicatedWalletError =
     status === 'error' && error === 'duplicated-wallet';
@@ -135,11 +148,11 @@ export const BaseLedgerConnector: FC<Props & LedgerConnectorOverrides> = (
                 labels={props.overrides?.PathSelector?.labels}
               />
             )}
-            {isDuplicatedWalletError ? null : addresses.length === 0 ? (
+            {isDuplicatedWalletError ? null : accounts.length === 0 ? (
               <Styled.ObtainedAddressesSkeleton count={minNumberOfKeys} />
             ) : (
               <DerivedAddresses
-                addresses={addresses}
+                accounts={accounts}
                 chainCaipId={derivedAddressesChainCaipId}
                 addLoadingRow={isRetrieving}
               />

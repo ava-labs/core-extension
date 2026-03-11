@@ -1,6 +1,6 @@
 import { useConfettiContext } from '@/components/Confetti';
 import { ACCOUNT_MANAGEMENT_QUERY_TOKENS } from '@/config/routes';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -18,7 +18,7 @@ export function useImportWalletSuccess() {
     );
 
     if (showImportSuccess) {
-      toast.success(t('Wallet Imported'), { duration: 2000 });
+      toast.success(t('Wallet Imported'));
       triggerConfetti();
       history.replace({ search: '' });
     }

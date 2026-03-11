@@ -21,6 +21,7 @@ import {
   TokenWithBalanceERC20,
 } from '@avalabs/vm-module-types';
 import {
+  caipToChainId,
   chainIdToCaip,
   findMatchingBridgeAsset,
   getExplorerAddressByNetwork,
@@ -28,11 +29,10 @@ import {
   isUserRejectionError,
   Monitoring,
   stringToBigint,
-  caipToChainId,
 } from '@core/common';
 import { useTranslation } from 'react-i18next';
 import { errorValues } from 'eth-rpc-errors/dist/error-constants';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import browser from 'webextension-polyfill';
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
 import { asHex } from '@/pages/Send/components/SendBody/lib/asHex';

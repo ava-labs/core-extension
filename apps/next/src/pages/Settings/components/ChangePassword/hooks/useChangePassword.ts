@@ -2,8 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 
-import { toast } from '@avalabs/k2-alpine';
-import { useWalletContext, useAnalyticsContext } from '@core/ui';
+import { toast, useWalletContext, useAnalyticsContext } from '@core/ui';
 
 type ChangePasswordErrors = Partial<{
   general: string;

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Asset } from '@avalabs/unified-asset-transfer';
+import { Asset } from '@avalabs/fusion-sdk';
 import { TokenType as VmTokenType } from '@avalabs/vm-module-types';
 
 import { useNetworkContext } from '@core/ui';

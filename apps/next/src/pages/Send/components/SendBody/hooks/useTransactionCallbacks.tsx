@@ -1,12 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { toast } from '@avalabs/k2-alpine';
 
 import {
   isMissingBtcWalletPolicyError,
   isUserRejectionError,
 } from '@core/common';
 import { NetworkWithCaipId } from '@core/types';
-import { useAnalyticsContext } from '@core/ui';
+import { toast, useAnalyticsContext } from '@core/ui';
 
 const TOAST_ID = 'send-result';
 
@@ -41,11 +40,15 @@ export const useTransactionCallbacks = (
       console.error('Failed to send transaction:', err);
 
       if (isMissingBtcWalletPolicyError(err)) {
-        toast.error(t('Missing Bitcoin wallet policy'), { id: TOAST_ID });
+        toast.error(t('Missing Bitcoin wallet policy'), {
+          id: TOAST_ID,
+        });
       }
 
       if (!isUserRejectionError(err)) {
-        toast.error(t('Failed to send the transaction'), { id: TOAST_ID });
+        toast.error(t('Failed to send the transaction'), {
+          id: TOAST_ID,
+        });
       }
     },
   };

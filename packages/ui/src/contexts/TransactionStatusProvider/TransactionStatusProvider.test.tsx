@@ -1,7 +1,7 @@
 import { render } from '@shared/tests/test-utils';
 import { Subject } from 'rxjs';
 import { ChainId, NetworkVMType } from '@avalabs/core-chains-sdk';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '../../utils';
 import {
   ContextContainer,
   TransactionStatusEvents,
@@ -11,15 +11,6 @@ import { TransactionStatusProvider } from './TransactionStatusProvider';
 import { useConnectionContext } from '../ConnectionProvider';
 import { useNetworkContext } from '../NetworkProvider';
 import { isSpecificContextContainer } from '../../utils';
-
-jest.mock('@avalabs/k2-alpine', () => ({
-  toast: {
-    pending: jest.fn(),
-    success: jest.fn(),
-    error: jest.fn(),
-    dismiss: jest.fn(),
-  },
-}));
 
 jest.mock('react-i18next', () => ({
   useTranslation: jest.fn(() => ({
@@ -37,6 +28,12 @@ jest.mock('../NetworkProvider', () => ({
 
 jest.mock('../../utils', () => ({
   isSpecificContextContainer: jest.fn(),
+  toast: {
+    pending: jest.fn(),
+    success: jest.fn(),
+    error: jest.fn(),
+    dismiss: jest.fn(),
+  },
 }));
 
 jest.mock('@core/common', () => ({

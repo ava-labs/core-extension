@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 
 import { isNotNullish } from '@core/common';
 import { FungibleTokenBalance, getUniqueTokenId } from '@core/types';

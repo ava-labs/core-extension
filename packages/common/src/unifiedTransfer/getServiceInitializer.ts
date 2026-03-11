@@ -5,7 +5,7 @@ import {
   MarkrServiceInitializer,
   ServiceInitializer,
   ServiceType,
-} from '@avalabs/unified-asset-transfer';
+} from '@avalabs/fusion-sdk';
 
 import { UnifiedTransferSigners } from '@core/types';
 import { MARKR_EVM_PARTNER_ID } from './constants';
@@ -17,6 +17,7 @@ export function getServiceInitializer(
 ): ServiceInitializer {
   switch (type) {
     case ServiceType.AVALANCHE_EVM:
+    case ServiceType.WRAP_UNWRAP:
       return {
         type,
         evmSigner: evm,
@@ -30,6 +31,9 @@ export function getServiceInitializer(
         markrApiToken: process.env.MARKR_API_TOKEN,
         markrApiUrl: process.env.MARKR_API_URL,
         markrAppId: MARKR_EVM_PARTNER_ID,
+        async getTargetChainAssets() {
+          return [];
+        },
       } satisfies MarkrServiceInitializer;
 
     case ServiceType.LOMBARD_BTCB_TO_BTC:

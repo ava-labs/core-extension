@@ -1,10 +1,10 @@
 import {
   Button,
-  toast,
   Tooltip,
   Typography,
   TypographyProps,
 } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { stripAddressPrefix, truncateAddress } from '@core/common';
 import { ComponentType, FC, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -89,7 +89,6 @@ export const AddressItem: FC<Props> = ({
             navigator.clipboard.writeText(strippedAddress);
             toast.success(t('Address copied!'), {
               id: 'address-copied',
-              duration: 1000,
             });
             onClick?.();
           }}

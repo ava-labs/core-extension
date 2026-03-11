@@ -47,15 +47,15 @@ type TokenAmountInputProps = {
 type AmountInputProps =
   | {
       isAmountReadOnly?: undefined;
-      onAmountChange?: (amount: string) => void;
+      onAmountChange?: (amount: string, isMax: boolean) => void;
     }
   | {
       isAmountReadOnly?: never;
-      onAmountChange?: (amount: string) => void;
+      onAmountChange?: (amount: string, isMax: boolean) => void;
     }
   | {
       isAmountReadOnly: false;
-      onAmountChange: (amount: string) => void;
+      onAmountChange: (amount: string, isMax: boolean) => void;
     }
   | {
       isAmountReadOnly: true;
@@ -149,6 +149,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
       // Make sure we never seem silly by telling the user to send a negative amount.
       onAmountChange?.(
         calculatedMaxAmount.lt(0n) ? '0' : calculatedMaxAmount.toString(),
+        percentage === 100,
       );
     },
     [
@@ -198,7 +199,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           <InvisibleAmountInput
             autoFocus={autoFocus}
             placeholder={(0).toFixed(2)}
-            onChange={(ev) => onAmountChange?.(ev.target.value)}
+            onChange={(ev) => onAmountChange?.(ev.target.value, false)}
             error={Boolean(isAmountTooBig) || amountBigInt < minAmount}
             helperText={
               isLoading ? <CircularProgress size={12} /> : currencyValue || '-'
@@ -232,13 +233,22 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           onFocus={onFocus}
           onBlur={onBlur}
         >
-          <AmountPresetButton onClick={() => handlePresetClick(25)}>
+          <AmountPresetButton
+            onClick={() => handlePresetClick(25)}
+            disabled={isLoading}
+          >
             {t('25%')}
           </AmountPresetButton>
-          <AmountPresetButton onClick={() => handlePresetClick(50)}>
+          <AmountPresetButton
+            onClick={() => handlePresetClick(50)}
+            disabled={isLoading}
+          >
             {t('50%')}
           </AmountPresetButton>
-          <AmountPresetButton onClick={() => handlePresetClick(100)}>
+          <AmountPresetButton
+            onClick={() => handlePresetClick(100)}
+            disabled={isLoading}
+          >
             {t('Max')}
           </AmountPresetButton>
         </Stack>

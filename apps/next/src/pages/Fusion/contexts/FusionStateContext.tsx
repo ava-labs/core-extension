@@ -6,10 +6,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
+import { useDebouncedValue } from '@tanstack/react-pacer';
 
 import {
   Account,
@@ -27,6 +28,7 @@ import {
 
 import { useSwapQuery } from '../hooks';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
+import { NATIVE_FEE_UNITS_MARGIN_BPS } from '../fusion-config';
 import {
   useUserAddresses,
   useTransferManager,
@@ -40,33 +42,38 @@ import {
   useSlippageTolerance,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
-import { QuoteStreamingStatus, SwapStatus } from '../types';
+import { EstimatedFeeResult, QuoteStreamingStatus, SwapStatus } from '../types';
+import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount';
+import { useMaxButtonFeeEstimate } from './hooks/useMaxButtonFeeEstimate';
 
 type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
   updateQuery: ReturnType<typeof useSwapQuery>['update'];
 };
-type FusionState = QueryState & {
-  sourceTokenList: FungibleTokenBalance[];
-  targetTokenList: FungibleTokenBalance[];
-  sourceToken: FungibleTokenBalance | undefined;
-  targetToken: FungibleTokenBalance | undefined;
-  account?: Account;
-  isConfirming: boolean;
-  slippage: number;
-  setSlippage: (slippage: number) => void;
-  autoSlippage: boolean;
-  setAutoSlippage: (autoSlippage: boolean) => void;
-  fromAmount?: string;
-  toAmount?: string;
-  userQuote: Quote | null;
-  bestQuote: Quote | null;
-  selectedQuote: Quote | null;
-  quotes: Quote[];
-  selectQuoteById: (quoteId: string | null) => void;
-  transfer: (specificQuote?: Quote) => Promise<void>;
-  status: SwapStatus;
-  quotesStatus: QuoteStreamingStatus;
-};
+type FusionState = QueryState &
+  EstimatedFeeResult & {
+    debouncedUserAmount: string;
+    manager: TransferManager | undefined;
+    sourceTokenList: FungibleTokenBalance[];
+    targetTokenList: FungibleTokenBalance[];
+    sourceToken: FungibleTokenBalance | undefined;
+    targetToken: FungibleTokenBalance | undefined;
+    account?: Account;
+    isConfirming: boolean;
+    slippage: number;
+    setSlippage: (slippage: number) => void;
+    autoSlippage: boolean;
+    setAutoSlippage: (autoSlippage: boolean) => void;
+    minimumTransferAmount: bigint | undefined;
+    toAmount?: string;
+    userQuote: Quote | null;
+    bestQuote: Quote | null;
+    selectedQuote: Quote | null;
+    quotes: Quote[];
+    selectQuoteById: (quoteId: string | null) => void;
+    transfer: (specificQuote?: Quote) => Promise<void>;
+    status: SwapStatus;
+    quotesStatus: QuoteStreamingStatus;
+  };
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -93,6 +100,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toId,
     fromQuery,
     toQuery,
+    useMaxAmount,
   } = useSwapQuery();
 
   const { manager, error: initializationError } = useTransferManager();
@@ -119,6 +127,40 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { slippage, setSlippage, autoSlippage, setAutoSlippage } =
     useSlippageTolerance();
 
+  const sourceAmountBigInt =
+    userAmount && sourceAsset
+      ? stringToBigint(userAmount, sourceAsset.decimals)
+      : 0n;
+
+  const {
+    data: minimumTransferAmount,
+    isLoading: isMinimumTransferAmountLoading,
+  } = useFusionMinimumTransferAmount({
+    selectedFromToken: sourceToken,
+    selectedToToken: targetToken,
+    transferManager: manager,
+  });
+
+  const isAmountHigherThanBalance =
+    sourceAmountBigInt > (sourceToken?.balance ?? 0n);
+
+  const isAmountLowerThanMinimum =
+    typeof minimumTransferAmount === 'bigint' &&
+    sourceAmountBigInt < minimumTransferAmount;
+
+  const skipFetching = isAmountHigherThanBalance || isAmountLowerThanMinimum;
+
+  // Avoid spamming quoters by debouncing the user amount
+  const [debouncedUserAmount] = useDebouncedValue(userAmount, {
+    wait: 200,
+    trailing: true,
+    leading: false,
+  });
+  const debouncedSourceAmountBigInt =
+    debouncedUserAmount && sourceAsset
+      ? stringToBigint(debouncedUserAmount, sourceAsset.decimals)
+      : 0n;
+
   const {
     bestQuote,
     quotes,
@@ -127,20 +169,20 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     isUserSelectedQuote,
     selectQuoteById,
     status: quotesStatus,
-  } = useQuotes({
-    manager,
-    fromAddress,
-    toAddress,
-    sourceAsset,
-    sourceChain,
-    targetAsset,
-    targetChain,
-    amount:
-      userAmount && sourceAsset
-        ? stringToBigint(userAmount, sourceAsset.decimals)
-        : 0n,
-    slippageBps: autoSlippage ? undefined : slippage * 100,
-  });
+  } = useQuotes(
+    {
+      manager,
+      fromAddress,
+      toAddress,
+      sourceAsset,
+      sourceChain,
+      targetAsset,
+      targetChain,
+      amount: debouncedSourceAmountBigInt,
+      slippageBps: autoSlippage ? undefined : slippage * 100,
+    },
+    skipFetching,
+  );
 
   const toAmount =
     selectedQuote && targetAsset
@@ -169,6 +211,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       try {
         const transferObject = await manager.transferAsset({
           quote: quoteToUse,
+          gasSettings: {
+            estimateGasMarginBps: NATIVE_FEE_UNITS_MARGIN_BPS,
+          },
         });
 
         if (isCrossChainTransfer(transferObject)) {
@@ -243,6 +288,21 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
+  const { fee, isFeeLoading, feeError } = useMaxButtonFeeEstimate({
+    manager,
+    fromAddress,
+    toAddress,
+    sourceAsset,
+    sourceChain,
+    targetAsset,
+    targetChain,
+    sourceToken,
+    minimumTransferAmount: isMinimumTransferAmountLoading
+      ? undefined
+      : minimumTransferAmount,
+    slippageBps: autoSlippage ? undefined : slippage * 100,
+  });
+
   const status = getSwapStatus(
     activeAccount,
     isBalancesLoading,
@@ -251,6 +311,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceTokenList,
     targetTokenList,
     selectedQuote,
+    useMaxAmount,
   );
 
   return (
@@ -261,8 +322,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         toId,
         fromQuery,
         toQuery,
+        useMaxAmount,
+        manager,
         userAmount,
-        fromAmount: userAmount,
+        debouncedUserAmount,
         toAmount,
         sourceTokenList,
         targetTokenList,
@@ -282,6 +345,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         quotesStatus,
         selectQuoteById,
         transfer,
+        minimumTransferAmount,
+        fee,
+        isFeeLoading,
+        feeError,
       }}
     >
       {children}

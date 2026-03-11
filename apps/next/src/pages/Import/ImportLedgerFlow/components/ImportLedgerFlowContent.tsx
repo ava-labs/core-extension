@@ -1,4 +1,4 @@
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { memoize } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1,13 +1,7 @@
 import { Card } from '@/components/Card';
 import { FakeWord } from '@/components/FakeWord';
-import {
-  Button,
-  Grid2,
-  Skeleton,
-  Stack,
-  toast,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Button, Grid2, Skeleton, Stack, Typography } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { FC, memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 

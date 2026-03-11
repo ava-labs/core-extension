@@ -1,8 +1,7 @@
-import { toast } from '@avalabs/k2-alpine';
 import { DisplayData, RpcMethod } from '@avalabs/vm-module-types';
 import { caipToChainId } from '@core/common';
 import { Action, GaslessPhase } from '@core/types';
-import { useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
+import { toast, useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
 import { isUndefined } from 'lodash';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

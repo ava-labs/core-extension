@@ -1,8 +1,4 @@
-import {
-  Caip2ChainId,
-  Chain,
-  TokenType,
-} from '@avalabs/unified-asset-transfer';
+import { Caip2ChainId, Chain, TokenType } from '@avalabs/fusion-sdk';
 
 import { NetworkWithCaipId } from '@core/types';
 

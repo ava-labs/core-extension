@@ -26,6 +26,7 @@ export const NameField = ({
   prompt,
   readOnly,
   showEditIcon = false,
+  ...rest
 }: NameFieldProps) => {
   const theme = useTheme();
   const showPrompt = !isNaming && name.trim().length === 0;
@@ -59,6 +60,7 @@ export const NameField = ({
               onBlur={() => setIsNaming(false)}
               onChange={(e) => setName(e.target.value)}
               readOnly={readOnly}
+              {...rest}
               style={{
                 gridArea: '1 / 1',
                 padding: 0,

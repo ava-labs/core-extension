@@ -8,6 +8,7 @@ import { Page } from '@/components/Page';
 
 import { FusionStateContextProvider, useFusionState } from './contexts';
 import { SwapContent } from './SwapContent';
+import { SwapProviderNotice } from './components/SwapProviderNotice';
 
 const POLLED_BALANCES = [
   VmTokenType.NATIVE,
@@ -37,6 +38,7 @@ const FusionPage = () => {
           gap={1}
           textAlign="center"
         >
+          <SwapProviderNotice />
           <Button
             fullWidth
             size="extension"

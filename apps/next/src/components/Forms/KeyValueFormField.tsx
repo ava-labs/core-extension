@@ -43,6 +43,7 @@ export const KeyValueFormField = ({
   onChange,
   allowCopy = false,
   readonly = false,
+  ...rest
 }: FormFieldProps) => {
   const { key, value } = values;
   const theme = useTheme();
@@ -77,6 +78,7 @@ export const KeyValueFormField = ({
 
   return (
     <FieldContainer
+      {...rest}
       paddingBlock={theme.spacing(isEditing || value ? 0.25 : 1)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

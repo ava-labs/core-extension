@@ -34,7 +34,7 @@ import {
 } from '@core/common';
 
 import { useSwapQuery, useSwapTokens } from '../hooks';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { DEFAULT_SLIPPAGE } from '../swap-config';
 import { isSlippageValid } from '../lib/slippageValidation';
 import { useHistory } from 'react-router-dom';

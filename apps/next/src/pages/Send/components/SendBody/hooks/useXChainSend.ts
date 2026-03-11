@@ -1,4 +1,4 @@
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';

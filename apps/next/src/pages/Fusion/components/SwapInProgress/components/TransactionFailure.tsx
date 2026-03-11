@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { ErrorCode } from '@avalabs/unified-asset-transfer';
+import { ErrorCode } from '@avalabs/fusion-sdk';
 import { Stack, Typography } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 

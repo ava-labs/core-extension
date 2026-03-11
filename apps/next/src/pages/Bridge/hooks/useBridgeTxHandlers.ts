@@ -2,7 +2,7 @@ import { handleTxOutcome, isAddressBlockedError } from '@core/common';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBridgeQuery } from '../contexts';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import {
   useAccountsContext,
   useAnalyticsContext,
@@ -64,7 +64,9 @@ export const useBridgeTxHandlers = () => {
   );
 
   const onRejected = useCallback(() => {
-    toast.error(t('This transaction has been rejected'), { id: TOAST_ID });
+    toast.error(t('This transaction has been rejected'), {
+      id: TOAST_ID,
+    });
   }, [t]);
 
   const onFailure = useCallback(

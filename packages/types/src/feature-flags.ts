@@ -61,6 +61,7 @@ export enum FeatureGates {
   QUICK_SWAPS = 'quick-swaps',
   FUSION_FEATURE = 'fusion',
   FUSION_MARKR = 'fusion-markr',
+  FUSION_WRAP_UNWRAP = 'fusion-wrap-unwrap',
   FUSION_AVALANCHE_EVM = 'fusion-avalanche-evm',
   FUSION_LOMBARD_BTC_TO_AVA = 'fusion-lombard-btc-to-ava',
   FUSION_LOMBARD_AVA_TO_BTC = 'fusion-lombard-ava-to-btc',

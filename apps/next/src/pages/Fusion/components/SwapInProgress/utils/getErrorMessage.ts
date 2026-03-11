@@ -1,4 +1,4 @@
-import { ErrorCode as UnifiedAssetTransferErrorCode } from '@avalabs/unified-asset-transfer';
+import { ErrorCode as UnifiedAssetTransferErrorCode } from '@avalabs/fusion-sdk';
 import { TFunction } from 'react-i18next';
 
 export const getErrorMessage = (

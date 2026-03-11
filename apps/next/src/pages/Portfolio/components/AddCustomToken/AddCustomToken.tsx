@@ -8,13 +8,12 @@ import {
   MenuItem,
   Stack,
   StackProps,
-  toast,
   Typography,
 } from '@avalabs/k2-alpine';
 import { SearchableSelect } from '@/components/SearchableSelect';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { ExtensionRequest, NetworkWithCaipId } from '@core/types';
-import { useConnectionContext, useNetworkContext } from '@core/ui';
+import { toast, useConnectionContext, useNetworkContext } from '@core/ui';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
@@ -214,7 +213,6 @@ export const AddCustomToken: FC = () => {
             try {
               await addCustomToken(tokenAddress, chainId!);
               toast.success(t('Token Added'), {
-                duration: 2000,
                 id: 'custom-token-added',
               });
               goBack();

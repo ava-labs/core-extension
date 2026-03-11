@@ -1,4 +1,4 @@
-import { Quote, TokenType } from '@avalabs/unified-asset-transfer';
+import { Quote, TokenType } from '@avalabs/fusion-sdk';
 import { TokenType as VmTokenType } from '@avalabs/vm-module-types';
 
 import { FungibleTokenBalance } from '@core/types';

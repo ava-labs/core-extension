@@ -1,5 +1,5 @@
 import { uniq } from 'lodash';
-import { Transfer, Quote } from '@avalabs/unified-asset-transfer';
+import { Transfer, Quote } from '@avalabs/fusion-sdk';
 
 import { isNotNullish } from '@core/common';
 import { NetworkWithCaipId, PartialBy } from '@core/types';

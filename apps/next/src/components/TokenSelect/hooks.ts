@@ -8,7 +8,6 @@ import {
 } from '@core/common';
 import { ChainId } from '@avalabs/core-chains-sdk';
 import { ChainOption } from './components/ChainFilterChips';
-import { sortTokensByBalance } from './utils';
 
 /**
  * Helper to check if a chain ID is any Avalanche network (C, X, or P)
@@ -79,7 +78,7 @@ export const useFilteredTokenList = (
       );
     }
 
-    return sortTokensByBalance(filtered);
+    return filtered;
   }, [tokenList, selectedChainId, isAnyAvalancheNetwork]);
 };
 

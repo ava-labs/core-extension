@@ -3,9 +3,9 @@ import {
   getHexAlpha,
   Stack,
   styled,
-  toast,
   Typography,
 } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 

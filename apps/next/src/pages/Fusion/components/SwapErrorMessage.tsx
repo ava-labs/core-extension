@@ -7,13 +7,13 @@ export const SwapErrorMessage = () => {
   const formError = useSwapFormError();
 
   return (
-    <Collapse in={Boolean(formError)}>
+    <Collapse in={Boolean(formError)} appear unmountOnExit={false}>
       <Typography
         component="p"
         color="error.main"
         textAlign="center"
         variant="caption"
-        height={theme.typography.caption.lineHeight}
+        minHeight={theme.typography.caption.lineHeight}
       >
         {formError}
       </Typography>

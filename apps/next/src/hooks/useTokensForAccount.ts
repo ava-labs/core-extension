@@ -174,9 +174,9 @@ const sortTokens = (tokens: FungibleTokenBalance[]): FungibleTokenBalance[] =>
       isAvaxToken,
       isNativeToken,
       hasCurrencyValue,
-      'token.balanceInCurrency',
-      'token.balance',
-      'token.name',
+      (t) => t.balanceInCurrency ?? 0,
+      (t) => t.balance ?? 0n,
+      (t) => t.name ?? '',
     ],
     ['desc', 'desc', 'desc', 'desc', 'desc', 'asc'], // isNativeToken and hasCurrencyValue return booleans and true > false (1 > 0)
   );

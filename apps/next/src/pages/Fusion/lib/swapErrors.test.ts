@@ -1,4 +1,4 @@
-import { ErrorCode, SdkError } from '@avalabs/unified-asset-transfer';
+import { ErrorCode, SdkError } from '@avalabs/fusion-sdk';
 
 import {
   isGasEstimationError,

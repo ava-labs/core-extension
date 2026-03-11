@@ -82,8 +82,18 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       if (appType === LedgerAppType.SOLANA) {
         setStatus('ready');
         setError(undefined);
+      } else if (appType === LedgerAppType.DASHBOARD) {
+        // Device is unlocked but sitting on the dashboard with no app open.
+        setStatus('error');
+        setError('no-app');
+      } else if (appType === LedgerAppType.UNKNOWN) {
+        // Device is likely locked or unresponsive.
+        setStatus('error');
+        setError('device-locked');
       } else {
-        setStatus('waiting');
+        // A known non-Solana app is open — prompt the user to switch.
+        setStatus('error');
+        setError('incorrect-app');
       }
     } else if (!hasLedgerTransport && !wasTransportAttempted) {
       initLedgerTransport();
@@ -91,7 +101,7 @@ export const useLedgerSolanaPublicKeyFetcher: UseLedgerPublicKeyFetcher = (
       const timer = setTimeout(() => {
         setStatus('error');
         setError('unable-to-connect');
-      }, 20_000); // Give the user 20 seconds to connect their ledger, then show an error message with some instructions
+      }, 20_000);
 
       return () => clearTimeout(timer);
     }

@@ -28,4 +28,18 @@ export const MIN_SLIPPAGE = 0.1;
 export const MAX_SLIPPAGE = 50;
 export const DEFAULT_SLIPPAGE = 0.2;
 
+export const NATIVE_FEE_UNITS_MARGIN_BPS = 2000; // 20%. TODO: Move to a feature flag served via Posthog
+export const BRIDGE_FEE_SAFETY_MULTIPLIER = 1.2; // 20% safety buffer. TODO: Move to a feature flag served via Posthog
+
 export const AUTO_QUOTE_ID = '___---AUTO-QUOTE---___';
+
+export const AVALANCHE_C_CHAIN_CAIP2ID = 'eip155:43114' as const;
+
+/**
+ * Lombard mainnet and testnet BTC.b addresses.
+ * @see unified-asset-transfer/src/transfer-service/lombard/constants.ts for definitions
+ */
+export const BTCB_ADDRESS_MAINNET =
+  '0x152b9d0fdc40c096757f570a51e494bd4b943e50' as const;
+export const BTCB_ADDRESS_TESTNET =
+  '0x71ba2b8dc58e7ca1b6d81a60729e31aefa37ae02' as const;

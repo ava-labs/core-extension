@@ -17,5 +17,6 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  }
+  },
+  "snyk.advanced.autoSelectOrganization": true
 }

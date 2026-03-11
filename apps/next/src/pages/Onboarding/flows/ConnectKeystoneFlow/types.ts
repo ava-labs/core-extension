@@ -3,7 +3,11 @@ import { AddressPublicKeyJson, ExtendedPublicKey } from '@core/types';
 
 export type Device = 'keystone-usb' | 'keystone-qr';
 
-export type UsbDerivationStatus = 'waiting' | 'ready' | 'error';
+export type UsbDerivationStatus =
+  | 'waiting'
+  | 'ready'
+  | 'error'
+  | 'needs-user-gesture';
 
 export type QRCodeDerivationStatus = 'waiting' | 'scanning' | 'error';
 

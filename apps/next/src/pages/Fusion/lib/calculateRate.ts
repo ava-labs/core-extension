@@ -1,4 +1,4 @@
-import { Quote } from '@avalabs/unified-asset-transfer';
+import { Quote } from '@avalabs/fusion-sdk';
 
 import { bigintToBig } from '@core/common';
 

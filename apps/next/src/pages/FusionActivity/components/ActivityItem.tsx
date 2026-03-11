@@ -8,7 +8,7 @@ import {
 } from '@avalabs/k2-alpine';
 import { FC } from 'react';
 import * as Styled from './Styled';
-import { Transfer } from '@avalabs/unified-asset-transfer';
+import { Transfer } from '@avalabs/fusion-sdk';
 import { isCompletedTransfer, isTransferInProgress } from '@core/types';
 import { MdCheckCircle, MdError } from 'react-icons/md';
 

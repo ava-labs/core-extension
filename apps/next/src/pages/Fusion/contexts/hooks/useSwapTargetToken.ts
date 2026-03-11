@@ -23,6 +23,11 @@ export const useSwapTargetToken = (
       ? getUniqueTokenId(sourceToken)
       : undefined;
 
+    // If there is only one target token, select it automatically.
+    if (targetTokens.length === 1) {
+      return targetTokens[0];
+    }
+
     const foundById = targetTokens.find((lookupToken) => {
       const lookupTokenId = getUniqueTokenId(lookupToken);
       return lookupTokenId === targetTokenId && lookupTokenId !== sourceTokenId;
