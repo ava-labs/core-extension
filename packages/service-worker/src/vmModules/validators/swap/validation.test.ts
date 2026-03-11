@@ -1,10 +1,15 @@
-import { Action, MultiTxAction } from '@core/types';
+import {
+  Action,
+  MultiTxAction,
+  SwapValidationContext,
+  ValidatorType,
+} from '@core/types';
 import {
   validateMaxBuyLimit,
   validateSwapUsdPrices,
   validateSwapAmounts,
 } from './validation';
-import { TokenBalanceChange, SwapValidationContext } from './types';
+import { TokenBalanceChange } from './types';
 import { findTokenInBalanceChange } from './helpers';
 
 jest.mock('./helpers', () => ({
@@ -286,13 +291,18 @@ describe('validation', () => {
       } as Action;
     };
 
-    const createValidContext = (): SwapValidationContext => ({
+    const createValidContext = (
+      overrides: Partial<SwapValidationContext> = {},
+    ): SwapValidationContext => ({
+      autoApprove: true,
+      validatorType: ValidatorType.SWAP,
       minAmountOut: '1000000000000000000', // 1 token in wei
       srcTokenAddress: '0xsource',
       destTokenAddress: '0xdest',
       isSrcTokenNative: false,
       isDestTokenNative: false,
       slippage: 1,
+      ...overrides,
     });
 
     const createMockTokenBalanceChange = (
@@ -307,7 +317,7 @@ describe('validation', () => {
 
     it('returns invalid when minAmountOut is missing', () => {
       const action = createMockAction();
-      const context = { ...createValidContext(), minAmountOut: undefined };
+      const context = createValidContext({ minAmountOut: undefined });
 
       const result = validateSwapAmounts(action, context);
 
@@ -405,15 +415,18 @@ describe('validation', () => {
           balanceChange: { ins: [{}], outs: [{}] },
         },
       });
-      const context = { ...createValidContext(), srcTokenAddress: undefined };
-
+      const context = createValidContext({ srcTokenAddress: undefined });
       const result = validateSwapAmounts(action, context);
 
-      expect(result).toEqual({
-        isValid: false,
-        requiresManualApproval: true,
-        reason: 'Unable to verify balance change information',
-      });
+      expect(result).toEqual(
+        expect.objectContaining({
+          isValid: false,
+          requiresManualApproval: true,
+          reason: expect.stringContaining(
+            'Unable to verify balance change information',
+          ),
+        }),
+      );
     });
 
     it('returns invalid when destTokenAddress is missing', () => {
@@ -423,7 +436,7 @@ describe('validation', () => {
           balanceChange: { ins: [{}], outs: [{}] },
         },
       });
-      const context = { ...createValidContext(), destTokenAddress: undefined };
+      const context = createValidContext({ destTokenAddress: undefined });
 
       const result = validateSwapAmounts(action, context);
 
