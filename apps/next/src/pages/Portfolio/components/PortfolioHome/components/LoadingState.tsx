@@ -3,12 +3,11 @@ import { useSettingsContext } from '@core/ui';
 import { FC } from 'react';
 
 export const LoadingState: FC = () => {
-  const { showHighlightBanners } = useSettingsContext();
   return (
     <Stack gap={2.5}>
       <ActionButtonsSkeleton />
       <Stack gap={1.25} height={1} overflow="clip">
-        {showHighlightBanners && <HighlightsBannerSkeleton />}
+        <HighlightsBannerSkeleton />
         <FiltersBarSkeleton />
         <TokensListSkeleton />
       </Stack>
@@ -36,6 +35,12 @@ export const TrendingTokensSkeleton: FC = () => {
 };
 
 const HighlightsBannerSkeleton: FC = () => {
+  const { showHighlightBanners } = useSettingsContext();
+
+  if (!showHighlightBanners) {
+    return null;
+  }
+
   return (
     <Stack gap={1} alignItems="center">
       <Skeleton height={60} width="100%" animation="wave" variant="rounded" />

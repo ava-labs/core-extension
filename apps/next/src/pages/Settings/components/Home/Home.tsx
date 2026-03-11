@@ -249,8 +249,7 @@ export const SettingsHomePage = () => {
             <Switch
               size="small"
               checked={showHighlightBanners}
-              onChange={() => {
-                const newValue = !showHighlightBanners;
+              onChange={(_, newValue) => {
                 setShowHighlightBanners(newValue);
                 capture('ShowHighlightBannersSettingChanged', {
                   showHighlightBanners: newValue,

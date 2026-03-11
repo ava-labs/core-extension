@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, UIEventHandler, useCallback, useState } from 'react';
 import { Box, Stack, styled } from '@avalabs/k2-alpine';
 import { useSettingsContext } from '@core/ui';
 import { PageControl } from '@/components/PageControl';
@@ -9,15 +9,12 @@ import { useHighlightBanners } from './highlightBanners';
 export const HighlightsBannerCarousel: FC = () => {
   const { showHighlightBanners } = useSettingsContext();
   const highlightBanners = useHighlightBanners();
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const totalSlides = 1 + highlightBanners.length;
 
-  const handleScroll = useCallback(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
+  const handleScroll = useCallback<UIEventHandler<HTMLDivElement>>((event) => {
+    const container = event.currentTarget;
     const slideWidth = container.offsetWidth;
     if (slideWidth === 0) return;
 
@@ -25,21 +22,13 @@ export const HighlightsBannerCarousel: FC = () => {
     setCurrentIndex(index);
   }, []);
 
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
-
   if (!showHighlightBanners) {
     return null;
   }
 
   return (
     <Stack gap={1} alignItems="center" mb={1.5}>
-      <ScrollContainer ref={scrollRef}>
+      <ScrollContainer onScroll={handleScroll}>
         <Slide>
           <TrendingTokenSlide />
         </Slide>

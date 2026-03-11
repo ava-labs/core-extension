@@ -1,6 +1,12 @@
 import { FC } from 'react';
 import { useHistory } from 'react-router-dom';
-import { ArrowRightIcon, Stack, styled, Typography } from '@avalabs/k2-alpine';
+import {
+  ArrowRightIcon,
+  Stack,
+  styled,
+  type SxProps,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { openNewTab } from '@core/common';
 import { Card } from '@/components/Card';
 import { HighlightBannerConfig } from './types';
@@ -14,7 +20,7 @@ const SlideCard = styled(Card)({
   overflow: 'hidden',
 });
 
-const bannerTextSx = { fontWeight: 600, lineHeight: 1.2 } as const;
+const bannerTextSx: SxProps = { fontWeight: 600, lineHeight: 1.2 };
 
 type HighlightBannerSlideProps = {
   banner: HighlightBannerConfig;
