@@ -31,6 +31,9 @@ export function getServiceInitializer(
         markrApiToken: process.env.MARKR_API_TOKEN,
         markrApiUrl: process.env.MARKR_API_URL,
         markrAppId: MARKR_EVM_PARTNER_ID,
+        async getTargetChainAssets() {
+          return [];
+        },
       } satisfies MarkrServiceInitializer;
 
     case ServiceType.LOMBARD_BTCB_TO_BTC:

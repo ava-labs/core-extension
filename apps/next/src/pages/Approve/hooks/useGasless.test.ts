@@ -1,16 +1,9 @@
 import { renderHook, act } from '@testing-library/react';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { Action, ActionType, GaslessPhase } from '@core/types';
-import { useAnalyticsContext, useNetworkFeeContext } from '@core/ui';
+import { useAnalyticsContext, useNetworkFeeContext, toast } from '@core/ui';
 import { DisplayData } from '@avalabs/vm-module-types';
-import { toast } from '@avalabs/k2-alpine';
 import { useGasless } from './useGasless';
-
-jest.mock('@avalabs/k2-alpine', () => ({
-  toast: {
-    error: jest.fn(),
-  },
-}));
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
