@@ -34,7 +34,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     language: Languages.EN,
     coreAssistant: true,
     preferredView: 'floating',
-    showTrendingTokens: true,
+    showHighlightBanners: true,
     isQuickSwapsEnabled: false,
     feeSetting: 'low',
     maxBuy: '1000',
@@ -54,7 +54,7 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
     language: settings.language,
     coreAssistant: settings.coreAssistant,
     preferredView: settings.preferredView,
-    showTrendingTokens: settings.showTrendingTokens,
+    showHighlightBanners: settings.showHighlightBanners,
     isQuickSwapsEnabled: settings.isQuickSwapsEnabled,
     feeSetting: settings.feeSetting,
     maxBuy: settings.maxBuy,
@@ -161,11 +161,11 @@ describe('packages/service-worker/src/services/settings/handlers/avalanche_getSe
       });
     });
 
-    it('should return settings with showTrendingTokens false', async () => {
+    it('should return settings with showHighlightBanners false', async () => {
       const request = createRequest();
       const settingsWithoutTrending = {
         ...mockSettingsState,
-        showTrendingTokens: false,
+        showHighlightBanners: false,
       };
       getSettingsMock.mockResolvedValueOnce(settingsWithoutTrending);
 

@@ -19,7 +19,7 @@ const SettingsSchema = z.object({
   preferredView: z.enum(['floating', 'sidebar']).optional(),
   showTokensWithoutBalances: z.boolean().optional(),
   coreAssistant: z.boolean().optional(),
-  showTrendingTokens: z.boolean().optional(),
+  showHighlightBanners: z.boolean().optional(),
   tokensVisibility: z
     .record(z.string(), z.record(z.string(), z.boolean()))
     .optional(),
@@ -61,7 +61,7 @@ export interface WalletSetSettingsResponse {
     | 'zh-TW';
   coreAssistant: boolean;
   preferredView: 'floating' | 'sidebar';
-  showTrendingTokens: boolean;
+  showHighlightBanners: boolean;
 }
 
 @injectable()
@@ -146,9 +146,9 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         );
       }
 
-      if (validatedSettings.showTrendingTokens !== undefined) {
-        await this.settingsService.setShowTrendingTokens(
-          validatedSettings.showTrendingTokens,
+      if (validatedSettings.showHighlightBanners !== undefined) {
+        await this.settingsService.setShowHighlightBanners(
+          validatedSettings.showHighlightBanners,
         );
       }
 
@@ -166,7 +166,7 @@ export class WalletSetSettingsHandler extends DAppRequestHandler<
         language: finalSettings.language,
         coreAssistant: finalSettings.coreAssistant,
         preferredView: finalSettings.preferredView,
-        showTrendingTokens: finalSettings.showTrendingTokens,
+        showHighlightBanners: finalSettings.showHighlightBanners,
       };
 
       return {

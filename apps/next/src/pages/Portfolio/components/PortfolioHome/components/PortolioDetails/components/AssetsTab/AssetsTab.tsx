@@ -1,5 +1,5 @@
 import { useTokensForAccount } from '@/hooks/useTokensForAccount';
-import { TrendingTokenBanner } from '@/pages/TrendingTokens/components/banner/TrendingTokenBanner';
+import { HighlightsBannerCarousel } from '@/components/HighlightsBanner';
 import { Box, Button, Stack } from '@avalabs/k2-alpine';
 import { getUniqueTokenId } from '@core/types';
 import {
@@ -82,7 +82,7 @@ export const AssetsTab: FC = () => {
 
   return (
     <Stack direction="column" gap={1.25} height={1}>
-      <TrendingTokenBanner />
+      <HighlightsBannerCarousel />
       <Stack direction="row" gap={1}>
         <FilterMenu
           id="filter-menu"

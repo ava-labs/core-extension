@@ -16,7 +16,7 @@ import type {
   SetMaxBuyHandler,
   SetPreferredViewHandler,
   SetPrivacyModeHandler,
-  SetShowTrendingTokensHandler,
+  SetShowHighlightBannersHandler,
   UpdateCollectiblesVisibilityHandler,
   UpdateCurrencyHandler,
   UpdateShowNoBalanceHandler,
@@ -83,7 +83,7 @@ type SettingsFromProvider = SettingsState & {
   ) => Dispatch<SetStateAction<SettingsPages>>;
   setCoreAssistant: (state: boolean) => Promise<boolean>;
   setPreferredView: (viewMode: ViewMode) => Promise<boolean>;
-  setShowTrendingTokens: (show: boolean) => Promise<boolean>;
+  setShowHighlightBanners: (show: boolean) => Promise<boolean>;
   setQuickSwapsEnabled: (enabled: boolean) => Promise<boolean>;
   setFeeSetting: (feeSetting: FeeSetting) => Promise<boolean>;
   setMaxBuy: (maxBuy: MaxBuyOption) => Promise<boolean>;
@@ -271,10 +271,10 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
     [request],
   );
 
-  const setShowTrendingTokens = useCallback(
+  const setShowHighlightBanners = useCallback(
     (show: boolean) => {
-      return request<SetShowTrendingTokensHandler>({
-        method: ExtensionRequest.SETTINGS_SET_SHOW_TRENDING_TOKENS,
+      return request<SetShowHighlightBannersHandler>({
+        method: ExtensionRequest.SETTINGS_SET_SHOW_HIGHLIGHT_BANNERS,
         params: [show],
       });
     },
@@ -353,7 +353,7 @@ export function SettingsContextProvider({ children }: PropsWithChildren) {
           setSettingsActivePage,
           setCoreAssistant,
           setPreferredView,
-          setShowTrendingTokens,
+          setShowHighlightBanners,
           setQuickSwapsEnabled,
           setFeeSetting,
           setMaxBuy,

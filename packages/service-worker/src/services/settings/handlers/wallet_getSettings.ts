@@ -39,7 +39,7 @@ interface WalletGetSettingsHandlerResult {
     | 'zh-TW';
   coreAssistant: boolean;
   preferredView: 'floating' | 'sidebar';
-  showTrendingTokens: boolean;
+  showHighlightBanners: boolean;
   isQuickSwapsEnabled: boolean;
   feeSetting: 'low' | 'medium' | 'high';
   maxBuy: '1000' | '5000' | '10000' | '50000' | 'unlimited';
@@ -71,7 +71,7 @@ export class WalletGetSettingsHandler extends DAppRequestHandler<
         language: settings.language,
         coreAssistant: settings.coreAssistant,
         preferredView: settings.preferredView,
-        showTrendingTokens: settings.showTrendingTokens,
+        showHighlightBanners: settings.showHighlightBanners,
         isQuickSwapsEnabled: settings.isQuickSwapsEnabled,
         feeSetting: settings.feeSetting,
         maxBuy: settings.maxBuy,

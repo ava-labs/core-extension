@@ -1,0 +1,1 @@
+export { HighlightsBannerCarousel } from './HighlightsBannerCarousel';

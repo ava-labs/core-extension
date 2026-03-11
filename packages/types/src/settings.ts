@@ -78,7 +78,7 @@ export interface SettingsState {
   language: Languages;
   coreAssistant: boolean;
   preferredView: ViewMode;
-  showTrendingTokens: boolean;
+  showHighlightBanners: boolean;
   isQuickSwapsEnabled: boolean;
   feeSetting: FeeSetting;
   maxBuy: MaxBuyOption;
