@@ -1,3 +1,4 @@
+import type { TransactionBatchParams } from '@avalabs/evm-module';
 import type { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 export enum ExtensionRequest {
@@ -225,7 +226,6 @@ import {
 } from './dapp-connection';
 import { ErrorData } from './error';
 import { ArrayElement } from './util-types';
-import { EthSendTransactionParams } from './transaction';
 
 export type ExtensionConnectionMessage<
   Method extends ExtensionRequest | DAppProviderRequest | RpcMethod = any,
@@ -294,6 +294,24 @@ export interface ExtensionRequestHandler<
   ) => Promise<ExtensionConnectionMessageResponse<Method, Result, Params>>;
 }
 
+type RpcMethodMetadata = {
+  [RpcMethod.ETH_SEND_TRANSACTION_BATCH]: {
+    Method: RpcMethod.ETH_SEND_TRANSACTION_BATCH;
+    Params: {
+      transactions: TransactionBatchParams;
+      options?: {
+        skipIntermediateTxs?: boolean;
+      };
+    };
+    Result: readonly Hex[];
+  };
+  [RpcMethod.BITCOIN_SEND_TRANSACTION]: {
+    Method: RpcMethod.BITCOIN_SEND_TRANSACTION;
+    Params: BitcoinSendTransactionParams;
+    Result: string;
+  };
+};
+
 type ExtractHandlerTypes<Type> =
   Type extends ExtensionRequestHandler<infer M, infer R, infer P>
     ? { Method: M; Result: R; Params: P }
@@ -303,23 +321,13 @@ type ExtractHandlerTypes<Type> =
           Params: P;
           Result: R;
         }
-      : Type extends RpcMethod.ETH_SEND_TRANSACTION_BATCH
-        ? {
-            Method: RpcMethod.ETH_SEND_TRANSACTION_BATCH;
-            Params: EthSendTransactionParams[];
-            Result: Hex[];
-          }
-        : Type extends RpcMethod.BITCOIN_SEND_TRANSACTION
-          ? {
-              Method: RpcMethod.BITCOIN_SEND_TRANSACTION;
-              Params: BitcoinSendTransactionParams;
-              Result: string;
-            }
-          : {
-              Method: RpcMethod;
-              Params: Type;
-              Result: string;
-            };
+      : Type extends keyof RpcMethodMetadata
+        ? RpcMethodMetadata[Type]
+        : {
+            Method: RpcMethod;
+            Params: Type;
+            Result: string;
+          };
 
 type ModuleRequestPayload = RpcMethod | Record<RpcMethod, unknown>;
 
