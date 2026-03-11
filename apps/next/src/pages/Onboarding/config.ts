@@ -1,4 +1,4 @@
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 
 export const SEEDLESS_ACTIONS_OPTIONS = {
   onError: (msg) => toast.error(msg),

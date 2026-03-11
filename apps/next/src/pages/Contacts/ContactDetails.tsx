@@ -1,18 +1,11 @@
-import {
-  Button,
-  Divider,
-  Stack,
-  StackProps,
-  styled,
-  toast,
-} from '@avalabs/k2-alpine';
+import { Button, Divider, Stack, StackProps, styled } from '@avalabs/k2-alpine';
 import { Contact } from '@avalabs/types';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Redirect, useHistory, useLocation } from 'react-router-dom';
 
 import { isContactValid, noop } from '@core/common';
-import { useContactsContext, useFeatureFlagContext } from '@core/ui';
+import { toast, useContactsContext, useFeatureFlagContext } from '@core/ui';
 
 import { Card } from '@/components/Card';
 import { Page } from '@/components/Page';

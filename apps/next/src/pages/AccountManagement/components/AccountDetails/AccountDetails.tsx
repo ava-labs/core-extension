@@ -1,4 +1,4 @@
-import { alpha, Stack, styled, toast, ToastOptions } from '@avalabs/k2-alpine';
+import { alpha, Stack, styled, ToastOptions } from '@avalabs/k2-alpine';
 import { FC, useMemo } from 'react';
 import { Redirect, useHistory } from 'react-router-dom';
 import { Page } from '@/components/Page';
@@ -6,7 +6,7 @@ import { useAccountSearchParams } from '../../hooks/useAccountSearchParams';
 import { DetailsView } from './components/DetailsView';
 import { ActionButtons } from '@/components/ActionButtons';
 import { useTranslation } from 'react-i18next';
-import { useAccountManager, useWalletContext } from '@core/ui';
+import { toast, useAccountManager, useWalletContext } from '@core/ui';
 import { URL_SEARCH_TOKENS } from '../../utils/searchParams';
 import { isPrimaryAccount } from '@core/common';
 import { SecretType } from '@core/types';

@@ -1,11 +1,5 @@
-import {
-  Button,
-  Paper,
-  Stack,
-  styled,
-  toast,
-  Typography,
-} from '@avalabs/k2-alpine';
+import { Button, Paper, Stack, styled, Typography } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 
 const CodePaper = styled(Paper)(() => ({

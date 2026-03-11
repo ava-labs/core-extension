@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';

@@ -5,11 +5,11 @@ import {
   Grow,
   Stack,
   styled,
-  toast,
   Typography,
   TypographyProps,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { delay } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';

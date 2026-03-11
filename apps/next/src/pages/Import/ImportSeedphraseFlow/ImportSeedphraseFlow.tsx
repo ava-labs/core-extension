@@ -2,7 +2,7 @@ import {
   getAddressFromXPub,
   getXpubFromMnemonic,
 } from '@avalabs/core-wallets-sdk';
-import { toast } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useCallback, useState } from 'react';
 import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 

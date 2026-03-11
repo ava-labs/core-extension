@@ -1,13 +1,12 @@
 import { FC } from 'react';
 import { ImportPrivateKeyForm } from './components/ImportPrivateKeyForm';
-import { toast } from '@avalabs/k2-alpine';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { Page } from '@/components/Page';
 import { useImportPrivateKey } from './hooks/useImportPrivateKey';
 import { DuplicatedAccountConfirmation } from './components/DuplicatedAccountConfirmation';
-import { useAnalyticsContext, useAccountsContext } from '@core/ui';
+import { toast, useAnalyticsContext, useAccountsContext } from '@core/ui';
 
 export const ImportPrivateKey: FC = () => {
   const { t } = useTranslation();
@@ -29,10 +28,10 @@ export const ImportPrivateKey: FC = () => {
       const importedAccountId = await importPrivateKey(privateKey);
       await selectAccount(importedAccountId);
       capture('ImportPrivateKeySucceeded');
-      toast.success(t('Private Key Imported'), { duration: 1000 });
+      toast.success(t('Private Key Imported'));
       replace(`/portfolio`);
     } catch (err) {
-      toast.error(t('Private Key Import Failed'), { duration: 1000 });
+      toast.error(t('Private Key Import Failed'));
       console.error(err);
     }
   }, [importPrivateKey, privateKey, selectAccount, t, replace, capture]);

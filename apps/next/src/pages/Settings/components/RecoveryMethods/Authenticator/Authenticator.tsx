@@ -1,5 +1,6 @@
 import { Page } from '@/components/Page';
-import { toast, Typography } from '@avalabs/k2-alpine';
+import { Typography } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { FC, useCallback, useEffect, useMemo } from 'react';
 import { TFunction, useTranslation } from 'react-i18next';
 import { AuthErrorCode, TotpResetChallenge } from '@core/types';

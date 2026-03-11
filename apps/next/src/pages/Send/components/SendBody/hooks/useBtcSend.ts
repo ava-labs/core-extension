@@ -1,4 +1,3 @@
-import { toast } from '@avalabs/k2-alpine';
 import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +10,7 @@ import {
   NetworkFee,
   NetworkWithCaipId,
 } from '@core/types';
-import { useConnectionContext, useNetworkFeeContext } from '@core/ui';
+import { toast, useConnectionContext, useNetworkFeeContext } from '@core/ui';
 import { isBtcAddressInNetwork, isValidBtcAddress } from '@core/common';
 
 import { useMaxAmountForTokenSend } from '@/hooks/useMaxAmountForTokenSend';

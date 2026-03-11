@@ -5,10 +5,10 @@ import {
   Stack,
   Switch,
   SxProps,
-  toast,
   Typography,
   useTheme,
 } from '@avalabs/k2-alpine';
+import { toast } from '@core/ui';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
