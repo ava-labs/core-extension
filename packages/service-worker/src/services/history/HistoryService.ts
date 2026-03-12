@@ -1,11 +1,13 @@
 import { singleton } from 'tsyringe';
-import { NetworkVMType } from '@avalabs/core-chains-sdk';
+import {
+  NetworkVMType,
+  type NetworkContractToken,
+} from '@avalabs/core-chains-sdk';
 import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
 import {
   TokenType,
-  type NetworkContractToken,
   type SPLToken,
   type Transaction,
 } from '@avalabs/vm-module-types';
