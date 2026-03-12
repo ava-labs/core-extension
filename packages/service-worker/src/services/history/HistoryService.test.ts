@@ -41,6 +41,9 @@ describe('src/background/services/history/HistoryService.ts', () => {
   const unifiedBridgeServiceMock = {
     analyzeTx: jest.fn(),
   } as any;
+  const balanceAggregatorServiceMock = {
+    balances: {},
+  } as any;
 
   const txHistoryItem: TxHistoryItem = {
     bridgeAnalysis: {
@@ -103,6 +106,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
       moduleManagereMock,
       accountsServiceMock,
       unifiedBridgeServiceMock,
+      balanceAggregatorServiceMock,
     );
 
     jest
@@ -196,6 +200,86 @@ describe('src/background/services/history/HistoryService.ts', () => {
       },
     ]);
   });
+  it('should enrich SVM network tokens with cached SPL balances', async () => {
+    const splToken = {
+      name: 'POPCAT',
+      symbol: 'POPCAT',
+      decimals: 9,
+      address: 'POPCATmintAddress',
+      type: TokenType.SPL,
+      balance: 100n,
+      balanceDisplayValue: '100',
+      logoUri: 'popcat.png',
+    };
+
+    balanceAggregatorServiceMock.balances = {
+      900: {
+        addressSVM: {
+          SOL: {
+            name: 'Solana',
+            symbol: 'SOL',
+            type: TokenType.NATIVE,
+            decimals: 9,
+            balance: 1000n,
+            balanceDisplayValue: '1',
+          },
+          POPCATmintAddress: splToken,
+        },
+      },
+    };
+
+    const getTransactionHistoryMock = jest.fn().mockResolvedValue({
+      transactions: [txHistoryItem],
+    });
+
+    jest
+      .mocked(moduleManagereMock.loadModuleByNetwork)
+      .mockResolvedValue({ getTransactionHistory: getTransactionHistoryMock });
+
+    jest
+      .mocked(unifiedBridgeServiceMock.analyzeTx)
+      .mockReturnValue({ isBridgeTx: false });
+
+    const svmNetwork = {
+      ...network1,
+      chainId: 900,
+      vmName: NetworkVMType.SVM,
+      caipId: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+    };
+
+    const accountsServiceWithSVM = {
+      getActiveAccount: async () => ({
+        addressC: 'addressC',
+        addressBTC: 'addressBtc',
+        addressPVM: 'addressBtc',
+        addressAVM: 'addressBtc',
+        addressSVM: 'addressSVM',
+      }),
+    } as any;
+
+    const svcWithSVM = new HistoryService(
+      moduleManagereMock,
+      accountsServiceWithSVM,
+      unifiedBridgeServiceMock,
+      balanceAggregatorServiceMock,
+    );
+
+    await svcWithSVM.getTxHistory(svmNetwork);
+
+    const calledNetwork = getTransactionHistoryMock.mock.calls[0]?.[0]?.network;
+    const enrichedTokens = calledNetwork?.tokens ?? [];
+    expect(enrichedTokens).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          address: 'POPCATmintAddress',
+          symbol: 'POPCAT',
+          contractType: TokenType.SPL,
+          type: TokenType.SPL,
+        }),
+      ]),
+    );
+  });
+
   it('should return results with an pchain transaction', async () => {
     jest
       .mocked(unifiedBridgeServiceMock.analyzeTx)

@@ -3,11 +3,17 @@ import { NetworkVMType } from '@avalabs/core-chains-sdk';
 import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
-import { Transaction } from '@avalabs/vm-module-types';
+import {
+  TokenType,
+  type NetworkContractToken,
+  type SPLToken,
+  type Transaction,
+} from '@avalabs/vm-module-types';
 import { UnifiedBridgeService } from '../unifiedBridge/UnifiedBridgeService';
 import { resolve } from '@core/common';
 import { Monitoring } from '@core/common';
 import { AnalyzeTxParams } from '@avalabs/bridge-unified';
+import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 
 @singleton()
 export class HistoryService {
@@ -15,6 +21,7 @@ export class HistoryService {
     private moduleManager: ModuleManager,
     private accountsService: AccountsService,
     private unifiedBridgeService: UnifiedBridgeService,
+    private balanceAggregatorService: BalanceAggregatorService,
   ) {}
 
   async getTxHistory(
@@ -40,9 +47,15 @@ export class HistoryService {
       );
       return [];
     }
+
+    const enrichedNetwork =
+      network.vmName === NetworkVMType.SVM
+        ? this.#enrichNetworkWithCachedTokens(network, address)
+        : network;
+
     const { transactions } = await module.getTransactionHistory({
       address,
-      network,
+      network: enrichedNetwork,
       offset: 25,
     });
 
@@ -72,6 +85,54 @@ export class HistoryService {
     };
 
     return this.unifiedBridgeService.analyzeTx(params);
+  }
+
+  #enrichNetworkWithCachedTokens(
+    network: NetworkWithCaipId,
+    address: string,
+  ): NetworkWithCaipId {
+    const chainBalances =
+      this.balanceAggregatorService.balances[network.chainId]?.[address];
+
+    if (!chainBalances) {
+      return network;
+    }
+
+    const existingAddresses = new Set(
+      network.tokens?.map((t) => t.address) ?? [],
+    );
+
+    const cachedSplTokens = Object.values(chainBalances).reduce<SPLToken[]>(
+      (acc, token) => {
+        if (token.type !== TokenType.SPL) return acc;
+        if (existingAddresses.has(token.address)) return acc;
+
+        acc.push({
+          address: token.address,
+          name: token.name,
+          symbol: token.symbol,
+          decimals: token.decimals,
+          contractType: TokenType.SPL,
+          type: TokenType.SPL,
+          caip2Id: network.caipId,
+          logoUri: token.logoUri,
+        });
+        return acc;
+      },
+      [],
+    );
+
+    if (cachedSplTokens.length === 0) {
+      return network;
+    }
+
+    return {
+      ...network,
+      tokens: [
+        ...(network.tokens ?? []),
+        ...cachedSplTokens,
+      ] as NetworkContractToken[],
+    };
   }
 
   async #getAddress(network: NetworkWithCaipId) {
