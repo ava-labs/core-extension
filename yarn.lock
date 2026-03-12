@@ -406,6 +406,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avalabs/fusion-sdk@npm:0.8.0":
+  version: 0.8.0
+  resolution: "@avalabs/fusion-sdk@npm:0.8.0"
+  dependencies:
+    "@bitcoinerlab/secp256k1": "npm:^1.2.0"
+    "@layerzerolabs/lz-v2-utilities": "npm:^3.0.17"
+    "@lombard.finance/sdk": "npm:^4.3.0"
+    "@scure/base": "npm:^1.0.1"
+    axios: "npm:^1.12.0"
+    bignumber.js: "npm:^9.3.1"
+    bitcoinjs-lib: "npm:^6.1.5"
+    coinselect: "npm:^3.1.13"
+    es-toolkit: "npm:^1.42.0"
+  peerDependencies:
+    "@solana/kit": ^5.0.0
+    viem: ^2.38.0
+    zod: ^4.1.0
+  checksum: 10c0/dd54664d9789d01e649c0c40c221d58a112c45951ca75d4e90bd3df95595e8529da880dc2b230ce738cd63a27d426b787db7f988e5609af0480c946966194fbb
+  languageName: node
+  linkType: hard
+
 "@avalabs/glacier-sdk@npm:3.1.0-alpha.61":
   version: 3.1.0-alpha.61
   resolution: "@avalabs/glacier-sdk@npm:3.1.0-alpha.61"
@@ -2772,7 +2793,7 @@ __metadata:
     "@avalabs/core-chains-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-utils-sdk": "npm:3.1.0-alpha.74"
     "@avalabs/core-wallets-sdk": "npm:3.1.0-alpha.74"
-    "@avalabs/fusion-sdk": "npm:0.7.0"
+    "@avalabs/fusion-sdk": "npm:0.8.0"
     "@avalabs/k2-alpine": "npm:1.266.0"
     "@avalabs/types": "npm:3.1.0-alpha.77"
     "@avalabs/vm-module-types": "npm:3.3.0"
