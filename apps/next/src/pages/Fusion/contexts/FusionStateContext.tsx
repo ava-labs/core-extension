@@ -6,7 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { toast } from '@core/ui';
+import { toast, useFeatureFlagContext } from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
@@ -14,6 +14,7 @@ import { useDebouncedValue } from '@tanstack/react-pacer';
 
 import {
   Account,
+  FeatureVars,
   FungibleTokenBalance,
   isCrossChainTransfer,
 } from '@core/types';
@@ -28,7 +29,6 @@ import {
 
 import { useSwapQuery } from '../hooks';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
-import { NATIVE_FEE_UNITS_MARGIN_BPS } from '../fusion-config';
 import {
   useUserAddresses,
   useTransferManager,
@@ -83,6 +83,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
+  const { selectFeatureFlag } = useFeatureFlagContext();
   const { trackTransfer } = useTransferTrackingContext();
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
@@ -102,6 +103,10 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toQuery,
     useMaxAmount,
   } = useSwapQuery();
+
+  const transferMarginBps = Number(
+    selectFeatureFlag(FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS),
+  );
 
   const { manager, error: initializationError } = useTransferManager();
   const supportedChainsMap = useSupportedChainsMap(manager);
@@ -212,7 +217,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         const transferObject = await manager.transferAsset({
           quote: quoteToUse,
           gasSettings: {
-            estimateGasMarginBps: NATIVE_FEE_UNITS_MARGIN_BPS,
+            estimateGasMarginBps: transferMarginBps,
           },
         });
 
@@ -276,6 +281,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       isUserSelectedQuote,
       selectedQuote,
       trackTransfer,
+      transferMarginBps,
     ],
   );
 

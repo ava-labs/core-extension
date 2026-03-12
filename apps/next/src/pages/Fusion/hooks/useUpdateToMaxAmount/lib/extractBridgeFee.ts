@@ -1,8 +1,7 @@
 import type { Quote } from '@avalabs/fusion-sdk';
 import { bigintToBig } from '@core/common';
 import { bigToBigInt } from '@avalabs/core-utils-sdk';
-
-import { BRIDGE_FEE_SAFETY_MULTIPLIER } from '../../../fusion-config';
+import { getBufferMultiplierFromBps } from '@/pages/Fusion/lib/getBufferMultiplierFromBps';
 
 /**
  * Extracts the bridge fee in the source chain's native token from a
@@ -25,19 +24,15 @@ const extractBridgeFee = (quote: Quote): bigint => {
  * or 0n for non-native swaps (no bridge fee added to tx.value).
  */
 export const getNativeBridgeFee = (
-  isNative: boolean,
-  quote: Quote | null,
+  quote: Quote,
+  bridgeFeeSafetyBps: string,
 ): bigint => {
-  if (isNative && quote) {
-    const { decimals } = quote.sourceChain.networkToken;
-    const bridgeFee = extractBridgeFee(quote);
-    const bridgeFeeBig = bigintToBig(bridgeFee, decimals);
+  const { decimals } = quote.sourceChain.networkToken;
+  const bridgeFee = extractBridgeFee(quote);
+  const bridgeFeeBig = bigintToBig(bridgeFee, decimals);
 
-    return bigToBigInt(
-      bridgeFeeBig.mul(BRIDGE_FEE_SAFETY_MULTIPLIER),
-      decimals,
-    );
-  }
-
-  return 0n;
+  return bigToBigInt(
+    bridgeFeeBig.mul(getBufferMultiplierFromBps(bridgeFeeSafetyBps)),
+    decimals,
+  );
 };
