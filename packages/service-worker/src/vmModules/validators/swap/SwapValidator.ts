@@ -23,7 +23,7 @@ export class SwapValidator implements RequestValidator {
     const context = params.request.context;
 
     // Only handle if explicitly requested for auto-approval
-    if (!context?.autoApprove) {
+    if (!context?.swapAutoApprove?.autoApprove) {
       return false;
     }
 
@@ -58,8 +58,17 @@ export class SwapValidator implements RequestValidator {
     action: Action,
     params: ApprovalParamsWithContext,
   ): ValidationResult {
-    const context = params.request.context;
-    return validateSwapAmounts(action, context);
+    const { context } = params.request;
+
+    if (!context?.swapAutoApprove) {
+      return {
+        isValid: false,
+        requiresManualApproval: true,
+        reason: 'Swap auto-approval context not provided',
+      };
+    }
+
+    return validateSwapAmounts(action, context.swapAutoApprove);
   }
 }
 

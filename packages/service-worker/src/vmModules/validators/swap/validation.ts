@@ -1,4 +1,9 @@
-import { Action, MaxBuyOption, MultiTxAction } from '@core/types';
+import {
+  Action,
+  MaxBuyOption,
+  MultiTxAction,
+  SwapValidationContext,
+} from '@core/types';
 import {
   stringToBigint,
   BASIS_POINTS_DIVISOR,
@@ -6,11 +11,7 @@ import {
 } from '@core/common';
 import { ValidationResult } from '../../models';
 import { findTokenInBalanceChange } from './helpers';
-import {
-  SwapValidationContext,
-  TokenBalanceChange,
-  BalanceChangeData,
-} from './types';
+import { TokenBalanceChange, BalanceChangeData } from './types';
 
 /**
  * Convert MaxBuyOption to numeric USD limit
@@ -394,10 +395,10 @@ function validateAmountMeetsMinimum(
  */
 export function validateSwapAmounts(
   action: Action | MultiTxAction,
-  context: any,
+  context: SwapValidationContext,
 ): ValidationResult {
   // Step 1: Validate minAmountOut
-  const minAmountResult = validateMinAmountOut(context?.minAmountOut);
+  const minAmountResult = validateMinAmountOut(context.minAmountOut);
   if (minAmountResult) return minAmountResult;
 
   // Step 2: Validate simulation
@@ -412,8 +413,8 @@ export function validateSwapAmounts(
   if (balanceChangeResult) return balanceChangeResult;
 
   // Step 4: Validate token addresses
-  const srcTokenAddress = context?.srcTokenAddress;
-  const destTokenAddress = context?.destTokenAddress;
+  const srcTokenAddress = context.srcTokenAddress;
+  const destTokenAddress = context.destTokenAddress;
   const tokenAddressResult = validateTokenAddresses(
     srcTokenAddress,
     destTokenAddress,
@@ -424,7 +425,7 @@ export function validateSwapAmounts(
   const { result: sourceResult, sourceTokenOut } = validateSourceToken(
     balanceChange,
     srcTokenAddress,
-    context?.isSrcTokenNative,
+    context.isSrcTokenNative,
   );
   if (sourceResult) return sourceResult;
 
@@ -432,7 +433,7 @@ export function validateSwapAmounts(
   const { result: destResult, destinationTokenIn } = validateDestinationToken(
     balanceChange,
     destTokenAddress,
-    context?.isDestTokenNative,
+    context.isDestTokenNative,
   );
   if (destResult) return destResult;
 
@@ -462,7 +463,7 @@ export function validateSwapAmounts(
   // Step 10: Validate amount meets minimum
   const minimumResult = validateAmountMeetsMinimum(
     actualAmountReceived!,
-    context?.minAmountOut,
+    context.minAmountOut,
   );
   if (minimumResult) return minimumResult;
 

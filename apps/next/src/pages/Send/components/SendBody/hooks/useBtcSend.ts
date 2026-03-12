@@ -2,7 +2,6 @@ import { TokenUnit } from '@avalabs/core-utils-sdk';
 import { RpcMethod } from '@avalabs/vm-module-types';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
-import { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
 
 import {
   BtcCapableAccount,
@@ -89,7 +88,7 @@ export const useBtcSend = ({
     onSendApproved();
 
     try {
-      const hash = await request<BitcoinSendTransactionParams>(
+      const hash = await request<RpcMethod.BITCOIN_SEND_TRANSACTION>(
         {
           method: RpcMethod.BITCOIN_SEND_TRANSACTION,
           params: {

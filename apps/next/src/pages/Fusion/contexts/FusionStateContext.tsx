@@ -6,7 +6,12 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { toast, useFeatureFlagContext } from '@core/ui';
+import {
+  toast,
+  useFeatureFlagContext,
+  useNetworkFeeContext,
+  useSettingsContext,
+} from '@core/ui';
 import { useHistory } from 'react-router-dom';
 import { Quote, TransferManager } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
@@ -18,7 +23,12 @@ import {
   FungibleTokenBalance,
   isCrossChainTransfer,
 } from '@core/types';
-import { isUserRejectionError, Monitoring, stringToBigint } from '@core/common';
+import {
+  isUserRejectionError,
+  Monitoring,
+  resolve,
+  stringToBigint,
+} from '@core/common';
 import {
   useAccountsContext,
   useAnalyticsContext,
@@ -87,7 +97,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   const { trackTransfer } = useTransferTrackingContext();
   const { captureEncrypted } = useAnalyticsContext();
   const { replace } = useHistory();
+  const { getNetworkFee } = useNetworkFeeContext();
   const getTranslatedError = useErrorMessage();
+  const { feeSetting } = useSettingsContext();
   const {
     balances: { loading: isBalancesLoading },
   } = useBalancesContext();
@@ -214,10 +226,22 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       });
 
       try {
+        const [fee] = await resolve(
+          getNetworkFee(quoteToUse.sourceChain.chainId),
+        );
+
+        const gasSettings = fee
+          ? {
+              maxFeePerGas: fee[feeSetting].maxFeePerGas,
+              maxPriorityFeePerGas: fee[feeSetting].maxPriorityFeePerGas,
+            }
+          : undefined;
+
         const transferObject = await manager.transferAsset({
           quote: quoteToUse,
           gasSettings: {
             estimateGasMarginBps: transferMarginBps,
+            ...gasSettings,
           },
         });
 
@@ -282,6 +306,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       selectedQuote,
       trackTransfer,
       transferMarginBps,
+      getNetworkFee,
+      feeSetting,
     ],
   );
 
