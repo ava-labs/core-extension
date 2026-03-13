@@ -52,7 +52,7 @@ export class HistoryService {
 
     const enrichedNetwork =
       network.vmName === NetworkVMType.SVM
-        ? this.#enrichNetworkWithCachedTokens(network, address)
+        ? this.#enrichNetworkWithCachedTokens(network)
         : network;
 
     const { transactions } = await module.getTransactionHistory({
@@ -91,12 +91,11 @@ export class HistoryService {
 
   #enrichNetworkWithCachedTokens(
     network: NetworkWithCaipId,
-    address: string,
   ): NetworkWithCaipId {
-    const chainBalances =
-      this.balanceAggregatorService.balances[network.chainId]?.[address];
+    const allAddressBalances =
+      this.balanceAggregatorService.balances[network.chainId];
 
-    if (!chainBalances) {
+    if (!allAddressBalances) {
       return network;
     }
 
@@ -104,12 +103,15 @@ export class HistoryService {
       network.tokens?.map((t) => t.address) ?? [],
     );
 
-    const cachedSplTokens = Object.values(chainBalances).reduce<SPLToken[]>(
-      (acc, token) => {
-        if (token.type !== TokenType.SPL) return acc;
-        if (existingAddresses.has(token.address)) return acc;
+    const cachedSplTokens: SPLToken[] = [];
 
-        acc.push({
+    for (const addressBalances of Object.values(allAddressBalances)) {
+      for (const token of Object.values(addressBalances)) {
+        if (token.type !== TokenType.SPL) continue;
+        if (existingAddresses.has(token.address)) continue;
+
+        existingAddresses.add(token.address);
+        cachedSplTokens.push({
           address: token.address,
           name: token.name,
           symbol: token.symbol,
@@ -119,10 +121,8 @@ export class HistoryService {
           caip2Id: network.caipId,
           logoUri: token.logoUri,
         });
-        return acc;
-      },
-      [],
-    );
+      }
+    }
 
     if (cachedSplTokens.length === 0) {
       return network;

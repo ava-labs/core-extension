@@ -280,6 +280,90 @@ describe('src/background/services/history/HistoryService.ts', () => {
     );
   });
 
+  it('should enrich SVM network tokens from all accounts, not just the active one', async () => {
+    balanceAggregatorServiceMock.balances = {
+      900: {
+        account1Address: {
+          POPCATmintAddress: {
+            name: 'POPCAT',
+            symbol: 'POPCAT',
+            decimals: 9,
+            address: 'POPCATmintAddress',
+            type: TokenType.SPL,
+            balance: 100n,
+            balanceDisplayValue: '100',
+            logoUri: 'popcat.png',
+          },
+        },
+        account2Address: {
+          WIFmintAddress: {
+            name: 'dogwifhat',
+            symbol: 'WIF',
+            decimals: 6,
+            address: 'WIFmintAddress',
+            type: TokenType.SPL,
+            balance: 50n,
+            balanceDisplayValue: '50',
+            logoUri: 'wif.png',
+          },
+        },
+      },
+    };
+
+    const getTransactionHistoryMock = jest.fn().mockResolvedValue({
+      transactions: [txHistoryItem],
+    });
+
+    jest
+      .mocked(moduleManagereMock.loadModuleByNetwork)
+      .mockResolvedValue({ getTransactionHistory: getTransactionHistoryMock });
+
+    jest
+      .mocked(unifiedBridgeServiceMock.analyzeTx)
+      .mockReturnValue({ isBridgeTx: false });
+
+    const svmNetwork = {
+      ...network1,
+      chainId: 900,
+      vmName: NetworkVMType.SVM,
+      caipId: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+    };
+
+    const accountsServiceWithSVM = {
+      getActiveAccount: async () => ({
+        addressC: 'addressC',
+        addressBTC: 'addressBtc',
+        addressPVM: 'addressBtc',
+        addressAVM: 'addressBtc',
+        addressSVM: 'account1Address',
+      }),
+    } as any;
+
+    const svcWithSVM = new HistoryService(
+      moduleManagereMock,
+      accountsServiceWithSVM,
+      unifiedBridgeServiceMock,
+      balanceAggregatorServiceMock,
+    );
+
+    await svcWithSVM.getTxHistory(svmNetwork);
+
+    const calledNetwork = getTransactionHistoryMock.mock.calls[0]?.[0]?.network;
+    const enrichedTokens = calledNetwork?.tokens ?? [];
+    expect(enrichedTokens).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          address: 'POPCATmintAddress',
+          symbol: 'POPCAT',
+        }),
+        expect.objectContaining({
+          address: 'WIFmintAddress',
+          symbol: 'WIF',
+        }),
+      ]),
+    );
+  });
+
   it('should return results with an pchain transaction', async () => {
     jest
       .mocked(unifiedBridgeServiceMock.analyzeTx)
