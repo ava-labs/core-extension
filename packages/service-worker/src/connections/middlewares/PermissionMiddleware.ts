@@ -102,7 +102,6 @@ export const UNRESTRICTED_METHODS = Object.freeze([
   RpcMethod.SOLANA_SIGN_TRANSACTION,
   RpcMethod.SOLANA_SIGN_AND_SEND_TRANSACTION,
   RpcMethod.SOLANA_SIGN_MESSAGE,
-  RpcMethod.ETH_SEND_TRANSACTION_BATCH,
 ]);
 
 const CORE_METHODS = Object.freeze([
@@ -123,6 +122,7 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.WALLET_GET_SETTINGS,
   DAppProviderRequest.WALLET_SET_SETTINGS,
   DAppProviderRequest.WALLET_ENABLE_NETWORK,
+  RpcMethod.ETH_SEND_TRANSACTION_BATCH,
 ]);
 
 export function PermissionMiddleware(
