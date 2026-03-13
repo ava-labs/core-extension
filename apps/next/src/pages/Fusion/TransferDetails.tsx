@@ -3,7 +3,11 @@ import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useTransferTrackingContext } from '@core/ui';
-import { isCompletedTransfer, isTransferInProgress } from '@core/types';
+import {
+  isCompletedTransfer,
+  isRefundedTransfer,
+  isTransferInProgress,
+} from '@core/types';
 
 import { Page } from '@/components/Page';
 
@@ -25,7 +29,9 @@ export const TransferDetails: FC = () => {
       ? t('Swap in progress...')
       : isCompletedTransfer(transfer)
         ? t('Swap successful!')
-        : t('Swap failed');
+        : isRefundedTransfer(transfer)
+          ? t('Swap refunded')
+          : t('Swap failed');
 
   return (
     <Page
