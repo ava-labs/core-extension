@@ -7,7 +7,7 @@ export const hasActionableUrl = (notification: AppNotification): boolean => {
   try {
     const parsedUrl = new URL(url);
     const protocol = parsedUrl.protocol.replace(':', '');
-    return protocol === 'https:' || protocol === 'chrome-extension:';
+    return protocol === 'https';
   } catch {
     return false;
   }

@@ -37,6 +37,13 @@ export const isCompletedTransfer = (
   transfer: Transfer,
 ): transfer is CompletedTransfer => transfer.status === 'completed';
 
+export const isConcludedTransfer = (
+  transfer: Transfer,
+): transfer is CompletedTransfer | FailedTransfer | RefundedTransfer =>
+  isCompletedTransfer(transfer) ||
+  isFailedTransfer(transfer) ||
+  isRefundedTransfer(transfer);
+
 export const isFailedTransfer = (
   transfer: Transfer,
 ): transfer is FailedTransfer => transfer.status === 'failed';

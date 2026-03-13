@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { FailedTransfer, Transfer } from '@avalabs/fusion-sdk';
 
-import { isCompletedTransfer, isFailedTransfer } from '@core/types';
+import {
+  isCompletedTransfer,
+  isConcludedTransfer,
+  isFailedTransfer,
+} from '@core/types';
 
 import { Card } from '@/components/Card';
 import { useConfettiContext } from '@/components/Confetti';
@@ -17,6 +21,7 @@ import {
   Styled,
   ChainStatusInfoBox,
 } from './components';
+import { useTransferTrackingContext } from '@core/ui';
 
 type Props = {
   transfer: Transfer;
@@ -26,15 +31,21 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
   const { t } = useTranslation();
   const { push, goBack } = useHistory();
   const { triggerConfetti } = useConfettiContext();
+  const { markAsRead } = useTransferTrackingContext();
 
   const hasError = isFailedTransfer(transfer);
   const isComplete = isCompletedTransfer(transfer);
+  const isConcluded = isConcludedTransfer(transfer);
 
   useEffect(() => {
     if (isComplete) {
       triggerConfetti();
     }
-  }, [isComplete, triggerConfetti]);
+
+    if (isConcluded) {
+      markAsRead([transfer.id]);
+    }
+  }, [isComplete, isConcluded, triggerConfetti, markAsRead, transfer.id]);
 
   const swappedTokens = useSwappedTokens(transfer);
 

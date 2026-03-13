@@ -34,7 +34,7 @@ export const combineActivityItems = (
       b.type !== a.type &&
       isTransferInProgress(b.item)
     ) {
-      return -1;
+      return 1;
     }
     return b.timestamp - a.timestamp;
   });

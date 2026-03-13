@@ -53,11 +53,13 @@ export const Notifications = () => {
 
   const combinedItems = useMemo(
     () =>
-      combineActivityItems(
-        notifications,
-        isAllOrTransactionsTab ? transfers : [],
-      ),
-    [notifications, transfers, isAllOrTransactionsTab],
+      isLoading
+        ? []
+        : combineActivityItems(
+            notifications,
+            isAllOrTransactionsTab ? transfers : [],
+          ),
+    [notifications, transfers, isAllOrTransactionsTab, isLoading],
   );
 
   const isCurrentTabEmpty =

@@ -1,6 +1,7 @@
 import { FeatureGates, TrackedTransfers } from '@core/types';
 
 export type TransferTrackingState = {
+  unreadTransferIds: string[];
   trackedTransfers: TrackedTransfers;
 };
 
@@ -15,6 +16,7 @@ export const UNIFIED_TRANSFER_TRACKED_FLAGS = [
 ];
 
 export const TRANSFER_TRACKING_DEFAULT_STATE: TransferTrackingState = {
+  unreadTransferIds: [],
   trackedTransfers: {},
 };
 

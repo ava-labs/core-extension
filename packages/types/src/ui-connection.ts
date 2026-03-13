@@ -210,6 +210,7 @@ export enum ExtensionRequest {
 
   TRANSFER_TRACKING_GET_STATE = 'transfer_tracking_get_state',
   TRANSFER_TRACKING_TRACK_TRANSFER = 'transfer_tracking_track_transfer',
+  TRANSFER_TRACKING_MARK_AS_READ = 'transfer_tracking_mark_as_read',
 }
 
 /* eslint-disable no-prototype-builtins */

@@ -143,3 +143,4 @@ export type { GetXPAddressesForAccountHandler } from './services/accounts/handle
 export type { SetFilterSmallUtxosHandler } from './services/settings/handlers/setFilterSmallUtxos';
 export type { TransferTrackingGetState } from './services/transferTracking/handlers/transferTrackingGetState';
 export type { TrackUnifiedTransfer } from './services/transferTracking/handlers/trackUnifiedTransfer';
+export type { MarkTransfersAsRead as MarkTransferAsRead } from './services/transferTracking/handlers/markTransfersAsRead';

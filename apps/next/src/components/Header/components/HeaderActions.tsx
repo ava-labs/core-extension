@@ -3,14 +3,14 @@ import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { useUnreadNotificationsCount } from '@/hooks/useUnreadNotificationsCount';
 import { Box, IconButton, Stack, Tooltip, useTheme } from '@avalabs/k2-alpine';
-import { Account, FeatureGates, isTransferInProgress } from '@core/types';
+import { Account, isTransferInProgress } from '@core/types';
 import { FC, useMemo } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 import { useTranslation } from 'react-i18next';
-import { useFeatureFlagContext, useTransferTrackingContext } from '@core/ui';
+import { useTransferTrackingContext } from '@core/ui';
 
 const ICON_BUTTON_SIZE = 'small' as const;
 
@@ -26,10 +26,8 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   const {
     state: { pendingTransfers },
   } = useNextUnifiedBridgeContext();
-  const { transfers } = useTransferTrackingContext();
-  const { isFlagEnabled } = useFeatureFlagContext();
+  const { transfers, unreadTransferIds } = useTransferTrackingContext();
   const isWalletView = location.pathname.startsWith('/wallet');
-  const isFusionEnabled = isFlagEnabled(FeatureGates.FUSION_FEATURE);
 
   const hasPendingTransactions = useMemo(
     () => (isWalletView ? false : Object.values(pendingTransfers).length > 0),
@@ -41,13 +39,9 @@ export const HeaderActions: FC<Props> = ({ account }) => {
     [transfers],
   );
 
-  const hasTransfers = useMemo(
-    () => isFusionEnabled && transfers.length > 0,
-    [transfers, isFusionEnabled],
-  );
-
   const unreadCount = useUnreadNotificationsCount();
-  const showNotificationsBadge = unreadCount > 0 || hasTransfers;
+  const showNotificationsBadge =
+    unreadCount > 0 || unreadTransferIds.length > 0;
 
   return (
     <Stack direction="row" alignItems="center">
