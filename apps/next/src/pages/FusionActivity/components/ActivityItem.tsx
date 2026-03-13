@@ -9,8 +9,12 @@ import {
 import { FC } from 'react';
 import * as Styled from './Styled';
 import { Transfer } from '@avalabs/fusion-sdk';
-import { isCompletedTransfer, isTransferInProgress } from '@core/types';
-import { MdCheckCircle, MdError } from 'react-icons/md';
+import {
+  isCompletedTransfer,
+  isRefundedTransfer,
+  isTransferInProgress,
+} from '@core/types';
+import { MdCheckCircle, MdError, MdReplay } from 'react-icons/md';
 
 type Props = {
   title: string;
@@ -55,6 +59,8 @@ export const ActivityItem: FC<Props> = ({
               </Styled.Avatar>
             ) : isCompletedTransfer(transfer) ? (
               <MdCheckCircle size={20} color={theme.palette.success.main} />
+            ) : isRefundedTransfer(transfer) ? (
+              <MdReplay size={20} color={theme.palette.warning.main} />
             ) : (
               <MdError size={20} color={theme.palette.error.main} />
             )}

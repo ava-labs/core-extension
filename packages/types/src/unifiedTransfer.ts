@@ -4,6 +4,7 @@ import {
   Transfer,
   CompletedTransfer,
   FailedTransfer,
+  RefundedTransfer,
   SourcePendingTransfer,
   TargetPendingTransfer,
   SourceCompletedTransfer,
@@ -25,8 +26,10 @@ export type TransferTrackingStateUpdateEvent = {
 
 export const isTransferFinished = (
   transfer: Transfer,
-): transfer is CompletedTransfer | FailedTransfer =>
-  isCompletedTransfer(transfer) || isFailedTransfer(transfer);
+): transfer is CompletedTransfer | FailedTransfer | RefundedTransfer =>
+  isCompletedTransfer(transfer) ||
+  isFailedTransfer(transfer) ||
+  isRefundedTransfer(transfer);
 
 export const isCompletedTransfer = (
   transfer: Transfer,
@@ -35,6 +38,10 @@ export const isCompletedTransfer = (
 export const isFailedTransfer = (
   transfer: Transfer,
 ): transfer is FailedTransfer => transfer.status === 'failed';
+
+export const isRefundedTransfer = (
+  transfer: Transfer,
+): transfer is RefundedTransfer => transfer.status === 'refunded';
 
 export const isTransferInProgress = (
   transfer: Transfer,
