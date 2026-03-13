@@ -29,7 +29,6 @@ import { RecoveryMethodsFullScreen } from '@/pages/Settings/components/RecoveryM
 import { Swap } from '@/pages/Swap';
 import { TrendingTokens } from '@/pages/TrendingTokens';
 import { Fusion } from '@/pages/Fusion';
-import { FusionActivity } from '@/pages/FusionActivity';
 import { Notifications } from '@/pages/Notifications';
 import { TransferDetails } from '@/pages/Fusion/TransferDetails';
 
@@ -69,8 +68,7 @@ export const AppRoutes = () => (
       <Route path="/sync" component={Activity} />
       <Route path="/activity" component={Activity} />
       <Route path="/notifications" component={Notifications} />
-      <Route path="/fusion-activity/:id" component={TransferDetails} />
-      <Route path="/fusion-activity" component={FusionActivity} />
+      <Route path="/fusion-transfer/:id" component={TransferDetails} />
       <Route path="/fusion" component={Fusion} />
       <Route path="/" component={Portfolio} />
     </Switch>

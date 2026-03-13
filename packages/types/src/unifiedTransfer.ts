@@ -8,6 +8,7 @@ import {
   TargetPendingTransfer,
   SourceCompletedTransfer,
   SolanaSigner,
+  RefundedTransfer,
 } from '@avalabs/fusion-sdk';
 
 export type UnifiedTransferSigners = {
@@ -27,6 +28,10 @@ export const isTransferFinished = (
   transfer: Transfer,
 ): transfer is CompletedTransfer | FailedTransfer =>
   isCompletedTransfer(transfer) || isFailedTransfer(transfer);
+
+export const isRefundedTransfer = (
+  transfer: Transfer,
+): transfer is RefundedTransfer => transfer.status === 'refunded';
 
 export const isCompletedTransfer = (
   transfer: Transfer,

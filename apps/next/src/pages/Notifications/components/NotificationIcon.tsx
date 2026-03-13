@@ -1,6 +1,7 @@
 import { ComponentType, FC } from 'react';
 import { Box, useTheme, withThemeInvert } from '@avalabs/k2-alpine';
 import { MdCallMade, MdCheck, MdTrendingUp } from 'react-icons/md';
+import { TiArrowShuffle } from 'react-icons/ti';
 import {
   AppNotification,
   BalanceChangeEvent,
@@ -29,7 +30,7 @@ const IconForEvent: Record<
   ComponentType<{ size: number; color: string }>
 > = {
   BALANCES_SPENT: MdCallMade,
-  BALANCES_TRANSFERRED: MdCallMade,
+  BALANCES_TRANSFERRED: TiArrowShuffle,
   ALLOWANCE_APPROVED: MdCheck,
   BALANCES_RECEIVED: ReceivedIcon,
 };

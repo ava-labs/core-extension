@@ -20,7 +20,7 @@
     "@avalabs/core-chains-sdk": "3.1.0-alpha.74",
     "@avalabs/core-utils-sdk": "3.1.0-alpha.74",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.74",
-    "@avalabs/fusion-sdk": "0.7.0",
+    "@avalabs/fusion-sdk": "0.9.0",
     "@avalabs/k2-alpine": "1.255.2",
     "@avalabs/types": "3.1.0-alpha.77",
     "@avalabs/vm-module-types": "3.3.0",

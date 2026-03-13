@@ -31,10 +31,10 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
   const isComplete = isCompletedTransfer(transfer);
 
   useEffect(() => {
-    if (isCompletedTransfer(transfer)) {
+    if (isComplete) {
       triggerConfetti();
     }
-  }, [transfer, triggerConfetti]);
+  }, [isComplete, triggerConfetti]);
 
   const swappedTokens = useSwappedTokens(transfer);
 

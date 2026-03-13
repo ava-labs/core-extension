@@ -39,6 +39,7 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
         '&:hover': onClick
           ? { backgroundColor: theme.palette.action.hover }
           : undefined,
+        px: 2,
       }}
     >
       <Stack direction="row" alignItems="center" gap={1.5} minHeight={45}>

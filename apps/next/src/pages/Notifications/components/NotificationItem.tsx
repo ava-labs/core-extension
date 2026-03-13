@@ -1,29 +1,34 @@
 import { FC } from 'react';
-import { AppNotification } from '@core/types';
 import { isPriceAlertWithData } from '../lib/isPriceAlertWithData';
 import { isBalanceChangeWithData } from '../lib/isBalanceChangeWithData';
 import { PriceAlertItem } from './PriceAlertItem';
 import { BalanceChangeItem } from './BalanceChangeItem';
 import { GenericNotificationItem } from './GenericNotificationItem';
+import { TransferItem } from './TransferItem';
+import { CombinedActivityItem } from '../types';
 
 type NotificationItemProps = {
-  notification: AppNotification;
   showSeparator: boolean;
   accessoryType: 'chevron' | 'none';
   onClick?: () => void;
+  item: CombinedActivityItem;
 };
 
 export const NotificationItem: FC<NotificationItemProps> = ({
-  notification,
+  item,
   ...props
-}) => {
-  if (isPriceAlertWithData(notification)) {
-    return <PriceAlertItem notification={notification} {...props} />;
+}: NotificationItemProps) => {
+  if (item.type === 'transfer') {
+    return <TransferItem transfer={item.item} {...props} />;
   }
 
-  if (isBalanceChangeWithData(notification)) {
-    return <BalanceChangeItem notification={notification} {...props} />;
+  if (isPriceAlertWithData(item.item)) {
+    return <PriceAlertItem notification={item.item} {...props} />;
   }
 
-  return <GenericNotificationItem notification={notification} {...props} />;
+  if (isBalanceChangeWithData(item.item)) {
+    return <BalanceChangeItem notification={item.item} {...props} />;
+  }
+
+  return <GenericNotificationItem notification={item.item} {...props} />;
 };
