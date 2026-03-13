@@ -1,30 +1,26 @@
 import { injectable } from 'tsyringe';
-import { Transfer } from '@avalabs/fusion-sdk';
 
 import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
 import { TransferTrackingService } from '../TransferTrackingService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.TRANSFER_TRACKING_TRACK_TRANSFER,
+  ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ,
   void,
-  [transfer: Transfer]
+  string[]
 >;
 
 @injectable()
-export class TrackUnifiedTransfer implements HandlerType {
-  method = ExtensionRequest.TRANSFER_TRACKING_TRACK_TRANSFER as const;
+export class MarkTransfersAsRead implements HandlerType {
+  method = ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ as const;
 
   constructor(private trackingService: TransferTrackingService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const [transfer] = request.params;
+    const transferIds = request.params;
 
     try {
-      await this.trackingService.markTransferAsUnread(transfer);
-      await this.trackingService.updatePendingTransfer(transfer);
-
-      this.trackingService.trackTransfer(transfer);
+      await this.trackingService.markTransfersAsRead(transferIds);
 
       return {
         ...request,

@@ -9,6 +9,7 @@ import {
 import { Transfer } from '@avalabs/fusion-sdk';
 
 import {
+  MarkTransferAsRead,
   TrackUnifiedTransfer,
   TransferTrackingGetState,
 } from '@core/service-worker';
@@ -21,7 +22,9 @@ import { filter, map } from 'rxjs';
 type TransferTrackingState = {
   isLoading: boolean;
   transfers: Transfer[];
+  unreadTransferIds: string[];
   trackTransfer(transfer: Transfer): void;
+  markAsRead(transferIds: string[]): void;
 };
 
 const TransferTrackingContext = createContext<
@@ -33,6 +36,7 @@ export function TransferTrackingContextProvider({
 }: PropsWithChildren) {
   const { events, request } = useConnectionContext();
   const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [unreadTransferIds, setUnreadTransferIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -40,8 +44,9 @@ export function TransferTrackingContextProvider({
     request<TransferTrackingGetState>({
       method: ExtensionRequest.TRANSFER_TRACKING_GET_STATE,
     })
-      .then(({ trackedTransfers }) => {
+      .then(({ trackedTransfers, unreadTransferIds: _unreadTransferIds }) => {
         setTransfers(Object.values(trackedTransfers));
+        setUnreadTransferIds(_unreadTransferIds);
       })
       .finally(() => {
         setIsLoading(false);
@@ -70,12 +75,23 @@ export function TransferTrackingContextProvider({
     [request],
   );
 
+  const markAsRead = useCallback(
+    (transferIds: string[]) =>
+      request<MarkTransferAsRead>({
+        method: ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ,
+        params: transferIds,
+      }),
+    [request],
+  );
+
   return (
     <TransferTrackingContext.Provider
       value={{
         transfers,
+        unreadTransferIds,
         isLoading,
         trackTransfer,
+        markAsRead,
       }}
     >
       {children}

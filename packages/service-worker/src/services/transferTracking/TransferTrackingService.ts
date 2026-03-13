@@ -14,6 +14,7 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
+  isConcludedTransfer,
   isFailedTransfer,
   isTransferInProgress,
   TrackedTransfers,
@@ -99,7 +100,10 @@ export class TransferTrackingService implements OnStorageReady {
         TRANSFER_TRACKING_STATE_STORAGE_KEY,
       )) ?? TRANSFER_TRACKING_DEFAULT_STATE;
 
-    this.#saveState(state);
+    this.#saveState({
+      trackedTransfers: state.trackedTransfers,
+      unreadTransferIds: state.unreadTransferIds ?? [],
+    });
     this.#trackPendingTransfers();
   }
 
@@ -228,7 +232,7 @@ export class TransferTrackingService implements OnStorageReady {
     }
   }
 
-  trackTransfer(transfer: Transfer) {
+  async trackTransfer(transfer: Transfer) {
     if (!this.#manager) {
       // Just log that this happened. This is edge-casey, but technically possible.
       Monitoring.sentryCaptureException(
@@ -264,6 +268,28 @@ export class TransferTrackingService implements OnStorageReady {
     delete this.#state.trackedTransfers[txHash];
 
     this.#saveState({ ...this.#state });
+  }
+
+  async markTransferAsUnread(transfer: Transfer) {
+    if (!this.#state.unreadTransferIds.includes(transfer.id)) {
+      return;
+    }
+
+    this.#state.unreadTransferIds.push(transfer.id);
+    await this.#saveState({ ...this.#state });
+  }
+
+  async markTransfersAsRead(transferIds: string[]) {
+    const concludedTransferIds = transferIds.filter((id) =>
+      this.#state.trackedTransfers[id]
+        ? isConcludedTransfer(this.#state.trackedTransfers[id])
+        : true,
+    );
+    this.#state.unreadTransferIds = this.#state.unreadTransferIds.filter(
+      (id) => !concludedTransferIds.includes(id),
+    );
+
+    await this.#saveState({ ...this.#state });
   }
 
   async updatePendingTransfer(transfer: Transfer) {

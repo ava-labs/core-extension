@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Box, StackProps, alpha, useTheme } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
 import { AppNotification, NotificationTab } from '@core/types';
@@ -13,6 +13,9 @@ import { NotificationEmptyState } from './components/NotificationEmptyState';
 import { NotificationItem } from './components/NotificationItem';
 import { NotificationListSkeleton } from './components/NotificationListSkeleton';
 import { ClearButton } from './components/ClearButton';
+import { combineActivityItems } from './lib/combineActivityItems';
+import { useHistory } from 'react-router-dom';
+import { useTransferTrackingContext } from '@core/ui';
 
 const contentProps: StackProps = {
   justifyContent: 'flex-start',
@@ -25,6 +28,7 @@ const contentProps: StackProps = {
 export const Notifications = () => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { push } = useHistory();
 
   const tabItems = [
     { label: t('All'), value: NotificationTab.ALL },
@@ -34,11 +38,32 @@ export const Notifications = () => {
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const selectedTab = tabItems[selectedTabIndex]?.value ?? NotificationTab.ALL;
-  const { notifications, isLoading } = useNotifications(selectedTab);
+
+  const { notifications, isLoading: isNotificationsLoading } =
+    useNotifications(selectedTab);
+  const { transfers, isLoading: isTransfersLoading } =
+    useTransferTrackingContext();
   const { clearAll, isClearing } = useClearAll();
 
+  const isLoading = isNotificationsLoading || isTransfersLoading;
+
+  const isAllOrTransactionsTab =
+    selectedTab === NotificationTab.TRANSACTIONS ||
+    selectedTab === NotificationTab.ALL;
+
+  const combinedItems = useMemo(
+    () =>
+      isLoading
+        ? []
+        : combineActivityItems(
+            notifications,
+            isAllOrTransactionsTab ? transfers : [],
+          ),
+    [notifications, transfers, isAllOrTransactionsTab, isLoading],
+  );
+
   const isCurrentTabEmpty =
-    notifications.length === 0 && !isClearing && !isLoading;
+    combinedItems.length === 0 && !isClearing && !isLoading;
 
   const handleNotificationPress = useCallback(
     (notification: AppNotification) => {
@@ -57,37 +82,44 @@ export const Notifications = () => {
     [],
   );
 
+  const showClearButton = !isCurrentTabEmpty;
+
   return (
     <Page
       title={t('Notifications')}
       withBackButton
       contentProps={contentProps}
+      headerProps={{
+        px: 2,
+      }}
       titleAction={
-        !isCurrentTabEmpty ? (
+        showClearButton ? (
           <ClearButton onClick={clearAll} disabled={isClearing} />
         ) : undefined
       }
+      px={0}
     >
       {isLoading && <NotificationListSkeleton />}
-
       {isCurrentTabEmpty && <NotificationEmptyState />}
+      {combinedItems.map((combined, index) => {
+        const isLast = index === combinedItems.length - 1;
+        const onClick =
+          combined.type === 'transfer'
+            ? () => push(`/fusion-transfer/${combined.item.id}`)
+            : hasActionableUrl(combined.item)
+              ? () => handleNotificationPress(combined.item)
+              : undefined;
 
-      {!isCurrentTabEmpty &&
-        notifications.map((item, index) => {
-          const isLast = index === notifications.length - 1;
-          const clickable = hasActionableUrl(item);
-          return (
-            <NotificationItem
-              key={item.id}
-              notification={item}
-              showSeparator={!isLast}
-              accessoryType={clickable ? 'chevron' : 'none'}
-              onClick={
-                clickable ? () => handleNotificationPress(item) : undefined
-              }
-            />
-          );
-        })}
+        return (
+          <NotificationItem
+            key={combined.item.id}
+            item={combined}
+            showSeparator={!isLast}
+            accessoryType={onClick ? 'chevron' : 'none'}
+            onClick={onClick}
+          />
+        );
+      })}
 
       {!isLoading && (
         <Box

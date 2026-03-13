@@ -171,6 +171,7 @@ import { TransferTrackingEvents } from '~/services/transferTracking/events/trans
 import {
   TrackUnifiedTransfer,
   TransferTrackingGetState,
+  MarkTransfersAsRead,
 } from '~/services/transferTracking/handlers';
 
 /**
@@ -541,6 +542,10 @@ import {
   {
     token: 'ExtensionRequestHandler',
     useToken: TransferTrackingGetState,
+  },
+  {
+    token: 'ExtensionRequestHandler',
+    useToken: MarkTransfersAsRead,
   },
 ])
 export class ExtensionRequestHandlerRegistry {}

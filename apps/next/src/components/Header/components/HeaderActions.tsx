@@ -3,14 +3,16 @@ import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { useUnreadNotificationsCount } from '@/hooks/useUnreadNotificationsCount';
 import { Box, IconButton, Stack, Tooltip, useTheme } from '@avalabs/k2-alpine';
-import { Account, FeatureGates, isTransferInProgress } from '@core/types';
+import { Account, isTransferInProgress } from '@core/types';
 import { FC, useMemo } from 'react';
 import { FiSettings } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom';
 import { ConnectedSites } from '../ConnectedSites';
 import { ViewModeSwitcher } from '../ViewModeSwitcher';
 import { useTranslation } from 'react-i18next';
-import { useFeatureFlagContext, useTransferTrackingContext } from '@core/ui';
+import { useTransferTrackingContext } from '@core/ui';
+
+const ICON_BUTTON_SIZE = 'small' as const;
 
 type Props = {
   account: Account | undefined;
@@ -24,8 +26,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   const {
     state: { pendingTransfers },
   } = useNextUnifiedBridgeContext();
-  const { transfers } = useTransferTrackingContext();
-  const { isFlagEnabled } = useFeatureFlagContext();
+  const { transfers, unreadTransferIds } = useTransferTrackingContext();
   const isWalletView = location.pathname.startsWith('/wallet');
 
   const hasPendingTransactions = useMemo(
@@ -37,18 +38,10 @@ export const HeaderActions: FC<Props> = ({ account }) => {
     () => Object.values(transfers).some(isTransferInProgress),
     [transfers],
   );
-  const hasConcludedTransfers = useMemo(
-    () =>
-      Object.values(transfers).some(
-        (transfer) => !isTransferInProgress(transfer),
-      ),
-    [transfers],
-  );
-  const displayFusionActivityIcon =
-    isFlagEnabled(FeatureGates.FUSION_FEATURE) &&
-    (hasPendingTransfers || hasConcludedTransfers);
 
   const unreadCount = useUnreadNotificationsCount();
+  const showNotificationsBadge =
+    unreadCount > 0 || unreadTransferIds.length > 0;
 
   return (
     <Stack direction="row" alignItems="center">
@@ -58,7 +51,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
           disableRipple={true}
           data-testid="settings-button"
           onClick={() => history.push('/settings')}
-          size="small"
+          size={ICON_BUTTON_SIZE}
           sx={{ color: theme.palette.text.primary }}
         >
           <FiSettings size={20} style={{ scale: 5 / 6 }} />
@@ -67,13 +60,17 @@ export const HeaderActions: FC<Props> = ({ account }) => {
       <Tooltip title={t('Notifications')}>
         <IconButton
           disableRipple
-          size="small"
+          size={ICON_BUTTON_SIZE}
           data-testid="notifications-button"
           onClick={() => history.push('/notifications')}
           sx={{ color: theme.palette.text.primary, position: 'relative' }}
         >
-          <MdNotificationsNone size={20} />
-          {unreadCount > 0 && (
+          {hasPendingTransfers ? (
+            <AnimatedSyncIcon size={20} data-active={true} />
+          ) : (
+            <MdNotificationsNone size={20} />
+          )}
+          {showNotificationsBadge && (
             <Box
               position="absolute"
               top={4}
@@ -88,7 +85,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
       </Tooltip>
       <IconButton
         disableRipple={true}
-        size="small"
+        size={ICON_BUTTON_SIZE}
         onClick={() => history.push('/activity')}
       >
         <AnimatedSyncIcon
@@ -97,36 +94,6 @@ export const HeaderActions: FC<Props> = ({ account }) => {
           data-hidden={!hasPendingTransactions}
         />
       </IconButton>
-      {displayFusionActivityIcon && (
-        <IconButton
-          disableRipple
-          size="small"
-          onClick={() => history.push('/fusion-activity')}
-          sx={{ color: theme.palette.text.primary, position: 'relative' }}
-        >
-          {hasPendingTransfers ? (
-            <AnimatedSyncIcon
-              size={24}
-              data-active={hasPendingTransfers}
-              data-hidden={!hasPendingTransfers}
-            />
-          ) : (
-            <>
-              <MdNotificationsNone size={20} />
-              {/* TODO: only display the badge for unseen transfers*/}
-              <Box
-                position="absolute"
-                top={4}
-                right={4}
-                bgcolor="error.main"
-                borderRadius="50%"
-                width={6}
-                height={6}
-              />
-            </>
-          )}
-        </IconButton>
-      )}
       <ViewModeSwitcher />
     </Stack>
   );
