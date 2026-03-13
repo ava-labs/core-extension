@@ -122,6 +122,7 @@ const CORE_METHODS = Object.freeze([
   DAppProviderRequest.WALLET_GET_SETTINGS,
   DAppProviderRequest.WALLET_SET_SETTINGS,
   DAppProviderRequest.WALLET_ENABLE_NETWORK,
+  RpcMethod.ETH_SEND_TRANSACTION_BATCH,
 ]);
 
 export function PermissionMiddleware(
