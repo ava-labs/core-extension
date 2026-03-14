@@ -17,7 +17,7 @@ import KeystoneUSBAvalancheSDK from '@keystonehq/hw-app-avalanche';
 import KeystoneUSBEthSDK from '@keystonehq/hw-app-eth';
 import { createKeystoneTransport } from '@keystonehq/hw-transport-webusb';
 import { UREncoder, URDecoder, UR } from '@ngraveio/bc-ur';
-import { makeBNLike } from '@core/common';
+import { getAvalancheDerivationPath, makeBNLike } from '@core/common';
 import { utils } from '@avalabs/avalanchejs';
 
 import {
@@ -204,16 +204,39 @@ export class KeystoneWallet {
     txRequest: Avalanche.SignTxRequest,
   ): Promise<Avalanche.SignTxRequest['tx']> {
     const tx = txRequest.tx;
-    const isEvmChain = tx.getVM() === 'EVM';
     const app = new KeystoneUSBAvalancheSDK(await createKeystoneTransport());
-    const sig = await app.signTx(
-      tx as any,
-      this.fingerprint,
-      isEvmChain ? this.xpub! : this.xpubXP!,
-      this.activeAccountIndex,
+
+    const potentialPaths = new Set<string>();
+    potentialPaths.add(getAvalancheDerivationPath(this.activeAccountIndex));
+
+    if (tx.getVM() === 'EVM') {
+      potentialPaths.add(`M/44'/60'/0'/0/${this.activeAccountIndex}`);
+    }
+
+    (txRequest.externalIndices ?? []).forEach((index) =>
+      potentialPaths.add(
+        getAvalancheDerivationPath(this.activeAccountIndex, index, false),
+      ),
+    );
+    (txRequest.internalIndices ?? []).forEach((index) =>
+      potentialPaths.add(
+        getAvalancheDerivationPath(this.activeAccountIndex, index, true),
+      ),
     );
 
-    tx.addSignature(utils.hexToBuffer(sig));
+    const derivationPaths = Array.from(potentialPaths);
+
+    const signatures = await app.signTx(
+      tx as any,
+      derivationPaths,
+      [], // Additional UTXOs array reserved for web utxo selector (not provided by current extension)
+      this.fingerprint,
+    );
+
+    signatures.forEach((sig) => {
+      tx.addSignature(utils.hexToBuffer(sig));
+    });
+
     return tx;
   }
 
