@@ -150,10 +150,16 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
     storageService.load.mockResolvedValue({
       trackedTransfers: {
         '1234': {
-          id: '1234',
-          status: 'source-pending',
-        } as SourcePendingTransfer,
-        '2345': { id: '2345', status: 'failed' } as FailedTransfer,
+          transfer: {
+            id: '1234',
+            status: 'source-pending',
+          } as SourcePendingTransfer,
+          isRead: false,
+        },
+        '2345': {
+          transfer: { id: '2345', status: 'failed' } as FailedTransfer,
+          isRead: false,
+        },
       } as TrackedTransfers,
     });
 

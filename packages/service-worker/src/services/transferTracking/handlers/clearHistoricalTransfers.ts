@@ -2,29 +2,28 @@ import { injectable } from 'tsyringe';
 
 import { ExtensionRequest, ExtensionRequestHandler } from '@core/types';
 
+import { TransferTrackingState } from '../types';
 import { TransferTrackingService } from '../TransferTrackingService';
 
 type HandlerType = ExtensionRequestHandler<
-  ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ,
-  void,
-  string[]
+  ExtensionRequest.TRANSFER_TRACKING_CLEAR_HISTORICAL_TRANSFERS,
+  TransferTrackingState
 >;
 
 @injectable()
-export class MarkTransfersAsRead implements HandlerType {
-  method = ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ as const;
+export class ClearHistoricalTransfers implements HandlerType {
+  method =
+    ExtensionRequest.TRANSFER_TRACKING_CLEAR_HISTORICAL_TRANSFERS as const;
 
   constructor(private trackingService: TransferTrackingService) {}
 
   handle: HandlerType['handle'] = async ({ request }) => {
-    const transferIds = request.params;
-
     try {
-      await this.trackingService.markTransfersAsRead(transferIds);
+      await this.trackingService.clearHistoricalTransfers();
 
       return {
         ...request,
-        result: undefined,
+        result: this.trackingService.state,
       };
     } catch (ex: any) {
       return {

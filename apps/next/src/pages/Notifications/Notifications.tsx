@@ -57,7 +57,9 @@ export const Notifications = () => {
         ? []
         : combineActivityItems(
             notifications,
-            isAllOrTransactionsTab ? transfers : [],
+            isAllOrTransactionsTab
+              ? transfers.map(({ transfer }) => transfer)
+              : [],
           ),
     [notifications, transfers, isAllOrTransactionsTab, isLoading],
   );

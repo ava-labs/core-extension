@@ -25,9 +25,10 @@ import { useTransferTrackingContext } from '@core/ui';
 
 type Props = {
   transfer: Transfer;
+  isRead: boolean;
 };
 
-export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
+export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
   const { t } = useTranslation();
   const { push, goBack } = useHistory();
   const { triggerConfetti } = useConfettiContext();
@@ -38,14 +39,25 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
   const isConcluded = isConcludedTransfer(transfer);
 
   useEffect(() => {
+    if (isRead) {
+      return;
+    }
+
     if (isComplete) {
       triggerConfetti();
     }
 
     if (isConcluded) {
-      markAsRead([transfer.id]);
+      markAsRead(transfer.id);
     }
-  }, [isComplete, isConcluded, triggerConfetti, markAsRead, transfer.id]);
+  }, [
+    isComplete,
+    isConcluded,
+    triggerConfetti,
+    markAsRead,
+    transfer.id,
+    isRead,
+  ]);
 
   const swappedTokens = useSwappedTokens(transfer);
 

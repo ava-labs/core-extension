@@ -26,7 +26,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   const {
     state: { pendingTransfers },
   } = useNextUnifiedBridgeContext();
-  const { transfers, unreadTransferIds } = useTransferTrackingContext();
+  const { transfers } = useTransferTrackingContext();
   const isWalletView = location.pathname.startsWith('/wallet');
 
   const hasPendingTransactions = useMemo(
@@ -35,13 +35,20 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   );
 
   const hasPendingTransfers = useMemo(
-    () => Object.values(transfers).some(isTransferInProgress),
+    () =>
+      Object.values(transfers).some(({ transfer }) =>
+        isTransferInProgress(transfer),
+      ),
+    [transfers],
+  );
+  const hasUnreadTransfers = useMemo(
+    () => Object.values(transfers).some(({ isRead }) => !isRead),
     [transfers],
   );
 
   const unreadCount = useUnreadNotificationsCount();
   const showNotificationsBadge =
-    unreadCount > 0 || unreadTransferIds.length > 0;
+    unreadCount > 0 || (hasUnreadTransfers && !hasPendingTransfers);
 
   return (
     <Stack direction="row" alignItems="center">

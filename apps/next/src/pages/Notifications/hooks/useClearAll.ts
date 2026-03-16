@@ -1,10 +1,24 @@
-import { useMarkAllAsRead } from './useMarkAllAsRead';
+import { useCallback } from 'react';
+
+import { useClearTransferHistory } from './useClearTransferHistory';
+import { useMarkAllNotificationsAsRead } from './useMarkAllNotificationsAsRead';
 
 /**
  * Hook to clear all notifications (convenience wrapper)
  */
 export function useClearAll() {
-  const { mutate: clearAll, isPending } = useMarkAllAsRead();
+  const { mutate: clearNotifications, isPending: isClearingNotifications } =
+    useMarkAllNotificationsAsRead();
+  const { mutate: clearTransferHistory, isPending: isClearingTransferHistory } =
+    useClearTransferHistory();
 
-  return { clearAll, isClearing: isPending };
+  const clearAll = useCallback(() => {
+    clearNotifications();
+    clearTransferHistory();
+  }, [clearNotifications, clearTransferHistory]);
+
+  return {
+    clearAll,
+    isClearing: isClearingNotifications || isClearingTransferHistory,
+  };
 }

@@ -2,12 +2,12 @@ import { Transfer } from '@avalabs/fusion-sdk';
 
 import { ExtensionRequest } from '@core/types';
 
-import { TrackUnifiedTransfer } from './trackUnifiedTransfer';
 import { TransferTrackingService } from '../TransferTrackingService';
+import { MarkTransferAsRead } from './markTransferAsRead';
 
 jest.mock('../TransferTrackingService');
 
-describe('src/background/services/transferTracking/handlers/trackUnifiedTransfer', () => {
+describe('src/background/services/transferTracking/handlers/markTransferAsRead', () => {
   const transfer = {
     id: '1234',
     status: 'source-pending',
@@ -17,23 +17,26 @@ describe('src/background/services/transferTracking/handlers/trackUnifiedTransfer
     const trackingServiceMock: Partial<TransferTrackingService> = {
       trackTransfer: jest.fn(),
       updatePendingTransfer: jest.fn(),
+      markTransferAsRead: jest.fn(),
     };
 
-    const handler = new TrackUnifiedTransfer(
+    const handler = new MarkTransferAsRead(
       trackingServiceMock as TransferTrackingService,
     );
 
     const { result } = await handler.handle({
       request: {
         id: '123',
-        method: ExtensionRequest.TRANSFER_TRACKING_TRACK_TRANSFER,
-        params: [transfer] as const,
+        method: ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ,
+        params: [transfer.id] as const,
       } as const,
       scope: '',
       sessionId: 'session-id',
     });
 
-    expect(trackingServiceMock.trackTransfer).toHaveBeenCalledWith(transfer);
+    expect(trackingServiceMock.markTransferAsRead).toHaveBeenCalledWith(
+      transfer.id,
+    );
 
     expect(result).toStrictEqual(undefined);
   });

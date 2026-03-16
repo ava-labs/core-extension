@@ -1,8 +1,14 @@
 import { FeatureGates, TrackedTransfers } from '@core/types';
 
 export type TransferTrackingState = {
-  unreadTransferIds: string[];
   trackedTransfers: TrackedTransfers;
+};
+
+export type TransferTrackingStorageState = {
+  trackedTransfers: Record<
+    keyof TrackedTransfers,
+    Omit<TrackedTransfers[keyof TrackedTransfers], 'untrack'>
+  >;
 };
 
 export type TransferTrackingServiceEvents = 'tracked-transfers-updated';
@@ -16,7 +22,6 @@ export const UNIFIED_TRANSFER_TRACKED_FLAGS = [
 ];
 
 export const TRANSFER_TRACKING_DEFAULT_STATE: TransferTrackingState = {
-  unreadTransferIds: [],
   trackedTransfers: {},
 };
 

@@ -1,3 +1,4 @@
 export * from './transferTrackingGetState';
 export * from './trackUnifiedTransfer';
-export * from './markTransfersAsRead';
+export * from './markTransferAsRead';
+export * from './clearHistoricalTransfers';

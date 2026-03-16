@@ -17,7 +17,13 @@ export type UnifiedTransferSigners = {
   svm: SolanaSigner;
 };
 
-export type TrackedTransfers = Record<Transfer['id'], Transfer>;
+export type TrackedTransfer = {
+  transfer: Transfer;
+  isRead: boolean;
+  untrack?: () => void;
+};
+
+export type TrackedTransfers = Record<Transfer['id'], TrackedTransfer>;
 
 export type TransferTrackingStateUpdateEvent = {
   name: 'tracked-transfers-updated';

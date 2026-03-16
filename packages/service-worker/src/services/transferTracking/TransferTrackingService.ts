@@ -37,6 +37,7 @@ import {
   TRANSFER_TRACKING_STATE_STORAGE_KEY,
   TransferTrackingServiceEvents,
   TransferTrackingState,
+  TransferTrackingStorageState,
   UNIFIED_TRANSFER_TRACKED_FLAGS,
 } from './types';
 
@@ -102,15 +103,14 @@ export class TransferTrackingService implements OnStorageReady {
 
     this.#saveState({
       trackedTransfers: state.trackedTransfers,
-      unreadTransferIds: state.unreadTransferIds ?? [],
     });
     this.#trackPendingTransfers();
   }
 
   #trackPendingTransfers() {
     Object.values(this.#state.trackedTransfers)
-      .filter(isTransferInProgress)
-      .forEach((transfer) => {
+      .filter(({ transfer }) => isTransferInProgress(transfer))
+      .forEach(({ transfer }) => {
         try {
           this.trackTransfer(transfer);
         } catch {
@@ -244,10 +244,14 @@ export class TransferTrackingService implements OnStorageReady {
       return;
     }
 
-    const { result } = this.#manager.trackTransfer({
+    if (isConcludedTransfer(transfer)) {
+      return;
+    }
+
+    const { result, cancel } = this.#manager.trackTransfer({
       transfer,
       updateListener: async (updatedTransfer) => {
-        await this.updatePendingTransfer(updatedTransfer);
+        await this.updatePendingTransfer(updatedTransfer, cancel);
       },
     });
 
@@ -270,29 +274,36 @@ export class TransferTrackingService implements OnStorageReady {
     this.#saveState({ ...this.#state });
   }
 
-  async markTransferAsUnread(transfer: Transfer) {
-    if (!this.#state.unreadTransferIds.includes(transfer.id)) {
+  async markTransferAsRead(transferId: string) {
+    const transferMeta = this.#state.trackedTransfers[transferId];
+
+    // Only allow marking transfers as read if they have concluded (completed, failed, refunded).
+    if (!transferMeta || !isConcludedTransfer(transferMeta.transfer)) {
       return;
     }
 
-    this.#state.unreadTransferIds.push(transfer.id);
-    await this.#saveState({ ...this.#state });
-  }
-
-  async markTransfersAsRead(transferIds: string[]) {
-    const concludedTransferIds = transferIds.filter((id) =>
-      this.#state.trackedTransfers[id]
-        ? isConcludedTransfer(this.#state.trackedTransfers[id])
-        : true,
-    );
-    this.#state.unreadTransferIds = this.#state.unreadTransferIds.filter(
-      (id) => !concludedTransferIds.includes(id),
-    );
+    transferMeta.isRead = true;
 
     await this.#saveState({ ...this.#state });
   }
 
-  async updatePendingTransfer(transfer: Transfer) {
+  async clearHistoricalTransfers() {
+    // Only clear concluded transfers.
+    const pendingTransfers = Object.values(this.#state.trackedTransfers).filter(
+      ({ transfer }) => !isConcludedTransfer(transfer),
+    );
+
+    await this.#saveState({
+      trackedTransfers: Object.fromEntries(
+        pendingTransfers.map((transferMeta) => [
+          transferMeta.transfer.id,
+          transferMeta,
+        ]),
+      ),
+    });
+  }
+
+  async updatePendingTransfer(transfer: Transfer, untrack?: () => void) {
     if (isFailedTransfer(transfer)) {
       Monitoring.sentryCaptureException(
         new Error(
@@ -303,10 +314,13 @@ export class TransferTrackingService implements OnStorageReady {
     }
 
     this.#saveState({
-      ...this.#state,
       trackedTransfers: {
         ...this.#state.trackedTransfers,
-        [transfer.id]: transfer,
+        [transfer.id]: {
+          transfer,
+          isRead: false,
+          untrack,
+        },
       },
     });
   }
@@ -318,10 +332,19 @@ export class TransferTrackingService implements OnStorageReady {
       newState.trackedTransfers,
     );
 
+    // Do not store functions in chrome.storage
+    const purifiedState: TransferTrackingStorageState = {
+      trackedTransfers: Object.fromEntries(
+        Object.entries(newState.trackedTransfers).map(
+          ([id, { isRead, transfer }]) => [id, { isRead, transfer }],
+        ),
+      ),
+    };
+
     try {
-      await this.storageService.save(
+      await this.storageService.save<TransferTrackingStorageState>(
         TRANSFER_TRACKING_STATE_STORAGE_KEY,
-        newState,
+        purifiedState,
       );
     } catch {
       // May be called before extension is unlocked. Ignore.

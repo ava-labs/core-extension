@@ -7,7 +7,7 @@ import { NOTIFICATION_CENTER_QUERY_KEY } from './useNotificationCenterList';
 /**
  * Hook to mark all notifications as read
  */
-export function useMarkAllAsRead() {
+export function useMarkAllNotificationsAsRead() {
   const { request } = useConnectionContext();
   const queryClient = useQueryClient();
 
