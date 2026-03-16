@@ -26,20 +26,32 @@ export const useTransferManager = () => {
       return;
     }
 
+    // We need to use a flag to abort setting of the manager if the component is unmounted.
+    // Otherwise we run into race-conditions (i.e. if two managers are created in quick succession).
+    let aborted = false;
+
     createTransferManager({
       environment,
       serviceInitializers,
     })
       .then((_manager) => {
+        if (aborted) return;
+
         setManager(_manager);
         setError(false);
       })
       .catch((err) => {
+        if (aborted) return;
+
         setManager(undefined);
         setError(true);
         console.error('[useTransferManager]', err);
       });
-  }, [environment, serviceInitializers, setError]);
+
+    return () => {
+      aborted = true;
+    };
+  }, [environment, serviceInitializers]);
 
   return {
     manager,
