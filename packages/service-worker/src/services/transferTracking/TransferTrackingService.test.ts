@@ -4,6 +4,7 @@ import {
   TransferManager,
   SourcePendingTransfer,
   FailedTransfer,
+  Transfer,
 } from '@avalabs/fusion-sdk';
 import { TransferTrackingService } from './TransferTrackingService';
 import { FeatureGates, TrackedTransfers } from '@core/types';
@@ -57,6 +58,11 @@ describe('src/background/services/unifiedBridge/UnifiedBridgeService', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.spyOn(console, 'log').mockImplementation(noop);
+
+    trackTransfer.mockReturnValue({
+      result: Promise.resolve({} as Transfer),
+      cancel: jest.fn(),
+    });
 
     manager = {
       trackTransfer,
