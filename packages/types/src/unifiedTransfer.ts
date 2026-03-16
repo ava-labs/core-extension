@@ -2,6 +2,7 @@ import {
   BtcSigner,
   EvmSignerWithMessage,
   Transfer,
+  Quote,
   CompletedTransfer,
   FailedTransfer,
   SourcePendingTransfer,
@@ -46,5 +47,5 @@ export const isTransferInProgress = (
   transfer.status === 'target-pending' ||
   transfer.status === 'source-completed';
 
-export const isCrossChainTransfer = (transfer: Transfer) =>
-  transfer.sourceChain.chainId !== transfer.targetChain.chainId;
+export const isCrossChainTransfer = (quoteLike: Transfer | Quote) =>
+  quoteLike.sourceChain.chainId !== quoteLike.targetChain.chainId;

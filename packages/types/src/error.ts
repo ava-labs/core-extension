@@ -57,6 +57,7 @@ export enum UnifiedBridgeError {
   InvalidTxPayload = 'invalid-tx-payload',
   NonBitcoinAccount = 'non-bitcoin-account',
   MissingChainId = 'missing-chain-id',
+  MultipleChainIdsInBatch = 'multiple-chain-ids-in-batch',
 }
 
 export enum SeedlessError {

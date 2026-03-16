@@ -292,16 +292,18 @@ export const useEvmSwap: SwapAdapter<EvmSwapQuote> = (
             {
               scope: network.caipId,
               context: {
-                autoApprove: true,
-                validatorType,
-                srcTokenAddress: srcToken,
-                isSrcTokenNative,
-                destTokenAddress: destToken,
-                isDestTokenNative,
-                minAmountOut,
-                slippage,
-                maxBuy,
-                isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+                swapAutoApprove: {
+                  autoApprove: true,
+                  validatorType,
+                  srcTokenAddress: srcToken,
+                  isSrcTokenNative,
+                  destTokenAddress: destToken,
+                  isDestTokenNative,
+                  minAmountOut,
+                  slippage,
+                  maxBuy,
+                  isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+                },
               },
             },
           ).then((txHash) => {

@@ -1,3 +1,6 @@
+import type { TransactionBatchParams } from '@avalabs/evm-module';
+import type { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
+
 export enum ExtensionRequest {
   OPEN_EXTENSION_POPUP_WINDOW = 'open_extension_popup_window',
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
@@ -210,7 +213,7 @@ export enum ExtensionRequest {
 
 /* eslint-disable no-prototype-builtins */
 
-import { RpcMethod } from '@avalabs/vm-module-types';
+import { Hex, RpcMethod } from '@avalabs/vm-module-types';
 import { Runtime } from 'webextension-polyfill';
 
 import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
@@ -291,6 +294,24 @@ export interface ExtensionRequestHandler<
   ) => Promise<ExtensionConnectionMessageResponse<Method, Result, Params>>;
 }
 
+type RpcMethodMetadata = {
+  [RpcMethod.ETH_SEND_TRANSACTION_BATCH]: {
+    Method: RpcMethod.ETH_SEND_TRANSACTION_BATCH;
+    Params: {
+      transactions: TransactionBatchParams;
+      options?: {
+        skipIntermediateTxs?: boolean;
+      };
+    };
+    Result: readonly Hex[];
+  };
+  [RpcMethod.BITCOIN_SEND_TRANSACTION]: {
+    Method: RpcMethod.BITCOIN_SEND_TRANSACTION;
+    Params: BitcoinSendTransactionParams;
+    Result: string;
+  };
+};
+
 type ExtractHandlerTypes<Type> =
   Type extends ExtensionRequestHandler<infer M, infer R, infer P>
     ? { Method: M; Result: R; Params: P }
@@ -300,13 +321,15 @@ type ExtractHandlerTypes<Type> =
           Params: P;
           Result: R;
         }
-      : {
-          Method: RpcMethod;
-          Params: Type;
-          Result: string;
-        };
+      : Type extends keyof RpcMethodMetadata
+        ? RpcMethodMetadata[Type]
+        : {
+            Method: RpcMethod;
+            Params: Type;
+            Result: string;
+          };
 
-type ModuleRequestPayload = Record<string, unknown>;
+type ModuleRequestPayload = RpcMethod | Record<RpcMethod, unknown>;
 
 /**
  * The `Handler` type argument is required and must be a reference to a class

@@ -265,8 +265,8 @@ export class ApprovalController implements BatchApprovalController {
     const action = this.#buildAction(params, actionId);
 
     // Get validator by type from context
-    let validator = context?.validatorType
-      ? validatorRegistry.getValidator(context.validatorType)
+    let validator = context?.swapAutoApprove?.validatorType
+      ? validatorRegistry.getValidator(context.swapAutoApprove.validatorType)
       : undefined;
 
     if (validator) {
@@ -377,8 +377,10 @@ export class ApprovalController implements BatchApprovalController {
     const action = this.#buildMultiApprovalAction(params, actionId);
 
     // Get validator by type from context
-    let validator = context?.validatorType
-      ? validatorRegistry.getBatchValidator(context.validatorType)
+    let validator = context?.swapAutoApprove?.validatorType
+      ? validatorRegistry.getBatchValidator(
+          context.swapAutoApprove.validatorType,
+        )
       : undefined;
 
     if (validator) {
