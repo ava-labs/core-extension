@@ -34,6 +34,7 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
   const hasError = isFailedTransfer(transfer);
   const isRefunded = isRefundedTransfer(transfer);
   const isComplete = isCompletedTransfer(transfer);
+  const canClose = isComplete || isRefunded;
 
   useEffect(() => {
     if (isCompletedTransfer(transfer)) {
@@ -84,9 +85,9 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
           size="extension"
           color="primary"
           fullWidth
-          onClick={isComplete || isRefunded ? goBack : () => push('/')}
+          onClick={canClose ? goBack : () => push('/')}
         >
-          {isComplete ? t('Close') : t('Notify me when it’s done')}
+          {canClose ? t('Close') : t('Notify me when it’s done')}
         </Button>
       </Stack>
     </Stack>

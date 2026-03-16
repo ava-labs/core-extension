@@ -43,19 +43,23 @@ const IconBySideAndStatus: Record<
   },
 };
 
+function getStatusColor(
+  transfer: Transfer,
+  side: Side,
+): 'success.main' | 'error.main' | 'warning.main' | 'text.primary' {
+  if (isTransferSuccessfulForSide(transfer, side)) return 'success.main';
+  if (isFailedTransfer(transfer)) return 'error.main';
+  if (isRefundedTransfer(transfer)) return 'warning.main';
+  return 'text.primary';
+}
+
 type StatusIconProps = {
   transfer: Transfer;
   side: Side;
 };
 
 const StatusIcon: FC<StatusIconProps> = ({ transfer, side }) => {
-  const color = isTransferSuccessfulForSide(transfer, side)
-    ? 'success.main'
-    : isFailedTransfer(transfer)
-      ? 'error.main'
-      : isRefundedTransfer(transfer)
-        ? 'warning.main'
-        : 'text.primary';
+  const color = getStatusColor(transfer, side);
 
   const Icon = IconBySideAndStatus[side][transfer.status];
 
