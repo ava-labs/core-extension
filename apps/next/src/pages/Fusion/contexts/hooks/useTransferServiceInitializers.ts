@@ -7,12 +7,12 @@ import { UnifiedTransferSigners } from '@core/types';
 
 export const useTransferServiceInitializers = (
   services: ServiceType[],
-  signers: UnifiedTransferSigners,
+  signers: UnifiedTransferSigners | null,
 ) => {
   const { bitcoinProvider } = useNetworkContext();
 
   return useMemo(() => {
-    if (!bitcoinProvider) {
+    if (!bitcoinProvider || !signers) {
       return [];
     }
 

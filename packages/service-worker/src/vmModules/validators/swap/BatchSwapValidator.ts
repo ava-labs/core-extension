@@ -22,7 +22,7 @@ export class BatchSwapValidator implements BatchRequestValidator {
     const context = params.request.context;
 
     // Only handle if explicitly requested for auto-approval
-    if (!context?.autoApprove) {
+    if (!context?.swapAutoApprove?.autoApprove) {
       return false;
     }
 
@@ -57,10 +57,18 @@ export class BatchSwapValidator implements BatchRequestValidator {
   ): ValidationResult {
     const context = params.request.context;
 
+    if (!context?.swapAutoApprove) {
+      return {
+        isValid: false,
+        requiresManualApproval: true,
+        reason: 'Swap auto-approval context not provided',
+      };
+    }
+
     // Validate using the same logic as single swaps
     // The action.displayData contains scan results for the entire batch
     // showing the net effect of approval + swap transactions
-    return validateSwapAmounts(action, context);
+    return validateSwapAmounts(action, context.swapAutoApprove);
   }
 }
 

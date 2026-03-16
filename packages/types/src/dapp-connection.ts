@@ -6,7 +6,7 @@ import { SerializedEthereumRpcError } from 'eth-rpc-errors/dist/classes';
 
 import { Action } from './actions';
 import { DomainMetadata } from './domain-metadata';
-import { ValidatorType } from './approvals';
+import { SwapValidationContext } from './approvals';
 
 export enum DAppProviderRequest {
   DOMAIN_METADATA_METHOD = 'avalanche_sendDomainMetadata',
@@ -117,8 +117,7 @@ export type JsonRpcRequestContext = {
    */
   surpressSuccessToast?: boolean;
 
-  /** The validator type to use for auto-approval */
-  validatorType?: ValidatorType;
+  swapAutoApprove?: SwapValidationContext;
   [key: string]: unknown;
 };
 

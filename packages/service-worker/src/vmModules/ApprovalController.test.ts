@@ -639,8 +639,10 @@ describe('src/background/vmModules/ApprovalController', () => {
           params: { from: '0x1', to: '0x2', data: '0xA' },
           context: {
             tabId: 1234,
-            autoApprove: true,
-            validatorType: ValidatorType.SWAP,
+            swapAutoApprove: {
+              autoApprove: true,
+              validatorType: ValidatorType.SWAP,
+            },
           },
         },
         displayData: {
@@ -823,8 +825,10 @@ describe('src/background/vmModules/ApprovalController', () => {
             sessionId: 'sessionId',
             context: {
               tabId: 1234,
-              autoApprove: true,
-              validatorType: ValidatorType.BATCH_SWAP,
+              swapAutoApprove: {
+                autoApprove: true,
+                validatorType: ValidatorType.BATCH_SWAP,
+              },
             },
           },
           displayData: {
