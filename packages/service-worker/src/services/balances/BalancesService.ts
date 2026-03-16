@@ -1,4 +1,3 @@
-import { wait } from '@avalabs/core-utils-sdk';
 import {
   Network,
   NetworkVMType,
@@ -6,7 +5,6 @@ import {
   TokenWithBalance,
 } from '@avalabs/vm-module-types';
 import {
-  getExponentialBackoffDelay,
   getPriceChangeValues,
   isNotNullish,
   isPrimaryAccount,
@@ -23,8 +21,6 @@ const cacheStorage = new LRUCache({ max: 100, ttl: 60 * 1000 });
 
 @singleton()
 export class BalancesService {
-  #awaiters = new Map<string, Awaiter>();
-
   constructor(
     private settingsService: SettingsService,
     private moduleManager: ModuleManager,
@@ -45,6 +41,13 @@ export class BalancesService {
         network: network.caipId,
       },
     );
+    const module = await this.moduleManager.loadModuleByNetwork(network);
+
+    const settings = await this.settingsService.getSettings();
+    const currency = settings.currency.toLowerCase();
+    const customTokens = Object.values(
+      settings.customTokens[network.chainId] ?? {},
+    ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
 
     const addresses = await Promise.all(
       accounts.map(async (account) => {
@@ -107,11 +110,15 @@ export class BalancesService {
       return {};
     }
 
-    const rawBalances = await this.#getBalances(
-      network,
-      Array.from(addressesToFetch),
+    const rawBalances = await module.getBalances({
+      // TODO: Use public key and module.getAddress instead to make this more modular
+      addresses: Array.from(addressesToFetch),
+      network: network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types
+      currency,
+      customTokens,
       tokenTypes,
-    );
+      storage: cacheStorage,
+    });
 
     // Apply price changes data, VM Modules don't do this yet
     const balances = Object.keys(rawBalances).reduce(
@@ -155,57 +162,5 @@ export class BalancesService {
     sentryTracker.finish();
 
     return balances;
-  }
-
-  async #getBalances(
-    network: NetworkWithCaipId,
-    addresses: string[],
-    tokenTypes: TokenType[],
-  ) {
-    const module = await this.moduleManager.loadModuleByNetwork(network);
-    const settings = await this.settingsService.getSettings();
-    const customTokens = Object.values(
-      settings.customTokens[network.chainId] ?? {},
-    ).map((t) => ({ ...t, type: TokenType.ERC20 as const }));
-
-    if (this.#awaiters.has(network.caipId)) {
-      await this.#awaiters.get(network.caipId)!.waitIfNeeded();
-    }
-
-    try {
-      const rawBalances = await module.getBalances({
-        // TODO: Use public key and module.getAddress instead to make this more modular
-        addresses,
-        network: network as Network, // TODO: Remove this cast after SVM network type appears in vm-module-types
-        currency: settings.currency.toLowerCase(),
-        customTokens,
-        tokenTypes,
-        storage: cacheStorage,
-      });
-
-      return rawBalances;
-    } catch (error) {
-      if (!this.#awaiters.has(network.caipId)) {
-        this.#awaiters.set(network.caipId, new Awaiter());
-      }
-      this.#awaiters.get(network.caipId)!.bump();
-      throw error;
-    }
-  }
-}
-
-class Awaiter {
-  #waitTime: number | undefined;
-  #attempt: number = 0;
-
-  bump() {
-    this.#attempt++;
-    this.#waitTime = getExponentialBackoffDelay({ attempt: this.#attempt });
-  }
-
-  async waitIfNeeded() {
-    if (this.#waitTime) {
-      await wait(this.#waitTime);
-    }
   }
 }

@@ -17,6 +17,10 @@ class TimeOutController {
     this.#attempt++;
   }
 
+  isRetryable(status: number) {
+    return (status >= 500 && status < 600) || status === 429;
+  }
+
   get attempt() {
     return this.#attempt;
   }
@@ -30,14 +34,13 @@ export function applyExponentialBackOffMiddleware(api: Client) {
       const waitTime = getExponentialBackoffDelay({
         attempt: controller.attempt,
       });
-      console.log('waiting for', waitTime);
       await wait(waitTime);
     }
     return request;
   });
 
   api.interceptors.response.use((response) => {
-    if (!response.ok) {
+    if (!response.ok && controller.isRetryable(response.status)) {
       controller.bump();
     } else {
       controller.clear();

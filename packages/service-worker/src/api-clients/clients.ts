@@ -22,8 +22,8 @@ profileApiClientV1.interceptors.request.use(authInterceptor);
 const balanceApiClientV1 = createV1BalanceApiClient({
   baseUrl: process.env.BALANCE_SERVICE_URL,
 });
-balanceApiClientV1.interceptors.request.use(authInterceptor);
 applyExponentialBackOffMiddleware(balanceApiClientV1);
+balanceApiClientV1.interceptors.request.use(authInterceptor);
 
 const tokenAggregatorApiClientV1 = createTokenAggregatorApiClientV1({
   baseUrl: process.env.TOKEN_AGGREGATOR_SERVICE_URL,
