@@ -4,7 +4,11 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Transfer } from '@avalabs/fusion-sdk';
 
-import { isCompletedTransfer, isFailedTransfer } from '@core/types';
+import {
+  isCompletedTransfer,
+  isFailedTransfer,
+  isRefundedTransfer,
+} from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
 
 import { Page } from '@/components/Page';
@@ -39,6 +43,14 @@ export const FusionActivity = () => {
           targetToken: transfer.targetAsset.symbol,
         });
       }
+
+      if (isRefundedTransfer(transfer)) {
+        return t('Swap from {{sourceToken}} to {{targetToken}} was refunded', {
+          sourceToken: transfer.sourceAsset.symbol,
+          targetToken: transfer.targetAsset.symbol,
+        });
+      }
+
       return t('Swapping {{sourceToken}} to {{targetToken}} in progress...', {
         sourceToken: transfer.sourceAsset.symbol,
         targetToken: transfer.targetAsset.symbol,
