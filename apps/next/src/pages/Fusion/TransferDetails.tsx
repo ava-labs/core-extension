@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useParams } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useTransferTrackingContext } from '@core/ui';
@@ -45,7 +45,7 @@ export const TransferDetails: FC = () => {
           isRead={trackedTransfer.isRead}
         />
       ) : (
-        'not found'
+        <Redirect to="/notifications" />
       )}
     </Page>
   );

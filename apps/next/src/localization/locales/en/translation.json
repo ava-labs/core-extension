@@ -352,7 +352,6 @@
   "Forgot password?": "Forgot password?",
   "French": "French",
   "From": "From",
-  "Fusion": "Fusion",
   "GIFs": "GIFs",
   "Gas fees paid by Core": "Gas fees paid by Core",
   "Gas limit": "Gas limit",
@@ -1055,7 +1054,9 @@
   "{{received}} out of {{required}}": "{{received}} out of {{required}}",
   "{{sitesCount}} Connected sites": "{{sitesCount}} Connected sites",
   "{{slippage}}%": "{{slippage}}%",
-  "{{token}} bridge {{action}}": "{{token}} bridge {{action}}",
+  "{{token}} bridge completed": "{{token}} bridge completed",
+  "{{token}} bridge failed": "{{token}} bridge failed",
+  "{{token}} bridge in progress...": "{{token}} bridge in progress...",
   "{{walletName}} is already imported.": "{{walletName}} is already imported.",
   "© 2025 Ava Labs – All rights reserved.": "© 2025 Ava Labs – All rights reserved.",
   "🚧 Placeholder - needs implementation 🚧": "🚧 Placeholder - needs implementation 🚧"
