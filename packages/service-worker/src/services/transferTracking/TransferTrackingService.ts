@@ -358,7 +358,6 @@ export class TransferTrackingService implements OnStorageReady {
       );
     }
 
-    console.log('DEBUG', transfer);
     // Do not persist single-chain transfers, as they're rather quick.
     if (!isCrossChainTransfer(transfer)) {
       return;
