@@ -247,7 +247,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
 
         if (isCrossChainTransfer(transferObject)) {
           await trackTransfer(transferObject);
-          replace(`/fusion-activity/${transferObject.id}`);
+          replace(`/fusion-transfer/${transferObject.id}`);
           return;
         }
 

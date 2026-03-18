@@ -1,79 +1,119 @@
 import { FC } from 'react';
 import { AppNotification, isBalanceChangeNotification } from '@core/types';
-import { hasAtLeastOneElement } from '@core/common';
+import {
+  getExplorerAddressByNetwork,
+  hasAtLeastOneElement,
+  openNewTab,
+} from '@core/common';
 import { NotificationListItem } from './NotificationListItem';
 import { NotificationIcon } from './NotificationIcon';
+import { TFunction, useTranslation } from 'react-i18next';
+import { useNetworkContext } from '@core/ui';
 
 type BalanceChangeItemProps = {
-  notification: AppNotification;
+  notification: Extract<AppNotification, { type: 'BALANCE_CHANGES' }>;
   showSeparator: boolean;
-  accessoryType: 'chevron' | 'none';
-  onClick?: () => void;
 };
 
-const getTitle = (notification: AppNotification): string => {
+const getTitle = (notification: AppNotification, t: TFunction): string => {
   if (!isBalanceChangeNotification(notification)) return notification.title;
   const { transfers = [], event } = notification.data ?? {};
   if (!hasAtLeastOneElement(transfers)) return notification.title;
 
-  const isSent = event === 'BALANCES_SPENT' || event === 'BALANCES_TRANSFERRED';
+  const isSent = event === 'BALANCES_SPENT';
+  const isMoved = event === 'BALANCES_TRANSFERRED';
+  const isApprovalEvent = event === 'ALLOWANCE_APPROVED';
 
-  if (transfers.length === 1) {
-    const [{ amount, tokenSymbol }] = transfers;
-    if (event === 'ALLOWANCE_APPROVED') {
-      if (amount === '0') {
-        return `${tokenSymbol} revoked`;
-      }
-      return `${amount} ${tokenSymbol} approved`;
+  const [firstTransfer] = transfers;
+
+  if (isApprovalEvent) {
+    const { amount, tokenSymbol } = firstTransfer;
+
+    if (amount === '0') {
+      return t('Revoked allowance for {{tokenSymbol}}', { tokenSymbol });
     }
-    const action = isSent ? 'sent' : 'received';
-    return `${amount} ${tokenSymbol} ${action}`;
+
+    return t('Approved {{tokenSymbol}} up to {{amount}}', {
+      amount,
+      tokenSymbol,
+    });
   }
 
   const tokenList = transfers
-    .map((t) => `${t.amount} ${t.tokenSymbol}`)
+    .map(({ amount, tokenSymbol }) => `${amount} ${tokenSymbol}`)
     .join(', ');
-  const action = isSent ? 'sent' : 'received';
-  return `${tokenList} ${action}`;
+
+  if (isSent) {
+    return t('Sent {{tokenList}}', { tokenList });
+  }
+  if (isMoved) {
+    return t('Moved {{tokenList}}', { tokenList });
+  }
+
+  return t('Received {{tokenList}}', { tokenList });
 };
 
-const getSubtitle = (notification: AppNotification): string => {
+const getSubtitle = (notification: AppNotification, t: TFunction): string => {
   if (!isBalanceChangeNotification(notification)) return notification.body;
   const { transfers = [], event } = notification.data ?? {};
   if (!hasAtLeastOneElement(transfers)) return notification.body;
 
   const [firstTransfer] = transfers;
-  const { partnerAddress, amount, tokenSymbol } = firstTransfer;
 
-  if (event === 'ALLOWANCE_APPROVED') {
-    if (amount === '0') {
-      return `${tokenSymbol} allowance revoked`;
-    }
-    return `${tokenSymbol} approved up to ${amount}`;
-  }
+  const isSent = event === 'BALANCES_SPENT';
+  const isMoved = event === 'BALANCES_TRANSFERRED';
+  const isApprovalEvent = event === 'ALLOWANCE_APPROVED';
+
+  const { partnerAddress } = firstTransfer;
 
   if (!partnerAddress) return notification.body;
 
-  const isSent = event === 'BALANCES_SPENT' || event === 'BALANCES_TRANSFERRED';
-  const prefix = isSent ? 'to' : 'from';
-  return `${prefix} ${partnerAddress}`;
+  if (isApprovalEvent) {
+    return t('for {{spender}}', { spender: partnerAddress });
+  }
+
+  if (isMoved || isSent) {
+    return t('to {{partnerAddress}}', { partnerAddress });
+  }
+
+  return t('from {{partnerAddress}}', { partnerAddress });
 };
 
 export const BalanceChangeItem: FC<BalanceChangeItemProps> = ({
   notification,
   showSeparator,
-  accessoryType,
-  onClick,
 }) => {
+  const { t } = useTranslation();
+
+  const url = useExplorerUrl(notification);
+
   return (
     <NotificationListItem
-      title={getTitle(notification)}
-      subtitle={getSubtitle(notification)}
+      title={getTitle(notification, t)}
+      subtitle={getSubtitle(notification, t)}
       icon={<NotificationIcon notification={notification} />}
       timestamp={notification.timestamp}
       showSeparator={showSeparator}
-      accessoryType={accessoryType}
-      onClick={onClick}
+      accessoryType={url ? 'link' : 'none'}
+      onClick={url ? () => openNewTab({ url }) : undefined}
     />
   );
+};
+
+const useExplorerUrl = (
+  notification: Extract<AppNotification, { type: 'BALANCE_CHANGES' }>,
+) => {
+  const { getNetwork } = useNetworkContext();
+
+  if (!notification.data) return undefined;
+
+  const network = getNetwork(Number(notification.data.chainId));
+
+  return network
+    ? getExplorerAddressByNetwork(
+        network,
+        notification.data.transactionHash,
+        'tx',
+      )
+    : undefined;
 };

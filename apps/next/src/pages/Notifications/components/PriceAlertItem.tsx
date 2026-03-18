@@ -7,8 +7,6 @@ import { NotificationIcon } from './NotificationIcon';
 type PriceAlertItemProps = {
   notification: AppNotification;
   showSeparator: boolean;
-  accessoryType: 'chevron' | 'none';
-  onClick?: () => void;
 };
 
 const getTitle = (notification: AppNotification): string => {
@@ -50,8 +48,6 @@ const PriceSubtitle: FC<{ notification: AppNotification }> = ({
 export const PriceAlertItem: FC<PriceAlertItemProps> = ({
   notification,
   showSeparator,
-  accessoryType,
-  onClick,
 }) => {
   return (
     <NotificationListItem
@@ -60,8 +56,7 @@ export const PriceAlertItem: FC<PriceAlertItemProps> = ({
       icon={<NotificationIcon notification={notification} />}
       timestamp={notification.timestamp}
       showSeparator={showSeparator}
-      accessoryType={accessoryType}
-      onClick={onClick}
+      accessoryType="none"
     />
   );
 };

@@ -1,14 +1,15 @@
 import { FC, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button, Collapse, Stack, Typography } from '@avalabs/k2-alpine';
+import { Button, Collapse, Stack } from '@avalabs/k2-alpine';
 import { FailedTransfer, Transfer } from '@avalabs/fusion-sdk';
 
 import {
   isCompletedTransfer,
+  isConcludedTransfer,
   isFailedTransfer,
-  isRefundedTransfer,
 } from '@core/types';
+import { useTransferTrackingContext } from '@core/ui';
 
 import { Card } from '@/components/Card';
 import { useConfettiContext } from '@/components/Confetti';
@@ -24,23 +25,39 @@ import {
 
 type Props = {
   transfer: Transfer;
+  isRead: boolean;
 };
 
-export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
+export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
   const { t } = useTranslation();
-  const { push, goBack } = useHistory();
+  const { goBack } = useHistory();
   const { triggerConfetti } = useConfettiContext();
+  const { markAsRead } = useTransferTrackingContext();
 
   const hasError = isFailedTransfer(transfer);
-  const isRefunded = isRefundedTransfer(transfer);
   const isComplete = isCompletedTransfer(transfer);
-  const canClose = isComplete || isRefunded;
+  const isConcluded = isConcludedTransfer(transfer);
 
   useEffect(() => {
-    if (isCompletedTransfer(transfer)) {
+    if (isRead) {
+      return;
+    }
+
+    if (isComplete) {
       triggerConfetti();
     }
-  }, [transfer, triggerConfetti]);
+
+    if (isConcluded) {
+      markAsRead(transfer.id);
+    }
+  }, [
+    isComplete,
+    isConcluded,
+    triggerConfetti,
+    markAsRead,
+    transfer.id,
+    isRead,
+  ]);
 
   const swappedTokens = useSwappedTokens(transfer);
 
@@ -68,15 +85,6 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
         <Collapse in={hasError}>
           <TransactionFailure code={(transfer as FailedTransfer).errorCode} />
         </Collapse>
-        <Collapse in={isRefunded}>
-          <Stack direction="row" alignItems="center" gap={1}>
-            <Typography variant="body3" color="warning.main">
-              {t(
-                'This swap could not be completed on the destination chain. A refund has been issued to your source wallet.',
-              )}
-            </Typography>
-          </Stack>
-        </Collapse>
       </Stack>
 
       <Stack mt="auto" gap={1}>
@@ -85,9 +93,9 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer }) => {
           size="extension"
           color="primary"
           fullWidth
-          onClick={canClose ? goBack : () => push('/')}
+          onClick={goBack}
         >
-          {canClose ? t('Close') : t('Notify me when it’s done')}
+          {isConcluded ? t('Close') : t('Notify me when it’s done')}
         </Button>
       </Stack>
     </Stack>

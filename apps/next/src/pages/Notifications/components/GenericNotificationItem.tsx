@@ -2,20 +2,22 @@ import { FC } from 'react';
 import { AppNotification } from '@core/types';
 import { NotificationListItem } from './NotificationListItem';
 import { NotificationIcon } from './NotificationIcon';
+import { hasActionableUrl } from '../lib/hasActionableUrl';
+import { openNewTab } from '@core/common';
 
 type GenericNotificationItemProps = {
   notification: AppNotification;
   showSeparator: boolean;
-  accessoryType: 'chevron' | 'none';
-  onClick?: () => void;
 };
 
 export const GenericNotificationItem: FC<GenericNotificationItemProps> = ({
   notification,
   showSeparator,
-  accessoryType,
-  onClick,
 }) => {
+  const url = hasActionableUrl(notification)
+    ? notification.deepLinkUrl
+    : undefined;
+
   return (
     <NotificationListItem
       title={notification.title}
@@ -23,8 +25,8 @@ export const GenericNotificationItem: FC<GenericNotificationItemProps> = ({
       icon={<NotificationIcon notification={notification} />}
       timestamp={notification.timestamp}
       showSeparator={showSeparator}
-      accessoryType={accessoryType}
-      onClick={onClick}
+      accessoryType={url ? 'link' : 'none'}
+      onClick={url ? () => openNewTab({ url }) : undefined}
     />
   );
 };

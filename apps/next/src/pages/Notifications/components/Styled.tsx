@@ -7,8 +7,8 @@ import {
 } from '@avalabs/k2-alpine';
 
 export const Avatar = styled(K2Avatar)(({ theme }) => ({
-  width: 30,
-  height: 30,
+  width: 32,
+  height: 32,
   backgroundColor: theme.palette.surface.secondary,
   color: theme.palette.text.primary,
 }));

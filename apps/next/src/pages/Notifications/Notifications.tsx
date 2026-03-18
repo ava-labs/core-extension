@@ -1,18 +1,20 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Box, StackProps, alpha, useTheme } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { AppNotification, NotificationTab } from '@core/types';
+import { NotificationTab } from '@core/types';
 
 import { Page } from '@/components/Page';
 import { Tab, TabMenu } from '@/components/TabMenu';
 
 import { useNotifications } from './hooks/useNotifications';
 import { useClearAll } from './hooks/useClearAll';
-import { hasActionableUrl } from './lib/hasActionableUrl';
 import { NotificationEmptyState } from './components/NotificationEmptyState';
 import { NotificationItem } from './components/NotificationItem';
 import { NotificationListSkeleton } from './components/NotificationListSkeleton';
 import { ClearButton } from './components/ClearButton';
+import { combineActivityItems } from './lib/combineActivityItems';
+import { useTransferTrackingContext } from '@core/ui';
+import { useNextUnifiedBridgeContext } from '../Bridge/contexts';
 
 const contentProps: StackProps = {
   justifyContent: 'flex-start',
@@ -34,21 +36,44 @@ export const Notifications = () => {
 
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const selectedTab = tabItems[selectedTabIndex]?.value ?? NotificationTab.ALL;
-  const { notifications, isLoading } = useNotifications(selectedTab);
+
+  const { notifications, isLoading: isNotificationsLoading } =
+    useNotifications(selectedTab);
+  const { transfers, isLoading: isTransfersLoading } =
+    useTransferTrackingContext();
+  const {
+    state: { pendingTransfers },
+  } = useNextUnifiedBridgeContext();
   const { clearAll, isClearing } = useClearAll();
 
-  const isCurrentTabEmpty =
-    notifications.length === 0 && !isClearing && !isLoading;
+  const isLoading = isNotificationsLoading || isTransfersLoading;
 
-  const handleNotificationPress = useCallback(
-    (notification: AppNotification) => {
-      const url = notification.deepLinkUrl;
-      if (url && hasActionableUrl(notification)) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }
-    },
-    [],
+  const isAllOrTransactionsTab =
+    selectedTab === NotificationTab.TRANSACTIONS ||
+    selectedTab === NotificationTab.ALL;
+
+  const combinedItems = useMemo(
+    () =>
+      isLoading
+        ? []
+        : combineActivityItems(
+            notifications,
+            isAllOrTransactionsTab
+              ? transfers.map(({ transfer }) => transfer)
+              : [],
+            isAllOrTransactionsTab ? Object.values(pendingTransfers) : [],
+          ),
+    [
+      notifications,
+      transfers,
+      pendingTransfers,
+      isAllOrTransactionsTab,
+      isLoading,
+    ],
   );
+
+  const isCurrentTabEmpty =
+    combinedItems.length === 0 && !isClearing && !isLoading;
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
@@ -57,37 +82,32 @@ export const Notifications = () => {
     [],
   );
 
+  const showClearButton = !isCurrentTabEmpty;
+
   return (
     <Page
       title={t('Notifications')}
       withBackButton
       contentProps={contentProps}
+      headerProps={{
+        px: 2,
+      }}
       titleAction={
-        !isCurrentTabEmpty ? (
+        showClearButton ? (
           <ClearButton onClick={clearAll} disabled={isClearing} />
         ) : undefined
       }
+      px={0}
     >
       {isLoading && <NotificationListSkeleton />}
-
       {isCurrentTabEmpty && <NotificationEmptyState />}
-
-      {!isCurrentTabEmpty &&
-        notifications.map((item, index) => {
-          const isLast = index === notifications.length - 1;
-          const clickable = hasActionableUrl(item);
-          return (
-            <NotificationItem
-              key={item.id}
-              notification={item}
-              showSeparator={!isLast}
-              accessoryType={clickable ? 'chevron' : 'none'}
-              onClick={
-                clickable ? () => handleNotificationPress(item) : undefined
-              }
-            />
-          );
-        })}
+      {combinedItems.map((combined, index) => (
+        <NotificationItem
+          key={combined.id}
+          item={combined}
+          showSeparator={index < combinedItems.length - 1}
+        />
+      ))}
 
       {!isLoading && (
         <Box
