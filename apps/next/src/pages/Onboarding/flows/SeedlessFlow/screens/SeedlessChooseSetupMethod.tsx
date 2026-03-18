@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdOutlinePassword } from 'react-icons/md';
 import {
@@ -34,10 +34,21 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
   const { t } = useTranslation();
   const { setTotal } = useModalPageControl();
   const { loginWithoutMFA } = useSeedlessActions(SEEDLESS_ACTIONS_OPTIONS);
+  const [isSkipping, setIsSkipping] = useState(false);
 
   useEffect(() => {
     setTotal(0);
   }, [setTotal]);
+
+  const handleSkip = useCallback(async () => {
+    setIsSkipping(true);
+    try {
+      await loginWithoutMFA();
+      onMethodChosen('none');
+    } finally {
+      setIsSkipping(false);
+    }
+  }, [loginWithoutMFA, onMethodChosen]);
 
   return (
     <Stack height="100%" width="100%" {...stackProps}>
@@ -81,13 +92,7 @@ export const SeedlessChooseSetupMethod: FC<SeedlessChooseSetupMethodProps> = ({
         </CardMenu>
       </FullscreenModalContent>
       <FullscreenModalActions>
-        <NavButton
-          color="secondary"
-          onClick={() => {
-            loginWithoutMFA();
-            onMethodChosen('none');
-          }}
-        >
+        <NavButton color="secondary" disabled={isSkipping} onClick={handleSkip}>
           {t('Skip')}
         </NavButton>
       </FullscreenModalActions>
