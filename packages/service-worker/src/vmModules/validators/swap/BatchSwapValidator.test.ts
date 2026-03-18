@@ -32,7 +32,9 @@ describe('BatchSwapValidator', () => {
         method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
         chainId: 'eip155:43114',
         context: {
-          autoApprove: true,
+          swapAutoApprove: {
+            autoApprove: true,
+          },
         },
         dappInfo: {
           url: 'chrome-extension://test-id/',
@@ -197,7 +199,7 @@ describe('BatchSwapValidator', () => {
 
       expect(validateSwapAmounts).toHaveBeenCalledWith(
         mockAction,
-        params.request.context,
+        params.request.context?.swapAutoApprove,
       );
       expect(result).toBe(mockResult);
     });

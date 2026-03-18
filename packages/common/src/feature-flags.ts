@@ -61,6 +61,10 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureGates.CORE_ASSISTANT]: false,
   [FeatureGates.SWAP_USE_MARKR]: false,
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '100',
+  [FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS]: '5000', // 50%
+  [FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS]: '4000', // 40%
+  [FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS]: '2000', // 20%
+  [FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS]: '2000', // 20%
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.QUICK_SWAPS]: false,
@@ -132,15 +136,19 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureGates.CORE_ASSISTANT]: true,
   [FeatureGates.SWAP_USE_MARKR]: true,
   [FeatureVars.MARKR_SWAP_GAS_BUFFER]: '120',
+  [FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS]: '5000', // 50%
+  [FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS]: '4000', // 40%
+  [FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS]: '2000', // 20%
+  [FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS]: '2000', // 20%
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.QUICK_SWAPS]: false,
-  [FeatureGates.FUSION_FEATURE]: false,
-  [FeatureGates.FUSION_MARKR]: false,
-  [FeatureGates.FUSION_WRAP_UNWRAP]: false,
-  [FeatureGates.FUSION_AVALANCHE_EVM]: false,
-  [FeatureGates.FUSION_LOMBARD_BTC_TO_AVA]: false,
-  [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: false,
+  [FeatureGates.FUSION_FEATURE]: true,
+  [FeatureGates.FUSION_MARKR]: true,
+  [FeatureGates.FUSION_WRAP_UNWRAP]: true,
+  [FeatureGates.FUSION_AVALANCHE_EVM]: true,
+  [FeatureGates.FUSION_LOMBARD_BTC_TO_AVA]: true,
+  [FeatureGates.FUSION_LOMBARD_AVA_TO_BTC]: true,
 };
 
 export const FEATURE_FLAGS_OVERRIDES_KEY = '__feature-flag-overrides__';

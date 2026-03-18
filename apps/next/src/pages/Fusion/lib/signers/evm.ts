@@ -1,19 +1,83 @@
 import { hex, utf8 } from '@scure/base';
 import { TFunction } from 'react-i18next';
 import { RpcMethod } from '@avalabs/vm-module-types';
-import { EvmSignerWithMessage } from '@avalabs/fusion-sdk';
+import {
+  EvmSignerWithMessage,
+  EvmTransactionRequest,
+} from '@avalabs/fusion-sdk';
 
+import {
+  FeatureGates,
+  RequestHandlerType,
+  SettingsState,
+  UnifiedBridgeError,
+} from '@core/types';
 import { assert, chainIdToCaip } from '@core/common';
-import { RequestHandlerType, UnifiedBridgeError } from '@core/types';
 
+import {
+  normalizeTransaction,
+  normalizeTransactionsBatch,
+} from './lib/evmNormalization';
 import { buildRequestContext } from './lib/buildRequestContext';
+
+const getChainIdForBatch = (transactions: readonly EvmTransactionRequest[]) => {
+  const chainIds = new Set(transactions.map((tx) => tx.chainId));
+  assert(chainIds.size === 1, UnifiedBridgeError.MultipleChainIdsInBatch);
+
+  const chainId = chainIds.values().next().value;
+  assert(chainId, UnifiedBridgeError.MissingChainId);
+
+  return chainId;
+};
 
 export function getEVMSigner(
   request: RequestHandlerType,
   _t: TFunction,
+  isFlagEnabled: (feature: FeatureGates) => boolean,
+  isAutoSignSupported: boolean,
+  {
+    maxBuy,
+    isQuickSwapsEnabled,
+  }: Pick<SettingsState, 'maxBuy' | 'isQuickSwapsEnabled'>,
 ): EvmSignerWithMessage {
   return {
-    sign: async ({ from, data, to, value, chainId }, _, stepDetails) => {
+    signBatch: async (transactions, _, stepDetails) => {
+      try {
+        const batchChainId = getChainIdForBatch(transactions);
+        const result = await request<RpcMethod.ETH_SEND_TRANSACTION_BATCH>(
+          {
+            method: RpcMethod.ETH_SEND_TRANSACTION_BATCH,
+            params: {
+              transactions: normalizeTransactionsBatch(transactions),
+              options: {
+                skipIntermediateTxs: true,
+              },
+            },
+          },
+          {
+            scope: chainIdToCaip(Number(batchChainId)),
+            context: buildRequestContext(stepDetails, {
+              maxBuy,
+              isBatch: true,
+              isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+              isQuickSwapsEnabled:
+                isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
+              isAutoSignSupported,
+            }),
+          },
+        );
+
+        return result;
+      } catch (err) {
+        console.error(`[fusion::evmSigner.signBatch]`, err);
+        throw err;
+      }
+    },
+    sign: async (
+      { from, data, to, value, chainId, maxFeePerGas, maxPriorityFeePerGas },
+      _,
+      stepDetails,
+    ) => {
       assert(to, UnifiedBridgeError.InvalidTxPayload);
       assert(from, UnifiedBridgeError.InvalidTxPayload);
       assert(data, UnifiedBridgeError.InvalidTxPayload);
@@ -23,21 +87,27 @@ export function getEVMSigner(
           {
             method: RpcMethod.ETH_SEND_TRANSACTION,
             params: [
-              {
+              normalizeTransaction({
                 from,
                 to,
                 data,
-                value:
-                  typeof value === 'bigint'
-                    ? `0x${value.toString(16)}`
-                    : undefined,
+                value,
                 chainId,
-              },
+                maxFeePerGas,
+                maxPriorityFeePerGas,
+              }),
             ],
           },
           {
             scope: chainIdToCaip(Number(chainId)),
-            context: buildRequestContext(stepDetails),
+            context: buildRequestContext(stepDetails, {
+              maxBuy,
+              isBatch: false,
+              isSwapFeesEnabled: isFlagEnabled(FeatureGates.SWAP_FEES),
+              isQuickSwapsEnabled:
+                isQuickSwapsEnabled && isFlagEnabled(FeatureGates.QUICK_SWAPS),
+              isAutoSignSupported,
+            }),
           },
         );
 

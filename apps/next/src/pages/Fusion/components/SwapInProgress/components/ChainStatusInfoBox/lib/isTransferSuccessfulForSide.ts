@@ -7,7 +7,8 @@ export const isTransferSuccessfulForSide = (transfer: Transfer, side: Side) => {
     return (
       transfer.status === 'source-completed' ||
       transfer.status === 'completed' ||
-      transfer.status === 'target-pending'
+      transfer.status === 'target-pending' ||
+      transfer.status === 'refunded'
     );
   }
 

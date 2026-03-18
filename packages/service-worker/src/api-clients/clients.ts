@@ -1,20 +1,13 @@
 import { container } from 'tsyringe';
-import { AppCheckService } from '~/services/appcheck/AppCheckService';
-import { createClient as createV1ProfileApiClient } from '~/api-clients/profile-api/client';
 import { createClient as createV1BalanceApiClient } from '~/api-clients/balance-api/client';
+import { createClient as createV1ProfileApiClient } from '~/api-clients/profile-api/client';
 import { createClient as createTokenAggregatorApiClientV1 } from '~/api-clients/token-aggregator/client';
+import { AppCheckService } from '~/services/appcheck/AppCheckService';
+import { applyExponentialBackOffMiddleware } from './utils/exponentialBackOffMiddleware';
 
 const appcheckService = container.resolve(AppCheckService);
 
-interface InterceptorRequest {
-  headers: {
-    set: (key: string, value: string) => void;
-  };
-}
-
-const authInterceptor = async <T extends InterceptorRequest>(
-  request: T,
-): Promise<T> => {
+const authInterceptor = async <R extends Request>(request: R): Promise<R> => {
   const tokenResult = await appcheckService.getAppcheckToken();
 
   request.headers.set('x-firebase-appcheck', tokenResult?.token ?? '');
@@ -29,6 +22,7 @@ profileApiClientV1.interceptors.request.use(authInterceptor);
 const balanceApiClientV1 = createV1BalanceApiClient({
   baseUrl: process.env.BALANCE_SERVICE_URL,
 });
+applyExponentialBackOffMiddleware(balanceApiClientV1);
 balanceApiClientV1.interceptors.request.use(authInterceptor);
 
 const tokenAggregatorApiClientV1 = createTokenAggregatorApiClientV1({
@@ -37,7 +31,7 @@ const tokenAggregatorApiClientV1 = createTokenAggregatorApiClientV1({
 tokenAggregatorApiClientV1.interceptors.request.use(authInterceptor);
 
 export {
-  profileApiClientV1 as profileApiClient,
   balanceApiClientV1 as balanceApiClient,
+  profileApiClientV1 as profileApiClient,
   tokenAggregatorApiClientV1 as tokenAggregatorApiClient,
 };

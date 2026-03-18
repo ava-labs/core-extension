@@ -42,6 +42,7 @@ export * from './wallet-connect';
 export * from './wallet';
 export * from './web3';
 export * from './transaction';
+export * from './notification-center';
 export * from './notifications';
 export * from './trendingToken';
 export * from './unifiedTransfer';

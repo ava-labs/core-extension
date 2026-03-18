@@ -117,6 +117,9 @@ export const useErrorMessage = () => {
         [UnifiedBridgeError.MissingChainId]: {
           title: t('Missing chain ID'),
         },
+        [UnifiedBridgeError.MultipleChainIdsInBatch]: {
+          title: t('Multiple chain IDs in batch'),
+        },
       }),
       [t],
     );

@@ -8,9 +8,9 @@ import {
 import { isSyncDomain } from '@core/common';
 import { EventEmitter } from 'events';
 import { SettingsService } from '../SettingsService';
-import { singleton } from 'tsyringe';
+import { injectable } from 'tsyringe';
 
-@singleton()
+@injectable()
 export class SettingsUpdatedEventsCore implements DAppEventEmitter {
   private eventEmitter = new EventEmitter();
   private _connectionInfo?: ConnectionInfo;

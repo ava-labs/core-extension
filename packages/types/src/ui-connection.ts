@@ -1,3 +1,6 @@
+import type { TransactionBatchParams } from '@avalabs/evm-module';
+import type { BitcoinSendTransactionParams } from '@avalabs/bitcoin-module';
+
 export enum ExtensionRequest {
   OPEN_EXTENSION_POPUP_WINDOW = 'open_extension_popup_window',
   ONBOARDING_GET_STATE = 'onboarding_getIsOnBoarded',
@@ -200,6 +203,10 @@ export enum ExtensionRequest {
   NOTIFICATION_UNSUBSCRIBE = 'notification_unsubscribe',
   NOTIFICATION_GET_SUBSCRIPTIONS = 'notification_get_subscriptions',
 
+  NOTIFICATION_CENTER_GET_LIST = 'notification_center_get_list',
+  NOTIFICATION_CENTER_MARK_AS_READ = 'notification_center_mark_as_read',
+  NOTIFICATION_CENTER_MARK_ALL_AS_READ = 'notification_center_mark_all_as_read',
+
   GET_TRENDING_TOKENS = 'get_trending_tokens',
 
   GET_ATOMIC_FUNDS_FOR_ACCOUNT = 'get_atomic_funds_for_account',
@@ -210,7 +217,7 @@ export enum ExtensionRequest {
 
 /* eslint-disable no-prototype-builtins */
 
-import { RpcMethod } from '@avalabs/vm-module-types';
+import { Hex, RpcMethod } from '@avalabs/vm-module-types';
 import { Runtime } from 'webextension-polyfill';
 
 import { EthereumProviderError, EthereumRpcError } from 'eth-rpc-errors';
@@ -291,6 +298,24 @@ export interface ExtensionRequestHandler<
   ) => Promise<ExtensionConnectionMessageResponse<Method, Result, Params>>;
 }
 
+type RpcMethodMetadata = {
+  [RpcMethod.ETH_SEND_TRANSACTION_BATCH]: {
+    Method: RpcMethod.ETH_SEND_TRANSACTION_BATCH;
+    Params: {
+      transactions: TransactionBatchParams;
+      options?: {
+        skipIntermediateTxs?: boolean;
+      };
+    };
+    Result: readonly Hex[];
+  };
+  [RpcMethod.BITCOIN_SEND_TRANSACTION]: {
+    Method: RpcMethod.BITCOIN_SEND_TRANSACTION;
+    Params: BitcoinSendTransactionParams;
+    Result: string;
+  };
+};
+
 type ExtractHandlerTypes<Type> =
   Type extends ExtensionRequestHandler<infer M, infer R, infer P>
     ? { Method: M; Result: R; Params: P }
@@ -300,13 +325,15 @@ type ExtractHandlerTypes<Type> =
           Params: P;
           Result: R;
         }
-      : {
-          Method: RpcMethod;
-          Params: Type;
-          Result: string;
-        };
+      : Type extends keyof RpcMethodMetadata
+        ? RpcMethodMetadata[Type]
+        : {
+            Method: RpcMethod;
+            Params: Type;
+            Result: string;
+          };
 
-type ModuleRequestPayload = Record<string, unknown>;
+type ModuleRequestPayload = RpcMethod | Record<RpcMethod, unknown>;
 
 /**
  * The `Handler` type argument is required and must be a reference to a class
