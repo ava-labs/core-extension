@@ -1,16 +1,14 @@
 import { MdNotificationsNone } from 'react-icons/md';
 import { AnimatedSyncIcon } from '@/components/AnimatedSyncIcon';
-import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
-import { useUnreadNotificationsCount } from '@/hooks/useUnreadNotificationsCount';
 import { Box, IconButton, Stack, Tooltip, useTheme } from '@avalabs/k2-alpine';
-import { Account, isTransferInProgress } from '@core/types';
-import { FC, useMemo } from 'react';
+import { Account } from '@core/types';
+import { FC } from 'react';
 import { FiSettings } from 'react-icons/fi';
-import { useHistory, useLocation } from 'react-router-dom';
-import { ConnectedSites } from '../ConnectedSites';
-import { ViewModeSwitcher } from '../ViewModeSwitcher';
+import { useHistory } from 'react-router-dom';
+import { ConnectedSites } from '../../ConnectedSites';
+import { ViewModeSwitcher } from '../../ViewModeSwitcher';
 import { useTranslation } from 'react-i18next';
-import { useTransferTrackingContext } from '@core/ui';
+import { useNotificationsButtonState } from './hooks/useNotificationsButtonState';
 
 const ICON_BUTTON_SIZE = 'small' as const;
 
@@ -22,33 +20,7 @@ export const HeaderActions: FC<Props> = ({ account }) => {
   const history = useHistory();
   const theme = useTheme();
   const { t } = useTranslation();
-  const location = useLocation();
-  const {
-    state: { pendingTransfers },
-  } = useNextUnifiedBridgeContext();
-  const { transfers } = useTransferTrackingContext();
-  const isWalletView = location.pathname.startsWith('/wallet');
-
-  const hasPendingTransactions = useMemo(
-    () => (isWalletView ? false : Object.values(pendingTransfers).length > 0),
-    [pendingTransfers, isWalletView],
-  );
-
-  const hasPendingTransfers = useMemo(
-    () =>
-      Object.values(transfers).some(({ transfer }) =>
-        isTransferInProgress(transfer),
-      ),
-    [transfers],
-  );
-  const hasUnreadTransfers = useMemo(
-    () => Object.values(transfers).some(({ isRead }) => !isRead),
-    [transfers],
-  );
-
-  const unreadCount = useUnreadNotificationsCount();
-  const showNotificationsBadge =
-    unreadCount > 0 || (hasUnreadTransfers && !hasPendingTransfers);
+  const { showActiveIcon, showUnreadBadge } = useNotificationsButtonState();
 
   return (
     <Stack direction="row" alignItems="center">
@@ -72,12 +44,12 @@ export const HeaderActions: FC<Props> = ({ account }) => {
           onClick={() => history.push('/notifications')}
           sx={{ color: theme.palette.text.primary, position: 'relative' }}
         >
-          {hasPendingTransfers ? (
+          {showActiveIcon ? (
             <AnimatedSyncIcon size={20} data-active={true} />
           ) : (
             <MdNotificationsNone size={20} />
           )}
-          {showNotificationsBadge && (
+          {showUnreadBadge && (
             <Box
               position="absolute"
               top={4}
@@ -90,17 +62,6 @@ export const HeaderActions: FC<Props> = ({ account }) => {
           )}
         </IconButton>
       </Tooltip>
-      <IconButton
-        disableRipple={true}
-        size={ICON_BUTTON_SIZE}
-        onClick={() => history.push('/activity')}
-      >
-        <AnimatedSyncIcon
-          size={24}
-          data-active={hasPendingTransactions}
-          data-hidden={!hasPendingTransactions}
-        />
-      </IconButton>
       <ViewModeSwitcher />
     </Stack>
   );

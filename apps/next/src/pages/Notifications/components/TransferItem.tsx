@@ -8,24 +8,27 @@ import {
   isFailedTransfer,
   isTransferInProgress,
 } from '@core/types';
+import { useTransferTrackingContext } from '@core/ui';
 import { MdCheckCircle, MdError } from 'react-icons/md';
 import { TFunction, useTranslation } from 'react-i18next';
 import { getTransferTimestamp } from '../lib/getTransferTimestamp';
 import { NotificationListItem } from './NotificationListItem';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
-  onClick?: VoidFunction;
   transfer: Transfer;
   showSeparator: boolean;
 };
 
-export const TransferItem: FC<Props> = ({
-  transfer,
-  onClick,
-  showSeparator,
-}) => {
+export const TransferItem: FC<Props> = ({ transfer, showSeparator }) => {
   const theme = useTheme();
   const { t } = useTranslation();
+  const { push } = useHistory();
+  const { transfers } = useTransferTrackingContext();
+  const transferMeta = transfers.find(
+    ({ transfer: { id } }) => id === transfer.id,
+  );
+  const isUnread = transferMeta ? !transferMeta.isRead : false;
 
   const title = getTransferTitle(transfer, t);
   const icon = (
@@ -43,12 +46,17 @@ export const TransferItem: FC<Props> = ({
   return (
     <NotificationListItem
       title={title}
+      isUnread={isUnread}
       subtitle={t('Click for more details')}
       icon={icon}
-      timestamp={getTransferTimestamp(transfer)}
+      timestamp={
+        isTransferInProgress(transfer)
+          ? undefined
+          : getTransferTimestamp(transfer)
+      }
       showSeparator={showSeparator}
       accessoryType="chevron"
-      onClick={onClick}
+      onClick={() => push(`/fusion-transfer/${transfer.id}`)}
     />
   );
 };

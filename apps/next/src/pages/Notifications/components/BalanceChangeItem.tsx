@@ -1,15 +1,18 @@
 import { FC } from 'react';
 import { AppNotification, isBalanceChangeNotification } from '@core/types';
-import { hasAtLeastOneElement } from '@core/common';
+import {
+  getExplorerAddressByNetwork,
+  hasAtLeastOneElement,
+  openNewTab,
+} from '@core/common';
 import { NotificationListItem } from './NotificationListItem';
 import { NotificationIcon } from './NotificationIcon';
 import { TFunction, useTranslation } from 'react-i18next';
+import { useNetworkContext } from '@core/ui';
 
 type BalanceChangeItemProps = {
-  notification: AppNotification;
+  notification: Extract<AppNotification, { type: 'BALANCE_CHANGES' }>;
   showSeparator: boolean;
-  accessoryType: 'chevron' | 'none';
-  onClick?: () => void;
 };
 
 const getTitle = (notification: AppNotification, t: TFunction): string => {
@@ -79,10 +82,10 @@ const getSubtitle = (notification: AppNotification, t: TFunction): string => {
 export const BalanceChangeItem: FC<BalanceChangeItemProps> = ({
   notification,
   showSeparator,
-  accessoryType,
-  onClick,
 }) => {
   const { t } = useTranslation();
+
+  const url = useExplorerUrl(notification);
 
   return (
     <NotificationListItem
@@ -91,8 +94,26 @@ export const BalanceChangeItem: FC<BalanceChangeItemProps> = ({
       icon={<NotificationIcon notification={notification} />}
       timestamp={notification.timestamp}
       showSeparator={showSeparator}
-      accessoryType={accessoryType}
-      onClick={onClick}
+      accessoryType={url ? 'link' : 'none'}
+      onClick={url ? () => openNewTab({ url }) : undefined}
     />
   );
+};
+
+const useExplorerUrl = (
+  notification: Extract<AppNotification, { type: 'BALANCE_CHANGES' }>,
+) => {
+  const { getNetwork } = useNetworkContext();
+
+  if (!notification.data) return undefined;
+
+  const network = getNetwork(Number(notification.data.chainId));
+
+  return network
+    ? getExplorerAddressByNetwork(
+        network,
+        notification.data.transactionHash,
+        'tx',
+      )
+    : undefined;
 };

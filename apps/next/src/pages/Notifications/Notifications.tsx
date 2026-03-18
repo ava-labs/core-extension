@@ -1,21 +1,20 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Box, StackProps, alpha, useTheme } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { AppNotification, NotificationTab } from '@core/types';
+import { NotificationTab } from '@core/types';
 
 import { Page } from '@/components/Page';
 import { Tab, TabMenu } from '@/components/TabMenu';
 
 import { useNotifications } from './hooks/useNotifications';
 import { useClearAll } from './hooks/useClearAll';
-import { hasActionableUrl } from './lib/hasActionableUrl';
 import { NotificationEmptyState } from './components/NotificationEmptyState';
 import { NotificationItem } from './components/NotificationItem';
 import { NotificationListSkeleton } from './components/NotificationListSkeleton';
 import { ClearButton } from './components/ClearButton';
 import { combineActivityItems } from './lib/combineActivityItems';
-import { useHistory } from 'react-router-dom';
 import { useTransferTrackingContext } from '@core/ui';
+import { useNextUnifiedBridgeContext } from '../Bridge/contexts';
 
 const contentProps: StackProps = {
   justifyContent: 'flex-start',
@@ -28,7 +27,6 @@ const contentProps: StackProps = {
 export const Notifications = () => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { push } = useHistory();
 
   const tabItems = [
     { label: t('All'), value: NotificationTab.ALL },
@@ -43,6 +41,9 @@ export const Notifications = () => {
     useNotifications(selectedTab);
   const { transfers, isLoading: isTransfersLoading } =
     useTransferTrackingContext();
+  const {
+    state: { pendingTransfers },
+  } = useNextUnifiedBridgeContext();
   const { clearAll, isClearing } = useClearAll();
 
   const isLoading = isNotificationsLoading || isTransfersLoading;
@@ -60,22 +61,19 @@ export const Notifications = () => {
             isAllOrTransactionsTab
               ? transfers.map(({ transfer }) => transfer)
               : [],
+            isAllOrTransactionsTab ? Object.values(pendingTransfers) : [],
           ),
-    [notifications, transfers, isAllOrTransactionsTab, isLoading],
+    [
+      notifications,
+      transfers,
+      pendingTransfers,
+      isAllOrTransactionsTab,
+      isLoading,
+    ],
   );
 
   const isCurrentTabEmpty =
     combinedItems.length === 0 && !isClearing && !isLoading;
-
-  const handleNotificationPress = useCallback(
-    (notification: AppNotification) => {
-      const url = notification.deepLinkUrl;
-      if (url && hasActionableUrl(notification)) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-      }
-    },
-    [],
-  );
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
@@ -103,25 +101,13 @@ export const Notifications = () => {
     >
       {isLoading && <NotificationListSkeleton />}
       {isCurrentTabEmpty && <NotificationEmptyState />}
-      {combinedItems.map((combined, index) => {
-        const isLast = index === combinedItems.length - 1;
-        const onClick =
-          combined.type === 'transfer'
-            ? () => push(`/fusion-transfer/${combined.item.id}`)
-            : hasActionableUrl(combined.item)
-              ? () => handleNotificationPress(combined.item)
-              : undefined;
-
-        return (
-          <NotificationItem
-            key={combined.item.id}
-            item={combined}
-            showSeparator={!isLast}
-            accessoryType={onClick ? 'chevron' : 'none'}
-            onClick={onClick}
-          />
-        );
-      })}
+      {combinedItems.map((combined, index) => (
+        <NotificationItem
+          key={combined.id}
+          item={combined}
+          showSeparator={index < combinedItems.length - 1}
+        />
+      ))}
 
       {!isLoading && (
         <Box
