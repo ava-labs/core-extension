@@ -38,6 +38,10 @@ import {
 } from '@core/ui';
 
 import { useSwapQuery } from '../hooks';
+import {
+  usePriceImpact,
+  type PriceImpactSeverity,
+} from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
   useUserAddresses,
@@ -75,6 +79,8 @@ type FusionState = QueryState &
     setAutoSlippage: (autoSlippage: boolean) => void;
     minimumTransferAmount: bigint | undefined;
     toAmount?: string;
+    priceImpact: number | undefined;
+    priceImpactSeverity: PriceImpactSeverity;
     userQuote: Quote | null;
     bestQuote: Quote | null;
     selectedQuote: Quote | null;
@@ -205,6 +211,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     selectedQuote && targetAsset
       ? bigIntToString(selectedQuote.amountOut, targetAsset.decimals)
       : undefined;
+
+  const { priceImpact, priceImpactSeverity } = usePriceImpact(
+    selectedQuote,
+    sourceToken,
+    targetToken,
+  );
 
   const transfer = useCallback(
     async (specificQuote?: Quote) => {
@@ -350,6 +362,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         userAmount,
         debouncedUserAmount,
         toAmount,
+        priceImpact,
+        priceImpactSeverity,
         sourceTokenList,
         targetTokenList,
         sourceToken,
