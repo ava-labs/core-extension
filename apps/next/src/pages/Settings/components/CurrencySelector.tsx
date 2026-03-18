@@ -1,4 +1,9 @@
-import { Avatar, ButtonProps, Stack, Typography } from '@avalabs/k2-alpine';
+import {
+  ButtonProps,
+  CountryFlag,
+  Stack,
+  Typography,
+} from '@avalabs/k2-alpine';
 import {
   useAnalyticsContext,
   useFeatureFlagContext,
@@ -6,7 +11,6 @@ import {
 } from '@core/ui';
 import { FeatureGates } from '@core/types';
 import { useTranslation } from 'react-i18next';
-import { runtime } from 'webextension-polyfill';
 import { SelectButton } from '@/components/SelectButton';
 import { getCurrencies } from '../constants';
 
@@ -39,25 +43,7 @@ export const CurrencySelector = (props: ButtonProps) => {
             gap={1}
             p={0}
           >
-            {/* TODO: use CountryFlag component from k2 once it is available */}
-            <Avatar
-              sx={{
-                width: '16px',
-                height: '16px',
-              }}
-              src={runtime.getURL(
-                `images/currencies/${selectedCurrency.countryCode.toLowerCase()}.svg`,
-              )}
-              alt={`${selectedCurrency.countryCode} flag`}
-              slotProps={{
-                img: {
-                  loading: 'lazy',
-                  sx: {
-                    objectFit: 'cover',
-                  },
-                },
-              }}
-            />
+            <CountryFlag countryCode={selectedCurrency.countryCode} size={16} />
             <Typography variant="subtitle2" color="text.secondary">
               {selectedCurrency.symbol}
             </Typography>

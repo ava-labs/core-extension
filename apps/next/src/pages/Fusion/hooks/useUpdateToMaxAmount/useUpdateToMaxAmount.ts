@@ -1,15 +1,12 @@
 import { useEffect } from 'react';
-import { useFusionState } from '../../contexts';
-import { isNativeToken } from '@core/types';
 import { bigIntToString, bigToBigInt } from '@avalabs/core-utils-sdk';
 import { bigintToBig } from '@core/common';
-import { getNativeBridgeFee } from './lib/extractBridgeFee';
+import { useFeatureFlagContext } from '@core/ui';
+import { FeatureVars, isCrossChainTransfer, isNativeToken } from '@core/types';
 
-/**
- * Additional buffer for the "Max" button to account for fee fluctuations.
- * This prevents the quote from being invalidated when easily invalidated.
- */
-const FEE_PADDING_FACTOR = 1.5; // Additional 50%
+import { getNativeBridgeFee } from './lib/extractBridgeFee';
+import { useFusionState } from '../../contexts';
+import { getBufferMultiplierFromBps } from '../../lib/getBufferMultiplierFromBps';
 
 /**
  * Observes the `useMaxAmount` state and the `fee` state,
@@ -20,6 +17,7 @@ export const useUpdateToMaxAmount = (
   isFeeLoading: boolean,
   feeError: Error | null,
 ) => {
+  const { selectFeatureFlag } = useFeatureFlagContext();
   const { useMaxAmount, sourceToken, updateQuery, selectedQuote } =
     useFusionState();
 
@@ -32,17 +30,23 @@ export const useUpdateToMaxAmount = (
     }
 
     const isFeeReady = !isFeeLoading && typeof fee === 'bigint';
-    if (!useMaxAmount || !isFeeReady || !sourceToken) {
+    if (!useMaxAmount || !isFeeReady || !sourceToken || !selectedQuote) {
       return;
     }
 
-    const bridgeFee = getNativeBridgeFee(
-      isNativeToken(sourceToken),
-      selectedQuote,
-    );
+    const bridgeFee =
+      isNativeToken(sourceToken) && isCrossChainTransfer(selectedQuote)
+        ? getNativeBridgeFee(
+            selectedQuote,
+            selectFeatureFlag(FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS),
+          )
+        : 0n;
 
+    const feePaddingFactor = getBufferMultiplierFromBps(
+      selectFeatureFlag(FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS),
+    );
     const paddedFee = bigintToBig(fee, sourceToken.decimals).mul(
-      FEE_PADDING_FACTOR,
+      feePaddingFactor,
     );
     const maxAmount = isNativeToken(sourceToken)
       ? sourceToken.balance -
@@ -63,5 +67,6 @@ export const useUpdateToMaxAmount = (
     fee,
     updateQuery,
     selectedQuote,
+    selectFeatureFlag,
   ]);
 };

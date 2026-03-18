@@ -5,11 +5,13 @@ import * as Styled from './Styled';
 import { Transfer } from '@avalabs/fusion-sdk';
 import {
   isCompletedTransfer,
+  isConcludedTransfer,
   isFailedTransfer,
+  isRefundedTransfer,
   isTransferInProgress,
 } from '@core/types';
 import { useTransferTrackingContext } from '@core/ui';
-import { MdCheckCircle, MdError } from 'react-icons/md';
+import { MdCheckCircle, MdError, MdReplay } from 'react-icons/md';
 import { TFunction, useTranslation } from 'react-i18next';
 import { getTransferTimestamp } from '../lib/getTransferTimestamp';
 import { NotificationListItem } from './NotificationListItem';
@@ -28,7 +30,9 @@ export const TransferItem: FC<Props> = ({ transfer, showSeparator }) => {
   const transferMeta = transfers.find(
     ({ transfer: { id } }) => id === transfer.id,
   );
-  const isUnread = transferMeta ? !transferMeta.isRead : false;
+  const isUnread = transferMeta
+    ? !transferMeta.isRead && isConcludedTransfer(transfer)
+    : false;
 
   const title = getTransferTitle(transfer, t);
   const icon = (
@@ -37,6 +41,8 @@ export const TransferItem: FC<Props> = ({ transfer, showSeparator }) => {
         <AnimatedSyncIcon size={20} data-active={true} />
       ) : isCompletedTransfer(transfer) ? (
         <MdCheckCircle size={20} color={theme.palette.success.main} />
+      ) : isRefundedTransfer(transfer) ? (
+        <MdReplay size={20} color={theme.palette.error.main} />
       ) : (
         <MdError size={20} color={theme.palette.error.main} />
       )}

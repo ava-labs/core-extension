@@ -155,7 +155,7 @@ import { UnsubscribeFromNotification } from '../../services/notifications/handle
 import { AppendSolanaPublicKeysHandler } from '../../services/secrets/handlers/appendSolanaPublicKeys';
 import { DeriveMissingKeysHandler } from '../../services/seedless/handlers/deriveMissingKeys';
 import { SetPrivacyModeHandler } from '~/services/settings/handlers/setPrivacyMode';
-import { SetShowTrendingTokensHandler } from '~/services/settings/handlers/setShowTrendingTokens';
+import { SetShowHighlightBannersHandler } from '~/services/settings/handlers/setShowHighlightBanners';
 import { SetQuickSwapsEnabledHandler } from '~/services/settings/handlers/setQuickSwapsEnabled';
 import { SetFeeSettingHandler } from '~/services/settings/handlers/setFeeSetting';
 import { SetMaxBuyHandler } from '~/services/settings/handlers/setMaxBuy';
@@ -513,7 +513,7 @@ import {
   },
   {
     token: 'ExtensionRequestHandler',
-    useToken: SetShowTrendingTokensHandler,
+    useToken: SetShowHighlightBannersHandler,
   },
   {
     token: 'ExtensionRequestHandler',

@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { IconType } from 'react-icons';
 import { useTranslation } from 'react-i18next';
-import { MdCheckCircle, MdErrorOutline } from 'react-icons/md';
+import { MdCheckCircle, MdErrorOutline, MdReplay } from 'react-icons/md';
 import { Transfer } from '@avalabs/fusion-sdk';
 import { Box, Stack, Typography } from '@avalabs/k2-alpine';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
@@ -30,7 +30,7 @@ const IconBySideAndStatus: Record<
     'source-pending': AnimatedSyncIcon,
     'target-pending': MdCheckCircle,
     'source-completed': MdCheckCircle,
-    refunded: MdCheckCircle,
+    refunded: MdReplay,
     completed: MdCheckCircle,
     failed: MdErrorOutline,
   },
@@ -38,11 +38,21 @@ const IconBySideAndStatus: Record<
     'source-pending': AnimatedSyncIcon,
     'target-pending': AnimatedSyncIcon,
     'source-completed': AnimatedSyncIcon,
-    refunded: MdCheckCircle,
+    refunded: MdReplay,
     completed: MdCheckCircle,
     failed: MdErrorOutline,
   },
 };
+
+function getStatusColor(
+  transfer: Transfer,
+  side: Side,
+): 'success.main' | 'error.main' | 'warning.main' | 'text.primary' {
+  if (isTransferSuccessfulForSide(transfer, side)) return 'success.main';
+  if (isFailedTransfer(transfer)) return 'error.main';
+  if (isRefundedTransfer(transfer)) return 'warning.main';
+  return 'text.primary';
+}
 
 type StatusIconProps = {
   transfer: Transfer;
@@ -50,11 +60,7 @@ type StatusIconProps = {
 };
 
 const StatusIcon: FC<StatusIconProps> = ({ transfer, side }) => {
-  const color = isTransferSuccessfulForSide(transfer, side)
-    ? 'success.main'
-    : isFailedTransfer(transfer)
-      ? 'error.main'
-      : 'text.primary';
+  const color = getStatusColor(transfer, side);
 
   const Icon = IconBySideAndStatus[side][transfer.status];
 

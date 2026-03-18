@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Trans } from 'react-i18next';
-import { useTrendingTokens } from '../../hooks/useTrendingTokens';
-import { useSettingsContext } from '@core/ui';
+import { useTrendingTokens } from '@/pages/TrendingTokens/hooks/useTrendingTokens';
 import { ArrowRightIcon, Stack, Typography } from '@avalabs/k2-alpine';
 import { Card } from '@/components/Card';
 import { useHistory } from 'react-router-dom';
@@ -14,13 +13,11 @@ const getDisplayName = (token: { name: string; symbol: string }) => {
   return token.name.length > MAX_NAME_LENGTH ? token.symbol : token.name;
 };
 
-export const TrendingTokenBanner = () => {
+export const TrendingTokenSlide = () => {
   const { push } = useHistory();
 
   const { updateTrendingTokens, trendingTokens, isLoading } =
     useTrendingTokens();
-  const { showTrendingTokens } = useSettingsContext();
-
   const [firstToken, secondToken, thirdToken] = trendingTokens.avalanche;
 
   const updateRef = useRef(updateTrendingTokens);
@@ -31,10 +28,6 @@ export const TrendingTokenBanner = () => {
     updateRef.current(`avalanche`);
   }, []);
 
-  if (!showTrendingTokens) {
-    return null;
-  }
-
   // Show skeleton while loading or when data isn't ready yet
   if (isLoading || !firstToken || !secondToken || !thirdToken) {
     return <TrendingTokensSkeleton />;
@@ -44,10 +37,9 @@ export const TrendingTokenBanner = () => {
     <Card
       onClick={() => push(`/trending`)}
       sx={{
-        py: 0,
-        height: 44,
         cursor: 'pointer',
         backgroundColor: 'background.paper',
+        overflow: 'hidden',
       }}
     >
       <Stack
@@ -55,19 +47,17 @@ export const TrendingTokenBanner = () => {
         justifyContent="space-between"
         direction="row"
         width="100%"
-        height="100%"
+        gap={1.5}
       >
         <TopThreeLogos
           first={firstToken}
           second={secondToken}
           third={thirdToken}
         />
-
         <Typography
           variant="subtitle3"
-          width="165px"
-          py={0.5}
-          ml={2}
+          flex={1}
+          minWidth={0}
           sx={{ fontWeight: 400 }}
         >
           <Trans

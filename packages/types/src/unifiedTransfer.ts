@@ -2,13 +2,14 @@ import {
   BtcSigner,
   EvmSignerWithMessage,
   Transfer,
+  Quote,
   CompletedTransfer,
   FailedTransfer,
+  RefundedTransfer,
   SourcePendingTransfer,
   TargetPendingTransfer,
   SourceCompletedTransfer,
   SolanaSigner,
-  RefundedTransfer,
 } from '@avalabs/fusion-sdk';
 
 export type UnifiedTransferSigners = {
@@ -29,11 +30,6 @@ export type TransferTrackingStateUpdateEvent = {
   name: 'tracked-transfers-updated';
   value: TrackedTransfers;
 };
-
-export const isTransferFinished = (
-  transfer: Transfer,
-): transfer is CompletedTransfer | FailedTransfer =>
-  isCompletedTransfer(transfer) || isFailedTransfer(transfer);
 
 export const isRefundedTransfer = (
   transfer: Transfer,
@@ -64,5 +60,5 @@ export const isTransferInProgress = (
   transfer.status === 'target-pending' ||
   transfer.status === 'source-completed';
 
-export const isCrossChainTransfer = (transfer: Transfer) =>
-  transfer.sourceChain.chainId !== transfer.targetChain.chainId;
+export const isCrossChainTransfer = (quoteLike: Transfer | Quote) =>
+  quoteLike.sourceChain.chainId !== quoteLike.targetChain.chainId;

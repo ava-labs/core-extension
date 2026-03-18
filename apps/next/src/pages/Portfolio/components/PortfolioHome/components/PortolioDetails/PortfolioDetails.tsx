@@ -1,3 +1,4 @@
+import { Stack } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
 import { useLiveBalance, useNetworkContext } from '@core/ui';
 import { ComponentType, FC } from 'react';
@@ -32,9 +33,9 @@ export const PortfolioDetails: FC<Props> = ({ tab }) => {
   const { avaxNetworkC } = useNetworkContext();
 
   return (
-    <>
+    <Stack gap="4px" flexGrow={1}>
       <PortfolioActionButtons network={avaxNetworkC} />
       <TabComponent />
-    </>
+    </Stack>
   );
 };

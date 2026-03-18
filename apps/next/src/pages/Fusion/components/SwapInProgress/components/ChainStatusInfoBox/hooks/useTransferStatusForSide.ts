@@ -9,16 +9,16 @@ import { isTransferSuccessfulForSide } from '../lib/isTransferSuccessfulForSide'
 export const useTransferStatusForSide = (transfer: Transfer, side: Side) => {
   const { t } = useTranslation();
 
-  if (isTransferSuccessfulForSide(transfer, side)) {
-    return t('Complete');
-  }
-
   if (isFailedTransfer(transfer)) {
     return t('Failed');
   }
 
   if (isRefundedTransfer(transfer)) {
-    return t('Incomplete');
+    return side === 'source' ? t('Complete') : t('Refunded');
+  }
+
+  if (isTransferSuccessfulForSide(transfer, side)) {
+    return t('Complete');
   }
 
   return t('Pending...');

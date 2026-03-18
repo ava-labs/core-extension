@@ -25,7 +25,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
   const setAnalyticsConsentMock = jest.fn();
   const setCoreAssistantMock = jest.fn();
   const setPreferredViewMock = jest.fn();
-  const setShowTrendingTokensMock = jest.fn();
+  const setShowHighlightBannersMock = jest.fn();
 
   const settingsServiceMock = {
     getSettings: getSettingsMock,
@@ -38,7 +38,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     setAnalyticsConsent: setAnalyticsConsentMock,
     setCoreAssistant: setCoreAssistantMock,
     setPreferredView: setPreferredViewMock,
-    setShowTrendingTokens: setShowTrendingTokensMock,
+    setShowHighlightBanners: setShowHighlightBannersMock,
   } as unknown as SettingsService;
 
   const handler = new WalletSetSettingsHandler(settingsServiceMock);
@@ -54,7 +54,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     language: Languages.EN,
     coreAssistant: true,
     preferredView: 'floating',
-    showTrendingTokens: true,
+    showHighlightBanners: true,
     isQuickSwapsEnabled: false,
     feeSetting: 'low',
     maxBuy: '1000',
@@ -72,7 +72,7 @@ describe('packages/service-worker/src/services/settings/handlers/wallet_setSetti
     language: Languages.EN,
     coreAssistant: true,
     preferredView: 'floating',
-    showTrendingTokens: true,
+    showHighlightBanners: true,
   };
 
   const createRequest = (params?: [Partial<SettingsState>?]) => ({

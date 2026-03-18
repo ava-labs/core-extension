@@ -81,7 +81,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     language: Languages.DE,
     coreAssistant: true,
     preferredView: 'floating',
-    showTrendingTokens: false,
+    showHighlightBanners: false,
     isQuickSwapsEnabled: false,
     feeSetting: 'low',
     maxBuy: '1000',
@@ -99,7 +99,7 @@ describe('background/services/settings/SettingsService.ts', () => {
     language: Languages.DE,
     coreAssistant: false,
     preferredView: 'floating',
-    showTrendingTokens: false,
+    showHighlightBanners: false,
     isQuickSwapsEnabled: false,
     feeSetting: 'low',
     maxBuy: '1000',
@@ -455,22 +455,22 @@ describe('background/services/settings/SettingsService.ts', () => {
       });
     });
 
-    describe('setShowTrendingTokens', () => {
+    describe('setShowHighlightBanners', () => {
       it('should save the new value for show trending tokens properly', async () => {
         const eventListener = jest.fn();
         service.addListener(SettingsEvents.SETTINGS_UPDATED, eventListener);
 
-        await service.setShowTrendingTokens(true);
+        await service.setShowHighlightBanners(true);
 
         expect(eventListener).toHaveBeenCalledWith({
           ...storedSettings,
-          showTrendingTokens: true,
+          showHighlightBanners: true,
         });
       });
 
       it('should emit only the language if it fails to save', async () => {
         await expectToOnlyEmitLanguageAfterFailedOperation(async () => {
-          await service.setShowTrendingTokens(true);
+          await service.setShowHighlightBanners(true);
         });
       });
     });

@@ -9,6 +9,7 @@ import {
   isConcludedTransfer,
   isFailedTransfer,
 } from '@core/types';
+import { useTransferTrackingContext } from '@core/ui';
 
 import { Card } from '@/components/Card';
 import { useConfettiContext } from '@/components/Confetti';
@@ -21,7 +22,6 @@ import {
   Styled,
   ChainStatusInfoBox,
 } from './components';
-import { useTransferTrackingContext } from '@core/ui';
 
 type Props = {
   transfer: Transfer;
@@ -30,7 +30,7 @@ type Props = {
 
 export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
   const { t } = useTranslation();
-  const { push, goBack } = useHistory();
+  const { goBack } = useHistory();
   const { triggerConfetti } = useConfettiContext();
   const { markAsRead } = useTransferTrackingContext();
 
@@ -93,9 +93,9 @@ export const IssuedSwapDetails: FC<Props> = ({ transfer, isRead }) => {
           size="extension"
           color="primary"
           fullWidth
-          onClick={isComplete ? goBack : () => push('/')}
+          onClick={goBack}
         >
-          {isComplete ? t('Close') : t('Notify me when it’s done')}
+          {isConcluded ? t('Close') : t('Notify me when it’s done')}
         </Button>
       </Stack>
     </Stack>
