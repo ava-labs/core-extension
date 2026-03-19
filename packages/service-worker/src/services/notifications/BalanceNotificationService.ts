@@ -26,6 +26,9 @@ import { sendRequest } from './utils/sendRequest';
 export class BalanceNotificationService {
   #clientId?: string;
   #eventEmitter = new EventEmitter();
+  #debouncedSubscribe = debounce(async () => {
+    await this.subscribe(true);
+  }, 1000);
 
   constructor(
     private accountService: AccountsService,
@@ -43,12 +46,10 @@ export class BalanceNotificationService {
 
     this.accountService.addListener(
       AccountsEvents.ACCOUNTS_UPDATED,
-      debounce(async () => {
-        await this.subscribe(true);
-      }, 1000),
+      this.#debouncedSubscribe,
     );
 
-    // attempt to refresh the existing subscriptions
+    // Attempt to refresh the existing subscriptions
     await this.subscribe(true);
 
     this.#eventEmitter.emit(
@@ -169,5 +170,12 @@ export class BalanceNotificationService {
     handler: (event: ExtensionConnectionEvent) => void,
   ): void {
     this.#eventEmitter.on(event, handler);
+  }
+
+  removeListener(
+    event: SubscriptionEvents,
+    handler: (event: ExtensionConnectionEvent) => void,
+  ): void {
+    this.#eventEmitter.off(event, handler);
   }
 }

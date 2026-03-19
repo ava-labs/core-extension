@@ -162,4 +162,11 @@ export class NewsNotificationService implements OnUnlock {
   ): void {
     this.#eventEmitter.on(event, handler);
   }
+
+  removeListener(
+    event: SubscriptionEvents,
+    handler: (event: ExtensionConnectionEvent) => void,
+  ): void {
+    this.#eventEmitter.off(event, handler);
+  }
 }
