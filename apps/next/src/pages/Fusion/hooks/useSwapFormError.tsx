@@ -1,10 +1,13 @@
 import { useTranslation, Trans } from 'react-i18next';
 import { useFusionState } from '../contexts';
 import { bigintToBig, stringToBigint } from '@core/common';
-import { isNativeToken } from '@core/types';
+import { FeatureVars, isNativeToken } from '@core/types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { ComponentProps } from 'react';
+import { sumAdditiveFees } from '../lib/sumAdditiveFees';
+import { getBufferMultiplierFromBps } from '../lib/getBufferMultiplierFromBps';
+import { useFeatureFlagContext } from '@core/ui';
 
 const collapsedTokenAmountProps: Omit<
   ComponentProps<typeof CollapsedTokenAmount>,
@@ -17,6 +20,7 @@ const collapsedTokenAmountProps: Omit<
 
 export const useSwapFormError = () => {
   const { t } = useTranslation();
+  const { selectFeatureFlag } = useFeatureFlagContext();
 
   const {
     debouncedUserAmount,
@@ -27,9 +31,11 @@ export const useSwapFormError = () => {
     isFeeLoading,
     feeError,
     minimumTransferAmount,
+    additiveFees,
+    useMaxAmount,
   } = useFusionState();
 
-  if (!debouncedUserAmount || isFeeLoading) {
+  if (!debouncedUserAmount || isFeeLoading || useMaxAmount) {
     return '';
   }
 
@@ -61,9 +67,18 @@ export const useSwapFormError = () => {
     }
 
     if (!isFeeLoading) {
-      const maxAmount = isNativeToken(sourceToken)
-        ? sourceToken.balance - (fee ?? 0n)
-        : sourceToken.balance;
+      const additiveFeesAmount = sumAdditiveFees(
+        sourceToken,
+        additiveFees,
+        getBufferMultiplierFromBps(
+          selectFeatureFlag(FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS),
+        ),
+      );
+
+      const maxAmount =
+        sourceToken.balance -
+        additiveFeesAmount -
+        (isNativeToken(sourceToken) ? (fee ?? 0n) : 0n);
 
       const maxAmountString = bigIntToString(maxAmount, sourceToken.decimals);
 

@@ -26,10 +26,11 @@ export const SwapPair = () => {
     toAmount,
     quotesStatus,
     selectedQuote,
-
+    useMaxAmount,
     fee,
     isFeeLoading,
     feeError,
+    additiveFees,
   } = useFusionState();
 
   const fromTokenId = sourceToken ? getUniqueTokenId(sourceToken) : queryFromId;
@@ -41,15 +42,18 @@ export const SwapPair = () => {
         return;
       }
 
+      const needsMaxAmountCalculation =
+        isMax && (isNativeToken(sourceToken) || additiveFees.length > 0);
+
       updateQuery({
         userAmount: amount,
-        useMaxAmount: isMax && isNativeToken(sourceToken), // Only need the special "Max. amount" logic for native tokens.
+        useMaxAmount: needsMaxAmountCalculation,
       });
     },
-    [updateQuery, sourceToken],
+    [updateQuery, sourceToken, additiveFees],
   );
 
-  useUpdateToMaxAmount(fee, isFeeLoading, feeError);
+  useUpdateToMaxAmount(fee, isFeeLoading, feeError, additiveFees);
 
   return (
     <Card>
@@ -70,8 +74,8 @@ export const SwapPair = () => {
           }
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
-          isLoading={isFeeLoading}
-          amount={userAmount}
+          isLoading={useMaxAmount || isFeeLoading}
+          amount={useMaxAmount ? '' : userAmount}
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons
