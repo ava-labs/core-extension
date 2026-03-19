@@ -38,6 +38,7 @@ export const useSwapTargetToken = (
       targetTokens.find(
         defaultTokenFinder(
           sourceToken ? !isNativeToken(sourceToken) : false,
+          sourceToken?.chainCaipId,
           defaultTargetTokenIdentifier,
         ),
       )
@@ -46,13 +47,21 @@ export const useSwapTargetToken = (
 };
 
 const defaultTokenFinder =
-  (allowNativeAsDefault: boolean, defaultTokenIdentifier?: string) =>
+  (
+    allowNativeAsDefault: boolean,
+    chainId?: string,
+    defaultTokenIdentifier?: string,
+  ) =>
   (lookupToken: FungibleTokenBalance) => {
     // If we don't have a default token configured for the source token
     // and the source token is not a native token, default to the native token.
     // Example: User chooses "PEPE" as source token -- we select "ETH" as default target token.
     if (isNativeToken(lookupToken)) {
-      return !defaultTokenIdentifier && allowNativeAsDefault;
+      return (
+        !defaultTokenIdentifier &&
+        allowNativeAsDefault &&
+        lookupToken.chainCaipId === chainId
+      );
     }
 
     if (!defaultTokenIdentifier) {
