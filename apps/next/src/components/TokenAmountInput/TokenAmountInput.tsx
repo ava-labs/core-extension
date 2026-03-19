@@ -1,5 +1,11 @@
 import { TokenUnit } from '@avalabs/core-utils-sdk';
-import { CircularProgress, Collapse, Grow, Stack } from '@avalabs/k2-alpine';
+import {
+  CircularProgress,
+  Collapse,
+  Grow,
+  Stack,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import {
   FC,
   FocusEventHandler,
@@ -85,6 +91,7 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
   disabled,
 }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
   const convertedCurrencyFormatter = useConvertedCurrencyFormatter();
   const amountInputRef = useRef<HTMLInputElement>(null);
   const previousTokenIdRef = useRef<string>(tokenId);
@@ -209,7 +216,6 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
                 ref: amountInputRef,
               },
               input: {
-                readOnly: isLoading,
                 onFocus,
                 onBlur,
                 disabled: disabled || isAmountReadOnly,
@@ -232,6 +238,10 @@ export const TokenAmountInput: FC<TokenAmountInputProps> = ({
           gap={1}
           onFocus={onFocus}
           onBlur={onBlur}
+          sx={{
+            opacity: isLoading ? 0.35 : 1,
+            transition: theme.transitions.create('opacity'),
+          }}
         >
           <AmountPresetButton
             onClick={() => handlePresetClick(25)}

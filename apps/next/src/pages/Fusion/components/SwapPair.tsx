@@ -71,7 +71,7 @@ export const SwapPair = () => {
           tokenQuery={fromQuery}
           onQueryChange={(q) => updateQuery({ fromQuery: q })}
           isLoading={isFeeLoading}
-          amount={isFeeLoading ? '' : userAmount}
+          amount={userAmount}
           onAmountChange={onAmountChange}
           tokenHint={sourceToken ? t('You pay') : undefined}
           withPresetButtons
