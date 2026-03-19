@@ -137,6 +137,13 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
         </TransactionDescriptionContainer>
       );
     }
+    case TransactionType.APPROVE: {
+      return (
+        <TransactionDescriptionContainer>
+          {t('Spend limit approved')}
+        </TransactionDescriptionContainer>
+      );
+    }
     case TransactionType.SEND: {
       return (
         <TransactionDescriptionContainer>
