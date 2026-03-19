@@ -31,7 +31,6 @@ import {
 } from '@core/types';
 import { useNextUnifiedBridgeContext } from '@/pages/Bridge/contexts';
 import { chainIdToCaip } from '@core/common';
-import { FaExplosion } from 'react-icons/fa6';
 import { NoScrollStack } from '@/components/NoScrollStack';
 import { getAddressTypeForToken } from '@/lib/getAddressTypeForToken';
 
@@ -69,6 +68,8 @@ export const PortfolioActionButtons = ({
   let delay = 0;
   const getDelay = () => (delay += 300);
 
+  const isFusionEnabled = isFlagEnabled(FeatureGates.FUSION_FEATURE);
+
   return (
     <NoScrollStack
       autoHide
@@ -80,13 +81,13 @@ export const PortfolioActionButtons = ({
         gap: 1,
       }}
     >
-      {isFlagEnabled(FeatureGates.FUSION_FEATURE) && (
+      {isFusionEnabled && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
               variant="extension"
-              icon={<FaExplosion size={ICON_SIZE} />}
-              label={t('Fusion')}
+              icon={<SwapIcon size={ICON_SIZE} />}
+              label={t('Swap')}
               onClick={() => {
                 capture('TokenSwapClicked');
                 push(getFusionPath({ from: tokenId }));
@@ -96,7 +97,7 @@ export const PortfolioActionButtons = ({
         </Fade>
       )}
 
-      {isSwapSupported && (
+      {!isFusionEnabled && isSwapSupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton
@@ -112,7 +113,7 @@ export const PortfolioActionButtons = ({
         </Fade>
       )}
 
-      {isBridgeSupported && (
+      {!isFusionEnabled && isBridgeSupported && (
         <Fade in timeout={getDelay()} easing="ease-out">
           <OfflineTooltip placement="top">
             <SquareButton

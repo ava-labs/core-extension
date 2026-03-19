@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useParams } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Transfer } from '@avalabs/fusion-sdk';
 import { TFunction } from 'i18next';
@@ -28,11 +28,15 @@ export const TransferDetails: FC = () => {
   const { id: transferId } = useParams<{ id: string }>();
   const { transfers } = useTransferTrackingContext();
 
-  const transfer = transfers.find(({ id }) => id === transferId);
+  const trackedTransfer = transfers.find(
+    ({ transfer: { id } }) => id === transferId,
+  );
 
   const isLoading = !transferId || !transfers;
 
-  const title = transfer ? getTransferDetailsTitle(transfer, t) : '';
+  const title = trackedTransfer
+    ? getTransferDetailsTitle(trackedTransfer.transfer, t)
+    : '';
 
   return (
     <Page
@@ -44,10 +48,13 @@ export const TransferDetails: FC = () => {
     >
       {isLoading ? (
         <LoadingScreen />
-      ) : transfer ? (
-        <IssuedSwapDetails transfer={transfer} />
+      ) : trackedTransfer ? (
+        <IssuedSwapDetails
+          transfer={trackedTransfer.transfer}
+          isRead={trackedTransfer.isRead}
+        />
       ) : (
-        'not found'
+        <Redirect to="/notifications" />
       )}
     </Page>
   );

@@ -9,10 +9,12 @@ import {
 import { Transfer } from '@avalabs/fusion-sdk';
 
 import {
+  ClearHistoricalTransfers,
+  MarkTransferAsRead,
   TrackUnifiedTransfer,
   TransferTrackingGetState,
 } from '@core/service-worker';
-import { ExtensionRequest } from '@core/types';
+import { ExtensionRequest, TrackedTransfer } from '@core/types';
 
 import { useConnectionContext } from '../ConnectionProvider';
 import { isTransfersUpdatedEvent } from './listeners/isTransfersUpdatedEvent';
@@ -20,8 +22,10 @@ import { filter, map } from 'rxjs';
 
 type TransferTrackingState = {
   isLoading: boolean;
-  transfers: Transfer[];
+  transfers: TrackedTransfer[];
   trackTransfer(transfer: Transfer): void;
+  markAsRead(transferId: string): void;
+  clearHistoricalTransfers(): void;
 };
 
 const TransferTrackingContext = createContext<
@@ -32,7 +36,7 @@ export function TransferTrackingContextProvider({
   children,
 }: PropsWithChildren) {
   const { events, request } = useConnectionContext();
-  const [transfers, setTransfers] = useState<Transfer[]>([]);
+  const [transfers, setTransfers] = useState<TrackedTransfer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -70,12 +74,33 @@ export function TransferTrackingContextProvider({
     [request],
   );
 
+  const markAsRead = useCallback(
+    (transferId: string) =>
+      request<MarkTransferAsRead>({
+        method: ExtensionRequest.TRANSFER_TRACKING_MARK_AS_READ,
+        params: [transferId],
+      }),
+    [request],
+  );
+
+  const clearHistoricalTransfers = useCallback(
+    () =>
+      request<ClearHistoricalTransfers>({
+        method: ExtensionRequest.TRANSFER_TRACKING_CLEAR_HISTORICAL_TRANSFERS,
+      }).then(({ trackedTransfers }) => {
+        setTransfers(Object.values(trackedTransfers));
+      }),
+    [request],
+  );
+
   return (
     <TransferTrackingContext.Provider
       value={{
         transfers,
         isLoading,
         trackTransfer,
+        markAsRead,
+        clearHistoricalTransfers,
       }}
     >
       {children}

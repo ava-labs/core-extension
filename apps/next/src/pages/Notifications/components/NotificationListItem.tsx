@@ -1,5 +1,12 @@
 import { FC, ReactNode } from 'react';
-import { Box, Divider, Stack, Typography, useTheme } from '@avalabs/k2-alpine';
+import {
+  Box,
+  Divider,
+  OutboundIcon,
+  Stack,
+  Typography,
+  useTheme,
+} from '@avalabs/k2-alpine';
 import { format, isToday } from 'date-fns';
 import { MdChevronRight } from 'react-icons/md';
 
@@ -9,8 +16,9 @@ type NotificationListItemProps = {
   icon?: React.JSX.Element;
   timestamp?: number;
   showSeparator?: boolean;
-  accessoryType?: 'chevron' | 'none';
+  accessoryType?: 'chevron' | 'none' | 'link';
   onClick?: () => void;
+  isUnread?: boolean;
 };
 
 export const NotificationListItem: FC<NotificationListItemProps> = ({
@@ -21,6 +29,7 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
   showSeparator = true,
   accessoryType = 'chevron',
   onClick,
+  isUnread,
 }) => {
   const theme = useTheme();
 
@@ -39,6 +48,7 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
         '&:hover': onClick
           ? { backgroundColor: theme.palette.action.hover }
           : undefined,
+        px: 2,
       }}
     >
       <Stack direction="row" alignItems="center" gap={1.5} minHeight={45}>
@@ -57,7 +67,12 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
           minWidth={0}
         >
           <Stack flexGrow={1} minWidth={0} gap={0.25}>
-            <Typography variant="subtitle2" noWrap color="text.primary">
+            <Typography
+              variant="subtitle2"
+              noWrap
+              color="text.primary"
+              fontWeight={isUnread ? 600 : 400}
+            >
               {title}
             </Typography>
             {subtitle &&
@@ -77,6 +92,9 @@ export const NotificationListItem: FC<NotificationListItemProps> = ({
             )}
             {accessoryType === 'chevron' && (
               <MdChevronRight size={12} color={theme.palette.text.secondary} />
+            )}
+            {accessoryType === 'link' && (
+              <OutboundIcon size={12} color={theme.palette.text.secondary} />
             )}
           </Stack>
         </Stack>

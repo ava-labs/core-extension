@@ -17,6 +17,7 @@ type PageProps = {
   withBackButton?: boolean;
   onBack?: () => void;
   contentProps?: StackProps;
+  headerProps?: StackProps;
   containerProps?: StackProps;
   withViewSwitcher?: boolean;
   px?: number;
@@ -29,6 +30,7 @@ export const Page = ({
   titleAction,
   children,
   contentProps,
+  headerProps,
   onBack,
   withBackButton = true,
   withViewSwitcher = true,
@@ -73,7 +75,7 @@ export const Page = ({
           {...containerProps}
         >
           {title && (
-            <Stack gap={1}>
+            <Stack gap={1} {...headerProps}>
               <Stack
                 direction="row"
                 gap={1}

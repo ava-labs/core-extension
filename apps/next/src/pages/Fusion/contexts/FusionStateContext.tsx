@@ -28,6 +28,7 @@ import {
   Monitoring,
   resolve,
   stringToBigint,
+  getTransferTxHash,
 } from '@core/common';
 import {
   useAccountsContext,
@@ -207,7 +208,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       : undefined;
 
   const transfer = useCallback(
-    async (specificQuote?: Quote) => {
+    async (specificQuote?: Quote, autoRetryAttempt = 0) => {
       if (!manager) {
         throw new Error('Manager or quote not found');
       }
@@ -245,17 +246,23 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           },
         });
 
-        if (isCrossChainTransfer(transferObject)) {
-          await trackTransfer(transferObject);
-          replace(`/fusion-activity/${transferObject.id}`);
-          return;
-        }
-
         captureEncrypted('SwapConfirmed', {
-          address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId,
+          sourceAddress: fromAddress,
+          targetAddress: toAddress,
+          sourceChainId: quoteToUse.sourceChain.chainId,
+          targetChainId: quoteToUse.targetChain.chainId,
+          sourceTxHash: getTransferTxHash('source', transferObject),
+          quoteSelectionMode: isUserSelectedQuote ? 'manual' : 'auto',
+          autoRetryAttempt: isUserSelectedQuote ? undefined : autoRetryAttempt,
         });
-        replace('/');
+
+        await trackTransfer(transferObject);
+
+        replace(
+          isCrossChainTransfer(transferObject)
+            ? `/fusion-transfer/${transferObject.id}`
+            : '/',
+        );
       } catch (err) {
         if (isUserRejectionError(err)) {
           setIsConfirming(false);
@@ -270,7 +277,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           const nextQuote = quotes[currentQuoteIndex + 1];
 
           if (nextQuote) {
-            return transfer(nextQuote);
+            return transfer(nextQuote, currentQuoteIndex + 1);
           }
         }
 
@@ -287,16 +294,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         toast.error(title, {
           description: hint,
         });
-
-        captureEncrypted('SwapFailed', {
-          address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId,
-        });
       }
     },
     [
       manager,
       fromAddress,
+      toAddress,
       slippage,
       replace,
       captureEncrypted,

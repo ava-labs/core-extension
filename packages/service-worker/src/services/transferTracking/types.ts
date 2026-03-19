@@ -4,6 +4,13 @@ export type TransferTrackingState = {
   trackedTransfers: TrackedTransfers;
 };
 
+export type TransferTrackingStorageState = {
+  trackedTransfers: Record<
+    keyof TrackedTransfers,
+    Omit<TrackedTransfers[keyof TrackedTransfers], 'untrack'>
+  >;
+};
+
 export type TransferTrackingServiceEvents = 'tracked-transfers-updated';
 
 export const UNIFIED_TRANSFER_TRACKED_FLAGS = [

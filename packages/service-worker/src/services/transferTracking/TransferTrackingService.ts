@@ -4,6 +4,9 @@ import {
   Transfer,
   TransferManager,
   ServiceInitializer,
+  CompletedTransfer,
+  RefundedTransfer,
+  FailedTransfer,
 } from '@avalabs/fusion-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
@@ -14,7 +17,11 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
+  isCompletedTransfer,
+  isConcludedTransfer,
+  isCrossChainTransfer,
   isFailedTransfer,
+  isRefundedTransfer,
   isTransferInProgress,
   TrackedTransfers,
   UnifiedTransferSigners,
@@ -25,6 +32,7 @@ import {
   Monitoring,
   getServiceInitializer,
   getEnabledTransferServices,
+  getTransferTxHash,
 } from '@core/common';
 
 import { NetworkService } from '../network/NetworkService';
@@ -36,8 +44,10 @@ import {
   TRANSFER_TRACKING_STATE_STORAGE_KEY,
   TransferTrackingServiceEvents,
   TransferTrackingState,
+  TransferTrackingStorageState,
   UNIFIED_TRANSFER_TRACKED_FLAGS,
 } from './types';
+import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
 @singleton()
 export class TransferTrackingService implements OnStorageReady {
@@ -59,6 +69,7 @@ export class TransferTrackingService implements OnStorageReady {
     private networkService: NetworkService,
     private storageService: StorageService,
     private featureFlagService: FeatureFlagService,
+    private posthogAnalyticsService: AnalyticsServicePosthog,
   ) {
     this.#flagStates = this.#getTrackedFlags(
       this.featureFlagService.featureFlags,
@@ -99,14 +110,16 @@ export class TransferTrackingService implements OnStorageReady {
         TRANSFER_TRACKING_STATE_STORAGE_KEY,
       )) ?? TRANSFER_TRACKING_DEFAULT_STATE;
 
-    this.#saveState(state);
+    this.#saveState({
+      trackedTransfers: state.trackedTransfers,
+    });
     this.#trackPendingTransfers();
   }
 
   #trackPendingTransfers() {
     Object.values(this.#state.trackedTransfers)
-      .filter(isTransferInProgress)
-      .forEach((transfer) => {
+      .filter(({ transfer }) => isTransferInProgress(transfer))
+      .forEach(({ transfer }) => {
         try {
           this.trackTransfer(transfer);
         } catch {
@@ -228,7 +241,7 @@ export class TransferTrackingService implements OnStorageReady {
     }
   }
 
-  trackTransfer(transfer: Transfer) {
+  async trackTransfer(transfer: Transfer) {
     if (!this.#manager) {
       // Just log that this happened. This is edge-casey, but technically possible.
       Monitoring.sentryCaptureException(
@@ -240,17 +253,25 @@ export class TransferTrackingService implements OnStorageReady {
       return;
     }
 
-    const { result } = this.#manager.trackTransfer({
+    if (isConcludedTransfer(transfer)) {
+      return;
+    }
+
+    const { result, cancel } = this.#manager.trackTransfer({
       transfer,
       updateListener: async (updatedTransfer) => {
-        await this.updatePendingTransfer(updatedTransfer);
+        await this.updatePendingTransfer(updatedTransfer, cancel);
       },
     });
 
     result
-      .then((completedTransfer) =>
-        this.updatePendingTransfer(completedTransfer),
-      )
+      .then((_transfer) => {
+        this.updatePendingTransfer(_transfer);
+
+        if (isConcludedTransfer(_transfer)) {
+          this.#captureAnalytics(_transfer);
+        }
+      })
       .catch((err) => {
         Monitoring.sentryCaptureException(
           err,
@@ -260,13 +281,74 @@ export class TransferTrackingService implements OnStorageReady {
       });
   }
 
-  async removeTrackedTransfer(txHash: string) {
-    delete this.#state.trackedTransfers[txHash];
+  async removeTrackedTransfer(transferId: string) {
+    delete this.#state.trackedTransfers[transferId];
 
     this.#saveState({ ...this.#state });
   }
 
-  async updatePendingTransfer(transfer: Transfer) {
+  async markTransferAsRead(transferId: string) {
+    const transferMeta = this.#state.trackedTransfers[transferId];
+
+    // Only allow marking transfers as read if they have concluded (completed, failed, refunded).
+    if (!transferMeta || !isConcludedTransfer(transferMeta.transfer)) {
+      return;
+    }
+
+    transferMeta.isRead = true;
+
+    await this.#saveState({ ...this.#state });
+  }
+
+  async clearHistoricalTransfers() {
+    // Only clear concluded transfers.
+    const pendingTransfers = Object.values(this.#state.trackedTransfers).filter(
+      ({ transfer }) => !isConcludedTransfer(transfer),
+    );
+
+    await this.#saveState({
+      trackedTransfers: Object.fromEntries(
+        pendingTransfers.map((transferMeta) => [
+          transferMeta.transfer.id,
+          transferMeta,
+        ]),
+      ),
+    });
+  }
+
+  #captureAnalytics(
+    transfer: CompletedTransfer | RefundedTransfer | FailedTransfer,
+  ) {
+    const properties = {
+      sourceAddress: transfer.fromAddress,
+      targetAddress: transfer.toAddress,
+      sourceChainId: transfer.sourceChain.chainId,
+      targetChainId: transfer.targetChain.chainId,
+      sourceTxHash: getTransferTxHash('source', transfer),
+      targetTxHash: getTransferTxHash('target', transfer),
+      ...(isFailedTransfer(transfer) && {
+        errorCode: transfer.errorCode,
+        errorReason: transfer.errorReason,
+      }),
+      ...(isRefundedTransfer(transfer) && {
+        refundTxHash: getTransferTxHash('refund', transfer),
+      }),
+    };
+    const windowId = crypto.randomUUID();
+    const eventName = isCompletedTransfer(transfer)
+      ? 'SwapSuccessful'
+      : isFailedTransfer(transfer)
+        ? 'SwapFailed'
+        : 'SwapRefunded';
+
+    this.posthogAnalyticsService.captureEncryptedEvent({
+      name: eventName,
+      windowId,
+      properties,
+    });
+  }
+
+  async updatePendingTransfer(transfer: Transfer, untrack?: () => void) {
     if (isFailedTransfer(transfer)) {
       Monitoring.sentryCaptureException(
         new Error(
@@ -276,11 +358,19 @@ export class TransferTrackingService implements OnStorageReady {
       );
     }
 
+    // Do not persist single-chain transfers, as they're rather quick.
+    if (!isCrossChainTransfer(transfer)) {
+      return;
+    }
+
     this.#saveState({
-      ...this.#state,
       trackedTransfers: {
         ...this.#state.trackedTransfers,
-        [transfer.id]: transfer,
+        [transfer.id]: {
+          transfer,
+          isRead: false,
+          untrack,
+        },
       },
     });
   }
@@ -292,10 +382,19 @@ export class TransferTrackingService implements OnStorageReady {
       newState.trackedTransfers,
     );
 
+    // Do not store functions in chrome.storage
+    const purifiedState: TransferTrackingStorageState = {
+      trackedTransfers: Object.fromEntries(
+        Object.entries(newState.trackedTransfers).map(
+          ([id, { isRead, transfer }]) => [id, { isRead, transfer }],
+        ),
+      ),
+    };
+
     try {
-      await this.storageService.save(
+      await this.storageService.save<TransferTrackingStorageState>(
         TRANSFER_TRACKING_STATE_STORAGE_KEY,
-        newState,
+        purifiedState,
       );
     } catch {
       // May be called before extension is unlocked. Ignore.
