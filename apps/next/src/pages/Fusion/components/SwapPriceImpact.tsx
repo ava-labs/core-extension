@@ -1,6 +1,6 @@
 import { Box, Stack, Tooltip, Typography, useTheme } from '@avalabs/k2-alpine';
 import { useTranslation } from 'react-i18next';
-import { MdErrorOutline } from 'react-icons/md';
+import { MdErrorOutline, MdInfoOutline } from 'react-icons/md';
 
 import { useFusionState } from '../contexts';
 import * as Styled from './Styled';
@@ -25,7 +25,6 @@ export const SwapPriceImpact = () => {
               display="inline-flex"
               flexShrink={0}
               lineHeight={1}
-              style={{ cursor: 'pointer' }}
             >
               <MdErrorOutline size={16} color={theme.palette.error.main} />
             </Box>
@@ -50,23 +49,24 @@ export const SwapPriceImpact = () => {
   return (
     <Styled.SettingRow title={t('Price impact')}>
       <Stack direction="row" alignItems="center" gap={0.5}>
-        {isHighOrCritical && (
-          <Tooltip
-            title={t(
-              'Price impact is the effect of your swap on the price of a token. It is influenced by your order size and available liquidity. Core has no control over price impact.',
-            )}
+        <Tooltip
+          title={t(
+            'Price impact is the effect of your swap on the price of a token. It is influenced by your order size and available liquidity. Core has no control over price impact.',
+          )}
+        >
+          <Box
+            component="span"
+            display="inline-flex"
+            flexShrink={0}
+            lineHeight={1}
           >
-            <Box
-              component="span"
-              display="inline-flex"
-              flexShrink={0}
-              lineHeight={1}
-              style={{ cursor: 'pointer' }}
-            >
+            {isHighOrCritical ? (
               <MdErrorOutline size={16} color={theme.palette.error.main} />
-            </Box>
-          </Tooltip>
-        )}
+            ) : (
+              <MdInfoOutline size={16} color={theme.palette.text.primary} />
+            )}
+          </Box>
+        </Tooltip>
         <Typography variant="body3" color={color}>
           {isHighOrCritical
             ? t('{{impact}} (High)', { impact: formattedImpact })
