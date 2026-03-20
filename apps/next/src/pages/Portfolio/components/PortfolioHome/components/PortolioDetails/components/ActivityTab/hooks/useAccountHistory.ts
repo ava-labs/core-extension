@@ -10,18 +10,7 @@ export function useAccountHistory(
 
   useEffect(() => {
     setHistory(null);
-
-    let cancelled = false;
-
-    getTransactionHistory(networkId).then((data) => {
-      if (!cancelled) {
-        setHistory(data);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
+    getTransactionHistory(networkId).then(setHistory);
   }, [getTransactionHistory, networkId]);
 
   return history;

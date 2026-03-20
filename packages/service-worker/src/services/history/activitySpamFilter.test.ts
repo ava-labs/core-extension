@@ -5,6 +5,7 @@ import {
 } from '@avalabs/vm-module-types';
 
 import {
+  buildHistoryTokenUsdPricesRecord,
   isSpamTransaction,
   filterSpamTransactions,
   ACTIVITY_MIN_USD_VALUE,
@@ -197,6 +198,60 @@ describe('activitySpamFilter', () => {
 
       expect(isSpamTransaction(tx, prices)).toBe(false);
     });
+
+    it('keeps multi-token transactions when any leg is above the spam threshold', () => {
+      const prices: TokenPriceMap = new Map([
+        ['0xdust', 0.001],
+        ['0xlegit', 100],
+      ]);
+      const tx = makeTx({
+        tokens: [
+          {
+            name: 'Dust',
+            symbol: 'DUST',
+            amount: '1',
+            type: TokenType.ERC20,
+            address: '0xdust',
+          },
+          {
+            name: 'Legit',
+            symbol: 'LEGIT',
+            amount: '1',
+            type: TokenType.ERC20,
+            address: '0xlegit',
+          },
+        ],
+      });
+
+      expect(isSpamTransaction(tx, prices)).toBe(false);
+    });
+
+    it('filters multi-token transactions when every leg is spam', () => {
+      const prices: TokenPriceMap = new Map([
+        ['0xdust1', 0.001],
+        ['0xdust2', 0.002],
+      ]);
+      const tx = makeTx({
+        tokens: [
+          {
+            name: 'A',
+            symbol: 'A',
+            amount: '1',
+            type: TokenType.ERC20,
+            address: '0xdust1',
+          },
+          {
+            name: 'B',
+            symbol: 'B',
+            amount: '1',
+            type: TokenType.ERC20,
+            address: '0xdust2',
+          },
+        ],
+      });
+
+      expect(isSpamTransaction(tx, prices)).toBe(true);
+    });
   });
 
   describe('filterSpamTransactions', () => {
@@ -243,6 +298,37 @@ describe('activitySpamFilter', () => {
     });
   });
 
+  describe('buildHistoryTokenUsdPricesRecord', () => {
+    it('maps native symbol and ERC20 address keys for TransactionItem lookup', () => {
+      const prices: TokenPriceMap = new Map([
+        ['NATIVE-avax', 25],
+        ['0xabc', 2],
+      ]);
+      const tx = makeTx({
+        tokens: [
+          {
+            name: 'Avalanche',
+            symbol: 'AVAX',
+            amount: '1',
+            type: TokenType.NATIVE,
+          },
+          {
+            name: 'T',
+            symbol: 'T',
+            amount: '1',
+            type: TokenType.ERC20,
+            address: '0xAbC',
+          },
+        ],
+      });
+
+      expect(buildHistoryTokenUsdPricesRecord(tx, prices)).toEqual({
+        AVAX: 25,
+        '0xabc': 2,
+      });
+    });
+  });
+
   describe('constants', () => {
     it('ACTIVITY_MIN_USD_VALUE is $0.01', () => {
       expect(ACTIVITY_MIN_USD_VALUE).toBe(0.01);
@@ -253,6 +339,9 @@ describe('activitySpamFilter', () => {
       expect(
         TOKEN_QUANTITY_THRESHOLDS['0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'],
       ).toBe(0.01);
+      expect(
+        TOKEN_QUANTITY_THRESHOLDS['0xfe6b19286885a4f7f55adad09c3cd1f906d2478f'],
+      ).toBe(0.00011);
       expect(
         TOKEN_QUANTITY_THRESHOLDS['0x152b9d0fdc40c096757f570a51e494bd4b943e50'],
       ).toBe(0.000000014);

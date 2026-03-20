@@ -9,7 +9,7 @@ import { TokenType } from '@avalabs/vm-module-types';
 import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { useSettingsContext, useTokenPrice } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import * as Styled from './Styled';
@@ -88,10 +88,41 @@ export const TransactionItem: FC<Props> = ({ transaction, network }) => {
   const formattedTime = format(transaction.timestamp, TIME_FORMAT);
   const directionModifier = transaction.isSender ? -1 : 1;
 
-  const tokenPrice = useTokenPrice(
-    token?.type === TokenType.NATIVE ? token?.symbol : token?.address,
+  const priceLookupKey = useMemo(() => {
+    if (!token) {
+      return undefined;
+    }
+    if (token.type === TokenType.NATIVE) {
+      return token.symbol;
+    }
+    return 'address' in token && token.address
+      ? token.address.toLowerCase()
+      : undefined;
+  }, [token]);
+
+  const embeddedUsdPrice = useMemo(() => {
+    const map = transaction.historyTokenUsdPrices;
+    if (priceLookupKey === undefined || map === undefined) {
+      return undefined;
+    }
+    return Object.prototype.hasOwnProperty.call(map, priceLookupKey)
+      ? map[priceLookupKey]
+      : undefined;
+  }, [priceLookupKey, transaction.historyTokenUsdPrices]);
+
+  const shouldFetchTokenPrice = embeddedUsdPrice === undefined;
+
+  const fetchedTokenPrice = useTokenPrice(
+    shouldFetchTokenPrice
+      ? token?.type === TokenType.NATIVE
+        ? token?.symbol
+        : token?.address
+      : undefined,
     network,
   );
+
+  const tokenPrice =
+    embeddedUsdPrice !== undefined ? embeddedUsdPrice : fetchedTokenPrice;
 
   const usdValue = tokenPrice
     ? tokenPrice * (Number(token?.amount) || 0) * directionModifier

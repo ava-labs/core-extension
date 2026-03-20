@@ -157,7 +157,12 @@ describe('src/background/services/history/HistoryService.ts', () => {
       vmName: NetworkVMType.BITCOIN,
       caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
-    expect(result).toEqual([btcTxHistoryItem]);
+    expect(result).toEqual([
+      {
+        ...btcTxHistoryItem,
+        historyTokenUsdPrices: { BTC: null },
+      },
+    ]);
   });
   it('should return results with a BTC bridge transaction', async () => {
     jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
@@ -172,7 +177,11 @@ describe('src/background/services/history/HistoryService.ts', () => {
     });
 
     expect(result).toEqual([
-      { ...btcTxHistoryItem, bridgeAnalysis: { isBridgeTx: false } },
+      {
+        ...btcTxHistoryItem,
+        bridgeAnalysis: { isBridgeTx: false },
+        historyTokenUsdPrices: { BTC: null },
+      },
     ]);
   });
   it('should return results with an ETH bridge transaction', async () => {
@@ -205,6 +214,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
           isBridgeTx: true,
         },
         from: ETHEREUM_ADDRESS,
+        historyTokenUsdPrices: { tokenSymbol: null },
       },
     ]);
   });
@@ -392,7 +402,13 @@ describe('src/background/services/history/HistoryService.ts', () => {
       caipId: 'caip',
     });
 
-    expect(result).toEqual([{ ...txHistoryItem, vmType: 'PVM' }]);
+    expect(result).toEqual([
+      {
+        ...txHistoryItem,
+        vmType: 'PVM',
+        historyTokenUsdPrices: { tokenSymbol: null },
+      },
+    ]);
   });
 
   describe('spam filtering', () => {
@@ -446,6 +462,9 @@ describe('src/background/services/history/HistoryService.ts', () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]?.tokens[0]?.symbol).toBe('LEGIT');
+      expect(result[0]?.historyTokenUsdPrices).toEqual({
+        '0xlegittoken': 50,
+      });
     });
 
     it('should fetch additional pages when filtered results are insufficient', async () => {

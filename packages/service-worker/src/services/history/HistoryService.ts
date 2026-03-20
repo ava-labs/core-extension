@@ -3,11 +3,7 @@ import {
   NetworkVMType,
   type NetworkContractToken,
 } from '@avalabs/core-chains-sdk';
-import {
-  NetworkWithCaipId,
-  TxHistoryItem,
-  type TokensPriceShortData,
-} from '@core/types';
+import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { ModuleManager } from '../../vmModules/ModuleManager';
 import { AccountsService } from '../accounts/AccountsService';
 import {
@@ -22,10 +18,11 @@ import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
 import { TokenPricesService } from '../balances/TokenPricesService';
 import {
+  buildHistoryTokenUsdPricesRecord,
+  buildTokenPriceMapForTransactions,
   filterSpamTransactions,
-  MIN_FILTERED_RESULTS,
   MAX_FETCH_PAGES,
-  type TokenPriceMap,
+  MIN_FILTERED_RESULTS,
 } from './activitySpamFilter';
 
 @singleton()
@@ -100,7 +97,11 @@ export class HistoryService {
     let pagesLoaded = 1;
 
     while (transactions.length > 0) {
-      const prices = this.#buildPriceMap(transactions, network, priceData);
+      const prices = buildTokenPriceMapForTransactions(
+        transactions,
+        network,
+        priceData,
+      );
       const clean = filterSpamTransactions(transactions, prices);
 
       for (const transaction of clean) {
@@ -108,14 +109,19 @@ export class HistoryService {
           ...transaction,
           vmType: network.vmName,
           bridgeAnalysis: this.#analyze(network, transaction),
+          historyTokenUsdPrices: buildHistoryTokenUsdPricesRecord(
+            transaction,
+            prices,
+          ),
         } as TxHistoryItem);
       }
 
-      if (
-        allFiltered.length >= MIN_FILTERED_RESULTS ||
-        !pageToken ||
-        pagesLoaded >= MAX_FETCH_PAGES
-      ) {
+      const shouldFetchNextPage =
+        allFiltered.length < MIN_FILTERED_RESULTS &&
+        pageToken != null &&
+        pagesLoaded < MAX_FETCH_PAGES;
+
+      if (!shouldFetchNextPage) {
         break;
       }
 
@@ -132,52 +138,6 @@ export class HistoryService {
     }
 
     return allFiltered;
-  }
-
-  #buildPriceMap(
-    transactions: Transaction[],
-    network: NetworkWithCaipId,
-    priceData?: TokensPriceShortData,
-  ): TokenPriceMap {
-    const prices: TokenPriceMap = new Map();
-
-    if (!priceData) {
-      return prices;
-    }
-
-    for (const tx of transactions) {
-      const token = tx.tokens[0];
-
-      if (!token) {
-        continue;
-      }
-
-      if (token.type === TokenType.NATIVE) {
-        const key = `NATIVE-${token.symbol.toLowerCase()}`;
-
-        if (!prices.has(key)) {
-          prices.set(key, priceData[key]?.currentPrice ?? null);
-        }
-      } else if ('address' in token) {
-        const lowered = token.address.toLowerCase();
-
-        if (!prices.has(lowered)) {
-          const tokenId = `${network.caipId}-${lowered}`;
-          const byId = priceData[tokenId];
-
-          if (byId) {
-            prices.set(lowered, byId.currentPrice ?? null);
-          } else {
-            const byPlatform = Object.values(priceData).find(
-              (t) => t.platforms?.[network.caipId] === lowered,
-            );
-            prices.set(lowered, byPlatform?.currentPrice ?? null);
-          }
-        }
-      }
-    }
-
-    return prices;
   }
 
   #analyze(network: NetworkWithCaipId, transaction: Transaction) {

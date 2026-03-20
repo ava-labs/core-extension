@@ -1,3 +1,4 @@
+import { NetworkWithCaipId, TokensPriceShortData } from '@core/types';
 import {
   TokenType,
   TransactionType,
@@ -9,21 +10,84 @@ export const ACTIVITY_MIN_USD_VALUE = 0.01;
 export const MIN_FILTERED_RESULTS = 15;
 export const MAX_FETCH_PAGES = 5;
 
-// C-Chain per-token quantity thresholds for tokens without reliable USD prices.
-// Keyed by lowercase contract address; 'native' for the chain's native token.
-// Source: CP-13753 attachment (token_thresholds.json)
-export const TOKEN_QUANTITY_THRESHOLDS: Record<string, number> = {
-  native: 0.001, // AVAX
-  '0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7': 0.001, // WAVAX
-  '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e': 0.01, // USDC
-  '0x00000000efe302beaa2b3e6e1b18d08d69a9012a': 0.01, // AUSD
-  '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 0.01, // USDT
-  '0xc891eb4cbdeff6e073e859e987815ed1505c2acd': 0.01, // EURC
-  '0x8835a2f66a7aaccb297cb985831a616b75e2e16c': 0.01, // EUROP
-  '0xfe6b19286885a4f7f55adad09c3cd1f906d2478f': 0.35, // SOL (Wormhole)
-  '0x49d5c2bdffac6ce2bfdb6640f4f80f226bc10bab': 0.000005, // WETH.e
-  '0x152b9d0fdc40c096757f570a51e494bd4b943e50': 0.000000014, // BTC.b
+type AvaxTokenThresholdRow = {
+  ticker: string;
+  quantity: number;
+  contract_address: string | null;
+  note?: string;
 };
+
+const AVAX_C_CHAIN_TOKEN_QUANTITY_ROWS: readonly AvaxTokenThresholdRow[] = [
+  { ticker: 'AVAX', quantity: 0.001, contract_address: null },
+  {
+    ticker: 'WAVAX',
+    quantity: 0.001,
+    contract_address: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+  },
+  {
+    ticker: 'USDC',
+    quantity: 0.01,
+    contract_address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+  },
+  {
+    ticker: 'AUSD',
+    quantity: 0.01,
+    contract_address: '0x00000000eFE302BEAA2b3e6e1b18d08D69a9012a',
+  },
+  {
+    ticker: 'USDT',
+    quantity: 0.01,
+    contract_address: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+  },
+  {
+    ticker: 'EURC',
+    quantity: 0.01,
+    contract_address: '0xC891EB4cbdEFf6e073e859e987815Ed1505c2ACD',
+  },
+  {
+    ticker: 'EUROP',
+    quantity: 0.01,
+    contract_address: '0x8835A2F66A7AaCCB297Cb985831A616B75e2E16c',
+  },
+  {
+    ticker: 'SOL',
+    quantity: 0.00011,
+    contract_address: '0xFE6B19286885a4F7F55AdAD09C3Cd1f906D2478F',
+    note: 'Wormhole-bridged Wrapped SOL on Avalanche C-Chain.',
+  },
+  {
+    ticker: 'WETH.e',
+    quantity: 0.000005,
+    contract_address: '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB',
+  },
+  {
+    ticker: 'BTC.b',
+    quantity: 0.000000014,
+    contract_address: '0x152b9d0FdC40C096757F570A51E494bd4b943E50',
+  },
+];
+
+function buildTokenQuantityThresholds(
+  rows: readonly AvaxTokenThresholdRow[],
+): Record<string, number> {
+  const thresholds: Record<string, number> = {};
+
+  for (const row of rows) {
+    if (row.contract_address === null) {
+      thresholds.native = row.quantity;
+    } else {
+      thresholds[row.contract_address.toLowerCase()] = row.quantity;
+    }
+  }
+
+  return thresholds;
+}
+
+// C-Chain per-token quantity thresholds when USD price is unavailable (spam filter fallback).
+// Keys: lowercase contract address, or `native` for AVAX.
+export const TOKEN_QUANTITY_THRESHOLDS = buildTokenQuantityThresholds(
+  AVAX_C_CHAIN_TOKEN_QUANTITY_ROWS,
+);
 
 const NFT_TOKEN_TYPES = new Set<TokenType>([
   TokenType.ERC721,
@@ -39,24 +103,10 @@ function getTokenAddress(token: TxToken): string | undefined {
   return undefined;
 }
 
-export function isSpamTransaction(
-  transaction: Transaction,
+function isTokenDustBelowThreshold(
+  token: TxToken,
   prices: TokenPriceMap,
 ): boolean {
-  const token = transaction.tokens[0];
-
-  if (!token) {
-    return false;
-  }
-
-  if (NFT_TOKEN_TYPES.has(token.type)) {
-    return false;
-  }
-
-  if (transaction.txType === TransactionType.APPROVE) {
-    return false;
-  }
-
   const amount = Math.abs(Number(token.amount) || 0);
 
   const priceKey =
@@ -86,6 +136,92 @@ export function isSpamTransaction(
   }
 
   return false;
+}
+
+export function buildTokenPriceMapForTransactions(
+  transactions: Transaction[],
+  network: NetworkWithCaipId,
+  priceData?: TokensPriceShortData,
+): TokenPriceMap {
+  const prices: TokenPriceMap = new Map();
+
+  if (!priceData) {
+    return prices;
+  }
+
+  for (const tx of transactions) {
+    for (const token of tx.tokens) {
+      if (token.type === TokenType.NATIVE) {
+        const key = `NATIVE-${token.symbol.toLowerCase()}`;
+
+        if (!prices.has(key)) {
+          prices.set(key, priceData[key]?.currentPrice ?? null);
+        }
+      } else if ('address' in token) {
+        const lowered = token.address.toLowerCase();
+
+        if (!prices.has(lowered)) {
+          const tokenId = `${network.caipId}-${lowered}`;
+          const byId = priceData[tokenId];
+
+          if (byId) {
+            prices.set(lowered, byId.currentPrice ?? null);
+          } else {
+            const byPlatform = Object.values(priceData).find(
+              (t) => t.platforms?.[network.caipId] === lowered,
+            );
+            prices.set(lowered, byPlatform?.currentPrice ?? null);
+          }
+        }
+      }
+    }
+  }
+
+  return prices;
+}
+
+export function buildHistoryTokenUsdPricesRecord(
+  transaction: Transaction,
+  prices: TokenPriceMap,
+): Record<string, number | null> {
+  const record: Record<string, number | null> = {};
+
+  for (const token of transaction.tokens) {
+    if (token.type === TokenType.NATIVE) {
+      const internalKey = `NATIVE-${token.symbol.toLowerCase()}`;
+      record[token.symbol] = prices.get(internalKey) ?? null;
+      continue;
+    }
+
+    const addr = getTokenAddress(token);
+    if (addr) {
+      const lowered = addr.toLowerCase();
+      record[lowered] = prices.get(lowered) ?? null;
+    }
+  }
+
+  return record;
+}
+
+export function isSpamTransaction(
+  transaction: Transaction,
+  prices: TokenPriceMap,
+): boolean {
+  const { tokens } = transaction;
+
+  if (tokens.length === 0) {
+    return false;
+  }
+
+  if (transaction.txType === TransactionType.APPROVE) {
+    return false;
+  }
+
+  if (tokens.some((t) => NFT_TOKEN_TYPES.has(t.type))) {
+    return false;
+  }
+
+  return tokens.every((token) => isTokenDustBelowThreshold(token, prices));
 }
 
 export function filterSpamTransactions(
