@@ -1,43 +1,56 @@
+jest.mock('@avalabs/fusion-sdk', () => {
+  const actual = jest.requireActual<typeof import('@avalabs/fusion-sdk')>(
+    '@avalabs/fusion-sdk',
+  );
+  return {
+    ...actual,
+    calculatePriceImpactFromQuote: jest.fn(
+      (...args: Parameters<typeof actual.calculatePriceImpactFromQuote>) =>
+        actual.calculatePriceImpactFromQuote(...args),
+    ),
+  };
+});
+
 import { renderHook, waitFor } from '@testing-library/react';
-import {
-  type Quote,
-  type Chain,
-  type Asset,
-  TokenType,
-  ServiceType,
-} from '@avalabs/fusion-sdk';
+import * as FusionSdk from '@avalabs/fusion-sdk';
 
 import { FungibleTokenBalance } from '@core/types';
 
 import { usePriceImpact, getPriceImpactSeverity } from './usePriceImpact';
 
-const MOCK_CHAIN: Chain = {
+const mockCalculatePriceImpactFromQuote = jest.mocked(
+  FusionSdk.calculatePriceImpactFromQuote,
+);
+
+const MOCK_CHAIN: FusionSdk.Chain = {
   chainId: 'eip155:43114',
   chainName: 'Avalanche',
   networkToken: {
     name: 'Avalanche',
     symbol: 'AVAX',
     decimals: 18,
-    type: TokenType.NATIVE,
+    type: FusionSdk.TokenType.NATIVE,
   },
   rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
 };
 
-const MOCK_ASSET_IN: Asset = {
+const MOCK_ASSET_IN: FusionSdk.Asset = {
   name: 'TokenA',
   symbol: 'TKA',
   decimals: 18,
-  type: TokenType.NATIVE,
+  type: FusionSdk.TokenType.NATIVE,
 };
 
-const MOCK_ASSET_OUT: Asset = {
+const MOCK_ASSET_OUT: FusionSdk.Asset = {
   name: 'TokenB',
   symbol: 'TKB',
   decimals: 6,
-  type: TokenType.NATIVE,
+  type: FusionSdk.TokenType.NATIVE,
 };
 
-function createMockQuote(overrides: Partial<Quote> = {}): Quote {
+function createMockQuote(
+  overrides: Partial<FusionSdk.Quote> = {},
+): FusionSdk.Quote {
   return {
     aggregator: { id: 'test', name: 'Test' },
     amountIn: 1000000000000000000n,
@@ -49,7 +62,7 @@ function createMockQuote(overrides: Partial<Quote> = {}): Quote {
     fromAddress: '0x0000000000000000000000000000000000000001',
     id: 'test-quote-id',
     partnerFeeBps: null,
-    serviceType: ServiceType.MARKR,
+    serviceType: FusionSdk.ServiceType.MARKR,
     slippageBps: 100,
     sourceChain: MOCK_CHAIN,
     targetChain: MOCK_CHAIN,
@@ -70,6 +83,15 @@ function createMockToken(
 }
 
 describe('usePriceImpact', () => {
+  afterEach(() => {
+    const actual = jest.requireActual<typeof import('@avalabs/fusion-sdk')>(
+      '@avalabs/fusion-sdk',
+    );
+    mockCalculatePriceImpactFromQuote.mockImplementation((...args) =>
+      actual.calculatePriceImpactFromQuote(...args),
+    );
+  });
+
   it('returns undefined when quote is null', () => {
     const source = createMockToken({ priceInCurrency: 100 });
     const target = createMockToken({ priceInCurrency: 100 });
@@ -78,6 +100,7 @@ describe('usePriceImpact', () => {
 
     expect(result.current.priceImpact).toBeUndefined();
     expect(result.current.priceImpactSeverity).toBe('low');
+    expect(result.current.priceImpactAvailability).toBe('hidden');
   });
 
   it('returns undefined when sourceToken is undefined', () => {
@@ -89,6 +112,7 @@ describe('usePriceImpact', () => {
     );
 
     expect(result.current.priceImpact).toBeUndefined();
+    expect(result.current.priceImpactAvailability).toBe('hidden');
   });
 
   it('returns undefined when targetToken is undefined', () => {
@@ -100,6 +124,7 @@ describe('usePriceImpact', () => {
     );
 
     expect(result.current.priceImpact).toBeUndefined();
+    expect(result.current.priceImpactAvailability).toBe('hidden');
   });
 
   it('returns undefined when sourceToken has no price', () => {
@@ -110,6 +135,7 @@ describe('usePriceImpact', () => {
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
     expect(result.current.priceImpact).toBeUndefined();
+    expect(result.current.priceImpactAvailability).toBe('unavailable');
   });
 
   it('returns undefined when targetToken has no price', () => {
@@ -120,6 +146,57 @@ describe('usePriceImpact', () => {
     const { result } = renderHook(() => usePriceImpact(quote, source, target));
 
     expect(result.current.priceImpact).toBeUndefined();
+    expect(result.current.priceImpactAvailability).toBe('unavailable');
+  });
+
+  it('is calculating until the SDK resolves', async () => {
+    let resolveBps!: (value: number | null) => void;
+    const pendingPromise = new Promise<number | null>((resolve) => {
+      resolveBps = resolve;
+    });
+    mockCalculatePriceImpactFromQuote.mockReturnValueOnce(pendingPromise);
+
+    const quote = createMockQuote({
+      amountIn: 1000000000000000000n,
+      amountOut: 100000000n,
+      assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
+      assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
+    });
+    const source = createMockToken({ priceInCurrency: 100 });
+    const target = createMockToken({ priceInCurrency: 1 });
+
+    const { result } = renderHook(() => usePriceImpact(quote, source, target));
+
+    await waitFor(() => {
+      expect(result.current.priceImpactAvailability).toBe('calculating');
+    });
+
+    resolveBps(0);
+
+    await waitFor(() => {
+      expect(result.current.priceImpactAvailability).toBe('ready');
+      expect(result.current.priceImpact).toBe(0);
+    });
+  });
+
+  it('sets unavailable when the SDK returns null basis points', async () => {
+    mockCalculatePriceImpactFromQuote.mockResolvedValueOnce(null);
+
+    const quote = createMockQuote({
+      amountIn: 1000000000000000000n,
+      amountOut: 100000000n,
+      assetIn: { ...MOCK_ASSET_IN, decimals: 18 },
+      assetOut: { ...MOCK_ASSET_OUT, decimals: 6 },
+    });
+    const source = createMockToken({ priceInCurrency: 100 });
+    const target = createMockToken({ priceInCurrency: 1 });
+
+    const { result } = renderHook(() => usePriceImpact(quote, source, target));
+
+    await waitFor(() => {
+      expect(result.current.priceImpactAvailability).toBe('unavailable');
+      expect(result.current.priceImpact).toBeUndefined();
+    });
   });
 
   it('calculates 0% impact when market and quote rates match', async () => {
@@ -138,6 +215,7 @@ describe('usePriceImpact', () => {
 
     await waitFor(() => {
       expect(result.current.priceImpact).toBe(0);
+      expect(result.current.priceImpactAvailability).toBe('ready');
     });
   });
 
@@ -158,6 +236,7 @@ describe('usePriceImpact', () => {
     await waitFor(() => {
       expect(result.current.priceImpact).toBeCloseTo(10, 5);
       expect(result.current.priceImpactSeverity).toBe('high');
+      expect(result.current.priceImpactAvailability).toBe('ready');
     });
   });
 
@@ -177,6 +256,7 @@ describe('usePriceImpact', () => {
 
     await waitFor(() => {
       expect(result.current.priceImpact).toBe(0);
+      expect(result.current.priceImpactAvailability).toBe('ready');
     });
   });
 
@@ -197,6 +277,7 @@ describe('usePriceImpact', () => {
     await waitFor(() => {
       expect(result.current.priceImpact).toBeCloseTo(60, 5);
       expect(result.current.priceImpactSeverity).toBe('critical');
+      expect(result.current.priceImpactAvailability).toBe('ready');
     });
   });
 });

@@ -9,7 +9,11 @@ import { SwapPricing } from './SwapPricing';
 import { SwapSlippage } from './SwapSlippage';
 
 export const SwapSettings = () => {
-  const { priceImpact } = useFusionState();
+  const { priceImpactAvailability } = useFusionState();
+
+  const showPriceImpactSection =
+    priceImpactAvailability === 'unavailable' ||
+    priceImpactAvailability === 'ready';
 
   return (
     <Card>
@@ -17,7 +21,7 @@ export const SwapSettings = () => {
         <SwapPricing />
         <Divider />
         <SwapSlippage />
-        {priceImpact !== undefined && (
+        {showPriceImpactSection && (
           <>
             <Divider />
             <SwapPriceImpact />

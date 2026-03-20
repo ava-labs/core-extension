@@ -41,6 +41,7 @@ import {
 import { useSwapQuery } from '../hooks';
 import {
   usePriceImpact,
+  type PriceImpactAvailability,
   type PriceImpactSeverity,
 } from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
@@ -82,6 +83,7 @@ type FusionState = QueryState &
     toAmount?: string;
     priceImpact: number | undefined;
     priceImpactSeverity: PriceImpactSeverity;
+    priceImpactAvailability: PriceImpactAvailability;
     userQuote: Quote | null;
     bestQuote: Quote | null;
     selectedQuote: Quote | null;
@@ -214,11 +216,8 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
       ? bigIntToString(selectedQuote.amountOut, targetAsset.decimals)
       : undefined;
 
-  const { priceImpact, priceImpactSeverity } = usePriceImpact(
-    selectedQuote,
-    sourceToken,
-    targetToken,
-  );
+  const { priceImpact, priceImpactSeverity, priceImpactAvailability } =
+    usePriceImpact(selectedQuote, sourceToken, targetToken);
 
   const transfer = useCallback(
     async (specificQuote?: Quote, autoRetryAttempt = 0) => {
@@ -370,6 +369,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         toAmount,
         priceImpact,
         priceImpactSeverity,
+        priceImpactAvailability,
         sourceTokenList,
         targetTokenList,
         sourceToken,
