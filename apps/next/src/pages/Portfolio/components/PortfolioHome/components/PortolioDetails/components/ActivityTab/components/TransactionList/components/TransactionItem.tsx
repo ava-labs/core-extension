@@ -6,8 +6,8 @@ import {
   Theme,
 } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
-import { useSettingsContext, useTokenPrice } from '@core/ui';
+import { TxHistoryItem } from '@core/types';
+import { useSettingsContext } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
 import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,6 @@ import { ViewInExplorerButton } from './ViewInExplorerButton';
 
 type Props = {
   transaction: TxHistoryItem;
-  network?: NetworkWithCaipId;
 };
 
 const TIME_FORMAT = 'HH:mm a';
@@ -77,7 +76,7 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
   },
 };
 
-export const TransactionItem: FC<Props> = ({ transaction, network }) => {
+export const TransactionItem: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
 
@@ -100,7 +99,7 @@ export const TransactionItem: FC<Props> = ({ transaction, network }) => {
       : undefined;
   }, [token]);
 
-  const embeddedUsdPrice = useMemo(() => {
+  const tokenPrice = useMemo(() => {
     const map = transaction.historyTokenUsdPrices;
     if (priceLookupKey === undefined || map === undefined) {
       return undefined;
@@ -109,20 +108,6 @@ export const TransactionItem: FC<Props> = ({ transaction, network }) => {
       ? map[priceLookupKey]
       : undefined;
   }, [priceLookupKey, transaction.historyTokenUsdPrices]);
-
-  const shouldFetchTokenPrice = embeddedUsdPrice === undefined;
-
-  const fetchedTokenPrice = useTokenPrice(
-    shouldFetchTokenPrice
-      ? token?.type === TokenType.NATIVE
-        ? token?.symbol
-        : token?.address
-      : undefined,
-    network,
-  );
-
-  const tokenPrice =
-    embeddedUsdPrice !== undefined ? embeddedUsdPrice : fetchedTokenPrice;
 
   const usdValue = tokenPrice
     ? tokenPrice * (Number(token?.amount) || 0) * directionModifier
