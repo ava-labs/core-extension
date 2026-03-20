@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Quote } from '@avalabs/fusion-sdk';
+import { useEffect, useState } from 'react';
+import { calculatePriceImpactFromQuote, Quote } from '@avalabs/fusion-sdk';
 
 import { bigintToBig } from '@core/common';
 import { FungibleTokenBalance } from '@core/types';
@@ -13,49 +13,6 @@ type PriceImpactResult = {
   priceImpact: number | undefined;
   priceImpactSeverity: PriceImpactSeverity;
 };
-
-export function calculatePriceImpact(
-  quote: Quote | null,
-  sourceToken: FungibleTokenBalance | undefined,
-  targetToken: FungibleTokenBalance | undefined,
-): number | undefined {
-  if (!quote || !sourceToken || !targetToken) {
-    return undefined;
-  }
-
-  const sourcePrice = sourceToken.priceInCurrency;
-  const targetPrice = targetToken.priceInCurrency;
-
-  if (!sourcePrice || !targetPrice) {
-    return undefined;
-  }
-
-  const { amountIn, amountOut, assetIn, assetOut } = quote;
-
-  if (!amountIn || !amountOut || !assetIn.decimals || !assetOut.decimals) {
-    return undefined;
-  }
-
-  const amountInNum = bigintToBig(amountIn, assetIn.decimals).toNumber();
-  const amountOutNum = bigintToBig(amountOut, assetOut.decimals).toNumber();
-
-  if (amountInNum === 0) {
-    return undefined;
-  }
-
-  const inputValueInCurrency = amountInNum * sourcePrice;
-  const outputValueInCurrency = amountOutNum * targetPrice;
-
-  if (inputValueInCurrency === 0) {
-    return undefined;
-  }
-
-  const impact =
-    ((inputValueInCurrency - outputValueInCurrency) / inputValueInCurrency) *
-    100;
-
-  return Math.max(impact, 0);
-}
 
 export function getPriceImpactSeverity(
   priceImpact: number | undefined,
@@ -76,10 +33,50 @@ export function usePriceImpact(
   sourceToken: FungibleTokenBalance | undefined,
   targetToken: FungibleTokenBalance | undefined,
 ): PriceImpactResult {
-  return useMemo(() => {
-    const priceImpact = calculatePriceImpact(quote, sourceToken, targetToken);
-    const priceImpactSeverity = getPriceImpactSeverity(priceImpact);
+  const [priceImpact, setPriceImpact] = useState<number | undefined>(undefined);
 
-    return { priceImpact, priceImpactSeverity };
+  useEffect(() => {
+    const sourcePrice = sourceToken?.priceInCurrency;
+    const targetPrice = targetToken?.priceInCurrency;
+
+    if (!quote || !sourcePrice || !targetPrice) {
+      setPriceImpact(undefined);
+      return;
+    }
+
+    let cancelled = false;
+
+    calculatePriceImpactFromQuote(quote, async (input, output) => {
+      const inputAmount = bigintToBig(
+        input.amount,
+        input.asset.decimals,
+      ).toNumber();
+      const outputAmount = bigintToBig(
+        output.amount,
+        output.asset.decimals,
+      ).toNumber();
+
+      return [inputAmount * sourcePrice, outputAmount * targetPrice];
+    }).then((bps) => {
+      if (cancelled) {
+        return;
+      }
+
+      if (bps === null) {
+        setPriceImpact(undefined);
+      } else {
+        // SDK returns basis points; convert to percentage and clamp favorable impact to 0
+        setPriceImpact(Math.max(bps / 100, 0));
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [quote, sourceToken, targetToken]);
+
+  return {
+    priceImpact,
+    priceImpactSeverity: getPriceImpactSeverity(priceImpact),
+  };
 }
