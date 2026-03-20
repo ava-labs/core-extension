@@ -1,3 +1,8 @@
+import { AvalancheModule } from '@avalabs/avalanche-module';
+import { BitcoinModule } from '@avalabs/bitcoin-module';
+import { EvmModule } from '@avalabs/evm-module';
+import { HvmModule } from '@avalabs/hvm-module';
+import { SvmModule } from '@avalabs/svm-module';
 import {
   AppInfo,
   AppName,
@@ -5,24 +10,20 @@ import {
   Environment,
   Module,
 } from '@avalabs/vm-module-types';
-import { runtime } from 'webextension-polyfill';
-import { BitcoinModule } from '@avalabs/bitcoin-module';
-import { AvalancheModule } from '@avalabs/avalanche-module';
-import { EvmModule } from '@avalabs/evm-module';
-import { HvmModule } from '@avalabs/hvm-module';
-import { SvmModule } from '@avalabs/svm-module';
 import { ethErrors } from 'eth-rpc-errors';
 import { singleton } from 'tsyringe';
+import { runtime } from 'webextension-polyfill';
 
-import { NetworkWithCaipId, VMModuleError } from '@core/types';
-import { ApprovalController } from './ApprovalController';
 import {
+  assertPresent,
   AvaxCaipId,
   AvaxLegacyCaipId,
   BitcoinCaipId,
   isDevelopment,
-  assertPresent,
 } from '@core/common';
+import { NetworkWithCaipId, VMModuleError } from '@core/types';
+import { ApprovalController } from './ApprovalController';
+import { circuitBreakerFetch } from './utils';
 
 // https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md
 // Syntax for namespace is defined in CAIP-2
@@ -79,26 +80,31 @@ export class ModuleManager {
         environment,
         approvalController: this.#approvalController,
         appInfo,
+        runtime: { fetch: circuitBreakerFetch },
       }),
       new AvalancheModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,
+        runtime: { fetch: circuitBreakerFetch },
       }),
       new BitcoinModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,
+        runtime: { fetch: circuitBreakerFetch },
       }),
       new HvmModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,
+        runtime: { fetch: circuitBreakerFetch },
       }),
       new SvmModule({
         environment,
         approvalController: this.#approvalController,
         appInfo,
+        runtime: { fetch: circuitBreakerFetch },
       }),
     ];
   }
