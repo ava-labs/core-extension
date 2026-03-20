@@ -6,10 +6,10 @@ import {
   Theme,
 } from '@avalabs/k2-alpine';
 import { TokenType } from '@avalabs/vm-module-types';
-import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
-import { useSettingsContext, useTokenPrice } from '@core/ui';
+import { TxHistoryItem } from '@core/types';
+import { useSettingsContext } from '@core/ui';
 import { format, isToday, isYesterday } from 'date-fns';
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import * as Styled from './Styled';
@@ -19,7 +19,6 @@ import { ViewInExplorerButton } from './ViewInExplorerButton';
 
 type Props = {
   transaction: TxHistoryItem;
-  network?: NetworkWithCaipId;
 };
 
 const TIME_FORMAT = 'HH:mm a';
@@ -77,7 +76,7 @@ const timestampSlotProps: ListItemTextProps['slotProps'] = {
   },
 };
 
-export const TransactionItem: FC<Props> = ({ transaction, network }) => {
+export const TransactionItem: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
   const { currencyFormatter } = useSettingsContext();
 
@@ -88,10 +87,27 @@ export const TransactionItem: FC<Props> = ({ transaction, network }) => {
   const formattedTime = format(transaction.timestamp, TIME_FORMAT);
   const directionModifier = transaction.isSender ? -1 : 1;
 
-  const tokenPrice = useTokenPrice(
-    token?.type === TokenType.NATIVE ? token?.symbol : token?.address,
-    network,
-  );
+  const priceLookupKey = useMemo(() => {
+    if (!token) {
+      return undefined;
+    }
+    if (token.type === TokenType.NATIVE) {
+      return token.symbol;
+    }
+    return 'address' in token && token.address
+      ? token.address.toLowerCase()
+      : undefined;
+  }, [token]);
+
+  const tokenPrice = useMemo(() => {
+    const map = transaction.historyTokenUsdPrices;
+    if (priceLookupKey === undefined || map === undefined) {
+      return undefined;
+    }
+    return Object.prototype.hasOwnProperty.call(map, priceLookupKey)
+      ? map[priceLookupKey]
+      : undefined;
+  }, [priceLookupKey, transaction.historyTokenUsdPrices]);
 
   const usdValue = tokenPrice
     ? tokenPrice * (Number(token?.amount) || 0) * directionModifier

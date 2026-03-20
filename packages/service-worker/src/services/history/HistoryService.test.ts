@@ -44,6 +44,9 @@ describe('src/background/services/history/HistoryService.ts', () => {
   const balanceAggregatorServiceMock = {
     balances: {},
   } as any;
+  const tokenPricesServiceMock = {
+    getPriceChangesData: jest.fn().mockResolvedValue({}),
+  } as any;
 
   const txHistoryItem: TxHistoryItem = {
     bridgeAnalysis: {
@@ -61,7 +64,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
       {
         name: 'tokenName',
         symbol: 'tokenSymbol',
-        amount: 'tokenAmount',
+        amount: '1',
         type: TokenType.NATIVE,
       },
     ],
@@ -88,7 +91,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
       {
         name: 'BTC',
         symbol: 'BTC',
-        amount: 'tokenAmount',
+        amount: '1',
         type: TokenType.NATIVE,
       },
     ],
@@ -102,11 +105,16 @@ describe('src/background/services/history/HistoryService.ts', () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
+    jest
+      .mocked(tokenPricesServiceMock.getPriceChangesData)
+      .mockResolvedValue({});
+
     service = new HistoryService(
       moduleManagereMock,
       accountsServiceMock,
       unifiedBridgeServiceMock,
       balanceAggregatorServiceMock,
+      tokenPricesServiceMock,
     );
 
     jest
@@ -149,7 +157,12 @@ describe('src/background/services/history/HistoryService.ts', () => {
       vmName: NetworkVMType.BITCOIN,
       caipId: 'bip122:000000000019d6689c085ae165831e93',
     });
-    expect(result).toEqual([btcTxHistoryItem]);
+    expect(result).toEqual([
+      {
+        ...btcTxHistoryItem,
+        historyTokenUsdPrices: { BTC: null },
+      },
+    ]);
   });
   it('should return results with a BTC bridge transaction', async () => {
     jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
@@ -164,7 +177,11 @@ describe('src/background/services/history/HistoryService.ts', () => {
     });
 
     expect(result).toEqual([
-      { ...btcTxHistoryItem, bridgeAnalysis: { isBridgeTx: false } },
+      {
+        ...btcTxHistoryItem,
+        bridgeAnalysis: { isBridgeTx: false },
+        historyTokenUsdPrices: { BTC: null },
+      },
     ]);
   });
   it('should return results with an ETH bridge transaction', async () => {
@@ -197,6 +214,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
           isBridgeTx: true,
         },
         from: ETHEREUM_ADDRESS,
+        historyTokenUsdPrices: { tokenSymbol: null },
       },
     ]);
   });
@@ -262,6 +280,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
       accountsServiceWithSVM,
       unifiedBridgeServiceMock,
       balanceAggregatorServiceMock,
+      tokenPricesServiceMock,
     );
 
     await svcWithSVM.getTxHistory(svmNetwork);
@@ -344,6 +363,7 @@ describe('src/background/services/history/HistoryService.ts', () => {
       accountsServiceWithSVM,
       unifiedBridgeServiceMock,
       balanceAggregatorServiceMock,
+      tokenPricesServiceMock,
     );
 
     await svcWithSVM.getTxHistory(svmNetwork);
@@ -382,6 +402,198 @@ describe('src/background/services/history/HistoryService.ts', () => {
       caipId: 'caip',
     });
 
-    expect(result).toEqual([{ ...txHistoryItem, vmType: 'PVM' }]);
+    expect(result).toEqual([
+      {
+        ...txHistoryItem,
+        vmType: 'PVM',
+        historyTokenUsdPrices: { tokenSymbol: null },
+      },
+    ]);
+  });
+
+  describe('spam filtering', () => {
+    const evmNetwork = {
+      ...network1,
+      vmName: NetworkVMType.EVM,
+      caipId: 'eip155:43114',
+    };
+
+    const spamTx = {
+      ...txHistoryItem,
+      tokens: [
+        {
+          name: 'SpamToken',
+          symbol: 'SPAM',
+          amount: '0.000001',
+          type: TokenType.ERC20,
+          address: '0xspamtoken',
+        },
+      ],
+    };
+
+    const legitimateTx = {
+      ...txHistoryItem,
+      tokens: [
+        {
+          name: 'LegitToken',
+          symbol: 'LEGIT',
+          amount: '100',
+          type: TokenType.ERC20,
+          address: '0xlegittoken',
+        },
+      ],
+    };
+
+    it('should filter out spam transactions below $0.01', async () => {
+      jest
+        .mocked(tokenPricesServiceMock.getPriceChangesData)
+        .mockResolvedValue({
+          'eip155:43114-0xspamtoken': { currentPrice: 0.001, platforms: {} },
+          'eip155:43114-0xlegittoken': { currentPrice: 50, platforms: {} },
+        });
+
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: jest.fn().mockResolvedValue({
+          transactions: [spamTx, legitimateTx],
+        }),
+      });
+
+      const result = await service.getTxHistory(evmNetwork);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.tokens[0]?.symbol).toBe('LEGIT');
+      expect(result[0]?.historyTokenUsdPrices).toEqual({
+        '0xlegittoken': 50,
+      });
+    });
+
+    it('should fetch additional pages when filtered results are insufficient', async () => {
+      const getTransactionHistoryMock = jest
+        .fn()
+        .mockResolvedValueOnce({
+          transactions: [spamTx],
+          nextPageToken: 'page2',
+        })
+        .mockResolvedValueOnce({
+          transactions: Array(15).fill(legitimateTx),
+        });
+
+      jest
+        .mocked(tokenPricesServiceMock.getPriceChangesData)
+        .mockResolvedValue({
+          'eip155:43114-0xspamtoken': { currentPrice: 0.001, platforms: {} },
+          'eip155:43114-0xlegittoken': { currentPrice: 50, platforms: {} },
+        });
+
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: getTransactionHistoryMock,
+      });
+
+      const result = await service.getTxHistory(evmNetwork);
+
+      expect(getTransactionHistoryMock).toHaveBeenCalledTimes(2);
+      expect(result).toHaveLength(15);
+    });
+
+    it('should stop paginating when MAX_FETCH_PAGES is reached', async () => {
+      const getTransactionHistoryMock = jest.fn().mockResolvedValue({
+        transactions: [spamTx],
+        nextPageToken: 'next',
+      });
+
+      jest
+        .mocked(tokenPricesServiceMock.getPriceChangesData)
+        .mockResolvedValue({
+          'eip155:43114-0xspamtoken': { currentPrice: 0.001, platforms: {} },
+        });
+
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: getTransactionHistoryMock,
+      });
+
+      const result = await service.getTxHistory(evmNetwork);
+
+      expect(getTransactionHistoryMock).toHaveBeenCalledTimes(5);
+      expect(result).toHaveLength(0);
+    });
+
+    it('should stop paginating when there is no nextPageToken', async () => {
+      const getTransactionHistoryMock = jest.fn().mockResolvedValue({
+        transactions: [spamTx],
+      });
+
+      jest
+        .mocked(tokenPricesServiceMock.getPriceChangesData)
+        .mockResolvedValue({
+          'eip155:43114-0xspamtoken': { currentPrice: 0.001, platforms: {} },
+        });
+
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: getTransactionHistoryMock,
+      });
+
+      const result = await service.getTxHistory(evmNetwork);
+
+      expect(getTransactionHistoryMock).toHaveBeenCalledTimes(1);
+      expect(result).toHaveLength(0);
+    });
+
+    it('should keep NFT transactions regardless of amount', async () => {
+      const nftTx = {
+        ...txHistoryItem,
+        tokens: [
+          {
+            name: 'CoolNFT',
+            symbol: 'NFT',
+            amount: '1',
+            type: TokenType.ERC721,
+            address: '0xnftcontract',
+          },
+        ],
+      };
+
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: jest.fn().mockResolvedValue({
+          transactions: [nftTx],
+        }),
+      });
+
+      const result = await service.getTxHistory(evmNetwork);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.tokens[0]?.symbol).toBe('NFT');
+    });
+
+    it('should not filter any transactions on testnet networks', async () => {
+      const testnetNetwork = {
+        ...evmNetwork,
+        isTestnet: true,
+      };
+
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: jest.fn().mockResolvedValue({
+          transactions: [spamTx, legitimateTx],
+        }),
+      });
+
+      const result = await service.getTxHistory(testnetNetwork);
+
+      expect(result).toHaveLength(2);
+      expect(tokenPricesServiceMock.getPriceChangesData).not.toHaveBeenCalled();
+    });
+
+    it('should fetch price data in parallel with first page', async () => {
+      jest.mocked(moduleManagereMock.loadModuleByNetwork).mockResolvedValue({
+        getTransactionHistory: jest.fn().mockResolvedValue({
+          transactions: [legitimateTx],
+        }),
+      });
+
+      await service.getTxHistory(evmNetwork);
+
+      expect(tokenPricesServiceMock.getPriceChangesData).toHaveBeenCalledTimes(
+        1,
+      );
+    });
   });
 });

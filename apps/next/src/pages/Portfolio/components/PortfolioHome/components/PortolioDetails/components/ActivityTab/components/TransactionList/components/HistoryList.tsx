@@ -1,5 +1,5 @@
 import { ActivityFilter } from '../../../types';
-import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
+import { TxHistoryItem } from '@core/types';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { FC, Fragment } from 'react';
 import { useGroupedHistory } from '../../../hooks';
@@ -12,14 +12,9 @@ import { TransactionListSkeleton } from '../Skeleton';
 type Props = {
   filter: ActivityFilter;
   transactionHistory: TxHistoryItem<NetworkVMType>[] | null;
-  network?: NetworkWithCaipId;
 };
 
-export const HistoryList: FC<Props> = ({
-  filter,
-  transactionHistory,
-  network,
-}) => {
+export const HistoryList: FC<Props> = ({ filter, transactionHistory }) => {
   const groupedTransactionHistory = useGroupedHistory(
     transactionHistory ?? [],
     filter,
@@ -49,7 +44,7 @@ export const HistoryList: FC<Props> = ({
             >
               {transactions.map((tx, index, self) => (
                 <Fragment key={tx.hash}>
-                  <TransactionItem transaction={tx} network={network} />
+                  <TransactionItem transaction={tx} />
                   {index < self.length - 1 && (
                     <Styled.Divider variant="inset" />
                   )}

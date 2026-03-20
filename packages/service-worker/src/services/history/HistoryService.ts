@@ -16,6 +16,14 @@ import { resolve } from '@core/common';
 import { Monitoring } from '@core/common';
 import { AnalyzeTxParams } from '@avalabs/bridge-unified';
 import { BalanceAggregatorService } from '../balances/BalanceAggregatorService';
+import { TokenPricesService } from '../balances/TokenPricesService';
+import {
+  buildHistoryTokenUsdPricesRecord,
+  buildTokenPriceMapForTransactions,
+  filterSpamTransactions,
+  MAX_FETCH_PAGES,
+  MIN_FILTERED_RESULTS,
+} from './activitySpamFilter';
 
 @singleton()
 export class HistoryService {
@@ -24,6 +32,7 @@ export class HistoryService {
     private accountsService: AccountsService,
     private unifiedBridgeService: UnifiedBridgeService,
     private balanceAggregatorService: BalanceAggregatorService,
+    private tokenPricesService: TokenPricesService,
   ) {}
 
   async getTxHistory(
@@ -55,23 +64,80 @@ export class HistoryService {
         ? this.#enrichNetworkWithCachedTokens(network)
         : network;
 
-    const { transactions } = await module.getTransactionHistory({
-      address,
-      network: enrichedNetwork,
-      offset: 25,
-    });
+    if (network.isTestnet) {
+      const { transactions } = await module.getTransactionHistory({
+        address,
+        network: enrichedNetwork,
+        offset: 25,
+      });
 
-    const txHistoryItem = transactions.map((transaction) => {
-      const result = this.#analyze(network, transaction);
-      const vmType = network.vmName;
-      return {
-        ...transaction,
-        vmType,
-        bridgeAnalysis: result,
-      };
-    }) as TxHistoryItem[];
+      return transactions.map(
+        (transaction) =>
+          ({
+            ...transaction,
+            vmType: network.vmName,
+            bridgeAnalysis: this.#analyze(network, transaction),
+          }) as TxHistoryItem,
+      );
+    }
 
-    return txHistoryItem;
+    // Fetch first page and price data in parallel
+    const [firstPage, priceData] = await Promise.all([
+      module.getTransactionHistory({
+        address,
+        network: enrichedNetwork,
+        offset: 25,
+      }),
+      this.tokenPricesService.getPriceChangesData(),
+    ]);
+
+    const allFiltered: TxHistoryItem[] = [];
+    let { transactions } = firstPage;
+    let pageToken = firstPage.nextPageToken;
+    let pagesLoaded = 1;
+
+    while (transactions.length > 0) {
+      const prices = buildTokenPriceMapForTransactions(
+        transactions,
+        network,
+        priceData,
+      );
+      const clean = filterSpamTransactions(transactions, prices);
+
+      for (const transaction of clean) {
+        allFiltered.push({
+          ...transaction,
+          vmType: network.vmName,
+          bridgeAnalysis: this.#analyze(network, transaction),
+          historyTokenUsdPrices: buildHistoryTokenUsdPricesRecord(
+            transaction,
+            prices,
+          ),
+        } as TxHistoryItem);
+      }
+
+      const shouldFetchNextPage =
+        allFiltered.length < MIN_FILTERED_RESULTS &&
+        pageToken != null &&
+        pagesLoaded < MAX_FETCH_PAGES;
+
+      if (!shouldFetchNextPage) {
+        break;
+      }
+
+      const nextPage = await module.getTransactionHistory({
+        address,
+        network: enrichedNetwork,
+        offset: 25,
+        nextPageToken: pageToken,
+      });
+
+      transactions = nextPage.transactions;
+      pageToken = nextPage.nextPageToken;
+      pagesLoaded++;
+    }
+
+    return allFiltered;
   }
 
   #analyze(network: NetworkWithCaipId, transaction: Transaction) {
