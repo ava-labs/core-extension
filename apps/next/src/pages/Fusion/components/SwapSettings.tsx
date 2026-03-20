@@ -2,17 +2,27 @@ import { Divider, Stack } from '@avalabs/k2-alpine';
 
 import { Card } from '@/components/Card';
 
+import { useFusionState } from '../contexts';
+
 import { SwapPriceImpact } from './SwapPriceImpact';
 import { SwapPricing } from './SwapPricing';
 import { SwapSlippage } from './SwapSlippage';
 
 export const SwapSettings = () => {
+  const { priceImpact } = useFusionState();
+
   return (
     <Card>
-      <Stack width="100%" flexGrow={1} divider={<Divider />} px={2}>
+      <Stack width="100%" flexGrow={1} px={2}>
         <SwapPricing />
+        <Divider />
         <SwapSlippage />
-        <SwapPriceImpact />
+        {priceImpact !== undefined && (
+          <>
+            <Divider />
+            <SwapPriceImpact />
+          </>
+        )}
       </Stack>
     </Card>
   );
