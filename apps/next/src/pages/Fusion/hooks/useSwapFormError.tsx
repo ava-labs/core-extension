@@ -80,6 +80,19 @@ export const useSwapFormError = () => {
         additiveFeesAmount -
         (isNativeToken(sourceToken) ? (fee ?? 0n) : 0n);
 
+      if (maxAmount < 0) {
+        return t(
+          'Fees are higher than balance. Required fee is {{amount}} {{symbol}}',
+          {
+            amount: bigintToBig(
+              additiveFeesAmount,
+              sourceToken.decimals,
+            ).toFixed(), // Avoid scientific notation
+            symbol: sourceToken.symbol,
+          },
+        );
+      }
+
       const maxAmountString = bigIntToString(maxAmount, sourceToken.decimals);
 
       if (sourceAmountBigInt > maxAmount) {
