@@ -30,7 +30,7 @@
     "@avalabs/core-utils-sdk": "3.1.0-alpha.74",
     "@avalabs/core-wallets-sdk": "3.1.0-alpha.74",
     "@avalabs/evm-module": "3.3.1",
-    "@avalabs/fusion-sdk": "0.13.0",
+    "@avalabs/fusion-sdk": "0.14.0",
     "@avalabs/glacier-sdk": "3.1.0-alpha.74",
     "@avalabs/hvm-module": "3.3.1",
     "@avalabs/hw-app-avalanche": "1.1.1",
