@@ -13,7 +13,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote, TransferManager } from '@avalabs/fusion-sdk';
+import { Quote, TransferManager, QuoteFee } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -84,6 +84,7 @@ type FusionState = QueryState &
     transfer: (specificQuote?: Quote) => Promise<void>;
     status: SwapStatus;
     quotesStatus: QuoteStreamingStatus;
+    additiveFees: QuoteFee[];
   };
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
@@ -314,20 +315,22 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
-  const { fee, isFeeLoading, feeError } = useMaxButtonFeeEstimate({
-    manager,
-    fromAddress,
-    toAddress,
-    sourceAsset,
-    sourceChain,
-    targetAsset,
-    targetChain,
-    sourceToken,
-    minimumTransferAmount: isMinimumTransferAmountLoading
-      ? undefined
-      : minimumTransferAmount,
-    slippageBps: autoSlippage ? undefined : slippage * 100,
-  });
+  const { fee, isFeeLoading, feeError, additiveFees } = useMaxButtonFeeEstimate(
+    {
+      manager,
+      fromAddress,
+      toAddress,
+      sourceAsset,
+      sourceChain,
+      targetAsset,
+      targetChain,
+      sourceToken,
+      minimumTransferAmount: isMinimumTransferAmountLoading
+        ? undefined
+        : minimumTransferAmount,
+      slippageBps: autoSlippage ? undefined : slippage * 100,
+    },
+  );
 
   const status = getSwapStatus(
     activeAccount,
@@ -375,6 +378,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         fee,
         isFeeLoading,
         feeError,
+        additiveFees,
       }}
     >
       {children}

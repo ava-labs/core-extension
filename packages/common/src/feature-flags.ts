@@ -65,6 +65,7 @@ export const DISABLED_FLAG_VALUES: FeatureFlags = {
   [FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS]: '4000', // 40%
   [FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS]: '2000', // 20%
   [FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS]: '2000', // 20%
+  [FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS]: '2000', // 20%
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.QUICK_SWAPS]: false,
@@ -140,6 +141,7 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   [FeatureVars.FUSION_BRIDGE_FEE_SAFETY_BPS]: '4000', // 40%
   [FeatureVars.FUSION_FEE_UNITS_MARGIN_BPS]: '2000', // 20%
   [FeatureVars.FUSION_TRANSFER_GAS_MARGIN_BPS]: '2000', // 20%
+  [FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS]: '2000', // 20%
   [FeatureGates.BALANCE_SERVICE_INTEGRATION]: false,
   [FeatureGates.LANGUAGES]: false,
   [FeatureGates.QUICK_SWAPS]: false,

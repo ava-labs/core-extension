@@ -7,6 +7,8 @@ import { FeatureVars, isCrossChainTransfer, isNativeToken } from '@core/types';
 import { getNativeBridgeFee } from './lib/extractBridgeFee';
 import { useFusionState } from '../../contexts';
 import { getBufferMultiplierFromBps } from '../../lib/getBufferMultiplierFromBps';
+import { QuoteFee } from '@avalabs/fusion-sdk';
+import { sumAdditiveFees } from '../../lib/sumAdditiveFees';
 
 /**
  * Observes the `useMaxAmount` state and the `fee` state,
@@ -16,6 +18,7 @@ export const useUpdateToMaxAmount = (
   fee: bigint | undefined,
   isFeeLoading: boolean,
   feeError: Error | null,
+  additiveFees: QuoteFee[],
 ) => {
   const { selectFeatureFlag } = useFeatureFlagContext();
   const { useMaxAmount, sourceToken, updateQuery, selectedQuote } =
@@ -42,17 +45,27 @@ export const useUpdateToMaxAmount = (
           )
         : 0n;
 
+    const additiveFeesAmount = sumAdditiveFees(
+      sourceToken,
+      additiveFees,
+      getBufferMultiplierFromBps(
+        selectFeatureFlag(FeatureVars.FUSION_ADDITIVE_FEES_BUFFER_BPS),
+      ),
+    );
+
     const feePaddingFactor = getBufferMultiplierFromBps(
       selectFeatureFlag(FeatureVars.FUSION_MAX_AMOUNT_GAS_SAFETY_BPS),
     );
-    const paddedFee = bigintToBig(fee, sourceToken.decimals).mul(
-      feePaddingFactor,
+    const paddedFee = bigToBigInt(
+      bigintToBig(fee, sourceToken.decimals).mul(feePaddingFactor),
+      sourceToken.decimals,
     );
-    const maxAmount = isNativeToken(sourceToken)
-      ? sourceToken.balance -
-        bigToBigInt(paddedFee, sourceToken.decimals) -
-        bridgeFee
-      : sourceToken.balance;
+
+    const maxAmount =
+      sourceToken.balance -
+      additiveFeesAmount -
+      (isNativeToken(sourceToken) ? bridgeFee + paddedFee : 0n);
+
     const fromAmount = bigIntToString(
       maxAmount < 0n ? 0n : maxAmount,
       sourceToken.decimals,
@@ -68,5 +81,6 @@ export const useUpdateToMaxAmount = (
     updateQuery,
     selectedQuote,
     selectFeatureFlag,
+    additiveFees,
   ]);
 };

@@ -73,6 +73,7 @@ export enum FeatureVars {
   FUSION_BRIDGE_FEE_SAFETY_BPS = 'fusion-bridge-fee-safety-bps',
   FUSION_FEE_UNITS_MARGIN_BPS = 'fusion-fee-units-margin-bps',
   FUSION_TRANSFER_GAS_MARGIN_BPS = 'fusion-transfer-gas-margin-bps',
+  FUSION_ADDITIVE_FEES_BUFFER_BPS = 'fusion-additive-fees-buffer-bps',
 }
 
 export enum FeatureFlagEvents {
