@@ -67,5 +67,18 @@ export const useMaxButtonFeeEstimate = ({
     skipFetching,
   );
 
-  return useNativeFeeEstimate(manager, selectedQuote);
+  const { fee, isFeeLoading, feeError } = useNativeFeeEstimate(
+    manager,
+    selectedQuote,
+  );
+
+  return {
+    fee,
+    additiveFees:
+      selectedQuote?.fees.filter(
+        ({ fundingModel }) => fundingModel === 'additive',
+      ) ?? [],
+    isFeeLoading,
+    feeError,
+  };
 };

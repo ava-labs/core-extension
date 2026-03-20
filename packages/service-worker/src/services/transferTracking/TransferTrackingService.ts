@@ -4,6 +4,9 @@ import {
   Transfer,
   TransferManager,
   ServiceInitializer,
+  CompletedTransfer,
+  RefundedTransfer,
+  FailedTransfer,
 } from '@avalabs/fusion-sdk';
 import { wait } from '@avalabs/core-utils-sdk';
 import { BitcoinProvider } from '@avalabs/core-wallets-sdk';
@@ -14,8 +17,11 @@ import {
   FeatureFlagEvents,
   FeatureFlags,
   FeatureGates,
+  isCompletedTransfer,
   isConcludedTransfer,
+  isCrossChainTransfer,
   isFailedTransfer,
+  isRefundedTransfer,
   isTransferInProgress,
   TrackedTransfers,
   UnifiedTransferSigners,
@@ -26,6 +32,7 @@ import {
   Monitoring,
   getServiceInitializer,
   getEnabledTransferServices,
+  getTransferTxHash,
 } from '@core/common';
 
 import { NetworkService } from '../network/NetworkService';
@@ -40,6 +47,7 @@ import {
   TransferTrackingStorageState,
   UNIFIED_TRANSFER_TRACKED_FLAGS,
 } from './types';
+import { AnalyticsServicePosthog } from '../analytics/AnalyticsServicePosthog';
 
 @singleton()
 export class TransferTrackingService implements OnStorageReady {
@@ -61,6 +69,7 @@ export class TransferTrackingService implements OnStorageReady {
     private networkService: NetworkService,
     private storageService: StorageService,
     private featureFlagService: FeatureFlagService,
+    private posthogAnalyticsService: AnalyticsServicePosthog,
   ) {
     this.#flagStates = this.#getTrackedFlags(
       this.featureFlagService.featureFlags,
@@ -256,9 +265,13 @@ export class TransferTrackingService implements OnStorageReady {
     });
 
     result
-      .then((completedTransfer) =>
-        this.updatePendingTransfer(completedTransfer),
-      )
+      .then((_transfer) => {
+        this.updatePendingTransfer(_transfer);
+
+        if (isConcludedTransfer(_transfer)) {
+          this.#captureAnalytics(_transfer);
+        }
+      })
       .catch((err) => {
         Monitoring.sentryCaptureException(
           err,
@@ -268,8 +281,8 @@ export class TransferTrackingService implements OnStorageReady {
       });
   }
 
-  async removeTrackedTransfer(txHash: string) {
-    delete this.#state.trackedTransfers[txHash];
+  async removeTrackedTransfer(transferId: string) {
+    delete this.#state.trackedTransfers[transferId];
 
     this.#saveState({ ...this.#state });
   }
@@ -303,6 +316,38 @@ export class TransferTrackingService implements OnStorageReady {
     });
   }
 
+  #captureAnalytics(
+    transfer: CompletedTransfer | RefundedTransfer | FailedTransfer,
+  ) {
+    const properties = {
+      sourceAddress: transfer.fromAddress,
+      targetAddress: transfer.toAddress,
+      sourceChainId: transfer.sourceChain.chainId,
+      targetChainId: transfer.targetChain.chainId,
+      sourceTxHash: getTransferTxHash('source', transfer),
+      targetTxHash: getTransferTxHash('target', transfer),
+      ...(isFailedTransfer(transfer) && {
+        errorCode: transfer.errorCode,
+        errorReason: transfer.errorReason,
+      }),
+      ...(isRefundedTransfer(transfer) && {
+        refundTxHash: getTransferTxHash('refund', transfer),
+      }),
+    };
+    const windowId = crypto.randomUUID();
+    const eventName = isCompletedTransfer(transfer)
+      ? 'SwapSuccessful'
+      : isFailedTransfer(transfer)
+        ? 'SwapFailed'
+        : 'SwapRefunded';
+
+    this.posthogAnalyticsService.captureEncryptedEvent({
+      name: eventName,
+      windowId,
+      properties,
+    });
+  }
+
   async updatePendingTransfer(transfer: Transfer, untrack?: () => void) {
     if (isFailedTransfer(transfer)) {
       Monitoring.sentryCaptureException(
@@ -311,6 +356,11 @@ export class TransferTrackingService implements OnStorageReady {
         ),
         Monitoring.SentryExceptionTypes.UNIFIED_TRANSFER,
       );
+    }
+
+    // Do not persist single-chain transfers, as they're rather quick.
+    if (!isCrossChainTransfer(transfer)) {
+      return;
     }
 
     this.#saveState({

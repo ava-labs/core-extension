@@ -13,7 +13,7 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote, TransferManager } from '@avalabs/fusion-sdk';
+import { Quote, TransferManager, QuoteFee } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
@@ -28,6 +28,7 @@ import {
   Monitoring,
   resolve,
   stringToBigint,
+  getTransferTxHash,
 } from '@core/common';
 import {
   useAccountsContext,
@@ -89,6 +90,7 @@ type FusionState = QueryState &
     transfer: (specificQuote?: Quote) => Promise<void>;
     status: SwapStatus;
     quotesStatus: QuoteStreamingStatus;
+    additiveFees: QuoteFee[];
   };
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
@@ -219,7 +221,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
   );
 
   const transfer = useCallback(
-    async (specificQuote?: Quote) => {
+    async (specificQuote?: Quote, autoRetryAttempt = 0) => {
       if (!manager) {
         throw new Error('Manager or quote not found');
       }
@@ -257,17 +259,23 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           },
         });
 
-        if (isCrossChainTransfer(transferObject)) {
-          await trackTransfer(transferObject);
-          replace(`/fusion-transfer/${transferObject.id}`);
-          return;
-        }
-
         captureEncrypted('SwapConfirmed', {
-          address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId,
+          sourceAddress: fromAddress,
+          targetAddress: toAddress,
+          sourceChainId: quoteToUse.sourceChain.chainId,
+          targetChainId: quoteToUse.targetChain.chainId,
+          sourceTxHash: getTransferTxHash('source', transferObject),
+          quoteSelectionMode: isUserSelectedQuote ? 'manual' : 'auto',
+          autoRetryAttempt: isUserSelectedQuote ? undefined : autoRetryAttempt,
         });
-        replace('/');
+
+        await trackTransfer(transferObject);
+
+        replace(
+          isCrossChainTransfer(transferObject)
+            ? `/fusion-transfer/${transferObject.id}`
+            : '/',
+        );
       } catch (err) {
         if (isUserRejectionError(err)) {
           setIsConfirming(false);
@@ -282,7 +290,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
           const nextQuote = quotes[currentQuoteIndex + 1];
 
           if (nextQuote) {
-            return transfer(nextQuote);
+            return transfer(nextQuote, currentQuoteIndex + 1);
           }
         }
 
@@ -299,16 +307,12 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         toast.error(title, {
           description: hint,
         });
-
-        captureEncrypted('SwapFailed', {
-          address: fromAddress,
-          chainId: quoteToUse.sourceChain.chainId,
-        });
       }
     },
     [
       manager,
       fromAddress,
+      toAddress,
       slippage,
       replace,
       captureEncrypted,
@@ -323,20 +327,22 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
-  const { fee, isFeeLoading, feeError } = useMaxButtonFeeEstimate({
-    manager,
-    fromAddress,
-    toAddress,
-    sourceAsset,
-    sourceChain,
-    targetAsset,
-    targetChain,
-    sourceToken,
-    minimumTransferAmount: isMinimumTransferAmountLoading
-      ? undefined
-      : minimumTransferAmount,
-    slippageBps: autoSlippage ? undefined : slippage * 100,
-  });
+  const { fee, isFeeLoading, feeError, additiveFees } = useMaxButtonFeeEstimate(
+    {
+      manager,
+      fromAddress,
+      toAddress,
+      sourceAsset,
+      sourceChain,
+      targetAsset,
+      targetChain,
+      sourceToken,
+      minimumTransferAmount: isMinimumTransferAmountLoading
+        ? undefined
+        : minimumTransferAmount,
+      slippageBps: autoSlippage ? undefined : slippage * 100,
+    },
+  );
 
   const status = getSwapStatus(
     activeAccount,
@@ -386,6 +392,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         fee,
         isFeeLoading,
         feeError,
+        additiveFees,
       }}
     >
       {children}
