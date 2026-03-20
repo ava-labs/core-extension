@@ -3,11 +3,16 @@ import { NetworkWithCaipId, TxHistoryItem } from '@core/types';
 import { NetworkVMType } from '@avalabs/vm-module-types';
 import { FC, Fragment } from 'react';
 import { useGroupedHistory } from '../../../hooks';
-import { List, ListItem, Typography } from '@avalabs/k2-alpine';
+import {
+  CircularProgress,
+  List,
+  ListItem,
+  Stack,
+  Typography,
+} from '@avalabs/k2-alpine';
 import { EmptyState } from '../../EmptyState';
 import * as Styled from './Styled';
 import { TransactionItem } from './TransactionItem';
-import { TransactionListSkeleton } from '../Skeleton';
 
 type Props = {
   filter: ActivityFilter;
@@ -25,7 +30,11 @@ export const HistoryList: FC<Props> = ({
     filter,
   );
   if (transactionHistory === null) {
-    return <TransactionListSkeleton />;
+    return (
+      <Stack alignItems="center" justifyContent="center" pt={10}>
+        <CircularProgress size={24} />
+      </Stack>
+    );
   }
 
   if (transactionHistory.length === 0) {
