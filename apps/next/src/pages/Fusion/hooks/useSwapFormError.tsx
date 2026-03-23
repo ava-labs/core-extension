@@ -1,5 +1,4 @@
 import { useTranslation, Trans } from 'react-i18next';
-import { useFusionState } from '../contexts';
 import { bigintToBig, stringToBigint } from '@core/common';
 import { FeatureVars, isNativeToken } from '@core/types';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
@@ -8,6 +7,7 @@ import { ComponentProps } from 'react';
 import { sumAdditiveFees } from '../lib/sumAdditiveFees';
 import { getBufferMultiplierFromBps } from '../lib/getBufferMultiplierFromBps';
 import { useFeatureFlagContext } from '@core/ui';
+import { FusionState } from '../types';
 
 const collapsedTokenAmountProps: Omit<
   ComponentProps<typeof CollapsedTokenAmount>,
@@ -18,22 +18,34 @@ const collapsedTokenAmountProps: Omit<
   showApproximationSign: false,
 };
 
-export const useSwapFormError = () => {
+type UseSwapFormErrorArgs = Pick<
+  FusionState,
+  | 'debouncedUserAmount'
+  | 'quotes'
+  | 'quotesStatus'
+  | 'sourceToken'
+  | 'fee'
+  | 'isFeeLoading'
+  | 'feeError'
+  | 'minimumTransferAmount'
+  | 'additiveFees'
+  | 'useMaxAmount'
+>;
+
+export const useSwapFormError = ({
+  debouncedUserAmount,
+  quotes,
+  quotesStatus,
+  sourceToken,
+  fee,
+  isFeeLoading,
+  feeError,
+  minimumTransferAmount,
+  additiveFees,
+  useMaxAmount,
+}: UseSwapFormErrorArgs) => {
   const { t } = useTranslation();
   const { selectFeatureFlag } = useFeatureFlagContext();
-
-  const {
-    debouncedUserAmount,
-    quotes,
-    quotesStatus,
-    sourceToken,
-    fee,
-    isFeeLoading,
-    feeError,
-    minimumTransferAmount,
-    additiveFees,
-    useMaxAmount,
-  } = useFusionState();
 
   if (!debouncedUserAmount || isFeeLoading || useMaxAmount) {
     return '';

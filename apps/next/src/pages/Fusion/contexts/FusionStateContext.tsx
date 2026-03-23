@@ -13,16 +13,11 @@ import {
   useSettingsContext,
 } from '@core/ui';
 import { useHistory } from 'react-router-dom';
-import { Quote, TransferManager, QuoteFee } from '@avalabs/fusion-sdk';
+import { Quote } from '@avalabs/fusion-sdk';
 import { bigIntToString } from '@avalabs/core-utils-sdk';
 import { useDebouncedValue } from '@tanstack/react-pacer';
 
-import {
-  Account,
-  FeatureVars,
-  FungibleTokenBalance,
-  isCrossChainTransfer,
-} from '@core/types';
+import { FeatureVars, isCrossChainTransfer } from '@core/types';
 import {
   isUserRejectionError,
   Monitoring,
@@ -38,12 +33,8 @@ import {
   useTransferTrackingContext,
 } from '@core/ui';
 
-import { useSwapQuery } from '../hooks';
-import {
-  usePriceImpact,
-  type PriceImpactAvailability,
-  type PriceImpactSeverity,
-} from '../hooks/usePriceImpact';
+import { useSwapFormError, useSwapQuery } from '../hooks';
+import { usePriceImpact } from '../hooks/usePriceImpact';
 import { shouldRetryWithNextQuote } from '../lib/swapErrors';
 import {
   useUserAddresses,
@@ -58,42 +49,9 @@ import {
   useSlippageTolerance,
 } from './hooks';
 import { getSwapStatus } from './lib/getSwapStatus';
-import { EstimatedFeeResult, QuoteStreamingStatus, SwapStatus } from '../types';
+import { FusionState } from '../types';
 import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount';
 import { useMaxButtonFeeEstimate } from './hooks/useMaxButtonFeeEstimate';
-
-type QueryState = Omit<ReturnType<typeof useSwapQuery>, 'update' | 'clear'> & {
-  updateQuery: ReturnType<typeof useSwapQuery>['update'];
-};
-type FusionState = QueryState &
-  EstimatedFeeResult & {
-    debouncedUserAmount: string;
-    manager: TransferManager | undefined;
-    sourceTokenList: FungibleTokenBalance[];
-    targetTokenList: FungibleTokenBalance[];
-    sourceToken: FungibleTokenBalance | undefined;
-    targetToken: FungibleTokenBalance | undefined;
-    account?: Account;
-    isConfirming: boolean;
-    slippage: number;
-    setSlippage: (slippage: number) => void;
-    autoSlippage: boolean;
-    setAutoSlippage: (autoSlippage: boolean) => void;
-    minimumTransferAmount: bigint | undefined;
-    toAmount?: string;
-    priceImpact: number | undefined;
-    priceImpactSeverity: PriceImpactSeverity;
-    priceImpactAvailability: PriceImpactAvailability;
-    userQuote: Quote | null;
-    bestQuote: Quote | null;
-    selectedQuote: Quote | null;
-    quotes: Quote[];
-    selectQuoteById: (quoteId: string | null) => void;
-    transfer: (specificQuote?: Quote) => Promise<void>;
-    status: SwapStatus;
-    quotesStatus: QuoteStreamingStatus;
-    additiveFees: QuoteFee[];
-  };
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -354,6 +312,19 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     useMaxAmount,
   );
 
+  const formError = useSwapFormError({
+    debouncedUserAmount,
+    quotes,
+    quotesStatus,
+    sourceToken,
+    fee,
+    isFeeLoading,
+    feeError,
+    minimumTransferAmount,
+    additiveFees,
+    useMaxAmount,
+  });
+
   return (
     <FusionStateContext.Provider
       value={{
@@ -393,6 +364,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         isFeeLoading,
         feeError,
         additiveFees,
+        formError,
       }}
     >
       {children}
