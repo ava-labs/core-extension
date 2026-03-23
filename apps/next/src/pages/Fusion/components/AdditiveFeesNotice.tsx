@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Typography, useTheme } from '@avalabs/k2-alpine';
+import { Typography } from '@avalabs/k2-alpine';
 
 type Props = {
   sum: string;
@@ -8,7 +8,6 @@ type Props = {
 };
 
 export const AdditiveFeesNotice: FC<Props> = ({ sum, symbol }) => {
-  const theme = useTheme();
   const { t } = useTranslation();
 
   return (
@@ -17,7 +16,7 @@ export const AdditiveFeesNotice: FC<Props> = ({ sum, symbol }) => {
       color="text.secondary"
       textAlign="center"
       variant="caption"
-      minHeight={theme.typography.caption.lineHeight}
+      minHeight="1lh"
     >
       {sum &&
         symbol &&

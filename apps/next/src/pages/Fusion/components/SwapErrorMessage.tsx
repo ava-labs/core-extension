@@ -1,22 +1,18 @@
 import { FC } from 'react';
-import { Typography, useTheme } from '@avalabs/k2-alpine';
+import { Typography } from '@avalabs/k2-alpine';
 
 type Props = {
   formError: string | React.ReactNode;
 };
 
-export const SwapErrorMessage: FC<Props> = ({ formError }) => {
-  const theme = useTheme();
-
-  return (
-    <Typography
-      component="p"
-      color="error.main"
-      textAlign="center"
-      variant="caption"
-      minHeight={theme.typography.caption.lineHeight}
-    >
-      {formError}
-    </Typography>
-  );
-};
+export const SwapErrorMessage: FC<Props> = ({ formError }) => (
+  <Typography
+    component="p"
+    color="error.main"
+    textAlign="center"
+    variant="caption"
+    minHeight="1lh"
+  >
+    {formError}
+  </Typography>
+);
