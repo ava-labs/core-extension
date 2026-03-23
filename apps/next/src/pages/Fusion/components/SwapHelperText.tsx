@@ -14,7 +14,8 @@ export const SwapHelperText = () => {
   const { formError } = useFusionState();
   const { sum, symbol } = useAdditiveFeesAmount();
   const isFormErrorVisible = Boolean(formError);
-  const isAdditiveFeesVisible = !isFormErrorVisible && Boolean(sum && symbol);
+  const isAdditiveFeesVisible =
+    !isFormErrorVisible && Boolean(sum) && Boolean(symbol);
 
   return (
     <Stack>

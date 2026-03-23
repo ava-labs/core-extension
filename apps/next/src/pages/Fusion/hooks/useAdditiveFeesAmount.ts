@@ -2,15 +2,24 @@ import { bigIntToString } from '@avalabs/core-utils-sdk';
 
 import { useFusionState } from '../contexts';
 import { sumAdditiveFees } from '../lib/sumAdditiveFees';
+import { getAdditiveFees } from '../lib/getAdditiveFees';
+
+const NO_FEES = {
+  sum: '',
+  symbol: '',
+};
 
 export const useAdditiveFeesAmount = () => {
-  const { sourceToken, additiveFees } = useFusionState();
+  const { sourceToken, selectedQuote } = useFusionState();
 
-  if (!sourceToken || additiveFees.length === 0) {
-    return {
-      sum: '',
-      symbol: '',
-    };
+  if (!selectedQuote || !sourceToken) {
+    return NO_FEES;
+  }
+
+  const additiveFees = getAdditiveFees(selectedQuote);
+
+  if (additiveFees.length === 0) {
+    return NO_FEES;
   }
 
   return {

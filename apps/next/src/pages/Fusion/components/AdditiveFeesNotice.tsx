@@ -19,10 +19,12 @@ export const AdditiveFeesNotice: FC<Props> = ({ sum, symbol }) => {
       variant="caption"
       minHeight={theme.typography.caption.lineHeight}
     >
-      {t('+{{sum}} {{symbol}} for network and bridge fees', {
-        sum,
-        symbol,
-      })}
+      {sum &&
+        symbol &&
+        t('+{{sum}} {{symbol}} for network and bridge fees', {
+          sum,
+          symbol,
+        })}
     </Typography>
   );
 };
