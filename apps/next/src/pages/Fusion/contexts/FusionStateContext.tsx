@@ -52,6 +52,7 @@ import { getSwapStatus } from './lib/getSwapStatus';
 import { FusionState } from '../types';
 import { useFusionMinimumTransferAmount } from './hooks/useMinimumTransferAmount';
 import { useMaxButtonFeeEstimate } from './hooks/useMaxButtonFeeEstimate';
+import { useMaxSwapAmount } from './hooks/useMaxSwapAmount';
 
 const FusionStateContext = createContext<FusionState | undefined>(undefined);
 
@@ -81,7 +82,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     toId,
     fromQuery,
     toQuery,
-    useMaxAmount,
   } = useSwapQuery();
 
   const transferMarginBps = Number(
@@ -284,7 +284,7 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     ],
   );
 
-  const { fee, isFeeLoading, feeError, additiveFees } = useMaxButtonFeeEstimate(
+  const { fee, isFeeLoading, feeError, minimalQuote } = useMaxButtonFeeEstimate(
     {
       manager,
       fromAddress,
@@ -301,6 +301,13 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     },
   );
 
+  const { isLoading: isMaxSwapAmountLoading, maxAmount: maxSwapAmount } =
+    useMaxSwapAmount({
+      fee,
+      sourceToken,
+      minimalQuote,
+    });
+
   const status = getSwapStatus(
     activeAccount,
     isBalancesLoading,
@@ -309,7 +316,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     sourceTokenList,
     targetTokenList,
     selectedQuote,
-    useMaxAmount,
   );
 
   const formError = useSwapFormError({
@@ -321,8 +327,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
     isFeeLoading,
     feeError,
     minimumTransferAmount,
-    additiveFees,
-    useMaxAmount,
+    isMaxSwapAmountLoading,
+    maxSwapAmount,
+    minimalQuote,
   });
 
   return (
@@ -333,7 +340,6 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         toId,
         fromQuery,
         toQuery,
-        useMaxAmount,
         manager,
         userAmount,
         debouncedUserAmount,
@@ -363,7 +369,9 @@ export const FusionStateContextProvider: FC<{ children: ReactNode }> = ({
         fee,
         isFeeLoading,
         feeError,
-        additiveFees,
+        maxSwapAmount,
+        isMaxSwapAmountLoading,
+        minimalQuote,
         formError,
       }}
     >

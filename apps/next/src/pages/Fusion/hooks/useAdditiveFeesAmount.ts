@@ -1,8 +1,7 @@
-import { bigIntToString } from '@avalabs/core-utils-sdk';
-
 import { useFusionState } from '../contexts';
 import { sumAdditiveFees } from '../lib/sumAdditiveFees';
 import { getAdditiveFees } from '../lib/getAdditiveFees';
+import { bigintToBig } from '@core/common';
 
 const NO_FEES = {
   sum: '',
@@ -23,10 +22,10 @@ export const useAdditiveFeesAmount = () => {
   }
 
   return {
-    sum: bigIntToString(
+    sum: bigintToBig(
       sumAdditiveFees(sourceToken, additiveFees, 1),
       sourceToken.decimals,
-    ),
+    ).toFixed(5),
     symbol: sourceToken.symbol,
   };
 };

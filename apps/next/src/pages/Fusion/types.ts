@@ -2,7 +2,6 @@ import {
   BtcSigner,
   EvmSignerWithMessage,
   Quote,
-  QuoteFee,
   TransferManager,
 } from '@avalabs/fusion-sdk';
 
@@ -86,6 +85,8 @@ export type FusionState = QueryState &
     transfer: (specificQuote?: Quote) => Promise<void>;
     status: SwapStatus;
     quotesStatus: QuoteStreamingStatus;
-    additiveFees: QuoteFee[];
+    maxSwapAmount: bigint;
+    isMaxSwapAmountLoading: boolean;
+    minimalQuote: Quote | null;
     formError: string | React.ReactNode;
   };
