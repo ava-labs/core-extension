@@ -5,13 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { TokenType, TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
-import { useNetworkContext } from '@core/ui/src/contexts/NetworkProvider';
-import {
-  buildNetworkLookupKeys,
-  getAllAddressesForAccount,
-  getEthNativeSymbolForKnownChainId,
-  isNftTokenType,
-} from '@core/common';
+import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
 import { useNativeSymbolForTransactionChain } from '@/hooks/useNativeSymbolForTransactionChain';
 import {
   isCctImportTransaction,
@@ -165,8 +159,7 @@ export interface Props {
 
 export const TransactionDescription: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
-  const { getNetwork } = useNetworkContext();
-  const approvalStyleNativeSymbol = useNativeSymbolForTransactionChain(
+  const nativeSymbolForTxChain = useNativeSymbolForTransactionChain(
     transaction.chainId,
   );
   const {
@@ -221,33 +214,9 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     return transaction.isSender ? outgoing : incoming;
   }, [transaction, userAddresses]);
 
-  const networkNativeSymbol = useMemo(() => {
-    const trimmedApproval = approvalStyleNativeSymbol?.trim();
-    if (trimmedApproval) {
-      return trimmedApproval;
-    }
-    const keys = buildNetworkLookupKeys(transaction.chainId);
-    for (const key of keys) {
-      const network = getNetwork(key);
-      const symbol = network?.networkToken?.symbol?.trim();
-      if (symbol) {
-        return symbol;
-      }
-    }
-    for (const key of keys) {
-      if (typeof key === 'number') {
-        const fallback = getEthNativeSymbolForKnownChainId(key);
-        if (fallback) {
-          return fallback;
-        }
-      }
-    }
-    return undefined;
-  }, [approvalStyleNativeSymbol, getNetwork, transaction.chainId]);
-
   const symbolForDisplay = useMemo(
-    () => displayTokenSymbol(mainToken, networkNativeSymbol),
-    [mainToken, networkNativeSymbol],
+    () => displayTokenSymbol(mainToken, nativeSymbolForTxChain),
+    [mainToken, nativeSymbolForTxChain],
   );
 
   const amount = useMemo(
@@ -353,11 +322,11 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
             values={{
               sourceSymbol: displayTokenSymbol(
                 sourceToken,
-                networkNativeSymbol,
+                nativeSymbolForTxChain,
               ),
               targetSymbol: displayTokenSymbol(
                 targetToken,
-                networkNativeSymbol,
+                nativeSymbolForTxChain,
               ),
             }}
             components={{ sourceAmount }}

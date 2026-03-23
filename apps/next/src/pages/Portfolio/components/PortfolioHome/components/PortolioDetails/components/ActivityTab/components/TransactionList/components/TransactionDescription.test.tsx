@@ -13,7 +13,26 @@ import translationEn from '@/localization/locales/en/translation.json';
 import { TransactionDescription } from './TransactionDescription';
 
 jest.mock('@/hooks/useNativeSymbolForTransactionChain', () => ({
-  useNativeSymbolForTransactionChain: () => undefined,
+  useNativeSymbolForTransactionChain: (
+    chainId: string | number | undefined,
+  ): string | undefined => {
+    const common =
+      jest.requireMock<typeof import('@core/common')>('@core/common');
+    if (chainId === undefined || String(chainId).trim() === '') {
+      return undefined;
+    }
+    const { buildNetworkLookupKeys } =
+      jest.requireActual<typeof import('@core/common')>('@core/common');
+    for (const key of buildNetworkLookupKeys(chainId)) {
+      if (typeof key === 'number') {
+        const sym = common.getEthNativeSymbolForKnownChainId(key);
+        if (sym) {
+          return sym;
+        }
+      }
+    }
+    return undefined;
+  },
 }));
 
 const SWAP_I18N_KEY =
