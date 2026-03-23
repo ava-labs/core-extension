@@ -1,15 +1,15 @@
 import {
-  DAppRequestHandler,
+  AnalyticsConsent,
+  CURRENCIES,
   DAppProviderRequest,
+  DAppRequestHandler,
   JsonRpcRequestParams,
   Languages,
-  CURRENCIES,
-  AnalyticsConsent,
 } from '@core/types';
-import { injectable } from 'tsyringe';
-import { SettingsService } from '../SettingsService';
-import { z } from 'zod';
 import { ethErrors } from 'eth-rpc-errors';
+import { injectable } from 'tsyringe';
+import { z } from 'zod';
+import { SettingsService } from '../SettingsService';
 
 const SettingsSchema = z.object({
   language: z.nativeEnum(Languages).optional(),
@@ -50,7 +50,7 @@ export interface WalletSetSettingsResponse {
   language:
     | 'en'
     | 'de-DE'
-    | 'es-EM'
+    | 'es-ES'
     | 'fr-FR'
     | 'ja-JP'
     | 'hi-IN'
