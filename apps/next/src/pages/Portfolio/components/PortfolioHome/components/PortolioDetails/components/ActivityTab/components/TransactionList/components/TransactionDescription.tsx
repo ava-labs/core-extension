@@ -43,6 +43,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     ),
     [mainToken],
   );
+
   if (transaction.bridgeAnalysis.isBridgeTx) {
     return (
       <TransactionDescriptionContainer>
@@ -229,11 +230,14 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   }
 };
 
-const StyledTypography = styled(Typography)({
+const DescriptionText = styled(Typography)({
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
+  minWidth: 0,
 });
 
 const TransactionDescriptionContainer = ({
@@ -242,12 +246,8 @@ const TransactionDescriptionContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <StyledTypography
-      variant="body3"
-      component="span"
-      justifyContent="flex-start"
-    >
+    <DescriptionText variant="body3" component="div">
       {children}
-    </StyledTypography>
+    </DescriptionText>
   );
 };

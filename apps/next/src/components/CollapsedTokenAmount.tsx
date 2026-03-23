@@ -86,6 +86,7 @@ export const CollapsedTokenAmount = ({
       showTooltip,
       amount,
       <Stack
+        alignItems="center"
         direction="row"
         width="100%"
         justifyContent="flex-end"

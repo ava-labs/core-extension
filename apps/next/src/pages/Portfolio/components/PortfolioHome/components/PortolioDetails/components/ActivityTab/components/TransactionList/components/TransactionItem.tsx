@@ -24,7 +24,8 @@ type Props = {
 const TIME_FORMAT = 'HH:mm a';
 
 const listItemSx: SxProps<Theme> = (theme) => ({
-  height: 42,
+  alignItems: 'flex-start',
+  minHeight: 42,
   justifyContent: 'space-between',
   gap: theme.spacing(1.5),
   paddingInlineEnd: theme.spacing(3),
