@@ -10,9 +10,9 @@ const NO_FEES = {
 };
 
 export const useAdditiveFeesAmount = () => {
-  const { sourceToken, selectedQuote } = useFusionState();
+  const { debouncedUserAmount, sourceToken, selectedQuote } = useFusionState();
 
-  if (!selectedQuote || !sourceToken) {
+  if (!debouncedUserAmount || !selectedQuote || !sourceToken) {
     return NO_FEES;
   }
 
