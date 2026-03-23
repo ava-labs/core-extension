@@ -148,9 +148,20 @@ export function NetworkContextProvider({ children }: PropsWithChildren) {
         return buildCoreEth(getNetwork(ChainId.AVALANCHE_TESTNET_ID));
       }
 
+      const normalizedNumericChainId =
+        typeof lookupChainId === 'string' && /^\d+$/.test(lookupChainId)
+          ? Number.parseInt(lookupChainId, 10)
+          : typeof lookupChainId === 'string' &&
+              /^0x[0-9a-fA-F]+$/i.test(lookupChainId)
+            ? Number.parseInt(lookupChainId, 16)
+            : null;
+
       return networks.find(
         ({ chainId, caipId }) =>
-          chainId === lookupChainId || caipId === lookupChainId,
+          chainId === lookupChainId ||
+          caipId === lookupChainId ||
+          (normalizedNumericChainId !== null &&
+            chainId === normalizedNumericChainId),
       );
     },
     [networks],

@@ -17,6 +17,12 @@ type UseTokensWithBalanceOptions = {
   // string array of asset symbols that are to be excluded from the result
   disallowedAssets?: string[];
   network?: NetworkWithCaipId;
+  /**
+   * When true, only `network` is used (no fallback to the active network).
+   * Use for UI that must reflect a specific chain (e.g. activity rows) so
+   * `useNativeToken({ network })`-style resolution matches that chain.
+   */
+  restrictToExplicitNetwork?: boolean;
 };
 
 const nativeTokensFirst = (tokens: TokenWithBalance[]): TokenWithBalance[] =>
@@ -51,20 +57,42 @@ export const useTokensWithBalances = (
     forceShowTokensWithoutBalances = false,
     disallowedAssets = DISALLOWED_ASSETS,
     network,
+    restrictToExplicitNetwork = false,
   } = options;
+
+  const selectedNetwork = useMemo(
+    () => (restrictToExplicitNetwork ? network : (network ?? activeNetwork)),
+    [restrictToExplicitNetwork, network, activeNetwork],
+  );
+
+  const tokenVisibilityCaipId = useMemo(
+    () =>
+      restrictToExplicitNetwork
+        ? selectedNetwork?.caipId
+        : activeNetwork?.caipId,
+    [restrictToExplicitNetwork, selectedNetwork?.caipId, activeNetwork?.caipId],
+  );
+
+  const customTokenChainId = useMemo(
+    () =>
+      restrictToExplicitNetwork && network?.chainId != null
+        ? network.chainId
+        : activeNetwork?.chainId,
+    [restrictToExplicitNetwork, network?.chainId, activeNetwork?.chainId],
+  );
 
   const customTokensWithZeroBalance: {
     [address: string]: TokenWithBalance;
   } = useMemo(() => {
-    if (!activeNetwork?.chainId) {
+    if (!customTokenChainId) {
       return {};
     }
-    const customTokensForActiveNetwork = customTokens?.[activeNetwork.chainId];
-    if (!customTokensForActiveNetwork) {
+    const customTokensForNetwork = customTokens?.[customTokenChainId];
+    if (!customTokensForNetwork) {
       return {};
     }
 
-    return Object.entries(customTokensForActiveNetwork).reduce<{
+    return Object.entries(customTokensForNetwork).reduce<{
       [address: string]: TokenWithBalance;
     }>((acc, [address, tokenData]) => {
       acc[address] = {
@@ -77,7 +105,7 @@ export const useTokensWithBalances = (
 
       return acc;
     }, {});
-  }, [activeNetwork?.chainId, customTokens]);
+  }, [customTokenChainId, customTokens]);
 
   const visibleTokens = useCallback(
     (tokens: TokenWithBalance[]) => {
@@ -86,15 +114,10 @@ export const useTokensWithBalances = (
       }
 
       return tokens.filter((token) =>
-        getTokenVisibility(token, activeNetwork?.caipId),
+        getTokenVisibility(token, tokenVisibilityCaipId),
       );
     },
-    [getTokenVisibility, options.forceHiddenTokens, activeNetwork?.caipId],
-  );
-
-  const selectedNetwork = useMemo(
-    () => network ?? activeNetwork,
-    [network, activeNetwork],
+    [getTokenVisibility, options.forceHiddenTokens, tokenVisibilityCaipId],
   );
 
   useEffect(() => {

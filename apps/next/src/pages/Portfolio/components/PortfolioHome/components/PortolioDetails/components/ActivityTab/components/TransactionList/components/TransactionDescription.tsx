@@ -2,14 +2,162 @@ import { styled, Typography } from '@avalabs/k2-alpine';
 import { CollapsedTokenAmount } from '@/components/CollapsedTokenAmount';
 import { TxHistoryItem } from '@core/types';
 import { Trans, useTranslation } from 'react-i18next';
-import { TransactionType } from '@avalabs/vm-module-types';
+import { TokenType, TransactionType } from '@avalabs/vm-module-types';
 import { FC, useMemo } from 'react';
 import { useAccountsContext } from '@core/ui/src/contexts/AccountsProvider';
-import { getAllAddressesForAccount, isNftTokenType } from '@core/common';
+import { useNetworkContext } from '@core/ui/src/contexts/NetworkProvider';
+import {
+  buildNetworkLookupKeys,
+  getAllAddressesForAccount,
+  getEthNativeSymbolForKnownChainId,
+  isNftTokenType,
+} from '@core/common';
+import { useNativeSymbolForTransactionChain } from '@/hooks/useNativeSymbolForTransactionChain';
 import {
   isCctImportTransaction,
   isCctTransaction,
 } from '../../../utils/cctTransaction';
+
+function isHexAddress(address: string): boolean {
+  return address.startsWith('0x') || address.startsWith('0X');
+}
+
+function addressMatchesUser(
+  transferAddress: string | undefined,
+  userAddresses: readonly string[],
+): boolean {
+  if (!transferAddress) {
+    return false;
+  }
+  return userAddresses.some((userAddr) => {
+    if (isHexAddress(transferAddress) && isHexAddress(userAddr)) {
+      return transferAddress.toLowerCase() === userAddr.toLowerCase();
+    }
+    return transferAddress === userAddr;
+  });
+}
+
+function shortenHexAddress(address: string): string {
+  const normalized = address.trim().toLowerCase();
+  if (!normalized.startsWith('0x') || normalized.length < 12) {
+    return address.trim();
+  }
+  return `${normalized.slice(0, 6)}…${normalized.slice(-4)}`;
+}
+
+function tokenHasContractAddress(
+  token: TxHistoryItem['tokens'][number],
+): token is TxHistoryItem['tokens'][number] & { address: string } {
+  return (
+    'address' in token &&
+    typeof token.address === 'string' &&
+    token.address.trim() !== ''
+  );
+}
+
+function displayTokenSymbol(
+  token: TxHistoryItem['tokens'][number] | undefined,
+  networkNativeSymbol: string | undefined,
+): string | undefined {
+  const trimmed = token?.symbol?.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+  const nativeFallback = networkNativeSymbol?.trim();
+  if (nativeFallback && token?.type === TokenType.NATIVE) {
+    return nativeFallback;
+  }
+  if (
+    nativeFallback &&
+    token &&
+    !isNftTokenType(token.type) &&
+    !tokenHasContractAddress(token)
+  ) {
+    return nativeFallback;
+  }
+  if (token && tokenHasContractAddress(token) && !isNftTokenType(token.type)) {
+    return shortenHexAddress(token.address);
+  }
+  return undefined;
+}
+
+function tokenIsIncomingToUser(
+  token: TxHistoryItem['tokens'][number],
+  transaction: TxHistoryItem,
+  userAddresses: readonly string[],
+): boolean {
+  if (addressMatchesUser(token.to?.address, userAddresses)) {
+    return true;
+  }
+  const toUnset = !token.to?.address;
+  if (
+    toUnset &&
+    token.type === TokenType.NATIVE &&
+    addressMatchesUser(transaction.to, userAddresses)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function tokenIsOutgoingFromUser(
+  token: TxHistoryItem['tokens'][number],
+  transaction: TxHistoryItem,
+  userAddresses: readonly string[],
+): boolean {
+  if (addressMatchesUser(token.from?.address, userAddresses)) {
+    return true;
+  }
+  const fromUnset = !token.from?.address;
+  if (
+    fromUnset &&
+    token.type === TokenType.NATIVE &&
+    addressMatchesUser(transaction.from, userAddresses)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+function pickIncomingToken(
+  tokens: TxHistoryItem['tokens'],
+  transaction: TxHistoryItem,
+  userAddresses: readonly string[],
+): TxHistoryItem['tokens'][number] | undefined {
+  if (tokens.length === 0) {
+    return undefined;
+  }
+  const first = tokens[0];
+  if (first === undefined) {
+    return undefined;
+  }
+  const candidates = tokens.filter((token) =>
+    tokenIsIncomingToUser(token, transaction, userAddresses),
+  );
+  const list = candidates.length > 0 ? candidates : [first];
+  const withSymbol = list.find((token) => token.symbol?.trim());
+  return withSymbol ?? first;
+}
+
+function pickOutgoingToken(
+  tokens: TxHistoryItem['tokens'],
+  transaction: TxHistoryItem,
+  userAddresses: readonly string[],
+): TxHistoryItem['tokens'][number] | undefined {
+  if (tokens.length === 0) {
+    return undefined;
+  }
+  const first = tokens[0];
+  if (first === undefined) {
+    return undefined;
+  }
+  const candidates = tokens.filter((token) =>
+    tokenIsOutgoingFromUser(token, transaction, userAddresses),
+  );
+  const list = candidates.length > 0 ? candidates : [first];
+  const withSymbol = list.find((token) => token.symbol?.trim());
+  return withSymbol ?? first;
+}
 
 export interface Props {
   transaction: TxHistoryItem;
@@ -17,6 +165,10 @@ export interface Props {
 
 export const TransactionDescription: FC<Props> = ({ transaction }) => {
   const { t } = useTranslation();
+  const { getNetwork } = useNetworkContext();
+  const approvalStyleNativeSymbol = useNativeSymbolForTransactionChain(
+    transaction.chainId,
+  );
   const {
     accounts: { active: activeAccount },
   } = useAccountsContext();
@@ -25,7 +177,78 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     () => (activeAccount ? getAllAddressesForAccount(activeAccount) : []),
     [activeAccount],
   );
-  const [mainToken] = transaction.tokens;
+
+  const mainToken = useMemo(() => {
+    const { tokens } = transaction;
+    if (tokens.length === 0) {
+      return undefined;
+    }
+
+    const first = tokens[0];
+    const incoming =
+      pickIncomingToken(tokens, transaction, userAddresses) ?? first;
+    const outgoing =
+      pickOutgoingToken(tokens, transaction, userAddresses) ?? first;
+
+    if (transaction.bridgeAnalysis.isBridgeTx) {
+      return first;
+    }
+
+    if (isCctTransaction(transaction)) {
+      return first;
+    }
+
+    switch (transaction.txType) {
+      case TransactionType.BRIDGE:
+        return first;
+      case TransactionType.SEND:
+        return outgoing;
+      case TransactionType.RECEIVE:
+        return incoming;
+      case TransactionType.TRANSFER:
+      case TransactionType.UNKNOWN:
+        if (
+          (first && isNftTokenType(first.type)) ||
+          transaction.isContractCall
+        ) {
+          return transaction.isSender ? outgoing : incoming;
+        }
+        break;
+      default:
+        break;
+    }
+
+    return transaction.isSender ? outgoing : incoming;
+  }, [transaction, userAddresses]);
+
+  const networkNativeSymbol = useMemo(() => {
+    const trimmedApproval = approvalStyleNativeSymbol?.trim();
+    if (trimmedApproval) {
+      return trimmedApproval;
+    }
+    const keys = buildNetworkLookupKeys(transaction.chainId);
+    for (const key of keys) {
+      const network = getNetwork(key);
+      const symbol = network?.networkToken?.symbol?.trim();
+      if (symbol) {
+        return symbol;
+      }
+    }
+    for (const key of keys) {
+      if (typeof key === 'number') {
+        const fallback = getEthNativeSymbolForKnownChainId(key);
+        if (fallback) {
+          return fallback;
+        }
+      }
+    }
+    return undefined;
+  }, [approvalStyleNativeSymbol, getNetwork, transaction.chainId]);
+
+  const symbolForDisplay = useMemo(
+    () => displayTokenSymbol(mainToken, networkNativeSymbol),
+    [mainToken, networkNativeSymbol],
+  );
 
   const amount = useMemo(
     () => (
@@ -48,7 +271,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
       <TransactionDescriptionContainer>
         <Trans
           i18nKey="<amount /> {{symbol}} bridged"
-          values={{ symbol: mainToken?.symbol }}
+          values={{ symbol: symbolForDisplay }}
           components={{ amount }}
         />
       </TransactionDescriptionContainer>
@@ -66,7 +289,7 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
               ? '<amount /> {{symbol}} imported'
               : '<amount /> {{symbol}} exported'
           }
-          values={{ symbol: mainToken?.symbol }}
+          values={{ symbol: symbolForDisplay }}
           components={{ amount }}
         />
       </TransactionDescriptionContainer>
@@ -75,15 +298,12 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
 
   if (
     transaction.txType === TransactionType.SEND &&
-    mainToken?.type === 'ERC1155'
+    mainToken &&
+    isNftTokenType(mainToken.type)
   ) {
     return (
       <TransactionDescriptionContainer>
-        <Trans
-          i18nKey={`<amount /> {{symbol}} Contract${'\u00A0'}Call`}
-          values={{ symbol: mainToken?.symbol }}
-          components={{ amount }}
-        />
+        {t('NFT sent')}
       </TransactionDescriptionContainer>
     );
   }
@@ -94,21 +314,23 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
         <TransactionDescriptionContainer>
           <Trans
             i18nKey="<amount /> {{symbol}} bridged"
-            values={{ symbol: mainToken?.symbol }}
+            values={{ symbol: symbolForDisplay }}
             components={{ amount }}
           />
         </TransactionDescriptionContainer>
       );
     }
     case TransactionType.SWAP: {
-      const sourceToken = transaction.tokens.find(
-        (token) =>
-          token.from?.address && userAddresses.includes(token.from.address),
+      const sourceToken = pickOutgoingToken(
+        transaction.tokens,
+        transaction,
+        userAddresses,
       );
 
-      const targetToken = transaction.tokens.find(
-        (token) =>
-          token.to?.address && userAddresses.includes(token.to.address),
+      const targetToken = pickIncomingToken(
+        transaction.tokens,
+        transaction,
+        userAddresses,
       );
 
       const sourceAmount = (
@@ -129,8 +351,14 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
           <Trans
             i18nKey="<sourceAmount /> {{sourceSymbol}} swapped for {{targetSymbol}}"
             values={{
-              sourceSymbol: sourceToken?.symbol,
-              targetSymbol: targetToken?.symbol,
+              sourceSymbol: displayTokenSymbol(
+                sourceToken,
+                networkNativeSymbol,
+              ),
+              targetSymbol: displayTokenSymbol(
+                targetToken,
+                networkNativeSymbol,
+              ),
             }}
             components={{ sourceAmount }}
           />
@@ -149,18 +377,25 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
         <TransactionDescriptionContainer>
           <Trans
             i18nKey="<amount /> {{symbol}} sent"
-            values={{ symbol: mainToken?.symbol }}
+            values={{ symbol: symbolForDisplay }}
             components={{ amount }}
           />
         </TransactionDescriptionContainer>
       );
     }
     case TransactionType.RECEIVE: {
+      if (mainToken && isNftTokenType(mainToken.type)) {
+        return (
+          <TransactionDescriptionContainer>
+            {t('NFT received')}
+          </TransactionDescriptionContainer>
+        );
+      }
       return (
         <TransactionDescriptionContainer>
           <Trans
             i18nKey="<amount /> {{symbol}} received"
-            values={{ symbol: mainToken?.symbol }}
+            values={{ symbol: symbolForDisplay }}
             components={{ amount }}
           />
         </TransactionDescriptionContainer>
@@ -189,15 +424,19 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
     }
     case TransactionType.TRANSFER:
     case TransactionType.UNKNOWN: {
-      if (
-        (mainToken && isNftTokenType(mainToken.type)) ||
-        transaction.isContractCall
-      ) {
+      if (mainToken && isNftTokenType(mainToken.type)) {
+        return (
+          <TransactionDescriptionContainer>
+            {transaction.isSender ? t('NFT sent') : t('NFT received')}
+          </TransactionDescriptionContainer>
+        );
+      }
+      if (transaction.isContractCall) {
         return (
           <TransactionDescriptionContainer>
             <Trans
               i18nKey={`<amount /> {{symbol}} Contract${'\u00A0'}Call`}
-              values={{ symbol: mainToken?.symbol }}
+              values={{ symbol: symbolForDisplay }}
               components={{ amount }}
             />
           </TransactionDescriptionContainer>
@@ -207,26 +446,39 @@ export const TransactionDescription: FC<Props> = ({ transaction }) => {
   }
 
   if (transaction.isSender) {
+    if (mainToken && isNftTokenType(mainToken.type)) {
+      return (
+        <TransactionDescriptionContainer>
+          {t('NFT sent')}
+        </TransactionDescriptionContainer>
+      );
+    }
     return (
       <TransactionDescriptionContainer>
         <Trans
           i18nKey="<amount /> {{symbol}} sent"
-          values={{ symbol: mainToken?.symbol }}
-          components={{ amount }}
-        />
-      </TransactionDescriptionContainer>
-    );
-  } else {
-    return (
-      <TransactionDescriptionContainer>
-        <Trans
-          i18nKey="<amount /> {{symbol}} received"
-          values={{ symbol: mainToken?.symbol }}
+          values={{ symbol: symbolForDisplay }}
           components={{ amount }}
         />
       </TransactionDescriptionContainer>
     );
   }
+  if (mainToken && isNftTokenType(mainToken.type)) {
+    return (
+      <TransactionDescriptionContainer>
+        {t('NFT received')}
+      </TransactionDescriptionContainer>
+    );
+  }
+  return (
+    <TransactionDescriptionContainer>
+      <Trans
+        i18nKey="<amount /> {{symbol}} received"
+        values={{ symbol: symbolForDisplay }}
+        components={{ amount }}
+      />
+    </TransactionDescriptionContainer>
+  );
 };
 
 const StyledTypography = styled(Typography)({

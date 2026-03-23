@@ -45,6 +45,7 @@ import {
   caipToChainId,
   chainIdToCaip,
   decorateWithCaipId,
+  withDefaultNativeTokenSymbol,
   getSyncDomain,
   getExponentialBackoffDelay,
   getProviderForNetwork,
@@ -845,7 +846,7 @@ export class NetworkService implements OnLock, OnStorageReady {
     return Object.fromEntries(
       Object.entries(chainList ?? {}).map(([chainId, network]) => [
         chainId,
-        decorateWithCaipId(network),
+        decorateWithCaipId(withDefaultNativeTokenSymbol(network)),
       ]),
     );
   };

@@ -75,6 +75,8 @@ export * from './network/isBitcoinNetwork';
 export * from './network/isEthereumNetwork';
 export * from './network/isSolanaNetwork';
 export * from './network/isValidHttpHeader';
+export * from './network/withDefaultNativeTokenSymbol';
+export * from './network/buildNetworkLookupKeys';
 export * from './newsletter';
 export * from './nfts/getSmallImageForNFT';
 export * from './nfts/isNFT';
