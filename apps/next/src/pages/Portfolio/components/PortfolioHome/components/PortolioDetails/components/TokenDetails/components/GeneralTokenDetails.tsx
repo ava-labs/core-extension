@@ -4,7 +4,7 @@ import { ActivityFilterSelector } from '../../ActivityTab/components/ActivityFil
 import { NetworkWithCaipId } from '@core/types';
 import { FC, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TransactionListSkeleton } from '../../ActivityTab/components/TransactionList';
+import { PortfolioTabLoadingSpinner } from '../../PortfolioTabLoadingSpinner';
 import { HistoryList } from '../../ActivityTab/components/TransactionList/components/HistoryList';
 import { ActivityFilter } from '../../ActivityTab/types';
 import { useTokenHistory } from '../hooks/useTokenHistory';
@@ -52,7 +52,7 @@ export const GeneralTokenDetails: FC<Props> = ({
           />
         </Slide>
       </Stack>
-      <Suspense fallback={<TransactionListSkeleton />}>
+      <Suspense fallback={<PortfolioTabLoadingSpinner />}>
         <HistoryList filter={filter} transactionHistory={transactionHistory} />
         <Stack mt="auto" pt={0.5}>
           <ExplorerButton network={network}>

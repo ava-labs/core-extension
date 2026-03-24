@@ -4,10 +4,8 @@ import { useIsMainnet } from '@core/ui';
 import { FC, Suspense, useState } from 'react';
 import { ActivityFilterSelector } from './components/ActivityFilterSelector';
 import { NetworkFilterSelector } from './components/NetworkFilterSelector';
-import {
-  TransactionList,
-  TransactionListSkeleton,
-} from './components/TransactionList';
+import { PortfolioTabLoadingSpinner } from '../PortfolioTabLoadingSpinner';
+import { TransactionList } from './components/TransactionList';
 import { useUrlState } from './hooks/useUrlState';
 import { ActivityFilter } from './types';
 
@@ -42,7 +40,7 @@ export const ActivityTab: FC = () => {
           }}
         />
       </Stack>
-      <Suspense fallback={<TransactionListSkeleton />}>
+      <Suspense fallback={<PortfolioTabLoadingSpinner />}>
         <TransactionList filter={filter} networkChainId={networkChainId} />
       </Suspense>
     </Stack>

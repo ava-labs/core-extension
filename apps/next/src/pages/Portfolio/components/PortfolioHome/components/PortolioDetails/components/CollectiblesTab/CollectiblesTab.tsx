@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Stack } from '@avalabs/k2-alpine';
+import { Box, Stack } from '@avalabs/k2-alpine';
 import { NftTokenWithBalance } from '@avalabs/vm-module-types';
 import { useAccountsContext, useNetworkContext, useNfts } from '@core/ui';
 import { isEmpty } from 'lodash';
@@ -8,6 +8,7 @@ import { CollectibleCard } from './components/CollectibleCard';
 import { CollectibleListEmpty } from './components/CollectibleListEmpty';
 import { CollectibleToolbar } from './components/CollectibleToolbar';
 import { CollectiblesManagePopup } from './components/CollectiblesManagePopup';
+import { PortfolioTabLoadingSpinner } from '../PortfolioTabLoadingSpinner';
 import { VirtualizedGrid } from './components/VirtualizedGrid';
 import {
   FilterType,
@@ -116,17 +117,7 @@ export function CollectiblesTab() {
       </Stack>
       <Box sx={{ width: '100%' }}>
         {loading ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              mt: 5,
-            }}
-          >
-            <CircularProgress size={24} />
-          </Box>
+          <PortfolioTabLoadingSpinner />
         ) : isEmpty(formattedCollectibles) ? (
           <CollectibleListEmpty title={t('No collectibles')} />
         ) : isEmpty(processedCollectibles) ? (
