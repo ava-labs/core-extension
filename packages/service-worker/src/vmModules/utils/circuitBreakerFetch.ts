@@ -3,6 +3,7 @@ import { getExponentialBackoffDelay } from '@core/common';
 class RequestBreaker {
   #originAttemptTracker = new Map<string, number>();
   #breakingState = new Map<string, boolean>();
+  #maxDelay = 30000;
 
   /**
    * Asserts that the origin is not in a breaking state.
@@ -31,7 +32,7 @@ class RequestBreaker {
     this.#breakingState.delete(origin);
   }
 
-  trigger(url: string) {
+  trigger(url: string, headers: Headers) {
     const { origin } = new URL(url);
 
     this.#breakingState.set(origin, true);
@@ -40,7 +41,7 @@ class RequestBreaker {
     const nextAttempt = attempt + 1;
     this.#originAttemptTracker.set(origin, nextAttempt);
 
-    const delay = getExponentialBackoffDelay({ attempt: nextAttempt });
+    const delay = this.#getDelay(origin, headers);
     setTimeout(() => this.#breakingState.set(origin, false), delay);
   }
 
@@ -48,6 +49,31 @@ class RequestBreaker {
     return request instanceof URL
       ? request
       : new URL(typeof request === 'string' ? request : request.url);
+  }
+
+  #getDelay(origin: string, headers?: Headers): number {
+    if (!headers || !headers.has('Retry-After')) {
+      return getExponentialBackoffDelay({
+        attempt: this.#originAttemptTracker.get(origin)!,
+        maxDelay: this.#maxDelay,
+      });
+    }
+
+    const retryAfter = (headers.get('Retry-After') ?? '0').trim();
+
+    if (/^\d+$/.test(retryAfter)) {
+      const seconds = Number.parseInt(retryAfter, 10);
+      return Math.min(seconds * 1000, this.#maxDelay);
+    }
+
+    const dateMs = Date.parse(retryAfter);
+
+    if (Number.isNaN(dateMs)) {
+      return this.#getDelay(origin);
+    }
+
+    const delta = Math.max(0, dateMs - Date.now());
+    return Math.min(delta, this.#maxDelay);
   }
 }
 
@@ -68,7 +94,7 @@ export async function circuitBreakerFetch(
   const response = await fetch(input, init);
 
   if (breaker.shouldTrigger(response)) {
-    breaker.trigger(response.url);
+    breaker.trigger(response.url, response.headers);
   } else {
     breaker.reset(response.url);
   }

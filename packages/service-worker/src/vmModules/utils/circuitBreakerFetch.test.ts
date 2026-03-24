@@ -74,11 +74,11 @@ describe('circuitBreakerFetch', () => {
       await circuitBreakerFetch(`${base}/c`);
 
       expect(first.status).toBe(503);
-      expect(getExponentialBackoffDelay).toHaveBeenCalledWith({ attempt: 1 });
-      expect(secondOutcome).toBeInstanceOf(Error);
-      expect((secondOutcome as Error).message).toBe(
-        `The request to ${base}/b has been stopped by the circuit breaker.`,
+      expect(getExponentialBackoffDelay).toHaveBeenCalledWith(
+        expect.objectContaining({ attempt: 1 }),
       );
+      expect(secondOutcome).toBeInstanceOf(Error);
+      expect((secondOutcome as Error).name).toBe('RequestBreakerError');
       expect(fetch).toHaveBeenCalledTimes(2);
     } finally {
       jest.useRealTimers();
@@ -105,9 +105,7 @@ describe('circuitBreakerFetch', () => {
       await circuitBreakerFetch(`${base}/after`);
 
       expect(secondOutcome).toBeInstanceOf(Error);
-      expect((secondOutcome as Error).message).toMatch(
-        /The request to .* has been stopped by the circuit breaker\./,
-      );
+      expect((secondOutcome as Error).name).toBe('RequestBreakerError');
       expect(fetch).toHaveBeenCalledTimes(2);
     } finally {
       jest.useRealTimers();
@@ -158,15 +156,24 @@ describe('circuitBreakerFetch', () => {
       await circuitBreakerFetch(`${base}/3`);
 
       expect(getExponentialBackoffDelay).toHaveBeenCalledTimes(3);
-      expect(getExponentialBackoffDelay).toHaveBeenNthCalledWith(1, {
-        attempt: 1,
-      });
-      expect(getExponentialBackoffDelay).toHaveBeenNthCalledWith(2, {
-        attempt: 2,
-      });
-      expect(getExponentialBackoffDelay).toHaveBeenNthCalledWith(3, {
-        attempt: 3,
-      });
+      expect(getExponentialBackoffDelay).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          attempt: 1,
+        }),
+      );
+      expect(getExponentialBackoffDelay).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          attempt: 2,
+        }),
+      );
+      expect(getExponentialBackoffDelay).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({
+          attempt: 3,
+        }),
+      );
     } finally {
       jest.useRealTimers();
     }
@@ -199,13 +206,110 @@ describe('circuitBreakerFetch', () => {
       await circuitBreakerFetch(`${base}/again`);
 
       expect(droppedOutcome).toBeInstanceOf(Error);
-      expect((droppedOutcome as Error).message).toMatch(
-        /The request to .* has been stopped by the circuit breaker\./,
-      );
+      expect((droppedOutcome as Error).name).toBe('RequestBreakerError');
       expect(getExponentialBackoffDelay).toHaveBeenCalledTimes(1);
       expect(fetch).toHaveBeenCalledTimes(3);
     } finally {
       jest.useRealTimers();
     }
+  });
+
+  describe('when Retry-After header', () => {
+    it('is a number, it uses the value to calculate delay', async () => {
+      const headers = new Headers({ 'Retry-After': '1' });
+      const getHeaderSpy = jest.spyOn(headers, 'get');
+      jest.useFakeTimers();
+      const setTimeoutSpy = jest.spyOn(globalThis, 'setTimeout');
+      const base = getRandomOrigin();
+      jest.mocked(fetch).mockResolvedValue(
+        mockResponse({
+          ok: false,
+          status: 500,
+          url: `${base}/`,
+          headers,
+        }),
+      );
+
+      try {
+        await circuitBreakerFetch(`${base}/`);
+        await circuitBreakerFetch(`${base}/`).catch((e) => e);
+
+        expect(getExponentialBackoffDelay).not.toHaveBeenCalled();
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(getHeaderSpy).toHaveBeenCalledWith('Retry-After');
+        expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+        setTimeoutSpy.mockRestore();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('is a date, it uses the value to calculate delay', async () => {
+      const headers = new Headers({
+        'Retry-After': 'Wed, 24 Mar 2026 12:00:00 GMT',
+      });
+      const getHeaderSpy = jest.spyOn(headers, 'get');
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('Wed, 24 Mar 2026 11:59:59 GMT'));
+      const setTimeoutSpy = jest.spyOn(globalThis, 'setTimeout');
+      const base = getRandomOrigin();
+      jest.mocked(fetch).mockResolvedValue(
+        mockResponse({
+          ok: false,
+          status: 500,
+          url: `${base}/`,
+          headers,
+        }),
+      );
+
+      try {
+        await circuitBreakerFetch(`${base}/`);
+        await circuitBreakerFetch(`${base}/`).catch((e) => e);
+
+        expect(getExponentialBackoffDelay).not.toHaveBeenCalled();
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(getHeaderSpy).toHaveBeenCalledWith('Retry-After');
+        expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+        setTimeoutSpy.mockRestore();
+      } finally {
+        jest.useRealTimers();
+      }
+    });
+
+    it('is invalid, it falls back to exponential backoff', async () => {
+      jest.useFakeTimers();
+      const headers = new Headers({
+        'Retry-After': 'invalid',
+      });
+      const getHeaderSpy = jest.spyOn(headers, 'get');
+      const setTimeoutSpy = jest.spyOn(globalThis, 'setTimeout');
+      const base = getRandomOrigin();
+      jest.mocked(fetch).mockResolvedValue(
+        mockResponse({
+          ok: false,
+          status: 500,
+          url: `${base}/`,
+          headers,
+        }),
+      );
+
+      try {
+        await circuitBreakerFetch(`${base}/`);
+        await circuitBreakerFetch(`${base}/`).catch((e) => e);
+
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(getExponentialBackoffDelay).toHaveBeenCalledWith(
+          expect.objectContaining({ attempt: 1 }),
+        );
+        expect(getHeaderSpy).toHaveBeenCalledWith('Retry-After');
+        expect(setTimeoutSpy).toHaveBeenCalledWith(
+          expect.any(Function),
+          WAIT_TIME,
+        );
+      } finally {
+        jest.useRealTimers();
+        setTimeoutSpy.mockRestore();
+      }
+    });
   });
 });
