@@ -2,6 +2,7 @@ export * from './useAnalyticsConsentCallbacks';
 export * from './useAppDimensions';
 export * from './useApprovalHelpers';
 export * from './useApproveAction';
+export * from './useBatchApproveAction';
 export * from './useBalanceTotalInCurrency';
 export * from './useCameraPermissions';
 export * from './useCoinGeckoId';
