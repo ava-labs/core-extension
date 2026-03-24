@@ -5,8 +5,10 @@ import Transport, {
 import {
   AVALANCHE_LEDGER_APP_NAME,
   ETHEREUM_LEDGER_APP_NAME,
+  SOLANA_LEDGER_APP_NAME,
   ensureAvalancheLedgerAppOpen,
   ensureEthereumLedgerAppOpen,
+  ensureSolanaLedgerAppOpen,
   getLedgerActiveApplication,
   getLedgerAutoOpenAppFailedMessage,
   getLedgerQuitAppFailedMessage,
@@ -303,6 +305,62 @@ describe('ensureEthereumLedgerAppOpen', () => {
     await assertion;
 
     expect(send).toHaveBeenCalledTimes(3);
+    jest.useRealTimers();
+  });
+});
+
+describe('ensureSolanaLedgerAppOpen', () => {
+  it('only queries the current app when Solana is already open', async () => {
+    const send = jest.fn() as jest.MockedFunction<Transport['send']>;
+    send.mockResolvedValueOnce(
+      encodeGetAppAndVersion(SOLANA_LEDGER_APP_NAME, '1.0.0'),
+    );
+
+    await ensureSolanaLedgerAppOpen({ send });
+
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send).toHaveBeenCalledWith(0xb0, 0x01, 0x00, 0x00);
+  });
+
+  it('sends openApp when the dashboard (BOLOS) is active', async () => {
+    const send = jest.fn() as jest.MockedFunction<Transport['send']>;
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
+    send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
+    send.mockResolvedValueOnce(
+      encodeGetAppAndVersion(SOLANA_LEDGER_APP_NAME, '1.0.0'),
+    );
+
+    await ensureSolanaLedgerAppOpen({ send });
+
+    expect(send).toHaveBeenCalledTimes(3);
+    expect(send).toHaveBeenNthCalledWith(
+      2,
+      0xe0,
+      0xd8,
+      0x00,
+      0x00,
+      Buffer.from(SOLANA_LEDGER_APP_NAME, 'ascii'),
+    );
+  });
+
+  it('quits a non-dashboard app before opening Solana', async () => {
+    jest.useFakeTimers();
+    const send = jest.fn() as jest.MockedFunction<Transport['send']>;
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('Avalanche', '1.0.0'));
+    send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
+    send.mockResolvedValueOnce(encodeGetAppAndVersion('BOLOS', '2.0.0'));
+    send.mockResolvedValueOnce(Buffer.from([0x90, 0x00]));
+    send.mockResolvedValueOnce(
+      encodeGetAppAndVersion(SOLANA_LEDGER_APP_NAME, '1.0.0'),
+    );
+
+    const done = ensureSolanaLedgerAppOpen({ send });
+    const assertion = expect(done).resolves.toBeUndefined();
+    await jest.runAllTimersAsync();
+    await assertion;
+
+    expect(send).toHaveBeenCalledTimes(5);
+    expect(send).toHaveBeenNthCalledWith(2, 0xb0, 0xa7, 0x00, 0x00);
     jest.useRealTimers();
   });
 });

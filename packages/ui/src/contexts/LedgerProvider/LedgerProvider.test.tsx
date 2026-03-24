@@ -28,9 +28,13 @@ import {
   DerivationPath,
   getLedgerAppInfo,
   getPubKeyFromTransport,
+  getSolanaPublicKeyFromLedger,
   quitLedgerApp,
 } from '@avalabs/core-wallets-sdk';
-import { ensureAvalancheLedgerAppOpen } from '@core/common';
+import {
+  ensureAvalancheLedgerAppOpen,
+  ensureSolanaLedgerAppOpen,
+} from '@core/common';
 import { getAvalancheLedgerExtendedPublicKey } from './getAvalancheLedgerExtendedPublicKey';
 import { LockEvents } from '@core/types';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
@@ -57,6 +61,7 @@ jest.mock('@core/common', () => ({
   isLockStateChangedEvent: (evt: { name: string }) =>
     evt.name === LockEvents.LOCK_STATE_CHANGED,
   ensureAvalancheLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
+  ensureSolanaLedgerAppOpen: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('./getAvalancheLedgerExtendedPublicKey');
 jest.mock('@avalabs/hw-app-avalanche');
@@ -792,6 +797,10 @@ describe('src/contexts/LedgerProvider.tsx', () => {
   });
 
   describe('getPublicKey', () => {
+    beforeEach(() => {
+      jest.mocked(ensureSolanaLedgerAppOpen).mockResolvedValue(undefined);
+    });
+
     it('throws error if transport is missing', async () => {
       (React.useRef as jest.Mock).mockReturnValue({ current: undefined });
       renderTestComponent();
@@ -803,6 +812,7 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           'no device detected',
         );
         expect(getPubKeyFromTransport).not.toHaveBeenCalled();
+        expect(ensureSolanaLedgerAppOpen).not.toHaveBeenCalled();
       });
     });
 
@@ -821,6 +831,21 @@ describe('src/contexts/LedgerProvider.tsx', () => {
           DerivationPath.BIP44,
           'EVM',
         );
+        expect(ensureSolanaLedgerAppOpen).not.toHaveBeenCalled();
+      });
+    });
+
+    it('ensures the Solana app is open before deriving SVM public keys', async () => {
+      const pubkey = Buffer.from([1, 2, 3]);
+      jest.mocked(getSolanaPublicKeyFromLedger).mockResolvedValueOnce(pubkey);
+      renderTestComponent(0, DerivationPath.LedgerLive, 'SVM');
+
+      fireEvent.click(screen.getByTestId('getPublicKey'));
+
+      await waitFor(() => {
+        expect(ensureSolanaLedgerAppOpen).toHaveBeenCalledWith(refMock);
+        expect(getSolanaPublicKeyFromLedger).toHaveBeenCalledWith(0, refMock);
+        expect(getPubKeyFromTransport).not.toHaveBeenCalled();
       });
     });
   });

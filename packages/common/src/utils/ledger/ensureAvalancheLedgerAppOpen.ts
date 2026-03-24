@@ -9,6 +9,9 @@ export const AVALANCHE_LEDGER_APP_NAME = 'Avalanche';
 /** BOLOS name for the Ethereum app (must match `getAppAndVersion`). */
 export const ETHEREUM_LEDGER_APP_NAME = 'Ethereum';
 
+/** BOLOS name for the Solana app (must match `getAppAndVersion`). */
+export const SOLANA_LEDGER_APP_NAME = 'Solana';
+
 /** Ledger DMK `GetAppAndVersionCommand` — CLA/INS. */
 const GET_APP_AND_VERSION_CLA = 0xb0;
 const GET_APP_AND_VERSION_INS = 0x01;
@@ -265,5 +268,19 @@ export async function ensureEthereumLedgerAppOpen(
     transport,
     ETHEREUM_LEDGER_APP_NAME,
     `The ${ETHEREUM_LEDGER_APP_NAME} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`,
+  );
+}
+
+/**
+ * Same switching behavior as {@link ensureAvalancheLedgerAppOpen} for the
+ * Solana Ledger app (`@ledgerhq/hw-app-solana`).
+ */
+export async function ensureSolanaLedgerAppOpen(
+  transport: Pick<Transport, 'send'>,
+): Promise<void> {
+  await ensureLedgerAppOpen(
+    transport,
+    SOLANA_LEDGER_APP_NAME,
+    `The ${SOLANA_LEDGER_APP_NAME} app is not installed on this Ledger device. Install it from Ledger Live, then try again.`,
   );
 }

@@ -2,6 +2,7 @@ import AppAvalanche from '@avalabs/hw-app-avalanche';
 import { ExtensionRequest } from '@core/types';
 import {
   ensureAvalancheLedgerAppOpen,
+  ensureSolanaLedgerAppOpen,
   isLockStateChangedEvent,
   resolve,
   withTimeout,
@@ -86,6 +87,10 @@ const LedgerContext = createContext<{
    * BOLOS open-app to Avalanche (if needed) and refresh `appType` / `appVersion` from the device.
    */
   prepareTransportForAvalancheOnboarding(): Promise<void>;
+  /**
+   * Quit / open-app to Solana (if needed) and refresh `appType` / `appVersion` from the device.
+   */
+  prepareTransportForSolanaOnboarding(): Promise<void>;
   initLedgerTransport(): Promise<void>;
   hasLedgerTransport: boolean;
   appType: LedgerAppType;
@@ -462,22 +467,29 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
     await initLedgerApp(transport);
   }, [initLedgerApp]);
 
+  const prepareTransportForSolanaOnboarding = useCallback(async () => {
+    if (!transportRef.current) {
+      throw new Error('no device detected');
+    }
+    const transport = transportRef.current;
+    await ensureSolanaLedgerAppOpen(transport);
+    await initLedgerApp(transport);
+  }, [initLedgerApp]);
+
   const getPublicKey = useCallback(
     async (accountIndex: number, pathType: DerivationPath, vm: VM | 'SVM') => {
       if (!transportRef.current) {
         throw new Error('no device detected');
       }
 
+      const transport = transportRef.current;
+
       if (vm === 'SVM') {
-        return getSolanaPublicKeyFromLedger(accountIndex, transportRef.current);
+        await ensureSolanaLedgerAppOpen(transport);
+        return getSolanaPublicKeyFromLedger(accountIndex, transport);
       }
 
-      return getPubKeyFromTransport(
-        transportRef.current,
-        accountIndex,
-        pathType,
-        vm,
-      );
+      return getPubKeyFromTransport(transport, accountIndex, pathType, vm);
     },
     [],
   );
@@ -635,6 +647,7 @@ export function LedgerContextProvider({ children }: PropsWithChildren) {
         popDeviceSelection,
         getExtendedPublicKey,
         prepareTransportForAvalancheOnboarding,
+        prepareTransportForSolanaOnboarding,
         initLedgerTransport,
         hasLedgerTransport: !!transportRef.current,
         wasTransportAttempted,
